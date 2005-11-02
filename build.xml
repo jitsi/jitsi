@@ -10,7 +10,7 @@
     <property name="doc" value="doc"/>
     <property name="java.doc" value="${doc}/api"/>
     <property name="lib" value="lib"/>
-	<property name="native.libs" value="lib/native"/>
+    <property name="native.libs" value="lib/native"/>
     <property name="src" value="src"/>
     <property name="src2" value="test"/>
     <property name="testsrc" value="${src2}"/>
@@ -19,7 +19,7 @@
     <property name="utest.bin" value="sip-communicator.utest.bin"/>
     <property name="test.reports.dir" value="test-reports"/>
 
-    <!-- windows -->
+    <!-- windows  -->
     <condition property="jmf.home" value="${lib}/jmf-win">
         <os family="windows"/>
     </condition>
