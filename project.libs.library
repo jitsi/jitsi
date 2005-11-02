@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+  <!--JBuilder Library Definition File-->
+  <fullname>project.libs</fullname>
+  <class>
+    <path>[lib/bundle/exportfilter.jar]</path>
+    <path>[lib/bundle/framework.jar]</path>
+    <path>[lib/bundle/grunt.jar]</path>
+    <path>[lib/bundle/importfilter.jar]</path>
+    <path>[lib/bundle/importrange.jar]</path>
+    <path>[lib/bundle/junit_all-1.0.0.jar]</path>
+    <path>[lib/bundle/junit.jar]</path>
+    <path>[lib/bundle/listener.jar]</path>
+    <path>[lib/bundle/shell.jar]</path>
+    <path>[lib/bundle/shellgui.jar]</path>
+    <path>[lib/bundle/shellplugin.jar]</path>
+    <path>[lib/bundle/shelltui.jar]</path>
+    <path>[lib/bundle/simple.jar]</path>
+    <path>[lib/bundle/tablelayout.jar]</path>
+    <path>[lib/JainSipApi1.1.jar]</path>
+    <path>[lib/junit.jar]</path>
+    <path>[lib/moduleloader.jar]</path>
+    <path>[lib/nist-sdp-1.0.jar]</path>
+    <path>[lib/nist-sip-1.2.jar]</path>
+    <path>[lib/oscar.jar]</path>
+    <path>[lib/servicebinder.jar]</path>
+    <path>[lib/osgi.jar]</path>
+    <path>[lib/Stun4J.jar]</path>
+    <path>[lib/bundle/bundlerepository.jar]</path>
+  </class>
+  <source>
+    <path>../../noscar/src</path>
+  </source>
+  <lastmodsaved>1122567160157</lastmodsaved>
+</library>
