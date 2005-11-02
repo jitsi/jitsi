@@ -1,0 +1,18 @@
+Bundle-Activator: net.java.sip.communicator.slick.configuration.ConfigurationServiceLick
+Bundle-Name: Configuration Service Implementation Compatibility Kit
+Bundle-Description: A Service Implementation Compatibility Kit for the Configuration Service
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.configuration.event,
+ junit.framework,
+ org.osgi.framework,
+ org.w3c.dom,
+ javax.xml.parsers,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.util.xml,
+ javax.xml.transform,
+ javax.xml.transform.dom,
+ javax.xml.transform.stream,
+ org.apache.xml.serializer,
+Export-Package: net.java.sip.communicator.slick.configuration,

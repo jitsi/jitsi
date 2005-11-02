@@ -1,0 +1,20 @@
+Bundle-Activator: net.java.sip.communicator.slick.netaddr.NetworkAddressManagerServiceLick
+Bundle-Name: Network Address Manager Service Implementation Compatibility Kit
+Bundle-Description: A Service Implementation Compatibility Kit for the Network Adress Manager Service
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: net.java.sip.communicator.util,
+ net.java.stun4j.client,
+ net.java.stun4j.StunAddress,
+ net.java.stun4j.StunException,
+ net.java.sip.communicator.service.netaddr,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.configuration.event,
+ junit,
+ junit.framework,
+ junit.swingui,
+ junit.textui,
+ junit.awtui,
+ junit.extensions,
+ junit.runner,
+ org.osgi.framework,

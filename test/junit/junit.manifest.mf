@@ -1,0 +1,11 @@
+Bundle-Name: The JUnit Framework
+Bundle-Description: A bundle that exports junit packages
+Bundle-Vendor: JUnit and sip-communicator.org
+Bundle-Version: 0.0.1
+Export-Package: junit,
+ junit.framework,
+ junit.swingui,
+ junit.textui,
+ junit.awtui,
+ junit.extensions,
+ junit.runner,
