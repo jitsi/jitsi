@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<skinlf-themepack require="1.2.4">
+
+    <property name="EnableBorders" value="true" />
+	<property name="JDesktopPane.backgroundEnabled" value="false" />
+	<property name="ScrollBar.alternateLayout" value="true" />
+	<property name="PopupMenu.animation" value="false"/>
+	<property name="JSplitPane.alternateUI" value="true" />
+	
+	<font name="Global" value="SansSerif,0,11"/>
+
+	<skin>
+		<skin url="gtk/gtkrc"></skin>
+		<skin url="kde/kde.themerc"></skin>
+	</skin>
+
+</skinlf-themepack>

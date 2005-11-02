@@ -1,0 +1,562 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.netaddr;
+
+import java.net.*;
+import java.util.Enumeration;
+
+import net.java.sip.communicator.util.*;
+import net.java.stun4j.client.SimpleAddressDetector;
+import net.java.stun4j.StunAddress;
+import net.java.stun4j.StunException;
+import net.java.sip.communicator.service.netaddr.*;
+import net.java.sip.communicator.service.configuration.event.*;
+import net.java.sip.communicator.service.configuration.*;
+
+
+
+
+
+/**
+ *
+ * @author Emil Ivov
+ */
+public class NetworkAddressManagerServiceImpl
+    implements NetworkAddressManagerService, PropertyChangeListener
+{
+    private static  Logger logger = Logger.getLogger(NetworkAddressManagerServiceImpl.class);
+
+     // General properties for the Network Address Manager
+    private static final String PROP_STUN_SERVER_ADDRESS
+                            = "net.java.sip.communicator.STUN_SERVER_ADDRESS";
+    private static final  String PROP_STUN_SERVER_PORT
+                            = "net.java.sip.communicator.STUN_SERVER_PORT";
+    private static final String PROP_PREF_IPV6
+                            =  "java.net.preferIPv6Addresses";
+    private static final String PROP_PREF_IPV4
+                            =  "java.net.preferIPv4Stack";
+    private static final String PROP_PREFERRED_NET_ADDRESS
+               = "net.java.sip.communicator.common.PREFERRED_NETWORK_ADDRESS";
+    private static final String PROP_PREFERRED_NET_IFACE
+               = "net.java.sip.communicator.common.PREFERRED_NETWORK_INTERFACE";
+
+     //reference to the bundles used in this class
+    private ConfigurationService configurationService = null;
+    private NetworkAddressManagerService  networkAddressManagerService= null;
+
+
+    private SimpleAddressDetector detector = null;
+    private boolean useStun = true;
+    private static final int RANDOM_PORT = 55055;
+    private static final String WINDOWS_AUTO_CONFIGURED_ADDRESS_PREFIX = "169";
+
+
+
+    /**
+     * When
+     *
+     */
+    public void propertyChange(PropertyChangeEvent event)
+    {
+        try
+        {
+            logger.logEntry();
+            if(event.getPropertyName()==PROP_STUN_SERVER_ADDRESS)
+            {
+                logger.debug(PROP_STUN_SERVER_ADDRESS + "Change state");
+                //Do an action
+                start();
+
+            }
+            else if(event.getPropertyName()==PROP_STUN_SERVER_PORT)
+            {
+                logger.debug(PROP_STUN_SERVER_PORT + "Change state");
+                //Do an action
+                start();
+
+            }
+            else
+            {
+                logger.debug("Something Change state but it is "
+                             +"not determine what !");
+                start();
+            }
+        }
+        finally
+        {
+             logger.logExit();
+        }
+    }
+
+
+    /**
+     * The constructor nothing to do now, because we don't have access to the
+     * Configuration service yet
+     */
+     public NetworkAddressManagerServiceImpl()
+     {
+
+         // put a listener on propertyStunServerAddress and
+         //propertyStunServerPort properties
+         // set them to null il tey doesn't exist
+
+     }
+
+    /**
+    * get a reference to the configuration service
+    * and add listeners on propertyStunServerAddress and propertyStunServerPort
+    * @param configuration ConfigurationService reference to the bundle
+    * configuration service
+    */
+     protected void setConfigurationService(ConfigurationService configuration)
+     {
+         configurationService = configuration;
+
+         try
+         {
+             logger.logEntry();
+             configurationService.addPropertyChangeListener(
+                PROP_STUN_SERVER_ADDRESS,this);
+             configurationService.addPropertyChangeListener(
+                PROP_STUN_SERVER_PORT,this);
+             configurationService.addPropertyChangeListener(
+                PROP_PREF_IPV6,this);
+             configurationService.addPropertyChangeListener(
+                PROP_PREF_IPV4,this);
+         }
+         catch(Exception e)
+         {
+             logger.error("NetworkAddressManagerServiceImpl "
+                          +"problem on listem properties : "+ e);
+         }
+
+
+
+
+         finally
+         {
+             logger.logExit();
+         }
+     }
+
+     /**
+     * Initializes the address manager and any underlying libs.
+     *
+     */
+    public void start()
+    {
+        try
+        {
+            logger.logEntry();
+             // init stun
+            //InetAddress stunAddressStr = null;
+            String stunAddressStr = null;
+            int port = -1;
+
+            try
+            {
+                stunAddressStr =(String) configurationService.getProperty(
+                                                    PROP_STUN_SERVER_ADDRESS);
+                Integer portItr =(Integer) configurationService.getProperty(
+                                                    PROP_STUN_SERVER_PORT);
+
+                // in case the user prefers ipv6 addresses we don't want
+                // to use stun
+                boolean preferIPv6Addresses ;
+                if(configurationService.getProperty(PROP_PREF_IPV6) == null
+                   || (((Boolean)configurationService.getProperty(
+                                    PROP_PREF_IPV6)).booleanValue())==false)
+                {
+                    preferIPv6Addresses = false;
+                }
+                else
+                {
+                    preferIPv6Addresses = true;
+                }
+
+                if (stunAddressStr == null
+                    || portItr == null
+                    || preferIPv6Addresses)
+                {
+                    useStun = false;
+
+                    //don't throw an exception as this is most probably the user
+                    //that doesn't want stun
+                    //throw new Exception("STUN address or port were null");
+                    return;
+                }
+                else
+                    useStun = true;
+
+                port = portItr.intValue();
+
+            }
+            catch (Throwable ex)
+            {
+                    logger.error("Failed to init STUN service and it will "
+                                 +"stay disabled. Error was:",ex);
+                    useStun = false;
+            }
+            try
+            {
+                detector = new SimpleAddressDetector(
+                    new StunAddress(stunAddressStr,port));
+            }
+            catch(Exception e)
+            {
+                logger.debug("can't create the StunDetector ! "+e);
+            }
+
+            if (logger.isDebugEnabled())
+                    logger.debug("Created a STUN Address detector for the "
+                                 +"following STUN server: "
+                                 + stunAddressStr + ":" + port);
+            try {
+                detector.start();
+                logger.debug("STUN server started;");
+            }
+            catch (StunException ex) {
+                logger.error(
+                    "Failed to start the STUN Address Detector at address:"
+                    +stunAddressStr + ":" + port, ex);
+                detector = null;
+                useStun = false;
+            }
+        }
+        finally
+        {
+            logger.logExit();
+        }
+    }
+
+
+
+    /**
+     *
+     * @return an InetAddress instance representing the local host or null
+     *   if no IP address for the host could be found
+     */
+    public InetAddress getLocalHost()
+    {
+        return getLocalHost(true);
+    }
+
+
+    /**
+     * Returns a localhostAddress.
+     *
+     * @param anyAddressIsAccepted is 0.0.0.0 accepted as a return value.
+     * @return the address that was detected the address of the localhost.
+     */
+    public InetAddress getLocalHost(boolean anyAddressIsAccepted)
+    {
+        try
+        {
+            logger.logEntry();
+            //	(though InetAddress itself is not really mobile but in case it
+            //gets fixed).
+            InetAddress localHost = null;
+            InetAddress mappedAddress = null;
+            InetAddress linkLocalAddress = null;
+            InetAddress publicAddress = null;
+            String      selectedInterface = null;
+
+            boolean preferIPv4Stack ;
+            if(configurationService.getProperty(PROP_PREF_IPV4) == null
+               || (((Boolean)configurationService.
+                    getProperty(PROP_PREF_IPV4)).booleanValue())==false)
+            {
+                preferIPv4Stack = false;
+            }
+            else
+            {
+                preferIPv4Stack = true;
+            }
+
+
+            try
+            {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("------------- NAMImpl.getLocalHost-----");
+                    logger.debug("propertyIPv4Stack="
+                        + configurationService.getProperty(PROP_PREF_IPV4));
+                    logger.debug("propertyStunServerAddress = "
+                        + configurationService.getProperty(
+                                     PROP_STUN_SERVER_ADDRESS));
+                    logger.debug("propertyStunServerPort = "
+                        + configurationService.getProperty(
+                                     PROP_STUN_SERVER_PORT));
+                    logger.debug("propertIpV6Pref = "
+                        + configurationService.getProperty(PROP_PREF_IPV6));
+                    logger.debug("Use Stun  ::  "+useStun);
+                    logger.debug("------------------------------");
+                }
+
+
+                    //check whether we have a public address that matches one of
+                    //the local interfaces if not - return the first one that
+                    //is not the loopback
+                try
+                {
+                    //retrieve a STUN binding if possible
+                    if (useStun)
+                    {
+                        StunAddress stunMappedAddress =
+                            queryStunServer(RANDOM_PORT);
+
+                        if(stunMappedAddress == null)
+                        {
+                            mappedAddress = null;
+                        }
+                        else
+                        {
+                            mappedAddress = queryStunServer(RANDOM_PORT).
+                                getSocketAddress().getAddress();
+                        }
+                        return mappedAddress;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.error("manager.useStun error .. "
+                                 +"continuing without", ex);
+                }
+
+                Enumeration localIfaces =
+                        NetworkInterface.getNetworkInterfaces();
+
+                //interfaces loop
+                interfaces_loop:
+                while (localIfaces.hasMoreElements())
+                {
+                    NetworkInterface iFace =
+                                (NetworkInterface) localIfaces.nextElement();
+                    Enumeration addresses = iFace.getInetAddresses();
+
+                    //addresses loop
+                    while (addresses.hasMoreElements()) {
+                        InetAddress address =
+                                (InetAddress) addresses.nextElement();
+                        //ignore link local addresses
+                        if (!address.isAnyLocalAddress()
+                            && !address.isLinkLocalAddress()
+                            && !address.isLoopbackAddress()
+                            && !isWindowsAutoConfiguredIPv4Address(address)) {
+                            if (mappedAddress != null
+                                && mappedAddress.equals(address)) {
+                                if (logger.isDebugEnabled())
+                                    logger.debug("Returninng localhost: Mapped "
+                                                 + "address = Public address = "
+                                                 + address);
+                                //the address matches the one seen by the STUN
+                                //server no doubt that it's a working public
+                                //address.
+
+                                return address;
+                            }
+                            else if (isLinkLocalIPv4Address(address))
+                            {
+                                if (logger.isDebugEnabled())
+                                    logger.debug("Found Linklocal ipv4 address "
+                                                 + address);
+                                linkLocalAddress = address;
+                            }
+                            else {
+                                if (logger.isDebugEnabled())
+                                    logger.debug("Found public address "
+                                                 + address);
+
+                                String preferredAddr =
+                                    (String)configurationService.getProperty(
+                                        PROP_PREFERRED_NET_ADDRESS);
+                                String preferredIface =
+                                    (String)configurationService.getProperty(
+                                        PROP_PREFERRED_NET_IFACE);
+
+
+                                if (// bail out if we already have the address
+                                    // chosen by the user
+                                    (    publicAddress != null
+                                         && preferredAddr!= null
+                                         && preferredAddr.equals(
+                                             publicAddress.getHostAddress()))
+                                    //bail out if we already have an address on
+                                    //an interface chosen by the user
+                                     ||     (publicAddress != null
+                                         && selectedInterface != null
+                                         && preferredIface != null
+                                         && preferredIface.equals(
+                                                            selectedInterface))
+                                        //in case we have an ipv4 addr and don't
+                                        //want to change it for an ipv6
+                                    ||     (publicAddress != null
+                                         && publicAddress instanceof Inet4Address
+                                         && address instanceof Inet6Address
+                                         && preferIPv4Stack)
+                                    //in case we have an ipv6 addr and don't
+                                    //want to change it for an ipv4
+                                    ||     (publicAddress != null
+                                         && publicAddress instanceof Inet6Address
+                                         && address instanceof Inet4Address
+                                         && !preferIPv4Stack)
+                                    )
+                                {
+                                    continue;
+                                }
+                                publicAddress = address;
+                                selectedInterface = iFace.getDisplayName();
+                            }
+                        }
+                    }//addresses loop
+                }//interfaces loop
+                if (publicAddress != null) {
+                    logger.debug("Returning public address");//debug
+                     return publicAddress;
+                }
+                if (linkLocalAddress != null) {
+                    logger.debug("Returning link local address");//debug
+                    return linkLocalAddress;
+                }
+                if (anyAddressIsAccepted)
+                    localHost = new InetSocketAddress(RANDOM_PORT).getAddress();
+                else
+                    localHost = InetAddress.getLocalHost();
+            }
+            catch (Exception ex) {
+                logger.error("Failed to create localhost address, returning "
+                             + "the any address (0.0.0.0)", ex);
+                //get the address part of an InetSocketAddress for a random port.
+                localHost = new InetSocketAddress(RANDOM_PORT).getAddress();
+            }
+            if (logger.isDebugEnabled())
+                logger.debug("Returning localhost address=" + localHost);
+            return localHost;
+        }
+        finally
+        {
+            logger.logExit();
+        }
+    }
+
+
+    /**
+    * Determines whether the address is the result of windows auto configuration.
+    * (i.e. One that is in the 169.254.0.0 network)
+    * @param add the address to inspect
+    * @return true if the address is autoconfigured by windows, false otherwise.
+    */
+   private static boolean isWindowsAutoConfiguredIPv4Address(InetAddress add)
+   {
+       return (add.getAddress()[0] & 0xFF) == 169
+           && (add.getAddress()[1] & 0xFF) == 254;
+   }
+
+      /**
+     * The method quesries a Stun server for a binding for the specified port.
+     * @param port the port from which a STUN message
+     * @return StunAddress
+     */
+    private StunAddress queryStunServer(int port)
+    {
+
+
+        try{
+            logger.logEntry();
+            StunAddress mappedAddress = null;
+            if (detector != null && useStun) {
+                try {
+                    mappedAddress = detector.getMappingFor(port);
+                    if (logger.isDebugEnabled())
+                        logger.debug("For port:"
+                                     + port + "a Stun server returned the "
+                                     +"following mapping [" + mappedAddress);
+                }
+                catch (StunException ex) {
+                    logger.error(
+                        "Failed to retrive mapped address port:" +port, ex);
+                }
+            }
+            return mappedAddress;
+        }
+        finally{
+            logger.logExit();
+        }
+    }
+
+
+
+    /**
+     * Determines whether the address is an IPv4 link local address. IPv4 link
+     * local addresses are those in the following networks:
+     *
+     * 10.0.0.0    to 10.255.255.255
+     * 172.16.0.0  to 172.31.255.255
+     * 192.168.0.0 to 192.168.255.255
+     *
+     * @param add the address to inspect
+     * @return true if add is a link local ipv4 address and false if not.
+     */
+    private static boolean isLinkLocalIPv4Address(InetAddress add)
+    {
+        if(add instanceof Inet4Address)
+        {
+            byte address[] = add.getAddress();
+            if ( (address[0] & 0xFF) == 10)
+                return true;
+            if ( (address[0] & 0xFF) == 172
+                && (address[1] & 0xFF) >= 16 && address[1] <= 31)
+                return true;
+            if ( (address[0] & 0xFF) == 192
+                && (address[1] & 0xFF) == 168)
+                return true;
+            return false;
+        }
+        return false;
+    }
+
+
+
+    /**
+     * Tries to obtain a mapped/public address for the specified port.
+     *
+     * @param port the port whose mapping we are interested in.
+     * @return a public address corresponding to the specified port or null
+     *   if all attempts to retrieve such an address have failed.
+     */
+    public InetSocketAddress getPublicAddressFor(int port)
+    {
+        try {
+            logger.logEntry();
+            if (!useStun) {
+                logger.debug(
+                    "Stun is disabled, skipping mapped address recovery.");
+                return new InetSocketAddress(getLocalHost(), port);
+            }
+            StunAddress mappedAddress = queryStunServer(port);
+            InetSocketAddress result = null;
+            if (mappedAddress != null)
+                result = mappedAddress.getSocketAddress();
+            else {
+                //Apparently STUN failed. Let's try to temporarily disble it
+                //and use algorithms in getLocalHost(). ... We should probably
+                //eveng think about completely disabling stun, and not only
+                //temporarily.
+                //Bug report - John J. Barton - IBM
+                InetAddress localHost = getLocalHost(false);
+                result = new InetSocketAddress(localHost, port);
+            }
+            if (logger.isDebugEnabled())
+                logger.debug("Returning mapping for port:"
+                             + port +" as follows: " + result);
+            return result;
+        }
+        finally {
+            logger.logExit();
+        }
+    }
+}

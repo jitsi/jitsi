@@ -1,0 +1,22 @@
+Bundle-Activator: net.java.sip.communicator.impl.resources.Activator
+Bundle-Name: Resources Management Service Provider
+Bundle-Description: A bundle that implements the resource management package.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: org.ungoverned.gravity.servicebinder,
+ org.osgi.framework,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.impl.resources,
+ org.w3c.dom,
+ org.xml.sax,
+ javax.xml.parsers,
+ org.apache.xml.serializer,
+ javax.xml.transform,
+ javax.xml.transform.dom,
+ javax.xml.transform.stream,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.util.xml,
+Export-Package: net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.impl.resources,
+Metadata-Location: /net/java/sip/communicator/impl/resources/resources.metadata.xml

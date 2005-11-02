@@ -1,0 +1,23 @@
+Bundle-Activator: net.java.sip.communicator.impl.media.Activator
+Bundle-Name: Media Service Implementation
+Bundle-Description: A bundle that offers Media capture and presentation capabilities.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: org.ungoverned.gravity.servicebinder,
+ org.osgi.framework,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.configuration.event,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.util,
+ javax.media,
+ javax.media.format,
+ javax.media.protocol,
+ javax.sound.sampled,
+ javax.swing,
+ com.sun.media.protocol.javasound,
+ com.sun.media.protocol.v4l,
+Export-Package: net.java.sip.communicator.service.media,
+ net.java.sip.communicator.service.media.event,
+ net.java.sip.communicator.impl.media,
+ net.java.sip.communicator.impl.media.event,
+Metadata-Location: /net/java/sip/communicator/impl/media/media.metadata.xml

@@ -1,0 +1,132 @@
+[General]
+name=kAqua
+author=Jeff Marlow
+email=jeff@bluegenesis.com
+homepage=http://jeff.marlow.net
+description=Apple's Aqua (Mac OS X)\nThanks to Dangeruss for the Graphics\nThanks to Steve Jobs for the Vision
+version=1.03
+
+[Panel]
+background=panelx.PNG
+
+[File Manager]
+# Kfm's common background image:
+# backgroundImage=kfmbackground.PNG
+# Kfm's colors:
+htmlBackground=255,255,255
+htmlForeground=0,0,0
+htmlLinks=35,107,200
+htmlFollowedLinks=25,73,144
+
+[Konsole]
+schema=MacOSX.schema
+background=bondiblue.PNG
+
+[Display]
+CommonDesktop=True
+Wallpaper0=aquabackground.PNG
+WallpaperMode0=Scaled
+Wallpaper1=aquabackground.PNG
+WallpaperMode1=Scaled
+Wallpaper2=aquabackground.PNG
+WallpaperMode2=Scaled
+Wallpaper3=aquabackground.PNG
+WallpaperMode3=Scaled
+Wallpaper4=aquabackground.PNG
+WallpaperMode4=Scaled
+Wallpaper5=aquabackground.PNG
+WallpaperMode5=Scaled
+Wallpaper6=aquabackground.PNG
+WallpaperMode6=Scaled
+Wallpaper7=aquabackground.PNG
+WallpaperMode7=Scaled
+RootIconTextStyle=1
+RootIconTextForeground=0,0,27
+RootIconTextBackground=240,247,255
+
+[Colors]
+foreground=0,0,0
+selectForeground=255,255,255
+activeBlend=53,99,144
+selectBackground=25,73,144
+inactiveBackground=128,128,128
+contrast=7
+background=233,237,247
+activeBackground=233,233,233
+inactiveBlend=192,192,192
+inactiveForeground=103,105,145
+activeForeground=0,0,0
+windowForeground=0,0,0
+windowBackground=255,255,255
+terminalForeground=black
+terminalBackground=ghostwhite
+
+
+[Window Titlebar]
+#CloseButton=close.PNG
+#CloseDownButton=close_down.PNG
+#CloseInactiveButton=close_disabled.PNG
+
+CloseButton=CosmicGelDj4.gif
+CloseDownButton=CosmicGelDj4.gif
+CloseInactiveButton=CosmicGelDj4.gif
+
+MaximizeButton=maximize.PNG
+MaximizeDownButton=maximizedown.PNG
+MaximizeInactiveButton=maximize_disabled.PNG
+
+MenuButton=menu.PNG
+
+MinimizeButton=iconify.PNG
+MinimizeDownButton=iconify_down.PNG
+MinimizeInactiveButton=iconify_disabled.PNG
+
+StickyButton=sticky.PNG
+StickyDownButton=stickydown.PNG
+
+TitlebarPixmapActive=titlebar_selected.png
+TitlebarPixmapActiveBorder=80, 80, 0, 16
+TitlebarPixmapActiveLeft=
+TitlebarPixmapActiveRight=
+TitlebarPixmapActiveTop=
+TitlebarPixmapActiveBottom=
+TitlebarPixmapInactive=titlebar_unselected.png
+
+PixmapUnderTitleText=yes
+TitleFrameShaded=no
+TitleAlignment=middle
+TitleAbsolutePosition=yes
+
+[Window Border]
+shapePixmapTop=
+shapePixmapBottom=window_bottom.png
+shapePixmapLeft=window_left.png
+shapePixmapRight=window_right.png
+shapePixmapTopLeft=window_topleft.png
+shapePixmapTopRight=window_topright.png
+shapePixmapBottomLeft=window_bottomleft.png
+shapePixmapBottomRight=window_bottomright.png
+
+[Window Button Layout]
+ButtonA=Off
+ButtonB=Maximize
+ButtonC=Iconify
+ButtonD=Off
+ButtonE=Off
+ButtonF=Close
+
+[Window Gimmick]
+
+[Sounds]
+WindowShadeDown=RollUp.wav
+WindowShadeUp=RollUp.wav
+WindowClose=Close.wav
+
+[Icons]
+PanelGo=go.PNG:mini-go.PNG
+inode/directory=folder_blue.PNG:mini_folder_blue.PNG
+
+[Extra Icons]
+Extra1=netscape.PNG:mini-netscape.PNG
+Extra2=icq.PNG:mini-icq.PNG
+

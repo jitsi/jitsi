@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<bundle>
+  <component class="net.java.sip.communicator.impl.resources.FileAccessServiceImpl">
+    <provides service="net.java.sip.communicator.service.resources.FileAccessService"/>
+    
+    <!--
+    	One and only one reference to a configuration service is needed.
+    	If this service is stopped, the file access service is also uninstalled
+    -->
+    <requires service="net.java.sip.communicator.service.configuration.ConfigurationService"
+    	filter="" 
+    	policy="static" 
+    	cardinality="1..1" 
+    	bind-method="setConfigurationService" 
+    	unbind-method="unsetConfigurationService" />
+  </component>
+</bundle>

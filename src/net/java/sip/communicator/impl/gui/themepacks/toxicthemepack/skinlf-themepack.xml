@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<skinlf-themepack require="1.2.9">
+
+  <!--
+    Information about this themepack
+  -->
+  <property name="skin.name"
+	    value="Alluminium Alloy / Toxic"/>
+  <property name="skin.description"
+	    value="Graphics and images taken from Alluminium Alloy Visual Style of Francisco Ocasio (KOL)"/>
+  <property name="skin.url"
+	    value="http://www.studiotwentyeight.com"/>
+  
+  <property name="JDesktopPane.backgroundEnabled" value="false" />
+  <property name="JSplitPane.alternateUI" value="true" />
+
+  <!--
+    SkinLF custom properties
+  -->
+  <font name="Global" value="SansSerif,0,11"/>
+
+  <!--
+    UIManager properties
+  -->
+  <property name="PopupMenu.border" type="LineBorder" thickness="1" padding="2" color="#A6AAB3" />
+  <property name="TextField.border" type="LineBorder" thickness="1" padding="2" color="#A6AAB3" />
+  <property name="PasswordField.border" type="LineBorder" thickness="1" padding="2" color="#A6AAB3" />
+  <icon name="InternalFrame.icon" value="icons/Window.gif"/>
+
+  <icon name="FileView.directoryIcon" value="icons/TreeClosed.gif"/>
+  <icon name="FileView.fileIcon" value="icons/File.gif"/>
+  <icon name="FileView.computerIcon" value="icons/Computer.gif"/>
+  <icon name="FileView.hardDriveIcon" value="icons/HardDrive.gif"/>
+  <icon name="FileView.floppyDriveIcon" value="icons/FloppyDrive.gif"/>
+
+  <icon name="FileChooser.newFolderIcon" value="icons/TreeClosed.gif"/>
+  <icon name="FileChooser.upFolderIcon" value="icons/UpFolder.gif"/>
+  <icon name="FileChooser.homeFolderIcon" value="icons/HomeFolder.gif"/>
+
+  <icon name="Tree.openIcon" value="icons/TreeOpen.gif"/>
+  <icon name="Tree.closedIcon" value="icons/TreeClosed.gif"/>
+  <icon name="Tree.leafIcon" value="icons/Default.gif"/>
+
+  <icon name="OptionPane.errorIcon" value="icons/Error.gif"/>
+  <icon name="OptionPane.informationIcon" value="icons/Inform.gif"/>
+  <icon name="OptionPane.warningIcon" value="icons/Warn.gif"/>
+  <icon name="OptionPane.questionIcon" value="icons/Question.gif"/>
+
+  <!--
+    Skin Definition
+  -->
+  <skin>
+    <skin url="gtk/gtkrc"></skin>
+    <skin url="kde/kde.themerc"></skin>
+  </skin>
+
+</skinlf-themepack>

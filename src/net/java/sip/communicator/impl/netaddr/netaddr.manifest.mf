@@ -1,0 +1,14 @@
+Bundle-Activator: net.java.sip.communicator.impl.netaddr.Activator
+Bundle-Name: Network address managment service
+Bundle-Description: A bundle that provide a gesture of the ip addresses. prospere est le toi du pain d'epice
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: net.java.stun4j,
+ net.java.stun4j.client,
+ net.java.stun4j.StunAddress,
+ net.java.stun4j.StunException,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.configuration.event,
+ net.java.sip.communicator.util,
+ org.osgi.framework,
+Export-Package: net.java.sip.communicator.service.netaddr,

@@ -1,0 +1,116 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.util;
+
+import java.io.*;
+import java.util.logging.*;
+
+/**
+ * Print a brief summary of the LogRecord in a human readable. The summary will
+ * typically be on a single line (unless it's too long :) ... what I meant to
+ * say is that we don't add any line breaks).
+ *
+ * @author Emil Ivov
+ */
+
+public class ScLogFormatter
+    extends Formatter
+{
+    static long startTime = System.currentTimeMillis();
+
+    private static String lineSeparator = System.getProperty("line.separator");
+
+    /**
+     * Format the given LogRecord.
+     * @param record the log record to be formatted.
+     * @return a formatted log record
+     */
+    public synchronized String format(LogRecord record)
+    {
+        StringBuffer sb = new StringBuffer();
+
+        //time since the program started
+        sb.append(System.currentTimeMillis() - startTime);
+        sb.append(" ");
+
+        //log level
+        sb.append(record.getLevel().getLocalizedName());
+        sb.append(": ");
+
+        //caller method
+        inferCaller(record);
+        String loggerName = record.getLoggerName();
+        if(loggerName.startsWith("net.java.sip.communicator."))
+            sb.append(loggerName.substring("net.java.sip.communicator.".length()));
+        else
+            sb.append(record.getLoggerName());
+
+        if (record.getSourceMethodName() != null)
+        {
+            sb.append(".");
+            sb.append(record.getSourceMethodName());
+            sb.append("()");
+        }
+        sb.append(" ");
+        sb.append(record.getMessage());
+        sb.append(lineSeparator);
+        if (record.getThrown() != null)
+        {
+            try
+            {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                record.getThrown().printStackTrace(pw);
+                pw.close();
+                sb.append(sw.toString());
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Try to extract the name of the class and method that called the current
+     * log statement.
+     *
+     * @param record the logrecord where class and method name should be stored.
+     */
+    private void inferCaller(LogRecord record)
+    {
+        // Get the stack trace.
+        StackTraceElement stack[] = (new Throwable()).getStackTrace();
+
+        // First, search back to a method in the SIP Communicator Logger class.
+        int ix = 0;
+        while (ix < stack.length)
+        {
+            StackTraceElement frame = stack[ix];
+            String cname = frame.getClassName();
+            if (cname.equals("net.java.sip.communicator.util.Logger"))
+            {
+                break;
+            }
+            ix++;
+        }
+        // Now search for the first frame before the SIP Communicator Logger class.
+        while (ix < stack.length)
+        {
+            StackTraceElement frame = stack[ix];
+            String cname = frame.getClassName();
+            if (!cname.equals("net.java.sip.communicator.util.Logger"))
+            {
+                // We've found the relevant frame.
+                record.setSourceClassName(cname);
+                record.setSourceMethodName(frame.getMethodName());
+                break;
+            }
+            ix++;
+        }
+    }
+}

@@ -1,0 +1,33 @@
+Bundle-Activator: net.java.sip.communicator.impl.history.Activator
+Bundle-Name: History Service Provider
+Bundle-Description: A bundle that implements the history package.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: org.ungoverned.gravity.servicebinder,
+ org.osgi.framework,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.service.history,
+ net.java.sip.communicator.impl.history,
+ net.java.sip.communicator.service.history.query,
+ net.java.sip.communicator.service.history.records,
+ net.java.sip.communicator.service.protocol,
+ org.w3c.dom,
+ org.xml.sax,
+ javax.xml.parsers,
+ org.apache.xml.serializer,
+ javax.xml.transform,
+ javax.xml.transform.dom,
+ javax.xml.transform.stream,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.util.xml,
+ org.jaxen,
+ org.jaxen.dom,
+ org.jaxen.saxpath,
+Export-Package: net.java.sip.communicator.service.history,
+ net.java.sip.communicator.impl.history,
+ net.java.sip.communicator.service.history.query,
+ net.java.sip.communicator.service.history.records,
+ net.java.sip.communicator.service.protocol,
+Metadata-Location: /net/java/sip/communicator/impl/history/history.metadata.xml

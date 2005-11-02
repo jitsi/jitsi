@@ -1,0 +1,6 @@
+Bundle-Activator: net.java.sip.communicator.impl.gui.Activator
+Bundle-Name: Resources Management Service Provider
+Bundle-Description: A bundle that implements the resource management package.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Export-Package: net.java.sip.communicator.gui,
