@@ -1,12 +1,19 @@
 package net.java.sip.communicator.impl.gui.main;
 
+import java.awt.Frame;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.io.File;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JRootPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
+
+import net.java.sip.communicator.impl.gui.main.customcontrols.StatusIcon;
 
 import com.l2fprod.gui.plaf.skin.Skin;
 import com.l2fprod.gui.plaf.skin.SkinLookAndFeel;
@@ -20,7 +27,7 @@ import com.l2fprod.util.OS;
  * Starts the GUI application using the SkinLookAndFeel of l2fprod. 
  */
 public class CommunicatorMain {
-
+	
 	public static void main(String[] args){
 		
 		try {
@@ -45,7 +52,7 @@ public class CommunicatorMain {
 					SkinLookAndFeel.setSkin(SkinLookAndFeel.loadThemePack(args[0]));
 					UIManager.setLookAndFeel("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");	
 				}
-			}
+			}			
 			//the default theme is set if no theme is specified
 			else{
 				SkinLookAndFeel.setSkin(
@@ -66,10 +73,11 @@ public class CommunicatorMain {
 						new Class[] { boolean.class });
 				method.invoke(null, new Object[] { Boolean.TRUE });
 		    }*/
+		    
 			
 	    } catch (Exception e) { }
 	    
-	    //Image frameIcon =
+	    //Image frameIcon = 
 	      //new ImageIcon(demo.class.getResource("windowicon.gif")).getImage();
 	    // so option pane as same icon as us
 	    //JOptionPane.getRootFrame().setIconImage(frameIcon);
@@ -83,12 +91,22 @@ public class CommunicatorMain {
 		
 		User user = new User();
 		
-		user.setProtocols(new String[]{"ICQ", "MSN"});
+		user.setProtocols(new String[]{"SIP", "ICQ", "MSN"});
 		
 	    MainFrame mainFrame = new MainFrame(clist, user);
-	    //mainFrame.setIconImage(frameIcon);
-	    	    
+	    	        
 	    mainFrame.setTitle("SIP Communicator");
+	    
+	    // There is a problem with the quality of the title bar icon. It's not solved.
+	    BufferedImage iconImage = new BufferedImage(LookAndFeelConstants.SIP_LOGO.getWidth(null),
+				LookAndFeelConstants.ICQ_LOGO.getHeight(null),
+				BufferedImage.TYPE_3BYTE_BGR);
+	    
+	    iconImage.getGraphics().drawImage(LookAndFeelConstants.SIP_LOGO, 0, 0, mainFrame);
+	    
+	    mainFrame.setIconImage(iconImage);
+	    
+	    	    
 	    mainFrame.pack();
 	    
 	    mainFrame.setVisible(true);	    			
