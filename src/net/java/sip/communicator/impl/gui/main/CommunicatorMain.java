@@ -92,7 +92,7 @@ public class CommunicatorMain {
 		User user = new User();
 		
 		user.setProtocols(new String[]{"SIP", "ICQ", "MSN"});
-		
+				
 	    MainFrame mainFrame = new MainFrame(clist, user);
 	    	        
 	    mainFrame.setTitle("SIP Communicator");

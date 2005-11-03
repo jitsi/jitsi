@@ -22,7 +22,11 @@ public class SIPCommButton extends JButton {
 	private Image bgRolloverImage;
 
 	private Image iconImage;
+	
+	private int iconRightShift = 0;
 
+	private int iconLeftShift = 0;
+	
 	public SIPCommButton() {
 		super();
 
@@ -78,7 +82,9 @@ public class SIPCommButton extends JButton {
 
 			g.drawImage(this.iconImage,
 							(this.bgImage.getWidth(null) - 
-							this.iconImage.getWidth(null)) / 2,
+							this.iconImage.getWidth(null)) / 2 + 
+							this.iconRightShift - 
+							this.iconLeftShift,
 							(this.bgImage.getHeight(null) - 
 							this.iconImage.getHeight(null)) / 2, this);
 		}
@@ -92,26 +98,28 @@ public class SIPCommButton extends JButton {
 
 				g.drawImage(this.iconImage,
 								(this.bgImage.getWidth(null) - 
-								this.iconImage.getWidth(null)) / 2, 
+								this.iconImage.getWidth(null)) / 2 + 
+								this.iconRightShift - 
+								this.iconLeftShift, 
 								(this.bgImage.getHeight(null) - 
 								this.iconImage.getHeight(null)) / 2, this);
 			}
 		}
 	}
 
-	public Image getBgImage() {
+	public Image getBgImage () {
 		return bgImage;
 	}
 
-	public void setBgImage(Image bgImage) {
+	public void setBgImage (Image bgImage) {
 		this.bgImage = bgImage;
 	}
 
-	public Image getBgRolloverImage() {
+	public Image getBgRolloverImage () {
 		return bgRolloverImage;
 	}
 
-	public void setBgRolloverImage(Image bgRolloverImage) {
+	public void setBgRolloverImage (Image bgRolloverImage) {
 		this.bgRolloverImage = bgRolloverImage;
 	}
 
@@ -121,5 +129,21 @@ public class SIPCommButton extends JButton {
 
 	public void setIconImage(Image iconImage) {
 		this.iconImage = iconImage;
+	}
+	
+	public void setIconRightShift (int iconRightShift) {
+		this.iconRightShift = iconRightShift;
+	}
+	
+	public void setIconLeftShift (int iconLeftShift) {
+		this.iconLeftShift = iconLeftShift;
+	}
+	
+	public int getIconRightShift (int iconRightShift) {
+		return this.iconRightShift;
+	}
+	
+	public int getIconLeftShift (int iconLeftShift) {
+		return this.iconLeftShift;
 	}
 }

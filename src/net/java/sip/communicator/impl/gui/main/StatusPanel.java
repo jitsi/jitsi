@@ -1,5 +1,6 @@
 package net.java.sip.communicator.impl.gui.main;
 
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
 
@@ -34,6 +35,9 @@ public class StatusPanel extends JPanel {
 			StatusSelectorBox protocolStatusCombo = new StatusSelectorBox(
 					protocolStatusList.toArray(), (Status)protocolStatusList.get(0));
 
+			protocolStatusCombo.setIconLeftShift (LookAndFeelConstants.
+														RIGHT_SHIFT_STATUS_ICON);
+						
 			this.add(protocolStatusCombo);
 		}
 	}

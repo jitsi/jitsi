@@ -101,7 +101,7 @@ public class LookAndFeelConstants {
 			.loadImage("../resources/buttons/hangUpRollover.gif");
 
 	public static final Image STATUS_SELECTOR_BOX = LookAndFeelConstants
-			.loadImage("../resources/buttons/combobox.png");
+			.loadImage("../resources/buttons/combobox1.png");
 
 	
 	/*=========================================================================
@@ -217,7 +217,7 @@ public class LookAndFeelConstants {
 	 * ------------------------ OTHER CONSTANTS ------------------------------
 	 ========================================================================*/
 	
-	public static final int RIGHT_SHIFT_STATUS_ICON = 7;
+	public static final int RIGHT_SHIFT_STATUS_ICON = 2;
 	
 	
 	/**
