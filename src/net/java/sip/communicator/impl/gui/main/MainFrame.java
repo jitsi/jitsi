@@ -23,13 +23,13 @@ public class MainFrame extends JFrame{
 	private MainTabbedPane 	tabbedPane;
 	
 	
-	public MainFrame(ContactList clist, User user){		
+	public MainFrame(ContactList clist, User user){	
+				
 		tabbedPane = new MainTabbedPane(clist);
 		statusPanel = new StatusPanel(user.getProtocols());
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setInitialBounds();
-//		this.setIconImage();
 		
 		this.init();		
 	}

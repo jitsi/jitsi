@@ -2,6 +2,7 @@ package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public class LookAndFeelConstants {
 	public static final Color CONTACTPANEL_LINES_COLOR = 
 													new Color(154, 154,	154);
 
-	
+		
 	/*=========================================================================
 	 * ------------------------------ ICONS ----------------------------------
 	 ========================================================================*/
@@ -139,6 +140,8 @@ public class LookAndFeelConstants {
 
 	public static final String SKYPE = "Skype";
 	
+	public static final String SIP = "SIP";
+	
 	/*=========================================================================
 	 * --------------------- PROTOCOLS STATUS ICONS ---------------------------
 	 ========================================================================*/
@@ -182,6 +185,40 @@ public class LookAndFeelConstants {
 	public static final Image SKYPE_LOGO = LookAndFeelConstants
 			.loadImage("../resources/protocols/skype/Skype16.png");
 
+	public static final Image SIP_LOGO = LookAndFeelConstants
+			.loadImage("../resources/protocols/sip/sc_logo16x16.png");
+		 
+	public static final Image SIP_ONLINE_ICON = LookAndFeelConstants
+			.loadImage("../resources/protocols/sip/onlineStatus.png");
+	
+	public static final Image SIP_OFFLINE_ICON = LookAndFeelConstants
+			.loadImage("../resources/protocols/sip/offlineStatus.png");
+	
+	public static final Image SIP_INVISIBLE_ICON = LookAndFeelConstants
+			.loadImage("../resources/protocols/sip/invisibleStatus.png");
+	
+	public static final Image SIP_AWAY_ICON = LookAndFeelConstants
+			.loadImage("../resources/protocols/sip/awayStatus.png");
+	
+	public static final Image SIP_NA_ICON = LookAndFeelConstants
+			.loadImage("../resources/protocols/sip/naStatus.png");
+	
+	public static final Image SIP_DND_ICON = LookAndFeelConstants
+			.loadImage("../resources/protocols/sip/dndStatus.png");
+	
+	public static final Image SIP_OCCUPIED_ICON = LookAndFeelConstants
+			.loadImage("../resources/protocols/sip/occupiedStatus.png");
+	
+	public static final Image SIP_CHAT_ICON = LookAndFeelConstants
+			.loadImage("../resources/protocols/sip/chatStatus.png");
+	
+	
+	/*========================================================================
+	 * ------------------------ OTHER CONSTANTS ------------------------------
+	 ========================================================================*/
+	
+	public static final int RIGHT_SHIFT_STATUS_ICON = 7;
+	
 	
 	/**
 	 * Gets all protocol statuses, including status and text.
@@ -193,7 +230,46 @@ public class LookAndFeelConstants {
 	public static ArrayList getProtocolIcons (String protocolName) {
 		ArrayList protocolStatusList = new ArrayList ();
 
-		if (protocolName.equals (LookAndFeelConstants.ICQ)) {
+		if (protocolName.equals (LookAndFeelConstants.SIP)) {
+			
+			protocolStatusList.add (new Status (ONLINE_STATUS, 
+					new StatusIcon (LookAndFeelConstants.SIP_ONLINE_ICON,
+									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+			
+			protocolStatusList.add (new Status (CHAT_STATUS, 
+					new StatusIcon (LookAndFeelConstants.SIP_ONLINE_ICON, 
+									LookAndFeelConstants.SIP_CHAT_ICON, 
+									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+			
+			protocolStatusList.add (new Status (AWAY_STATUS, 
+					new StatusIcon (LookAndFeelConstants.SIP_ONLINE_ICON,
+									LookAndFeelConstants.SIP_AWAY_ICON, 
+									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+			
+			protocolStatusList.add (new Status (OCCUPIED_STATUS, 
+					new StatusIcon (LookAndFeelConstants.SIP_ONLINE_ICON, 
+									LookAndFeelConstants.SIP_OCCUPIED_ICON, 
+									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+			
+			protocolStatusList.add (new Status (NA_STATUS, 
+					new StatusIcon (LookAndFeelConstants.SIP_ONLINE_ICON, 
+									LookAndFeelConstants.SIP_NA_ICON,
+									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+			
+			protocolStatusList.add (new Status (DND_STATUS, 
+					new StatusIcon (LookAndFeelConstants.SIP_ONLINE_ICON, 
+									LookAndFeelConstants.SIP_DND_ICON,
+									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+			
+			protocolStatusList.add (new Status (OFFLINE_STATUS, 
+					new StatusIcon (LookAndFeelConstants.SIP_OFFLINE_ICON,
+									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+			
+			protocolStatusList.add (new Status (INVISIBLE_STATUS, 
+					new StatusIcon (LookAndFeelConstants.SIP_INVISIBLE_ICON,
+									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+			
+		} else if (protocolName.equals (LookAndFeelConstants.ICQ)) {
 			
 			protocolStatusList.add (new Status(ONLINE_STATUS, 
 					new StatusIcon (LookAndFeelConstants.ICQ_LOGO)));
