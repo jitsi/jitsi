@@ -93,7 +93,7 @@ public class TestMediaService extends TestCase
 
         // Initialize service
 //emcho: breaks the build on proxenet cause there's no X server there.
-// I wonder whether who's to blame here - proexenet for not having an X server
+// I wonder who's to blame here - proexenet for not having an X server
 // or initialize for requiring one ?
 //        mediaService.initialize();
 //        assertTrue(mediaService.isInitialized());
@@ -116,7 +116,7 @@ public class TestMediaService extends TestCase
 
         // test the initial set of a property.
 //emcho: breaks the build on proxenet cause there's no X server there.
-// I wonder whether who's to blame here - proexenet for not having an X server
+// I wonder who's to blame here - proexenet for not having an X server
 // or initialize for requiring one ?
 //        mediaService.initialize();
 //        assertNotNull("A MediaEvent with a registered listener", mediaEvent);
@@ -128,7 +128,7 @@ public class TestMediaService extends TestCase
         mediaService.removeMediaListener(mediaListener);
 
 //emcho: breaks the build on proxenet cause there's no X server there.
-// I wonder whether who's to blame here - proexenet for not having an X server
+// I wonder who's to blame here - proexenet for not having an X server
 // or initialize for requiring one ?
 //        mediaService.initialize();
 //        assertNull("A MediaEvent after unregistering a listener.",
