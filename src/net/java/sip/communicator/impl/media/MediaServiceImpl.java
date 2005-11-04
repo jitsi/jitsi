@@ -158,7 +158,7 @@ public class MediaServiceImpl
      * could interoperate with other services.
      */
     public void initialize() {
-        openCaptureDevices();
+        //openCaptureDevices();
         //createPlayer();
         
         videoPanel = new JPanel();
