@@ -2,3 +2,6 @@ classes
 .project
 .classpath
 bin
+sc-bundles
+sip-communicator.utest.bin
+test-reports
