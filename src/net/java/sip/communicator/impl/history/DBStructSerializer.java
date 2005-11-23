@@ -16,7 +16,6 @@ import javax.xml.parsers.DocumentBuilder;
 import net.java.sip.communicator.service.history.History;
 import net.java.sip.communicator.service.history.HistoryID;
 import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
-import net.java.sip.communicator.service.history.records.TextType;
 import net.java.sip.communicator.util.EnumerationBase;
 import net.java.sip.communicator.util.xml.XMLUtils;
 
@@ -80,13 +79,10 @@ public class DBStructSerializer {
 	{
 		Element structure = doc.createElement("structure");
 		String[] propertyNames = recordStructure.getPropertyNames();
-		TextType[] propertyTypes = recordStructure.getValueTypes();
 		int count = recordStructure.getPropertyCount();
 		for(int i = 0; i < count; i++) {
 			Element property = doc.createElement("property");
-			property.setAttribute("name", propertyNames[i]);
-			property.setAttribute("type", propertyTypes[i].toString());
-			
+			property.setAttribute("name", propertyNames[i]);			
 			structure.appendChild(property);
 		}
 		
@@ -160,30 +156,19 @@ public class DBStructSerializer {
 			{
 				Element parameter = (Element) node;
 				String paramName = parameter.getAttribute("name");
-				String paramType = parameter.getAttribute("type");
 				
 				if(paramName == null) {
 					continue;
 				}
 				
-				TextType type = (TextType)EnumerationBase.fromString(
-						TextType.class,	paramType);
-				if(type == null) {
-					type = HistoryRecordStructure.DEFAULT_TEXT_TYPE;
-				}
-				
 				propertyNames.add(paramName);
-				propertyTypes.add(type);
 			}
 		}
 		
-		String[] names = new String[propertyNames.size()];
-		TextType[] types = new TextType[propertyTypes.size()];
-		
+		String[] names = new String[propertyNames.size()];		
 		propertyNames.toArray(names);
-		propertyTypes.toArray(types);
 		 
-		return new HistoryRecordStructure(names, types);
+		return new HistoryRecordStructure(names);
 	}
 
 	private HistoryID loadID(Node parent) throws ParseException {
