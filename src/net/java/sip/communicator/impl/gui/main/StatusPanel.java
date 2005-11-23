@@ -1,13 +1,11 @@
 package net.java.sip.communicator.impl.gui.main;
 
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.StatusSelectorBox;
 
 public class StatusPanel extends JPanel {
@@ -16,7 +14,8 @@ public class StatusPanel extends JPanel {
 
 	public StatusPanel(String[] userProtocols) {
 
-		this.setLayout(new FlowLayout(FlowLayout.LEFT));
+		this.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+				
 		this.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
 				LookAndFeelConstants.CONTACTPANEL_MOVER_START_COLOR));
 
@@ -34,10 +33,7 @@ public class StatusPanel extends JPanel {
 
 			StatusSelectorBox protocolStatusCombo = new StatusSelectorBox(
 					protocolStatusList.toArray(), (Status)protocolStatusList.get(0));
-
-			protocolStatusCombo.setIconLeftShift (LookAndFeelConstants.
-														RIGHT_SHIFT_STATUS_ICON);
-						
+									
 			this.add(protocolStatusCombo);
 		}
 	}
