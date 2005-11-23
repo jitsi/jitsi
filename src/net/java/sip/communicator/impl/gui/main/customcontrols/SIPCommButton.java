@@ -23,10 +23,8 @@ public class SIPCommButton extends JButton {
 
 	private Image iconImage;
 	
-	private int iconRightShift = 0;
-
-	private int iconLeftShift = 0;
-	
+	private Image pressedImage;
+		
 	public SIPCommButton() {
 		super();
 
@@ -61,7 +59,7 @@ public class SIPCommButton extends JButton {
 		this.setIcon(new ImageIcon(this.bgImage));
 	}
 
-	public SIPCommButton(Image bgImage, Image rolloverImage, Image iconImage) {
+	public SIPCommButton (Image bgImage, Image rolloverImage, Image iconImage) {
 		super();
 
 		this.iconImage = iconImage;
@@ -74,6 +72,36 @@ public class SIPCommButton extends JButton {
 		this.setIcon(new ImageIcon(this.bgImage));
 	}
 
+	public SIPCommButton (	Image bgImage, 
+							Image rolloverImage,
+							Image pressedImage,
+							Image iconImage) {
+		super();
+
+		this.iconImage = iconImage;
+		this.bgImage = bgImage;
+		this.bgRolloverImage = rolloverImage;
+		this.pressedImage = pressedImage;
+		
+		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
+				this.bgImage.getHeight(null)));
+
+		this.setIcon(new ImageIcon(this.bgImage));
+	}
+	
+	public SIPCommButton(Image bgImage, Image rolloverImage) {
+		super();
+		
+		this.bgImage = bgImage;
+		this.bgRolloverImage = rolloverImage;
+
+		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
+				this.bgImage.getHeight(null)));
+
+		this.setIcon(new ImageIcon(this.bgImage));
+	}
+
+	
 	public void paint(Graphics g) {
 
 		g.drawImage(this.bgImage, 0, 0, this);
@@ -82,9 +110,7 @@ public class SIPCommButton extends JButton {
 
 			g.drawImage(this.iconImage,
 							(this.bgImage.getWidth(null) - 
-							this.iconImage.getWidth(null)) / 2 + 
-							this.iconRightShift - 
-							this.iconLeftShift,
+							this.iconImage.getWidth(null)) / 2,
 							(this.bgImage.getHeight(null) - 
 							this.iconImage.getHeight(null)) / 2, this);
 		}
@@ -98,11 +124,29 @@ public class SIPCommButton extends JButton {
 
 				g.drawImage(this.iconImage,
 								(this.bgImage.getWidth(null) - 
-								this.iconImage.getWidth(null)) / 2 + 
-								this.iconRightShift - 
-								this.iconLeftShift, 
+								this.iconImage.getWidth(null)) / 2, 
 								(this.bgImage.getHeight(null) - 
 								this.iconImage.getHeight(null)) / 2, this);
+			}
+		}
+		
+		if (this.getModel().isPressed()) {
+			
+			if(this.pressedImage != null) {
+				g.drawImage(this.pressedImage, 0, 0, this);
+			}
+			else {
+				g.setColor(LookAndFeelConstants.CONTACTPANEL_LINES_COLOR);
+				g.drawImage(this.bgRolloverImage, 0, 0, this);
+				
+				if (this.iconImage != null) {
+					
+					g.drawImage(this.iconImage,
+									(this.bgImage.getWidth(null) - 
+									this.iconImage.getWidth(null)) / 2 + 1, 
+									(this.bgImage.getHeight(null) - 
+									this.iconImage.getHeight(null)) / 2 + 1, this);
+				}
 			}
 		}
 	}
@@ -129,21 +173,5 @@ public class SIPCommButton extends JButton {
 
 	public void setIconImage(Image iconImage) {
 		this.iconImage = iconImage;
-	}
-	
-	public void setIconRightShift (int iconRightShift) {
-		this.iconRightShift = iconRightShift;
-	}
-	
-	public void setIconLeftShift (int iconLeftShift) {
-		this.iconLeftShift = iconLeftShift;
-	}
-	
-	public int getIconRightShift (int iconRightShift) {
-		return this.iconRightShift;
-	}
-	
-	public int getIconLeftShift (int iconLeftShift) {
-		return this.iconLeftShift;
 	}
 }

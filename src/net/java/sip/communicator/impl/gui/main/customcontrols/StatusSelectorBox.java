@@ -27,22 +27,10 @@ import net.java.sip.communicator.impl.gui.main.Status;
 public class StatusSelectorBox extends SIPCommButton
 	implements ActionListener{
 
-	private SIPCommButton button;
-
 	private JPopupMenu popup;
 
 	private Object[] items;
-
-	private final Image statusSelectorBg = LookAndFeelConstants.STATUS_SELECTOR_BOX;
-
-	private final int width = statusSelectorBg.getWidth(null);
-
-	private final int height = statusSelectorBg.getHeight(null);
-
-	private final int iconX = (this.width - 24) / 2;
-
-	private final int iconY = (this.height - 16) / 2;
-
+	
 	public StatusSelectorBox(Object[] items, Status currentStatus) {
 		
 		super(	LookAndFeelConstants.STATUS_SELECTOR_BOX,

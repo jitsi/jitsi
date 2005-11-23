@@ -9,33 +9,26 @@ public class StatusIcon extends BufferedImage {
 	
 	private Image 	bgImage;
 	private Image 	iconImage;
-	private int 	rightShift = 0;
-	
-	public StatusIcon (Image bgImage, Image iconImage) {		
-		this (bgImage, iconImage, 0);
-	}
-	
+			
 	public StatusIcon (	Image bgImage, 
-						Image iconImage,
-						int rightShift) {
+						Image iconImage) {
 		
-		super(	bgImage.getWidth(null) + rightShift,
+		super(	bgImage.getWidth(null),
 				bgImage.getHeight(null),
 				BufferedImage.TYPE_4BYTE_ABGR);
 						
 		this.bgImage = bgImage;
 		this.iconImage = iconImage;
-		this.rightShift = rightShift;
-				
+						
 		this.getGraphics().drawImage (this.bgImage, 0, 0, null);
 		
 		if (this.iconImage != null){
 			
 			int x = (this.bgImage.getWidth(null) - 
-						this.iconImage.getWidth(null)) + rightShift;
+						this.iconImage.getWidth(null)) / 2;
 			
 			int y = (this.bgImage.getHeight(null) - 
-					this.iconImage.getHeight(null));
+					this.iconImage.getHeight(null)) / 2;
 						
 			this.getGraphics().drawImage (	this.iconImage, 
 											x, 
@@ -56,14 +49,4 @@ public class StatusIcon extends BufferedImage {
 		this.getGraphics().drawImage (this.bgImage, 0, 0, null);
 	}
 	
-	public StatusIcon (Image image, int rightShift) {
-		
-		super(	image.getWidth(null) + rightShift,
-				image.getHeight(null),
-				BufferedImage.TYPE_4BYTE_ABGR);
-		
-		this.bgImage = image;		
-		
-		this.getGraphics().drawImage (this.bgImage, 0, 0, null);
-	}
 }
