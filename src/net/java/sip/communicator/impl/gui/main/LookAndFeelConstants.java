@@ -2,15 +2,10 @@ package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.Color;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Vector;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.StatusIcon;
 import net.java.sip.communicator.util.Logger;
@@ -76,33 +71,50 @@ public class LookAndFeelConstants {
 	public static final Image QUICK_MENU_CONFIGURE_ICON = LookAndFeelConstants
 			.loadImage("../resources/buttons/configureIcon.png");
 
+	public static final Image QUICK_MENU_SEARCH_ICON = LookAndFeelConstants
+			.loadImage("../resources/buttons/searchIcon.png");
+	
+	public static final Image QUICK_MENU_INFO_ICON = LookAndFeelConstants
+			.loadImage("../resources/buttons/infoIcon.png");
+	
 	public static final Image QUICK_MENU_BUTTON_BG = LookAndFeelConstants
-			.loadImage("../resources/buttons/quickMenuButtonBg.gif");
+			.loadImage("../resources/buttons/quickMenuButtonBg.png");
 
 	public static final Image QUICK_MENU_BUTTON_ROLLOVER_BG = LookAndFeelConstants
-			.loadImage("../resources/buttons/quickMenuButtonRolloverBg.gif");
+			.loadImage("../resources/buttons/quickMenuButtonRolloverBg.png");
 
-	public static final Image CALL_BUTTON_ICON = LookAndFeelConstants
-			.loadImage("../resources/buttons/callIcon.png");
+	//public static final Image CALL_BUTTON_ICON = LookAndFeelConstants
+		//	.loadImage("../resources/buttons/callIcon.png");
 
-	public static final Image HANG_UP_BUTTON_ICON = LookAndFeelConstants
-			.loadImage("../resources/buttons/hangupIcon.png");
+	//public static final Image HANG_UP_BUTTON_ICON = LookAndFeelConstants
+		//	.loadImage("../resources/buttons/hangupIcon.png");
 
 	public static final Image CALL_BUTTON_BG = LookAndFeelConstants
-			.loadImage("../resources/buttons/call.gif");
+			.loadImage("../resources/buttons/callButton.png");
 
 	public static final Image HANGUP_BUTTON_BG = LookAndFeelConstants
-			.loadImage("../resources/buttons/hangUp.gif");
+			.loadImage("../resources/buttons/hangupButton.png");
 
 	public static final Image CALL_ROLLOVER_BUTTON_BG = LookAndFeelConstants
-			.loadImage("../resources/buttons/callRollover.gif");
+			.loadImage("../resources/buttons/callButtonRollover.png");
 
+	public static final Image CALL_PRESSED_BUTTON_BG = LookAndFeelConstants
+			.loadImage("../resources/buttons/callButtonPressed.png");
+	
 	public static final Image HANGUP_ROLLOVER_BUTTON_BG = LookAndFeelConstants
-			.loadImage("../resources/buttons/hangUpRollover.gif");
+			.loadImage("../resources/buttons/hangupButtonRollover.png");
 
+	public static final Image HANGUP_PRESSED_BUTTON_BG = LookAndFeelConstants
+			.loadImage("../resources/buttons/hangupButtonPressed.png");
+	
 	public static final Image STATUS_SELECTOR_BOX = LookAndFeelConstants
-			.loadImage("../resources/buttons/combobox1.png");
+			.loadImage("../resources/buttons/combobox.png");
 
+	public static final Image DIAL_BUTTON_BG = LookAndFeelConstants
+			.loadImage("../resources/buttons/dialButtonBg.png");
+
+	public static final Image DIAL_BUTTON_ROLLOVER_BG = LookAndFeelConstants
+			.loadImage("../resources/buttons/dialButtonRolloverBg.png");
 	
 	/*=========================================================================
 	 * ------------------------ STATUS LABELS ---------------------------------
@@ -214,6 +226,13 @@ public class LookAndFeelConstants {
 	
 	
 	/*========================================================================
+	 * ------------------------ USERS ICONS ------------------v---------------
+	 ========================================================================*/
+	
+	public static final Image USER_ONLINE_ICON = LookAndFeelConstants
+	.loadImage("../resources/protocols/sip/sc_user_online.png");
+	
+	/*========================================================================
 	 * ------------------------ OTHER CONSTANTS ------------------------------
 	 ========================================================================*/
 	
@@ -233,41 +252,28 @@ public class LookAndFeelConstants {
 		if (protocolName.equals (LookAndFeelConstants.SIP)) {
 			
 			protocolStatusList.add (new Status (ONLINE_STATUS, 
-					new StatusIcon (LookAndFeelConstants.SIP_ONLINE_ICON,
-									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+					new StatusIcon (LookAndFeelConstants.SIP_ONLINE_ICON)));
 			
 			protocolStatusList.add (new Status (CHAT_STATUS, 
-					new StatusIcon (LookAndFeelConstants.SIP_ONLINE_ICON, 
-									LookAndFeelConstants.SIP_CHAT_ICON, 
-									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+					new StatusIcon (LookAndFeelConstants.SIP_CHAT_ICON)));
 			
 			protocolStatusList.add (new Status (AWAY_STATUS, 
-					new StatusIcon (LookAndFeelConstants.SIP_ONLINE_ICON,
-									LookAndFeelConstants.SIP_AWAY_ICON, 
-									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+					new StatusIcon (LookAndFeelConstants.SIP_AWAY_ICON)));
 			
 			protocolStatusList.add (new Status (OCCUPIED_STATUS, 
-					new StatusIcon (LookAndFeelConstants.SIP_ONLINE_ICON, 
-									LookAndFeelConstants.SIP_OCCUPIED_ICON, 
-									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+					new StatusIcon (LookAndFeelConstants.SIP_OCCUPIED_ICON)));
 			
 			protocolStatusList.add (new Status (NA_STATUS, 
-					new StatusIcon (LookAndFeelConstants.SIP_ONLINE_ICON, 
-									LookAndFeelConstants.SIP_NA_ICON,
-									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+					new StatusIcon (LookAndFeelConstants.SIP_NA_ICON)));
 			
 			protocolStatusList.add (new Status (DND_STATUS, 
-					new StatusIcon (LookAndFeelConstants.SIP_ONLINE_ICON, 
-									LookAndFeelConstants.SIP_DND_ICON,
-									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+					new StatusIcon (LookAndFeelConstants.SIP_DND_ICON)));
 			
 			protocolStatusList.add (new Status (OFFLINE_STATUS, 
-					new StatusIcon (LookAndFeelConstants.SIP_OFFLINE_ICON,
-									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+					new StatusIcon (LookAndFeelConstants.SIP_OFFLINE_ICON)));
 			
 			protocolStatusList.add (new Status (INVISIBLE_STATUS, 
-					new StatusIcon (LookAndFeelConstants.SIP_INVISIBLE_ICON,
-									LookAndFeelConstants.RIGHT_SHIFT_STATUS_ICON)));
+					new StatusIcon (LookAndFeelConstants.SIP_INVISIBLE_ICON)));
 			
 		} else if (protocolName.equals (LookAndFeelConstants.ICQ)) {
 			
