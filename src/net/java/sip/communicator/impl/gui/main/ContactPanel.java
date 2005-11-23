@@ -24,8 +24,8 @@ public class ContactPanel extends JPanel {
 	private boolean isMouseOver = false; 
 	private boolean isSelected = false;
 		
-	private JLabel nicknameLabel = new JLabel();
-	
+	private JLabel 	nicknameLabel = new JLabel();
+		
 	public ContactPanel(ContactItem contactItem){	
 		super(new BorderLayout());
 				
@@ -36,16 +36,18 @@ public class ContactPanel extends JPanel {
 	
 	private void init(){
 		
-		nicknameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
+		this.nicknameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
 		
 		this.setUserData();
-		
-		this.add(nicknameLabel, BorderLayout.WEST);
+				
+		this.add(nicknameLabel, BorderLayout.CENTER);
 		
 	}
 	
 	public void setUserData(){
-		nicknameLabel.setText(this.contactItem.getNickName());
+		this.nicknameLabel.setText(this.contactItem.getNickName());
+		this.nicknameLabel.setIcon(this.contactItem.getUserIcon());
+		this.nicknameLabel.setIconTextGap(0);
 	}
 	
 	public void paintComponent(Graphics g){

@@ -2,6 +2,8 @@ package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.Image;
 
+import javax.swing.Icon;
+
 /**
  * @author Yana Stamcheva
  *  
@@ -15,6 +17,7 @@ public class ContactItem {
 	private Image 		photo;
 	private String[] 	protocolList;
 	private String 		status;
+	private Icon		userIcon;
 	
 	public ContactItem(String nickname){
 		this.nickname = nickname;
@@ -50,5 +53,13 @@ public class ContactItem {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public Icon getUserIcon() {
+		return userIcon;
+	}
+
+	public void setUserIcon(Icon userIcon) {
+		this.userIcon = userIcon;
 	}
 }

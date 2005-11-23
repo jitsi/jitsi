@@ -13,29 +13,40 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 
 public class CallPanel extends JPanel{
 	
-	private Image	callButtonIcon			= LookAndFeelConstants.CALL_BUTTON_ICON;
-	private Image	hangupButtonIcon		= LookAndFeelConstants.HANG_UP_BUTTON_ICON;
+	private Image	callButtonPressedIcon	= LookAndFeelConstants.CALL_PRESSED_BUTTON_BG;
+	private Image	hangupButtonPressedIcon	= LookAndFeelConstants.HANGUP_PRESSED_BUTTON_BG;
 	private Image	callButtonBG			= LookAndFeelConstants.CALL_BUTTON_BG;
 	private Image	callButtonRolloverBG	= LookAndFeelConstants.CALL_ROLLOVER_BUTTON_BG;
 	private Image	hangupButtonBG			= LookAndFeelConstants.HANGUP_BUTTON_BG;
 	private Image	hangupButtonRolloverBG	= LookAndFeelConstants.HANGUP_ROLLOVER_BUTTON_BG;
 		
 	private JComboBox 		phoneNumberCombo = new JComboBox();	
-	private JPanel 			buttonsPanel	= new JPanel(new FlowLayout(FlowLayout.RIGHT));
+	private JPanel 			buttonsPanel	= new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
 	private SIPCommButton	callButton;
 	private SIPCommButton	hangupButton;
 		
 	public CallPanel(){
 		
 		super(new BorderLayout());
-		
+		/*
 		callButton 		= new SIPCommButton(callButtonBG,
 											callButtonRolloverBG, 
 											callButtonIcon);
 		hangupButton 	= new SIPCommButton(hangupButtonBG,
 											hangupButtonRolloverBG, 
 											hangupButtonIcon);
-				
+		*/		
+		
+		callButton 		= new SIPCommButton(callButtonBG,
+											callButtonRolloverBG,
+											callButtonPressedIcon,
+											null);
+		
+		hangupButton 	= new SIPCommButton(hangupButtonBG,
+											hangupButtonRolloverBG,
+											hangupButtonPressedIcon,
+											null);
+
 		this.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
 		this.init();
 	}

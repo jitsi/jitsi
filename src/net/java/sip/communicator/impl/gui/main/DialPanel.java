@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
+
 /**
  * @author Yana Stamcheva
  *
@@ -17,18 +19,53 @@ import javax.swing.JPanel;
 public class DialPanel extends JPanel {
 	private Font 	buttonTextFont = new Font("Verdana", Font.BOLD, 12);
 	
-	private JButton oneButton	= new JButton("1");
-	private JButton twoButton	= new JButton("2");
-	private JButton threeButton	= new JButton("3");
-	private JButton fourButton	= new JButton("4");
-	private JButton fiveButton	= new JButton("5");
-	private JButton sixButton	= new JButton("6");
-	private JButton sevenButton	= new JButton("7");
-	private JButton eightButton	= new JButton("8");
-	private JButton nineButton	= new JButton("9");
-	private JButton starButton	= new JButton("*");
-	private JButton zeroButton	= new JButton("0+");
-	private JButton diezButton	= new JButton("#");
+	private SIPCommButton oneButton	= new SIPCommButton
+					(LookAndFeelConstants.DIAL_BUTTON_BG, 
+			         LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+	
+	private SIPCommButton twoButton		= new SIPCommButton
+					(LookAndFeelConstants.DIAL_BUTTON_BG, 
+					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+	
+	private SIPCommButton threeButton	= new SIPCommButton
+					(LookAndFeelConstants.DIAL_BUTTON_BG, 
+			         LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+	
+	private SIPCommButton fourButton	= new SIPCommButton
+					(LookAndFeelConstants.DIAL_BUTTON_BG, 
+	                 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+	
+	private SIPCommButton fiveButton	= new SIPCommButton
+					(LookAndFeelConstants.DIAL_BUTTON_BG, 
+					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+	
+	private SIPCommButton sixButton		= new SIPCommButton
+					(LookAndFeelConstants.DIAL_BUTTON_BG, 
+					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+	
+	private SIPCommButton sevenButton	= new SIPCommButton
+					(LookAndFeelConstants.DIAL_BUTTON_BG, 
+					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+	
+	private SIPCommButton eightButton	= new SIPCommButton
+					(LookAndFeelConstants.DIAL_BUTTON_BG, 
+					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+	
+	private SIPCommButton nineButton	= new SIPCommButton
+					(LookAndFeelConstants.DIAL_BUTTON_BG, 
+					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+	
+	private SIPCommButton starButton	= new SIPCommButton
+					(LookAndFeelConstants.DIAL_BUTTON_BG, 
+					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+	
+	private SIPCommButton zeroButton	= new SIPCommButton
+					(LookAndFeelConstants.DIAL_BUTTON_BG, 
+					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+	
+	private SIPCommButton diezButton	= new SIPCommButton
+					(LookAndFeelConstants.DIAL_BUTTON_BG,
+					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
 	
 	private JPanel dialPadPanel = new JPanel(new GridLayout(4, 3, 5, 5));
 	

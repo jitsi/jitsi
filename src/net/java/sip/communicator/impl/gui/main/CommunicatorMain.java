@@ -1,23 +1,15 @@
 package net.java.sip.communicator.impl.gui.main;
 
-import java.awt.Frame;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
 import java.io.File;
 
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JRootPane;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.StatusIcon;
-
 import com.l2fprod.gui.plaf.skin.Skin;
 import com.l2fprod.gui.plaf.skin.SkinLookAndFeel;
-import com.l2fprod.util.OS;
 
 //import examples.demo;
 
@@ -77,36 +69,36 @@ public class CommunicatorMain {
 			
 	    } catch (Exception e) { }
 	    
-	    //Image frameIcon = 
-	      //new ImageIcon(demo.class.getResource("windowicon.gif")).getImage();
-	    // so option pane as same icon as us
-	    //JOptionPane.getRootFrame().setIconImage(frameIcon);
-
 	    //TODO: To be removed when the contact list service is ready
 	    ContactList clist = new ContactList();
 	    
-	    clist.addContact(new ContactItem("user1"));
-		clist.addContact(new ContactItem("user2"));
-		clist.addContact(new ContactItem("user3"));
+	    ContactItem citem1 = new ContactItem("Ivancho");
+	    ContactItem citem2 = new ContactItem("Traiancho");
+	    ContactItem citem3 = new ContactItem("Glupancho");
+	    
+	    citem1.setUserIcon(new ImageIcon(LookAndFeelConstants.USER_ONLINE_ICON));
+	    citem2.setUserIcon(new ImageIcon(LookAndFeelConstants.USER_ONLINE_ICON));
+	    citem3.setUserIcon(new ImageIcon(LookAndFeelConstants.USER_ONLINE_ICON));
+	    
+	    clist.addContact(citem1);
+		clist.addContact(citem2);
+		clist.addContact(citem3);
 		
 		User user = new User();
 		
 		user.setProtocols(new String[]{"SIP", "ICQ", "MSN"});
-				
+		
+		//////////////////////////////////////////////////////////////////////
+		
 	    MainFrame mainFrame = new MainFrame(clist, user);
-	    	        
-	    mainFrame.setTitle("SIP Communicator");
-	    
-	    // There is a problem with the quality of the title bar icon. It's not solved.
-	    BufferedImage iconImage = new BufferedImage(LookAndFeelConstants.SIP_LOGO.getWidth(null),
-				LookAndFeelConstants.ICQ_LOGO.getHeight(null),
-				BufferedImage.TYPE_3BYTE_BGR);
-	    
-	    iconImage.getGraphics().drawImage(LookAndFeelConstants.SIP_LOGO, 0, 0, mainFrame);
-	    
-	    mainFrame.setIconImage(iconImage);
-	    
 	    	    
+	    mainFrame.setTitle("Communicator");
+	    	    
+	    mainFrame.setIconImage(LookAndFeelConstants.SIP_LOGO);
+	    
+	    //In order to have the same icon when using option panes
+	    JOptionPane.getRootFrame().setIconImage(LookAndFeelConstants.SIP_LOGO);
+	    
 	    mainFrame.pack();
 	    
 	    mainFrame.setVisible(true);	    			
