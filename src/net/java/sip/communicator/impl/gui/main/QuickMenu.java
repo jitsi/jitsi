@@ -1,6 +1,7 @@
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -22,6 +23,8 @@ public class QuickMenu extends JToolBar{
 	
 	private Image addButtonIcon 		= LookAndFeelConstants.QUICK_MENU_ADD_ICON;
 	private Image configureButtonIcon 	= LookAndFeelConstants.QUICK_MENU_CONFIGURE_ICON;
+	private Image searchButtonIcon 		= LookAndFeelConstants.QUICK_MENU_SEARCH_ICON;
+	private Image infoButtonIcon 		= LookAndFeelConstants.QUICK_MENU_INFO_ICON;
 	
 	SIPCommButton infoButton;
 	SIPCommButton toolsButton;
@@ -31,11 +34,12 @@ public class QuickMenu extends JToolBar{
 	public QuickMenu(){
 		
 		this.setRollover(true);
-		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
+		this.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
 				
-		infoButton 		= new SIPCommButton();						
+		infoButton 		= new SIPCommButton(infoButtonIcon);						
 		toolsButton 	= new SIPCommButton(configureButtonIcon);
-		searchButton 	= new SIPCommButton();
+		searchButton 	= new SIPCommButton(searchButtonIcon);
 		addButton 		= new SIPCommButton(addButtonIcon);
 				
 		this.init();
@@ -43,9 +47,9 @@ public class QuickMenu extends JToolBar{
 	
 	private void init() {
 		this.add(addButton);		
-		this.add(toolsButton);
-		this.add(infoButton);
+		this.add(toolsButton);		
 		this.add(searchButton);
+		this.add(infoButton);
 	}
 	
 	public void paint(Graphics g){
