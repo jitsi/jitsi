@@ -27,7 +27,7 @@ public class LookAndFeelConstants {
 
 	public static final int MAINFRAME_WIDTH = 30;
 
-	public static final int CONTACTPANEL_HEIGHT = 25;
+	public static final int CONTACTPANEL_HEIGHT = 20;
 
 	public static final int CONTACTPANEL_WIDTH = 10;
 
@@ -43,10 +43,10 @@ public class LookAndFeelConstants {
 	 ========================================================================*/
 	
 	public static final Color CONTACTPANEL_SELECTED_START_COLOR = 
-													new Color(166, 207, 239);
+													new Color(82, 111, 156);
 
 	public static final Color CONTACTPANEL_SELECTED_END_COLOR = 
-													new Color(255, 255, 255);
+													new Color(209, 212, 225);
 
 	public static final Color CONTACTPANEL_MOVER_START_COLOR = 
 													new Color(210, 210, 210);
@@ -82,13 +82,7 @@ public class LookAndFeelConstants {
 
 	public static final Image QUICK_MENU_BUTTON_ROLLOVER_BG = LookAndFeelConstants
 			.loadImage("../resources/buttons/quickMenuButtonRolloverBg.png");
-
-	//public static final Image CALL_BUTTON_ICON = LookAndFeelConstants
-		//	.loadImage("../resources/buttons/callIcon.png");
-
-	//public static final Image HANG_UP_BUTTON_ICON = LookAndFeelConstants
-		//	.loadImage("../resources/buttons/hangupIcon.png");
-
+	
 	public static final Image CALL_BUTTON_BG = LookAndFeelConstants
 			.loadImage("../resources/buttons/callButton.png");
 
@@ -110,11 +104,47 @@ public class LookAndFeelConstants {
 	public static final Image STATUS_SELECTOR_BOX = LookAndFeelConstants
 			.loadImage("../resources/buttons/combobox.png");
 
-	public static final Image DIAL_BUTTON_BG = LookAndFeelConstants
+	public static final Image BUTTON_BG = LookAndFeelConstants
 			.loadImage("../resources/buttons/dialButtonBg.png");
 
-	public static final Image DIAL_BUTTON_ROLLOVER_BG = LookAndFeelConstants
+	public static final Image BUTTON_ROLLOVER_BG = LookAndFeelConstants
 			.loadImage("../resources/buttons/dialButtonRolloverBg.png");
+	
+	public static final Image ONE_DIAL_BUTTON = LookAndFeelConstants
+			.loadImage("../resources/buttons/one.png");
+	
+	public static final Image TWO_DIAL_BUTTON = LookAndFeelConstants
+			.loadImage("../resources/buttons/two.png");
+	
+	public static final Image THREE_DIAL_BUTTON = LookAndFeelConstants
+			.loadImage("../resources/buttons/three.png");
+	
+	public static final Image FOUR_DIAL_BUTTON = LookAndFeelConstants
+			.loadImage("../resources/buttons/four.png");
+	
+	public static final Image FIVE_DIAL_BUTTON = LookAndFeelConstants
+			.loadImage("../resources/buttons/five.png");
+	
+	public static final Image SIX_DIAL_BUTTON = LookAndFeelConstants
+			.loadImage("../resources/buttons/six.png");
+
+	public static final Image SEVEN_DIAL_BUTTON = LookAndFeelConstants
+			.loadImage("../resources/buttons/seven.png");
+
+	public static final Image EIGHT_DIAL_BUTTON = LookAndFeelConstants
+			.loadImage("../resources/buttons/eight.png");
+
+	public static final Image NINE_DIAL_BUTTON = LookAndFeelConstants
+			.loadImage("../resources/buttons/nine.png");
+
+	public static final Image STAR_DIAL_BUTTON = LookAndFeelConstants
+			.loadImage("../resources/buttons/star.png");
+			
+	public static final Image ZERO_DIAL_BUTTON = LookAndFeelConstants
+			.loadImage("../resources/buttons/zero.png");
+	
+	public static final Image DIEZ_DIAL_BUTTON = LookAndFeelConstants
+			.loadImage("../resources/buttons/diez.png");
 	
 	/*=========================================================================
 	 * ------------------------ STATUS LABELS ---------------------------------

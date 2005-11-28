@@ -20,52 +20,52 @@ public class DialPanel extends JPanel {
 	private Font 	buttonTextFont = new Font("Verdana", Font.BOLD, 12);
 	
 	private SIPCommButton oneButton	= new SIPCommButton
-					(LookAndFeelConstants.DIAL_BUTTON_BG, 
-			         LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+					(LookAndFeelConstants.ONE_DIAL_BUTTON,
+					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton twoButton		= new SIPCommButton
-					(LookAndFeelConstants.DIAL_BUTTON_BG, 
-					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+					(LookAndFeelConstants.TWO_DIAL_BUTTON,
+					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton threeButton	= new SIPCommButton
-					(LookAndFeelConstants.DIAL_BUTTON_BG, 
-			         LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+					(LookAndFeelConstants.THREE_DIAL_BUTTON,
+					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton fourButton	= new SIPCommButton
-					(LookAndFeelConstants.DIAL_BUTTON_BG, 
-	                 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+					(LookAndFeelConstants.FOUR_DIAL_BUTTON,
+					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton fiveButton	= new SIPCommButton
-					(LookAndFeelConstants.DIAL_BUTTON_BG, 
-					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+					(LookAndFeelConstants.FIVE_DIAL_BUTTON,
+					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton sixButton		= new SIPCommButton
-					(LookAndFeelConstants.DIAL_BUTTON_BG, 
-					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+					(LookAndFeelConstants.SIX_DIAL_BUTTON,
+					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton sevenButton	= new SIPCommButton
-					(LookAndFeelConstants.DIAL_BUTTON_BG, 
-					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+					(LookAndFeelConstants.SEVEN_DIAL_BUTTON,
+					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton eightButton	= new SIPCommButton
-					(LookAndFeelConstants.DIAL_BUTTON_BG, 
-					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+					(LookAndFeelConstants.EIGHT_DIAL_BUTTON,
+					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton nineButton	= new SIPCommButton
-					(LookAndFeelConstants.DIAL_BUTTON_BG, 
-					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+					(LookAndFeelConstants.NINE_DIAL_BUTTON,
+					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton starButton	= new SIPCommButton
-					(LookAndFeelConstants.DIAL_BUTTON_BG, 
-					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+					(LookAndFeelConstants.STAR_DIAL_BUTTON,
+					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton zeroButton	= new SIPCommButton
-					(LookAndFeelConstants.DIAL_BUTTON_BG, 
-					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+					(LookAndFeelConstants.ZERO_DIAL_BUTTON,
+					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton diezButton	= new SIPCommButton
-					(LookAndFeelConstants.DIAL_BUTTON_BG,
-					 LookAndFeelConstants.DIAL_BUTTON_ROLLOVER_BG);
+					(LookAndFeelConstants.DIEZ_DIAL_BUTTON,
+					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private JPanel dialPadPanel = new JPanel(new GridLayout(4, 3, 5, 5));
 	
@@ -76,7 +76,7 @@ public class DialPanel extends JPanel {
 	}
 	
 	public void init(){
-	
+				
 		oneButton.setFont(this.buttonTextFont);
 		twoButton.setFont(this.buttonTextFont);
 		threeButton.setFont(this.buttonTextFont);
@@ -89,7 +89,7 @@ public class DialPanel extends JPanel {
 		zeroButton.setFont(this.buttonTextFont);
 		diezButton.setFont(this.buttonTextFont);
 		starButton.setFont(this.buttonTextFont);
-		
+				
 		dialPadPanel.add(oneButton);
 		dialPadPanel.add(twoButton);
 		dialPadPanel.add(threeButton);

@@ -92,7 +92,7 @@ public class CommunicatorMain {
 		
 	    MainFrame mainFrame = new MainFrame(clist, user);
 	    	    
-	    mainFrame.setTitle("Communicator");
+	    mainFrame.setTitle("SipCommunicator");
 	    	    
 	    mainFrame.setIconImage(LookAndFeelConstants.SIP_LOGO);
 	    

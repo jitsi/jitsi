@@ -109,9 +109,6 @@ public class ContactPanel extends JPanel {
 			g2.setPaint(p1);
 			g2.fillRect(0, this.getHeight() - LookAndFeelConstants.CONTACTPANEL_GRADIENT_SIZE - 1, this.getWidth(), this.getHeight() - 1);
 		}
-		
-		g2.setColor(LookAndFeelConstants.CONTACTPANEL_LINES_COLOR);
-		g2.drawLine(0, this.getHeight() - 1, this.getWidth(), this.getHeight() - 1);
 	}
 	
 	public boolean isMouseOver() {

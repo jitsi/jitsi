@@ -22,7 +22,8 @@ public class MainTabbedPane extends JTabbedPane {
 	public MainTabbedPane(ContactList clist){		
 		
 		ContactListPanel contactList = new ContactListPanel(clist);
-		
+				
+		//this.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		this.addTab("Contacts", contactList);
 		this.addTab("Call list", new JPanel());
 		this.addTab("Dial", dialPanel);

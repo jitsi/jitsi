@@ -47,6 +47,7 @@ public class CallPanel extends JPanel{
 											hangupButtonPressedIcon,
 											null);
 
+		
 		this.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
 		this.init();
 	}

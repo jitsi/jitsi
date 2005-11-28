@@ -20,12 +20,7 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
  * The quick menu. 
  */
 public class QuickMenu extends JToolBar{
-	
-	private Image addButtonIcon 		= LookAndFeelConstants.QUICK_MENU_ADD_ICON;
-	private Image configureButtonIcon 	= LookAndFeelConstants.QUICK_MENU_CONFIGURE_ICON;
-	private Image searchButtonIcon 		= LookAndFeelConstants.QUICK_MENU_SEARCH_ICON;
-	private Image infoButtonIcon 		= LookAndFeelConstants.QUICK_MENU_INFO_ICON;
-	
+			
 	SIPCommButton infoButton;
 	SIPCommButton toolsButton;
 	SIPCommButton addButton;
@@ -37,10 +32,25 @@ public class QuickMenu extends JToolBar{
 		this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
 		this.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
 				
-		infoButton 		= new SIPCommButton(infoButtonIcon);						
-		toolsButton 	= new SIPCommButton(configureButtonIcon);
-		searchButton 	= new SIPCommButton(searchButtonIcon);
-		addButton 		= new SIPCommButton(addButtonIcon);
+		infoButton 		= new SIPCommButton
+							(LookAndFeelConstants.QUICK_MENU_BUTTON_BG,
+							 LookAndFeelConstants.QUICK_MENU_BUTTON_ROLLOVER_BG,
+							 LookAndFeelConstants.QUICK_MENU_INFO_ICON);
+		
+		toolsButton 	= new SIPCommButton
+							(LookAndFeelConstants.QUICK_MENU_BUTTON_BG, 
+							 LookAndFeelConstants.QUICK_MENU_BUTTON_ROLLOVER_BG,
+							 LookAndFeelConstants.QUICK_MENU_CONFIGURE_ICON);
+		
+		searchButton 	= new SIPCommButton
+							(LookAndFeelConstants.QUICK_MENU_BUTTON_BG, 
+							 LookAndFeelConstants.QUICK_MENU_BUTTON_ROLLOVER_BG,
+							 LookAndFeelConstants.QUICK_MENU_SEARCH_ICON);
+		
+		addButton 		= new SIPCommButton
+							(LookAndFeelConstants.QUICK_MENU_BUTTON_BG, 
+							 LookAndFeelConstants.QUICK_MENU_BUTTON_ROLLOVER_BG,
+							 LookAndFeelConstants.QUICK_MENU_ADD_ICON);
 				
 		this.init();
 	}
