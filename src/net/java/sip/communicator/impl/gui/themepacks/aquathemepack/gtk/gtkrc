@@ -12,6 +12,22 @@ style "eventbox" {
 
 class "GtkEventBox" style "eventbox"
 
+style "toolbar"
+{	
+  engine "pixmap" {  	
+    image 
+      {
+	function	= BOX
+	recolorable	= TRUE
+	file            = "arrow_right1.png"
+	border          = { 2, 2, 1, 2 }
+	stretch         = TRUE
+      }
+  }
+}
+
+class "GtkToolbar" style "toolbar"
+
 #
 # Buttons
 #
@@ -157,7 +173,7 @@ style "notebook"
         function        = EXTENSION
 	recolorable     = TRUE
 	state           = ACTIVE
-	file            = "notebook2.png"
+	file            = "notebookDisabled.png"
 	border          = { 10, 10, 10, 10 }
 	stretch         = TRUE
 	gap_side	= BOTTOM
@@ -177,7 +193,7 @@ style "notebook"
         function        = EXTENSION
 	recolorable     = TRUE
 	state           = ACTIVE
-	file            = "notebook6.png"
+	file            = "notebook61.png"
 	border          = { 10, 10, 10, 10 }
 	stretch         = TRUE
 	gap_side	= RIGHT
@@ -187,7 +203,7 @@ style "notebook"
         function        = EXTENSION
 	recolorable     = TRUE
 	state           = ACTIVE
-	file            = "notebook6.png"
+	file            = "notebook61.png"
 	border          = { 10, 10, 10, 10 }
 	stretch         = TRUE
 	gap_side	= LEFT
@@ -196,7 +212,7 @@ style "notebook"
       {
         function        = EXTENSION
 	recolorable     = TRUE
-	file            = "notebook3.png"
+	file            = "notebook.png"
 	border          = { 10, 10, 10, 10 }
 	stretch         = TRUE
 	gap_side        = BOTTOM
@@ -235,7 +251,7 @@ style "notebook"
       {
         function        = BOX_GAP
 	recolorable     = TRUE
-	file            = "notebook6.png"
+	file            = "notebook61.png"
 	border          = { 10, 10, 10, 10 }
 	stretch         = TRUE
         gap_file        = "gap_top.png"
@@ -250,7 +266,7 @@ style "notebook"
       {
         function        = BOX_GAP
 	recolorable     = TRUE
-	file            = "notebook6.png"
+	file            = "notebook61.png"
 	border          = { 10, 10, 10, 10 }
 	stretch         = TRUE
         gap_file        = "gap_bottom.png"
@@ -265,7 +281,7 @@ style "notebook"
       {
         function        = BOX_GAP
 	recolorable     = TRUE
-	file            = "notebook6.png"
+	file            = "notebook61.png"
 	border          = { 10, 10, 10, 10 }
 	stretch         = TRUE
         gap_file        = "gap_left.png"
@@ -280,7 +296,7 @@ style "notebook"
       {
         function        = BOX_GAP
 	recolorable     = TRUE
-	file            = "notebook6.png"
+	file            = "notebook61.png"
 	border          = { 10, 10, 10, 10 }
 	stretch         = TRUE
         gap_file        = "gap_right.png"
@@ -298,7 +314,7 @@ style "notebook"
       {
         function        = BOX
 	recolorable     = TRUE
-	file            = "notebook6.png"
+	file            = "notebook61.png"
 	border          = { 10, 10, 10, 10 }
 	stretch         = TRUE
 	gap_side	= TOP
@@ -366,7 +382,7 @@ style "optionmenu"
       {
         function        = BOX
 	recolorable     = TRUE
-	file            = "option_menu.png"
+	file            = "combobox.png"
 	border          = { 12, 32, 2, 3 }
 	stretch         = TRUE
       }
@@ -690,7 +706,7 @@ style "default"
   bg[ACTIVE]      = "#ffffff"
   bg[INSENSITIVE] = "#ffffff"
   bg[SELECTED]    = "#6ba5e7"
-  base[NORMAL]    = "#ffffff"
+  base[NORMAL]    = "#ffffff" 
   engine "pixmap" 
   {
     image 
