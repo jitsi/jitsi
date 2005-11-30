@@ -59,10 +59,10 @@
 
     <path id="project.source.path">
         <!-- refer to both main and test source files. -->
-        <pathelement location="${src}"/>  
-        <pathelement location="${src2}"/>  
+        <pathelement location="${src}"/>
+        <pathelement location="${src2}"/>
     </path>
-    
+
     <path id="project.class.path">
         <pathelement location="${dest}"/>
 
@@ -71,7 +71,7 @@
             <include name="**/*.jar"/>
         </fileset>
     </path>
-    
+
     <!-- java compile -->
     <target name="compile" depends="init"
         description="Runs javac on the project source tree.">
@@ -187,6 +187,8 @@
         </unjar>
     </target>
 
+    <!-- - - - - - - - - - - - - - UNIT TESTING - - - - - - - - - - - - - - -->
+
     <!--PREPARE-TESTS-->
     <target name="identify-test"
             description="identifies Service Impl Compatibility Kits to run">
@@ -216,6 +218,7 @@
                         ResourcesServicesLick
                         HistoryServiceLick
                         SlicklessTests
+                        IcqProtocolProviderServiceLick
                         "/>
     </target>
 
@@ -249,16 +252,66 @@
     </target>
 
     <target name="cc-buildloop" depends="rebuild,bundles,test"/>
+    <!-- - - NetBeans Targets for specific files selected via ide-actions - -->
+
+    <!--netbeans only - debug a single test file under oscar and jUnit-->
+    <target name="debug-selected-file"
+            depends="init,init,prepare-single-test,prepare-all-tests"
+            description="starts oscar and runs selected Service Impl Compatibility Kit">
+
+      <fail unless="test.name"
+            message="debug impossible when 'test.name' property not defined!" />
+
+        <nbjpdastart name="${test.name}"
+                     addressproperty="jpda.address"
+                     transport="dt_socket" >
+            <classpath refid="project.class.path" />
+            <sourcepath refid="project.source.path" />
+        </nbjpdastart>
+
+        <java fork="true"
+              classname="org.ungoverned.oscar.Main"
+              classpathref="project.class.path"
+              failonerror="true" >
+           <jvmarg value="-Xdebug"/>
+           <jvmarg value="-Xnoagent"/>
+           <jvmarg value="-Djava.compiler=none"/>
+           <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
+           <arg value="${test.name}"/>
+
+            <!-- The following two configure oscar telling it that it's running
+                 as a test environment-->
+            <sysproperty key="oscar.config.properties"
+                value="file:./lib/oscar.unit.test.properties"/>
+
+            <!-- Tell the slick runner where to store test results. -->
+            <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
+                value="${test.reports.dir}"/>
+
+            <!-- Tell the slick runner which Test class to run. -->
+            <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
+                value="${simple.test.names}"/>
+
+            <!-- Tell the slick runner which Test class to run.
+            <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
+                value="SlicklessTests"/> -->
+
+            <!-- Tell java.util.logging about our logging preferences -->
+            <sysproperty key="java.util.logging.config.file"
+                value="lib/logging.properties"/>
+
+        </java>
+    </target>
+
 
     <!-- - - - - - - - - - - - - - BUNDLE BUILDING TARGETS - - - - - - - -  - -->
     <!--ALL BUNDLES-->
     <target name="bundles"
-        depends="bundle-servicebinder,bundle-util,bundle-configuration,
-        bundle-history,bundle-history-slick,bundle-configuration-slick,
-        bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
-        bundle-slick-runner,bundle-sip,bundle-resources,bundle-resources-slick,
-        bundle-media,bundle-media-slick"/>
-
+        depends="bundle-util,bundle-configuration,bundle-history,
+        bundle-history-slick,bundle-configuration-slick,bundle-netaddr,
+        bundle-netaddr-slick,bundle-slickless,bundle-slick-runner,bundle-sip,
+        bundle-resources,bundle-resources-slick,bundle-media,bundle-media-slick,
+        bundle-icq,bundle-icq-slick"/>
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history" depends="rebuild">
         <jar compress="false" destfile="${bundles.dest}/history.jar"
@@ -444,59 +497,36 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
                 prefix="net/java/sip/communicator/service/protocol"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/sip"
-                prefix="net/java/sip/communicator/service/protocol/sip"/>
+                prefix="net/java/sip/communicator/impl/protocol/sip"/>
         </jar>
     </target>
-    
-<!--NetBeans Targets for specific files selected via ide-actions -->
-    
-    <!--netbeans only - debug a single test file under oscar and jUnit-->
-    <target name="debug-selected-file"
-            depends="init,init,prepare-single-test,prepare-all-tests"
-            description="starts oscar and runs selected Service Impl Compatibility Kit">
-              
-      <fail unless="test.name"
-            message="debug impossible when 'test.name' property not defined!" />
-                                
-        <nbjpdastart name="${test.name}"
-                     addressproperty="jpda.address"
-                     transport="dt_socket" >
-            <classpath refid="project.class.path" />
-            <sourcepath refid="project.source.path" />
-        </nbjpdastart>
-      
-        <java fork="true"
-              classname="org.ungoverned.oscar.Main"
-              classpathref="project.class.path"
-              failonerror="true" >
-           <jvmarg value="-Xdebug"/>
-           <jvmarg value="-Xnoagent"/>
-           <jvmarg value="-Djava.compiler=none"/>
-           <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
-           <arg value="${test.name}"/>
-      
-            <!-- The following two configure oscar telling it that it's running
-                 as a test environment-->
-            <sysproperty key="oscar.config.properties"
-                value="file:./lib/oscar.unit.test.properties"/>
 
-            <!-- Tell the slick runner where to store test results. -->
-            <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
-                value="${test.reports.dir}"/>
+    <!-- BUNDLE-ICQ -->
+    <target name="bundle-icq" depends="rebuild"
+        description="Creates a bundle containing the icq impl of the protocol provider.">
+        <jar compress="false" destfile="${bundles.dest}/protocol-icq.jar"
+            manifest="src/net/java/sip/communicator/impl/protocol/icq/icq.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
+                prefix="net/java/sip/communicator/service/protocol"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/icq"
+                prefix="net/java/sip/communicator/impl/protocol/icq"/>
+            <zipfileset src="${lib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
+            <zipfileset src="${lib}/oscar-aim.jar" prefix=""/>
+            <zipfileset src="${lib}/retroweaver-rt.jar" prefix=""/>
+        </jar>
+    </target>
 
-            <!-- Tell the slick runner which Test class to run. -->
-            <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
-                value="${simple.test.names}"/>
-
-            <!-- Tell the slick runner which Test class to run. 
-            <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
-                value="SlicklessTests"/> -->
-
-            <!-- Tell java.util.logging about our logging preferences -->
-            <sysproperty key="java.util.logging.config.file"
-                value="lib/logging.properties"/>
-
-        </java>
+    <!-- BUNDLE-ICQ-SLICK -->
+    <target name="bundle-icq-slick" depends="rebuild"
+        description="Creates a bundle containing the the slick for the ICQ protocol provider.">
+        <jar compress="false" destfile="${bundles.dest}/protocol-icq-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/icq"
+                prefix="net/java/sip/communicator/slick/protocol/icq"/>
+            <zipfileset src="${lib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
+            <zipfileset src="${lib}/oscar-aim.jar" prefix=""/>
+            <zipfileset src="${lib}/retroweaver-rt.jar" prefix=""/>
+        </jar>
     </target>
 
 </project>
