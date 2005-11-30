@@ -218,7 +218,6 @@
                         ResourcesServicesLick
                         HistoryServiceLick
                         SlicklessTests
-                        IcqProtocolProviderServiceLick
                         "/>
     </target>
 
@@ -310,8 +309,7 @@
         depends="bundle-util,bundle-configuration,bundle-history,
         bundle-history-slick,bundle-configuration-slick,bundle-netaddr,
         bundle-netaddr-slick,bundle-slickless,bundle-slick-runner,bundle-sip,
-        bundle-resources,bundle-resources-slick,bundle-media,bundle-media-slick,
-        bundle-icq,bundle-icq-slick"/>
+        bundle-resources,bundle-resources-slick,bundle-media,bundle-media-slick"/>
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history" depends="rebuild">
         <jar compress="false" destfile="${bundles.dest}/history.jar"
@@ -501,33 +499,6 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!-- BUNDLE-ICQ -->
-    <target name="bundle-icq" depends="rebuild"
-        description="Creates a bundle containing the icq impl of the protocol provider.">
-        <jar compress="false" destfile="${bundles.dest}/protocol-icq.jar"
-            manifest="src/net/java/sip/communicator/impl/protocol/icq/icq.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
-                prefix="net/java/sip/communicator/service/protocol"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/icq"
-                prefix="net/java/sip/communicator/impl/protocol/icq"/>
-            <zipfileset src="${lib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
-            <zipfileset src="${lib}/oscar-aim.jar" prefix=""/>
-            <zipfileset src="${lib}/retroweaver-rt.jar" prefix=""/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-ICQ-SLICK -->
-    <target name="bundle-icq-slick" depends="rebuild"
-        description="Creates a bundle containing the the slick for the ICQ protocol provider.">
-        <jar compress="false" destfile="${bundles.dest}/protocol-icq-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/icq"
-                prefix="net/java/sip/communicator/slick/protocol/icq"/>
-            <zipfileset src="${lib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
-            <zipfileset src="${lib}/oscar-aim.jar" prefix=""/>
-            <zipfileset src="${lib}/retroweaver-rt.jar" prefix=""/>
-        </jar>
-    </target>
 
 </project>
 
