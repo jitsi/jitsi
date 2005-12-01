@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <bundle>
-  <component class="net.java.sip.communicator.impl.resources.FileAccessServiceImpl">
-    <provides service="net.java.sip.communicator.service.resources.FileAccessService"/>
+  <component class="net.java.sip.communicator.impl.fileaccess.FileAccessServiceImpl">
+    <provides service="net.java.sip.communicator.service.fileaccess.FileAccessService"/>
     
     <!--
     	One and only one reference to a configuration service is needed.

@@ -9,7 +9,6 @@ package net.java.sip.communicator.service.history;
 import java.util.NoSuchElementException;
 
 import net.java.sip.communicator.service.history.records.HistoryRecord;
-import net.java.sip.communicator.util.BidirectionalIterator;
 
 
 /**

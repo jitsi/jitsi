@@ -1,21 +1,21 @@
-package net.java.sip.communicator.slick.resources;
+package net.java.sip.communicator.slick.fileaccess;
 
 import org.osgi.framework.*;
 import junit.framework.*;
-import net.java.sip.communicator.service.resources.FileAccessService;
+import net.java.sip.communicator.service.fileaccess.FileAccessService;
 
 import java.util.*;
 
 import net.java.sip.communicator.util.*;
 
 /**
- * This class launches the bundle of which test the resources bundle.
- * this bundle is a set of (j)unit tests. It should be launched by the
+ * This class launches the bundle which tests the fileaccess bundle.
+ * This bundle is a set of (j)unit tests. It should be launched by the
  * cruisecontrol module.
  *
  * @author Alexander Pelov
  */
-public class ResourcesServicesLick
+public class FileAccessServiceLick
     extends TestSuite
     implements BundleActivator
 {
@@ -26,15 +26,15 @@ public class ResourcesServicesLick
     public static TestCase tcase = new TestCase(){};
 
     /**
-     * Start the Resources Sevice Implementation Compatibility Kit.
+     * Start the File Access Sevice Implementation Compatibility Kit.
      *
      * @param bundleContext BundleContext
      * @throws Exception
      */
     public void start(BundleContext bundleContext) throws Exception
     {
-        ResourcesServicesLick.bc = bundleContext;
-        setName("ResourcesServicesLick");
+        FileAccessServiceLick.bc = bundleContext;
+        setName("FileAccessServiceLick");
         Hashtable properties = new Hashtable();
         properties.put("service.pid", getName());
 
@@ -53,7 +53,5 @@ public class ResourcesServicesLick
     public void stop(BundleContext bundlecontext) throws Exception
     {
     }
-
-
 
 }

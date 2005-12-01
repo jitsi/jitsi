@@ -19,5 +19,5 @@ Import-Package: org.ungoverned.gravity.servicebinder,
 Export-Package: net.java.sip.communicator.service.media,
  net.java.sip.communicator.service.media.event,
  net.java.sip.communicator.impl.media,
- net.java.sip.communicator.impl.media.event,
+ net.java.sip.communicator.impl.media.configuration,
 Metadata-Location: /net/java/sip/communicator/impl/media/media.metadata.xml

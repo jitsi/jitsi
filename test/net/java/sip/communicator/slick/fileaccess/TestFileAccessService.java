@@ -1,4 +1,4 @@
-package net.java.sip.communicator.slick.resources;
+package net.java.sip.communicator.slick.fileaccess;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Random;
 
 import junit.framework.TestCase;
-import net.java.sip.communicator.service.resources.FileAccessService;
+import net.java.sip.communicator.service.fileaccess.FileAccessService;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -52,7 +52,7 @@ public class TestFileAccessService extends TestCase {
     
 	public TestFileAccessService(String name) {
         super(name);
-        BundleContext context = ResourcesServicesLick.bc;
+        BundleContext context = FileAccessServiceLick.bc;
         ServiceReference ref = context.getServiceReference(
         	FileAccessService.class.getName());
         this.fileAccessService = (FileAccessService)context.getService(ref);
@@ -60,7 +60,7 @@ public class TestFileAccessService extends TestCase {
 	
 	
 	/*
-	 * Test method for 'net.java.sip.communicator.service.resources.FileAccessServiceImpl.getTemporaryFile()'
+	 * Test method for 'net.java.sip.communicator.service.fileaccess.FileAccessServiceImpl.getTemporaryFile()'
 	 */
 	public void testCreateReadWriteTemporaryFile() {
 		try {
@@ -76,7 +76,7 @@ public class TestFileAccessService extends TestCase {
 	}
 
     /*
-     * Test method for 'net.java.sip.communicator.service.resources.FileAccessServiceImpl.getTemporaryFile()'
+     * Test method for 'net.java.sip.communicator.service.fileaccess.FileAccessServiceImpl.getTemporaryFile()'
      */
     public void testCreateTemporaryDirectory() throws Exception {
         try {
@@ -87,7 +87,7 @@ public class TestFileAccessService extends TestCase {
     }
 
     /*
-     * Test method for 'net.java.sip.communicator.service.resources.FileAccessServiceImpl.getTemporaryFile()'
+     * Test method for 'net.java.sip.communicator.service.fileaccess.FileAccessServiceImpl.getTemporaryFile()'
      */
     public void testCreateReadWriteFileInTemporaryDirectory() throws Exception {
         int testFiles = 10;

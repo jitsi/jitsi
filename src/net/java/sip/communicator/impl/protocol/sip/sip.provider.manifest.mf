@@ -4,4 +4,4 @@ Bundle-Description: A bundle that implements the Protocol Provider package over 
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 Import-Package: net.java.sip.communicator.util,
-Export-Package: net.java.sip.communicator.protocol,
+Export-Package: net.java.sip.communicator.service.protocol,

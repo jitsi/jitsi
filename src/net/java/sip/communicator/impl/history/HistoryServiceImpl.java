@@ -19,11 +19,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.java.sip.communicator.service.configuration.ConfigurationService;
+import net.java.sip.communicator.service.fileaccess.FileAccessService;
 import net.java.sip.communicator.service.history.History;
 import net.java.sip.communicator.service.history.HistoryID;
 import net.java.sip.communicator.service.history.HistoryService;
 import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
-import net.java.sip.communicator.service.resources.FileAccessService;
 import net.java.sip.communicator.util.Logger;
 
 /**

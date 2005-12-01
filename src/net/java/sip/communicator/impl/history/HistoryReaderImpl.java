@@ -12,11 +12,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import net.java.sip.communicator.service.history.BidirectionalIterator;
 import net.java.sip.communicator.service.history.HistoryReader;
 import net.java.sip.communicator.service.history.QueryResultSet;
 import net.java.sip.communicator.service.history.DefaultQueryResultSet;
 import net.java.sip.communicator.service.history.records.HistoryRecord;
-import net.java.sip.communicator.util.BidirectionalIterator;
 
 import org.jaxen.JaxenException;
 import org.jaxen.Navigator;

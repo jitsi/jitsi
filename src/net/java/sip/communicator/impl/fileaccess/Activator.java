@@ -1,4 +1,4 @@
-package net.java.sip.communicator.impl.resources;
+package net.java.sip.communicator.impl.fileaccess;
 
 import org.ungoverned.gravity.servicebinder.GenericActivator;
 

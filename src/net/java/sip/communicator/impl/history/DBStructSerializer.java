@@ -16,7 +16,6 @@ import javax.xml.parsers.DocumentBuilder;
 import net.java.sip.communicator.service.history.History;
 import net.java.sip.communicator.service.history.HistoryID;
 import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
-import net.java.sip.communicator.util.EnumerationBase;
 import net.java.sip.communicator.util.xml.XMLUtils;
 
 import org.w3c.dom.Document;
@@ -147,7 +146,6 @@ public class DBStructSerializer {
 		int count = nodes.getLength();
 		
 		ArrayList propertyNames = new ArrayList(count);
-		ArrayList propertyTypes = new ArrayList(count);
 		
 		for(int i = 0; i < count; i++) {
 			Node node = nodes.item(i);

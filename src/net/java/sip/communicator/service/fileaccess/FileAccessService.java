@@ -4,14 +4,14 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.service.resources;
+package net.java.sip.communicator.service.fileaccess;
 
 import java.io.File;
 import java.io.IOException;
 
 /**
  * A service used to provide the basic functionality required to access the
- * undelaying file system.
+ * undelying file system.
  * 
  * Note: Never store unencrypted sensitive information, such as passwords,
  * personal data, credit card numbers, etc..
@@ -29,17 +29,19 @@ public interface FileAccessService {
 	 * The key of the configuration property containing the user home dir - if
 	 * it is not defined the system property is used
 	 */
-	public static final String CONFPROPERTYKEY_USER_HOME = "sipcommunicator.user.home";
+	public static final String CONFPROPERTYKEY_USER_HOME = 
+		"net.java.sip.communicator.user.home";
 
 	/**
 	 * The subdirectory of USER_HOME in which all user files will be stored
 	 */
-	public static final String CONFPROPERTYKEY_SIP_DIRECTORY = "sipcommunicator.user.home.sipdir";
+	public static final String CONFPROPERTYKEY_SIP_DIRECTORY = 
+		"net.java.sip.communicator.user.home.sip-communicator-home";
 
 	/**
 	 * The default subdirectory
 	 */
-	public static final String DEFAULT_SIP_DIRECTORY = ".sipcommunicator";
+	public static final String DEFAULT_SIP_DIRECTORY = "sip-communicator";
 
 	/**
 	 * This method returns a created temporary file. After you close this file

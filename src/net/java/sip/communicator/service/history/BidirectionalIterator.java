@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.util;
+package net.java.sip.communicator.service.history;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

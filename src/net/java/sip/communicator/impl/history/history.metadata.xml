@@ -11,7 +11,7 @@
     	bind-method="setConfigurationService" 
     	unbind-method="unsetConfigurationService" />
     	
-    <requires service="net.java.sip.communicator.service.resources.FileAccessService"
+    <requires service="net.java.sip.communicator.service.fileaccess.FileAccessService"
     	filter="" 
     	policy="static" 
     	cardinality="1..1" 
