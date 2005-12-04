@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created by Emil Ivov on Jul 6, 2005 8:30:22 PM-->
 
-<project basedir="." default="rebuild" name="sip-communicator-1.0">
+<project basedir="." default="usage" name="sip-communicator-1.0">
 
     <property environment="system"/>
     <property name="jdk.home" value="/usr/java/java"/>
@@ -71,6 +71,14 @@
             <include name="**/*.jar"/>
         </fileset>
     </path>
+    
+  <!-- default Ant target does nothing except print helpful options -->
+  <!-- Ant-internal target does not appear in its own help display  -->
+    <target name="usage" >
+       <echo message="execute 'ant -projecthelp' for useful build targets" />
+       <echo message="execute 'ant rebuild' for clean/build/test operation" />
+       <echo message="execute 'ant -help' for Ant help" />
+    </target>
 
     <!-- java compile -->
     <target name="compile" depends="init"
