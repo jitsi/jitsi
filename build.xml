@@ -198,25 +198,26 @@
     <!-- - - - - - - - - - - - - - UNIT TESTING - - - - - - - - - - - - - - -->
 
     <!--PREPARE-TESTS-->
-    <target name="identify-test"
-            description="identifies Service Impl Compatibility Kits to run">
-        <!-- has a single test class has been defined?    -->
+    <target name="identify-test">
+        <!--internal-target- identify Service Impl Compatibility Kits to run -->
         <condition property="test.name.known">
+            <!-- has a single test class has been defined?    -->
+            <!-- e.g. ant test -Dtest.name=./path/to/test/testname.java    -->
             <isset property="test.name"/>
         </condition>
     </target>
 
     <target name="prepare-single-test" depends="identify-test"
-            if="test.name.known"
-            description="prepares to run a single Service Impl Compatibility Kit">
+            if="test.name.known">
+        <!--internal-target- prepare to run a single Service Impl Compatibility Kit -->
         <!-- extract the simple Test class name. -->
         <basename property="simple.test.names"
                 file="${test.name}" suffix=".java"/>
     </target>
 
     <target name="prepare-all-tests" depends="identify-test"
-            unless="test.name.known"
-            description="prepares to run all known Service Impl Compatibility Kits">
+            unless="test.name.known">
+        <!--internal-target- prepare to run all known Service Impl Compatibility Kit -->
         <!-- assign all known Test classes. -->
         <property name="simple.test.names"
                   value="
