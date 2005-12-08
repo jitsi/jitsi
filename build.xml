@@ -199,7 +199,7 @@
     <!-- - - - - - - - - - - - - - UNIT TESTING - - - - - - - - - - - - - - -->
 
     <!--PREPARE-TESTS-->
-    <target name="identify-test">
+    <target name="identify-test" depends="make">
         <!--internal-target- identify Service Impl Compatibility Kits to run -->
         <condition property="test.name.known">
             <!-- has a single test class has been defined?    -->
