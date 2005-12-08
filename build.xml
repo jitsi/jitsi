@@ -267,7 +267,7 @@
 
     <!--netbeans only - debug a single test file under oscar and jUnit-->
     <target name="debug-selected-file"
-            depends="init,init,prepare-single-test,prepare-all-tests">
+            depends="init,prepare-single-test,prepare-all-tests">
         <!--internal-target- starts oscar and debugs the selected 
                              Service Impl Compatibility Kit -->
 
