@@ -261,12 +261,15 @@
     </target>
 
     <target name="cc-buildloop" depends="rebuild,bundles,test"/>
+    
+    
     <!-- - - NetBeans Targets for specific files selected via ide-actions - -->
 
     <!--netbeans only - debug a single test file under oscar and jUnit-->
     <target name="debug-selected-file"
-            depends="init,init,prepare-single-test,prepare-all-tests"
-            description="starts oscar and runs selected Service Impl Compatibility Kit">
+            depends="init,init,prepare-single-test,prepare-all-tests">
+        <!--internal-target- starts oscar and debugs the selected 
+                             Service Impl Compatibility Kit -->
 
       <fail unless="test.name"
             message="debug impossible when 'test.name' property not defined!" />
