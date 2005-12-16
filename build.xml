@@ -179,11 +179,7 @@
          operating system and extracts it in the lib/native directory -->
     <target name="extractnativejmf"
            if="jmf.performancepack.available"
-           unless="jmf.performancepack.extracted"
-           description="Verifies whether we have a jmf performance pack for
-                        the current operating system and extracts it in the
-                        lib/native directory">
-
+           unless="jmf.performancepack.extracted">
         <echo>
             Extracting ${os.name} performance pack native libs
             from: ${jmf.home}/jmf-native.jar
