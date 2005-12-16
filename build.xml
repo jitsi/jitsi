@@ -109,8 +109,8 @@
     </target>
 
     <!-- resource -->
-    <target name="resource"
-        description="Copies all resource file to the ${dest} dir">
+    <target name="resource">
+        <!--internal-target- Copies all resource file to the ${dest} dir -->
         <copy todir="${dest}">
             <fileset dir="${src}">
                 <include name="**/*.jpeg"/>
@@ -476,8 +476,8 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!--BUNDLE-SLICKLESS-->
-    <target name="bundle-slickless" depends="rebuild"
-        description="Runs all tests that are testing classes which do not belong to a service implementation and don't therefore need a running OSGI framework">
+    <target name="bundle-slickless" depends="rebuild">
+        <!--internal-target- Runs all tests which do not belong to a service implementation and don't therefore need a running OSGI framework -->
         <jar compress="false" destfile="${bundles.dest}/slickless.jar"
             manifest="test/net/java/sip/communicator/slick/slickless/slickless.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/slickless"
@@ -486,8 +486,8 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!--BUNDLE-SLICK-RUNNER-->
-    <target name="bundle-slick-runner" depends="rebuild"
-        description="Creates a bundle that runs all SLICKs that currently exist in the sip-communicator.">
+    <target name="bundle-slick-runner" depends="rebuild">
+        <!--internal-target- Creates a bundle that runs all SLICKs that currently exist in sip-com -->
         <jar compress="false" destfile="${bundles.dest}/slick-runner.jar"
             manifest="test/net/java/sip/communicator/slick/runner/slick-runner.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/runner"
@@ -496,8 +496,8 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!--BUNDLE-SIP-->
-    <target name="bundle-sip" depends="rebuild"
-        description="Creates a bundle containing the sip implementation of the protocol provider package.">
+    <target name="bundle-sip" depends="rebuild">
+        <!--internal-target- Creates a bundle containing the sip implementation of the protocol provider package -->
         <jar compress="false" destfile="${bundles.dest}/protocol-sip.jar"
             manifest="src/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
