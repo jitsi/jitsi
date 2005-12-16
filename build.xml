@@ -82,8 +82,8 @@
     </target>
 
     <!-- java compile -->
-    <target name="compile" depends="init"
-        description="Runs javac on the project source tree.">
+    <target name="compile" depends="init">
+        <!--internal-target- compiles the entire project source tree -->
         <javac classpathref="project.class.path" debug="true"
             deprecation="true" destdir="${dest}" nowarn="false"
             source="1.4" target="1.4">
@@ -94,7 +94,7 @@
 
     <!-- clean -->
     <target name="clean"
-        description="Remove all generated files and get ready for a clean restart.">
+        description="Remove all generated files and prepare for a clean restart.">
         <delete file="${bundles.dest}/configuration.jar"/>
         <delete file="${bundles.dest}/configuration-slick.jar"/>
         <delete failonerror="false" includeemptydirs="true">
@@ -146,16 +146,16 @@
 
     <!--PACKAGE-->
     <target name="package"
-        depends="javadoc,resource"
-        description="Create java doc, and copy resource files"/>
+        depends="javadoc,resource"/>
+        <!--internal-target- Create java doc, and copy resource files. -->
 
     <!--MAKE-->
     <target name="make" depends="compile,package"
-        description="compile and package the project"/>
+        description="Compile and package the project (incrementally)."/>
 
     <!--REBUILD-->
     <target name="rebuild" depends="clean,make"
-        description="clean,re-compile and package the project"/>
+        description="Clean,re-compile and package the project (no bundles or tests)."/>
 
     <!--INIT-->
     <target name="init">
@@ -175,11 +175,12 @@
 
     </target>
 
-    <!-- Verifies whether we have a jmf performance pack for the current
-         operating system and extracts it in the lib/native directory -->
     <target name="extractnativejmf"
            if="jmf.performancepack.available"
            unless="jmf.performancepack.extracted">
+        <!--internal-target- Verifies whether we have a jmf performance
+            pack for the current operating system and extracts it in the
+            lib/native directory -->
         <echo>
             Extracting ${os.name} performance pack native libs
             from: ${jmf.home}/jmf-native.jar
@@ -229,7 +230,7 @@
 
     <!--RUN-TESTS-->
     <target name="test" depends="init,prepare-single-test,prepare-all-tests"
-        description="starts oscar and runs selected Service Impl Compatibility Kits">
+        description="Starts oscar and runs selected Service Impl Compatibility Kits.">
 
         <java classname="org.ungoverned.oscar.Main"
             fork="true"
@@ -256,7 +257,8 @@
         </java>
     </target>
 
-    <target name="cc-buildloop" depends="rebuild,bundles,test"/>
+    <target name="cc-buildloop" depends="rebuild,bundles,test"
+            description="Comprehensive rebuild and test (used by Cruise Control)."/>
     
     
     <!-- - - NetBeans Targets for specific files selected via ide-actions - -->
