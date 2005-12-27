@@ -257,6 +257,27 @@
         </java>
     </target>
 
+    <!--RUN-SIP-CMMUNICATOR-->
+    <target name="run" depends="compile,resource"
+        description="Starts oscar and runs sip-comunicator gui.">
+
+        <java classname="org.ungoverned.oscar.Main"
+            fork="true"
+            failonerror="true"
+            classpathref="project.class.path">
+
+            <!-- Tell oscar to run sip-communicator-->
+            <sysproperty key="oscar.config.properties"
+                value="file:./lib/oscar.client.run.properties"/>
+
+            <!-- Tell java.util.logging about our logging preferences -->
+            <sysproperty key="java.util.logging.config.file"
+                value="lib/logging.properties"/>
+
+        </java>
+    </target>
+
+    <!--CRUISE CONTROL BUILD LOOP target-->
     <target name="cc-buildloop" depends="rebuild,bundles,test"
             description="Comprehensive rebuild and test (used by Cruise Control)."/>
     

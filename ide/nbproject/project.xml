@@ -29,7 +29,7 @@
                     <target>javadoc</target>
                 </action>
                 <action name="run">
-                    <target>bundle-slick-runner</target>
+                    <target>run</target>
                 </action>
                 <action name="test">
                     <target>test</target>
