@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.main.utils.Constants;
 /**
  * @author Yana Stamcheva
  *
@@ -33,24 +34,24 @@ public class QuickMenu extends JToolBar{
 		this.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
 				
 		infoButton 		= new SIPCommButton
-							(LookAndFeelConstants.QUICK_MENU_BUTTON_BG,
-							 LookAndFeelConstants.QUICK_MENU_BUTTON_ROLLOVER_BG,
-							 LookAndFeelConstants.QUICK_MENU_INFO_ICON);
+							(Constants.QUICK_MENU_BUTTON_BG,
+							 Constants.QUICK_MENU_BUTTON_ROLLOVER_BG,
+							 Constants.QUICK_MENU_INFO_ICON);
 		
 		toolsButton 	= new SIPCommButton
-							(LookAndFeelConstants.QUICK_MENU_BUTTON_BG, 
-							 LookAndFeelConstants.QUICK_MENU_BUTTON_ROLLOVER_BG,
-							 LookAndFeelConstants.QUICK_MENU_CONFIGURE_ICON);
+							(Constants.QUICK_MENU_BUTTON_BG, 
+							 Constants.QUICK_MENU_BUTTON_ROLLOVER_BG,
+							 Constants.QUICK_MENU_CONFIGURE_ICON);
 		
 		searchButton 	= new SIPCommButton
-							(LookAndFeelConstants.QUICK_MENU_BUTTON_BG, 
-							 LookAndFeelConstants.QUICK_MENU_BUTTON_ROLLOVER_BG,
-							 LookAndFeelConstants.QUICK_MENU_SEARCH_ICON);
+							(Constants.QUICK_MENU_BUTTON_BG, 
+							 Constants.QUICK_MENU_BUTTON_ROLLOVER_BG,
+							 Constants.QUICK_MENU_SEARCH_ICON);
 		
 		addButton 		= new SIPCommButton
-							(LookAndFeelConstants.QUICK_MENU_BUTTON_BG, 
-							 LookAndFeelConstants.QUICK_MENU_BUTTON_ROLLOVER_BG,
-							 LookAndFeelConstants.QUICK_MENU_ADD_ICON);
+							(Constants.QUICK_MENU_BUTTON_BG, 
+							 Constants.QUICK_MENU_BUTTON_ROLLOVER_BG,
+							 Constants.QUICK_MENU_ADD_ICON);
 				
 		this.init();
 	}
@@ -62,6 +63,7 @@ public class QuickMenu extends JToolBar{
 		this.add(infoButton);
 	}
 	
+	/*
 	public void paint(Graphics g){
 		super.paint(g);
 		
@@ -69,10 +71,10 @@ public class QuickMenu extends JToolBar{
 		
 		GradientPaint p = new GradientPaint(this.getWidth()/2, 
 				0, 
-				LookAndFeelConstants.CONTACTPANEL_SELECTED_START_COLOR, 
+				Constants.CONTACTPANEL_SELECTED_START_COLOR, 
 				this.getWidth()/2, 
-				LookAndFeelConstants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, 
-				LookAndFeelConstants.CONTACTPANEL_SELECTED_END_COLOR);		
+				Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, 
+				Constants.CONTACTPANEL_SELECTED_END_COLOR);		
 
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
@@ -80,4 +82,5 @@ public class QuickMenu extends JToolBar{
 		
 		//g2.dra
 	}
+	*/
 }

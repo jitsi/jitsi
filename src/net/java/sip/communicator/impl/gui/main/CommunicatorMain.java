@@ -3,10 +3,13 @@ package net.java.sip.communicator.impl.gui.main;
 import java.io.File;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
+
+import net.java.sip.communicator.impl.gui.main.utils.Constants;
 
 import com.l2fprod.gui.plaf.skin.Skin;
 import com.l2fprod.gui.plaf.skin.SkinLookAndFeel;
@@ -27,22 +30,30 @@ public class CommunicatorMain {
 			if (args.length > 0) {
 				String themepack = args[0];
 				if (themepack.endsWith(".xml")) {			    	  
+					
 					SkinLookAndFeel.setSkin(
 							SkinLookAndFeel.loadThemePackDefinition(new File(args[0]).toURL()));
 					UIManager.setLookAndFeel("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
+					
 				} else if (themepack.startsWith("class:")) {
+					
 					String classname = themepack.substring("class:".length());
 					SkinLookAndFeel.setSkin((Skin)Class.forName(classname).newInstance());	
 					UIManager.setLookAndFeel("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
+				
 				} else if (themepack.startsWith("theme:")) {
+					
 					String classname = themepack.substring("theme:".length());
 					MetalTheme theme = (MetalTheme)Class.forName(classname).newInstance();
 				    MetalLookAndFeel metal = new MetalLookAndFeel();	
 				    MetalLookAndFeel.setCurrentTheme(theme);
 				    UIManager.setLookAndFeel(metal);
+				
 				} else {
+				
 					SkinLookAndFeel.setSkin(SkinLookAndFeel.loadThemePack(args[0]));
 					UIManager.setLookAndFeel("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");	
+				
 				}
 			}			
 			//the default theme is set if no theme is specified
@@ -76,9 +87,13 @@ public class CommunicatorMain {
 	    ContactItem citem2 = new ContactItem("Traiancho");
 	    ContactItem citem3 = new ContactItem("Glupancho");
 	    
-	    citem1.setUserIcon(new ImageIcon(LookAndFeelConstants.USER_ONLINE_ICON));
-	    citem2.setUserIcon(new ImageIcon(LookAndFeelConstants.USER_ONLINE_ICON));
-	    citem3.setUserIcon(new ImageIcon(LookAndFeelConstants.USER_ONLINE_ICON));
+	    citem1.setUserIcon(new ImageIcon(Constants.USER_ONLINE_ICON));
+	    citem2.setUserIcon(new ImageIcon(Constants.USER_ONLINE_ICON));
+	    citem3.setUserIcon(new ImageIcon(Constants.USER_ONLINE_ICON));
+	    
+	    citem1.setPhoto(Constants.DEFAULT_CHAT_USER_PHOTO);
+	    citem2.setPhoto(Constants.DEFAULT_CHAT_USER_PHOTO);
+	    citem3.setPhoto(Constants.DEFAULT_CHAT_USER_PHOTO);
 	    
 	    clist.addContact(citem1);
 		clist.addContact(citem2);
@@ -86,19 +101,17 @@ public class CommunicatorMain {
 		
 		User user = new User();
 		
+		user.setName("Yana");
 		user.setProtocols(new String[]{"SIP", "ICQ", "MSN"});
 		
 		//////////////////////////////////////////////////////////////////////
 		
 	    MainFrame mainFrame = new MainFrame(clist, user);
 	    	    
-	    mainFrame.setTitle("SipCommunicator");
-	    	    
-	    mainFrame.setIconImage(LookAndFeelConstants.SIP_LOGO);
-	    
+	      
 	    //In order to have the same icon when using option panes
-	    JOptionPane.getRootFrame().setIconImage(LookAndFeelConstants.SIP_LOGO);
-	    
+	    JOptionPane.getRootFrame().setIconImage(Constants.SIP_LOGO);
+	    	    
 	    mainFrame.pack();
 	    
 	    mainFrame.setVisible(true);	    			

@@ -1,66 +1,145 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.main.utils.Constants;
 
-public class CallPanel extends JPanel{
+/** 
+ * @author Yana Stamcheva
+ */
+
+public class CallPanel extends JPanel implements ActionListener{
+
+	private JComboBox phoneNumberCombo = new JComboBox ();
 	
-	private Image	callButtonPressedIcon	= LookAndFeelConstants.CALL_PRESSED_BUTTON_BG;
-	private Image	hangupButtonPressedIcon	= LookAndFeelConstants.HANGUP_PRESSED_BUTTON_BG;
-	private Image	callButtonBG			= LookAndFeelConstants.CALL_BUTTON_BG;
-	private Image	callButtonRolloverBG	= LookAndFeelConstants.CALL_ROLLOVER_BUTTON_BG;
-	private Image	hangupButtonBG			= LookAndFeelConstants.HANGUP_BUTTON_BG;
-	private Image	hangupButtonRolloverBG	= LookAndFeelConstants.HANGUP_ROLLOVER_BUTTON_BG;
-		
-	private JComboBox 		phoneNumberCombo = new JComboBox();	
-	private JPanel 			buttonsPanel	= new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
-	private SIPCommButton	callButton;
-	private SIPCommButton	hangupButton;
-		
-	public CallPanel(){
-		
-		super(new BorderLayout());
-		/*
-		callButton 		= new SIPCommButton(callButtonBG,
-											callButtonRolloverBG, 
-											callButtonIcon);
-		hangupButton 	= new SIPCommButton(hangupButtonBG,
-											hangupButtonRolloverBG, 
-											hangupButtonIcon);
-		*/		
-		
-		callButton 		= new SIPCommButton(callButtonBG,
-											callButtonRolloverBG,
-											callButtonPressedIcon,
-											null);
-		
-		hangupButton 	= new SIPCommButton(hangupButtonBG,
-											hangupButtonRolloverBG,
-											hangupButtonPressedIcon,
-											null);
+	private JPanel comboPanel = new JPanel (new BorderLayout());
+ 
+	private JPanel buttonsPanel = new JPanel (
+									new FlowLayout(FlowLayout.CENTER, 15, 0));
 
+	private SIPCommButton callButton = new SIPCommButton
+								(Constants.CALL_BUTTON_BG, 
+								 Constants.CALL_ROLLOVER_BUTTON_BG,
+								 Constants.CALL_PRESSED_BUTTON_BG, 
+								 null);
+
+	private SIPCommButton hangupButton = new SIPCommButton
+								(Constants.HANGUP_BUTTON_BG,
+								 Constants.HANGUP_ROLLOVER_BUTTON_BG, 
+								 Constants.HANGUP_PRESSED_BUTTON_BG, 
+								 null);	
 		
-		this.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
+	private SIPCommButton minimizeButton 
+						= new SIPCommButton(Constants.CALL_PANEL_MINIMIZE_BUTTON, 
+								Constants.CALL_PANEL_MINIMIZE_ROLLOVER_BUTTON);
+
+	private SIPCommButton restoreButton 
+						= new SIPCommButton(Constants.CALL_PANEL_RESTORE_BUTTON, 
+								Constants.CALL_PANEL_RESTORE_ROLLOVER_BUTTON);
+	
+	private JPanel minimizeButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+	
+	private MainFrame parentWindow;
+	
+	public CallPanel(MainFrame parentWindow) {
+
+		super(new BorderLayout());
+		
+		this.parentWindow = parentWindow;
+		
+			
+		
+		this.buttonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+
+		this.comboPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 0, 5));
+		
 		this.init();
 	}
 
 	private void init() {
+		
 		this.phoneNumberCombo.setEditable(true);
 		
-		this.add(phoneNumberCombo, BorderLayout.NORTH);
+		this.comboPanel.add(phoneNumberCombo, BorderLayout.CENTER);
+		this.add(comboPanel, BorderLayout.NORTH);
 		
+		this.callButton.setName("call");
+		this.hangupButton.setName("hangup");
+		this.minimizeButton.setName("minimize");
+		this.restoreButton.setName("restore");
+		
+		this.callButton.addActionListener(this);
+		this.hangupButton.addActionListener(this);
+		this.minimizeButton.addActionListener(this);
+		this.restoreButton.addActionListener(this);
+				
 		this.buttonsPanel.add(callButton);
 		this.buttonsPanel.add(hangupButton);
-		
+
 		this.add(buttonsPanel, BorderLayout.CENTER);
+		
+		this.minimizeButtonPanel.add(minimizeButton);
+		
+		this.add(minimizeButtonPanel,BorderLayout.SOUTH);		
 	}
-	
+
+	public JComboBox getPhoneNumberCombo() {
+		return phoneNumberCombo;
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		JButton button = (JButton) e.getSource();
+		String 	buttonName = button.getName();
+			
+		if (buttonName.equalsIgnoreCase("call")){
+			CallReceivePanel cr = new CallReceivePanel(this.parentWindow);
+				
+			cr.setVisible(true);
+		}
+		else if (buttonName.equalsIgnoreCase("hangup")){
+			
+		}
+		else if (buttonName.equalsIgnoreCase("minimize")){			
+							
+				this.remove(comboPanel);
+				this.remove(buttonsPanel);				
+				
+				this.minimizeButtonPanel.removeAll();
+				this.minimizeButtonPanel.add(restoreButton);
+				
+				this.parentWindow.validate();
+		}
+		else if (buttonName.equalsIgnoreCase("restore")){
+							
+				this.add(comboPanel, BorderLayout.NORTH);
+				this.add(buttonsPanel, BorderLayout.CENTER);
+				
+				this.minimizeButtonPanel.removeAll();
+				this.minimizeButtonPanel.add(minimizeButton);
+								
+				this.parentWindow.validate();
+		}
+	}
 }

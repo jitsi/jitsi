@@ -1,6 +1,7 @@
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -10,6 +11,9 @@ import java.awt.Toolkit;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.main.utils.Constants;
 
 /**
  * @author Yana Stamcheva
@@ -24,12 +28,16 @@ public class ContactPanel extends JPanel {
 	private boolean isMouseOver = false; 
 	private boolean isSelected = false;
 		
-	private JLabel 	nicknameLabel = new JLabel();
-		
+	private JLabel 	nicknameLabel = new JLabel(); 
+	
 	public ContactPanel(ContactItem contactItem){	
 		super(new BorderLayout());
 				
 		this.contactItem = contactItem;
+		
+		this.setBackground(Color.WHITE);
+		
+		this.setOpaque(true);
 		
 		this.init();
 	}
@@ -58,56 +66,56 @@ public class ContactPanel extends JPanel {
 		if(this.isSelected()){
 			GradientPaint p = new GradientPaint(this.getWidth()/2, 
 					0, 
-					LookAndFeelConstants.CONTACTPANEL_SELECTED_START_COLOR, 
+					Constants.CONTACTPANEL_SELECTED_START_COLOR, 
 					this.getWidth()/2, 
-					LookAndFeelConstants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, 
-					LookAndFeelConstants.CONTACTPANEL_SELECTED_END_COLOR);		
+					Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, 
+					Constants.CONTACTPANEL_SELECTED_END_COLOR);		
 
 			GradientPaint p1 = new GradientPaint(	this.getWidth()/2, 
-						this.getHeight() - LookAndFeelConstants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, 
-						LookAndFeelConstants.CONTACTPANEL_SELECTED_END_COLOR, 
+						this.getHeight() - Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, 
+						Constants.CONTACTPANEL_SELECTED_END_COLOR, 
 						this.getWidth()/2, 
 						this.getHeight(), 
-						LookAndFeelConstants.CONTACTPANEL_SELECTED_START_COLOR);
+						Constants.CONTACTPANEL_SELECTED_START_COLOR);
 
 			g2.setPaint(p);
-			g2.fillRect(0, 0, this.getWidth(), LookAndFeelConstants.CONTACTPANEL_SELECTED_GRADIENT_SIZE);
+			g2.fillRect(0, 0, this.getWidth(), Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE);
 			
-			g2.setColor(LookAndFeelConstants.CONTACTPANEL_SELECTED_END_COLOR);
+			g2.setColor(Constants.CONTACTPANEL_SELECTED_END_COLOR);
 			g2.fillRect(0, 
-						LookAndFeelConstants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, 
+						Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, 
 						this.getWidth(), 
-						this.getHeight() - LookAndFeelConstants.CONTACTPANEL_SELECTED_GRADIENT_SIZE);
+						this.getHeight() - Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE);
 			
 			g2.setPaint(p1);
-			g2.fillRect(0, this.getHeight() - LookAndFeelConstants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, this.getWidth(), this.getHeight() - 1);						
+			g2.fillRect(0, this.getHeight() - Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, this.getWidth(), this.getHeight() - 1);						
 		}
 		else if(this.isMouseOver()){
 			GradientPaint p = new GradientPaint(this.getWidth()/2, 
 					0, 
-					LookAndFeelConstants.CONTACTPANEL_MOVER_START_COLOR, 
+					Constants.CONTACTPANEL_MOVER_START_COLOR, 
 					this.getWidth()/2, 
-					LookAndFeelConstants.CONTACTPANEL_GRADIENT_SIZE, 
-					LookAndFeelConstants.CONTACTPANEL_MOVER_END_COLOR);		
+					Constants.CONTACTPANEL_GRADIENT_SIZE, 
+					Constants.CONTACTPANEL_MOVER_END_COLOR);		
 
 			GradientPaint p1 = new GradientPaint(	this.getWidth()/2, 
-						this.getHeight() - LookAndFeelConstants.CONTACTPANEL_GRADIENT_SIZE, 
-						LookAndFeelConstants.CONTACTPANEL_MOVER_END_COLOR, 
+						this.getHeight() - Constants.CONTACTPANEL_GRADIENT_SIZE, 
+						Constants.CONTACTPANEL_MOVER_END_COLOR, 
 						this.getWidth()/2, 
 						this.getHeight(), 
-						LookAndFeelConstants.CONTACTPANEL_MOVER_START_COLOR);
+						Constants.CONTACTPANEL_MOVER_START_COLOR);
 
 			g2.setPaint(p);
-			g2.fillRect(0, 0, this.getWidth(), LookAndFeelConstants.CONTACTPANEL_GRADIENT_SIZE);
+			g2.fillRect(0, 0, this.getWidth(), Constants.CONTACTPANEL_GRADIENT_SIZE);
 			
-			g2.setColor(LookAndFeelConstants.CONTACTPANEL_MOVER_END_COLOR);
+			g2.setColor(Constants.CONTACTPANEL_MOVER_END_COLOR);
 			g2.fillRect(0, 
-						LookAndFeelConstants.CONTACTPANEL_GRADIENT_SIZE, 
+						Constants.CONTACTPANEL_GRADIENT_SIZE, 
 						this.getWidth(), 
-						this.getHeight() - LookAndFeelConstants.CONTACTPANEL_GRADIENT_SIZE);
+						this.getHeight() - Constants.CONTACTPANEL_GRADIENT_SIZE);
 			
 			g2.setPaint(p1);
-			g2.fillRect(0, this.getHeight() - LookAndFeelConstants.CONTACTPANEL_GRADIENT_SIZE - 1, this.getWidth(), this.getHeight() - 1);
+			g2.fillRect(0, this.getHeight() - Constants.CONTACTPANEL_GRADIENT_SIZE - 1, this.getWidth(), this.getHeight() - 1);
 		}
 	}
 	
@@ -134,4 +142,16 @@ public class ContactPanel extends JPanel {
 			this.repaint();
 		}
 	}
+	
+	public void paint(Graphics g){
+		
+		AntialiasingManager.activateAntialiasing(g);
+	
+		super.paint(g);
+	}
+
+	public ContactItem getContactItem() {
+		return contactItem;
+	}
+
 }
