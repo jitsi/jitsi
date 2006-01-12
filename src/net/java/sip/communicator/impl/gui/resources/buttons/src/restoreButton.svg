@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48px"
+   height="48px"
+   id="svg2477"
+   sodipodi:version="0.32"
+   inkscape:version="0.42.2"
+   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/src"
+   sodipodi:docname="restoreButton.svg">
+  <defs
+     id="defs2479">
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3866"
+       id="linearGradient1676"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.144201,0.000000,0.000000,0.478951,-57.92901,0.379290)"
+       x1="33.025719"
+       y1="51.315903"
+       x2="33.205143"
+       y2="31.564920" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3866"
+       id="linearGradient1674"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.144201,0.000000,0.000000,0.478951,-57.92901,0.858228)"
+       x1="31.316103"
+       y1="17.584515"
+       x2="31.316103"
+       y2="26.234835" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3866"
+       id="linearGradient1671"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.144201,0.000000,0.000000,0.478951,-57.92901,0.379290)"
+       x1="31.289703"
+       y1="47.525883"
+       x2="31.289703"
+       y2="31.338949" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6050"
+       id="linearGradient1669"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.176782,0.000000,0.000000,0.453925,-59.13601,4.086967)"
+       x1="31.449125"
+       y1="41.978024"
+       x2="31.449125"
+       y2="24.898642" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3866"
+       id="linearGradient1666"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.000000,-1.144201,0.495153,0.000000,0.284757,57.47488)"
+       x1="17.293438"
+       y1="21.471018"
+       x2="17.293438"
+       y2="28.477236" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6050"
+       id="linearGradient1663"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.000000,-1.144201,0.495153,0.000000,0.284757,57.47488)"
+       x1="17.293438"
+       y1="35.513069"
+       x2="17.293438"
+       y2="23.827581" />
+    <linearGradient
+       id="linearGradient3866">
+      <stop
+         style="stop-color:#cfcfcf;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop3868" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop3870" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3866"
+       id="linearGradient1660"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.839082e-3,1.144192,-0.495149,4.542112e-3,34.57343,-13.50637)"
+       x1="17.242729"
+       y1="47.842445"
+       x2="17.268766"
+       y2="41.283470" />
+    <linearGradient
+       id="linearGradient6050">
+      <stop
+         id="stop6052"
+         offset="0.0000000"
+         style="stop-color:#cfcfcf;stop-opacity:1.0000000;" />
+      <stop
+         id="stop6054"
+         offset="1.0000000"
+         style="stop-color:#cfcfcf;stop-opacity:0.0000000;" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6050"
+       id="linearGradient1657"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.839082e-3,1.144192,-0.495149,4.542112e-3,34.57343,-13.50637)"
+       x1="17.298380"
+       y1="33.820702"
+       x2="17.252346"
+       y2="45.417229" />
+    <linearGradient
+       id="linearGradient11116">
+      <stop
+         style="stop-color:#143e7b;stop-opacity:1;"
+         offset="0"
+         id="stop11118" />
+      <stop
+         style="stop-color:#93aacc;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop11120" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11116"
+       id="linearGradient2465"
+       x1="-336.00000"
+       y1="266.23877"
+       x2="-329.67947"
+       y2="266.23877"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.979623,0.000000,0.000000,0.979623,343.4102,-238.8556)" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="7.0000000"
+     inkscape:cx="24.000000"
+     inkscape:cy="24.000000"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="724"
+     inkscape:window-height="509"
+     inkscape:window-x="0"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata2482">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="opacity:1.0000000;fill:none;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#646464;stroke-width:1.0903448;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect1624"
+       width="35.668594"
+       height="14.884464"
+       x="-40.305447"
+       y="10.118245"
+       ry="1.7079904"
+       transform="matrix(0.000000,-1.000000,1.000000,0.000000,0.000000,0.000000)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/restoreButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       style="opacity:1.0000000;fill:url(#linearGradient1674);fill-opacity:1.0000000;fill-rule:nonzero;stroke:url(#linearGradient1676);stroke-width:0.46771485;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect1626"
+       width="35.891068"
+       height="15.024039"
+       x="-40.042603"
+       y="9.7817383"
+       ry="1.4512235"
+       transform="matrix(0.000000,-1.000000,1.000000,0.000000,0.000000,0.000000)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/restoreButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       style="opacity:1.0000000;fill:url(#linearGradient1669);fill-opacity:1.0000000;fill-rule:nonzero;stroke:url(#linearGradient1671);stroke-width:0.46785808;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect1628"
+       width="35.951481"
+       height="11.015888"
+       x="-40.103020"
+       y="13.789889"
+       ry="1.4225831"
+       transform="matrix(0.000000,-1.000000,1.000000,0.000000,0.000000,0.000000)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/restoreButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       style="fill:url(#linearGradient1666);fill-opacity:1.0000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1.0000000"
+       d="M 11.039336,39.442186 C 11.039336,39.442186 17.536139,35.377543 23.971030,39.621771 C 23.971030,39.621771 11.025513,39.400229 10.916178,39.569586"
+       id="path1630"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/restoreButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       style="fill:url(#linearGradient1663);fill-opacity:1.0000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1.0000000"
+       d="M 11.039336,39.442186 C 11.039336,39.442186 17.536139,35.377543 23.971030,39.621771 C 23.971030,39.621771 11.025513,39.400229 10.916178,39.569586"
+       id="path1632"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/restoreButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       style="fill:url(#linearGradient1660);fill-opacity:1.0000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1.0000000"
+       d="M 23.847871,4.6248850 C 23.847871,4.6248850 17.357661,8.7490893 10.915992,4.5639132 C 10.915992,4.5639132 23.738379,4.5207412 23.847430,4.3503847"
+       id="path1634"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/restoreButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       style="fill:url(#linearGradient1657);fill-opacity:1.0000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1.0000000"
+       d="M 23.847871,4.6248850 C 23.847871,4.6248850 17.357661,8.7490893 10.915992,4.5639132 C 10.915992,4.5639132 23.738379,4.5207412 23.847430,4.3503847"
+       id="path1636"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/restoreButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       style="fill:url(#linearGradient2465);fill-opacity:1.0000000;fill-rule:evenodd;stroke:#3c3c3c;stroke-width:0.40656561px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1.0000000"
+       d="M 20.245277,17.029277 L 14.460112,21.920174 L 20.245277,26.886736 L 20.245277,17.029277 z "
+       id="path1654"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/restoreButton.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+  </g>
+</svg>

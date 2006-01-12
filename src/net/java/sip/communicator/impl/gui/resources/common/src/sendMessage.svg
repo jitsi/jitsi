@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32px"
+   height="32px"
+   id="svg1974"
+   sodipodi:version="0.32"
+   inkscape:version="0.42.2"
+   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/src"
+   sodipodi:docname="sendMessage.svg">
+  <defs
+     id="defs1976">
+    <linearGradient
+       id="linearGradient3866">
+      <stop
+         style="stop-color:#cfcfcf;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop3868" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop3870" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3866"
+       id="linearGradient7063"
+       x1="-710.46875"
+       y1="360.98438"
+       x2="-653.00000"
+       y2="360.98438"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.273079,0.000000,0.000000,0.342744,194.1507,-99.75819)" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="13.786111"
+     inkscape:cx="16.000000"
+     inkscape:cy="10.435806"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1016"
+     inkscape:window-height="692"
+     inkscape:window-x="0"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata1979">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <path
+       style="opacity:1.0000000;fill:url(#linearGradient7063);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#646464;stroke-width:0.57982683;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       d="M 3.1401338,16.250001 C 1.5531436,16.250001 0.27279696,17.846263 0.27279696,19.838101 L 0.27279696,25.172051 C 0.27279696,27.163892 1.5531463,28.770857 3.1401338,28.770860 L 4.9679518,28.834071 L 5.0473572,31.671214 L 9.3752288,28.834071 L 12.834471,28.770860 C 14.421463,28.770860 15.693274,27.163896 15.693278,25.172051 L 15.693278,19.838101 C 15.693278,17.846259 14.421457,16.250001 12.834471,16.250001 L 3.1401338,16.250001 z "
+       id="rect1954"
+       sodipodi:nodetypes="cccccccccccc"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/sendMessage.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#646464;stroke-width:0.69999999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       d="M 2.9500000,19.650000 L 12.950000,19.650000 L 2.9500000,19.650000 z "
+       id="path2715"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/sendMessage.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#646464;stroke-width:0.69999999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       d="M 2.9500000,22.650000 L 12.950000,22.650000 L 2.9500000,22.650000 z "
+       id="path3443"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/sendMessage.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#646464;stroke-width:0.69999999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       d="M 2.9500000,25.650000 L 12.950000,25.650000 L 2.9500000,25.650000 z "
+       id="path3445"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/sendMessage.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+  </g>
+</svg>

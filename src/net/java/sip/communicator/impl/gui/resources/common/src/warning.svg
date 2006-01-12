@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32px"
+   height="32px"
+   id="svg10013"
+   sodipodi:version="0.32"
+   inkscape:version="0.42.2"
+   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/src"
+   sodipodi:docname="warning.svg">
+  <defs
+     id="defs10015">
+    <linearGradient
+       id="linearGradient5061">
+      <stop
+         style="stop-color:#ff681c;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop5063" />
+      <stop
+         id="stop8086"
+         offset="0.50000000"
+         style="stop-color:#ff8400;stop-opacity:1.0000000;" />
+      <stop
+         style="stop-color:#ffc768;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop5065" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5061"
+       id="linearGradient7099"
+       x1="-485.76596"
+       y1="-12.928029"
+       x2="-465.31799"
+       y2="-12.928029"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.336687,0.000000,0.000000,1.511123,652.3451,36.57762)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15929"
+       id="linearGradient5643"
+       x1="-478.51648"
+       y1="-15.000000"
+       x2="-472.02405"
+       y2="-15.000000"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.173967,0.000000,0.000000,1.511123,575.2989,38.08875)" />
+    <linearGradient
+       id="linearGradient15929">
+      <stop
+         id="stop15931"
+         offset="0.0000000"
+         style="stop-color:#cbcbcb;stop-opacity:1.0000000;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1.0000000;"
+         offset="0.50000000"
+         id="stop15933" />
+      <stop
+         id="stop15935"
+         offset="1.0000000"
+         style="stop-color:#cbcbcb;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15929"
+       id="radialGradient11487"
+       cx="-474.39316"
+       cy="-6.8036051"
+       fx="-474.39316"
+       fy="-6.8036051"
+       r="2.4190354"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="9.7482528"
+     inkscape:cx="16.000000"
+     inkscape:cy="11.896701"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1016"
+     inkscape:window-height="692"
+     inkscape:window-x="0"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata10018">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <path
+       style="opacity:1.0000000;fill:url(#linearGradient7099);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#c8c8c8;stroke-width:1.3197386;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       d="M 13.825362,4.8031395 L 1.1385923,25.719151 C -0.21726270,28.054062 1.4956254,31.778590 3.9134220,31.201690 C 3.9134220,31.201690 30.456221,31.230520 30.749304,31.293797 C 33.192820,31.821378 35.108893,27.709049 33.696099,25.790381 L 20.911092,4.6630350 C 19.032963,2.0690783 15.419219,2.2285620 13.825362,4.8031395 z "
+       id="rect1969"
+       sodipodi:nodetypes="cccsccc"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/warning.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       sodipodi:type="arc"
+       style="opacity:1.0000000;fill:url(#radialGradient11487);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#c8c8c8;stroke-width:0.45970306;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="path4165"
+       sodipodi:cx="-474.39316"
+       sodipodi:cy="-6.8036051"
+       sodipodi:rx="2.1891840"
+       sodipodi:ry="2.1891840"
+       d="M -472.20397 -6.8036051 A 2.1891840 2.1891840 0 1 1  -476.58234,-6.8036051 A 2.1891840 2.1891840 0 1 1  -472.20397 -6.8036051 z"
+       transform="matrix(1.222292,0.000000,0.000000,1.222292,597.2737,33.96933)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/warning.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       style="opacity:1.0000000;fill:url(#linearGradient5643);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#c8c8c8;stroke-width:0.56189132;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect4909"
+       width="5.2617216"
+       height="12.088983"
+       x="14.750946"
+       y="9.3774052"
+       ry="3.3864267"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/warning.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+  </g>
+</svg>

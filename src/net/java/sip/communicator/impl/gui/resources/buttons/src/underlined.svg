@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32px"
+   height="32px"
+   id="svg2099"
+   sodipodi:version="0.32"
+   inkscape:version="0.42.2"
+   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/src"
+   sodipodi:docname="underlined.svg">
+  <defs
+     id="defs2101">
+    <linearGradient
+       id="linearGradient15929">
+      <stop
+         id="stop15931"
+         offset="0.0000000"
+         style="stop-color:#cbcbcb;stop-opacity:1.0000000;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1.0000000;"
+         offset="0.50000000"
+         id="stop15933" />
+      <stop
+         id="stop15935"
+         offset="1.0000000"
+         style="stop-color:#cbcbcb;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15929"
+       id="linearGradient11172"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.164338,0.000000,0.000000,1.122383,101.0244,-188.2016)"
+       x1="-567.31122"
+       y1="166.56097"
+       x2="-567.12726"
+       y2="211.98978" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15929"
+       id="linearGradient2057"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.164338,0.000000,0.000000,1.122383,127.9171,-187.9953)"
+       x1="-567.31122"
+       y1="166.56097"
+       x2="-567.12726"
+       y2="211.98978" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="10.447919"
+     inkscape:cx="16.000000"
+     inkscape:cy="16.000000"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1016"
+     inkscape:window-height="692"
+     inkscape:window-x="0"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata2104">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="opacity:1.0000000;fill:url(#linearGradient11172);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#c3c3c3;stroke-width:0.42947698;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect11170"
+       width="23.570522"
+       height="23.570023"
+       x="0.21473849"
+       y="8.2152386"
+       ry="4.4895282"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/textUnderlined.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <text
+       xml:space="preserve"
+       style="font-size:13.447536px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#595959;fill-opacity:1.0000000;stroke:#474747;stroke-width:0.22226977;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="6.9858227"
+       y="23.625193"
+       id="text1333"
+       sodipodi:linespacing="125.00000%"
+       transform="scale(0.994208,1.005825)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/textUnderlined.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
+         sodipodi:role="line"
+         id="tspan2115"
+         x="6.9858227"
+         y="23.625193"
+         style="font-size:13.447542px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00005%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans">U</tspan></text>
+    <rect
+       style="opacity:1.0000000;fill:#595959;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#474747;stroke-width:0.22412641;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect2117"
+       width="7.7758737"
+       height="1.0821413"
+       x="8.1120634"
+       y="24.905796"
+       ry="0.23906815"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/textUnderlined.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       style="opacity:1.0000000;fill:url(#linearGradient2057);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#c3c3c3;stroke-width:0.42947698;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect2049"
+       width="23.570522"
+       height="23.570023"
+       x="27.107380"
+       y="8.4215050"
+       ry="4.4895282"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/textUnderlinedRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <text
+       xml:space="preserve"
+       style="font-size:13.447527px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#595959;fill-opacity:1.0000000;stroke:#474747;stroke-width:0.22226959;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="34.035107"
+       y="23.830248"
+       id="text2051"
+       sodipodi:linespacing="125.00000%"
+       transform="scale(0.994208,1.005825)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/textUnderlinedRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
+         sodipodi:role="line"
+         id="tspan2053"
+         x="34.035107"
+         y="23.830248"
+         style="font-size:13.447533px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00005%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans;fill:#143e7b;fill-opacity:1.0000000">U</tspan></text>
+    <rect
+       style="opacity:1.0000000;fill:#143e7b;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#474747;stroke-width:0.22412641;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect2055"
+       width="7.7758737"
+       height="1.0821413"
+       x="35.004704"
+       y="25.112062"
+       ry="0.23906815"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/textUnderlinedRollover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+  </g>
+</svg>
