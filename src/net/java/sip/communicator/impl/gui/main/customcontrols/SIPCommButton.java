@@ -8,7 +8,8 @@ import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
-import net.java.sip.communicator.impl.gui.main.LookAndFeelConstants;
+import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 
 /**
  * @author Yana Stamcheva
@@ -41,8 +42,8 @@ public class SIPCommButton extends JButton {
 	public SIPCommButton() {
 		super();
 
-		this.bgImage = LookAndFeelConstants.BUTTON_BG;
-		this.bgRolloverImage = LookAndFeelConstants.BUTTON_ROLLOVER_BG;
+		this.bgImage = Constants.BUTTON_BG;
+		this.bgRolloverImage = Constants.BUTTON_ROLLOVER_BG;
 		this.setIcon(new ImageIcon(this.bgImage));
 
 		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
@@ -57,13 +58,14 @@ public class SIPCommButton extends JButton {
 	public SIPCommButton(String text) {
 		super(text);
 
-		this.bgImage = LookAndFeelConstants.BUTTON_BG;
-		this.bgRolloverImage = LookAndFeelConstants.BUTTON_ROLLOVER_BG;
+		this.bgImage = Constants.BUTTON_BG;
+		this.bgRolloverImage = Constants.BUTTON_ROLLOVER_BG;
 
 		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
 				this.bgImage.getHeight(null)));
 	}
-
+	
+	
 	/**
 	 * Button with icon.
 	 * 
@@ -73,8 +75,8 @@ public class SIPCommButton extends JButton {
 		super();
 
 		this.iconImage = iconImage;
-		this.bgImage = LookAndFeelConstants.BUTTON_BG;
-		this.bgRolloverImage = LookAndFeelConstants.BUTTON_ROLLOVER_BG;
+		this.bgImage = Constants.BUTTON_BG;
+		this.bgRolloverImage = Constants.BUTTON_ROLLOVER_BG;
 		
 		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
 				this.bgImage.getHeight(null)));
@@ -92,8 +94,8 @@ public class SIPCommButton extends JButton {
 
 		this.iconImage = iconImage;
 		this.iconLayout = iconLayout;
-		this.bgImage = LookAndFeelConstants.BUTTON_BG;
-		this.bgRolloverImage = LookAndFeelConstants.BUTTON_ROLLOVER_BG;
+		this.bgImage = Constants.BUTTON_BG;
+		this.bgRolloverImage = Constants.BUTTON_ROLLOVER_BG;
 		
 		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
 				this.bgImage.getHeight(null)));
@@ -151,18 +153,30 @@ public class SIPCommButton extends JButton {
 		
 		this.bgImage = bgImage;
 		this.bgRolloverImage = rolloverImage;
-
+		
 		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
 				this.bgImage.getHeight(null)));
 
 		this.setIcon(new ImageIcon(this.bgImage));
 	}
 	
+	
+	public SIPCommButton(String text, Image bgImage, Image rolloverImage) {
+		super(text);
+		
+		this.bgImage = bgImage;
+		this.bgRolloverImage = rolloverImage;
+		
+		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null) + 80,
+				this.bgImage.getHeight(null)));
+	}
+	
 	/**
 	 * Paint the SIPCommButton.
 	 */	
-	public void paint(Graphics g) {
-
+	public void paint(Graphics g) {	
+		AntialiasingManager.activateAntialiasing(g);
+		
 		g.drawImage(this.bgImage, 0, 0, this);
 
 		if (this.iconImage != null) {
@@ -192,7 +206,7 @@ public class SIPCommButton extends JButton {
 
 		if (this.getModel().isRollover()) {
 
-			g.setColor(LookAndFeelConstants.CONTACTPANEL_LINES_COLOR);
+			g.setColor(Constants.CONTACTPANEL_LINES_COLOR);
 			g.drawImage(this.bgRolloverImage, 0, 0, this);
 
 			if (this.iconImage != null) {
@@ -226,7 +240,7 @@ public class SIPCommButton extends JButton {
 				g.drawImage(this.pressedImage, 0, 0, this);
 			}
 			else {
-				g.setColor(LookAndFeelConstants.CONTACTPANEL_LINES_COLOR);
+				g.setColor(Constants.CONTACTPANEL_LINES_COLOR);
 				g.drawImage(this.bgRolloverImage, 0, 0, this);
 				
 				if (this.iconImage != null) {
@@ -254,6 +268,9 @@ public class SIPCommButton extends JButton {
 				}
 			}
 		}
+		
+		if(this.getText() != null)
+			g.drawString(this.getText(), 12, 10);
 	}
 
 	public Image getBgImage () {
