@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.service.history;
 
-import net.java.sip.communicator.util.Assert;
-
 /**
  * Object used to uniquely identify a group of history records.
  * 
@@ -39,8 +37,8 @@ public class HistoryID {
 	 * strings and they will be safely converted to valid IDs.
 	 */
 	public static HistoryID createFromRawID(String[] rawid) {
-		Assert.assertNonNull(rawid, "Parameter RAWID should be non-null");
-		Assert.assertTrue(rawid.length > 0, "RAWID.length should be > 0");
+		// TODO: Validate: Assert.assertNonNull(rawid, "Parameter RAWID should be non-null");
+		// TODO: Validate: Assert.assertTrue(rawid.length > 0, "RAWID.length should be > 0");
 		
 		String[] id = new String[rawid.length];
 		for(int i = 0; i < rawid.length; i++) {
@@ -60,8 +58,8 @@ public class HistoryID {
 	public static HistoryID createFromID(String[] id) 
 		throws IllegalArgumentException
 	{
-		Assert.assertNonNull(id, "Parameter ID should be non-null");
-		Assert.assertTrue(id.length > 0, "ID.length should be > 0");
+		// TODO: Validate: Assert.assertNonNull(id, "Parameter ID should be non-null");
+		// TODO: Validate: Assert.assertTrue(id.length > 0, "ID.length should be > 0");
 		
 		for(int i = 0; i < id.length; i++) {
 			if(!HistoryID.isIDValid(id[i])) {

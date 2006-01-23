@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.service.history.records;
 
-import net.java.sip.communicator.util.Assert;
-
 /**
  * @author Alexander Pelov
  */
@@ -25,7 +23,8 @@ public class HistoryRecordStructure {
 	 * @param propertyNames
 	 */
 	public HistoryRecordStructure(String[] propertyNames) {
-		Assert.assertNonNull(propertyNames, "Parameter propertyNames should be non-null.");		
+		// TODO: Validate: Assert.assertNonNull(propertyNames, "Parameter propertyNames should be non-null.");
+		
 		this.propertyNames = new String[propertyNames.length];
 		System.arraycopy(propertyNames, 0, this.propertyNames, 0, this.propertyNames.length);
 	}

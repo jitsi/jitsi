@@ -11,7 +11,6 @@ import java.io.IOException;
 
 import net.java.sip.communicator.service.configuration.ConfigurationService;
 import net.java.sip.communicator.service.fileaccess.FileAccessService;
-import net.java.sip.communicator.util.Assert;
 import net.java.sip.communicator.util.Logger;
 
 /**
@@ -114,7 +113,7 @@ public class FileAccessServiceImpl implements FileAccessService {
 	 *             Thrown if the configuration service is not set
 	 */
 	public File getPrivatePersistentFile(String fileName) throws Exception {
-		Assert.assertNonNull(fileName, "Parameter fileName should be non-null");
+		// TODO: Validate: Assert.assertNonNull(fileName, "Parameter fileName should be non-null");
 		
 		File file = null;
 
@@ -140,7 +139,7 @@ public class FileAccessServiceImpl implements FileAccessService {
     public File getPrivatePersistentDirectory(String dirName) 
         throws Exception
     {
-		Assert.assertNonNull(dirName, "Parameter dirName should be non-null");
+		// TODO: Validate: Assert.assertNonNull(dirName, "Parameter dirName should be non-null");
     	
         String fullPath = getFullPath(dirName);
         File dir = new File(fullPath, dirName);
@@ -161,8 +160,8 @@ public class FileAccessServiceImpl implements FileAccessService {
     }
     
     public File getPrivatePersistentDirectory(String[] dirNames) throws Exception {
-		Assert.assertNonNull(dirNames, "Parameter dirNames should be non-null");
-		Assert.assertTrue(dirNames.length > 0, "dirNames.length should be > 0");
+		// TODO: Validate: Assert.assertNonNull(dirNames, "Parameter dirNames should be non-null");
+		// TODO: Validate: Assert.assertTrue(dirNames.length > 0, "dirNames.length should be > 0");
 		
     	StringBuffer dirName = new StringBuffer();
     	for(int i = 0; i < dirNames.length; i++) {
@@ -176,15 +175,15 @@ public class FileAccessServiceImpl implements FileAccessService {
     }
 
     private String getFullPath(String fileName) {
-        Assert.assertNonNull(fileName, "The filename should be non-null.");
+        // TODO: Validate: Assert.assertNonNull(fileName, "The filename should be non-null.");
         
     	String userhome = null;
     	String sipSubdir = null;
     	
     	// Obtain configuration service lock
     	synchronized(this.syncRoot) {
-            Assert.assertNonNull(this.configurationService, 
-    			"The configurationService should be non-null.");
+            // TODO: Assert: Assert.assertNonNull(this.configurationService, 
+    		//	"The configurationService should be non-null.");
 
             userhome = this.configurationService.getString(FileAccessService.CONFPROPERTYKEY_USER_HOME);
             sipSubdir = this.configurationService.getString(FileAccessService.CONFPROPERTYKEY_SIP_DIRECTORY);

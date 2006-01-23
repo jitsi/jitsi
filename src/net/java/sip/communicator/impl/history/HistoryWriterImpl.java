@@ -19,7 +19,6 @@ import org.w3c.dom.Text;
 import net.java.sip.communicator.service.history.HistoryWriter;
 import net.java.sip.communicator.service.history.records.HistoryRecord;
 import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
-import net.java.sip.communicator.util.Assert;
 
 /**
  * @author Alexander Pelov
@@ -125,8 +124,8 @@ public class HistoryWriterImpl implements HistoryWriter {
 			this.currentDoc = this.historyImpl.createDocument(this.currentFile);
 		}
 		
-		Assert.assertNonNull(this.currentDoc, 
-				"There should be a current document created.");
+		// TODO: Assert: Assert.assertNonNull(this.currentDoc, 
+		//		"There should be a current document created.");
 		
 		this.currentDocElements = this.currentDoc.getFirstChild().getChildNodes().getLength();
 	}	

@@ -8,8 +8,6 @@ package net.java.sip.communicator.service.history.records;
 
 import java.util.Date;
 
-import net.java.sip.communicator.util.Assert;
-
 /**
  * @author Alexander Pelov
  */
@@ -63,12 +61,12 @@ public class HistoryRecord {
 	 * @param timestamp
 	 */
 	public HistoryRecord(String[] propertyNames, String[] propertyValues, Date timestamp) {
-		Assert.assertNonNull(propertyNames, "The property names should be non-null.");
-		Assert.assertNonNull(propertyValues, "The property values should be non-null.");
-		Assert.assertNonNull(timestamp, "The timestamp should be non-null.");
+		// TODO: Validate: Assert.assertNonNull(propertyNames, "The property names should be non-null.");
+		// TODO: Validate: Assert.assertNonNull(propertyValues, "The property values should be non-null.");
+		// TODO: Validate: Assert.assertNonNull(timestamp, "The timestamp should be non-null.");
 		
-		Assert.assertTrue(propertyNames.length == propertyValues.length, 
-				"The length of the property names and property values should be equal.");
+		// TODO: Validate Assert.assertTrue(propertyNames.length == propertyValues.length, 
+		//		"The length of the property names and property values should be equal.");
 
 		this.propertyNames = propertyNames;
 		this.propertyValues = propertyValues;

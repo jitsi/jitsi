@@ -20,7 +20,6 @@ import net.java.sip.communicator.service.history.HistoryID;
 import net.java.sip.communicator.service.history.HistoryReader;
 import net.java.sip.communicator.service.history.HistoryWriter;
 import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
-import net.java.sip.communicator.util.Assert;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.xml.XMLUtils;
 
@@ -52,9 +51,9 @@ public class HistoryImpl implements History {
 		try {
 			log.logEntry();
 
-			Assert.assertNonNull(historyServiceImpl, "The historyServiceImpl should be non-null.");
-			Assert.assertNonNull(id, "The ID should be non-null.");
-			Assert.assertNonNull(historyRecordStructure, "The structure should be non-null.");
+			// TODO: Assert: Assert.assertNonNull(historyServiceImpl, "The historyServiceImpl should be non-null.");
+			// TODO: Assert: Assert.assertNonNull(id, "The ID should be non-null.");
+			// TODO: Assert: Assert.assertNonNull(historyRecordStructure, "The structure should be non-null.");
 			
 			this.id = id;
 			this.directory = directory;
@@ -102,7 +101,7 @@ public class HistoryImpl implements History {
 			this.historyDocuments.clear();
 		 
 			File[] files = this.directory.listFiles();
-			Assert.assertNonNull(files, "The list of files should be non-null.");
+			// TODO: Assert: Assert.assertNonNull(files, "The list of files should be non-null.");
 			
 			for(int i = 0; i < files.length; i++) {
 				if(!files[i].isDirectory()) {
@@ -186,8 +185,8 @@ public class HistoryImpl implements History {
 				// Cache the loaded document for reuse
 				this.historyDocuments.put(filename, retVal);
 			} else {
-				Assert.fail("Internal error - the data type " +
-						"should be either Document or File.");
+				// TODO: Assert: Assert.fail("Internal error - the data type " +
+				//		"should be either Document or File.");
 			}
 		}
 		
