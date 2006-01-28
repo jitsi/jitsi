@@ -11,5 +11,4 @@ package net.java.sip.communicator.service.protocol;
  */
 public interface OperationSet
 {
-    public String getOperationSetName();
 }
