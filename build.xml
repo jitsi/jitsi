@@ -18,6 +18,19 @@
     <property name="bin" value="sip-communicator.bin"/>
     <property name="utest.bin" value="sip-communicator.utest.bin"/>
     <property name="test.reports.dir" value="test-reports"/>
+    <property name="test.html.reports.dir" value="${test.reports.dir}/html"/>
+
+    <!-- load properties needed for running the automated tests (e.g. test.list)-->
+    <property file="lib/testing.properties"/>
+
+    <!-- The following file contains a list of protocol account initialization
+         properties, such as SIP server addresses and usernames, ICQ uin-s and
+         passwords, AIM screennames and etc. The file should not be committed
+         to CVS or shared among developers since that could lead to multiple
+         login problems and cause testing to fail. You could create the file
+         yourself using the lib/account.properties.template and setting all
+         fields as indicated. -->
+    <property file="lib/accounts.properties"/>
 
     <!-- windows  -->
     <condition property="jmf.home" value="${lib}/jmf-win">
@@ -71,7 +84,7 @@
             <include name="**/*.jar"/>
         </fileset>
     </path>
-    
+
   <!-- default Ant target does nothing except print helpful options -->
   <!-- Ant-internal target does not appear in its own help display  -->
     <target name="usage" >
@@ -135,7 +148,8 @@
     </target>
 
     <!-- JAVADOC -->
-    <target name="javadoc">
+    <target name="javadoc"
+      description="Generates project javadoc.">
         <javadoc author="true" destdir="${java.doc}" package="true"
             version="true" use="true" windowtitle="SIP Communicator API"
             classpathref="project.class.path" source="1.4+">
@@ -145,9 +159,9 @@
     </target>
 
     <!--PACKAGE-->
-    <target name="package"
-        depends="javadoc,resource"/>
-        <!--internal-target- Create java doc, and copy resource files. -->
+    <!--internal-target- Copy resource files. -->
+    <target name="package" depends="resource"/>
+
 
     <!--MAKE-->
     <target name="make" depends="compile,package"
@@ -213,28 +227,26 @@
                 file="${test.name}" suffix=".java"/>
     </target>
 
+    <!--internal-target- prepare to run all known Service Impl Compatibility Kit -->
+    <!-- assign all known Test classes. -->
     <target name="prepare-all-tests" depends="identify-test"
-            unless="test.name.known">
-        <!--internal-target- prepare to run all known Service Impl Compatibility Kit -->
-        <!-- assign all known Test classes. -->
-        <property name="simple.test.names"
-                  value="
-                        ConfigurationServiceLick
-                        MediaServiceLick
-                        NetworkAddressManagerServiceLick
-                        FileAccessServiceLick
-                        HistoryServiceLick
-                        SlicklessTests
-                        "/>
+            unless="test.name.known"
+            description="prepares to run all known Service Impl Compatibility Kits">
+        <!-- load Test classes from a test conf file. -->
+        <!-- this would set the "simple.test.names" property -->
+        <property name="simple.test.names" value="${test.list}"/>
     </target>
 
     <!--RUN-TESTS-->
     <target name="test" depends="init,prepare-single-test,prepare-all-tests"
         description="Starts oscar and runs selected Service Impl Compatibility Kits.">
 
+        <!-- Do the testing itself. Note that we don't fail on error as we need
+             to generate an html report before leaving this target.-->
         <java classname="org.ungoverned.oscar.Main"
             fork="true"
-            failonerror="true"
+            failonerror="false"
+            resultproperty="test.result.code"
             classpathref="project.class.path">
 
             <!-- The following two configure oscar telling it that it's running
@@ -254,7 +266,46 @@
             <sysproperty key="java.util.logging.config.file"
                 value="lib/logging.properties"/>
 
+            <!-- Tell all protocol testers their account details. -->
+            <syspropertyset id="accounts">
+              <propertyref prefix="accounts"/>
+            </syspropertyset>
         </java>
+
+        <!-- Generate the html report.
+             Run it quietly (i.e. redirect the output) because we don't won't to
+             see its "Build Successful" output line as users might confuse it
+             for a general build success while this might not be the case.-->
+        <echo message="Generating HTML test reports ..."/>
+        <exec executable="ant" output="${test.html.reports.dir}/output.txt">
+            <env key="CLASSPATH"
+                 path="${java.class.path}:lib/xalan-2.6.0.jar.ant"/>
+            <arg value="htmlreport"/>
+        </exec>
+        <echo message="Done."/>
+
+        <!-- Check whether testing went alright and fail if not.-->
+        <condition property="testing.failed">
+          <not>
+            <equals arg1="0"
+            arg2="${test.result.code}"
+            casesensitive="false" trim="true"/>
+          </not>
+        </condition>
+        <fail if="testing.failed"/>
+    </target>
+
+    <!-- We use this target from within the test target in order to generate
+         a human readable test report. We do not directly use the htmlreport
+         target because we  need to include xalan in the classpath before we
+         do.-->
+    <target name="htmlreport">
+      <junitreport todir="${test.reports.dir}">
+        <fileset dir="${test.reports.dir}">
+          <include name="SC-TEST-*.xml"/>
+        </fileset>
+        <report format="frames" todir="${test.html.reports.dir}"/>
+      </junitreport>
     </target>
 
     <!--RUN-SIP-CMMUNICATOR-->
@@ -280,14 +331,14 @@
     <!--CRUISE CONTROL BUILD LOOP target-->
     <target name="cc-buildloop" depends="rebuild,bundles,test"
             description="Comprehensive rebuild and test (used by Cruise Control)."/>
-    
-    
+
+
     <!-- - - NetBeans Targets for specific files selected via ide-actions - -->
 
     <!--netbeans only - debug a single test file under oscar and jUnit-->
     <target name="debug-selected-file"
             depends="init,prepare-single-test,prepare-all-tests">
-        <!--internal-target- starts oscar and debugs the selected 
+        <!--internal-target- starts oscar and debugs the selected
                              Service Impl Compatibility Kit -->
 
       <fail unless="test.name"
@@ -341,7 +392,9 @@
         depends="bundle-util,bundle-configuration,bundle-history,
         bundle-history-slick,bundle-configuration-slick,bundle-netaddr,
         bundle-netaddr-slick,bundle-slickless,bundle-slick-runner,bundle-sip,
-        bundle-fileaccess,bundle-fileaccess-slick,bundle-media,bundle-media-slick"/>
+        bundle-fileaccess,bundle-fileaccess-slick,bundle-media,
+        bundle-media-slick,bundle-icq,bundle-icq-slick"/>
+
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history" depends="rebuild">
         <jar compress="false" destfile="${bundles.dest}/history.jar"
@@ -526,6 +579,33 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+    <!-- BUNDLE-ICQ -->
+    <target name="bundle-icq" depends="rebuild"
+        description="Creates a bundle containing the icq impl of the protocol provider.">
+        <jar compress="false" destfile="${bundles.dest}/protocol-icq.jar"
+            manifest="src/net/java/sip/communicator/impl/protocol/icq/icq.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
+                prefix="net/java/sip/communicator/service/protocol"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/icq"
+                prefix="net/java/sip/communicator/impl/protocol/icq"/>
+            <zipfileset src="${lib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
+            <zipfileset src="${lib}/oscar-aim.jar" prefix=""/>
+            <zipfileset src="${lib}/retroweaver-rt.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-ICQ-SLICK -->
+    <target name="bundle-icq-slick" depends="rebuild"
+        description="Creates a bundle containing the the slick for the ICQ protocol provider.">
+        <jar compress="false" destfile="${bundles.dest}/protocol-icq-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/icq"
+                prefix="net/java/sip/communicator/slick/protocol/icq"/>
+            <zipfileset src="${lib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
+            <zipfileset src="${lib}/oscar-aim.jar" prefix=""/>
+            <zipfileset src="${lib}/retroweaver-rt.jar" prefix=""/>
+        </jar>
+    </target>
 
 </project>
 
