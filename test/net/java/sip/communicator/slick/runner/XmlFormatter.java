@@ -50,7 +50,7 @@ import java.io.*;
 /**
  * Prints XML output of the test to a specified Writer.
  *
- *
+ * @author Emil Ivov
  * @see FormatterElement
  */
 
