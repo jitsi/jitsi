@@ -17,7 +17,7 @@ import net.java.sip.communicator.impl.configuration.xml.*;
  *
  * @author Emil Ivov
  */
-public interface PropertyChangeListener
+public interface PropertyChangeListener extends java.util.EventListener
 {
     /**
      * This method gets called when a bound property is changed.
