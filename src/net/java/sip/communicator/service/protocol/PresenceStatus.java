@@ -29,6 +29,23 @@ package net.java.sip.communicator.service.protocol;
 public class PresenceStatus
         implements Comparable
 {
+    /**
+     * An integer above which all values of the status coefficient indicate
+     * that a status with connectivity (communication is possible).
+     */
+    public static final int ONLINE_THRESHOLD = 20;
+
+    /**
+     * An integer above which all values of the status coefficient indicate
+     * both connectivity and availability.
+     */
+    public static final int AVAILABLE_THRESHOLD = 50;
+
+    /**
+     * An integer above which all values of the status coefficient indicate
+     * eagerness to communicate
+     */
+    public static final int EAGER_TO_COMMUNICATE_THRESSHOLD = 80;
 
     /**
      * Represents the connectivity status on a scale from
@@ -42,7 +59,7 @@ public class PresenceStatus
      * 50:80 - communication is possible (On - line)
      * 80:100 - communication is possible and user is eager to communicate. (Free for chat! Talk to me, etc.)
      */
-    protected short status = 0;
+    protected int status = 0;
 
     /**
      * The name of this status instance (e.g. Away, On-line, Invisible, etc.)
@@ -50,22 +67,14 @@ public class PresenceStatus
     protected String statusName = null;
 
     /**
-     * A message describing this status instance (e.g. I am busy right now, and
-     * I'll get back to you later).
-     */
-    protected String statusMessage = null;
-
-    /**
      * Creates an instance of this class using the specified parameters.
      * @param status the status variable representing the new instance
      * @param statusName the name of this PresenceStatus
-     * @param statusMessage a message describing the user's status.
      */
-    protected PresenceStatus(short status, String statusName, String statusMessage)
+    protected PresenceStatus(int status, String statusName)
     {
         this.status = status;
         this.statusName = statusName;
-        this.statusMessage = statusMessage;
     }
 
 
@@ -75,7 +84,7 @@ public class PresenceStatus
      * @return a short indicating the level of availability corresponding to
      * this status object.
      */
-    public short getStatus()
+    public int getStatus()
     {
         return status;
     }
@@ -90,16 +99,6 @@ public class PresenceStatus
     }
 
     /**
-     * Returns a description of the status (like for example a note giving
-     * details on that status like "out for a piss" for example).
-     * @return a String variable detailing the status.
-     */
-    public String getStatusMessage()
-    {
-        return statusMessage;
-    }
-
-    /**
      * Returns a string represenation of this provider status. Strings returned
      * by this method have the following format: PresenceStatus:<STATUS_STRING>:
      * <STATUS_MESSAGE> and are meant to be used for loggin/debugging purposes.
@@ -107,9 +106,40 @@ public class PresenceStatus
      */
     public String toString()
     {
-        return getClass().getName()
-            + ":" + getStatusName()
-            + ":" + getStatusMessage();
+        return "PresenceStatus:" + getStatusName();
+    }
+
+    /**
+     * Indicates whether the user is Online (can be reached) or not.
+     * @return true if the the status coefficient is higher than the
+     * ONLINE_THRESHOLD and false otherwise
+     */
+    public boolean isOnline()
+    {
+        return getStatus() >= ONLINE_THRESHOLD;
+    }
+
+    /**
+     * Indicates whether the user is both Online and avaliable (can be reached
+     * and is likely to respond) or not.
+     * @return true if the the status coefficient is higher than the
+     * AVAILABLE_THRESHOLD and false otherwise
+     */
+    public boolean isAvailable()
+    {
+        return getStatus() >= AVAILABLE_THRESHOLD;
+    }
+
+    /**
+     * Indicates whether the user is Online, available and eager to communicatie
+     * (can be reached and is likely to become annoyngly talkative if contacted).
+     *
+     * @return true if the the status coefficient is higher than the
+     * EAGER_TO_COMMUNICATE_THRESHOLD and false otherwise
+     */
+    public boolean isEagerToCommunicate()
+    {
+        return getStatus() >= EAGER_TO_COMMUNICATE_THRESSHOLD;
     }
 
     /**
@@ -132,4 +162,43 @@ public class PresenceStatus
         PresenceStatus target = (PresenceStatus)o;
         return (getStatus() - target.getStatus());
     }
+
+    /**
+     * Indicates whether some other object is "equal to" this one. To
+     * PresenceStatus instances are considered equal if and only if both their
+     * connecfitivity coefficient and their name are equal.
+     * <p>
+     * @param   obj   the reference object with which to compare.
+     * @return  <code>true</code> if this presence status instance is equal to
+     *          the obj argument; <code>false</code> otherwise.
+     */
+    public boolean equals(Object obj)
+    {
+        if (obj == null
+            || !(obj instanceof PresenceStatus) )
+        return false;
+
+        PresenceStatus status = (PresenceStatus)obj;
+
+        if (status.getStatus() != getStatus()
+            || status.getStatusName() != statusName)
+            return false;
+
+        return true;
+    }
+
+    /**
+     * Returns a hash code value for the object. This method is
+     * supported for the benefit of hashtables such as those provided by
+     * <code>java.util.Hashtable</code>.
+     * <p>
+     *
+     * @return  a hash code value for this object (which is actually the result
+     * of the getStatusName().hashCode()).
+     */
+    public int hashCode()
+    {
+        return getStatusName().hashCode();
+    }
+
 }
