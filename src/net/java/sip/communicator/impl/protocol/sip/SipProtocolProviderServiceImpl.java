@@ -16,7 +16,9 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Emil Ivov
  */
 public class SipProtocolProviderServiceImpl
-    implements ProtocolProviderService
+//emil: we're changing pp a lot. so this is a way to silence javac errors from
+//here until we're done
+//  implements ProtocolProviderService
 {
     public static final String SIP_PROTOCOL_NAME = "SIP";
     /**
@@ -31,17 +33,12 @@ public class SipProtocolProviderServiceImpl
     }
 
     /**
-     * Registers the specified listener with this provider so that it would
-     * receive notifications on changes of its state or other properties such
-     * as its local address and display name.
-     *
-     * @param listener the listener to register.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.ProtocolProviderService
-     *   method
+     * Ends the registration of this protocol provider with the current
+     * registration service.
      */
-    public void addProviderChangeListener(ProviderChangeListener listener)
+    public void unregister()
     {
+
     }
 
     /**
@@ -76,6 +73,32 @@ public class SipProtocolProviderServiceImpl
     public Contact getLocalContact()
     {
         return null;
+    }
+
+    /**
+     * Returns the state of the registration of this protocol provider with the
+     * corresponding registration service.
+     * @return ProviderRegistrationState
+     */
+    public RegistrationState getRegistrationState()
+    {
+
+        return null;
+    }
+
+    /**
+     * Starts the registration process. Connection details such as
+     * registration server, user name/number are provided through the
+     * configuration service through implementation specific properties.
+     *
+     * @param authority the security authority that will be used for resolving
+     *        any security challenges that may be returned during the
+     *        registration or at any moment while wer're registered.
+     *
+     */
+    public void register(SecurityAuthority authority)
+    {
+
     }
 
     /**
@@ -144,7 +167,7 @@ public class SipProtocolProviderServiceImpl
      *   net.java.sip.communicator.service.protocol.ProtocolProviderService
      *   method
      */
-    public PresenceStatus getStatus()
+    public PresenceStatus getPresenceStatus()
     {
         return null;
     }
@@ -159,7 +182,7 @@ public class SipProtocolProviderServiceImpl
      *   net.java.sip.communicator.service.protocol.ProtocolProviderService
      *   method
      */
-    public OperationSet[] getSupportedOperationSets()
+    public Map getSupportedOperationSets()
     {
         return null;
     }
@@ -167,14 +190,17 @@ public class SipProtocolProviderServiceImpl
     /**
      * Initialized the service implementation, and puts it in a sate where it
      * could interoperate with other services.
-     *
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.ProtocolProviderService
-     *   method
+     * @param accountID the account id string identifying the account that this
+     * ProtocolProvider is serving.
+     * @param initializationProperties any properties that a custom protocol
+     * provider implementation might be needing for initizalization.
      */
-    public void initialize()
-    {
-    }
+//we don't need it not that we have install account
+//    public void initialize(String accountID,
+//                           Map initializationProperties)
+//    {
+//
+//    }
 
     /**
      * Returns true if the provider service implementation is initialized and
@@ -190,6 +216,21 @@ public class SipProtocolProviderServiceImpl
         return false;
     }
 
+
+    /**
+     * Registers the specified listener with this provider so that it would
+     * receive notifications on changes of its state or other properties such
+     * as its local address and display name.
+     *
+     * @param listener the listener to register.
+     * @todo Implement this
+     *   net.java.sip.communicator.service.protocol.ProtocolProviderService
+     *   method
+     */
+    public void addRegistrationStateChangeListener(RegistrationStateChangeListener listener)
+    {
+    }
+
     /**
      * Removes the specified listener.
      *
@@ -198,20 +239,7 @@ public class SipProtocolProviderServiceImpl
      *   net.java.sip.communicator.service.protocol.ProtocolProviderService
      *   method
      */
-    public void removeProviderChangeListener(ProviderChangeListener listener)
-    {
-    }
-
-    /**
-     * Allows the user interface to plugin an object that would handle
-     * incoming authentication challenges.
-     *
-     * @param authority SecurityAuthority
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.ProtocolProviderService
-     *   method
-     */
-    public void setSecurityAuthority(SecurityAuthority authority)
+    public void removeRegistrationStateChangeListener(RegistrationStateChangeListener listener)
     {
     }
 
