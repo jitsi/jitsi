@@ -54,16 +54,12 @@ public class Activator
      *
      * @param bundlecontext BundleContext
      * @throws Exception
-     * @todo Implement this org.osgi.framework.BundleActivator method
      */
     public void stop(BundleContext bundlecontext) throws Exception
     {
         try
         {
             logger.logEntry();
-
-
-
             logger.info("The ConfigurationService stop method has been called.");
         }
         finally
