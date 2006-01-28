@@ -1,0 +1,1193 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.protocol.icq;
+
+import java.util.*;
+
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
+import net.kano.joscar.snaccmd.loc.*;
+import net.kano.joustsim.*;
+import net.kano.joscar.snac.*;
+import net.kano.joscar.flapcmd.*;
+import net.kano.joscar.snaccmd.*;
+
+import net.kano.joustsim.oscar.oscar.service.bos.*;
+import net.kano.joscar.snaccmd.conn.*;
+import net.kano.joustsim.oscar.*;
+import net.java.sip.communicator.service.protocol.icqconstants.*;
+import net.kano.joscar.snaccmd.error.*;
+import net.kano.joustsim.oscar.oscar.service.ssi.*;
+import net.kano.joustsim.oscar.oscar.service.buddy.*;
+import java.beans.PropertyChangeEvent;
+
+/**
+ * The ICQ implementation of a Persistent Presence Operation set. This class
+ * manages our own presence status as well as subscriptions for the presence
+ * status of our buddies. It also offers methods for retrieving and modifying
+ * the buddy contact list and adding listeners for changes in its layout.
+ *
+ * @todo add consistent logging
+ *
+ * @author Emil Ivov
+ */
+public class OperationSetPersistentPresenceIcqImpl
+    implements OperationSetPersistentPresence
+{
+    private static final Logger logger =
+        Logger.getLogger(OperationSetPersistentPresenceIcqImpl.class);
+
+    /**
+     * A callback to the ICQ provider that created us.
+     */
+    private ProtocolProviderServiceIcqImpl icqProvider = null;
+
+    /**
+     * The list of presence status listeners interested in receiving presence
+     * notifications of changes in status of contacts in our contact list.
+     */
+    private Vector contactPresenceStatusListeners = new Vector();
+
+    /**
+     * The list of subscription listeners interested in receiving  notifications
+     * whenever .
+     */
+    private Vector subscriptionListeners = new Vector();
+
+    /**
+     * The list of listeners interested in receiving changes in our local
+     * presencestatus.
+     */
+    private Vector providerPresenceStatusListeners = new Vector();
+
+    /**
+     * Listeners notified upon changes occurring with server stored contact
+     * groups.
+     */
+    private Vector serverStoredGroupChangeListeners = new Vector();
+
+    /**
+     * This one should actually be in joscar. But since it isn't we might as
+     * well define it here.
+     */
+    private static final long ICQ_ONLINE_MASK = 0x01000000L;
+
+    /**
+     * The IcqContact representing the local protocol provider.
+     */
+    private ContactIcqImpl localContact = null;
+
+    /**
+     * The listener that would react upon changes of the registration state of
+     * our provider
+     */
+    private RegistrationStateListener registrationStateListener
+        = new RegistrationStateListener();
+
+    /**
+     * The listener that would receive joust sim status updates for budddies in
+     * our contact list
+     */
+    private JoustSimBuddyServiceListener joustSimBuddySerListener
+        = new JoustSimBuddyServiceListener();
+
+    /**
+     * emcho: I think Bos stands for Buddy Online-status Service ... or at least
+     * it seems like a plausible translation. This listener follows changes
+     * in our own presence status and translates them in the corresponding
+     * protocol provider events.
+     */
+    private JoustSimBosListener joustSimBosListener = new JoustSimBosListener();
+
+    /**
+     * Contains our current status message. Note that this field would only
+     * be changed once the server has confirmed the new status message and
+     * not immediately upon setting a new one..
+     */
+    private String currentStatusMessage = "";
+
+    /**
+     * The presence status that we were last notified of etnering.
+     */
+    private long currentIcqStatus = -1;
+
+    /**
+     * The array list we use when returning from the getSupportedStatusSet()
+     * method.
+     */
+    private static final ArrayList supportedPresenceStatusSet = new ArrayList();
+    static{
+        supportedPresenceStatusSet.add(IcqStatusEnum.AWAY);
+        supportedPresenceStatusSet.add(IcqStatusEnum.DO_NOT_DISTURB);
+        supportedPresenceStatusSet.add(IcqStatusEnum.FREE_FOR_CHAT);
+        supportedPresenceStatusSet.add(IcqStatusEnum.INVISIBLE);
+        supportedPresenceStatusSet.add(IcqStatusEnum.NOT_AVAILABLE);
+        supportedPresenceStatusSet.add(IcqStatusEnum.OCCUPIED);
+        supportedPresenceStatusSet.add(IcqStatusEnum.OFFLINE);
+        supportedPresenceStatusSet.add(IcqStatusEnum.ONLINE);
+    }
+
+
+    /**
+     * A map containing bindings between SIP Communicator's icq presence status
+     * instances and ICQ status codes
+     */
+    private static Map scToIcqStatusMappings = new Hashtable();
+    static{
+
+        scToIcqStatusMappings.put(IcqStatusEnum.AWAY,
+                                  new Long(FullUserInfo.ICQSTATUS_AWAY));
+        scToIcqStatusMappings.put(IcqStatusEnum.DO_NOT_DISTURB,
+                                  new Long(FullUserInfo.ICQSTATUS_DND ));
+        scToIcqStatusMappings.put(IcqStatusEnum.FREE_FOR_CHAT,
+                                  new Long(FullUserInfo.ICQSTATUS_FFC ));
+        scToIcqStatusMappings.put(IcqStatusEnum.INVISIBLE,
+                                  new Long(FullUserInfo.ICQSTATUS_INVISIBLE));
+        scToIcqStatusMappings.put(IcqStatusEnum.NOT_AVAILABLE,
+                                  new Long(FullUserInfo.ICQSTATUS_NA));
+        scToIcqStatusMappings.put(IcqStatusEnum.OCCUPIED,
+                                  new Long(FullUserInfo.ICQSTATUS_OCCUPIED));
+        scToIcqStatusMappings.put(IcqStatusEnum.ONLINE,
+                                  new Long(ICQ_ONLINE_MASK));
+
+    }
+
+    /**
+     * The server stored contact list that will be encapsulating joustsim's
+     * buddy list.
+     */
+    private ServerStoredContactListIcqImpl ssContactList
+        = new ServerStoredContactListIcqImpl();
+
+    /**
+     * Creates a new Presence OperationSet over the specified icq provider.
+     * @param icqProvider IcqProtocolProviderServiceImpl
+     * @param uin the UIN of our account.
+     */
+    protected OperationSetPersistentPresenceIcqImpl(
+                    ProtocolProviderServiceIcqImpl icqProvider,
+                    String uin)
+    {
+        this.icqProvider = icqProvider;
+
+        //add a listener that'll follow the provider's state.
+        icqProvider.addRegistrationStateChangeListener(
+            registrationStateListener);
+        /** @todo create local contact here */
+
+
+    }
+
+    /**
+     * Registers a listener that would receive a presence status change event
+     * every time a contact, whose status we're subscribed for, changes her
+     * status.
+     * Note that, for reasons of simplicity and ease of implementation, there
+     * is only a means of registering such "global" listeners that would receive
+     * updates for status changes for any contact and it is not currently
+     * possible to register such contacts for a single contact or a subset of
+     * contacts.
+     *
+     * @param listener the listener that would received presence status
+     * updates for contacts.
+     */
+    public void addContactPresenceStatusListener(
+        ContactPresenceStatusListener listener)
+    {
+        synchronized(contactPresenceStatusListeners){
+            this.contactPresenceStatusListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes the specified listener so that it won't receive any further
+     * updates on contact presence status changes
+     * @param listener the listener to remove.
+     */
+    public void removeContactPresenceStatusListener(
+        ContactPresenceStatusListener listener)
+    {
+        synchronized(contactPresenceStatusListeners){
+            contactPresenceStatusListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Registers a listener that would get notifications any time a new
+     * subscription was succesfully added, has failed or was removed.
+     * @param listener the SubscriptionListener to register
+     */
+    public void addSubsciptionListener(SubscriptionListener listener)
+    {
+        synchronized(subscriptionListeners){
+            subscriptionListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes the specified subscription listener.
+     * @param listener the listener to remove.
+     */
+    public void removeSubsciptionListener(SubscriptionListener listener)
+    {
+        synchronized(subscriptionListeners){
+            subscriptionListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Get the PresenceStatus for a particular contact. This method is not meant
+     * to be used by the user interface (which would simply register as a
+     * presence listener and always follow contact status) but rather by other
+     * plugins that may for some reason need to know the status of a particular
+     * contact.
+     * <p>
+     * @param contactIdentifier the dientifier of the contact whose status we're
+     * interested in.
+     * @return PresenceStatus the <code>PresenceStatus</code> of the specified
+     * <code>contact</code>
+     * @throws java.lang.IllegalStateException if the provider is not signed
+     * on ICQ
+     * @throws java.lang.IllegalArgumentException if <code>contact</code> is not
+     * a valid <code>IcqContact</code>
+     */
+    public PresenceStatus queryContactStatus(String contactIdentifier)
+        throws IllegalStateException, IllegalArgumentException
+    {
+        verifyConnected();
+
+        //these are commented since we now use identifiers.
+        //        if (!(contact instanceof ContactIcqImpl))
+        //            throw new IllegalArgumentException(
+        //                "Cannont get status for a non-ICQ contact! ("
+        //                + contact + ")");
+        //
+        //        ContactIcqImpl contactImpl = (ContactIcqImpl)contact;
+
+        StatusResponseRetriever responseRetriever =
+            new StatusResponseRetriever();
+
+        GetInfoCmd getInfoCmd =
+            new GetInfoCmd(GetInfoCmd.CMD_USER_INFO, contactIdentifier);
+
+        icqProvider.getAimConnection().getInfoService()
+            .sendSnacRequest(getInfoCmd, responseRetriever);
+
+        synchronized(responseRetriever)
+        {
+            try{
+                responseRetriever.wait(10000);
+            }
+            catch (InterruptedException ex){
+                //we don't care
+            }
+        }
+
+        return icqStatusLongToPresenceStatus(responseRetriever.status);
+    }
+
+    /**
+     * Converts the specified icqstatus to one of the status fields of the
+     * IcqStatusEnum class.
+     *
+     * @param icqStatus the icqStatus as retured in FullUserInfo by the joscar
+     *        stack
+     * @return a PresenceStatus instance representation of the "long" icqStatus
+     * parameter. The returned result is one of the IcqStatusEnum fields.
+     */
+    private IcqStatusEnum icqStatusLongToPresenceStatus(long icqStatus)
+    {
+        if ( icqStatus == -1)
+        {
+            return IcqStatusEnum.OFFLINE;
+        }
+        else if ( (icqStatus & FullUserInfo.ICQSTATUS_AWAY ) != 0)
+        {
+            return IcqStatusEnum.AWAY;
+        }
+        else if ( (icqStatus & FullUserInfo.ICQSTATUS_DND ) != 0)
+        {
+            return IcqStatusEnum.DO_NOT_DISTURB;
+        }
+        else if ( (icqStatus & FullUserInfo.ICQSTATUS_FFC ) != 0)
+        {
+            return IcqStatusEnum.FREE_FOR_CHAT;
+        }
+        else if ( (icqStatus & FullUserInfo.ICQSTATUS_INVISIBLE ) != 0)
+        {
+            return IcqStatusEnum.INVISIBLE;
+        }
+        else if ( (icqStatus & FullUserInfo.ICQSTATUS_NA ) != 0)
+        {
+            return IcqStatusEnum.NOT_AVAILABLE;
+        }
+        else if ( (icqStatus & FullUserInfo.ICQSTATUS_OCCUPIED ) != 0)
+        {
+            return IcqStatusEnum.OCCUPIED;
+        }
+        else if ((icqStatus & ICQ_ONLINE_MASK) == 0 )
+        {
+            return IcqStatusEnum.OFFLINE;
+        }
+
+        return IcqStatusEnum.ONLINE;
+    }
+
+    /**
+     * Converts the specified IcqStatusEnum member to the corresponding ICQ
+     * flag.
+     *
+     * @param status the icqStatus as retured in FullUserInfo by the joscar
+     *        stack
+     * @return a PresenceStatus instance representation of the "long" icqStatus
+     * parameter. The returned result is one of the IcqStatusEnum fields.
+     */
+    private long presenceStatusToIcqStatusLong(IcqStatusEnum status)
+    {
+        return ((Long)scToIcqStatusMappings.get(status)).longValue();
+    }
+
+    /**
+     * Adds a subscription for the presence status of the contact corresponding
+     * to the specified contactIdentifier. Apart from an exception in the case
+     * of an immediate failure, the method won't return any indication of
+     * success or failure. That would happen later on through a
+     * SubscriptionEvent generated by one of the methods of the
+     * SubscriptionListener.
+     * <p>
+     * This subscription is not going to be persistent (as opposed to
+     * subscriptions added from the OperationSetPersistentPresence.subscribe()
+     * method)
+     * <p>
+     * @param contactIdentifier the identifier of the contact whose status
+     * updates we are subscribing for.
+     * <p>
+     * @throws OperationFailedException with code NETWORK_FAILURE if subscribing
+     * fails due to errors experienced during network communication
+     * @throws IllegalArgumentException if <code>contact</code> is not a contact
+     * known to the underlying protocol provider
+     * @throws IllegalStateException if the underlying protocol provider is not
+     * registered/signed on a public service.
+     */
+    public void subscribe(String contactIdentifier)
+        throws IllegalArgumentException,
+               IllegalStateException,
+               OperationFailedException
+    {
+        verifyConnected();
+
+        ssContactList.addContact(contactIdentifier);
+    }
+
+    /**
+     * Persistently adds a subscription for the presence status of the  contact
+     * corresponding to the specified contactIdentifier and indicates that it
+     * should be added to the specified group of the server stored contact list.
+     * Note that apart from an exception in the case of an immediate failure,
+     * the method won't return any indication of success or failure. That would
+     * happen later on through a SubscriptionEvent generated by one of the
+     * methods of the SubscriptionListener.
+     * <p>
+     * @param contactIdentifier the contact whose status updates we are subscribing
+     *   for.
+     * @param parent the parent group of the server stored contact list where
+     * the contact should be added.
+     * <p>
+     * <p>
+     * @throws OperationFailedException with code NETWORK_FAILURE if subscribing
+     * fails due to errors experienced during network communication
+     * @throws IllegalArgumentException if <code>contact</code> or
+     * <code>parent</code> are not a contact known to the underlying protocol
+     * provider.
+     * @throws IllegalStateException if the underlying protocol provider is not
+     * registered/signed on a public service.
+     */
+    public void subscribe(ContactGroup parent, String contactIdentifier)
+        throws IllegalArgumentException,
+               IllegalStateException,
+               OperationFailedException
+    {
+        verifyConnected();
+
+        if(! (parent instanceof ContactGroupIcqImpl) )
+            throw new IllegalArgumentException(
+                "Argument is not an icq contact group (group=" + parent + ")");
+
+        ssContactList.addContact((ContactGroupIcqImpl)parent, contactIdentifier);
+    }
+
+    /**
+     * Removes a subscription for the presence status of the specified contact.
+     * @param contact the contact whose status updates we are unsubscribing from.
+     *
+     * @throws OperationFailedException with code NETWORK_FAILURE if unsubscribing
+     * fails due to errors experienced during network communication
+     * @throws IllegalArgumentException if <code>contact</code> is not a contact
+     * known to this protocol provider or is not an ICQ contact
+     * @throws IllegalStateException if the underlying protocol provider is not
+     * registered/signed on a public service.
+     */
+    public void unsubscribe(Contact contact) throws IllegalArgumentException,
+        IllegalStateException, OperationFailedException
+    {
+        verifyConnected();
+
+        if(! (contact instanceof ContactIcqImpl) )
+            throw new IllegalArgumentException(
+                "Argument is not an icq contact (contact=" + contact + ")");
+
+        ContactIcqImpl contactIcqImpl = (ContactIcqImpl)contact;
+
+        ContactGroupIcqImpl contactGroup
+            = ssContactList.findContactGroup(contactIcqImpl);
+
+        if (contactGroup == null)
+            throw new IllegalArgumentException(
+              "The specified contact was not found on the local "
+              +"contact/subscription list: " + contact);
+
+        MutableGroup joustSimContactGroup = contactGroup.getJoustSimSourceGroup();
+
+        joustSimContactGroup.deleteBuddy(contactIcqImpl.getJoustSimBuddy());
+    }
+
+    /**
+     * Returns a reference to the contact with the specified ID in case we have
+     * a subscription for it and null otherwise/
+     * @param contactID a String identifier of the contact which we're seeking a
+     * reference of.
+     * @return a reference to the Contact with the specified
+     * <code>contactID</code> or null if we don't have a subscription for the
+     * that identifier.
+     */
+    public Contact findContactByID(String contactID)
+    {
+        return ssContactList.findContactByScreenName(contactID);
+    }
+
+    /**
+     * Requests the provider to enter into a status corresponding to the
+     * specified paramters. Note that calling this method does not necessarily
+     * imply that the requested status would be entered. This method would
+     * return right after being called and the caller should add itself as
+     * a listener to this class in order to get notified when the state has
+     * actually changed.
+     *
+     * @param status the PresenceStatus as returned by getRequestableStatusSet
+     * @param statusMessage the message that should be set as the reason to
+     * enter that status
+     * @throws IllegalArgumentException if the status requested is not a valid
+     * PresenceStatus supported by this provider.
+     * @throws java.lang.IllegalStateException if the provider is not currently
+     * registered.
+     * @throws OperationFailedException with code NETWORK_FAILURE if publishing
+     * the status fails due to a network error.
+     */
+    public void publishPresenceStatus(PresenceStatus status,
+                                      String statusMessage) throws
+        IllegalArgumentException, IllegalStateException,
+        OperationFailedException
+    {
+        verifyConnected();
+
+        if (!(status instanceof IcqStatusEnum))
+            throw new IllegalArgumentException(
+                            status + " is not a valid ICQ status");
+
+        long icqStatus = presenceStatusToIcqStatusLong((IcqStatusEnum)status);
+
+        logger.debug("Will set status: " + status + " long=" + icqStatus);
+
+        MainBosService bosService
+            = icqProvider.getAimConnection().getBosService();
+
+        bosService.sendSnac(new SetExtraInfoCmd(icqStatus));
+        bosService.setStatusMessage(statusMessage);
+
+        //so that everyone sees the change.
+        queryContactStatus(
+            icqProvider.getAimConnection().getScreenname().getFormatted());
+    }
+
+    /**
+     * Returns the status message that was confirmed by the serfver
+     * @return the last status message that we have requested and the aim server
+     * has confirmed.
+     */
+    public String getCurrentStatusMessage()
+    {
+        return this.currentStatusMessage;
+    }
+
+    /**
+     * Returns the protocol specific contact instance representing the local
+     * user.
+     *
+     * @return the Contact (address, phone number, or uin) that the Provider
+     *   implementation is communicating on behalf of.
+     */
+    public Contact getLocalContact()
+    {
+        return localContact;
+    }
+
+    /**
+     * Creates a group with the specified name and parent in the server stored
+     * contact list.
+     * @param groupName the name of the new group to create.
+     * @param parent the group where the new group should be created
+     *
+     * @throws OperationFailedException with code NETWORK_FAILURE if unsubscribing
+     * fails due to errors experienced during network communication
+     * @throws IllegalArgumentException if <code>contact</code> is not a contact
+     * known to the underlying protocol provider
+     * @throws IllegalStateException if the underlying protocol provider is not
+     * registered/signed on a public service.
+     */
+    public void createServerStoredContactGroup(ContactGroup parent,
+        String groupName)
+    {
+        verifyConnected();
+
+        if (!parent.canContainSubgroups())
+            throw new IllegalArgumentException(
+                "The specified contact group cannot contain child groups. Group:"
+                + parent );
+
+        ssContactList.createGroup(groupName);
+    }
+
+    /**
+     * Removes the specified group from the server stored contact list.
+     * @param group the group to remove.
+     *
+     * @throws OperationFailedException with code NETWORK_FAILURE if deleting
+     * the group fails because of a network error.
+     * @throws IllegalArgumentException if <code>parent</code> is not a contact
+     * known to the underlying protocol provider.
+     * @throws IllegalStateException if the underlying protocol provider is not
+     * registered/signed on a public service.
+     */
+    public void removeServerStoredContactGroup(ContactGroup group)
+    {
+        verifyConnected();
+
+        if( !(group instanceof ContactGroupIcqImpl) )
+            throw new IllegalArgumentException(
+                "The specified group is not an icq contact group: " + group);
+
+        ssContactList.removeGroup((ContactGroupIcqImpl)group);
+    }
+
+    /**
+     * Renames the specified group from the server stored contact list. This
+     * method would return before the group has actually been renamed. A
+     * <code>ServerStoredGroupEvent</code> would be dispatched once new name
+     * has been acknowledged by the server.
+     *
+     * @param group the group to rename.
+     * @param newName the new name of the group.
+     *
+     * @throws OperationFailedException with code NETWORK_FAILURE if deleting
+     * the group fails because of a network error.
+     * @throws IllegalArgumentException if <code>parent</code> is not a contact
+     * known to the underlying protocol provider.
+     * @throws IllegalStateException if the underlying protocol provider is not
+     * registered/signed on a public service.
+     */
+    public void renameServerStoredContactGroup(
+                    ContactGroup group, String newName)
+    {
+        verifyConnected();
+
+        if( !(group instanceof ContactGroupIcqImpl) )
+            throw new IllegalArgumentException(
+                "The specified group is not an icq contact group: " + group);
+
+        ssContactList.renameGroup((ContactGroupIcqImpl)group, newName);
+    }
+
+    /**
+     * Removes the specified contact from its current parent and places it
+     * under <code>newParent</code>.
+     * @param contactToMove the <code>Contact</code> to move
+     * @param newParent the <code>ContactGroup</code> where <code>Contact</code>
+     * would be placed.
+     */
+    public void moveContactToGroup(Contact contactToMove,
+                                   ContactGroup newParent)
+    {
+        verifyConnected();
+
+        if( !(contactToMove instanceof ContactIcqImpl) )
+            throw new IllegalArgumentException(
+                "The specified contact is not an icq contact." + contactToMove);
+        if( !(newParent instanceof ContactGroupIcqImpl) )
+            throw new IllegalArgumentException(
+                "The specified group is not an icq contact group."
+                + newParent);
+
+        ssContactList.moveContact((ContactIcqImpl)contactToMove,
+                                  (ContactGroupIcqImpl)newParent);
+    }
+
+    /**
+     * Returns a snapshot ieves a server stored list of subscriptions/contacts that have been
+     * made previously. Note that the contact list returned by this method may
+     * be incomplete as it is only a snapshot of what has been retrieved through
+     * the network up to the moment when the method is called.
+     * @return a ConactGroup containing all previously made subscriptions stored
+     * on the server.
+     */
+    ServerStoredContactListIcqImpl getServerStoredContactList()
+    {
+        return ssContactList;
+    }
+
+    /**
+     * Returns a PresenceStatus instance representing the state this provider
+     * is currently in.
+     *
+     * @return PresenceStatus
+     */
+    public PresenceStatus getPresenceStatus()
+    {
+        return icqStatusLongToPresenceStatus(currentIcqStatus);
+    }
+
+    /**
+     * Returns the set of PresenceStatus objects that a user of this service
+     * may request the provider to enter.
+     *
+     * @return Iterator a PresenceStatus array containing "enterable" status
+     *   instances.
+     */
+    public Iterator getSupportedStatusSet()
+    {
+        return supportedPresenceStatusSet.iterator();
+    }
+
+    /**
+     * Handler for incoming authorization requests. An authorization request
+     * notifies the user that someone is trying to add her to their contact list
+     * and requires her to approve or reject authorization for that action.
+     * @param handler an instance of an AuthorizationHandler for authorization
+     * requests coming from other users requesting permission add us to their
+     * contact list.
+     */
+    public void setAuthorizationHandler(AuthorizationHandler handler)
+    {
+        /** @todo implement setAuthorizationHandler(); */
+    }
+
+    /**
+     * The StatusResponseRetriever is used as a one time handler for responses
+     * to requests sent through the sendSnacRequest method of one of joustsim's
+     * Services. The StatusResponseRetriever would ignore everything apart from
+     * the first response, which will be stored in the status field. In the
+     * case of a timeout, the status would remain on -1. Both a response and
+     * a timeout would make the StatusResponseRetriever call its notifyAll
+     * method so that those that are waiting on it be notified.
+     */
+    private class StatusResponseRetriever extends SnacRequestAdapter
+     {
+            private boolean ran = false;
+            private long status = -1;
+
+
+            public void handleResponse(SnacResponseEvent e) {
+                SnacCommand snac = e.getSnacCommand();
+
+                synchronized(this) {
+                    if (ran) return;
+                    ran = true;
+                }
+
+                Object value = null;
+                if (snac instanceof UserInfoCmd)
+                {
+                    UserInfoCmd uic = (UserInfoCmd) snac;
+
+                    FullUserInfo userInfo = uic.getUserInfo();
+                    if (userInfo != null)
+                    {
+                        this.status = userInfo.getIcqStatus();
+
+                        //it is possible that the status was not included in
+                        //the UserInfoCmd. Yet the fact that we got one
+                        //guarantees that she is not offline. we'll therefore
+                        //make sure it does not remain on -1.
+                        if (this.status == -1)
+                            status = ICQ_ONLINE_MASK;
+
+                        synchronized(this){
+                            this.notifyAll();
+                        }
+                    }
+                }
+                else if( snac instanceof SnacError)
+                {
+                    //this is most probably a CODE_USER_UNAVAILABLE, but
+                    //whatever it is it means that to us the buddy in question
+                    //is as good as offline so leave status at -1 and notify.
+
+                    logger.debug("status is" + status);
+                    synchronized(this){
+                        this.notifyAll();
+                    }
+                }
+
+            }
+
+            public void handleTimeout(SnacRequestTimeoutEvent event) {
+                synchronized(this) {
+                    if (ran) return;
+                    ran = true;
+                    notifyAll();
+                }
+            }
+    }
+
+    /**
+     * Utility method throwing an exception if the icq stack is not properly
+     * initialized.
+     * @throws java.lang.IllegalStateException if the underlying ICQ stack is
+     * not registered and initialized.
+     */
+    private void verifyConnected() throws IllegalStateException
+    {
+        if (icqProvider == null)
+            throw new IllegalStateException(
+                "The icq provider must be non-null and signed on the ICQ "
+                +"service before being able to communicate.");
+        if (!icqProvider.isRegistered())
+            throw new IllegalStateException(
+                "The icq provider must be signed on the ICQ service before "
+                +"being able to communicate.");
+    }
+
+    /**
+     * Adds a listener that would receive events upon changes of the provider
+     * presence status.
+     * @param listener the listener to register for changes in our PresenceStatus.
+     */
+    public void addProviderPresenceStatusListener(
+        ProviderPresenceStatusListener listener)
+    {
+        synchronized(providerPresenceStatusListeners){
+            providerPresenceStatusListeners.add(listener);
+        }
+    }
+
+    /**
+     * Unregisters the specified listener so that it does not receive further
+     * events upon changes in local presence status.
+     * @param listener ProviderPresenceStatusListener
+     */
+    public void removeProviderPresenceStatusListener(
+        ProviderPresenceStatusListener listener)
+    {
+        synchronized(providerPresenceStatusListeners){
+            providerPresenceStatusListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Returns the root group of the server stored contact list. Most often this
+     * would be a dummy group that user interface implementations may better not
+     * show.
+     *
+     * @return the root ContactGroup for the ContactList stored by this service.
+     */
+    public ContactGroup getServerStoredContactListRoot()
+    {
+        return ssContactList.getRootGroup();
+    }
+
+    /**
+     * Registers a listener that would receive events upong changes in server
+     * stored groups.
+     * @param listener a ServerStoredGroupChangeListener impl that would receive
+     * events upong group changes.
+     */
+    public void addServerStoredGroupChangeListener(
+        ServerStoredGroupListener listener)
+    {
+        ssContactList.addGroupListener(listener);
+    }
+
+    /**
+     * Removes the specified group change listener so that it won't receive
+     * any further events.
+     * @param listener the ServerStoredGroupChangeListener to remove
+     */
+    public void removeServerStoredGroupChangeListener(
+        ServerStoredGroupListener listener)
+    {
+        ssContactList.removeGroupListener(listener);
+    }
+
+    /**
+     * Notify all provider presence listeners of the corresponding event change
+     * @param oldStatusL the status our icq stack had so far
+     * @param newStatusL the status we have from now on
+     */
+    private void fireProviderPresenceStatusChangeEvent(
+                        long oldStatusL, long newStatusL)
+    {
+        PresenceStatus oldStatus = icqStatusLongToPresenceStatus(oldStatusL);
+        PresenceStatus newStatus = icqStatusLongToPresenceStatus(newStatusL);
+
+        if(oldStatus.equals(newStatus)){
+            logger.debug("Ignored prov stat. change evt. old==new = "
+                         + oldStatus);
+            return;
+        }
+
+        ProviderPresenceStatusChangeEvent evt =
+            new ProviderPresenceStatusChangeEvent(
+                icqProvider, oldStatus, newStatus);
+
+        synchronized (providerPresenceStatusListeners){
+            Iterator listeners = this.providerPresenceStatusListeners.iterator();
+
+            logger.debug("Dispatching Provider Status Change. Listeners="
+                         + providerPresenceStatusListeners.size()
+                         + " evt=" + evt);
+
+            while (listeners.hasNext())
+            {
+                ProviderPresenceStatusListener listener =
+                    (ProviderPresenceStatusListener) listeners.next();
+                listener.providerStatusChanged(evt);
+            }
+        }
+    }
+
+    /**
+     * Notify all provider presence listeners that a new status message has
+     * been set.
+     * @param oldStatusMessage the status message our icq stack had so far
+     * @param newStatusMessage the status message we have from now on
+     */
+    private void fireProviderStatusMessageChangeEvent(
+                        String oldStatusMessage, String newStatusMessage)
+    {
+
+        PropertyChangeEvent evt = new PropertyChangeEvent(
+                icqProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
+                oldStatusMessage, newStatusMessage);
+
+        synchronized (providerPresenceStatusListeners){
+            Iterator listeners = this.providerPresenceStatusListeners.iterator();
+
+            logger.debug("Dispatching  stat. msg change. Listeners="
+                         + providerPresenceStatusListeners.size()
+                         + " evt=" + evt);
+
+            while (listeners.hasNext())
+            {
+                ProviderPresenceStatusListener listener =
+                    (ProviderPresenceStatusListener) listeners.next();
+                listener.providerStatusMessageChanged(evt);
+            }
+        }
+    }
+
+    /**
+     * Notify all subscription listeners of the corresponding event.
+     *
+     * @param eventID the int ID of the event to dispatch
+     * @param sourceContact the ContactIcqImpl instance that this event is
+     * pertaining to.
+     * @param parentGroup the ContactGroupIcqImpl under which the corresponding
+     * subscription is located.
+     */
+    void fireSubscriptionEvent( int eventID,
+                                ContactIcqImpl sourceContact,
+                                ContactGroupIcqImpl parentGroup)
+    {
+        SubscriptionEvent evt =
+            new SubscriptionEvent(sourceContact, icqProvider, parentGroup,
+                                  eventID);
+
+        logger.debug("Dispatching a Subscription Event to"
+                     +subscriptionListeners.size() + " listeners. Evt="+evt);
+
+        synchronized(subscriptionListeners){
+            Iterator listeners = subscriptionListeners.iterator();
+
+            while (listeners.hasNext())
+            {
+                SubscriptionListener listener =
+                    (SubscriptionListener) listeners.next();
+                if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
+                    listener.subscriptionCreated(evt);
+                else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_REMOVED)
+                    listener.subscriptionRemoved(evt);
+                else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_FAILED)
+                    listener.subscriptionFailed(evt);
+
+            }
+        }
+    }
+
+    /**
+     * Notify all contact presence listeners of the corresponding event change
+     * @param contact the contact that changed its status
+     * @param oldStatus the status that the specified contact had so far
+     * @param newStatus the status that the specified contact is currently in.
+     * @param parentGroup the group containing the contact which caused the event
+     */
+    private void fireContactPresenceStatusChangeEvent(
+                        Contact contact,
+                        ContactGroup parentGroup,
+                        PresenceStatus oldStatus,
+                        PresenceStatus newStatus)
+    {
+        ContactPresenceStatusChangeEvent evt =
+            new ContactPresenceStatusChangeEvent(
+                contact, icqProvider, parentGroup, oldStatus, newStatus);
+
+        synchronized(contactPresenceStatusListeners){
+            Iterator listeners = contactPresenceStatusListeners.iterator();
+
+            logger.debug("Dispatching Contact Status Change. Listeners="
+                         + contactPresenceStatusListeners.size()
+                         + " evt=" + evt);
+
+            while (listeners.hasNext())
+            {
+                ContactPresenceStatusListener listener =
+                    (ContactPresenceStatusListener) listeners.next();
+                listener.contactPresenceStatusChanged(evt);
+            }
+        }
+    }
+
+    /**
+     * Our listener that will tell us when we're registered to icq and joust
+     * sim is ready to accept us as a listener.
+     */
+    private class RegistrationStateListener
+        implements RegistrationStateChangeListener
+    {
+        /**
+         * The method is called by a ProtocolProvider implementation whenver
+         * a change in the registration state of the corresponding provider had
+         * occurred.
+         * @param evt ProviderStatusChangeEvent the event describing the status
+         * change.
+         */
+        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        {
+            logger.debug("The ICQ provider changed state from: "
+                         + evt.getOldState()
+                         + " to: " + evt.getNewState());
+            if(evt.getNewState() == RegistrationState.REGISTERED)
+            {
+                System.out.println("adding a Bos Service Listener");
+                icqProvider.getAimConnection().getBosService()
+                    .addMainBosServiceListener(joustSimBosListener);
+
+                ssContactList.init(
+                    icqProvider.getAimConnection().getSsiService(),
+                    OperationSetPersistentPresenceIcqImpl.this,
+                    icqProvider);
+
+//                /**@todo implement the following
+                 icqProvider.getAimConnection().getBuddyService()
+                     .addBuddyListener(joustSimBuddySerListener);
+
+//                  @todo we really need this for following the status of our
+//                 contacts and we really need it here ...*/
+                icqProvider.getAimConnection().getBuddyInfoManager()
+                    .addGlobalBuddyInfoListener(new GlobalBuddyInfoListener());
+            }
+        }
+
+    }
+
+    /**
+     * The listeners that would monitor the joust sim stack for changes in our
+     * own presence status.
+     */
+    private class JoustSimBosListener implements MainBosServiceListener
+    {
+        /**
+         * Notifications of exta information such as avail message, icon hash
+         * or certificate.
+         * @param extraInfos List
+         */
+        public void handleYourExtraInfo(List extraInfos)
+        {
+            logger.debug("Got extra info: " + extraInfos);
+            // @xxx we should one day probably do something here, like check
+            // whether the status message has been changed for example.
+            for (int i = 0; i < extraInfos.size(); i ++){
+                ExtraInfoBlock block = (ExtraInfoBlock) extraInfos.get(i);
+                if (block.getType() == ExtraInfoBlock.TYPE_AVAILMSG){
+                    String statusMessage = ExtraInfoData.readAvailableMessage(
+                                                    block.getExtraData());
+                    logger.debug("Received a status message:" + statusMessage);
+
+                    if ( getCurrentStatusMessage().equals(statusMessage)){
+                        logger.debug("Status message is same as old. Ignoring");
+                        return;
+                    }
+
+                    String oldStatusMessage = getCurrentStatusMessage();
+                    currentStatusMessage = statusMessage;
+
+                    fireProviderStatusMessageChangeEvent(
+                        oldStatusMessage, getCurrentStatusMessage());
+                }
+            }
+        }
+
+        /**
+         * Fires the corresponding presence status chagne event. Note that this
+         * method will be called once per sendSnac packet. When setting a new
+         * status we generally send three packets - 1 for the status and 2 for
+         * the status message. Make sure that only one event goes outside of
+         * this package.
+         *
+         * @param service the source MainBosService instance
+         * @param userInfo our own info
+         */
+        public void handleYourInfo(MainBosService service,
+                                   FullUserInfo userInfo)
+        {
+            logger.debug("Received our own user info: " + userInfo);
+            logger.debug("previous status was: " + currentIcqStatus);
+
+            //update the last received field.
+            long oldStatus  = currentIcqStatus;
+            currentIcqStatus = userInfo.getIcqStatus();
+
+            //it might happen that the info here is -1 (in case we're going back
+            //to online). Yet the fact that we're getting the event means
+            //that we're very much online so make sure we change accordingly
+            if (currentIcqStatus == -1 )
+                currentIcqStatus = ICQ_ONLINE_MASK;
+
+            //only notify of an event change if there was really one.
+            if( oldStatus != userInfo.getIcqStatus() )
+                fireProviderPresenceStatusChangeEvent(oldStatus,
+                                                      currentIcqStatus);
+        }
+    }
+
+    /**
+     * Listens for status updates coming from the joust sim statck and generates
+     * the corresponding sip-communicator events.
+     * @author Emil Ivov
+     */
+    private class JoustSimBuddyServiceListener implements BuddyServiceListener
+    {
+
+        /**
+         * Updates the last received status in the corresponding contact
+         * and fires a contact presence status change event.
+         * @param service the BuddyService that generated the exception
+         * @param buddy the Screenname of the buddy whose status update we're
+         * receiving
+         * @param info the FullUserInfo containing the new status of the
+         * corresponding contact
+         */
+        public void gotBuddyStatus(BuddyService service, Screenname buddy,
+                                   FullUserInfo info)
+        {
+            logger.debug("Received a status update for buddy=" + buddy);
+            logger.debug("Updated user info is " + info);
+
+            ContactIcqImpl sourceContact
+                = ssContactList.findContactByScreenName(buddy.getFormatted());
+
+            if(sourceContact == null){
+                logger.warn("No source contact found for screenname=" + buddy);
+                return;
+            }
+            PresenceStatus oldStatus
+                = sourceContact.getPresenceStatus();
+            PresenceStatus newStatus
+                = icqStatusLongToPresenceStatus(info.getIcqStatus());
+            sourceContact.updatePresenceStatus(newStatus);
+
+            ContactGroupIcqImpl parent
+                = ssContactList.findContactGroup(sourceContact);
+
+            logger.debug("Will Dispatch the contact status event.");
+            fireContactPresenceStatusChangeEvent(sourceContact, parent,
+                                                 oldStatus, newStatus);
+
+            List extraInfoBlocks = info.getExtraInfoBlocks();
+            if(extraInfoBlocks != null){
+                for (int i = 0; i < extraInfoBlocks.size(); i++)
+                {
+                    ExtraInfoBlock block
+                        = ( (ExtraInfoBlock) extraInfoBlocks.get(i));
+                    if (block.getType() == ExtraInfoBlock.TYPE_AVAILMSG)
+                    {
+                        String status = ExtraInfoData.readAvailableMessage(
+                            block.getExtraData());
+                        logger.info("Status Message is: " + status + ".");
+                    }
+                }
+            }
+        }
+
+        /**
+         * Updates the last received status in the corresponding contact
+         * and fires a contact presence status change event.
+         *
+         * @param service the BuddyService that generated the exception
+         * @param buddy the Screenname of the buddy whose status update we're
+         * receiving
+         */
+        public void buddyOffline(BuddyService service, Screenname buddy)
+        {
+            logger.debug("Received a status update for buddy=" + buddy);
+
+            ContactIcqImpl sourceContact
+                = ssContactList.findContactByScreenName(buddy.getFormatted());
+
+            if(sourceContact == null)
+                return;
+
+            PresenceStatus oldStatus
+                = sourceContact.getPresenceStatus();
+            PresenceStatus newStatus = IcqStatusEnum.OFFLINE;
+
+            sourceContact.updatePresenceStatus(newStatus);
+
+            ContactGroupIcqImpl parent
+                = ssContactList.findContactGroup(sourceContact);
+
+            fireContactPresenceStatusChangeEvent(sourceContact, parent,
+                                                 oldStatus, newStatus);
+        }
+    }
+
+    /**
+     * Apart from loggin - does nothing so far.
+     */
+    private class GlobalBuddyInfoListener extends GlobalBuddyInfoAdapter{
+        public void receivedStatusUpdate(BuddyInfoManager manager,
+                                         Screenname buddy, BuddyInfo info)
+        {
+            logger.debug("buddy=" + buddy);
+            logger.debug("info.getAwayMessage()=" + info.getAwayMessage());
+            logger.debug("info.getOnlineSince()=" + info.getOnlineSince());
+            logger.debug("info.getStatusMessage()=" + info.getStatusMessage());
+        }
+
+    }
+}
+
+
