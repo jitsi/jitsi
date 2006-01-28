@@ -1,0 +1,105 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.service.protocol.event;
+
+import java.util.*;
+import net.java.sip.communicator.service.protocol.*;
+
+/**
+ * Events of this class indicate a change in one of the properties of a
+ * ServerStoredGroup.
+ *
+ * @author Emil Ivov
+ */
+public class ServerStoredGroupEvent
+    extends EventObject
+{
+    public static final int GROUP_CREATED_EVENT = 1;
+    public static final int GROUP_REMOVED_EVENT = 2;
+    public static final int GROUP_RENAMED_EVENT = 3;
+
+    private int eventID = -1;
+    private ProtocolProviderService sourceProvider = null;
+    private OperationSetPersistentPresence parentOperationSet = null;
+
+
+    /**
+     * Creates a ServerStoredGroupChangeEvent instance.
+     * @param sourceGroup the group that this event is pertaining to.
+     * @param eventID an int describing the cause of the event
+     * @param sourceProvider a reference to the protocol provider where this is
+     * happening
+     * @param opSet a reference to the operation set responsible for the event
+     */
+    public ServerStoredGroupEvent(ContactGroup sourceGroup,
+                                  int eventID,
+                                  ProtocolProviderService sourceProvider,
+                                  OperationSetPersistentPresence opSet)
+    {
+        super(sourceGroup);
+
+        this.eventID = eventID;
+        this.sourceProvider = sourceProvider;
+        this.parentOperationSet = opSet;
+    }
+
+    /**
+     * Returns a reference to the <code>ContactGroup</code> that this event is
+     * pertaining to.
+     * @return a reference to the ContactGroup that caused the event.
+     */
+    public ContactGroup getSrouceGroup()
+    {
+        return (ContactGroup)getSource();
+    }
+
+    /**
+     * Returns an int describing the cause of this event.
+     * @return an int describing the cause of this event.
+     */
+    public int getEventID()
+    {
+        return eventID;
+    }
+
+    /**
+     * Returns a reference to the provider under which the event is being
+     * generated
+     * @return a ProtocolProviderService instance indicating the provider
+     * responsible for the event.
+     */
+    public ProtocolProviderService getSourceProvider()
+    {
+        return this.sourceProvider;
+    }
+
+    /**
+     * Returns a reference to the operation set that generated the event
+     * @return a reference to an OperationSetPersistentPresence instance,
+     * responsible for generating the event.
+     */
+    public OperationSetPersistentPresence getSourceOperationSet()
+    {
+        return this.parentOperationSet;
+    }
+
+    /**
+     * Returns a String representation of this event.
+     * @return a String containing details describin this event.
+     */
+    public String toString()
+    {
+        StringBuffer buff
+            = new StringBuffer("ServerStoredGroupEvent:[EventID= ");
+        buff.append(getEventID());
+        buff.append(" SourceGroup=");
+        buff.append(getSource());
+        buff.append("]");
+
+        return buff.toString();
+    }
+}
