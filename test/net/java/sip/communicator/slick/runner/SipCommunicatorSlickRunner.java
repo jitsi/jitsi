@@ -153,10 +153,14 @@ public class SipCommunicatorSlickRunner
                 out.close();
 
             }
-
+            //output results
+            logger.info("");
+            logger.info("====================================================");
             logger.info("We ran " + runCount
                         + " tests and encountered " + errCount
                         + " errors and failures.");
+            logger.info("====================================================");
+            logger.info("");
 
             //in order to shutdown oscar we'd first need to wait for it to
             //complete it's start process, so we'll have to implement shutdown
