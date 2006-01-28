@@ -9,15 +9,27 @@
 # @author Emil Ivov
 
 
-# The ICQ UIN (number) for the ICQ implementation that is going to be tested.
+# An ICQ UIN (number) for the ICQ implementation that is going to be tested.
+# !!!EXTREMELY IMPORTANT!!! The contact list of this account will be COMPLETELY
+# and IRREVERSIBLY ERASED
 accounts.icq.TESTED_IMPL_ACCOUNT_ID=
 
 # The Password for the UIN specifined in accounts.icq.TESTED_IMPL_ACCOUNT_ID.
 accounts.icq.TESTED_IMPL_PWD=
 
-# The ICQ UIN (number) for the ICQ SLICK itself, so that it would be able to
+# An ICQ UIN (number) for the ICQ SLICK itself, so that it would be able to
 # sign on icq and also communicated with the tested implementation.
 accounts.icq.TESTING_IMPL_ACCOUNT_ID=
 
 # The Password for the UIN specifined in accounts.icq.TESTING_IMPL_ACCOUNT_ID.
 accounts.icq.TESTING_IMPL_PWD=
+
+# The following describes the contact list that we will store on the AIM server
+# for the tested account implementation. The value of the CONTACT_LIST property
+# must be a space separated string containing elements each of which is in the
+# format: GroupName.UIN
+#
+#
+# VERY IMPORTANT!!! All other users in this contact list will be removed and
+# the contacts and contact groups enumerated beneath will be added instead
+accounts.icq.CONTACT_LIST=
