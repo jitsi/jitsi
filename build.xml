@@ -178,6 +178,7 @@
         <mkdir dir="${java.doc}"/>
         <mkdir dir="${bundles.dest}"/>
         <mkdir dir="${test.reports.dir}"/>
+		<mkdir dir="${test.reports.dir}/html"/>
 
         <!-- set the jmf.performancepack.extracted property so that we know
              whether we'll have to extract jmf native libs -->
@@ -308,7 +309,7 @@
       </junitreport>
     </target>
 
-    <!--RUN-SIP-CMMUNICATOR-->
+    <!--RUN-SIP-COMMUNICATOR-->
     <target name="run" depends="compile,resource"
         description="Starts oscar and runs sip-comunicator gui.">
 
