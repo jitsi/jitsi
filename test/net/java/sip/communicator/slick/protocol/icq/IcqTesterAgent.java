@@ -958,13 +958,6 @@ public class IcqTesterAgent
         System.out.println("\n\ntracker added");
         Thread.sleep(3000);
 
-
-
-
-
-
-
-
     //        Thread.currentThread().sleep(15000);
     //        icqtests.getBuddyStatus("38687470");
     //        icqtests.getBuddyStatus("51226782");
@@ -1044,6 +1037,7 @@ public class IcqTesterAgent
         Thread.sleep(5000);
 
         icqtests.conn.getInfoService().requestAwayMessage(new Screenname("38687470"));
+
 //
 //        icqtests.enterStatus(FullUserInfo.ICQSTATUS_DND);
 
