@@ -221,6 +221,15 @@ public class ServerStoredContactListIcqImpl
     }
 
     /**
+     * Retrns a reference to the provider that created us.
+     * @return a reference to a ProtocolProviderServiceIcqImpl instance.
+     */
+    ProtocolProviderServiceIcqImpl getParentProvider()
+    {
+        return icqProvider;
+    }
+
+    /**
      * Returns the index of the ContactGroup containing the specified joust sim
      * group.
      * @param joustSimGroup the joust sim group we're looking for.
@@ -466,7 +475,8 @@ public class ServerStoredContactListIcqImpl
             logger.trace("Group added: " + group.getName());
             logger.trace("Buddies: " + buddies);
             ContactGroupIcqImpl newGroup
-                = new ContactGroupIcqImpl((MutableGroup)group, buddies);
+                = new ContactGroupIcqImpl((MutableGroup)group, buddies,
+                        ServerStoredContactListIcqImpl.this);
 
             //add a joust sim buddy listener to all of the buddies in this group
             for(int i = 0; i < buddies.size(); i++)
@@ -553,8 +563,8 @@ public class ServerStoredContactListIcqImpl
         public void buddyAdded(BuddyList list, Group joustSimGroup, List oldItems,
                                List newItems, Buddy buddy)
         {
-            ContactIcqImpl newContact
-                = new ContactIcqImpl(buddy);
+            ContactIcqImpl newContact = new ContactIcqImpl(
+                    buddy, ServerStoredContactListIcqImpl.this);
             ContactGroupIcqImpl parentGroup = findContactGroup(joustSimGroup);
 
             if (parentGroup == null)
