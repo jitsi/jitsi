@@ -16,26 +16,17 @@ public class ContactIcqImpl
     private boolean isLocal = false;
     private byte[] image = null;
     private PresenceStatus icqStatus = IcqStatusEnum.OFFLINE;
+    private ServerStoredContactListIcqImpl ssclCallback = null;
 
     /**
      * Creates an IcqContactImpl
      * @param buddy the JoustSIM object that we will be encapsulating.
-     * @param isLocal specifies whether this is the representation of the local
-     * contact (i.e. the user we are using to sign on icq)
      */
-    ContactIcqImpl(Buddy buddy, boolean isLocal)
+    ContactIcqImpl(Buddy buddy, ServerStoredContactListIcqImpl ssclCallback)
     {
         this.joustSimBuddy = buddy;
         this.isLocal = isLocal;
-    }
-
-    /**
-     * Creates an IcqContactImpl for a non local contact
-     * @param buddy FullUserInfo
-     */
-    ContactIcqImpl(Buddy buddy)
-    {
-        this(buddy, false );
+        this.ssclCallback = ssclCallback;
     }
 
     /**
@@ -151,6 +142,25 @@ public class ContactIcqImpl
         return icqStatus;
     }
 
+    /**
+     * Returns a String that could be used by any user interacting modules for
+     * referring to this contact. An alias is not necessarily unique but is
+     * often more human readable than an address (or id).
+     * @return a String that can be used for referring to this contact when
+     * interacting with the user.
+     */
+    public String getAlias()
+    {
+        return joustSimBuddy.getAlias();
+    }
 
+    /**
+     * Returns a reference to the protocol provider that created the contact.
+     * @return a refererence to an instance of the ProtocolProviderService
+     */
+    public ProtocolProviderService getProtocolProvider()
+    {
+        return ssclCallback.getParentProvider();
+    }
 
 }

@@ -62,10 +62,13 @@ public class ContactGroupIcqImpl
      * <p>
      * @param joustSimGroup the JoustSIM Group correspoinding to the group
      * @param groupMembers the group members that we should add to the group.
+     * @param ssclCallback a callback to the server stored contact list
      *
      * we're creating.
      */
-    ContactGroupIcqImpl(MutableGroup joustSimGroup, List groupMembers)
+    ContactGroupIcqImpl(MutableGroup joustSimGroup,
+                        List groupMembers,
+                        ServerStoredContactListIcqImpl ssclCallback)
     {
         this.joustSimSourceGroup = joustSimGroup;
 
@@ -79,7 +82,8 @@ public class ContactGroupIcqImpl
 
         for (int i = 0; i < groupMembers.size(); i++)
         {
-            addContact( new ContactIcqImpl((Buddy)groupMembers.get(i)) );
+            addContact( new ContactIcqImpl((Buddy)groupMembers.get(i),
+                                           ssclCallback) );
         }
 
     }
