@@ -9,7 +9,7 @@ package net.java.sip.communicator.service.protocol.event;
 import java.util.*;
 
 /**
- * <code>ContactPresenceStatusListener</code>s listener for events caused by
+ * <tt>ContactPresenceStatusListener</tt>s listener for events caused by
  * changes in the status of contacts that we have active subscriptions for.
  * <p>
  * Events handled by this listener a most often the direct result of server/

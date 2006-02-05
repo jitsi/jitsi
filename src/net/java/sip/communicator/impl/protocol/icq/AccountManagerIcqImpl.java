@@ -62,7 +62,7 @@ public class AccountManagerIcqImpl
     /**
      * Initializaed and creates an accoung corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
-     * <code>context</code> BundleContext parameter.
+     * <tt>context</tt> BundleContext parameter.
      *
      * @param context the BundleContext parameter where the newly created
      *   ProtocolProviderService would have to be registered.

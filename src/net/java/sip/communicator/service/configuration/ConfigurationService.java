@@ -73,7 +73,7 @@ public interface ConfigurationService
      * @param propertyName the name of the property that is being queried.
      * @return the result of calling the property's toString method and null in
      * case there was no vlaue mapped against the specified
-     * <code>propertyName</code>, or the returned string had zero length or
+     * <tt>propertyName</tt>, or the returned string had zero length or
      * contained whitespaces only.
      */
     public String getString(String propertyName);

@@ -20,8 +20,8 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
 
     /**
      * Creates an event instance indicating a change of the property
-     * specified by <code>eventType</code> from <code>oldValue</code> to
-     * <code>newValue</code>.
+     * specified by <tt>eventType</tt> from <tt>oldValue</tt> to
+     * <tt>newValue</tt>.
      * @param source the provider that generated the event
      * @param oldValue the status the source provider was int before enetering
      * the new state.
@@ -70,7 +70,7 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
     /**
      * Returns a string representation of this event.
      * @return a String containing the name of the event as well as the names
-     * of the old and new <code>RegistrationState</code>s
+     * of the old and new <tt>RegistrationState</tt>s
      */
     public String toString()
     {

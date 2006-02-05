@@ -81,7 +81,7 @@ public class AddressPreference
     }
 
     /**
-     * Returns true if <code>obj</code> is the same object as this
+     * Returns true if <tt>obj</tt> is the same object as this
      * AddressPreference or is at least an instance of AddressPreference and
      * has the same numerical value. In all other cases the method returns
      * false.

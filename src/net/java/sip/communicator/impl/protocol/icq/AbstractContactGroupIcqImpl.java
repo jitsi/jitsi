@@ -4,9 +4,9 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The ICQ implementation of the service.protocol.ContactGroup interface. There
- * are two types of groups possible here. <code>RootContactGroupIcqImpl</code>
+ * are two types of groups possible here. <tt>RootContactGroupIcqImpl</tt>
  * which is the root node of the ContactList itself and
- * <code>ContactGroupIcqImpl</code> which represents standard icq groups. The
+ * <tt>ContactGroupIcqImpl</tt> which represents standard icq groups. The
  * reason for having those 2 is that generally, ICQ groups may not contain
  * subgroups. A contact list on the other hand may not directly contain buddies.
  *

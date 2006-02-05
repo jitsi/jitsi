@@ -20,8 +20,8 @@ public class ProviderStatusChangeEvent extends PropertyChangeEvent
 
     /**
      * Creates an event instance indicating a change of the property
-     * specified by <code>eventType</code> from <code>oldValue</code> to
-     * <code>newValue</code>.
+     * specified by <tt>eventType</tt> from <tt>oldValue</tt> to
+     * <tt>newValue</tt>.
      * @param source the provider that generated the event
      * @param eventType the type of the newly created event.
      * @param oldValue the status the source provider was int before enetering

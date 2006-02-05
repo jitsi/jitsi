@@ -399,7 +399,7 @@ public class TestOperationSetPersistentPresence
 
     /**
      * The class would listen for and store received events delivered to
-     * <code>ServerStoredGroupListener</code>s.
+     * <tt>ServerStoredGroupListener</tt>s.
      */
     private class GroupChangeCollector implements ServerStoredGroupListener
     {

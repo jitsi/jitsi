@@ -11,7 +11,7 @@ import net.java.sip.communicator.util.*;
  * java junit.textui.TestRunner [-wait] TestCaseClass
  * </pre>
  * TestRunner expects the name of a TestCase class as argument.
- * If this class defines a static <code>suite</code> method it
+ * If this class defines a static <tt>suite</tt> method it
  * will be invoked and the returned test is run. Otherwise all
  * the methods starting with "test" having no arguments are run.
  * <p>

@@ -14,10 +14,10 @@ import net.kano.joustsim.*;
 
 /**
  * The ICQ implementation of the ContactGroup interface. Intances of this class
- * (contrary to <code>RootContactGroupIcqImpl</code>) may only contain buddies
+ * (contrary to <tt>RootContactGroupIcqImpl</tt>) may only contain buddies
  * and cannot have sub groups. Note that instances of this class only use the
  * corresponding joust sim source group for reading their names and only
- * initially fill their <code>buddies</code> <code>java.util.List</code> with
+ * initially fill their <tt>buddies</tt> <tt>java.util.List</tt> with
  * the ContactIcqImpl objects corresponding to those contained in the source
  * group at the moment it is being created. They would, however, never try to
  * sync or update their contents ulteriorly. This would have to be done through
@@ -48,7 +48,7 @@ public class ContactGroupIcqImpl
     private String nameCopy = null;
 
     /**
-     * Creates an ICQ group using the specified <code>joustSimGroup</code> as
+     * Creates an ICQ group using the specified <tt>joustSimGroup</tt> as
      * a source. The newly created group will always return the name of the
      * underlying joustSimGroup and would thus automatically adapt to changes.
      * It would, however, not receive or try to poll for modifications of the
@@ -89,11 +89,11 @@ public class ContactGroupIcqImpl
     }
 
     /**
-     * Returns the number of <code>Contact</code> members of this
-     * <code>ContactGroup</code>
+     * Returns the number of <tt>Contact</tt> members of this
+     * <tt>ContactGroup</tt>
      *
-     * @return an int indicating the number of <code>Contact</code>s,
-     *   members of this <code>ContactGroup</code>.
+     * @return an int indicating the number of <tt>Contact</tt>s,
+     *   members of this <tt>ContactGroup</tt>.
      */
     public int countContacts()
     {
@@ -140,7 +140,7 @@ public class ContactGroupIcqImpl
 
     /**
      * Removes all buddies in this group and reinsterts them as specified
-     * by the <code>newOrder</code> param. Contacts not contained in the
+     * by the <tt>newOrder</tt> param. Contacts not contained in the
      * newOrder list are left at the end of this group.
      *
      * @param newOrder a list containing all contacts in the order that is
@@ -155,10 +155,10 @@ public class ContactGroupIcqImpl
 
     /**
      * Returns an Iterator over all contacts, member of this
-     * <code>ContactGroup</code>.
+     * <tt>ContactGroup</tt>.
      *
      * @return a java.util.Iterator over all contacts inside this
-     *   <code>ContactGroup</code>. In case the group doesn't contain any
+     *   <tt>ContactGroup</tt>. In case the group doesn't contain any
      * memebers it will return an empty iterator.
      */
     public Iterator contacts()
@@ -167,10 +167,10 @@ public class ContactGroupIcqImpl
     }
 
     /**
-     * Returns the <code>Contact</code> with the specified index.
+     * Returns the <tt>Contact</tt> with the specified index.
      *
-     * @param index the index of the <code>Contact</code> to return.
-     * @return the <code>Contact</code> with the specified index.
+     * @param index the index of the <tt>Contact</tt> to return.
+     * @return the <tt>Contact</tt> with the specified index.
      */
     public Contact getContact(int index)
     {
@@ -178,11 +178,11 @@ public class ContactGroupIcqImpl
     }
 
     /**
-     * Returns the <code>Contact</code> with the specified address or
+     * Returns the <tt>Contact</tt> with the specified address or
      * identifier.
-     * @param id the addres or identifier of the <code>Contact</code> we are
+     * @param id the addres or identifier of the <tt>Contact</tt> we are
      * looking for.
-     * @return the <code>Contact</code> with the specified id or address.
+     * @return the <tt>Contact</tt> with the specified id or address.
      */
     public Contact getContact(String id)
     {
@@ -212,7 +212,7 @@ public class ContactGroupIcqImpl
      * Returns the subgroup with the specified index (i.e. always null since
      * this group may not contain subgroups).
      *
-     * @param index the index of the <code>ContactGroup</code> to retrieve.
+     * @param index the index of the <tt>ContactGroup</tt> to retrieve.
      * @return always null
      */
     public ContactGroup getGroup(int index)
@@ -222,8 +222,8 @@ public class ContactGroupIcqImpl
 
     /**
      * Returns the subgroup with the specified name.
-     * @param groupName the name of the <code>ContactGroup</code> to retrieve.
-     * @return the <code>ContactGroup</code> with the specified index.
+     * @param groupName the name of the <tt>ContactGroup</tt> to retrieve.
+     * @return the <tt>ContactGroup</tt> with the specified index.
      */
     public ContactGroup getGroup(String groupName)
     {
@@ -244,7 +244,7 @@ public class ContactGroupIcqImpl
     /**
      * Returns the number of subgroups contained by this group, which is
      * always 0 since sub groups in the icq protocol may only be contained
-     * by the root group - <code>RootContactGroupIcqImpl</code>.
+     * by the root group - <tt>RootContactGroupIcqImpl</tt>.
      * @return a 0 int.
      */
     public int countSubGroups()
@@ -279,8 +279,8 @@ public class ContactGroupIcqImpl
      * <p>
      *
      * @param   obj   the reference object with which to compare.
-     * @return  <code>true</code> if this object is the same as the obj
-     *          argument; <code>false</code> otherwise.
+     * @return  <tt>true</tt> if this object is the same as the obj
+     *          argument; <tt>false</tt> otherwise.
      */
     public boolean equals(Object obj)
     {
@@ -328,7 +328,7 @@ public class ContactGroupIcqImpl
      *
      * @param joustSimBuddy the buddy whose encapsulating contact we're looking
      * for.
-     * @return the <code>ContactIcqImpl</code> corresponding to the specified
+     * @return the <tt>ContactIcqImpl</tt> corresponding to the specified
      * joustSimBuddy or null if no such contact was found.
      */
     ContactIcqImpl findContact(Buddy joustSimBuddy)
@@ -372,7 +372,7 @@ public class ContactGroupIcqImpl
      *
      * @param screenName the screenName (or icq UIN) for the contact we're
      * looking for.
-     * @return the <code>ContactIcqImpl</code> corresponding to the specified
+     * @return the <tt>ContactIcqImpl</tt> corresponding to the specified
      * screnname or null if no such contact existed.
      */
     ContactIcqImpl findContact(String screenName)
@@ -400,7 +400,7 @@ public class ContactGroupIcqImpl
     /**
      * Returns the name of the group as it was at the last call of initNameCopy.
      * @return a String containing a copy of the name of this group as it was
-     * last time when we called <code>initNameCopy</code>.
+     * last time when we called <tt>initNameCopy</tt>.
      */
     String getNameCopy()
     {

@@ -10,10 +10,10 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.contactlist.event.MetaContactListListener;
 
 /**
- * The <code>MetaContactListService</code> handles the global project contact
+ * The <tt>MetaContactListService</tt> handles the global project contact
  * list including contacts from all implemented protocols.
  * <p>
- * An implementation of the <code>MetaContactListService</code> would take care
+ * An implementation of the <tt>MetaContactListService</tt> would take care
  * of synchronizing the local copy ot the contact list with the  versions stored
  * on the various server protocols.
  * <p>
@@ -21,10 +21,10 @@ import net.java.sip.communicator.service.contactlist.event.MetaContactListListen
  * list should use this service rather than accessing protocol providers
  * directly.
  * <p>
- * The point of <code>MetaContact</code>s is being able to merge different
+ * The point of <tt>MetaContact</tt>s is being able to merge different
  * protocol specific contacts so that they represent a single person or identity.
- * Every protocol specific <code>Contact</code> would therefore automatically
- * be assigned to a corresponding <code>MetaContact</code>. A single
+ * Every protocol specific <tt>Contact</tt> would therefore automatically
+ * be assigned to a corresponding <tt>MetaContact</tt>. A single
  * MetaContact may containg multiple contacts (e.g. a single person often
  * has accounts in different protocols) while a single protocol specific
  * Contact may only be assigned to a exactly one MetaContact.
@@ -46,16 +46,36 @@ import net.java.sip.communicator.service.contactlist.event.MetaContactListListen
 public interface MetaContactListService
 {
     /**
-     * Returns the root <code>MetaContactGroup</code> in this contact list.
+     * Returns the root <tt>MetaContactGroup</tt> in this contact list.
      * All meta contacts and subgroups are children of the root meta contact
      * and references to them can only be obtained through it.
      *
-     * @return the root <code>MetaContactGroup</code> for this contact list.
+     * @return the root <tt>MetaContactGroup</tt> for this contact list.
      */
     public MetaContactGroup getRoot();
 
     /**
-     * Adds a listener for <code>MetaContactListChangeEvent</code>s posted after
+     * Returns the MetaContact containing the specified contact or null if no
+     * such MetaContact was found. The method can be used when for example
+     * we need to find the MetaContact that is the author of an incoming message
+     * and the corresponding ProtocolProviderService has only provided a
+     * <tt>Contact</tt> as its author.
+     * @return the MetaContact containing the speicified contact or null
+     * if no such contact is present in this contact list.
+     */
+    public MetaContact findMetaContactByContact(Contact contact);
+
+    /**
+     * Returns the MetaContact that corresponds to the specified metaContactID.
+     *
+     * @param metaContactID a String identifier of a meta contact.
+     * @return the MetaContact with the speicified string identifier or null
+     * if no such meta contact was found.
+     */
+    public MetaContact findMetaContactByID(String metaContactID);
+
+    /**
+     * Adds a listener for <tt>MetaContactListChangeEvent</tt>s posted after
      * the tree changes.
      *
      * @param l the listener to add
@@ -64,21 +84,21 @@ public interface MetaContactListService
 
     /**
      * Removes a listener previously added with
-     * <code>addContactListListener</code>.
+     * <tt>addContactListListener</tt>.
      *
      * @param l the listener to remove
      */
     public void removeContactListListener(MetaContactListListener l);
 
     /**
-     * Makes the specified <code>contact</code> a child of the
-     * <code>newParent</code> MetaContact. If <code>contact</code> was
+     * Makes the specified <tt>contact</tt> a child of the
+     * <tt>newParent</tt> MetaContact. If <tt>contact</tt> was
      * previously a child of another meta contact, it will be removed from its
      * old parent before being added to the new one. If the specified contact
      * was the only child of its previous parent, then it (the previous parent)
      * will be removed.
      *
-     * @param contact the <code>Contact</code> to move to the
+     * @param contact the <tt>Contact</tt> to move to the
      * @param newParent the MetaContact where we'd like contact to be moved.
      *
      * @throws MetaContactListException with an appropriate code if the
@@ -90,7 +110,7 @@ public interface MetaContactListService
     /**
      * Deletes the specified contact from both the local contact list and (if
      * applicable) the server stored contact list if supported by the
-     * corresponding protocol. If the <code>MetaContact</code> that contained
+     * corresponding protocol. If the <tt>MetaContact</tt> that contained
      * the given contact had no other children, it will be removed.
      * <p>
      * @param contact the contact to remove.
@@ -102,11 +122,11 @@ public interface MetaContactListService
 
     /**
      * First makes the specified protocol provider create the contact as
-     * indicated by <code>contactID</code>, and then associates it to the
-     * _existing_ <code>metaContact</code> given as an argument.
+     * indicated by <tt>contactID</tt>, and then associates it to the
+     * _existing_ <tt>metaContact</tt> given as an argument.
      * <p>
      * @param provider the ProtocolProviderService that should create the
-     * contact indicated by <code>contactID</code>.
+     * contact indicated by <tt>contactID</tt>.
      * @param metaContact the meta contact where that the newly created contact
      * should be associated to.
      * @param contactID the identifier of the contact that the specified provider
@@ -121,7 +141,7 @@ public interface MetaContactListService
 
     /**
      * First makes the specified protocol provider create a contact
-     * corresponding to the specified <code>contactID</code>, then creates a new
+     * corresponding to the specified <tt>contactID</tt>, then creates a new
      * MetaContact which will encapsulate the newly crated protocol specific
      * contact. Depending on implementations the method may sometimes need
      * time to complete as it may be necessary for an underlying protocol to
@@ -131,7 +151,7 @@ public interface MetaContactListService
      * group on the protocol server, it will be created before the contact
      * itself.
      * <p>
-     * @param provider a ref to <code>ProtocolProviderService</code> instance
+     * @param provider a ref to <tt>ProtocolProviderService</tt> instance
      * which will create the actual protocol specific contact.
      * @param contactGroup the MetaContactGroup where the newly created meta
      * contact should be stored.
@@ -147,11 +167,11 @@ public interface MetaContactListService
         throws MetaContactListException;
 
     /**
-     * Moves the specified <code>MetaContact</code> to <code>newGroup</code>.
+     * Moves the specified <tt>MetaContact</tt> to <tt>newGroup</tt>.
      * <p>
-     * @param metaContact the <code>MetaContact</code> to move.
-     * @param newGroup the <code>MetaContactGroup</code> that should be the
-     * new parent of <code>contact</code>.
+     * @param metaContact the <tt>MetaContact</tt> to move.
+     * @param newGroup the <tt>MetaContactGroup</tt> that should be the
+     * new parent of <tt>contact</tt>.
      *
      * @throws MetaContactListException with an appropriate code if the
      * operation fails for some reason.
@@ -161,7 +181,7 @@ public interface MetaContactListService
         throws MetaContactListException;
 
     /**
-     * Removes the specified <code>metaContact</code> as well as all of its
+     * Removes the specified <tt>metaContact</tt> as well as all of its
      * underlying contacts.
      * <p>
      * @param metaContact the metaContact to remove.
@@ -172,13 +192,13 @@ public interface MetaContactListService
         throws MetaContactListException;
 
     /**
-     * Creates a <code>MetaContactGroup</code> with the specified group name.
+     * Creates a <tt>MetaContactGroup</tt> with the specified group name.
      * Initially, the group would only be created locally. Corresponding
      * server stored groups will be created on the fly, whenever real protocol
      * specific contacts are added to the group if the protocol lying behind
      * them supports that.
      * <p>
-     * @param groupName the name of the <code>MetaContactGroup</code> to create.
+     * @param groupName the name of the <tt>MetaContactGroup</tt> to create.
      *
      * @throws MetaContactListException with an appropriate code if the
      * operation fails for some reason.
@@ -191,7 +211,7 @@ public interface MetaContactListService
      * specific groups and all their children. If some of the children belong to
      * server stored contact lists, they will be updated to not include the
      * child contacts any more.
-     * @param groupToRemove the <code>MetaContactGroup</code> to have removed.
+     * @param groupToRemove the <tt>MetaContactGroup</tt> to have removed.
      *
      * @throws MetaContactListException with an appropriate code if the
      * operation fails for some reason.

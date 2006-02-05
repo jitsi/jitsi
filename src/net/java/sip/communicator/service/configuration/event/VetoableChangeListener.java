@@ -36,7 +36,7 @@ public interface VetoableChangeListener
      * for pending changes over constained properties you should provide
      * an empty implementation of the method.
      *
-     * @param     evt a <code>PropertyChangeEvent</code> object describing the
+     * @param     evt a <tt>PropertyChangeEvent</tt> object describing the
      *   	      event source and the property that has changed.
      * @exception PropertyVetoException if the recipient wishes the property
      *              change to be rolled back.

@@ -57,7 +57,7 @@ public class PropertyChangeEvent
     private Object oldValue;
 
     /**
-     * Constructs a new <code>PropertyChangeEvent</code>.
+     * Constructs a new <tt>PropertyChangeEvent</tt>.
      *
      * @param source  The bean that fired the event.
      * @param propertyName  The programmatic name of the property

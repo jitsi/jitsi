@@ -37,7 +37,7 @@ public interface AccountManager
     /**
      * Initializaed and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
-     * <code>context</code> BundleContext parameter. Note that account
+     * <tt>context</tt> BundleContext parameter. Note that account
      * registration is persistent and accounts that are registered during
      * a particular sip-communicator session would be automatically reloaded
      * during all following sessions until they are removed through the

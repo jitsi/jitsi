@@ -33,7 +33,7 @@ public class RootContactGroupIcqImpl
 
     /**
      * Returns the name of this group which is always
-     * <code>ROOT_CONTACT_GROUP_NAME</code>.
+     * <tt>ROOT_CONTACT_GROUP_NAME</tt>.
      *
      * @return a String containing the name of this group.
      */
@@ -83,7 +83,7 @@ public class RootContactGroupIcqImpl
 
     /**
      * Removes all contact sub groups and reinsterts them as specified
-     * by the <code>newOrder</code> param. Contact groups not contained in the
+     * by the <tt>newOrder</tt> param. Contact groups not contained in the
      * newOrder list are left at the end of this group.
      *
      * @param newOrder a list containing all contact groups in the order that is
@@ -98,7 +98,7 @@ public class RootContactGroupIcqImpl
 
     /**
      * Returns the number of subgroups contained by this
-     * <code>RootContactGroupIcqImpl</code>.
+     * <tt>RootContactGroupIcqImpl</tt>.
      *
      * @return an int indicating the number of subgroups that this
      *   ContactGroup contains.
@@ -111,8 +111,8 @@ public class RootContactGroupIcqImpl
     /**
      * Returns the subgroup with the specified index.
      *
-     * @param index the index of the <code>ContactGroup</code> to retrieve.
-     * @return the <code>ContactGroup</code> with the specified index.
+     * @param index the index of the <tt>ContactGroup</tt> to retrieve.
+     * @return the <tt>ContactGroup</tt> with the specified index.
      */
     public ContactGroup getGroup(int index)
     {
@@ -121,8 +121,8 @@ public class RootContactGroupIcqImpl
 
     /**
      * Returns the subgroup with the specified name.
-     * @param groupName the name of the <code>ContactGroup</code> to retrieve.
-     * @return the <code>ContactGroup</code> with the specified index.
+     * @param groupName the name of the <tt>ContactGroup</tt> to retrieve.
+     * @return the <tt>ContactGroup</tt> with the specified index.
      */
     public ContactGroup getGroup(String groupName)
     {
@@ -139,11 +139,11 @@ public class RootContactGroupIcqImpl
     }
 
     /**
-     * Returns the <code>Contact</code> with the specified address or
+     * Returns the <tt>Contact</tt> with the specified address or
      * identifier.
-     * @param id the addres or identifier of the <code>Contact</code> we are
+     * @param id the addres or identifier of the <tt>Contact</tt> we are
      * looking for.
-     * @return the <code>Contact</code> with the specified id or address.
+     * @return the <tt>Contact</tt> with the specified id or address.
      */
     public Contact getContact(String id)
     {
@@ -153,9 +153,9 @@ public class RootContactGroupIcqImpl
 
     /**
      * Returns an iterator over the sub groups that this
-     * <code>ContactGroup</code> contains.
+     * <tt>ContactGroup</tt> contains.
      *
-     * @return a java.util.Iterator over the <code>ContactGroup</code>
+     * @return a java.util.Iterator over the <tt>ContactGroup</tt>
      *   children of this group (i.e. subgroups).
      */
     public Iterator subGroups()
@@ -164,10 +164,10 @@ public class RootContactGroupIcqImpl
     }
 
     /**
-     * Returns the number, which is always 0, of <code>Contact</code> members
-     * of this <code>ContactGroup</code>
-     * @return an int indicating the number of <code>Contact</code>s, members
-     * of this <code>ContactGroup</code>.
+     * Returns the number, which is always 0, of <tt>Contact</tt> members
+     * of this <tt>ContactGroup</tt>
+     * @return an int indicating the number of <tt>Contact</tt>s, members
+     * of this <tt>ContactGroup</tt>.
      */
     public int countContacts()
     {
@@ -176,9 +176,9 @@ public class RootContactGroupIcqImpl
 
     /**
      * Returns an Iterator over all contacts, member of this
-     * <code>ContactGroup</code>.
+     * <tt>ContactGroup</tt>.
      * @return a java.util.Iterator over all contacts inside this
-     * <code>ContactGroup</code>
+     * <tt>ContactGroup</tt>
      */
     public Iterator contacts()
     {
@@ -188,8 +188,8 @@ public class RootContactGroupIcqImpl
     /**
      * A dummy impl of the corresponding interface method - always returns null.
      *
-     * @param index the index of the <code>Contact</code> to return.
-     * @return the <code>Contact</code> with the specified index, i.e. always
+     * @param index the index of the <tt>Contact</tt> to return.
+     * @return the <tt>Contact</tt> with the specified index, i.e. always
      * null.
      */
     public Contact getContact(int index)

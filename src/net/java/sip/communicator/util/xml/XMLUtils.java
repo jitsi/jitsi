@@ -172,7 +172,7 @@ public class XMLUtils
     /**
      * Returns element's TEXXT child node (if it has one).
      * @param element the element whose TEXT we need to get.
-     * @return a <code>Text</code> object containing the specified element's
+     * @return a <tt>Text</tt> object containing the specified element's
      * text content.
      */
     public static Text getTextNode(Element element)
@@ -190,11 +190,11 @@ public class XMLUtils
     }
 
     /**
-     * Returns first of the <code>element</code>'s child nodes that is of type
-     * <code>nodeType</code>.
+     * Returns first of the <tt>element</tt>'s child nodes that is of type
+     * <tt>nodeType</tt>.
      * @param element the element whose child we need.
      * @param nodeType the type of the child we need.
-     * @return a child of the specified <code>nodeType</code> or null if none
+     * @return a child of the specified <tt>nodeType</tt> or null if none
      * was found.
      */
     public static Node getChildByType(Element element, short nodeType)

@@ -113,27 +113,27 @@ public interface UIService
      * Adds the specified UI component to the user interface according to the
      * provided string constraint. The method is meant to be used by plugins or
      * bundles that would like to add components to the user interface. The
-     * <code>constraint</code> string is used by the implementation to determine
-     * the place where the component should be added. The <code>constraint</code>
+     * <tt>constraint</tt> string is used by the implementation to determine
+     * the place where the component should be added. The <tt>constraint</tt>
      * String SHOULD be one of the COMPONENT_CONSTRAINT_XXX constants. It is up
-     * to the service implementation to verify that <code>component</code> is an
+     * to the service implementation to verify that <tt>component</tt> is an
      * instance of a class compatible with the gui library used by it. If this
      * is not the case and adding the requested object would not be possible the
      * implementation MUST through a ClassCastException exception.
      * Implementations of this service MUST understant and know how to handle
      * all COMPONENT_CONSTRAINT_XXX Strings defined by this interface, they
      * MAY also define additional constraints. In case the addComponent method
-     * is called with a <code>constraint</code> that the implementation does
+     * is called with a <tt>constraint</tt> that the implementation does
      * not understand it MUST through a java.lang.IllegalArgumentException <br>
      * <br>
      * @param component the component we'd like to add
      * @param constraint a String (possibly one of the COMPONENT_CONSTRAINT_XXX
      * strings) indicating the place where the component should be added.
-     * @throws ClassCastException if <code>component</code> is not an
+     * @throws ClassCastException if <tt>component</tt> is not an
      * instance of a class supported by the service implementation. An SWT impl
      * would, for example through a ClassCastException if handed a
      * java.awt.Component
-     * @throws IllegalArgumentException if the specified <code>constraint</code>
+     * @throws IllegalArgumentException if the specified <tt>constraint</tt>
      * is not recognized by the implementation (note that implementations
      * MUST properly handle all COMPONENT_CONSTRAINT_XXX strings.
      */

@@ -9,7 +9,7 @@ package net.java.sip.communicator.service.protocol;
  * </p>
  * <p>
  * Messages are created through the
- * <code>OperationSetBaicInstanceMessaging</code> operation set.
+ * <tt>OperationSetBaicInstanceMessaging</tt> operation set.
  * </p>
  * <p>
  * </p>

@@ -217,9 +217,9 @@ public class DOMElementWriter {
     /**
      * Drop characters that are illegal in XML documents.
      *
-     * <p>Also ensure that we are not including an <code>]]&gt;</code>
+     * <p>Also ensure that we are not including an <tt>]]&gt;</tt>
      * marker by replacing that sequence with
-     * <code>&amp;#x5d;&amp;#x5d;&amp;gt;</code>.</p>
+     * <tt>&amp;#x5d;&amp;#x5d;&amp;gt;</tt>.</p>
      *
      * <p>See XML 1.0 2.2 <a
      * href="http://www.w3.org/TR/1998/REC-xml-19980210#charsets">http://www.w3.org/TR/1998/REC-xml-19980210#charsets</a> and

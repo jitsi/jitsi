@@ -59,13 +59,13 @@ public class ProtocolProviderServiceIcqImpl
 
     /**
      * A list of all listeners registered for
-     * <code>RegistrationStateChangeEvent</code>s.
+     * <tt>RegistrationStateChangeEvent</tt>s.
      */
     private List registrationListeners = new ArrayList();
 
     /**
      * Returns the state of the registration of this protocol provider
-     * @return the <code>RegistrationState</code> that this provider is
+     * @return the <tt>RegistrationState</tt> that this provider is
      * currently in or null in case it is in a unknown state.
      */
     public RegistrationState getRegistrationState()
@@ -170,7 +170,7 @@ public class ProtocolProviderServiceIcqImpl
      * Initialized the service implementation, and puts it in a sate where it
      * could interoperate with other services. It is strongly recomended that
      * properties in this Map be mapped to property names as specified by
-     * <code>AccountProperties</code>.
+     * <tt>AccountProperties</tt>.
      *
      * @param screenname the account id/uin/screenname of the account that we're
      * about to create
@@ -248,7 +248,7 @@ public class ProtocolProviderServiceIcqImpl
      * RegistrationState of this provider.
      *
      * @param listener the listener to register for
-     * <code>RegistrationStateChangeEvent</code>s.
+     * <tt>RegistrationStateChangeEvent</tt>s.
      */
     public void removeRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
@@ -338,8 +338,8 @@ public class ProtocolProviderServiceIcqImpl
     }
 
     /**
-     * Returns the <code>AimSession</code> opened by this provider.
-     * @return a reference to the <code>AimSession</code> that this provider
+     * Returns the <tt>AimSession</tt> opened by this provider.
+     * @return a reference to the <tt>AimSession</tt> that this provider
      * last opened.
      */
     protected AimSession getAimSession()
@@ -348,8 +348,8 @@ public class ProtocolProviderServiceIcqImpl
     }
 
     /**
-     * Returns the <code>AimConnection</code>opened by this provider
-     * @return a reference to the <code>AimConnection</code> last opened by this provider.
+     * Returns the <tt>AimConnection</tt>opened by this provider
+     * @return a reference to the <tt>AimConnection</tt> last opened by this provider.
      */
     protected AimConnection getAimConnection()
     {

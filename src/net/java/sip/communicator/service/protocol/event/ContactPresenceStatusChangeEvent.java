@@ -24,7 +24,7 @@ public class ContactPresenceStatusChangeEvent extends PropertyChangeEvent
 
     /**
      * Creates an event instance indicating that the specified source contact
-     * has changed status from <code>oldValue</code> to <code>newValue</code>.
+     * has changed status from <tt>oldValue</tt> to <tt>newValue</tt>.
      * @param source the provider that generated the event
      * @param sourceProvider the protocol provider that the contact belongs to.
      * @param parentGroup the group containing the contact that caused this

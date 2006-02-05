@@ -169,8 +169,8 @@ public class PresenceStatus
      * connecfitivity coefficient and their name are equal.
      * <p>
      * @param   obj   the reference object with which to compare.
-     * @return  <code>true</code> if this presence status instance is equal to
-     *          the obj argument; <code>false</code> otherwise.
+     * @return  <tt>true</tt> if this presence status instance is equal to
+     *          the obj argument; <tt>false</tt> otherwise.
      */
     public boolean equals(Object obj)
     {
@@ -190,7 +190,7 @@ public class PresenceStatus
     /**
      * Returns a hash code value for the object. This method is
      * supported for the benefit of hashtables such as those provided by
-     * <code>java.util.Hashtable</code>.
+     * <tt>java.util.Hashtable</tt>.
      * <p>
      *
      * @return  a hash code value for this object (which is actually the result

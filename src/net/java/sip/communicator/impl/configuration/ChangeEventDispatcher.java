@@ -50,7 +50,7 @@ public class ChangeEventDispatcher
     private Object source;
 
     /**
-     * Constructs a <code>VetoableChangeSupport</code> object.
+     * Constructs a <tt>VetoableChangeSupport</tt> object.
      *
      * @param sourceObject  The object to be given as the source for any events.
      */

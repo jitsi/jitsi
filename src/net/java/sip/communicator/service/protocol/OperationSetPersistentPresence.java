@@ -17,12 +17,12 @@ import net.java.sip.communicator.service.protocol.event.ServerStoredGroupListene
  * interface allows GUI and other plugins to use it in a way similar to the
  * way they'd use a javax.swing.tree.TreeModel, i.e. it would contain an initial
  * number of members/children that is likely to change, dispatching a series of
- * events delivered through the <code>SubscriptionListener</code> and
- * <code>ServerStoredGroupChangeListener</code> interfaces.
+ * events delivered through the <tt>SubscriptionListener</tt> and
+ * <tt>ServerStoredGroupChangeListener</tt> interfaces.
  * <p>
  * The interfaces defines extended subscription methods that include an extra
- * <code>parentGroup</code> parameter. Simple subscribe and usubscribe
- * operations defined by the parent <code>OperationSetPresence</code> operation
+ * <tt>parentGroup</tt> parameter. Simple subscribe and usubscribe
+ * operations defined by the parent <tt>OperationSetPresence</tt> operation
  * set, will still work, adding contacts to a default, root group.
  * to be used by GUI and other plugins the same way that they would use a
  *
@@ -52,7 +52,7 @@ public interface OperationSetPersistentPresence
      * <p>
      * @throws OperationFailedException with code NETWORK_FAILURE if subscribing
      * fails due to errors experienced during network communication
-     * @throws IllegalArgumentException if <code>contact</code> is not a contact
+     * @throws IllegalArgumentException if <tt>contact</tt> is not a contact
      * known to the underlying protocol provider
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -79,8 +79,8 @@ public interface OperationSetPersistentPresence
      * <p>
      * @throws OperationFailedException with code NETWORK_FAILURE if subscribing
      * fails due to errors experienced during network communication
-     * @throws IllegalArgumentException if <code>contact</code> or
-     * <code>parent</code> are not a contact known to the underlying protocol
+     * @throws IllegalArgumentException if <tt>contact</tt> or
+     * <tt>parent</tt> are not a contact known to the underlying protocol
      * provider.
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -100,7 +100,7 @@ public interface OperationSetPersistentPresence
      *
      * @throws OperationFailedException with code NETWORK_FAILURE if unsubscribing
      * fails due to errors experienced during network communication
-     * @throws IllegalArgumentException if <code>contact</code> is not a contact
+     * @throws IllegalArgumentException if <tt>contact</tt> is not a contact
      * known to the underlying protocol provider
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -118,7 +118,7 @@ public interface OperationSetPersistentPresence
      *
      * @throws OperationFailedException with code NETWORK_FAILURE if creating
      * the group fails because of a network error.
-     * @throws IllegalArgumentException if <code>parent</code> is not a contact
+     * @throws IllegalArgumentException if <tt>parent</tt> is not a contact
      * known to the underlying protocol provider
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -132,7 +132,7 @@ public interface OperationSetPersistentPresence
      *
      * @throws OperationFailedException with code NETWORK_FAILURE if deleting
      * the group fails because of a network error.
-     * @throws IllegalArgumentException if <code>parent</code> is not a contact
+     * @throws IllegalArgumentException if <tt>parent</tt> is not a contact
      * known to the underlying protocol provider.
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -142,7 +142,7 @@ public interface OperationSetPersistentPresence
     /**
      * Renames the specified group from the server stored contact list. This
      * method would return before the group has actually been renamed. A
-     * <code>ServerStoredGroupEvent</code> would be dispatched once new name
+     * <tt>ServerStoredGroupEvent</tt> would be dispatched once new name
      * has been acknowledged by the server.
      *
      * @param group the group to rename.
@@ -150,7 +150,7 @@ public interface OperationSetPersistentPresence
      *
      * @throws OperationFailedException with code NETWORK_FAILURE if deleting
      * the group fails because of a network error.
-     * @throws IllegalArgumentException if <code>parent</code> is not a contact
+     * @throws IllegalArgumentException if <tt>parent</tt> is not a contact
      * known to the underlying protocol provider.
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -160,9 +160,9 @@ public interface OperationSetPersistentPresence
 
     /**
      * Removes the specified contact from its current parent and places it
-     * under <code>newParent</code>.
-     * @param contactToMove the <code>Contact</code> to move
-     * @param newParent the <code>ContactGroup</code> where <code>Contact</code>
+     * under <tt>newParent</tt>.
+     * @param contactToMove the <tt>Contact</tt> to move
+     * @param newParent the <tt>ContactGroup</tt> where <tt>Contact</tt>
      * would be placed.
      */
     public void moveContactToGroup(Contact contactToMove,

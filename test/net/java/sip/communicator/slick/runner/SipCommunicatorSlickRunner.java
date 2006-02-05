@@ -208,11 +208,11 @@ public class SipCommunicatorSlickRunner
 
     /**
      * Looks through the osgi framework for a service with a "service.pid"
-     * property set to <code>id</code>.
+     * property set to <tt>id</tt>.
      * @param bc the BundleContext where the service is to be looked for.
      * @param id the value of the "service.pid" property for the specified
      * service.
-     * @return a TestSuite service corresponding the specified <code>id</code>
+     * @return a TestSuite service corresponding the specified <tt>id</tt>
      * or a junit TestCase impl wrapping an exception in case we failed to
      * retrieve the service for some reason.
      */

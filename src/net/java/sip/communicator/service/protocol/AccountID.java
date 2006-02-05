@@ -73,7 +73,7 @@ public abstract class AccountID
     /**
      * Returns a hash code value for the object. This method is
      * supported for the benefit of hashtables such as those provided by
-     * <code>java.util.Hashtable</code>.
+     * <tt>java.util.Hashtable</tt>.
      * <p>
      * @return  a hash code value for this object.
      * @see     java.lang.Object#equals(java.lang.Object)
@@ -88,8 +88,8 @@ public abstract class AccountID
      * Indicates whether some other object is "equal to" this account id.
      * <p>
      * @param   obj   the reference object with which to compare.
-     * @return  <code>true</code> if this object is the same as the obj
-     *          argument; <code>false</code> otherwise.
+     * @return  <tt>true</tt> if this object is the same as the obj
+     *          argument; <tt>false</tt> otherwise.
      * @see     #hashCode()
      * @see     java.util.Hashtable
      */

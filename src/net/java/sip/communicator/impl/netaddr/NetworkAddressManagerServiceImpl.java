@@ -555,7 +555,7 @@ public class NetworkAddressManagerServiceImpl
      * change. In case we don't like the new value we throw a
      * PropertyVetoException to prevent the actual change from happening.
      *
-     * @param     evt a <code>PropertyChangeEvent</code> object describing the
+     * @param     evt a <tt>PropertyChangeEvent</tt> object describing the
      *   	      event source and the property that will change.
      * @exception PropertyVetoException if we don't want the change to happen.
      */

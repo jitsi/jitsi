@@ -78,12 +78,12 @@ public interface OperationSetPresence
      * <p>
      * @param contactIdentifier the identifier of the contact whose status we're
      * interested in.
-     * @return PresenceStatus the <code>PresenceStatus</code> of the specified
-     * <code>contact</code>
+     * @return PresenceStatus the <tt>PresenceStatus</tt> of the specified
+     * <tt>contact</tt>
      *
      * @throws OperationFailedException with code NETWORK_FAILURE if retrieving
      * the status fails due to errors experienced during network communication
-     * @throws IllegalArgumentException if <code>contact</code> is not a contact
+     * @throws IllegalArgumentException if <tt>contact</tt> is not a contact
      * known to the underlying protocol provider
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -109,7 +109,7 @@ public interface OperationSetPresence
      * <p>
      * @throws OperationFailedException with code NETWORK_FAILURE if subscribing
      * fails due to errors experienced during network communication
-     * @throws IllegalArgumentException if <code>contact</code> is not a contact
+     * @throws IllegalArgumentException if <tt>contact</tt> is not a contact
      * known to the underlying protocol provider
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -125,7 +125,7 @@ public interface OperationSetPresence
      *
      * @throws OperationFailedException with code NETWORK_FAILURE if unsubscribing
      * fails due to errors experienced during network communication
-     * @throws IllegalArgumentException if <code>contact</code> is not a contact
+     * @throws IllegalArgumentException if <tt>contact</tt> is not a contact
      * known to the underlying protocol provider
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -141,7 +141,7 @@ public interface OperationSetPresence
      * @param contactID a String identifier of the contact which we're seeking a
      * reference of.
      * @return a reference to the Contact with the specified
-     * <code>contactID</code> or null if we don't have a subscription for the
+     * <tt>contactID</tt> or null if we don't have a subscription for the
      * that identifier.
      */
     public Contact findContactByID(String contactID);

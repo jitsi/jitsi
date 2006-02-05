@@ -24,7 +24,7 @@ import java.beans.PropertyChangeEvent;
  * for presence notifications upong status changes of specific contacts.
  * <p>
  * Using a custom suite() method, we make sure that apart from standard test
- * methods (those with a <code>test</code> prefix) we also execute those that
+ * methods (those with a <tt>test</tt> prefix) we also execute those that
  * we want run in a specific order like for example - postTestSubscribe() and
  * postTestUnsubscribe().
  * <p>

@@ -26,7 +26,7 @@ public class PropertyVetoException
     private PropertyChangeEvent evt;
 
     /**
-     * Constructs a <code>PropertyVetoException</code> with a
+     * Constructs a <tt>PropertyVetoException</tt> with a
      * detailed message.
      *
      * @param mess Descriptive message
@@ -39,7 +39,7 @@ public class PropertyVetoException
     }
 
     /**
-     * Gets the vetoed <code>PropertyChangeEvent</code>.
+     * Gets the vetoed <tt>PropertyChangeEvent</tt>.
      *
      * @return A PropertyChangeEvent describing the vetoed change.
      */

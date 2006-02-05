@@ -58,8 +58,8 @@ public interface Contact
      * received for it. Note that this method is not to perform any network
      * operations and will simply return the status received in the last
      * status update message. If you want a reliable way of retrieving someone's
-     * status, you should use the <code>queryContactStatus()</code> method in
-     * <code>OperationSetPresence</code>.
+     * status, you should use the <tt>queryContactStatus()</tt> method in
+     * <tt>OperationSetPresence</tt>.
      * @return the PresenceStatus that we've received in the last status update
      * pertaining to this contact.
      */

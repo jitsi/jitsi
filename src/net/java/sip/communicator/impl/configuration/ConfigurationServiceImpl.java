@@ -657,10 +657,10 @@ public class ConfigurationServiceImpl
     }
 
     /**
-     * Creates new entries in the xml <code>doc</code> for every element in the
-     * <code>newProperties</code> table.
+     * Creates new entries in the xml <tt>doc</tt> for every element in the
+     * <tt>newProperties</tt> table.
      *
-     * @param doc the XML <code>Document</code> where the new entries should be
+     * @param doc the XML <tt>Document</tt> where the new entries should be
      * created
      * @param newProperties the table containing the properties that are to be
      * in troduced in the document.
@@ -682,11 +682,11 @@ public class ConfigurationServiceImpl
     }
 
     /**
-     * Creates an entry in the xml <code>doc</code> for the specified key value
+     * Creates an entry in the xml <tt>doc</tt> for the specified key value
      * pair.
-     * @param doc the XML <code>document</code> to update.
-     * @param key the value of the <code>name</code> attribute for the new entry
-     * @param value the value of the <code>value</code> attribue for the new
+     * @param doc the XML <tt>document</tt> to update.
+     * @param key the value of the <tt>name</tt> attribute for the new entry
+     * @param value the value of the <tt>value</tt> attribue for the new
      * @param isSystem specifies whether this is a system property (system
      *                 attribute will be set to true).
      * entry.
@@ -757,7 +757,7 @@ public class ConfigurationServiceImpl
      * @param propertyName the name of the property that is being queried.
      * @return the result of calling the property's toString method and null in
      * case there was no vlaue mapped against the specified
-     * <code>propertyName</code>, or the returned string had zero length or
+     * <tt>propertyName</tt>, or the returned string had zero length or
      * contained whitespaces only.
      */
     public String getString(String propertyName)
@@ -829,7 +829,7 @@ public class ConfigurationServiceImpl
 
     /**
      * Determines whether the property with the specified
-     * <code>propertyName</code> has been previously declared as System
+     * <tt>propertyName</tt> has been previously declared as System
      *
      * @param propertyName the name of the property to verify
      * @return true if someone at some point specified that property to be

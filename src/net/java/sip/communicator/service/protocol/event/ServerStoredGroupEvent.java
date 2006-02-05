@@ -48,7 +48,7 @@ public class ServerStoredGroupEvent
     }
 
     /**
-     * Returns a reference to the <code>ContactGroup</code> that this event is
+     * Returns a reference to the <tt>ContactGroup</tt> that this event is
      * pertaining to.
      * @return a reference to the ContactGroup that caused the event.
      */

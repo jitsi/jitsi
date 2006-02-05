@@ -249,12 +249,12 @@ public class OperationSetPersistentPresenceIcqImpl
      * <p>
      * @param contactIdentifier the dientifier of the contact whose status we're
      * interested in.
-     * @return PresenceStatus the <code>PresenceStatus</code> of the specified
-     * <code>contact</code>
+     * @return PresenceStatus the <tt>PresenceStatus</tt> of the specified
+     * <tt>contact</tt>
      * @throws java.lang.IllegalStateException if the provider is not signed
      * on ICQ
-     * @throws java.lang.IllegalArgumentException if <code>contact</code> is not
-     * a valid <code>IcqContact</code>
+     * @throws java.lang.IllegalArgumentException if <tt>contact</tt> is not
+     * a valid <tt>IcqContact</tt>
      */
     public PresenceStatus queryContactStatus(String contactIdentifier)
         throws IllegalStateException, IllegalArgumentException
@@ -369,7 +369,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * <p>
      * @throws OperationFailedException with code NETWORK_FAILURE if subscribing
      * fails due to errors experienced during network communication
-     * @throws IllegalArgumentException if <code>contact</code> is not a contact
+     * @throws IllegalArgumentException if <tt>contact</tt> is not a contact
      * known to the underlying protocol provider
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -401,8 +401,8 @@ public class OperationSetPersistentPresenceIcqImpl
      * <p>
      * @throws OperationFailedException with code NETWORK_FAILURE if subscribing
      * fails due to errors experienced during network communication
-     * @throws IllegalArgumentException if <code>contact</code> or
-     * <code>parent</code> are not a contact known to the underlying protocol
+     * @throws IllegalArgumentException if <tt>contact</tt> or
+     * <tt>parent</tt> are not a contact known to the underlying protocol
      * provider.
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -427,7 +427,7 @@ public class OperationSetPersistentPresenceIcqImpl
      *
      * @throws OperationFailedException with code NETWORK_FAILURE if unsubscribing
      * fails due to errors experienced during network communication
-     * @throws IllegalArgumentException if <code>contact</code> is not a contact
+     * @throws IllegalArgumentException if <tt>contact</tt> is not a contact
      * known to this protocol provider or is not an ICQ contact
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -462,7 +462,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * @param contactID a String identifier of the contact which we're seeking a
      * reference of.
      * @return a reference to the Contact with the specified
-     * <code>contactID</code> or null if we don't have a subscription for the
+     * <tt>contactID</tt> or null if we don't have a subscription for the
      * that identifier.
      */
     public Contact findContactByID(String contactID)
@@ -544,7 +544,7 @@ public class OperationSetPersistentPresenceIcqImpl
      *
      * @throws OperationFailedException with code NETWORK_FAILURE if unsubscribing
      * fails due to errors experienced during network communication
-     * @throws IllegalArgumentException if <code>contact</code> is not a contact
+     * @throws IllegalArgumentException if <tt>contact</tt> is not a contact
      * known to the underlying protocol provider
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -568,7 +568,7 @@ public class OperationSetPersistentPresenceIcqImpl
      *
      * @throws OperationFailedException with code NETWORK_FAILURE if deleting
      * the group fails because of a network error.
-     * @throws IllegalArgumentException if <code>parent</code> is not a contact
+     * @throws IllegalArgumentException if <tt>parent</tt> is not a contact
      * known to the underlying protocol provider.
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -587,7 +587,7 @@ public class OperationSetPersistentPresenceIcqImpl
     /**
      * Renames the specified group from the server stored contact list. This
      * method would return before the group has actually been renamed. A
-     * <code>ServerStoredGroupEvent</code> would be dispatched once new name
+     * <tt>ServerStoredGroupEvent</tt> would be dispatched once new name
      * has been acknowledged by the server.
      *
      * @param group the group to rename.
@@ -595,7 +595,7 @@ public class OperationSetPersistentPresenceIcqImpl
      *
      * @throws OperationFailedException with code NETWORK_FAILURE if deleting
      * the group fails because of a network error.
-     * @throws IllegalArgumentException if <code>parent</code> is not a contact
+     * @throws IllegalArgumentException if <tt>parent</tt> is not a contact
      * known to the underlying protocol provider.
      * @throws IllegalStateException if the underlying protocol provider is not
      * registered/signed on a public service.
@@ -614,9 +614,9 @@ public class OperationSetPersistentPresenceIcqImpl
 
     /**
      * Removes the specified contact from its current parent and places it
-     * under <code>newParent</code>.
-     * @param contactToMove the <code>Contact</code> to move
-     * @param newParent the <code>ContactGroup</code> where <code>Contact</code>
+     * under <tt>newParent</tt>.
+     * @param contactToMove the <tt>Contact</tt> to move
+     * @param newParent the <tt>ContactGroup</tt> where <tt>Contact</tt>
      * would be placed.
      */
     public void moveContactToGroup(Contact contactToMove,

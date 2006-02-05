@@ -18,21 +18,21 @@ import net.java.sip.communicator.service.history.records.HistoryRecord;
 public interface QueryResultSet extends BidirectionalIterator {
 
 	/**
-	 * A strongly-typed variant of <code>next()</code>.
-	 * 
+	 * A strongly-typed variant of <tt>next()</tt>.
+	 *
 	 * @return the next history record.
-	 * 
-	 * @throws NoSuchElementException iteration has no more elements. 
+	 *
+	 * @throws NoSuchElementException iteration has no more elements.
 	 */
     HistoryRecord nextRecord() throws NoSuchElementException;
-    
+
 	/**
-	 * A strongly-typed variant of <code>prev()</code>.
-	 * 
+	 * A strongly-typed variant of <tt>prev()</tt>.
+	 *
 	 * @return the previous history record.
-	 * 
-	 * @throws NoSuchElementException iteration has no more elements. 
+	 *
+	 * @throws NoSuchElementException iteration has no more elements.
 	 */
     HistoryRecord prevRecord() throws NoSuchElementException;
-    
+
 }
