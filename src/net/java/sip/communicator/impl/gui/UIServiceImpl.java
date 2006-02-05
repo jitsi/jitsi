@@ -1,11 +1,17 @@
 package net.java.sip.communicator.impl.gui;
 
+import net.java.sip.communicator.service.gui.ConfigurationContainer;
 import net.java.sip.communicator.service.gui.UIService;
 import net.java.sip.communicator.service.protocol.Call;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 public class UIServiceImpl implements UIService {
 
+	
+	public UIServiceImpl(){
+		
+		
+	}
 	
 	public void registerProvider(ProtocolProviderService provider) {
 		// TODO Auto-generated method stub
@@ -28,7 +34,7 @@ public class UIServiceImpl implements UIService {
 	}
 
 	public String[] getSupportedUiLibNames() {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated methodUIServiceImpl stub
 		return null;
 	}
 
@@ -57,6 +63,11 @@ public class UIServiceImpl implements UIService {
 
 	public String getAuthenticationUserName() {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ConfigurationContainer getConfigurationContainer() {
+		
 		return null;
 	}
 

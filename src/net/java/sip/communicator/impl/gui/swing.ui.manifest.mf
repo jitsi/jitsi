@@ -1,0 +1,7 @@
+Bundle-Activator: net.java.sip.communicator.impl.gui.Activator
+Bundle-Name: UI Service Provider Implementation
+Bundle-Description: An implementation of the UI service.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.util
