@@ -1,3 +1,10 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main.history;
 
 import java.awt.BorderLayout;
@@ -21,12 +28,13 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 public class SearchPanel extends JPanel implements ActionListener {
 
 	private JButton searchButton 
 				= new JButton(Messages.getString("search"),
-							  new ImageIcon(Constants.QUICK_MENU_SEARCH_ICON));
+							  new ImageIcon(ImageLoader.getImage(ImageLoader.QUICK_MENU_SEARCH_ICON)));
 	
 	private JLabel searchLabel = new JLabel(Messages.getString("search") + ": "); 
 	
