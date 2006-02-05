@@ -1,86 +1,106 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main;
 
-import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JToolBar;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 /**
  * @author Yana Stamcheva
  *
  * The quick menu. 
  */
-public class QuickMenu extends JToolBar{
+public class QuickMenu extends SIPCommToolBar 
+	implements ActionListener {
 			
 	SIPCommButton infoButton;
-	SIPCommButton toolsButton;
+	SIPCommButton configureButton;
 	SIPCommButton addButton;
 	SIPCommButton searchButton;
 	
-	public QuickMenu(){
-		
+	private MainFrame mainFrame;
+	
+	public QuickMenu(MainFrame mainFrame){
+
+		this.mainFrame = mainFrame;
+	
 		this.setRollover(true);
 		this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
 		this.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
 				
 		infoButton 		= new SIPCommButton
-							(Constants.QUICK_MENU_BUTTON_BG,
-							 Constants.QUICK_MENU_BUTTON_ROLLOVER_BG,
-							 Constants.QUICK_MENU_INFO_ICON);
+							(ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_BG),
+							 ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_ROLLOVER_BG),
+							 ImageLoader.getImage(ImageLoader.QUICK_MENU_INFO_ICON));
 		
-		toolsButton 	= new SIPCommButton
-							(Constants.QUICK_MENU_BUTTON_BG, 
-							 Constants.QUICK_MENU_BUTTON_ROLLOVER_BG,
-							 Constants.QUICK_MENU_CONFIGURE_ICON);
+		configureButton 	= new SIPCommButton
+							(ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_BG), 
+							 ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_ROLLOVER_BG),
+							 ImageLoader.getImage(ImageLoader.QUICK_MENU_CONFIGURE_ICON));
 		
 		searchButton 	= new SIPCommButton
-							(Constants.QUICK_MENU_BUTTON_BG, 
-							 Constants.QUICK_MENU_BUTTON_ROLLOVER_BG,
-							 Constants.QUICK_MENU_SEARCH_ICON);
+							(ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_BG), 
+							 ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_ROLLOVER_BG),
+							 ImageLoader.getImage(ImageLoader.QUICK_MENU_SEARCH_ICON));
 		
 		addButton 		= new SIPCommButton
-							(Constants.QUICK_MENU_BUTTON_BG, 
-							 Constants.QUICK_MENU_BUTTON_ROLLOVER_BG,
-							 Constants.QUICK_MENU_ADD_ICON);
+							(ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_BG), 
+							 ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_ROLLOVER_BG),
+							 ImageLoader.getImage(ImageLoader.QUICK_MENU_ADD_ICON));
 				
 		this.init();
 	}
 	
 	private void init() {
+		
 		this.add(addButton);		
-		this.add(toolsButton);		
+		this.add(configureButton);		
 		this.add(searchButton);
 		this.add(infoButton);
+		
+		this.addButton.setName("add");
+		this.configureButton.setName("config");
+		this.searchButton.setName("search");
+		this.infoButton.setName("info");
+		
+		this.addButton.addActionListener(this);
+		this.configureButton.addActionListener(this);
+		this.searchButton.addActionListener(this);
+		this.infoButton.addActionListener(this);
 	}
-	
-	/*
-	public void paint(Graphics g){
-		super.paint(g);
-		
-		Graphics2D g2 = (Graphics2D)g;
-		
-		GradientPaint p = new GradientPaint(this.getWidth()/2, 
-				0, 
-				Constants.CONTACTPANEL_SELECTED_START_COLOR, 
-				this.getWidth()/2, 
-				Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, 
-				Constants.CONTACTPANEL_SELECTED_END_COLOR);		
 
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	public void actionPerformed(ActionEvent e) {
 		
-		g2.setPaint(p);
+		JButton button = (JButton)e.getSource();
+		String buttonName = button.getName();
 		
-		//g2.dra
+		if (buttonName.equals("add")){
+			
+		}
+		else if (buttonName.equals("config")){
+			
+			mainFrame.getConfigFrame().setCalculatedSize();
+			
+			mainFrame.getConfigFrame().setVisible(true);
+		}
+		else if (buttonName.equals("search")){
+			
+		}
+		else if (buttonName.equals("info")){
+			
+		}
 	}
-	*/
 }

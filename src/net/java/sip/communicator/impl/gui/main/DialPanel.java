@@ -1,3 +1,10 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.BorderLayout;
@@ -14,6 +21,7 @@ import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 /**
  * @author Yana Stamcheva
@@ -22,56 +30,55 @@ import net.java.sip.communicator.impl.gui.main.utils.Constants;
  */
 
 public class DialPanel extends JPanel implements ActionListener {
-	private Font 	buttonTextFont = new Font("Verdana", Font.BOLD, 12);
-	
+		
 	private JComboBox phoneNumberCombo;
 	
 	private SIPCommButton oneButton	= new SIPCommButton
-					(Constants.ONE_DIAL_BUTTON,
+					(ImageLoader.getImage(ImageLoader.ONE_DIAL_BUTTON),
 					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton twoButton		= new SIPCommButton
-					(Constants.TWO_DIAL_BUTTON,
+					(ImageLoader.getImage(ImageLoader.TWO_DIAL_BUTTON),
 					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton threeButton	= new SIPCommButton
-					(Constants.THREE_DIAL_BUTTON,
+					(ImageLoader.getImage(ImageLoader.THREE_DIAL_BUTTON),
 					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton fourButton	= new SIPCommButton
-					(Constants.FOUR_DIAL_BUTTON,
+					(ImageLoader.getImage(ImageLoader.FOUR_DIAL_BUTTON),
 					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton fiveButton	= new SIPCommButton
-					(Constants.FIVE_DIAL_BUTTON,
+					(ImageLoader.getImage(ImageLoader.FIVE_DIAL_BUTTON),
 					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton sixButton		= new SIPCommButton
-					(Constants.SIX_DIAL_BUTTON,
+					(ImageLoader.getImage(ImageLoader.SIX_DIAL_BUTTON),
 					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton sevenButton	= new SIPCommButton
-					(Constants.SEVEN_DIAL_BUTTON,
+					(ImageLoader.getImage(ImageLoader.SEVEN_DIAL_BUTTON),
 					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton eightButton	= new SIPCommButton
-					(Constants.EIGHT_DIAL_BUTTON,
+					(ImageLoader.getImage(ImageLoader.EIGHT_DIAL_BUTTON),
 					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton nineButton	= new SIPCommButton
-					(Constants.NINE_DIAL_BUTTON,
+					(ImageLoader.getImage(ImageLoader.NINE_DIAL_BUTTON),
 					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton starButton	= new SIPCommButton
-					(Constants.STAR_DIAL_BUTTON,
+					(ImageLoader.getImage(ImageLoader.STAR_DIAL_BUTTON),
 					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton zeroButton	= new SIPCommButton
-					(Constants.ZERO_DIAL_BUTTON,
+					(ImageLoader.getImage(ImageLoader.ZERO_DIAL_BUTTON),
 					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private SIPCommButton diezButton	= new SIPCommButton
-					(Constants.DIEZ_DIAL_BUTTON,
+					(ImageLoader.getImage(ImageLoader.DIEZ_DIAL_BUTTON),
 					 SIPCommButton.LEFT_ICON_LAYOUT);
 	
 	private JPanel dialPadPanel = new JPanel(new GridLayout(4, 3, 5, 5));
@@ -112,18 +119,18 @@ public class DialPanel extends JPanel implements ActionListener {
 		diezButton.addActionListener(this);
 		starButton.addActionListener(this);
 		
-		oneButton.setFont(this.buttonTextFont);
-		twoButton.setFont(this.buttonTextFont);
-		threeButton.setFont(this.buttonTextFont);
-		fourButton.setFont(this.buttonTextFont);
-		fiveButton.setFont(this.buttonTextFont);
-		sixButton.setFont(this.buttonTextFont);
-		sevenButton.setFont(this.buttonTextFont);
-		eightButton.setFont(this.buttonTextFont);
-		nineButton.setFont(this.buttonTextFont);
-		zeroButton.setFont(this.buttonTextFont);
-		diezButton.setFont(this.buttonTextFont);
-		starButton.setFont(this.buttonTextFont);
+		oneButton.setFont(Constants.FONT);
+		twoButton.setFont(Constants.FONT);
+		threeButton.setFont(Constants.FONT);
+		fourButton.setFont(Constants.FONT);
+		fiveButton.setFont(Constants.FONT);
+		sixButton.setFont(Constants.FONT);
+		sevenButton.setFont(Constants.FONT);
+		eightButton.setFont(Constants.FONT);
+		nineButton.setFont(Constants.FONT);
+		zeroButton.setFont(Constants.FONT);
+		diezButton.setFont(Constants.FONT);
+		starButton.setFont(Constants.FONT);
 				
 		dialPadPanel.add(oneButton);
 		dialPadPanel.add(twoButton);

@@ -1,3 +1,10 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.Color;
@@ -11,8 +18,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.ListModel;
 import javax.swing.event.ListDataListener;
 
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
+import net.java.sip.communicator.service.contactlist.MetaContactListService;
 
 /**
  * @author Yana Stamcheva
@@ -24,15 +33,15 @@ public class MainTabbedPane extends JTabbedPane {
 	
 	private DialPanel dialPanel = new DialPanel();
 	
-	private ContactListPanel contactList;
+	private ContactListPanel clistPanel;
 	
 	public MainTabbedPane(MainFrame parent){		
-		
-		contactList = new ContactListPanel(parent, parent.getContactList());
+	
+		clistPanel = new ContactListPanel(parent);
 		
 		dialPanel.setPhoneNumberCombo(parent.getCallPanel().getPhoneNumberCombo());
 				
-		this.addTab(Messages.getString("contacts"), contactList);
+		this.addTab(Messages.getString("contacts"), clistPanel);
 		this.addTab(Messages.getString("callList"), new JPanel());
 		this.addTab(Messages.getString("dial"), dialPanel);
 	}

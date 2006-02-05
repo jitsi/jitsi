@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 /** 
  * @author Yana Stamcheva
@@ -37,28 +38,30 @@ public class CallPanel extends JPanel implements ActionListener{
 	private JPanel comboPanel = new JPanel (new BorderLayout());
  
 	private JPanel buttonsPanel = new JPanel (
-									new FlowLayout(FlowLayout.CENTER, 15, 0));
+									new FlowLayout(FlowLayout.CENTER, 10, 0));
 
 	private SIPCommButton callButton = new SIPCommButton
-								(Constants.CALL_BUTTON_BG, 
-								 Constants.CALL_ROLLOVER_BUTTON_BG,
-								 Constants.CALL_PRESSED_BUTTON_BG, 
+								(ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG), 
+								 ImageLoader.getImage(ImageLoader.CALL_ROLLOVER_BUTTON_BG),
+								 ImageLoader.getImage(ImageLoader.CALL_PRESSED_BUTTON_BG), 
 								 null);
 
 	private SIPCommButton hangupButton = new SIPCommButton
-								(Constants.HANGUP_BUTTON_BG,
-								 Constants.HANGUP_ROLLOVER_BUTTON_BG, 
-								 Constants.HANGUP_PRESSED_BUTTON_BG, 
+								(ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG),
+								 ImageLoader.getImage(ImageLoader.HANGUP_ROLLOVER_BUTTON_BG), 
+								 ImageLoader.getImage(ImageLoader.HANGUP_PRESSED_BUTTON_BG), 
 								 null);	
 		
 	private SIPCommButton minimizeButton 
-						= new SIPCommButton(Constants.CALL_PANEL_MINIMIZE_BUTTON, 
-								Constants.CALL_PANEL_MINIMIZE_ROLLOVER_BUTTON);
+					= new SIPCommButton(
+							ImageLoader.getImage(ImageLoader.CALL_PANEL_MINIMIZE_BUTTON), 
+							ImageLoader.getImage(ImageLoader.CALL_PANEL_MINIMIZE_ROLLOVER_BUTTON));
 
 	private SIPCommButton restoreButton 
-						= new SIPCommButton(Constants.CALL_PANEL_RESTORE_BUTTON, 
-								Constants.CALL_PANEL_RESTORE_ROLLOVER_BUTTON);
-	
+					= new SIPCommButton(
+							ImageLoader.getImage(ImageLoader.CALL_PANEL_RESTORE_BUTTON), 
+							ImageLoader.getImage(ImageLoader.CALL_PANEL_RESTORE_ROLLOVER_BUTTON));
+
 	private JPanel minimizeButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 	
 	private MainFrame parentWindow;

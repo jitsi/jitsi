@@ -1,3 +1,10 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.BorderLayout;
@@ -15,22 +22,29 @@ import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 public class CallReceivePanel extends JDialog{
 	
-	private Image callButtonPressedIcon = Constants.CALL_PRESSED_BUTTON_BG;
+	private Image callButtonPressedIcon 
+								= ImageLoader.getImage(ImageLoader.CALL_PRESSED_BUTTON_BG);
 
-	private Image hangupButtonPressedIcon = Constants.HANGUP_PRESSED_BUTTON_BG;
+	private Image hangupButtonPressedIcon 
+								= ImageLoader.getImage(ImageLoader.HANGUP_PRESSED_BUTTON_BG);
 
-	private Image callButtonBG = Constants.CALL_BUTTON_BG;
+	private Image callButtonBG 	= ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG);
 
-	private Image callButtonRolloverBG = Constants.CALL_ROLLOVER_BUTTON_BG;
+	private Image callButtonRolloverBG 
+								= ImageLoader.getImage(ImageLoader.CALL_ROLLOVER_BUTTON_BG);
 
-	private Image hangupButtonBG = Constants.HANGUP_BUTTON_BG;
+	private Image hangupButtonBG 
+								= ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG);
 
-	private Image hangupButtonRolloverBG = Constants.HANGUP_ROLLOVER_BUTTON_BG;
+	private Image hangupButtonRolloverBG 
+								= ImageLoader.getImage(ImageLoader.HANGUP_ROLLOVER_BUTTON_BG);
 	
-	private JLabel personPhoto = new JLabel(new ImageIcon (Constants.DEFAULT_USER_PHOTO));
+	private JLabel personPhoto = new JLabel(new ImageIcon 
+								(ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)));
 	
 	private JLabel personName = new JLabel ("John Smith");
 	

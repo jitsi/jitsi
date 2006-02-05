@@ -1,11 +1,18 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main;
 
 public class User {
 	
-	private String[] userProtocols;	
-
-	private String name;
+	private String[] userProtocols;
 	
+	private String name;
+		
 	public void setProtocols(String[] userProtocols){
 		this.userProtocols = userProtocols;
 	}
