@@ -138,7 +138,7 @@ public class ServerStoredContactListIcqImpl
 
     /**
      * Creates the corresponding event and notifies all
-     * <code>ServerStoredGroupListener</code>s that the source group has been
+     * <tt>ServerStoredGroupListener</tt>s that the source group has been
      * removed, changed, renamed or whatever happened to it.
      * @param group the ContactGroup that has been created/modified/removed
      * @param eventID the id of the event to generate.
@@ -280,8 +280,8 @@ public class ServerStoredContactListIcqImpl
      * no such screenname was found.
      *
      * @param screenName the screen name (or ICQ UIN) of the contact to find.
-     * @return the <code>Contact</code> carrying the specified
-     * <code>screenName</code> or <code>null</code> if no such contact exits.
+     * @return the <tt>Contact</tt> carrying the specified
+     * <tt>screenName</tt> or <tt>null</tt> if no such contact exits.
      */
     public ContactIcqImpl findContactByScreenName(String screenName)
     {
@@ -308,8 +308,8 @@ public class ServerStoredContactListIcqImpl
      * if no such group or contact exist.
      *
      * @param child the contact whose parent group we're looking for.
-     * @return the <code>ContactGroup</code> containing the specified
-     * <code>contact</code> or <code>null</code> if no such groupo or contact
+     * @return the <tt>ContactGroup</tt> containing the specified
+     * <tt>contact</tt> or <tt>null</tt> if no such groupo or contact
      * exist.
      */
     public ContactGroupIcqImpl findContactGroup(ContactIcqImpl child)
@@ -413,8 +413,8 @@ public class ServerStoredContactListIcqImpl
 
 
     /**
-     * Moves the specified <code>contact</code> to the group indicated by
-     * <code>newParent</code>.
+     * Moves the specified <tt>contact</tt> to the group indicated by
+     * <tt>newParent</tt>.
      * @param contact the contact that we'd like moved under the new group.
      * @param newParent the group where we'd like the parent placed.
      */
@@ -490,8 +490,6 @@ public class ServerStoredContactListIcqImpl
             //contact list, and add the new entry after it
             int groupIndex = newItems.indexOf(group);
 
-            assert groupIndex != -1:group + " was not present in newItems"
-                + newItems;
             int insertPos = 0;
             if (groupIndex == 0)
             {
@@ -523,7 +521,7 @@ public class ServerStoredContactListIcqImpl
         /**
          * Called by joust sim when a group is removed.
          *
-         * @param list the <code>BuddyList</code> owning the removed group.
+         * @param list the <tt>BuddyList</tt> owning the removed group.
          * @param oldItems the list of items as it was before removing the group.
          * @param newItems the list of items as it is after the group is removed.
          * @param group the group that was removed.
@@ -554,11 +552,11 @@ public class ServerStoredContactListIcqImpl
          * Called by joust sim to notify us that a new buddy has been added
          * to the contact list.
          *
-         * @param list the <code>BuddyList</code> owning the newly added buddy.
+         * @param list the <tt>BuddyList</tt> owning the newly added buddy.
          * @param joustSimGroup the parent group of the added buddy.
          * @param oldItems unused
          * @param newItems unused
-         * @param buddy the newly added <code>buddy</code>
+         * @param buddy the newly added <tt>buddy</tt>
          */
         public void buddyAdded(BuddyList list, Group joustSimGroup, List oldItems,
                                List newItems, Buddy buddy)
@@ -618,7 +616,7 @@ public class ServerStoredContactListIcqImpl
 
 b         * Called by joust sim when a buddy is removed
          *
-         * @param list the <code>BuddyList</code> containing the buddy
+         * @param list the <tt>BuddyList</tt> containing the buddy
          * @param group the joust sim group that the buddy is removed from.
          * @param oldItems unused
          * @param newItems unused
@@ -642,7 +640,7 @@ b         * Called by joust sim when a buddy is removed
          * Removes all Contacts from the concerned group and reinserts them
          * in the right order.
          *
-         * @param list the <code>BuddyList</code> where all this happens
+         * @param list the <tt>BuddyList</tt> where all this happens
          * @param group the group whose buddies have been reordered.
          * @param oldBuddies unused
          * @param newBuddies the list containing the buddies in their new order.
@@ -683,7 +681,7 @@ b         * Called by joust sim when a buddy is removed
          * we've already heard of and pass it to the root contact group
          * so that it woul reorder its subgroups.
          *
-         * @param list the <code>BuddyList</code> where all this is happening
+         * @param list the <tt>BuddyList</tt> where all this is happening
          * @param oldOrder unused
          * @param newOrder the order in which groups are now stored by the
          * AIM/ICQ server.
