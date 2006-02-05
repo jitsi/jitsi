@@ -5,8 +5,11 @@ import java.util.*;
 import net.java.sip.communicator.service.contactlist.*;
 
 /**
- * A Default implementation of a MetaContactGroup.
- *
+ * A Default implementation of a MetaContactGroup. Note that this implementation
+ * is only meant to be used for non-root contact groups and can only contain
+ * contacts. All subgroup retrieving methods would returns null/0 values.
+ * Root contact groups are to be represented by the RootMetaContactGroupImpl.
+ * <p>
  * @author Emil Ivov
  */
 public class MetaContactGroupImpl
@@ -17,10 +20,17 @@ public class MetaContactGroupImpl
      */
     private Vector childContacts = new Vector();
 
+    /**
+     * An empty list that we'll be using in order to return an empty iterator
+     * of the (non-existing) sub groups.
+     */
     private final List dummySubgroupsList = new LinkedList();
 
-    protected MetaContactGroupImpl()
+    private String groupName = null;
+
+    protected MetaContactGroupImpl(String groupName)
     {
+        this.groupName = groupName;
     }
 
     /**
@@ -108,6 +118,15 @@ public class MetaContactGroupImpl
     }
 
     /**
+     * Returns the name of this group.
+     * @return a String containing the name of this group.
+     */
+    public String getGroupName()
+    {
+        return groupName;
+    }
+
+    /**
      * Returns the <tt>MetaContactGroup</tt> with the specified name.
      *
      * @param groupName the name of the group to return.
@@ -139,7 +158,7 @@ public class MetaContactGroupImpl
      */
     public Iterator getSubgroups()
     {
-        return childContacts.iterator();
+        return dummySubgroupsList.iterator();
     }
 
     /**
@@ -161,4 +180,6 @@ public class MetaContactGroupImpl
     {
         this.childContacts.remove( metaContact );
     }
+
+
 }

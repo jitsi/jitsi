@@ -87,6 +87,12 @@ public interface MetaContactGroup
         throws IndexOutOfBoundsException;
 
     /**
+     * Returns the name of this group.
+     * @return a String containing the name of this group.
+     */
+    public String getGroupName();
+
+    /**
      * Returns the <tt>MetaContactGroup</tt> with the specified name.
      * @param groupName the name of the group to return.
      * @return the <tt>MetaContactGroup</tt> with the specified name or null

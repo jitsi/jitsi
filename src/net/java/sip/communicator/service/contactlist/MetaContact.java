@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.contactlist;
 
 
 import net.java.sip.communicator.service.protocol.*;
-import java.util.List;
+import java.util.Iterator;
 
 /**
  * A MetaContact is an abstraction used for merging mutltiple Contacts (most
@@ -30,13 +30,13 @@ public interface MetaContact
     public Contact getDefaultContact();
 
     /**
-     * Returns a <tt>java.util.List</tt> with all protocol specific
+     * Returns a <tt>java.util.Iterator</tt> with all protocol specific
      * <tt>Contacts</tt> encapsulated by this <tt>MetaContact</tt>.
-     * @return a <tt>java.util.List</tt> containing all protocol specific
+     * @return a <tt>java.util.Iterator</tt> containing all protocol specific
      * <tt>Contact</tt>s that were registered as subcontacts for this
      * <tt>MetaContact</tt>
      */
-    public List getContacts();
+    public Iterator getContacts();
 
     /**
      * Returns the number of protocol speciic <tt>Contact</tt>s that this
@@ -66,4 +66,11 @@ public interface MetaContact
      * @return String
      */
     public String getMetaContactID();
+
+    /**
+     * Returns a characteristic display name that can be used when including
+     * this <tt>MetaContact</tt> in user interface.
+     * @return a human readable String that represents this meta contact.
+     */
+    public String getDisplayName();
 }
