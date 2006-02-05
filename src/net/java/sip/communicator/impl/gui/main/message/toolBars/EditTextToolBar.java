@@ -1,3 +1,10 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main.message.toolBars;
 
 import java.awt.Dimension;
@@ -8,33 +15,35 @@ import javax.swing.JComboBox;
 import javax.swing.JToolBar;
 
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 
-public class EditTextToolBar extends JToolBar {
+public class EditTextToolBar extends SIPCommToolBar {
 
 	private SIPCommButton textBoldButton 
-		= new SIPCommButton(Constants.TEXT_BOLD_BUTTON,
-							Constants.TEXT_BOLD_ROLLOVER_BUTTON);
+		= new SIPCommButton(ImageLoader.getImage(ImageLoader.TEXT_BOLD_BUTTON),
+							ImageLoader.getImage(ImageLoader.TEXT_BOLD_ROLLOVER_BUTTON));
 	
 	private SIPCommButton textItalicButton 
-		= new SIPCommButton(Constants.TEXT_ITALIC_BUTTON,
-							Constants.TEXT_ITALIC_ROLLOVER_BUTTON);
+		= new SIPCommButton(ImageLoader.getImage(ImageLoader.TEXT_ITALIC_BUTTON),
+							ImageLoader.getImage(ImageLoader.TEXT_ITALIC_ROLLOVER_BUTTON));
 	
 	private SIPCommButton textUnderlinedButton 
-		= new SIPCommButton(Constants.TEXT_UNDERLINED_BUTTON,
-							Constants.TEXT_UNDERLINED_ROLLOVER_BUTTON);
+		= new SIPCommButton(ImageLoader.getImage(ImageLoader.TEXT_UNDERLINED_BUTTON),
+							ImageLoader.getImage(ImageLoader.TEXT_UNDERLINED_ROLLOVER_BUTTON));
 
 	private SIPCommButton alignLeftButton 
-		= new SIPCommButton(Constants.ALIGN_LEFT_BUTTON,
-							Constants.ALIGN_LEFT_ROLLOVER_BUTTON);
+		= new SIPCommButton(ImageLoader.getImage(ImageLoader.ALIGN_LEFT_BUTTON),
+							ImageLoader.getImage(ImageLoader.ALIGN_LEFT_ROLLOVER_BUTTON));
 	
 	private SIPCommButton alignRightButton 
-		= new SIPCommButton(Constants.ALIGN_RIGHT_BUTTON,
-							Constants.ALIGN_RIGHT_ROLLOVER_BUTTON);
+		= new SIPCommButton(ImageLoader.getImage(ImageLoader.ALIGN_RIGHT_BUTTON),
+							ImageLoader.getImage(ImageLoader.ALIGN_RIGHT_ROLLOVER_BUTTON));
 	
 	private SIPCommButton alignCenterButton 
-		= new SIPCommButton(Constants.ALIGN_CENTER_BUTTON,
-							Constants.ALIGN_CENTER_ROLLOVER_BUTTON);
+		= new SIPCommButton(ImageLoader.getImage(ImageLoader.ALIGN_CENTER_BUTTON),
+							ImageLoader.getImage(ImageLoader.ALIGN_CENTER_ROLLOVER_BUTTON));
 	
 	private JComboBox fontSizeCombo = new JComboBox();
 	
