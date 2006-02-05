@@ -581,8 +581,8 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-ICQ -->
-    <target name="bundle-icq" depends="rebuild"
-        description="Creates a bundle containing the icq impl of the protocol provider.">
+    <target name="bundle-icq" depends="rebuild">
+        <!-- Creates a bundle containing the icq impl of the protocol provider."-->
         <jar compress="false" destfile="${bundles.dest}/protocol-icq.jar"
             manifest="src/net/java/sip/communicator/impl/protocol/icq/icq.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
@@ -596,8 +596,8 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-ICQ-SLICK -->
-    <target name="bundle-icq-slick" depends="rebuild"
-        description="Creates a bundle containing the the slick for the ICQ protocol provider.">
+    <target name="bundle-icq-slick" depends="rebuild">
+        <!-- Creates a bundle containing the the slick for the ICQ protocol provider."-->
         <jar compress="false" destfile="${bundles.dest}/protocol-icq-slick.jar"
             manifest="test/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/icq"
