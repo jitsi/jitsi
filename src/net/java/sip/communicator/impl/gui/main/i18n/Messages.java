@@ -1,3 +1,10 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main.i18n;
 
 import java.util.MissingResourceException;
@@ -13,10 +20,12 @@ public class Messages {
 	}
 
 	public static String getString(String key) {
-		// TODO Auto-generated method stub
+		
 		try {
 			return RESOURCE_BUNDLE.getString(key);
+			
 		} catch (MissingResourceException e) {
+			
 			return '!' + key + '!';
 		}
 	}
