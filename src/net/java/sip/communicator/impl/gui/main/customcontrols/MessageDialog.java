@@ -1,3 +1,10 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main.customcontrols;
 
 import java.awt.BorderLayout;
@@ -16,6 +23,7 @@ import javax.swing.JPanel;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 public class MessageDialog extends JDialog {
 
@@ -24,7 +32,7 @@ public class MessageDialog extends JDialog {
 	
 	private JCheckBox doNotAskAgain = new JCheckBox(Messages.getString("doNotAskAgain"));
 	
-	private JLabel iconLabel = new JLabel(new ImageIcon(Constants.WARNING_ICON));
+	private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader.getImage(ImageLoader.WARNING_ICON)));
 	
 	private JLabel messageLabel = new JLabel();
 		

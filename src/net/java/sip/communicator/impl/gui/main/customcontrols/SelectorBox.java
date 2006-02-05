@@ -1,33 +1,61 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main.customcontrols;
 
 import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import net.java.sip.communicator.impl.gui.main.Status;
+import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.main.utils.SelectorBoxItem;
 
-public class StatusSelectorBox extends SIPCommButton
+public class SelectorBox extends SIPCommButton
 	implements ActionListener{
 
-	private JPopupMenu popup;
+	private AntialiasedPopupMenu popup;
 
 	private Object[] items;
-	
-	public StatusSelectorBox(Object[] items, Status currentStatus) {
+
+	public SelectorBox() {
 		
-		super(	Constants.STATUS_SELECTOR_BOX,
-				Constants.STATUS_SELECTOR_BOX,
-				currentStatus.getIcon());
-				
-		this.popup = new JPopupMenu();
+		super(	ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
+				ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
+				null);
+		
+		this.popup = new AntialiasedPopupMenu();
+		
+		this.popup.setInvoker(this);
+		
+		this.addActionListener(this);
+	}
+	
+	public SelectorBox(Object[] items, SelectorBoxItem selectedItem) {
+		
+		super(	ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
+				ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
+				selectedItem.getIcon());
 		
 		this.items = items;
+		
+		this.popup = new AntialiasedPopupMenu();
+		
+		this.popup.setInvoker(this);
+		
+		this.addActionListener(this);
 		
 		this.init();
 	}
@@ -36,9 +64,9 @@ public class StatusSelectorBox extends SIPCommButton
 
 		for (int i = 0; i < items.length; i++) {
 
-			if (items[i] instanceof Status) {
+			if (items[i] instanceof SelectorBoxItem) {
 
-				Status status = (Status) items[i];
+				SelectorBoxItem status = (SelectorBoxItem) items[i];
 				JMenuItem item = new JMenuItem(	status.getText(), 
 												new ImageIcon(status.getIcon()));
 				
@@ -46,13 +74,18 @@ public class StatusSelectorBox extends SIPCommButton
 				
 				this.popup.add(item);
 			}
-		}
-		
-		this.popup.setInvoker(this);		
-		this.addActionListener(this);
-		
+		}		
 	}
 
+	public void addItem(String text, Icon icon){
+		
+		JMenuItem item = new JMenuItem(	text, icon);
+
+		item.addActionListener(this);
+
+		this.popup.add(item);
+	}
+	
 	public void actionPerformed (ActionEvent e) {
 		
 		if (e.getSource() instanceof SIPCommButton){
@@ -90,4 +123,6 @@ public class StatusSelectorBox extends SIPCommButton
 		
 		return point;
 	}
+	
+
 }

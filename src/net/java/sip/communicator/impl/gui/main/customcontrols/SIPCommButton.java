@@ -1,3 +1,10 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main.customcontrols;
 
 import java.awt.Dimension;
@@ -10,6 +17,7 @@ import javax.swing.JButton;
 
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 /**
  * @author Yana Stamcheva
@@ -42,8 +50,8 @@ public class SIPCommButton extends JButton {
 	public SIPCommButton() {
 		super();
 
-		this.bgImage = Constants.BUTTON_BG;
-		this.bgRolloverImage = Constants.BUTTON_ROLLOVER_BG;
+		this.bgImage = ImageLoader.getImage(ImageLoader.BUTTON_BG);
+		this.bgRolloverImage = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_BG);
 		this.setIcon(new ImageIcon(this.bgImage));
 
 		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
@@ -58,8 +66,8 @@ public class SIPCommButton extends JButton {
 	public SIPCommButton(String text) {
 		super(text);
 
-		this.bgImage = Constants.BUTTON_BG;
-		this.bgRolloverImage = Constants.BUTTON_ROLLOVER_BG;
+		this.bgImage = ImageLoader.getImage(ImageLoader.BUTTON_BG);
+		this.bgRolloverImage = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_BG);
 
 		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
 				this.bgImage.getHeight(null)));
@@ -75,8 +83,8 @@ public class SIPCommButton extends JButton {
 		super();
 
 		this.iconImage = iconImage;
-		this.bgImage = Constants.BUTTON_BG;
-		this.bgRolloverImage = Constants.BUTTON_ROLLOVER_BG;
+		this.bgImage = ImageLoader.getImage(ImageLoader.BUTTON_BG);
+		this.bgRolloverImage = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_BG);
 		
 		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
 				this.bgImage.getHeight(null)));
@@ -94,8 +102,8 @@ public class SIPCommButton extends JButton {
 
 		this.iconImage = iconImage;
 		this.iconLayout = iconLayout;
-		this.bgImage = Constants.BUTTON_BG;
-		this.bgRolloverImage = Constants.BUTTON_ROLLOVER_BG;
+		this.bgImage = ImageLoader.getImage(ImageLoader.BUTTON_BG);
+		this.bgRolloverImage = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_BG);
 		
 		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
 				this.bgImage.getHeight(null)));
