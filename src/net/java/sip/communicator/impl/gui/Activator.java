@@ -4,11 +4,16 @@ import java.util.Hashtable;
 
 import net.java.sip.communicator.impl.gui.main.CommunicatorMain;
 import net.java.sip.communicator.service.configuration.ConfigurationService;
+import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.contactlist.MetaContactGroup;
+import net.java.sip.communicator.service.contactlist.MetaContactListException;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
+import net.java.sip.communicator.service.contactlist.event.MetaContactListListener;
 import net.java.sip.communicator.service.gui.UIService;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.AccountManager;
 import net.java.sip.communicator.service.protocol.AccountProperties;
+import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.ProtocolNames;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.slick.protocol.icq.IcqSlickFixture;
@@ -45,8 +50,10 @@ public class Activator implements BundleActivator
             ServiceReference clistReference
             	= bundleContext.getServiceReference(MetaContactListService.class.getName());
            
-            MetaContactListService contactListService
-            	= (MetaContactListService)bundleContext.getService(clistReference);
+            //MetaContactListService contactListService
+            	//= (MetaContactListService)bundleContext.getService(clistReference);
+            
+            MetaContactListService contactListService = new MetaContactListServiceImpl(); 
             
             ServiceReference[] serRefs = null;
             String osgiFilter = "(" + AccountManager.PROTOCOL_PROPERTY_NAME
@@ -95,6 +102,76 @@ public class Activator implements BundleActivator
 	public void stop(BundleContext bundleContext) throws Exception 
 	{
 		logger.info("UI Service ...[STOPED]");		
+	}
+	
+	private class MetaContactListServiceImpl 
+		implements MetaContactListService {
+
+		public MetaContactGroup getRoot() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public MetaContact findMetaContactByContact(Contact contact) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public MetaContact findMetaContactByID(String metaContactID) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public void addContactListListener(MetaContactListListener l) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void removeContactListListener(MetaContactListListener l) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void moveContact(Contact contact, MetaContact newParent) throws MetaContactListException {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void removeContact(Contact contact) throws MetaContactListException {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void addNewContactToMetaContact(ProtocolProviderService provider, MetaContact metaContact, String contactID) throws MetaContactListException {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void createMetaContact(ProtocolProviderService provider, MetaContactGroup contactGroup, String contactID) throws MetaContactListException {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void moveMetaContact(MetaContact metaContact, MetaContactGroup newGroup) throws MetaContactListException {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void removeMetaContact(MetaContact metaContact) throws MetaContactListException {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void createMetaContactGroup(String groupName) throws MetaContactListException {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void removeMetaContactGroup(MetaContactGroup groupToRemove) throws MetaContactListException {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 
 }
