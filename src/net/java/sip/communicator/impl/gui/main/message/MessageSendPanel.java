@@ -1,30 +1,42 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Calendar;
-import java.util.Date;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import net.java.sip.communicator.impl.gui.main.ContactItem;
+import net.java.sip.communicator.impl.gui.main.customcontrols.SelectorBox;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.main.utils.Constants;
 
 public class MessageSendPanel extends JPanel implements ActionListener {
 
 	private JButton sendButton = new JButton(Messages.getString("send"));
+	
+	private SelectorBox protocolSelectorBox = new SelectorBox();
 
 	private JPanel statusPanel = new JPanel();
+	
+	private JPanel sendPanel = new JPanel(new BorderLayout(3, 0));
 
 	private JLabel statusLabel = new JLabel();
 
@@ -36,14 +48,17 @@ public class MessageSendPanel extends JPanel implements ActionListener {
 
 		this.msgWindow = msgWindow;
 
-		this.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+		this.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 0));
 
 		this.statusPanel.add(statusLabel);
+						
+		this.sendPanel.add(sendButton, BorderLayout.CENTER);
+		this.sendPanel.add(protocolSelectorBox, BorderLayout.WEST);
 
-		this.add(sendButton, BorderLayout.EAST);
 		this.add(statusPanel, BorderLayout.CENTER);
-
-		this.sendButton.addActionListener(this);
+		this.add(sendPanel, BorderLayout.EAST);
+		
+		this.sendButton.addActionListener(this);		
 	}
 
 	public void paint(Graphics g) {
@@ -64,21 +79,34 @@ public class MessageSendPanel extends JPanel implements ActionListener {
 		JEditorPane messagePane = this.msgWindow.getWriteMessagePanel()
 				.getEditorPane();
 
-		// TODO: Send the text to the protocol service.
-
-		// TODO: Receive a notice that message is delivered.
-
-		this.msgWindow.getChatPanel().showSentMessage(
-										this.msgWindow.getParentWindow().getUser(),
-										Calendar.getInstance(),										
-										messagePane.getText());
-
-		messagePane.setText("");
-
-		messagePane.requestFocus();
+		if(messagePane.getText() != null && !messagePane.getText().equals("")){
+			
+			// TODO: Send the text to the protocol service.
+	
+			// TODO: Receive a notice that message is delivered.
+	
+			this.msgWindow.getChatPanel().processSentMessage(
+											this.msgWindow.getParentWindow().getUser(),
+											Calendar.getInstance(),										
+											messagePane.getText());
+	
+			messagePane.setText("");
+	
+			messagePane.requestFocus();
+		}
 	}
 
 	public JButton getSendButton() {
 		return sendButton;
+	}
+
+	public void addProtocols(String[] protocolList) {
+		
+		for(int i = 0; i < protocolList.length; i ++){
+			
+			protocolSelectorBox.addItem(protocolList[i], 
+						new ImageIcon(Constants.getProtocolIcon(protocolList[i])));
+		}
+		
 	}
 }

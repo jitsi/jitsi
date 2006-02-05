@@ -1,22 +1,25 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.Vector;
 
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.JWindow;
 
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.ContactItem;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
-public class MessageWindow extends JFrame {
+public class MessageWindow extends JFrame{
 	
 	private JSplitPane messagePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	
@@ -42,15 +45,13 @@ public class MessageWindow extends JFrame {
 	
 	private Vector chatContacts = new Vector();
 	
-	
-	
 	public MessageWindow (MainFrame parentWindow){		
 				
 		this.parentWindow = parentWindow;		
 		
 		this.setSize(550, 450);
 				
-		this.setIconImage(Constants.SIP_LOGO);
+		this.setIconImage(ImageLoader.getImage(ImageLoader.SIP_LOGO));
 		
 		menusPanel = new MenusPanel(this);
 		
@@ -91,6 +92,8 @@ public class MessageWindow extends JFrame {
 		
 		this.chatConferencePanel.addContactToChat(contactItem);
 		
+		this.sendPanel.addProtocols(contactItem.getProtocolList());
+		
 		this.windowTitle += contactItem.getNickName() + " ";
 		
 		this.setTitle(this.windowTitle);
@@ -124,11 +127,9 @@ public class MessageWindow extends JFrame {
 		return sendPanel;
 	}
 
-	public void enableKeyboardSending(){
-		this.writeMessagePanel.enableKeyboardSending();
-	}
-
 	public ChatPanel getChatPanel() {
 		return chatPanel;
 	}
+
+	
 }

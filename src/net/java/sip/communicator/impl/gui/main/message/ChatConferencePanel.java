@@ -1,21 +1,24 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.ContactItem;
-import net.java.sip.communicator.impl.gui.main.ContactPanel;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 public class ChatConferencePanel extends JPanel {
 	
@@ -26,9 +29,9 @@ public class ChatConferencePanel extends JPanel {
 	private JPanel mainPanel = new JPanel(new BorderLayout());
  	
 	private SIPCommButton addToChatButton 
-				= new SIPCommButton(Constants.ADD_TO_CHAT_BUTTON,
-									Constants.ADD_TO_CHAT_ROLLOVER_BUTTON,
-									Constants.ADD_TO_CHAT_ICON);
+				= new SIPCommButton(ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_BUTTON),
+									ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ROLLOVER_BUTTON),
+									ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ICON));
 	
 	private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 	

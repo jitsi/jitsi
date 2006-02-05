@@ -1,3 +1,10 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BorderLayout;
@@ -16,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.impl.gui.main.ContactItem;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
@@ -23,16 +31,16 @@ import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 public class ChatContactPanel extends JPanel {
 	
 	private SIPCommButton callButton 
-			= new SIPCommButton(Constants.CHAT_CONTACT_CALL_BUTTON,
-								Constants.CHAT_CONTACT_CALL_ROLLOVER_BUTTON);
+			= new SIPCommButton(ImageLoader.getImage(ImageLoader.CHAT_CONTACT_CALL_BUTTON),
+								ImageLoader.getImage(ImageLoader.CHAT_CONTACT_CALL_ROLLOVER_BUTTON));
 			
 	private SIPCommButton infoButton 
-			= new SIPCommButton(Constants.CHAT_CONTACT_INFO_BUTTON,
-								Constants.CHAT_CONTACT_INFO_ROLLOVER_BUTTON);
+			= new SIPCommButton(ImageLoader.getImage(ImageLoader.CHAT_CONTACT_INFO_BUTTON),
+								ImageLoader.getImage(ImageLoader.CHAT_CONTACT_INFO_ROLLOVER_BUTTON));
 			
 	private SIPCommButton sendFileButton 
-			= new SIPCommButton(Constants.CHAT_CONTACT_SEND_FILE_BUTTON,
-								Constants.CHAT_SEND_FILE_ROLLOVER_BUTTON);
+			= new SIPCommButton(ImageLoader.getImage(ImageLoader.CHAT_CONTACT_SEND_FILE_BUTTON),
+								ImageLoader.getImage(ImageLoader.CHAT_SEND_FILE_ROLLOVER_BUTTON));
 					
 	private JLabel personPhotoLabel = new JLabel();
 	
