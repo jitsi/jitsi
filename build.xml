@@ -325,8 +325,8 @@
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
                 value="lib/logging.properties"/>
-
         </java>
+    	
     </target>
 
     <!--CRUISE CONTROL BUILD LOOP target-->
@@ -394,7 +394,7 @@
         bundle-history-slick,bundle-configuration-slick,bundle-netaddr,
         bundle-netaddr-slick,bundle-slickless,bundle-slick-runner,bundle-sip,
         bundle-fileaccess,bundle-fileaccess-slick,bundle-media,
-        bundle-media-slick,bundle-icq,bundle-icq-slick"/>
+        bundle-media-slick,bundle-icq,bundle-icq-slick,bundle-swing-ui"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history" depends="rebuild">
@@ -608,5 +608,18 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+	 <!-- BUNDLE-SWING-UI -->
+    <target name="bundle-swing-ui" depends="rebuild"
+        description="Creates a bundle containing the implementation of the ui service.">
+        <jar compress="false" destfile="${bundles.dest}/swing-ui.jar"
+            manifest="src/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/gui"
+                prefix="net/java/sip/communicator/service/gui"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
+                prefix="net/java/sip/communicator/impl/gui"/>
+            <zipfileset src="${lib}/skinlf.jar" prefix=""/>
+        </jar>
+    </target>
+	
 </project>
 
