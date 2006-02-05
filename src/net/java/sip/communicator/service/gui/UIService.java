@@ -142,6 +142,13 @@ public interface UIService
 
     public void addUserActionListener();
 
+    //========================== CONFIG FORM CONTAINER =============================
+    /**
+     * Returns the ConfigurationContainer object. The method is meant to be used to 
+     * add or remove configuration form to or from the currently used configuration dialog.
+     */    
+    public ConfigurationContainer getConfigurationContainer();
+    
     //========================== CONFIG ======================================
     //maybe add a method to show the config dialog
 
