@@ -46,17 +46,19 @@ public class MainFrame extends JFrame {
 
 	private QuickMenu quickMenu;
 
-	private MetaContactListService contactList;
+	private ContactList contactList;
 
 	private User user;
 
 	private Dimension minimumFrameSize = new Dimension(
 			Constants.MAINFRAME_MIN_WIDTH, Constants.MAINFRAME_MIN_HEIGHT);
 
-	public MainFrame(User user) {
+	public MainFrame(User user, ContactList contactList) {
 		
 		this.user = user;
 
+		this.contactList = contactList;
+		
 		callPanel = new CallPanel(this);
 		tabbedPane = new MainTabbedPane(this);
 		quickMenu = new QuickMenu(this);
@@ -100,12 +102,12 @@ public class MainFrame extends JFrame {
 		return callPanel;
 	}
 
-	public MetaContactListService getContactList() {
+	public ContactList getContactList() {
 		
 		return this.contactList;
 	}
 
-	public void setContactList(MetaContactListService contactList) {
+	public void setContactList(ContactList contactList) {
 		
 		this.contactList = contactList;
 	}

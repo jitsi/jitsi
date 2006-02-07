@@ -18,7 +18,6 @@ import javax.swing.plaf.metal.MetalTheme;
 
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
-import net.java.sip.communicator.service.contactlist.MetaContactListService;
 
 import com.l2fprod.gui.plaf.skin.Skin;
 import com.l2fprod.gui.plaf.skin.SkinLookAndFeel;
@@ -34,7 +33,7 @@ public class CommunicatorMain {
 	
 	private MainFrame mainFrame;
 	
-	private MetaContactListService contactList;
+	//private MetaContactListService contactList;
 	
 	public CommunicatorMain(){
 		
@@ -42,7 +41,7 @@ public class CommunicatorMain {
 		  
 		ConfigurationFrame 	configFrame = new ConfigurationFrame();
 		
-	    mainFrame = new MainFrame(this.getUser());
+	    mainFrame = new MainFrame(this.getUser(), getContactList());
 	      
 	    mainFrame.setConfigFrame(configFrame);
 	    
@@ -173,9 +172,11 @@ public class CommunicatorMain {
 		communicatorMain.show();
 	}
 
+	/*
 	public void setContactList(MetaContactListService contactList) {
 		this.contactList = contactList;
 		
 		this.mainFrame.setContactList(contactList);
-	}	
+	}
+	*/
 }
