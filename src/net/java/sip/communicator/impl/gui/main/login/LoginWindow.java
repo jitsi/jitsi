@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.TransparentBackground;
+import net.java.sip.communicator.impl.gui.main.customcontrols.TransparentFrameBackground;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 
 public class LoginWindow extends JFrame {
@@ -36,7 +37,7 @@ public class LoginWindow extends JFrame {
 	
 	public LoginWindow(){
 		
-		TransparentBackground background = new TransparentBackground(this);
+		TransparentFrameBackground background = new TransparentFrameBackground(this);
 		
 		background.add(mainPanel);
 		
