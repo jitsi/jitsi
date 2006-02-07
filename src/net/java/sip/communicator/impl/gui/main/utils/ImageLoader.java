@@ -393,40 +393,40 @@ public class ImageLoader {
 
 		ArrayList defaultPackList = new ArrayList();
 
-		defaultPackList.add(new Smily(ImageLoader.SMILY1.getId(), 
+		defaultPackList.add(new Smily(ImageLoader.SMILY1, 
 							new String[] { "$-)", "$)" }));
 		
-		defaultPackList.add(new Smily(ImageLoader.SMILY2.getId(), 
+		defaultPackList.add(new Smily(ImageLoader.SMILY2, 
 							new String[] { "8-)", "8)" }));
 		
-		defaultPackList.add(new Smily(ImageLoader.SMILY3.getId(), 
+		defaultPackList.add(new Smily(ImageLoader.SMILY3, 
 							new String[] { ":-*", ":*" }));
 		
-		defaultPackList.add(new Smily(ImageLoader.SMILY4.getId(), 
+		defaultPackList.add(new Smily(ImageLoader.SMILY4, 
 							new String[] { ":-0", ":0" }));
 		
-		defaultPackList.add(new Smily(ImageLoader.SMILY5.getId(), 
+		defaultPackList.add(new Smily(ImageLoader.SMILY5, 
 							new String[] { ":-((", ":((" }));
 		
-		defaultPackList.add(new Smily(ImageLoader.SMILY6.getId(), 
+		defaultPackList.add(new Smily(ImageLoader.SMILY6, 
 							new String[] { ":-~", ":~" }));
 		
-		defaultPackList.add(new Smily(ImageLoader.SMILY7.getId(), 
+		defaultPackList.add(new Smily(ImageLoader.SMILY7, 
 							new String[] { ":-|", ":|" }));
 		
-		defaultPackList.add(new Smily(ImageLoader.SMILY8.getId(), 
+		defaultPackList.add(new Smily(ImageLoader.SMILY8, 
 							new String[] { ":-P", ":P", ":-p", ":p" }));
 				
-		defaultPackList.add(new Smily(ImageLoader.SMILY9.getId(), 
+		defaultPackList.add(new Smily(ImageLoader.SMILY9, 
 							new String[] { ":-))", ":))" }));
 		
-		defaultPackList.add(new Smily(ImageLoader.SMILY10.getId(), 
+		defaultPackList.add(new Smily(ImageLoader.SMILY10, 
 							new String[] { ":-(", ":(" }));
 		
-		defaultPackList.add(new Smily(ImageLoader.SMILY11.getId(), 
+		defaultPackList.add(new Smily(ImageLoader.SMILY11, 
 							new String[] { ":-)", ":)" }));
 		
-		defaultPackList.add(new Smily(ImageLoader.SMILY12.getId(), 
+		defaultPackList.add(new Smily(ImageLoader.SMILY12, 
 							new String[] { ";-)", ";)" }));
 
 		return defaultPackList;
@@ -437,7 +437,7 @@ public class ImageLoader {
 	 */
 
 	public static Image getImage(ImageID imageID) {
-				
+
 		String path = Images.getString(imageID.getId());
 		
 		Image image = null;

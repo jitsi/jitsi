@@ -17,23 +17,13 @@ public class Smily {
 	
 	private String[] smilyStrings;
 
-	public Smily(String imagePath, String[] smilyStrings){
+	public Smily(ImageID imageID, String[] smilyStrings){
 		
-		this.setImageID(imageID);
+		this.imageID = imageID;
 		
 		this.setSmilyStrings(smilyStrings);
 	}
-	
-	public ImageID getImageID() {
 		
-		return imageID;
-	}
-
-	public void setImageID(ImageID imageID) {
-		
-		this.imageID = imageID;
-	}
-
 	public String[] getSmilyStrings() {
 		
 		return smilyStrings;
@@ -49,9 +39,12 @@ public class Smily {
 		return this.smilyStrings[0];
 	}
 	
-	public String getImagePath(){
+	public ImageID getImageID(){
 		
-		return Images.getString(this.imageID.getId());
+		return this.imageID;
 	}
 	
+	public String getImagePath(){
+		return Images.getString(this.getImageID().getId());
+	}
 }

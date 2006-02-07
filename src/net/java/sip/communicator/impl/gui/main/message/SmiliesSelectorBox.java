@@ -36,7 +36,7 @@ public class SmiliesSelectorBox extends BoxPopupMenu
 		for (int i = 0; i < imageList.size(); i ++){
 			
 			Smily smily = (Smily)this.imageList.get(i);
-			
+						
 			MsgToolbarButton imageButton 
 								= new MsgToolbarButton(ImageLoader.getImage(smily.getImageID()));
 			
