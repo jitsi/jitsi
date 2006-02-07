@@ -14,7 +14,7 @@ import java.awt.image.*;
 
 public class TransparentBackground extends JComponent
 
-		implements ComponentListener, WindowFocusListener, Runnable {
+		implements ComponentListener, WindowFocusListener/*, Runnable*/ {
 
 	
 	private Window frame;
@@ -41,7 +41,7 @@ public class TransparentBackground extends JComponent
 
 		this.frame.addWindowFocusListener(this);
 
-		new Thread(this).start();
+		//new Thread(this).start();
 
 	}
 
@@ -141,7 +141,7 @@ public class TransparentBackground extends JComponent
 
 	public void windowGainedFocus(WindowEvent e) {
 
-		refresh();
+		refresh();		
 	}
 
 	public void windowLostFocus(WindowEvent e) {
@@ -150,7 +150,7 @@ public class TransparentBackground extends JComponent
 	}
 
 	// Runnable ----------------------------------------------------------------
-
+/*
 	public void run() {
 
 		try {
@@ -196,7 +196,7 @@ public class TransparentBackground extends JComponent
 		}
 
 	}
-
+*/
 
 	public static void main(String[] args) {
 
