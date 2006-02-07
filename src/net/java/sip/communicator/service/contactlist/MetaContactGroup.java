@@ -112,5 +112,4 @@ public interface MetaContactGroup
     public MetaContactGroup getMetaContactSubgroup(int index)
         throws IndexOutOfBoundsException;
 
-
 }

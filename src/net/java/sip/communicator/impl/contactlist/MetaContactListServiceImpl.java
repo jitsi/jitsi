@@ -51,6 +51,11 @@ public class MetaContactListServiceImpl
     Vector currentlyInstalledProviders = new Vector();
 
     /**
+     * The root of the meta contact list.
+     */
+    RootMetaContactGroupImpl rootMetaGroup = new RootMetaContactGroupImpl();
+
+    /**
      * Creates an instance of this class.
      */
     public MetaContactListServiceImpl()
@@ -76,6 +81,8 @@ public class MetaContactListServiceImpl
      * This implementation would also start listening for any newly registered
      * protocol provider implementations and perform the same algorithm with
      * them.
+     * <p>
+     * @param bc the currently valid osgi bundle context.
      */
     public void start(BundleContext bc)
     {
@@ -297,6 +304,8 @@ public class MetaContactListServiceImpl
      * <tt>Contact</tt> as its author.
      * @return the MetaContact containing the speicified contact or null
      * if no such contact is present in this contact list.
+     * @param contact the protocol specific <tt>contact</tt> that we're looking
+     * for.
      */
     public MetaContact findMetaContactByContact(Contact contact)
     {
@@ -324,14 +333,16 @@ public class MetaContactListServiceImpl
      * @param presenceOpSet the presence operation set whose contact list we'd
      * like to synchronize with the local contact list.
      */
-    private void synchronizeWithServerContactList(
+    private void synchronizeOpSetWithServerContactList(
                     OperationSetPersistentPresence presenceOpSet)
     {
-        ContactGroup root = presenceOpSet.getServerStoredContactListRoot();
+        ContactGroup rootProtoGroup
+            = presenceOpSet.getServerStoredContactListRoot();
 
 
+//        rootMetaGroup.addSubgroup();
 
-        logger.trace("subgroups: " + root.countSubGroups());
+        logger.trace("subgroups: " + rootProtoGroup.countSubGroups());
     }
 
     /**
@@ -356,7 +367,7 @@ public class MetaContactListServiceImpl
         //If we have a persistent presence op set - then retrieve its contat
         //list and merge it with the local one.
         if( opSetPersPresence != null ){
-            synchronizeWithServerContactList(opSetPersPresence);
+            synchronizeOpSetWithServerContactList(opSetPersPresence);
         }
 
         /** @todo implement handling non persistent presence operation sets */

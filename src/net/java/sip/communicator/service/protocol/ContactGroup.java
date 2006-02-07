@@ -96,4 +96,11 @@ public interface ContactGroup
      * @return a String containing the name of this group.
      */
     public String getGroupName();
+
+    /**
+     * Returns the protocol provider that this group belongs to.
+     * @return a regerence to the ProtocolProviderService instance that this
+     * ContactGroup belongs to.
+     */
+//    public ProtocolProviderService getProtocolProvider();
 }

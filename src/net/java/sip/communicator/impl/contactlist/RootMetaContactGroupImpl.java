@@ -158,6 +158,13 @@ public class RootMetaContactGroupImpl
         return groupName;
     }
 
+
+
+    void addProtocolSpecificGroup()
+    {
+
+    }
+
     /**
      * Adds the specified meta group to the subgroups of this one.
      * @param subgroup the MetaContactGroup to register as a subgroup to this

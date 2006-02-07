@@ -20,7 +20,16 @@ public class RootContactGroupIcqImpl
      */
     private List dummyContacts = new LinkedList();
 
+//    private ProtocolProviderServiceIcqImpl ownerProvider = null;
 
+    /**
+     * Creates a ContactGroup instance.
+     * @param ownerProvider ProtocolProviderServiceIcqImpl
+     */
+    RootContactGroupIcqImpl()//ProtocolProviderServiceIcqImpl ownerProvider)
+    {
+//        this.ownerProvider = ownerProvider;
+    }
     /**
      * The ContactListRoot in ICQ is the only group that can contain subgroups.
      *
@@ -218,5 +227,15 @@ public class RootContactGroupIcqImpl
         }
         return buff.toString();
     }
+
+    /**
+     * Returns the protocol provider that this group belongs to.
+     * @return a regerence to the ProtocolProviderService instance that this
+     * ContactGroup belongs to.
+     */
+//    public ProtocolProviderService getProtocolProvider()
+//    {
+//        return this.ownerProvider;
+//    }
 
 }

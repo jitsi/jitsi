@@ -3,6 +3,7 @@ package net.java.sip.communicator.impl.contactlist;
 import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * A Default implementation of a MetaContactGroup. Note that this implementation
@@ -25,6 +26,11 @@ public class MetaContactGroupImpl
      * of the (non-existing) sub groups.
      */
     private final List dummySubgroupsList = new LinkedList();
+
+    /**
+     * The protocol specific group that this groups encapsulates.
+     */
+    private Vector protoGroups = new Vector();
 
     private String groupName = null;
 
@@ -160,6 +166,32 @@ public class MetaContactGroupImpl
     {
         return dummySubgroupsList.iterator();
     }
+
+    /**
+     * Returns an <tt>Iterator</tt> over all protocol specific groups that
+     * this group encapsulates.
+     * @return Iterator
+     */
+    Iterator getProtoGroups()
+    {
+        return protoGroups.iterator();
+    }
+
+//    public void addProtoGroup(ContactGroup group)
+
+    /**
+     * Verifies whether a protocol specific ContactGroup with the specified
+     * name and originating from the specified provider is encapsulated by this
+     * MetaContactGroup and if so returns it.
+     * <p>
+     * <p>
+     * @return the <tt>ContactGroup</tt> with the specified name and provider
+     * or null if no such group exists.
+     */
+//    ContactGroup findContactGroup(String groupName, )
+//    {
+//        /** @todo implement findContactGroup() */
+//    }
 
     /**
      * Adds the specified <tt>metaContact</tt> to ths local list of child
