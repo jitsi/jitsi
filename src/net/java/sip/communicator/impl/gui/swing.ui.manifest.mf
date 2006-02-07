@@ -4,4 +4,9 @@ Bundle-Description: An implementation of the UI service.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 Import-Package: org.osgi.framework,
- net.java.sip.communicator.util
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.configuration.event,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.icqconstants,
+ net.java.sip.communicator.service.protocol.event
