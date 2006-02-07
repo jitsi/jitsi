@@ -96,7 +96,7 @@ public class CommunicatorMain {
 			SkinLookAndFeel.setSkin(
 					SkinLookAndFeel.loadThemePackDefinition(new File("src/net/java/sip/communicator/impl/gui/themepacks/aquathemepack/skinlf-themepack.xml").toURL()));
 
-            UIManager.getLookAndFeelDefaults().put("ClassLoader", getClass().getClassLoader());
+
 			UIManager.setLookAndFeel("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
