@@ -15,8 +15,10 @@ import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Hashtable;
 
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -39,13 +41,15 @@ import net.java.sip.communicator.service.contactlist.MetaContactListService;
  */
 public class ContactListPanel extends JScrollPane implements MouseListener {
 
-	private MetaContactListService contactList;
+	private ContactList contactList;
 
 	private MainFrame parent;
 
 	private ContactListTree contactListTree;
 	
 	private JPanel treePanel = new JPanel(new BorderLayout());
+	
+	private Hashtable contactMsgWindows = new Hashtable();
 	
 	public ContactListPanel(MainFrame parent) {		
 		
@@ -67,17 +71,16 @@ public class ContactListPanel extends JScrollPane implements MouseListener {
 	}
 
 	private void initTree() {
-		/*
+		
 		// TODO: To be removed!!!!
 		ContactNode generalGroup = (ContactNode)this.contactListTree
 												.addChild(new GroupItem("General"));
 
 		for (int i = 0; i < this.contactList.getAllContacts().size(); i++) {
 
-			this.contactListTree.addChild(generalGroup, (ContactItem) this.clist
+			this.contactListTree.addChild(generalGroup, (ContactItem) this.contactList
 					.getAllContacts().get(i), true);
 		}
-		*/
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -191,13 +194,28 @@ public class ContactListPanel extends JScrollPane implements MouseListener {
 		
 		public void run() {
 			
-			MessageWindow msgWindow = new MessageWindow(parent);
-			  
-			msgWindow.addContactToChat(this.contactItem);
-			  
-			msgWindow.setVisible(true);
+			if (contactMsgWindows.containsKey(this.contactItem)){
+				
+				MessageWindow msgWindow 
+								= (MessageWindow)contactMsgWindows.get(this.contactItem);
+				
+				if(msgWindow.isVisible()){				
+					msgWindow.requestFocus();
+				}
+			}
+			else{				
+				
+				MessageWindow msgWindow = new MessageWindow(parent);
+				 
+				contactMsgWindows.put(this.contactItem, msgWindow);
+				
+				msgWindow.addContactToChat(this.contactItem);
+				  
+				msgWindow.setVisible(true);
+				
+				msgWindow.getWriteMessagePanel().getEditorPane().requestFocus();
+			}
 			
-			msgWindow.getWriteMessagePanel().getEditorPane().requestFocus();
 		}
 	}
 }
