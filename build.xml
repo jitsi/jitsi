@@ -326,7 +326,7 @@
             <sysproperty key="java.util.logging.config.file"
                 value="lib/logging.properties"/>
         </java>
-    	
+
     </target>
 
     <!--CRUISE CONTROL BUILD LOOP target-->
@@ -620,6 +620,6 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib}/skinlf.jar" prefix=""/>
         </jar>
     </target>
-	
+
 </project>
 
