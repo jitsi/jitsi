@@ -45,12 +45,8 @@ import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 public class ContactListCellRenderer extends JPanel 
-	implements TreeCellRenderer, ActionListener {
+	implements TreeCellRenderer {
 
-	private ContactItem contactItem;
-	
-	private JTree tree;
-	
 	private JLabel nameLabel = new JLabel();
 
 	private SIPCommButton extendPanelButton 
@@ -76,19 +72,15 @@ public class ContactListCellRenderer extends JPanel
 
 		this.nameLabel.setIconTextGap(2);
 		
-		this.extendPanelButton.addActionListener(this);	
-		
 		this.add(nameLabel, BorderLayout.CENTER);
 		
-		this.add(extendPanelButton, BorderLayout.EAST);
+		this.add(extendPanelButton, BorderLayout.WEST);
 	}
 
 	
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 			boolean selected, boolean expanded, boolean leaf, int row,
 			boolean hasFocus) {
-		
-		this.tree = tree;
 		
 		// Find out which node we are rendering and get its text
 		ContactNode node = (ContactNode) value;
@@ -99,8 +91,6 @@ public class ContactListCellRenderer extends JPanel
 							
 				ContactItem contactItem = (ContactItem) node.getUserObject();
 
-				this.contactItem = contactItem;
-				
 				this.nameLabel.setText(contactItem.getNickName());
 	
 				this.nameLabel.setIcon(contactItem.getUserIcon());
@@ -111,7 +101,7 @@ public class ContactListCellRenderer extends JPanel
 				
 				this.setPreferredSize(new Dimension(Constants.MAINFRAME_WIDTH + 20, 17));
 				
-				this.setBounds(0, 0, Constants.MAINFRAME_WIDTH + 20, 17);
+				this.setBounds(0, 0, Constants.MAINFRAME_WIDTH + 20, 17);				
 			} 
 		}
 		else{ 
@@ -130,7 +120,7 @@ public class ContactListCellRenderer extends JPanel
 				
 				this.setPreferredSize(new Dimension(Constants.MAINFRAME_WIDTH + 20, 20));
 				
-				this.setBounds(0, 0, Constants.MAINFRAME_WIDTH + 20, 20);
+				this.setBounds(0, 0, Constants.MAINFRAME_WIDTH + 20, 20);				
 			}
 		}
 
@@ -169,16 +159,4 @@ public class ContactListCellRenderer extends JPanel
 	public SIPCommButton getExtendPanelButton() {
 		return extendPanelButton;
 	}
-
-	public void actionPerformed(ActionEvent e) {
-	
-		ContactInfoPanel contactInfoPanel = new ContactInfoPanel(this.contactItem);
-		
-//		TODO: To calculate accurately the position of the contact info popup.
-		contactInfoPanel.setLocation(800, 200);
-		
-		contactInfoPanel.setVisible(true);
-		
-	}
-
 }

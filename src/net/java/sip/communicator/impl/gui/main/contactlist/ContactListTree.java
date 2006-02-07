@@ -33,7 +33,7 @@ public class ContactListTree extends JTree {
 		
 		this.setRootVisible(false);
 		
-		this.setEditable(true);
+		this.setEditable(false);
 		
 		this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 		

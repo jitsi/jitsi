@@ -12,15 +12,20 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -29,7 +34,7 @@ import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.ContactItem;
 import net.java.sip.communicator.impl.gui.main.customcontrols.TransparentBackground;
-import net.java.sip.communicator.impl.gui.main.customcontrols.TransparentWindow;
+
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 
@@ -39,7 +44,7 @@ import net.java.sip.communicator.impl.gui.main.utils.Constants;
  * The ContactListPanel contains the contact list.
  */
 
-public class ContactInfoPanel extends JWindow
+public class ContactInfoPanel extends JDialog
 	implements WindowFocusListener {
 
 	private JPanel	protocolsPanel = new JPanel(new GridLayout(0, 1));
@@ -48,9 +53,15 @@ public class ContactInfoPanel extends JWindow
 	
 	TransparentBackground bg;
 	
-	public ContactInfoPanel(ContactItem contactItem){		
+	public ContactInfoPanel(Frame owner, ContactItem contactItem){		
 		
+		super(owner);
+				
 		this.contactItem = contactItem;
+		
+		this.setUndecorated(true);
+		
+		this.setModal(true);
 		
 		this.protocolsPanel.setOpaque(false);
 		
@@ -90,15 +101,21 @@ public class ContactInfoPanel extends JWindow
 		}
 					
 		this.bg.add(protocolsPanel, BorderLayout.CENTER);
-	}		
+	}
+
+	public JPanel getProtocolsPanel() {
+		return protocolsPanel;
+	}
+
 	
-
 	public void windowGainedFocus(WindowEvent e) {
-		System.out.println("focus gained");
+		
 	}
-
+	
 	public void windowLostFocus(WindowEvent e) {
-		System.out.println("focus lost");
+		
 		this.setVisible(false);
+		this.dispose();
 	}
+	
 }
