@@ -3,6 +3,7 @@ package net.java.sip.communicator.impl.gui.main.customcontrols;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.main.utils.Constants;
 
 import java.awt.*;
 
@@ -12,10 +13,13 @@ import java.awt.image.*;
 
 
 
-public class TransparentWindow extends JPopupMenu
+public class TransparentFrameBackground extends JComponent
 
-		implements ComponentListener, Runnable {
+		implements ComponentListener, WindowFocusListener, Runnable {
+
 	
+	private Window frame;
+
 	private BufferedImage background;
 
 	private long lastUpdate = 0;
@@ -28,13 +32,18 @@ public class TransparentWindow extends JPopupMenu
 	
 	// constructor -------------------------------------------------------------
 
-	public TransparentWindow() {
-		
+	public TransparentFrameBackground(Window frame) {
+
+		this.frame = frame;
+
 		this.updateBackground();
 
-		this.addComponentListener(this);		
+		this.frame.addComponentListener(this);
 
-		new Thread(this).start();
+		//this.frame.addWindowFocusListener(this);
+
+		//new Thread(this).start();
+
 	}
 
 
@@ -56,15 +65,14 @@ public class TransparentWindow extends JPopupMenu
 		
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
-		 background = robot.createScreenCapture(
+		background = robot.createScreenCapture(
 			        new Rectangle(0,0,(int)dim.getWidth( ),
 			                          (int)dim.getHeight( )));
-
 	}
 
 	protected void refresh() {
 
-		if (this.isVisible()) {
+		if (this.frame.isVisible() && this.isVisible()) {
 
 			repaint();
 
@@ -80,7 +88,6 @@ public class TransparentWindow extends JPopupMenu
 	// JComponent --------------------------------------------------------------
 
 	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
 		
 		AntialiasingManager.activateAntialiasing(g);
 		
@@ -98,13 +105,13 @@ public class TransparentWindow extends JPopupMenu
 		
 		g2.drawImage(buf, 0, 0, null);
 
-		g2.setColor(new Color(255, 255, 255, 150));
+		g2.setColor(new Color(255, 255, 255, 180));
 
-		g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+		g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
 		
-		g2.setColor(Color.GRAY);
+		g2.setColor(Constants.TOOLBAR_SEPARATOR_COLOR);
 		
-		g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+		g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
 
 	}
 
@@ -130,6 +137,18 @@ public class TransparentWindow extends JPopupMenu
 		repaint();
 	}
 
+	// WindowFocusListener -----------------------------------------------------
+
+	public void windowGainedFocus(WindowEvent e) {
+		System.out.println("focus gained");
+		refresh();		
+	}
+
+	public void windowLostFocus(WindowEvent e) {
+		System.out.println("focuslost");
+		refresh();
+	}
+
 	// Runnable ----------------------------------------------------------------
 
 	public void run() {
@@ -144,11 +163,11 @@ public class TransparentWindow extends JPopupMenu
 
 				if (this.refreshRequested && ((now - this.lastUpdate) > 1000)) {
 
-					if (this.isVisible()) {
+					if (this.frame.isVisible()) {
 
-						Point location = this.getLocation();
+						Point location = this.frame.getLocation();
 
-						this.setLocation(-this.getWidth(), -this.getHeight());
+						this.frame.setLocation(-this.frame.getWidth(), -this.frame.getHeight());
 
 						//this.frame.hide();
 						
@@ -156,7 +175,7 @@ public class TransparentWindow extends JPopupMenu
 						
 						//this.frame.show();
 
-						this.setLocation(location);
+						this.frame.setLocation(location);
 
 						refresh();
 
@@ -178,14 +197,14 @@ public class TransparentWindow extends JPopupMenu
 
 	}
 
-/*
+
 	public static void main(String[] args) {
 
 		//JFrame frame = new JFrame("Transparent Window");
 
 		JWindow frame = new JWindow();
 		
-		TransparentBackground bg = new TransparentBackground(frame);
+		TransparentFrameBackground bg = new TransparentFrameBackground(frame);
 		
 		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -200,5 +219,5 @@ public class TransparentWindow extends JPopupMenu
 		frame.setVisible(true);
 
 	}
-*/
+
 }
