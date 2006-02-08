@@ -134,6 +134,7 @@
                 <include name="**/*.jpg"/>
                 <include name="**/*.properties"/>
                 <include name="**/*.xml"/>
+            	<include name="**/*"/>
             </fileset>
             <fileset dir="${src2}">
                 <include name="**/*.jpeg"/>
@@ -620,7 +621,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/gui"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
-            <zipfileset src="${lib}/skinlf.jar" prefix=""/>
+        	<zipfileset src="${lib}/skinlf.jar" prefix=""/>
         </jar>
     </target>
 
