@@ -98,7 +98,8 @@ public class TestMediaService extends TestCase
 //        mediaService.initialize();
 //        assertTrue(mediaService.isInitialized());
 
-        // XXX Should also check that Media service is really initialized
+        // May also check that Media service is really initialized, but how?
+        // This means that we don't trust service impl
 
         // Shutdown service
         mediaService.shutdown();

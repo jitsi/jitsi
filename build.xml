@@ -480,6 +480,7 @@
 
     <!--BUNDLE-MEDIA-->
     <target name="bundle-media" depends="rebuild">
+        <!-- Creates a bundle containing the impl of the media package."-->
         <jar
             compress="false" destfile="${bundles.dest}/media.jar"
             manifest="src/net/java/sip/communicator/impl/media/media.manifest.mf">
@@ -488,15 +489,18 @@
                 prefix="net/java/sip/communicator/service/media"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
                 prefix="net/java/sip/communicator/impl/media"/>
+            <zipfileset src="${jmf.home}/jmf.jar" prefix=""/>
         </jar>
     </target>
 
     <!--BUNDLE-MEDIA-SLICK-->
     <target name="bundle-media-slick" depends="rebuild">
+        <!-- Creates a bundle containing the slick for the media package."-->
         <jar compress="false" destfile="${bundles.dest}/media-slick.jar"
             manifest="test/net/java/sip/communicator/slick/media/media.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/media"
                 prefix="net/java/sip/communicator/slick/media"/>
+            <zipfileset src="${jmf.home}/jmf.jar" prefix=""/>
         </jar>
     </target>
 
@@ -597,7 +601,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-ICQ-SLICK -->
     <target name="bundle-icq-slick" depends="rebuild">
-        <!-- Creates a bundle containing the the slick for the ICQ protocol provider."-->
+        <!-- Creates a bundle containing the slick for the ICQ protocol provider."-->
         <jar compress="false" destfile="${bundles.dest}/protocol-icq-slick.jar"
             manifest="test/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/icq"
