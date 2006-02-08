@@ -118,4 +118,11 @@ public class ContactInfoPanel extends JDialog
 		this.dispose();
 	}
 	
+	
+	public void setPopupLocation(int x, int y){
+		
+		this.setLocation(x, y);
+		
+		this.bg.updateBackground(x, y);
+	}
 }

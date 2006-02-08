@@ -242,7 +242,7 @@ public class ContactListPanel extends JScrollPane
 			SwingUtilities.convertPointToScreen(p, contactListTree);
 
 			// TODO: to calculate popup window posititon properly.
-			contactInfoPanel.setLocation(p.x - 140, p.y - 15);
+			contactInfoPanel.setPopupLocation(p.x - 140, p.y - 15);
 			
 			contactInfoPanel.setVisible(true);														
 									
