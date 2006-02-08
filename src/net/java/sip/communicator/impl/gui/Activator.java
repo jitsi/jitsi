@@ -19,74 +19,74 @@ import org.osgi.framework.ServiceReference;
 
 
 public class Activator implements BundleActivator
-{	
+{
 	private Logger logger = Logger.getLogger(Activator.class.getName());
-	
+
 	private UIService uiService = null;
 
 	private AccountManager icqAccountManager  = null;
-	
+
 	private CommunicatorMain communicatorMain = new CommunicatorMain();
-	
+
 	private LoginWindow	loginWindow = new LoginWindow();
-	
+
 	private AccountID icqAccountID;
-	
-	public void start(BundleContext bundleContext) throws Exception 
+
+	public void start(BundleContext bundleContext) throws Exception
 	{
 		try
 		{
-            logger.logEntry();            
-            
+            logger.logEntry();
+
             //Create the ui service
             this.uiService =
                 new UIServiceImpl();
 
             //ServiceReference clistReference
             	//= bundleContext.getServiceReference(MetaContactListService.class.getName());
-           
+
             //MetaContactListService contactListService
             	//= (MetaContactListService)bundleContext.getService(clistReference);
-            
+
             ServiceReference[] serRefs = null;
             String osgiFilter = "(" + AccountManager.PROTOCOL_PROPERTY_NAME
                                 + "="+ProtocolNames.ICQ+")";
-            
+
             serRefs = bundleContext.getServiceReferences(
                     AccountManager.class.getName(), osgiFilter);
-                        
+
             icqAccountManager = (AccountManager)bundleContext.getService(serRefs[0]);
-            
+
             Hashtable icqAccountProperties = new Hashtable();
             icqAccountProperties.put(AccountProperties.PASSWORD, "parolata");
-            
+
             icqAccountID = icqAccountManager.installAccount(
                     bundleContext, "85450845", icqAccountProperties);
-            
+
             osgiFilter =
                 "(&("+AccountManager.PROTOCOL_PROPERTY_NAME +"="+ProtocolNames.ICQ+")"
                  +"(" + AccountManager.ACCOUNT_ID_PROPERTY_NAME
                  + "=" + icqAccountID.getAccountID() + "))";
-            
+
             serRefs = bundleContext.getServiceReferences(
                     ProtocolProviderService.class.getName(),
                     osgiFilter);
-            
+
             ProtocolProviderService icqProtocolProvider
             			= (ProtocolProviderService)bundleContext.getService(serRefs[0]);
-                   
+
             logger.info("UI Service...[  STARTED ]");
 
             bundleContext.registerService(
                 UIService.class.getName(), this.uiService, null);
-                        
+
             logger.info("UI Service ...[REGISTERED]");
-            
+
             //communicatorMain.setContactList(contactListService);
-            
+
             communicatorMain.show();
-            
-            loginWindow.show();
+
+            loginWindow.showLoginWindow();
         }
         finally
         {
@@ -94,9 +94,9 @@ public class Activator implements BundleActivator
         }
 	}
 
-	public void stop(BundleContext bundleContext) throws Exception 
+	public void stop(BundleContext bundleContext) throws Exception
 	{
-		logger.info("UI Service ...[STOPED]");		
+		logger.info("UI Service ...[STOPED]");
 	}
-	
+
 }
