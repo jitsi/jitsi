@@ -94,7 +94,7 @@ public class CommunicatorMain {
 
 		try {
 			SkinLookAndFeel.setSkin(
-					SkinLookAndFeel.loadThemePackDefinition(new File("src/net/java/sip/communicator/impl/gui/themepacks/aquathemepack/skinlf-themepack.xml").toURL()));
+					SkinLookAndFeel.loadThemePackDefinition(getClass().getClassLoader().getResource("net/java/sip/communicator/impl/gui/themepacks/aquathemepack/skinlf-themepack.xml")));
 
 
 			UIManager.setLookAndFeel("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
