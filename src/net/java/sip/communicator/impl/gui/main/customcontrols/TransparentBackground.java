@@ -26,14 +26,6 @@ public class TransparentBackground extends JComponent {
 	public TransparentBackground(Window window) {
 		
 		this.window = window;
-						
-		this.updateBackground();
-	}
-
-
-	// protected ---------------------------------------------------------------
-
-	protected void updateBackground() {
 		
 		try {
 
@@ -46,12 +38,16 @@ public class TransparentBackground extends JComponent {
 			return;
 
 		}
-				
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+	}
+
+
+	// protected ---------------------------------------------------------------
+
+	public void updateBackground(int x, int y ) {
 		
-		background = robot.createScreenCapture(
-			        new Rectangle(0, 0, (int)dim.getWidth( ),
-			                           (int)dim.getHeight( )));
+		this.background = robot.createScreenCapture(
+			        new Rectangle(x, y, x + this.window.getWidth(),
+			                           y + this.window.getHeight()));
 			                          
 	}
 
@@ -62,13 +58,9 @@ public class TransparentBackground extends JComponent {
 		AntialiasingManager.activateAntialiasing(g);
 		
 		Graphics2D g2 = (Graphics2D) g;
-
-		Point pos = this.getLocationOnScreen();
 		
-		Point offset = new Point(-pos.x,-pos.y);
-				
-		g2.drawImage(this.background, offset.x, offset.y, null);
-
+		g2.drawImage(this.background, 0, 0, null);
+		
 		g2.setColor(new Color(255, 255, 255, 180));
 
 		g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
