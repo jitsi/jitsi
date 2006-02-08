@@ -609,8 +609,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
 	 <!-- BUNDLE-SWING-UI -->
-    <target name="bundle-swing-ui" depends="rebuild"
-        description="Creates a bundle containing the implementation of the ui service.">
+    <target name="bundle-swing-ui" depends="rebuild">
         <jar compress="false" destfile="${bundles.dest}/swing-ui.jar"
             manifest="src/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/gui"
