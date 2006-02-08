@@ -36,11 +36,13 @@ public class Activator
         {
             logger.logEntry();
 
+            logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
+
             bundleContext.registerService( ConfigurationService.class.getName(),
                                            impl,
                                            new java.util.Hashtable() );
 
-            logger.debug("Successfully registered " + getClass().getName());
+            logger.debug("Service Impl: " + getClass().getName() + " [REGISTERED]");
         }
         finally
         {
