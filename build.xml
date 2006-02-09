@@ -135,7 +135,7 @@
                 <include name="**/*.jpg"/>
                 <include name="**/*.properties"/>
                 <include name="**/*.xml"/>
-            	<include name="**/*.themerc"/>
+                <include name="**/*.themerc"/>
                 <include name="**/gtkrc"/>
             </fileset>
             <fileset dir="${src2}">
@@ -181,7 +181,7 @@
         <mkdir dir="${java.doc}"/>
         <mkdir dir="${bundles.dest}"/>
         <mkdir dir="${test.reports.dir}"/>
-		<mkdir dir="${test.reports.dir}/html"/>
+        <mkdir dir="${test.reports.dir}/html"/>
 
         <!-- set the jmf.performancepack.extracted property so that we know
              whether we'll have to extract jmf native libs -->
@@ -615,7 +615,7 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-	 <!-- BUNDLE-SWING-UI -->
+     <!-- BUNDLE-SWING-UI -->
     <target name="bundle-swing-ui" depends="rebuild">
         <jar compress="false" destfile="${bundles.dest}/swing-ui.jar"
             manifest="src/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
@@ -623,22 +623,9 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/gui"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
-        	<zipfileset src="${lib}/skinlf.jar" prefix=""/>
+            <zipfileset src="${lib}/skinlf.jar" prefix=""/>
         </jar>
     </target>
 
-    <target name="dupe">
-        <copy todir="/tmp/dupe1"><fileset dir="${src}">
-                <include name="**/*.jpeg"/>
-                <include name="**/*.wav"/>
-                <include name="**/*.au"/>
-                <include name="**/*.gif"/>
-                <include name="**/*.png"/>
-                <include name="**/*.jpg"/>
-                <include name="**/*.properties"/>
-                <include name="**/*.xml"/>
-            	<include name="**/gtkrc"/>
-            </fileset></copy>
-    </target>
 </project>
 
