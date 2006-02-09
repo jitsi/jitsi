@@ -3,6 +3,7 @@ package net.java.sip.communicator.impl.contactlist;
 import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * An implementation of the meta contact group that would only be used for the
@@ -23,7 +24,16 @@ public class RootMetaContactGroupImpl
      */
     private List dummyContacts = new LinkedList();
 
+    /**
+     * The name of the group (fixed for root groups since it won't show).
+     */
     private static final String groupName = "RootMetaContactGroup";
+
+    /**
+     * The root groups for all protocol contact lists that we've detected so
+     * far, mapped against their owner protocol providers.
+     */
+    private Hashtable protoGroups = new Hashtable();
 
     /**
      * Creates an instance of the root meta contact group.
@@ -158,11 +168,17 @@ public class RootMetaContactGroupImpl
         return groupName;
     }
 
-
-
-    void addProtocolSpecificGroup()
+    /**
+     * Addes the specified group to the list of protocol specific roots
+     * that we're encapsulating in this meta contact list.
+     * @param protoRoot the root to add to the groups merged in this meta contact
+     * group.
+     * @param ownerProtocol the protocol that the specified group came from.
+     */
+    void registerProtocolSpecificRoot(
+                ProtocolProviderService ownerProtocol, ContactGroup protoRoot)
     {
-
+        protoGroups.put(ownerProtocol, protoRoot);
     }
 
     /**
@@ -177,7 +193,7 @@ public class RootMetaContactGroupImpl
 
     /**
      * Removes the meta contact group with the specified index.
-     * @param the <tt>index</tt> index of the group to remove.
+     * @param index the index of the group to remove.
      * @return the <tt>MetaContactGroup</tt> that has just been removed.
      */
     MetaContactGroupImpl removeSubgroup(int index)

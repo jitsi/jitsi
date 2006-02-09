@@ -112,4 +112,11 @@ public interface MetaContactGroup
     public MetaContactGroup getMetaContactSubgroup(int index)
         throws IndexOutOfBoundsException;
 
+    /**
+     * Returns a String representation of this group and the contacts it
+     * contains (may turn out to be a relatively long string).
+     * @return a String representing this group and its child contacts.
+     */
+    public String toString();
+
 }

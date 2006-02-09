@@ -131,10 +131,12 @@
                 <include name="**/*.au"/>
                 <include name="**/*.gif"/>
                 <include name="**/*.png"/>
+                <include name="**/*.PNG"/>
                 <include name="**/*.jpg"/>
                 <include name="**/*.properties"/>
                 <include name="**/*.xml"/>
-            	<include name="**/*"/>
+            	<include name="**/*.themerc"/>
+                <include name="**/gtkrc"/>
             </fileset>
             <fileset dir="${src2}">
                 <include name="**/*.jpeg"/>
@@ -625,5 +627,18 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+    <target name="dupe">
+        <copy todir="/tmp/dupe1"><fileset dir="${src}">
+                <include name="**/*.jpeg"/>
+                <include name="**/*.wav"/>
+                <include name="**/*.au"/>
+                <include name="**/*.gif"/>
+                <include name="**/*.png"/>
+                <include name="**/*.jpg"/>
+                <include name="**/*.properties"/>
+                <include name="**/*.xml"/>
+            	<include name="**/gtkrc"/>
+            </fileset></copy>
+    </target>
 </project>
 

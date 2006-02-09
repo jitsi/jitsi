@@ -99,4 +99,11 @@ public interface ProtocolProviderService
      * collection.
      */
     public void shutdown();
+
+    /**
+     * A hashcode allowing usage of protocol providers as keys in Hashtables.
+     * @return an int that may be used when storing protocol providers as
+     * hashtable keys.
+     */
+    public int hashCode();
 }

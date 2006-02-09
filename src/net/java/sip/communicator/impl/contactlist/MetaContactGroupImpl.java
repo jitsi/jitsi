@@ -28,9 +28,11 @@ public class MetaContactGroupImpl
     private final List dummySubgroupsList = new LinkedList();
 
     /**
-     * The protocol specific group that this groups encapsulates.
+     * All protocol specific contact groups encapsulated by this
+     * <tt>MetaContactGoup</tt>.
      */
-    private Vector protoGroups = new Vector();
+    private Hashtable protoGroups = new Hashtable();
+
 
     private String groupName = null;
 
@@ -168,16 +170,18 @@ public class MetaContactGroupImpl
     }
 
     /**
-     * Returns an <tt>Iterator</tt> over all protocol specific groups that
-     * this group encapsulates.
-     * @return Iterator
+     * Adds the specified <tt>group</tt> to the list of protocol specific
+     * groups merged by this MetaContactGroup.
+     * @param owner the ProtocolProviderService where the specified group came
+     * from.
+     * @param group the <tt>ContactGroup</tt> to add merge into this
+     * MetaContactGroup.
      */
-    Iterator getProtoGroups()
+    public void addProtoGroup(ProtocolProviderService owner,
+                              ContactGroup group)
     {
-        return protoGroups.iterator();
+        this.protoGroups.put(owner, group);
     }
-
-//    public void addProtoGroup(ContactGroup group)
 
     /**
      * Verifies whether a protocol specific ContactGroup with the specified

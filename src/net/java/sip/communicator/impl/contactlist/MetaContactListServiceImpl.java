@@ -26,6 +26,9 @@ import net.java.sip.communicator.util.Logger;
  * properly if the underlying service providers have already been loaded at the
  * time this one gets started.
  *
+ * @todo might be a good idea to say that the implementation does not support
+ * subgroups.
+ *
  * @author Emil Ivov
  */
 public class MetaContactListServiceImpl
@@ -332,17 +335,39 @@ public class MetaContactListServiceImpl
      * sure they are all present in the local contact list.
      * @param presenceOpSet the presence operation set whose contact list we'd
      * like to synchronize with the local contact list.
+     * @param provider the provider that the operation set belongs to.
      */
     private void synchronizeOpSetWithServerContactList(
+                    ProtocolProviderService provider,
                     OperationSetPersistentPresence presenceOpSet)
     {
         ContactGroup rootProtoGroup
             = presenceOpSet.getServerStoredContactListRoot();
 
-
-//        rootMetaGroup.addSubgroup();
-
         logger.trace("subgroups: " + rootProtoGroup.countSubGroups());
+
+        //first register the root group
+        rootMetaGroup.registerProtocolSpecificRoot(
+            provider,
+            presenceOpSet.getServerStoredContactListRoot());
+
+        //register subgroups and contacts
+        //this implementation only supports one level of groups apart from
+        //the root group - so let's keep this simple and do it in a nested loop
+        Iterator subgroupsIter = rootMetaGroup.getSubgroups();
+
+        while(subgroupsIter.hasNext())
+        {
+            ContactGroup group  = (ContactGroup)subgroupsIter.next();
+
+            //right now we simply map this group to an existing one
+            //without being cautious and verify whether we already have it
+            //registered
+            MetaContactGroupImpl newMetaGroup
+                = new MetaContactGroupImpl(group.getGroupName());
+
+            newMetaGroup.addProtoGroup(provider, group);
+        }
     }
 
     /**
@@ -367,7 +392,7 @@ public class MetaContactListServiceImpl
         //If we have a persistent presence op set - then retrieve its contat
         //list and merge it with the local one.
         if( opSetPersPresence != null ){
-            synchronizeOpSetWithServerContactList(opSetPersPresence);
+            synchronizeOpSetWithServerContactList(provider, opSetPersPresence);
         }
 
         /** @todo implement handling non persistent presence operation sets */

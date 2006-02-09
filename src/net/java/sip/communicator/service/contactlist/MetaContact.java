@@ -73,4 +73,10 @@ public interface MetaContact
      * @return a human readable String that represents this meta contact.
      */
     public String getDisplayName();
+
+    /**
+     * Returns a String representation of this <tt>MetaContact</tt>.
+     * @return a String representation of this <tt>MetaContact</tt>.
+     */
+    public String toString();
 }
