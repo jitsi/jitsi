@@ -1133,7 +1133,7 @@ style "default"
       {
         function        = FOCUS
 	recolorable     = TRUE
-	overlay_file    = "focus.png"
+#	overlay_file    = "focus.png"
 	overlay_border  = { 4, 4, 4, 4 }
 	overlay_stretch = TRUE
       }
