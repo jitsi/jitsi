@@ -100,9 +100,10 @@ public class CommunicatorMain {
             //resources.
             SkinLookAndFeel slnf = new SkinLookAndFeel();
             slnf.setSkin(
-                         slnf.loadThemePackDefinition(
-                            getClass().getClassLoader().getResource(
-                                "net/java/sip/communicator/impl/gui/themepacks/aquathemepack/skinlf-themepack.xml")));
+                 slnf.loadThemePackDefinition(
+                    getClass().getClassLoader().getResource(
+                        "net/java/sip/communicator/impl/gui/themepacks/"
+                        +"aquathemepack/skinlf-themepack.xml")));
 
             //we need to set the UIDefaults class loader so that it may access
             //resources packed inside OSGI bundles
