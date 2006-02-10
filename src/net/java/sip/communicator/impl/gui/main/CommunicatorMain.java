@@ -93,11 +93,22 @@ public class CommunicatorMain {
     public void setDefaultThemePack(){
 
         try {
-            SkinLookAndFeel.setSkin(
-                    SkinLookAndFeel.loadThemePackDefinition(getClass().getClassLoader().getResource("net/java/sip/communicator/impl/gui/themepacks/aquathemepack/skinlf-themepack.xml")));
+            //Instantiate the look and feel locally so that it gets loaded
+            //through the OSGI class loader and not the system one. Setting
+            //the UIDefaults "ClassLoader" property does not seem to do the
+            //trick and it looks like it is only being used when loading
+            //resources.
+            SkinLookAndFeel slnf = new SkinLookAndFeel();
+            slnf.setSkin(
+                         slnf.loadThemePackDefinition(
+                            getClass().getClassLoader().getResource(
+                                "net/java/sip/communicator/impl/gui/themepacks/aquathemepack/skinlf-themepack.xml")));
 
+            //we need to set the UIDefaults class loader so that it may access
+            //resources packed inside OSGI bundles
+            UIManager.put("ClassLoader", getClass().getClassLoader());
 
-            //UIManager.setLookAndFeel("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
+            UIManager.setLookAndFeel(slnf);
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -115,6 +126,7 @@ public class CommunicatorMain {
                 SkinLookAndFeel.setSkin(
                             SkinLookAndFeel.loadThemePackDefinition(new File(themePack).toURL()));
 
+                UIManager.put("ClassLoader", getClass().getClassLoader());
                 UIManager.setLookAndFeel("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
 
             } else if (themePack.startsWith("class:")) {
