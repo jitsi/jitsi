@@ -367,6 +367,15 @@ public class MetaContactListServiceImpl
                 = new MetaContactGroupImpl(group.getGroupName());
 
             newMetaGroup.addProtoGroup(provider, group);
+
+            Iterator contactsIter = group.contacts();
+            while(contactsIter.hasNext())
+            {
+                Contact contact = (Contact)contactsIter.next();
+                MetaContactImpl newMetaContact = new MetaContactImpl();
+
+                newMetaContact.addProtoContact(contact);
+            }
         }
     }
 
@@ -431,12 +440,24 @@ public class MetaContactListServiceImpl
 
         if(event.getType() == ServiceEvent.REGISTERED)
         {
-            this.handleProviderAdded((ProtocolProviderService)sService);
+            //if we have the PROVIDER_MASK property set, make sure that this
+            //provider has it and if not ignore it.
+            String providerMask = System.getProperty(
+                MetaContactListService.PROVIDER_MASK_PROPERTY);
+            if(providerMask != null && providerMask.trim().length() > 0)
+            {
+                if (event.getServiceReference().getProperty(
+                       MetaContactListService.PROVIDER_MASK_PROPERTY)
+                            .equals(providerMask)){
+                    return;
+                }
+            }
+
+            this.handleProviderAdded( (ProtocolProviderService)sService);
         }
         else if(event.getType() == ServiceEvent.UNREGISTERING)
         {
             this.handleProviderRemoved((ProtocolProviderService)sService);
         }
     }
-
 }

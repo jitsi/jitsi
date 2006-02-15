@@ -18,8 +18,6 @@ import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
 
-
-
 /**
  * A straight forward implementation of the ConfigurationService using an xml
  * file for storing properties. Currently only String properties are

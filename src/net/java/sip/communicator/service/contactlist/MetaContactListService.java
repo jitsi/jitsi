@@ -33,18 +33,38 @@ import net.java.sip.communicator.service.contactlist.event.MetaContactListListen
  * specific contacts. These protocol specific contacts may also be removed
  * away from a MetaContact. Whenever a MetaContact remains empty (i.e. all of
  * its protocol specific contacts are removed) it is automatically deleted.
- *
+ * <p>
  * Note that for most of the methods defined by this interface, it is likely
  * that implementations require one or more network operations to complete
  * before returning. It is therefore strongly advised not to call these methods
  * in event dispatching threads (watch out UI implementors ;) ) as this may lead
  * to unpleasant user experience.
- *
+ * <p>
+ * The MetaContactListService also defines a property named:<br>
+ * <tt>net.java.sip.communicator.service.contactlist.PROVIDER_MASK</tt><br>
+ * When this property is set, implementations of the MetaContactListService
+ * would only interact with protocol providers that same property set to the
+ * same value. This feature is mostly used during unit testing so that testing
+ * bundles could make sure that a tested meta contact list implementation would
+ * only load their mocking protocol provider implementations during the test
+ * run.
+ * <p>
  * @todo expections
  * @author Emil Ivov
  */
 public interface MetaContactListService
 {
+    /**
+     * This property is used to tell implementations of the
+     * MetaContactListService that they are to only interact with providers
+     * that have the same property set to the same value as the system one.
+     * This feature is mostly used during unit testing so that testing bundles
+     * could make sure that a tested meta contact list implementation would only
+     * load their mocking protocol provider implementations during the test run.
+     */
+    public static String PROVIDER_MASK_PROPERTY =
+        "net.java.sip.communicator.service.contactlist.PROVIDER_MASK";
+
     /**
      * Returns the root <tt>MetaContactGroup</tt> in this contact list.
      * All meta contacts and subgroups are children of the root meta contact

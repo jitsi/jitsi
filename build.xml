@@ -397,7 +397,8 @@
         bundle-history-slick,bundle-configuration-slick,bundle-netaddr,
         bundle-netaddr-slick,bundle-slickless,bundle-slick-runner,bundle-sip,
         bundle-fileaccess,bundle-fileaccess-slick,bundle-media,
-        bundle-media-slick,bundle-icq,bundle-icq-slick,bundle-swing-ui"/>
+        bundle-media-slick,bundle-icq,bundle-icq-slick,bundle-swing-ui,
+        meta-contactlist,meta-contactlist-slick"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history" depends="rebuild">
@@ -617,6 +618,7 @@ javax.swing.event, javax.swing.border"/>
 
      <!-- BUNDLE-SWING-UI -->
     <target name="bundle-swing-ui" depends="rebuild">
+        <!-- Bundle sip-communicator's UI."-->
         <jar compress="false" destfile="${bundles.dest}/swing-ui.jar"
             manifest="src/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/gui"
@@ -624,6 +626,28 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
             <zipfileset src="${lib}/skinlf.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-META-CONTACTLIST -->
+    <target name="meta-contactlist" depends="rebuild">
+        <!-- Creates the meta contact list bundle."-->
+        <jar compress="false" destfile="${bundles.dest}/meta-cl.jar"
+            manifest="src/net/java/sip/communicator/impl/contactlist/meta.cl.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/contactlist"
+                prefix="net/java/sip/communicator/service/contactlist"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/contactlist"
+                prefix="net/java/sip/communicator/impl/contactlist"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-META-CONTACTLIST-SLICK -->
+    <target name="meta-contactlist-slick" depends="rebuild">
+        <!-- Creates a bundle for the meta contact list SLICK."-->
+        <jar compress="false" destfile="${bundles.dest}/meta-cl-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/contactlist/meta.cl.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/contactlist"
+                prefix="net/java/sip/communicator/slick/contactlist"/>
         </jar>
     </target>
 

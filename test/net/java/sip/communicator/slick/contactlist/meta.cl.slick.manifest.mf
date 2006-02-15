@@ -1,0 +1,13 @@
+Bundle-Activator: net.java.sip.communicator.slick.contactlist.MetaContactListServiceLick
+Bundle-Name: MetaContactListServiceLick
+Bundle-Description: An SLI compatibility kit for the MetaContactList service.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: net.jata.sip.communicator.service.contactlist,
+ org.osgi.framework,
+ junit.framework,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.configuration.event,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.event
