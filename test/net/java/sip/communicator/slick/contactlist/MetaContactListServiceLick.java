@@ -21,25 +21,23 @@ public class MetaContactListServiceLick
 {
     private static final Logger logger =
         Logger.getLogger(MetaContactListServiceLick.class);
-    /**
-     * The bundle context that we get upon activation.
-     */
-    protected static BundleContext bundleContext = null;
 
     /**
+     * Register
      */
     public void start(BundleContext context) throws Exception
     {
-        this.bundleContext = context;
+        MclSlickFixture.bundleContext = context;
 
         setName("MetaContactListServiceLick");
         Hashtable properties = new Hashtable();
         properties.put("service.pid", getName());
 
+        logger.debug("Service  " + getClass().getName() + " [  STARTED ]");
+
         addTestSuite(TestMetaContactList.class);
 
-
-        bundleContext.registerService(getClass().getName(), this, properties);
+        context.registerService(getClass().getName(), this, properties);
         logger.debug("Service  " + getClass().getName() + " [REGISTERED]");
     }
 

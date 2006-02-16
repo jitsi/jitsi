@@ -24,59 +24,59 @@ import org.osgi.framework.ServiceReference;
 public class Activator implements BundleActivator
 {
     private Logger logger = Logger.getLogger(Activator.class.getName());
-    
+
     private UIService uiService = null;
-    
+
     private CommunicatorMain communicatorMain = new CommunicatorMain();
-    
-    private LoginManager	loginManager; 
-        
+
+    private LoginManager	loginManager;
+
     private BundleContext bundleContext;
-    
-        
+
+
     public void start(BundleContext bundleContext) throws Exception
     {
         this.bundleContext = bundleContext;
-        
+
         this.loginManager = new LoginManager(bundleContext);
-        
+
         try
         {
             logger.logEntry();
-            
+
             //Create the ui service
             this.uiService =
                 new UIServiceImpl();
-            
+
             //ServiceReference clistReference
             //= bundleContext.getServiceReference(MetaContactListService.class.getName());
-            
+
             //MetaContactListService contactListService
             //= (MetaContactListService)bundleContext.getService(clistReference);
-                                         
+
             logger.info("UI Service...[  STARTED ]");
-            
+
             bundleContext.registerService(
                     UIService.class.getName(), this.uiService, null);
-            
+
             logger.info("UI Service ...[REGISTERED]");
-            
+
             //communicatorMain.setContactList(contactListService);
-                                
+
             communicatorMain.showCommunicator();
-             
+
             loginManager.showLoginWindow(communicatorMain.getMainFrame());
-            
+
         }
         finally
         {
             logger.logExit();
         }
     }
-    
+
     public void stop(BundleContext bundleContext) throws Exception
     {
         logger.info("UI Service ...[STOPED]");
     }
-   
+
 }

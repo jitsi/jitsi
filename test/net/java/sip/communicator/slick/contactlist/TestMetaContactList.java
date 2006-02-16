@@ -10,6 +10,11 @@ import junit.framework.*;
 public class TestMetaContactList
     extends TestCase
 {
+    /**
+     * A reference to the SLICK fixture.
+     */
+    MclSlickFixture fixture = new MclSlickFixture(getClass().getName());
+
     public TestMetaContactList(String name)
     {
         super(name);
@@ -18,16 +23,18 @@ public class TestMetaContactList
     protected void setUp() throws Exception
     {
         super.setUp();
+        fixture.setUp();
 
     }
 
     protected void tearDown() throws Exception
     {
+        fixture.tearDown();
         super.tearDown();
     }
 
     public void testContactListRetrieving()
     {
-        System.out.println("-= DUPE =-");
+
     }
 }
