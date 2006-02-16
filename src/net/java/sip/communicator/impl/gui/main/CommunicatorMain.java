@@ -22,38 +22,39 @@ import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import com.l2fprod.gui.plaf.skin.Skin;
 import com.l2fprod.gui.plaf.skin.SkinLookAndFeel;
 
-//import examples.demo;
+// import examples.demo;
 
 /**
  * @author Yana Stamcheva
- *
+ * 
  * Starts the GUI application using the SkinLookAndFeel of l2fprod.
  */
 public class CommunicatorMain {
 
     private MainFrame mainFrame;
 
-    //private MetaContactListService contactList;
+    // private MetaContactListService contactList;
 
-    public CommunicatorMain(){
+    public CommunicatorMain() {
 
         this.setDefaultThemePack();
 
-        ConfigurationFrame 	configFrame = new ConfigurationFrame();
+        ConfigurationFrame configFrame = new ConfigurationFrame();
 
-        mainFrame = new MainFrame(this.getUser(), getContactList());
+        mainFrame = new MainFrame(this.getUser(),
+                getContactList());
 
         mainFrame.setConfigFrame(configFrame);
 
-        //In order to have the same icon when using option panes
-        JOptionPane.getRootFrame().setIconImage(ImageLoader.getImage(ImageLoader.SIP_LOGO));
+        // In order to have the same icon when using option panes
+        JOptionPane.getRootFrame().setIconImage(
+                ImageLoader.getImage(ImageLoader.SIP_LOGO));
     }
 
     /**
-     * To be removed after the real contact
-     * list is implemented.
+     * To be removed after the real contact list is implemented.
      */
-    public ContactList getContactList(){
+    public ContactList getContactList() {
 
         ContactList clist = new ContactList();
 
@@ -61,53 +62,67 @@ public class CommunicatorMain {
         ContactItem citem2 = new ContactItem("Traiancho");
         ContactItem citem3 = new ContactItem("Glupancho");
 
-        citem1.setUserIcon(new ImageIcon(ImageLoader.getImage(ImageLoader.USER_ONLINE_ICON)));
-        citem2.setUserIcon(new ImageIcon(ImageLoader.getImage(ImageLoader.USER_ONLINE_ICON)));
-        citem3.setUserIcon(new ImageIcon(ImageLoader.getImage(ImageLoader.USER_ONLINE_ICON)));
+        citem1.setUserIcon(new ImageIcon(ImageLoader
+                .getImage(ImageLoader.USER_ONLINE_ICON)));
+        citem2.setUserIcon(new ImageIcon(ImageLoader
+                .getImage(ImageLoader.USER_ONLINE_ICON)));
+        citem3.setUserIcon(new ImageIcon(ImageLoader
+                .getImage(ImageLoader.USER_ONLINE_ICON)));
 
-        citem1.setPhoto(ImageLoader.getImage(ImageLoader.DEFAULT_CHAT_USER_PHOTO));
-        citem2.setPhoto(ImageLoader.getImage(ImageLoader.DEFAULT_CHAT_USER_PHOTO));
-        citem3.setPhoto(ImageLoader.getImage(ImageLoader.DEFAULT_CHAT_USER_PHOTO));
+        citem1
+                .setPhoto(ImageLoader
+                        .getImage(ImageLoader.DEFAULT_CHAT_USER_PHOTO));
+        citem2
+                .setPhoto(ImageLoader
+                        .getImage(ImageLoader.DEFAULT_CHAT_USER_PHOTO));
+        citem3
+                .setPhoto(ImageLoader
+                        .getImage(ImageLoader.DEFAULT_CHAT_USER_PHOTO));
 
         clist.addContact(citem1);
         clist.addContact(citem2);
         clist.addContact(citem3);
 
-        citem1.setProtocolList(new String[]{"SIP", "ICQ", "MSN"});
-        citem2.setProtocolList(new String[]{"ICQ"});
-        citem3.setProtocolList(new String[]{"SIP", "ICQ", "MSN"});
+        citem1.setProtocolList(new String[] { "SIP", "ICQ",
+                "MSN" });
+        citem2.setProtocolList(new String[] { "ICQ" });
+        citem3.setProtocolList(new String[] { "SIP", "ICQ",
+                "MSN" });
 
         return clist;
     }
 
-    public User getUser(){
+    public User getUser() {
 
         User user = new User();
 
         user.setName("Yana");
-        user.setProtocols(new String[]{"SIP", "ICQ"});
+        user.setProtocols(new String[] { "SIP", "ICQ" });
 
         return user;
     }
 
-    public void setDefaultThemePack(){
+    public void setDefaultThemePack() {
 
         try {
-            //Instantiate the look and feel locally so that it gets loaded
-            //through the OSGI class loader and not the system one. Setting
-            //the UIDefaults "ClassLoader" property does not seem to do the
-            //trick and it looks like it is only being used when loading
-            //resources.
+            // Instantiate the look and feel locally so that it gets loaded
+            // through the OSGI class loader and not the system one. Setting
+            // the UIDefaults "ClassLoader" property does not seem to do the
+            // trick and it looks like it is only being used when loading
+            // resources.
             SkinLookAndFeel slnf = new SkinLookAndFeel();
-            slnf.setSkin(
-                 slnf.loadThemePackDefinition(
-                    getClass().getClassLoader().getResource(
-                        "net/java/sip/communicator/impl/gui/themepacks/"
-                        +"aquathemepack/skinlf-themepack.xml")));
 
-            //we need to set the UIDefaults class loader so that it may access
-            //resources packed inside OSGI bundles
-            UIManager.put("ClassLoader", getClass().getClassLoader());
+            SkinLookAndFeel.setSkin(SkinLookAndFeel
+                .loadThemePackDefinition(getClass()
+                    .getClassLoader()
+                    .getResource(
+                            "net/java/sip/communicator/impl/gui/themepacks/"
+                                    + "aquathemepack/skinlf-themepack.xml")));
+
+            // we need to set the UIDefaults class loader so that it may access
+            // resources packed inside OSGI bundles
+            UIManager.put("ClassLoader", getClass()
+                    .getClassLoader());
 
             UIManager.setLookAndFeel(slnf);
         } catch (MalformedURLException e) {
@@ -119,49 +134,58 @@ public class CommunicatorMain {
         }
     }
 
-    public void setThemePack(String themePack){
+    public void setThemePack(String themePack) {
 
         try {
             if (themePack.endsWith(".xml")) {
 
-                SkinLookAndFeel.setSkin(
-                            SkinLookAndFeel.loadThemePackDefinition(new File(themePack).toURL()));
+                SkinLookAndFeel.setSkin(SkinLookAndFeel
+                        .loadThemePackDefinition(new File(
+                                themePack).toURL()));
 
-                UIManager.put("ClassLoader", getClass().getClassLoader());
-                UIManager.setLookAndFeel("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
+                UIManager.put("ClassLoader", getClass()
+                        .getClassLoader());
+                UIManager.setLookAndFeel
+                    ("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
 
             } else if (themePack.startsWith("class:")) {
 
-                String classname = themePack.substring("class:".length());
-                SkinLookAndFeel.setSkin((Skin)Class.forName(classname).newInstance());
-                UIManager.setLookAndFeel("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
+                String classname = themePack
+                        .substring("class:".length());
+                SkinLookAndFeel.setSkin((Skin) Class.forName(
+                        classname).newInstance());
+                UIManager.setLookAndFeel
+                    ("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
 
             } else if (themePack.startsWith("theme:")) {
 
-                String classname = themePack.substring("theme:".length());
-                MetalTheme theme = (MetalTheme)Class.forName(classname).newInstance();
+                String classname = themePack
+                        .substring("theme:".length());
+                MetalTheme theme = (MetalTheme) Class.forName(
+                        classname).newInstance();
                 MetalLookAndFeel metal = new MetalLookAndFeel();
                 MetalLookAndFeel.setCurrentTheme(theme);
                 UIManager.setLookAndFeel(metal);
+                
             } else {
 
-                SkinLookAndFeel.setSkin(SkinLookAndFeel.loadThemePack(themePack));
-                UIManager.setLookAndFeel("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
+                SkinLookAndFeel.setSkin(SkinLookAndFeel
+                        .loadThemePack(themePack));
+                UIManager.setLookAndFeel
+                    ("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
             }
-//			Decorates the frames and dialogs if we are running with jdk1.4 +
+            // Decorates the frames and dialogs if we are running with jdk1.4 +
 
             /*
-            if (OS.isOneDotFourOrMore()) {
-                java.lang.reflect.Method method = JFrame.class.getMethod(
-                                                    "setDefaultLookAndFeelDecorated",
-                                                    new Class[] { boolean.class });
-                method.invoke(null, new Object[] { Boolean.TRUE });
-
-                method = JDialog.class.getMethod(
-                        "setDefaultLookAndFeelDecorated",
-                        new Class[] { boolean.class });
-                method.invoke(null, neif (args.length > 0) {
-            }*/
+             * if (OS.isOneDotFourOrMore()) { java.lang.reflect.Method method =
+             * JFrame.class.getMethod( "setDefaultLookAndFeelDecorated", new
+             * Class[] { boolean.class }); method.invoke(null, new Object[] {
+             * Boolean.TRUE });
+             * 
+             * method = JDialog.class.getMethod(
+             * "setDefaultLookAndFeelDecorated", new Class[] { boolean.class });
+             * method.invoke(null, neif (args.length > 0) { }
+             */
 
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
@@ -172,25 +196,28 @@ public class CommunicatorMain {
         }
     }
 
-    public void show(){
+    public void showCommunicator() {
 
         mainFrame.pack();
 
         mainFrame.setVisible(true);
     }
 
-    public static void main(String args[]){
+    public static void main(String args[]) {
 
         CommunicatorMain communicatorMain = new CommunicatorMain();
 
-        communicatorMain.show();
+        communicatorMain.showCommunicator();
+    }
+
+    public MainFrame getMainFrame() {
+        return mainFrame;
     }
 
     /*
-    public void setContactList(MetaContactListService contactList) {
-        this.contactList = contactList;
-
-        this.mainFrame.setContactList(contactList);
-    }
-    */
+     * public void setContactList(MetaContactListService contactList) {
+     * this.contactList = contactList;
+     * 
+     * this.mainFrame.setContactList(contactList); }
+     */
 }
