@@ -225,22 +225,22 @@ public class ImageLoader {
 	// ///////////////////// Chat contact icons ////////////////////////////////
 
 	public static final ImageID CHAT_CONTACT_INFO_BUTTON
-											= new ImageID("CHAT_CONTACT_INFO_BUTTON");
+		= new ImageID("CHAT_CONTACT_INFO_BUTTON");
 
 	public static final ImageID CHAT_CONTACT_INFO_ROLLOVER_BUTTON
-											= new ImageID("CHAT_CONTACT_INFO_ROLLOVER_BUTTON");
+		= new ImageID("CHAT_CONTACT_INFO_ROLLOVER_BUTTON");
 
 	public static final ImageID CHAT_CONTACT_CALL_BUTTON
-											= new ImageID("CHAT_CONTACT_CALL_BUTTON");
+		= new ImageID("CHAT_CONTACT_CALL_BUTTON");
 
 	public static final ImageID CHAT_CONTACT_CALL_ROLLOVER_BUTTON
-											= new ImageID("CHAT_CONTACT_CALL_ROLLOVER_BUTTON");
+		= new ImageID("CHAT_CONTACT_CALL_ROLLOVER_BUTTON");
 
 	public static final ImageID CHAT_CONTACT_SEND_FILE_BUTTON
-											= new ImageID("CHAT_CONTACT_SEND_FILE_BUTTON");
+		= new ImageID("CHAT_CONTACT_SEND_FILE_BUTTON");
 
 	public static final ImageID CHAT_SEND_FILE_ROLLOVER_BUTTON
-											= new ImageID("CHAT_SEND_FILE_ROLLOVER_BUTTON");
+		= new ImageID("CHAT_SEND_FILE_ROLLOVER_BUTTON");
 
 	// ///////////////////// Optionpane icons /////////////////////////////
 
@@ -250,35 +250,38 @@ public class ImageLoader {
 	// //////////////////// RightButton menu icons ////////////////////////
 
 	public static final ImageID SEND_MESSAGE_16x16_ICON
-											= new ImageID("SEND_MESSAGE_16x16_ICON");
+	    = new ImageID("SEND_MESSAGE_16x16_ICON");
 
 	public static final ImageID DELETE_16x16_ICON
-											= new ImageID("DELETE_16x16_ICON");
+		= new ImageID("DELETE_16x16_ICON");
 
 	public static final ImageID HISTORY_16x16_ICON
-											= new ImageID("HISTORY_16x16_ICON");
+		= new ImageID("HISTORY_16x16_ICON");
 
 	public static final ImageID SEND_FILE_16x16_ICON
-											= new ImageID("SEND_FILE_16x16_ICON");
+		= new ImageID("SEND_FILE_16x16_ICON");
 
 	public static final ImageID GROUPS_16x16_ICON
-											= new ImageID("GROUPS_16x16_ICON");
+		= new ImageID("GROUPS_16x16_ICON");
 
 	public static final ImageID INFO_16x16_ICON
-											= new ImageID("INFO_16x16_ICON");
+		= new ImageID("INFO_16x16_ICON");
 
 	public static final ImageID ADD_CONTACT_16x16_ICON
-											= new ImageID("ADD_CONTACT_16x16_ICON");
+	    = new ImageID("ADD_CONTACT_16x16_ICON");
 
 	public static final ImageID RENAME_16x16_ICON
-											= new ImageID("RENAME_16x16_ICON");
+	    = new ImageID("RENAME_16x16_ICON");
 
 	public static final ImageID MORE_INFO_ICON
-											= new ImageID("MORE_INFO_ICON");
+	    = new ImageID("MORE_INFO_ICON");
 
 	public static final ImageID TOOLBAR_DRAG_ICON
-											= new ImageID("TOOLBAR_DRAG_ICON");
-
+	    = new ImageID("TOOLBAR_DRAG_ICON");
+    
+    public static final ImageID LOGIN_WINDOW_LOGO
+        = new ImageID("LOGIN_WINDOW_LOGO");
+	
 	/*
 	 * =========================================================================
 	 * --------------------- PROTOCOLS STATUS ICONS ---------------------------
