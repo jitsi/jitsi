@@ -22,8 +22,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.java.sip.communicator.impl.gui.main.ContactItem;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SelectorBox;
+import net.java.sip.communicator.impl.gui.main.StatusSelectorBox;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
@@ -32,7 +31,7 @@ public class MessageSendPanel extends JPanel implements ActionListener {
 
 	private JButton sendButton = new JButton(Messages.getString("send"));
 	
-	private SelectorBox protocolSelectorBox = new SelectorBox();
+	private StatusSelectorBox protocolSelectorBox = new StatusSelectorBox();
 
 	private JPanel statusPanel = new JPanel();
 	
