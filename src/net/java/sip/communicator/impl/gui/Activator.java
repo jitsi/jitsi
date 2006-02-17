@@ -2,6 +2,8 @@ package net.java.sip.communicator.impl.gui;
 
 import java.util.Hashtable;
 
+import javax.swing.SwingUtilities;
+
 import net.java.sip.communicator.impl.gui.main.CommunicatorMain;
 import net.java.sip.communicator.impl.gui.main.login.LoginManager;
 import net.java.sip.communicator.impl.gui.main.login.LoginWindow;
@@ -40,6 +42,8 @@ public class Activator implements BundleActivator
 
         this.loginManager = new LoginManager(bundleContext);
 
+        this.loginManager.setMainFrame(communicatorMain.getMainFrame());
+        
         try
         {
             logger.logEntry();
@@ -64,9 +68,9 @@ public class Activator implements BundleActivator
             //communicatorMain.setContactList(contactListService);
 
             communicatorMain.showCommunicator();
-
-            loginManager.showLoginWindow(communicatorMain.getMainFrame());
-
+          
+            SwingUtilities.invokeLater(new RunLogin());
+       
         }
         finally
         {
@@ -79,4 +83,12 @@ public class Activator implements BundleActivator
         logger.info("UI Service ...[STOPED]");
     }
 
+    
+    private class RunLogin implements Runnable {
+
+        public void run() {
+            
+            loginManager.showLoginWindow(communicatorMain.getMainFrame());            
+        }
+    }
 }
