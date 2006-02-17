@@ -13,7 +13,12 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.beans.PropertyChangeEvent;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -21,7 +26,14 @@ import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.main.utils.SelectorBoxItem;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
+import net.java.sip.communicator.service.protocol.OperationFailedException;
+import net.java.sip.communicator.service.protocol.OperationSetPersistentPresence;
+import net.java.sip.communicator.service.protocol.OperationSetPresence;
+import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusChangeEvent;
+import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusListener;
+import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 
 /**
  * @author Yana Stamcheva
@@ -50,6 +62,8 @@ public class MainFrame extends JFrame {
 
 	private User user;
 
+    private Map supportedOperationSets;
+    
 	private Dimension minimumFrameSize = new Dimension(
 			Constants.MAINFRAME_MIN_WIDTH, Constants.MAINFRAME_MIN_HEIGHT);
 
@@ -131,4 +145,69 @@ public class MainFrame extends JFrame {
 	
 		this.configFrame = configFrame;
 	}
+
+    public Map getSupportedOperationSets() {
+        return supportedOperationSets;
+    }
+
+    public void setSupportedOperationSets(
+            Map supportedOperationSets) {
+        
+        this.supportedOperationSets = supportedOperationSets;
+        
+        Iterator entrySetIter = supportedOperationSets.entrySet().iterator();
+        
+        for (int i = 0; i < supportedOperationSets.size(); i++)
+        {
+            Map.Entry entry = (Map.Entry) entrySetIter.next();
+
+            Object key = entry.getKey();
+            Object value = entry.getValue();        
+            
+            if(key.equals(OperationSetPersistentPresence.class.getName())){
+
+                OperationSetPersistentPresence persistentPresence 
+                    = (OperationSetPersistentPresence)value;
+                
+                this.statusPanel.setPresence(persistentPresence);
+            
+                persistentPresence
+                    .addProviderPresenceStatusListener
+                        (new ProviderPresenceStatusAdapter());
+                                
+                try {            
+                    persistentPresence
+                        .publishPresenceStatus(IcqStatusEnum.ONLINE, "");                    
+                                       
+                    this.statusPanel.setSelectedStatus
+                        (Constants.ICQ, Constants.ONLINE_STATUS);
+                        
+                } catch (IllegalArgumentException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (OperationFailedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
+    private class ProviderPresenceStatusAdapter
+        implements ProviderPresenceStatusListener {
+
+        public void providerStatusChanged
+            (ProviderPresenceStatusChangeEvent evt) {
+            
+        }
+    
+        public void providerStatusMessageChanged
+            (PropertyChangeEvent evt) {           
+            
+        }
+    
+    }
 }
