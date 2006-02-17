@@ -9,18 +9,27 @@ package net.java.sip.communicator.impl.gui.main.login;
 
 import java.awt.Frame;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
+
 import net.java.sip.communicator.impl.gui.Activator;
+import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.AccountManager;
 import net.java.sip.communicator.service.protocol.AccountProperties;
+import net.java.sip.communicator.service.protocol.OperationFailedException;
+import net.java.sip.communicator.service.protocol.OperationSetPersistentPresence;
+import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.ProtocolNames;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.RegistrationState;
 import net.java.sip.communicator.service.protocol.SecurityAuthority;
 import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeEvent;
 import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeListener;
+import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 import net.java.sip.communicator.slick.protocol.icq.IcqSlickFixture;
 import net.java.sip.communicator.util.Logger;
 
@@ -44,13 +53,11 @@ public class LoginManager implements RegistrationStateChangeListener {
     
     private ProtocolProviderService icqProtocolProvider;
     
+    private MainFrame mainFrame;
+    
     public LoginManager(BundleContext bc){
         
-        this.bc = bc;        
-        
-    }
-    
-    public void login(String user, String passwd){
+        this.bc = bc;  
         
         this.osgiFilter = "(" + AccountManager.PROTOCOL_PROPERTY_NAME
         + "="+ProtocolNames.ICQ+")";
@@ -67,11 +74,16 @@ public class LoginManager implements RegistrationStateChangeListener {
         this.accountManager 
             = (AccountManager)this.bc.getService(serRefs[0]);    
         
+        
+    }
+    
+    public void login(String user, String passwd){
+        
         Hashtable icqAccountProperties = new Hashtable();
-        icqAccountProperties.put(AccountProperties.PASSWORD, "abc123");
+        icqAccountProperties.put(AccountProperties.PASSWORD, passwd);
 
         this.icqAccountID = this.accountManager.installAccount(
-                this.bc, "227503712", icqAccountProperties);
+                this.bc, user, icqAccountProperties);
         
         this.osgiFilter =
             "(&("+AccountManager.PROTOCOL_PROPERTY_NAME +"="+ProtocolNames.ICQ+")"
@@ -116,12 +128,32 @@ public class LoginManager implements RegistrationStateChangeListener {
             
             Map supportedOpSets 
                 = icqProtocolProvider.getSupportedOperationSets();
-            /*
-            for (int i = 0; i < supportedOpSets.size(); i ++) {
-                
-                
-            }
-            */
+            
+            this.mainFrame.setSupportedOperationSets(supportedOpSets);
         }
+        else if(evt.getNewState()
+                    .equals(RegistrationState.AUTHENTICATION_FAILED)){
+            
+            JOptionPane.showMessageDialog(this.mainFrame,
+                    Messages.getString("authenticationFailed"), 
+                    Messages.getString("authenticationFailed"),
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        else if(evt.getNewState()
+                    .equals(RegistrationState.CONNECTION_FAILED)){
+            
+            JOptionPane.showMessageDialog(this.mainFrame,
+                    Messages.getString("connectionFailed"), 
+                    Messages.getString("connectionFailed"),
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public MainFrame getMainFrame() {
+        return mainFrame;
+    }
+
+    public void setMainFrame(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
     }
 }
