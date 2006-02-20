@@ -25,14 +25,9 @@ public class MockProvider
     }
 
     /**
-     * Registers the specified listener with this provider so that it would
-     * receive notifications on changes of its state or other properties such
-     * as its local address and display name.
+     * Mock implementation of the corresponding ProtocolProviderService method.
      *
-     * @param listener the listener to register.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.ProtocolProviderService
-     *   method
+     * @param listener a param.
      */
     public void addRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
@@ -40,16 +35,9 @@ public class MockProvider
     }
 
     /**
-     * Returns the short name of the protocol that the implementation of this
-     * provider is based upon (like SIP, Jabber, ICQ/AIM, or others for
-     * example).
+     * Mock implementation of the corresponding ProtocolProviderService method.
      *
-     * @return a String containing the short name of the protocol this
-     *   service is implementing (most often that would be a name in
-     *   ProtocolNames).
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.ProtocolProviderService
-     *   method
+     * @return an empty.
      */
     public String getProtocolName()
     {
@@ -57,13 +45,9 @@ public class MockProvider
     }
 
     /**
-     * Returns the state of the registration of this protocol provider with
-     * the corresponding registration service.
+     * Mock implementation of the corresponding ProtocolProviderService method.
      *
-     * @return ProviderRegistrationState
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.ProtocolProviderService
-     *   method
+     * @return a null ProviderRegistrationState
      */
     public RegistrationState getRegistrationState()
     {
@@ -77,9 +61,6 @@ public class MockProvider
      * @return a java.util.Map containing instance of all supported
      *   operation sets mapped against their class names (e.g.
      *   OperationSetPresence.class.getName()) .
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.ProtocolProviderService
-     *   method
      */
     public Map getSupportedOperationSets()
     {

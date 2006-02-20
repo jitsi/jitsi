@@ -211,9 +211,9 @@ public class TestOperationSetPresence
      */
     public void testChangingStateToOnline() throws Exception
     {
-        java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.FINEST);
+//        java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.FINEST);
         subtestStateTransition(IcqStatusEnum.ONLINE);
-        java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.WARNING);
+//        java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.WARNING);
     }
 
     /**
@@ -310,7 +310,7 @@ public class TestOperationSetPresence
     {
         try
         {
-            Thread.currentThread().sleep(2000);
+            Thread.currentThread().sleep(5000);
         }
         catch (InterruptedException ex)
         {

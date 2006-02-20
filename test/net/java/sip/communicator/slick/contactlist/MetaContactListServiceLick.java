@@ -12,7 +12,7 @@ import net.java.sip.communicator.util.*;
 import java.util.*;
 
 /**
- *
+ * Performs testing of the MetaContactListService.
  * @author Emil Ivov
  */
 public class MetaContactListServiceLick
@@ -23,7 +23,7 @@ public class MetaContactListServiceLick
         Logger.getLogger(MetaContactListServiceLick.class);
 
     /**
-     * Register
+     * Register.
      */
     public void start(BundleContext context) throws Exception
     {
