@@ -3,7 +3,7 @@ Bundle-Name: MetaContactList
 Bundle-Description: An implementation of the MetaContactList service.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
-Export-Package: net.jata.sip.communicator.service.contactlist
+Export-Package: net.java.sip.communicator.service.contactlist
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.configuration,
