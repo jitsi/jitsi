@@ -74,7 +74,7 @@ public class ContactListCellRenderer extends JPanel
 		
 		this.add(nameLabel, BorderLayout.CENTER);
 		
-		this.add(extendPanelButton, BorderLayout.WEST);
+		this.add(extendPanelButton, BorderLayout.EAST);
 	}
 
 	
