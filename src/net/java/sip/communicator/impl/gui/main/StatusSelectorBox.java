@@ -28,7 +28,7 @@ import net.java.sip.communicator.service.protocol.OperationSetPresence;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 
-public class StatusSelectorBox extends JLabel
+public class StatusSelectorBox extends SIPCommButton
     implements ActionListener{
 
     private AntialiasedPopupMenu popup;
@@ -38,12 +38,10 @@ public class StatusSelectorBox extends JLabel
     private OperationSetPresence presence;
     
     public StatusSelectorBox() {
-        /*
+        
         super(  ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
                 ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
                 null);
-        */
-        super(new ImageIcon(ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX)));
         
         this.popup = new AntialiasedPopupMenu();
         
@@ -53,13 +51,10 @@ public class StatusSelectorBox extends JLabel
     }
     
     public StatusSelectorBox(Map itemsMap, Image selectedItem) {
-        /*
+       
         super(  ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
                 ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
                 selectedItem);
-        */
-        super(new ImageIcon(ImageLoader.getImage(
-                    ImageLoader.STATUS_SELECTOR_BOX)));
         
         this.itemsMap = itemsMap;
         
@@ -67,7 +62,7 @@ public class StatusSelectorBox extends JLabel
         
         this.popup.setInvoker(this);
         
-        //this.addActionListener(this);
+        this.addActionListener(this);
         
         this.init();
     }
@@ -147,12 +142,8 @@ public class StatusSelectorBox extends JLabel
             this.setIconImage(((ImageIcon)menuItem.getIcon()).getImage());
         }
     }
-    
-    public void setIconImage(Image image){
-        
-        this.setIcon(new ImageIcon (image));
-    }
-    
+   
+   
     public Point calculatePopupLocation(){
         
         Component component = this;
