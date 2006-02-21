@@ -175,7 +175,8 @@ public class MainFrame extends JFrame {
                     .addProviderPresenceStatusListener
                         (new ProviderPresenceStatusAdapter());
                                 
-                try {            
+                try {
+                    
                     persistentPresence
                         .publishPresenceStatus(IcqStatusEnum.ONLINE, "");                    
                                        
@@ -209,5 +210,9 @@ public class MainFrame extends JFrame {
             
         }
     
+    }
+
+    public StatusPanel getStatusPanel() {
+        return statusPanel;
     }
 }

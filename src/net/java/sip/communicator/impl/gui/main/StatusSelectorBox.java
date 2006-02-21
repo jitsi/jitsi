@@ -17,6 +17,7 @@ import java.util.Map;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedPopupMenu;
@@ -27,7 +28,7 @@ import net.java.sip.communicator.service.protocol.OperationSetPresence;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 
-public class StatusSelectorBox extends SIPCommButton
+public class StatusSelectorBox extends JLabel
     implements ActionListener{
 
     private AntialiasedPopupMenu popup;
@@ -37,23 +38,28 @@ public class StatusSelectorBox extends SIPCommButton
     private OperationSetPresence presence;
     
     public StatusSelectorBox() {
-        
+        /*
         super(  ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
                 ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
                 null);
+        */
+        super(new ImageIcon(ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX)));
         
         this.popup = new AntialiasedPopupMenu();
         
         this.popup.setInvoker(this);
         
-        this.addActionListener(this);
+        //this.addActionListener(this);
     }
     
     public StatusSelectorBox(Map itemsMap, Image selectedItem) {
-        
+        /*
         super(  ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
                 ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
                 selectedItem);
+        */
+        super(new ImageIcon(ImageLoader.getImage(
+                    ImageLoader.STATUS_SELECTOR_BOX)));
         
         this.itemsMap = itemsMap;
         
@@ -61,7 +67,7 @@ public class StatusSelectorBox extends SIPCommButton
         
         this.popup.setInvoker(this);
         
-        this.addActionListener(this);
+        //this.addActionListener(this);
         
         this.init();
     }
@@ -115,10 +121,13 @@ public class StatusSelectorBox extends SIPCommButton
                 PresenceStatus status 
                     = ((PresenceStatus)statusSet.next());
                 
-                if(status.getStatusName().equals(menuItem.getText())){
+                if(status.getStatusName().equals(menuItem.getText())
+                        && !this.presence.getPresenceStatus().equals(status)){
                     
                     try {
-                        this.presence.publishPresenceStatus(status, "");
+                        if(!status.equals(IcqStatusEnum.OFFLINE))
+                            this.presence.publishPresenceStatus(status, "");
+                    
                     } catch (IllegalArgumentException e1) {
                         // TODO Auto-generated catch block
                         e1.printStackTrace();
@@ -137,6 +146,11 @@ public class StatusSelectorBox extends SIPCommButton
             
             this.setIconImage(((ImageIcon)menuItem.getIcon()).getImage());
         }
+    }
+    
+    public void setIconImage(Image image){
+        
+        this.setIcon(new ImageIcon (image));
     }
     
     public Point calculatePopupLocation(){
@@ -167,6 +181,4 @@ public class StatusSelectorBox extends SIPCommButton
     public void setPresence(OperationSetPresence presence) {
         this.presence = presence;
     }
-    
-
 }

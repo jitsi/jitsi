@@ -17,6 +17,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.service.protocol.OperationSetPresence;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
@@ -69,6 +70,19 @@ public class StatusPanel extends JPanel {
             = (StatusSelectorBox)protocolStatusCombos.get(protocol);
         
         selectorBox.setIconImage((Image)protocolStatusMap.get(status));
+        
+        selectorBox.repaint();
+    }
+    
+    public void setConnecting(String protocol){
+        
+        Map protocolStatusMap = Constants
+            .getProtocolStatusIcons(protocol);
+        
+        StatusSelectorBox selectorBox
+            = (StatusSelectorBox)protocolStatusCombos.get(protocol);
+        
+        selectorBox.setIconImage(ImageLoader.getImage(ImageLoader.ICQ_CONNECTING));
         
         selectorBox.repaint();
     }
