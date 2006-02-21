@@ -10,36 +10,28 @@ package net.java.sip.communicator.impl.gui.main.login;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeListener;
-import java.util.Hashtable;
 
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.TransparentBackground;
-import net.java.sip.communicator.impl.gui.main.customcontrols.TransparentFrameBackground;
+import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
-import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.AccountManager;
-import net.java.sip.communicator.service.protocol.AccountProperties;
-import net.java.sip.communicator.service.protocol.ProtocolNames;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 public class LoginWindow extends JDialog 
     implements ActionListener {
@@ -47,10 +39,14 @@ public class LoginWindow extends JDialog
 	private JLabel uinLabel = new JLabel(Messages.getString("uin"));
 
 	private JLabel passwdLabel = new JLabel(Messages.getString("passwd"));
+    
+    private JLabel protocolLabel = new JLabel(Messages.getString("protocol"));
 
 	private JTextField uinTextField = new JTextField(15);
 
 	private JPasswordField passwdField = new JPasswordField(15);
+    
+    private JComboBox protocolCombo = new JComboBox();
 
     private JButton loginButton = new JButton(Messages.getString("login"));
     
@@ -65,29 +61,31 @@ public class LoginWindow extends JDialog
     private JPanel buttonsPanel 
                             = new JPanel(new FlowLayout(FlowLayout.CENTER));
     
-    private TransparentFrameBackground bg;
+    private LoginWindowBackground backgroundPanel = new LoginWindowBackground();
     
     private AccountManager accountManager;    
    
-    LoginManager loginManager;
+    private LoginManager loginManager;
     
-	public LoginWindow(Frame owner){
+    private MainFrame mainFrame;
+    
+	public LoginWindow(MainFrame mainFrame){
         
-        super(owner);
+        super(mainFrame);
+        
+        this.mainFrame = mainFrame;
         
         this.setModal(true);
         
-        this.bg = new TransparentFrameBackground(this);
+        this.backgroundPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         
-        this.bg.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        
-        this.bg.setBorder(BorderFactory.createEmptyBorder(60, 5, 5, 5));
+        this.backgroundPanel.setBorder(BorderFactory.createEmptyBorder(60, 5, 5, 5));
         
         this.getContentPane().setLayout(new BorderLayout());
         
         this.init();
         
-        this.getContentPane().add(bg, BorderLayout.CENTER);
+        this.getContentPane().add(backgroundPanel, BorderLayout.CENTER);
         
         this.pack();
         
@@ -102,27 +100,29 @@ public class LoginWindow extends JDialog
         
         this.passwdField.setEchoChar('*');
         
+        //this.labelsPanel.add(protocolLabel);
 		this.labelsPanel.add(uinLabel);
-		this.labelsPanel.add(passwdLabel);
+		this.labelsPanel.add(passwdLabel);        
 
+        //this.textFieldsPanel.add(protocolCombo);
 		this.textFieldsPanel.add(uinTextField);
-		this.textFieldsPanel.add(passwdField);
-
+		this.textFieldsPanel.add(passwdField);        
+        
         this.buttonsPanel.add(loginButton);
-        this.buttonsPanel.add(cancelButton);
+        this.buttonsPanel.add(cancelButton);        
         
 		this.mainPanel.add(labelsPanel, BorderLayout.WEST);
-		this.mainPanel.add(textFieldsPanel, BorderLayout.CENTER);
+		this.mainPanel.add(textFieldsPanel, BorderLayout.CENTER);        
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);        
         
-        this.bg.add(mainPanel, BorderLayout.CENTER);
+        this.backgroundPanel.add(mainPanel, BorderLayout.CENTER);
         
         this.loginButton.setName("login");
         this.cancelButton.setName("cancel");
-        
-        
+                
         this.loginButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
+     
 	}
 
     private void setTransparent(boolean transparent){
@@ -130,6 +130,7 @@ public class LoginWindow extends JDialog
         this.mainPanel.setOpaque(!transparent);
         this.labelsPanel.setOpaque(!transparent);
         this.textFieldsPanel.setOpaque(!transparent);
+        this.protocolCombo.setOpaque(!transparent);
         this.buttonsPanel.setOpaque(!transparent);
     }
     
@@ -155,7 +156,7 @@ public class LoginWindow extends JDialog
         
         LoginWindow login = new LoginWindow(null);
         
-        login.showWindow();
+        login.showWindow();                 
     }
 
     public AccountManager getAccountManager() {
@@ -168,6 +169,8 @@ public class LoginWindow extends JDialog
         String buttonName = button.getName();
         
         if(buttonName.equals("login")){
+            
+            this.mainFrame.getStatusPanel().setConnecting(Constants.ICQ);
             
             this.loginManager.login(uinTextField.getText(),
                                     new String(passwdField.getPassword()));
@@ -187,4 +190,25 @@ public class LoginWindow extends JDialog
         this.loginManager = loginManager;
     }
     
+    
+    private class LoginWindowBackground extends JPanel {
+
+        protected void paintComponent(Graphics g) {
+            
+            super.paintComponent(g);
+            
+            AntialiasingManager.activateAntialiasing(g);
+            
+            Graphics2D g2 = (Graphics2D) g;            
+            
+            g2.drawImage(ImageLoader.getImage(ImageLoader.LOGIN_WINDOW_LOGO),
+                    0, 0, null);
+            
+            g2.setColor(new Color(255, 255, 255, 100));
+
+            g2.fillRect(0, 0, getWidth(), getHeight());
+                
+        }
+       
+    }
 }

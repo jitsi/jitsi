@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import net.java.sip.communicator.impl.gui.Activator;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.AccountManager;
 import net.java.sip.communicator.service.protocol.AccountProperties;
@@ -105,11 +106,12 @@ public class LoginManager implements RegistrationStateChangeListener {
         
         icqProtocolProvider.addRegistrationStateChangeListener(this);
       
-        icqProtocolProvider.register(new MySecurityAuthority());
+        icqProtocolProvider.register(new MySecurityAuthority());     
+        
     }
     
    
-    public void showLoginWindow(Frame parent){
+    public void showLoginWindow(MainFrame parent){
         
         LoginWindow loginWindow = new LoginWindow(parent);
         
@@ -125,7 +127,7 @@ public class LoginManager implements RegistrationStateChangeListener {
     public void registrationStateChanged(RegistrationStateChangeEvent evt) {
        
         if(evt.getNewState().equals(RegistrationState.REGISTERED)){
-            
+                        
             Map supportedOpSets 
                 = icqProtocolProvider.getSupportedOperationSets();
             
