@@ -8,6 +8,7 @@
 package net.java.sip.communicator.impl.gui.main.utils;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -290,6 +291,9 @@ public class ImageLoader {
 
 	public static final ImageID ICQ_LOGO 	= new ImageID("ICQ_LOGO");
 
+    public static final ImageID ICQ_CONNECTING 
+                                            = new ImageID("ICQ_CONNECTING");
+    
 	public static final ImageID ICQ_FF_CHAT_ICON
 											= new ImageID("ICQ_FF_CHAT_ICON");
 
@@ -443,7 +447,7 @@ public class ImageLoader {
 
 		String path = Images.getString(imageID.getId());
 
-		Image image = null;
+		BufferedImage image = null;
 
 		try {
 			log.logEntry();

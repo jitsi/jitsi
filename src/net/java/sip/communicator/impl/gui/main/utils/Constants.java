@@ -126,7 +126,7 @@ public class Constants {
 	 * =======================================================================
 	 */
 
-	public static final IcqStatusEnum ONLINE_STATUS 
+    public static final IcqStatusEnum ONLINE_STATUS 
                                         = IcqStatusEnum.ONLINE;
 
 	public static final IcqStatusEnum OFFLINE_STATUS 
