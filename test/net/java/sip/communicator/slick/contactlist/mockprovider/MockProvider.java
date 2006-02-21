@@ -68,17 +68,13 @@ public class MockProvider
     }
 
     /**
-     * Indicates whether or not this provider is registered
+     * Mock implementation of the corresponding ProtocolProviderService method.
      *
-     * @return true if the provider is currently registered and false
-     *   otherwise.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.ProtocolProviderService
-     *   method
+     * @return always true.
      */
     public boolean isRegistered()
     {
-        return false;
+        return true;
     }
 
     /**
