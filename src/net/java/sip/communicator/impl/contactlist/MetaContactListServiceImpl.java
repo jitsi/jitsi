@@ -66,7 +66,7 @@ public class MetaContactListServiceImpl
     }
 
     /**
-     *Starts this implementation of the MetaContactListService. The
+     * Starts this implementation of the MetaContactListService. The
      * implementation would first restore a default contact list from what has
      * been stored in a file. It would then connect to OSGI and retrieve
      * any existing protocol providers and if <br>
@@ -89,6 +89,7 @@ public class MetaContactListServiceImpl
      */
     public void start(BundleContext bc)
     {
+        logger.debug("Starting the meta contact list implementation.");
         this.bundleContext = bc;
 
         //start listening for newly register or removed protocol providers
@@ -111,14 +112,19 @@ public class MetaContactListServiceImpl
             return;
         }
 
-        //retrieve the root groups for all protocol providers and create the
-        //meta contact list
-        for (int i = 0; i < protocolProviderRefs.length; i++)
+        //in case we found any, retrieve the root groups for all protocol
+        //providers and create the meta contact list
+        if (protocolProviderRefs != null)
         {
-            ProtocolProviderService provider = (ProtocolProviderService)bc
-                .getService(protocolProviderRefs[i]);
+            logger.debug("Found " + protocolProviderRefs.length
+                         + " already installed providers.");
+                for (int i = 0; i < protocolProviderRefs.length; i++)
+            {
+                ProtocolProviderService provider = (ProtocolProviderService) bc
+                    .getService(protocolProviderRefs[i]);
 
-            this.handleProviderAdded(provider);
+                this.handleProviderAdded(provider);
+            }
         }
     }
 
@@ -203,9 +209,7 @@ public class MetaContactListServiceImpl
      */
     public MetaContactGroup getRoot()
     {
-        /**@todo implement getRoot() */
-        System.out.println("@todo implement getRoot()");
-        return null;
+        return rootMetaGroup;
     }
 
     /**
@@ -345,16 +349,17 @@ public class MetaContactListServiceImpl
             = presenceOpSet.getServerStoredContactListRoot();
 
         logger.trace("subgroups: " + rootProtoGroup.countSubGroups());
+        logger.trace("child contacts: " + rootProtoGroup.countContacts());
 
         //first register the root group
-        rootMetaGroup.registerProtocolSpecificRoot(
+        rootMetaGroup.addProtoGroup(
             provider,
             presenceOpSet.getServerStoredContactListRoot());
 
         //register subgroups and contacts
         //this implementation only supports one level of groups apart from
         //the root group - so let's keep this simple and do it in a nested loop
-        Iterator subgroupsIter = rootMetaGroup.getSubgroups();
+        Iterator subgroupsIter = rootProtoGroup.subGroups();
 
         while(subgroupsIter.hasNext())
         {
@@ -375,7 +380,29 @@ public class MetaContactListServiceImpl
                 MetaContactImpl newMetaContact = new MetaContactImpl();
 
                 newMetaContact.addProtoContact(contact);
+
+                /** @todo this shouldn't be that simple */
+                newMetaContact.setDisplayName(contact.getAlias());
+
+                newMetaGroup.addMetaContact(newMetaContact);
             }
+
+            rootMetaGroup.addSubgroup(newMetaGroup);
+        }
+
+        //now add all contacts, located in the root group
+        Iterator contactsIter = rootProtoGroup.contacts();
+        while (contactsIter.hasNext())
+        {
+            Contact contact = (Contact) contactsIter.next();
+            MetaContactImpl newMetaContact = new MetaContactImpl();
+
+            newMetaContact.addProtoContact(contact);
+
+            /** @todo this shouldn't be that simple */
+            newMetaContact.setDisplayName(contact.getAlias());
+
+            rootMetaGroup.addMetaContact(newMetaContact);
         }
     }
 
@@ -403,6 +430,8 @@ public class MetaContactListServiceImpl
         if( opSetPersPresence != null ){
             synchronizeOpSetWithServerContactList(provider, opSetPersPresence);
         }
+        else
+            logger.debug("Service did not have a pers. pres. op. set.");
 
         /** @todo implement handling non persistent presence operation sets */
         this.currentlyInstalledProviders.add(provider);
@@ -438,17 +467,21 @@ public class MetaContactListServiceImpl
         if( !(sService instanceof ProtocolProviderService) )
             return;
 
+        logger.debug("Service is a protocol provider.");
         if(event.getType() == ServiceEvent.REGISTERED)
         {
+            logger.debug("Handling registration of a new Protocol Provider.");
             //if we have the PROVIDER_MASK property set, make sure that this
             //provider has it and if not ignore it.
             String providerMask = System.getProperty(
                 MetaContactListService.PROVIDER_MASK_PROPERTY);
             if(providerMask != null && providerMask.trim().length() > 0)
             {
-                if (event.getServiceReference().getProperty(
-                       MetaContactListService.PROVIDER_MASK_PROPERTY)
-                            .equals(providerMask)){
+                String servRefMask =  (String)event.getServiceReference()
+                    .getProperty(MetaContactListService.PROVIDER_MASK_PROPERTY);
+
+                if (servRefMask == null
+                    || !servRefMask.equals(providerMask)){
                     return;
                 }
             }

@@ -20,8 +20,31 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class MockProvider
     implements ProtocolProviderService
 {
+    /**
+     * The SIP Communicator Mock Protocol name.
+     */
+    private static final String PROTO_NAME = "TheSipCommMockProtocol";
+
+    /**
+     * The operation sets that our mock provider supports.
+     */
+    private Hashtable supportedOperationSets  = new Hashtable();
+
+    /**
+     * The presence operation set supported by the mock provider.
+     */
+    private MockPersistentPresenceOperationSet mockPresOpSet = null;
+
+    /**
+     * Creates an instance of this mockprovider with a ttsupportedOperationSet-s
+     * map set to contain a single persistent presence operation set.
+     */
     public MockProvider()
     {
+        mockPresOpSet = new MockPersistentPresenceOperationSet(this);
+        this.supportedOperationSets.put(
+                OperationSetPersistentPresence.class.getName(),
+                mockPresOpSet);
     }
 
     /**
@@ -37,21 +60,21 @@ public class MockProvider
     /**
      * Mock implementation of the corresponding ProtocolProviderService method.
      *
-     * @return an empty.
+     * @return a String describing this mock protocol.
      */
     public String getProtocolName()
     {
-        return "";
+        return PROTO_NAME;
     }
 
     /**
      * Mock implementation of the corresponding ProtocolProviderService method.
      *
-     * @return a null ProviderRegistrationState
+     * @return a Registered RegistrationState.
      */
     public RegistrationState getRegistrationState()
     {
-        return null;
+        return RegistrationState.REGISTERED;
     }
 
     /**
@@ -64,7 +87,7 @@ public class MockProvider
      */
     public Map getSupportedOperationSets()
     {
-        return null;
+        return this.supportedOperationSets;
     }
 
     /**
@@ -78,52 +101,35 @@ public class MockProvider
     }
 
     /**
-     * Starts the registration process.
+     * Mock implementation of the corresponding ProtocolProviderService method.
      *
-     * @param authority the security authority that will be used for
-     *   resolving any security challenges that may be returned during the
-     *   registration or at any moment while wer're registered.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.ProtocolProviderService
-     *   method
+     * @param authority a dummy param
      */
     public void register(SecurityAuthority authority)
     {
+
     }
 
     /**
-     * Removes the specified listener.
+     * Mock implementation of the corresponding ProtocolProviderService method.
      *
-     * @param listener the listener to remove.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.ProtocolProviderService
-     *   method
+     * @param listener a dummy param.
      */
     public void removeRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
     {
+
     }
 
     /**
-     * Makes the service implementation close all open sockets and release
-     * any resources that it might have taken and prepare for
-     * shutdown/garbage collection.
-     *
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.ProtocolProviderService
-     *   method
+     * Mock implementation of the corresponding ProtocolProviderService method.
      */
     public void shutdown()
     {
     }
 
     /**
-     * Ends the registration of this protocol provider with the current
-     * registration service.
-     *
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.ProtocolProviderService
-     *   method
+     * Mock implementation of the corresponding ProtocolProviderService method.
      */
     public void unregister()
     {

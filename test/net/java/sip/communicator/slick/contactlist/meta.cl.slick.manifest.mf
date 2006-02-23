@@ -10,4 +10,5 @@ Import-Package: net.java.sip.communicator.service.contactlist,
  net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.configuration.event,
  net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.icqconstants,
  net.java.sip.communicator.service.protocol.event

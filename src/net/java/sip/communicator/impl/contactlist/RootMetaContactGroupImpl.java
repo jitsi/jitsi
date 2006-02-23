@@ -4,6 +4,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of the meta contact group that would only be used for the
@@ -13,16 +14,17 @@ import net.java.sip.communicator.service.protocol.*;
 public class RootMetaContactGroupImpl
     implements MetaContactGroup
 {
+    private static final Logger logger =
+        Logger.getLogger(RootMetaContactGroupImpl.class);
     /**
      * All the subgroups that this group contains.
      */
     private Vector subgroups = new Vector();
 
     /**
-     * An empty list that we'll use to return an iterator over the
-     * (non-exising) contats in this group.
+     * A list containing all child contacts.
      */
-    private List dummyContacts = new LinkedList();
+    private List childContacts = new LinkedList();
 
     /**
      * The name of the group (fixed for root groups since it won't show).
@@ -57,12 +59,11 @@ public class RootMetaContactGroupImpl
     /**
      * Returns the number of <tt>MetaContact</tt>s that this group contains.
      * <p>
-     * @return always 0 since this is the root contact group and in our impl it
-     * can only contain groups.
+     * @return the number of <tt>MetaContact</tt>s that this group contains.
      */
     public int countChildContacts()
     {
-        return 0;
+        return childContacts.size();
     }
 
     /**
@@ -84,7 +85,7 @@ public class RootMetaContactGroupImpl
      */
     public Iterator getChildContacts()
     {
-        return dummyContacts.iterator();
+        return childContacts.iterator();
     }
 
     /**
@@ -92,24 +93,55 @@ public class RootMetaContactGroupImpl
      *
      * @param metaContactID a String identifier obtained through the
      *   <tt>MetaContact.getMetaContactID()</tt> method. <p>
-     * @return always null since this is the root contact group and in our impl
-     * it can only contain groups.
+     * @return the <tt>MetaContact</tt> with the specified idnetifier.
      */
     public MetaContact getMetaContact(String metaContactID)
     {
+        Iterator contactsIter = getChildContacts();
+        while(contactsIter.hasNext())
+        {
+            MetaContact contact = (MetaContact)contactsIter.next();
+
+            if (contact.getMetaContactID().equals(metaContactID))
+                return contact;
+        }
+
         return null;
     }
+
 
     /**
      * Returns the meta contact on the specified index.
      *
      * @param index the index of the meta contact to return.
-     * @return always null since this is the root contact group and in our impl
-     * it can only contain groups. <p>
+     * @return the MetaContact with the specified index, <p>
+     * @throws IndexOutOfBoundsException in case <tt>index</tt> is not a
+     *   valid index for this group.
      */
-    public MetaContact getMetaContact(int index)
+    public MetaContact getMetaContact(int index) throws
+        IndexOutOfBoundsException
     {
-        return null;
+        return (MetaContact)childContacts.get(index);
+    }
+
+    /**
+     * Adds the specified <tt>metaContact</tt> to ths local list of child
+     * contacts.
+     * @param metaContact the <tt>MetaContact</tt> to add in the local vector.
+     */
+    void addMetaContact(MetaContact metaContact)
+    {
+        this.childContacts.add(metaContact);
+    }
+
+    /**
+     * Removes the specified <tt>metaContact</tt> from the local list of
+     * contacts.
+     * @param metaContact the <tt>MetaContact</tt>
+     */
+    void removeMetaContact(MetaContact metaContact)
+    {
+        this.childContacts.remove( metaContact );
     }
 
     /**
@@ -169,17 +201,52 @@ public class RootMetaContactGroupImpl
     }
 
     /**
+     * Returns a String representation of this group and the contacts it
+     * contains (may turn out to be a relatively long string).
+     * @return a String representing this group and its child contacts.
+     */
+     public String toString()
+     {
+
+        StringBuffer buff = new StringBuffer(getGroupName());
+        buff.append(".subGroups=" + countSubgroups() + ":\n");
+
+        Iterator subGroups = getSubgroups();
+        while (subGroups.hasNext())
+        {
+            MetaContactGroupImpl group = (MetaContactGroupImpl)subGroups.next();
+            buff.append(group.toString());
+            if (subGroups.hasNext())
+                buff.append("\n");
+        }
+
+        buff.append("\nRootChildContacts="+countChildContacts()+":[");
+
+        Iterator contacts = getChildContacts();
+        while (contacts.hasNext())
+        {
+            MetaContactImpl contact = (MetaContactImpl) contacts.next();
+            buff.append(contact.toString());
+            if(contacts.hasNext())
+                buff.append(", ");
+        }
+        return buff.append("]").toString();
+    }
+
+    /**
      * Addes the specified group to the list of protocol specific roots
      * that we're encapsulating in this meta contact list.
      * @param protoRoot the root to add to the groups merged in this meta contact
      * group.
      * @param ownerProtocol the protocol that the specified group came from.
      */
-    void registerProtocolSpecificRoot(
-                ProtocolProviderService ownerProtocol, ContactGroup protoRoot)
+    void addProtoGroup( ProtocolProviderService ownerProtocol,
+                        ContactGroup protoRoot)
     {
         protoGroups.put(ownerProtocol, protoRoot);
     }
+
+
 
     /**
      * Adds the specified meta group to the subgroups of this one.
@@ -188,6 +255,8 @@ public class RootMetaContactGroupImpl
      */
     void addSubgroup(MetaContactGroup subgroup)
     {
+        logger.trace("Adding subgroup " + subgroup.getGroupName()
+                     + " to" + getGroupName());
         this.subgroups.add(subgroup);
     }
 

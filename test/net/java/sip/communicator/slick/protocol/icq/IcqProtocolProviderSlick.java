@@ -112,17 +112,6 @@ public class IcqProtocolProviderSlick
     public void stop(BundleContext bundleContext) throws Exception
     {
         IcqSlickFixture.testerAgent.unregister();
-        uninstallTestIcqAccount();
-    }
-
-    /**
-     * Uninstalls the test icq account used  IcqProtocolProvider tests
-     */
-    private void uninstallTestIcqAccount()
-    {
-        //sign the corresponding protocol provider off icq
-
-        //uninstall the account
     }
 
     /**

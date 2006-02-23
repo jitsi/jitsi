@@ -42,8 +42,9 @@ public class Activator
                     mclServiceImpl,
                     hashtable);
 
-        logger.debug("Service Impl: " + getClass().getName() + " [REGISTERED]");
+        mclServiceImpl.start(context);
 
+        logger.debug("Service Impl: " + getClass().getName() + " [REGISTERED]");
     }
 
     /**

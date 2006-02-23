@@ -111,6 +111,21 @@ public class MetaContactImpl
     }
 
     /**
+     * Returns a string representation of this contact, containing most of its
+     * representative details.
+     *
+     * @return  a string representation of this contact.
+     */
+    public String toString()
+    {
+        StringBuffer buff = new StringBuffer("MetaContact[ DisplayName=")
+            .append(getDisplayName()).append("]");
+
+        return buff.toString();
+    }
+
+
+    /**
      * Returns a characteristic display name that can be used when including
      * this <tt>MetaContact</tt> in user interface.
      * @return a human readable String that represents this meta contact.

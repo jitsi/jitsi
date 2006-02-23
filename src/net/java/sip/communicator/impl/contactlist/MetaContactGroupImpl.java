@@ -184,6 +184,29 @@ public class MetaContactGroupImpl
     }
 
     /**
+     * Returns a String representation of this group and the contacts it
+     * contains (may turn out to be a relatively long string).
+     * @return a String representing this group and its child contacts.
+     */
+    public String toString()
+    {
+        StringBuffer buff = new StringBuffer("MetaContactGroup.");
+
+        buff.append(getGroupName());
+        buff.append(", childContacts="+countChildContacts()+":[");
+
+        Iterator contacts = getChildContacts();
+        while (contacts.hasNext())
+        {
+            MetaContactImpl contact = (MetaContactImpl) contacts.next();
+            buff.append(contact.toString());
+            if(contacts.hasNext())
+                buff.append(", ");
+        }
+        return buff.append("]").toString();
+    }
+
+    /**
      * Verifies whether a protocol specific ContactGroup with the specified
      * name and originating from the specified provider is encapsulated by this
      * MetaContactGroup and if so returns it.

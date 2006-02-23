@@ -728,7 +728,7 @@ public class IcqTesterAgent
                 }
             }
             else
-                System.out.println("no extra info.");
+                logger.trace("no extra info.");
         }
 
         public void buddyOffline(BuddyService service, Screenname buddy)
