@@ -9,10 +9,16 @@ package net.java.sip.communicator.impl.gui.main.utils;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
 import net.java.sip.communicator.util.Logger;
 
@@ -471,6 +477,49 @@ public class ImageLoader {
 		return image;
 	}
 
+    /**
+     * Loads animated gif image.
+     */
+    
+    public static BufferedImage[] getAnimatedImage(ImageID imageID){
+        
+        String path = Images.getString(imageID.getId());
+        
+        URL  url = ImageLoader.class.getClassLoader()
+                        .getResource(path);
+        
+        Iterator readers = ImageIO.getImageReadersBySuffix("gif");
+        
+        ImageReader reader = (ImageReader) readers.next();
+              
+        ImageInputStream iis;
+        
+        BufferedImage[] images = null;
+        
+        try {
+            iis = ImageIO.createImageInputStream(url.openStream());
+            
+            reader.setInput(iis);
+            
+            final int numImages;
+            
+            numImages = reader.getNumImages(true);
+            
+            images = new BufferedImage[numImages];
+                       
+            for(int i=0; i<numImages; ++i) {
+                images[i] =  reader.read(i);            
+            }
+            
+        } catch (IOException e) {
+            log.error("Failed to load image:" + path, e);
+        } finally {
+            log.logExit();
+        }
+
+        return images;
+    }
+    
 	/**
 	 *  Represents the Image Identifier.
 	 */
