@@ -164,5 +164,4 @@ public class ContactIcqImpl
     {
         return ssclCallback.getParentProvider();
     }
-
 }
