@@ -6,14 +6,13 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="16px"
    height="16px"
    id="svg1313"
    sodipodi:version="0.32"
-   inkscape:version="0.42.2"
+   inkscape:version="0.43"
    sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/src"
    sodipodi:docname="moreInfo.svg">
   <defs
@@ -40,27 +39,28 @@
          offset="1.0000000"
          id="stop7010" />
     </linearGradient>
-    <radialGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient7006"
-       id="radialGradient1337"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.960188,1.020581,-1.083150,0.787034,162.7926,-55.49827)"
-       cx="85.434807"
-       cy="148.08812"
-       fx="85.434807"
-       fy="148.08812"
-       r="4.2038088" />
     <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient7006"
-       id="linearGradient1341"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.707898,0.000000,0.000000,0.381771,-65.67867,-46.12566)"
-       x1="102.08191"
-       y1="148.02791"
-       x2="108.17109"
-       y2="148.02791" />
+       id="linearGradient5925">
+      <stop
+         style="stop-color:#ff8400;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop5927" />
+      <stop
+         id="stop5929"
+         offset="1.0000000"
+         style="stop-color:#ffc768;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5918">
+      <stop
+         id="stop5920"
+         offset="0.0000000"
+         style="stop-color:#143e7b;stop-opacity:1.0000000;" />
+      <stop
+         id="stop5922"
+         offset="1.0000000"
+         style="stop-color:#93aacc;stop-opacity:0.65486723;" />
+    </linearGradient>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -92,7 +92,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer">
     <rect
-       style="opacity:1.0000000;fill:url(#linearGradient1341);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#143e7b;stroke-width:0.34720781;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       style="opacity:1.0000000;fill:#37609b;fill-opacity:1;fill-rule:nonzero;stroke:#143e7b;stroke-width:0.34720781;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
        id="rect33516"
        width="2.7695508"
        height="4.9787350"
@@ -104,7 +104,7 @@
        inkscape:export-ydpi="90.000000" />
     <path
        sodipodi:type="arc"
-       style="opacity:1.0000000;fill:url(#radialGradient1337);fill-opacity:1.0000000;fill-rule:nonzero;stroke:#143e7b;stroke-width:0.75817871;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       style="opacity:1.0000000;fill:#37609b;fill-opacity:1;fill-rule:nonzero;stroke:#143e7b;stroke-width:0.75817871;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
        id="path33520"
        sodipodi:cx="85.999420"
        sodipodi:cy="148.24525"
