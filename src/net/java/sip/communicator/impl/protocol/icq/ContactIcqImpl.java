@@ -151,7 +151,9 @@ public class ContactIcqImpl
      */
     public String getAlias()
     {
-        return joustSimBuddy.getAlias();
+        //temporarily return the uin as we don't have alias support in joust
+        //sim right now.
+        return getUIN();
     }
 
     /**
