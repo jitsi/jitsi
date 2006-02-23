@@ -31,8 +31,6 @@ public class MessageSendPanel extends JPanel implements ActionListener {
 
 	private JButton sendButton = new JButton(Messages.getString("send"));
 	
-	private StatusSelectorBox protocolSelectorBox = new StatusSelectorBox();
-
 	private JPanel statusPanel = new JPanel();
 	
 	private JPanel sendPanel = new JPanel(new BorderLayout(3, 0));
@@ -52,7 +50,7 @@ public class MessageSendPanel extends JPanel implements ActionListener {
 		this.statusPanel.add(statusLabel);
 						
 		this.sendPanel.add(sendButton, BorderLayout.CENTER);
-		this.sendPanel.add(protocolSelectorBox, BorderLayout.WEST);
+		//this.sendPanel.add(protocolSelectorBox, BorderLayout.WEST);
 
 		this.add(statusPanel, BorderLayout.CENTER);
 		this.add(sendPanel, BorderLayout.EAST);
@@ -103,8 +101,9 @@ public class MessageSendPanel extends JPanel implements ActionListener {
 		
 		for(int i = 0; i < protocolList.length; i ++){
 			
-			protocolSelectorBox.addItem(protocolList[i], 
+		/*	protocolSelectorBox.addItem(protocolList[i], 
 						new ImageIcon(Constants.getProtocolIcon(protocolList[i])));
+                        */
 		}
 		
 	}
