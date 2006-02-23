@@ -31,6 +31,7 @@ import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.service.protocol.OperationSetPersistentPresence;
 import net.java.sip.communicator.service.protocol.OperationSetPresence;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusChangeEvent;
 import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusListener;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
@@ -66,6 +67,10 @@ public class MainFrame extends JFrame {
     
 	private Dimension minimumFrameSize = new Dimension(
 			Constants.MAINFRAME_MIN_WIDTH, Constants.MAINFRAME_MIN_HEIGHT);
+    
+    private ProtocolProviderService protocolProvider;
+    
+    private OperationSetPresence presence;
 
 	public MainFrame(User user, ContactList contactList) {
 		
@@ -76,7 +81,7 @@ public class MainFrame extends JFrame {
 		callPanel = new CallPanel(this);
 		tabbedPane = new MainTabbedPane(this);
 		quickMenu = new QuickMenu(this);
-		statusPanel = new StatusPanel(user.getProtocols());
+		statusPanel = new StatusPanel(this, user.getProtocols());
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setInitialBounds();
@@ -164,22 +169,24 @@ public class MainFrame extends JFrame {
             Object key = entry.getKey();
             Object value = entry.getValue();        
             
-            if(key.equals(OperationSetPersistentPresence.class.getName())){
+            if(key.equals(OperationSetPersistentPresence.class.getName())
+                    || key.equals(OperationSetPresence.class.getName())){
 
-                OperationSetPersistentPresence persistentPresence 
-                    = (OperationSetPersistentPresence)value;
+                OperationSetPresence presence 
+                    = (OperationSetPresence)value;
                 
-                this.statusPanel.setPresence(persistentPresence);
-            
-                persistentPresence
+                presence
                     .addProviderPresenceStatusListener
                         (new ProviderPresenceStatusAdapter());
-                                
-                try {
-                    
-                    persistentPresence
+                
+                this.setPresence(presence);
+                
+                try {   
+                    presence
                         .publishPresenceStatus(IcqStatusEnum.ONLINE, "");                    
-                                       
+                     
+                    this.getStatusPanel().stopConnecting(Constants.ICQ);
+                    
                     this.statusPanel.setSelectedStatus
                         (Constants.ICQ, Constants.ONLINE_STATUS);
                         
@@ -214,5 +221,22 @@ public class MainFrame extends JFrame {
 
     public StatusPanel getStatusPanel() {
         return statusPanel;
+    }
+
+    public ProtocolProviderService getProtocolProvider() {
+        return protocolProvider;
+    }
+
+    public void setProtocolProvider(
+            ProtocolProviderService protocolProvider) {
+        this.protocolProvider = protocolProvider;
+    }
+
+    public OperationSetPresence getPresence() {
+        return presence;
+    }
+
+    public void setPresence(OperationSetPresence presence) {
+        this.presence = presence;
     }
 }

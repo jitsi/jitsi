@@ -14,6 +14,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
@@ -28,10 +29,12 @@ public class StatusPanel extends JPanel {
     
 	private Hashtable protocolStatusCombos = new Hashtable();
     
-    private OperationSetPresence presence;
+    private MainFrame mainFrame;
     
-	public StatusPanel(String[] userProtocols) {
+	public StatusPanel(MainFrame mainFrame, String[] userProtocols) {
 
+        this.mainFrame = mainFrame;
+        
 		this.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 
 		this.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
@@ -51,6 +54,7 @@ public class StatusPanel extends JPanel {
 
 			StatusSelectorBox protocolStatusCombo 
                 = new StatusSelectorBox(
+                    this.mainFrame,
 					protocolStatusMap, 
                     (Image)protocolStatusMap.get(Constants.OFFLINE_STATUS));
 
@@ -69,12 +73,13 @@ public class StatusPanel extends JPanel {
         StatusSelectorBox selectorBox
             = (StatusSelectorBox)protocolStatusCombos.get(protocol);
         
-        selectorBox.setIconImage((Image)protocolStatusMap.get(status));
+        selectorBox.setIcon(new ImageIcon(
+                (Image)protocolStatusMap.get(status)));
         
         selectorBox.repaint();
     }
     
-    public void setConnecting(String protocol){
+    public void startConnecting(String protocol){
         
         Map protocolStatusMap = Constants
             .getProtocolStatusIcons(protocol);
@@ -82,11 +87,22 @@ public class StatusPanel extends JPanel {
         StatusSelectorBox selectorBox
             = (StatusSelectorBox)protocolStatusCombos.get(protocol);
         
-        selectorBox.setIconImage(ImageLoader.getImage(ImageLoader.ICQ_CONNECTING));
+        selectorBox.startConnecting(ImageLoader
+                .getAnimatedImage(ImageLoader.ICQ_CONNECTING));
         
         selectorBox.repaint();
     }
 
+    public void stopConnecting(String protocol){
+        
+        StatusSelectorBox selectorBox
+            = (StatusSelectorBox)protocolStatusCombos.get(protocol);
+        
+        selectorBox.stopConnecting();
+        
+        selectorBox.repaint();
+    }
+    
     public Hashtable getProtocolStatusCombos() {
         return protocolStatusCombos;
     }
@@ -95,21 +111,12 @@ public class StatusPanel extends JPanel {
             Hashtable protocolStatusCombos) {
         this.protocolStatusCombos = protocolStatusCombos;
     }
-
-    public OperationSetPresence getPresence() {
-        return presence;
+    
+    public MainFrame getMainFrame() {
+        return mainFrame;
     }
 
-    public void setPresence(OperationSetPresence presence) {
-        this.presence = presence;
-        
-        Enumeration statusCombos 
-            = this.getProtocolStatusCombos().elements();
-        
-        while(statusCombos.hasMoreElements()){
-            
-            ((StatusSelectorBox)statusCombos.nextElement())
-                .setPresence(presence);
-        }
+    public void setMainFrame(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
     }
 }

@@ -8,10 +8,17 @@
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -19,42 +26,73 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.Activator;
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedPopupMenu;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.service.protocol.OperationSetPresence;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
+import net.java.sip.communicator.util.Logger;
 
-public class StatusSelectorBox extends SIPCommButton
-    implements ActionListener{
+public class StatusSelectorBox extends JLabel
+    implements MouseListener {
 
     private AntialiasedPopupMenu popup;
 
     private Map itemsMap;
     
-    private OperationSetPresence presence;
+    private Logger logger = Logger.getLogger(Activator.class.getName());
     
-    public StatusSelectorBox() {
+    private MainFrame mainFrame;
+    
+    private BufferedImage[] animatedImageArray;
+    
+    private Image backgroundImage = ImageLoader
+        .getImage(ImageLoader.STATUS_SELECTOR_BOX);
+    
+    private Connecting connecting = new Connecting();
+    
+    public StatusSelectorBox(MainFrame mainFrame) {
         
-        super(  ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
-                ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
-                null);
+        this.setPreferredSize(new Dimension(
+                                this.backgroundImage.getWidth(this),
+                                this.backgroundImage.getHeight(this)));
+        
+        this.setVerticalAlignment(JLabel.CENTER);
+        
+        this.setHorizontalAlignment(JLabel.CENTER);
+        
+        this.mainFrame = mainFrame;
         
         this.popup = new AntialiasedPopupMenu();
         
         this.popup.setInvoker(this);
         
-        //this.addActionListener(this);
+        this.addMouseListener(this);
     }
     
-    public StatusSelectorBox(Map itemsMap, Image selectedItem) {
+    public StatusSelectorBox(   MainFrame mainFrame, 
+                                Map itemsMap, 
+                                Image selectedItem) {
        
-        super(  ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
-                ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX),
-                selectedItem);
+        this.setPreferredSize(new Dimension(
+                this.backgroundImage.getWidth(this),
+                this.backgroundImage.getHeight(this)));
+       
+        this.setVerticalAlignment(JLabel.CENTER);
+        
+        this.setHorizontalAlignment(JLabel.CENTER);
+        
+        this.setIcon(new ImageIcon(selectedItem));
+        
+        this.mainFrame = mainFrame;
         
         this.itemsMap = itemsMap;
         
@@ -62,11 +100,11 @@ public class StatusSelectorBox extends SIPCommButton
         
         this.popup.setInvoker(this);
         
-        this.addActionListener(this);
+        this.addMouseListener(this);
         
         this.init();
     }
-
+    
     public void init() {
 
         Iterator iter = itemsMap.entrySet().iterator();
@@ -80,7 +118,7 @@ public class StatusSelectorBox extends SIPCommButton
                     (((IcqStatusEnum)entry.getKey()).getStatusName(), 
                      new ImageIcon((Image)entry.getValue()));
             
-            item.addActionListener(this);
+            item.addActionListener(new ItemActionListener());
             
             this.popup.add(item);
         
@@ -91,59 +129,124 @@ public class StatusSelectorBox extends SIPCommButton
         
         JMenuItem item = new JMenuItem( text, icon);
 
-        item.addActionListener(this);
+        item.addActionListener(new ItemActionListener());
 
         this.popup.add(item);
     }
     
-    public void actionPerformed (ActionEvent e) {
+    private class ItemActionListener implements ActionListener{
         
-        if (e.getSource() instanceof SIPCommButton){
-    
-            if (!this.popup.isVisible()) {
-                this.popup.setLocation(this.calculatePopupLocation());
-                this.popup.setVisible(true);            
-            }       
-        }
-        else if (e.getSource() instanceof JMenuItem){
+        public void actionPerformed (ActionEvent e) {
             
-            JMenuItem menuItem = (JMenuItem) e.getSource();            
-                   
-            Iterator statusSet = this.presence.getSupportedStatusSet();
-            
-            while (statusSet.hasNext()){
+            if (e.getSource() instanceof JMenuItem){
                 
-                PresenceStatus status 
-                    = ((PresenceStatus)statusSet.next());
+                JMenuItem menuItem = (JMenuItem) e.getSource();            
+                       
+                Iterator statusSet = mainFrame.getPresence().getSupportedStatusSet();
                 
-                if(status.getStatusName().equals(menuItem.getText())
-                        && !this.presence.getPresenceStatus().equals(status)){
+                while (statusSet.hasNext()){
                     
-                    try {
-                        if(!status.equals(IcqStatusEnum.OFFLINE))
-                            this.presence.publishPresenceStatus(status, "");
+                    PresenceStatus status 
+                        = ((PresenceStatus)statusSet.next());
                     
-                    } catch (IllegalArgumentException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    } catch (IllegalStateException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    } catch (OperationFailedException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
-                    
-                    break;
-                }
-                
+                    if(status.getStatusName().equals(menuItem.getText())
+                            && !mainFrame.getPresence().getPresenceStatus()
+                                .equals(status)){
+                        
+                        try {
+                            
+                            if(status.equals(IcqStatusEnum.ONLINE)){
+                                
+                                if(mainFrame.getProtocolProvider()
+                                        .isRegistered()){
+                                  
+                                    mainFrame.getPresence()
+                                            .publishPresenceStatus(status, "");
+                                }
+                                else{
+                                    mainFrame.getProtocolProvider()
+                                        .register(null);                                
+                                }
+                            }
+                            else if(status.equals(IcqStatusEnum.OFFLINE)){
+                                
+                                mainFrame.getProtocolProvider().unregister();
+                                
+                            }
+                            else {                      
+                                
+                                mainFrame.getPresence()
+                                        .publishPresenceStatus(status, "");
+                            }                    
+                        } catch (IllegalArgumentException e1) {
+                            
+                            logger.error("Error - changing status", e1);
+                            
+                        } catch (IllegalStateException e1) {
+                            
+                            logger.error("Error - changing status", e1);
+                            
+                        } catch (OperationFailedException e1) {
+                            
+                            if(e1.getErrorCode() 
+                                    == OperationFailedException.GENERAL_ERROR){
+                            
+                                JOptionPane.showMessageDialog(
+                                        null,
+                                        Messages.getString
+                                            ("statusChangeGeneralError"),
+                                        Messages.getString
+                                            ("generalError"),                                        
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                            else if(e1.getErrorCode()
+                                    == OperationFailedException.NETWORK_FAILURE){
+                                
+                                JOptionPane.showMessageDialog(
+                                        null,
+                                        Messages.getString
+                                            ("statusChangeNetworkFailure"),
+                                        Messages.getString
+                                            ("networkFailure"), 
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                            else if(e1.getErrorCode()
+                                    == OperationFailedException
+                                           .PROVIDER_NOT_REGISTERED){
+                                
+                                JOptionPane.showMessageDialog(
+                                        null,                                         
+                                        Messages.getString
+                                            ("statusChangeNetworkFailure"),
+                                        Messages.getString
+                                            ("networkFailure"),
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                            
+                            logger.error("Error - changing status", e1);
+                        }                        
+                        break;
+                    }                
+                }                
+                setIcon(menuItem.getIcon());
             }
-            
-            this.setIconImage(((ImageIcon)menuItem.getIcon()).getImage());
-        }
+        } 
     }
-   
-   
+    
+    public void startConnecting(BufferedImage[] images){
+        
+        this.animatedImageArray = images;
+        
+        this.setIcon(new ImageIcon(images[0]));
+        
+        this.connecting.start();
+    }
+    
+    public void stopConnecting(){
+        
+        this.connecting.stop();
+    }
+    
     public Point calculatePopupLocation(){
         
         Component component = this;
@@ -163,13 +266,66 @@ public class StatusSelectorBox extends SIPCommButton
         point.y = y + this.getHeight();
         
         return point;
+    }   
+    
+    protected void paintComponent(Graphics g){
+        
+        AntialiasingManager.activateAntialiasing(g);
+                
+        g.drawImage(this.backgroundImage, 0, 0, this);
+        
+        super.paintComponent(g);
     }
 
-    public OperationSetPresence getPresence() {
-        return presence;
+    public void mouseClicked(MouseEvent e) {
+            
+        if (!this.popup.isVisible()) {
+            this.popup.setLocation(calculatePopupLocation());
+            this.popup.setVisible(true);            
+        }
     }
 
-    public void setPresence(OperationSetPresence presence) {
-        this.presence = presence;
+    public void mouseEntered(MouseEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void mouseExited(MouseEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void mousePressed(MouseEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void mouseReleased(MouseEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    
+    private class Connecting extends Timer {
+         
+        public Connecting(){      
+            
+            super(100, null);
+            
+            this.addActionListener(new TimerActionListener());
+        }
+        
+        private class TimerActionListener implements ActionListener {
+            
+            int j = 1;
+            
+            public void actionPerformed(ActionEvent evt) {
+                
+                StatusSelectorBox.this.setIcon(new ImageIcon(animatedImageArray[j]));
+                j = (j+1) % animatedImageArray.length;
+                
+            }
+            
+        }
     }
 }
