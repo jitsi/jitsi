@@ -7,9 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.main.login;
 
-import java.awt.Frame;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
@@ -21,17 +19,12 @@ import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.AccountManager;
 import net.java.sip.communicator.service.protocol.AccountProperties;
-import net.java.sip.communicator.service.protocol.OperationFailedException;
-import net.java.sip.communicator.service.protocol.OperationSetPersistentPresence;
-import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.ProtocolNames;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.RegistrationState;
 import net.java.sip.communicator.service.protocol.SecurityAuthority;
 import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeEvent;
 import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeListener;
-import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
-import net.java.sip.communicator.slick.protocol.icq.IcqSlickFixture;
 import net.java.sip.communicator.util.Logger;
 
 import org.osgi.framework.BundleContext;
@@ -69,7 +62,7 @@ public class LoginManager implements RegistrationStateChangeListener {
             
         } catch (InvalidSyntaxException e) {
             
-            logger.error("Login : " + e.getMessage());
+            logger.error("LoginManager : " + e.getMessage());
         }
         
         this.accountManager 
@@ -96,13 +89,12 @@ public class LoginManager implements RegistrationStateChangeListener {
                         ProtocolProviderService.class.getName(),
                         osgiFilter);
         } catch (InvalidSyntaxException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            
+            this.logger.error("LoginManager: " + e.getMessage());
         }
         
         icqProtocolProvider 
-            = (ProtocolProviderService)this.bc.getService(serRefs[0]);
-              
+            = (ProtocolProviderService)this.bc.getService(serRefs[0]);              
         
         icqProtocolProvider.addRegistrationStateChangeListener(this);
       
@@ -127,28 +119,48 @@ public class LoginManager implements RegistrationStateChangeListener {
     public void registrationStateChanged(RegistrationStateChangeEvent evt) {
        
         if(evt.getNewState().equals(RegistrationState.REGISTERED)){
-                        
+            
             Map supportedOpSets 
                 = icqProtocolProvider.getSupportedOperationSets();
             
+            this.mainFrame.setProtocolProvider(icqProtocolProvider);
+            
             this.mainFrame.setSupportedOperationSets(supportedOpSets);
-        }
+            
+        }        
         else if(evt.getNewState()
                     .equals(RegistrationState.AUTHENTICATION_FAILED)){
             
-            JOptionPane.showMessageDialog(this.mainFrame,
+            this.mainFrame.getStatusPanel().stopConnecting(Constants.ICQ);
+            
+            this.mainFrame.getStatusPanel().setSelectedStatus(Constants.ICQ,
+                    Constants.OFFLINE_STATUS);
+            
+            JOptionPane.showMessageDialog(null,
                     Messages.getString("authenticationFailed"), 
                     Messages.getString("authenticationFailed"),
-                    JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.ERROR_MESSAGE);            
+            
+            this.showLoginWindow(this.mainFrame);
         }
         else if(evt.getNewState()
                     .equals(RegistrationState.CONNECTION_FAILED)){
             
-            JOptionPane.showMessageDialog(this.mainFrame,
-                    Messages.getString("connectionFailed"), 
+            this.mainFrame.getStatusPanel().stopConnecting(Constants.ICQ);
+            
+            this.mainFrame.getStatusPanel().setSelectedStatus(Constants.ICQ,
+                    Constants.OFFLINE_STATUS);
+            
+            JOptionPane.showMessageDialog(null,                    
+                    Messages.getString("connectionFailedMessage"), 
                     Messages.getString("connectionFailed"),
                     JOptionPane.ERROR_MESSAGE);
         }
+        else if(evt.getNewState()
+                    .equals(RegistrationState.EXPIRED)){
+            
+            //TODO: Registration state changed listener: EXPIRED
+        }        
     }
 
     public MainFrame getMainFrame() {

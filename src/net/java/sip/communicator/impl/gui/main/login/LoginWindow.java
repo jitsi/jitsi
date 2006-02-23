@@ -27,6 +27,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommPasswordField;
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTextField;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
@@ -42,9 +44,9 @@ public class LoginWindow extends JDialog
     
     private JLabel protocolLabel = new JLabel(Messages.getString("protocol"));
 
-	private JTextField uinTextField = new JTextField(15);
+	private SIPCommTextField uinTextField = new SIPCommTextField(15);
 
-	private JPasswordField passwdField = new JPasswordField(15);
+	private SIPCommPasswordField passwdField = new SIPCommPasswordField(15);
     
     private JComboBox protocolCombo = new JComboBox();
 
@@ -52,9 +54,9 @@ public class LoginWindow extends JDialog
     
     private JButton cancelButton = new JButton(Messages.getString("cancel"));
     
-	private JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 5, 5));
+	private JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 8, 8));
 
-	private JPanel textFieldsPanel = new JPanel(new GridLayout(0, 1, 5, 5));
+	private JPanel textFieldsPanel = new JPanel(new GridLayout(0, 1, 8, 8));
 
 	private JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
     
@@ -122,7 +124,8 @@ public class LoginWindow extends JDialog
                 
         this.loginButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
-     
+        
+        this.getRootPane().setDefaultButton(loginButton);
 	}
 
     private void setTransparent(boolean transparent){
@@ -170,7 +173,7 @@ public class LoginWindow extends JDialog
         
         if(buttonName.equals("login")){
             
-            this.mainFrame.getStatusPanel().setConnecting(Constants.ICQ);
+            this.mainFrame.getStatusPanel().startConnecting(Constants.ICQ);
             
             this.loginManager.login(uinTextField.getText(),
                                     new String(passwdField.getPassword()));
