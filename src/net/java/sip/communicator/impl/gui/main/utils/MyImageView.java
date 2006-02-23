@@ -116,8 +116,9 @@ public class MyImageView extends View implements ImageObserver {
 	            		            		            	
 	            	//fImage = Toolkit.getDefaultToolkit().createImage(src);
 	            	try {
-	            		fImage = ImageIO.read(Constants.class.getResource(src));
-	            	
+	            		fImage = ImageIO.read(ImageLoader.class
+                                .getClassLoader().getResource(src));
+	            	    
 		            	try { waitForImage(); }
 		            	catch (InterruptedException e) { fImage = null; }
 		            	
