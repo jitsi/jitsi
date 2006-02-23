@@ -1,26 +1,14 @@
 package net.java.sip.communicator.impl.gui;
 
-import java.util.Hashtable;
-
 import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.CommunicatorMain;
 import net.java.sip.communicator.impl.gui.main.login.LoginManager;
-import net.java.sip.communicator.impl.gui.main.login.LoginWindow;
 import net.java.sip.communicator.service.gui.UIService;
-import net.java.sip.communicator.service.protocol.AccountID;
-import net.java.sip.communicator.service.protocol.AccountManager;
-import net.java.sip.communicator.service.protocol.AccountProperties;
-import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.service.protocol.ProtocolNames;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
-import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeEvent;
-import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeListener;
 import net.java.sip.communicator.util.Logger;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 
 public class Activator implements BundleActivator
