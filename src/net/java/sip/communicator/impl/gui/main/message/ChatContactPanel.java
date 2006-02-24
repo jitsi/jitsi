@@ -8,7 +8,6 @@
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -17,16 +16,15 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
-import net.java.sip.communicator.impl.gui.main.ContactItem;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.service.contactlist.MetaContact;
 
 public class ChatContactPanel extends JPanel {
 	
@@ -54,12 +52,12 @@ public class ChatContactPanel extends JPanel {
 	private JPanel contactNamePanel 
 					= new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 	
-	private ContactItem contactItem;
+	private MetaContact contactItem;
 	
 	private boolean isMouseOver = false; 
 	private boolean isSelected = false;
 	
-	public ChatContactPanel(ContactItem contactItem){
+	public ChatContactPanel(MetaContact contactItem){
 		
 		super(new BorderLayout());
 	
@@ -79,10 +77,10 @@ public class ChatContactPanel extends JPanel {
 	
 	public void init(){
 		
-		this.personNameLabel.setText(contactItem.getNickName());
+		this.personNameLabel.setText(contactItem.getDisplayName());
 		this.personNameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
 		
-		this.personPhotoLabel.setIcon(new ImageIcon(contactItem.getPhoto()));
+		//this.personPhotoLabel.setIcon(new ImageIcon(contactItem.getPhoto()));
 		
 		this.buttonsPanel.add(callButton);
 		this.buttonsPanel.add(infoButton);

@@ -15,10 +15,9 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import net.java.sip.communicator.impl.gui.main.ContactItem;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.service.contactlist.MetaContact;
 
 public class ChatConferencePanel extends JPanel {
 	
@@ -59,7 +58,7 @@ public class ChatConferencePanel extends JPanel {
 		this.add(buttonPanel, BorderLayout.SOUTH);		
 	}
 	
-	public void addContactToChat (ContactItem contactItem){		
+	public void addContactToChat (MetaContact contactItem){		
 		
 		chatContactPanel = new ChatContactPanel(contactItem);
 				

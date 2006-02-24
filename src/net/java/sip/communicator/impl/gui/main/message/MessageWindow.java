@@ -14,10 +14,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
-import net.java.sip.communicator.impl.gui.main.ContactItem;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.service.contactlist.MetaContact;
 
 public class MessageWindow extends JFrame{
 	
@@ -86,20 +85,20 @@ public class MessageWindow extends JFrame{
 		this.getContentPane().add(messagePane);		
 	}
 	
-	public void addContactToChat (ContactItem contactItem){		
+	public void addContactToChat (MetaContact contactItem){		
 		
 		this.chatContacts.add(contactItem);
 		
 		this.chatConferencePanel.addContactToChat(contactItem);
 		
-		this.sendPanel.addProtocols(contactItem.getProtocolList());
+		//this.sendPanel.addProtocols(contactItem.getProtocolList());
 		
-		this.windowTitle += contactItem.getNickName() + " ";
+		this.windowTitle += contactItem.getDisplayName() + " ";
 		
 		this.setTitle(this.windowTitle);
 	}
 
-	public void removeContactFromChat (ContactItem contactItem){
+	public void removeContactFromChat (MetaContact contactItem){
 		this.chatContacts.remove(contactItem);
 	}
 	

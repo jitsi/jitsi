@@ -16,10 +16,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import net.java.sip.communicator.impl.gui.main.ContactItem;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.service.contactlist.MetaContact;
 
 public class HistoryWindow extends JFrame {	
 	
@@ -41,7 +41,7 @@ public class HistoryWindow extends JFrame {
 	
 	private Vector contacts;
 	
-	private ContactItem contactItem;
+	private MetaContact contactItem;
 	
 	String title = Messages.getString("history") + " - ";
 	
@@ -87,19 +87,19 @@ public class HistoryWindow extends JFrame {
 		
 		for (int i = 0; i < contacts.size(); i ++){
 			
-			ContactItem contact = (ContactItem)contacts.get(i);
+			MetaContact contact = (MetaContact)contacts.get(i);
 			
-			this.title += " " + contact.getNickName(); 
+			this.title += " " + contact.getDisplayName(); 
 		}
 		
 		this.setTitle(title);
 	}	
 	
-	public void setContact(ContactItem contact) {
+	public void setContact(MetaContact contact) {
 		
 		this.contactItem = contact;
 		
-		this.title += " " + contact.getNickName(); 
+		this.title += " " + contact.getDisplayName(); 
 				
 		this.setTitle(title);
 	}	
