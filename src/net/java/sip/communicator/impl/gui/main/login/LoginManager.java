@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.Activator;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.AccountManager;
 import net.java.sip.communicator.service.protocol.AccountProperties;
@@ -127,6 +128,14 @@ public class LoginManager implements RegistrationStateChangeListener {
             
             this.mainFrame.setSupportedOperationSets(supportedOpSets);
             
+            ServiceReference clistReference
+                = bc.getServiceReference(MetaContactListService.class.getName());
+
+            MetaContactListService contactListService
+                = (MetaContactListService)bc.getService(clistReference);
+            
+            this.mainFrame.setContactList(contactListService);
+        
         }        
         else if(evt.getNewState()
                     .equals(RegistrationState.AUTHENTICATION_FAILED)){

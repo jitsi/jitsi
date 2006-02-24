@@ -4,11 +4,13 @@ import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.CommunicatorMain;
 import net.java.sip.communicator.impl.gui.main.login.LoginManager;
+import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.gui.UIService;
 import net.java.sip.communicator.util.Logger;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 
 public class Activator implements BundleActivator
@@ -39,21 +41,13 @@ public class Activator implements BundleActivator
             //Create the ui service
             this.uiService =
                 new UIServiceImpl();
-
-            //ServiceReference clistReference
-            //= bundleContext.getServiceReference(MetaContactListService.class.getName());
-
-            //MetaContactListService contactListService
-            //= (MetaContactListService)bundleContext.getService(clistReference);
-
+            
             logger.info("UI Service...[  STARTED ]");
 
             bundleContext.registerService(
                     UIService.class.getName(), this.uiService, null);
 
-            logger.info("UI Service ...[REGISTERED]");
-
-            //communicatorMain.setContactList(contactListService);
+            logger.info("UI Service ...[REGISTERED]");            
 
             communicatorMain.showCommunicator();
           
