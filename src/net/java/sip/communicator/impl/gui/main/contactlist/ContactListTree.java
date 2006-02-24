@@ -8,6 +8,7 @@
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.Cursor;
+import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.JTree;
@@ -16,6 +17,8 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.java.sip.communicator.impl.gui.main.ui.SIPCommTreeUI;
+import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 
 public class ContactListTree extends JTree {
 	
@@ -89,8 +92,8 @@ public class ContactListTree extends JTree {
 	 * @return The added node.
 	 */
 	public ContactNode addChild(ContactNode parent,
-								            Object child,
-								            boolean shouldBeVisible) {
+					            Object child,
+					            boolean shouldBeVisible) {
 
 		ContactNode childNode =
 			new ContactNode(child);
@@ -105,4 +108,34 @@ public class ContactListTree extends JTree {
 		
 		return childNode;
 	}
+    
+	public void addAllContacts(ContactNode groupNode, MetaContactGroup group){
+        
+        if(group.countSubgroups() > 0){
+            
+            Iterator groups = group.getSubgroups();
+            
+            while(groups.hasNext()){
+                
+                MetaContactGroup subGroup = (MetaContactGroup)groups.next();
+                
+                ContactNode subGroupNode 
+                    = this.addChild(groupNode, subGroup, true);
+                                    
+                this.addAllContacts(subGroupNode, subGroup);                
+            }
+        } 
+        
+        if(group.countChildContacts() > 0 ){
+            
+            Iterator childContacts = group.getChildContacts();
+            
+            while(childContacts.hasNext()){
+                
+                MetaContact childContact = (MetaContact)childContacts.next();
+                
+                this.addChild(groupNode, childContact, true);
+            }
+        }
+    }
 }

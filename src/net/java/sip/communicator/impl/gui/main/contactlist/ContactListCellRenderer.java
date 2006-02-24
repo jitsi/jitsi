@@ -7,42 +7,30 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import gov.nist.javax.sip.parser.ContactParser;
-
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Stroke;
-import java.awt.Transparency;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
-import javax.swing.JWindow;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
 
-import net.java.sip.communicator.impl.gui.main.ContactItem;
-import net.java.sip.communicator.impl.gui.main.GroupItem;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
-import net.java.sip.communicator.impl.gui.main.customcontrols.TransparentBackground;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.contactlist.MetaContactGroup;
+import net.kano.joscar.ssiitem.GroupItem;
 
 public class ContactListCellRenderer extends JPanel 
 	implements TreeCellRenderer {
@@ -87,13 +75,13 @@ public class ContactListCellRenderer extends JPanel
 		
 		if(leaf){
 			
-			if (node.getUserObject() instanceof ContactItem) {
+			if (node.getUserObject() instanceof MetaContact) {
 							
-				ContactItem contactItem = (ContactItem) node.getUserObject();
+                MetaContact contactItem = (MetaContact) node.getUserObject();
 
-				this.nameLabel.setText(contactItem.getNickName());
+				this.nameLabel.setText(contactItem.getDisplayName());
 	
-				this.nameLabel.setIcon(contactItem.getUserIcon());
+				//this.nameLabel.setIcon(contactItem.getUserIcon());
 	
 				this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
 				
@@ -105,7 +93,7 @@ public class ContactListCellRenderer extends JPanel
 			} 
 		}
 		else{ 
-			if (node.getUserObject() instanceof GroupItem) {		
+			if (node.getUserObject() instanceof MetaContactGroup) {		
 
 				GroupItem groupItem = (GroupItem) node.getUserObject();
 					

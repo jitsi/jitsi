@@ -7,36 +7,18 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Point;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JWindow;
-import javax.swing.SwingUtilities;
 
-import net.java.sip.communicator.impl.gui.main.ContactItem;
 import net.java.sip.communicator.impl.gui.main.customcontrols.TransparentBackground;
-
-import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.service.contactlist.MetaContact;
 
 /**
  * @author Yana Stamcheva
@@ -49,11 +31,11 @@ public class ContactInfoPanel extends JDialog
 
 	private JPanel	protocolsPanel = new JPanel(new GridLayout(0, 1));
 	
-	private ContactItem contactItem;
+	private MetaContact contactItem;
 	
 	TransparentBackground bg;
 	
-	public ContactInfoPanel(Frame owner, ContactItem contactItem){		
+	public ContactInfoPanel(Frame owner, MetaContact contactItem){		
 		
 		super(owner);
 				
@@ -86,8 +68,8 @@ public class ContactInfoPanel extends JDialog
 	}
 	
 	private void init() {
-		
-		String[] protocolList = this.contactItem.getProtocolList();
+		/*
+		String[] protocolList = this.contactItem.getC();
 		
 		if(protocolsPanel.getComponentCount() == 0){
 			for(int i = 0; i < protocolList.length; i ++){
@@ -101,6 +83,7 @@ public class ContactInfoPanel extends JDialog
 		}
 					
 		this.bg.add(protocolsPanel, BorderLayout.CENTER);
+        */
 	}
 
 	public JPanel getProtocolsPanel() {

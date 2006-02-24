@@ -10,12 +10,10 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
 import java.util.Hashtable;
 
 import javax.swing.JButton;
@@ -24,17 +22,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import net.java.sip.communicator.impl.gui.main.ContactItem;
-import net.java.sip.communicator.impl.gui.main.ContactList;
 import net.java.sip.communicator.impl.gui.main.ContactRightButtonMenu;
-import net.java.sip.communicator.impl.gui.main.GroupItem;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.message.MessageWindow;
+import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
 
 /**
@@ -45,8 +40,12 @@ import net.java.sip.communicator.service.contactlist.MetaContactListService;
 public class ContactListPanel extends JScrollPane 
 	implements MouseListener {
 
-	private ContactList contactList;
+	private MetaContactListService contactList;
+    
+    private MetaContactGroup root;
 
+    private ContactNode rootNode;
+    
 	private MainFrame parent;
 
 	private ContactListTree contactListTree;
@@ -57,19 +56,8 @@ public class ContactListPanel extends JScrollPane
 
 	public ContactListPanel(MainFrame parent) {
 
-		this.parent = parent;
-
-		this.contactList = parent.getContactList();
-
-		this.contactListTree = new ContactListTree(new ContactNode(
-				new GroupItem("root")));
-
-		this.contactListTree.addMouseListener(this);
-
-		this.initTree();
-
-		this.treePanel.add(contactListTree, BorderLayout.NORTH);
-
+		this.parent = parent;        
+		
 		this.getViewport().add(treePanel);
 
 		this.treePanel.setBackground(Color.WHITE);
@@ -77,16 +65,18 @@ public class ContactListPanel extends JScrollPane
 
 	private void initTree() {
 
-		// TODO: To be removed!!!!
-		ContactNode generalGroup = (ContactNode) this.contactListTree
-				.addChild(new GroupItem("General"));
+	    this.root = this.contactList.getRoot();
+        
+        this.rootNode = new ContactNode(this.root);
+        
+        this.contactListTree = new ContactListTree(rootNode);
+        
+        this.contactListTree.addAllContacts(this.rootNode, root); 
+        
+        this.contactListTree.addMouseListener(this);
 
-		for (int i = 0; i < this.contactList.getAllContacts().size(); i++) {
+        this.treePanel.add(contactListTree, BorderLayout.NORTH);
 
-			this.contactListTree.addChild(generalGroup,
-					(ContactItem) this.contactList.getAllContacts().get(i),
-					true);
-		}
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -142,7 +132,7 @@ public class ContactListPanel extends JScrollPane
 					Component component = renderer.findComponentAt(translatedX,
 							translatedY);
 
-					ContactItem contactItem = (ContactItem) node
+					MetaContact contactItem = (MetaContact) node
 							.getUserObject();
 
 					if (component instanceof JLabel) {
@@ -189,9 +179,9 @@ public class ContactListPanel extends JScrollPane
 
 	private class RunMessageWindow implements Runnable {
 
-		private ContactItem contactItem;
+		private MetaContact contactItem;
 
-		private RunMessageWindow(ContactItem contactItem) {
+		private RunMessageWindow(MetaContact contactItem) {
 			this.contactItem = contactItem;
 		}
 
@@ -222,14 +212,15 @@ public class ContactListPanel extends JScrollPane
 		}
 	}
 	
+    
 	
 	private class RunInfoWindow implements Runnable {
 
-		private ContactItem contactItem;
+		private MetaContact contactItem;
 
 		private Point p;
 		
-		private RunInfoWindow(Point p, ContactItem contactItem) {
+		private RunInfoWindow(Point p, MetaContact contactItem) {
 		
 			this.p = p;
 			this.contactItem = contactItem;
@@ -250,4 +241,15 @@ public class ContactListPanel extends JScrollPane
 
 		}
 	}
+
+    public MetaContactListService getContactList() {
+        return contactList;
+    }
+
+    public void setContactList(MetaContactListService contactList) {
+        
+        this.contactList = contactList;
+        
+        this.initTree();
+    }
 }
