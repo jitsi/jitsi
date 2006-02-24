@@ -25,6 +25,7 @@ import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.MessageWindow;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.service.contactlist.MetaContact;
 
 public class ContactRightButtonMenu extends JPopupMenu implements
 		ActionListener {
@@ -61,11 +62,11 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 			Messages.getString("viewHistory"),
 			new ImageIcon(ImageLoader.getImage(ImageLoader.HISTORY_16x16_ICON)));
 
-	private ContactItem contactItem;
+	private MetaContact contactItem;
 
 	private MainFrame mainFrame;
 
-	public ContactRightButtonMenu(MainFrame mainFrame, ContactItem contactItem) {
+	public ContactRightButtonMenu(MainFrame mainFrame, MetaContact contactItem) {
 		super();
 
 		this.mainFrame = mainFrame;
@@ -174,7 +175,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 			MessageDialog warning = new MessageDialog(this.mainFrame);
 			
 			String message =  "<HTML>Are you sure you want to remove <B>"
-								+ this.contactItem.getNickName()
+								+ this.contactItem.getDisplayName()
 								+"</B><BR>from your contact list?</html>";
 			
 			warning.setMessage(message);

@@ -58,9 +58,7 @@ public class MainFrame extends JFrame {
 	private MainTabbedPane tabbedPane;
 
 	private QuickMenu quickMenu;
-
-	private ContactList contactList;
-
+	
 	private User user;
 
     private Map supportedOperationSets;
@@ -72,11 +70,9 @@ public class MainFrame extends JFrame {
     
     private OperationSetPresence presence;
 
-	public MainFrame(User user, ContactList contactList) {
-		
-		this.user = user;
+    private MetaContactListService contactList;
 
-		this.contactList = contactList;
+	public MainFrame(User user) {
 		
 		callPanel = new CallPanel(this);
 		tabbedPane = new MainTabbedPane(this);
@@ -121,14 +117,16 @@ public class MainFrame extends JFrame {
 		return callPanel;
 	}
 
-	public ContactList getContactList() {
+	public MetaContactListService getContactList() {
 		
 		return this.contactList;
 	}
 
-	public void setContactList(ContactList contactList) {
+	public void setContactList(MetaContactListService contactList) {
 		
 		this.contactList = contactList;
+        
+        this.tabbedPane.getContactListPanel().setContactList(contactList);
 	}
 
 	public User getUser() {

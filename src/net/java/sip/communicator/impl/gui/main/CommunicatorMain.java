@@ -10,7 +10,6 @@ package net.java.sip.communicator.impl.gui.main;
 import java.io.File;
 import java.net.MalformedURLException;
 
-import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
@@ -18,6 +17,7 @@ import javax.swing.plaf.metal.MetalTheme;
 
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.service.contactlist.MetaContactListService;
 
 import com.l2fprod.gui.plaf.skin.Skin;
 import com.l2fprod.gui.plaf.skin.SkinLookAndFeel;
@@ -33,7 +33,7 @@ public class CommunicatorMain {
 
     private MainFrame mainFrame;
 
-    // private MetaContactListService contactList;
+    private MetaContactListService contactList;
 
     public CommunicatorMain() {
 
@@ -41,56 +41,15 @@ public class CommunicatorMain {
 
         ConfigurationFrame configFrame = new ConfigurationFrame();
 
-        mainFrame = new MainFrame(this.getUser(),
-                getContactList());
+        mainFrame = new MainFrame(this.getUser());
 
         mainFrame.setConfigFrame(configFrame);
-
+        
         // In order to have the same icon when using option panes
         JOptionPane.getRootFrame().setIconImage(
                 ImageLoader.getImage(ImageLoader.SIP_LOGO));
     }
-
-    /**
-     * To be removed after the real contact list is implemented.
-     */
-    public ContactList getContactList() {
-
-        ContactList clist = new ContactList();
-
-        ContactItem citem1 = new ContactItem("Ivancho");
-        ContactItem citem2 = new ContactItem("Traiancho");
-        ContactItem citem3 = new ContactItem("Glupancho");
-
-        citem1.setUserIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.USER_ONLINE_ICON)));
-        citem2.setUserIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.USER_ONLINE_ICON)));
-        citem3.setUserIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.USER_ONLINE_ICON)));
-
-        citem1
-                .setPhoto(ImageLoader
-                        .getImage(ImageLoader.DEFAULT_CHAT_USER_PHOTO));
-        citem2
-                .setPhoto(ImageLoader
-                        .getImage(ImageLoader.DEFAULT_CHAT_USER_PHOTO));
-        citem3
-                .setPhoto(ImageLoader
-                        .getImage(ImageLoader.DEFAULT_CHAT_USER_PHOTO));
-
-        clist.addContact(citem1);
-        clist.addContact(citem2);
-        clist.addContact(citem3);
-
-        citem1.setProtocolList(new String[] { "SIP", "ICQ",
-                "MSN" });
-        citem2.setProtocolList(new String[] { "ICQ" });
-        citem3.setProtocolList(new String[] { "SIP", "ICQ",
-                "MSN" });
-
-        return clist;
-    }
+   
 
     public User getUser() {
 
@@ -213,11 +172,5 @@ public class CommunicatorMain {
     public MainFrame getMainFrame() {
         return mainFrame;
     }
-
-    /*
-     * public void setContactList(MetaContactListService contactList) {
-     * this.contactList = contactList;
-     * 
-     * this.mainFrame.setContactList(contactList); }
-     */
+    
 }
