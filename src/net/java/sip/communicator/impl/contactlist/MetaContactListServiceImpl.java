@@ -344,7 +344,7 @@ public class MetaContactListServiceImpl
      * like to synchronize with the local contact list.
      * @param provider the provider that the operation set belongs to.
      */
-    private void synchronizeOpSetWithServerContactList(
+    private void synchronizeOpSetWithLocalContactList(
                     ProtocolProviderService provider,
                     OperationSetPersistentPresence presenceOpSet)
     {
@@ -436,7 +436,7 @@ public class MetaContactListServiceImpl
         //If we have a persistent presence op set - then retrieve its contat
         //list and merge it with the local one.
         if( opSetPersPresence != null ){
-            synchronizeOpSetWithServerContactList(provider, opSetPersPresence);
+            synchronizeOpSetWithLocalContactList(provider, opSetPersPresence);
         }
         else
             logger.debug("Service did not have a pers. pres. op. set.");
