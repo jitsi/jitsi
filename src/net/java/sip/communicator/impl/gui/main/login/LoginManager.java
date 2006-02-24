@@ -127,15 +127,6 @@ public class LoginManager implements RegistrationStateChangeListener {
             this.mainFrame.setProtocolProvider(icqProtocolProvider);
             
             this.mainFrame.setSupportedOperationSets(supportedOpSets);
-            
-            ServiceReference clistReference
-                = bc.getServiceReference(MetaContactListService.class.getName());
-
-            MetaContactListService contactListService
-                = (MetaContactListService)bc.getService(clistReference);
-            
-            this.mainFrame.setContactList(contactListService);
-        
         }        
         else if(evt.getNewState()
                     .equals(RegistrationState.AUTHENTICATION_FAILED)){

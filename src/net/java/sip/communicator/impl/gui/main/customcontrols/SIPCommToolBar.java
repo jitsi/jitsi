@@ -12,13 +12,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 
 import net.java.sip.communicator.impl.gui.main.ui.SIPCommToolBarSeparatorUI;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 public class SIPCommToolBar extends JToolBar {

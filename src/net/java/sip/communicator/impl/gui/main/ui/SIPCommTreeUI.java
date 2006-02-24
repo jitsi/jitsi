@@ -8,14 +8,9 @@
 package net.java.sip.communicator.impl.gui.main.ui;
 
 import java.awt.Graphics;
-import java.awt.Insets;
-import java.awt.Rectangle;
 
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicTreeUI;
-import javax.swing.tree.TreePath;
-
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
 
 public class SIPCommTreeUI extends BasicTreeUI {
 

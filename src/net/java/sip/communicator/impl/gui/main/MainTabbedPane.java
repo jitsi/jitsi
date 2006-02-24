@@ -7,21 +7,14 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
-import java.awt.Color;
 import java.awt.Graphics;
-import java.util.Vector;
 
-import javax.swing.JButton;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.ListModel;
-import javax.swing.event.ListDataListener;
 
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
-import net.java.sip.communicator.service.contactlist.MetaContactListService;
 
 /**
  * @author Yana Stamcheva

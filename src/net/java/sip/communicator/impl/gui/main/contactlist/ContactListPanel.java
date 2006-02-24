@@ -25,7 +25,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import net.java.sip.communicator.impl.gui.main.ContactRightButtonMenu;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.message.MessageWindow;
 import net.java.sip.communicator.service.contactlist.MetaContact;
@@ -71,12 +70,9 @@ public class ContactListPanel extends JScrollPane
         
         this.contactListTree = new ContactListTree(rootNode);
         
-        this.contactListTree.addAllContacts(this.rootNode, root); 
-        
         this.contactListTree.addMouseListener(this);
 
         this.treePanel.add(contactListTree, BorderLayout.NORTH);
-
 	}
 
 	public void mouseClicked(MouseEvent e) {

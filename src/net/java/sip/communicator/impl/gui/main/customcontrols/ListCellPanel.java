@@ -9,15 +9,12 @@ package net.java.sip.communicator.impl.gui.main.customcontrols;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.Icon;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;

@@ -1,15 +1,18 @@
 package net.java.sip.communicator.impl.gui.main.customcontrols;
 
-import javax.swing.*;
+import java.awt.AWTException;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Window;
+import java.awt.image.BufferedImage;
+
+import javax.swing.JComponent;
 
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
-
-import java.awt.*;
-
-import java.awt.event.*;
-
-import java.awt.image.*;
 
 
 

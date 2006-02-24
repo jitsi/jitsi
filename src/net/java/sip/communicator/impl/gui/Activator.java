@@ -23,19 +23,23 @@ public class Activator implements BundleActivator
 
     private LoginManager	loginManager;
 
-    private BundleContext bundleContext;
-
-
+   
     public void start(BundleContext bundleContext) throws Exception
     {
-        this.bundleContext = bundleContext;
-
         this.loginManager = new LoginManager(bundleContext);
 
         this.loginManager.setMainFrame(communicatorMain.getMainFrame());
-        
+    
         try
         {
+            ServiceReference clistReference
+                = bundleContext.getServiceReference
+                    (MetaContactListService.class.getName());
+
+            MetaContactListService contactListService
+                = (MetaContactListService)bundleContext
+                    .getService(clistReference);
+        
             logger.logEntry();
 
             //Create the ui service
@@ -48,11 +52,14 @@ public class Activator implements BundleActivator
                     UIService.class.getName(), this.uiService, null);
 
             logger.info("UI Service ...[REGISTERED]");            
-
-            communicatorMain.showCommunicator();
+            
+           
+            this.communicatorMain.getMainFrame()
+                .setContactList(contactListService);
+            
+            this.communicatorMain.showCommunicator();
           
             SwingUtilities.invokeLater(new RunLogin());
-       
         }
         finally
         {

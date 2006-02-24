@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.main;
+package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.Component;
 import java.awt.Point;
@@ -13,10 +13,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenu;
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenuItem;
 import net.java.sip.communicator.impl.gui.main.customcontrols.MessageDialog;

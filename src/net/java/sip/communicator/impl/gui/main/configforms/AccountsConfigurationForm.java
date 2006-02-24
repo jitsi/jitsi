@@ -15,7 +15,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.gui.ConfigurationForm;
 

@@ -10,16 +10,10 @@ package net.java.sip.communicator.impl.gui.main.utils;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
-
-import net.java.sip.communicator.impl.gui.main.customcontrols.StatusIcon;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
-import net.java.sip.communicator.util.Logger;
 
 /**
  * @author Yana Stamcheva

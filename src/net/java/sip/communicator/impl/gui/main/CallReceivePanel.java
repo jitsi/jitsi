@@ -8,7 +8,6 @@
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
@@ -21,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 public class CallReceivePanel extends JDialog{

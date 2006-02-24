@@ -8,35 +8,18 @@
 package net.java.sip.communicator.impl.gui.main.configforms;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Vector;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.BevelBorder;
 
-import net.java.sip.communicator.impl.gui.main.configforms.AppearanceConfigurationForm;
-import net.java.sip.communicator.impl.gui.main.configforms.GeneralConfigurationForm;
-import net.java.sip.communicator.impl.gui.main.customcontrols.ListCellPanel;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommList;
 import net.java.sip.communicator.impl.gui.main.customcontrols.TitlePanel;
-import net.java.sip.communicator.impl.gui.main.message.MessageWindow;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.service.gui.ConfigurationContainer;

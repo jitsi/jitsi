@@ -12,12 +12,10 @@ import java.awt.FlowLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
-import javax.swing.JToolBar;
 
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 public class EditTextToolBar extends SIPCommToolBar {
 

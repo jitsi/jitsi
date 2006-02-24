@@ -12,16 +12,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenuItem;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.MessageWindow;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 public class FileMenu extends JMenu 
 	implements ActionListener{

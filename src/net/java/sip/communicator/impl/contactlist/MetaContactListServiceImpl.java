@@ -9,6 +9,9 @@ package net.java.sip.communicator.impl.contactlist;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusListener;
+import net.java.sip.communicator.service.protocol.event.SubscriptionListener;
+
 import java.util.*;
 import org.osgi.framework.*;
 import net.java.sip.communicator.util.Logger;
@@ -404,6 +407,11 @@ public class MetaContactListServiceImpl
 
             rootMetaGroup.addMetaContact(newMetaContact);
         }
+        
+        //presenceOpSet.addSubsciptionListener(
+        //      SubscriptionListener)
+        //presenceOpSet.addContactPresenceStatusListener(
+        //      ContactPresenceStatusListener)
     }
 
     /**

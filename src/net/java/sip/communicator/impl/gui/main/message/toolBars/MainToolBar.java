@@ -16,7 +16,6 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
-import javax.swing.JToolBar;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.MsgToolbarButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
@@ -24,7 +23,6 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
 import net.java.sip.communicator.impl.gui.main.message.MessageWindow;
 import net.java.sip.communicator.impl.gui.main.message.SmiliesSelectorBox;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 public class MainToolBar extends SIPCommToolBar 

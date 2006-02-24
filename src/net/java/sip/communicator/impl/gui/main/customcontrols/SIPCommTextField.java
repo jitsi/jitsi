@@ -8,11 +8,8 @@
 package net.java.sip.communicator.impl.gui.main.customcontrols;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.geom.RoundRectangle2D;
 
 import javax.swing.JTextField;
 

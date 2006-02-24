@@ -11,13 +11,11 @@ import java.awt.Graphics;
 
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenuItem;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 public class EditMenu extends JMenu {
 	

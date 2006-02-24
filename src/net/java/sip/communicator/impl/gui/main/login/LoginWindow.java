@@ -23,8 +23,6 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommPasswordField;
@@ -42,7 +40,7 @@ public class LoginWindow extends JDialog
 
 	private JLabel passwdLabel = new JLabel(Messages.getString("passwd"));
     
-    private JLabel protocolLabel = new JLabel(Messages.getString("protocol"));
+    //private JLabel protocolLabel = new JLabel(Messages.getString("protocol"));
 
 	private SIPCommTextField uinTextField = new SIPCommTextField(15);
 

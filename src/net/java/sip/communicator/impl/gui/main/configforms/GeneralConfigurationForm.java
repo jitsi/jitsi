@@ -7,7 +7,6 @@
 
 package net.java.sip.communicator.impl.gui.main.configforms;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -21,10 +20,8 @@ import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.gui.ConfigurationForm;
-import net.java.sip.communicator.service.gui.UIService;
 
 /**
  * @author Yana Stamcheva
