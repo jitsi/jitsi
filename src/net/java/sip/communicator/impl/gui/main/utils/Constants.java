@@ -10,9 +10,11 @@ package net.java.sip.communicator.impl.gui.main.utils;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 
+import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 
 /**
@@ -144,6 +146,26 @@ public class Constants {
 	public static final IcqStatusEnum DND_STATUS 
                                         = IcqStatusEnum.DO_NOT_DISTURB;
 
+	private static final Hashtable mainStatusSet =new Hashtable();
+    static{
+    	mainStatusSet.put(Constants.ONLINE_STATUS, 
+    			ImageLoader.getImage(ImageLoader.USER_ONLINE_ICON));
+    	mainStatusSet.put(Constants.OCCUPIED_STATUS, 
+    			ImageLoader.getImage(ImageLoader.USER_OCCUPIED_ICON));
+    	mainStatusSet.put(Constants.NA_STATUS, 
+    			ImageLoader.getImage(ImageLoader.USER_NA_ICON));
+    	mainStatusSet.put(Constants.DND_STATUS, 
+    			ImageLoader.getImage(ImageLoader.USER_DND_ICON));
+    	mainStatusSet.put(Constants.CHAT_STATUS, 
+    			ImageLoader.getImage(ImageLoader.USER_FFC_ICON));
+    	mainStatusSet.put(Constants.AWAY_STATUS, 
+    			ImageLoader.getImage(ImageLoader.USER_AWAY_ICON));
+    	mainStatusSet.put(Constants.OFFLINE_STATUS, 
+    			ImageLoader.getImage(ImageLoader.USER_OFFLINE_ICON));
+    	mainStatusSet.put(Constants.INVISIBLE_STATUS, 
+    			ImageLoader.getImage(ImageLoader.USER_ONLINE_ICON));
+    }
+
 	/*
 	 * =======================================================================
 	 * ------------------------ PROTOCOL NAMES -------------------------------
@@ -171,6 +193,9 @@ public class Constants {
 	 */
 
 	public static final int RIGHT_SHIFT_STATUS_ICON = 2;
+	
+	
+	
 
 	/**
 	 * Gets protocol logo
@@ -299,5 +324,8 @@ public class Constants {
 
 		return protocolStatusList;
 	}
-	
+
+	public static Image getStatusIcon(PresenceStatus status) {
+		return (Image)mainStatusSet.get(status);
+	}
 }

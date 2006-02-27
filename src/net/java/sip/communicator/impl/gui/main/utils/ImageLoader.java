@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -23,6 +24,8 @@ import net.java.sip.communicator.util.Logger;
 public class ImageLoader {
 
 	private static Logger log = Logger.getLogger(ImageLoader.class);
+    
+    private static Hashtable   loadedImages = new Hashtable();
 
 	public static final ImageID EMPTY_16x16_ICON
 											= new ImageID("EMPTY_16x16_ICON");
@@ -356,18 +359,36 @@ public class ImageLoader {
 											= new ImageID("SIP_CHAT_ICON");
 
 	/*
-	 * ========================================================================
-	 * ------------------------ USERS ICONS ---------------------------------
-	 * ========================================================================
+	 * =====================================================================
+	 * ------------------------ USERS ICONS --------------------------------
+	 * =====================================================================
 	 */
 
 	public static final ImageID USER_ONLINE_ICON
 											= new ImageID("USER_ONLINE_ICON");
 
-	/*
-	 * ========================================================================
-	 * ---------------------------- SMILIES ---------------------------------
-	 * ========================================================================
+    public static final ImageID USER_OFFLINE_ICON
+                                            = new ImageID("USER_OFFLINE_ICON");
+    
+    public static final ImageID USER_AWAY_ICON
+                                            = new ImageID("USER_AWAY_ICON");
+    
+    public static final ImageID USER_NA_ICON
+                                            = new ImageID("USER_NA_ICON");
+    
+    public static final ImageID USER_FFC_ICON
+                                            = new ImageID("USER_FFC_ICON");
+    
+    public static final ImageID USER_DND_ICON
+                                            = new ImageID("USER_DND_ICON");
+    
+    public static final ImageID USER_OCCUPIED_ICON
+                                            = new ImageID("USER_OCCUPIED_ICON");
+
+    /*
+	 * =====================================================================
+	 * ---------------------------- SMILIES --------------------------------
+	 * =====================================================================
 	 */
 
 	public static final ImageID SMILY1 = new ImageID("SMILY1");
@@ -449,30 +470,26 @@ public class ImageLoader {
 
 	public static Image getImage(ImageID imageID) {
 
-		String path = Images.getString(imageID.getId());
+        BufferedImage image = null;
+        
+        if(loadedImages.containsKey(imageID)){
+            
+            image = (BufferedImage)loadedImages.get(imageID);
+        }
+        else {
+            String path = Images.getString(imageID.getId());
 
-		BufferedImage image = null;
-
-		try {
-			log.logEntry();
-
-			if (log.isTraceEnabled()) {
-				log.trace("Loading image : " + path + "...");
-			}
-
-			image = ImageIO.read(ImageLoader.class.getClassLoader().getResource(path));
-
-			if (log.isTraceEnabled()) {
-				log.trace("Loading image : " + path + "... [ DONE ]");
-			}
-
-		} catch (IOException e) {
-			log.error("Failed to load image:" + path, e);
-		} finally {
-			log.logExit();
-		}
-
-		return image;
+            try {
+                image = ImageIO.read(ImageLoader.class.getClassLoader().getResource(path));
+                
+                loadedImages.put(imageID, image);
+                
+            } catch (IOException e) {
+                log.error("Failed to load image:" + path, e);
+            }
+        }
+		
+        return image;
 	}
 
     /**
