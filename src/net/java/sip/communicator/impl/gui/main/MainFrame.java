@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactNode;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
@@ -26,6 +27,8 @@ import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.service.protocol.OperationSetPersistentPresence;
 import net.java.sip.communicator.service.protocol.OperationSetPresence;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusChangeEvent;
+import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusListener;
 import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusChangeEvent;
 import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusListener;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
@@ -120,7 +123,7 @@ public class MainFrame extends JFrame {
 		
 		this.contactList = contactList;
         
-        this.tabbedPane.getContactListPanel().setContactList(contactList);
+        this.tabbedPane.getContactListPanel().initTree(contactList);
 	}
 
 	public User getUser() {
@@ -170,6 +173,9 @@ public class MainFrame extends JFrame {
                 presence
                     .addProviderPresenceStatusListener
                         (new ProviderPresenceStatusAdapter());
+                presence
+                    .addContactPresenceStatusListener
+                        (new ContactPresenceStatusAdapter());
                 
                 this.setPresence(presence);
                 
@@ -208,9 +214,22 @@ public class MainFrame extends JFrame {
             (PropertyChangeEvent evt) {           
             
         }
-    
     }
 
+    private class ContactPresenceStatusAdapter
+        implements ContactPresenceStatusListener {
+
+        public void contactPresenceStatusChanged(ContactPresenceStatusChangeEvent evt) {
+                    
+        	ContactNode node = tabbedPane.getContactListPanel().getContactListTree().contains(evt.getSourceContact());
+            System.out.println("=======================================" + node);
+        	if(node != null){                
+        		node.setIcon(Constants.getStatusIcon(evt.getNewStatus()));
+                tabbedPane.getContactListPanel().getContactListTree().repaint();
+        	}
+        }
+    }
+    
     public StatusPanel getStatusPanel() {
         return statusPanel;
     }
