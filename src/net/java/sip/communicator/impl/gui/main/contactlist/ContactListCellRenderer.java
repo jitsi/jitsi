@@ -73,15 +73,14 @@ public class ContactListCellRenderer extends JPanel
 		// Find out which node we are rendering and get its text
 		ContactNode node = (ContactNode) value;
 		
-		if(leaf){
-			
+		if(leaf){			
 			if (node.getUserObject() instanceof MetaContact) {
 							
                 MetaContact contactItem = (MetaContact) node.getUserObject();
 
 				this.nameLabel.setText(contactItem.getDisplayName());
 	
-				//this.nameLabel.setIcon(contactItem.getUserIcon());
+				this.nameLabel.setIcon(new ImageIcon(node.getIcon()));
 	
 				this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
 				
@@ -95,7 +94,7 @@ public class ContactListCellRenderer extends JPanel
 		else{ 
 			if (node.getUserObject() instanceof MetaContactGroup) {		
 
-				GroupItem groupItem = (GroupItem) node.getUserObject();
+				MetaContactGroup groupItem = (MetaContactGroup) node.getUserObject();
 					
 				this.nameLabel.setText(groupItem.getGroupName());
 	

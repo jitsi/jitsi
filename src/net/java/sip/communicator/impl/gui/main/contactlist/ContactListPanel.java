@@ -21,6 +21,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -38,13 +39,7 @@ import net.java.sip.communicator.service.contactlist.MetaContactListService;
  */
 public class ContactListPanel extends JScrollPane 
 	implements MouseListener {
-
-	private MetaContactListService contactList;
-    
-    private MetaContactGroup root;
-
-    private ContactNode rootNode;
-    
+       
 	private MainFrame parent;
 
 	private ContactListTree contactListTree;
@@ -60,19 +55,6 @@ public class ContactListPanel extends JScrollPane
 		this.getViewport().add(treePanel);
 
 		this.treePanel.setBackground(Color.WHITE);
-	}
-
-	private void initTree() {
-
-	    this.root = this.contactList.getRoot();
-        
-        this.rootNode = new ContactNode(this.root);
-        
-        this.contactListTree = new ContactListTree(rootNode);
-        
-        this.contactListTree.addMouseListener(this);
-
-        this.treePanel.add(contactListTree, BorderLayout.NORTH);
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -208,7 +190,6 @@ public class ContactListPanel extends JScrollPane
 		}
 	}
 	
-    
 	
 	private class RunInfoWindow implements Runnable {
 
@@ -237,15 +218,18 @@ public class ContactListPanel extends JScrollPane
 
 		}
 	}
-
-    public MetaContactListService getContactList() {
-        return contactList;
-    }
-
-    public void setContactList(MetaContactListService contactList) {
+   
+    public void initTree(MetaContactListService contactList) {
         
-        this.contactList = contactList;
+        this.contactListTree = new ContactListTree(contactList);
         
-        this.initTree();
+        this.contactListTree.addMouseListener(this);
+
+        this.treePanel.add(contactListTree, BorderLayout.NORTH);
     }
+    
+    public ContactListTree getContactListTree(){
+    	
+    	return this.contactListTree;
+    } 
 }
