@@ -440,18 +440,20 @@ public class ServerStoredContactListIcqImpl
      */
     void init(  SsiService joustSimSsiService,
                 OperationSetPersistentPresenceIcqImpl parentOperationSet,
+        
                 ProtocolProviderServiceIcqImpl icqProvider)
     {
+        //We need to keep this on top to ensure that the provider 
+        //and the operationsset would not be null in the incoming events.  
+        this.parentOperationSet = parentOperationSet;
+        
+        this.icqProvider = icqProvider;
+        
         this.jSimSsiService = joustSimSsiService;
         jSimSsiService.addItemChangeListener(jsimItemChangeListener);
-
+        
         this.buddyList = jSimSsiService.getBuddyList();
         buddyList.addRetroactiveLayoutListener(buddyListListener);
-
-        this.parentOperationSet = parentOperationSet;
-
-        this.icqProvider = icqProvider;
-
     }
 
     private class BuddyListListener
