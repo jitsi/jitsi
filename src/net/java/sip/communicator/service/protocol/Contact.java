@@ -37,7 +37,7 @@ public interface Contact
      * @return a String that can be used for referring to this contact when
      * interacting with the user.
      */
-    public String getAlias();
+    public String getDisplayName();
 
     /**
      * Returns a byte array containing an image (most often a photo or an avatar)

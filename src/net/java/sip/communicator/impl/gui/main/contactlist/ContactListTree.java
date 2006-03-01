@@ -212,8 +212,8 @@ public class ContactListTree extends JTree
 				
 				MetaContact currentContact = (MetaContact)node.getUserObject();
 				
-                if(currentContact.getDefaultContact().getAlias()
-						.equals(contact.getAlias())){
+                if(currentContact.getDefaultContact().getDisplayName()
+						.equals(contact.getDisplayName())){
                     
                     return node;
 				}
