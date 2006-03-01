@@ -1,6 +1,7 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
+ *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
@@ -36,7 +37,7 @@ public class MockProvider
     private MockPersistentPresenceOperationSet mockPresOpSet = null;
 
     /**
-     * Creates an instance of this mockprovider with a ttsupportedOperationSet-s
+     * Creates an instance of this mockprovider with a <tt>supportedOperationSet-s</tt>
      * map set to contain a single persistent presence operation set.
      */
     public MockProvider()
