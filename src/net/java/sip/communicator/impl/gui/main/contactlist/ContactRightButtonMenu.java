@@ -80,8 +80,8 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
 		// This feature is disabled until it's implemented
 		this.sendFileItem.setEnabled(false);
-
-		String[] userProtocols = mainFrame.getUser().getProtocols();
+/*
+		String[] userProtocols = contactItem.getProtocols();
 
 		for (int i = 0; i < userProtocols.length; i++) {
 
@@ -91,7 +91,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
 			this.addSubcontactMenu.add(protocolMenuItem);
 		}
-
+*/
 		this.add(sendMessageItem);
 		this.add(sendFileItem);
 
