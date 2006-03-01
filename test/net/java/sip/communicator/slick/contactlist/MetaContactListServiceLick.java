@@ -102,6 +102,8 @@ public class MetaContactListServiceLick
 
         logger.debug("Registerd a mock protocol provider!");
 
+        //store the created mock provider for later reference
+        MclSlickFixture.mockProvider = provider;
     }
 
     /**
@@ -128,7 +130,5 @@ public class MetaContactListServiceLick
         group1.addContact( new MockContact("Toto", provider) );
 
         root.addSubGroup(group1);
-
-
     }
 }

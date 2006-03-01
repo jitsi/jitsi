@@ -1,5 +1,7 @@
 package net.java.sip.communicator.slick.contactlist;
 
+import java.util.Hashtable;
+
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.slick.contactlist.mockprovider.*;
@@ -22,7 +24,14 @@ public class MclSlickFixture
      * OSGI bus.
      */
     public MetaContactListService metaClService = null;
-
+    
+    /**
+     * The provider that we use to make a dummy server-stored contactlist 
+     * used for testing. The mockProvider is instantiated and registered
+     * by the metacontactlist slick activator. 
+     */
+    public static MockProvider mockProvider = null;
+    
     public MclSlickFixture(Object obj)
     {
     }
