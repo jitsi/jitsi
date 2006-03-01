@@ -10,7 +10,7 @@ import java.util.EventListener;
 
 /**
  *
- * @author Emil Ivov
+ * @author Yana Stamcheva
  */
 public interface MetaContactListListener
     extends EventListener

@@ -14,7 +14,7 @@ import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
  *
- * @author Emil Ivov
+ * @author Yana Stamcheva
  */
 public class MetaContactEvent
     extends EventObject
