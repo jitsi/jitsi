@@ -179,4 +179,39 @@ public class MockContactGroup
     {
         return subGroups.iterator();
     }
+
+    /**
+     * Returns a String representation of this group and the contacts it
+     * contains (may turn out to be a relatively long string).
+     * @return a String representing this group and its child contacts.
+     */
+     public String toString()
+     {
+
+        StringBuffer buff = new StringBuffer(getGroupName());
+        buff.append(".subGroups=" + countSubGroups() + ":\n");
+
+        Iterator subGroups = subGroups();
+        while (subGroups.hasNext())
+        {
+            MockContactGroup group = (MockContactGroup)subGroups.next();
+            buff.append(group.toString());
+            if (subGroups.hasNext())
+                buff.append("\n");
+        }
+
+        buff.append("\nChildContacts="+countContacts()+":[");
+
+        Iterator contacts = contacts();
+        while (contacts.hasNext())
+        {
+            MockContact contact = (MockContact) contacts.next();
+            buff.append(contact.toString());
+            if(contacts.hasNext())
+                buff.append(", ");
+        }
+        return buff.append("]").toString();
+    }
+
 }
+

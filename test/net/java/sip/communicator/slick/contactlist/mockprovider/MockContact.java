@@ -46,7 +46,7 @@ public class MockContact
      * @return a String that can be used for referring to this contact when
      *   interacting with the user.
      */
-    public String getAlias()
+    public String getDisplayName()
     {
         return contactID;
     }
@@ -92,4 +92,19 @@ public class MockContact
     {
         return false;
     }
+
+    /**
+     * Returns a string representation of this contact, containing most of its
+     * representative details.
+     *
+     * @return  a string representation of this contact.
+     */
+    public String toString()
+    {
+        StringBuffer buff = new StringBuffer("MetaContact[ DisplayName=")
+            .append(getDisplayName()).append("]");
+
+        return buff.toString();
+    }
+
 }
