@@ -92,7 +92,7 @@ public class RootMetaContactGroupImpl
      * Returns the contact with the specified identifier
      *
      * @param metaContactID a String identifier obtained through the
-     *   <tt>MetaContact.getMetaContactID()</tt> method. <p>
+     *   <tt>MetaContact.getMetaUID()</tt> method. <p>
      * @return the <tt>MetaContact</tt> with the specified idnetifier.
      */
     public MetaContact getMetaContact(String metaContactID)
@@ -102,7 +102,7 @@ public class RootMetaContactGroupImpl
         {
             MetaContact contact = (MetaContact)contactsIter.next();
 
-            if (contact.getMetaContactID().equals(metaContactID))
+            if (contact.getMetaUID().equals(metaContactID))
                 return contact;
         }
 

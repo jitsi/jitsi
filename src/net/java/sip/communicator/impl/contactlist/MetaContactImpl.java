@@ -105,7 +105,7 @@ public class MetaContactImpl
      *
      * @return a String uniquely identifying this meta contact.
      */
-    public String getMetaContactID()
+    public String getMetaUID()
     {
         return uid;
     }

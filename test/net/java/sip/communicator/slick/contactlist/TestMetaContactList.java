@@ -28,10 +28,10 @@ public class TestMetaContactList
     MclSlickFixture fixture = new MclSlickFixture(getClass().getName());
 
     private static final Logger logger =
-        Logger.getLogger(TestOperationSetPersistentPresence.class);
-    
+        Logger.getLogger(TestMetaContactList.class);
+
     private OperationSetPersistentPresence opSetPersPresence;
-    
+
     /**
      * Creates a unit test with the specified name.
      * @param name the name of one of the test methods in this class.
@@ -85,50 +85,79 @@ public class TestMetaContactList
 
     /**
      * Verifies that the contacts retrieved by the meta contact list service,
-     * match those that were in the mock provider.
+     * matches the one that were in the mock provider.
      */
     public void testContactListRetrieving()
     {
-        ContactGroup root 
+        ContactGroup expectedRoot
             = opSetPersPresence.getServerStoredContactListRoot();
-    
+
         logger.debug("============== Predefined contact List ==============");
-        
-        logger.debug("rootGroup="+root.getGroupName()
-                +" rootGroup.childContacts="+root.countContacts()
-                + "rootGroup.childGroups="+root.countSubGroups()
-                + "Printing rootGroupContents=\n"+root.toString());
-    
-        MetaContactGroup expectedRoot = fixture.metaClService.getRoot();
+
+        logger.debug("rootGroup="+expectedRoot.getGroupName()
+                +" rootGroup.childContacts="+expectedRoot.countContacts()
+                + "rootGroup.childGroups="+expectedRoot.countSubGroups()
+                + " Printing rootGroupContents=\n"+expectedRoot.toString());
+
+        MetaContactGroup actualRoot = fixture.metaClService.getRoot();
 
         logger.debug("================ Meta Contact List =================");
 
-        logger.debug("rootGroup="+expectedRoot.getGroupName()
-                     +" rootGroup.childContacts="+expectedRoot.countChildContacts()
-                     + "rootGroup.childGroups="+expectedRoot.countSubgroups()
-                     + "Printing rootGroupContents=\n"+expectedRoot.toString());
-                
-        Iterator groups = root.subGroups();
-        while (groups.hasNext() ){
-            ContactGroup group = (ContactGroup)groups.next();
+        logger.debug("rootGroup="+actualRoot.getGroupName()
+                     +" rootGroup.childContacts="+actualRoot.countChildContacts()
+                     + " rootGroup.childGroups="+actualRoot.countSubgroups()
+                     + " Printing rootGroupContents=\n"+actualRoot.toString());
 
-            MetaContactGroup expectedGroup
-                = expectedRoot
-                    .getMetaContactSubgroup(group.getGroupName());
+        Iterator expectedSubgroups = expectedRoot.subGroups();
 
-            assertNotNull("Group " + group.getGroupName() + " was returned by "
-                          +"the server but was not in the expected contact list."
-                          , expectedGroup );
+        //loop over mock groups and check whether they've all been added
+        //to the meta contact list.
+        while (expectedSubgroups.hasNext() ){
+            ContactGroup expectedGroup = (ContactGroup)expectedSubgroups.next();
 
-            Iterator contactsIter = group.contacts();
-            while (contactsIter.hasNext()){
-                String contactID = ((Contact)contactsIter.next()).getAddress();
-                MetaContact expectedContact 
-                    = expectedGroup.getMetaContact(contactID);
-                
-                assertNotNull("Contact " + contactID + " was returned by "
-                        +"the server but was not in the expected contact list."
-                        , expectedContact );
+            MetaContactGroup actualGroup
+                = actualRoot
+                    .getMetaContactSubgroup(expectedGroup.getGroupName());
+
+            assertNotNull("Group " + expectedGroup.getGroupName() + " was "
+                      + "returned by the MetaContactListService implementation "
+                      + "but was not in the expected contact list."
+                      , actualGroup );
+
+            assertEquals("Group " + expectedGroup.getGroupName()
+                       + " did not have the expected number of member contacts"
+                       , expectedGroup.countContacts()
+                       , actualGroup.countChildContacts() );
+
+            assertEquals("Group " + expectedGroup.getGroupName()
+                       + " did not have the expected number of member contacts"
+                       , expectedGroup.countContacts()
+                       , actualGroup.countChildContacts() );
+            assertEquals("Group " + expectedGroup.getGroupName()
+                       + " did not have the expected number of sub groups"
+                       , expectedGroup.countSubGroups()
+                       , actualGroup.countSubgroups() );
+
+            Iterator actualContactsIter = actualGroup.getChildContacts();
+
+            //check whether every contact in the meta list exists in the source
+            //mock provider contact list.
+            while (actualContactsIter.hasNext()){
+                MetaContact actualMetaContact
+                    = (MetaContact)actualContactsIter.next();
+
+                Contact actualProtoContact
+                    = actualMetaContact.getContactForProvider(
+                                            MclSlickFixture.mockProvider);
+
+                Contact expectedProtoContact
+                    = expectedGroup.getContact(actualProtoContact.getAddress());
+
+                assertNotNull("Contact " + actualMetaContact.getDisplayName()
+                          + " was returned by "
+                          + "the MetaContactListService implementation but was "
+                          + "not in the expected contact list."
+                          , expectedProtoContact );
             }
         }
     }

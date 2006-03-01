@@ -149,7 +149,7 @@ public class ContactIcqImpl
      * @return a String that can be used for referring to this contact when
      * interacting with the user.
      */
-    public String getAlias()
+    public String getDisplayName()
     {
         //temporarily return the uin as we don't have alias support in joust
         //sim right now.
