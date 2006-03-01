@@ -21,13 +21,11 @@ import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 public class StatusPanel extends JPanel {
 
-	private String[] userProtocols; 
-    
-	private Hashtable protocolStatusCombos = new Hashtable();
+    private Hashtable protocolStatusCombos = new Hashtable();
     
     private MainFrame mainFrame;
     
-	public StatusPanel(MainFrame mainFrame, String[] userProtocols) {
+	public StatusPanel(MainFrame mainFrame) {
 
         this.mainFrame = mainFrame;
         
@@ -35,30 +33,26 @@ public class StatusPanel extends JPanel {
 
 		this.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
 				Constants.CONTACTPANEL_MOVER_START_COLOR));
-
-		this.userProtocols = userProtocols;
-
-		this.init();
 	}
 
-	private void init() {
+	public void addAccount(Account account) {
 
-		for (int i = 0; i < userProtocols.length; i++) {
-            
-            Map protocolStatusMap = Constants
-                .getProtocolStatusIcons(userProtocols[i]);
+        Map protocolStatusMap = Constants
+            .getProtocolStatusIcons(account.getProtocolName());
 
-			StatusSelectorBox protocolStatusCombo 
-                = new StatusSelectorBox(
-                    this.mainFrame,
-					protocolStatusMap, 
-                    (Image)protocolStatusMap.get(Constants.OFFLINE_STATUS));
+		StatusSelectorBox protocolStatusCombo 
+            = new StatusSelectorBox(
+                this.mainFrame,
+                account,
+				protocolStatusMap, 
+                (Image)protocolStatusMap.get(Constants.OFFLINE_STATUS));
 
-            this.protocolStatusCombos.put(  userProtocols[i], 
-                                            protocolStatusCombo);
-            
-			this.add(protocolStatusCombo);
-		}
+        this.protocolStatusCombos.put(  account.getProtocolName(), 
+                                        protocolStatusCombo);
+        
+		this.add(protocolStatusCombo);
+        
+        this.getParent().validate();
 	}
     
     public void setSelectedStatus(String protocol, Object status){

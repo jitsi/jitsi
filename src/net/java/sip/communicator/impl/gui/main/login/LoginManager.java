@@ -8,19 +8,20 @@
 package net.java.sip.communicator.impl.gui.main.login;
 
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
 import net.java.sip.communicator.impl.gui.Activator;
+import net.java.sip.communicator.impl.gui.main.Account;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.AccountManager;
 import net.java.sip.communicator.service.protocol.AccountProperties;
-import net.java.sip.communicator.service.protocol.ProtocolNames;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.RegistrationState;
 import net.java.sip.communicator.service.protocol.SecurityAuthority;
@@ -36,17 +37,13 @@ public class LoginManager implements RegistrationStateChangeListener {
 
     private BundleContext bc;
     
-    private AccountManager accountManager;
+    private Hashtable accountManagersMap = new Hashtable();
          
-    private AccountID icqAccountID;
+    private AccountID accountID;
     
     private Logger logger = Logger.getLogger(Activator.class.getName());
     
-    private ServiceReference[] serRefs = null;
-    
     private String osgiFilter = ""; 
-    
-    private ProtocolProviderService icqProtocolProvider;
     
     private MainFrame mainFrame;
     
@@ -54,63 +51,87 @@ public class LoginManager implements RegistrationStateChangeListener {
         
         this.bc = bc;  
         
-        this.osgiFilter = "(" + AccountManager.PROTOCOL_PROPERTY_NAME
-        + "="+ProtocolNames.ICQ+")";
-        
+        ServiceReference[] serRefs = null;
         try {            
-            this.serRefs = this.bc.getServiceReferences(
-                    AccountManager.class.getName(), osgiFilter);
+            //get all registered account managers
+            serRefs = this.bc.getServiceReferences(
+                    AccountManager.class.getName(), null);
             
         } catch (InvalidSyntaxException e) {
             
-            logger.error("LoginManager : " + e.getMessage());
+            logger.error("LoginManager : " + e);
         }
         
-        this.accountManager 
-            = (AccountManager)this.bc.getService(serRefs[0]);    
-        
-        
-    }
-    
-    public void login(String user, String passwd){
-        
-        Hashtable icqAccountProperties = new Hashtable();
-        icqAccountProperties.put(AccountProperties.PASSWORD, passwd);
-
-        this.icqAccountID = this.accountManager.installAccount(
-                this.bc, user, icqAccountProperties);
-        
-        this.osgiFilter =
-            "(&("+AccountManager.PROTOCOL_PROPERTY_NAME +"="+ProtocolNames.ICQ+")"
-             +"(" + AccountManager.ACCOUNT_ID_PROPERTY_NAME
-             + "=" + icqAccountID.getAccountID() + "))";
-
-        try {
-            this.serRefs = this.bc.getServiceReferences(
-                        ProtocolProviderService.class.getName(),
-                        osgiFilter);
-        } catch (InvalidSyntaxException e) {
+        for (int i = 0; i < serRefs.length; i ++){
             
-            this.logger.error("LoginManager: " + e.getMessage());
-        }
-        
-        icqProtocolProvider 
-            = (ProtocolProviderService)this.bc.getService(serRefs[0]);              
-        
-        icqProtocolProvider.addRegistrationStateChangeListener(this);
-      
-        icqProtocolProvider.register(new MySecurityAuthority());     
-        
+            AccountManager accountManager = (AccountManager)
+                this.bc.getService(serRefs[i]);
+            
+            this.accountManagersMap
+                .put(serRefs[i].getProperty
+                        (AccountManager.PROTOCOL_PROPERTY_NAME),
+                     accountManager);
+        }   
     }
     
-   
-    public void showLoginWindow(MainFrame parent){
+    public void login(  AccountManager accountManager,
+                        String user, 
+                        String passwd){
         
-        LoginWindow loginWindow = new LoginWindow(parent);
+        Hashtable accountProperties = new Hashtable();
+        accountProperties.put(AccountProperties.PASSWORD, passwd);
+
+        this.accountID = accountManager.installAccount(
+                this.bc, user, accountProperties);
         
+        ServiceReference serRef = null;
+        
+        serRef = accountManager
+            .getProviderForAccount(this.accountID);
+               
+        ProtocolProviderService protocolProvider 
+            = (ProtocolProviderService)this.bc.getService(serRef);    
+        
+        Account account 
+            = new Account(  user,
+                            protocolProvider);
+    
+        this.mainFrame.getStatusPanel().addAccount(account);
+        this.mainFrame.addAccount(account);
+        
+        this.mainFrame.getStatusPanel()
+                            .startConnecting(protocolProvider.getProtocolName());
+    
+        protocolProvider.addRegistrationStateChangeListener(this);
+  
+        protocolProvider.register(new MySecurityAuthority());
+    }
+    
+    public void showLoginWindows(MainFrame parent){
+        
+        Set set = this.accountManagersMap.entrySet();
+        Iterator iter = set.iterator();
+        
+        while(iter.hasNext()){
+            Map.Entry entry = (Map.Entry)iter.next();
+            
+            AccountManager accountManager = (AccountManager)entry.getValue();
+            String protocolName = (String)entry.getKey();
+            
+            showLoginWindow(parent, protocolName, accountManager);
+        }   
+    }
+    
+    public void showLoginWindow(MainFrame parent,
+                                String protocolName,
+                                AccountManager accoundManager){
+        
+        LoginWindow loginWindow = new LoginWindow(  parent,
+                                                    protocolName,
+                                                    accoundManager);        
         loginWindow.setLoginManager(this);
         
-        loginWindow.showWindow();        
+        loginWindow.showWindow();    
     }
     
     private class MySecurityAuthority implements SecurityAuthority {
@@ -122,34 +143,39 @@ public class LoginManager implements RegistrationStateChangeListener {
         if(evt.getNewState().equals(RegistrationState.REGISTERED)){
             
             Map supportedOpSets 
-                = icqProtocolProvider.getSupportedOperationSets();
+                = evt.getProvider().getSupportedOperationSets();
             
-            this.mainFrame.setProtocolProvider(icqProtocolProvider);
+            this.mainFrame.addProtocolProvider(evt.getProvider());
             
-            this.mainFrame.setSupportedOperationSets(supportedOpSets);
+            this.mainFrame.addProtocolSupportedOperationSets
+                (evt.getProvider(), supportedOpSets);
         }        
         else if(evt.getNewState()
                     .equals(RegistrationState.AUTHENTICATION_FAILED)){
             
-            this.mainFrame.getStatusPanel().stopConnecting(Constants.ICQ);
+            this.mainFrame.getStatusPanel()
+                .stopConnecting(evt.getProvider().getProtocolName());
             
-            this.mainFrame.getStatusPanel().setSelectedStatus(Constants.ICQ,
-                    Constants.OFFLINE_STATUS);
+            this.mainFrame.getStatusPanel()
+                .setSelectedStatus( evt.getProvider().getProtocolName(),
+                                    Constants.OFFLINE_STATUS);
             
             JOptionPane.showMessageDialog(null,
                     Messages.getString("authenticationFailed"), 
                     Messages.getString("authenticationFailed"),
                     JOptionPane.ERROR_MESSAGE);            
             
-            this.showLoginWindow(this.mainFrame);
+            this.showLoginWindows(this.mainFrame);
         }
         else if(evt.getNewState()
                     .equals(RegistrationState.CONNECTION_FAILED)){
             
-            this.mainFrame.getStatusPanel().stopConnecting(Constants.ICQ);
+            this.mainFrame.getStatusPanel()
+                .stopConnecting(evt.getProvider().getProtocolName());
             
-            this.mainFrame.getStatusPanel().setSelectedStatus(Constants.ICQ,
-                    Constants.OFFLINE_STATUS);
+            this.mainFrame.getStatusPanel()
+                .setSelectedStatus( evt.getProvider().getProtocolName(),
+                                    Constants.OFFLINE_STATUS);
             
             JOptionPane.showMessageDialog(null,                    
                     Messages.getString("connectionFailedMessage"), 

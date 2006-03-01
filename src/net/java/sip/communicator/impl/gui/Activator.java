@@ -77,7 +77,7 @@ public class Activator implements BundleActivator
 
         public void run() {
             
-            loginManager.showLoginWindow(communicatorMain.getMainFrame());            
+            loginManager.showLoginWindows(communicatorMain.getMainFrame());            
         }
     }
 }

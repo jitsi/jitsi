@@ -22,7 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
-import net.java.sip.communicator.impl.gui.main.User;
+import net.java.sip.communicator.impl.gui.main.Account;
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedEditorPane;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.BrowserLauncher;
@@ -85,10 +85,11 @@ public class ChatPanel extends JScrollPane implements HyperlinkListener {
 
 	}
 
-	public void processSentMessage(User sender, Calendar calendar,
-			String message) {
+	public void processSentMessage( Account account, 
+	                                Calendar calendar,
+	                                String message) {
 
-		this.registerMessage(sender.getName(), calendar, message);
+		this.registerMessage(account.getUin(), calendar, message);
 
 		String chatString = "<HTML><DIV style=\"background-color:"
 				+ Constants.FONT_CHAT_HEADER_COLOR

@@ -38,24 +38,13 @@ public class CommunicatorMain {
 
         ConfigurationFrame configFrame = new ConfigurationFrame();
 
-        mainFrame = new MainFrame(this.getUser());
+        mainFrame = new MainFrame();
 
         mainFrame.setConfigFrame(configFrame);
         
         // In order to have the same icon when using option panes
         JOptionPane.getRootFrame().setIconImage(
                 ImageLoader.getImage(ImageLoader.SIP_LOGO));
-    }
-   
-
-    public User getUser() {
-
-        User user = new User();
-
-        user.setName("Yana");
-        user.setProtocols(new String[] { "SIP", "ICQ" });
-
-        return user;
     }
 
     public void setDefaultThemePack() {

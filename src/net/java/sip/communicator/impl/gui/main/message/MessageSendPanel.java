@@ -81,7 +81,7 @@ public class MessageSendPanel extends JPanel implements ActionListener {
 			// TODO: Receive a notice that message is delivered.
 	
 			this.msgWindow.getChatPanel().processSentMessage(
-											this.msgWindow.getParentWindow().getUser(),
+											this.msgWindow.getParentWindow().getAccount(),
 											Calendar.getInstance(),										
 											messagePane.getText());
 	

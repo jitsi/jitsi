@@ -24,6 +24,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import net.java.sip.communicator.impl.gui.main.Account;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommPasswordField;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTextField;
@@ -40,14 +41,10 @@ public class LoginWindow extends JDialog
 
 	private JLabel passwdLabel = new JLabel(Messages.getString("passwd"));
     
-    //private JLabel protocolLabel = new JLabel(Messages.getString("protocol"));
-
-	private SIPCommTextField uinTextField = new SIPCommTextField(15);
+	private JComboBox uinComboBox;
 
 	private SIPCommPasswordField passwdField = new SIPCommPasswordField(15);
     
-    private JComboBox protocolCombo = new JComboBox();
-
     private JButton loginButton = new JButton(Messages.getString("login"));
     
     private JButton cancelButton = new JButton(Messages.getString("cancel"));
@@ -69,11 +66,19 @@ public class LoginWindow extends JDialog
     
     private MainFrame mainFrame;
     
-	public LoginWindow(MainFrame mainFrame){
+    private String protocolName;
+    
+	public LoginWindow( MainFrame mainFrame, 
+                        String protocolName,
+                        AccountManager accountManager){
         
         super(mainFrame);
         
         this.mainFrame = mainFrame;
+        
+        this.accountManager = accountManager;
+        
+        this.protocolName = protocolName;
         
         this.setModal(true);
         
@@ -95,17 +100,17 @@ public class LoginWindow extends JDialog
 	}
 
 	private void init() {     
-        
-        this.setTransparent(true);
+
+        this.uinComboBox = new JComboBox(this.accountManager
+                .getRegisteredAcounts().toArray());
         
         this.passwdField.setEchoChar('*');
+        this.uinComboBox.setEditable(true);
         
-        //this.labelsPanel.add(protocolLabel);
 		this.labelsPanel.add(uinLabel);
 		this.labelsPanel.add(passwdLabel);        
-
-        //this.textFieldsPanel.add(protocolCombo);
-		this.textFieldsPanel.add(uinTextField);
+        
+		this.textFieldsPanel.add(uinComboBox);
 		this.textFieldsPanel.add(passwdField);        
         
         this.buttonsPanel.add(loginButton);
@@ -124,6 +129,8 @@ public class LoginWindow extends JDialog
         this.cancelButton.addActionListener(this);
         
         this.getRootPane().setDefaultButton(loginButton);
+        
+        this.setTransparent(true);
 	}
 
     private void setTransparent(boolean transparent){
@@ -131,7 +138,7 @@ public class LoginWindow extends JDialog
         this.mainPanel.setOpaque(!transparent);
         this.labelsPanel.setOpaque(!transparent);
         this.textFieldsPanel.setOpaque(!transparent);
-        this.protocolCombo.setOpaque(!transparent);
+        this.uinComboBox.setOpaque(!transparent);
         this.buttonsPanel.setOpaque(!transparent);
     }
     
@@ -153,13 +160,6 @@ public class LoginWindow extends JDialog
         this.setLocation(x, y);
     }
     
-    public static void main(String[] args){
-        
-        LoginWindow login = new LoginWindow(null);
-        
-        login.showWindow();                 
-    }
-
     public AccountManager getAccountManager() {
         return accountManager;
     }
@@ -171,9 +171,8 @@ public class LoginWindow extends JDialog
         
         if(buttonName.equals("login")){
             
-            this.mainFrame.getStatusPanel().startConnecting(Constants.ICQ);
-            
-            this.loginManager.login(uinTextField.getText(),
+            this.loginManager.login(accountManager,
+                                    uinComboBox.getSelectedItem().toString(),
                                     new String(passwdField.getPassword()));
             
             this.dispose();

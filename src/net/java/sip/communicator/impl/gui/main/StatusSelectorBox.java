@@ -33,6 +33,7 @@ import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
+import net.java.sip.communicator.service.protocol.OperationSetPresence;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 import net.java.sip.communicator.util.Logger;
@@ -55,7 +56,9 @@ public class StatusSelectorBox extends JLabel
     
     private Connecting connecting = new Connecting();
     
-    public StatusSelectorBox(MainFrame mainFrame) {
+    private Account account;
+    
+    public StatusSelectorBox(MainFrame mainFrame, Account account) {
         
         this.setPreferredSize(new Dimension(
                                 this.backgroundImage.getWidth(this),
@@ -67,6 +70,8 @@ public class StatusSelectorBox extends JLabel
         
         this.mainFrame = mainFrame;
         
+        this.account = account;
+        
         this.popup = new AntialiasedPopupMenu();
         
         this.popup.setInvoker(this);
@@ -74,7 +79,8 @@ public class StatusSelectorBox extends JLabel
         this.addMouseListener(this);
     }
     
-    public StatusSelectorBox(   MainFrame mainFrame, 
+    public StatusSelectorBox(   MainFrame mainFrame,
+                                Account account,
                                 Map itemsMap, 
                                 Image selectedItem) {
        
@@ -89,6 +95,8 @@ public class StatusSelectorBox extends JLabel
         this.setIcon(new ImageIcon(selectedItem));
         
         this.mainFrame = mainFrame;
+        
+        this.account = account;
         
         this.itemsMap = itemsMap;
         
@@ -138,7 +146,11 @@ public class StatusSelectorBox extends JLabel
                 
                 JMenuItem menuItem = (JMenuItem) e.getSource();            
                        
-                Iterator statusSet = mainFrame.getPresence().getSupportedStatusSet();
+                OperationSetPresence presence 
+                    = mainFrame.getProtocolPresence
+                        (account.getProtocolProvider());
+                
+                Iterator statusSet = presence.getSupportedStatusSet();
                 
                 while (statusSet.hasNext()){
                     
@@ -146,33 +158,32 @@ public class StatusSelectorBox extends JLabel
                         = ((PresenceStatus)statusSet.next());
                     
                     if(status.getStatusName().equals(menuItem.getText())
-                            && !mainFrame.getPresence().getPresenceStatus()
+                            && !presence.getPresenceStatus()
                                 .equals(status)){
                         
                         try {
                             
                             if(status.equals(IcqStatusEnum.ONLINE)){
                                 
-                                if(mainFrame.getProtocolProvider()
+                                if(account.getProtocolProvider()
                                         .isRegistered()){
                                   
-                                    mainFrame.getPresence()
+                                    presence
                                             .publishPresenceStatus(status, "");
                                 }
                                 else{
-                                    mainFrame.getProtocolProvider()
+                                    account.getProtocolProvider()
                                         .register(null);                                
                                 }
                             }
                             else if(status.equals(IcqStatusEnum.OFFLINE)){
                                 
-                                mainFrame.getProtocolProvider().unregister();
+                                account.getProtocolProvider().unregister();
                                 
                             }
                             else {                      
                                 
-                                mainFrame.getPresence()
-                                        .publishPresenceStatus(status, "");
+                                presence.publishPresenceStatus(status, "");
                             }                    
                         } catch (IllegalArgumentException e1) {
                             

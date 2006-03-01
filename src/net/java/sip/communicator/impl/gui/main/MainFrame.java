@@ -11,6 +11,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -56,25 +58,25 @@ public class MainFrame extends JFrame {
 
 	private QuickMenu quickMenu;
 	
-	private User user;
-
-    private Map supportedOperationSets;
+    private Hashtable protocolSupportedOperationSets = new Hashtable();
+    
+    private Hashtable protocolPresenceSets = new Hashtable();
     
 	private Dimension minimumFrameSize = new Dimension(
 			Constants.MAINFRAME_MIN_WIDTH, Constants.MAINFRAME_MIN_HEIGHT);
     
-    private ProtocolProviderService protocolProvider;
-    
-    private OperationSetPresence presence;
-
+    private Hashtable protocolProviders = new Hashtable();
+   
     private MetaContactListService contactList;
-
-	public MainFrame(User user) {
+    
+    private ArrayList accounts = new ArrayList();
+    
+	public MainFrame() {
 		
 		callPanel = new CallPanel(this);
 		tabbedPane = new MainTabbedPane(this);
 		quickMenu = new QuickMenu(this);
-		statusPanel = new StatusPanel(this, user.getProtocols());
+		statusPanel = new StatusPanel(this);
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setInitialBounds();
@@ -125,17 +127,7 @@ public class MainFrame extends JFrame {
         
         this.tabbedPane.getContactListPanel().initTree(contactList);
 	}
-
-	public User getUser() {
-		
-		return user;
-	}
-
-	public void setUser(User user) {
 	
-		this.user = user;
-	}
-
 	public ConfigurationFrame getConfigFrame() {
 	
 		return configFrame;
@@ -146,14 +138,17 @@ public class MainFrame extends JFrame {
 		this.configFrame = configFrame;
 	}
 
-    public Map getSupportedOperationSets() {
-        return supportedOperationSets;
+    public Map getSupportedOperationSets
+        (ProtocolProviderService protocolProvider) {
+        return (Map)this.protocolSupportedOperationSets.get(protocolProvider);
     }
 
-    public void setSupportedOperationSets(
-            Map supportedOperationSets) {
+    public void addProtocolSupportedOperationSets
+            (ProtocolProviderService protocolProvider,
+                    Map supportedOperationSets) {
         
-        this.supportedOperationSets = supportedOperationSets;
+        this.protocolSupportedOperationSets.put(protocolProvider, 
+                supportedOperationSets);
         
         Iterator entrySetIter = supportedOperationSets.entrySet().iterator();
         
@@ -170,6 +165,9 @@ public class MainFrame extends JFrame {
                 OperationSetPresence presence 
                     = (OperationSetPresence)value;
                 
+                this.protocolPresenceSets.put(  protocolProvider,
+                                                presence);
+                
                 presence
                     .addProviderPresenceStatusListener
                         (new ProviderPresenceStatusAdapter());
@@ -177,16 +175,16 @@ public class MainFrame extends JFrame {
                     .addContactPresenceStatusListener
                         (new ContactPresenceStatusAdapter());
                 
-                this.setPresence(presence);
-                
                 try {   
                     presence
                         .publishPresenceStatus(IcqStatusEnum.ONLINE, "");                    
                      
-                    this.getStatusPanel().stopConnecting(Constants.ICQ);
+                    this.getStatusPanel().stopConnecting(
+                            protocolProvider.getProtocolName());
                     
                     this.statusPanel.setSelectedStatus
-                        (Constants.ICQ, Constants.ONLINE_STATUS);
+                        (protocolProvider.getProtocolName(), 
+                                Constants.ONLINE_STATUS);
                         
                 } catch (IllegalArgumentException e) {
                     // TODO Auto-generated catch block
@@ -222,7 +220,7 @@ public class MainFrame extends JFrame {
         public void contactPresenceStatusChanged(ContactPresenceStatusChangeEvent evt) {
                     
         	ContactNode node = tabbedPane.getContactListPanel().getContactListTree().contains(evt.getSourceContact());
-            System.out.println("=======================================" + node);
+            
         	if(node != null){                
         		node.setIcon(Constants.getStatusIcon(evt.getNewStatus()));
                 tabbedPane.getContactListPanel().getContactListTree().repaint();
@@ -234,20 +232,28 @@ public class MainFrame extends JFrame {
         return statusPanel;
     }
 
-    public ProtocolProviderService getProtocolProvider() {
-        return protocolProvider;
+    public Map getProtocolProviders() {
+        return this.protocolProviders;
     }
 
-    public void setProtocolProvider(
+    public void addProtocolProvider(
             ProtocolProviderService protocolProvider) {
-        this.protocolProvider = protocolProvider;
+        
+        this.protocolProviders.put( protocolProvider.getProtocolName(),
+                                    protocolProvider);
+    }
+    
+    public void addAccount(Account account){
+        this.accounts.add(account);
+    }
+    
+    public Account getAccount(){
+        return (Account)this.accounts.get(0);
     }
 
-    public OperationSetPresence getPresence() {
-        return presence;
-    }
-
-    public void setPresence(OperationSetPresence presence) {
-        this.presence = presence;
+    public OperationSetPresence getProtocolPresence
+        (ProtocolProviderService protocolProvider) {
+        return (OperationSetPresence)
+            this.protocolPresenceSets.get(protocolProvider);
     }
 }
