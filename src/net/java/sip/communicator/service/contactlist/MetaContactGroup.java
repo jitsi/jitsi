@@ -69,7 +69,7 @@ public interface MetaContactGroup
     /**
      * Returns the contact with the specified identifier
      * @param metaContactID a String identifier obtained through the
-     * <tt>MetaContact.getMetaContactID()</tt> method.
+     * <tt>MetaContact.getMetaUID()</tt> method.
      * <p>
      * @return the <tt>MetaContact</tt> with the specified idnetifier.
      */

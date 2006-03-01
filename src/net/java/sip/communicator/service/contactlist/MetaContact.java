@@ -65,7 +65,7 @@ public interface MetaContact
      * in the containing <tt>MetaContactList</tt>
      * @return String
      */
-    public String getMetaContactID();
+    public String getMetaUID();
 
     /**
      * Returns a characteristic display name that can be used when including
