@@ -102,31 +102,31 @@ public class IcqTesterAgent
             return true;
 
         DefaultAppSession session = new DefaultAppSession();
-
+System.out.println("1");
         AimSession aimSession =
             session.openAimSession(icqUIN);
         aimSession.openConnection(
             new AimConnectionProperties(
                 icqUIN, password));
-
+System.out.println("2");
         conn = aimSession.getConnection();
-
+System.out.println("3");
         conn.addStateListener(new AimConnStateListener());
         conn.getBuddyInfoManager().addGlobalBuddyInfoListener(new GlobalBuddyListener());
-
+System.out.println("4");
         conn.connect();
-
+System.out.println("5");
 
 
         synchronized(connectionLock){
             try{connectionLock.wait(10000);}catch(InterruptedException ex){}
         }
-
+System.out.println("6");
         if (icbmService == null){
             //maybe throw an exception here
             return (registered = false);
         }
-
+System.out.println("7");
         //conn.getSsiService()
         //    .getBuddyList().addRetroactiveLayoutListener(new RetroListener());
         conn.getBuddyService().addBuddyListener(new BuddyListener());
@@ -913,6 +913,7 @@ public class IcqTesterAgent
     private RetroListener rl = new RetroListener();
     public static void main(String[] args) throws Throwable
     {
+java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.FINEST);
         IcqTesterAgent icqtests = new IcqTesterAgent("319305099");
         if (!icqtests.register("6pC0mmtt"))
         {
@@ -946,97 +947,16 @@ public class IcqTesterAgent
         System.out.println("\n\nr u ready?");
         Thread.sleep(3000);
 
-//        MutableBuddyList bList = icqtests.conn.getSsiService().getBuddyList();
-//        ((MutableGroup)bList.getGroups().get(0)).addBuddy("38687470");
-//        Thread.sleep(1000);
-//        System.out.println("\n\nbuddy added");
-        Thread.sleep(3000);
+        java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.FINEST);
 
 
-        icqtests.conn.getBuddyInfoTracker().addTracker(new Screenname("38687470"), new BuddyInfoTrackerListener(){});
-        Thread.sleep(1000);
-        System.out.println("\n\ntracker added");
-        Thread.sleep(3000);
 
-    //        Thread.currentThread().sleep(15000);
-    //        icqtests.getBuddyStatus("38687470");
-    //        icqtests.getBuddyStatus("51226782");
-    //        icqtests.getBuddyStatus("137433448");
-    //        icqtests.getBuddyStatus("129397180");
-//Thread.sleep(10000);
-//        System.out.println("icqtests.getBuddyStatus(\"38687470\");="
-//                           + icqtests.getBuddyStatus("38687470"));
-//        System.out.println("icqtests.getBuddyStatus(\"113373950\");="
-//                           +icqtests.getBuddyStatus("113373950"));
-//Thread.sleep(15000);
-//
-//        System.out.println("1ide ide ide ide1");
-//
-//        Thread.sleep(15000);
-//        System.out.println("ide ide ide ide  DND");
-//        icqtests.conn.getBosService().sendSnac(new SetExtraInfoCmd(FullUserInfo.ICQSTATUS_DND));
-//        System.out.println("1ide ide ide ide1");
-//
-//        Thread.sleep(5000);
-//
-//        System.out.println("ide ide ide ide ffc");
-//        icqtests.conn.getBosService().sendSnac(new SetExtraInfoCmd(FullUserInfo.ICQSTATUS_FFC));
-//        System.out.println("1ide ide ide ide1  ideonline");
-//
-//        System.out.println("\n\n\n1ide ide ide ide1");
-//        Thread.sleep(5000);
-//        System.out.println("ide ide ide ONLINEMASK");
-//        icqtests.conn.getBosService().sendSnac(new SetExtraInfoCmd(ICQ_ONLINE_MASK));
-
-
-        Thread.sleep(8000);
-        System.out.println("done");
-
-        icqtests.conn.getInfoService().requestAwayMessage(new Screenname("38687470"), new InfoResponseListener(){
-            public void handleAwayMessage(InfoService service, Screenname buddy,
-                                          String awayMessage)
-            {
-                System.out.println("buddy=" + buddy);
-                System.out.println("awayMessage=" + awayMessage);
-            }
-
-            public void handleUserProfile(InfoService service, Screenname buddy,
-                                          String userInfo)
-            {
-                logger.debug("!!! TODO: implement handleUserProfile() !!!");
-                System.out.println("userInfo=" + userInfo);
-            }
-
-            public void handleCertificateInfo(InfoService service, Screenname buddy,
-                                          BuddyCertificateInfo certInfo)
-            {
-                logger.debug("!!! TODO: implement handleCertificateInfo() !!!");
-                System.out.println("buddy=" + buddy);
-            }
-
-            public void handleDirectoryInfo(InfoService service,
-                                            Screenname buddy, DirInfo dirInfo)
-            {
-                logger.debug("!!! TODO: implement handleDirectoryInfo() !!!");
-                System.out.println("buddy=" + buddy);
-            }
-
-            public void handleInvalidCertificates(InfoService service,
-                                                  Screenname buddy,
-                                                  CertificateInfo origCertInfo,
-                                                  Throwable ex)
-            {
-                logger.debug("!!! TODO: implement handleInvalidCertificates() !!!");
-                System.out.println("buddy=" + buddy);
-            }
-
-        }
-
-
-        );
-        Thread.sleep(5000);
-
-        icqtests.conn.getInfoService().requestAwayMessage(new Screenname("38687470"));
+//        icqtests.conn.disconnect();
+//        System.out.println("disconnected");
+//        Thread.sleep(4000);
+//        icqtests.conn.connect();
+//        System.out.println("connected");
+//        Thread.sleep(4000);
 
 //
 //        icqtests.enterStatus(FullUserInfo.ICQSTATUS_DND);
