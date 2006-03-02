@@ -8,13 +8,20 @@
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.Vector;
 
+import javax.swing.AbstractAction;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.KeyStroke;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.main.login.LoginWindow;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 
@@ -61,6 +68,8 @@ public class MessageWindow extends JFrame{
 		sendPanel = new MessageSendPanel(this);
 		
 		this.init();
+        
+        this.enableKeyActions();
 	}
 	
 	public void init (){
@@ -130,5 +139,25 @@ public class MessageWindow extends JFrame{
 		return chatPanel;
 	}
 
-	
+    /**
+     * Enables the actions when a key is pressed, for now 
+     * closes the window when esc is pressed.
+     */
+    private void enableKeyActions(){
+        
+        AbstractAction act = new AbstractAction()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                MessageWindow.this.setVisible(false);
+            }
+        };
+        
+        getRootPane().getActionMap().put("close", act);
+        
+        InputMap imap =
+            this.getRootPane()
+                .getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
+    }
 }

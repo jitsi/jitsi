@@ -16,13 +16,19 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 import net.java.sip.communicator.impl.gui.main.Account;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
@@ -63,23 +69,15 @@ public class LoginWindow extends JDialog
     private AccountManager accountManager;    
    
     private LoginManager loginManager;
-    
-    private MainFrame mainFrame;
-    
-    private String protocolName;
-    
+   
 	public LoginWindow( MainFrame mainFrame, 
                         String protocolName,
                         AccountManager accountManager){
         
         super(mainFrame);
         
-        this.mainFrame = mainFrame;
-        
         this.accountManager = accountManager;
-        
-        this.protocolName = protocolName;
-        
+                        
         this.setModal(true);
         
         this.backgroundPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -97,8 +95,12 @@ public class LoginWindow extends JDialog
         this.setSize(370, 240);
         
         this.setResizable(false);
+        
+        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        
+        this.enableKeyActions();
 	}
-
+    
 	private void init() {     
 
         this.uinComboBox = new JComboBox(this.accountManager
@@ -210,5 +212,27 @@ public class LoginWindow extends JDialog
                 
         }
        
+    }
+    
+    /**
+     * Enables the actions when a key is pressed, for now 
+     * closes the window when esc is pressed.
+     */
+    private void enableKeyActions(){
+        
+        AbstractAction act = new AbstractAction()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                LoginWindow.this.setVisible(false);
+            }
+        };
+        
+        getRootPane().getActionMap().put("close", act);
+        
+        InputMap imap =
+            this.getRootPane()
+                .getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
     }
 }
