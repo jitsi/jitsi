@@ -16,12 +16,16 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTree;
+import javax.swing.ListCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
@@ -33,7 +37,7 @@ import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.kano.joscar.ssiitem.GroupItem;
 
 public class ContactListCellRenderer extends JPanel 
-	implements TreeCellRenderer {
+	implements ListCellRenderer {
 
 	private JLabel nameLabel = new JLabel();
 
@@ -61,59 +65,60 @@ public class ContactListCellRenderer extends JPanel
 		this.nameLabel.setIconTextGap(2);
 		
 		this.add(nameLabel, BorderLayout.CENTER);
-		
-		this.add(extendPanelButton, BorderLayout.EAST);
 	}
 
 	
-	public Component getTreeCellRendererComponent(JTree tree, Object value,
-			boolean selected, boolean expanded, boolean leaf, int row,
-			boolean hasFocus) {
+	public Component getListCellRendererComponent(
+            JList list,
+            Object value,
+            int index,
+            boolean isSelected,
+            boolean cellHasFocus) {
 		
-		// Find out which node we are rendering and get its text
-		ContactNode node = (ContactNode) value;
-		
-		if(leaf){			
-			if (node.getUserObject() instanceof MetaContact) {
+		if (value instanceof MetaContactNode) {
 							
-                MetaContact contactItem = (MetaContact) node.getUserObject();
+            MetaContactNode contactNode = (MetaContactNode)value; 
+            MetaContact contactItem = contactNode.getContact();
 
-				this.nameLabel.setText(contactItem.getDisplayName());
-	
-				this.nameLabel.setIcon(new ImageIcon(node.getIcon()));
-	
-				this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
-				
-				this.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-				
-				this.setPreferredSize(new Dimension(Constants.MAINFRAME_WIDTH + 20, 17));
-				
-				this.setBounds(0, 0, Constants.MAINFRAME_WIDTH + 20, 17);				
-			} 
+			this.nameLabel.setText(contactItem.getDisplayName());
+
+			this.nameLabel.setIcon(contactNode.getStatusIcon());
+
+			this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
+			
+			this.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+            
+            // We should set the bounds of the cell explicitely in order to 
+            // make getComponentAt work properly. 
+            this.setBounds(0, 0, list.getWidth() - 2, 17);
+            
+            this.add(extendPanelButton, BorderLayout.EAST);
+			
+            this.isLeaf = true;
 		}
-		else{ 
-			if (node.getUserObject() instanceof MetaContactGroup) {		
+		else if (value instanceof MetaContactGroup) {		
 
-				MetaContactGroup groupItem = (MetaContactGroup) node.getUserObject();
-					
-				this.nameLabel.setText(groupItem.getGroupName());
-	
-				this.nameLabel.setIcon(new ImageIcon(
-						ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
-	
-				this.nameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
-									
-				this.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+			MetaContactGroup groupItem = (MetaContactGroup) value;
 				
-				this.setPreferredSize(new Dimension(Constants.MAINFRAME_WIDTH + 20, 20));
-				
-				this.setBounds(0, 0, Constants.MAINFRAME_WIDTH + 20, 20);				
-			}
+			this.nameLabel.setText(groupItem.getGroupName());
+
+			this.nameLabel.setIcon(new ImageIcon(
+					ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
+
+			this.nameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
+								
+			this.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+			
+			// We should set the bounds of the cell explicitely in order to 
+            // make getComponentAt work properly. 
+            this.setBounds(0, 0, list.getWidth() - 2, 20);
+			
+            this.remove(extendPanelButton);
+            
+            this.isLeaf = false;
 		}
-
-		this.isSelected = selected;
-
-		this.isLeaf = leaf;
+        
+		this.isSelected = isSelected;
 		
 		return this;
 	}

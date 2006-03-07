@@ -15,6 +15,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -22,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -42,7 +44,7 @@ public class ContactListPanel extends JScrollPane
        
 	private MainFrame parent;
 
-	private ContactListTree contactListTree;
+	private ContactList contactList;
 
 	private JPanel treePanel = new JPanel(new BorderLayout());
 
@@ -55,11 +57,54 @@ public class ContactListPanel extends JScrollPane
 		this.getViewport().add(treePanel);
 
 		this.treePanel.setBackground(Color.WHITE);
+        
+        this.setHorizontalScrollBarPolicy
+            (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	}
 
 	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-
+		
+        if(e.getClickCount() > 1){
+            
+            int selectedIndex 
+                = this.contactList.locationToIndex(e.getPoint());
+            
+            ListModel listModel = this.contactList.getModel();
+            
+            Object element 
+                = listModel.getElementAt(selectedIndex);
+            
+            if(element instanceof MetaContactGroup){
+                
+                MetaContactGroup group = (MetaContactGroup)element;
+                
+                if(group.countChildContacts() > 0){
+                    
+                    if(selectedIndex == listModel.getSize() - 1
+                       || listModel.getElementAt(selectedIndex + 1) 
+                          instanceof MetaContactGroup){
+                       
+                        //Expand group
+                       Iterator iter = group.getChildContacts();
+                       
+                       while(iter.hasNext()){
+                           
+                           MetaContact contact = (MetaContact) iter.next();
+                           
+                           this.contactList
+                               .addChild(group,
+                                       new MetaContactNode(contact));
+                       }
+                    }
+                    else{
+                        //Collapse group
+                        ((ContactListModel)listModel)
+                            .removeRange(selectedIndex + 1, 
+                                selectedIndex + group.countChildContacts());
+                    }
+                }
+            }
+        }
 	}
 
 	public void mouseEntered(MouseEvent e) {
@@ -73,80 +118,60 @@ public class ContactListPanel extends JScrollPane
 	}
 
 	public void mousePressed(MouseEvent e) {
+        
+        if (this.contactList.getSelectedValue() instanceof MetaContactNode){
+                
+            MetaContactNode contactNode 
+                = (MetaContactNode) this.contactList.getSelectedValue();
+            
+            int selectedIndex = this.contactList.getSelectedIndex();
+            
+			ContactListCellRenderer renderer = (ContactListCellRenderer) 
+                this.contactList.getCellRenderer()
+                    .getListCellRendererComponent(
+							this.contactList,
+                            contactNode, 
+                            selectedIndex,
+							true, true);
+           
+            Point selectedCellPoint 
+                = this.contactList.indexToLocation(selectedIndex);
+            
+			int translatedX = e.getX() 
+                - selectedCellPoint.x;
 
-		int selRow = this.contactListTree.getRowForLocation(e.getX(), e.getY());
+            int translatedY = e.getY() 
+                - selectedCellPoint.y;
+            
+			Component component 
+                = renderer.getComponentAt(translatedX, translatedY);
 
-		TreePath selPath = this.contactListTree.getPathForLocation(e.getX(), e
-				.getY());
+			if (component instanceof JLabel) {
 
-		if (selRow != -1) {
+				if ((e.getModifiers() & InputEvent.BUTTON1_MASK) 
+                            == InputEvent.BUTTON1_MASK) {
+                    
+					SwingUtilities.invokeLater(new RunMessageWindow(
+							contactNode.getContact()));
+					
+				} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) 
+                            == InputEvent.BUTTON3_MASK) {
 
-			if (e.getClickCount() == 1) {
+					ContactRightButtonMenu popupMenu 
+                        = new ContactRightButtonMenu(
+							parent, contactNode.getContact());
 
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) contactListTree
-						.getLastSelectedPathComponent();
+					popupMenu.setInvoker(this.contactList);
 
-				if (node == null)
-					return;
+					popupMenu.setLocation(popupMenu.getPopupLocation());
 
-				if (node.isLeaf()) {
-
-					ContactListCellRenderer renderer = (ContactListCellRenderer) this.contactListTree
-							.getCellRenderer().getTreeCellRendererComponent(
-									this.contactListTree,
-									selPath.getLastPathComponent(), false,
-									false, true, selRow, true);
-
-					// Translate coordinates into cell cordinates.
-
-					int translatedX = (int) e.getX()
-							- (int) this.contactListTree.getPathBounds(selPath)
-									.getX();
-
-					int translatedY = (int) e.getY()
-							- (int) this.contactListTree.getPathBounds(selPath)
-									.getY();
-
-					Component component = renderer.findComponentAt(translatedX,
-							translatedY);
-
-					MetaContact contactItem = (MetaContact) node
-							.getUserObject();
-
-					if (component instanceof JLabel) {
-
-						if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK) {
-
-							SwingUtilities.invokeLater(new RunMessageWindow(
-									contactItem));
-							
-						} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK) {
-
-							ContactRightButtonMenu popupMenu = new ContactRightButtonMenu(
-									parent, contactItem);
-
-							popupMenu.setInvoker(this.contactListTree);
-
-							popupMenu.setLocation(popupMenu.getPopupLocation());
-
-							popupMenu.setVisible(true);
-						}
-					} else if (component instanceof JButton) {
-
-						Point p = new Point();
-
-						p.x = (int) contactListTree.getPathBounds(selPath)
-								.getX();
-
-						p.y = (int) contactListTree.getPathBounds(selPath)
-								.getY();
-						
-						SwingUtilities.invokeLater(new RunInfoWindow(p, contactItem));
-					}
+					popupMenu.setVisible(true);
 				}
-
-			} else if (e.getClickCount() == 2) {
-
+			} else if (component instanceof JButton) {
+				
+				SwingUtilities.invokeLater
+                    (new RunInfoWindow(selectedCellPoint, 
+                            contactNode.getContact()));
 			}
 		}
 	}
@@ -207,7 +232,7 @@ public class ContactListPanel extends JScrollPane
 
 			ContactInfoPanel contactInfoPanel = new ContactInfoPanel(parent, contactItem);
 
-			SwingUtilities.convertPointToScreen(p, contactListTree);
+			SwingUtilities.convertPointToScreen(p, contactList);
 
 			// TODO: to calculate popup window posititon properly.
 			contactInfoPanel.setPopupLocation(p.x - 140, p.y - 15);
@@ -219,17 +244,18 @@ public class ContactListPanel extends JScrollPane
 		}
 	}
    
-    public void initTree(MetaContactListService contactList) {
+    public void initTree(MetaContactListService contactListService) {
         
-        this.contactListTree = new ContactListTree(contactList);
+        this.contactList = new ContactList(contactListService);
         
-        this.contactListTree.addMouseListener(this);
+        this.contactList.addMouseListener(this);
 
-        this.treePanel.add(contactListTree, BorderLayout.NORTH);
+        this.treePanel.add(contactList, BorderLayout.NORTH);
     }
     
-    public ContactListTree getContactListTree(){
+    public ContactList getContactList(){
     	
-    	return this.contactListTree;
-    } 
+    	return this.contactList;
+    }
+    
 }
