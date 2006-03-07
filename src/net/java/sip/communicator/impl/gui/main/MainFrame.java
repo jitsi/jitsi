@@ -16,14 +16,19 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactNode;
+import net.java.sip.communicator.impl.gui.main.contactlist.MetaContactNode;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.service.protocol.OperationSetPersistentPresence;
@@ -85,8 +90,6 @@ public class MainFrame extends JFrame {
 
 		this.setIconImage(ImageLoader.getImage(ImageLoader.SIP_LOGO));
 		
-		this.setSize(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT);	
-		
 		this.init();
 	}
 
@@ -108,7 +111,9 @@ public class MainFrame extends JFrame {
 		this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width
 				- MainFrame.WIDTH, 50);
 	
-		this.tabbedPane.setMinimumSize(minimumFrameSize);
+        this.setSize(155, 400);
+        this.contactListPanel.setPreferredSize(new Dimension(140, 350));
+        this.contactListPanel.setMinimumSize(new Dimension(80, 200));
 	}
 
 	public CallPanel getCallPanel() {
@@ -217,14 +222,27 @@ public class MainFrame extends JFrame {
     private class ContactPresenceStatusAdapter
         implements ContactPresenceStatusListener {
 
-        public void contactPresenceStatusChanged(ContactPresenceStatusChangeEvent evt) {
-                    
-        	ContactNode node = tabbedPane.getContactListPanel().getContactListTree().contains(evt.getSourceContact());
+        public void contactPresenceStatusChanged
+            (ContactPresenceStatusChangeEvent evt) {
+          
+            MetaContact metaContact 
+                = contactList.findMetaContactByContact(evt.getSourceContact());
+           
+            if (metaContact != null){
+                ContactListModel model 
+                    = (ContactListModel)tabbedPane.getContactListPanel()
+                        .getContactList().getModel();
+                
+                MetaContactNode node 
+                    = model.getContactNodeByContact(metaContact);
+                
+                if(node != null){
+                    node.setStatusIcon
+                        (new ImageIcon(Constants.getStatusIcon
+                                (evt.getNewStatus())));
+                }
+            }
             
-        	if(node != null){                
-        		node.setIcon(Constants.getStatusIcon(evt.getNewStatus()));
-                tabbedPane.getContactListPanel().getContactListTree().repaint();
-        	}
         }
     }
     

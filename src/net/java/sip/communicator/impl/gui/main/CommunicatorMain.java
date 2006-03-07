@@ -119,19 +119,7 @@ public class CommunicatorMain {
                 UIManager.setLookAndFeel
                     ("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
             }
-            // Decorates the frames and dialogs if we are running with jdk1.4 +
-
-            /*
-             * if (OS.isOneDotFourOrMore()) { java.lang.reflect.Method method =
-             * JFrame.class.getMethod( "setDefaultLookAndFeelDecorated", new
-             * Class[] { boolean.class }); method.invoke(null, new Object[] {
-             * Boolean.TRUE });
-             * 
-             * method = JDialog.class.getMethod(
-             * "setDefaultLookAndFeelDecorated", new Class[] { boolean.class });
-             * method.invoke(null, neif (args.length > 0) { }
-             */
-
+          
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

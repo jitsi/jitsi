@@ -30,14 +30,10 @@ public class Constants {
 	 * ------------------------ SIZE CONSTANTS -------------------------------
 	 * =======================================================================
 	 */
+	
+	public static final int MAINFRAME_MIN_HEIGHT = 200;
 
-	public static final int MAINFRAME_HEIGHT = 180;
-
-	public static final int MAINFRAME_WIDTH = 120;
-
-	public static final int MAINFRAME_MIN_HEIGHT = 300;
-
-	public static final int MAINFRAME_MIN_WIDTH = 200;
+	public static final int MAINFRAME_MIN_WIDTH = 80;
 
 	public static final int CONTACTPANEL_HEIGHT = 20;
 
