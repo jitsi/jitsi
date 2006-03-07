@@ -79,7 +79,7 @@ public class CallPanel extends JPanel implements ActionListener{
 		this.phoneNumberCombo.setEditable(true);
 		
 		this.comboPanel.add(phoneNumberCombo, BorderLayout.CENTER);
-		this.add(comboPanel, BorderLayout.NORTH);
+		//this.add(comboPanel, BorderLayout.NORTH);
 		
 		this.callButton.setName("call");
 		this.hangupButton.setName("hangup");
@@ -94,9 +94,9 @@ public class CallPanel extends JPanel implements ActionListener{
 		this.buttonsPanel.add(callButton);
 		this.buttonsPanel.add(hangupButton);
 
-		this.add(buttonsPanel, BorderLayout.CENTER);
+		//this.add(buttonsPanel, BorderLayout.CENTER);
 		
-		this.minimizeButtonPanel.add(minimizeButton);
+		this.minimizeButtonPanel.add(restoreButton);
 		
 		this.add(minimizeButtonPanel,BorderLayout.SOUTH);		
 	}
