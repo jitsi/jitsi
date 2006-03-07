@@ -33,10 +33,10 @@ public class MainTabbedPane extends JTabbedPane {
 		contactListPanel = new ContactListPanel(parent);
 		
 		dialPanel.setPhoneNumberCombo(parent.getCallPanel().getPhoneNumberCombo());
-				
+		
 		this.addTab(Messages.getString("contacts"), contactListPanel);
 		this.addTab(Messages.getString("callList"), new JPanel());
-		this.addTab(Messages.getString("dial"), dialPanel);
+		//this.addTab(Messages.getString("dial"), dialPanel);
 	}
 	
 	public void paint(Graphics g){

@@ -7,11 +7,13 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
@@ -25,42 +27,39 @@ import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
  */
 public class QuickMenu extends SIPCommToolBar 
 	implements ActionListener {
-			
-	SIPCommButton infoButton;
-	SIPCommButton configureButton;
-	SIPCommButton addButton;
-	SIPCommButton searchButton;
+
+    JButton infoButton      = new JButton
+                                (new ImageIcon(ImageLoader.getImage
+                                    (ImageLoader.QUICK_MENU_INFO_ICON)));
+
+    JButton configureButton = new JButton
+                                (new ImageIcon(ImageLoader.getImage
+                                    (ImageLoader.QUICK_MENU_CONFIGURE_ICON))); 
+
+    JButton searchButton    = new JButton
+                                (new ImageIcon(ImageLoader.getImage
+                                    (ImageLoader.QUICK_MENU_SEARCH_ICON))); 
+
+    JButton addButton       = new JButton
+                                (new ImageIcon(ImageLoader.getImage
+                                    (ImageLoader.QUICK_MENU_ADD_ICON)));
 	
 	private MainFrame mainFrame;
 	
 	public QuickMenu(MainFrame mainFrame){
 
 		this.mainFrame = mainFrame;
-	
+	    
 		this.setRollover(true);
 		this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
 		this.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
-				
-		infoButton 		= new SIPCommButton
-							(ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_BG),
-							 ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_ROLLOVER_BG),
-							 ImageLoader.getImage(ImageLoader.QUICK_MENU_INFO_ICON));
-		
-		configureButton 	= new SIPCommButton
-							(ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_BG), 
-							 ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_ROLLOVER_BG),
-							 ImageLoader.getImage(ImageLoader.QUICK_MENU_CONFIGURE_ICON));
-		
-		searchButton 	= new SIPCommButton
-							(ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_BG), 
-							 ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_ROLLOVER_BG),
-							 ImageLoader.getImage(ImageLoader.QUICK_MENU_SEARCH_ICON));
-		
-		addButton 		= new SIPCommButton
-							(ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_BG), 
-							 ImageLoader.getImage(ImageLoader.QUICK_MENU_BUTTON_ROLLOVER_BG),
-							 ImageLoader.getImage(ImageLoader.QUICK_MENU_ADD_ICON));
-				
+		this.setFloatable(false);		
+        
+		this.infoButton.setPreferredSize(new Dimension(28, 28));
+        this.configureButton.setPreferredSize(new Dimension(28, 28));		
+        this.searchButton.setPreferredSize(new Dimension(28, 28));
+        this.addButton.setPreferredSize(new Dimension(28, 28));
+        
 		this.init();
 	}
 	
