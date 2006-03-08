@@ -4,6 +4,7 @@ Bundle-Description: An SLI compatibility kit for the MetaContactList service.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 Import-Package: net.java.sip.communicator.service.contactlist,
+ net.java.sip.communicator.service.contactlist.event,
  org.osgi.framework,
  junit.framework,
  net.java.sip.communicator.util,

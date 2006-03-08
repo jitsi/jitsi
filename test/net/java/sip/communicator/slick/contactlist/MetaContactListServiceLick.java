@@ -34,6 +34,12 @@ public class MetaContactListServiceLick
      */
     private ServiceRegistration mockProviderRegistration = null;
 
+    static final String THE_NAME_OF_A_GROUP = "SomePeople";
+
+    static final String THE_NAME_OF_A_CONTACT = "Spencer";
+
+    static MockContact THE_CONTACT = null;
+
     /**
      * Start, init and register the SLICK. Create the mock protocol provider
      * and register it as a service.
@@ -56,6 +62,8 @@ public class MetaContactListServiceLick
 
         //add the meta contact list tests.
         addTestSuite(TestMetaContactList.class);
+        addTestSuite(TestMetaContact.class);
+        addTestSuite(TestMetaContactGroup.class);
 
         //register the slick itself
         context.registerService(getClass().getName(), this, slickServiceProperties);
@@ -119,15 +127,26 @@ public class MetaContactListServiceLick
                                                     class.getName());
         MockContactGroup root =
                 (MockContactGroup)mockOpSet.getServerStoredContactListRoot();
-        root.addContact( new MockContact("Ivan Ivanov", provider) );
-        root.addContact( new MockContact("Martin Dupont", provider) );
-        root.addContact( new MockContact("Joe Bloggs", provider) );
+        root.addContact( new MockContact("Ivan Ivanov", provider, root) );
+        root.addContact( new MockContact("Martin Dupont", provider, root) );
+        root.addContact( new MockContact("Joe Bloggs", provider, root) );
 
-        MockContactGroup group1 = new MockContactGroup("SomePeople", provider);
+        MockContactGroup group1 = new MockContactGroup(THE_NAME_OF_A_GROUP, provider);
 
-        group1.addContact( new MockContact("Spencer", provider) );
-        group1.addContact( new MockContact("Pencho", provider) );
-        group1.addContact( new MockContact("Toto", provider) );
+        THE_CONTACT = new MockContact(THE_NAME_OF_A_CONTACT, provider,
+                                            group1);
+        group1.addContact( THE_CONTACT );
+        group1.addContact( new MockContact("Pencho", provider, group1) );
+        group1.addContact( new MockContact("Toto", provider, group1) );
+
+        MockContactGroup group2 = new MockContactGroup("SubSubGroup", provider);
+
+        group2.addContact( new MockContact("SContact1", provider, group2));
+        group2.addContact( new MockContact("SContact2", provider, group2));
+        group2.addContact( new MockContact("SContact3", provider, group2));
+        group2.addContact( new MockContact("SContact4", provider, group2));
+
+        group1.addSubGroup(group2);
 
         root.addSubGroup(group1);
     }
