@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.contactlist;
 
 import java.util.*;
@@ -57,7 +63,34 @@ public class MetaContactImpl
      * @return a <tt>Contact</tt> encapsulated in this <tt>MetaContact</tt>
      *   and originating from the specified provider.
      */
-    public Contact getContactForProvider(ProtocolProviderService provider)
+    public Iterator getContactsForProvider(ProtocolProviderService provider)
+    {
+        Iterator contactsIter = protoContacts.iterator();
+        LinkedList providerContacts = new LinkedList();
+
+        while (contactsIter.hasNext())
+        {
+            Contact contact = (Contact)contactsIter.next();
+
+            if(contact.getProtocolProvider() == provider)
+                providerContacts.add( contact );
+        }
+
+        return providerContacts.iterator();
+    }
+
+    /**
+     * Returns a contact encapsulated by this meta contact, having the specified
+     * contactAddress and coming from the indicated ownerProvider.
+     * @param contactAddress the address of the contact who we're looking for.
+     * @param ownerProvider a reference to the ProtocolProviderService that
+     * the contact we're looking for belongs to.
+     * @return a reference to a <tt>Contact</tt>, encapsulated by this
+     * MetaContact, carrying the specified address and originating from the
+     * specified ownerProvider or null if no such contact exists..
+     */
+    public Contact getContact(String contactAddress,
+                              ProtocolProviderService ownerProvider)
     {
         Iterator contactsIter = protoContacts.iterator();
 
@@ -65,11 +98,13 @@ public class MetaContactImpl
         {
             Contact contact = (Contact)contactsIter.next();
 
-            if(contact.getProtocolProvider() == provider)
+            if(   contact.getProtocolProvider() == ownerProvider
+               && contact.getAddress().equals(contactAddress))
                 return contact;
         }
 
         return null;
+
     }
 
     /**
@@ -169,6 +204,35 @@ public class MetaContactImpl
     {
         return this.protoContacts.remove(contact);
     }
+
+
+    /**
+     * Removes all proto contacts that belong to the specified provider.
+     *
+     * @param contact the contact to remove
+     *
+     * @return true if this <tt>MetaContact</tt> was modified and false
+     * otherwise.
+     */
+    boolean removeContactsForProvider(ProtocolProviderService provider)
+    {
+        boolean modified = false;
+        Iterator contactsIter = protoContacts.iterator();
+
+        while(contactsIter.hasNext())
+        {
+            Contact contact = (Contact)contactsIter.next();
+
+            if (contact.getProtocolProvider() == provider)
+            {
+                contactsIter.remove();
+                modified = true;
+            }
+        }
+
+        return modified;
+    }
+
 
 
 }

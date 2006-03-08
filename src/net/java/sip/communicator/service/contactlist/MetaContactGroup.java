@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.contactlist;
 
 import java.util.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * <tt>MetaContactGroup</tt>s are used to merge groups (often originating
@@ -21,6 +22,42 @@ import java.util.*;
  */
 public interface MetaContactGroup
 {
+    /**
+     * Returns an iterator over all the protocol specific groups that this
+     * contact group represents.
+     * @return an Iterator over the protocol specific groups that this group
+     * represents.
+     */
+    public Iterator getContactGroups();
+
+    /**
+     * Returns all protocol specific ContactGroups, encapsulated by this
+     * MetaContactGroup and coming from the indicated ProtocolProviderService.
+     * If none of the contacts encapsulated by this MetaContact is originating
+     * from the specified provider then an empty iterator is returned.
+     * <p>
+     * @param provider a reference to the <tt>ProtocolProviderService</tt>
+     * whose ContactGroups we'd like to get.
+     * @return an <tt>Iterator</tt> over all contacts encapsulated in this
+     * <tt>MetaContact</tt> and originating from the specified provider.
+     */
+    public Iterator getContactGroupsForProvider(ProtocolProviderService provider);
+
+    /**
+     * Returns a contact group encapsulated by this meta contact group, having
+     * the specified groupName and coming from the indicated ownerProvider.
+     *
+     * @param groupName the name of the contact group who we're looking for.
+     * @param ownerProvider a reference to the ProtocolProviderService that
+     * the contact we're looking for belongs to.
+     * @return a reference to a <tt>ContactGroup</tt>, encapsulated by this
+     * MetaContactGroup, carrying the specified name and originating from the
+     * specified ownerProvider.
+     */
+    public ContactGroup getContactGroup(String groupName,
+                                        ProtocolProviderService ownerProvider);
+
+
     /**
      * Returns a <tt>java.util.Iterator</tt> over the <tt>MetaContact</tt>s
      * contained in this <tt>MetaContactGroup</tt>.
@@ -68,12 +105,12 @@ public interface MetaContactGroup
 
     /**
      * Returns the contact with the specified identifier
-     * @param metaContactID a String identifier obtained through the
+     * @param metaUID a String identifier obtained through the
      * <tt>MetaContact.getMetaUID()</tt> method.
      * <p>
      * @return the <tt>MetaContact</tt> with the specified idnetifier.
      */
-    public MetaContact getMetaContact(String metaContactID);
+    public MetaContact getMetaContact(String metaUID);
 
     /**
      * Returns the meta contact on the specified index.

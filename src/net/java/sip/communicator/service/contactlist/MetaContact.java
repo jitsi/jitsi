@@ -39,6 +39,19 @@ public interface MetaContact
     public Iterator getContacts();
 
     /**
+     * Returns a contact encapsulated by this meta contact, having the specified
+     * contactAddress and coming from the indicated ownerProvider.
+     * @param contactAddress the address of the contact who we're looking for.
+     * @param ownerProvider a reference to the ProtocolProviderService that
+     * the contact we're looking for belongs to.
+     * @return a reference to a <tt>Contact</tt>, encapsulated by this
+     * MetaContact, carrying the specified address and originating from the
+     * specified ownerProvider or null if no such contact exists..
+     */
+    public Contact getContact( String                  contactAddress,
+                               ProtocolProviderService ownerProvider);
+
+    /**
      * Returns the number of protocol speciic <tt>Contact</tt>s that this
      * <tt>MetaContact</tt> contains.
      * @return an int indicating the number of protocol specific contacts merged
@@ -47,17 +60,17 @@ public interface MetaContact
     public int getContactCount();
 
     /**
-     * Returns a Contact, encapsulated by this MetaContact and coming from the
-     * specified ProtocolProviderService. If none of the contacts encapsulated
-     * by this MetaContact is originating from the specified provider then
-     * <tt>null</tt> is returned.
+     * Returns all protocol specific Contacts, encapsulated by this MetaContact
+     * and coming from the indicated ProtocolProviderService. If none of the
+     * contacts encapsulated by this MetaContact is originating from the
+     * specified provider then an empty iterator is returned.
      * <p>
      * @param provider a reference to the <tt>ProtocolProviderService</tt>
-     * that we'd like to get a <tt>Contact</tt> for.
-     * @return a <tt>Contact</tt> encapsulated in this
+     * whose contacts we'd like to get.
+     * @return an <tt>Iterator</tt> over all contacts encapsulated in this
      * <tt>MetaContact</tt> and originating from the specified provider.
      */
-    public Contact getContactForProvider(ProtocolProviderService provider);
+    public Iterator getContactsForProvider(ProtocolProviderService provider);
 
     /**
      * Returns a String identifier (the actual contents is left to

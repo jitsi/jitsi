@@ -1,42 +1,53 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.contactlist;
 
 import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
- * A Default implementation of a MetaContactGroup. Note that this implementation
- * is only meant to be used for non-root contact groups and can only contain
- * contacts. All subgroup retrieving methods would returns null/0 values.
- * Root contact groups are to be represented by the RootMetaContactGroupImpl.
- * <p>
+ * A straightforward implementation of the meta contact group.
+ *
  * @author Emil Ivov
  */
 public class MetaContactGroupImpl
     implements MetaContactGroup
 {
+    private static final Logger logger =
+        Logger.getLogger(MetaContactGroupImpl.class);
     /**
-     * All child contacts for this group.
+     * All the subgroups that this group contains.
+     */
+    private Vector subgroups = new Vector();
+
+    /**
+     * A list containing all child contacts.
      */
     private Vector childContacts = new Vector();
 
     /**
-     * An empty list that we'll be using in order to return an empty iterator
-     * of the (non-existing) sub groups.
+     * A list of the contact groups encapsulated by this MetaContactGroup
      */
-    private final List dummySubgroupsList = new LinkedList();
+    private Vector protoGroups = new Vector();
 
     /**
-     * All protocol specific contact groups encapsulated by this
-     * <tt>MetaContactGoup</tt>.
+     * The name of the group (fixed for root groups since it won't show).
      */
-    private Hashtable protoGroups = new Hashtable();
-
-
     private String groupName = null;
 
-    protected MetaContactGroupImpl(String groupName)
+    /**
+     * Creates an instance of the root meta contact group.
+     *
+     * @param groupName the name of the group to create
+     */
+    MetaContactGroupImpl(String groupName)
     {
         this.groupName = groupName;
     }
@@ -44,8 +55,8 @@ public class MetaContactGroupImpl
     /**
      * Determines whether or not this group can contain subgroups.
      *
-     * @return Always false since only the root contact group may contain sub
-     * groups in our implementation.
+     * @return always <tt>true</tt> since this is the root contact group
+     * and in our imple it can only contain groups.
      */
     public boolean canContainSubgroups()
     {
@@ -53,10 +64,9 @@ public class MetaContactGroupImpl
     }
 
     /**
-     * Returns the number of <tt>MetaContact</tt>s that this group contains
+     * Returns the number of <tt>MetaContact</tt>s that this group contains.
      * <p>
-     * @return an int indicating the number of MetaContact-s that this group
-     *   contains.
+     * @return the number of <tt>MetaContact</tt>s that this group contains.
      */
     public int countChildContacts()
     {
@@ -64,11 +74,21 @@ public class MetaContactGroupImpl
     }
 
     /**
+     * Returns the number of subgroups that this <tt>MetaContactGroup</tt>
+     * contains.
+     *
+     * @return an int indicating the number of subgroups in this group.
+     */
+    public int countSubgroups()
+    {
+        return subgroups.size();
+    }
+
+    /**
      * Returns a <tt>java.util.Iterator</tt> over the <tt>MetaContact</tt>s
      * contained in this <tt>MetaContactGroup</tt>.
      *
-     * @return a <tt>java.util.Iterator</tt> over the <tt>MetaContacts</tt>
-     *   in this group.
+     * @return a <tt>java.util.Iterator</tt> over an empty contacts list.
      */
     public Iterator getChildContacts()
     {
@@ -97,6 +117,191 @@ public class MetaContactGroupImpl
     }
 
     /**
+     * Returns a meta contact, a child of this group or its subgroups, that
+     * has the specified metaUID. If no such meta contact exists, the method
+     * would return null.
+     *
+     * @param metaUID the Meta UID of the contact we're looking for.
+     * @return the MetaContact with the specified UID or null if no such
+     * contact exists.
+     */
+    public MetaContactImpl findMetaContactByMetaUID(String metaUID)
+    {
+        //first go through the contacts that are direct children of this method.
+        Iterator contactsIter = getChildContacts();
+
+        while(contactsIter.hasNext())
+        {
+            MetaContactImpl mContact = (MetaContactImpl)contactsIter.next();
+
+            if( mContact.getMetaUID().equals(metaUID) )
+                return mContact;
+        }
+
+        //if we didn't find it here, let's try in the subougroups
+        Iterator groupsIter = getSubgroups();
+
+        while( groupsIter.hasNext() )
+        {
+            MetaContactGroupImpl mGroup = (MetaContactGroupImpl)groupsIter.next();
+
+            MetaContactImpl mContact = mGroup.findMetaContactByMetaUID(metaUID);
+
+            if (mContact != null)
+                return mContact;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns an iterator over all the protocol specific groups that this
+     * contact group represents.
+     * @return an Iterator over the protocol specific groups that this group
+     * represents.
+     */
+    public Iterator getContactGroups()
+    {
+        return this.protoGroups.iterator();
+    }
+
+    /**
+     * Returns a contact group encapsulated by this meta contact group, having
+     * the specified groupName and coming from the indicated ownerProvider.
+     *
+     * @param groupName the name of the contact group who we're looking for.
+     * @param ownerProvider a reference to the ProtocolProviderService that
+     * the contact we're looking for belongs to.
+     * @return a reference to a <tt>ContactGroup</tt>, encapsulated by this
+     * MetaContactGroup, carrying the specified name and originating from the
+     * specified ownerProvider or null if no such contact group was found.
+     */
+    public ContactGroup getContactGroup(String groupName,
+                                        ProtocolProviderService ownerProvider)
+    {
+        Iterator encapsulatedGroups = getContactGroups();
+
+        while (encapsulatedGroups.hasNext())
+        {
+            ContactGroup group = (ContactGroup)encapsulatedGroups.next();
+
+            if (group.getGroupName().equals(groupName)
+                && group.getProtocolProvider() == ownerProvider)
+            {
+                return group;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns all protocol specific ContactGroups, encapsulated by this
+     * MetaContactGroup and coming from the indicated ProtocolProviderService.
+     * If none of the contacts encapsulated by this MetaContact is originating
+     * from the specified provider then an empty iterator is returned.
+     * <p>
+     * @param provider a reference to the <tt>ProtocolProviderService</tt>
+     * whose ContactGroups we'd like to get.
+     * @return an <tt>Iterator</tt> over all contacts encapsulated in this
+     * <tt>MetaContact</tt> and originating from the specified provider.
+     */
+    public Iterator getContactGroupsForProvider(
+                                            ProtocolProviderService provider)
+    {
+        Iterator encapsulatedGroups = getContactGroups();
+        LinkedList protoGroups = new LinkedList();
+
+        while(encapsulatedGroups.hasNext())
+        {
+            ContactGroup group = (ContactGroup)encapsulatedGroups.next();
+
+            if(group.getProtocolProvider() == provider)
+                protoGroups.add(group);
+        }
+        return protoGroups.iterator();
+    }
+
+    /**
+     * Returns a meta contact, a child of this group or its subgroups, that
+     * has the specified protocol specific contact. If no such meta contact
+     * exists, the method would return null.
+     *
+     * @param protoContact the protocol specific contact whos meta contact we're
+     * looking for.
+     * @return the MetaContactImpl that contains the specified protocol specific
+     * contact.
+     */
+    public MetaContactImpl findMetaContactByContact(Contact protoContact)
+    {
+        //first go through the contacts that are direct children of this method.
+        Iterator contactsIter = getChildContacts();
+
+        while(contactsIter.hasNext())
+        {
+            MetaContactImpl mContact = (MetaContactImpl)contactsIter.next();
+
+            Contact storedProtoContact = mContact.getContact(
+                protoContact.getAddress(), protoContact.getProtocolProvider());
+
+            if( storedProtoContact != null)
+                return mContact;
+        }
+
+        //if we didn't find it here, let's try in the subougroups
+        Iterator groupsIter = getSubgroups();
+
+        while( groupsIter.hasNext() )
+        {
+            MetaContactGroupImpl mGroup = (MetaContactGroupImpl)groupsIter.next();
+
+            MetaContactImpl mContact = mGroup.findMetaContactByContact(
+                                                                protoContact);
+
+            if (mContact != null)
+                return mContact;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns a meta contact group, encapsulated by this group or its
+     * subgroups, that has the specified protocol specific contact. If no such
+     * meta contact group exists, the method would return null.
+     *
+     * @param protoContactGroup the protocol specific contact group whose meta
+     * contact group we're looking for.
+     * @return the MetaContactImpl that contains the specified protocol specific
+     * contact.
+     */
+    public MetaContactGroupImpl findMetaContactGroupByContactGroup(
+                                                ContactGroup protoContactGroup)
+    {
+        //first check here, in this meta group
+        if(protoGroups.contains(protoContactGroup))
+            return this;
+
+
+        //if we didn't find it here, let's try in the subougroups
+        Iterator groupsIter = getSubgroups();
+
+        while( groupsIter.hasNext() )
+        {
+            MetaContactGroupImpl mGroup = (MetaContactGroupImpl)groupsIter.next();
+
+            MetaContactGroupImpl foundMetaContactGroup = mGroup
+                    .findMetaContactGroupByContactGroup( protoContactGroup );
+
+            if (foundMetaContactGroup != null)
+                return foundMetaContactGroup;
+        }
+
+        return null;
+    }
+
+
+
+    /**
      * Returns the meta contact on the specified index.
      *
      * @param index the index of the meta contact to return.
@@ -109,116 +314,6 @@ public class MetaContactGroupImpl
     {
         return (MetaContact)childContacts.get(index);
     }
-
-    /**
-     * Returns the <tt>MetaContactGroup</tt> with the specified index.
-     *
-     * @param index the index of the group to return.
-     * @return always null since only the root contact group may contain sub
-     * gorups in our implementation.
-     * @throws IndexOutOfBoundsException if <tt>index</tt> is not a valid
-     *   index.
-     */
-    public MetaContactGroup getMetaContactSubgroup(int index) throws
-        IndexOutOfBoundsException
-    {
-        return null;
-    }
-
-    /**
-     * Returns the name of this group.
-     * @return a String containing the name of this group.
-     */
-    public String getGroupName()
-    {
-        return groupName;
-    }
-
-    /**
-     * Returns the <tt>MetaContactGroup</tt> with the specified name.
-     *
-     * @param groupName the name of the group to return.
-     * @return always null since only the root contact group may contain
-     * subgroups in our implementation.
-     */
-    public MetaContactGroup getMetaContactSubgroup(String groupName)
-    {
-        return null;
-    }
-
-    /**
-     * Returns the number of subgroups that this <tt>MetaContactGroup</tt>
-     * contains.
-     *
-     * @return always 0 since only the root contact group may contain subgroups
-     * in our implementation.
-     */
-    public int countSubgroups()
-    {
-        return 0;
-    }
-
-    /**
-     * Returns an <tt>java.util.Iterator</tt> over the sub groups that this
-     * <tt>MetaContactGroup</tt> contains.
-     *
-     * @return an Iterator over the empty subgroups list.
-     */
-    public Iterator getSubgroups()
-    {
-        return dummySubgroupsList.iterator();
-    }
-
-    /**
-     * Adds the specified <tt>group</tt> to the list of protocol specific
-     * groups merged by this MetaContactGroup.
-     * @param owner the ProtocolProviderService where the specified group came
-     * from.
-     * @param group the <tt>ContactGroup</tt> to add merge into this
-     * MetaContactGroup.
-     */
-    public void addProtoGroup(ProtocolProviderService owner,
-                              ContactGroup group)
-    {
-        this.protoGroups.put(owner, group);
-    }
-
-    /**
-     * Returns a String representation of this group and the contacts it
-     * contains (may turn out to be a relatively long string).
-     * @return a String representing this group and its child contacts.
-     */
-    public String toString()
-    {
-        StringBuffer buff = new StringBuffer("MetaContactGroup.");
-
-        buff.append(getGroupName());
-        buff.append(", childContacts="+countChildContacts()+":[");
-
-        Iterator contacts = getChildContacts();
-        while (contacts.hasNext())
-        {
-            MetaContactImpl contact = (MetaContactImpl) contacts.next();
-            buff.append(contact.toString());
-            if(contacts.hasNext())
-                buff.append(", ");
-        }
-        return buff.append("]").toString();
-    }
-
-    /**
-     * Verifies whether a protocol specific ContactGroup with the specified
-     * name and originating from the specified provider is encapsulated by this
-     * MetaContactGroup and if so returns it.
-     * <p>
-     * <p>
-     * @return the <tt>ContactGroup</tt> with the specified name and provider
-     * or null if no such group exists.
-     */
-//    ContactGroup findContactGroup(String groupName, )
-//    {
-//        /** @todo implement findContactGroup() */
-//    }
 
     /**
      * Adds the specified <tt>metaContact</tt> to ths local list of child
@@ -240,5 +335,147 @@ public class MetaContactGroupImpl
         this.childContacts.remove( metaContact );
     }
 
+    /**
+     * Returns the <tt>MetaContactGroup</tt> with the specified index.
+     * <p>
+     * @param index the index of the group to return.
+     * @return the <tt>MetaContactGroup</tt> with the specified index. <p>
+     * @throws IndexOutOfBoundsException if <tt>index</tt> is not a valid
+     *   index.
+     */
+    public MetaContactGroup getMetaContactSubgroup(int index) throws
+        IndexOutOfBoundsException
+    {
+        return (MetaContactGroup)subgroups.get(index);
+    }
 
+    /**
+     * Returns the <tt>MetaContactGroup</tt> with the specified name.
+     *
+     * @param groupName the name of the group to return.
+     * @return the <tt>MetaContactGroup</tt> with the specified name or null
+     *   if no such group exists.
+     */
+    public MetaContactGroup getMetaContactSubgroup(String groupName)
+    {
+        Iterator groupsIter = getSubgroups();
+
+        while(groupsIter.hasNext())
+        {
+            MetaContactGroup mcGroup = (MetaContactGroup)groupsIter.next();
+
+            if(mcGroup.getGroupName().equals(groupName))
+                return mcGroup;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns an <tt>java.util.Iterator</tt> over the sub groups that this
+     * <tt>MetaContactGroup</tt> contains.
+     * <p>
+     * @return a <tt>java.util.Iterator</tt> containing all subgroups.
+     */
+    public Iterator getSubgroups()
+    {
+        return subgroups.iterator();
+    }
+
+    /**
+     * Returns the name of this group.
+     * @return a String containing the name of this group.
+     */
+    public String getGroupName()
+    {
+        return groupName;
+    }
+
+    /**
+     * Returns a String representation of this group and the contacts it
+     * contains (may turn out to be a relatively long string).
+     * @return a String representing this group and its child contacts.
+     */
+     public String toString()
+     {
+
+        StringBuffer buff = new StringBuffer(getGroupName());
+        buff.append(".subGroups=" + countSubgroups() + ":\n");
+
+        Iterator subGroups = getSubgroups();
+        while (subGroups.hasNext())
+        {
+            MetaContactGroupImpl group = (MetaContactGroupImpl)subGroups.next();
+            buff.append(group.toString());
+            if (subGroups.hasNext())
+                buff.append("\n");
+        }
+
+        buff.append("\nRootChildContacts="+countChildContacts()+":[");
+
+        Iterator contacts = getChildContacts();
+        while (contacts.hasNext())
+        {
+            MetaContactImpl contact = (MetaContactImpl) contacts.next();
+            buff.append(contact.toString());
+            if(contacts.hasNext())
+                buff.append(", ");
+        }
+        return buff.append("]").toString();
+    }
+
+    /**
+     * Addes the specified group to the list of protocol specific groups
+     * that we're encapsulating in this meta contact group.
+     * @param protoGroup the root to add to the groups merged in this meta contact
+     * group.
+     */
+    void addProtoGroup( ContactGroup protoGroup)
+    {
+        protoGroups.add(protoGroup);
+    }
+
+    /**
+     * Removes the specified group from the list of protocol specific groups
+     * that we're encapsulating in this meta contact group.
+     * @param protoGroup the group to remove from the groups merged in this meta
+     * contact group.
+     */
+    void removeProtoGroup( ContactGroup protoGroup)
+    {
+        protoGroups.remove(protoGroup);
+    }
+
+    /**
+     * Adds the specified meta group to the subgroups of this one.
+     * @param subgroup the MetaContactGroup to register as a subgroup to this
+     * root meta contact group.
+     */
+    void addSubgroup(MetaContactGroup subgroup)
+    {
+        logger.trace("Adding subgroup " + subgroup.getGroupName()
+                     + " to" + getGroupName());
+        this.subgroups.add(subgroup);
+    }
+
+    /**
+     * Removes the meta contact group with the specified index.
+     * @param index the index of the group to remove.
+     * @return the <tt>MetaContactGroup</tt> that has just been removed.
+     */
+    MetaContactGroupImpl removeSubgroup(int index)
+    {
+        return (MetaContactGroupImpl)subgroups.remove(index);
+    }
+
+    /**
+     * Removes the specified group from the list of groups in this list.
+     * @param group the <tt>MetaContactGroup</tt> to remove.
+     * @return true if the group has been successfully removed and false
+     * otherwise.
+     */
+    boolean removeSubgroup(MetaContactGroup group)
+    {
+        return subgroups.remove(group);
+    }
 }

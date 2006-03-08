@@ -49,7 +49,6 @@ import net.java.sip.communicator.service.contactlist.event.MetaContactListListen
  * only load their mocking protocol provider implementations during the test
  * run.
  * <p>
- * @todo expections
  * @author Emil Ivov
  */
 public interface MetaContactListService
@@ -80,10 +79,25 @@ public interface MetaContactListService
      * we need to find the MetaContact that is the author of an incoming message
      * and the corresponding ProtocolProviderService has only provided a
      * <tt>Contact</tt> as its author.
+     *
+     * @param contact the contact whose encapsulating meta contact we're looking
+     * for.
      * @return the MetaContact containing the speicified contact or null
      * if no such contact is present in this contact list.
      */
     public MetaContact findMetaContactByContact(Contact contact);
+
+    /**
+     * Returns the MetaContactGroup encapsulating the specified protocol contact
+     * group or null if no such MetaContactGroup was found.
+     *
+     * @param group the group whose encapsulating meta group we're looking for.
+     * @return the MetaContact containing the speicified contact or null
+     * if no such contact is present in this contact list.
+     */
+    public MetaContactGroup findMetaContactGroupByContactGroup(
+                                                        ContactGroup group);
+
 
     /**
      * Returns the MetaContact that corresponds to the specified metaContactID.
@@ -92,7 +106,7 @@ public interface MetaContactListService
      * @return the MetaContact with the speicified string identifier or null
      * if no such meta contact was found.
      */
-    public MetaContact findMetaContactByID(String metaContactID);
+    public MetaContact findMetaContactByMetaUID(String metaContactID);
 
     /**
      * Adds a listener for <tt>MetaContactListChangeEvent</tt>s posted after
