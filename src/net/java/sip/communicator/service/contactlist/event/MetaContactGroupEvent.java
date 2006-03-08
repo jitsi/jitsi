@@ -21,19 +21,43 @@ public class MetaContactGroupEvent
     private int eventID = -1;
 
     /**
-     * Indicates that the MetaContactGroupEvent instance was triggered by 
+     * Indicates that the MetaContactGroupEvent instance was triggered by
      * adding a MetaContactGroup.
      */
-    public static final int METACONTACT_GROUP_ADDED = 1;
+    public static final int META_CONTACT_GROUP_ADDED = 1;
 
     /**
      * Indicates that the MetaContactGroupEvent instance was triggered by the
      * removal of an existing MetaContactGroup.
      */
-    public static final int METACONTACT_GROUP_REMOVED = 2;
-    
+    public static final int META_CONTACT_GROUP_REMOVED = 2;
+
+    /**
+     * Indicates that the MetaContactGroupEvent instance was triggered by the
+     * removal of a protocol specific ContactGroup in the source
+     * MetaContactGroup.
+     */
+    public static final int CONTACT_GROUP_REMOVED_FROM_META_GROUP = 3;
+
+    /**
+     * Indicates that the MetaContactGroupEvent instance was triggered by the
+     * renaming of a protocol specific ContactGroup in the source
+     * MetaContactGroup. Note that this does not in any way mean that the
+     * name of the MetaContactGroup itslef has changed. <tt>MetaContactGroup</tt>s
+     * contain multiple protocol groups and their name cannot change each time
+     * one of them is renamed.
+     */
+    public static final int CONTACT_GROUP_RENAMED_IN_META_GROUP = 3;
+
+
+    /**
+     * Indicates that the MetaContactGroupEvent instance was triggered by the
+     * renaming of an existing MetaContactGroup.
+     */
+    public static final int META_CONTACT_GROUP_RENAMED = 4;
+
     private ProtocolProviderService sourceProvider = null;
-    
+
     /**
      * Creates a new MetaContactGroup event according to the specified parameters.
      * @param source the MetaContactGroup instance that is added to the MetaContactList
@@ -47,7 +71,7 @@ public class MetaContactGroupEvent
                        int eventID)
     {
         super(source);
-        this.sourceProvider = provider;        
+        this.sourceProvider = provider;
         this.eventID = eventID;
     }
 
@@ -64,11 +88,11 @@ public class MetaContactGroupEvent
      * Returns the source MetaContactGroup.
      * @return the source MetaContactGroup.
      */
-    public MetaContactGroup getSourceContactGroup()
+    public MetaContactGroup getSourceMetaContactGroup()
     {
         return (MetaContactGroup)getSource();
     }
-    
+
     /**
      * Returns a String representation of this MetaContactGroupEvent
      *
@@ -79,9 +103,9 @@ public class MetaContactGroupEvent
     {
         StringBuffer buff
             = new StringBuffer("MetaContactGroupEvent-[ GroupName=");
-        buff.append(getSourceContactGroup().getGroupName());
+        buff.append(getSourceMetaContactGroup().getGroupName());
         buff.append(", eventID=").append(getEventID());
-        
+
         return buff.toString();
     }
 

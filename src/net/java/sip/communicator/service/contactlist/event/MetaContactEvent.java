@@ -22,17 +22,31 @@ public class MetaContactEvent
     private int eventID = -1;
 
     /**
-     * Indicates that the MetaContactEvent instance was triggered by 
+     * Indicates that the MetaContactEvent instance was triggered by
      * adding a MetaContact.
      */
-    public static final int METACONTACT_ADDED = 1;
+    public static final int META_CONTACT_ADDED = 1;
 
     /**
      * Indicates that the MetaContactEvent instance was triggered by the
      * removal of an existing MetaContact.
      */
-    public static final int METACONTACT_REMOVED = 2;
-    
+    public static final int META_CONTACT_REMOVED = 2;
+
+    /**
+     * Indicates that the MetaContactEvent instance was triggered by the
+     * removal of a protocol specific contact from an existing MetaContact.
+     */
+    public static final int PROTO_CONTACT_REMOVED = 3;
+
+    /**
+     * Indicates that the MetaContactEvent instance was triggered by the
+     * addition of a protocol specific contact to an existing MetaContact.
+     */
+    public static final int PROTO_CONTACT_ADDED = 4;
+
+
+
     private ProtocolProviderService sourceProvider = null;
     private MetaContactGroup  parentGroup = null;
 
@@ -41,7 +55,7 @@ public class MetaContactEvent
      * @param source the MetaContact instance that is added to the MetaContactList
      * @param provider the ProtocolProviderService instance where this event
      * occurred
-     * @param parentGroup the MetaContactGroup underwhich the corresponding 
+     * @param parentGroup the MetaContactGroup underwhich the corresponding
      * MetaContact is located
      * @param eventID one of the METACONTACT_XXX static fields indicating the
      * nature of the event.
@@ -76,7 +90,7 @@ public class MetaContactEvent
     }
 
     /**
-     * Returns the MetaContactGroup that the MetaContact belongs to. 
+     * Returns the MetaContactGroup that the MetaContact belongs to.
      * @return the MetaContactGroup that the MetaContact belongs to.
      */
     public MetaContactGroup getParentGroup()
