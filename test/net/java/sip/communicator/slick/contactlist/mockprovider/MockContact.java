@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.slick.contactlist.mockprovider;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -15,16 +21,21 @@ public class MockContact
 {
     private String contactID = null;
     private MockProvider parentProvider = null;
+    private MockContactGroup parentGroup = null;
 
     /**
      * Creates an instance of a meta contact with the specified string used
      * as a name and identifier.
      *
      * @param id the identifier of this contact (also used as a name).
-     * @param parentProvider
+     * @param parentGroup the group that contains the contact
+     * @param parentProvider the provider that created us.
      */
-    public MockContact(String id, MockProvider parentProvider)
+    public MockContact(String id,
+                       MockProvider parentProvider,
+                       MockContactGroup parentGroup)
     {
+        this.parentGroup = parentGroup;
         this.contactID = id;
         this.parentProvider = parentProvider;
     }
@@ -91,6 +102,15 @@ public class MockContact
     public boolean isLocal()
     {
         return false;
+    }
+
+    /**
+     * Returns the group that contains this contact.
+     * @return a reference to the MockContactGroup that contains this contact.
+     */
+    public MockContactGroup getParentGroup()
+    {
+        return this.parentGroup;
     }
 
     /**

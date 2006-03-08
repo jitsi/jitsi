@@ -1,4 +1,9 @@
-
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.slick.contactlist.mockprovider;
 
 import java.util.*;
@@ -43,6 +48,16 @@ public class MockContactGroup
     }
 
     /**
+     * Returns the protocol provider that this group belongs to.
+     * @return a regerence to the ProtocolProviderService instance that this
+     * ContactGroup belongs to.
+     */
+    public ProtocolProviderService getProtocolProvider()
+    {
+        return parentProvider;
+    }
+
+    /**
      * Returns an Iterator over all contacts, member of this
      * <tt>ContactGroup</tt>.
      *
@@ -81,7 +96,7 @@ public class MockContactGroup
      *
      * @return the number of subGroups currently added to this group.
      */
-    public int countSubGroups()
+    public int countSubgroups()
     {
         return subGroups.size();
     }
@@ -96,6 +111,16 @@ public class MockContactGroup
     }
 
     /**
+     * Removes the specified contact group from the this group's subgroups.
+     * @param subGroup the MockContactGroup subgroup to remove.
+     */
+    public void removeSubGroup(MockContactGroup subGroup)
+    {
+        this.subGroups.remove(subGroup);
+    }
+
+
+    /**
      * Returns the <tt>Contact</tt> with the specified index.
      *
      * @param index the index of the <tt>Contact</tt> to return.
@@ -105,6 +130,31 @@ public class MockContactGroup
     {
         return (MockContact)contacts.get(index);
     }
+
+    /**
+     * Returns the group that is parent of the specified mockGroup or null
+     * if no parent was found.
+     * @param mockGroup the group whose parent we're looking for.
+     * @return the MockContactGroup instance that mockGroup belongs to or null
+     * if no parent was found.
+     */
+    public MockContactGroup findGroupParent(MockContactGroup mockGroup)
+    {
+        if ( subGroups.contains(mockGroup) )
+            return this;
+
+        Iterator subGroupsIter = subGroups();
+        while (subGroupsIter.hasNext())
+        {
+            MockContactGroup subgroup = (MockContactGroup) subGroupsIter.next();
+
+            MockContactGroup parent = subgroup.findGroupParent(mockGroup);
+            if(parent != null)
+                return parent;
+        }
+        return null;
+    }
+
 
     /**
      * Returns the <tt>Contact</tt> with the specified address or identifier.
@@ -145,7 +195,7 @@ public class MockContactGroup
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator groupsIter = contacts();
+        Iterator groupsIter = subGroups();
         while (groupsIter.hasNext())
         {
             MockContactGroup contactGroup
@@ -169,6 +219,15 @@ public class MockContactGroup
     }
 
     /**
+     * Sets this group a new name.
+     * @param newGrpName a String containing the new name of this group.
+     */
+    public void setGroupName(String newGrpName)
+    {
+        this.groupName = newGrpName;
+    }
+
+    /**
      * Returns an iterator over the sub groups that this
      * <tt>ContactGroup</tt> contains.
      *
@@ -181,6 +240,51 @@ public class MockContactGroup
     }
 
     /**
+     * Removes the specified contact from this group.
+     * @param contact the MockContact to remove from this group
+     */
+    public void removeContact(MockContact contact)
+    {
+        this.contacts.remove(contact);
+    }
+
+    /**
+     * Returns the contact with the specified id or null if no such contact
+     * exists.
+     * @param id the id of the contact we're looking for.
+     * @return MockContact
+     */
+    public MockContact findContactByID(String id)
+    {
+        //first go through the contacts that are direct children.
+        Iterator contactsIter = contacts();
+
+        while(contactsIter.hasNext())
+        {
+            MockContact mContact = (MockContact)contactsIter.next();
+
+            if( mContact.getAddress().equals(id) )
+                return mContact;
+        }
+
+        //if we didn't find it here, let's try in the subougroups
+        Iterator groupsIter = subGroups();
+
+        while( groupsIter.hasNext() )
+        {
+            MockContactGroup mGroup = (MockContactGroup)groupsIter.next();
+
+            MockContact mContact = mGroup.findContactByID(id);
+
+            if (mContact != null)
+                return mContact;
+        }
+
+        return null;
+    }
+
+
+    /**
      * Returns a String representation of this group and the contacts it
      * contains (may turn out to be a relatively long string).
      * @return a String representing this group and its child contacts.
@@ -189,7 +293,7 @@ public class MockContactGroup
      {
 
         StringBuffer buff = new StringBuffer(getGroupName());
-        buff.append(".subGroups=" + countSubGroups() + ":\n");
+        buff.append(".subGroups=" + countSubgroups() + ":\n");
 
         Iterator subGroups = subGroups();
         while (subGroups.hasNext())

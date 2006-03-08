@@ -1,9 +1,16 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.slick.contactlist.mockprovider;
 
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
 
 /**
@@ -14,15 +21,36 @@ import net.java.sip.communicator.service.protocol.icqconstants.*;
 public class MockPersistentPresenceOperationSet
     implements OperationSetPersistentPresence
 {
+    private static final Logger logger =
+        Logger.getLogger(MockPersistentPresenceOperationSet.class);
+    /**
+     * A list of listeners registered for <tt>SubscriptionEvent</tt>s.
+     */
+    private Vector subscriptionListeners = new Vector();
+
+    /**
+     * A list of listeners registered for <tt>ServerStoredGroupChangeEvent</tt>s.
+     */
+    private Vector serverStoredGroupListeners = new Vector();
 
     /**
      * The root of the mock contact list.
      */
     private MockContactGroup contactListRoot = null;
 
+    /**
+     * The provider that created us.
+     */
+    private MockProvider parentProvider = null;
+
+    /**
+     * The currently active status message.
+     */
+    private String statusMessage = null;
 
     public MockPersistentPresenceOperationSet(MockProvider provider)
     {
+        this.parentProvider = provider;
         contactListRoot = new MockContactGroup("RootMockGroup", provider);
     }
 
@@ -34,7 +62,72 @@ public class MockPersistentPresenceOperationSet
     public void addContactPresenceStatusListener(ContactPresenceStatusListener
                                                  listener)
     {
+
     }
+
+    /**
+     * Notifies all registered listeners of the new event.
+     *
+     * @param source the contact that has caused the event.
+     * @param parentGroup the group that contains the source contact.
+     * @param eventID an identifier of the event to dispatch.
+     */
+    public void fireSubscriptionEvent(MockContact  source,
+                                      ContactGroup parentGroup,
+                                      int          eventID)
+    {
+        SubscriptionEvent evt  = new SubscriptionEvent(source, this.parentProvider,
+                    parentGroup, eventID);
+        for ( int i = 0; i < subscriptionListeners.size(); i++ )
+        {
+            SubscriptionListener listener = (SubscriptionListener)
+                subscriptionListeners.get(i);
+            if(eventID == SubscriptionEvent.SUBSCRIPTION_CREATED)
+            {
+                listener.subscriptionCreated(evt);
+            }
+            else if (eventID == SubscriptionEvent.SUBSCRIPTION_FAILED)
+            {
+                listener.subscriptionFailed(evt);
+            }
+            else if (eventID == SubscriptionEvent.SUBSCRIPTION_REMOVED)
+            {
+                listener.subscriptionRemoved(evt);
+            }
+        }
+    }
+
+    /**
+     * Notifies all registered listeners of the new event.
+     *
+     * @param source the contact that has caused the event.
+     * @param eventID an identifier of the event to dispatch.
+     */
+    public void fireServerStoredGroupEvent(MockContactGroup  source,
+                                           int               eventID)
+    {
+        ServerStoredGroupEvent evt  = new ServerStoredGroupEvent(
+            source, eventID, this.parentProvider, this);
+
+        for ( int i = 0; i < serverStoredGroupListeners.size(); i++ )
+        {
+            ServerStoredGroupListener listener = (ServerStoredGroupListener)
+                serverStoredGroupListeners.get(i);
+            if(eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
+            {
+                listener.groupCreated(evt);
+            }
+            else if(eventID == ServerStoredGroupEvent.GROUP_RENAMED_EVENT)
+            {
+                listener.groupNameChanged(evt);
+            }
+            else if(eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
+            {
+                listener.groupRemoved(evt);
+            }
+        }
+    }
+
 
     /**
      * Mock implementation of the corresponding ProtocolProviderService method.
@@ -56,6 +149,7 @@ public class MockPersistentPresenceOperationSet
     public void addServerStoredGroupChangeListener(ServerStoredGroupListener
                                                         listener)
     {
+        serverStoredGroupListeners.add(listener);
     }
 
     /**
@@ -65,6 +159,7 @@ public class MockPersistentPresenceOperationSet
      */
     public void addSubsciptionListener(SubscriptionListener listener)
     {
+        this.subscriptionListeners.add( listener );
     }
 
     /**
@@ -77,17 +172,24 @@ public class MockPersistentPresenceOperationSet
     public void createServerStoredContactGroup(ContactGroup parent,
                                                String groupName)
     {
-        /** @todo implement createServerStoredContactGroup() */
+        MockContactGroup newGroup
+            = new MockContactGroup(groupName, parentProvider);
+
+        ((MockContactGroup)parent).addSubGroup(newGroup);
+
+        this.fireServerStoredGroupEvent(
+            newGroup, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
     }
 
     /**
      * A Mock Provider method to use for fast filling of a contact list.
+     *
+     * @param contactGroup the group to add
      */
     public void addMockGroup(MockContactGroup contactGroup)
     {
         contactListRoot.addSubGroup(contactGroup);
     }
-
 
     /**
      * Returns a reference to the contact with the specified ID in case we
@@ -101,8 +203,16 @@ public class MockPersistentPresenceOperationSet
      */
     public Contact findContactByID(String contactID)
     {
-        /** @todo implement findContactByID() */
-        return null;
+        return contactListRoot.findContactByID(contactID);
+    }
+
+    /**
+     * Sets the specified status message.
+     * @param statusMessage a String containing the new status message.
+     */
+    public void setStatusMessage(String statusMessage)
+    {
+        this.statusMessage = statusMessage;
     }
 
     /**
@@ -114,8 +224,7 @@ public class MockPersistentPresenceOperationSet
      */
     public String getCurrentStatusMessage()
     {
-        /** @todo implement getCurrentStatusMessage() */
-        return "";
+        return statusMessage;
     }
 
     /**
@@ -232,7 +341,6 @@ public class MockPersistentPresenceOperationSet
     public void removeContactPresenceStatusListener(
         ContactPresenceStatusListener listener)
     {
-        /** @todo implement removeContactPresenceStatusListener() */
     }
 
     /**
@@ -248,14 +356,44 @@ public class MockPersistentPresenceOperationSet
     }
 
     /**
+     * Returns the group that is parent of the specified mockGroup  or null
+     * if no parent was found.
+     * @param mockGroup the group whose parent we're looking for.
+     * @return the MockContactGroup instance that mockGroup belongs to or null
+     * if no parent was found.
+     */
+    public MockContactGroup findGroupParent(MockContactGroup mockGroup)
+    {
+        return contactListRoot.findGroupParent(mockGroup);
+    }
+
+    /**
      * Removes the specified group from the server stored contact list.
      *
      * @param group the group to remove.
+     *
+     * @throws IllegalArgumentException if <tt>group</tt> was not found in this
+     * protocol's contact list.
      */
     public void removeServerStoredContactGroup(ContactGroup group)
+        throws IllegalArgumentException
     {
-        /** @todo implement removeServerStoredContactGroup() */
+        MockContactGroup mockGroup = (MockContactGroup)group;
+
+        MockContactGroup parent = findGroupParent(mockGroup);
+
+        if(parent == null){
+            throw new IllegalArgumentException(
+                "group " + group
+                + " does not seem to belong to this protocol's contact list.");
+        }
+
+        parent.removeSubGroup(mockGroup);
+
+        this.fireServerStoredGroupEvent(
+            mockGroup, ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
     }
+
 
     /**
      * Removes the specified group change listener so that it won't receive
@@ -266,7 +404,7 @@ public class MockPersistentPresenceOperationSet
     public void removeServerStoredGroupChangeListener(ServerStoredGroupListener
         listener)
     {
-        /** @todo implement removeServerStoredGroupChangeListener() */
+        serverStoredGroupListeners.remove(listener);
     }
 
     /**
@@ -276,7 +414,7 @@ public class MockPersistentPresenceOperationSet
      */
     public void removeSubsciptionListener(SubscriptionListener listener)
     {
-        /** @todo implement removeSubsciptionListener() */
+        this.subscriptionListeners.remove(listener);
     }
 
     /**
@@ -288,7 +426,10 @@ public class MockPersistentPresenceOperationSet
     public void renameServerStoredContactGroup(ContactGroup group,
                                                String newName)
     {
-        /** @todo implement renameServerStoredContactGroup() */
+        ((MockContactGroup)group).setGroupName(newName);
+
+        this.fireServerStoredGroupEvent(
+            (MockContactGroup)group, ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
     }
 
     /**
@@ -326,7 +467,16 @@ public class MockPersistentPresenceOperationSet
         IllegalArgumentException, IllegalStateException,
         OperationFailedException
     {
-        /** @todo implement subscribe() */
+        MockContact contact = new MockContact(contactIdentifier
+                                              , parentProvider
+                                              , (MockContactGroup)parent);
+
+        ((MockContactGroup)parent).addContact(contact);
+
+        fireSubscriptionEvent(contact,
+                                       parent,
+                                       SubscriptionEvent.SUBSCRIPTION_CREATED);
+
     }
 
     /**
@@ -347,7 +497,16 @@ public class MockPersistentPresenceOperationSet
         IllegalArgumentException, IllegalStateException,
         OperationFailedException
     {
-        /** @todo implement subscribe() */
+        MockContact contact = new MockContact(contactIdentifier
+                                              , parentProvider
+                                              , contactListRoot);
+
+        contactListRoot.addContact(contact);
+
+        fireSubscriptionEvent(contact,
+                              contactListRoot,
+                              SubscriptionEvent.SUBSCRIPTION_CREATED);
+
     }
 
     /**
@@ -367,6 +526,11 @@ public class MockPersistentPresenceOperationSet
     public void unsubscribe(Contact contact) throws IllegalArgumentException,
         IllegalStateException, OperationFailedException
     {
-        /** @todo implement unsubscribe() */
+        ((MockContact)contact).getParentGroup()
+            .removeContact((MockContact)contact);
+
+        fireSubscriptionEvent((MockContact)contact,
+                                       ((MockContact)contact).getParentGroup(),
+                                       SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
 }
