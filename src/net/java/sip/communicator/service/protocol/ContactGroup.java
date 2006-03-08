@@ -35,7 +35,7 @@ public interface ContactGroup
      * @return an int indicating the number of subgroups that this ContactGroup
      * contains.
      */
-    public int countSubGroups();
+    public int countSubgroups();
 
     /**
      * Returns the subgroup with the specified index.
@@ -102,5 +102,5 @@ public interface ContactGroup
      * @return a regerence to the ProtocolProviderService instance that this
      * ContactGroup belongs to.
      */
-//    public ProtocolProviderService getProtocolProvider();
+    public ProtocolProviderService getProtocolProvider();
 }

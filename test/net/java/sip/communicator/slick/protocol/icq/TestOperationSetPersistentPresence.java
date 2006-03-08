@@ -117,7 +117,7 @@ public class TestOperationSetPersistentPresence
 
         logger.debug("rootGroup="+rootGroup.getGroupName()
                      +" rootGroup.childContacts="+rootGroup.countContacts()
-                     + "rootGroup.childGroups="+rootGroup.countSubGroups()
+                     + "rootGroup.childGroups="+rootGroup.countSubgroups()
                      + "Printing rootGroupContents=\n"+rootGroup.toString());
 
         Hashtable expectedContactList = fixture.preInstalledBuddyList;
