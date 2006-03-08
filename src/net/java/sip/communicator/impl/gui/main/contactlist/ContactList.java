@@ -28,65 +28,65 @@ import net.java.sip.communicator.service.contactlist.event.MetaContactGroupEvent
 import net.java.sip.communicator.service.contactlist.event.MetaContactListListener;
 import net.java.sip.communicator.service.protocol.Contact;
 
-public class ContactList extends JList 
+public class ContactList extends JList
     implements MetaContactListListener {
-	
+
     private MetaContactListService contactList;
-    
+
     private MetaContactGroup root;
-    
+
     private ContactListModel listModel = new ContactListModel();
-	
-	public ContactList(MetaContactListService contactList){
-		
-		this.contactList = contactList;
-        
-		this.contactList.addContactListListener(this);
-        
+
+    public ContactList(MetaContactListService contactList){
+
+        this.contactList = contactList;
+
+        this.contactList.addContactListListener(this);
+
         this.root = contactList.getRoot();
-        
+
         this.setModel(listModel);
-        
-		this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-		
-		this.getSelectionModel().setSelectionMode
-        		(TreeSelectionModel	.SINGLE_TREE_SELECTION);		
-		
-		this.setCellRenderer(new ContactListCellRenderer());
-						
-		this.putClientProperty("JTree.lineStyle", "None");		
-		
-		this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-	}
-    
-	/**
-	 * Adds a child directly to the root node.
-	 * 
-	 * @param child The child object to be added.
-	 * @return The added node.
-	 */
-	public void addChild(MetaContactGroup group) {
-		
-	    this.listModel.addElement(group);
-	}
-	
-	
-	/**
-	 * Adds a child to a given parent.
-	 * 
-	 * @param parent The parent node.
-	 * @param child The child object.
-	 * @param shouldBeVisible
-	 * @return The added node.
-	 */
-    
-	public void addChild(MetaContactGroup parentGroup,
-					            MetaContactNode contact) {
-           
+
+        this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+
+        this.getSelectionModel().setSelectionMode
+                (TreeSelectionModel	.SINGLE_TREE_SELECTION);
+
+        this.setCellRenderer(new ContactListCellRenderer());
+
+        this.putClientProperty("JTree.lineStyle", "None");
+
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    }
+
+    /**
+     * Adds a child directly to the root node.
+     *
+     * @param child The child object to be added.
+     * @return The added node.
+     */
+    public void addChild(MetaContactGroup group) {
+
+        this.listModel.addElement(group);
+    }
+
+
+    /**
+     * Adds a child to a given parent.
+     *
+     * @param parent The parent node.
+     * @param child The child object.
+     * @param shouldBeVisible
+     * @return The added node.
+     */
+
+    public void addChild(MetaContactGroup parentGroup,
+                                MetaContactNode contact) {
+
         int index = 1;
-        
+
         if(parentGroup != null){
-            if(this.listModel.contains(parentGroup)){            
+            if(this.listModel.contains(parentGroup)){
                 int i = this.listModel.indexOf(parentGroup);
                 index = i + 1;
                 this.listModel.add(index, contact);
@@ -95,45 +95,69 @@ public class ContactList extends JList
         else{
             this.listModel.add(index, contact);
         }
-        
+
         this.scrollRectToVisible(this.getCellBounds(index, index + 1));
-	}
-    
+    }
+
     public void metaContactAdded(MetaContactEvent evt) {
-        
-        this.addChild(evt.getParentGroup(), 
+
+        this.addChild(evt.getParentGroup(),
                 new MetaContactNode(evt.getSourceContact()));
     }
 
     public void metaContactRemoved(MetaContactEvent evt) {
-                
+
     }
 
     public void metaContactGroupAdded(MetaContactGroupEvent evt) {
-        
-        MetaContactGroup contactGroup = evt.getSourceContactGroup();
-               
+
+        MetaContactGroup contactGroup = evt.getSourceMetaContactGroup();
+
         this.addChild(contactGroup);
-        
+
         Iterator childContacts = contactGroup.getChildContacts();
         while (childContacts.hasNext()){
-            
-            MetaContact childContact 
+
+            MetaContact childContact
                 = (MetaContact)childContacts.next();
-            
+
             this.addChild(contactGroup, new MetaContactNode(childContact));
         }
     }
 
-    public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
-        
+    /**
+     * Indicates that a MetaContactGroup has been modified (e.g. a proto contact
+     * group was removed).
+     *
+     * @param evt the MetaContactListEvent containing the corresponding contact
+     */
+    public void metaContactGroupModified(MetaContactGroupEvent evt)
+    {
+        /**@todo implement metaContactGroupModified() */
+        System.out.println("@todo implement metaContactGroupModified()");
     }
 
-	public MetaContactGroup getRoot() {
-		return root;
-	}
+    /**
+     * Indicates that a MetaContact has been modified.
+     * @param evt the MetaContactListEvent containing the corresponding contact
+     */
+    public void metaContactModified(MetaContactEvent evt)
+    {
+        /**@todo implement metaContactModified() */
+        System.out.println("@todo implement metaContactModified()");
+    }
 
-    
+
+
+    public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
+
+    }
+
+    public MetaContactGroup getRoot() {
+        return root;
+    }
+
+
 }
-				
-			
+
+

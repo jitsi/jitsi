@@ -17,21 +17,21 @@ import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 public class ContactListModel extends DefaultListModel {
 
     public MetaContactNode getContactNodeByContact(MetaContact contact){
-        
+
         MetaContactNode resultNode = null;
-        
-        Enumeration enum = this.elements();
-        
-        while (enum.hasMoreElements()){
-            MetaContactNode node = (MetaContactNode)enum.nextElement();
-            
+
+        Enumeration enumeration = this.elements();
+
+        while (enumeration.hasMoreElements()){
+            MetaContactNode node = (MetaContactNode)enumeration.nextElement();
+
             if(node.getContact().equals(contact)){
                 resultNode = node;
                 break;
             }
         }
-        
+
         return resultNode;
     }
-        
+
 }
