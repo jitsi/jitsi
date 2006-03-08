@@ -47,6 +47,8 @@ public class ContactGroupIcqImpl
      */
     private String nameCopy = null;
 
+    private ServerStoredContactListIcqImpl ssclCallback = null;
+
     /**
      * Creates an ICQ group using the specified <tt>joustSimGroup</tt> as
      * a source. The newly created group will always return the name of the
@@ -71,6 +73,8 @@ public class ContactGroupIcqImpl
                         ServerStoredContactListIcqImpl ssclCallback)
     {
         this.joustSimSourceGroup = joustSimGroup;
+
+        this.ssclCallback = ssclCallback;
 
         //store a copy of the name now so that we can detect changes in the
         //name of the underlying joustSimSourceGroup
@@ -247,7 +251,7 @@ public class ContactGroupIcqImpl
      * by the root group - <tt>RootContactGroupIcqImpl</tt>.
      * @return a 0 int.
      */
-    public int countSubGroups()
+    public int countSubgroups()
     {
         return 0;
     }
@@ -298,6 +302,16 @@ public class ContactGroupIcqImpl
         // at this point we could bravely state that the groups are the same
         // and not bother to compare buddies. (gotta check that though)
         return true;
+    }
+
+    /**
+     * Returns the protocol provider that this group belongs to.
+     * @return a regerence to the ProtocolProviderService instance that this
+     * ContactGroup belongs to.
+     */
+    public ProtocolProviderService getProtocolProvider()
+    {
+        return this.ssclCallback.getParentProvider();
     }
 
     /**

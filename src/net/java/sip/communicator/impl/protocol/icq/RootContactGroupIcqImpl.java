@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.icq;
 
 import java.util.*;
@@ -20,15 +26,15 @@ public class RootContactGroupIcqImpl
      */
     private List dummyContacts = new LinkedList();
 
-//    private ProtocolProviderServiceIcqImpl ownerProvider = null;
+    private ProtocolProviderServiceIcqImpl ownerProvider = null;
 
     /**
      * Creates a ContactGroup instance.
      * @param ownerProvider ProtocolProviderServiceIcqImpl
      */
-    RootContactGroupIcqImpl()//ProtocolProviderServiceIcqImpl ownerProvider)
+    RootContactGroupIcqImpl(ProtocolProviderServiceIcqImpl ownerProvider)
     {
-//        this.ownerProvider = ownerProvider;
+        this.ownerProvider = ownerProvider;
     }
     /**
      * The ContactListRoot in ICQ is the only group that can contain subgroups.
@@ -112,7 +118,7 @@ public class RootContactGroupIcqImpl
      * @return an int indicating the number of subgroups that this
      *   ContactGroup contains.
      */
-    public int countSubGroups()
+    public int countSubgroups()
     {
         return subGroups.size();
     }
@@ -215,7 +221,7 @@ public class RootContactGroupIcqImpl
     public String toString()
     {
         StringBuffer buff = new StringBuffer(getGroupName());
-        buff.append(".subGroups="+countSubGroups()+":\n");
+        buff.append(".subGroups="+countSubgroups()+":\n");
 
         Iterator subGroups = subGroups();
         while (subGroups.hasNext())
@@ -233,9 +239,9 @@ public class RootContactGroupIcqImpl
      * @return a regerence to the ProtocolProviderService instance that this
      * ContactGroup belongs to.
      */
-//    public ProtocolProviderService getProtocolProvider()
-//    {
-//        return this.ownerProvider;
-//    }
+    public ProtocolProviderService getProtocolProvider()
+    {
+        return this.ownerProvider;
+    }
 
 }
