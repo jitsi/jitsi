@@ -27,6 +27,7 @@ import net.java.sip.communicator.service.contactlist.event.MetaContactEvent;
 import net.java.sip.communicator.service.contactlist.event.MetaContactGroupEvent;
 import net.java.sip.communicator.service.contactlist.event.MetaContactListListener;
 import net.java.sip.communicator.service.protocol.Contact;
+import net.java.sip.communicator.service.protocol.PresenceStatus;
 
 public class ContactList extends JList
     implements MetaContactListListener {
@@ -99,16 +100,27 @@ public class ContactList extends JList
         this.scrollRectToVisible(this.getCellBounds(index, index + 1));
     }
 
+    /**
+     * Indicates that a MetaContact has been added to the
+     * MetaContactList.
+     */
     public void metaContactAdded(MetaContactEvent evt) {
 
         this.addChild(evt.getParentGroup(),
                 new MetaContactNode(evt.getSourceContact()));
     }
 
+    /**
+     * Indicates that a MetaContact has been removed from
+     * the MetaContactList.
+     */
     public void metaContactRemoved(MetaContactEvent evt) {
 
     }
 
+    /**
+     * Indicates that a MetaContactGroup has been added.
+     */
     public void metaContactGroupAdded(MetaContactGroupEvent evt) {
 
         MetaContactGroup contactGroup = evt.getSourceMetaContactGroup();
@@ -146,18 +158,13 @@ public class ContactList extends JList
         /**@todo implement metaContactModified() */
         System.out.println("@todo implement metaContactModified()");
     }
-
-
-
+    
+   /**
+    * Indicates that a MetaContactGroup has been removed.
+    */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
 
     }
-
-    public MetaContactGroup getRoot() {
-        return root;
-    }
-
-
 }
 
 

@@ -74,7 +74,7 @@ public class ContactListCellRenderer extends JPanel
             int index,
             boolean isSelected,
             boolean cellHasFocus) {
-		
+
 		if (value instanceof MetaContactNode) {
 							
             MetaContactNode contactNode = (MetaContactNode)value; 

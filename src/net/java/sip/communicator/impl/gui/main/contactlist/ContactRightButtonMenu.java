@@ -22,7 +22,7 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenuIte
 import net.java.sip.communicator.impl.gui.main.customcontrols.MessageDialog;
 import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.message.MessageWindow;
+import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
@@ -160,9 +160,9 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
 		if (itemName.equalsIgnoreCase("sendMessage")) {
 
-			MessageWindow msgWindow = new MessageWindow(this.mainFrame);
+			ChatWindow msgWindow = new ChatWindow(this.mainFrame);
 
-			msgWindow.addContactToChat(this.contactItem);
+			msgWindow.getCurrentChatPanel().addContactToChat(this.contactItem);
 
 			msgWindow.setVisible(true);
 		} 

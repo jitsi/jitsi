@@ -14,24 +14,46 @@ import javax.swing.DefaultListModel;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 
+/**
+ * The list model of the ContactList.
+ * 
+ * @author Yana Stamcheva
+ *
+ */
 public class ContactListModel extends DefaultListModel {
 
+    /**
+     * Returns the ContactNode element in the ContactList that corresponds 
+     * to the given MetaContact.
+     * 
+     * @param contact The MetaContact we are searching for. 
+     * @return The ContactNode element corresponding to the given contact
+     */
     public MetaContactNode getContactNodeByContact(MetaContact contact){
-
+        
         MetaContactNode resultNode = null;
-
-        Enumeration enumeration = this.elements();
-
-        while (enumeration.hasMoreElements()){
-            MetaContactNode node = (MetaContactNode)enumeration.nextElement();
-
-            if(node.getContact().equals(contact)){
-                resultNode = node;
-                break;
+        
+        Enumeration listEnum = this.elements();
+        
+        while (listEnum.hasMoreElements()){
+            
+            Object element = listEnum.nextElement();
+            
+            if(element instanceof MetaContactNode){
+                
+                MetaContactNode node = (MetaContactNode)element;
+                
+                if(node.getContact().equals(contact)){
+                    resultNode = node;
+                    break;
+                }
             }
         }
-
+        
         return resultNode;
     }
-
+    
+    public void contactStatusChanged(int index) {        
+        fireContentsChanged(this, index, index);
+    }
 }
