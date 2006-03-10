@@ -191,6 +191,12 @@ public class ImageLoader {
 	public static final ImageID TEXT_UNDERLINED_ROLLOVER_BUTTON
 											= new ImageID("TEXT_UNDERLINED_ROLLOVER_BUTTON");
 
+    public static final ImageID CLOSE_TAB_ICON
+                                    = new ImageID("CLOSE_TAB_ICON");
+    
+    public static final ImageID CLOSE_TAB_SELECTED_ICON
+                                    = new ImageID("CLOSE_TAB_SELECTED_ICON");
+    
 	// ///////////////////////// Main Toolbar icons ////////////////////////////
 
 	public static final ImageID MSG_TOOLBAR_BUTTON_BG

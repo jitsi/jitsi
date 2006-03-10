@@ -190,7 +190,7 @@ public class Constants {
 
 	public static final int RIGHT_SHIFT_STATUS_ICON = 2;
 	
-	
+	public static final boolean TABBED_CHAT_WINDOW = true;
 	
 
 	/**

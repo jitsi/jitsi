@@ -26,9 +26,9 @@ public class MenusPanel extends JPanel {
 	
 	private MainToolBar mainToolBar;
 	
-	private MessageWindow parentWindow;
+	private ChatWindow parentWindow;
 	
-	public MenusPanel (MessageWindow parentWindow){
+	public MenusPanel (ChatWindow parentWindow){
 		
 		super();
 		

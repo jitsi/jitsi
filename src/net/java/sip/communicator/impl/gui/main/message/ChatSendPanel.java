@@ -25,7 +25,7 @@ import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 
-public class MessageSendPanel extends JPanel implements ActionListener {
+public class ChatSendPanel extends JPanel implements ActionListener {
 
 	private JButton sendButton = new JButton(Messages.getString("send"));
 	
@@ -35,9 +35,9 @@ public class MessageSendPanel extends JPanel implements ActionListener {
 
 	private JLabel statusLabel = new JLabel();
 
-	private MessageWindow msgWindow;
+	private ChatWindow msgWindow;
 
-	public MessageSendPanel(MessageWindow msgWindow) {
+	public ChatSendPanel(ChatWindow msgWindow) {
 
 		super(new BorderLayout(5, 5));
 
@@ -80,7 +80,7 @@ public class MessageSendPanel extends JPanel implements ActionListener {
 	
 			// TODO: Receive a notice that message is delivered.
 	
-			this.msgWindow.getChatPanel().processSentMessage(
+			this.msgWindow.getConversationPanel().processSentMessage(
 											this.msgWindow.getParentWindow().getAccount(),
 											Calendar.getInstance(),										
 											messagePane.getText());

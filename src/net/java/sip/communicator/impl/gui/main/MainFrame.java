@@ -16,6 +16,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -225,7 +226,7 @@ public class MainFrame extends JFrame {
         public void contactPresenceStatusChanged
             (ContactPresenceStatusChangeEvent evt) {
           
-            MetaContact metaContact 
+            MetaContact metaContact
                 = contactList.findMetaContactByContact(evt.getSourceContact());
            
             if (metaContact != null){
@@ -237,12 +238,15 @@ public class MainFrame extends JFrame {
                     = model.getContactNodeByContact(metaContact);
                 
                 if(node != null){
+                   
                     node.setStatusIcon
                         (new ImageIcon(Constants.getStatusIcon
                                 (evt.getNewStatus())));
+                   
+                    //Refresh the node status icon.
+                    model.contactStatusChanged(model.indexOf(node));
                 }
             }
-            
         }
     }
     

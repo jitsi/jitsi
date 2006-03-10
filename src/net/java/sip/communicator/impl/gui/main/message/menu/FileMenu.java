@@ -17,7 +17,7 @@ import javax.swing.JMenuItem;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenuItem;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.message.MessageWindow;
+import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
@@ -40,9 +40,9 @@ public class FileMenu extends JMenu
 						= new AntialiasedMenuItem(Messages.getString("quit")
 									, new ImageIcon(ImageLoader.getImage(ImageLoader.QUIT_ICON)));
 	
-	private MessageWindow parentWindow;
+	private ChatWindow parentWindow;
 	
-	public FileMenu(MessageWindow parentWindow){
+	public FileMenu(ChatWindow parentWindow){
 		
 		super(Messages.getString("file"));
 	

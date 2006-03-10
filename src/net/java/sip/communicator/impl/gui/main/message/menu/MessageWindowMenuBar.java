@@ -13,7 +13,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.message.MessageWindow;
+import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 
 public class MessageWindowMenuBar extends JMenuBar {
@@ -26,9 +26,9 @@ public class MessageWindowMenuBar extends JMenuBar {
 	
 	private JMenu helpMenu = new JMenu(Messages.getString("help"));		
 	
-	private MessageWindow parentWindow;
+	private ChatWindow parentWindow;
 		
-	public MessageWindowMenuBar(MessageWindow parentWindow){
+	public MessageWindowMenuBar(ChatWindow parentWindow){
 		
 		this.parentWindow = parentWindow;
 		

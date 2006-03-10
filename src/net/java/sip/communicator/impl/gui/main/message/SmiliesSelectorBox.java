@@ -22,7 +22,7 @@ import net.java.sip.communicator.impl.gui.main.utils.Smily;
 public class SmiliesSelectorBox extends BoxPopupMenu 
 	implements ActionListener {
 
-	private MessageWindow messageWindow;
+	private ChatWindow messageWindow;
 
 	private ArrayList imageList;
 	
@@ -68,11 +68,11 @@ public class SmiliesSelectorBox extends BoxPopupMenu
 		}		
 	}
 	
-	public MessageWindow getMessageWindow() {
+	public ChatWindow getMessageWindow() {
 		return messageWindow;
 	}
 
-	public void setMessageWindow(MessageWindow messageWindow) {
+	public void setMessageWindow(ChatWindow messageWindow) {
 		this.messageWindow = messageWindow;
 	}
 }

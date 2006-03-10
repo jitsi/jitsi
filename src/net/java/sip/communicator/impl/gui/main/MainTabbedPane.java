@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
+import net.java.sip.communicator.impl.gui.main.customcontrols.tabbedPane.SIPCommTabbedPane;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 
@@ -22,14 +23,18 @@ import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
  * The main tabbed pane containing the contact list panel, the 
  * call list panel and the dial panel. 
  */
-public class MainTabbedPane extends JTabbedPane {
+public class MainTabbedPane extends SIPCommTabbedPane {
 	
 	private DialPanel dialPanel = new DialPanel();
 	
 	private ContactListPanel contactListPanel;
 	
-	public MainTabbedPane(MainFrame parent){		
-	
+	public MainTabbedPane(MainFrame parent){
+        super(true);
+        
+        this.setCloseIcon(false);
+        this.setMaxIcon(false);
+        
 		contactListPanel = new ContactListPanel(parent);
 		
 		dialPanel.setPhoneNumberCombo(parent.getCallPanel().getPhoneNumberCombo());
@@ -39,13 +44,6 @@ public class MainTabbedPane extends JTabbedPane {
 		//this.addTab(Messages.getString("dial"), dialPanel);
 	}
 	
-	public void paint(Graphics g){
-		
-		AntialiasingManager.activateAntialiasing(g);
-	
-		super.paint(g);
-	}
-
     public ContactListPanel getContactListPanel() {
         return contactListPanel;
     }

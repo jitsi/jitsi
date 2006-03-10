@@ -7,208 +7,166 @@
 
 package net.java.sip.communicator.impl.gui.main.message;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.awt.Dimension;
+import java.util.Vector;
 
-import javax.swing.BorderFactory;
-import javax.swing.JScrollPane;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 
-import net.java.sip.communicator.impl.gui.main.Account;
-import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedEditorPane;
-import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.main.utils.BrowserLauncher;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
-import net.java.sip.communicator.impl.gui.main.utils.MyHTMLEditorKit;
-import net.java.sip.communicator.impl.gui.main.utils.Smily;
-import net.java.sip.communicator.impl.gui.main.utils.StringUtils;
+import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.service.contactlist.MetaContact;
 
-public class ChatPanel extends JScrollPane implements HyperlinkListener {
+/**
+ * Chat panel for one or group of contacts.
+ * 
+ * @author Yana Stamcheva
+ */
+public class ChatPanel extends JPanel {
+    
+    private JSplitPane topSplitPane 
+                            = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+    
+    private JSplitPane messagePane 
+                            = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+       
+    private ChatConversationPanel conversationPanel;
+    
+    private ChatWritePanel writeMessagePanel;
+    
+    private ChatConferencePanel chatConferencePanel 
+                                            = new ChatConferencePanel();
+    
+    private Vector chatContacts = new Vector();
+    
+    private ChatWindow chatWindow;
+    
+    private int tabIndex;
+    
+    /**
+     * Creates a chat panel which is added to the given chat window.
+     * 
+     * @param chatWindow The parent window of this chat panel.
+     */
+    public ChatPanel(ChatWindow chatWindow){
+        
+        super(new BorderLayout());
+        
+        this.chatWindow = chatWindow;
+        
+        conversationPanel = new ChatConversationPanel(chatWindow);
+        
+        writeMessagePanel = new ChatWritePanel(chatWindow);
+                
+        this.init();
+    }
+    
+    /**
+     * Initialize the chat panel.
+     */
+    private void init(){
+        
+        this.topSplitPane.setDividerLocation(370);
+        this.topSplitPane.setOneTouchExpandable(true);
+        
+        topSplitPane.add(conversationPanel);
+        topSplitPane.add(chatConferencePanel);
+        
+        this.messagePane.setDividerLocation(250);
+        
+        this.messagePane.add(topSplitPane);
+        this.messagePane.add(writeMessagePanel);
+        
+        this.add(messagePane);
+    }
+    
+    /**
+     * Adds a new MetaContact to this chat panel.
+     * 
+     * @param contactItem The MetaContact to add.
+     */
+    public void addContactToChat (MetaContact contactItem){     
+        
+        this.chatContacts.add(contactItem);
+        
+        this.chatConferencePanel.addContactToChat(contactItem);
+    }
 
-	private MessageWindow msgWindow;
+    /**
+     * Removes a MetaContact from the chat.
+     * 
+     * @param contactItem The MetaContact to remove.
+     */
+    public void removeContactFromChat (MetaContact contactItem){
+        this.chatContacts.remove(contactItem);
+    }
+    
+    /**
+     * Returns all contacts for this chat.
+     * 
+     * @return A Vector containing all MetaContact-s for the chat.
+     */
+    public Vector getChatContacts() {
+        return chatContacts;
+    }
 
-	private AntialiasedEditorPane chatEditorPane = new AntialiasedEditorPane();
+    /**
+     * Sets all contacts for this chat. This is in the case when we 
+     * creates a conference chat.
+     * 
+     * @param chatContacts A Vector of MetaContact-s.
+     */
+    public void setChatContacts(Vector chatContacts) {
+        this.chatContacts = chatContacts;
+    }
+    
+    /**
+     * Returns the panel that contains the "write" editor pane of this chat.
+     * 
+     * @return The ChatWritePanel.
+     */
+    public ChatWritePanel getWriteMessagePanel() {
+        return writeMessagePanel;
+    }
+    
 
-	private ChatBuffer chatBuffer;
+    /**
+     * Returns the panel that contains the conversation.
+     * 
+     * @return The ChatConversationPanel.
+     */
+    public ChatConversationPanel getConversationPanel() {
+        return conversationPanel;
+    }
 
-	public ChatPanel(MessageWindow msgWindow) {
+    /**
+     * Returns the default contact for the chat. The case of conference 
+     * is not yet implemented and for now it returns the first contact.
+     * 
+     * @return The default contact for the chat.
+     */
+    public MetaContact getDefaultContact(){
+        return (MetaContact)this.getChatContacts().get(0);
+    }
 
-		super();
+    /**
+     * Returns the tab index of this chat panel in case of tabbed chat
+     * window.
+     * 
+     * @return The tab index of this chat panel.
+     */
+    public int getTabIndex() {
+        return tabIndex;
+    }
 
-		this.msgWindow = msgWindow;
-
-		this.chatBuffer = new ChatBuffer();
-
-		this.chatEditorPane.setContentType("text/html");
-
-		this.chatEditorPane.setEditable(false);
-
-		this.chatEditorPane.setEditorKit(new MyHTMLEditorKit());
-
-		this.chatEditorPane.addHyperlinkListener(this);
-
-		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-		this
-				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
-		this.setWheelScrollingEnabled(true);
-
-		this.getViewport().add(chatEditorPane, BorderLayout.CENTER);
-	}
-
-	public void paint(Graphics g) {
-
-		AntialiasingManager.activateAntialiasing(g);
-
-		super.paint(g);
-
-		Graphics2D g2 = (Graphics2D) g;
-
-		g2.setColor(Constants.MSG_WINDOW_BORDER_COLOR);
-		g2.setStroke(new BasicStroke(1.5f));
-
-		g2.drawRoundRect(3, 3, this.getWidth() - 7, this.getHeight() - 5, 8, 8);
-
-	}
-
-	public void processReceivedMessage() {
-
-	}
-
-	public void processSentMessage( Account account, 
-	                                Calendar calendar,
-	                                String message) {
-
-		this.registerMessage(account.getUin(), calendar, message);
-
-		String chatString = "<HTML><DIV style=\"background-color:"
-				+ Constants.FONT_CHAT_HEADER_COLOR
-				+ ";text-align:center;font-weight:bold;font-size:"
-				+ Constants.FONT_SIZE + "\">"
-				+ calendar.get(Calendar.DAY_OF_MONTH) + "/"
-				+ calendar.get(Calendar.MONTH) + 1 + "/"
-				+ calendar.get(Calendar.YEAR) + " " + "</DIV>";
-
-		for (int i = 0; i < this.chatBuffer.size(); i++) {
-
-			ChatMessage chatMessage = (ChatMessage) this.chatBuffer.get(i);
-
-			chatString += "<DIV style=\"font-family:"
-					+ Constants.FONT_NAME
-					+ ";font-size:"
-					+ Constants.FONT_SIZE
-					+ ";color:"
-					+ Constants.FONT_OUT_MSG_COLOR
-					+ ";font-weight:bold;\">"
-					+ chatMessage.getSenderName()
-					+ " at "
-					+ chatMessage.getCalendar().get(Calendar.HOUR_OF_DAY)
-					+ ":"
-					+ proccessMinutes(chatMessage.getCalendar().get(Calendar.MINUTE))
-					+ "</DIV>"
-					+ "<DIV style=\"font-family:"
-					+ Constants.FONT_NAME
-					+ ";font-size:"
-					+ Constants.FONT_SIZE
-					+ "\">"
-					+ processSmilies(processNewLines(processLinks(chatMessage
-							.getMessage()))) + "</DIV>";
-		}
-
-		chatString += "</HTML>";
-
-		this.chatEditorPane.setText(chatString);
-
-		this.repaint();
-		this.validate();
-	}
-
-	private void registerMessage(String senderName, Calendar calendar,
-			String message) {
-
-		ChatMessage chatMessage = new ChatMessage(senderName, calendar, message);
-
-		this.chatBuffer.add(chatMessage);
-	}
-
-	private String processLinks(String message) {
-
-		String msgString = message;
-
-		Pattern p = Pattern
-				.compile("(\\bwww\\.\\w+\\.\\S+\\b)|(\\b\\w+://\\S+\\b)");
-
-		Matcher m = p.matcher(message);
-
-		while (m.find()) {
-
-			msgString = msgString.replaceAll(m.group().trim(), "<A href='"
-					+ "http://" + m.group() + "'>" + m.group() + "</A>");
-		}
-
-		return msgString;
-	}
-
-	private String processNewLines(String message) {
-
-		return message.replaceAll("\n", "<BR>");
-	}
-
-	private String processSmilies(String message) {
-
-		ArrayList smiliesList = ImageLoader.getDefaultSmiliesPack();
-
-		String msgString = message;
-
-		for (int i = 0; i < smiliesList.size(); i++) {
-
-			Smily smily = (Smily) smiliesList.get(i);
-
-			String[] smilyStrings = smily.getSmilyStrings();
-
-			for (int j = 0; j < smilyStrings.length; j++) {
-
-				if (message.indexOf(smilyStrings[j]) != -1) {
-
-					msgString = msgString.replaceAll(StringUtils
-							.replaceSpecialRegExpChars(smilyStrings[j]),
-							"<IMG src='" + smily.getImagePath() + "'></img>");
-				}
-			}
-		}
-
-		return msgString;
-	}
-	
-	private String proccessMinutes(int minutes){		
-		
-		String minutesString = new Integer(minutes).toString();
-		
-		String resultString = minutesString;
-		
-		if(minutesString.length() < 2)
-			resultString.concat("0").concat(minutesString);
-		
-		return resultString;
-	}
-
-	public void hyperlinkUpdate(HyperlinkEvent e) {
-
-		if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-
-			URL url = e.getURL();
-
-			BrowserLauncher.openURL(url.toString());
-		}
-	}
+    /**
+     * Sets the tab index of this chat panel in case of tabbed chat 
+     * window.
+     * 
+     * @param tabIndex The tab index, where the panel will be added in the
+     * tabbedPane.
+     */
+    public void setTabIndex(int tabIndex) {
+        this.tabIndex = tabIndex;
+    }
 }

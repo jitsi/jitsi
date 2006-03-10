@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyAdapter;
@@ -27,24 +28,24 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedEditorP
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 
-public class WriteMessagePanel extends JScrollPane
+public class ChatWritePanel extends JScrollPane
 	implements UndoableEditListener {
 
 	private AntialiasedEditorPane editorPane = new AntialiasedEditorPane();
 	
 	private UndoManager undo = new UndoManager();
 	
-	private MessageWindow msgWindow;	
+	private ChatWindow msgWindow;	
 	
 	
-	public WriteMessagePanel (MessageWindow msgWindow){		
+	public ChatWritePanel (ChatWindow msgWindow){		
 		
 		super();		
 		
 		this.msgWindow = msgWindow;
 		
 		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-			
+        
 		this.setHorizontalScrollBarPolicy(
 		                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		
@@ -77,8 +78,9 @@ public class WriteMessagePanel extends JScrollPane
 	private void enableKeyboardEvents(){
 		
 		this.editorPane.addKeyListener(new KeyAdapter(){
-			public void keyPressed(KeyEvent e){				
-				JEditorPane editorPane = (JEditorPane)e.getSource();
+			public void keyPressed(KeyEvent e){	
+
+                JEditorPane editorPane = (JEditorPane)e.getSource();
 				
 				if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK && 
 							(e.getKeyCode() == KeyEvent.VK_ENTER)){

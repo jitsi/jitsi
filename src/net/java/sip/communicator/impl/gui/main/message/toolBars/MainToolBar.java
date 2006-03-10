@@ -21,7 +21,7 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.MsgToolbarButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
-import net.java.sip.communicator.impl.gui.main.message.MessageWindow;
+import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.main.message.SmiliesSelectorBox;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
@@ -64,9 +64,9 @@ public class MainToolBar extends SIPCommToolBar
 	private JLabel toolbarDivider = new JLabel(new ImageIcon
 												(ImageLoader.getImage(ImageLoader.TOOLBAR_DIVIDER)));
 	
-	private MessageWindow messageWindow;
+	private ChatWindow messageWindow;
 	
-	public MainToolBar (MessageWindow messageWindow){
+	public MainToolBar (ChatWindow messageWindow){
 	
 		this.messageWindow = messageWindow;
 		
@@ -181,7 +181,8 @@ public class MainToolBar extends SIPCommToolBar
 			
 			HistoryWindow history = new HistoryWindow();
 			
-			history.setContacts(messageWindow.getChatContacts());
+			history.setContacts(messageWindow
+                                .getCurrentChatPanel().getChatContacts());
 			history.setVisible(true);
 			
 		} else if (buttonText.equalsIgnoreCase("font")) {
