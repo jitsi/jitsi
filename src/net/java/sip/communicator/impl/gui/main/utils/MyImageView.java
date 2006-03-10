@@ -574,7 +574,7 @@ if(DEBUG) System.out.println("ImageView: changedUpdate end; valign="+getVertical
      * axis.
      *
      * @param axis may be either X_AXIS or Y_AXIS
-     * @returns  the span the view would like to be rendered into.
+     * @return   the span the view would like to be rendered into.
      *           Typically the view is told to render into the span
      *           that is returned, although there is no guarantee.  
      *           The parent may choose to resize or break the view.
@@ -582,14 +582,14 @@ if(DEBUG) System.out.println("ImageView: changedUpdate end; valign="+getVertical
     public float getPreferredSpan(int axis) {
 //if(DEBUG)System.out.println("ImageView: getPreferredSpan");
         int extra = 2*(getBorder()+getSpace(axis));
-	switch (axis) {
-	case View.X_AXIS:
-	    return fWidth+extra;
-	case View.Y_AXIS:
-	    return fHeight+extra;
-	default:
-	    throw new IllegalArgumentException("Invalid axis: " + axis);
-	}
+		switch (axis) {
+		case View.X_AXIS:
+		    return fWidth+extra;
+		case View.Y_AXIS:
+		    return fHeight+extra;
+		default:
+		    throw new IllegalArgumentException("Invalid axis: " + axis);
+		}
     }
 
     /**
@@ -599,7 +599,7 @@ if(DEBUG) System.out.println("ImageView: changedUpdate end; valign="+getVertical
      * along the x axis.
      *
      * @param axis may be either X_AXIS or Y_AXIS
-     * @returns the desired alignment.  This should be a value
+     * @return the desired alignment.  This should be a value
      *   between 0.0 and 1.0 where 0 indicates alignment at the
      *   origin and 1.0 indicates alignment to the full span
      *   away from the origin.  An alignment of 0.5 would be the

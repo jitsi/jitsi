@@ -195,7 +195,8 @@ public class SIPCommTabbedPane extends JTabbedPane {
 		
 		frame.addWindowFocusListener(windowFocusListener);
 
-		frame.show();
+		//frame.show();
+		frame.setVisible(true);
 		frame.toFront();
 
 	}

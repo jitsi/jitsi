@@ -61,12 +61,11 @@ public class ContactList extends JList
     }
 
     /**
-     * Adds a child directly to the root node.
+     * Adds a group directly to the root node.
      *
-     * @param child The child object to be added.
-     * @return The added node.
+     * @param group The MetaContactGroup to be added.
      */
-    public void addChild(MetaContactGroup group) {
+    public void addGroup(MetaContactGroup group) {
 
         this.listModel.addElement(group);
     }
@@ -75,10 +74,8 @@ public class ContactList extends JList
     /**
      * Adds a child to a given parent.
      *
-     * @param parent The parent node.
-     * @param child The child object.
-     * @param shouldBeVisible
-     * @return The added node.
+     * @param parentGroup The parent group.
+     * @param contact The child contact node.
      */
 
     public void addChild(MetaContactGroup parentGroup,
@@ -125,7 +122,7 @@ public class ContactList extends JList
 
         MetaContactGroup contactGroup = evt.getSourceMetaContactGroup();
 
-        this.addChild(contactGroup);
+        this.addGroup(contactGroup);
 
         Iterator childContacts = contactGroup.getChildContacts();
         while (childContacts.hasNext()){

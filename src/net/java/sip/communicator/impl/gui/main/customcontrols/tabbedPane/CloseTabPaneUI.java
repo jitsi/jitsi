@@ -352,8 +352,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 	 * manage the <code>JTabbedPane</code>.
 	 * 
 	 * @return a layout manager object
-	 * 
-	 * @see TabbedPaneLayout
+	 *
 	 * @see javax.swing.JTabbedPane#getTabLayoutPolicy
 	 */
 	protected LayoutManager createLayoutManager() {
