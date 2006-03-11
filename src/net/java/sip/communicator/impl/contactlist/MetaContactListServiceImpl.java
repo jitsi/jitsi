@@ -435,13 +435,16 @@ public class MetaContactListServiceImpl
     {
         ContactGroup rootProtoGroup = presenceOpSet
                 .getServerStoredContactListRoot();
+        
+        if(rootProtoGroup != null){
+        	
+        	logger.trace("subgroups: "
+                    + rootProtoGroup.countSubgroups());
+            logger.trace("child contacts: "
+                    + rootProtoGroup.countContacts());
 
-        logger.trace("subgroups: "
-                + rootProtoGroup.countSubgroups());
-        logger.trace("child contacts: "
-                + rootProtoGroup.countContacts());
-
-        addContactGroupToMetaGroup(rootProtoGroup, rootMetaGroup, true);
+            addContactGroupToMetaGroup(rootProtoGroup, rootMetaGroup, true);
+        }
 
         presenceOpSet
                 .addSubsciptionListener(new ContactListSubscriptionListener());
