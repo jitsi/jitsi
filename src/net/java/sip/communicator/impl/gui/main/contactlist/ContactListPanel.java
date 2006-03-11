@@ -346,6 +346,9 @@ public class ContactListPanel extends JScrollPane
         this.contactList.addMouseListener(this);
 
         this.treePanel.add(contactList, BorderLayout.NORTH);
+        
+        this.addKeyListener(new CListKeySearchListener(this.contactList));
+        
     }
     
     public ContactList getContactList(){

@@ -15,7 +15,9 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JTree;
+import javax.swing.ListModel;
 import javax.swing.plaf.basic.BasicTreeUI;
+import javax.swing.text.Position;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -34,8 +36,6 @@ public class ContactList extends JList
 
     private MetaContactListService contactList;
 
-    private MetaContactGroup root;
-
     private ContactListModel listModel = new ContactListModel();
 
     public ContactList(MetaContactListService contactList){
@@ -43,8 +43,6 @@ public class ContactList extends JList
         this.contactList = contactList;
 
         this.contactList.addContactListListener(this);
-
-        this.root = contactList.getRoot();
 
         this.setModel(listModel);
 
@@ -58,6 +56,8 @@ public class ContactList extends JList
         this.putClientProperty("JTree.lineStyle", "None");
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        
+        this.addKeyListener(new CListKeySearchListener(this));
     }
 
     /**
@@ -70,7 +70,17 @@ public class ContactList extends JList
         this.listModel.addElement(group);
     }
 
+    /**
+     * Adds a contact directly to the root node.
+     *
+     * @param contact The MetaContactNode to be added.
+     */
+    public void addContact(MetaContactNode contact) {
 
+        this.listModel.addElement(contact);
+    }
+
+    
     /**
      * Adds a child to a given parent.
      *
@@ -160,7 +170,7 @@ public class ContactList extends JList
     * Indicates that a MetaContactGroup has been removed.
     */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
-
+    	
     }
 }
 

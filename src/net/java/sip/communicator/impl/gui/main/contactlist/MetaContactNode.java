@@ -34,4 +34,8 @@ public class MetaContactNode {
     public MetaContact getContact() {
         return contact;
     }
+    
+    public String toString(){
+		return this.contact.getDisplayName();
+    }
 }

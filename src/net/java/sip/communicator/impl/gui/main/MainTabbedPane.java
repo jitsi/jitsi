@@ -8,10 +8,15 @@
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.text.Position;
 
+import net.java.sip.communicator.impl.gui.main.contactlist.CListKeySearchListener;
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
 import net.java.sip.communicator.impl.gui.main.customcontrols.tabbedPane.SIPCommTabbedPane;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
@@ -47,5 +52,4 @@ public class MainTabbedPane extends SIPCommTabbedPane {
     public ContactListPanel getContactListPanel() {
         return contactListPanel;
     }
-
 }

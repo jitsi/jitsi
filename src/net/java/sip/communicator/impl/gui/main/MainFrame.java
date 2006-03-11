@@ -10,22 +10,33 @@ package net.java.sip.communicator.impl.gui.main;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
+import net.java.sip.communicator.impl.gui.main.contactlist.CListKeySearchListener;
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactNode;
 import net.java.sip.communicator.impl.gui.main.contactlist.MetaContactNode;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
@@ -42,9 +53,9 @@ import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusLi
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 
 /**
- * @author Yana Stamcheva
+ * The main application frame.
  * 
- * The MainFrame of the application.
+ * @author Yana Stamcheva
  */
 public class MainFrame extends JFrame {
 
@@ -109,12 +120,13 @@ public class MainFrame extends JFrame {
 
 	private void setInitialBounds() {
 		
-		this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width
-				- MainFrame.WIDTH, 50);
-	
-        this.setSize(155, 400);
+		this.setSize(155, 400);
         this.contactListPanel.setPreferredSize(new Dimension(140, 350));
         this.contactListPanel.setMinimumSize(new Dimension(80, 200));
+        
+		this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width
+				- this.getWidth(), 50);
+	    
 	}
 
 	public CallPanel getCallPanel() {
@@ -131,7 +143,14 @@ public class MainFrame extends JFrame {
 		
 		this.contactList = contactList;
         
-        this.tabbedPane.getContactListPanel().initTree(contactList);
+		ContactListPanel clistPanel = this.tabbedPane.getContactListPanel();
+        
+		clistPanel.initTree(contactList);
+        
+		//add a key listener to the tabbed pane, when the contactlist is 
+		//initialized
+        this.tabbedPane.addKeyListener(new CListKeySearchListener
+        		(clistPanel.getContactList()));
 	}
 	
 	public ConfigurationFrame getConfigFrame() {
