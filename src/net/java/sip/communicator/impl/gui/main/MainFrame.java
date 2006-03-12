@@ -42,9 +42,11 @@ import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
+import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.service.protocol.OperationSetPersistentPresence;
 import net.java.sip.communicator.service.protocol.OperationSetPresence;
+import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusChangeEvent;
 import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusListener;
@@ -245,8 +247,11 @@ public class MainFrame extends JFrame {
         public void contactPresenceStatusChanged
             (ContactPresenceStatusChangeEvent evt) {
           
+        	Contact sourceContact = evt.getSourceContact();
+        	PresenceStatus newStatus = evt.getNewStatus();
+        	
             MetaContact metaContact
-                = contactList.findMetaContactByContact(evt.getSourceContact());
+                = contactList.findMetaContactByContact(sourceContact);
            
             if (metaContact != null){
                 ContactListModel model 
@@ -260,8 +265,13 @@ public class MainFrame extends JFrame {
                    
                     node.setStatusIcon
                         (new ImageIcon(Constants.getStatusIcon
-                                (evt.getNewStatus())));
+                                (newStatus)));
                    
+                    node.changeProtocolContactStatus(
+                    		sourceContact.getProtocolProvider()
+                    				.getProtocolName(),
+                    				newStatus);
+                    
                     //Refresh the node status icon.
                     model.contactStatusChanged(model.indexOf(node));
                 }
