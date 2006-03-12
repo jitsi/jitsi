@@ -183,7 +183,7 @@ public class ChatConversationPanel extends JScrollPane
 
 					msgString = msgString.replaceAll(StringUtils
 							.replaceSpecialRegExpChars(smilyStrings[j]),
-							"<IMG src='" + smily.getImagePath() + "'></img>");
+							"<img src='" + smily.getImagePath() + "'></img>");
 				}
 			}
 		}

@@ -13,11 +13,16 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -34,17 +39,21 @@ import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
+import net.java.sip.communicator.service.protocol.Contact;
 import net.kano.joscar.ssiitem.GroupItem;
 
 public class ContactListCellRenderer extends JPanel 
 	implements ListCellRenderer {
 
 	private JLabel nameLabel = new JLabel();
+	
+	private JPanel buttonsPanel 
+		= new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 
 	private SIPCommButton extendPanelButton 
-							= new SIPCommButton(ImageLoader.getImage(ImageLoader.MORE_INFO_ICON), 
-												ImageLoader.getImage(ImageLoader.MORE_INFO_ICON));
-	
+		= new SIPCommButton(ImageLoader.getImage(ImageLoader.MORE_INFO_ICON), 
+							ImageLoader.getImage(ImageLoader.MORE_INFO_ICON));
+
 	private boolean isSelected = false;
 
 	private boolean isLeaf = true;
@@ -57,7 +66,8 @@ public class ContactListCellRenderer extends JPanel
 		super(new BorderLayout());
 
 		this.setBackground(Color.WHITE);
-
+		this.buttonsPanel.setOpaque(false);
+		
 		this.setOpaque(true);	
 
 		this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -80,6 +90,8 @@ public class ContactListCellRenderer extends JPanel
             MetaContactNode contactNode = (MetaContactNode)value; 
             MetaContact contactItem = contactNode.getContact();
 
+            String toolTipText = "<html>" + contactItem.getDisplayName();
+            
 			this.nameLabel.setText(contactItem.getDisplayName());
 
 			this.nameLabel.setIcon(contactNode.getStatusIcon());
@@ -92,8 +104,34 @@ public class ContactListCellRenderer extends JPanel
             // make getComponentAt work properly. 
             this.setBounds(0, 0, list.getWidth() - 2, 17);
             
-            this.add(extendPanelButton, BorderLayout.EAST);
-			
+            this.buttonsPanel.removeAll();
+            //this.buttonsPanel.add(extendPanelButton);
+		
+            Iterator i = contactNode.getProtocolIcons().values().iterator();
+            
+            while(i.hasNext()){
+            	
+            	Image protocolStatusIcon = (Image) i.next();
+            	
+            	SIPCommButton contactProtocolButton 
+        				= new SIPCommButton
+        					(protocolStatusIcon, 
+        					protocolStatusIcon);
+        		
+            	this.buttonsPanel.add(contactProtocolButton);
+            	/*
+            	toolTipText 
+            		+= "<img src='" 
+            			+ ImageLoader.getImagePath(protocolStatusIcon) 
+            			+ "'></img>";
+            			*/
+            }
+
+            this.add(buttonsPanel, BorderLayout.EAST);
+            
+            toolTipText += "</html>";
+            this.setToolTipText(toolTipText);
+            
             this.isLeaf = true;
 		}
 		else if (value instanceof MetaContactGroup) {		
@@ -113,7 +151,7 @@ public class ContactListCellRenderer extends JPanel
             // make getComponentAt work properly. 
             this.setBounds(0, 0, list.getWidth() - 2, 20);
 			
-            this.remove(extendPanelButton);
+            this.remove(buttonsPanel);
             
             this.isLeaf = false;
 		}
@@ -143,8 +181,8 @@ public class ContactListCellRenderer extends JPanel
 			
 			g2.setColor(Constants.CONTACTPANEL_BORDER_COLOR);
 			g2.setStroke(new BasicStroke(1.5f));
-			g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1, 7, 7);
-
+			g2.drawRoundRect(0, 0, this.getWidth() - 1, 
+								this.getHeight() - 1, 7, 7);
 		} 
 	}
 	

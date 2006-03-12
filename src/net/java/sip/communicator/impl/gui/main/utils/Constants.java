@@ -99,7 +99,7 @@ public class Constants {
 
 	public static final String FONT_NAME = "Verdana";
 
-	public static final String FONT_SIZE = "10";
+	public static final String FONT_SIZE = "12";
 
 	public static final String FONT_IN_MSG_COLOR = "#ef7b1e";
 
@@ -194,7 +194,7 @@ public class Constants {
 	
 
 	/**
-	 * Gets protocol logo
+	 * Gets protocol logo icon.
 	 */
 
 	public static Image getProtocolIcon(String protocolName) {

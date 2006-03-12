@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -556,5 +557,30 @@ public class ImageLoader {
 		public String getId() {
 			return id;
 		}
+	}
+	
+	/**
+	 * Returns the path string of an already loaded image, otherwise null.
+	 *  
+	 * @param image The image wich path to return.
+	 * @return The path string of an already loaded image, otherwise null.
+	 */
+	public static String getImagePath(Image image){
+		
+		String path = null;
+		
+		Iterator i = ImageLoader.loadedImages.entrySet().iterator();
+		
+		while(i.hasNext()){
+			Map.Entry entry = (Map.Entry)i.next();
+			
+			if (entry.getValue().equals(image)){
+				String imageID = ((ImageID)entry.getKey()).getId();
+				
+				path = Images.getString(imageID);
+			}
+		}
+		
+		return path;
 	}
 }

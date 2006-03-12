@@ -44,10 +44,6 @@ public class ChatWindow extends JFrame{
 	
 	private ChatSendPanel sendPanel;
 	
-	private JPanel topPanel = new JPanel(new BorderLayout());
-	
-	private JPanel bottomPanel = new JPanel(new BorderLayout());
-	
 	private MainFrame parentWindow;	
 	
 	private String windowTitle = "";
