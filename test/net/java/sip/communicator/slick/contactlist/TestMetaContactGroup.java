@@ -53,7 +53,7 @@ public class TestMetaContactGroup extends TestCase
                                             .getServerStoredContactListRoot();
 
         mockGroup = (MockContactGroup)mockGroup
-                    .getGroup(MetaContactListServiceLick.THE_NAME_OF_A_GROUP);
+                    .getGroup(MetaContactListServiceLick.topLevelGroupName);
 
         metaGroup = fixture.metaClService.getRoot()
                             .getMetaContactSubgroup(mockGroup.getGroupName());
@@ -171,7 +171,7 @@ public class TestMetaContactGroup extends TestCase
     public void testGetGroupName()
     {
         assertEquals("grp: " + metaGroup + " had the wrong name."
-                     , MetaContactListServiceLick.THE_NAME_OF_A_GROUP
+                     , MetaContactListServiceLick.topLevelGroupName
                      , metaGroup.getGroupName());
     }
 
@@ -222,6 +222,35 @@ public class TestMetaContactGroup extends TestCase
     }
 
     /**
+     * Verifies whether getMetaContact(string, provider) returns proper results.
+     */
+    public void testGetMetaContact3()
+    {
+        MetaContactGroup metaContactGroup1 = fixture.metaClService
+            .findMetaContactGroupByContactGroup(MetaContactListServiceLick
+                                      .topLevelMockGroup);
+
+        MetaContact metaContact = metaContactGroup1.getMetaContact(
+                            fixture.mockProvider
+                            , MetaContactListServiceLick.subLevelContactName);
+
+        //do as best as we can to determine whether this is the right meta
+        //contact
+        assertNotNull(
+            "getMetaCont(prov, contactID) returned a MetaC that didn't "
+            + "contain our contact"
+            , metaContact.getContact(
+                            MetaContactListServiceLick.subLevelContactName
+                            , fixture.mockProvider));
+
+        assertEquals(
+            "getMetaCont(prov, contactID) returned a MetaC with a wrong name "
+            , metaContact.getDisplayName()
+            , MetaContactListServiceLick.subLevelContactName);
+    }
+
+
+    /**
      * test.
      */
     public void testGetMetaContactSubgroup()
@@ -253,9 +282,43 @@ public class TestMetaContactGroup extends TestCase
         //make sure that what we just got is not null.
         assertNotNull("getMetaContact(String) returned null for group 0"
                       , actualGroup);
+    }
+
+    /**
+     * Tests MetaContact.contains(MetaContact)
+     */
+    public void testContains()
+    {
+        MetaContactGroup metaContactGroup1 = fixture.metaClService
+            .findMetaContactGroupByContactGroup(MetaContactListServiceLick
+                                      .topLevelMockGroup);
+
+        MetaContact metaContact = fixture.metaClService.findMetaContactByContact(
+            MetaContactListServiceLick.subLevelContact);
+
+        assertTrue(metaContactGroup1.contains(metaContact));
+    }
+
+    /**
+     * Tests MetaContact.contains(MetaContact)
+     */
+    public void testContains2()
+    {
+        MetaContactGroup metaContactGroup1 = fixture.metaClService
+            .findMetaContactGroupByContactGroup(MetaContactListServiceLick
+                                      .topLevelMockGroup);
+
+        MetaContactGroup metaContactGroup2 = metaContactGroup1
+            .getMetaContactSubgroup(MetaContactListServiceLick
+                                        .subLevelGroup.getGroupName());
+
+        assertTrue(metaContactGroup1.contains(metaContactGroup2));
 
     }
 
+    /**
+     * Tests MetaContactGroup.getSubgroups();
+     */
     public void testGetSubgroups()
     {
         Iterator subgroupsIter = metaGroup.getSubgroups();
@@ -268,6 +331,5 @@ public class TestMetaContactGroup extends TestCase
 
         //i don't think we could test anything else here without becoming
         //redundant with TestMetaContactList
-
     }
 }

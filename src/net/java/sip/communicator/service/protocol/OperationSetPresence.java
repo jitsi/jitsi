@@ -220,7 +220,7 @@ public interface OperationSetPresence
      * Removes the specified subscription listener.
      * @param listener the listener to remove.
      */
-    public void removeSubsciptionListener(SubscriptionListener listener);
+    public void removeSubscriptionListener(SubscriptionListener listener);
 
     /**
      * Returns the status message that was confirmed by the serfver

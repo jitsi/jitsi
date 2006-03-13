@@ -428,7 +428,7 @@ public class TestOperationSetPresence
             operationSetPresence.subscribe(fixture.testerAgent.getIcqUIN());
             subEvtCollector.waitForEvent(10000);
             //don't want any more events
-            operationSetPresence.removeSubsciptionListener(subEvtCollector);
+            operationSetPresence.removeSubscriptionListener(subEvtCollector);
         }
 
         assertEquals("Subscription event dispatching failed."
@@ -543,7 +543,7 @@ public class TestOperationSetPresence
             operationSetPresence.unsubscribe(icqTesterAgentContact);
             subEvtCollector.waitForEvent(10000);
             //don't want any more events
-            operationSetPresence.removeSubsciptionListener(subEvtCollector);
+            operationSetPresence.removeSubscriptionListener(subEvtCollector);
         }
 
         assertEquals("Subscription event dispatching failed."

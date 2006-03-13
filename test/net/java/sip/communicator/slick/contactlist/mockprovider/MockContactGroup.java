@@ -76,6 +76,7 @@ public class MockContactGroup
     public void addContact(MockContact contactToAdd)
     {
         this.contacts.add(contactToAdd);
+        contactToAdd.setParentGroup(this);
     }
 
     /**
@@ -154,6 +155,31 @@ public class MockContactGroup
         }
         return null;
     }
+
+    /**
+     * Returns the group that is parent of the specified mockContact or null
+     * if no parent was found.
+     * @param mockContact the contact whose parent we're looking for.
+     * @return the MockContactGroup instance that mockContact belongs to or null
+     * if no parent was found.
+     */
+    public MockContactGroup findContactParent(MockContact mockContact)
+    {
+        if ( contacts.contains(mockContact) )
+            return this;
+
+        Iterator subGroupsIter = subGroups();
+        while (subGroupsIter.hasNext())
+        {
+            MockContactGroup subgroup = (MockContactGroup) subGroupsIter.next();
+
+            MockContactGroup parent = subgroup.findContactParent(mockContact);
+            if(parent != null)
+                return parent;
+        }
+        return null;
+    }
+
 
 
     /**

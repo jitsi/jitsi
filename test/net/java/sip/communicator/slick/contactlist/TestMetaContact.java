@@ -44,7 +44,7 @@ public class TestMetaContact extends TestCase
         super.setUp();
         fixture.setUp();
 
-        mockContact = MetaContactListServiceLick.THE_CONTACT;
+        mockContact = MetaContactListServiceLick.subLevelContact;
 
         metaContact = fixture.metaClService.findMetaContactByContact(
                                                                 mockContact);
@@ -138,7 +138,6 @@ public class TestMetaContact extends TestCase
 
         assertSame("getDefaultContact() did not return the right proto group."
                    , actualReturn, mockContact);
-
     }
 
     /**

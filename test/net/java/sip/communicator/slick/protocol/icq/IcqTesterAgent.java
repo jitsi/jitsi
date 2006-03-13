@@ -102,31 +102,29 @@ public class IcqTesterAgent
             return true;
 
         DefaultAppSession session = new DefaultAppSession();
-System.out.println("1");
+
         AimSession aimSession =
             session.openAimSession(icqUIN);
         aimSession.openConnection(
             new AimConnectionProperties(
                 icqUIN, password));
-System.out.println("2");
+
         conn = aimSession.getConnection();
-System.out.println("3");
+
         conn.addStateListener(new AimConnStateListener());
         conn.getBuddyInfoManager().addGlobalBuddyInfoListener(new GlobalBuddyListener());
-System.out.println("4");
-        conn.connect();
-System.out.println("5");
 
+        conn.connect();
 
         synchronized(connectionLock){
             try{connectionLock.wait(10000);}catch(InterruptedException ex){}
         }
-System.out.println("6");
+
         if (icbmService == null){
             //maybe throw an exception here
             return (registered = false);
         }
-System.out.println("7");
+
         //conn.getSsiService()
         //    .getBuddyList().addRetroactiveLayoutListener(new RetroListener());
         conn.getBuddyService().addBuddyListener(new BuddyListener());

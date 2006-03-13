@@ -233,7 +233,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * Removes the specified subscription listener.
      * @param listener the listener to remove.
      */
-    public void removeSubsciptionListener(SubscriptionListener listener)
+    public void removeSubscriptionListener(SubscriptionListener listener)
     {
         synchronized(subscriptionListeners){
             subscriptionListeners.remove(listener);

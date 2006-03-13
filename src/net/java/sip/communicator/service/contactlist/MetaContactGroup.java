@@ -25,6 +25,11 @@ public interface MetaContactGroup
     /**
      * Returns an iterator over all the protocol specific groups that this
      * contact group represents.
+     * <p>
+     * Note to implementors:  In order to prevent problems with concurrency, the
+     * <tt>Iterator</tt> returned by this method should not be over the actual
+     * list of groups but rather over a copy of that list.
+     * <p>
      * @return an Iterator over the protocol specific groups that this group
      * represents.
      */
@@ -36,12 +41,36 @@ public interface MetaContactGroup
      * If none of the contacts encapsulated by this MetaContact is originating
      * from the specified provider then an empty iterator is returned.
      * <p>
+     * Note to implementors:  In order to prevent problems with concurrency, the
+     * <tt>Iterator</tt> returned by this method should not be over the actual
+     * list of groups but rather over a copy of that list.
+     * <p>
      * @param provider a reference to the <tt>ProtocolProviderService</tt>
      * whose ContactGroups we'd like to get.
      * @return an <tt>Iterator</tt> over all contacts encapsulated in this
      * <tt>MetaContact</tt> and originating from the specified provider.
      */
     public Iterator getContactGroupsForProvider(ProtocolProviderService provider);
+
+    /**
+     * Returns true if and only if <tt>contact</tt> is a direct child of this
+     * group.
+     * @param contact the <tt>MetaContact</tt> whose relation to this group
+     * we'd like to determine.
+     * @return <tt>true</tt> if <tt>contact</tt> is a direct child of this group
+     * and <tt>false</tt> otherwise.
+     */
+    public boolean contains(MetaContact contact);
+
+    /**
+     * Returns true if and only if <tt>group</tt> is a direct subgroup of this
+     * <tt>MetaContactGroup</tt>.
+     * @param group the <tt>MetaContactGroup</tt> whose relation to this group
+     * we'd like to determine.
+     * @return <tt>true</tt> if <tt>group</tt> is a direct child of this
+     * <tt>MetaContactGroup</tt> and <tt>false</tt> otherwise.
+     */
+    public boolean contains(MetaContactGroup group);
 
     /**
      * Returns a contact group encapsulated by this meta contact group, having
@@ -61,6 +90,11 @@ public interface MetaContactGroup
     /**
      * Returns a <tt>java.util.Iterator</tt> over the <tt>MetaContact</tt>s
      * contained in this <tt>MetaContactGroup</tt>.
+     * <p>
+     * Note to implementors:  In order to prevent problems with concurrency, the
+     * <tt>Iterator</tt> returned by this method should not be over the actual
+     * list of contacts but rather over a copy of that list.
+     * <p>
      * @return a <tt>java.util.Iterator</tt> over the <tt>MetaContacts</tt> in
      * this group.
      */
@@ -82,6 +116,11 @@ public interface MetaContactGroup
      * The <tt>canContainSubgroups()</tt> method allows us to verify whether
      * this is the case with the group at hand.
      * <p>
+     * <p>
+     * Note to implementors:  In order to prevent problems with concurrency, the
+     * <tt>Iterator</tt> returned by this method should not be over the actual
+     * list of groups but rather over a copy of that list.
+     * <p>
      * @return a <tt>java.util.Iterator</tt> containing all subgroups.
      */
     public Iterator getSubgroups();
@@ -102,6 +141,19 @@ public interface MetaContactGroup
      * <tt>false</tt> otherwise.
      */
     public boolean canContainSubgroups();
+
+    /**
+     * Returns the meta contact encapsulating a contact belonging to the
+     * specified <tt>provider</tt> with the specified identifier.
+     *
+     * @param provider the ProtocolProviderService that the specified
+     * <tt>contactID</tt> is pertaining to.
+     * @param contactID a String identifier of the protocol specific contact
+     * whose container meta contact we're looking for.
+     * @return the <tt>MetaContact</tt> with the specified idnetifier.
+     */
+    public MetaContact getMetaContact(ProtocolProviderService provider,
+                                      String contactID);
 
     /**
      * Returns the contact with the specified identifier

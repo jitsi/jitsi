@@ -57,6 +57,10 @@ public class MetaContactImpl
     /**
      * Returns a Contact, encapsulated by this MetaContact and coming from
      * the specified ProtocolProviderService.
+     * <p>
+     * In order to prevent problems with concurrency, the <tt>Iterator</tt>
+     * returned by this method is not be over the actual list of contacts but
+     * over a copy of that list.
      *
      * @param provider a reference to the <tt>ProtocolProviderService</tt>
      *   that we'd like to get a <tt>Contact</tt> for.
@@ -82,6 +86,7 @@ public class MetaContactImpl
     /**
      * Returns a contact encapsulated by this meta contact, having the specified
      * contactAddress and coming from the indicated ownerProvider.
+     * <p>
      * @param contactAddress the address of the contact who we're looking for.
      * @param ownerProvider a reference to the ProtocolProviderService that
      * the contact we're looking for belongs to.
@@ -110,14 +115,19 @@ public class MetaContactImpl
     /**
      * Returns a <tt>java.util.Iterator</tt> over all protocol specific
      * <tt>Contacts</tt> encapsulated by this <tt>MetaContact</tt>.
-     *
+     * <p>
+     * In order to prevent problems with concurrency, the <tt>Iterator</tt>
+     * returned by this method is not over the actual list of contacts but over
+     * a copy of that list.
+     * <p>
      * @return a <tt>java.util.Ierator</tt> over all protocol specific
      * <tt>Contact</tt>s that were registered as subcontacts for this
      * <tt>MetaContact</tt>
      */
     public Iterator getContacts()
     {
-        return protoContacts.iterator();
+        List contactsCopy = new LinkedList(protoContacts);
+        return contactsCopy.iterator();
     }
 
     /**
@@ -189,6 +199,10 @@ public class MetaContactImpl
     void addProtoContact(Contact contact)
     {
         this.protoContacts.add(contact);
+
+        //if this is our firt contact - set the display name too.
+        if(this.protoContacts.size() == 1)
+            setDisplayName(contact.getDisplayName());
     }
 
     /**
@@ -209,7 +223,7 @@ public class MetaContactImpl
     /**
      * Removes all proto contacts that belong to the specified provider.
      *
-     * @param contact the contact to remove
+     * @param provider the provider whose contacts we want removed.
      *
      * @return true if this <tt>MetaContact</tt> was modified and false
      * otherwise.

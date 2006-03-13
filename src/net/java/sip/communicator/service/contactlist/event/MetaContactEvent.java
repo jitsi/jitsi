@@ -41,9 +41,16 @@ public class MetaContactEvent
 
     /**
      * Indicates that the MetaContactEvent instance was triggered by the
-     * addition of a protocol specific contact to an existing MetaContact.
+     * a protocol specific contact to a new MetaContact parent.
      */
     public static final int PROTO_CONTACT_ADDED = 4;
+
+    /**
+     * Indicates that the MetaContactEvent instance was triggered by moving
+     * addition of a protocol specific contact to an existing MetaContact.
+     */
+    public static final int PROTO_CONTACT_MOVED = 5;
+
 
 
 

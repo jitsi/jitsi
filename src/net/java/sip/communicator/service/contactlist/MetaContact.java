@@ -32,6 +32,11 @@ public interface MetaContact
     /**
      * Returns a <tt>java.util.Iterator</tt> with all protocol specific
      * <tt>Contacts</tt> encapsulated by this <tt>MetaContact</tt>.
+     * <p>
+     * Note to implementors:  In order to prevent problems with concurrency, the
+     * <tt>Iterator</tt> returned by this method should not be over the actual
+     * list of contacts but rather over a copy of that list.
+     * <p>
      * @return a <tt>java.util.Iterator</tt> containing all protocol specific
      * <tt>Contact</tt>s that were registered as subcontacts for this
      * <tt>MetaContact</tt>
@@ -64,6 +69,10 @@ public interface MetaContact
      * and coming from the indicated ProtocolProviderService. If none of the
      * contacts encapsulated by this MetaContact is originating from the
      * specified provider then an empty iterator is returned.
+     * <p>
+     * Note to implementors:  In order to prevent problems with concurrency, the
+     * <tt>Iterator</tt> returned by this method should not be over the actual
+     * list of contacts but rather over a copy of that list.
      * <p>
      * @param provider a reference to the <tt>ProtocolProviderService</tt>
      * whose contacts we'd like to get.

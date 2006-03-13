@@ -34,11 +34,19 @@ public class MetaContactListServiceLick
      */
     private ServiceRegistration mockProviderRegistration = null;
 
-    static final String THE_NAME_OF_A_GROUP = "SomePeople";
+    //Convenience referenes to some groups and contacts.
 
-    static final String THE_NAME_OF_A_CONTACT = "Spencer";
+    static final String topLevelGroupName = "SomePeople";
 
-    static MockContact THE_CONTACT = null;
+    static MockContactGroup topLevelMockGroup = null;
+
+    static final String subLevelContactName = "Spencer";
+
+    static MockContact subLevelContact = null;
+
+    static MockContactGroup subLevelGroup = null;
+
+    static MockContact subsubContact = null;
 
     /**
      * Start, init and register the SLICK. Create the mock protocol provider
@@ -127,27 +135,29 @@ public class MetaContactListServiceLick
                                                     class.getName());
         MockContactGroup root =
                 (MockContactGroup)mockOpSet.getServerStoredContactListRoot();
-        root.addContact( new MockContact("Ivan Ivanov", provider, root) );
-        root.addContact( new MockContact("Martin Dupont", provider, root) );
-        root.addContact( new MockContact("Joe Bloggs", provider, root) );
+        root.addContact( new MockContact("Ivan Ivanov", provider) );
+        root.addContact( new MockContact("Martin Dupont", provider) );
+        root.addContact( new MockContact("Joe Bloggs", provider) );
 
-        MockContactGroup group1 = new MockContactGroup(THE_NAME_OF_A_GROUP, provider);
+        topLevelMockGroup = new MockContactGroup(topLevelGroupName, provider);
 
-        THE_CONTACT = new MockContact(THE_NAME_OF_A_CONTACT, provider,
-                                            group1);
-        group1.addContact( THE_CONTACT );
-        group1.addContact( new MockContact("Pencho", provider, group1) );
-        group1.addContact( new MockContact("Toto", provider, group1) );
+        subLevelContact = new MockContact(subLevelContactName, provider);
+        topLevelMockGroup.addContact( subLevelContact );
+        topLevelMockGroup.addContact( new MockContact("Pencho", provider) );
+        topLevelMockGroup.addContact( new MockContact("Toto", provider) );
 
-        MockContactGroup group2 = new MockContactGroup("SubSubGroup", provider);
+        subLevelGroup
+            = new MockContactGroup("SubSubGroup", provider);
 
-        group2.addContact( new MockContact("SContact1", provider, group2));
-        group2.addContact( new MockContact("SContact2", provider, group2));
-        group2.addContact( new MockContact("SContact3", provider, group2));
-        group2.addContact( new MockContact("SContact4", provider, group2));
+        subsubContact = new MockContact("SContact1", provider);
 
-        group1.addSubGroup(group2);
+        subLevelGroup.addContact( subsubContact );
+        subLevelGroup.addContact( new MockContact("SContact2", provider));
+        subLevelGroup.addContact( new MockContact("SContact3", provider));
+        subLevelGroup.addContact( new MockContact("SContact4", provider));
 
-        root.addSubGroup(group1);
+        topLevelMockGroup.addSubGroup(subLevelGroup);
+
+        root.addSubGroup(topLevelMockGroup);
     }
 }

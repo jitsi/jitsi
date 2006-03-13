@@ -28,16 +28,24 @@ public class MockContact
      * as a name and identifier.
      *
      * @param id the identifier of this contact (also used as a name).
-     * @param parentGroup the group that contains the contact
      * @param parentProvider the provider that created us.
      */
     public MockContact(String id,
-                       MockProvider parentProvider,
-                       MockContactGroup parentGroup)
+                       MockProvider parentProvider)
     {
-        this.parentGroup = parentGroup;
         this.contactID = id;
         this.parentProvider = parentProvider;
+    }
+
+    /**
+     * This method is only called when the contact is added to a new
+     * <tt>MockContactGroup</tt> by the MockContactGroup itself.
+     * @param newParentGroup the <tt>MockContactGroup</tt> that is now parent
+     * of this <tt>MockContact</tt>
+     */
+    void setParentGroup(MockContactGroup newParentGroup)
+    {
+        this.parentGroup = newParentGroup;
     }
 
     /**

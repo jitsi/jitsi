@@ -74,6 +74,29 @@ public interface MetaContactListService
     public MetaContactGroup getRoot();
 
     /**
+     * Returns the meta contact group that is a direct parent of the specified
+     * <tt>child</tt>.
+     * @param child the <tt>MetaContactGroup</tt> whose paret group we're
+     * looking for. If no parent is found <tt>null</tt> is returned.
+     *
+     * @return the <tt>MetaContactGroup</tt> that contains <tt>child</tt> or
+     * null if no parent couldn't be found.
+     */
+    public MetaContactGroup findParentMetaContactGroup(MetaContactGroup child);
+
+    /**
+     * Returns the meta contact group that is a direct parent of the specified
+     * <tt>child</tt>. If no parent is found <tt>null</tt> is returned.
+     * @param child the <tt>MetaContact</tt> whose paret group we're looking
+     * for.
+     *
+     * @return the <tt>MetaContactGroup</tt> that contains <tt>child</tt> or
+     * null if no such group could be found.
+     */
+    public MetaContactGroup findParentMetaContactGroup(MetaContact child);
+
+
+    /**
      * Returns the MetaContact containing the specified contact or null if no
      * such MetaContact was found. The method can be used when for example
      * we need to find the MetaContact that is the author of an incoming message
@@ -232,13 +255,31 @@ public interface MetaContactListService
      * specific contacts are added to the group if the protocol lying behind
      * them supports that.
      * <p>
+     * @param parentGroup the <tt>MetaContactGroup</tt> that should be the
+     * parent of the newly created group.
      * @param groupName the name of the <tt>MetaContactGroup</tt> to create.
      *
      * @throws MetaContactListException with an appropriate code if the
      * operation fails for some reason.
      */
-    public void createMetaContactGroup(String groupName)
+    public void createMetaContactGroup(MetaContactGroup parent,
+                                       String groupName)
         throws MetaContactListException;
+
+    /**
+     * Renames the specified <tt>MetaContactGroup</tt> as indicated by the
+     * <tt>newName</tt> param.
+     * The operation would only affect the local meta group and would not
+     * "touch" any encapsulated protocol specific group.
+     * <p>
+     * @param newGroupName the new name of the <tt>MetaContactGroup</tt> to
+     * rename.
+     */
+    public void renameMetaContactGroup(MetaContactGroup group,
+                                       String newGroupName)
+        throws MetaContactListException;
+
+
 
     /**
      * Removes the specified meta contact group, all its corresponding protocol

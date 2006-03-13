@@ -87,12 +87,17 @@ public class MetaContactGroupImpl
     /**
      * Returns a <tt>java.util.Iterator</tt> over the <tt>MetaContact</tt>s
      * contained in this <tt>MetaContactGroup</tt>.
+     * <p>
+     * In order to prevent problems with concurrency, the <tt>Iterator</tt>
+     * returned by this method is not over the actual list of groups but over a
+     * copy of that list.
+     * <p>
      *
      * @return a <tt>java.util.Iterator</tt> over an empty contacts list.
      */
     public Iterator getChildContacts()
     {
-        return childContacts.iterator();
+        return new LinkedList(childContacts).iterator();
     }
 
     /**
@@ -114,6 +119,32 @@ public class MetaContactGroupImpl
         }
 
         return null;
+    }
+
+    /**
+     * Returns the meta contact encapsulating a contact belonging to the
+     * specified <tt>provider</tt> with the specified identifier.
+     *
+     * @param provider the ProtocolProviderService that the specified
+     * <tt>contactID</tt> is pertaining to.
+     * @param contactID a String identifier of the protocol specific contact
+     * whose container meta contact we're looking for.
+     * @return the <tt>MetaContact</tt> with the specified idnetifier.
+     */
+    public MetaContact getMetaContact(ProtocolProviderService provider,
+                                      String contactID)
+    {
+        Iterator contactsIter = getChildContacts();
+        while(contactsIter.hasNext())
+        {
+            MetaContact contact = (MetaContact)contactsIter.next();
+
+            if (contact.getContact(contactID, provider) != null)
+                return contact;
+        }
+
+        return null;
+
     }
 
     /**
@@ -157,12 +188,17 @@ public class MetaContactGroupImpl
     /**
      * Returns an iterator over all the protocol specific groups that this
      * contact group represents.
+     * <p>
+     * In order to prevent problems with concurrency, the <tt>Iterator</tt>
+     * returned by this method is not over the actual list of groups but over a
+     * copy of that list.
+     * <p>
      * @return an Iterator over the protocol specific groups that this group
      * represents.
      */
     public Iterator getContactGroups()
     {
-        return this.protoGroups.iterator();
+        return new LinkedList( this.protoGroups ).iterator();
     }
 
     /**
@@ -372,14 +408,45 @@ public class MetaContactGroupImpl
     }
 
     /**
+     * Returns true if and only if <tt>contact</tt> is a direct child of this
+     * group.
+     * @param contact the <tt>MetaContact</tt> whose relation to this group
+     * we'd like to determine.
+     * @return <tt>true</tt> if <tt>contact</tt> is a direct child of this group
+     * and <tt>false</tt> otherwise.
+     */
+    public boolean contains(MetaContact contact)
+    {
+        return this.childContacts.contains(contact);
+    }
+
+    /**
+     * Returns true if and only if <tt>group</tt> is a direct subgroup of this
+     * <tt>MetaContactGroup</tt>.
+     * @param group the <tt>MetaContactGroup</tt> whose relation to this group
+     * we'd like to determine.
+     * @return <tt>true</tt> if <tt>group</tt> is a direct child of this
+     * <tt>MetaContactGroup</tt> and <tt>false</tt> otherwise.
+     */
+    public boolean contains(MetaContactGroup group)
+    {
+        return this.subgroups.contains(group);
+    }
+
+
+    /**
      * Returns an <tt>java.util.Iterator</tt> over the sub groups that this
      * <tt>MetaContactGroup</tt> contains.
+     * <p>
+     * In order to prevent problems with concurrency, the <tt>Iterator</tt>
+     * returned by this method is not over the actual list of groups but over a
+     * copy of that list.
      * <p>
      * @return a <tt>java.util.Iterator</tt> containing all subgroups.
      */
     public Iterator getSubgroups()
     {
-        return subgroups.iterator();
+        return new LinkedList( subgroups ).iterator();
     }
 
     /**
@@ -390,6 +457,16 @@ public class MetaContactGroupImpl
     {
         return groupName;
     }
+
+    /**
+     * Sets the name of this group.
+     * @param newGroupName a String containing the new name of this group.
+     */
+    void setGroupName(String newGroupName)
+    {
+        this.groupName = newGroupName;
+    }
+
 
     /**
      * Returns a String representation of this group and the contacts it

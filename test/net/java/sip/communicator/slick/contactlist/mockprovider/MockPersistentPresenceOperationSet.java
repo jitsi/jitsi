@@ -284,7 +284,15 @@ public class MockPersistentPresenceOperationSet
     public void moveContactToGroup(Contact contactToMove,
                                    ContactGroup newParent)
     {
-        /** @todo implement moveContactToGroup() */
+        MockContact mockContact = (MockContact)contactToMove;
+
+        MockContactGroup parentMockGroup = findContactParent(mockContact);
+
+        parentMockGroup.removeContact(mockContact);
+
+        ((MockContactGroup)newParent).addContact(mockContact);
+
+        /** @todo fire an event (we probably need to create a new family of move events) */
     }
 
     /**
@@ -368,6 +376,19 @@ public class MockPersistentPresenceOperationSet
     }
 
     /**
+     * Returns the group that is parent of the specified mockContact  or null
+     * if no parent was found.
+     * @param mockContact the contact whose parent we're looking for.
+     * @return the MockContactGroup instance that mockContact belongs to or null
+     * if no parent was found.
+     */
+    public MockContactGroup findContactParent(MockContact mockContact)
+    {
+        return contactListRoot.findContactParent(mockContact);
+    }
+
+
+    /**
      * Removes the specified group from the server stored contact list.
      *
      * @param group the group to remove.
@@ -412,7 +433,7 @@ public class MockPersistentPresenceOperationSet
      *
      * @param listener the listener to remove.
      */
-    public void removeSubsciptionListener(SubscriptionListener listener)
+    public void removeSubscriptionListener(SubscriptionListener listener)
     {
         this.subscriptionListeners.remove(listener);
     }
@@ -468,14 +489,13 @@ public class MockPersistentPresenceOperationSet
         OperationFailedException
     {
         MockContact contact = new MockContact(contactIdentifier
-                                              , parentProvider
-                                              , (MockContactGroup)parent);
+                                              , parentProvider);
 
         ((MockContactGroup)parent).addContact(contact);
 
         fireSubscriptionEvent(contact,
-                                       parent,
-                                       SubscriptionEvent.SUBSCRIPTION_CREATED);
+                              parent,
+                              SubscriptionEvent.SUBSCRIPTION_CREATED);
 
     }
 
@@ -498,8 +518,7 @@ public class MockPersistentPresenceOperationSet
         OperationFailedException
     {
         MockContact contact = new MockContact(contactIdentifier
-                                              , parentProvider
-                                              , contactListRoot);
+                                              , parentProvider);
 
         contactListRoot.addContact(contact);
 

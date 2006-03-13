@@ -189,7 +189,7 @@ public class TestOperationSetPersistentPresence
 
         evtCollector.waitForEvent(10000);
 
-        opSetPersPresence.removeSubsciptionListener(evtCollector);
+        opSetPersPresence.removeSubscriptionListener(evtCollector);
 
         //make sure the event delivery went as expected
         assertEquals("Number of dispatched events",
@@ -243,7 +243,7 @@ public class TestOperationSetPersistentPresence
 
         evtCollector.waitForEvent(10000);
 
-        opSetPersPresence.removeSubsciptionListener(evtCollector);
+        opSetPersPresence.removeSubscriptionListener(evtCollector);
 
         //make sure the event delivery went as expected
         assertEquals("Number of dispatched events",
