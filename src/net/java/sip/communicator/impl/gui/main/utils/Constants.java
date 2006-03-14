@@ -168,7 +168,7 @@ public class Constants {
      * current status of a MetaContact, containing more than one protocol contacts. The status
      * in the table has the highest priority.
      */
-    private static final LinkedList  statusPriorityTable = new LinkedList();
+    public static final LinkedList  statusPriorityTable = new LinkedList();
     static{
         statusPriorityTable.addLast(Constants.CHAT_STATUS);
         statusPriorityTable.addLast(Constants.ONLINE_STATUS);
