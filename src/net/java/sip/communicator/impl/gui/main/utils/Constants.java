@@ -12,6 +12,7 @@ import java.awt.Font;
 import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.Map;
 
 import net.java.sip.communicator.service.protocol.PresenceStatus;
@@ -26,9 +27,9 @@ import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 public class Constants {
 
 	/*
-	 * =======================================================================
+	 * ====================================================
 	 * ------------------------ SIZE CONSTANTS -------------------------------
-	 * =======================================================================
+	 * ====================================================
 	 */
 	
 	public static final int MAINFRAME_MIN_HEIGHT = 200;
@@ -60,9 +61,9 @@ public class Constants {
 	public static final int CONFIG_FRAME_MAX_HEIGHT = 600;
 
 	/*
-	 * =======================================================================
+	 * ====================================================
 	 * -------------------- FONTS AND COLOR CONSTANTS ------------------------
-	 * =======================================================================
+	 * ====================================================
 	 */
 
 	public static final Color CONTACTPANEL_SELECTED_START_COLOR 
@@ -92,9 +93,9 @@ public class Constants {
 	public static final Color TRANSPARENT_WHITE_COLOR 
 											= new Color(255, 255, 255, 60);
 	/*
-	 * =======================================================================
+	 * ====================================================
 	 * ---------------------- MESSAGE WINDOW FONT CONSTANTS ------------------
-	 * =======================================================================
+	 * ====================================================
 	 */
 
 	public static final String FONT_NAME = "Verdana";
@@ -113,9 +114,9 @@ public class Constants {
 					new Integer(Constants.FONT_SIZE).intValue());
 	
 	/*
-	 * =======================================================================
+	 * ====================================================
 	 * ------------------------ STATUS LABELS --------------------------------
-	 * =======================================================================
+	 * ====================================================
 	 */
 
     public static final IcqStatusEnum ONLINE_STATUS 
@@ -161,11 +162,37 @@ public class Constants {
     	mainStatusSet.put(Constants.INVISIBLE_STATUS, 
     			ImageLoader.getImage(ImageLoader.USER_ONLINE_ICON));
     }
+    
+    /**
+     * Defines the priority of the statuses. The priority of statuses is used when detecting the
+     * current status of a MetaContact, containing more than one protocol contacts. The status
+     * in the table has the highest priority.
+     */
+    private static final LinkedList  statusPriorityTable = new LinkedList();
+    static{
+        statusPriorityTable.addLast(Constants.CHAT_STATUS);
+        statusPriorityTable.addLast(Constants.ONLINE_STATUS);
+        statusPriorityTable.addLast(Constants.INVISIBLE_STATUS);
+        statusPriorityTable.addLast(Constants.OCCUPIED_STATUS);
+        statusPriorityTable.addLast(Constants.DND_STATUS);
+        statusPriorityTable.addLast(Constants.AWAY_STATUS);
+        statusPriorityTable.addLast(Constants.NA_STATUS);
+        statusPriorityTable.addLast(Constants.OFFLINE_STATUS);
+    }
 
+    /**
+     * Returns the priority of the given status according to the statusPriorityTable.
+     * @param status The given status.
+     * @return The priority of the given status according to the statusPriorityTable.
+     */
+    public static int getPriority(PresenceStatus status){
+        return Constants.statusPriorityTable.indexOf(status);
+    }
+    
 	/*
-	 * =======================================================================
+	 * ====================================================
 	 * ------------------------ PROTOCOL NAMES -------------------------------
-	 * =======================================================================
+	 * ====================================================
 	 */
 
 	public static final String ICQ = "ICQ";
@@ -183,9 +210,9 @@ public class Constants {
 	public static final String SIP = "SIP";
 
 	/*
-	 * =======================================================================
+	 * ====================================================
 	 * ------------------------ OTHER CONSTANTS ------------------------------
-	 * =======================================================================
+	 * ====================================================
 	 */
 
 	public static final int RIGHT_SHIFT_STATUS_ICON = 2;

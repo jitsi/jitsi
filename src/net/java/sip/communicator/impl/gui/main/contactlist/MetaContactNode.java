@@ -13,9 +13,7 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
@@ -26,8 +24,7 @@ public class MetaContactNode {
     
     private Map protocolIcons = new Hashtable();
     
-    private ImageIcon statusIcon 
-        = new ImageIcon(ImageLoader.getImage(ImageLoader.USER_OFFLINE_ICON));
+    private PresenceStatus defaultStatus = Constants.OFFLINE_STATUS;
     
     public MetaContactNode(MetaContact contact){
         this.contact = contact;
@@ -42,28 +39,44 @@ public class MetaContactNode {
         	
         	this.protocolIcons.put(protocolName, 
     				Constants.getProtocolStatusIcons
-    				(protocolName).get(Constants.OFFLINE_STATUS));
+    				(protocolName).get(protocolContact.getPresenceStatus()));
         }
     }
 
+    /**
+     * Returns the general status of the MetaContact. Detects the status using the priority status
+     * table. The priority is defined on the "availablity" factor and here the most "available" status 
+     * is returned.
+     * 
+     * @return The most "available" status from all subcontact statuses.
+     * 
+     * @see net.java.sip.communicator.impl.gui.main.utils.Constants#statusPriorityTable 
+     * StatusPriorityTable
+     */
+    public PresenceStatus getStatus() {
+        
+        Iterator i = this.getContact().getContacts();
+        while(i.hasNext()){
+            Contact protoContact = (Contact)i.next();
+            PresenceStatus contactStatus = protoContact.getPresenceStatus();
+            
+            this.defaultStatus 
+                = (Constants.getPriority(contactStatus) < Constants.getPriority(defaultStatus))
+                    ?contactStatus:defaultStatus;
+            
+        }
+        return this.defaultStatus;
+    }
+    
     /**
      * Returns the status icon for this MetaContact.
      * 
      * @return the status icon for this MetaContact.
      */
     public ImageIcon getStatusIcon() {
-        return statusIcon;
+        return new ImageIcon(Constants.getStatusIcon(this.getStatus()));
     }
-    
-    /**
-     * Sets the status icon of this MetaContact.
-     * 
-     * @param statusIcon the status icon of this MetaContact.
-     */
-    public void setStatusIcon(ImageIcon statusIcon) {
-        this.statusIcon = statusIcon;
-    }
-
+   
     /**
      * Returns the MetaContact in this node.
      * 
@@ -73,14 +86,6 @@ public class MetaContactNode {
         return contact;
     }
     
-    /**
-     * Returns the contact display name as a String representation of 
-     * this node.
-     */
-    public String toString(){
-		return this.contact.getDisplayName();
-    }
-
     /**
      * Returns a Map containing pairs of (protocolName, protocolImage).
      * 
@@ -101,4 +106,12 @@ public class MetaContactNode {
 		this.protocolIcons.put(protocolName, Constants.getProtocolStatusIcons
 				(protocolName).get(status));	
 	}
+    
+    /**
+     * Returns the contact display name as a String representation of 
+     * this node.
+     */
+    public String toString(){
+        return this.contact.getDisplayName();
+    }
 }

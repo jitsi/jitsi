@@ -10,37 +10,25 @@ package net.java.sip.communicator.impl.gui.main;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.CListKeySearchListener;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactNode;
 import net.java.sip.communicator.impl.gui.main.contactlist.MetaContactNode;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
@@ -262,11 +250,7 @@ public class MainFrame extends JFrame {
                     = model.getContactNodeByContact(metaContact);
                 
                 if(node != null){
-                   
-                    node.setStatusIcon
-                        (new ImageIcon(Constants.getStatusIcon
-                                (newStatus)));
-                   
+                    
                     node.changeProtocolContactStatus(
                     		sourceContact.getProtocolProvider()
                     				.getProtocolName(),
