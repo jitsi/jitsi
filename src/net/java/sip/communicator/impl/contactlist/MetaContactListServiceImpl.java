@@ -447,10 +447,15 @@ public class MetaContactListServiceImpl
      * for.
      *
      * @return the <tt>MetaContactGroup</tt>
+     * @throws IllegalArgumentException if <tt>child</tt> is not an instnace of
+     * MetaContactImpl
      */
     public MetaContactGroup findParentMetaContactGroup(MetaContact child)
     {
-        return findParentMetaContactGroup(rootMetaGroup, child);
+        if (! (child instanceof MetaContactImpl))
+            throw new IllegalArgumentException(child
+                                    + " is not a MetaContactImpl instance.");
+        return ((MetaContactImpl)child).getParentGroup();
     }
 
     /**
@@ -674,11 +679,10 @@ public class MetaContactListServiceImpl
         //first remove the meta contact from its current parent:
         MetaContactGroupImpl currentParent
             = (MetaContactGroupImpl)findParentMetaContactGroup(metaContact);
-        currentParent.removeMetaContact(metaContact);
-        fireMetaContactEvent(metaContact, null, currentParent
-                             , MetaContactEvent.META_CONTACT_REMOVED);
+        currentParent.removeMetaContact((MetaContactImpl)metaContact);
 
-        ((MetaContactGroupImpl)newMetaGroup).addMetaContact(metaContact);
+        ((MetaContactGroupImpl)newMetaGroup).addMetaContact(
+            (MetaContactImpl)metaContact);
 
         //first make sure that the new meta contact group path is resolved
         //against all protocols that the MetaContact requires. then move
@@ -707,7 +711,7 @@ public class MetaContactListServiceImpl
         }
 
         fireMetaContactEvent(metaContact, null, newMetaGroup
-                             , MetaContactEvent.META_CONTACT_ADDED);
+                             , MetaContactEvent.META_CONTACT_MOVED);
     }
 
     /**
@@ -966,10 +970,10 @@ public class MetaContactListServiceImpl
     {
         ContactGroup rootProtoGroup = presenceOpSet
                 .getServerStoredContactListRoot();
-        
+
         if(rootProtoGroup != null){
-        	
-        	logger.trace("subgroups: "
+
+            logger.trace("subgroups: "
                     + rootProtoGroup.countSubgroups());
             logger.trace("child contacts: "
                     + rootProtoGroup.countContacts());
@@ -1513,6 +1517,8 @@ public class MetaContactListServiceImpl
                         l.metaContactAdded(evt);break;
                     case MetaContactEvent.META_CONTACT_REMOVED:
                         l.metaContactRemoved(evt);break;
+                    case MetaContactEvent.META_CONTACT_MOVED:
+                        l.metaContactMoved(evt);break;
                     case MetaContactEvent.PROTO_CONTACT_REMOVED:
                     case MetaContactEvent.PROTO_CONTACT_ADDED:
                     case MetaContactEvent.PROTO_CONTACT_MOVED:

@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Emil Ivov
  */
 public class MetaContactImpl
-    implements MetaContact
+    implements MetaContact, Comparable
 {
     /**
      * A vector containing all protocol specific contacts merged in this
@@ -24,6 +24,12 @@ public class MetaContactImpl
      *
      */
     private Vector protoContacts = new Vector();
+
+    /**
+     * The accumulated status index of all proto contacts merged in this
+     * meta contact.
+     */
+    private int totalStatus = 0;
 
     /**
      * An id uniquely identifying the meta contact in this contact list.
@@ -34,6 +40,18 @@ public class MetaContactImpl
      * Returns a human readable string used by the UI to display the contact.
      */
     private String displayName = "";
+
+    /**
+     * A callback to the meta contact group that is currently our parent. If
+     * this is an orphan meta contact that has not yet been added or has been
+     * removed from a group this callback is going to be null.
+     */
+    private MetaContactGroupImpl parentGroup = null;
+
+    /**
+     * A sync lock for use when modifying the parentGroup field.
+     */
+    private Object parentGroupModLock = new Object();
 
     MetaContactImpl()
     {
@@ -156,6 +174,37 @@ public class MetaContactImpl
     }
 
     /**
+     * Compares this meta contact with the specified object for order.  Returns
+     * a negative integer, zero, or a positive integer as this meta contact is
+     * less than, equal to, or greater than the specified object.
+     * <p>
+     * The result of this method is calculated the following way:
+     * <p>
+     * (totalStatus - o.totalStatus) * 1 000 000  <br>
+     * + getDisplayName().compareTo(o.getDisplayName()) * 100 000
+     * + getMetaUID().compareTo(o.getMetaUID())<br>
+     * <p>
+     * Or in other words ordering of meta accounts would be first done by
+     * presence status, then display name, and finally (in order to avoid
+     * equalities) be the farely random meta contact metaUID.
+     * <p>
+     * @param   o the Object to be compared.
+     * @return  a negative integer, zero, or a positive integer as this object
+     *		is less than, equal to, or greater than the specified object.
+     *
+     * @throws ClassCastException if the specified object is not
+     *          a MetaContactListImpl
+     */
+    public int compareTo(Object o)
+    {
+        MetaContactImpl target = (MetaContactImpl)o;
+
+        return (totalStatus - target.totalStatus) * 1000000
+                + getDisplayName().compareTo(target.getDisplayName()) * 100000
+                + getMetaUID().compareTo(target.getMetaUID());
+    }
+
+    /**
      * Returns a string representation of this contact, containing most of its
      * representative details.
      *
@@ -193,32 +242,83 @@ public class MetaContactImpl
 
     /**
      * Adds the specified protocol specific contact to the list of contacts
-     * merged in this meta contact.
+     * merged in this meta contact. The method also keeps up to date the
+     * totalStatus field which is used in the compareTo() method.
+     *
      * @param contact the protocol specific Contact to add.
      */
     void addProtoContact(Contact contact)
     {
-        this.protoContacts.add(contact);
+        synchronized (parentGroupModLock)
+        {
+            if (parentGroup != null)
+            {
+                parentGroup.lightRemoveMetaContact(this);
+            }
+            this.totalStatus += contact.getPresenceStatus().getStatus();
 
-        //if this is our firt contact - set the display name too.
-        if(this.protoContacts.size() == 1)
-            setDisplayName(contact.getDisplayName());
+            this.protoContacts.add(contact);
+
+            //if this is our firt contact - set the display name too.
+            if(this.protoContacts.size() == 1)
+                setDisplayName(contact.getDisplayName());
+
+
+            if (parentGroup != null)
+            {
+                parentGroup.lightAddMetaContact(this);
+            }
+        }
+    }
+
+    /**
+     * Called by MetaContact after a contact has chaned its status, so that the
+     * totalStatus field remains up to date.
+     *
+     * @return returns the reevaluated presence status index of this meta
+     * contact.
+     */
+    int reevalTotalStatus()
+    {
+        int totalStatus = 0;
+
+        Iterator protoContacts = this.protoContacts.iterator();
+
+        while (protoContacts.hasNext())
+            totalStatus += ((Contact)protoContacts.next()).getPresenceStatus()
+                                                                  .getStatus();
+
+        return totalStatus;
     }
 
     /**
      * Removes the specified protocol specific contact from the contacts
-     * encapsulated in this <code>MetaContact</code>
+     * encapsulated in this <code>MetaContact</code>. The method also updates
+     * the total status field accordingly. And updates its ordered position
+     * in its parent group.
      *
      * @param contact the contact to remove
      *
      * @return true if this <tt>MetaContact</tt> contained the specified
      * contact and false otherwise.
      */
-    boolean removeProtoContact(Contact contact)
+    void removeProtoContact(Contact contact)
     {
-        return this.protoContacts.remove(contact);
-    }
+        synchronized (parentGroupModLock)
+        {
+            if (parentGroup != null)
+            {
+                parentGroup.lightRemoveMetaContact(this);
+            }
+            totalStatus -= contact.getPresenceStatus().getStatus();
+            this.protoContacts.remove(contact);
 
+            if (parentGroup != null)
+            {
+                parentGroup.lightAddMetaContact(this);
+            }
+        }
+    }
 
     /**
      * Removes all proto contacts that belong to the specified provider.
@@ -247,6 +347,57 @@ public class MetaContactImpl
         return modified;
     }
 
+    /**
+     * Sets <tt>parentGroup</tt> as a parent of this meta contact. Do not
+     * call this method with a null argument even if a group is removing
+     * this contact from itself as this could lead to race conditions (imagine
+     * another group setting itself as the new parent and you removing it).
+     * Use unsetParentGroup instead.
+     *
+     * @param parentGroup the <tt>MetaContactGroupImpl</tt> that is currently a
+     * parent of this meta contact.
+     * @throws NullPointerException if <tt>parentGroup</tt> is null.
+     */
+    void setParentGroup(MetaContactGroupImpl parentGroup)
+    {
+        synchronized(parentGroupModLock)
+        {
+            if (parentGroup == null)
+                throw new NullPointerException(
+                    "Do not call this method with a "
+                    + "null argument even if a group is removing this contact "
+                    + "from itself as this could lead to race conditions "
+                    + "(imagine another group setting itself as the new "
+                    +"parent and you  removing it). Use unsetParentGroup "
+                    +"instead.");
 
+            this.parentGroup = parentGroup;
+        }
+    }
 
+    /**
+     * If <tt>parentGroup</tt> was the parent of this meta contact then it
+     * sets it to null. Call this method when removing this contact from a
+     * meta contact group.
+     * @param parentGroup the <tt>MetaContactGroupImpl</tt> that we don't want
+     * considered as a parent of this contact any more.
+     */
+    void unsetParentGroup(MetaContactGroupImpl parentGroup)
+    {
+        synchronized(parentGroupModLock)
+        {
+            if (this.parentGroup == parentGroup)
+                this.parentGroup = null;
+        }
+    }
+
+    /**
+     * Returns the group that is currently holding this meta contact.
+     *
+     * @return the gorup that is currently holding this meta contact.
+     */
+    MetaContactGroupImpl getParentGroup()
+    {
+        return parentGroup;
+    }
 }

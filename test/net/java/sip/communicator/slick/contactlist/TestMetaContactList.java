@@ -265,7 +265,6 @@ public class TestMetaContactList
 
         assertEquals("find failed for contact "+expectedContact.getDisplayName()
                      , expectedContact, actualResult);
-
     }
 
     /**
@@ -633,8 +632,8 @@ public class TestMetaContactList
                             .getContact(newContactID));
 
         //verify that events have been properly delivered.
-        assertTrue("No events delivered while adding a new contact to a "
-                      +"meta contact", evtCollector.collectedEvents.size() == 1);
+        assertEquals("Events delivered while adding a new contact to a "
+                   + "meta contact", 1, evtCollector.collectedEvents.size());
 
         MetaContactEvent event = (MetaContactEvent)evtCollector
             .collectedEvents.get(0);
@@ -674,8 +673,8 @@ public class TestMetaContactList
         assertNotNull("newContact", newContact);
 
         //verify that events have been properly delivered.
-        assertTrue("No events delivered while adding a moving a proto contact. "
-                   , evtCollector.collectedEvents.size() == 1);
+        assertEquals("Events delivered while adding a moving a proto contact. "
+                     , 1, evtCollector.collectedEvents.size());
 
         event = (MetaContactEvent) evtCollector.collectedEvents.get(0);
         evtCollector.collectedEvents.clear();
@@ -709,8 +708,8 @@ public class TestMetaContactList
                         .getContact(newContactID));
 
         //verify that events have been properly delivered.
-        assertTrue("No events delivered while adding a new contact to a "
-                      +"meta contact", evtCollector.collectedEvents.size() == 1);
+        assertEquals("Events delivered while adding a new contact to a "
+                      +"meta contact", 1, evtCollector.collectedEvents.size());
 
         event = (MetaContactEvent)evtCollector
             .collectedEvents.get(0);
@@ -738,11 +737,16 @@ public class TestMetaContactList
         MetaContactGroup parentMetaGroup = fixture.metaClService.getRoot()
             .getMetaContactSubgroup(MetaContactListServiceLick.topLevelGroupName);
 
+        MclEventCollector evtCollector = new MclEventCollector();
+
+        fixture.metaClService.addContactListListener(evtCollector);
         //create a new metacontact and, hence mock contact, in the meta
         //"SomePeople" non-toplevel group
         fixture.metaClService.createMetaContact(fixture.mockProvider
             , parentMetaGroup
             , newContactID);
+
+        fixture.metaClService.removeContactListListener(evtCollector);
 
         //check that the contact has been successfully created in the meta cl
         MetaContact newMetaContact  =
@@ -755,9 +759,31 @@ public class TestMetaContactList
         assertEquals("create() created a meta contact with the wrong name."
             , newContactID, newMetaContact.getDisplayName());
 
+        //verify that events have been properly delivered.
+        assertEquals("Events delivered while creating a new meta contact"
+                     , 1,  evtCollector.collectedEvents.size());
+
+        MetaContactEvent event = (MetaContactEvent)evtCollector
+            .collectedEvents.get(0);
+        evtCollector.collectedEvents.clear();
+
+        assertSame ( "Source contact in MetaContactEvent gen. upon create."
+                     , newMetaContact, event.getSourceContact());
+
+        assertSame ( "Source provider in MetaContactEvent gen. upon create."
+                     , fixture.mockProvider, event.getSourceProvider());
+
+        assertEquals ( "Event ID in MetaContactEvent gen. upon create."
+                       , MetaContactEvent.META_CONTACT_ADDED
+                       , event.getEventID());
+
         //move the meta contact somewhere else
+        fixture.metaClService.addContactListListener(evtCollector);
+
         fixture.metaClService.moveMetaContact(
             newMetaContact, fixture.metaClService.getRoot());
+
+        fixture.metaClService.removeContactListListener(evtCollector);
 
         //check that the meta contact has moved.
         assertNull(newMetaContact.getDisplayName()
@@ -785,8 +811,27 @@ public class TestMetaContactList
                    ,opSetPersPresence.getServerStoredContactListRoot()
                         .getContact(newContactID));
 
+        //verify that events have been properly delivered.
+        assertEquals("Events delivered while moving a meta contact"
+                     , 1,  evtCollector.collectedEvents.size());
+
+        event = (MetaContactEvent)evtCollector
+            .collectedEvents.get(0);
+        evtCollector.collectedEvents.clear();
+
+        assertSame ( "Source contact in MetaContactEvent gen. upon move."
+                     , newMetaContact, event.getSourceContact());
+
+        assertEquals ( "Event ID in MetaContactEvent gen. upon move."
+                       , MetaContactEvent.META_CONTACT_MOVED
+                       , event.getEventID());
+
         //remove the contact
+        fixture.metaClService.addContactListListener(evtCollector);
+
         fixture.metaClService.removeMetaContact(newMetaContact);
+
+        fixture.metaClService.removeContactListListener(evtCollector);
 
         //check that the meta contact has been removed.
         assertNull(newMetaContact.getDisplayName()
@@ -801,6 +846,24 @@ public class TestMetaContactList
                    + " was not removed after its encapsulating meta contact was."
                    ,opSetPersPresence.getServerStoredContactListRoot()
                         .getContact(newContactID));
+
+        //verify that events have been properly delivered.
+        assertEquals("Events delivered while removing a meta contact"
+                     , 1,  evtCollector.collectedEvents.size());
+
+        event = (MetaContactEvent)evtCollector
+            .collectedEvents.get(0);
+        evtCollector.collectedEvents.clear();
+
+        assertSame ( "Source contact in MetaContactEvent gen. upon remove."
+                     , newMetaContact, event.getSourceContact());
+
+        assertSame ( "Source provider in MetaContactEvent gen. upon remove."
+                     , fixture.mockProvider, event.getSourceProvider());
+
+        assertEquals ( "Event ID in MetaContactEvent gen. upon remove."
+                       , MetaContactEvent.META_CONTACT_REMOVED
+                       , event.getEventID());
 
     }
 
@@ -995,6 +1058,18 @@ public class TestMetaContactList
         {
             collectedEvents.add(evt);
         }
+
+        /**
+         * Indicates that a MetaContact has been moved inside the MetaContact
+         * list.
+         * @param evt the MetaContactListEvent containing the corresponding
+         * contact
+         */
+        public void metaContactMoved(MetaContactEvent evt)
+        {
+            collectedEvents.add(evt);
+        }
+
 
         /**
          * Indicates that a MetaContact has been modified.

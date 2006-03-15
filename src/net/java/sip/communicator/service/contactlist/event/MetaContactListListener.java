@@ -41,6 +41,13 @@ public interface MetaContactListListener
     public void metaContactRemoved(MetaContactEvent evt);
 
     /**
+     * Indicates that a MetaContact has been moved inside the MetaContact list.
+     * @param evt the MetaContactListEvent containing the corresponding contact
+     */
+    public void metaContactMoved(MetaContactEvent evt);
+
+
+    /**
      * Indicates that a MetaContactGroup has been successfully added
      * to the MetaContact list.
      * @param evt the MetaContactListEvent containing the corresponding contact

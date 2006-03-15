@@ -1,0 +1,208 @@
+
+An unexpected exception has been detected in native code outside the VM.
+Unexpected Signal : 11 occurred at PC=0xB7EB2A10
+Function=(null)
+Library=/lib/tls/libc.so.6
+
+NOTE: We are unable to locate the function name symbol for the error
+      just occurred. Please refer to release documentation for possible
+      reason and solutions.
+
+
+Current Java thread:
+	at org.apache.xerces.parsers.XML11Configuration.<init>(Unknown Source)
+	at org.apache.xerces.parsers.XML11Configuration.<init>(Unknown Source)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:274)
+	at java.lang.Class.newInstance0(Class.java:308)
+	at java.lang.Class.newInstance(Class.java:261)
+	at org.apache.xerces.parsers.ObjectFactory.newInstance(Unknown Source)
+	at org.apache.xerces.parsers.ObjectFactory.findJarServiceProvider(Unknown Source)
+	at org.apache.xerces.parsers.ObjectFactory.createObject(Unknown Source)
+	at org.apache.xerces.parsers.ObjectFactory.createObject(Unknown Source)
+	at org.apache.xerces.parsers.DOMParser.<init>(Unknown Source)
+	at org.apache.xerces.parsers.DOMParser.<init>(Unknown Source)
+	at org.apache.xerces.jaxp.DocumentBuilderImpl.<init>(Unknown Source)
+	at org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.newDocumentBuilder(Unknown Source)
+	at net.java.sip.communicator.impl.history.HistoryServiceImpl.<init>(HistoryServiceImpl.java:65)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:274)
+	at java.lang.Class.newInstance0(Class.java:308)
+	at java.lang.Class.newInstance(Class.java:261)
+	at org.ungoverned.gravity.servicebinder.InstanceManager.validate(InstanceManager.java:240)
+	- locked <0xabd952e0> (a org.ungoverned.gravity.servicebinder.InstanceManager)
+	at org.ungoverned.gravity.servicebinder.GenericActivator.initialize(GenericActivator.java:168)
+	at org.ungoverned.gravity.servicebinder.GenericActivator.start(GenericActivator.java:93)
+	at org.ungoverned.oscar.Noscar._startBundle(Noscar.java:1194)
+	at org.ungoverned.oscar.Noscar.startBundle(Noscar.java:1128)
+	at org.ungoverned.oscar.Noscar.setFrameworkStartLevel(Noscar.java:704)
+	- locked <0xabd307e8> (a org.ungoverned.oscar.Noscar)
+	at org.ungoverned.oscar.Noscar.start(Noscar.java:499)
+	- locked <0xabd307e8> (a org.ungoverned.oscar.Noscar)
+	at org.ungoverned.oscar.Main.main(Main.java:181)
+
+Dynamic libraries:
+08048000-08056000 r-xp 00000000 08:02 1307820    /usr/java/j2sdk1.4.2_08/bin/java
+08056000-08059000 rwxp 0000d000 08:02 1307820    /usr/java/j2sdk1.4.2_08/bin/java
+08059000-0864e000 rwxp 08059000 00:00 0          [heap]
+a92a4000-a92b1000 r-xs 00000000 08:05 213601     /home/emcho/devel/sip-communicator-1.0/sip-communicator.utest.bin/bundle11/version0.0/bundle.jar
+a92b1000-a92b5000 r-xs 00000000 08:05 213594     /home/emcho/devel/sip-communicator-1.0/sip-communicator.utest.bin/bundle10/version0.0/bundle.jar
+a92b5000-a92c9000 r-xs 00000000 08:05 213587     /home/emcho/devel/sip-communicator-1.0/sip-communicator.utest.bin/bundle9/version0.0/bundle.jar
+a92c9000-a932b000 r-xs 00000000 08:02 164835     /usr/java/j2sdk1.4.2_08/demo/plugin/jfc/Java2D/Java2Demo.jar
+a932b000-a938d000 r-xs 00000000 08:02 164577     /usr/java/j2sdk1.4.2_08/demo/jfc/Java2D/Java2Demo.jar
+a938d000-a9869000 r-xs 00000000 08:02 164412     /usr/java/j2sdk1.4.2_08/lib/tools.jar
+a9869000-a998d000 r-xs 00000000 08:02 164415     /usr/java/j2sdk1.4.2_08/lib/htmlconverter.jar
+a998d000-a99af000 r-xs 00000000 08:02 164413     /usr/java/j2sdk1.4.2_08/lib/dt.jar
+a99af000-a9ad0000 r-xs 00000000 08:02 164379     /usr/java/j2sdk1.4.2_08/jre/javaws/javaws.jar
+a9ad0000-a9cb1000 r-xs 00000000 08:02 1341157    /usr/java/j2sdk1.4.2_08/jre/lib/plugin.jar
+a9cb1000-a9cb4000 r-xs 00000000 08:02 1341098    /usr/java/j2sdk1.4.2_08/jre/lib/im/indicim.jar
+a9cb4000-a9cb6000 r-xs 00000000 08:02 1341099    /usr/java/j2sdk1.4.2_08/jre/lib/im/thaiim.jar
+a9cb6000-a9cc1000 r-xs 00000000 08:05 19522      /home/emcho/devel/sip-communicator-1.0/lib/retroweaver.jar
+a9cc1000-a9cc3000 r-xs 00000000 08:05 19514      /home/emcho/devel/sip-communicator-1.0/lib/retroweaver-rt.jar
+a9cc3000-a9d2d000 r-xs 00000000 08:05 19517      /home/emcho/devel/sip-communicator-1.0/lib/joscar-0.9.4-cvs-bin.jar
+a9d2d000-a9d4c000 r-xs 00000000 08:02 310936     /usr/java/JBuilder2006/thirdparty/ant/lib/xml-apis.jar
+a9d4c000-a9e43000 r-xs 00000000 08:02 310935     /usr/java/JBuilder2006/thirdparty/ant/lib/xercesImpl.jar
+a9e43000-a9f38000 r-xs 00000000 08:02 310933     /usr/java/JBuilder2006/thirdparty/ant/lib/ant.jar
+a9f38000-a9f39000 r-xs 00000000 08:02 310932     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-xslp.jar
+a9f39000-a9f3b000 r-xs 00000000 08:02 310931     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-xalan1.jar
+a9f3b000-a9f3f000 r-xs 00000000 08:02 310930     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-weblogic.jar
+a9f3f000-a9f4b000 r-xs 00000000 08:02 310929     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-vaj.jar
+a9f4b000-a9f5c000 r-xs 00000000 08:02 310928     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-trax.jar
+a9f5c000-a9f5e000 r-xs 00000000 08:02 310927     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-swing.jar
+a9f5e000-a9f5f000 r-xs 00000000 08:02 310926     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-stylebook.jar
+a9f5f000-a9f68000 r-xs 00000000 08:02 310925     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-starteam.jar
+a9f68000-a9fcc000 r-xs 00000000 08:02 310924     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-nodeps.jar
+a9fcc000-a9fcf000 r-xs 00000000 08:02 310923     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-netrexx.jar
+a9fcf000-a9fd2000 r-xs 00000000 08:02 310922     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-launcher.jar
+a9fd2000-a9fe4000 r-xs 00000000 08:02 310921     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-junit.jar
+a9fe4000-a9fea000 r-xs 00000000 08:02 310920     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-jsch.jar
+a9fea000-a9fec000 r-xs 00000000 08:02 310919     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-jmf.jar
+a9fec000-a9fee000 r-xs 00000000 08:02 310918     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-jdepend.jar
+a9fee000-a9ff0000 r-xs 00000000 08:02 310917     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-javamail.jar
+a9ff0000-a9ff1000 r-xs 00000000 08:02 310911     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-apache-regexp.jar
+a9ff1000-a9ffd000 r-xs 00000000 08:02 310910     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-apache-oro.jar
+a9ffd000-a9ffe000 r-xs 00000000 08:02 310909     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-apache-log4j.jar
+a9ffe000-aa001000 r-xs 00000000 08:02 310907     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-apache-bcel.jar
+aa001000-aa007000 r-xs 00000000 08:02 310916     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-jai.jar
+aa007000-aa00a000 r-xs 00000000 08:02 310915     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-icontract.jar
+aa00a000-aa013000 r-xs 00000000 08:02 310914     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-commons-net.jar
+aa013000-aa014000 r-xs 00000000 08:02 310913     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-commons-logging.jar
+aa014000-aa015000 r-xs 00000000 08:02 310912     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-apache-resolver.jar
+aa015000-aa019000 r-xs 00000000 08:02 310908     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-apache-bsf.jar
+aa019000-aa01e000 r-xs 00000000 08:05 20490      /home/emcho/devel/sip-communicator-1.0/sc-bundles/util.jar
+aa01e000-aa02a000 r-xs 00000000 08:05 20495      /home/emcho/devel/sip-communicator-1.0/sc-bundles/netaddr.jar
+aa02a000-aa033000 r-xs 00000000 08:05 20491      /home/emcho/devel/sip-communicator-1.0/sc-bundles/configuration.jar
+aa033000-aa081000 r-xs 00000000 08:05 19519      /home/emcho/devel/sip-communicator-1.0/lib/skinlf.jar
+aa081000-aa0fb000 r-xs 00000000 08:05 19509      /home/emcho/devel/sip-communicator-1.0/lib/oscar-aim.jar
+aa0fb000-aa134000 r-xs 00000000 08:05 19516      /home/emcho/devel/sip-communicator-1.0/lib/jaxen-1.1-beta-8.jar
+aa134000-aa13a000 r-xs 00000000 08:05 19496      /home/emcho/devel/sip-communicator-1.0/lib/jmf-sol/libjmutil.so.jar
+aa13a000-aa357000 r-xs 00000000 08:05 19495      /home/emcho/devel/sip-communicator-1.0/lib/jmf-sol/jmf-native.jar
+aa357000-aa571000 r-xs 00000000 08:05 19494      /home/emcho/devel/sip-communicator-1.0/lib/jmf-sol/jmf.jar
+aa571000-aa5b9000 r-xs 00000000 08:05 19503      /home/emcho/devel/sip-communicator-1.0/lib/jmf-win/sound.jar
+aa5b9000-aa7b1000 r-xs 00000000 08:05 19504      /home/emcho/devel/sip-communicator-1.0/lib/jmf-win/jmf-native.jar
+aa7b1000-aa9af000 r-xs 00000000 08:05 19502      /home/emcho/devel/sip-communicator-1.0/lib/jmf-win/jmf.jar
+aa9af000-aaa3f000 r-xs 00000000 08:05 19487      /home/emcho/devel/sip-communicator-1.0/lib/jmf-lin/jmf-native.jar
+aaa3f000-aabff000 r-xs 00000000 08:05 19486      /home/emcho/devel/sip-communicator-1.0/lib/jmf-lin/jmf.jar
+aabff000-aac1b000 r-xs 00000000 08:05 32779      /home/emcho/devel/sip-communicator-1.0/lib/bundle/bundlerepository.jar
+aac1b000-aac37000 r-xs 00000000 08:05 19530      /home/emcho/devel/sip-communicator-1.0/lib/Stun4J.jar
+aac37000-aac49000 r-xs 00000000 08:05 19525      /home/emcho/devel/sip-communicator-1.0/lib/servicebinder.jar
+aac49000-aac55000 r-xs 00000000 08:05 213572     /home/emcho/devel/sip-communicator-1.0/sip-communicator.utest.bin/bundle8/version0.0/bundle.jar
+aac55000-aac5e000 r-xs 00000000 08:05 213565     /home/emcho/devel/sip-communicator-1.0/sip-communicator.utest.bin/bundle7/version0.0/bundle.jar
+aac5e000-aac63000 r-xs 00000000 08:05 213558     /home/emcho/devel/sip-communicator-1.0/sip-communicator.utest.bin/bundle6/version0.0/bundle.jar
+aac63000-aac6d000 r-xs 00000000 08:05 213539     /home/emcho/devel/sip-communicator-1.0/sip-communicator.utest.bin/bundle3/version0.0/embedded/kxml.jar
+aac6d000-aac7f000 r-xs 00000000 08:05 213536     /home/emcho/devel/sip-communicator-1.0/sip-communicator.utest.bin/bundle3/version0.0/bundle.jar
+aac7f000-aac9b000 r-xs 00000000 08:05 213528     /home/emcho/devel/sip-communicator-1.0/sip-communicator.utest.bin/bundle2/version0.0/bundle.jar
+aac9b000-aaca5000 r-xs 00000000 08:05 213496     /home/emcho/devel/sip-communicator-1.0/sip-communicator.utest.bin/bundle1/version0.0/bundle.jar
+aae25000-aae2b000 r-xs 00000000 08:05 19508      /home/emcho/devel/sip-communicator-1.0/lib/osgi.jar
+aae2b000-aae54000 r-xs 00000000 08:05 19523      /home/emcho/devel/sip-communicator-1.0/lib/oscar.jar
+aae54000-aaec0000 r-xs 00000000 08:05 19511      /home/emcho/devel/sip-communicator-1.0/lib/nist-sip-1.2.jar
+aaec0000-aaee0000 r-xs 00000000 08:05 19529      /home/emcho/devel/sip-communicator-1.0/lib/nist-sdp-1.0.jar
+aaee0000-aaee9000 r-xs 00000000 08:05 19512      /home/emcho/devel/sip-communicator-1.0/lib/moduleloader.jar
+aaee9000-aaf07000 r-xs 00000000 08:05 19526      /home/emcho/devel/sip-communicator-1.0/lib/junit.jar
+aaf07000-aaf14000 r-xs 00000000 08:05 19507      /home/emcho/devel/sip-communicator-1.0/lib/JainSipApi1.1.jar
+aaf14000-aaf18000 r-xs 00000000 08:05 32782      /home/emcho/devel/sip-communicator-1.0/lib/bundle/tablelayout.jar
+aaf18000-aaf1a000 r-xs 00000000 08:05 32787      /home/emcho/devel/sip-communicator-1.0/lib/bundle/simple.jar
+aaf1a000-aaf1c000 r-xs 00000000 08:05 32774      /home/emcho/devel/sip-communicator-1.0/lib/bundle/shelltui.jar
+aaf1c000-aaf24000 r-xs 00000000 08:05 32776      /home/emcho/devel/sip-communicator-1.0/lib/bundle/shellplugin.jar
+aaf24000-aaf27000 r-xs 00000000 08:05 32777      /home/emcho/devel/sip-communicator-1.0/lib/bundle/shellgui.jar
+aaf27000-aaf31000 r-xs 00000000 08:05 32788      /home/emcho/devel/sip-communicator-1.0/lib/bundle/shell.jar
+aaf31000-aaf32000 r-xs 00000000 08:05 32781      /home/emcho/devel/sip-communicator-1.0/lib/bundle/listener.jar
+aaf32000-aaf50000 r-xs 00000000 08:05 32785      /home/emcho/devel/sip-communicator-1.0/lib/bundle/junit.jar
+aaf50000-aaf51000 r-xs 00000000 08:05 32778      /home/emcho/devel/sip-communicator-1.0/lib/bundle/importrange.jar
+aaf51000-aaf52000 r-xs 00000000 08:05 32775      /home/emcho/devel/sip-communicator-1.0/lib/bundle/importfilter.jar
+aaf52000-aaf53000 r-xs 00000000 08:05 32783      /home/emcho/devel/sip-communicator-1.0/lib/bundle/exportfilter.jar
+aaf53000-aaf61000 r-xs 00000000 08:02 1406212    /usr/java/JMF-2.1.1e/lib/multiplayer.jar
+aaf61000-aaf6a000 r-xs 00000000 08:02 1406209    /usr/java/JMF-2.1.1e/lib/mediaplayer.jar
+aaf6a000-ab126000 r-xs 00000000 08:02 1406203    /usr/java/JMF-2.1.1e/lib/jmf.jar
+ab126000-ab144000 r-xs 00000000 08:02 314549     /usr/java/JBuilder2006/thirdparty/junit3.8/junit.jar
+ab144000-ab200000 r-xs 00000000 08:02 181629     /usr/java/j2sdk1.4.2_08/jre/lib/ext/localedata.jar
+ab200000-ab20d000 r-xs 00000000 08:02 181628     /usr/java/j2sdk1.4.2_08/jre/lib/ext/ldapsec.jar
+ab20d000-ab229000 r-xs 00000000 08:02 181627     /usr/java/j2sdk1.4.2_08/jre/lib/ext/sunjce_provider.jar
+ab5a9000-ab5d4000 r-xp 00000000 08:02 181655     /usr/java/j2sdk1.4.2_08/jre/lib/i386/libjdwp.so
+ab5d4000-ab5d6000 rwxp 0002a000 08:02 181655     /usr/java/j2sdk1.4.2_08/jre/lib/i386/libjdwp.so
+ab5d9000-ab620000 r-xp 00000000 08:02 325773     /usr/lib/locale/locale-archive
+b58c8000-b5e68000 r-xs 00000000 08:02 1341164    /usr/java/j2sdk1.4.2_08/jre/lib/charsets.jar
+b5e68000-b5e79000 r-xs 00000000 08:02 1341174    /usr/java/j2sdk1.4.2_08/jre/lib/jce.jar
+b5e79000-b5f56000 r-xs 00000000 08:02 1341152    /usr/java/j2sdk1.4.2_08/jre/lib/jsse.jar
+b5f56000-b5f6c000 r-xs 00000000 08:02 1341162    /usr/java/j2sdk1.4.2_08/jre/lib/sunrsasign.jar
+b5fb6000-b7961000 r-xs 00000000 08:02 1341166    /usr/java/j2sdk1.4.2_08/jre/lib/rt.jar
+b7961000-b7975000 r-xp 00000000 08:02 181640     /usr/java/j2sdk1.4.2_08/jre/lib/i386/libzip.so
+b7975000-b7978000 rwxp 00013000 08:02 181640     /usr/java/j2sdk1.4.2_08/jre/lib/i386/libzip.so
+b7978000-b7998000 r-xp 00000000 08:02 181651     /usr/java/j2sdk1.4.2_08/jre/lib/i386/libjava.so
+b7998000-b799a000 rwxp 0001f000 08:02 181651     /usr/java/j2sdk1.4.2_08/jre/lib/i386/libjava.so
+b799a000-b79aa000 r-xp 00000000 08:02 181635     /usr/java/j2sdk1.4.2_08/jre/lib/i386/libverify.so
+b79aa000-b79ac000 rwxp 0000f000 08:02 181635     /usr/java/j2sdk1.4.2_08/jre/lib/i386/libverify.so
+b79ac000-b79b6000 r-xp 00000000 08:02 977620     /lib/tls/libnss_files-2.3.6.so
+b79b6000-b79b8000 rwxp 00009000 08:02 977620     /lib/tls/libnss_files-2.3.6.so
+b79b8000-b79c0000 r-xp 00000000 08:02 977622     /lib/tls/libnss_nis-2.3.6.so
+b79c0000-b79c2000 rwxp 00008000 08:02 977622     /lib/tls/libnss_nis-2.3.6.so
+b79c2000-b79c9000 r-xp 00000000 08:02 977618     /lib/tls/libnss_compat-2.3.6.so
+b79c9000-b79cb000 rwxp 00006000 08:02 977618     /lib/tls/libnss_compat-2.3.6.so
+b79cd000-b79d3000 r-xs 00000000 08:02 229464     /usr/java/JBuilder2006/lib/unittest.jar
+b79d3000-b79d6000 r-xs 00000000 08:02 181626     /usr/java/j2sdk1.4.2_08/jre/lib/ext/dnsns.jar
+b79d6000-b79d9000 r-xp 00000000 08:02 181661     /usr/java/j2sdk1.4.2_08/jre/lib/i386/libdt_socket.so
+b79d9000-b79da000 rwxp 00002000 08:02 181661     /usr/java/j2sdk1.4.2_08/jre/lib/i386/libdt_socket.so
+b79da000-b79fe000 r-xp 00000000 08:02 977507     /lib/tls/libm-2.3.6.so
+b79fe000-b7a00000 rwxp 00023000 08:02 977507     /lib/tls/libm-2.3.6.so
+b7a00000-b7a12000 r-xp 00000000 08:02 977525     /lib/tls/libnsl-2.3.6.so
+b7a12000-b7a14000 rwxp 00012000 08:02 977525     /lib/tls/libnsl-2.3.6.so
+b7a16000-b7e1c000 r-xp 00000000 08:02 181646     /usr/java/j2sdk1.4.2_08/jre/lib/i386/client/libjvm.so
+b7e1c000-b7e37000 rwxp 00405000 08:02 181646     /usr/java/j2sdk1.4.2_08/jre/lib/i386/client/libjvm.so
+b7e4b000-b7f79000 r-xp 00000000 08:02 977500     /lib/tls/libc-2.3.6.so
+b7f79000-b7f7e000 r-xp 0012e000 08:02 977500     /lib/tls/libc-2.3.6.so
+b7f7e000-b7f81000 rwxp 00133000 08:02 977500     /lib/tls/libc-2.3.6.so
+b7f83000-b7f85000 r-xp 00000000 08:02 977506     /lib/tls/libdl-2.3.6.so
+b7f85000-b7f87000 rwxp 00001000 08:02 977506     /lib/tls/libdl-2.3.6.so
+b7f87000-b7f95000 r-xp 00000000 08:02 978925     /lib/tls/libpthread-2.3.6.so
+b7f95000-b7f97000 rwxp 0000d000 08:02 978925     /lib/tls/libpthread-2.3.6.so
+b7f9a000-b7f9c000 r-xs 00000000 08:02 310906     /usr/java/JBuilder2006/thirdparty/ant/lib/ant-antlr.jar
+b7f9c000-b7fa0000 rwxs 00000000 08:02 342436     /tmp/hsperfdata_emcho/5546
+b7fa0000-b7fa8000 r-xp 00000000 08:02 181642     /usr/java/j2sdk1.4.2_08/jre/lib/i386/native_threads/libhpi.so
+b7fa8000-b7fa9000 rwxp 00007000 08:02 181642     /usr/java/j2sdk1.4.2_08/jre/lib/i386/native_threads/libhpi.so
+b7fab000-b7fc1000 r-xp 00000000 08:02 977282     /lib/ld-2.3.6.so
+b7fc1000-b7fc3000 rwxp 00015000 08:02 977282     /lib/ld-2.3.6.so
+bffaa000-bffc1000 rwxp bffaa000 00:00 0          [stack]
+ffffe000-fffff000 ---p 00000000 00:00 0          [vdso]
+
+Heap at VM Abort:
+Heap
+ def new generation   total 576K, used 98K [0xab820000, 0xab8c0000, 0xabd00000)
+  eden space 512K,  14% used [0xab820000, 0xab832850, 0xab8a0000)
+  from space 64K,  37% used [0xab8b0000, 0xab8b60f8, 0xab8c0000)
+  to   space 64K,   0% used [0xab8a0000, 0xab8a0000, 0xab8b0000)
+ tenured generation   total 1408K, used 639K [0xabd00000, 0xabe60000, 0xaf820000)
+   the space 1408K,  45% used [0xabd00000, 0xabd9fcd0, 0xabd9fe00, 0xabe60000)
+ compacting perm gen  total 4096K, used 2759K [0xaf820000, 0xafc20000, 0xb3820000)
+   the space 4096K,  67% used [0xaf820000, 0xafad1db0, 0xafad1e00, 0xafc20000)
+
+Local Time = Tue Mar 14 15:03:54 2006
+Elapsed Time = 3
+#
+# The exception above was detected in native code outside the VM
+#
+# Java VM: Java HotSpot(TM) Client VM (1.4.2_08-b03 mixed mode)
+#

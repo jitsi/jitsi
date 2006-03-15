@@ -34,25 +34,28 @@ public class MetaContactEvent
     public static final int META_CONTACT_REMOVED = 2;
 
     /**
+     * Indicates that the MetaContactEvent instance was triggered by moving
+     * an existing MetaContact.
+     */
+    public static final int META_CONTACT_MOVED = 3;
+
+    /**
      * Indicates that the MetaContactEvent instance was triggered by the
      * removal of a protocol specific contact from an existing MetaContact.
      */
-    public static final int PROTO_CONTACT_REMOVED = 3;
+    public static final int PROTO_CONTACT_REMOVED = 4;
 
     /**
      * Indicates that the MetaContactEvent instance was triggered by the
      * a protocol specific contact to a new MetaContact parent.
      */
-    public static final int PROTO_CONTACT_ADDED = 4;
+    public static final int PROTO_CONTACT_ADDED = 5;
 
     /**
      * Indicates that the MetaContactEvent instance was triggered by moving
      * addition of a protocol specific contact to an existing MetaContact.
      */
-    public static final int PROTO_CONTACT_MOVED = 5;
-
-
-
+    public static final int PROTO_CONTACT_MOVED = 6;
 
     private ProtocolProviderService sourceProvider = null;
     private MetaContactGroup  parentGroup = null;

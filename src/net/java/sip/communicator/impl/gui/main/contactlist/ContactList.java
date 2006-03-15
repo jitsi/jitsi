@@ -56,7 +56,7 @@ public class ContactList extends JList
         this.putClientProperty("JTree.lineStyle", "None");
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        
+
         this.addKeyListener(new CListKeySearchListener(this));
     }
 
@@ -80,7 +80,7 @@ public class ContactList extends JList
         this.listModel.addElement(contact);
     }
 
-    
+
     /**
      * Adds a child to a given parent.
      *
@@ -121,8 +121,20 @@ public class ContactList extends JList
      * Indicates that a MetaContact has been removed from
      * the MetaContactList.
      */
-    public void metaContactRemoved(MetaContactEvent evt) {
+    public void metaContactRemoved(MetaContactEvent evt)
+    {
+        /**@todo implement metaContactRemoved() */
+        System.out.println("@todo implement metaContactRemoved()");
+    }
 
+    /**
+     * Indicates that a MetaContact has been moved inside the MetaContact list.
+     * @param evt the MetaContactListEvent containing the corresponding contact
+     */
+    public void metaContactMoved(MetaContactEvent evt)
+    {
+        /**@todo implement metaContactMoved() */
+        System.out.println("@todo implement metaContactMoved()");
     }
 
     /**
@@ -165,12 +177,12 @@ public class ContactList extends JList
         /**@todo implement metaContactModified() */
         System.out.println("@todo implement metaContactModified()");
     }
-    
+
    /**
     * Indicates that a MetaContactGroup has been removed.
     */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
-    	
+
     }
 }
 

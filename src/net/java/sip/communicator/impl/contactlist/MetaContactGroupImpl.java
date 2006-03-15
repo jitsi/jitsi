@@ -13,7 +13,9 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * A straightforward implementation of the meta contact group.
+ * A straightforward implementatiokn of the meta contact group. The group
+ * implements a simple algorithme of sorting its children according to their
+ * status.
  *
  * @author Emil Ivov
  */
@@ -30,7 +32,7 @@ public class MetaContactGroupImpl
     /**
      * A list containing all child contacts.
      */
-    private Vector childContacts = new Vector();
+    private TreeSet childContacts = new TreeSet();
 
     /**
      * A list of the contact groups encapsulated by this MetaContactGroup
@@ -335,8 +337,6 @@ public class MetaContactGroupImpl
         return null;
     }
 
-
-
     /**
      * Returns the meta contact on the specified index.
      *
@@ -348,7 +348,23 @@ public class MetaContactGroupImpl
     public MetaContact getMetaContact(int index) throws
         IndexOutOfBoundsException
     {
-        return (MetaContact)childContacts.get(index);
+        int i = 0;
+
+        synchronized (childContacts)
+        {
+            Iterator childrenIter = childContacts.iterator();
+
+            while (childrenIter.hasNext())
+            {
+                MetaContact result = (MetaContact) childrenIter.next();
+                if (i++ == index)
+                    return result;
+            }
+        }
+        //if we got here then index was out of the bounds
+        throw new IndexOutOfBoundsException(i
+            + " is larger than size()="
+            + childContacts.size());
     }
 
     /**
@@ -356,19 +372,59 @@ public class MetaContactGroupImpl
      * contacts.
      * @param metaContact the <tt>MetaContact</tt> to add in the local vector.
      */
-    void addMetaContact(MetaContact metaContact)
+    void addMetaContact(MetaContactImpl metaContact)
+    {
+        synchronized (childContacts)
+        {
+            //set this group as a callback in the meta contact
+            metaContact.setParentGroup(this);
+
+            this.childContacts.add(metaContact);
+        }
+    }
+
+    /**
+     * Adds the <tt>metaContact</tt> to the local list of child
+     * contacts without setting its parrent contact and without any
+     * synchronization. This method is meant for use _PRIMARILY_ by the
+     * <tt>MetaContact</tt> itself upon chenge in its encapsulated protocol
+     * specific contacts.
+     *
+     * @param metaContact the <tt>MetaContact</tt> to add in the local vector.
+     */
+    void lightAddMetaContact(MetaContactImpl metaContact)
     {
         this.childContacts.add(metaContact);
     }
+
+    /**
+      * Removes the <tt>metaContact</tt> from the local list of child
+      * contacts without unsetting its parrent contact and without any
+      * synchronization. This method is meant for use _PRIMARILY_ by the
+      * <tt>MetaContact</tt> itself upon chenge in its encapsulated protocol
+      * specific contacts.
+      *
+      * @param metaContact the <tt>MetaContact</tt> to remove from the local
+      * vector.
+      */
+    void lightRemoveMetaContact(MetaContactImpl metaContact)
+    {
+        this.childContacts.remove(metaContact);
+    }
+
 
     /**
      * Removes the specified <tt>metaContact</tt> from the local list of
      * contacts.
      * @param metaContact the <tt>MetaContact</tt>
      */
-    void removeMetaContact(MetaContact metaContact)
+    void removeMetaContact(MetaContactImpl metaContact)
     {
-        this.childContacts.remove( metaContact );
+        synchronized (childContacts)
+        {
+            metaContact.unsetParentGroup(this);
+            this.childContacts.remove(metaContact);
+        }
     }
 
     /**
@@ -417,7 +473,10 @@ public class MetaContactGroupImpl
      */
     public boolean contains(MetaContact contact)
     {
-        return this.childContacts.contains(contact);
+        synchronized (childContacts)
+        {
+            return this.childContacts.contains(contact);
+        }
     }
 
     /**
