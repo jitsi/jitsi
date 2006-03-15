@@ -165,6 +165,34 @@ public interface MetaContactGroup
     public MetaContact getMetaContact(String metaUID);
 
     /**
+     * Returns the index of metaContact in relation to other contacts in this or
+     * -1 if metaContact does not belong to this group. The returned index is
+     * only valid until another contact has been added / removed or a contact
+     * has changed its status and hence - position. In such a case a REORDERED
+     * event is fired.
+     *
+     * @param metaContact the <tt>MetaContact</tt> whose index we're looking
+     * for.
+     * @return the index of <tt>metaContact</tt> in the list of child contacts
+     * or -1 if <tt>metaContact</tt>.
+     */
+    public int indexOf(MetaContact metaContact);
+
+    /**
+     * Returns the index of metaContactGroup in relation to other subgroups in
+     * this group or -1 if metaContact does not belong to this group. The
+     * returned index is only valid until another group has been added /
+     * removed or renamed In such a case a REORDERED event is fired.
+     *
+     * @param metaContactGroup the <tt>MetaContactGroup</tt> whose index we're
+     * looking for.
+     * @return the index of <tt>metaContactGroup</tt> in the list of child
+     * contacts or -1 if <tt>metaContact</tt>.
+     */
+    public int indexOf(MetaContactGroup metaContactGroup);
+
+
+    /**
      * Returns the meta contact on the specified index.
      * @param index the index of the meta contact to return.
      * @return the MetaContact with the specified index,

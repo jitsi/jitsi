@@ -332,4 +332,41 @@ public class TestMetaContactGroup extends TestCase
         //i don't think we could test anything else here without becoming
         //redundant with TestMetaContactList
     }
+
+    /**
+     * Goes over the contacts in one of the groups and verifies that indexOf
+     * returns properly for every one of them.
+     */
+    public void testIndexOf1()
+    {
+        MetaContactGroup metaContactGroup = fixture.metaClService
+            .findMetaContactGroupByContactGroup(MetaContactListServiceLick
+                                      .topLevelMockGroup);
+        for ( int i = 0; i < metaContactGroup.countChildContacts(); i++)
+        {
+            MetaContact currentMetaContact = metaContactGroup.getMetaContact(i);
+
+            assertEquals("indexOf failed for " + currentMetaContact
+                         , i, metaContactGroup.indexOf(currentMetaContact));
+        }
+    }
+
+    /**
+     * Goes over the subgroups in one the root group and verifies that indexOf
+     * returns properly for every one of them
+     */
+    public void testIndexOf2()
+    {
+        MetaContactGroup metaContactGroup = fixture.metaClService.getRoot();
+        for ( int i = 0; i < metaContactGroup.countSubgroups(); i++)
+        {
+            MetaContactGroup currentMetaContactGroup
+                = metaContactGroup.getMetaContactSubgroup(i);
+
+            assertEquals("indexOf failed for " + currentMetaContactGroup
+                         , i, metaContactGroup.indexOf(currentMetaContactGroup));
+        }
+
+    }
+
 }

@@ -124,6 +124,58 @@ public class MetaContactGroupImpl
     }
 
     /**
+     * Returns the index of metaContact according to other contacts in this or
+     * -1 if metaContact does not belong to this group. The returned index is
+     * only valid until another contact has been added / removed or a contact
+     * has changed its status and hence - position. In such a case a REORDERED
+     * event is fired.
+     *
+     * @param metaContact the <tt>MetaContact</tt> whose index we're looking
+     * for.
+     * @return the index of <tt>metaContact</tt> in the list of child contacts
+     * or -1 if <tt>metaContact</tt>.
+     */
+    public int indexOf(MetaContact metaContact)
+    {
+        int i = 0;
+
+        synchronized (childContacts)
+        {
+            Iterator childrenIter = childContacts.iterator();
+
+            while (childrenIter.hasNext())
+            {
+                MetaContact current = (MetaContact) childrenIter.next();
+
+                if (current == metaContact)
+                {
+                    return i;
+                }
+                i++;
+            }
+        }
+
+        //if we got here then metaContact is not in this list
+        return -1;
+    }
+
+    /**
+     * Returns the index of metaContactGroup in relation to other subgroups in
+     * this group or -1 if metaContact does not belong to this group. The
+     * returned index is only valid until another group has been added /
+     * removed or renamed In such a case a REORDERED event is fired.
+     *
+     * @param metaContactGroup the <tt>MetaContactGroup</tt> whose index we're
+     * looking for.
+     * @return the index of <tt>metaContactGroup</tt> in the list of child
+     * contacts or -1 if <tt>metaContact</tt>.
+     */
+    public int indexOf(MetaContactGroup metaContactGroup)
+    {
+        return subgroups.indexOf(metaContactGroup);
+    }
+
+    /**
      * Returns the meta contact encapsulating a contact belonging to the
      * specified <tt>provider</tt> with the specified identifier.
      *

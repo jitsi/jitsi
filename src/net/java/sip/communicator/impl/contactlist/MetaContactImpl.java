@@ -201,7 +201,7 @@ public class MetaContactImpl
 
         return (totalStatus - target.totalStatus) * 1000000
                 + getDisplayName().compareTo(target.getDisplayName()) * 100000
-                + getMetaUID().compareTo(target.getMetaUID());
+                + getMetaUID().compareToIgnoreCase(target.getMetaUID());
     }
 
     /**
@@ -272,24 +272,40 @@ public class MetaContactImpl
     }
 
     /**
-     * Called by MetaContact after a contact has chaned its status, so that the
-     * totalStatus field remains up to date.
-     *
-     * @return returns the reevaluated presence status index of this meta
-     * contact.
+     * Called by MetaContactListServiceImpl after a contact has changed its
+     * status, so that ordering in the parent group is updated.
      */
-    int reevalTotalStatus()
+    void reevalContact()
     {
-        int totalStatus = 0;
+        synchronized (parentGroupModLock)
+        {
+            int totalStatus = 0;
 
-        Iterator protoContacts = this.protoContacts.iterator();
+            //first lightremove or otherwise we won't be able to get hold of the
+            //contact
+            if (parentGroup != null)
+            {
+                parentGroup.lightRemoveMetaContact(this);
+            }
 
-        while (protoContacts.hasNext())
-            totalStatus += ((Contact)protoContacts.next()).getPresenceStatus()
-                                                                  .getStatus();
+            Iterator protoContacts = this.protoContacts.iterator();
 
-        return totalStatus;
+            while (protoContacts.hasNext())
+                totalStatus += ( (Contact) protoContacts.next()).
+                    getPresenceStatus()
+                    .getStatus();
+
+            //now readd it and the contact would be automatically placed
+            //properly by the containing group
+            if (parentGroup != null)
+            {
+                parentGroup.lightAddMetaContact(this);
+            }
+
+        }
     }
+
+
 
     /**
      * Removes the specified protocol specific contact from the contacts
