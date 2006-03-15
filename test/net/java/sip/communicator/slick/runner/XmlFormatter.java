@@ -143,6 +143,7 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
         rootElement.setAttribute(ATTR_FAILURES, "" + fail_count);
         rootElement.setAttribute(ATTR_ERRORS, "" + err_count);
         rootElement.setAttribute(ATTR_TIME, "" + (time / 1000.0));
+        rootElement.setAttribute(ATTR_PACKAGE, "SIP Communicator SLICK suites");
         if (out != null) {
             Writer wri = null;
             try {
@@ -191,7 +192,16 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
         Element currentTest = null;
         if (!failedTests.containsKey(test)) {
             currentTest = doc.createElement(TESTCASE);
-            currentTest.setAttribute(ATTR_NAME, test.getClass().getName());
+            if(test instanceof TestCase)
+            {
+                String className = test.getClass().getName();
+                className = className.substring(className.lastIndexOf(".") + 1);
+                currentTest.setAttribute(ATTR_NAME, className
+                                                    + "."
+                                                    +((TestCase)test).getName());
+            }
+            else
+                currentTest.setAttribute(ATTR_NAME, test.getClass().getName());
             // a TestSuite can contain Tests from multiple classes,
             // even tests with the same name - disambiguate them.
             currentTest.setAttribute(ATTR_CLASSNAME,
