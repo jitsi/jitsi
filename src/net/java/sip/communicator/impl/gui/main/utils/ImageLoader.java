@@ -153,7 +153,19 @@ public class ImageLoader {
 
 	public static final ImageID BOTTOM_ARROW_ROLLOVER_ICON
 											= new ImageID("BOTTOM_ARROW_ROLLOVER_ICON");
+    
+    public static final ImageID TAB_BG 
+                                            = new ImageID("TAB_BG"); 
+    
+    public static final ImageID SELECTED_TAB_BG 
+                                            = new ImageID("SELECTED_TAB_BG");
+    
+    public static final ImageID CLOSABLE_TAB_BG
+                                            = new ImageID("CLOSABLE_TAB_BG");
 
+    public static final ImageID SELECTED_CLOSABLE_TAB_BG
+                                            = new ImageID("SELECTED_CLOSABLE_TAB_BG");
+    
 	/////////////////////// Edit Text Toolbar icons //////////////////////////
 
 	public static final ImageID ALIGN_LEFT_BUTTON

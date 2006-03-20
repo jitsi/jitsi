@@ -162,33 +162,7 @@ public class Constants {
     	mainStatusSet.put(Constants.INVISIBLE_STATUS, 
     			ImageLoader.getImage(ImageLoader.USER_ONLINE_ICON));
     }
-    
-    /**
-     * Defines the priority of the statuses. The priority of statuses is used when detecting the
-     * current status of a MetaContact, containing more than one protocol contacts. The status
-     * in the table has the highest priority.
-     */
-    public static final LinkedList  statusPriorityTable = new LinkedList();
-    static{
-        statusPriorityTable.addLast(Constants.CHAT_STATUS);
-        statusPriorityTable.addLast(Constants.ONLINE_STATUS);
-        statusPriorityTable.addLast(Constants.INVISIBLE_STATUS);
-        statusPriorityTable.addLast(Constants.OCCUPIED_STATUS);
-        statusPriorityTable.addLast(Constants.DND_STATUS);
-        statusPriorityTable.addLast(Constants.AWAY_STATUS);
-        statusPriorityTable.addLast(Constants.NA_STATUS);
-        statusPriorityTable.addLast(Constants.OFFLINE_STATUS);
-    }
 
-    /**
-     * Returns the priority of the given status according to the statusPriorityTable.
-     * @param status The given status.
-     * @return The priority of the given status according to the statusPriorityTable.
-     */
-    public static int getPriority(PresenceStatus status){
-        return Constants.statusPriorityTable.indexOf(status);
-    }
-    
 	/*
 	 * ====================================================
 	 * ------------------------ PROTOCOL NAMES -------------------------------

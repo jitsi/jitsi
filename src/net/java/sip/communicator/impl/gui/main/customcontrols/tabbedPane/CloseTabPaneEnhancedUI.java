@@ -15,16 +15,22 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.geom.GeneralPath;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicGraphicsUtils;
 import javax.swing.text.View;
 
+import sun.security.action.GetBooleanAction;
+
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 
 /**
  * This UI displays a different interface, which is independent from the look
@@ -45,6 +51,11 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
 	private static final Color lightWhite = new Color(200, 200, 200, 50);
 
 	private static final Color selectedColor = new Color(20, 62, 123);
+    
+    private static Image TAB_BACKGROUND = ImageLoader.getImage(ImageLoader.TAB_BG);
+    
+    private static Image CLOSABLE_TAB_BACKGROUND 
+        = ImageLoader.getImage(ImageLoader.CLOSABLE_TAB_BG);
 
 	public static ComponentUI createUI(JComponent c) {
 		return new CloseTabPaneEnhancedUI();
@@ -55,34 +66,12 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
 			Rectangle textRect, boolean isSelected) {
 	}
 
+    /**
+     * Overriden to paint nothing.
+     */
 	protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex,
 			int x, int y, int w, int h, boolean isSelected) {
         
-	    
-        Graphics2D g2 = (Graphics2D)g;
-        
-        g2.setColor(Constants.CONTACTPANEL_LINES_COLOR);
-        
-        
-        GeneralPath border = new GeneralPath();
-        
-        border.moveTo(x , y + h - 1);
-        border.lineTo(x, y + 5);
-        border.curveTo(x, y + 5, x, y, x + 5, y);
-        border.lineTo(x + w - 7, y);
-        border.curveTo(x + w - 7, y, x + w - 2, y, x + w - 2, y + 5);
-        border.lineTo(x + w - 2, y + h - 1);
-        
-        /*
-        border.moveTo(x , y + h - 1);
-        border.lineTo(x, y + 5);
-        border.curveTo(x, y + 5, x, y, x + 5, y);
-        border.lineTo(x + w - 28, y);        
-        border.curveTo(x + w - 28, y,
-                        x + w - 36, (y + h)/2, 
-                        x + w - 15, y + h - 2);
-        */
-        g2.draw(border);
 	}
 
 	protected void paintContentBorderTopEdge(Graphics g, int tabPlacement,
@@ -138,79 +127,40 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
 	protected void paintTabBackground(Graphics g, int tabPlacement,
 			int tabIndex, int x, int y, int w, int h, boolean isSelected) {
 		
-        if (isSelected) {
-
-			GradientPaint gradient;
-			
-			if (tabPane.isEnabledAt(tabIndex)) {
-				gradient = new GradientPaint(w/2, y, selectedColor,
-						w/2, h, lightBlue);
-
-			} else {
-				gradient = new GradientPaint(w/2, y, Color.GRAY, w/2, h,
-						lightWhite);
-			}
-
-			Graphics2D g2 = (Graphics2D) g;
-            
-            AntialiasingManager.activateAntialiasing(g2);
-            
-			g2.setPaint(gradient);
-            
-            GeneralPath border = new GeneralPath();
-            
-            border.moveTo(x , y + h);
-            border.lineTo(x, y + 5);
-            border.curveTo(x, y + 5, x, y, x + 5, y);
-            border.lineTo(x + w - 7, y);
-            border.curveTo(x + w - 7, y, x + w - 2, y, x + w - 2, y + 5);
-            border.lineTo(x + w - 2, y + h);
-            
-            /*
-            border.moveTo(x , y + h - 1);
-            border.lineTo(x, y + 5);
-            border.curveTo(x, y + 5, x, y, x + 5, y);
-            border.lineTo(x + w - 28, y);
-            border.curveTo(x + w - 28, y,
-                    x + w - 20, (y + h)/2, 
-                    x + w - 15, y + h - 2);
-                    */
-            
-            g2.fill(border);
-		}
-        else{
-            
-            GradientPaint gradient;
-            
-            gradient = new GradientPaint(w/2, y, 
-                    Constants.CONTACTPANEL_LINES_COLOR, w/2, h,
-                    Constants.CONTACTPANEL_MOVER_END_COLOR);            
-
-            Graphics2D g2 = (Graphics2D) g;
-            
-            AntialiasingManager.activateAntialiasing(g2);
-            
-            g2.setPaint(gradient);
-            
-            GeneralPath border = new GeneralPath();
-            
-            border.moveTo(x , y + h);
-            border.lineTo(x, y + 5);
-            border.curveTo(x, y + 5, x, y, x + 5, y);
-            border.lineTo(x + w - 7, y);
-            border.curveTo(x + w - 7, y, x + w - 2, y, x + w - 2, y + 5);
-            border.lineTo(x + w - 2, y + h);
-            /*
-            border.moveTo(x , y + h - 1);
-            border.lineTo(x, y + 5);
-            border.curveTo(x, y + 5, x, y, x + 5, y);
-            border.lineTo(x + w - 28, y);
-            border.curveTo(x + w - 28, y,
-                    x + w - 20, (y + h)/2, 
-                    x + w - 15, y + h - 2);
-                    */
-            
-            g2.fill(border);
+        Image img= null;
+        
+        Graphics2D g2 = (Graphics2D) g;
+        
+        AntialiasingManager.activateAntialiasing(g2);
+        
+        if(!isOneActionButtonEnabled()){
+            if (isSelected) {
+    		
+                if (tabPane.isEnabledAt(tabIndex)) {
+                    img = ImageLoader.getImage(ImageLoader.SELECTED_TAB_BG);
+    			} else {
+                    img = ImageLoader.getImage(ImageLoader.TAB_BG);
+    			}
+    	               
+                g2.drawImage(img, x, y, null);
+    		}
+            else{
+                img = ImageLoader.getImage(ImageLoader.TAB_BG);
+                
+                g2.drawImage(img, x, y, null);
+            }
+        }
+        else{            
+            if(isSelected){
+                img = ImageLoader.getImage(ImageLoader.SELECTED_CLOSABLE_TAB_BG);
+                
+                g2.drawImage(img, x, y, null);
+            }
+            else{
+                img = ImageLoader.getImage(ImageLoader.CLOSABLE_TAB_BG);
+                
+                g2.drawImage(img, x, y, null);
+            }
         }
 	}
 
@@ -220,6 +170,28 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
 
 		g.setFont(font);
 
+        int titleWidth = SwingUtilities.computeStringWidth(metrics, title);
+        
+        if(isOneActionButtonEnabled()){
+            int preferredWidth = CLOSABLE_TAB_BACKGROUND.getWidth(null) 
+                                            - 2*WIDTHDELTA - 12;            
+            if(isCloseEnabled())
+                preferredWidth -= BUTTONSIZE;
+            
+            if(isMaxEnabled())
+                preferredWidth -= BUTTONSIZE;
+            
+            while(titleWidth > preferredWidth){
+                if(title.endsWith("..."))
+                    title = title.substring(0, title.indexOf("...") - 1).concat("...");
+                else
+                    title = title.substring(0, title.length() - 3).concat("...");
+                
+                titleWidth = SwingUtilities.computeStringWidth(metrics, title);
+                textRect.width = titleWidth;
+            }
+        }
+        
 		View v = getTextViewForTab(tabIndex);
 		if (v != null) {
 			// html
@@ -352,4 +324,15 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
 		return new ScrollableTabButton(direction);
 	}
 
+    protected int calculateTabWidth(int tabPlacement, int tabIndex,
+            FontMetrics metrics) {
+        int width = 0;
+        if (!isOneActionButtonEnabled())
+            width = TAB_BACKGROUND.getWidth(null);
+        else {
+            width = CLOSABLE_TAB_BACKGROUND.getWidth(null);
+        }
+
+        return width - 14;
+    }    
 }

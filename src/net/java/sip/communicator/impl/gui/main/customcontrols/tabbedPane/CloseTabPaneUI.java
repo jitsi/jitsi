@@ -114,9 +114,9 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 
 	private static final int PRESSED = 2;
 
-	protected static final int BUTTONSIZE = 15;
+	public static final int BUTTONSIZE = 15;
 
-	protected static final int WIDTHDELTA = 5;
+	public static final int WIDTHDELTA = 10;
 
 	private static final Border PRESSEDBORDER = new SoftBevelBorder(
 			SoftBevelBorder.LOWERED);
@@ -231,9 +231,9 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 
 	protected int calculateTabWidth(int tabPlacement, int tabIndex,
 			FontMetrics metrics) {
-		int delta = 2;
+		int delta = 5;
 		if (!isOneActionButtonEnabled())
-			delta += 6;
+			delta += 5;
 		else {
 			if (isCloseButtonEnabled)
 				delta += BUTTONSIZE + WIDTHDELTA;
@@ -247,7 +247,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 	protected int calculateTabHeight(int tabPlacement, int tabIndex,
 			int fontHeight) {
 
-		return super.calculateTabHeight(tabPlacement, tabIndex, fontHeight);
+		return super.calculateTabHeight(tabPlacement, tabIndex, fontHeight + 4);
 	}
 
 	protected void layoutLabel(int tabPlacement, FontMetrics metrics,
@@ -264,12 +264,12 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 		SwingUtilities.layoutCompoundLabel((JComponent) tabPane, metrics,
 				title, icon, SwingUtilities.CENTER, SwingUtilities.LEFT,
 				SwingUtilities.CENTER, SwingUtilities.CENTER, tabRect,
-				iconRect, textRect, textIconGap);
+				iconRect, textRect, 5);
 
 		tabPane.putClientProperty("html", null);
 
-		iconRect.x = tabRect.x + 8;
-		textRect.x = iconRect.x + iconRect.width + textIconGap;
+		iconRect.x = tabRect.x + 5;
+		textRect.x = iconRect.x + iconRect.width + 5;
 	}
 
 	protected MouseListener createMouseListener() {
@@ -662,7 +662,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 		} else if (isOver || isSelected) {
 
 			int dx = tabRect.x + tabRect.width - BUTTONSIZE - WIDTHDELTA;
-			int dy = (tabRect.y + tabRect.height) / 2 - 6;
+			int dy = (tabRect.y + tabRect.height) / 2 - 7;
 
 			if (isCloseButtonEnabled)
 				paintCloseIcon(g2, dx, dy, isOver);
