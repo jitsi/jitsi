@@ -59,7 +59,7 @@ public class ContactListModel extends AbstractListModel {
     /**
      * Returns the size of this list model.
      */
-    public int getSize() {
+    public int getSize() {        
         return this.getContactListSize(rootGroup);
     }
 
@@ -103,9 +103,6 @@ public class ContactListModel extends AbstractListModel {
      * "available" status is returned.
      * 
      * @return The most "available" status from all subcontact  statuses.
-     * 
-     * @see net.java.sip.communicator.impl.gui.main.utils.Constants#statusPriorityTable 
-     * StatusPriorityTable
      */
     public PresenceStatus getMetaContactStatus(MetaContact metaContact) {
         
@@ -132,6 +129,12 @@ public class ContactListModel extends AbstractListModel {
         return new ImageIcon(Constants.getStatusIcon(this.getMetaContactStatus(contact)));
     }
     
+    /**
+     * Informs all listeners that a group was added.
+     * 
+     * @param group The group that was added.
+     * @param parentList The JList containing the group.
+     */
     public void groupAdded(MetaContactGroup group, JList parentList){
         
         int index = this.indexOf(group);
@@ -199,7 +202,7 @@ public class ContactListModel extends AbstractListModel {
         int currentIndex = 0;
         MetaContactGroup parentGroup = this.contactList.findParentMetaContactGroup(group);
         
-        if(parentGroup != null){            
+        if(parentGroup != null && !this.isGroupClosed(parentGroup)){            
             currentIndex += this.indexOf(parentGroup);                        
             currentIndex += parentGroup.indexOf(group) + 1;
             
@@ -226,16 +229,17 @@ public class ContactListModel extends AbstractListModel {
         
         int count = 0;
         
-        count += parentGroup.countChildContacts();
-        
-        Iterator subgroups = parentGroup.getSubgroups();
-                
-        while(subgroups.hasNext()){
-            MetaContactGroup subgroup = (MetaContactGroup)subgroups.next();
+        if(parentGroup != null && !this.isGroupClosed(parentGroup)){
+            count += parentGroup.countChildContacts();
             
-            count += countSubgroupContacts(subgroup);
+            Iterator subgroups = parentGroup.getSubgroups();
+                    
+            while(subgroups.hasNext()){
+                MetaContactGroup subgroup = (MetaContactGroup)subgroups.next();
+                
+                count += countSubgroupContacts(subgroup);
+            }
         }
-        
         return count;
     }
      
@@ -289,10 +293,10 @@ public class ContactListModel extends AbstractListModel {
      * 
      * @param group The group to close.
      */
-    public void closeGroup(MetaContactGroup group){        
-        //fireIntervalRemoved(this, this.indexOf(group.getMetaContact(0)), 
-          //      this.indexOf(group.getMetaContact(group.countChildContacts() - 1)));
-        fireIntervalRemoved(this, this.indexOf(group.getMetaContact(0)), this.getSize() - 1);
+    public void closeGroup(MetaContactGroup group){
+        fireIntervalRemoved(this, this.indexOf(group.getMetaContact(0)),
+                this.indexOf(group.getMetaContact(group.countChildContacts() - 1)));
+        
         this.closedGroups.add(group);
     }
     
@@ -304,10 +308,8 @@ public class ContactListModel extends AbstractListModel {
     public void openGroup(MetaContactGroup group){        
         this.closedGroups.remove(group);
         
-        //fireIntervalAdded(this, this.indexOf(group.getMetaContact(0)), 
-          //      this.indexOf(group.getMetaContact(group.countChildContacts() - 1)));
-        
-        fireIntervalAdded(this, this.indexOf(group.getMetaContact(0)), this.getSize() - 1);
+        fireIntervalAdded(this, this.indexOf(group.getMetaContact(0)), 
+                this.indexOf(group.getMetaContact(group.countChildContacts() - 1)));
     }
     
     /**
