@@ -16,30 +16,18 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
-import net.java.sip.communicator.impl.gui.main.contactlist.CListKeySearchListener;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
-import net.java.sip.communicator.impl.gui.main.contactlist.MetaContactNode;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
-import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.service.protocol.OperationFailedException;
-import net.java.sip.communicator.service.protocol.OperationSetPersistentPresence;
-import net.java.sip.communicator.service.protocol.OperationSetPresence;
-import net.java.sip.communicator.service.protocol.PresenceStatus;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
-import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusChangeEvent;
-import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusListener;
-import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusChangeEvent;
-import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusListener;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 
 /**
@@ -68,9 +56,6 @@ public class MainFrame extends JFrame {
     private Hashtable protocolSupportedOperationSets = new Hashtable();
     
     private Hashtable protocolPresenceSets = new Hashtable();
-    
-	private Dimension minimumFrameSize = new Dimension(
-			Constants.MAINFRAME_MIN_WIDTH, Constants.MAINFRAME_MIN_HEIGHT);
     
     private Hashtable protocolProviders = new Hashtable();
    
@@ -236,7 +221,6 @@ public class MainFrame extends JFrame {
             (ContactPresenceStatusChangeEvent evt) {
           
         	Contact sourceContact = evt.getSourceContact();
-        	PresenceStatus newStatus = evt.getNewStatus();
         	
             MetaContact metaContact
                 = contactList.findMetaContactByContact(sourceContact);
@@ -246,19 +230,7 @@ public class MainFrame extends JFrame {
                     = (ContactListModel)tabbedPane.getContactListPanel()
                         .getContactList().getModel();
                 
-                MetaContactNode node 
-                    = model.getContactNodeByContact(metaContact);
-                
-                if(node != null){
-                    
-                    node.changeProtocolContactStatus(
-                    		sourceContact.getProtocolProvider()
-                    				.getProtocolName(),
-                    				newStatus);
-                    
-                    //Refresh the node status icon.
-                    model.contactStatusChanged(model.indexOf(node));
-                }
+                model.contactStatusChanged(model.indexOf(metaContact));
             }
         }
     }
@@ -290,5 +262,9 @@ public class MainFrame extends JFrame {
         (ProtocolProviderService protocolProvider) {
         return (OperationSetPresence)
             this.protocolPresenceSets.get(protocolProvider);
+    }
+
+    public MainTabbedPane getTabbedPane() {
+        return tabbedPane;
     }
 }

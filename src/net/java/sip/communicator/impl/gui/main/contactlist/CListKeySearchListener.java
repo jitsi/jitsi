@@ -5,6 +5,8 @@ import java.awt.event.KeyListener;
 
 import javax.swing.text.Position;
 
+import net.java.sip.communicator.service.contactlist.MetaContact;
+
 /**
  * Search the ContactList by typing a letter.
  */
@@ -39,10 +41,9 @@ public class CListKeySearchListener implements KeyListener {
 		if(selectedIndex != -1){
 			Object selectedObject = this.contactList.getSelectedValue();
 									
-			if(selectedObject instanceof MetaContactNode){
+			if(selectedObject instanceof MetaContact){
 				String selectedContactName 
-						= ((MetaContactNode)selectedObject)
-							.getContact().getDisplayName();
+						= ((MetaContact)selectedObject).getDisplayName();
 								
 				if (selectedContactName != null) 
 					selectedSameLetterContact 
@@ -90,7 +91,7 @@ public class CListKeySearchListener implements KeyListener {
 		if(index != -1){
 			Object element = this.contactList.getModel().getElementAt(index);
 			
-			if(element instanceof MetaContactNode){
+			if(element instanceof MetaContact){
 				indexToSelect = index;
 			}
 			else{

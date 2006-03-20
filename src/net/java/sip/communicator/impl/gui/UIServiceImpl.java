@@ -1,5 +1,7 @@
 package net.java.sip.communicator.impl.gui;
 
+import java.util.Iterator;
+
 import net.java.sip.communicator.service.gui.ConfigurationContainer;
 import net.java.sip.communicator.service.gui.UIService;
 import net.java.sip.communicator.service.protocol.Call;
@@ -70,5 +72,10 @@ public class UIServiceImpl implements UIService {
 		
 		return null;
 	}
+
+    public Iterator getSupportedConstraints() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

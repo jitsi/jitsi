@@ -81,7 +81,7 @@ public class ContactListPanel extends JScrollPane
             int selectedIndex 
                 = this.contactList.locationToIndex(e.getPoint());
             
-            ListModel listModel = this.contactList.getModel();
+            ContactListModel listModel = (ContactListModel)this.contactList.getModel();
             
             Object element 
                 = listModel.getElementAt(selectedIndex);
@@ -90,30 +90,11 @@ public class ContactListPanel extends JScrollPane
                 
                 MetaContactGroup group = (MetaContactGroup)element;
                 
-                if(group.countChildContacts() > 0){
-                    
-                    if(selectedIndex == listModel.getSize() - 1
-                       || listModel.getElementAt(selectedIndex + 1) 
-                          instanceof MetaContactGroup){
-                       
-                        //Expand group
-                       Iterator iter = group.getChildContacts();
-                       
-                       while(iter.hasNext()){
-                           
-                           MetaContact contact = (MetaContact) iter.next();
-                           
-                           this.contactList
-                               .addChild(group,
-                                       new MetaContactNode(contact));
-                       }
-                    }
-                    else{
-                        //Collapse group
-                        ((ContactListModel)listModel)
-                            .removeRange(selectedIndex + 1, 
-                                selectedIndex + group.countChildContacts());
-                    }
+                if(listModel.isGroupClosed(group)){
+                    listModel.openGroup(group);
+                }
+                else{
+                    listModel.closeGroup(group);
                 }
             }
         }
@@ -134,10 +115,10 @@ public class ContactListPanel extends JScrollPane
         // Open message window, right button menu or contact info when 
         // mouse is pressed. Distinguish on which component was pressed 
         // the mouse and make the appropriate work.
-        if (this.contactList.getSelectedValue() instanceof MetaContactNode){
+        if (this.contactList.getSelectedValue() instanceof MetaContact){
                 
-            MetaContactNode contactNode 
-                = (MetaContactNode) this.contactList.getSelectedValue();
+            MetaContact contact 
+                = (MetaContact) this.contactList.getSelectedValue();
             
             int selectedIndex = this.contactList.getSelectedIndex();
             
@@ -145,7 +126,7 @@ public class ContactListPanel extends JScrollPane
                 this.contactList.getCellRenderer()
                     .getListCellRendererComponent(
 							this.contactList,
-                            contactNode, 
+                            contact, 
                             selectedIndex,
 							true, true);
            
@@ -170,7 +151,7 @@ public class ContactListPanel extends JScrollPane
                     
                     //Left click on the contact label opens Chat window
 					SwingUtilities.invokeLater(new RunMessageWindow(
-							contactNode.getContact()));
+							contact));
 					
 				} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) 
                             == InputEvent.BUTTON3_MASK) {
@@ -178,7 +159,7 @@ public class ContactListPanel extends JScrollPane
                     //Right click on the contact label opens Popup menu
 					ContactRightButtonMenu popupMenu 
                         = new ContactRightButtonMenu(
-							parent, contactNode.getContact());
+							parent, contact);
 
 					popupMenu.setInvoker(this.contactList);
 
@@ -191,7 +172,7 @@ public class ContactListPanel extends JScrollPane
                 //Click on the info button opens the info popup panel
 				SwingUtilities.invokeLater
                     (new RunInfoWindow(selectedCellPoint, 
-                            contactNode.getContact()));
+                            contact));
 			}
 		}
 	}

@@ -16,6 +16,8 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
@@ -45,6 +47,8 @@ public class QuickMenu extends SIPCommToolBar
                                     (ImageLoader.QUICK_MENU_ADD_ICON)));
 	
 	private MainFrame mainFrame;
+    
+    private boolean showOnlineContactsOnly = false;
 	
 	public QuickMenu(MainFrame mainFrame){
 
@@ -96,7 +100,19 @@ public class QuickMenu extends SIPCommToolBar
 			mainFrame.getConfigFrame().setVisible(true);
 		}
 		else if (buttonName.equals("search")){
-			
+            
+            ContactList contactList = mainFrame.getTabbedPane()
+                .getContactListPanel().getContactList();
+            
+            showOnlineContactsOnly = !showOnlineContactsOnly;
+            
+            if(showOnlineContactsOnly){
+                 
+                contactList.removeOfflineContacts();
+            }
+            else{
+                contactList.addOfflineContacts();
+            }
 		}
 		else if (buttonName.equals("info")){
 			

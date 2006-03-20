@@ -85,16 +85,18 @@ public class ContactListCellRenderer extends JPanel
             boolean isSelected,
             boolean cellHasFocus) {
 
-		if (value instanceof MetaContactNode) {
-							
-            MetaContactNode contactNode = (MetaContactNode)value; 
-            MetaContact contactItem = contactNode.getContact();
+        ContactList contactList = (ContactList)list;
+        ContactListModel listModel = (ContactListModel)contactList.getModel();
+        
+		if (value instanceof MetaContact) {
+			 
+            MetaContact contactItem = (MetaContact)value;
 
             String toolTipText = "<html>" + contactItem.getDisplayName();
             
 			this.nameLabel.setText(contactItem.getDisplayName());
 
-			this.nameLabel.setIcon(contactNode.getStatusIcon());
+			this.nameLabel.setIcon(listModel.getMetaContactStatusIcon(contactItem));
 
 			this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
 			
@@ -106,27 +108,28 @@ public class ContactListCellRenderer extends JPanel
             
             this.buttonsPanel.removeAll();
             //this.buttonsPanel.add(extendPanelButton);
-		
-            Iterator i = contactNode.getProtocolIcons().values().iterator();
-            
+         
+            Iterator i = contactItem.getContacts();
             while(i.hasNext()){
+                Contact protocolContact = (Contact)i.next();
+                
+                String protocolName 
+                    = protocolContact.getProtocolProvider().getProtocolName();
+                
+                Image protocolStatusIcon = (Image)Constants.getProtocolStatusIcons
+                                        (protocolName).get(protocolContact.getPresenceStatus());
+                
+                SIPCommButton contactProtocolButton = new SIPCommButton(protocolStatusIcon, 
+                                                                                                            protocolStatusIcon);
+                this.buttonsPanel.add(contactProtocolButton);
             	
-            	Image protocolStatusIcon = (Image) i.next();
-            	
-            	SIPCommButton contactProtocolButton 
-        				= new SIPCommButton
-        					(protocolStatusIcon, 
-        					protocolStatusIcon);
-        		
-            	this.buttonsPanel.add(contactProtocolButton);
-            	/*
-            	toolTipText 
-            		+= "<img src='" 
-            			+ ImageLoader.getImagePath(protocolStatusIcon) 
-            			+ "'></img>";
-            			*/
+            	//toolTipText 
+            		//+= "<img src='" 
+            			//+ ImageLoader.getImagePath(protocolStatusIcon) 
+            			//+ "'></img>";
+            			
             }
-
+       
             this.add(buttonsPanel, BorderLayout.EAST);
             
             toolTipText += "</html>";
