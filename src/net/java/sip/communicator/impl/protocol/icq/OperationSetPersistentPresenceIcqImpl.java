@@ -32,8 +32,6 @@ import java.beans.PropertyChangeEvent;
  * status of our buddies. It also offers methods for retrieving and modifying
  * the buddy contact list and adding listeners for changes in its layout.
  *
- * @todo add consistent logging
- *
  * @author Emil Ivov
  */
 public class OperationSetPersistentPresenceIcqImpl
@@ -178,9 +176,6 @@ public class OperationSetPersistentPresenceIcqImpl
         //add a listener that'll follow the provider's state.
         icqProvider.addRegistrationStateChangeListener(
             registrationStateListener);
-        /** @todo create local contact here */
-
-
     }
 
     /**
@@ -259,7 +254,7 @@ public class OperationSetPersistentPresenceIcqImpl
     public PresenceStatus queryContactStatus(String contactIdentifier)
         throws IllegalStateException, IllegalArgumentException
     {
-        verifyConnected();
+        assertConnected();
 
         //these are commented since we now use identifiers.
         //        if (!(contact instanceof ContactIcqImpl))
@@ -379,7 +374,7 @@ public class OperationSetPersistentPresenceIcqImpl
                IllegalStateException,
                OperationFailedException
     {
-        verifyConnected();
+        assertConnected();
 
         ssContactList.addContact(contactIdentifier);
     }
@@ -412,7 +407,7 @@ public class OperationSetPersistentPresenceIcqImpl
                IllegalStateException,
                OperationFailedException
     {
-        verifyConnected();
+        assertConnected();
 
         if(! (parent instanceof ContactGroupIcqImpl) )
             throw new IllegalArgumentException(
@@ -435,7 +430,7 @@ public class OperationSetPersistentPresenceIcqImpl
     public void unsubscribe(Contact contact) throws IllegalArgumentException,
         IllegalStateException, OperationFailedException
     {
-        verifyConnected();
+        assertConnected();
 
         if(! (contact instanceof ContactIcqImpl) )
             throw new IllegalArgumentException(
@@ -493,7 +488,7 @@ public class OperationSetPersistentPresenceIcqImpl
         IllegalArgumentException, IllegalStateException,
         OperationFailedException
     {
-        verifyConnected();
+        assertConnected();
 
         if (!(status instanceof IcqStatusEnum))
             throw new IllegalArgumentException(
@@ -552,7 +547,7 @@ public class OperationSetPersistentPresenceIcqImpl
     public void createServerStoredContactGroup(ContactGroup parent,
         String groupName)
     {
-        verifyConnected();
+        assertConnected();
 
         if (!parent.canContainSubgroups())
             throw new IllegalArgumentException(
@@ -575,7 +570,7 @@ public class OperationSetPersistentPresenceIcqImpl
      */
     public void removeServerStoredContactGroup(ContactGroup group)
     {
-        verifyConnected();
+        assertConnected();
 
         if( !(group instanceof ContactGroupIcqImpl) )
             throw new IllegalArgumentException(
@@ -603,7 +598,7 @@ public class OperationSetPersistentPresenceIcqImpl
     public void renameServerStoredContactGroup(
                     ContactGroup group, String newName)
     {
-        verifyConnected();
+        assertConnected();
 
         if( !(group instanceof ContactGroupIcqImpl) )
             throw new IllegalArgumentException(
@@ -622,7 +617,7 @@ public class OperationSetPersistentPresenceIcqImpl
     public void moveContactToGroup(Contact contactToMove,
                                    ContactGroup newParent)
     {
-        verifyConnected();
+        assertConnected();
 
         if( !(contactToMove instanceof ContactIcqImpl) )
             throw new IllegalArgumentException(
@@ -759,7 +754,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * @throws java.lang.IllegalStateException if the underlying ICQ stack is
      * not registered and initialized.
      */
-    private void verifyConnected() throws IllegalStateException
+    private void assertConnected() throws IllegalStateException
     {
         if (icqProvider == null)
             throw new IllegalStateException(

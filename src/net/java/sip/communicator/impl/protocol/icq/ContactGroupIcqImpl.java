@@ -240,7 +240,7 @@ public class ContactGroupIcqImpl
      *
      * @return an empty iterator
      */
-    public Iterator subGroups()
+    public Iterator subgroups()
     {
         return dummyGroupsList.iterator();
     }

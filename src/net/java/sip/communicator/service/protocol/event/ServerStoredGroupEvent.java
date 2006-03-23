@@ -25,18 +25,21 @@ public class ServerStoredGroupEvent
     private int eventID = -1;
     private ProtocolProviderService sourceProvider = null;
     private OperationSetPersistentPresence parentOperationSet = null;
+    private ContactGroup parentGroup = null;
 
 
     /**
      * Creates a ServerStoredGroupChangeEvent instance.
      * @param sourceGroup the group that this event is pertaining to.
      * @param eventID an int describing the cause of the event
+     * @param parentGroup the group that the source group is a child of.
      * @param sourceProvider a reference to the protocol provider where this is
      * happening
      * @param opSet a reference to the operation set responsible for the event
      */
     public ServerStoredGroupEvent(ContactGroup sourceGroup,
                                   int eventID,
+                                  ContactGroup parentGroup,
                                   ProtocolProviderService sourceProvider,
                                   OperationSetPersistentPresence opSet)
     {
@@ -45,6 +48,7 @@ public class ServerStoredGroupEvent
         this.eventID = eventID;
         this.sourceProvider = sourceProvider;
         this.parentOperationSet = opSet;
+        this.parentGroup = parentGroup;
     }
 
     /**
@@ -85,6 +89,16 @@ public class ServerStoredGroupEvent
     public OperationSetPersistentPresence getSourceOperationSet()
     {
         return this.parentOperationSet;
+    }
+
+    /**
+     * Returns the group containing the event source group
+     * @return a reference to the <tt>ContactGroup</tt> instance that is parent
+     * of the <tt>ContactGroup</tt> which is the source of this event.
+     */
+    public ContactGroup getParentGroup()
+    {
+        return parentGroup;
     }
 
     /**

@@ -206,6 +206,7 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
             // even tests with the same name - disambiguate them.
             currentTest.setAttribute(ATTR_CLASSNAME,
                                      test.getClass().getName());
+
             rootElement.appendChild(currentTest);
             testElements.put(test, currentTest);
         } else {

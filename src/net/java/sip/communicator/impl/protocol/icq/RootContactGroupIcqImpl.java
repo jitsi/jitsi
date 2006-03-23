@@ -141,7 +141,7 @@ public class RootContactGroupIcqImpl
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator subgroups = subGroups();
+        Iterator subgroups = subgroups();
         while (subgroups.hasNext())
         {
             ContactGroupIcqImpl grp = (ContactGroupIcqImpl)subgroups.next();
@@ -173,7 +173,7 @@ public class RootContactGroupIcqImpl
      * @return a java.util.Iterator over the <tt>ContactGroup</tt>
      *   children of this group (i.e. subgroups).
      */
-    public Iterator subGroups()
+    public Iterator subgroups()
     {
         return subGroups.iterator();
     }
@@ -223,7 +223,7 @@ public class RootContactGroupIcqImpl
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups="+countSubgroups()+":\n");
 
-        Iterator subGroups = subGroups();
+        Iterator subGroups = subgroups();
         while (subGroups.hasNext())
         {
             ContactGroup group = (ContactGroup) subGroups.next();

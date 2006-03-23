@@ -128,7 +128,7 @@ public class TestOperationSetPersistentPresence
         //Go through the contact list retrieved by the persistence presence set
         //and remove the name of every contact and group that we find there from
         //the expected contct list hashtable.
-        Iterator groups = rootGroup.subGroups();
+        Iterator groups = rootGroup.subgroups();
         while (groups.hasNext() ){
             ContactGroup group = (ContactGroup)groups.next();
 
