@@ -14,6 +14,7 @@ import net.kano.joustsim.oscar.*;
 import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
 import net.java.sip.communicator.util.*;
+import net.kano.joustsim.oscar.oscar.loginstatus.*;
 
 /**
  * An implementation of the protocol provider service over the AIM/ICQ protocol
@@ -79,12 +80,27 @@ public class ProtocolProviderServiceIcqImpl
     /**
      * Converts the specified joust sim connection state to a corresponding
      * RegistrationState.
+     * @param jsState the joust sim connection state.
+     * @return a RegistrationState corresponding best to the specified
+     * joustSimState.
+     */
+    private RegistrationState joustSimStateToRegistrationState(State jsState)
+    {
+        return joustSimStateToRegistrationState(jsState, null);
+    }
+
+    /**
+     * Converts the specified joust sim connection state to a corresponding
+     * RegistrationState.
      * @param joustSimConnState the joust sim connection state.
+     * @param joustSimConnStateInfo additional stateinfo if available (may be
+     * null)
      * @return a RegistrationState corresponding best to the specified
      * joustSimState.
      */
     private RegistrationState joustSimStateToRegistrationState(
-        State joustSimConnState)
+        State joustSimConnState,
+        StateInfo joustSimConnStateInfo)
     {
         if(joustSimConnState == State.ONLINE)
             return RegistrationState.REGISTERED;
@@ -100,7 +116,18 @@ public class ProtocolProviderServiceIcqImpl
                  || joustSimConnState == State.NOTCONNECTED)
             return RegistrationState.UNREGISTERED;
         else if (joustSimConnState == State.FAILED)
+        {
+            if(joustSimConnStateInfo != null
+                && joustSimConnStateInfo instanceof LoginFailureStateInfo)
+            {
+                LoginFailureInfo lfInfo = ((LoginFailureStateInfo)
+                                joustSimConnStateInfo).getLoginFailureInfo();
+
+                if (lfInfo instanceof AuthFailureInfo)
+                    return RegistrationState.AUTHENTICATION_FAILED;
+            }
             return RegistrationState.CONNECTION_FAILED;
+        }
         else{
             logger.warn("Unknown state " + joustSimConnState
                         + ". Defaulting to " + RegistrationState.UNREGISTERED);
@@ -198,7 +225,7 @@ public class ProtocolProviderServiceIcqImpl
             aimConnection.addStateListener(aimConnStateListener);
             aimIcbmListener = new AimIcbmListener();
 
-            //initialize all the supported operation sets
+            //initialize the presence operationset
             OperationSetPersistentPresence persistentPresence =
                 new OperationSetPersistentPresenceIcqImpl(this, screenname);
 
@@ -206,8 +233,27 @@ public class ProtocolProviderServiceIcqImpl
                 OperationSetPersistentPresence.class.getName(),
                 persistentPresence);
 
-            isInitialized = true;
+            //register it once again for those that simply need presence
+            supportedOperationSets.put( OperationSetPresence.class.getName(),
+                                        persistentPresence);
 
+            //initialize the IM operation set
+            OperationSetBasicInstantMessaging basicInstantMessaging =
+                new OperationSetBasicInstantMessagingIcqImpl(this);
+
+            supportedOperationSets.put(
+                OperationSetBasicInstantMessaging.class.getName(),
+                basicInstantMessaging);
+
+            //initialize the typing notifications operation set
+            OperationSetTypingNotifications typingNotifications =
+                new OperationSetTypingNotificationsIcqImpl(this);
+
+            supportedOperationSets.put(
+                OperationSetTypingNotifications.class.getName(),
+                typingNotifications);
+
+            isInitialized = true;
         }
     }
 
@@ -275,16 +321,24 @@ public class ProtocolProviderServiceIcqImpl
      *
      * @param oldJoustSimState the state that the joust sim connection had
      * before the change occurred
+     * @param oldJoustSimStateInfo the state info associated with the state of
+     * the underlying connection state as it is after the change.
      * @param newJoustSimState the state that the underlying joust sim
      * connection is currently in.
+     * @param newJoustSimStateInfo the state info associated with the state of
+     * the underlying connection state as it was before the change.
      */
-    private void fireRegistrationStateChanged( State oldJoustSimState,
-                                               State newJoustSimState)
+    private void fireRegistrationStateChanged(  State      oldJoustSimState,
+                                                StateInfo oldJoustSimStateInfo,
+                                                State     newJoustSimState,
+                                                StateInfo newJoustSimStateInfo)
     {
         RegistrationState oldRegistrationState
-            = joustSimStateToRegistrationState(oldJoustSimState);
+            = joustSimStateToRegistrationState(oldJoustSimState
+                                               , oldJoustSimStateInfo);
         RegistrationState newRegistrationState
-            = joustSimStateToRegistrationState(newJoustSimState);
+            = joustSimStateToRegistrationState(newJoustSimState
+                                               , newJoustSimStateInfo);
 
         RegistrationStateChangeEvent event =
             new RegistrationStateChangeEvent(
@@ -317,7 +371,7 @@ public class ProtocolProviderServiceIcqImpl
 
             AimConnection conn = event.getAimConnection();
             logger.debug("ICQ protocol provider " + getProtocolName()
-                         + "changed registration status from "
+                         + " changed registration status from "
                          + oldState + " to " + newState);
 
             if (newState == State.ONLINE)
@@ -332,7 +386,8 @@ public class ProtocolProviderServiceIcqImpl
             }
 
             //now tell all interested parties about what happened.
-            fireRegistrationStateChanged(oldState, newState);
+            fireRegistrationStateChanged(oldState, event.getOldStateInfo()
+                                         , newState, event.getNewStateInfo());
 
         }
     }
