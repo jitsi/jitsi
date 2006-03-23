@@ -143,8 +143,12 @@ public class ServerStoredContactListIcqImpl
      */
     private void fireGroupEvent(ContactGroupIcqImpl group, int eventID)
     {
-        ServerStoredGroupEvent evt = new ServerStoredGroupEvent(group, eventID,
-            icqProvider, parentOperationSet);
+        ServerStoredGroupEvent evt = new ServerStoredGroupEvent(
+                  group
+                , eventID
+                , parentOperationSet.getServerStoredContactListRoot()
+                , icqProvider
+                , parentOperationSet);
 
         logger.trace("Will dispatch the following grp event: " + evt);
 
@@ -236,7 +240,7 @@ public class ServerStoredContactListIcqImpl
      */
     public int findContactGroupIndex(Group joustSimGroup)
     {
-        Iterator contactGroups = rootGroup.subGroups();
+        Iterator contactGroups = rootGroup.subgroups();
         int index = 0;
 
         for (; contactGroups.hasNext(); index++)
@@ -259,7 +263,7 @@ public class ServerStoredContactListIcqImpl
      */
     public ContactGroupIcqImpl findContactGroup(Group joustSimGroup)
     {
-        Iterator contactGroups = rootGroup.subGroups();
+        Iterator contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
@@ -283,7 +287,7 @@ public class ServerStoredContactListIcqImpl
      */
     public ContactIcqImpl findContactByScreenName(String screenName)
     {
-        Iterator contactGroups = rootGroup.subGroups();
+        Iterator contactGroups = rootGroup.subgroups();
         ContactIcqImpl result = null;
 
         while(contactGroups.hasNext())
@@ -312,7 +316,7 @@ public class ServerStoredContactListIcqImpl
      */
     public ContactGroupIcqImpl findContactGroup(ContactIcqImpl child)
     {
-        Iterator contactGroups = rootGroup.subGroups();
+        Iterator contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
