@@ -20,13 +20,14 @@ public interface OperationSetBasicInstantMessaging
      * Create a Message instance for sending arbitrary MIME-encoding content.
      *
      * @param content content value
-     * @param contentType MIME-type
-     * @param contentEncoding encoding used for the MIME-type
+     * @param contentType the MIME-type for <tt>content</tt>
+     * @param contentEncoding encoding used for <tt>content</tt>
+     * @param subject a <tt>String</tt> subject or <tt>null</tt> for now subject.
      * @return the newly created message.
      */
-    Message 	createMessage(byte[] content,
-                              String contentType,
-                              String contentEncoding);
+    Message createMessage(byte[] content,         String contentType,
+                          String contentEncoding, String subject);
+
     /**
      * Create a Message instance for sending a simple text messages with default
      * (text/plain) content type and encoding.
@@ -34,15 +35,36 @@ public interface OperationSetBasicInstantMessaging
      * @param messageText the string content of the message.
      * @return Message the newly created message
      */
-    Message 	createMessage(String messageText);
-
-    public void sendInstantMessage(Contact to, Message message);
+    Message     createMessage(String messageText);
 
     /**
-     * Registeres a MessageListener with this operation set.
+     * Sends the <tt>message</tt> to the destination indicated by the
+     * <tt>to</tt> contact.
+     * @param to the <tt>Contact</tt> to send <tt>message</tt> to
+     * @param message the <tt>Message</tt> to send.
+     * @throws java.lang.IllegalStateException if the underlying ICQ stack is
+     * not registered and initialized.
+     * @throws java.lang.IllegalArgumentException if <tt>to</tt> is not an
+     * instance belonging to the underlying implementation.
+     */
+    public void sendInstantMessage(Contact to, Message message)
+        throws IllegalStateException, IllegalArgumentException;
+
+    /**
+     * Registeres a MessageListener with this operation set so that it gets
+     * notifications of successful message delivery, failure or reception of
+     * incoming messages..
      *
-     * @param listener the message listener to register.
+     * @param listener the <tt>MessageListener</tt> to register.
      */
     public void addMessageListener(MessageListener listener);
 
+    /**
+     * Unregisteres <tt>listener</tt> so that it won't receive any further
+     * notifications upon successful message delivery, failure or reception of
+     * incoming messages..
+     *
+     * @param listener the <tt>MessageListener</tt> to unregister.
+     */
+    public void removeMessageListener(MessageListener listener);
 }
