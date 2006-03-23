@@ -10,11 +10,12 @@ import java.util.EventObject;
 
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
- *
+ * Parent class for meta contact events indicating addition and removal of
+ * meta contacts in a meta contact list.
  * @author Yana Stamcheva
+ * @author Emil Ivov
  */
 public class MetaContactEvent
     extends EventObject
@@ -39,55 +40,23 @@ public class MetaContactEvent
      */
     public static final int META_CONTACT_MOVED = 3;
 
-    /**
-     * Indicates that the MetaContactEvent instance was triggered by the
-     * removal of a protocol specific contact from an existing MetaContact.
-     */
-    public static final int PROTO_CONTACT_REMOVED = 4;
-
-    /**
-     * Indicates that the MetaContactEvent instance was triggered by the
-     * a protocol specific contact to a new MetaContact parent.
-     */
-    public static final int PROTO_CONTACT_ADDED = 5;
-
-    /**
-     * Indicates that the MetaContactEvent instance was triggered by moving
-     * addition of a protocol specific contact to an existing MetaContact.
-     */
-    public static final int PROTO_CONTACT_MOVED = 6;
-
-    private ProtocolProviderService sourceProvider = null;
     private MetaContactGroup  parentGroup = null;
 
     /**
      * Creates a new MetaContact event according to the specified parameters.
      * @param source the MetaContact instance that is added to the MetaContactList
-     * @param provider the ProtocolProviderService instance where this event
-     * occurred
      * @param parentGroup the MetaContactGroup underwhich the corresponding
      * MetaContact is located
      * @param eventID one of the METACONTACT_XXX static fields indicating the
      * nature of the event.
      */
     public MetaContactEvent( MetaContact source,
-                       ProtocolProviderService provider,
                        MetaContactGroup parentGroup,
                        int eventID)
     {
         super(source);
-        this.sourceProvider = provider;
         this.parentGroup = parentGroup;
         this.eventID = eventID;
-    }
-
-    /**
-     * Returns the provider that the source contact belongs to.
-     * @return the provider that the source contact belongs to.
-     */
-    public ProtocolProviderService getSourceProvider()
-    {
-        return sourceProvider;
     }
 
     /**

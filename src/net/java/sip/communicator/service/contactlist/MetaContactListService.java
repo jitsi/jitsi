@@ -238,6 +238,20 @@ public interface MetaContactListService
         throws MetaContactListException;
 
     /**
+     * Sets the display name for <tt>metaContact</tt> to be <tt>newName</tt>.
+     * The method will not in any way change any of the contacts wrapped by
+     * this meta contact.
+     * <p>
+     * @param metaContact the <tt>MetaContact</tt> that we are renaming
+     * @param newName a <tt>String</tt> containing the new display name for
+     * <tt>metaContact</tt>.
+     * @throws IllegalArgumentException if <tt>metaContact</tt> is not an
+     * instance that belongs to the underlying implementation.
+     */
+    public void renameMetaContact(MetaContact metaContact, String newName)
+        throws IllegalArgumentException;
+
+    /**
      * Removes the specified <tt>metaContact</tt> as well as all of its
      * underlying contacts.
      * <p>
@@ -262,7 +276,7 @@ public interface MetaContactListService
      * @throws MetaContactListException with an appropriate code if the
      * operation fails for some reason.
      */
-    public void createMetaContactGroup(MetaContactGroup parent,
+    public void createMetaContactGroup(MetaContactGroup parentGroup,
                                        String groupName)
         throws MetaContactListException;
 
@@ -272,14 +286,16 @@ public interface MetaContactListService
      * The operation would only affect the local meta group and would not
      * "touch" any encapsulated protocol specific group.
      * <p>
+     * @param group the <tt>MetaContactGroup</tt> to rename.
      * @param newGroupName the new name of the <tt>MetaContactGroup</tt> to
      * rename.
+     *
+     * @throws MetaContactListException with an appropriate code if the
+     * operation fails for some reason.
      */
     public void renameMetaContactGroup(MetaContactGroup group,
                                        String newGroupName)
         throws MetaContactListException;
-
-
 
     /**
      * Removes the specified meta contact group, all its corresponding protocol

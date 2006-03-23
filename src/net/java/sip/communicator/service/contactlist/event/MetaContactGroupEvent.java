@@ -41,6 +41,13 @@ public class MetaContactGroupEvent
 
     /**
      * Indicates that the MetaContactGroupEvent instance was triggered by the
+     * fact that child contacts were reordered in the source group.
+     */
+    public static final int CHILD_CONTACTS_REORDERED = 4;
+
+
+    /**
+     * Indicates that the MetaContactGroupEvent instance was triggered by the
      * renaming of a protocol specific ContactGroup in the source
      * MetaContactGroup. Note that this does not in any way mean that the
      * name of the MetaContactGroup itslef has changed. <tt>MetaContactGroup</tt>s

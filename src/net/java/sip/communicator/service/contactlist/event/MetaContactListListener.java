@@ -19,7 +19,6 @@ import java.util.EventListener;
 public interface MetaContactListListener
     extends EventListener
 {
-
     /**
      * Indicates that a MetaContact has been successfully added
      * to the MetaContact list.
@@ -31,8 +30,32 @@ public interface MetaContactListListener
      * Indicates that a MetaContact has been modified.
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
-    public void metaContactModified(MetaContactEvent evt);
+    public void metaContactRenamed(MetaContactRenamedEvent evt);
 
+    /**
+     * Indicates that a protocol specific <tt>Contact</tt> instance has been
+     * added to the list of protocol specific buddies in this
+     * <tt>MetaContact</tt>
+     * @param evt a reference to the corresponding
+     * <tt>ProtoContactEvent</tt>
+     */
+    public void protoContactAdded(ProtoContactEvent evt);
+
+    /**
+     * Indicates that a protocol specific <tt>Contact</tt> instance has been
+     * removed from the list of protocol specific buddies in this
+     * <tt>MetaContact</tt>
+     * @param evt a reference to the corresponding
+     * <tt>ProtoContactEvent</tt>
+     */
+    public void protoContactRemoved(ProtoContactEvent evt);
+
+    /**
+     * Indicates that a protocol specific <tt>Contact</tt> instance has been
+     * moved from within one <tt>MetaContact</tt> to another.
+     * @param evt a reference to the <tt>ProtoContactMovedEvent</tt> instance.
+     */
+    public void protoContactMoved(ProtoContactEvent evt);
 
     /**
      * Indicates that a MetaContact has been removed from the MetaContact list.
@@ -44,8 +67,9 @@ public interface MetaContactListListener
      * Indicates that a MetaContact has been moved inside the MetaContact list.
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
-    public void metaContactMoved(MetaContactEvent evt);
+    public void metaContactMoved(MetaContactMovedEvent evt);
 
+    //-------------------- events on groups. ----------------------------------
 
     /**
      * Indicates that a MetaContactGroup has been successfully added
@@ -64,9 +88,18 @@ public interface MetaContactListListener
 
 
     /**
-     * Indicates that a MetaContactGroup has been removed from the MetaContact list.
+     * Indicates that a MetaContactGroup has been removed from the MetaContact
+     * list.
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt);
+
+    /**
+     * Indicates that the order under which the child contacts were ordered
+     * inside the source group has changed.
+     * @param evt the <tt>MetaContactGroupEvent</tt> containind details of this
+     * event.
+     */
+    public void childContactsReordered(MetaContactGroupEvent evt);
 
 }

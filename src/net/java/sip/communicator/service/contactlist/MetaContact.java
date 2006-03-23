@@ -19,7 +19,7 @@ import java.util.Iterator;
  * <p>
  * @author Emil Ivov
  */
-public interface MetaContact
+public interface MetaContact extends Comparable
 {
     /**
      * Returns the default protocol specific <tt>Contact</tt> to use when
