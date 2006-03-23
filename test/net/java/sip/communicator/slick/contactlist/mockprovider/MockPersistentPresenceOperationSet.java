@@ -11,7 +11,6 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.protocol.icqconstants.*;
 
 /**
  * A mock implementation of a persistent presence operation set containing a
@@ -34,6 +33,18 @@ public class MockPersistentPresenceOperationSet
     private Vector serverStoredGroupListeners = new Vector();
 
     /**
+     * A list of listeners registered for
+     *  <tt>ProviderPresenceStatusChangeEvent</tt>s.
+     */
+    private Vector providerPresenceStatusListeners = new Vector();
+
+    /**
+     * A list of listeneres registered for
+     * <tt>ContactPresenceStatusChangeEvent</tt>s.
+     */
+    private Vector contactPresenceStatusListeners = new Vector();
+
+    /**
      * The root of the mock contact list.
      */
     private MockContactGroup contactListRoot = null;
@@ -46,7 +57,12 @@ public class MockPersistentPresenceOperationSet
     /**
      * The currently active status message.
      */
-    private String statusMessage = null;
+    private String statusMessage = "Default Status Message";
+
+    /**
+     * Our default presence status.
+     */
+    private PresenceStatus presenceStatus = MockStatusEnum.MOCK_STATUS_50;
 
     public MockPersistentPresenceOperationSet(MockProvider provider)
     {
@@ -59,11 +75,38 @@ public class MockPersistentPresenceOperationSet
      *
      * @param listener a dummy param.
      */
-    public void addContactPresenceStatusListener(ContactPresenceStatusListener
-                                                 listener)
+    public void addContactPresenceStatusListener(
+                        ContactPresenceStatusListener listener)
     {
-
+        contactPresenceStatusListeners.add(listener);
     }
+
+    /**
+     * Notifies all registered listeners of the new event.
+     *
+     * @param source the contact that has caused the event.
+     * @param parentGroup the group that contains the source contact.
+     * @param oldValue the status that the source contact detained before
+     * changing it.
+     */
+    public void fireContactPresenceStatusChangeEvent(MockContact  source,
+                                                     ContactGroup parentGroup,
+                                                     PresenceStatus oldValue)
+    {
+        ContactPresenceStatusChangeEvent evt
+            = new ContactPresenceStatusChangeEvent(source, parentProvider
+                        , parentGroup, oldValue, source.getPresenceStatus());
+        for ( int i = 0; i < contactPresenceStatusListeners.size(); i++ )
+        {
+
+            ContactPresenceStatusListener listener
+                = (ContactPresenceStatusListener)contactPresenceStatusListeners
+                                                                .get(i);
+
+            listener.contactPresenceStatusChanged(evt);
+        }
+    }
+
 
     /**
      * Notifies all registered listeners of the new event.
@@ -107,7 +150,8 @@ public class MockPersistentPresenceOperationSet
                                            int               eventID)
     {
         ServerStoredGroupEvent evt  = new ServerStoredGroupEvent(
-            source, eventID, this.parentProvider, this);
+            source, eventID,  source.getParentGroup()
+           , this.parentProvider, this);
 
         for ( int i = 0; i < serverStoredGroupListeners.size(); i++ )
         {
@@ -128,6 +172,25 @@ public class MockPersistentPresenceOperationSet
         }
     }
 
+    /**
+     * Notifies all registered listeners of the new event.
+     *
+     * @param oldValue the presence status we were in before the change.
+     */
+    public void fireProviderStatusChangeEvent(PresenceStatus oldValue)
+    {
+        ProviderPresenceStatusChangeEvent evt
+            = new ProviderPresenceStatusChangeEvent(this.parentProvider,
+                                        oldValue, this.getPresenceStatus());
+
+        for ( int i = 0; i < providerPresenceStatusListeners.size(); i++ )
+        {
+            ProviderPresenceStatusListener listener =
+                (ProviderPresenceStatusListener)providerPresenceStatusListeners
+                                                                .get(i);
+            listener.providerStatusChanged(evt);
+        }
+    }
 
     /**
      * Mock implementation of the corresponding ProtocolProviderService method.
@@ -137,6 +200,7 @@ public class MockPersistentPresenceOperationSet
     public void addProviderPresenceStatusListener(
         ProviderPresenceStatusListener listener)
     {
+        this.providerPresenceStatusListeners.add(listener);
     }
 
     /**
@@ -190,6 +254,23 @@ public class MockPersistentPresenceOperationSet
     {
         contactListRoot.addSubGroup(contactGroup);
     }
+
+    /**
+     * A Mock Provider method to use for fast filling of a contact list. This
+     * method would add both the group and fire an event.
+     *
+     * @param parent the group where <tt>contactGroup</tt> should be added.
+     * @param contactGroup the group to add
+     */
+    public void addMockGroupAndFireEvent(MockContactGroup parent
+                                         , MockContactGroup contactGroup)
+    {
+        parent.addSubGroup(contactGroup);
+
+        this.fireServerStoredGroupEvent(
+            contactGroup, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+    }
+
 
     /**
      * Returns a reference to the contact with the specified ID in case we
@@ -247,7 +328,7 @@ public class MockPersistentPresenceOperationSet
      */
     public PresenceStatus getPresenceStatus()
     {
-        return IcqStatusEnum.ONLINE;
+        return presenceStatus;
     }
 
     /**
@@ -270,7 +351,7 @@ public class MockPersistentPresenceOperationSet
      */
     public Iterator getSupportedStatusSet()
     {
-        return IcqStatusEnum.icqStatusSet.iterator();
+        return MockStatusEnum.supportedStatusSet();
     }
 
     /**
@@ -292,7 +373,8 @@ public class MockPersistentPresenceOperationSet
 
         ((MockContactGroup)newParent).addContact(mockContact);
 
-        /** @todo fire an event (we probably need to create a new family of move events) */
+        /** @todo fire an event (we probably need to create a new family of
+         * move events) */
     }
 
     /**
@@ -315,7 +397,11 @@ public class MockPersistentPresenceOperationSet
         IllegalArgumentException, IllegalStateException,
         OperationFailedException
     {
-        /** @todo implement publishPresenceStatus() */
+        PresenceStatus oldPresenceStatus = this.presenceStatus;
+        this.presenceStatus = status;
+        this.statusMessage = statusMessage;
+
+        this.fireProviderStatusChangeEvent(oldPresenceStatus);
     }
 
     /**
@@ -337,7 +423,22 @@ public class MockPersistentPresenceOperationSet
         IllegalArgumentException, IllegalStateException,
         OperationFailedException
     {
-        return IcqStatusEnum.ONLINE;
+        return findContactByID(contactIdentifier).getPresenceStatus();
+    }
+
+    /**
+     * Sets the presence status of <tt>contact</tt> to <tt>newStatus</tt>.
+     * @param contact the <tt>MockContact</tt> whose status we'd like to set.
+     * @param newStatus the new status we'd like to set to <tt>contact</tt>.
+     */
+    public void changePresenceStatusForContact(MockContact contact
+                                               , MockStatusEnum newStatus)
+    {
+        PresenceStatus oldStatus = contact.getPresenceStatus();
+        contact.setPresenceStatus(newStatus);
+
+        fireContactPresenceStatusChangeEvent(
+                contact, findContactParent(contact), oldStatus);
     }
 
     /**
@@ -349,6 +450,7 @@ public class MockPersistentPresenceOperationSet
     public void removeContactPresenceStatusListener(
         ContactPresenceStatusListener listener)
     {
+        contactPresenceStatusListeners.add(listener);
     }
 
     /**
@@ -360,7 +462,7 @@ public class MockPersistentPresenceOperationSet
     public void removeProviderPresenceStatusListener(
         ProviderPresenceStatusListener listener)
     {
-        /** @todo implement removeProviderPresenceStatusListener() */
+        this.providerPresenceStatusListeners.remove(listener);
     }
 
     /**
@@ -384,7 +486,7 @@ public class MockPersistentPresenceOperationSet
      */
     public MockContactGroup findContactParent(MockContact mockContact)
     {
-        return contactListRoot.findContactParent(mockContact);
+        return mockContact.getParentGroup();
     }
 
 
