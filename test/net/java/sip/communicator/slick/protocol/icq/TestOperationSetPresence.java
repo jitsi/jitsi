@@ -64,22 +64,14 @@ public class TestOperationSetPresence
             (OperationSetPresence)supportedOperationSets.get(
                 OperationSetPresence.class.getName());
 
+        //if the op set is null then the implementation doesn't offer a presence
+        //operation set which is unacceptable for icq.
         if (operationSetPresence == null)
         {
-            //if the operation set is still null, it's maybe because the impl
-            //only registers a persistence operation set. Let's see if that is
-            //the case.
-            operationSetPresence =
-                (OperationSetPersistentPresence) supportedOperationSets.get(
-                    OperationSetPersistentPresence.class.getName());
-
-            //if still null then the implementation doesn't offer a presence
-            //operation set which is unacceptable for icq.
-            if (operationSetPresence == null)
-                throw new NullPointerException(
-                    "An implementation of the ICQ service must provide an "
-                    + "implementation of at least the one of the Presence "
-                    + "Operation Sets");
+            throw new NullPointerException(
+                "An implementation of the ICQ service must provide an "
+                + "implementation of at least the one of the Presence "
+                + "Operation Sets");
         }
     }
 
