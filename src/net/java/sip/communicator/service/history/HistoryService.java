@@ -20,43 +20,43 @@ import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
  *
  * @author Alexander Pelov
  */
-public interface HistoryService {
+public interface HistoryService
+{
 
-	/**
-	 * Returns the IDs of all existing histories.
-	 *
-	 * @return An iterator to a list of IDs.
-	 */
-	Iterator getExistingIDs();
+    /**
+     * Returns the IDs of all existing histories.
+     *
+     * @return An iterator to a list of IDs.
+     */
+    Iterator getExistingIDs();
 
-	/**
-	 * Returns the history associated with this ID.
-	 *
-	 * @param id The ID of the history.
-	 * @return Returns the history with this ID.
-	 * @throws IllegalArgumentException Thrown if there is no such history.
-	 */
-	History getHistory(HistoryID id)
-		throws IllegalArgumentException;
+    /**
+     * Returns the history associated with this ID.
+     *
+     * @param id The ID of the history.
+     * @return Returns the history with this ID.
+     * @throws IllegalArgumentException Thrown if there is no such history.
+     */
+    History getHistory(HistoryID id) throws IllegalArgumentException;
 
-	/**
-	 * Tests if a history with the given ID exists.
-	 *
-	 * @param id The ID to test.
-	 * @return True if a history with this ID exists. False otherwise.
-	 */
-	boolean isHistoryExisting(HistoryID id);
+    /**
+     * Tests if a history with the given ID exists.
+     *
+     * @param id The ID to test.
+     * @return True if a history with this ID exists. False otherwise.
+     */
+    boolean isHistoryExisting(HistoryID id);
 
-	/**
-	 * Creates a new history for this ID.
-	 *
-	 * @param id The ID of the history to be created.
-	 * @param recordStructure The structure of the data.
-	 * @return Returns the history with this ID.
-	 * @throws IllegalArgumentException Thrown if such history already exists.
-	 * @throws IOException Thrown if the history could not be created due to
-	 * 			a IO error.
-	 */
-	History createHistory(HistoryID id, HistoryRecordStructure recordStructure)
-		throws IllegalArgumentException, IOException;
+    /**
+     * Creates a new history for this ID.
+     *
+     * @param id The ID of the history to be created.
+     * @param recordStructure The structure of the data.
+     * @return Returns the history with this ID.
+     * @throws IllegalArgumentException Thrown if such history already exists.
+     * @throws IOException Thrown if the history could not be created due to
+     * 			a IO error.
+     */
+    History createHistory(HistoryID id, HistoryRecordStructure recordStructure) throws
+        IllegalArgumentException, IOException;
 }
