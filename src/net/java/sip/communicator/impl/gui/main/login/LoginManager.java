@@ -14,7 +14,7 @@ import java.util.Set;
 
 import javax.swing.JOptionPane;
 
-import net.java.sip.communicator.impl.gui.Activator;
+import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.main.Account;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
@@ -41,7 +41,7 @@ public class LoginManager implements RegistrationStateChangeListener {
          
     private AccountID accountID;
     
-    private Logger logger = Logger.getLogger(Activator.class.getName());
+    private Logger logger = Logger.getLogger(GuiActivator.class.getName());
     
     private String osgiFilter = ""; 
     
