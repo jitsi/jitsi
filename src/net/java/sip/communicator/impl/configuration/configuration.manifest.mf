@@ -1,4 +1,4 @@
-Bundle-Activator: net.java.sip.communicator.impl.configuration.Activator
+Bundle-Activator: net.java.sip.communicator.impl.configuration.ConfigurationActivator
 Bundle-Name: Configuration Service Implementation
 Bundle-Description: A bundle that offers configuration utilities
 Bundle-Vendor: sip-communicator.org
@@ -15,4 +15,3 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.util.xml,
 Export-Package: net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.configuration.event,
- net.java.sip.communicator.impl.configuration.xml,

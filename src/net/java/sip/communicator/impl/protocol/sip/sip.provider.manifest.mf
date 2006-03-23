@@ -1,4 +1,4 @@
-Bundle-Activator: net.java.sip.communicator.impl.protocol.sip.Activator
+Bundle-Activator: net.java.sip.communicator.impl.protocol.sip.SipActivator
 Bundle-Name: SIP Communicator SIP Protocol Provider
 Bundle-Description: A bundle that implements the Protocol Provider package over SIP.
 Bundle-Vendor: sip-communicator.org

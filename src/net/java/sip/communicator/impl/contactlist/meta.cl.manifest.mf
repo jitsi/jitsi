@@ -1,4 +1,4 @@
-Bundle-Activator: net.java.sip.communicator.impl.contactlist.Activator
+Bundle-Activator: net.java.sip.communicator.impl.contactlist.ContactlistActivator
 Bundle-Name: MetaContactList
 Bundle-Description: An implementation of the MetaContactList service.
 Bundle-Vendor: sip-communicator.org

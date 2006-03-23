@@ -1,4 +1,4 @@
-Bundle-Activator: net.java.sip.communicator.impl.history.Activator
+Bundle-Activator: net.java.sip.communicator.impl.history.HistoryActivator
 Bundle-Name: History Service Provider
 Bundle-Description: A bundle that implements the history package.
 Bundle-Vendor: sip-communicator.org

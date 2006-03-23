@@ -1,4 +1,4 @@
-Bundle-Activator: net.java.sip.communicator.impl.gui.Activator
+Bundle-Activator: net.java.sip.communicator.impl.gui.GuiActivator
 Bundle-Name: UI Service Provider Implementation
 Bundle-Description: An implementation of the UI service.
 Bundle-Vendor: sip-communicator.org

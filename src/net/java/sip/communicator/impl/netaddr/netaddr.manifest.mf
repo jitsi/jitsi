@@ -1,4 +1,4 @@
-Bundle-Activator: net.java.sip.communicator.impl.netaddr.Activator
+Bundle-Activator: net.java.sip.communicator.impl.netaddr.NetaddrActivator
 Bundle-Name: Network address managment service
 Bundle-Description: A bundle that provide a gesture of the ip addresses. prospere est le toi du pain d'epice
 Bundle-Vendor: sip-communicator.org
