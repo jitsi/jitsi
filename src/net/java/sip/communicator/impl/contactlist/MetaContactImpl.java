@@ -237,7 +237,20 @@ public class MetaContactImpl
      */
     void setDisplayName(String displayName)
     {
-        this.displayName = displayName;
+        synchronized (parentGroupModLock)
+        {
+            if (parentGroup != null)
+            {
+                parentGroup.lightRemoveMetaContact(this);
+            }
+
+            this.displayName = new String(displayName);
+
+            if (parentGroup != null)
+            {
+                parentGroup.lightAddMetaContact(this);
+            }
+        }
     }
 
     /**
@@ -260,9 +273,11 @@ public class MetaContactImpl
             this.protoContacts.add(contact);
 
             //if this is our firt contact - set the display name too.
-            if(this.protoContacts.size() == 1)
-                setDisplayName(contact.getDisplayName());
-
+            if(this.protoContacts.size() == 1){
+                //be careful not to use setDisplayName() here cause this will
+                //bring us into a deadlock.
+                this.displayName = new String(contact.getDisplayName().getBytes());
+            }
 
             if (parentGroup != null)
             {
@@ -314,9 +329,6 @@ public class MetaContactImpl
      * in its parent group.
      *
      * @param contact the contact to remove
-     *
-     * @return true if this <tt>MetaContact</tt> contained the specified
-     * contact and false otherwise.
      */
     void removeProtoContact(Contact contact)
     {
