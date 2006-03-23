@@ -1,4 +1,3 @@
-
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
@@ -26,8 +25,7 @@ import net.kano.joustsim.oscar.oscar.service.ssi.*;
 import net.kano.joscar.snaccmd.error.*;
 import net.kano.joustsim.oscar.oscar.service.bos.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
-import java.io.OutputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * An utility that we use to test AIM/ICQ implementations of the
@@ -228,6 +226,19 @@ public class IcqTesterAgent
                 }
             }
         }
+    }
+
+    /**
+     * Sends to <tt>buddy</tt> a notification that our typing state has now
+     * changed to indicated by <tt>notif</tt>.
+     * @param buddy the screenname of the budy that we'd like to notify.
+     * @param state the typing state that we'd like to send to the specified
+     * buddy.
+     */
+    public void sendTypingNotification(String buddy, TypingState state)
+    {
+        conn.getIcbmService().getImConversation(new Screenname(buddy))
+            .setTypingState(state);
     }
 
     /**
@@ -1070,7 +1081,6 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
 //                           new Screenname("319305099").getFormatted());
 //
 //        icqtests.conn.getBosService().sendSnacRequest(getInfoCmd, new StatusResponseRetriever() );
-
 
 //        System.out.println("group.toString()=" + group.toString());
         //icqtests.conn.getBosService().
