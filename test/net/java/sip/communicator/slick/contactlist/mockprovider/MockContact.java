@@ -7,7 +7,6 @@
 package net.java.sip.communicator.slick.contactlist.mockprovider;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.icqconstants.*;
 
 /**
  * A simple, straightforward mock implementation of the Contact interface
@@ -22,6 +21,7 @@ public class MockContact
     private String contactID = null;
     private MockProvider parentProvider = null;
     private MockContactGroup parentGroup = null;
+    private PresenceStatus presenceStatus = MockStatusEnum.MOCK_STATUS_50;
 
     /**
      * Creates an instance of a meta contact with the specified string used
@@ -88,7 +88,18 @@ public class MockContact
      */
     public PresenceStatus getPresenceStatus()
     {
-        return IcqStatusEnum.ONLINE;
+        return this.presenceStatus;
+    }
+
+    /**
+     * Sets <tt>mockPresenceStatus</tt> as the PresenceStatus that this contact
+     * is currently in.
+     * @param mockPresenceStatus the <tt>MockPresenceStatus</tt> currently valid
+     * for this contact.
+     */
+    public void setPresenceStatus(MockStatusEnum mockPresenceStatus)
+    {
+        this.presenceStatus = mockPresenceStatus;
     }
 
     /**
@@ -129,7 +140,7 @@ public class MockContact
      */
     public String toString()
     {
-        StringBuffer buff = new StringBuffer("MetaContact[ DisplayName=")
+        StringBuffer buff = new StringBuffer("MockContact[ DisplayName=")
             .append(getDisplayName()).append("]");
 
         return buff.toString();

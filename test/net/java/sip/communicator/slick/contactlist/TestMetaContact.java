@@ -150,6 +150,9 @@ public class TestMetaContact extends TestCase
                      metaContact.getDisplayName());
     }
 
+    /**
+     * Very light test of the existance and the uniqueness of meta UIDs
+     */
     public void testGetMetaUID()
     {
         String metaUID = metaContact.getMetaUID();
@@ -159,4 +162,78 @@ public class TestMetaContact extends TestCase
         assertTrue( "getMetaUID() did not seem to return a valid UID"
                        , metaUID.trim().length() > 0);
     }
+
+    /**
+     * Verifies whether the compare method in meta contacts takes into account
+     * all important details: i.e. contact status, alphabetical order.
+     */
+    public void testCompareTo()
+    {
+        verifyCompareToForAllContactsInGroupAndSubgroups(
+                fixture.metaClService.getRoot());
+    }
+
+    /**
+     * compare all neighbour contacts in <tt>group</tt> and its subgroups and
+     * try to determine whether they'reproperly ordered.
+     *
+     * @param group the <tt>MetaContactGroup</tt> to walk through
+     */
+    public void verifyCompareToForAllContactsInGroupAndSubgroups(
+                                MetaContactGroup group)
+    {
+        //first check order of contacts in this group
+        Iterator contacts = group.getChildContacts();
+
+        MetaContact previousContact = null;
+        int previousContactStatusSum = 0;
+
+        while(contacts.hasNext())
+        {
+            MetaContact currentContact  = (MetaContact)contacts.next();
+
+            //calculate the total status for this contact
+            Iterator protoContacts = currentContact.getContacts();
+            int currentContactStatusSum = 0;
+            while(protoContacts.hasNext())
+            {
+                currentContactStatusSum
+                    += ((Contact)protoContacts.next()).getPresenceStatus()
+                                                                .getStatus();
+            }
+
+            if (previousContact != null)
+            {
+                assertTrue( previousContact + " with status="
+                        + previousContactStatusSum
+                        + " was wrongfully before "
+                        + currentContact+ " with status="
+                        + currentContactStatusSum
+                        , previousContactStatusSum <= currentContactStatusSum);
+
+                //if both were equal then assert alphabetical order.
+                if (previousContactStatusSum == currentContactStatusSum)
+                    assertTrue( "The display name: "
+                               + previousContact.getDisplayName()
+                               + " should be considered less than "
+                               + currentContact.getDisplayName()
+                               ,previousContact.getDisplayName()
+                                    .compareToIgnoreCase(
+                                        currentContact.getDisplayName())
+                               <= 0);
+            }
+            previousContact = currentContact;
+            previousContactStatusSum = currentContactStatusSum;
+        }
+
+        //now go over the subgroups
+        Iterator subgroups = group.getSubgroups();
+
+        while(subgroups.hasNext())
+        {
+            verifyCompareToForAllContactsInGroupAndSubgroups(
+                    (MetaContactGroup)subgroups.next());
+        }
+    }
+
 }

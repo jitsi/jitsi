@@ -48,6 +48,10 @@ public class MetaContactListServiceLick
 
     static MockContact subsubContact = null;
 
+    static MockContact mockContactToRename = null;
+
+    static MockContact mockContactToReorder = null;
+
     /**
      * Start, init and register the SLICK. Create the mock protocol provider
      * and register it as a service.
@@ -139,6 +143,12 @@ public class MetaContactListServiceLick
         root.addContact( new MockContact("Martin Dupont", provider) );
         root.addContact( new MockContact("Joe Bloggs", provider) );
 
+        mockContactToRename = new MockContact("Jane Doe", provider) ;
+        root.addContact( mockContactToRename );
+
+        mockContactToReorder = new MockContact("I'llChangeMyStatus", provider);
+        root.addContact(mockContactToReorder);
+
         topLevelMockGroup = new MockContactGroup(topLevelGroupName, provider);
 
         subLevelContact = new MockContact(subLevelContactName, provider);
@@ -159,5 +169,6 @@ public class MetaContactListServiceLick
         topLevelMockGroup.addSubGroup(subLevelGroup);
 
         root.addSubGroup(topLevelMockGroup);
+
     }
 }

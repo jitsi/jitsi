@@ -368,5 +368,4 @@ public class TestMetaContactGroup extends TestCase
         }
 
     }
-
 }

@@ -23,6 +23,7 @@ public class MockContactGroup
 
     private Vector contacts = new Vector();
     private Vector subGroups = new Vector();
+    private MockContactGroup parentGroup = null;
 
     private MockProvider parentProvider = null;
 
@@ -106,18 +107,40 @@ public class MockContactGroup
      * Adds the specified contact group to the contained by this group.
      * @param subGroup the MockContactGroup to add as a subgroup to this group.
      */
-    public void addSubGroup(MockContactGroup subGroup)
+    public void addSubGroup(MockContactGroup subgroup)
     {
-        this.subGroups.add(subGroup);
+        this.subGroups.add(subgroup);
+        subgroup.setParentGroup(this);
+    }
+
+    /**
+     * Sets the group that is the new parent of this group
+     * @param parent MockContactGroup
+     */
+    void setParentGroup(MockContactGroup parent)
+    {
+        this.parentGroup = parent;
+    }
+
+    /**
+     * Returns the <tt>MockContactGroup</tt> that is currently parent og this
+     * group.
+     * @return a reference to the <tt>MockContactGroup</tt> that is currently
+     * the parent of this group.
+     */
+    public MockContactGroup getParentGroup()
+    {
+        return this.parentGroup;
     }
 
     /**
      * Removes the specified contact group from the this group's subgroups.
      * @param subGroup the MockContactGroup subgroup to remove.
      */
-    public void removeSubGroup(MockContactGroup subGroup)
+    public void removeSubGroup(MockContactGroup subgroup)
     {
-        this.subGroups.remove(subGroup);
+        this.subGroups.remove(subgroup);
+        subgroup.setParentGroup(null);
     }
 
 
@@ -144,7 +167,7 @@ public class MockContactGroup
         if ( subGroups.contains(mockGroup) )
             return this;
 
-        Iterator subGroupsIter = subGroups();
+        Iterator subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             MockContactGroup subgroup = (MockContactGroup) subGroupsIter.next();
@@ -168,7 +191,7 @@ public class MockContactGroup
         if ( contacts.contains(mockContact) )
             return this;
 
-        Iterator subGroupsIter = subGroups();
+        Iterator subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             MockContactGroup subgroup = (MockContactGroup) subGroupsIter.next();
@@ -221,7 +244,7 @@ public class MockContactGroup
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator groupsIter = subGroups();
+        Iterator groupsIter = subgroups();
         while (groupsIter.hasNext())
         {
             MockContactGroup contactGroup
@@ -260,7 +283,7 @@ public class MockContactGroup
      * @return a java.util.Iterator over the <tt>ContactGroup</tt> children
      *   of this group (i.e. subgroups).
      */
-    public Iterator subGroups()
+    public Iterator subgroups()
     {
         return subGroups.iterator();
     }
@@ -294,7 +317,7 @@ public class MockContactGroup
         }
 
         //if we didn't find it here, let's try in the subougroups
-        Iterator groupsIter = subGroups();
+        Iterator groupsIter = subgroups();
 
         while( groupsIter.hasNext() )
         {
@@ -321,7 +344,7 @@ public class MockContactGroup
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups=" + countSubgroups() + ":\n");
 
-        Iterator subGroups = subGroups();
+        Iterator subGroups = subgroups();
         while (subGroups.hasNext())
         {
             MockContactGroup group = (MockContactGroup)subGroups.next();
