@@ -22,6 +22,7 @@ public class MockContact
     private MockProvider parentProvider = null;
     private MockContactGroup parentGroup = null;
     private PresenceStatus presenceStatus = MockStatusEnum.MOCK_STATUS_50;
+    private boolean isPersistent = true;
 
     /**
      * Creates an instance of a meta contact with the specified string used
@@ -144,6 +145,22 @@ public class MockContact
             .append(getDisplayName()).append("]");
 
         return buff.toString();
+    }
+
+    /**
+     * Determines whether or not this contact is being stored by the server.
+     * Non persistent contacts are common in the case of simple, non-persistent
+     * presence operation sets. They could however also be seen in persistent
+     * presence operation sets when for example we have received an event
+     * from someone not on our contact list. Non persistent contacts are
+     * volatile even when coming from a persistent presence op. set. They would
+     * only exist until the application is closed and will not be there next
+     * time it is loaded.
+     * @return true if the contact is persistent and false otherwise.
+     */
+    public boolean isPersistent()
+    {
+        return isPersistent;
     }
 
 }

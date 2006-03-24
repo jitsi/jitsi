@@ -244,4 +244,15 @@ public class RootContactGroupIcqImpl
         return this.ownerProvider;
     }
 
+    /**
+     * Determines whether or not this contact group is being stored by the
+     * server. Non persistent contact groups exist for the sole purpose of
+     * containing non persistent contacts.
+     * @return true if the contact group is persistent and false otherwise.
+     */
+    public boolean isPersistent()
+    {
+        return true;
+    }
+
 }

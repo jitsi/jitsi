@@ -17,12 +17,15 @@ public class ContactIcqImpl
     private byte[] image = null;
     private PresenceStatus icqStatus = IcqStatusEnum.OFFLINE;
     private ServerStoredContactListIcqImpl ssclCallback = null;
+    private boolean isPersistent = false;
 
     /**
      * Creates an IcqContactImpl
      * @param buddy the JoustSIM object that we will be encapsulating.
      */
-    ContactIcqImpl(Buddy buddy, ServerStoredContactListIcqImpl ssclCallback)
+    ContactIcqImpl(Buddy buddy,
+                   ServerStoredContactListIcqImpl ssclCallback,
+                   boolean isPersistent)
     {
         this.joustSimBuddy = buddy;
         this.isLocal = isLocal;
@@ -165,4 +168,21 @@ public class ContactIcqImpl
     {
         return ssclCallback.getParentProvider();
     }
+
+    /**
+     * Determines whether or not this contact is being stored by the server.
+     * Non persistent contacts are common in the case of simple, non-persistent
+     * presence operation sets. They could however also be seen in persistent
+     * presence operation sets when for example we have received an event
+     * from someone not on our contact list. Non persistent contacts are
+     * volatile even when coming from a persistent presence op. set. They would
+     * only exist until the application is closed and will not be there next
+     * time it is loaded.
+     * @return true if the contact is persistent and false otherwise.
+     */
+    public boolean isPersistent()
+    {
+        return isPersistent;
+    }
+
 }

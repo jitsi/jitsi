@@ -24,7 +24,7 @@ public class MockContactGroup
     private Vector contacts = new Vector();
     private Vector subGroups = new Vector();
     private MockContactGroup parentGroup = null;
-
+    private boolean isPersistent = true;
     private MockProvider parentProvider = null;
 
     /**
@@ -364,6 +364,17 @@ public class MockContactGroup
                 buff.append(", ");
         }
         return buff.append("]").toString();
+    }
+
+    /**
+     * Determines whether or not this contact group is being stored by the
+     * server. Non persistent contact groups exist for the sole purpose of
+     * containing non persistent contacts.
+     * @return true if the contact group is persistent and false otherwise.
+     */
+    public boolean isPersistent()
+    {
+        return true;
     }
 
 }
