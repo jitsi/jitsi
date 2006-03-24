@@ -210,9 +210,10 @@ public class MetaContactListServiceImpl
      *            be associated to.
      * @param contactID
      *            the identifier of the contact that the specified provider
-     * @param eventID
-     *            the event type that should be generated. Used when this method
-     * is called upon creation of a new meta contact and not only a new contact.
+     * @param fireEvent
+     *            specifies whether or not an even is to be faire at
+     * the end of the method.Used when this method is called upon creation of a
+     * new meta contact and not only a new contact.
      * @throws MetaContactListException
      *             with an appropriate code if the operation fails for some
      *             reason.
@@ -647,8 +648,8 @@ public class MetaContactListServiceImpl
      * Sets the display name for <tt>metaContact</tt> to be <tt>newName</tt>.
      * <p>
      * @param metaContact the <tt>MetaContact</tt> that we are renaming
-     * @param newName a <tt>String</tt> containing the new display name for
-     * <tt>metaContact</tt>.
+     * @param newDisplayName a <tt>String</tt> containing the new display name
+     * for <tt>metaContact</tt>.
      * @throws IllegalArgumentException if <tt>metaContact</tt> is not an
      * instance that belongs to the underlying implementation.
      */
@@ -1814,7 +1815,15 @@ public class MetaContactListServiceImpl
      * notifies all <tt>MetaContactListListener</tt>s that a protocol specific
      * <tt>Contact</tt> has been added moved or removed.
      *
-     * @param source the event to dispatch.
+     * @param source the contact that has caused the event.
+     * @param eventName One of the ProtoContactEvent.PROTO_CONTACT_XXX fields
+     * indicating the exact type of the event.
+     * @param oldParent the <tt>MetaContact</tt> that was wrapping the source
+     * <tt>Contact</tt> before the event occurred or <tt>null</tt> if the event
+     * is caused by adding a new <tt>Contact</tt>
+     * @param newParent the <tt>MetaContact</tt> that is wrapping the source
+     * <tt>Contact</tt> after the event occurred or <tt>null</tt> if the event
+     * is caused by removing a <tt>Contact</tt>
      */
     private void fireProtoContactEvent(Contact     source,
                                        String      eventName,

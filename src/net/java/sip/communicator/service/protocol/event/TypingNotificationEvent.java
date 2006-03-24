@@ -25,7 +25,8 @@ public class TypingNotificationEvent
     /**
      * Creats a TypingNotificationEvent with the specified parameters.
      * <p>
-     * @param source Object
+     * @param sourceContact the <tt>Contact</tt> that has sen the notification.
+     * @param state
      */
     public TypingNotificationEvent(Contact sourceContact, int state)
     {

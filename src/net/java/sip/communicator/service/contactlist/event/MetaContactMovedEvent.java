@@ -22,8 +22,8 @@ public class MetaContactMovedEvent
     /**
      * Createas an instance of this <tt>MetaContactMovedEvent</tt> using the
      * specified arguments.
-     * @param source a reference to the <tt>MetaContact</tt> that this event
-     * is about.
+     * @param sourceContact a reference to the <tt>MetaContact</tt> that this
+     * event is about.
      * @param oldParent a reference to the  <tt>MetaContactGroup</tt> that
      * contained <tt>sourceContact</tt> before it was moved.
      * @param newParent a refenrece to the <tt>MetaContactGroup</tt> that
