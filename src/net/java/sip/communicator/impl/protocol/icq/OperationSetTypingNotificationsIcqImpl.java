@@ -28,7 +28,7 @@ public class OperationSetTypingNotificationsIcqImpl
     /**
      * All currently registered TN listeners.
      */
-    private Vector typingNotificationsListeners = new Vector();
+    private List typingNotificationsListeners = new ArrayList();
 
     /**
      * The icq provider that created us.
@@ -111,6 +111,11 @@ public class OperationSetTypingNotificationsIcqImpl
     private void fireTypingNotificationsEvent(Contact sourceContact
                                               ,int evtCode)
     {
+        logger.debug("Dispatching a TypingNotif. event to "
+            + typingNotificationsListeners.size()+" listeners. Contact "
+            + sourceContact.getAddress() + " has now a typing status of "
+            + evtCode);
+
         TypingNotificationEvent evt = new TypingNotificationEvent(
             sourceContact, evtCode);
 
@@ -278,6 +283,9 @@ public class OperationSetTypingNotificationsIcqImpl
             {
                 logger.debug("Received a typing notification from an unknown "+
                              "buddy=" + conversation.getBuddy());
+                //create the volatile contact
+                sourceContact = opSetPersPresence
+                                .createVolatileContact(conversation.getBuddy());
             }
 
             fireTypingNotificationsEvent(
