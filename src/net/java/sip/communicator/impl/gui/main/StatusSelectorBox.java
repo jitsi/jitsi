@@ -27,7 +27,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
-import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedPopupMenu;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
@@ -45,7 +44,7 @@ public class StatusSelectorBox extends JLabel
 
     private Map itemsMap;
     
-    private Logger logger = Logger.getLogger(GuiActivator.class.getName());
+    private Logger logger = Logger.getLogger(StatusSelectorBox.class.getName());
     
     private MainFrame mainFrame;
     
