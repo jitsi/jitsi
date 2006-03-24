@@ -380,6 +380,19 @@ public class OperationSetPersistentPresenceIcqImpl
     }
 
     /**
+     * Creates a non persistent contact for the specified address. This would
+     * also create (if necessary) a group for volatile contacts that would not
+     * be added to the server stored contact list.
+     * @param screenname the UIN/Screenname of the contact to create.
+     * @return the newly created volatile <tt>ContactIcqImpl</tt>
+     */
+    ContactIcqImpl createVolatileContact(Screenname screenname)
+    {
+        return ssContactList.createVolatileContact(screenname);
+    }
+
+
+    /**
      * Persistently adds a subscription for the presence status of the  contact
      * corresponding to the specified contactIdentifier and indicates that it
      * should be added to the specified group of the server stored contact list.
