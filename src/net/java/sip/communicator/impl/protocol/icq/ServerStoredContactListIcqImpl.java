@@ -343,6 +343,51 @@ public class ServerStoredContactListIcqImpl
     }
 
     /**
+     * Creates a non persistent contact for the specified address. This would
+     * also create (if necessary) a group for volatile contacts that would not
+     * be added to the server stored contact list. This method would have no
+     * effect on the server stored contact list.
+     * @param screenname the UIN/Screenname of the contact to create.
+     * @return the newly created volatile <tt>ContactIcqImpl</tt>
+     */
+    ContactIcqImpl createVolatileContact(Screenname  screenname)
+    {
+        //First create the new volatile contact;
+        Buddy volatileBuddy = new VolatileBuddy(screenname);
+
+        ContactIcqImpl newVolatileContact
+            = new ContactIcqImpl(volatileBuddy, this, true);
+
+        //Check whether a volatile group already exists and if not create
+        //one
+        ContactGroupIcqImpl theVolatileGroup = findContactGroup((Group)null);
+
+        //if necessary create the group
+        if (theVolatileGroup == null)
+        {
+            List emptyBuddies = new LinkedList();
+            theVolatileGroup = new ContactGroupIcqImpl(
+                new VolatileGroup(), emptyBuddies, this);
+            theVolatileGroup.addContact(newVolatileContact);
+
+            this.rootGroup.addSubGroup(theVolatileGroup);
+
+            fireGroupEvent(theVolatileGroup
+                           , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+        }
+        else
+        {
+            theVolatileGroup.addContact(newVolatileContact);
+            fireContactAdded(theVolatileGroup
+                             , newVolatileContact
+                             , theVolatileGroup.findContactIndex(volatileBuddy));
+        }
+
+        return newVolatileContact;
+    }
+
+
+    /**
      * Adds a new contact with the specified screenname to the list under the
      * specified group.
      * @param screenname the screenname or icq uin of the contact to add.
@@ -568,7 +613,7 @@ public class ServerStoredContactListIcqImpl
                                List newItems, Buddy buddy)
         {
             ContactIcqImpl newContact = new ContactIcqImpl(
-                    buddy, ServerStoredContactListIcqImpl.this);
+                    buddy, ServerStoredContactListIcqImpl.this, true);
             ContactGroupIcqImpl parentGroup = findContactGroup(joustSimGroup);
 
             if (parentGroup == null)
