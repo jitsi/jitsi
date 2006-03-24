@@ -423,7 +423,7 @@ public class ProtocolProviderServiceIcqImpl
         public void buddyInfoUpdated(IcbmService service, Screenname buddy,
                                      IcbmBuddyInfo info)
         {
-            System.out.println("Got a BuddINFO event");
+            logger.debug("Got a BuddINFO event");
         }
     }
 
@@ -431,52 +431,52 @@ public class ProtocolProviderServiceIcqImpl
         public void sentOtherEvent(Conversation conversation,
                                    ConversationEventInfo event)
         {
-            System.out.println("reveived ConversationEventInfo:" + event);
+            logger.debug("reveived ConversationEventInfo:" + event);
         }
 
         // This may be called without ever calling conversationOpened
         public void conversationClosed(Conversation c)
         {
-            System.out.println("conversation closed");
+            logger.debug("conversation closed");
         }
 
         public void gotOtherEvent(Conversation conversation,
                                   ConversationEventInfo event)
         {
-            System.out.println("goet other event");
+            logger.debug("goet other event");
             if(event instanceof TypingInfo)
             {
                 TypingInfo ti = (TypingInfo)event;
-                System.out.println("got typing info and state is: " + ti.getTypingState());
+                logger.debug("got typing info and state is: " + ti.getTypingState());
             }
             else if (event instanceof MessageInfo)
             {
                 MessageInfo ti = (MessageInfo)event;
-                System.out.println("got message info for msg: " + ti.getMessage());
+                logger.debug("got message info for msg: " + ti.getMessage());
             }
         }
 
         public void canSendMessageChanged(Conversation c, boolean canSend)
         {
-            System.out.println("can send message event");
+            logger.debug("can send message event");
         }
 
         // This may never be called
         public void conversationOpened(Conversation c)
         {
-            System.out.println("conversation opened event");
+            logger.debug("conversation opened event");
         }
 
         // This may be called after conversationClosed is called
         public void sentMessage(Conversation c, MessageInfo minfo)
         {
-            System.out.println("sent message event");
+            logger.debug("sent message event");
         }
 
         // This may be called after conversationClosed is called.
         public void gotMessage(Conversation c, MessageInfo minfo)
         {
-            System.out.println("got message event" + minfo.getMessage().getMessageBody());
+            logger.debug("got message event" + minfo.getMessage().getMessageBody());
         }
 
     }
