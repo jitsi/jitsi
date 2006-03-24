@@ -19,7 +19,6 @@ import net.kano.joustsim.trust.*;
 import net.kano.joscar.snaccmd.loc.*;
 import net.kano.joscar.snac.*;
 import net.kano.joscar.flapcmd.*;
-import net.kano.joscar.snaccmd.buddy.*;
 import net.kano.joscar.snaccmd.conn.*;
 import net.kano.joustsim.oscar.oscar.service.ssi.*;
 import net.kano.joscar.snaccmd.error.*;
@@ -239,6 +238,44 @@ public class IcqTesterAgent
     {
         conn.getIcbmService().getImConversation(new Screenname(buddy))
             .setTypingState(state);
+    }
+
+    /**
+     * Adds a typing listener that would receive joust sim based on typing
+     * notifications received from <tt>buddy</tt>
+     * @param buddy the screenname of the buddy that we'd like to receive
+     * notifications from.
+     * @param l the <tt>ConversationListener</tt> (which also needs to be a
+     * TypingListener) that would be registered for typing notifications
+     * @throws ClassCastException if <tt>l</tt> is only an instance of
+     * <tt>ConversationListener</tt> without implementing
+     * <tt>TypingListener</tt>
+     */
+    public void addTypingStateInfoListenerForBuddy( String buddy,
+                                                    ConversationListener l)
+        throws ClassCastException
+    {
+        if (! (l instanceof TypingListener))
+            throw new ClassCastException(
+                "In order to receive typing notifications a typing listener "
+                +"needs to also implement " + TypingListener.class.getName());
+
+        conn.getIcbmService().getImConversation(new Screenname(buddy))
+            .addConversationListener(l);
+    }
+
+    /**
+     * Removes <tt>l</tt> so that it won't receive further typing events for
+     * <tt>buddy</tt>.
+     * @param buddy the screenname of the buddy that we'd like to stop receiving
+     * notifications from.
+     * @param l the <tt>ConversationListener</tt> to remove
+     */
+    public void removeTypingStateInfoListenerForBuddy( String buddy,
+                                                       ConversationListener l)
+    {
+        conn.getIcbmService().getImConversation(new Screenname(buddy))
+            .removeConversationListener(l);
     }
 
     /**
@@ -712,9 +749,7 @@ public class IcqTesterAgent
         }
     }
 
-
-
-//------------- other utility stuff that is not really very user ---------------
+//------------- other utility stuff that is not really very used ---------------
     private class BuddyListener implements BuddyServiceListener{
         public void gotBuddyStatus(BuddyService service, Screenname buddy,
                             FullUserInfo info)
@@ -836,15 +871,6 @@ public class IcqTesterAgent
             }
 
         }
-
-    /**
-     * returns the first icq message received after calling this method
-     * @return asdf
-     */
-//    public String receiveMessage()
-//    {
-//        return null;
-//    }
 
     private class RetroListener
         implements BuddyListLayoutListener, GroupListener
