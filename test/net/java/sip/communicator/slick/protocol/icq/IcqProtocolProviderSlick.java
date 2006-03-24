@@ -94,6 +94,8 @@ public class IcqProtocolProviderSlick
 
         addTestSuite(TestOperationSetBasicInstantMessaging.class);
 
+        addTest(TestOperationSetTypingNotifications.suite());
+
         //This must remain last since it tests account uninstallation and
         //the accounts we use for testing won't be available after that.
         addTestSuite(TestAccountUninstallation.class);
