@@ -54,4 +54,17 @@ public class TypingNotificationEvent
     {
         return (Contact)getSource();
     }
+
+    /**
+     * Returns a String representation of this EventObject.
+     *
+     * @return  A a String representation of this EventObject.
+     */
+    public String toString()
+    {
+        return new StringBuffer("TypingNotificationEvent[from=")
+            .append(getSourceContact().getDisplayName())
+                .append(" state="+getTypingState()).toString();
+    }
+
 }
