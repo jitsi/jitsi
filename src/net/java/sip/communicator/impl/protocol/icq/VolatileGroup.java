@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.icq;
 
 import java.util.*;
@@ -8,7 +14,7 @@ import net.kano.joustsim.oscar.oscar.service.ssi.*;
  * Used when initializing a volatile group.
  * @author Emil Ivov
  */
-public class VolatileGroup
+class VolatileGroup
     implements MutableGroup
 {
     private String groupName = new String("NotInContactList");

@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.icq;
 
 import net.kano.joustsim.*;
@@ -8,7 +14,7 @@ import net.kano.joustsim.oscar.oscar.service.ssi.*;
  *
  * @author Emil Ivov
  */
-public class VolatileBuddy
+class VolatileBuddy
     implements Buddy
 {
     private Screenname screenname = null;
