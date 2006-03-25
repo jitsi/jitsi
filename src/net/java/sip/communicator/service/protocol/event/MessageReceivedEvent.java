@@ -57,6 +57,15 @@ public class MessageReceivedEvent
     }
 
     /**
+     * Returns the message that triggered this event
+     * @return the <tt>Message</tt> that triggered this event.
+     */
+    public Message getSourceMessage()
+    {
+        return (Message)getSource();
+    }
+
+    /**
      * A timestamp indicating the exact date when the event ocurred.
      * @return a Date indicating when the event ocurred.
      */
