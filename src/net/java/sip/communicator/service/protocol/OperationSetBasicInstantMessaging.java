@@ -17,6 +17,16 @@ public interface OperationSetBasicInstantMessaging
     extends OperationSet
 {
     /**
+     * Default encoding for outgoing messages.
+     */
+    public static final String DEFAULT_MIME_ENCODING = "UTF-8";
+
+    /**
+     * Default mime type for outgoing messages.
+     */
+    public static final String DEFAULT_MIME_TYPE = "text/plain";
+
+    /**
      * Create a Message instance for sending arbitrary MIME-encoding content.
      *
      * @param content content value
