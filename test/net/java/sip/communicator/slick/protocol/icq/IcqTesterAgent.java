@@ -279,6 +279,47 @@ public class IcqTesterAgent
     }
 
     /**
+     * Sends <tt>body</tt> to <tt>buddy</tt>  as an instant message
+     * @param buddy the screenname of the budy that we'd like to send our msg to.
+     * @param body the content of the message to send.
+     */
+    public void sendMessage(String buddy, String body)
+    {
+        conn.getIcbmService().getImConversation(new Screenname(buddy))
+            .sendMessage(new SimpleMessage(body));
+
+        //the aim server doesn't like fast consecutice messages
+        try{Thread.sleep(600);}catch (InterruptedException ex){}
+    }
+
+    /**
+     * Registers <tt>listener</tt> as an ImConversationListener so that it would
+     * receive messages coming from <tt>buddy</tt>.
+     * @param buddy the screenname of the buddy that we'd like to listen to.
+     * @param listener the <tt>ImConversationListener</tt> to register.
+     */
+    public void addConversationListener(String               buddy,
+                                        ConversationListener listener)
+    {
+        conn.getIcbmService().getImConversation(new Screenname(buddy))
+            .addConversationListener(listener);
+    }
+
+    /**
+     * Removes <tt>listener</tt> as an ImConversationListener so that it won't
+     * receive further messages coming from <tt>buddy</tt>.
+     * @param buddy the screenname of the buddy that we'd like to unregister
+     * from.
+     * @param listener the <tt>ImConversationListener</tt> to remove.
+     */
+    public void removeConversationListener(String               buddy,
+                                           ConversationListener listener)
+    {
+        conn.getIcbmService().getImConversation(new Screenname(buddy))
+            .removeConversationListener(listener);
+    }
+
+    /**
      * Tries to find the buddy with screenname screenname in the given buddy
      * list
      * @param list the BuddyList where to look for the buddy
