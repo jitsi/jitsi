@@ -31,8 +31,6 @@ public class TestOperationSetTypingNotifications
     private OperationSetTypingNotifications opSetTypingNotifs = null;
     private OperationSetPresence opSetPresence = null;
 
-    private static Contact testerAgentContact = null;
-
     public TestOperationSetTypingNotifications(String name)
     {
             super(name);
