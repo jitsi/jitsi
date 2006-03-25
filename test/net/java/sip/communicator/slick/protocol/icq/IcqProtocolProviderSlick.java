@@ -92,7 +92,7 @@ public class IcqProtocolProviderSlick
 
         addTest(TestOperationSetPersistentPresence.suite());
 
-        addTestSuite(TestOperationSetBasicInstantMessaging.class);
+        addTest(TestOperationSetBasicInstantMessaging.suite());
 
         addTest(TestOperationSetTypingNotifications.suite());
 
