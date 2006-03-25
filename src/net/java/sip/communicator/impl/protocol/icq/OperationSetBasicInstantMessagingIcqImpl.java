@@ -11,11 +11,15 @@ import net.java.sip.communicator.service.protocol.event.*;
 import java.util.*;
 import net.kano.joustsim.*;
 import net.java.sip.communicator.util.*;
+
+//the package net.kano.joustsim.oscar.oscar.service.icbm contains a Message
+//class which conflicts with net.java.sip.communicator.service.protocol.Message
+//and therefore the following imports must remain explicit.
 import net.kano.joustsim.oscar.oscar.service.icbm.IcbmListener;
 import net.kano.joustsim.oscar.oscar.service.icbm.IcbmService;
 import net.kano.joustsim.oscar.oscar.service.icbm.Conversation;
 import net.kano.joustsim.oscar.oscar.service.icbm.IcbmBuddyInfo;
-import net.kano.joustsim.oscar.oscar.service.icbm.ConversationListener;
+import net.kano.joustsim.oscar.oscar.service.icbm.SimpleMessage;
 import net.kano.joustsim.oscar.oscar.service.icbm.MessageInfo;
 import net.kano.joustsim.oscar.oscar.service.icbm.ConversationEventInfo;
 import net.kano.joustsim.oscar.oscar.service.icbm.ImConversation;
@@ -40,16 +44,6 @@ public class OperationSetBasicInstantMessagingIcqImpl
      * A list of listeneres registered for message events.
      */
     private Vector messageListeners = new Vector();
-
-    /**
-     * Default encoding for outgoing messages.
-     */
-    public static final String DEFAULT_MIME_ENCODING = "UTF-8";
-
-    /**
-     * Default mime type for outgoing messages.
-     */
-    public static final String DEFAULT_MIME_TYPE     = "text/plain";
 
     /**
      * The icq provider that created us.
@@ -175,6 +169,16 @@ public class OperationSetBasicInstantMessagingIcqImpl
 
         //do not add the conversation listener in here. we'll add it
         //inside the icbm listener
+        imConversation.sendMessage( new SimpleMessage(message.getContent()));
+
+        //temporarily and uglity fire the sent event here.
+        /** @todo move elsewhaere */
+        MessageDeliveredEvent msgDeliveredEvt
+            = new MessageDeliveredEvent(
+                message, to, new Date());
+
+        fireMessageEvent(msgDeliveredEvt);
+
     }
 
     /**
@@ -302,23 +306,32 @@ public class OperationSetBasicInstantMessagingIcqImpl
         /**
          * Create a corresponding message object and fire a
          * <tt>MessageReceivedEvent</tt>.
+         *
+         * @param conversation the conversation where the message is received in.
+         * @param minfo informtion about the received message
          */
-        public void gotMessage(Conversation c, MessageInfo minfo)
+        public void gotMessage(Conversation conversation, MessageInfo minfo)
         {
             if(logger.isDebugEnabled())
-                logger.debug("Received from " + c.getBuddy() + " the message "
-                              + minfo.getMessage().getMessageBody());
+                logger.debug("Received from "
+                             + conversation.getBuddy()
+                             + " the message "
+                             + minfo.getMessage().getMessageBody());
 
             Message newMessage = createMessage(
                 minfo.getMessage().getMessageBody());
 
-            Contact sourceContact = opSetPersPresence.findContactByID(
-                                                c.getBuddy().getFormatted());
+            Contact sourceContact =
+                opSetPersPresence.findContactByID( conversation.getBuddy()
+                                                             .getFormatted());
             if(sourceContact == null)
             {
-                /** @todo received a message from a unknown contact. implement */
-                System.out.println("@todo received a message from a "
-                                   +"unknown contact. implement ext support.");
+                logger.debug("received a message from a unknown contact: "
+                                   + conversation.getBuddy());
+                //create the volatile contact
+                sourceContact = opSetPersPresence
+                                .createVolatileContact(conversation.getBuddy());
+
             }
 
             MessageReceivedEvent msgReceivedEvt
@@ -326,15 +339,6 @@ public class OperationSetBasicInstantMessagingIcqImpl
                     newMessage, sourceContact , minfo.getTimestamp() );
 
             fireMessageEvent(msgReceivedEvt);
-
-            //temporarily and uglity fire the sent event here.
-            /** @todo move elsewhaere */
-            MessageDeliveredEvent msgDeliveredEvt
-                = new MessageDeliveredEvent(
-                    newMessage, sourceContact , minfo.getTimestamp() );
-
-            fireMessageEvent(msgDeliveredEvt);
-
         }
 
         public void sentOtherEvent(Conversation conversation,
@@ -350,14 +354,12 @@ public class OperationSetBasicInstantMessagingIcqImpl
             System.out.println("@todo implement canSendMessageChanged()");
         }
 
-        /** This may be called without ever calling conversationOpened */
         public void conversationClosed(Conversation c)
         {
             /**@todo implement conversationClosed() */
             System.out.println("@todo implement conversationClosed()");
         }
 
-        /** This may never be called */
         public void conversationOpened(Conversation c)
         {
             /**@todo implement conversationOpened() */
@@ -371,7 +373,6 @@ public class OperationSetBasicInstantMessagingIcqImpl
             System.out.println("@todo implement gotOtherEvent()");
         }
 
-        /** This may be called after conversationClosed is called */
         public void sentMessage(Conversation c, MessageInfo minfo)
         {
             /**@todo implement sentMessage() */
