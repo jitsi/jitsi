@@ -1,8 +1,13 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.gui;
 
-import javax.swing.SwingUtilities;
-
 import net.java.sip.communicator.impl.gui.main.CommunicatorMain;
+import net.java.sip.communicator.impl.gui.main.WelcomeWindow;
 import net.java.sip.communicator.impl.gui.main.login.LoginManager;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.gui.UIService;
@@ -11,7 +16,6 @@ import net.java.sip.communicator.util.Logger;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-
 
 public class GuiActivator implements BundleActivator
 {
@@ -56,10 +60,17 @@ public class GuiActivator implements BundleActivator
 
             this.communicatorMain.getMainFrame()
                 .setContactList(contactListService);
-
-            this.communicatorMain.showCommunicator();
-
-            SwingUtilities.invokeLater(new RunLogin());
+            
+            /*
+             * TO BE UNCOMMENTED when the welcome window is removed.
+             * this.uiService.setVisible(true);
+             * SwingUtilities.invokeLater(new RunLogin()); 
+             */
+            
+            WelcomeWindow welcomeWindow 
+                = new WelcomeWindow(communicatorMain, loginManager);
+            
+            welcomeWindow.showWindow();
         }
         finally
         {
