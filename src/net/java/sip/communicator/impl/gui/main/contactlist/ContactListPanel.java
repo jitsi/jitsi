@@ -249,7 +249,7 @@ public class ContactListPanel extends JScrollPane
                 }
                 
                 /*
-                 * Get the hashtable containg all tabs and correspondins 
+                 * Get the hashtable containg all tabs and corresponding 
                  * chat panels.
                  */
                 Hashtable contactTabsTable 

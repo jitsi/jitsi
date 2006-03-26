@@ -52,8 +52,8 @@ public class ContactListModel extends AbstractListModel {
      * 
      * @param index The index of the cell which has to be refreshed.
      */
-    public void contactStatusChanged(int index) {        
-        fireContentsChanged(this, index, index);
+    public void contentChanged(int startIndex, int endIndex) {        
+        fireContentsChanged(this, startIndex, endIndex);
     }
 
     /**

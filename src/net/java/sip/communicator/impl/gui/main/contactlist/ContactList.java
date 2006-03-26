@@ -114,39 +114,38 @@ public class ContactList extends JList
         }
         */
     }
-    
-    /**
-     * Indicates that a MetaContact has been added to the
-     * MetaContactList.
-     */
+
     public void metaContactAdded(MetaContactEvent evt) {
         // TODO Auto-generated method stub
         
     }
 
-    /**
-     * Indicates that a MetaContact has been modified.
-     * @param evt the MetaContactListEvent containing the corresponding contact
-     */
-    public void metaContactModified(MetaContactEvent evt) {
+    public void metaContactRenamed(MetaContactRenamedEvent evt) {
         // TODO Auto-generated method stub
         
     }
 
-    /**
-     * Indicates that a MetaContact has been removed from
-     * the MetaContactList.
-     */
+    public void protoContactAdded(ProtoContactEvent evt) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void protoContactRemoved(ProtoContactEvent evt) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void protoContactMoved(ProtoContactEvent evt) {
+        // TODO Auto-generated method stub
+        
+    }
+
     public void metaContactRemoved(MetaContactEvent evt) {
         // TODO Auto-generated method stub
         
     }
 
-    /**
-     * Indicates that a MetaContact has been moved inside the MetaContact list.
-     * @param evt the MetaContactListEvent containing the corresponding contact
-     */
-    public void metaContactMoved(MetaContactEvent evt) {
+    public void metaContactMoved(MetaContactMovedEvent evt) {
         // TODO Auto-generated method stub
         
     }
@@ -161,86 +160,27 @@ public class ContactList extends JList
         this.listModel.groupAdded(sourceGroup, this);
     }
 
-    /**
-     * Indicates that a MetaContactGroup has been modified (e.g. a proto contact
-     * group was removed).
-     *
-     * @param evt the MetaContactListEvent containing the corresponding contact
-     */
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
         // TODO Auto-generated method stub
+        
     }
 
-    /**
-     * Indicates that a MetaContactGroup has been removed.
-     */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
-        
-    }
-
-	/**
-     * Indicates that a MetaContact has been modified.
-     * @param evt the MetaContactListEvent containing the corresponding contact
-     */
-    public void metaContactRenamed(MetaContactRenamedEvent evt) {
         // TODO Auto-generated method stub
         
     }
 
-	/**
-     * Indicates that a protocol specific <tt>Contact</tt> instance has been
-     * added to the list of protocol specific buddies in this
-     * <tt>MetaContact</tt>
-     * @param evt a reference to the corresponding
-     * <tt>ProtoContactEvent</tt>
-     */
-    public void protoContactAdded(ProtoContactEvent evt) {
-        // TODO Auto-generated method stub
-        
-    }
-    
-	 /**
-     * Indicates that a protocol specific <tt>Contact</tt> instance has been
-     * removed from the list of protocol specific buddies in this
-     * <tt>MetaContact</tt>
-     * @param evt a reference to the corresponding
-     * <tt>ProtoContactEvent</tt>
-     */
-    public void protoContactRemoved(ProtoContactEvent evt) {
-        // TODO Auto-generated method stub
-        
-    }
-
-	/**
-     * Indicates that a protocol specific <tt>Contact</tt> instance has been
-     * moved from within one <tt>MetaContact</tt> to another.
-     * @param evt a reference to the <tt>ProtoContactMovedEvent</tt> instance.
-     */
-    public void protoContactMoved(ProtoContactEvent evt) {
-        // TODO Auto-generated method stub
-        
-    }
-	
-	/**
-     * Indicates that a MetaContact has been moved inside the MetaContact list.
-     * @param evt the MetaContactListEvent containing the corresponding contact
-     */
-    public void metaContactMoved(MetaContactMovedEvent evt) {
-        // TODO Auto-generated method stub
-        
-    }
-
-	 /**
-     * Indicates that the order under which the child contacts were ordered
-     * inside the source group has changed.
-     * @param evt the <tt>MetaContactGroupEvent</tt> containind details of this
-     * event.
-     */
     public void childContactsReordered(MetaContactGroupEvent evt) {
-        // TODO Auto-generated method stub
+        System.out.println("EHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+        MetaContactGroup group = evt.getSourceMetaContactGroup();
         
+        int startIndex 
+            = this.listModel.indexOf(group.getMetaContact(0));
+        int endIndex 
+            = this.listModel.indexOf(group.getMetaContact(group.countChildContacts() - 1));
+        
+        this.listModel.contentChanged(startIndex, endIndex);
     }
-    
 }
 
 
