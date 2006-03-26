@@ -129,22 +129,21 @@ public class CommunicatorMain {
         }
     }
 
-    public void showCommunicator() {
+    public void showCommunicator(boolean isVisible) {
 
         mainFrame.pack();
 
-        mainFrame.setVisible(true);
+        mainFrame.setVisible(isVisible);
     }
 
     public static void main(String args[]) {
 
         CommunicatorMain communicatorMain = new CommunicatorMain();
 
-        communicatorMain.showCommunicator();
+        communicatorMain.showCommunicator(true);
     }
 
     public MainFrame getMainFrame() {
         return mainFrame;
     }
-    
 }

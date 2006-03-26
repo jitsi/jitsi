@@ -11,24 +11,25 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.service.gui.event.ContainerPluginListener;
+import net.java.sip.communicator.service.gui.event.PluginComponentEvent;
 /**
  * @author Yana Stamcheva
  *
  * The quick menu. 
  */
 public class QuickMenu extends SIPCommToolBar 
-	implements ActionListener {
+	implements ActionListener, ContainerPluginListener {
 
     JButton infoButton      = new JButton
                                 (new ImageIcon(ImageLoader.getImage
@@ -73,7 +74,7 @@ public class QuickMenu extends SIPCommToolBar
 		this.add(configureButton);		
 		this.add(searchButton);
 		this.add(infoButton);
-		
+        		
 		this.addButton.setName("add");
 		this.configureButton.setName("config");
 		this.searchButton.setName("search");
@@ -118,4 +119,14 @@ public class QuickMenu extends SIPCommToolBar
 			
 		}
 	}
+
+    public void pluginComponentAdded(PluginComponentEvent event) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void pluginComponentRemoved(PluginComponentEvent event) {
+        // TODO Auto-generated method stub
+        
+    }
 }
