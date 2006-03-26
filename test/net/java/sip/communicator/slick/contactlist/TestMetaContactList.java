@@ -505,6 +505,15 @@ public class TestMetaContactList
 
         assertSame("find failed for contact group " + mockContactGroup
                    , expectedMetaContactGroup, actualMetaContactGroup);
+
+        //repeat the same tests for the root group as it seems to be causing
+        //problems.
+        actualMetaContactGroup = fixture.metaClService
+            .findMetaContactGroupByContactGroup(
+                    opSetPersPresence.getServerStoredContactListRoot());
+
+        assertSame("find failed for root contact group "
+                   , root, actualMetaContactGroup);
     }
 
 
