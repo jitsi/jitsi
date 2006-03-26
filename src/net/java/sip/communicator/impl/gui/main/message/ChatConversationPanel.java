@@ -59,8 +59,7 @@ public class ChatConversationPanel extends JScrollPane
 
 		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		this
-				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		this.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
 		this.setWheelScrollingEnabled(true);
 
