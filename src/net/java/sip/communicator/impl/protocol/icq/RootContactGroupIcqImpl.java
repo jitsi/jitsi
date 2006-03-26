@@ -30,12 +30,18 @@ public class RootContactGroupIcqImpl
 
     /**
      * Creates a ContactGroup instance.
+     */
+    RootContactGroupIcqImpl(){}
+
+    /**
+     * Sets the currently valid provider
      * @param ownerProvider ProtocolProviderServiceIcqImpl
      */
-    RootContactGroupIcqImpl(ProtocolProviderServiceIcqImpl ownerProvider)
+    void setOwnerProvider(ProtocolProviderServiceIcqImpl ownerProvider)
     {
         this.ownerProvider = ownerProvider;
     }
+
     /**
      * The ContactListRoot in ICQ is the only group that can contain subgroups.
      *

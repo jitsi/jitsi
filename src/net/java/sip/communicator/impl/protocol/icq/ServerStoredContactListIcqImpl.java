@@ -61,7 +61,7 @@ public class ServerStoredContactListIcqImpl
     /**
      * The root contagroup. The container for all ICQ buddies and groups.
      */
-    private RootContactGroupIcqImpl rootGroup;
+    private RootContactGroupIcqImpl rootGroup = new RootContactGroupIcqImpl();
 
     /**
      * Listeners that others registered with us for contact list events.
@@ -496,7 +496,7 @@ public class ServerStoredContactListIcqImpl
 
         this.icqProvider = icqProvider;
 
-        this.rootGroup = new RootContactGroupIcqImpl(icqProvider);
+        this.rootGroup.setOwnerProvider(icqProvider);
 
         this.jSimSsiService = joustSimSsiService;
         jSimSsiService.addItemChangeListener(jsimItemChangeListener);
