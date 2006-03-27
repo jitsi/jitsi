@@ -37,6 +37,7 @@ import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
+import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 
 /**
  * @author Yana Stamcheva
@@ -55,7 +56,7 @@ public class ContactListPanel extends JScrollPane
 	private Hashtable contactMsgWindows = new Hashtable();
     
     private ChatWindow tabbedChatWindow;
-
+    
     /**
      * Creates the contactlist scroll panel defining the parent frame.
      * 
@@ -336,5 +337,4 @@ public class ContactListPanel extends JScrollPane
     	
     	return this.contactList;
     }
-    
 }

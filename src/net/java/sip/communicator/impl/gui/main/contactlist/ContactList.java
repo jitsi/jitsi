@@ -157,9 +157,9 @@ public class ContactList extends JList
         
         MetaContactGroup sourceGroup = evt.getSourceMetaContactGroup();
        
-        this.listModel.groupAdded(sourceGroup, this);
+        this.groupAdded(sourceGroup);
     }
-
+   
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
         // TODO Auto-generated method stub
         
@@ -171,15 +171,48 @@ public class ContactList extends JList
     }
 
     public void childContactsReordered(MetaContactGroupEvent evt) {
-        System.out.println("EHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-        MetaContactGroup group = evt.getSourceMetaContactGroup();
         
+        MetaContactGroup group = evt.getSourceMetaContactGroup();
+
         int startIndex 
             = this.listModel.indexOf(group.getMetaContact(0));
         int endIndex 
             = this.listModel.indexOf(group.getMetaContact(group.countChildContacts() - 1));
         
-        this.listModel.contentChanged(startIndex, endIndex);
+        this.listModel.contentRemoved(startIndex, endIndex);
+        
+        this.listModel.contentAdded(startIndex, endIndex);
+    }
+    
+    /**
+     * Refreshes the jlist when a group is added.
+     * 
+     * @param group The group which is added.
+     */
+    private void groupAdded(MetaContactGroup group){
+        
+        int index = this.listModel.indexOf(group);
+
+        this.listModel.contentAdded(index, index);        
+        this.ensureIndexIsVisible(index);
+        
+        Iterator childContacts = group.getChildContacts();
+        
+        while(childContacts.hasNext()){
+            MetaContact contact = (MetaContact)childContacts.next();
+            
+            int contactIndex = this.listModel.indexOf(contact);
+            this.listModel.contentAdded(contactIndex, contactIndex);            
+            this.ensureIndexIsVisible(contactIndex);
+        }
+        
+        Iterator subGroups = group.getSubgroups();
+        
+        while(subGroups.hasNext()){
+            MetaContactGroup subGroup = (MetaContactGroup)subGroups.next();
+            
+            this.groupAdded(subGroup);
+        }
     }
 }
 

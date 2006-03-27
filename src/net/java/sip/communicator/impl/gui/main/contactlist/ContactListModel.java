@@ -48,14 +48,37 @@ public class ContactListModel extends AbstractListModel {
     }
         
     /**
-     * Informs interested listeners that the content of the given cell was changed.
+     * Informs interested listeners that the content has changed of the 
+     * cells given by the range of from startIndex to endIndex.
      * 
-     * @param index The index of the cell which has to be refreshed.
+     * @param startIndex The start index of the range .
+     * @param endIndex The end index of the range.
      */
     public void contentChanged(int startIndex, int endIndex) {        
         fireContentsChanged(this, startIndex, endIndex);
     }
 
+    /**
+     * Informs interested listeners that new cells are added from startIndex 
+     * to endIndex. 
+     * 
+     * @param startIndex The start index of the range .
+     * @param endIndex The end index of the range.
+     */
+    public void contentAdded(int startIndex, int endIndex) {        
+        fireIntervalAdded(this, startIndex, endIndex);
+    }
+    
+    /**
+     * Informs interested listeners that a range of cells is removed.
+     * 
+     * @param startIndex The start index of the range.
+     * @param endIndex The end index of the range.
+     */
+    public void contentRemoved(int startIndex, int endIndex) {        
+        fireIntervalRemoved(this, startIndex, endIndex);
+    }
+    
     /**
      * Returns the size of this list model.
      */
@@ -128,38 +151,6 @@ public class ContactListModel extends AbstractListModel {
     public ImageIcon getMetaContactStatusIcon(MetaContact contact) {
         return new ImageIcon(Constants.getStatusIcon(this.getMetaContactStatus(contact)));
     }
-    
-    /**
-     * Informs all listeners that a group was added.
-     * 
-     * @param group The group that was added.
-     * @param parentList The JList containing the group.
-     */
-    public void groupAdded(MetaContactGroup group, JList parentList){
-        
-        int index = this.indexOf(group);
-
-        fireIntervalAdded(this, index, index);        
-        parentList.ensureIndexIsVisible(index);
-        
-        Iterator childContacts = group.getChildContacts();
-        
-        while(childContacts.hasNext()){
-            MetaContact contact = (MetaContact)childContacts.next();
-            
-            int contactIndex = this.indexOf(contact);
-            fireIntervalAdded(this, contactIndex, contactIndex);            
-            parentList.ensureIndexIsVisible(contactIndex);
-        }
-        
-        Iterator subGroups = group.getSubgroups();
-        
-        while(subGroups.hasNext()){
-            MetaContactGroup subGroup = (MetaContactGroup)subGroups.next();
-            
-            this.groupAdded(subGroup, parentList);
-        }
-    }    
    
     /**
      * Returns the index of the given MetaContact.
