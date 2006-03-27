@@ -71,9 +71,6 @@ public class StatusPanel extends JPanel {
     
     public void startConnecting(String protocol){
         
-        Map protocolStatusMap = Constants
-            .getProtocolStatusIcons(protocol);
-        
         StatusSelectorBox selectorBox
             = (StatusSelectorBox)protocolStatusCombos.get(protocol);
         
