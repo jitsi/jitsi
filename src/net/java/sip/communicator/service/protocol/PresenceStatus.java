@@ -48,16 +48,25 @@ public class PresenceStatus
     public static final int EAGER_TO_COMMUNICATE_THRESSHOLD = 80;
 
     /**
+     * An integer indicating the maximum possible value of the status field.
+     */
+    public static final int MAX_STATUS_VALUE = 100;
+
+
+    /**
      * Represents the connectivity status on a scale from
      * 0 to 100  with 0 indicating complete disabiilty for communication and 100
      * maximum ability and user willingness. Implementors of this service should
      * respect the following indications for status values.
-     * 0 - complete disability
-     * 1:10 - initializing.
-     * 1:20 - trying to enter a state where communication is possible (Connecting ..)
-     * 20:50 - communication is possible but might be unwanted, inefficient or delayed(e.g. Away state in IM clients)
-     * 50:80 - communication is possible (On - line)
-     * 80:100 - communication is possible and user is eager to communicate. (Free for chat! Talk to me, etc.)
+     * 0      - complete disability
+     * 1:10   - initializing.
+     * 1:20   - trying to enter a state where communication is possible
+     *          (Connecting ..)
+     * 20:50  - communication is possible but might be unwanted, inefficient or
+     *          delayed(e.g. Away state in IM clients)
+     * 50:80  - communication is possible (On - line)
+     * 80:100 - communication is possible and user is eager to communicate.
+     *        (Free for chat! Talk to me, etc.)
      */
     protected int status = 0;
 
