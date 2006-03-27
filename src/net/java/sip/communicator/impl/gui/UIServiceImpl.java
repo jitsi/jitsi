@@ -9,6 +9,9 @@ package net.java.sip.communicator.impl.gui;
 
 import java.awt.Component;
 import java.util.*;
+
+import net.java.sip.communicator.impl.gui.events.ContainerPluginListener;
+import net.java.sip.communicator.impl.gui.events.PluginComponentEvent;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.util.Logger;
