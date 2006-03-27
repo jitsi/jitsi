@@ -21,13 +21,13 @@ import javax.swing.JPanel;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
-import net.java.sip.communicator.service.gui.ConfigurationForm;
 
 /**
  * @author Yana Stamcheva
  */
-public class GeneralConfigurationForm extends JPanel implements
-		ConfigurationForm {
+public class GeneralConfigurationForm 
+    extends JPanel 
+    implements ConfigurationForm {
 
 	private JCheckBox launchOnStartUpCheck = new JCheckBox(Messages
 			.getString("launchOnStartUp"));

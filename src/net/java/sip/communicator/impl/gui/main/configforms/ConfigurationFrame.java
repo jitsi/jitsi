@@ -22,15 +22,14 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommList;
 import net.java.sip.communicator.impl.gui.main.customcontrols.TitlePanel;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.service.gui.ConfigurationContainer;
-import net.java.sip.communicator.service.gui.ConfigurationForm;
+import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationForm;
 
 /**
  * @author Yana Stamcheva
  * 
  */
-public class ConfigurationFrame extends JFrame implements
-		ConfigurationContainer, MouseListener {
+public class ConfigurationFrame extends JFrame 
+    implements MouseListener {
 
 	private Vector configContainer = new Vector();
 

@@ -16,10 +16,10 @@ import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
-import net.java.sip.communicator.service.gui.ConfigurationForm;
 
-public class AccountsConfigurationForm extends JPanel implements
-		ConfigurationForm {
+public class AccountsConfigurationForm 
+    extends JPanel 
+    implements ConfigurationForm {
 
 	public AccountsConfigurationForm(){
 		super(new BorderLayout());
