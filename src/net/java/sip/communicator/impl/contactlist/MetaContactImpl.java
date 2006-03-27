@@ -296,14 +296,14 @@ public class MetaContactImpl
     {
         synchronized (parentGroupModLock)
         {
-            this.totalStatus = 0;
-
             //first lightremove or otherwise we won't be able to get hold of the
             //contact
             if (parentGroup != null)
             {
                 parentGroup.lightRemoveMetaContact(this);
             }
+
+            this.totalStatus = 0;
 
             Iterator protoContacts = this.protoContacts.iterator();
 
