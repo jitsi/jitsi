@@ -45,6 +45,13 @@ public class MetaContactGroupImpl
     private String groupName = null;
 
     /**
+     * We use this copy for returning iterators and searching over the list
+     * in order to avoid creating it upon each query. The copy is updated upon
+     * each modification
+     */
+    private List childContactsOrderedCopy = new LinkedList();
+
+    /**
      * Creates an instance of the root meta contact group.
      *
      * @param groupName the name of the group to create
@@ -99,7 +106,7 @@ public class MetaContactGroupImpl
      */
     public Iterator getChildContacts()
     {
-        return new LinkedList(childContacts).iterator();
+        return childContactsOrderedCopy.iterator();
     }
 
     /**
@@ -139,20 +146,17 @@ public class MetaContactGroupImpl
     {
         int i = 0;
 
-        synchronized (childContacts)
+        Iterator childrenIter = getChildContacts();
+
+        while (childrenIter.hasNext())
         {
-            Iterator childrenIter = childContacts.iterator();
+            MetaContact current = (MetaContact) childrenIter.next();
 
-            while (childrenIter.hasNext())
+            if (current == metaContact)
             {
-                MetaContact current = (MetaContact) childrenIter.next();
-
-                if (current == metaContact)
-                {
-                    return i;
-                }
-                i++;
+                return i;
             }
+            i++;
         }
 
         //if we got here then metaContact is not in this list
@@ -402,16 +406,13 @@ public class MetaContactGroupImpl
     {
         int i = 0;
 
-        synchronized (childContacts)
-        {
-            Iterator childrenIter = childContacts.iterator();
+        Iterator childrenIter = getChildContacts();
 
-            while (childrenIter.hasNext())
-            {
-                MetaContact result = (MetaContact) childrenIter.next();
-                if (i++ == index)
-                    return result;
-            }
+        while (childrenIter.hasNext())
+        {
+            MetaContact result = (MetaContact) childrenIter.next();
+            if (i++ == index)
+                return result;
         }
         //if we got here then index was out of the bounds
         throw new IndexOutOfBoundsException(i
@@ -431,7 +432,7 @@ public class MetaContactGroupImpl
             //set this group as a callback in the meta contact
             metaContact.setParentGroup(this);
 
-            this.childContacts.add(metaContact);
+            lightAddMetaContact(metaContact);
         }
     }
 
@@ -447,6 +448,8 @@ public class MetaContactGroupImpl
     void lightAddMetaContact(MetaContactImpl metaContact)
     {
         this.childContacts.add(metaContact);
+        //no need to synch it's not a disaster if s.o. else reads the old copy.
+        childContactsOrderedCopy = new LinkedList(childContacts);
     }
 
     /**
@@ -454,7 +457,9 @@ public class MetaContactGroupImpl
       * contacts without unsetting its parrent contact and without any
       * synchronization. This method is meant for use _PRIMARILY_ by the
       * <tt>MetaContact</tt> itself upon chenge in its encapsulated protocol
-      * specific contacts.
+      * specific contacts. The method would also regenerate the ordered copy
+      * used for generating iterators and performing search operations over
+      * the group.
       *
       * @param metaContact the <tt>MetaContact</tt> to remove from the local
       * vector.
@@ -462,6 +467,8 @@ public class MetaContactGroupImpl
     void lightRemoveMetaContact(MetaContactImpl metaContact)
     {
         this.childContacts.remove(metaContact);
+        //no need to synch it's not a disaster if s.o. else reads the old copy.
+        childContactsOrderedCopy = new LinkedList(childContacts);
     }
 
 
@@ -475,7 +482,7 @@ public class MetaContactGroupImpl
         synchronized (childContacts)
         {
             metaContact.unsetParentGroup(this);
-            this.childContacts.remove(metaContact);
+            lightRemoveMetaContact(metaContact);
         }
     }
 
