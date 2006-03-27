@@ -199,7 +199,9 @@ public class MetaContactImpl
     {
         MetaContactImpl target = (MetaContactImpl)o;
 
-        return (totalStatus - target.totalStatus) * 1000000
+        return ( (PresenceStatus.MAX_STATUS_VALUE - totalStatus)
+                    - (PresenceStatus.MAX_STATUS_VALUE - target.totalStatus))
+               * 1000000
                 + getDisplayName().compareTo(target.getDisplayName()) * 100000
                 + getMetaUID().compareToIgnoreCase(target.getMetaUID());
     }
