@@ -12,17 +12,16 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
+import net.java.sip.communicator.impl.gui.events.ContainerPluginListener;
+import net.java.sip.communicator.impl.gui.events.PluginComponentEvent;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
-import net.java.sip.communicator.service.gui.event.ContainerPluginListener;
-import net.java.sip.communicator.service.gui.event.PluginComponentEvent;
 /**
  * @author Yana Stamcheva
  *

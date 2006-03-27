@@ -30,6 +30,7 @@ import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
+import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 import net.java.sip.communicator.service.protocol.OperationSetPersistentPresence;
 import net.java.sip.communicator.service.protocol.OperationSetPresence;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
@@ -67,11 +68,13 @@ public class MainFrame extends JFrame {
     private Hashtable protocolPresenceSets = new Hashtable();
     
     private Hashtable protocolProviders = new Hashtable();
+    
+    private Hashtable imOperationSets = new Hashtable();
    
     private MetaContactListService contactList;
     
     private ArrayList accounts = new ArrayList();
-    
+        
 	public MainFrame() {		
 		callPanel = new CallPanel(this);
 		tabbedPane = new MainTabbedPane(this);
@@ -223,7 +226,13 @@ public class MainFrame extends JFrame {
                     e.printStackTrace();
                 }
             }
-        }
+            else if(key.equals(OperationSetBasicInstantMessaging.class.getName())
+                    || key.equals(OperationSetPresence.class.getName())){
+                OperationSetBasicInstantMessaging im = 
+                    (OperationSetBasicInstantMessaging)value;
+                this.imOperationSets.put(protocolProvider, im);
+            }
+        }        
     }
     
     /**
@@ -276,6 +285,19 @@ public class MainFrame extends JFrame {
             this.protocolPresenceSets.get(protocolProvider);
     }
 
+    /**
+     * Returns the basic instant messaging operation set for the given protocol provider.
+     * 
+     * @param protocolProvider The protocol provider for which the IM is searched.
+     * @return OperationSetBasicInstantMessaging The basic instant messaging 
+     * operation set for the given protocol provider.
+     */
+    public OperationSetBasicInstantMessaging getProtocolIM
+        (ProtocolProviderService protocolProvider) {
+        return (OperationSetBasicInstantMessaging)
+            this.imOperationSets.get(protocolProvider);
+    }
+    
     /**
      * Returns the main tabbed pane containing the contactlist, call list etc.
      * @return MainTabbedPane The main tabbed pane containing the 
