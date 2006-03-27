@@ -294,7 +294,7 @@ public class MetaContactImpl
     {
         synchronized (parentGroupModLock)
         {
-            int totalStatus = 0;
+            this.totalStatus = 0;
 
             //first lightremove or otherwise we won't be able to get hold of the
             //contact
