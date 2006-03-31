@@ -10,10 +10,15 @@ package net.java.sip.communicator.impl.gui.main.utils;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Hashtable;
-import java.util.LinkedList;
 import java.util.Map;
+
+import javax.swing.text.html.StyleSheet;
 
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
@@ -325,4 +330,25 @@ public class Constants {
 	public static Image getStatusIcon(PresenceStatus status) {
 		return (Image)mainStatusSet.get(status);
 	}
+    
+    /**
+     * Temporary method to load the css style used in the chat window.
+     * 
+     * @param style
+     */
+    public static void loadStyle(StyleSheet style){        
+        
+        InputStream is = Constants.class.getClassLoader()
+            .getResourceAsStream
+                ("net/java/sip/communicator/impl/gui/resources/styles/defaultStyle.css");
+        
+        Reader r = new BufferedReader(new InputStreamReader(is));
+        try {
+            style.loadRules(r, null);
+            r.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 }
