@@ -8,10 +8,8 @@
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -27,7 +25,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.StyleSheet;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedEditorPane;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
@@ -41,25 +38,17 @@ import net.java.sip.communicator.impl.gui.main.utils.StringUtils;
 public class ChatConversationPanel extends JScrollPane 
     implements HyperlinkListener {
 
-	private ChatPanel chatPanel;
-
 	private AntialiasedEditorPane chatEditorPane = new AntialiasedEditorPane();
 
     private HTMLEditorKit editorKit = new MyHTMLEditorKit(); 
     
-	private ChatBuffer chatBuffer;
-    
-    private HTMLDocument document;
+	private HTMLDocument document;
     
 	public ChatConversationPanel(ChatPanel chatPanel) {
 
 		super();
 
-		this.chatPanel = chatPanel;
-
-		this.chatBuffer = new ChatBuffer();
-
-		this.chatEditorPane.setContentType("text/html");
+        this.chatEditorPane.setContentType("text/html");
 
 		this.chatEditorPane.setEditable(false);
         
@@ -77,11 +66,9 @@ public class ChatConversationPanel extends JScrollPane
 
 		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		this.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
 		this.setWheelScrollingEnabled(true);
         
-		this.getViewport().add(chatEditorPane, BorderLayout.CENTER);        
+		this.getViewport().add(chatEditorPane);        
 	}
     
     private void initEditor(){
@@ -113,70 +100,6 @@ public class ChatConversationPanel extends JScrollPane
      * or INCOMING_MESSAGE. 
      * @param message The message text.
      */
-    /*
-    public void processMessage(String contactName,
-                                                   Calendar calendar,
-                                                   String messageType, 
-                                                   String message){
-        
-        this.registerMessage(contactName, 
-                                        calendar, 
-                                        messageType, 
-                                        message);
-
-        String chatString = "<HTML><DIV style=\"background-color:"
-                + Constants.FONT_CHAT_HEADER_COLOR
-                + ";text-align:center;font-weight:bold;font-size:"
-                + Constants.FONT_SIZE + "\">"
-                + calendar.get(Calendar.DAY_OF_MONTH) + "/"
-                + calendar.get(Calendar.MONTH) + 1 + "/"
-                + calendar.get(Calendar.YEAR) + " " + "</DIV>";
-
-        for (int i = 0; i < this.chatBuffer.size(); i++) {
-
-            ChatMessage chatMessage = (ChatMessage) this.chatBuffer.get(i);
-
-            String msgColor = "";            
-            if(chatMessage.getMessageType().equals(ChatMessage.INCOMING_MESSAGE))
-                msgColor = Constants.FONT_IN_MSG_COLOR;
-            else
-                msgColor = Constants.FONT_OUT_MSG_COLOR;
-            
-            chatString += "<DIV style=\"font-family:"
-                    + Constants.FONT_NAME
-                    + ";font-size:"
-                    + Constants.FONT_SIZE
-                    + ";color:"
-                    + msgColor
-                    + ";font-weight:bold;\">"
-                    + chatMessage.getSenderName()
-                    + " at "
-                    + chatMessage.getCalendar().get(Calendar.HOUR_OF_DAY)
-                    + ":"
-                    + proccessMinutes(chatMessage.getCalendar().get(Calendar.MINUTE))
-                    + "</DIV>"
-                    + "<DIV style=\"font-family:"
-                    + Constants.FONT_NAME
-                    + ";font-size:"
-                    + Constants.FONT_SIZE
-                    + "\">"
-                    + processSmilies(processNewLines(processLinks(chatMessage
-                            .getMessage()))) + "</DIV>";
-        }
-
-        chatString += "</HTML>";
-
-        this.chatEditorPane.setText(chatString);
-        this.chatEditorPane.scrollRectToVisible
-            (new Rectangle(chatEditorPane.getX(),
-                                    chatEditorPane.getHeight() - 1,
-                                    chatEditorPane.getWidth(),
-                                    chatEditorPane.getHeight()));
-        this.repaint();
-        this.validate();
-    } 
-    */
-    
     public void processMessage(String contactName,
                                                 Calendar calendar,
                                                 String messageType, 
@@ -205,7 +128,7 @@ public class ChatConversationPanel extends JScrollPane
         Element root = this.document.getDefaultRootElement();
         
         try {
-            this.document.insertAfterEnd(root.getElement(root.getElementCount() - 1), chatString);
+            this.document.insertAfterEnd(root.getElement(root.getElementCount() - 1), chatString);            
         } catch (BadLocationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -213,30 +136,10 @@ public class ChatConversationPanel extends JScrollPane
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
-        // Doesn't work fine. TO BE CHANGED!
-        this.chatEditorPane.scrollRectToVisible(new Rectangle(chatEditorPane.getX(),
-                chatEditorPane.getHeight() - 1, 1, 1));
-} 
-    
-    /**
-     * Creates a new ChatMessage and adds it to the chat buffer.
-     * 
-     * @param contactName The name of the contact sending the message.
-     * @param calendar The time at which the message is sent or received.
-     * @param messageType The type of the message. One of OUTGOING_MESSAGE 
-     * or INCOMING_MESSAGE. 
-     * @param message The message text.
-     */
-	private void registerMessage(String contactName, Calendar calendar,
-			String messageType, String message) {
-
-		ChatMessage chatMessage 
-            = new ChatMessage(contactName, calendar, messageType, message);
-
-		this.chatBuffer.add(chatMessage);
-	}
-
+        //Scroll to the last inserted text in the document.
+        this.chatEditorPane.setCaretPosition(this.document.getLength());
+    } 
+   
     /**
      * Format message containing links.
      * 
