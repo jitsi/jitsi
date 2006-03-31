@@ -118,9 +118,11 @@ public class ChatConversationPanel extends JScrollPane
         
         chatString += contactName
         + " at "
-        + calendar.get(Calendar.HOUR_OF_DAY)
+        + processTime(calendar.get(Calendar.HOUR_OF_DAY))
         + ":"
-        + proccessMinutes(calendar.get(Calendar.MINUTE))
+        + processTime(calendar.get(Calendar.MINUTE))
+        + ":"
+        + processTime(calendar.get(Calendar.SECOND))
         + endHeaderTag
         + "<DIV>"
         + processSmilies(processNewLines(processLinks(message))) + "</DIV>";
@@ -210,18 +212,19 @@ public class ChatConversationPanel extends JScrollPane
     /**
      * Format time string.
      * 
-     * @param minutes The minutes int.
+     * @param time The time parameter could be hours, minutes or seconds.
      * @return The formatted minutes string.
      */
-	private String proccessMinutes(int minutes){		
+	private String processTime(int time){		
 		
-		String minutesString = new Integer(minutes).toString();
+		String timeString = new Integer(time).toString();
 		
-		String resultString = minutesString;
-		
-		if(minutesString.length() < 2)
-			resultString.concat("0").concat(minutesString);
-		
+		String resultString = "";		
+		if(timeString.length() < 2)
+			resultString = resultString.concat("0").concat(timeString);
+        else
+            resultString = timeString;
+          
 		return resultString;
 	}
 
