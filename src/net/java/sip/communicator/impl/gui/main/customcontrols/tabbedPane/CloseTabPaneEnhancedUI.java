@@ -20,6 +20,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.util.Vector;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -42,18 +43,13 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
 
 	private static final Color whiteColor = Color.white;
 
-	private static final Color transparent = new Color(0, 0, 0, 0);
-
-	private static final Color lightBlue = new Color(147, 170, 204);
-
-	private static final Color lightWhite = new Color(200, 200, 200, 50);
-
-	private static final Color selectedColor = new Color(20, 62, 123);
+	private static final Color highlightedColor = new Color(249, 117, 10);
     
     private static Image TAB_BACKGROUND = ImageLoader.getImage(ImageLoader.TAB_BG);
     
     private static Image CLOSABLE_TAB_BACKGROUND 
-        = ImageLoader.getImage(ImageLoader.CLOSABLE_TAB_BG);
+        = ImageLoader.getImage(ImageLoader.CLOSABLE_TAB_BG);   
+    
 
 	public static ComponentUI createUI(JComponent c) {
 		return new CloseTabPaneEnhancedUI();
@@ -69,7 +65,6 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
      */
 	protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex,
 			int x, int y, int w, int h, boolean isSelected) {
-        
 	}
 
 	protected void paintContentBorderTopEdge(Graphics g, int tabPlacement,
@@ -165,8 +160,8 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
 	protected void paintText(Graphics g, int tabPlacement, Font font,
 			FontMetrics metrics, int tabIndex, String title,
 			Rectangle textRect, boolean isSelected) {
-
-		g.setFont(font);
+	   
+        g.setFont(font);
 
         int titleWidth = SwingUtilities.computeStringWidth(metrics, title);
         
@@ -201,23 +196,28 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
 			if (tabPane.isEnabled() && tabPane.isEnabledAt(tabIndex)) {
 				if (isSelected)
 					g.setColor(whiteColor);
-				else
-					g.setColor(tabPane.getForegroundAt(tabIndex));
+				else{
+                    if(this.isTabHighlighted(tabIndex)){                        
+                        g.setColor(highlightedColor);
+                    }
+                    else
+                        g.setColor(tabPane.getForegroundAt(tabIndex));
+                }
 
 				BasicGraphicsUtils
 						.drawStringUnderlineCharAt(g, title, mnemIndex,
 								textRect.x, textRect.y + metrics.getAscent());
 
-			} else { // tab disabled
-				g.setColor(tabPane.getBackgroundAt(tabIndex).brighter());
+			} else { // tab disabled                
+                g.setColor(tabPane.getBackgroundAt(tabIndex).brighter());                
 				BasicGraphicsUtils
 						.drawStringUnderlineCharAt(g, title, mnemIndex,
 								textRect.x, textRect.y + metrics.getAscent());
+                
 				g.setColor(tabPane.getBackgroundAt(tabIndex).darker());
 				BasicGraphicsUtils.drawStringUnderlineCharAt(g, title,
 						mnemIndex, textRect.x - 1, textRect.y
-								+ metrics.getAscent() - 1);
-
+								+ metrics.getAscent() - 1);				
 			}
 		}
 	}

@@ -399,6 +399,28 @@ public class SIPCommTabbedPane extends JTabbedPane {
 			((PopupOutsideListener) popupListeners[i]).popupOutsideOperation(e);
 		}
 	}
+    
+    /**
+     * Overrides setSelectedIndex in JTabbedPane in order to remove the 
+     * hightlight if the tab which is selected is highlighted.
+     */
+    public void setSelectedIndex(int tabIndex){
+        if(paneUI.isTabHighlighted(tabIndex)){            
+            paneUI.tabRemoveHighlight(tabIndex);
+        }
+        super.setSelectedIndex(tabIndex);
+    }
 
+    /**
+     * Highlights the tab with the given index.
+     * 
+     * @param tabIndex The tab index.
+     */
+    public void highlightTab(int tabIndex){
+        if(!paneUI.isTabHighlighted(tabIndex))
+            this.paneUI.tabAddHightlight(tabIndex);
+        
+        this.repaint();
+    }
 }
 

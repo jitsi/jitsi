@@ -15,6 +15,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -115,6 +116,8 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 	protected JMenuItem maxItem;
 
 	protected JMenuItem closeItem;
+    
+    protected Vector highlightedTabs = new Vector();
 
 	public CloseTabPaneUI() {
 
@@ -1541,4 +1544,32 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 		}
 	}
 
+    public void tabAddHightlight(int tabIndex){
+        this.highlightedTabs.add(new Integer(tabIndex));
+    }
+    
+    public void tabRemoveHighlight(int tabIndex){
+        Enumeration highlightedEnum = this.highlightedTabs.elements();
+        
+        while(highlightedEnum.hasMoreElements()){
+            Integer element = (Integer)highlightedEnum.nextElement();
+            
+            if(element.intValue() == tabIndex){
+                this.highlightedTabs.remove(element);
+                break;
+            }
+        }
+    }
+    
+    public boolean isTabHighlighted(int tabIndex){
+        Enumeration highlightedEnum = this.highlightedTabs.elements();
+        
+        while(highlightedEnum.hasMoreElements()){
+            Integer element = (Integer)highlightedEnum.nextElement();
+            
+            if(element.intValue() == tabIndex)
+                return true;           
+        }
+        return false;
+    }
 }
