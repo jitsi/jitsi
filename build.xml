@@ -135,8 +135,9 @@
                 <include name="**/*.jpg"/>
                 <include name="**/*.properties"/>
                 <include name="**/*.xml"/>
-                <include name="**/*.themerc"/>
+                <include name="**/*.themerc"/>            	
                 <include name="**/gtkrc"/>
+            	<include name="**/*.css"/>
             </fileset>
             <fileset dir="${src2}">
                 <include name="**/*.jpeg"/>
