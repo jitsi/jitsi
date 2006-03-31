@@ -9,13 +9,13 @@ package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.UndoableEditEvent;
@@ -35,14 +35,14 @@ public class ChatWritePanel extends JScrollPane
 	
 	private UndoManager undo = new UndoManager();
 	
-	private ChatWindow msgWindow;	
+	private ChatPanel chatPanel;	
 	
 	
-	public ChatWritePanel (ChatWindow msgWindow){		
+	public ChatWritePanel (ChatPanel chatPanel){		
 		
 		super();		
 		
-		this.msgWindow = msgWindow;
+		this.chatPanel = chatPanel;
 		
 		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         
@@ -78,16 +78,14 @@ public class ChatWritePanel extends JScrollPane
 	private void enableKeyboardEvents(){
 		
 		this.editorPane.addKeyListener(new KeyAdapter(){
-			public void keyPressed(KeyEvent e){	
-
-                JEditorPane editorPane = (JEditorPane)e.getSource();
-				
+			public void keyPressed(KeyEvent e){
 				if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK && 
 							(e.getKeyCode() == KeyEvent.VK_ENTER)){
+                   
+					JButton sendButton = chatPanel.getSendPanel().getSendButton();
 					
-					msgWindow.getSendPanel().getSendButton().requestFocus();					
-					
-					msgWindow.getSendPanel().getSendButton().doClick();									
+                    sendButton.requestFocus();
+					sendButton.doClick();									
 				}
 				else if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK && 
 						(e.getKeyCode() == KeyEvent.VK_Z)){					

@@ -74,7 +74,9 @@ public class MainFrame extends JFrame {
     private MetaContactListService contactList;
     
     private ArrayList accounts = new ArrayList();
-        
+    
+    private Hashtable waitToBeDeliveredMsgs = new Hashtable();
+    
 	public MainFrame() {		
 		callPanel = new CallPanel(this);
 		tabbedPane = new MainTabbedPane(this);
@@ -111,8 +113,8 @@ public class MainFrame extends JFrame {
      */
 	private void setInitialBounds() {
 		
-		this.setSize(155, 400);
-        this.contactListPanel.setPreferredSize(new Dimension(140, 350));
+		this.setSize(200, 450);
+        this.contactListPanel.setPreferredSize(new Dimension(180, 400));
         this.contactListPanel.setMinimumSize(new Dimension(80, 200));
         
 		this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width
@@ -168,7 +170,8 @@ public class MainFrame extends JFrame {
     }
 
     /**
-     * Adds protocol supported operation sets. For now adds the presence operation set.
+     * Adds protocol supported operation sets. For now adds the presence and
+     * instant messaging operation sets.
      * 
      * @param protocolProvider 
      * @param supportedOperationSets
@@ -229,8 +232,11 @@ public class MainFrame extends JFrame {
             else if(key.equals(OperationSetBasicInstantMessaging.class.getName())
                     || key.equals(OperationSetPresence.class.getName())){
                 OperationSetBasicInstantMessaging im = 
-                    (OperationSetBasicInstantMessaging)value;
+                    (OperationSetBasicInstantMessaging)value;                
                 this.imOperationSets.put(protocolProvider, im);
+                //Add to all instant messaging operation sets the Message listener 
+                //implemented in the ContactListPanel, which handles all received messages.
+                im.addMessageListener(this.getTabbedPane().getContactListPanel());
             }
         }        
     }
@@ -373,5 +379,9 @@ public class MainFrame extends JFrame {
             (PropertyChangeEvent evt) {           
             
         }
+    }
+
+    public Hashtable getWaitToBeDeliveredMsgs() {
+        return waitToBeDeliveredMsgs;
     }
 }

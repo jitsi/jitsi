@@ -16,6 +16,7 @@ import javax.swing.JSplitPane;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 
 /**
  * Chat panel for one or group of contacts.
@@ -37,9 +38,13 @@ public class ChatPanel extends JPanel {
     private ChatConferencePanel chatConferencePanel 
                                             = new ChatConferencePanel();
     
+    private ChatSendPanel sendPanel;
+    
     private Vector chatContacts = new Vector();
     
     private ChatWindow chatWindow;
+    
+    private OperationSetBasicInstantMessaging imOperationSet;
     
     private int tabIndex;
     
@@ -48,15 +53,19 @@ public class ChatPanel extends JPanel {
      * 
      * @param chatWindow The parent window of this chat panel.
      */
-    public ChatPanel(ChatWindow chatWindow){
+    public ChatPanel(ChatWindow chatWindow, 
+            OperationSetBasicInstantMessaging imOperationSet){
         
         super(new BorderLayout());
         
         this.chatWindow = chatWindow;
+        this.imOperationSet = imOperationSet;
         
-        conversationPanel = new ChatConversationPanel(chatWindow);
+        conversationPanel = new ChatConversationPanel(this);
         
-        writeMessagePanel = new ChatWritePanel(chatWindow);
+        sendPanel = new ChatSendPanel(this);
+        
+        writeMessagePanel = new ChatWritePanel(this);
                 
         this.init();
     }
@@ -77,7 +86,8 @@ public class ChatPanel extends JPanel {
         this.messagePane.add(topSplitPane);
         this.messagePane.add(writeMessagePanel);
         
-        this.add(messagePane);
+        this.add(messagePane, BorderLayout.CENTER);
+        this.add(sendPanel, BorderLayout.SOUTH);       
     }
     
     /**
@@ -169,4 +179,21 @@ public class ChatPanel extends JPanel {
     public void setTabIndex(int tabIndex) {
         this.tabIndex = tabIndex;
     }
+
+    public ChatWindow getChatWindow() {
+        return chatWindow;
+    }
+
+    public OperationSetBasicInstantMessaging getImOperationSet() {
+        return imOperationSet;
+    }
+
+    public void setImOperationSet(OperationSetBasicInstantMessaging imOperationSet) {
+        this.imOperationSet = imOperationSet;
+    }
+
+    public ChatSendPanel getSendPanel() {
+        return sendPanel;
+    }
+
 }

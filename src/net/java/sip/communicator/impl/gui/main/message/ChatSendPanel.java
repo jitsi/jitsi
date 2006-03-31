@@ -24,8 +24,11 @@ import javax.swing.JPanel;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.service.protocol.Message;
+import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 
-public class ChatSendPanel extends JPanel implements ActionListener {
+public class ChatSendPanel extends JPanel 
+    implements ActionListener{
 
 	private JButton sendButton = new JButton(Messages.getString("send"));
 	
@@ -35,13 +38,13 @@ public class ChatSendPanel extends JPanel implements ActionListener {
 
 	private JLabel statusLabel = new JLabel();
 
-	private ChatWindow msgWindow;
-
-	public ChatSendPanel(ChatWindow msgWindow) {
+	private ChatPanel chatPanel;
+    
+	public ChatSendPanel(ChatPanel chatPanel) {
 
 		super(new BorderLayout(5, 5));
 
-		this.msgWindow = msgWindow;
+		this.chatPanel = chatPanel;
 
 		this.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 0));
 
@@ -53,7 +56,7 @@ public class ChatSendPanel extends JPanel implements ActionListener {
 		this.add(statusPanel, BorderLayout.CENTER);
 		this.add(sendPanel, BorderLayout.EAST);
 		
-		this.sendButton.addActionListener(this);		
+		this.sendButton.addActionListener(this);
 	}
 
 	public void paint(Graphics g) {
@@ -71,23 +74,17 @@ public class ChatSendPanel extends JPanel implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		JEditorPane messagePane = this.msgWindow.getWriteMessagePanel()
-				.getEditorPane();
-
+        JEditorPane messagePane = this.chatPanel.getWriteMessagePanel()
+        .getEditorPane(); 
+        
 		if(messagePane.getText() != null && !messagePane.getText().equals("")){
-			
-			// TODO: Send the text to the protocol service.
-	
-			// TODO: Receive a notice that message is delivered.
-	
-			this.msgWindow.getConversationPanel().processSentMessage(
-											this.msgWindow.getParentWindow().getAccount(),
-											Calendar.getInstance(),										
-											messagePane.getText());
-	
-			messagePane.setText("");
-	
-			messagePane.requestFocus();
+            OperationSetBasicInstantMessaging im = this.chatPanel.getImOperationSet();
+            
+            Message msg = im.createMessage(messagePane.getText());
+            
+            this.chatPanel.getChatWindow().getMainFrame()
+                .getWaitToBeDeliveredMsgs().put(msg.getMessageUID(), this.chatPanel);
+            im.sendInstantMessage(chatPanel.getDefaultContact().getDefaultContact(), msg);
 		}
 	}
 
@@ -103,6 +100,5 @@ public class ChatSendPanel extends JPanel implements ActionListener {
 						new ImageIcon(Constants.getProtocolIcon(protocolList[i])));
                         */
 		}
-		
 	}
 }

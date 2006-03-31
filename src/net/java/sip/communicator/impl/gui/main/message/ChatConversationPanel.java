@@ -11,6 +11,8 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,8 +23,12 @@ import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
-import net.java.sip.communicator.impl.gui.main.Account;
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedEditorPane;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.BrowserLauncher;
@@ -35,26 +41,38 @@ import net.java.sip.communicator.impl.gui.main.utils.StringUtils;
 public class ChatConversationPanel extends JScrollPane 
     implements HyperlinkListener {
 
-	private ChatWindow msgWindow;
+	private ChatPanel chatPanel;
 
 	private AntialiasedEditorPane chatEditorPane = new AntialiasedEditorPane();
 
+    private HTMLEditorKit editorKit = new MyHTMLEditorKit(); 
+    
 	private ChatBuffer chatBuffer;
-
-	public ChatConversationPanel(ChatWindow msgWindow) {
+    
+    private HTMLDocument document;
+    
+	public ChatConversationPanel(ChatPanel chatPanel) {
 
 		super();
 
-		this.msgWindow = msgWindow;
+		this.chatPanel = chatPanel;
 
 		this.chatBuffer = new ChatBuffer();
 
 		this.chatEditorPane.setContentType("text/html");
 
 		this.chatEditorPane.setEditable(false);
+        
+        //this.initStyle();
+        
+		this.chatEditorPane.setEditorKit(editorKit);
 
-		this.chatEditorPane.setEditorKit(new MyHTMLEditorKit());
-
+        this.document = (HTMLDocument)this.chatEditorPane.getDocument();
+        
+        Constants.loadStyle(document.getStyleSheet());
+        
+        this.initEditor();
+        
 		this.chatEditorPane.addHyperlinkListener(this);
 
 		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -62,85 +80,169 @@ public class ChatConversationPanel extends JScrollPane
 		this.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
 		this.setWheelScrollingEnabled(true);
-
-		this.getViewport().add(chatEditorPane, BorderLayout.CENTER);
+        
+		this.getViewport().add(chatEditorPane, BorderLayout.CENTER);        
 	}
+    
+    private void initEditor(){
+        Element root = this.document.getDefaultRootElement();
+        
+        Calendar calendar = Calendar.getInstance();
+        String chatHeader = "<h1>"
+        + calendar.get(Calendar.DAY_OF_MONTH) + "/"
+        + calendar.get(Calendar.MONTH) + 1 + "/"
+        + calendar.get(Calendar.YEAR) + " " + "</h1>";
 
-	public void paint(Graphics g) {
+        try {            
+            this.document.insertAfterStart(root, chatHeader);
+        } catch (BadLocationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Process the message given by the parameters.
+     * 
+     * @param contactName The name of the contact sending the message.
+     * @param calendar The time at which the message is sent or received.
+     * @param messageType The type of the message. One of OUTGOING_MESSAGE 
+     * or INCOMING_MESSAGE. 
+     * @param message The message text.
+     */
+    /*
+    public void processMessage(String contactName,
+                                                   Calendar calendar,
+                                                   String messageType, 
+                                                   String message){
+        
+        this.registerMessage(contactName, 
+                                        calendar, 
+                                        messageType, 
+                                        message);
 
-		AntialiasingManager.activateAntialiasing(g);
+        String chatString = "<HTML><DIV style=\"background-color:"
+                + Constants.FONT_CHAT_HEADER_COLOR
+                + ";text-align:center;font-weight:bold;font-size:"
+                + Constants.FONT_SIZE + "\">"
+                + calendar.get(Calendar.DAY_OF_MONTH) + "/"
+                + calendar.get(Calendar.MONTH) + 1 + "/"
+                + calendar.get(Calendar.YEAR) + " " + "</DIV>";
 
-		super.paint(g);
+        for (int i = 0; i < this.chatBuffer.size(); i++) {
 
-		Graphics2D g2 = (Graphics2D) g;
+            ChatMessage chatMessage = (ChatMessage) this.chatBuffer.get(i);
 
-		g2.setColor(Constants.MSG_WINDOW_BORDER_COLOR);
-		g2.setStroke(new BasicStroke(1.5f));
+            String msgColor = "";            
+            if(chatMessage.getMessageType().equals(ChatMessage.INCOMING_MESSAGE))
+                msgColor = Constants.FONT_IN_MSG_COLOR;
+            else
+                msgColor = Constants.FONT_OUT_MSG_COLOR;
+            
+            chatString += "<DIV style=\"font-family:"
+                    + Constants.FONT_NAME
+                    + ";font-size:"
+                    + Constants.FONT_SIZE
+                    + ";color:"
+                    + msgColor
+                    + ";font-weight:bold;\">"
+                    + chatMessage.getSenderName()
+                    + " at "
+                    + chatMessage.getCalendar().get(Calendar.HOUR_OF_DAY)
+                    + ":"
+                    + proccessMinutes(chatMessage.getCalendar().get(Calendar.MINUTE))
+                    + "</DIV>"
+                    + "<DIV style=\"font-family:"
+                    + Constants.FONT_NAME
+                    + ";font-size:"
+                    + Constants.FONT_SIZE
+                    + "\">"
+                    + processSmilies(processNewLines(processLinks(chatMessage
+                            .getMessage()))) + "</DIV>";
+        }
 
-		g2.drawRoundRect(3, 3, this.getWidth() - 7, this.getHeight() - 5, 8, 8);
+        chatString += "</HTML>";
 
-	}
+        this.chatEditorPane.setText(chatString);
+        this.chatEditorPane.scrollRectToVisible
+            (new Rectangle(chatEditorPane.getX(),
+                                    chatEditorPane.getHeight() - 1,
+                                    chatEditorPane.getWidth(),
+                                    chatEditorPane.getHeight()));
+        this.repaint();
+        this.validate();
+    } 
+    */
+    
+    public void processMessage(String contactName,
+                                                Calendar calendar,
+                                                String messageType, 
+                                                String message){
+           
+        String chatString;
+        String endHeaderTag;
+        if(messageType.equals(ChatMessage.INCOMING_MESSAGE)){
+            chatString = "<h2>";
+            endHeaderTag = "</h2>";
+        }
+        else{
+            chatString = "<h3>";
+            endHeaderTag = "</h3>";
+        }
+        
+        chatString += contactName
+        + " at "
+        + calendar.get(Calendar.HOUR_OF_DAY)
+        + ":"
+        + proccessMinutes(calendar.get(Calendar.MINUTE))
+        + endHeaderTag
+        + "<DIV>"
+        + processSmilies(processNewLines(processLinks(message))) + "</DIV>";
+        
+        Element root = this.document.getDefaultRootElement();
+        
+        try {
+            this.document.insertAfterEnd(root.getElement(root.getElementCount() - 1), chatString);
+        } catch (BadLocationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        // Doesn't work fine. TO BE CHANGED!
+        this.chatEditorPane.scrollRectToVisible(new Rectangle(chatEditorPane.getX(),
+                chatEditorPane.getHeight() - 1, 1, 1));
+} 
+    
+    /**
+     * Creates a new ChatMessage and adds it to the chat buffer.
+     * 
+     * @param contactName The name of the contact sending the message.
+     * @param calendar The time at which the message is sent or received.
+     * @param messageType The type of the message. One of OUTGOING_MESSAGE 
+     * or INCOMING_MESSAGE. 
+     * @param message The message text.
+     */
+	private void registerMessage(String contactName, Calendar calendar,
+			String messageType, String message) {
 
-	public void processReceivedMessage() {
-
-	}
-
-	public void processSentMessage( Account account, 
-	                                Calendar calendar,
-	                                String message) {
-
-		this.registerMessage(account.getUin(), calendar, message);
-
-		String chatString = "<HTML><DIV style=\"background-color:"
-				+ Constants.FONT_CHAT_HEADER_COLOR
-				+ ";text-align:center;font-weight:bold;font-size:"
-				+ Constants.FONT_SIZE + "\">"
-				+ calendar.get(Calendar.DAY_OF_MONTH) + "/"
-				+ calendar.get(Calendar.MONTH) + 1 + "/"
-				+ calendar.get(Calendar.YEAR) + " " + "</DIV>";
-
-		for (int i = 0; i < this.chatBuffer.size(); i++) {
-
-			ChatMessage chatMessage = (ChatMessage) this.chatBuffer.get(i);
-
-			chatString += "<DIV style=\"font-family:"
-					+ Constants.FONT_NAME
-					+ ";font-size:"
-					+ Constants.FONT_SIZE
-					+ ";color:"
-					+ Constants.FONT_OUT_MSG_COLOR
-					+ ";font-weight:bold;\">"
-					+ chatMessage.getSenderName()
-					+ " at "
-					+ chatMessage.getCalendar().get(Calendar.HOUR_OF_DAY)
-					+ ":"
-					+ proccessMinutes(chatMessage.getCalendar().get(Calendar.MINUTE))
-					+ "</DIV>"
-					+ "<DIV style=\"font-family:"
-					+ Constants.FONT_NAME
-					+ ";font-size:"
-					+ Constants.FONT_SIZE
-					+ "\">"
-					+ processSmilies(processNewLines(processLinks(chatMessage
-							.getMessage()))) + "</DIV>";
-		}
-
-		chatString += "</HTML>";
-
-		this.chatEditorPane.setText(chatString);
-
-		this.repaint();
-		this.validate();
-	}
-
-	private void registerMessage(String senderName, Calendar calendar,
-			String message) {
-
-		ChatMessage chatMessage = new ChatMessage(senderName, calendar, message);
+		ChatMessage chatMessage 
+            = new ChatMessage(contactName, calendar, messageType, message);
 
 		this.chatBuffer.add(chatMessage);
 	}
 
+    /**
+     * Format message containing links.
+     * 
+     * @param message The source message string.
+     * @return The message string with properly formatted links.
+     */
 	private String processLinks(String message) {
 
 		String msgString = message;
@@ -159,11 +261,23 @@ public class ChatConversationPanel extends JScrollPane
 		return msgString;
 	}
 
+    /**
+     * Format message new lines.
+     * 
+     * @param message The source message string.
+     * @return The message string with properly formatted new lines.
+     */
 	private String processNewLines(String message) {
 
 		return message.replaceAll("\n", "<BR>");
 	}
 
+    /**
+     * Format message smilies.
+     * 
+     * @param message The source message string.
+     * @return The message string with properly formated smilies.
+     */
 	private String processSmilies(String message) {
 
 		ArrayList smiliesList = ImageLoader.getDefaultSmiliesPack();
@@ -190,6 +304,12 @@ public class ChatConversationPanel extends JScrollPane
 		return msgString;
 	}
 	
+    /**
+     * Format time string.
+     * 
+     * @param minutes The minutes int.
+     * @return The formatted minutes string.
+     */
 	private String proccessMinutes(int minutes){		
 		
 		String minutesString = new Integer(minutes).toString();
@@ -202,6 +322,9 @@ public class ChatConversationPanel extends JScrollPane
 		return resultString;
 	}
 
+    /**
+     * Opens a link in the default browser when clicked.
+     */
 	public void hyperlinkUpdate(HyperlinkEvent e) {
 
 		if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
@@ -211,4 +334,19 @@ public class ChatConversationPanel extends JScrollPane
 			BrowserLauncher.openURL(url.toString());
 		}
 	}
+       
+    public void paint(Graphics g) {
+
+        AntialiasingManager.activateAntialiasing(g);
+
+        super.paint(g);
+
+        Graphics2D g2 = (Graphics2D) g;
+
+        g2.setColor(Constants.MSG_WINDOW_BORDER_COLOR);
+        g2.setStroke(new BasicStroke(1.5f));
+
+        g2.drawRoundRect(3, 3, this.getWidth() - 7, this.getHeight() - 5, 8, 8);
+
+    }    
 }

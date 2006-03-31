@@ -11,19 +11,27 @@ import java.util.Calendar;
 
 public class ChatMessage {
 
+    public static final String OUTGOING_MESSAGE = "OutgoingMessage";
+    
+    public static final String INCOMING_MESSAGE = "IncomingMessage";
+    
 	private String senderName;
 	
 	private Calendar calendar;
 	
 	private String message;
-
+    
+    private String messageType;
+   
 	public ChatMessage(	String senderName,
 						Calendar calendar,
+                        String messageType,
 						String message){
 		
 		this.senderName = senderName;
 		this.calendar = calendar;
 		this.message = message;
+        this.messageType = messageType;
 	}
 	
 	public Calendar getCalendar() {
@@ -49,4 +57,8 @@ public class ChatMessage {
 	public void setSenderName(String senderName) {
 		this.senderName = senderName;
 	}
+    
+    public String getMessageType(){
+        return this.messageType;
+    }
 }
