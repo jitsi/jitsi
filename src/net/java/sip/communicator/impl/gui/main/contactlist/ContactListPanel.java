@@ -83,6 +83,23 @@ public class ContactListPanel extends JScrollPane
             (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	}
 
+     public void initTree(MetaContactListService contactListService) {
+            
+            this.contactList = new ContactList(contactListService);
+            
+            this.contactList.addMouseListener(this);
+
+            this.treePanel.add(contactList, BorderLayout.NORTH);
+            
+            this.addKeyListener(new CListKeySearchListener(this.contactList));
+            
+        }
+        
+        public ContactList getContactList(){
+            
+            return this.contactList;
+        }
+        
 	public void mouseClicked(MouseEvent e) {
 		
         //Expand and collapse groups on double click.
@@ -328,23 +345,6 @@ public class ContactListPanel extends JScrollPane
 		}
 	}
    
-    public void initTree(MetaContactListService contactListService) {
-        
-        this.contactList = new ContactList(contactListService);
-        
-        this.contactList.addMouseListener(this);
-
-        this.treePanel.add(contactList, BorderLayout.NORTH);
-        
-        this.addKeyListener(new CListKeySearchListener(this.contactList));
-        
-    }
-    
-    public ContactList getContactList(){
-    	
-    	return this.contactList;
-    }
-
     public void messageReceived(MessageReceivedEvent evt) {
         
         Calendar calendar = Calendar.getInstance();

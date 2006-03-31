@@ -159,7 +159,7 @@ public class ContactList extends JList
        
         this.groupAdded(sourceGroup);
         
-        this.ensureIndexIsVisible(this.listModel.getSize() - 1);
+        this.ensureIndexIsVisible(0);  
     }
    
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
