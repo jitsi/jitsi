@@ -11,16 +11,16 @@ import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 public class Account {
     
-    private String uin;
+    private String identifier;
     
     private ProtocolProviderService protocolProvider;
     
     private String protocolName;
     
-    public Account( String uin, 
+    public Account( String identifier, 
                     ProtocolProviderService protocolProvider){
         
-        this.uin = uin;
+        this.identifier = identifier;
         this.protocolProvider = protocolProvider;
         this.protocolName = protocolProvider.getProtocolName();
     }
@@ -37,11 +37,11 @@ public class Account {
         return this.protocolProvider;
     }
     
-    public String getUin() {
-        return uin;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setUin(String uin) {
-        this.uin = uin;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 }
