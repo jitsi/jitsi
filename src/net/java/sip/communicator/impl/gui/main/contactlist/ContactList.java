@@ -158,6 +158,8 @@ public class ContactList extends JList
         MetaContactGroup sourceGroup = evt.getSourceMetaContactGroup();
        
         this.groupAdded(sourceGroup);
+        
+        this.ensureIndexIsVisible(this.listModel.getSize() - 1);
     }
    
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
@@ -194,16 +196,14 @@ public class ContactList extends JList
         int index = this.listModel.indexOf(group);
 
         this.listModel.contentAdded(index, index);        
-        this.ensureIndexIsVisible(index);
-        
+                
         Iterator childContacts = group.getChildContacts();
         
         while(childContacts.hasNext()){
             MetaContact contact = (MetaContact)childContacts.next();
             
             int contactIndex = this.listModel.indexOf(contact);
-            this.listModel.contentAdded(contactIndex, contactIndex);            
-            this.ensureIndexIsVisible(contactIndex);
+            this.listModel.contentAdded(contactIndex, contactIndex);
         }
         
         Iterator subGroups = group.getSubgroups();
