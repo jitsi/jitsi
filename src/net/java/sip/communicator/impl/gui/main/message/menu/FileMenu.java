@@ -92,8 +92,8 @@ public class FileMenu extends JMenu
 			
 			this.parentWindow.setVisible(false);
 			this.parentWindow.dispose();
-			this.parentWindow.getParentWindow().setVisible(false);
-			this.parentWindow.getParentWindow().dispose();			
+			this.parentWindow.getMainFrame().setVisible(false);
+			this.parentWindow.getMainFrame().dispose();			
 	        System.exit(0);
 		}
 		
