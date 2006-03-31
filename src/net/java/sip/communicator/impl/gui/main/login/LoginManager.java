@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 
 import net.java.sip.communicator.impl.gui.main.Account;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.main.StatusPanel;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.service.protocol.AccountID;
@@ -152,11 +153,11 @@ public class LoginManager implements RegistrationStateChangeListener {
         else if(evt.getNewState()
                     .equals(RegistrationState.AUTHENTICATION_FAILED)){
             
-            this.mainFrame.getStatusPanel()
-                .stopConnecting(evt.getProvider().getProtocolName());
+            StatusPanel statusPanel = this.mainFrame.getStatusPanel();
             
-            this.mainFrame.getStatusPanel()
-                .setSelectedStatus( evt.getProvider().getProtocolName(),
+            statusPanel.stopConnecting(evt.getProvider().getProtocolName());
+            
+            statusPanel.setSelectedStatus( evt.getProvider().getProtocolName(),
                                     Constants.OFFLINE_STATUS);
             
             JOptionPane.showMessageDialog(null,
