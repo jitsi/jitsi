@@ -68,7 +68,7 @@ public class GuiActivator implements BundleActivator
              */
             
             WelcomeWindow welcomeWindow 
-                = new WelcomeWindow(communicatorMain, loginManager);
+                = new WelcomeWindow(communicatorMain, loginManager, bundleContext);
             
             welcomeWindow.showWindow();
         }

@@ -23,12 +23,17 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+
+import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.login.LoginManager;
 import net.java.sip.communicator.impl.gui.main.login.LoginWindow;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.BrowserLauncher;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.util.Logger;
 
 public class WelcomeWindow extends JDialog
     implements ActionListener{
@@ -52,9 +57,16 @@ public class WelcomeWindow extends JDialog
     
     private LoginManager loginManager;
     
-    public WelcomeWindow(CommunicatorMain communicator, LoginManager loginManager){
-        super(communicator.getMainFrame());
+    private BundleContext bc;
+    
+    private Logger logger = Logger.getLogger(WelcomeWindow.class.getName());
+    
+    public WelcomeWindow(CommunicatorMain communicator, 
+                                            LoginManager loginManager,
+                                            BundleContext bc){
+        super(communicator.getMainFrame(), Messages.getString("warning"));
         
+        this.bc = bc;
         this.communicator = communicator;
         this.loginManager = loginManager;
         
@@ -137,6 +149,13 @@ public class WelcomeWindow extends JDialog
            SwingUtilities.invokeLater(new RunLogin());
        }
        else{
+           try{
+               this.bc.getBundle(0).stop();
+           }
+           catch (BundleException ex) {
+               logger.error("Failed to gently shutdown Oscar", ex);
+           }
+          
            System.exit(0);
        }
     }
