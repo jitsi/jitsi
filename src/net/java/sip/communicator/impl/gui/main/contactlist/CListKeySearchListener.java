@@ -7,6 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -21,28 +22,32 @@ public class CListKeySearchListener implements KeyListener {
    
 	private ContactList contactList;
 	
-	private char lastTypedKey = 0;
+	private String lastTypedKey;
+    private long lastTypedTimestamp = 0;
+    private StringBuffer keyBuffer = new StringBuffer();
 	
 	public CListKeySearchListener(ContactList contactList){
 		this.contactList = contactList;
 	}
-	public void keyPressed(KeyEvent e) {
-		
+	public void keyPressed(KeyEvent e) {	
 	}
 
-	public void keyReleased(KeyEvent e) {
-	
+	public void keyReleased(KeyEvent e) {	
 	}
 
 	public void keyTyped(KeyEvent e) {
-		
-		int contactIndex = - 1;
-		
+        long eventTimestamp = e.getWhen();
+        String keyChar = String.valueOf(e.getKeyChar());
+        
+	    if((lastTypedTimestamp - eventTimestamp) > 1000){	        
+            keyBuffer.delete(0, keyBuffer.length() - 1);
+        }        
+        this.lastTypedTimestamp = eventTimestamp;
+        this.keyBuffer.append(keyChar);
+        
 		boolean selectedSameLetterContact = false;
 		
 		int selectedIndex = this.contactList.getSelectedIndex();
-		
-		String keyChar = String.valueOf(e.getKeyChar());
 		
 		//Checks if there's any selected contact node and gets its name.
 		if(selectedIndex != -1){
@@ -55,57 +60,30 @@ public class CListKeySearchListener implements KeyListener {
 				if (selectedContactName != null) 
 					selectedSameLetterContact 
 						= selectedContactName.substring(0, 1)
-							.equalsIgnoreCase(keyChar);
+							.equalsIgnoreCase(keyBuffer.toString());
 			}
 		}
-						
-		/*
-		 * The search starts from the beginning if:
-		 * 1) the newly entered character is different from the last one
-		 * or  
-		 * 2) the currently selected contact starts with a different letter 
-		 */
-		if(lastTypedKey != e.getKeyChar() || !selectedSameLetterContact) {
-			contactIndex = this.getNextMatch(keyChar, 0);
+		 // The search starts from the beginning if:
+		 // 1) the newly entered character is different from the last one
+		 // or  
+		 // 2) the currently selected contact starts with a different letter
+        int contactIndex = -1;
+		if(lastTypedKey != keyChar || !selectedSameLetterContact) {
+			contactIndex = this.contactList.getNextMatch(keyBuffer.toString(), 
+                                                0, Position.Bias.Forward);
 		}
 		else {
-			contactIndex = this.getNextMatch(	keyChar, 
-												selectedIndex + 1);
-		}
-		
-		if(contactIndex != -1){
-			this.contactList.setSelectedIndex(contactIndex);
-			this.contactList.ensureIndexIsVisible(contactIndex);
-		}
-		
-		this.lastTypedKey = e.getKeyChar();
-	}
-	
-	/**
-	 * Returns the next contact node that starts with the given prefix.
-	 * 
-	 * @param keyChar The char to test for a match.
-	 * @param startIndex The index for starting the search.
-	 * @return The index of the next contact that starts with the prefix.
-	 */
-	private int getNextMatch(String keyChar, int startIndex){
-		
-		int indexToSelect = -1;
-		
-		int index = this.contactList.getNextMatch(	keyChar, 
-													startIndex, 
-													Position.Bias.Forward);
-		if(index != -1){
-			Object element = this.contactList.getModel().getElementAt(index);
-			
-			if(element instanceof MetaContact){
-				indexToSelect = index;
-			}
-			else{
-				indexToSelect = getNextMatch(keyChar, index + 1);
-			}
-		}
-		
-		return indexToSelect;
+			contactIndex = this.contactList.getNextMatch(keyBuffer.toString(), 
+												selectedIndex + 1, Position.Bias.Forward);
+		}		
+     
+        int currentlySelectedIndex = this.contactList.getSelectedIndex();
+        
+        if(currentlySelectedIndex != contactIndex && contactIndex != -1)
+            this.contactList.setSelectedIndex(contactIndex);
+        
+        this.contactList.ensureIndexIsVisible(currentlySelectedIndex);
+
+        this.lastTypedKey = keyChar;
 	}
 }

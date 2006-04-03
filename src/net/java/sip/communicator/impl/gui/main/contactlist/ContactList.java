@@ -214,6 +214,52 @@ public class ContactList extends JList
             this.groupAdded(subGroup);
         }
     }
+    
+    /**
+     * Returns the next list element that starts with 
+     * a prefix.
+     *
+     * @param prefix the string to test for a match
+     * @param startIndex the index for starting the search
+     * @param bias the search direction, either 
+     * Position.Bias.Forward or Position.Bias.Backward.
+     * @return the index of the next list element that
+     * starts with the prefix; otherwise -1
+     * @exception IllegalArgumentException if prefix is null
+     * or startIndex is out of bounds
+     */
+    public int getNextMatch(String prefix, int startIndex, Position.Bias bias) {
+        ContactListModel model = (ContactListModel)this.getModel();
+        int max = model.getSize();
+        if (prefix == null) {
+            throw new IllegalArgumentException();
+        }
+        if (startIndex < 0 || startIndex >= max) {
+            throw new IllegalArgumentException();
+        }
+        prefix = prefix.toUpperCase();
+    
+        // start search from the next element after the selected element
+        int increment = (bias == Position.Bias.Forward) ? 1 : -1;
+        int index = startIndex;
+        do {
+            Object o = model.getElementAt(index);
+            
+            if (o != null) {            
+                String contactName = null;
+                
+                if (o instanceof MetaContact) {
+                    contactName = ((MetaContact)o).getDisplayName().toUpperCase();
+                }
+                
+                if (contactName != null && contactName.startsWith(prefix)) {
+                    return index;
+                }
+            }
+            index = (index + increment + max) % max;
+        } while (index != startIndex);
+        return -1;
+    }
 }
 
 
