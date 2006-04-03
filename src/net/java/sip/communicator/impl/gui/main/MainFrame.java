@@ -217,6 +217,10 @@ public class MainFrame extends JFrame {
                     this.statusPanel.setSelectedStatus
                         (protocolProvider.getProtocolName(), 
                                 Constants.ONLINE_STATUS);
+                    
+                    //request the focus int the contact list panel, which
+                    //permits to search in the contact list
+                    this.tabbedPane.getContactListPanel().getContactList().requestFocus();
                         
                 } catch (IllegalArgumentException e) {
                     // TODO Auto-generated catch block
