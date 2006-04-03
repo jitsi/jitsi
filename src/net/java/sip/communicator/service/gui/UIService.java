@@ -144,7 +144,7 @@ public interface UIService
      * Meant to be called in the process of initialization of the container, defined by the 
      * given constraint in order to obtain all external components that should be added in it. 
      * 
-     * @param constraint One of the constraints supported by the current UI implementation.
+     * @param containerID One of the containerID-s supported by the current UI implementation.
      * @return An Iterator to a set containing all components added to a given constraint.
      */
     public Iterator getComponentsForContainer(ContainerID containerID)

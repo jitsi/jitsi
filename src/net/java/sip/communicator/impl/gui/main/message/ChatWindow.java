@@ -58,7 +58,7 @@ public class ChatWindow extends JFrame{
     /**
      * Creates a chat window.
      * 
-     * @param parentWindow
+     * @param mainFrame
      */
 	public ChatWindow (MainFrame mainFrame){		
 				
@@ -84,7 +84,7 @@ public class ChatWindow extends JFrame{
 	}
 	
 	/**
-     * Returns the parent window.
+     * Returns the main frame.
      * 
      * @return The parent window.
 	 */
@@ -93,9 +93,9 @@ public class ChatWindow extends JFrame{
 	}
 
     /**
-     * Sets the parent window.
+     * Sets the main frame.
      * 
-     * @param parentWindow The parent window for this chat window.
+     * @param mainFrame The parent window for this chat window.
      */
 	public void setMainFrame(MainFrame mainFrame) {
 		this.mainFrame = mainFrame;

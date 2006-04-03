@@ -18,14 +18,14 @@ public interface ContainerPluginListener
     /**
      * Indicates that a plugin component has been successfully added
      * to the container.
-     * @param evt the PluginComponentEvent containing the corresponding plugin component
+     * @param event the PluginComponentEvent containing the corresponding plugin component
      */
     public void pluginComponentAdded(PluginComponentEvent event);
     
     /**
      * Indicates that a plugin component has been successfully removed
      * from the container.
-     * @param evt the PluginComponentEvent containing the corresponding plugin component
+     * @param event the PluginComponentEvent containing the corresponding plugin component
      */
     public void pluginComponentRemoved(PluginComponentEvent event);
 }

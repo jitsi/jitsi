@@ -62,8 +62,8 @@ public class UIServiceImpl implements UIService {
     }
 
     /**
-     * Implements getSupportedConstraints in UIService interface.
-     * @see UIService#getSupportedConstraints()
+     * Implements getSupportedContainers in UIService interface.
+     * @see UIService#getSupportedContainers()
      */
     public Iterator getSupportedContainers() {        
         return Collections.unmodifiableList(supportedContainers).iterator();
@@ -71,7 +71,7 @@ public class UIServiceImpl implements UIService {
 
     /**
      * Implements getComponentsForConstraint in UIService interface.
-     * @see UIService#getComponentsForConstraint(String)
+     * @see UIService#getComponentsForContainer(ContainerID)
      */
     public Iterator getComponentsForContainer(ContainerID containerID)
         throws IllegalArgumentException {
