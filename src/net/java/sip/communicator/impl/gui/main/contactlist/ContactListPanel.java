@@ -49,9 +49,10 @@ import net.java.sip.communicator.service.protocol.event.MessageListener;
 import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
 
 /**
- * @author Yana Stamcheva
+ * Creates the contactlist panel. The contactlist panel not only contains the contact list
+ * but it has the role of a message dispatcher by implementing the MessageListener.
  * 
- * Creates the contactlist panel.  
+ * @author Yana Stamcheva   
  */
 public class ContactListPanel extends JScrollPane 
 	implements MouseListener, MessageListener {
@@ -87,12 +88,11 @@ public class ContactListPanel extends JScrollPane
             
             this.contactList = new ContactList(contactListService);
             
-            this.contactList.addMouseListener(this);
-
+            this.contactList.addMouseListener(this);            
+            
             this.treePanel.add(contactList, BorderLayout.NORTH);
             
             this.addKeyListener(new CListKeySearchListener(this.contactList));
-            
         }
         
         public ContactList getContactList(){
