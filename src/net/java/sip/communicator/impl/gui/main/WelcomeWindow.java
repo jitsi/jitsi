@@ -142,8 +142,7 @@ public class WelcomeWindow extends JDialog
     }
 
     public void actionPerformed(ActionEvent e) {
-       if(e.getSource().equals(continueButton)){
-           
+       if(e.getSource().equals(continueButton)){           
            this.dispose();
            this.communicator.showCommunicator(true);           
            SwingUtilities.invokeLater(new RunLogin());
@@ -154,8 +153,7 @@ public class WelcomeWindow extends JDialog
            }
            catch (BundleException ex) {
                logger.error("Failed to gently shutdown Oscar", ex);
-           }
-          
+           }          
            System.exit(0);
        }
     }

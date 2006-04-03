@@ -130,10 +130,8 @@ public class CommunicatorMain {
     }
 
     public void showCommunicator(boolean isVisible) {
-
-        mainFrame.pack();
-
-        mainFrame.setVisible(isVisible);
+        this.mainFrame.pack();
+        this.mainFrame.setVisible(isVisible);
     }
 
     public static void main(String args[]) {
