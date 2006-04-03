@@ -13,6 +13,7 @@ import java.util.Vector;
 import javax.swing.AbstractListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
+import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.service.contactlist.MetaContact;
@@ -54,7 +55,7 @@ public class ContactListModel extends AbstractListModel {
      * @param startIndex The start index of the range .
      * @param endIndex The end index of the range.
      */
-    public void contentChanged(int startIndex, int endIndex) {        
+    public void contentChanged(int startIndex, int endIndex) {
         fireContentsChanged(this, startIndex, endIndex);
     }
 
@@ -65,8 +66,12 @@ public class ContactListModel extends AbstractListModel {
      * @param startIndex The start index of the range .
      * @param endIndex The end index of the range.
      */
-    public void contentAdded(int startIndex, int endIndex) {        
-        fireIntervalAdded(this, startIndex, endIndex);
+    public void contentAdded(final int startIndex, final int endIndex) {
+        SwingUtilities.invokeLater(new Thread(){
+            public void run(){
+                fireIntervalAdded(this, startIndex, endIndex);
+            }
+        });
     }
     
     /**
@@ -75,8 +80,12 @@ public class ContactListModel extends AbstractListModel {
      * @param startIndex The start index of the range.
      * @param endIndex The end index of the range.
      */
-    public void contentRemoved(int startIndex, int endIndex) {        
-        fireIntervalRemoved(this, startIndex, endIndex);
+    public void contentRemoved(final int startIndex, final int endIndex) {
+        SwingUtilities.invokeLater(new Thread(){
+            public void run(){
+                fireIntervalRemoved(this, startIndex, endIndex);
+            }
+        });
     }
     
     /**
