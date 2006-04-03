@@ -46,7 +46,11 @@ public class MainTabbedPane extends SIPCommTabbedPane {
 		
 		this.addTab(Messages.getString("contacts"), contactListPanel);
 		this.addTab(Messages.getString("callList"), new JPanel());
-		//this.addTab(Messages.getString("dial"), dialPanel);
+		this.addTab(Messages.getString("dial"), dialPanel);
+        
+        // Disable the tabs that containt not yet implemented functionalities.
+        this.setEnabledAt(1, false);
+        this.setEnabledAt(2, false);        
 	}
 	
     public ContactListPanel getContactListPanel() {
