@@ -328,9 +328,9 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
         if (!isOneActionButtonEnabled())
             width = TAB_BACKGROUND.getWidth(null);
         else {
-            width = CLOSABLE_TAB_BACKGROUND.getWidth(null);
+            width = CLOSABLE_TAB_BACKGROUND.getWidth(null) - 14;
         }
-
-        return width - 14;
+        
+        return width;
     }    
 }
