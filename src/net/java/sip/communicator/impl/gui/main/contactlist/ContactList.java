@@ -42,9 +42,7 @@ public class ContactList extends JList
 
     private MetaContactListService contactList;
 
-    private ContactListModel listModel;
-
-    private Hashtable removedContacts = new Hashtable();
+    private ContactListModel listModel;    
     
     public ContactList(MetaContactListService contactList){
 
@@ -70,51 +68,6 @@ public class ContactList extends JList
         this.contactList.addContactListListener(this);
     }
    
-    /**
-     * Removes all offline contacts from the contact list.
-     */
-    public void removeOfflineContacts(){
-        /*
-        for(int i = 0; i < listModel.getSize(); i++){
-            
-            Object element = listModel.get(i);
-
-            if(element instanceof MetaContactNode){
-                                
-                MetaContactNode contactNode = (MetaContactNode)element;
-                
-                if(contactNode.getStatus().equals(Constants.OFFLINE_STATUS)){
-                    
-                    MetaContactGroup group 
-                        = this.contactList.findParentMetaContactGroup(contactNode.getContact());
-                    
-                    this.removedContacts.put(contactNode, group);
-                } 
-            }
-        }
-        
-        Enumeration removedNodes = this.removedContacts.keys();
-        
-        while(removedNodes.hasMoreElements()){
-            this.listModel.removeElement(removedNodes.nextElement());
-        }
-        */
-    }
-    
-    /**
-     * Adds all offline contacts back to the contact list.
-     */
-    public void addOfflineContacts(){
-        /*
-        Iterator i = this.removedContacts.entrySet().iterator();
-        while(i.hasNext()){
-            Map.Entry entry = (Map.Entry)i.next();
-            
-            this.addChild((MetaContactGroup)entry.getValue(), (MetaContactNode)entry.getKey());
-        }
-        */
-    }
-
     public void metaContactAdded(MetaContactEvent evt) {
         // TODO Auto-generated method stub
         

@@ -20,6 +20,7 @@ import javax.swing.JButton;
 import net.java.sip.communicator.impl.gui.events.ContainerPluginListener;
 import net.java.sip.communicator.impl.gui.events.PluginComponentEvent;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 /**
@@ -48,8 +49,6 @@ public class QuickMenu extends SIPCommToolBar
 	
 	private MainFrame mainFrame;
     
-    private boolean showOnlineContactsOnly = false;
-	
 	public QuickMenu(MainFrame mainFrame){
 
 		this.mainFrame = mainFrame;
@@ -101,17 +100,16 @@ public class QuickMenu extends SIPCommToolBar
 		}
 		else if (buttonName.equals("search")){
             
-            ContactList contactList = mainFrame.getTabbedPane()
-                .getContactListPanel().getContactList();
+            ContactListModel listModel = (ContactListModel)mainFrame.getTabbedPane()
+                .getContactListPanel().getContactList().getModel();
             
-            showOnlineContactsOnly = !showOnlineContactsOnly;
-            
-            if(showOnlineContactsOnly){
-                 
-                contactList.removeOfflineContacts();
+            if(listModel.showOffline()){
+                listModel.setShowOffline(false);
+                listModel.removeOfflineContacts();                
             }
             else{
-                contactList.addOfflineContacts();
+                listModel.setShowOffline(true);
+                listModel.addOfflineContacts();
             }
 		}
 		else if (buttonName.equals("info")){
