@@ -70,7 +70,7 @@ public class ContactListPanel extends JScrollPane
     /**
      * Creates the contactlist scroll panel defining the parent frame.
      * 
-     * @param parent The parent frame.
+     * @param mainFrame The parent frame.
      */
 	public ContactListPanel(MainFrame mainFrame) {
 
