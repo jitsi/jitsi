@@ -35,7 +35,7 @@ public class StatusPanel extends JPanel {
 				Constants.CONTACTPANEL_MOVER_START_COLOR));
 	}
 
-	public void addAccount(Account account) {
+	public void activateAccount(Account account) {
 
         Map protocolStatusMap = Constants
             .getProtocolStatusIcons(account.getProtocolName());

@@ -270,8 +270,10 @@ public class MainFrame extends JFrame {
      * 
      * @param account The account to be added.
      */
-    public void addAccount(Account account){
-        this.accounts.add(account);
+    public void addAccount(Account account){      
+        this.accounts.add(account);        
+        this.getStatusPanel().activateAccount(account);
+        this.getStatusPanel().startConnecting(account.getProtocolName());
     }
     
     /**

@@ -43,8 +43,6 @@ public class LoginManager implements RegistrationStateChangeListener {
     
     private Logger logger = Logger.getLogger(LoginManager.class.getName());
     
-    private String osgiFilter = ""; 
-    
     private MainFrame mainFrame;
     
     public LoginManager(BundleContext bc){
@@ -96,12 +94,8 @@ public class LoginManager implements RegistrationStateChangeListener {
             = new Account(  user,
                             protocolProvider);
     
-        this.mainFrame.getStatusPanel().addAccount(account);
         this.mainFrame.addAccount(account);
         
-        this.mainFrame.getStatusPanel()
-                            .startConnecting(protocolProvider.getProtocolName());
-    
         protocolProvider.addRegistrationStateChangeListener(this);
   
         protocolProvider.register(new MySecurityAuthority());
@@ -122,7 +116,7 @@ public class LoginManager implements RegistrationStateChangeListener {
         }   
     }
     
-    public void showLoginWindow(MainFrame parent,
+    private void showLoginWindow(MainFrame parent,
                                 String protocolName,
                                 AccountManager accoundManager){
         
