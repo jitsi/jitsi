@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -21,6 +22,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedPanel;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
@@ -32,7 +34,8 @@ public class ChatSendPanel extends JPanel
 
 	private JButton sendButton = new JButton(Messages.getString("send"));
 	
-	private JPanel statusPanel = new JPanel();
+	private AntialiasedPanel statusPanel 
+        = new AntialiasedPanel(new FlowLayout(FlowLayout.LEFT));
 	
 	private JPanel sendPanel = new JPanel(new BorderLayout(3, 0));
 
@@ -46,15 +49,15 @@ public class ChatSendPanel extends JPanel
 
 		this.chatPanel = chatPanel;
 
-		this.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 0));
+		this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
 		this.statusPanel.add(statusLabel);
 						
-		this.sendPanel.add(sendButton, BorderLayout.CENTER);
+		//this.sendPanel.add(sendButton, BorderLayout.CENTER);
 		//this.sendPanel.add(protocolSelectorBox, BorderLayout.WEST);
 
 		this.add(statusPanel, BorderLayout.CENTER);
-		this.add(sendPanel, BorderLayout.EAST);
+		this.add(sendButton, BorderLayout.EAST);
 		
 		this.sendButton.addActionListener(this);
 	}
@@ -101,4 +104,8 @@ public class ChatSendPanel extends JPanel
                         */
 		}
 	}
+    
+    public void setTypingStatus(String statusMessage){
+        statusLabel.setText(statusMessage);
+    }
 }

@@ -33,6 +33,7 @@ import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 import net.java.sip.communicator.service.protocol.OperationSetPersistentPresence;
 import net.java.sip.communicator.service.protocol.OperationSetPresence;
+import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusChangeEvent;
 import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusListener;
@@ -235,12 +236,19 @@ public class MainFrame extends JFrame {
             }
             else if(key.equals(OperationSetBasicInstantMessaging.class.getName())
                     || key.equals(OperationSetPresence.class.getName())){
-                OperationSetBasicInstantMessaging im = 
-                    (OperationSetBasicInstantMessaging)value;                
+                
+                OperationSetBasicInstantMessaging im 
+                    = (OperationSetBasicInstantMessaging)value;
+                
                 this.imOperationSets.put(protocolProvider, im);
                 //Add to all instant messaging operation sets the Message listener 
                 //implemented in the ContactListPanel, which handles all received messages.
                 im.addMessageListener(this.getTabbedPane().getContactListPanel());
+            }
+            else if(key.equals(OperationSetTypingNotifications.class.getName())){
+                OperationSetTypingNotifications tn 
+                    = (OperationSetTypingNotifications)value;
+                tn.addTypingNotificationsListener(this.getTabbedPane().getContactListPanel());
             }
         }        
     }
