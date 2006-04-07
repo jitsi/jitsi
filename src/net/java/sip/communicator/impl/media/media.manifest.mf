@@ -9,9 +9,7 @@ Import-Package: org.ungoverned.gravity.servicebinder,
  net.java.sip.communicator.service.configuration.event,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.util,
- javax.swing,
- javax.sound.sampled,
- com.sun.media.protocol.v4l
+ javax.swing
 Export-Package: net.java.sip.communicator.service.media,
  net.java.sip.communicator.service.media.event,
  net.java.sip.communicator.impl.media,
