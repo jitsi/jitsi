@@ -39,7 +39,7 @@ public class WelcomeWindow extends JDialog
     implements ActionListener{
 
     private JLabel welcomeLabel 
-        = new JLabel("<html><font style=bold>"
+        = new JLabel("<html><font size=4>"
                 + "The SIP Communicator is currently under active development."
                 + "The version you are running is only experimental and WILL NOT "
                 + "work as expected. Please refer to "
