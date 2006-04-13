@@ -371,8 +371,7 @@ public class MainFrame extends JFrame {
                     = (ContactListModel)tabbedPane.getContactListPanel()
                         .getContactList().getModel();
                 
-                int index = model.indexOf(metaContact);
-                model.contentChanged(index, index);
+                model.changeContactStatus(metaContact, evt.getNewStatus());
             }
         }
     }        

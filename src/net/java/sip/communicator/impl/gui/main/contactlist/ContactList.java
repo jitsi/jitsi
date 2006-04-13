@@ -134,9 +134,7 @@ public class ContactList extends JList
         int endIndex 
             = this.listModel.indexOf(group.getMetaContact(group.countChildContacts() - 1));
         
-        this.listModel.contentRemoved(startIndex, endIndex);
-        
-        this.listModel.contentAdded(startIndex, endIndex);
+        this.listModel.contentChanged(startIndex, endIndex);
     }
     
     /**

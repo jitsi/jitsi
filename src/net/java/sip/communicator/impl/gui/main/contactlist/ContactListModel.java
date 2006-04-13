@@ -7,14 +7,11 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ImageIcon;
-import javax.swing.JList;
 import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
@@ -411,5 +408,30 @@ public class ContactListModel extends AbstractListModel {
      */
     public void setShowOffline(boolean showOffline) {
         this.showOffline = showOffline;
+    }
+    
+    /**
+     * Informs the model that the contect of the given contact 
+     * was changed. When in mode "hide offline contacts", shows
+     * or hides the given contact depending on the new status.
+     *  
+     * @param contact The MetaContact which status has changed.
+     * @param newStatus The new status of the contact.
+     */
+    public void changeContactStatus(MetaContact contact, 
+    									PresenceStatus newStatus){
+    		if(!showOffline){
+    			if(newStatus.isOnline() 
+    					&& offlineContacts.contains(contact)){
+    				offlineContacts.remove(contact);
+    			}
+    			else if(!newStatus.isOnline()
+    					&& !offlineContacts.contains(contact)){
+    				offlineContacts.add(contact);
+    			}
+    		}
+    			
+    		int index = this.indexOf(contact);
+        this.contentChanged(index, index);
     }
 }
