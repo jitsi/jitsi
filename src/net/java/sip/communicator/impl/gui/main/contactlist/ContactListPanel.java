@@ -241,18 +241,20 @@ public class ContactListPanel extends JScrollPane
     				if (msgWindow.getExtendedState() == JFrame.ICONIFIED)
     					msgWindow.setExtendedState(JFrame.NORMAL);
     				
-                    msgWindow.setVisible(true);                    
+                msgWindow.setVisible(true);                    
     			} else {
-                    /*
-                     * If there's no chat window for the contact
-                     * create it and show it. 
-                     */
-			        ChatWindow msgWindow = new ChatWindow(mainFrame);
-              
-                    contactMsgWindows.put(this.contactItem, msgWindow);
+                /*
+                 * If there's no chat window for the contact
+                 * create it and show it. 
+                 */
+		        ChatWindow msgWindow = new ChatWindow(mainFrame);
+          
+                contactMsgWindows.put(this.contactItem, msgWindow);
+                
+                msgWindow.addChat(this.contactItem);
                     
-                    msgWindow.addChat(this.contactItem);
-                    
+                msgWindow.pack();
+                
     				msgWindow.setVisible(true);
     
     				msgWindow.getWriteMessagePanel()
@@ -396,6 +398,8 @@ public class ContactListPanel extends JScrollPane
                     .processMessage(evt.getSourceContact().getDisplayName(), 
                             calendar, ChatMessage.INCOMING_MESSAGE, 
                             evt.getSourceMessage().getContent());
+                
+                msgWindow.pack();
                 
                 msgWindow.setVisible(true);                  
             }
