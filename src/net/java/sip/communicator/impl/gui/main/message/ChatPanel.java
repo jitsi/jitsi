@@ -66,25 +66,28 @@ public class ChatPanel extends JPanel {
         sendPanel = new ChatSendPanel(this);
         
         writeMessagePanel = new ChatWritePanel(this);
-                
+        
+        this.topSplitPane.setResizeWeight(1.0D);
+        this.messagePane.setResizeWeight(1.0D);
+        this.chatConferencePanel.setPreferredSize(new Dimension(120, 100));        
+        this.chatConferencePanel.setMinimumSize(new Dimension(120, 100));
+        this.writeMessagePanel.setPreferredSize(new Dimension(400, 100));        
+        this.writeMessagePanel.setMinimumSize(new Dimension(400, 100));
+        
         this.init();
     }
     
     /**
      * Initialize the chat panel.
      */
-    private void init(){
-        
-        this.topSplitPane.setDividerLocation(370);
+    private void init(){        
         this.topSplitPane.setOneTouchExpandable(true);
         
-        topSplitPane.add(conversationPanel);
-        topSplitPane.add(chatConferencePanel);
+        topSplitPane.setLeftComponent(conversationPanel);
+        topSplitPane.setRightComponent(chatConferencePanel);
         
-        this.messagePane.setDividerLocation(250);
-        
-        this.messagePane.add(topSplitPane);
-        this.messagePane.add(writeMessagePanel);
+        this.messagePane.setTopComponent(topSplitPane);
+        this.messagePane.setBottomComponent(writeMessagePanel);
         
         this.add(messagePane, BorderLayout.CENTER);
         this.add(sendPanel, BorderLayout.SOUTH);       
