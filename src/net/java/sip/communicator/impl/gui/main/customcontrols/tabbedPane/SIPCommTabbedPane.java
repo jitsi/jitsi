@@ -402,7 +402,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
     
     /**
      * Overrides setSelectedIndex in JTabbedPane in order to remove the 
-     * hightlight if the tab which is selected is highlighted.
+     * hightlight if the tab which is selected.
      */
     public void setSelectedIndex(int tabIndex){
         if(paneUI.isTabHighlighted(tabIndex)){            
@@ -417,7 +417,8 @@ public class SIPCommTabbedPane extends JTabbedPane {
      * @param tabIndex The tab index.
      */
     public void highlightTab(int tabIndex){
-        if(!paneUI.isTabHighlighted(tabIndex))
+        if(!paneUI.isTabHighlighted(tabIndex)
+        		&& this.getSelectedIndex() != tabIndex)
             this.paneUI.tabAddHightlight(tabIndex);
         
         this.repaint();
