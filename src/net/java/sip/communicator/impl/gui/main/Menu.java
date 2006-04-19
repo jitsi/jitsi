@@ -11,15 +11,14 @@ import java.awt.Graphics;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 
 /**
- * @author Yana Stamcheva
- *
  * The main menu. 
+ * 
+ * @author Yana Stamcheva
  */
 public class Menu extends JMenuBar {
 	private JMenu userMenu = new JMenu();
@@ -40,9 +39,9 @@ public class Menu extends JMenuBar {
 		toolsMenu.setMnemonic(Messages.getString("mnemonic.tools").charAt(0));
 		toolsMenu.setToolTipText(Messages.getString("tools"));
 		
-		viewMenu.setText(Messages.getString("view"));
-		viewMenu.setMnemonic(Messages.getString("mnemonic.view").charAt(0));
-		viewMenu.setToolTipText(Messages.getString("view"));
+		viewMenu.setText(Messages.getString("settings"));
+		viewMenu.setMnemonic(Messages.getString("mnemonic.settings").charAt(0));
+		viewMenu.setToolTipText(Messages.getString("settings"));
 		
 		helpMenu.setText(Messages.getString("help"));
 		helpMenu.setMnemonic(Messages.getString("mnemonic.help").charAt(0));
