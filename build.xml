@@ -88,9 +88,9 @@
   <!-- default Ant target does nothing except print helpful options -->
   <!-- Ant-internal target does not appear in its own help display  -->
     <target name="usage" >
-       <echo message="execute 'ant -projecthelp' for useful build targets" />
+       <echo message="execute 'ant cc-buildloop' to initialise a sandbox (cruise control build cycle)" />
        <echo message="execute 'ant rebuild' for a clean/build/test sequence" />
-       <echo message="execute 'ant cc-buildloop' for a cruise control build cycle" />
+       <echo message="execute 'ant -projecthelp' for other useful build targets" />
        <echo message="execute 'ant -help' for Ant help" />
     </target>
 
@@ -335,7 +335,7 @@
 
     <!--CRUISE CONTROL BUILD LOOP target-->
     <target name="cc-buildloop" depends="rebuild,bundles,test"
-            description="Comprehensive rebuild and test (used by Cruise Control)."/>
+            description="Comprehensive (paranoid) rebuild and test (used by Cruise Control)."/>
 
 
     <!-- - - NetBeans Targets for specific files selected via ide-actions - -->
