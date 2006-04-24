@@ -11,7 +11,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -19,12 +21,16 @@ import java.awt.event.WindowEvent;
 import java.util.Calendar;
 import java.util.Hashtable;
 
+import javax.swing.AbstractAction;
+import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
@@ -85,7 +91,14 @@ public class ContactListPanel extends JScrollPane
             this.treePanel.add(contactList, BorderLayout.NORTH);
             
             this.addKeyListener(new CListKeySearchListener(this.contactList));
-        }
+            
+            this.getRootPane().getActionMap().put("runChat", new RunMessageWindowAction());
+            
+            InputMap imap = this.getRootPane()
+                    .getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+            
+            imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "runChat");
+     }
         
         public ContactList getContactList(){
             
@@ -288,7 +301,7 @@ public class ContactListPanel extends JScrollPane
                         .getEditorPane().requestFocus();
                 }
                 else{
-                    //If a tab fot the given contact already exists.
+                    //If a tab for the given contact already exists.
                     if(tabbedChatWindow.getTabCount() > 1){                        
                         tabbedChatWindow.setSelectedContactTab(this.contactItem);
                     }
@@ -586,4 +599,13 @@ public class ContactListPanel extends JScrollPane
 	public void setTabbedChatWindow(ChatWindow tabbedChatWindow) {
 		this.tabbedChatWindow = tabbedChatWindow;
 	}
+	
+	private class RunMessageWindowAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e){
+        	MetaContact contact = (MetaContact)getContactList().getSelectedValue();
+        	SwingUtilities.invokeLater(new RunMessageWindow(
+					contact));
+        }
+    };
 }
