@@ -14,29 +14,40 @@ import java.util.Vector;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
-import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
+import net.java.sip.communicator.service.protocol.PresenceStatus;
 
 /**
- * Chat panel for one or group of contacts.
+ * The ChatPanel is the panel, where users can write
+ * and send messages, view received messages.
+ * A ChatPanel is created for a contact or for a
+ * group of contacts in case of a chat conference. There
+ * is always one default contact for the chat, which is the
+ * first contact which was added to the chat.
+ * When chat is in mode "open all messages in new window",
+ * each ChatPanel corresponds to a ChatWindow. When 
+ * chat is in mode "group all messages in one chat window",
+ * each ChatPanel corresponds to a tab in the ChatWindow.
+ * In the second case, each ChatPanel stores its tab index 
+ * in the tabbed pane.    
  * 
  * @author Yana Stamcheva
  */
 public class ChatPanel extends JPanel {
     
     private JSplitPane topSplitPane 
-                            = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+    		= new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
     
     private JSplitPane messagePane 
-                            = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
        
     private ChatConversationPanel conversationPanel;
     
     private ChatWritePanel writeMessagePanel;
     
     private ChatConferencePanel chatConferencePanel 
-                                            = new ChatConferencePanel();
+        = new ChatConferencePanel();
     
     private ChatSendPanel sendPanel;
     
@@ -49,9 +60,11 @@ public class ChatPanel extends JPanel {
     private int tabIndex;
     
     /**
-     * Creates a chat panel which is added to the given chat window.
+     * Creates a chat panel which is added to the 
+     * given chat window.
      * 
-     * @param chatWindow The parent window of this chat panel.
+     * @param chatWindow The parent window of this 
+     * chat panel.
      */
     public ChatPanel(ChatWindow chatWindow, 
             OperationSetBasicInstantMessaging imOperationSet){
@@ -69,10 +82,14 @@ public class ChatPanel extends JPanel {
         
         this.topSplitPane.setResizeWeight(1.0D);
         this.messagePane.setResizeWeight(1.0D);
-        this.chatConferencePanel.setPreferredSize(new Dimension(120, 100));        
-        this.chatConferencePanel.setMinimumSize(new Dimension(120, 100));
-        this.writeMessagePanel.setPreferredSize(new Dimension(400, 100));        
-        this.writeMessagePanel.setMinimumSize(new Dimension(400, 100));
+        this.chatConferencePanel
+        		.setPreferredSize(new Dimension(120, 100));        
+        this.chatConferencePanel
+        		.setMinimumSize(new Dimension(120, 100));
+        this.writeMessagePanel
+        		.setPreferredSize(new Dimension(400, 100));        
+        this.writeMessagePanel
+        		.setMinimumSize(new Dimension(400, 100));
         
         this.init();
     }
@@ -98,7 +115,20 @@ public class ChatPanel extends JPanel {
      * 
      * @param contactItem The MetaContact to add.
      */
-    public void addContactToChat (MetaContact contactItem){     
+    public void addContactToChat (	MetaContact contactItem,
+    									PresenceStatus status){     
+        
+        this.chatContacts.add(contactItem);
+        
+        this.chatConferencePanel.addContactToChat(contactItem, status);
+    }
+    
+    /**
+     * Adds a new MetaContact to this chat panel.
+     * 
+     * @param contactItem The MetaContact to add.
+     */
+    public void addContactToChat(MetaContact contactItem){     
         
         this.chatContacts.add(contactItem);
         
@@ -117,15 +147,16 @@ public class ChatPanel extends JPanel {
     /**
      * Returns all contacts for this chat.
      * 
-     * @return A Vector containing all MetaContact-s for the chat.
+     * @return A Vector containing all MetaContact-s 
+     * for the chat.
      */
     public Vector getChatContacts() {
         return chatContacts;
     }
 
     /**
-     * Sets all contacts for this chat. This is in the case when we 
-     * creates a conference chat.
+     * Sets all contacts for this chat. This is in the 
+     * case when we creates a conference chat.
      * 
      * @param chatContacts A Vector of MetaContact-s.
      */
@@ -134,7 +165,16 @@ public class ChatPanel extends JPanel {
     }
     
     /**
-     * Returns the panel that contains the "write" editor pane of this chat.
+     * Updates the contact status in the contact info panel.
+     * 
+     * @param status The presence status of the contact.
+     */
+    public void updateContactStatus(PresenceStatus status){
+    		this.chatConferencePanel.updateContactStatus(status);
+    }
+    /**
+     * Returns the panel that contains the "write" editor 
+     * pane of this chat.
      * 
      * @return The ChatWritePanel.
      */
@@ -183,20 +223,43 @@ public class ChatPanel extends JPanel {
         this.tabIndex = tabIndex;
     }
 
+    /**
+     * Returns the chat window, where this chat panel
+     * is located.
+     * 
+     * @return ChatWindow The chat window, where this 
+     * chat panel is located.
+     */
     public ChatWindow getChatWindow() {
         return chatWindow;
     }
 
+    /**
+     * Returns the instant messaging operation set for 
+     * this chat panel.
+     * 
+     * @return OperationSetBasicInstantMessaging The instant 
+     * messaging operation set for this chat panel.
+     */
     public OperationSetBasicInstantMessaging getImOperationSet() {
         return imOperationSet;
     }
 
-    public void setImOperationSet(OperationSetBasicInstantMessaging imOperationSet) {
+    /**
+     * Sets the instant messaging operation set for 
+     * this chat panel.
+     * @param imOperationSet The operation set to be set.
+     */
+    public void setImOperationSet
+    		(OperationSetBasicInstantMessaging imOperationSet) {
         this.imOperationSet = imOperationSet;
     }
 
+    /**
+     * Returns the chat send panel.
+     * @return ChatSendPanel The chat send panel.
+     */
     public ChatSendPanel getSendPanel() {
         return sendPanel;
     }
-
 }
