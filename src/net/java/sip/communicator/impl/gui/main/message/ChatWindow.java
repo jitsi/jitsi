@@ -9,23 +9,20 @@ package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import org.omg.CosNaming.IstringHelper;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.customcontrols.tabbedPane.CloseListener;
@@ -34,10 +31,18 @@ import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.service.protocol.PresenceStatus;
 
 /**
- * The chat window.
+ * The chat window is the place, where users 
+ * can write and send messages, view received messages. 
+ * The ChatWindow supports two modes of use: "Group all 
+ * messages in one window" and "Open messages in new 
+ * window". In the first case a TabbedPane is added in
+ * the window, where each tab contains a ChatPanel. In
+ * the second case the ChatPanel is added directly to 
+ * the window. The ChatPanel itself contains all message 
+ * containers and corresponds to a contact or a conference.
  * 
  * @author Yana Stamcheva
  */
@@ -79,7 +84,6 @@ public class ChatWindow extends JFrame{
      * Initialize the chat window.
      */
 	public void init (){
-        
 		this.getContentPane().add(menusPanel, BorderLayout.NORTH);
 	}
 	
@@ -124,27 +128,27 @@ public class ChatWindow extends JFrame{
 	}    
 
     /**
-     * Enables all key actions on this chat window. For now 
-     * closes the window when esc is pressed.
+     * Enables all key actions on this chat window. Closes 
+     * tab or window when esc is pressed and changes tabs when 
+     * Alt+Right/Left Arrow is pressed. 
      */
-    private void enableKeyActions(){
-        
+    private void enableKeyActions(){        
         AbstractAction close = new AbstractAction()
         {
             public void actionPerformed(ActionEvent e)
             {
-                if(Constants.TABBED_CHAT_WINDOW && 
-                        chatTabbedPane.getTabCount() > 1){
+                if(chatTabbedPane.getTabCount() > 1){
                     removeContactTab(chatTabbedPane.getSelectedIndex());
                 }
                 else{
                     ChatWindow.this.dispose();
+                    mainFrame.getTabbedPane().getContactListPanel()
+                    		.setTabbedChatWindow(null);
                 }
             }
         };
         
-        AbstractAction changeTabForword = new AbstractAction()
-        {   
+        AbstractAction changeTabForword = new AbstractAction(){   
             public void actionPerformed(ActionEvent e)
             {
                 if(chatTabbedPane != null 
@@ -158,8 +162,7 @@ public class ChatWindow extends JFrame{
             }
         };
         
-        AbstractAction changeTabBackword = new AbstractAction()
-        {
+        AbstractAction changeTabBackword = new AbstractAction(){
             public void actionPerformed(ActionEvent e)
             {   
                 if(chatTabbedPane != null
@@ -188,10 +191,11 @@ public class ChatWindow extends JFrame{
     }
     
     /**
-     * Creates a ChatPanel for the given contact and adds it directly to
-     * the chat window.
+     * Creates a ChatPanel for the given contact and 
+     * adds it directly to the chat window.
      */
-    public void addChat(MetaContact contact){
+    public void addChat(MetaContact contact, 
+    						PresenceStatus status){
         
         OperationSetBasicInstantMessaging contactIMOperationSet 
         = this.mainFrame.getProtocolIM
@@ -199,7 +203,7 @@ public class ChatWindow extends JFrame{
         
         this.setCurrentChatPanel(new ChatPanel(this, contactIMOperationSet));
         
-        this.currentChatPanel.addContactToChat(contact);
+        this.currentChatPanel.addContactToChat(contact, status);
         
         this.getContentPane().add(this.currentChatPanel, 
                     BorderLayout.CENTER);
@@ -216,7 +220,7 @@ public class ChatWindow extends JFrame{
      * 
      * @param contact The MetaContact added to the chat.
      */
-    public void addChatTab(MetaContact contact){
+    public void addChatTab(MetaContact contact, PresenceStatus status){
         
         OperationSetBasicInstantMessaging contactIMOperationSet 
         = this.mainFrame.getProtocolIM
@@ -227,7 +231,7 @@ public class ChatWindow extends JFrame{
             
             this.setCurrentChatPanel(new ChatPanel(this, contactIMOperationSet));
             
-            this.currentChatPanel.addContactToChat(contact);
+            this.currentChatPanel.addContactToChat(contact, status);
             
             chatTabbedPane = new SIPCommTabbedPane(true);
             
@@ -269,17 +273,19 @@ public class ChatWindow extends JFrame{
             this.setTitle(contact.getDisplayName());
         }
         else{           
-            
-            if(chatTabbedPane.getTabCount() > 0){
-                
-                //The tabbed pane contains already tabs.   
-                
+        		PresenceStatus defaultStatus 
+    				=  contact.getDefaultContact().getPresenceStatus();
+        		
+            if(chatTabbedPane.getTabCount() > 0){                
+                //The tabbed pane contains already tabs.
                 this.setCurrentChatPanel(new ChatPanel(this, contactIMOperationSet));
                 
-                this.currentChatPanel.addContactToChat(contact);
+                this.currentChatPanel.addContactToChat(contact, status);
                 
-                chatTabbedPane.addTab(  contact.getDisplayName(), 
-                                        currentChatPanel);
+                chatTabbedPane.addTab(contact.getDisplayName(),
+					new ImageIcon(Constants.getStatusIcon(defaultStatus)),	
+					currentChatPanel);
+                
                 chatTabbedPane.getParent().validate();
                 
                 //Set the tab index to the newly added chat panel
@@ -290,23 +296,30 @@ public class ChatWindow extends JFrame{
                                     currentChatPanel);
             }
             else{
+            		PresenceStatus currentContactStatus 
+            			= currentChatPanel.getDefaultContact()
+            				.getDefaultContact().getPresenceStatus();
                 //Add the first two tabs to the tabbed pane.                
-                chatTabbedPane.addTab(  currentChatPanel.getDefaultContact()
-                                            .getDisplayName(), 
-                                        currentChatPanel);
+                chatTabbedPane.addTab
+                		(currentChatPanel.getDefaultContact().getDisplayName(),
+                    new ImageIcon(Constants.getStatusIcon
+                    			(currentContactStatus)),
+                    currentChatPanel);
                                
-                this.setCurrentChatPanel(new ChatPanel(this, contactIMOperationSet));
+                this.setCurrentChatPanel
+                		(new ChatPanel(this, contactIMOperationSet));
                 
-                this.currentChatPanel.addContactToChat(contact);
+                this.currentChatPanel.addContactToChat(contact, status);
                 
-                chatTabbedPane.addTab(  contact.getDisplayName(), 
-                                        currentChatPanel);
+                chatTabbedPane.addTab(  contact.getDisplayName(),
+                		new ImageIcon(Constants.getStatusIcon(defaultStatus)),
+                    currentChatPanel);
                 
                 currentChatPanel
                     .setTabIndex(chatTabbedPane.getTabCount() - 1);
                 
                 this.contactTabsTable.put(contact.getDisplayName(),
-                                currentChatPanel);                
+                                currentChatPanel);
             }
             
             this.getContentPane().add(chatTabbedPane, BorderLayout.CENTER);
@@ -331,55 +344,57 @@ public class ChatWindow extends JFrame{
     }    
     
     /**
-     * Removes the chat tab with the given tab index.
+     * Removes the tab with the given index.
      * 
-     * @param index
+     * @param index Tab index.
      */
     public void removeContactTab(int index){
 
         String title = chatTabbedPane.getTitleAt(index);
         
-        if(chatTabbedPane.getTabCount() > 1)
-            this.contactTabsTable.remove(title);
-        
-        Enumeration contactTabs = this.contactTabsTable.elements();
-        
-        while(contactTabs.hasMoreElements()){
-            
-            ChatPanel chatPanel = (ChatPanel)contactTabs.nextElement();
-            
-            int tabIndex = chatPanel.getTabIndex();
-            
-            if(tabIndex > index){
-                chatPanel.setTabIndex(tabIndex - 1);
-            }
-        }
-        
-        int selectedIndex = chatTabbedPane.getSelectedIndex();
-        
-        if( selectedIndex > index){
-            chatTabbedPane.setSelectedIndex(selectedIndex - 1);
-        }
-        
-        if(chatTabbedPane.getTabCount() > 1)
-            chatTabbedPane.remove(index);
-        
-        if(chatTabbedPane.getTabCount() == 1){
-            
-            String onlyTabtitle = chatTabbedPane.getTitleAt(0);
-            
-            this.getContentPane().remove(chatTabbedPane);
-            
-            this.chatTabbedPane.removeAll();
-            
-            ChatPanel chatPanel 
-                = (ChatPanel)this.contactTabsTable.get(onlyTabtitle);
-            
-            this.getContentPane().add(chatPanel, BorderLayout.CENTER);
-            
-            this.setCurrentChatPanel(chatPanel);
-            
-            this.setTitle(onlyTabtitle);
+        if(title != null){
+	        if(chatTabbedPane.getTabCount() > 1)	        		
+	        		this.contactTabsTable.remove(title);
+	        
+	        Enumeration contactTabs = this.contactTabsTable.elements();
+	        
+	        while(contactTabs.hasMoreElements()){
+	            
+	            ChatPanel chatPanel = (ChatPanel)contactTabs.nextElement();
+	            
+	            int tabIndex = chatPanel.getTabIndex();
+	            
+	            if(tabIndex > index){
+	                chatPanel.setTabIndex(tabIndex - 1);
+	            }
+	        }
+	        
+	        int selectedIndex = chatTabbedPane.getSelectedIndex();
+	        
+	        if( selectedIndex > index){
+	            chatTabbedPane.setSelectedIndex(selectedIndex - 1);
+	        }
+	        
+	        if(chatTabbedPane.getTabCount() > 1)
+	            chatTabbedPane.remove(index);
+	        
+	        if(chatTabbedPane.getTabCount() == 1){
+	            
+	            String onlyTabtitle = chatTabbedPane.getTitleAt(0);
+	            
+	            this.getContentPane().remove(chatTabbedPane);
+	            
+	            this.chatTabbedPane.removeAll();
+	            
+	            ChatPanel chatPanel 
+	                = (ChatPanel)this.contactTabsTable.get(onlyTabtitle);
+	            
+	            this.getContentPane().add(chatPanel, BorderLayout.CENTER);
+	            
+	            this.setCurrentChatPanel(chatPanel);
+	            
+	            this.setTitle(onlyTabtitle);
+	        }
         }
     }
 
@@ -449,5 +464,13 @@ public class ChatWindow extends JFrame{
      */
     public ChatPanel getChatPanel(MetaContact contact){
         return (ChatPanel)this.contactTabsTable.get(contact.getDisplayName());
+    }
+    
+    /**
+     * Sets the icon at the given index to the new
+     * icon.
+     */
+    public void setTabIcon(int index, Icon icon){
+        this.chatTabbedPane.setIconAt(index, icon);
     }
 }
