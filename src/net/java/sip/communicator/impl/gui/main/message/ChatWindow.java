@@ -151,13 +151,17 @@ public class ChatWindow extends JFrame{
         AbstractAction changeTabForword = new AbstractAction(){   
             public void actionPerformed(ActionEvent e)
             {
-                if(chatTabbedPane != null 
-                        && chatTabbedPane.getSelectedIndex() 
-                            < chatTabbedPane.getTabCount() - 1){
-                    
-                    ChatWindow.this.chatTabbedPane
-                        .setSelectedIndex
-                            (chatTabbedPane.getSelectedIndex() + 1);
+                if(chatTabbedPane != null){ 
+                    if(chatTabbedPane.getSelectedIndex() 
+                            < chatTabbedPane.getTabCount() - 1){                    
+	                    ChatWindow.this.chatTabbedPane
+	                        .setSelectedIndex
+	                            (chatTabbedPane.getSelectedIndex() + 1);
+                    }
+                    else{
+                    	ChatWindow.this.chatTabbedPane
+                        .setSelectedIndex(0);
+                    }
                 }
             }
         };
@@ -165,12 +169,17 @@ public class ChatWindow extends JFrame{
         AbstractAction changeTabBackword = new AbstractAction(){
             public void actionPerformed(ActionEvent e)
             {   
-                if(chatTabbedPane != null
-                        && chatTabbedPane.getSelectedIndex() != 0){
-                    
-                    ChatWindow.this.chatTabbedPane
+                if(chatTabbedPane != null){
+                    if(chatTabbedPane.getSelectedIndex() != 0){                    
+	                    ChatWindow.this.chatTabbedPane
+	                        .setSelectedIndex
+	                            (chatTabbedPane.getSelectedIndex() - 1);
+                    }
+                    else{
+                    	ChatWindow.this.chatTabbedPane
                         .setSelectedIndex
-                            (chatTabbedPane.getSelectedIndex() - 1);
+                            (chatTabbedPane.getTabCount() - 1);
+                    }
                 }
             }
         };
