@@ -38,6 +38,7 @@ import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.AccountManager;
 
 public class LoginWindow extends JDialog 
@@ -73,7 +74,6 @@ public class LoginWindow extends JDialog
 	public LoginWindow( MainFrame mainFrame, 
                         String protocolName,
                         AccountManager accountManager){
-        
         super(mainFrame);
         
         this.accountManager = accountManager;
@@ -102,9 +102,8 @@ public class LoginWindow extends JDialog
 	}
     
 	private void init() {     
-
-        this.uinComboBox = new JComboBox(this.accountManager
-                .getRegisteredAcounts().toArray());
+		
+        this.uinComboBox = new JComboBox();
         
         this.passwdField.setEchoChar('*');
         this.uinComboBox.setEditable(true);
@@ -145,10 +144,10 @@ public class LoginWindow extends JDialog
     }
     
 	public void showWindow(){
-
-        this.setWindowLocation();       
-        
-        this.setVisible(true);
+		if(!this.isVisible()){
+			this.setWindowLocation();
+	        this.setVisible(true);
+		}
 	}
     
     private void setWindowLocation(){
@@ -176,8 +175,6 @@ public class LoginWindow extends JDialog
             this.loginManager.login(accountManager,
                                     uinComboBox.getSelectedItem().toString(),
                                     new String(passwdField.getPassword()));
-            
-            this.dispose();
         }
         else{
             this.dispose();

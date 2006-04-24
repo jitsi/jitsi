@@ -38,6 +38,8 @@ public class LoginManager implements RegistrationStateChangeListener {
     private BundleContext bc;
     
     private Hashtable accountManagersMap = new Hashtable();
+    
+    private Hashtable loginWindows = new Hashtable();
          
     private AccountID accountID;
     
@@ -125,6 +127,8 @@ public class LoginManager implements RegistrationStateChangeListener {
                                                     accoundManager);        
         loginWindow.setLoginManager(this);
         
+        this.loginWindows.put(protocolName, loginWindow);
+        
         loginWindow.showWindow();    
     }
     
@@ -133,9 +137,12 @@ public class LoginManager implements RegistrationStateChangeListener {
     }
 
     public void registrationStateChanged(RegistrationStateChangeEvent evt) {
-       
+    	String protocolName = evt.getProvider().getProtocolName();
+    	
         if(evt.getNewState().equals(RegistrationState.REGISTERED)){
-            
+        	
+        	((LoginWindow)this.loginWindows.get(protocolName)).dispose();
+        	
             Map supportedOpSets 
                 = evt.getProvider().getSupportedOperationSets();
             
@@ -158,8 +165,8 @@ public class LoginManager implements RegistrationStateChangeListener {
                     Messages.getString("authenticationFailed"), 
                     Messages.getString("authenticationFailed"),
                     JOptionPane.ERROR_MESSAGE);            
-            
-            this.showLoginWindows(this.mainFrame);
+           
+            ((LoginWindow)this.loginWindows.get(protocolName)).showWindow();
         }
         else if(evt.getNewState()
                     .equals(RegistrationState.CONNECTION_FAILED)){
