@@ -167,7 +167,7 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
         
         if(isOneActionButtonEnabled()){
             int preferredWidth = CLOSABLE_TAB_BACKGROUND.getWidth(null) 
-                                            - 2*WIDTHDELTA - 12;            
+                                            - 2*WIDTHDELTA - 20;            
             if(isCloseEnabled())
                 preferredWidth -= BUTTONSIZE;
             
@@ -176,9 +176,11 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
             
             while(titleWidth > preferredWidth){
                 if(title.endsWith("..."))
-                    title = title.substring(0, title.indexOf("...") - 1).concat("...");
+                    title = title.substring(0, title.indexOf("...") - 1)
+                    				.concat("...");
                 else
-                    title = title.substring(0, title.length() - 3).concat("...");
+                    title = title.substring(0, title.length() - 3)
+                    				.concat("...");
                 
                 titleWidth = SwingUtilities.computeStringWidth(metrics, title);
                 textRect.width = titleWidth;

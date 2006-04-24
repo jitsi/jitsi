@@ -18,7 +18,14 @@ import javax.swing.JScrollPane;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.protocol.PresenceStatus;
 
+/**
+ * This panel contains info for all contacts 
+ * participating the chat.
+ * 
+ * @author Yana Stamcheva
+ */
 public class ChatConferencePanel extends JPanel {
 	
 	private JScrollPane contactsScrollPane = new JScrollPane ();
@@ -28,11 +35,13 @@ public class ChatConferencePanel extends JPanel {
 	private JPanel mainPanel = new JPanel(new BorderLayout());
  	
 	private SIPCommButton addToChatButton 
-				= new SIPCommButton(ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_BUTTON),
-									ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ROLLOVER_BUTTON),
-									ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ICON));
+		= new SIPCommButton(
+			ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_BUTTON),
+			ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ROLLOVER_BUTTON),
+			ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ICON));
 	
-	private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+	private JPanel buttonPanel 
+		= new JPanel(new FlowLayout(FlowLayout.CENTER));
 	
 	private ChatContactPanel chatContactPanel;
 	
@@ -63,5 +72,17 @@ public class ChatConferencePanel extends JPanel {
 		chatContactPanel = new ChatContactPanel(contactItem);
 				
 		this.contactsPanel.add(chatContactPanel);
-	}	
+	}
+	
+	public void addContactToChat (MetaContact contactItem, 
+									PresenceStatus status){		
+		
+		chatContactPanel = new ChatContactPanel(contactItem, status);
+				
+		this.contactsPanel.add(chatContactPanel);
+	}
+
+	public void updateContactStatus(PresenceStatus status) {
+		this.chatContactPanel.setStatusIcon(status);
+	}
 }

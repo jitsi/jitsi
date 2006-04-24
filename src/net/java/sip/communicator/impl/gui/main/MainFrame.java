@@ -367,11 +367,15 @@ public class MainFrame extends JFrame {
                 = contactList.findMetaContactByContact(sourceContact);
            
             if (metaContact != null){
+            		ContactListPanel clistPanel 
+            			= tabbedPane.getContactListPanel();
+            		
                 ContactListModel model 
-                    = (ContactListModel)tabbedPane.getContactListPanel()
-                        .getContactList().getModel();
+                    = (ContactListModel)clistPanel.getContactList().getModel();
                 
-                model.changeContactStatus(metaContact, evt.getNewStatus());
+                model.updateContactStatus(metaContact, evt.getNewStatus());
+                
+                clistPanel.updateChatContactStatus(metaContact);
             }
         }
     }        

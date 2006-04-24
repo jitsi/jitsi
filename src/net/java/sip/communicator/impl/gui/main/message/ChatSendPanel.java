@@ -81,13 +81,17 @@ public class ChatSendPanel extends JPanel
         .getEditorPane(); 
         
 		if(messagePane.getText() != null && !messagePane.getText().equals("")){
-            OperationSetBasicInstantMessaging im = this.chatPanel.getImOperationSet();
+            OperationSetBasicInstantMessaging im 
+            		= this.chatPanel.getImOperationSet();
             
             Message msg = im.createMessage(messagePane.getText());
             
-            this.chatPanel.getChatWindow().getMainFrame()
-                .getWaitToBeDeliveredMsgs().put(msg.getMessageUID(), this.chatPanel);
-            im.sendInstantMessage(chatPanel.getDefaultContact().getDefaultContact(), msg);
+            this.chatPanel.getChatWindow()
+            		.getMainFrame().getWaitToBeDeliveredMsgs()
+            			.put(msg.getMessageUID(), this.chatPanel);
+            
+            im.sendInstantMessage(chatPanel.getDefaultContact()
+            		.getDefaultContact(), msg);
 		}
 	}
 

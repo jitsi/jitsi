@@ -11,7 +11,6 @@ package net.java.sip.communicator.impl.gui.main.customcontrols.tabbedPane;
  * Intern, SETLabs, Infosys Technologies Ltd. May 2004 - Jul 2004
  * Ecole des Mines de Nantes, France
  */
-
 import java.awt.Window;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -36,7 +35,6 @@ import javax.swing.plaf.TabbedPaneUI;
  * @version 1.1 06/07/04
  * @author David Bismut, davidou@mageos.com
  */
-
 public class SIPCommTabbedPane extends JTabbedPane {
 
 	private int overTabIndex = -1;

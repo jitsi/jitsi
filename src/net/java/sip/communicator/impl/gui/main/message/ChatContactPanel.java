@@ -16,6 +16,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
@@ -25,6 +26,7 @@ import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.protocol.PresenceStatus;
 
 public class ChatContactPanel extends JPanel {
 	
@@ -53,11 +55,17 @@ public class ChatContactPanel extends JPanel {
 					= new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 	
 	private MetaContact contactItem;
+	private PresenceStatus status;
 	
 	private boolean isMouseOver = false; 
 	private boolean isSelected = false;
 	
 	public ChatContactPanel(MetaContact contactItem){
+		this(contactItem, null);
+	}
+	
+	public ChatContactPanel(MetaContact contactItem,
+							PresenceStatus status){
 		
 		super(new BorderLayout());
 	
@@ -66,6 +74,7 @@ public class ChatContactPanel extends JPanel {
 		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 				
 		this.contactItem = contactItem;
+		this.status = status;
 		
 		this.setOpaque(false);
 		this.mainPanel.setOpaque(false);
@@ -79,9 +88,10 @@ public class ChatContactPanel extends JPanel {
 		
 		this.personNameLabel.setText(contactItem.getDisplayName());
 		this.personNameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
-		
+		this.personNameLabel
+			.setIcon(new ImageIcon(Constants.getStatusIcon(status)));
 		//this.personPhotoLabel.setIcon(new ImageIcon(contactItem.getPhoto()));
-		
+				 
 		this.buttonsPanel.add(callButton);
 		this.buttonsPanel.add(infoButton);
 		this.buttonsPanel.add(sendFileButton);
@@ -156,4 +166,8 @@ public class ChatContactPanel extends JPanel {
 		return isSelected;
 	}
 	
+	public void setStatusIcon(PresenceStatus newStatus){
+		this.personNameLabel
+			.setIcon(new ImageIcon(Constants.getStatusIcon(newStatus)));
+	}
 }

@@ -22,7 +22,15 @@ import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 
 /**
- * The list model of the ContactList.
+ * The list model of the ContactList. This class use as
+ * a data model the MetaContactListService itself. The
+ * ContactListModel plays only the role of a "list" face 
+ * of the "tree" MetaContactListService structure. It provides 
+ * an implementation of the AbstractListModel and adds some
+ * methods facilitating the access to the contact list.
+ * Some more contact list specific methods were 
+ * added like: getMetaContactStatus, getMetaContactStatusIcon,
+ * changeContactStatus, etc.
  * 
  * @author Yana Stamcheva
  *
@@ -39,9 +47,11 @@ public class ContactListModel extends AbstractListModel {
     
     private boolean showOffline = true;
     /**
-     * Creates a List Model, which gets its data from the given MetaContactListService. 
+     * Creates a List Model, which gets its data from 
+     * the given MetaContactListService. 
      * 
-     * @param contactList The MetaContactListService which contains the contact list.
+     * @param contactList The MetaContactListService 
+     * which contains the contact list.
      */
     public ContactListModel(MetaContactListService contactList){
         
@@ -51,8 +61,9 @@ public class ContactListModel extends AbstractListModel {
     }
         
     /**
-     * Informs interested listeners that the content has changed of the 
-     * cells given by the range of from startIndex to endIndex.
+     * Informs interested listeners that the content has 
+     * changed of the cells given by the range from 
+     * startIndex to endIndex.
      * 
      * @param startIndex The start index of the range .
      * @param endIndex The end index of the range.
@@ -62,8 +73,8 @@ public class ContactListModel extends AbstractListModel {
     }
 
     /**
-     * Informs interested listeners that new cells are added from startIndex 
-     * to endIndex. 
+     * Informs interested listeners that new cells are 
+     * added from startIndex to endIndex. 
      * 
      * @param startIndex The start index of the range .
      * @param endIndex The end index of the range.
@@ -107,8 +118,8 @@ public class ContactListModel extends AbstractListModel {
     }
         
     /**
-     * Goes through all subgroups and contacts and determines the final size of the
-     * contact list.
+     * Goes through all subgroups and contacts and determines 
+     * the final size of the contact list.
      * 
      * @param group
      * @return The size of the contactlist
@@ -141,11 +152,13 @@ public class ContactListModel extends AbstractListModel {
     }
     
     /**
-     * Returns the general status of the given MetaContact. Detects the status using the 
-     * priority status table. The priority is defined on the "availablity" factor and here the most 
-     * "available" status is returned.
+     * Returns the general status of the given MetaContact. 
+     * Detects the status using the priority status table. 
+     * The priority is defined on the "availablity" factor 
+     * and here the most "available" status is returned.
      * 
-     * @return PresenceStatus The most "available" status from all subcontact  statuses.
+     * @return PresenceStatus The most "available" status 
+     * from all subcontact  statuses.
      */
     public PresenceStatus getMetaContactStatus(MetaContact metaContact) {
         
@@ -169,7 +182,8 @@ public class ContactListModel extends AbstractListModel {
      * @return the status icon for this MetaContact.
      */
     public ImageIcon getMetaContactStatusIcon(MetaContact contact) {
-        return new ImageIcon(Constants.getStatusIcon(this.getMetaContactStatus(contact)));
+        return new ImageIcon
+        		(Constants.getStatusIcon(this.getMetaContactStatus(contact)));
     }
    
     /**
@@ -184,13 +198,15 @@ public class ContactListModel extends AbstractListModel {
        
         if(!offlineContacts.contains(contact)){
             int currentIndex = 0;
-            MetaContactGroup parentGroup = this.contactList.findParentMetaContactGroup(contact);
+            MetaContactGroup parentGroup 
+            		= this.contactList.findParentMetaContactGroup(contact);
             
             if(parentGroup != null && !this.isGroupClosed(parentGroup)){
                 currentIndex += this.indexOf(parentGroup);
                 
                 for(int i = 0; i < parentGroup.countSubgroups(); i ++){
-                    MetaContactGroup subGroup = parentGroup.getMetaContactSubgroup(i);
+                    MetaContactGroup subGroup 
+                    		= parentGroup.getMetaContactSubgroup(i);
                     
                     currentIndex += countSubgroupContacts(subGroup);
                 }
@@ -213,14 +229,16 @@ public class ContactListModel extends AbstractListModel {
         
         int index = -1;
         int currentIndex = 0;
-        MetaContactGroup parentGroup = this.contactList.findParentMetaContactGroup(group);
+        MetaContactGroup parentGroup 
+        		= this.contactList.findParentMetaContactGroup(group);
         
         if(parentGroup != null && !this.isGroupClosed(parentGroup)){            
             currentIndex += this.indexOf(parentGroup);                        
             currentIndex += parentGroup.indexOf(group) + 1;
             
             for(int i = 0; i < parentGroup.indexOf(group); i ++){
-                MetaContactGroup subGroup = parentGroup.getMetaContactSubgroup(i);
+                MetaContactGroup subGroup 
+                		= parentGroup.getMetaContactSubgroup(i);
                 
                 currentIndex += countSubgroupContacts(subGroup);
             }
@@ -232,8 +250,9 @@ public class ContactListModel extends AbstractListModel {
     }
     
     /**
-     * Returns the number of all children of the given MetaContactGroup. Counts in depth 
-     * all subgroups and child contacts.
+     * Returns the number of all children of the given
+     * MetaContactGroup. Counts in depth all subgroups 
+     * and child contacts.
      * 
      * @param parentGroup The parent MetaContactGroup.
      * @return The number of all children of the given MetaContactGroup
@@ -257,7 +276,8 @@ public class ContactListModel extends AbstractListModel {
             Iterator subgroups = parentGroup.getSubgroups();
                     
             while(subgroups.hasNext()){
-                MetaContactGroup subgroup = (MetaContactGroup)subgroups.next();
+                MetaContactGroup subgroup 
+                		= (MetaContactGroup)subgroups.next();
                 
                 count += countSubgroupContacts(subgroup);
             }
@@ -352,8 +372,10 @@ public class ContactListModel extends AbstractListModel {
      * Removes all offline contacts from the contact list.
      */
     public void removeOfflineContacts(){
-        // Stock offline contacts before adding them in offlineContacts Vector
-        // in order to have getElementAt and indexOf working as nothing was changed.
+        // Stock offline contacts before adding them in 
+    		// offlineContacts Vector in order to have 
+    	    // getElementAt and indexOf working as nothing 
+    		// was changed.
         Vector offlineContactsCopy = new Vector();
         // A copy of the size as it was before removing an offline contact.
         int size = this.getSize();
@@ -393,8 +415,10 @@ public class ContactListModel extends AbstractListModel {
     }
         
     /**
-     * Returns true if offline contacts should be shown, false otherwise.
-     * @return boolean true if offline contacts should be shown, false otherwise.
+     * Returns true if offline contacts should be shown, 
+     * false otherwise.
+     * @return boolean true if offline contacts should be 
+     * shown, false otherwise.
      */
     public boolean showOffline() {
         return showOffline;
@@ -418,7 +442,7 @@ public class ContactListModel extends AbstractListModel {
      * @param contact The MetaContact which status has changed.
      * @param newStatus The new status of the contact.
      */
-    public void changeContactStatus(MetaContact contact, 
+    public void updateContactStatus(MetaContact contact, 
     									PresenceStatus newStatus){
     		if(!showOffline){
     			if(newStatus.isOnline() 

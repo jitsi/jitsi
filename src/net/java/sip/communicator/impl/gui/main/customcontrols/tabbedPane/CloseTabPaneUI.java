@@ -229,12 +229,13 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 		SwingUtilities.layoutCompoundLabel((JComponent) tabPane, metrics,
 				title, icon, SwingUtilities.CENTER, SwingUtilities.LEFT,
 				SwingUtilities.CENTER, SwingUtilities.CENTER, tabRect,
-				iconRect, textRect, 5);
+				iconRect, textRect, 0);
 
 		tabPane.putClientProperty("html", null);
-
+		
 		iconRect.x = tabRect.x + 5;
-		textRect.x = iconRect.x + iconRect.width + 5;
+		textRect.x = iconRect.x + iconRect.width;
+		
 	}
 
 	protected MouseListener createMouseListener() {
@@ -1154,7 +1155,6 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 			//
 			// Calculate bounds within which a tab run must fit
 			//
-
 			maxTabHeight = calculateMaxTabHeight(tabPlacement);
 
 			runCount = 0;

@@ -35,6 +35,17 @@ import net.java.sip.communicator.impl.gui.main.utils.MyHTMLEditorKit;
 import net.java.sip.communicator.impl.gui.main.utils.Smily;
 import net.java.sip.communicator.impl.gui.main.utils.StringUtils;
 
+/**
+ * This is the panel, where all sent and received 
+ * messages appear. All data is stored in HTML
+ * document. An external CSS file is applied to
+ * the document to provide the look&feel. All 
+ * smilies and links strings are processed and 
+ * finally replaced by corresponding images and
+ * html links.
+ * 
+ * @author Yana Stamcheva
+ */
 public class ChatConversationPanel extends JScrollPane 
     implements HyperlinkListener {
 
@@ -51,9 +62,7 @@ public class ChatConversationPanel extends JScrollPane
         this.chatEditorPane.setContentType("text/html");
 
 		this.chatEditorPane.setEditable(false);
-        
-        //this.initStyle();
-        
+                
 		this.chatEditorPane.setEditorKit(editorKit);
 
         this.document = (HTMLDocument)this.chatEditorPane.getDocument();
@@ -76,9 +85,10 @@ public class ChatConversationPanel extends JScrollPane
         
         Calendar calendar = Calendar.getInstance();
         String chatHeader = "<h1>"
-        + calendar.get(Calendar.DAY_OF_MONTH) + "/"
-        + calendar.get(Calendar.MONTH) + 1 + "/"
-        + calendar.get(Calendar.YEAR) + " " + "</h1>";
+        + this.processTime(calendar.get(Calendar.DAY_OF_MONTH)) + "/"
+        + this.processTime(calendar.get(Calendar.MONTH) + 1) + "/"
+        + this.processTime(calendar.get(Calendar.YEAR)) 
+        + " " + "</h1>";
 
         try {            
             this.document.insertAfterStart(root, chatHeader);
@@ -149,20 +159,25 @@ public class ChatConversationPanel extends JScrollPane
      * @return The message string with properly formatted links.
      */
 	private String processLinks(String message) {
-
 		String msgString = message;
 
 		Pattern p = Pattern
-				.compile("(\\bwww\\.\\w+\\.\\S+\\b)|(\\b\\w+://\\S+\\b)");
-
+				.compile("(\\bwww\\.\\S+\\.\\S+\\b)");
+		Pattern p1 = Pattern
+				.compile("(\\b\\w+://\\S+\\b)");
+		
 		Matcher m = p.matcher(message);
-
-		while (m.find()) {
-
+		Matcher m1 = p1.matcher(message);
+		
+		while (m.find()) {			
 			msgString = msgString.replaceAll(m.group().trim(), "<A href='"
 					+ "http://" + m.group() + "'>" + m.group() + "</A>");
 		}
-
+		
+		while (m1.find()) {			
+			msgString = msgString.replaceAll(m1.group().trim(), "<A href='"
+					+ m1.group() + "'>" + m1.group() + "</A>");
+		}
 		return msgString;
 	}
 

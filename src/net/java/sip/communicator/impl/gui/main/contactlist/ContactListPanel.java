@@ -17,9 +17,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Calendar;
-import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -27,35 +25,24 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.message.ChatMessage;
-import net.java.sip.communicator.impl.gui.main.message.ChatPanel;
-import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
+import net.java.sip.communicator.impl.gui.main.message.*;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
-import net.java.sip.communicator.service.contactlist.MetaContactListService;
-import net.java.sip.communicator.service.protocol.Contact;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.Message;
-import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
-import net.java.sip.communicator.service.protocol.event.MessageDeliveredEvent;
-import net.java.sip.communicator.service.protocol.event.MessageDeliveryFailedEvent;
-import net.java.sip.communicator.service.protocol.event.MessageListener;
-import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
-import net.java.sip.communicator.service.protocol.event.TypingNotificationEvent;
-import net.java.sip.communicator.service.protocol.event.TypingNotificationsListener;
+import net.java.sip.communicator.service.protocol.PresenceStatus;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
- * Creates the contactlist panel. The contactlist panel not only contains the contact list
- * but it has the role of a message dispatcher by implementing the MessageListener.
+ * The contactlist panel not only contains the contact 
+ * list but it has the role of a message dispatcher. It 
+ * process all sent and received messages as well as
+ * all typing notifications. Here are managed all
+ * contact list mouse events.
  * 
  * @author Yana Stamcheva   
  */
@@ -105,15 +92,15 @@ public class ContactListPanel extends JScrollPane
             return this.contactList;
         }
         
-	public void mouseClicked(MouseEvent e) {
-		
+	public void mouseClicked(MouseEvent e) {		
         //Expand and collapse groups on double click.
         if(e.getClickCount() > 1){
             
             int selectedIndex 
                 = this.contactList.locationToIndex(e.getPoint());
             
-            ContactListModel listModel = (ContactListModel)this.contactList.getModel();
+            ContactListModel listModel 
+            		= (ContactListModel)this.contactList.getModel();
             
             Object element 
                 = listModel.getElementAt(selectedIndex);
@@ -134,21 +121,21 @@ public class ContactListPanel extends JScrollPane
 
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
-
 	}
 
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
-
 	}
 
-	public void mousePressed(MouseEvent e) {
-        
-        // Open message window, right button menu or contact info when 
+	public void mousePressed(MouseEvent e) {        
+        // Select the contact under the right button click.
+		if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
+			this.contactList.setSelectedIndex
+				(contactList.locationToIndex(e.getPoint()));
+		// Open message window, right button menu or contact info when 
         // mouse is pressed. Distinguish on which component was pressed 
         // the mouse and make the appropriate work.
-        if (this.contactList.getSelectedValue() instanceof MetaContact){
-                
+        if (this.contactList.getSelectedValue() instanceof MetaContact){        		
             MetaContact contact 
                 = (MetaContact) this.contactList.getSelectedValue();
             
@@ -174,33 +161,31 @@ public class ContactListPanel extends JScrollPane
             //get the component under the mouse
 			Component component 
                 = renderer.getComponentAt(translatedX, translatedY);
-
-            
+			
 			if (component instanceof JLabel) {
-                
-				if ((e.getModifiers() & InputEvent.BUTTON1_MASK) 
-                            == InputEvent.BUTTON1_MASK) {
+				if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
                     
                     //Left click on the contact label opens Chat window
 					SwingUtilities.invokeLater(new RunMessageWindow(
 							contact));
 					
-				} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) 
-                            == InputEvent.BUTTON3_MASK) {
-				    
+				} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {					
                     //Right click on the contact label opens Popup menu
 					ContactRightButtonMenu popupMenu 
                         = new ContactRightButtonMenu(
 							mainFrame, contact);
-
+					
+					SwingUtilities.convertPointToScreen(selectedCellPoint,
+							renderer);
+					
 					popupMenu.setInvoker(this.contactList);
-
-					popupMenu.setLocation(popupMenu.getPopupLocation());
-
+					
+					popupMenu.setLocation(selectedCellPoint.x, 
+							selectedCellPoint.y + renderer.getHeight());
+					
 					popupMenu.setVisible(true);
 				}
-			} else if (component instanceof JButton) {
-				
+			} else if (component instanceof JButton) {				
                 //Click on the info button opens the info popup panel
 				SwingUtilities.invokeLater
                     (new RunInfoWindow(selectedCellPoint, 
@@ -227,49 +212,51 @@ public class ContactListPanel extends JScrollPane
 		}
 
 		public void run() {
-
+			PresenceStatus contactStatus 
+     			= ((ContactListModel)contactList.getModel())
+     				.getMetaContactStatus(this.contactItem);
+			 
             if(!Constants.TABBED_CHAT_WINDOW){                
                 //If in mode "open all messages in new window"                
-    			if (contactMsgWindows.containsKey(this.contactItem)) {    			    
-                    /*
-                     * If a chat window for this contact is already opened
-                     * show it. 
-    			     */
-    				ChatWindow msgWindow = (ChatWindow) contactMsgWindows
-    						.get(this.contactItem);
-    
-    				if (msgWindow.getExtendedState() == JFrame.ICONIFIED)
-    					msgWindow.setExtendedState(JFrame.NORMAL);
-    				
-                msgWindow.setVisible(true);                    
-    			} else {
-                /*
-                 * If there's no chat window for the contact
-                 * create it and show it. 
-                 */
-		        ChatWindow msgWindow = new ChatWindow(mainFrame);
-          
-                contactMsgWindows.put(this.contactItem, msgWindow);
-                
-                msgWindow.addChat(this.contactItem);
-                    
-                msgWindow.pack();
-                
-    				msgWindow.setVisible(true);
-    
-    				msgWindow.getWriteMessagePanel()
-                        .getEditorPane().requestFocus();
-    			}
+	    			if (contactMsgWindows.containsKey(this.contactItem)) {    			    
+	                    /*
+	                     * If a chat window for this contact is already opened
+	                     * show it. 
+	    			     */
+	    				ChatWindow msgWindow = (ChatWindow) contactMsgWindows
+	    						.get(this.contactItem);
+	    
+	    				if (msgWindow.getExtendedState() == JFrame.ICONIFIED)
+	    					msgWindow.setExtendedState(JFrame.NORMAL);
+	    				
+	                msgWindow.setVisible(true);                    
+	    			} else {
+	                /*
+	                 * If there's no chat window for the contact
+	                 * create it and show it. 
+	                 */
+			        ChatWindow msgWindow = new ChatWindow(mainFrame);
+	          
+	                contactMsgWindows.put(this.contactItem, msgWindow);
+	                
+	                msgWindow.addChat(this.contactItem, contactStatus);
+	                    
+	                msgWindow.pack();
+	                
+	    				msgWindow.setVisible(true);
+	    
+	    				msgWindow.getWriteMessagePanel()
+	                        .getEditorPane().requestFocus();
+	    			}
             }
-            else{                
+            else{            	
                 // If in mode "group messages in one chat window"                
                 if(tabbedChatWindow == null){                    
                     // If there's no open chat window
                     tabbedChatWindow = new ChatWindow(mainFrame);
                      
-                    tabbedChatWindow.addWindowListener(new WindowAdapter(){
-                        
-                        public void windowClosing(WindowEvent e) {
+                    tabbedChatWindow.addWindowListener(new WindowAdapter(){                        
+                        public void windowClosing(WindowEvent e) {                        		
                             tabbedChatWindow = null;
                         }
                     });
@@ -285,7 +272,8 @@ public class ContactListPanel extends JScrollPane
                         == null){
                     
                     // If there's no open tab for the given contact.                    
-                    tabbedChatWindow.addChatTab(this.contactItem);
+                    tabbedChatWindow.addChatTab(this.contactItem,
+                    		contactStatus);
                     
                     if(tabbedChatWindow.getTabCount() > 1)
                         tabbedChatWindow.setSelectedContactTab(this.contactItem);
@@ -337,7 +325,8 @@ public class ContactListPanel extends JScrollPane
 
 		public void run() {
 
-			ContactInfoPanel contactInfoPanel = new ContactInfoPanel(mainFrame, contactItem);
+			ContactInfoPanel contactInfoPanel 
+				= new ContactInfoPanel(mainFrame, contactItem);
 
 			SwingUtilities.convertPointToScreen(p, contactList);
 
@@ -347,15 +336,14 @@ public class ContactListPanel extends JScrollPane
 			contactInfoPanel.setVisible(true);														
 									
 			contactInfoPanel.requestFocusInWindow();
-
 		}
 	}
    
     /**
      * When message is received determines whether to open a new chat
      * window or chat window tab, or to indicate that a message is received
-     * from a contact which already has chat opened. When chat is found show 
-     * the message in the appropriate chat panel.
+     * from a contact which already has an open chat. When the chat is found 
+     * shows the message in the appropriate chat panel.
      */
     public void messageReceived(MessageReceivedEvent evt) {
         
@@ -363,8 +351,12 @@ public class ContactListPanel extends JScrollPane
         calendar.setTime(evt.getTimestamp());
         
         MetaContact metaContact
-            = mainFrame.getContactList().findMetaContactByContact(evt.getSourceContact());
-        
+            = mainFrame.getContactList()
+            		.findMetaContactByContact(evt.getSourceContact());
+        PresenceStatus contactStatus
+        		= ((ContactListModel)this.contactList.getModel())
+        			.getMetaContactStatus(metaContact);
+        			
         if(!Constants.TABBED_CHAT_WINDOW){                
             //If in mode "open all messages in new window"                
             if (contactMsgWindows.containsKey(metaContact)) {                  
@@ -392,7 +384,7 @@ public class ContactListPanel extends JScrollPane
           
                 contactMsgWindows.put(metaContact, msgWindow);
 
-                msgWindow.addChat(metaContact);
+                msgWindow.addChat(metaContact, contactStatus);
                 
                 msgWindow.getCurrentChatPanel().getConversationPanel()
                     .processMessage(evt.getSourceContact().getDisplayName(), 
@@ -427,7 +419,7 @@ public class ContactListPanel extends JScrollPane
             if(contactTabsTable.get(metaContact.getDisplayName()) 
                     == null){                
                 // If there's no open tab for the given contact.                    
-                tabbedChatWindow.addChatTab(metaContact);
+                tabbedChatWindow.addChatTab(metaContact, contactStatus);
  
                 tabbedChatWindow.getCurrentChatPanel().getConversationPanel()
                     .processMessage(evt.getSourceContact().getDisplayName(), 
@@ -453,7 +445,6 @@ public class ContactListPanel extends JScrollPane
                     .getEditorPane().requestFocus();
             }            
             if(tabbedChatWindow.getTabCount() > 1){
-                // If a tab fot the given contact already exists.
                 tabbedChatWindow.highlightTab(metaContact);
             }
         }
@@ -504,7 +495,8 @@ public class ContactListPanel extends JScrollPane
         String notificationMsg = "";
         
         notificationMsg 
-            += this.mainFrame.getContactList().findMetaContactByContact(evt.getSourceContact())
+            += this.mainFrame.getContactList()
+            .findMetaContactByContact(evt.getSourceContact())
                     .getDisplayName() + " ";
         
         if(notificationMsg.equals("")){
@@ -513,13 +505,14 @@ public class ContactListPanel extends JScrollPane
         
         int typingState = evt.getTypingState();
         MetaContact metaContact
-        = mainFrame.getContactList().findMetaContactByContact(evt.getSourceContact());
+        		= mainFrame.getContactList()
+        			.findMetaContactByContact(evt.getSourceContact());
         
         if(typingState == OperationSetTypingNotifications.STATE_TYPING){
             notificationMsg += Messages.getString("contactTyping");
         }
         else if(typingState == OperationSetTypingNotifications.STATE_PAUSED){
-            notificationMsg += Messages.getString("contactPausedTyping");
+            notificationMsg = "";
         }
         else if(typingState == OperationSetTypingNotifications.STATE_STOPPED){
             notificationMsg = "";
@@ -552,4 +545,45 @@ public class ContactListPanel extends JScrollPane
             }
         }
     }
+
+    /**
+     * Updates the status of the given metacontact in all opened
+     * chats containing this contact.
+     * 
+     * @param metaContact
+     */
+	public void updateChatContactStatus(MetaContact metaContact) {
+		
+		ContactListModel listModel 
+			= (ContactListModel)this.getContactList().getModel();
+		
+		if(!Constants.TABBED_CHAT_WINDOW){
+			//TODO: update chat contact status in 
+			//mode all messages in new window
+        }
+        else if(tabbedChatWindow != null){        		
+            Hashtable contactTabsTable 
+                = tabbedChatWindow.getContactTabsTable();
+            
+            ChatPanel chatPanel 
+            		= (ChatPanel)contactTabsTable.get(metaContact.getDisplayName());
+            		
+            if(chatPanel != null){
+            		int contactTabIndex = tabbedChatWindow.getTabInex(metaContact);
+            		
+            		tabbedChatWindow.setTabIcon(contactTabIndex,
+            			listModel.getMetaContactStatusIcon(metaContact));
+            		chatPanel.updateContactStatus(
+            				listModel.getMetaContactStatus(metaContact));
+            }
+        }
+	}
+
+	public ChatWindow getTabbedChatWindow() {
+		return tabbedChatWindow;
+	}
+
+	public void setTabbedChatWindow(ChatWindow tabbedChatWindow) {
+		this.tabbedChatWindow = tabbedChatWindow;
+	}
 }

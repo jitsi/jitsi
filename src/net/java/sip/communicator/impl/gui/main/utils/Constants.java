@@ -24,17 +24,17 @@ import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 
 /**
- * @author Yana Stamcheva
- * 
  * All look and feel related constants are stored here.
+ * 
+ * @author Yana Stamcheva
  */
 
 public class Constants {
 
 	/*
-	 * ====================================================
-	 * ------------------------ SIZE CONSTANTS -------------------------------
-	 * ====================================================
+	 * ===================================================================
+	 * ------------------------ SIZE CONSTANTS ---------------------------
+	 * ===================================================================
 	 */
 	
 	public static final int MAINFRAME_MIN_HEIGHT = 200;
@@ -66,9 +66,9 @@ public class Constants {
 	public static final int CONFIG_FRAME_MAX_HEIGHT = 600;
 
 	/*
-	 * ====================================================
+	 * ======================================================================
 	 * -------------------- FONTS AND COLOR CONSTANTS ------------------------
-	 * ====================================================
+	 * ======================================================================
 	 */
 
 	public static final Color CONTACTPANEL_SELECTED_START_COLOR 
@@ -98,9 +98,9 @@ public class Constants {
 	public static final Color TRANSPARENT_WHITE_COLOR 
 											= new Color(255, 255, 255, 60);
 	/*
-	 * ====================================================
+	 * ======================================================================
 	 * ---------------------- MESSAGE WINDOW FONT CONSTANTS ------------------
-	 * ====================================================
+	 * ======================================================================
 	 */
 
 	public static final String FONT_NAME = "Verdana";
@@ -119,9 +119,9 @@ public class Constants {
 					new Integer(Constants.FONT_SIZE).intValue());
 	
 	/*
-	 * ====================================================
+	 * ======================================================================
 	 * ------------------------ STATUS LABELS --------------------------------
-	 * ====================================================
+	 * ======================================================================
 	 */
 
     public static final IcqStatusEnum ONLINE_STATUS 
@@ -169,9 +169,9 @@ public class Constants {
     }
 
 	/*
-	 * ====================================================
+	 * ======================================================================
 	 * ------------------------ PROTOCOL NAMES -------------------------------
-	 * ====================================================
+	 * ======================================================================
 	 */
 
 	public static final String ICQ = "ICQ";
@@ -189,9 +189,9 @@ public class Constants {
 	public static final String SIP = "SIP";
 
 	/*
-	 * ====================================================
+	 * ======================================================================
 	 * ------------------------ OTHER CONSTANTS ------------------------------
-	 * ====================================================
+	 * ======================================================================
 	 */
 
 	public static final int RIGHT_SHIFT_STATUS_ICON = 2;
@@ -330,7 +330,7 @@ public class Constants {
 	public static Image getStatusIcon(PresenceStatus status) {
 		return (Image)mainStatusSet.get(status);
 	}
-    
+
     /**
      * Temporary method to load the css style used in the chat window.
      * 
@@ -340,7 +340,7 @@ public class Constants {
         
         InputStream is = Constants.class.getClassLoader()
             .getResourceAsStream
-                ("net/java/sip/communicator/impl/gui/resources/styles/defaultStyle.css");
+            ("net/java/sip/communicator/impl/gui/resources/styles/defaultStyle.css");
         
         Reader r = new BufferedReader(new InputStreamReader(is));
         try {
