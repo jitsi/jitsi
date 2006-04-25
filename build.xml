@@ -106,18 +106,22 @@
     </target>
 
     <!-- clean -->
-    <target name="clean"
+    <target name="clean" depends="clean-bundle-repositories"
         description="Remove all generated files and prepare for a clean restart.">
-        <delete file="${bundles.dest}/configuration.jar"/>
-        <delete file="${bundles.dest}/configuration-slick.jar"/>
         <delete failonerror="false" includeemptydirs="true">
             <fileset dir="${dest}"/>
             <fileset dir="${bundles.dest}"/>
-            <fileset dir="${bin}"/>
-            <fileset dir="${utest.bin}"/>
             <fileset dir="${native.libs}"/>
             <fileset dir="${java.doc}"/>
             <fileset dir="${test.reports.dir}"/>
+        </delete>
+    </target>
+
+    <!-- internal target - removes the OSGI repositories, so that next run recreates them -->
+    <target name="clean-bundle-repositories">
+        <delete failonerror="false" includeemptydirs="true">
+            <fileset dir="${bin}"/>
+            <fileset dir="${utest.bin}"/>
         </delete>
     </target>
 
@@ -135,9 +139,9 @@
                 <include name="**/*.jpg"/>
                 <include name="**/*.properties"/>
                 <include name="**/*.xml"/>
-                <include name="**/*.themerc"/>            	
+                <include name="**/*.themerc"/>
                 <include name="**/gtkrc"/>
-            	<include name="**/*.css"/>
+                <include name="**/*.css"/>
             </fileset>
             <fileset dir="${src2}">
                 <include name="**/*.jpeg"/>
@@ -163,12 +167,12 @@
     </target>
 
     <!--PACKAGE-->
-    <!--internal-target- Copy resource files. -->
-    <target name="package" depends="resource"/>
+    <!--Copy resource files and create bundles jars. -->
+    <target name="package" depends="resource,bundles"/>
 
 
     <!--MAKE-->
-    <target name="make" depends="compile,package"
+    <target name="make" depends="clean-bundle-repositories,compile,package"
         description="Compile and package the project (incrementally)."/>
 
     <!--REBUILD-->
@@ -334,7 +338,7 @@
     </target>
 
     <!--CRUISE CONTROL BUILD LOOP target-->
-    <target name="cc-buildloop" depends="rebuild,bundles,test"
+    <target name="cc-buildloop" depends="rebuild,test"
             description="Comprehensive (paranoid) rebuild and test (used by Cruise Control)."/>
 
 
@@ -402,7 +406,7 @@
         meta-contactlist,meta-contactlist-slick"/>
 
     <!--BUNDLE-HISTORY-->
-    <target name="bundle-history" depends="rebuild">
+    <target name="bundle-history">
         <jar compress="false" destfile="${bundles.dest}/history.jar"
             manifest="src/net/java/sip/communicator/impl/history/history.manifest.mf">
 
@@ -414,7 +418,7 @@
     </target>
 
     <!--BUNDLE-HISTORY-SLICK-->
-    <target name="bundle-history-slick" depends="rebuild">
+    <target name="bundle-history-slick">
         <jar compress="false" destfile="${bundles.dest}/history-slick.jar"
             manifest="test/net/java/sip/communicator/slick/history/history.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/history"
@@ -423,7 +427,7 @@
     </target>
 
     <!--BUNDLE-FILEACCESS-->
-    <target name="bundle-fileaccess" depends="rebuild">
+    <target name="bundle-fileaccess">
         <jar compress="false" destfile="${bundles.dest}/fileaccess.jar"
             manifest="src/net/java/sip/communicator/impl/fileaccess/fileaccess.manifest.mf">
 
@@ -435,7 +439,7 @@
     </target>
 
     <!--BUNDLE-FILEACCESS-SLICK-->
-    <target name="bundle-fileaccess-slick" depends="rebuild">
+    <target name="bundle-fileaccess-slick">
         <jar compress="false" destfile="${bundles.dest}/fileaccess-slick.jar"
             manifest="test/net/java/sip/communicator/slick/fileaccess/fileaccess.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/fileaccess"
@@ -444,7 +448,7 @@
     </target>
 
     <!--BUNDLE-UTIL-->
-    <target name="bundle-util" depends="rebuild">
+    <target name="bundle-util">
         <jar compress="false" destfile="${bundles.dest}/util.jar"
             manifest="src/net/java/sip/communicator/util/util.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/util"
@@ -453,7 +457,7 @@
     </target>
 
     <!--BUNDLE-CONFIGURATION-->
-    <target name="bundle-configuration" depends="rebuild">
+    <target name="bundle-configuration">
         <jar
             compress="false"
             destfile="${bundles.dest}/configuration.jar"
@@ -467,7 +471,7 @@
     </target>
 
     <!--BUNDLE-CONFIGURATION-SLICK-->
-    <target name="bundle-configuration-slick" depends="rebuild">
+    <target name="bundle-configuration-slick">
         <jar compress="false" destfile="${bundles.dest}/configuration-slick.jar"
             manifest="test/net/java/sip/communicator/slick/configuration/configuration.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/configuration"
@@ -484,7 +488,7 @@
     </target>
 
     <!--BUNDLE-MEDIA-->
-    <target name="bundle-media" depends="rebuild">
+    <target name="bundle-media">
         <!-- Creates a bundle containing the impl of the media package."-->
         <jar
             compress="false" destfile="${bundles.dest}/media.jar"
@@ -499,7 +503,7 @@
     </target>
 
     <!--BUNDLE-MEDIA-SLICK-->
-    <target name="bundle-media-slick" depends="rebuild">
+    <target name="bundle-media-slick">
         <!-- Creates a bundle containing the slick for the media package."-->
         <jar compress="false" destfile="${bundles.dest}/media-slick.jar"
             manifest="test/net/java/sip/communicator/slick/media/media.slick.manifest.mf">
@@ -538,7 +542,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!--BUNDLE-NETADDR -->
-    <target name="bundle-netaddr" depends="rebuild">
+    <target name="bundle-netaddr">
         <jar compress="false" destfile="${bundles.dest}/netaddr.jar"
             manifest="src/net/java/sip/communicator/impl/netaddr/netaddr.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/netaddr"
@@ -549,7 +553,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!--BUNDLE-NETADDR-SLICK -->
-    <target name="bundle-netaddr-slick" depends="rebuild">
+    <target name="bundle-netaddr-slick">
         <jar compress="false" destfile="${bundles.dest}/netaddr-slick.jar"
             manifest="test/net/java/sip/communicator/slick/netaddr/netaddr.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/netaddr"
@@ -558,7 +562,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!--BUNDLE-SLICKLESS-->
-    <target name="bundle-slickless" depends="rebuild">
+    <target name="bundle-slickless">
         <!--internal-target- Runs all tests which do not belong to a service implementation and don't therefore need a running OSGI framework -->
         <jar compress="false" destfile="${bundles.dest}/slickless.jar"
             manifest="test/net/java/sip/communicator/slick/slickless/slickless.manifest.mf">
@@ -568,7 +572,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!--BUNDLE-SLICK-RUNNER-->
-    <target name="bundle-slick-runner" depends="rebuild">
+    <target name="bundle-slick-runner">
         <!--internal-target- Creates a bundle that runs all SLICKs that currently exist in sip-com -->
         <jar compress="false" destfile="${bundles.dest}/slick-runner.jar"
             manifest="test/net/java/sip/communicator/slick/runner/slick-runner.manifest.mf">
@@ -578,7 +582,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!--BUNDLE-SIP-->
-    <target name="bundle-sip" depends="rebuild">
+    <target name="bundle-sip">
         <!--internal-target- Creates a bundle containing the sip implementation of the protocol provider package -->
         <jar compress="false" destfile="${bundles.dest}/protocol-sip.jar"
             manifest="src/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
@@ -590,7 +594,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-ICQ -->
-    <target name="bundle-icq" depends="rebuild">
+    <target name="bundle-icq">
         <!-- Creates a bundle containing the icq impl of the protocol provider."-->
         <jar compress="false" destfile="${bundles.dest}/protocol-icq.jar"
             manifest="src/net/java/sip/communicator/impl/protocol/icq/icq.provider.manifest.mf">
@@ -605,7 +609,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-ICQ-SLICK -->
-    <target name="bundle-icq-slick" depends="rebuild">
+    <target name="bundle-icq-slick">
         <!-- Creates a bundle containing the slick for the ICQ protocol provider."-->
         <jar compress="false" destfile="${bundles.dest}/protocol-icq-slick.jar"
             manifest="test/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
@@ -618,7 +622,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
      <!-- BUNDLE-SWING-UI -->
-    <target name="bundle-swing-ui" depends="rebuild">
+    <target name="bundle-swing-ui">
         <!-- Bundle sip-communicator's UI."-->
         <jar compress="false" destfile="${bundles.dest}/swing-ui.jar"
             manifest="src/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
@@ -631,7 +635,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-META-CONTACTLIST -->
-    <target name="meta-contactlist" depends="rebuild">
+    <target name="meta-contactlist">
         <!-- Creates the meta contact list bundle."-->
         <jar compress="false" destfile="${bundles.dest}/meta-cl.jar"
             manifest="src/net/java/sip/communicator/impl/contactlist/meta.cl.manifest.mf">
@@ -643,7 +647,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-META-CONTACTLIST-SLICK -->
-    <target name="meta-contactlist-slick" depends="rebuild">
+    <target name="meta-contactlist-slick">
         <!-- Creates a bundle for the meta contact list SLICK."-->
         <jar compress="false" destfile="${bundles.dest}/meta-cl-slick.jar"
             manifest="test/net/java/sip/communicator/slick/contactlist/meta.cl.slick.manifest.mf">
