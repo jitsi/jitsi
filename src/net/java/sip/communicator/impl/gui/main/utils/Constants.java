@@ -7,9 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.main.utils;
 
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,8 +21,12 @@ import java.io.Reader;
 import java.util.Hashtable;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.swing.text.html.StyleSheet;
 
+import sun.applet.AppletAudioClip;
+
+import net.java.sip.communicator.impl.gui.main.utils.ImageLoader.ImageID;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 
@@ -351,4 +358,11 @@ public class Constants {
             e.printStackTrace();
         }
     }
+    
+    public static AudioClip getDefaultAudio() {
+        AudioClip audio = Applet.newAudioClip(Constants.class.getClassLoader()
+        .getResource("net/java/sip/communicator/impl/gui/resources/sounds/ship-sink.wav"));
+        
+        return audio;
+	}
 }

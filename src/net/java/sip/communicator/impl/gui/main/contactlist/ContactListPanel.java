@@ -462,6 +462,7 @@ public class ContactListPanel extends JScrollPane
                 tabbedChatWindow.highlightTab(metaContact);
             }
         }
+        Constants.getDefaultAudio().play();
     }
 
     /**
