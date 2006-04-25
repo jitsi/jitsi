@@ -74,7 +74,7 @@ public class MainFrame extends JFrame {
    
     private MetaContactListService contactList;
     
-    private ArrayList accounts = new ArrayList();
+    private Hashtable accounts = new Hashtable();
     
     private Hashtable waitToBeDeliveredMsgs = new Hashtable();
     
@@ -160,10 +160,12 @@ public class MainFrame extends JFrame {
 	}
 
     /**
-     * Returns a set of all operation sets supported by the given protocol provider.
+     * Returns a set of all operation sets supported by the given 
+     * protocol provider.
      * 
      * @param protocolProvider The protocol provider.
-     * @return a set of all operation sets supported by the given protocol provider.
+     * @return a set of all operation sets supported by the given 
+     * protocol provider.
      */
     public Map getSupportedOperationSets
         (ProtocolProviderService protocolProvider) {
@@ -221,7 +223,8 @@ public class MainFrame extends JFrame {
                     
                     //request the focus int the contact list panel, which
                     //permits to search in the contact list
-                    this.tabbedPane.getContactListPanel().getContactList().requestFocus();
+                    this.tabbedPane.getContactListPanel()
+                    	.getContactList().requestFocus();
                         
                 } catch (IllegalArgumentException e) {
                     // TODO Auto-generated catch block
@@ -241,14 +244,16 @@ public class MainFrame extends JFrame {
                     = (OperationSetBasicInstantMessaging)value;
                 
                 this.imOperationSets.put(protocolProvider, im);
-                //Add to all instant messaging operation sets the Message listener 
-                //implemented in the ContactListPanel, which handles all received messages.
+                //Add to all instant messaging operation sets the Message 
+                //listener implemented in the ContactListPanel, which handles 
+                //all received messages.
                 im.addMessageListener(this.getTabbedPane().getContactListPanel());
             }
             else if(key.equals(OperationSetTypingNotifications.class.getName())){
                 OperationSetTypingNotifications tn 
                     = (OperationSetTypingNotifications)value;
-                tn.addTypingNotificationsListener(this.getTabbedPane().getContactListPanel());
+                tn.addTypingNotificationsListener
+                	(this.getTabbedPane().getContactListPanel());
             }
         }        
     }
@@ -278,18 +283,24 @@ public class MainFrame extends JFrame {
      * 
      * @param account The account to be added.
      */
-    public void addAccount(Account account){      
-        this.accounts.add(account);        
-        this.getStatusPanel().activateAccount(account);
-        this.getStatusPanel().startConnecting(account.getProtocolName());
+    public void addAccount(String identifier, 
+    		ProtocolProviderService protocolProvider){
+    	String protocolName = protocolProvider.getProtocolName();
+    	
+        if(!getStatusPanel().isProtocolActivated(protocolName)){
+        	this.accounts.put(protocolProvider, identifier);
+	    	this.getStatusPanel().activateAccount(protocolProvider);
+        }
+        this.getStatusPanel()
+        	.startConnecting(protocolName);
     }
     
     /**
      * Returns the default account (for now is returning the first one).
      * @return the default account (for now is returning the first one).
      */
-    public Account getAccount(){
-        return (Account)this.accounts.get(0);
+    public String getDefaultAccount(ProtocolProviderService protocolProvider){
+        return (String)this.accounts.get(protocolProvider);
     }
 
     /**
@@ -306,9 +317,11 @@ public class MainFrame extends JFrame {
     }
 
     /**
-     * Returns the basic instant messaging operation set for the given protocol provider.
+     * Returns the basic instant messaging operation set for the given 
+     * protocol provider.
      * 
-     * @param protocolProvider The protocol provider for which the IM is searched.
+     * @param protocolProvider The protocol provider for which the IM 
+     * is searched.
      * @return OperationSetBasicInstantMessaging The basic instant messaging 
      * operation set for the given protocol provider.
      */

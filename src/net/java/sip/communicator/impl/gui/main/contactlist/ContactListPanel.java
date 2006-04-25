@@ -41,6 +41,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
@@ -481,9 +482,11 @@ public class ContactListPanel extends JScrollPane
             
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(evt.getTimestamp());
+            ProtocolProviderService protocolProvider 
+            	= evt.getDestinationContact().getProtocolProvider();
             
             chatPanel.getConversationPanel().processMessage(
-                    this.mainFrame.getAccount().getIdentifier(),
+                    this.mainFrame.getDefaultAccount(protocolProvider),
                     calendar,                                 
                     ChatMessage.OUTGOING_MESSAGE,
                     msg.getContent());

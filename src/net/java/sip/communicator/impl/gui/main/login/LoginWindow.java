@@ -206,9 +206,7 @@ public class LoginWindow extends JDialog
             g2.setColor(new Color(255, 255, 255, 100));
 
             g2.fillRect(0, 0, getWidth(), getHeight());
-                
         }
-       
     }
     
     /**

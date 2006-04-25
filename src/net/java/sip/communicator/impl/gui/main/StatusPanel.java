@@ -18,7 +18,14 @@ import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
+/**
+ * The StatusPanel is the place where the user can see and change its status 
+ * for all registered protocols. 
+ * 
+ * @author Yana Stamcheva
+ */
 public class StatusPanel extends JPanel {
 
     private Hashtable protocolStatusCombos = new Hashtable();
@@ -35,19 +42,25 @@ public class StatusPanel extends JPanel {
 				Constants.CONTACTPANEL_MOVER_START_COLOR));
 	}
 
-	public void activateAccount(Account account) {
+	/**
+	 * Creates the selector box, containing all protocol statuses, adds it to 
+	 * the StatusPanel and refreshes the panel.
+	 * 
+	 * @param protocolProvider The protocol provider.
+	 */
+	public void activateAccount(ProtocolProviderService protocolProvider) {
 
         Map protocolStatusMap = Constants
-            .getProtocolStatusIcons(account.getProtocolName());
+            .getProtocolStatusIcons(protocolProvider.getProtocolName());
 
 		StatusSelectorBox protocolStatusCombo 
             = new StatusSelectorBox(
                 this.mainFrame,
-                account,
+                protocolProvider,
 				protocolStatusMap, 
                 (Image)protocolStatusMap.get(Constants.OFFLINE_STATUS));
 
-        this.protocolStatusCombos.put(  account.getProtocolName(), 
+        this.protocolStatusCombos.put(  protocolProvider.getProtocolName(), 
                                         protocolStatusCombo);
         
 		this.add(protocolStatusCombo);
@@ -55,6 +68,12 @@ public class StatusPanel extends JPanel {
         this.getParent().validate();
 	}
     
+	/**
+	 * Sets the selected status.
+	 * 
+	 * @param protocol The protocol name.
+	 * @param status The newly selected status.
+	 */
     public void setSelectedStatus(String protocol, Object status){
         
         Map protocolStatusMap = Constants
@@ -69,6 +88,12 @@ public class StatusPanel extends JPanel {
         selectorBox.repaint();
     }
     
+    /**
+     * Shows the protocol animated icon, indicating that it is in a connecting 
+     * state.
+     * 
+     * @param protocol The protocol name.
+     */
     public void startConnecting(String protocol){
         
         StatusSelectorBox selectorBox
@@ -80,6 +105,12 @@ public class StatusPanel extends JPanel {
         selectorBox.repaint();
     }
 
+    /**
+     * Removes the protocol animated icon, indicating that the connecting 
+     * process is finished.
+     * 
+     * @param protocol The protocol name.
+     */
     public void stopConnecting(String protocol){
         
         StatusSelectorBox selectorBox
@@ -90,13 +121,19 @@ public class StatusPanel extends JPanel {
         selectorBox.repaint();
     }
     
-    public Hashtable getProtocolStatusCombos() {
-        return protocolStatusCombos;
-    }
-
-    public void setProtocolStatusCombos(
-            Hashtable protocolStatusCombos) {
-        this.protocolStatusCombos = protocolStatusCombos;
+    /**
+     * Checks if the given protocol has already its StatusSelectorBox in the 
+     * StatusPanel.
+     * 
+     * @param protocolName The protocol name.
+     * @return True if the protcol has already its StatusSelectorBox in the 
+     * StatusPanel, False otherwise.
+     */
+    public boolean isProtocolActivated(String protocolName){
+    	if(protocolStatusCombos.containsKey(protocolName))
+    		return true;
+    	else 
+    		return false;
     }
     
     public MainFrame getMainFrame() {

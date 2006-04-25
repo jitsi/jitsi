@@ -80,23 +80,17 @@ public class LoginManager implements RegistrationStateChangeListener {
         
         Hashtable accountProperties = new Hashtable();
         accountProperties.put(AccountProperties.PASSWORD, passwd);
-
+        
         this.accountID = accountManager.installAccount(
-                this.bc, user, accountProperties);
+                    this.bc, user, accountProperties);
         
-        ServiceReference serRef = null;
-        
-        serRef = accountManager
+        ServiceReference serRef = accountManager
             .getProviderForAccount(this.accountID);
                
         ProtocolProviderService protocolProvider 
             = (ProtocolProviderService)this.bc.getService(serRef);    
         
-        Account account 
-            = new Account(  user,
-                            protocolProvider);
-    
-        this.mainFrame.addAccount(account);
+        this.mainFrame.addAccount(user, protocolProvider);
         
         protocolProvider.addRegistrationStateChangeListener(this);
   

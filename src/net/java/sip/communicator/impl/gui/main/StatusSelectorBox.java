@@ -34,6 +34,7 @@ import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.service.protocol.OperationSetPresence;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 import net.java.sip.communicator.util.Logger;
 
@@ -55,9 +56,10 @@ public class StatusSelectorBox extends JLabel
     
     private Connecting connecting = new Connecting();
     
-    private Account account;
+    private ProtocolProviderService protocolProvider;
     
-    public StatusSelectorBox(MainFrame mainFrame, Account account) {
+    public StatusSelectorBox(	MainFrame mainFrame,
+    							ProtocolProviderService protocolProvider) {
         
         this.setPreferredSize(new Dimension(
                                 this.backgroundImage.getWidth(this),
@@ -69,8 +71,8 @@ public class StatusSelectorBox extends JLabel
         
         this.mainFrame = mainFrame;
         
-        this.account = account;
-        
+        this.protocolProvider = protocolProvider;
+                
         this.popup = new AntialiasedPopupMenu();
         
         this.popup.setInvoker(this);
@@ -79,7 +81,7 @@ public class StatusSelectorBox extends JLabel
     }
     
     public StatusSelectorBox(   MainFrame mainFrame,
-                                Account account,
+                                ProtocolProviderService protocolProvider,
                                 Map itemsMap, 
                                 Image selectedItem) {
        
@@ -94,9 +96,7 @@ public class StatusSelectorBox extends JLabel
         this.setIcon(new ImageIcon(selectedItem));
         
         this.mainFrame = mainFrame;
-        
-        this.account = account;
-        
+        this.protocolProvider = protocolProvider;
         this.itemsMap = itemsMap;
         
         this.popup = new AntialiasedPopupMenu();
@@ -146,8 +146,7 @@ public class StatusSelectorBox extends JLabel
                 JMenuItem menuItem = (JMenuItem) e.getSource();            
                        
                 OperationSetPresence presence 
-                    = mainFrame.getProtocolPresence
-                        (account.getProtocolProvider());
+                    = mainFrame.getProtocolPresence(protocolProvider);
                 
                 Iterator statusSet = presence.getSupportedStatusSet();
                 
@@ -164,21 +163,17 @@ public class StatusSelectorBox extends JLabel
                             
                             if(status.equals(IcqStatusEnum.ONLINE)){
                                 
-                                if(account.getProtocolProvider()
-                                        .isRegistered()){
+                                if(protocolProvider.isRegistered()){
                                   
                                     presence
                                             .publishPresenceStatus(status, "");
                                 }
                                 else{
-                                    account.getProtocolProvider()
-                                        .register(null);                                
+                                    protocolProvider.register(null);                                
                                 }
                             }
                             else if(status.equals(IcqStatusEnum.OFFLINE)){
-                                
-                                account.getProtocolProvider().unregister();
-                                
+                                protocolProvider.unregister();
                             }
                             else {                      
                                 
