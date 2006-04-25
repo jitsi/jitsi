@@ -25,20 +25,16 @@ public class FileMenu extends JMenu
 	implements ActionListener{
 
 	private AntialiasedMenuItem saveMenuItem 
-						= new AntialiasedMenuItem(Messages.getString("save")
-									, new ImageIcon(ImageLoader.getImage(ImageLoader.SAVE_ICON)));
+		= new AntialiasedMenuItem(Messages.getString("save")
+				, new ImageIcon(ImageLoader.getImage(ImageLoader.SAVE_ICON)));
 
 	private AntialiasedMenuItem printMenuItem 
-						= new AntialiasedMenuItem(Messages.getString("print")
-									, new ImageIcon(ImageLoader.getImage(ImageLoader.PRINT_ICON)));
+		= new AntialiasedMenuItem(Messages.getString("print")
+				, new ImageIcon(ImageLoader.getImage(ImageLoader.PRINT_ICON)));
 	
 	private AntialiasedMenuItem closeMenuItem 
-						= new AntialiasedMenuItem(Messages.getString("close")
-									, new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
-	
-	private AntialiasedMenuItem quitMenuItem 
-						= new AntialiasedMenuItem(Messages.getString("quit")
-									, new ImageIcon(ImageLoader.getImage(ImageLoader.QUIT_ICON)));
+		= new AntialiasedMenuItem(Messages.getString("close")
+				, new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
 	
 	private ChatWindow parentWindow;
 	
@@ -54,17 +50,14 @@ public class FileMenu extends JMenu
 		this.addSeparator();
 		
 		this.add(closeMenuItem);
-		this.add(quitMenuItem);
-		
+				
 		this.saveMenuItem.setName("save");
 		this.printMenuItem.setName("print");
 		this.closeMenuItem.setName("close");
-		this.quitMenuItem.setName("quit");
-		
+				
 		this.saveMenuItem.addActionListener(this);
 		this.printMenuItem.addActionListener(this);
 		this.closeMenuItem.addActionListener(this);
-		this.quitMenuItem.addActionListener(this);
 	}
 	
 	public void paint(Graphics g){
