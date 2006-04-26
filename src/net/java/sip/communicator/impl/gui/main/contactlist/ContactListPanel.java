@@ -28,7 +28,9 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -80,7 +82,7 @@ public class ContactListPanel extends JScrollPane
 		this.treePanel.setBackground(Color.WHITE);
         
         this.setHorizontalScrollBarPolicy
-            (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);	
 	}
 
      public void initTree(MetaContactListService contactListService) {
@@ -498,7 +500,12 @@ public class ContactListPanel extends JScrollPane
      * Shows message to the user when message delivery failed.
      */
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt) {
-        //TODO: Show message to the user when message delivery failed.
+    	String msg = Messages.getString("msgNotDelivered", 
+    					evt.getDestinationContact().getDisplayName());
+    	String title = Messages.getString("msgDeliveryFailure");
+    	
+        JOptionPane.showMessageDialog(this, msg, title, 
+        		JOptionPane.WARNING_MESSAGE);
     }
 
     /**

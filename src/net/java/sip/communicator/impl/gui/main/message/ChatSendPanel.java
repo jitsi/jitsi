@@ -20,6 +20,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedPanel;
@@ -90,8 +91,18 @@ public class ChatSendPanel extends JPanel
             		.getMainFrame().getWaitToBeDeliveredMsgs()
             			.put(msg.getMessageUID(), this.chatPanel);
             
-            im.sendInstantMessage(chatPanel.getDefaultContact()
-            		.getDefaultContact(), msg);
+            try{
+            	im.sendInstantMessage(chatPanel.getDefaultContact()
+                		.getDefaultContact(), msg);
+            }
+            catch(IllegalStateException ex){
+            	String errorMsg = Messages.getString("msgSendConnectionProblem");
+            	
+            	String title = Messages.getString("msgDeliveryFailure");
+            	
+                JOptionPane.showMessageDialog(this, errorMsg, title, 
+                		JOptionPane.WARNING_MESSAGE);
+            }
 		}
 	}
 

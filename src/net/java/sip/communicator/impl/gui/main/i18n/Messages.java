@@ -28,4 +28,16 @@ public class Messages {
 			return '!' + key + '!';
 		}
 	}
+	
+	public static String getString(String key, String param) {		
+		try {
+			String sourceString = RESOURCE_BUNDLE.getString(key);
+			
+			return sourceString.replaceAll("?", param);
+			
+		} catch (MissingResourceException e) {
+			
+			return '!' + key + '!';
+		}
+	}
 }
