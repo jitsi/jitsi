@@ -295,8 +295,7 @@ public class ContactListPanel extends JScrollPane
                     if (tabbedChatWindow.getExtendedState() == JFrame.ICONIFIED)
                         tabbedChatWindow.setExtendedState(JFrame.NORMAL);
                     
-                    if(!tabbedChatWindow.isVisible())
-                        tabbedChatWindow.setVisible(true);
+                    tabbedChatWindow.setVisible(true);
     
                     tabbedChatWindow.getWriteMessagePanel()
                         .getEditorPane().requestFocus();
@@ -387,8 +386,7 @@ public class ContactListPanel extends JScrollPane
                             ChatMessage.INCOMING_MESSAGE, 
                             evt.getSourceMessage().getContent());
                 
-                if(!msgWindow.isVisible())
-                    msgWindow.setVisible(true);                    
+                msgWindow.setVisible(true);                    
             } else {
                 /*
                  * If there's no chat window for the contact
@@ -440,8 +438,7 @@ public class ContactListPanel extends JScrollPane
                             calendar, ChatMessage.INCOMING_MESSAGE, 
                             evt.getSourceMessage().getContent());
                 
-                if(!tabbedChatWindow.isVisible())
-                    tabbedChatWindow.setVisible(true);
+                tabbedChatWindow.setVisible(true);
                 
                 tabbedChatWindow.getWriteMessagePanel()
                     .getEditorPane().requestFocus();
@@ -452,8 +449,7 @@ public class ContactListPanel extends JScrollPane
                             calendar, ChatMessage.INCOMING_MESSAGE, 
                             evt.getSourceMessage().getContent());
                 
-                if(!tabbedChatWindow.isVisible())
-                    tabbedChatWindow.setVisible(true);
+                tabbedChatWindow.setVisible(true);
                 
                 tabbedChatWindow.getWriteMessagePanel()
                     .getEditorPane().requestFocus();

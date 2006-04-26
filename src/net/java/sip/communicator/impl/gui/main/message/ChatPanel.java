@@ -8,11 +8,19 @@
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FocusTraversalPolicy;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.Vector;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.LayoutFocusTraversalPolicy;
+import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
@@ -92,6 +100,8 @@ public class ChatPanel extends JPanel {
         		.setMinimumSize(new Dimension(400, 100));
         
         this.init();
+        
+        addComponentListener(new TabSelectionFocusGainListener()); 
     }
     
     /**
@@ -261,5 +271,42 @@ public class ChatPanel extends JPanel {
      */
     public ChatSendPanel getSendPanel() {
         return sendPanel;
+    }
+    
+    public class TabSelectionFocusGainListener implements ComponentListener {
+
+    	public TabSelectionFocusGainListener() {
+    		super();
+    	}
+
+    	public void componentResized(ComponentEvent e) {
+    	}
+
+    	public void componentMoved(ComponentEvent e) {
+    	}
+
+    	public void componentShown(ComponentEvent e) {
+    		Component component = e.getComponent();
+    		Container parent = component.getParent();
+    		if ( parent instanceof JTabbedPane ) {    			
+    			JTabbedPane tabbedPane = (JTabbedPane)parent;
+    			if ( tabbedPane.getSelectedComponent() == component ){
+    				SwingUtilities.invokeLater(new Runnable(){
+    					public void run(){
+    						getChatWindow().setTitle(getDefaultContact()
+    	                            .getDisplayName());
+    	                    
+    	                    getChatWindow().setCurrentChatPanel(ChatPanel.this);
+    	                    
+    	                    getWriteMessagePanel()
+    	                    	.getEditorPane().requestFocus();
+    					}
+    				});    				
+    			}
+    		}
+    	}
+
+    	public void componentHidden(ComponentEvent e) {
+    	}
     }
 }

@@ -8,6 +8,7 @@
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BorderLayout;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -21,6 +22,7 @@ import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -152,15 +154,12 @@ public class ChatWindow extends JFrame{
             public void actionPerformed(ActionEvent e)
             {
                 if(chatTabbedPane != null){ 
-                    if(chatTabbedPane.getSelectedIndex() 
-                            < chatTabbedPane.getTabCount() - 1){                    
-	                    ChatWindow.this.chatTabbedPane
-	                        .setSelectedIndex
-	                            (chatTabbedPane.getSelectedIndex() + 1);
+                	int selectedIndex = chatTabbedPane.getSelectedIndex();
+                    if( selectedIndex < chatTabbedPane.getTabCount() - 1){
+	                    setSelectedContactTab(selectedIndex + 1);
                     }
                     else{
-                    	ChatWindow.this.chatTabbedPane
-                        .setSelectedIndex(0);
+                    	setSelectedContactTab(0);
                     }
                 }
             }
@@ -170,15 +169,12 @@ public class ChatWindow extends JFrame{
             public void actionPerformed(ActionEvent e)
             {   
                 if(chatTabbedPane != null){
-                    if(chatTabbedPane.getSelectedIndex() != 0){                    
-	                    ChatWindow.this.chatTabbedPane
-	                        .setSelectedIndex
-	                            (chatTabbedPane.getSelectedIndex() - 1);
+                	int selectedIndex = chatTabbedPane.getSelectedIndex();
+                    if(selectedIndex != 0){                    
+	                    setSelectedContactTab(selectedIndex - 1);
                     }
                     else{
-                    	ChatWindow.this.chatTabbedPane
-                        .setSelectedIndex
-                            (chatTabbedPane.getTabCount() - 1);
+                    	setSelectedContactTab(chatTabbedPane.getTabCount() - 1);
                     }
                 }
             }
@@ -252,24 +248,7 @@ public class ChatWindow extends JFrame{
                     removeContactTab(selectedIndex);
                 }
             });
-            
-            chatTabbedPane.addChangeListener(new ChangeListener(){
 
-                public void stateChanged(ChangeEvent e) {
-                    
-                    ChatPanel chatPanel = (ChatPanel)chatTabbedPane
-                                            .getSelectedComponent();
-
-                    if(chatPanel != null){
-                            
-                            setTitle(chatPanel.getDefaultContact()
-                                    .getDisplayName());
-                            
-                            setCurrentChatPanel(chatPanel);
-                        }
-                    }
-                });
-            
             this.getContentPane().add(  this.currentChatPanel, 
                                         BorderLayout.CENTER);
             
@@ -345,12 +324,30 @@ public class ChatWindow extends JFrame{
         
         if(this.contactTabsTable != null && !this.contactTabsTable.isEmpty()){
                         
-            int selectedIndex = ((ChatPanel)this.contactTabsTable
-                                    .get(contact.getDisplayName())).getTabIndex();
+            ChatPanel chatPanel = ((ChatPanel)this.contactTabsTable
+                                    .get(contact.getDisplayName()));
             
-            this.chatTabbedPane.setSelectedIndex(selectedIndex);
+            this.chatTabbedPane.setSelectedIndex(chatPanel.getTabIndex());
+            chatPanel.getWriteMessagePanel()
+				.getEditorPane().requestFocus();
         }
     }    
+    
+    public void setSelectedContactTab(int index){
+    	Enumeration chatsTable = this.contactTabsTable.elements();
+    	
+    	while(chatsTable.hasMoreElements()){
+    		ChatPanel chatPanel = (ChatPanel)chatsTable.nextElement();
+    		if(chatPanel.getTabIndex() == index){
+    			this.setCurrentChatPanel(chatPanel);    			
+    			this.chatTabbedPane.setSelectedIndex(index);
+    			this.setVisible(true);
+    			getWriteMessagePanel()
+					.getEditorPane().requestFocus();
+    			break;
+    		}
+    	}
+    }
     
     /**
      * Removes the tab with the given index.
