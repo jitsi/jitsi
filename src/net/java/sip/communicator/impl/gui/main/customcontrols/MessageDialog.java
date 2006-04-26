@@ -29,17 +29,22 @@ public class MessageDialog extends JDialog {
 	private JButton noButton = new JButton(Messages.getString("cancel"));
 	private JButton yesButton = new JButton(Messages.getString("remove"));
 	
-	private JCheckBox doNotAskAgain = new JCheckBox(Messages.getString("doNotAskAgain"));
+	private JCheckBox doNotAskAgain 
+		= new JCheckBox(Messages.getString("doNotAskAgain"));
 	
-	private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader.getImage(ImageLoader.WARNING_ICON)));
+	private JLabel iconLabel 
+		= new JLabel(new ImageIcon(ImageLoader.getImage(ImageLoader.WARNING_ICON)));
 	
 	private JLabel messageLabel = new JLabel();
 		
-	private AntialiasedPanel buttonsPanel = new AntialiasedPanel(new FlowLayout(FlowLayout.CENTER));
+	private AntialiasedPanel buttonsPanel 
+		= new AntialiasedPanel(new FlowLayout(FlowLayout.CENTER));
 	
-	private AntialiasedPanel checkBoxPanel = new AntialiasedPanel(new FlowLayout(FlowLayout.LEADING));
+	private AntialiasedPanel checkBoxPanel 
+		= new AntialiasedPanel(new FlowLayout(FlowLayout.LEADING));
 	
-	private AntialiasedPanel messagePanel = new AntialiasedPanel(new BorderLayout(5, 5));
+	private AntialiasedPanel messagePanel 
+		= new AntialiasedPanel(new BorderLayout(5, 5));
 	
 	public MessageDialog(Frame owner){
 		super(owner);
@@ -54,14 +59,15 @@ public class MessageDialog extends JDialog {
 		
 		this.getContentPane().setLayout(new BorderLayout(5, 5));
 		
-		this.messagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
-		this.checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+		this.messagePanel
+			.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+		this.checkBoxPanel
+			.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 		
 		this.init();
 	}
 	
-	private void init(){
-		
+	private void init(){		
 		this.checkBoxPanel.add(doNotAskAgain);
 		
 		this.buttonsPanel.add(yesButton);
@@ -73,7 +79,6 @@ public class MessageDialog extends JDialog {
 		this.getContentPane().add(messagePanel, BorderLayout.NORTH);
 		this.getContentPane().add(checkBoxPanel, BorderLayout.CENTER);
 		this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
-		
 	}
 	
 	public void setMessage(String message) {
@@ -81,9 +86,8 @@ public class MessageDialog extends JDialog {
 	}	
 	
 	public void paint(Graphics g){
-		
 		AntialiasingManager.activateAntialiasing(g);
 	
 		super.paint(g);
-	}
+	}	
 }
