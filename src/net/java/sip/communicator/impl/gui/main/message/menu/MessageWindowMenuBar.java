@@ -20,7 +20,7 @@ public class MessageWindowMenuBar extends JMenuBar {
 
 	private FileMenu fileMenu;
 	
-	private EditMenu editMenu = new EditMenu();
+	private EditMenu editMenu; 
 	
 	private JMenu settingsMenu = new JMenu(Messages.getString("settings"));
 	
@@ -33,6 +33,8 @@ public class MessageWindowMenuBar extends JMenuBar {
 		this.parentWindow = parentWindow;
 		
 		fileMenu = new FileMenu(this.parentWindow);
+		
+		editMenu = new EditMenu(this.parentWindow);
 		
 		this.init();		
 	}

@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
+import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -269,5 +270,9 @@ public class ChatConversationPanel extends JScrollPane
 
         g2.drawRoundRect(3, 3, this.getWidth() - 7, this.getHeight() - 5, 8, 8);
 
-    }    
+    }
+
+	public JEditorPane getChatEditorPane() {
+		return chatEditorPane;
+	}    
 }

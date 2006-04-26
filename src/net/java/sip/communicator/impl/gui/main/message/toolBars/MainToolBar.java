@@ -137,19 +137,27 @@ public class MainToolBar extends SIPCommToolBar
 			
 		} else if (buttonText.equalsIgnoreCase("cut")) {
 			
-			JEditorPane editorPane = this.messageWindow.getWriteMessagePanel().getEditorPane();
+			JEditorPane editorPane 
+				= this.messageWindow.getWriteMessagePanel().getEditorPane();
 			
 			editorPane.cut();
 			
 		} else if (buttonText.equalsIgnoreCase("copy")) {
 			
-			JEditorPane editorPane = this.messageWindow.getWriteMessagePanel().getEditorPane();
+			JEditorPane editorPane 
+				= this.messageWindow.getConversationPanel()
+					.getChatEditorPane();
 			
+			if(editorPane.getSelectedText() == null){
+				editorPane 
+					= this.messageWindow.getWriteMessagePanel().getEditorPane();
+			}
 			editorPane.copy();
 			
 		} else if (buttonText.equalsIgnoreCase("paste")) {
 			
-			JEditorPane editorPane = this.messageWindow.getWriteMessagePanel().getEditorPane();
+			JEditorPane editorPane 
+				= this.messageWindow.getWriteMessagePanel().getEditorPane();
 			
 			editorPane.paste();
 			
