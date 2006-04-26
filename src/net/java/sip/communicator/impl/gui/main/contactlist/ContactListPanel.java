@@ -82,7 +82,10 @@ public class ContactListPanel extends JScrollPane
 		this.treePanel.setBackground(Color.WHITE);
         
         this.setHorizontalScrollBarPolicy
-            (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);	
+            (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        
+        this.getVerticalScrollBar().setUnitIncrement(30);
+       
 	}
 
      public void initTree(MetaContactListService contactListService) {
@@ -581,7 +584,7 @@ public class ContactListPanel extends JScrollPane
 			//TODO: update chat contact status in 
 			//mode all messages in new window
         }
-        else if(tabbedChatWindow != null){        		
+        else if(tabbedChatWindow != null && tabbedChatWindow.getTabCount() > 0){        		
             Hashtable contactTabsTable 
                 = tabbedChatWindow.getContactTabsTable();
             

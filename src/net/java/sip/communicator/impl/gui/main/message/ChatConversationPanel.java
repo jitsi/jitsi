@@ -78,7 +78,9 @@ public class ChatConversationPanel extends JScrollPane
 
 		this.setWheelScrollingEnabled(true);
         
-		this.getViewport().add(chatEditorPane);        
+		this.getViewport().add(chatEditorPane);
+		
+		this.getVerticalScrollBar().setUnitIncrement(30);
 	}
     
     private void initEditor(){

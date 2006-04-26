@@ -53,7 +53,9 @@ public class ChatWritePanel extends JScrollPane
 		
 		this.enableKeyboardEvents();
 		
-		this.getViewport().add(editorPane, BorderLayout.CENTER);		
+		this.getViewport().add(editorPane, BorderLayout.CENTER);
+		
+		this.getVerticalScrollBar().setUnitIncrement(30);
 	}
 		
 	public void paint(Graphics g){
