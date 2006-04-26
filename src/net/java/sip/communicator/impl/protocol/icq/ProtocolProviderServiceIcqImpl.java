@@ -15,6 +15,7 @@ import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joustsim.oscar.oscar.loginstatus.*;
+import net.java.sip.communicator.impl.protocol.icq.message.DefaultCmdFactory;
 
 /**
  * An implementation of the protocol provider service over the AIM/ICQ protocol
@@ -377,7 +378,12 @@ public class ProtocolProviderServiceIcqImpl
             if (newState == State.ONLINE)
             {
                 icbmService = conn.getIcbmService();
-                icbmService.addIcbmListener(aimIcbmListener);
+				icbmService.addIcbmListener(aimIcbmListener);
+
+				conn.getInfoService().
+				getOscarConnection().getSnacProcessor().
+				getCmdFactoryMgr().getDefaultFactoryList().
+				registerAll(new DefaultCmdFactory());
             }
             else if (newState == State.DISCONNECTED
                      || newState == State.FAILED)
