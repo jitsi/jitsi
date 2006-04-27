@@ -51,6 +51,12 @@ public class Menu extends JMenuBar {
 		this.add(toolsMenu);
 		this.add(viewMenu);
 		this.add(helpMenu);
+		
+		//Disable all menus that are not yet implemented.
+		this.userMenu.setEnabled(false);
+		this.toolsMenu.setEnabled(false);
+		this.viewMenu.setEnabled(false);
+		this.helpMenu.setEnabled(false);
 	}
 	
 	public void paint(Graphics g){

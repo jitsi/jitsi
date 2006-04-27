@@ -70,9 +70,9 @@ public class QuickMenu extends SIPCommToolBar
 		
 		this.add(addButton);		
 		this.add(configureButton);		
-		this.add(searchButton);
 		this.add(infoButton);
-        		
+		this.add(searchButton);
+		
 		this.addButton.setName("add");
 		this.configureButton.setName("config");
 		this.searchButton.setName("search");
@@ -82,6 +82,11 @@ public class QuickMenu extends SIPCommToolBar
 		this.configureButton.addActionListener(this);
 		this.searchButton.addActionListener(this);
 		this.infoButton.addActionListener(this);
+		
+		//Disable all buttons that do nothing.
+		this.addButton.setEnabled(false);
+		this.configureButton.setEnabled(false);		
+		this.infoButton.setEnabled(false);
 	}
 
 	public void actionPerformed(ActionEvent e) {

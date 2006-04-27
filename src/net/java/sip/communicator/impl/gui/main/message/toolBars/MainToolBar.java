@@ -124,6 +124,15 @@ public class MainToolBar extends SIPCommToolBar
 		this.sendFileButton.addActionListener(this);
 		this.historyButton.addActionListener(this);
 		this.fontButton.addActionListener(this);
+		
+		//Disable all buttons that do nothing.
+		this.saveButton.setEnabled(false);
+		this.printButton.setEnabled(false);
+		this.previousButton.setEnabled(false);
+		this.nextButton.setEnabled(false);
+		this.sendFileButton.setEnabled(false);
+		this.historyButton.setEnabled(false);
+		this.fontButton.setEnabled(false);
 	}
 
 	public void actionPerformed(ActionEvent e) {

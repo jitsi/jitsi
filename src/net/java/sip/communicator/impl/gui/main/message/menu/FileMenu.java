@@ -58,6 +58,10 @@ public class FileMenu extends JMenu
 		this.saveMenuItem.addActionListener(this);
 		this.printMenuItem.addActionListener(this);
 		this.closeMenuItem.addActionListener(this);
+		
+		//Disable all menu items that do nothing.
+		this.saveMenuItem.setEnabled(false);
+		this.printMenuItem.setEnabled(false);
 	}
 	
 	public void paint(Graphics g){
