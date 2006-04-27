@@ -18,6 +18,8 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JTree;
 import javax.swing.ListModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.text.Position;
 import javax.swing.tree.TreePath;
@@ -44,6 +46,8 @@ public class ContactList extends JList
 
     private ContactListModel listModel;    
     
+    private MetaContact currentlySelectedContact;
+    
     public ContactList(MetaContactListService contactList){
 
         this.contactList = contactList;
@@ -66,6 +70,15 @@ public class ContactList extends JList
         this.addKeyListener(new CListKeySearchListener(this));
         
         this.contactList.addContactListListener(this);
+        
+        this.addListSelectionListener(new ListSelectionListener(){
+			public void valueChanged(ListSelectionEvent e) {
+				if(getSelectedValue() instanceof MetaContact){
+					currentlySelectedContact 
+						= (MetaContact)getSelectedValue();
+				}
+			}
+        });
     }
    
     public void metaContactAdded(MetaContactEvent evt) {
@@ -126,15 +139,19 @@ public class ContactList extends JList
     }
 
     public void childContactsReordered(MetaContactGroupEvent evt) {
-        
+    	
         MetaContactGroup group = evt.getSourceMetaContactGroup();
-
+        
         int startIndex 
             = this.listModel.indexOf(group.getMetaContact(0));
         int endIndex 
-            = this.listModel.indexOf(group.getMetaContact(group.countChildContacts() - 1));
+            = this.listModel.indexOf
+            	(group.getMetaContact(group.countChildContacts() - 1));        
         
         this.listModel.contentChanged(startIndex, endIndex);
+        
+        if(currentlySelectedContact != null)
+        	this.setSelectedValue(currentlySelectedContact, false);
     }
     
     /**
