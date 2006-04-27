@@ -222,11 +222,11 @@ public class ContactListPanel extends JScrollPane
      * 
      * @author Yana Stamcheva
      */
-	private class RunMessageWindow implements Runnable {
+	public class RunMessageWindow implements Runnable {
 
 		private MetaContact contactItem;
 
-		private RunMessageWindow(MetaContact contactItem) {
+		public RunMessageWindow(MetaContact contactItem) {
 			this.contactItem = contactItem;
 		}
 

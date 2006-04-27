@@ -15,8 +15,10 @@ import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel.RunMessageWindow;
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenu;
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenuItem;
 import net.java.sip.communicator.impl.gui.main.customcontrols.MessageDialog;
@@ -66,7 +68,8 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
 	private MainFrame mainFrame;
 
-	public ContactRightButtonMenu(MainFrame mainFrame, MetaContact contactItem) {
+	public ContactRightButtonMenu(MainFrame mainFrame, 
+                                                        MetaContact contactItem) {
 		super();
 
 		this.mainFrame = mainFrame;
@@ -130,6 +133,15 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 		this.renameContactItem.addActionListener(this);
 		this.viewHistoryItem.addActionListener(this);
 		this.userInfoItem.addActionListener(this);
+        
+        //Disable all menu items that do nothing.
+        this.sendFileItem.setEnabled(false);
+        this.moveToMenu.setEnabled(false);
+        this.addSubcontactMenu.setEnabled(false);
+        this.removeContactItem.setEnabled(false);
+        this.renameContactItem.setEnabled(false);
+        this.viewHistoryItem.setEnabled(false);
+        this.userInfoItem.setEnabled(false);
 	}
 
 	public Point getPopupLocation() {
@@ -159,15 +171,13 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 		String itemName = menuItem.getName();
 
 		if (itemName.equalsIgnoreCase("sendMessage")) {
-
-			ChatWindow msgWindow = new ChatWindow(this.mainFrame);
-
-			msgWindow.getCurrentChatPanel().addContactToChat(this.contactItem);
-
-			msgWindow.setVisible(true);
+            ContactListPanel clistPanel = mainFrame.getTabbedPane()
+                        .getContactListPanel();
+            SwingUtilities.invokeLater(
+                    clistPanel.new RunMessageWindow(
+                    contactItem));
 		} 
 		else if (itemName.equalsIgnoreCase("sendFile")) {
-
 			// disabled
 		} 
 		else if (itemName.equalsIgnoreCase("removeContact")) {
