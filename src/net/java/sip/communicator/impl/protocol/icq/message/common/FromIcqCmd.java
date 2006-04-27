@@ -44,40 +44,40 @@ import net.kano.joscar.flapcmd.SnacPacket;
 /**
  * A SNAC command to receiven an ICQ command from the server.
  *
- * @snac.src server
- * @snac.cmd 0x15 0x03
+ * snac.src server
+ * snac.cmd 0x15 0x03
  *
  * @see ToIcqCmd
  */
 public class FromIcqCmd
-	extends AbstractIcqCmd
+    extends AbstractIcqCmd
 {
-	/**
-	 * Generates an incoming ICQ command from the given incoming
-	 * SNAC packet.
-	 *
-	 * @param packet an incoming rendezvous ICBM packet
-	 */
+    /**
+     * Generates an incoming ICQ command from the given incoming
+     * SNAC packet.
+     *
+     * @param packet an incoming rendezvous ICBM packet
+     */
 //	protected FromIcqCmd(SnacPacket packet) {
-	public FromIcqCmd(SnacPacket packet)
-	{
-		super(IcqCommand.CMD_FROM_ICQ, packet);
-	}
+    public FromIcqCmd(SnacPacket packet)
+    {
+        super(IcqCommand.CMD_FROM_ICQ, packet);
+    }
 
-	/**
-	 * Creates a new outgoing ICQ command with the given properties.
-	 *
-	 * @param uin an ICQ UIN as an integer value
-	 * @param type the ICQ subtype for the command
-	 * @param id the sequence ID for this command
-	 * @param dataWriter an object used to write the ICQ-specific data
-	 */
-	public FromIcqCmd(long uin, IcqType type, int id, LiveWritable dataWriter)
-	{
-		super(IcqCommand.CMD_FROM_ICQ, uin, type, id, dataWriter);
-	}
+    /**
+     * Creates a new outgoing ICQ command with the given properties.
+     *
+     * @param uin an ICQ UIN as an integer value
+     * @param type the ICQ subtype for the command
+     * @param id the sequence ID for this command
+     * @param dataWriter an object used to write the ICQ-specific data
+     */
+    public FromIcqCmd(long uin, IcqType type, int id, LiveWritable dataWriter)
+    {
+        super(IcqCommand.CMD_FROM_ICQ, uin, type, id, dataWriter);
+    }
 
-	public void writeIcqData(OutputStream out)
-		throws IOException
-	{}
+    public void writeIcqData(OutputStream out)
+        throws IOException
+    {}
 }

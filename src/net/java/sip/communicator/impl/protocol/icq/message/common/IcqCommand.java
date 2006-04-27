@@ -47,63 +47,62 @@ import net.kano.joscar.snaccmd.conn.SnacFamilyInfo;
  */
 public abstract class IcqCommand
 {
-	/** The SNAC family code of this family. */
-	public static final int FAMILY_ICQ = 0x0015;
+    /** The SNAC family code of this family. */
+    public static final int FAMILY_ICQ = 0x0015;
 
-	/** A SNAC family info block for this family. */
-	public static final SnacFamilyInfo FAMILY_INFO
-		= new SnacFamilyInfo(FAMILY_ICQ, 0x0001, 0x0110, 0x08e4);
+    /** A SNAC family info block for this family. */
+    public static final SnacFamilyInfo FAMILY_INFO
+        = new SnacFamilyInfo(FAMILY_ICQ, 0x0001, 0x0110, 0x08e4);
 
-	/** Send a command to the old ICQ server. */
-	public static final int CMD_TO_ICQ = 0x0002;
-	/** A message from the old ICQ server. */
-	public static final int CMD_FROM_ICQ = 0x0003;
+    /** Send a command to the old ICQ server. */
+    public static final int CMD_TO_ICQ = 0x0002;
+    /** A message from the old ICQ server. */
+    public static final int CMD_FROM_ICQ = 0x0003;
 
-	/** The command subtype. */
-	private IcqType type;
+    /** The command subtype. */
+    private IcqType type;
 
-	/**
-	 * Creates a new <code>RvCommand</code> with properties read from the given
-	 * incoming <code>RecvRvIcbm</code>.
-	 *
-	 * @param icbm an incoming RV ICBM command
-	 */
-	protected IcqCommand(FromIcqCmd cmd)
-	{
-		DefensiveTools.checkNull(cmd, "cmd");
+    /**
+     * Creates a new <code>RvCommand</code> with properties read from the given
+     * incoming <code>RecvRvIcbm</code>.
+     *
+     * @param cmd an incoming command
+     */
+    protected IcqCommand(FromIcqCmd cmd)
+    {
+        DefensiveTools.checkNull(cmd, "cmd");
 
-		type = cmd.getType();
-	}
+        type = cmd.getType();
+    }
 
-	/**
-	 * Creates a command object in the buddy status family with the given
-	 * command subtype.
-	 *
-	 * @param command this command's SNAC command subtype
-	 * @param type1 the old ICQ command subtype
-	 */
-	protected IcqCommand(IcqType type)
-	{
-		this.type = type;
-	}
+    /**
+     * Creates a command object in the buddy status family with the given
+     * command subtype.
+     *
+     * @param type the old ICQ command subtype
+     */
+    protected IcqCommand(IcqType type)
+    {
+        this.type = type;
+    }
 
-	/**
-	 * Returns this ICQ-specific command's subtype.
-	 *
-	 * @return the old ICQ command subtype.
-	 */
-	public final IcqType getType()
-	{
-		return type;
-	}
+    /**
+     * Returns this ICQ-specific command's subtype.
+     *
+     * @return the old ICQ command subtype.
+     */
+    public final IcqType getType()
+    {
+        return type;
+    }
 
-	/**
-	 * Writes this ICQ command's "data block" to the given stream.
-	 *
-	 * @param out the stream to which to write
-	 *
-	 * @throws IOException if an I/O error occurs
-	 */
-	public abstract void writeIcqData(OutputStream out)
-		throws IOException;
+    /**
+     * Writes this ICQ command's "data block" to the given stream.
+     *
+     * @param out the stream to which to write
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    public abstract void writeIcqData(OutputStream out)
+        throws IOException;
 }

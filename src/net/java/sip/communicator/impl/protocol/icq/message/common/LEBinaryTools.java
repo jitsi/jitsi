@@ -85,234 +85,233 @@ import net.kano.joscar.ByteBlock;
  * clear enough.
  *
  * @see LEBinaryTools
- * @see MiscTools
  * @see net.kano.joscar.OscarTools
  */
 public final class LEBinaryTools
 {
-	/**
-	 * Represents the largest value a four-byte unsigned integer can have. All
-	 * numbers sent over OSCAR are unsigned.
-	 */
-	public static final long UINT_MAX = 4294967295L;
+    /**
+     * Represents the largest value a four-byte unsigned integer can have. All
+     * numbers sent over OSCAR are unsigned.
+     */
+    public static final long UINT_MAX = 4294967295L;
 
-	/**
-	 * Represents the largest value a two-byte unsigned integer can have. All
-	 * numbers sent over OSCAR are unsigned.
-	 */
-	public static final int USHORT_MAX = 65535;
+    /**
+     * Represents the largest value a two-byte unsigned integer can have. All
+     * numbers sent over OSCAR are unsigned.
+     */
+    public static final int USHORT_MAX = 65535;
 
-	/**
-	 * Represents the largest value a one-byte unsigned integer can have. All
-	 * numbers sent over OSCAR are unsigned.
-	 */
-	public static final short UBYTE_MAX = 255;
+    /**
+     * Represents the largest value a one-byte unsigned integer can have. All
+     * numbers sent over OSCAR are unsigned.
+     */
+    public static final short UBYTE_MAX = 255;
 
-	/**
-	 * This is never called, and ensures an instance of <code>LEBinaryTools</code>
-	 * cannot exist.
-	 */
-	private LEBinaryTools()
-	{}
+    /**
+     * This is never called, and ensures an instance of <code>LEBinaryTools</code>
+     * cannot exist.
+     */
+    private LEBinaryTools()
+    {}
 
-	/**
-	 * Returns the unsigned integer stored in the given data block. The
-	 * returned integer is extracted from the first four bytes of the given
-	 * block, starting at index <code>pos</code>. If there are fewer than four
-	 * bytes at <code>pos</code>, <code>-1</code> is returned.
-	 * <br>
-	 * <br>
-	 * Note that this is returned
-	 * as a <code>long</code> because all values of an unsigned four-byte
-	 * integer cannot be stored in a four-byte signed integer, Java's
-	 * <code>int</code>.
-	 *
-	 * @param data the data block from which to read
-	 * @param pos the starting index of <code>data</code> to read from
-	 * @return the value of the unsigned four-byte integer stored in the given
-	 *         block at the given index, or <code>-1</code> if fewer than four
-	 *         bytes are present in the block
-	 *
-	 * @see #writeUInt
-	 * @see #getUInt(long)
-	 */
-	public static long getUInt(final ByteBlock data, final int pos)
-	{
-		if(data.getLength() - pos < 4)
-		{
-			return -1;
-		}
+    /**
+     * Returns the unsigned integer stored in the given data block. The
+     * returned integer is extracted from the first four bytes of the given
+     * block, starting at index <code>pos</code>. If there are fewer than four
+     * bytes at <code>pos</code>, <code>-1</code> is returned.
+     * <br>
+     * <br>
+     * Note that this is returned
+     * as a <code>long</code> because all values of an unsigned four-byte
+     * integer cannot be stored in a four-byte signed integer, Java's
+     * <code>int</code>.
+     *
+     * @param data the data block from which to read
+     * @param pos the starting index of <code>data</code> to read from
+     * @return the value of the unsigned four-byte integer stored in the given
+     *         block at the given index, or <code>-1</code> if fewer than four
+     *         bytes are present in the block
+     *
+     * @see #writeUInt
+     * @see #getUInt(long)
+     */
+    public static long getUInt(final ByteBlock data, final int pos)
+    {
+        if(data.getLength() - pos < 4)
+        {
+            return -1;
+        }
 
-		return(((long)data.get(pos + 3) & 0xffL) << 24)
-			| (((long)data.get(pos + 2) & 0xffL) << 16)
-			| (((long)data.get(pos + 1) & 0xffL) << 8)
-			| ((long)data.get(pos) & 0xffL);
-	}
+        return(((long)data.get(pos + 3) & 0xffL) << 24)
+            | (((long)data.get(pos + 2) & 0xffL) << 16)
+            | (((long)data.get(pos + 1) & 0xffL) << 8)
+            | ((long)data.get(pos) & 0xffL);
+    }
 
-	/**
-	 * Returns an unsigned two-byte integer stored in the given block. The
-	 * returned integer is extracted from the first two bytes of the given
-	 * block, starting at index <code>pos</code>. If there are fewer than two
-	 * bytes at <code>pos</code>, <code>-1</code> is returned.
-	 * <br>
-	 * <br>
-	 * Note that this is returned as an <code>int</code> because all values of
-	 * an unsigned two-byte integer cannot be stored in a signed short, Java's
-	 * <code>short</code>.
-	 *
-	 * @param data the data block from which to read
-	 * @param pos the starting index of <code>data</code> to read from
-	 * @return the value of the two-byte integer stored at the given index of
-	 *         the given block, or <code>-1</code> if fewer than two bytes exist
-	 *         at that index
-	 *
-	 * @see #writeUShort
-	 * @see #getUShort(int)
-	 */
-	public static int getUShort(final ByteBlock data, final int pos)
-	{
-		if(data.getLength() - pos < 2)
-		{
-			return -1;
-		}
+    /**
+     * Returns an unsigned two-byte integer stored in the given block. The
+     * returned integer is extracted from the first two bytes of the given
+     * block, starting at index <code>pos</code>. If there are fewer than two
+     * bytes at <code>pos</code>, <code>-1</code> is returned.
+     * <br>
+     * <br>
+     * Note that this is returned as an <code>int</code> because all values of
+     * an unsigned two-byte integer cannot be stored in a signed short, Java's
+     * <code>short</code>.
+     *
+     * @param data the data block from which to read
+     * @param pos the starting index of <code>data</code> to read from
+     * @return the value of the two-byte integer stored at the given index of
+     *         the given block, or <code>-1</code> if fewer than two bytes exist
+     *         at that index
+     *
+     * @see #writeUShort
+     * @see #getUShort(int)
+     */
+    public static int getUShort(final ByteBlock data, final int pos)
+    {
+        if(data.getLength() - pos < 2)
+        {
+            return -1;
+        }
 
-		return((data.get(pos + 1) & 0xff) << 8) | (data.get(pos) & 0xff);
-	}
+        return((data.get(pos + 1) & 0xff) << 8) | (data.get(pos) & 0xff);
+    }
 
-	/**
-	 * Returns an unsigned one-byte integer stored in the given block. The
-	 * returned integer is extracted from the byte of the given block at index
-	 * <code>pos</code>. If there is no byte at <code>pos</code>,
-	 * <code>-1</code> is returned.
-	 * <br>
-	 * <br>
-	 * Note that this is returned as a <code>short</code> because all values of
-	 * an unsigned one-byte integer cannot be stored in a signed byte, Java's
-	 * <code>byte</code>.
-	 *
-	 * @param data the data block to read from
-	 * @param pos the index in <code>data</code> of the byte to read
-	 * @return the value of the single-byte integer stored at the given index
-	 *         of the given block, or <code>-1</code> if there is no byte at
-	 *         that index (that is, if <code>data.getLength() <= pos</code>)
-	 *
-	 * @see #writeUByte
-	 * @see #getUByte(int)
-	 */
-	public static short getUByte(final ByteBlock data, final int pos)
-	{
-		if(data.getLength() - pos < 1)
-		{
-			return -1;
-		}
+    /**
+     * Returns an unsigned one-byte integer stored in the given block. The
+     * returned integer is extracted from the byte of the given block at index
+     * <code>pos</code>. If there is no byte at <code>pos</code>,
+     * <code>-1</code> is returned.
+     * <br>
+     * <br>
+     * Note that this is returned as a <code>short</code> because all values of
+     * an unsigned one-byte integer cannot be stored in a signed byte, Java's
+     * <code>byte</code>.
+     *
+     * @param data the data block to read from
+     * @param pos the index in <code>data</code> of the byte to read
+     * @return the value of the single-byte integer stored at the given index
+     *         of the given block, or <code>-1</code> if there is no byte at
+     *         that index (that is, if <code>data.getLength() <= pos</code>)
+     *
+     * @see #writeUByte
+     * @see #getUByte(int)
+     */
+    public static short getUByte(final ByteBlock data, final int pos)
+    {
+        if(data.getLength() - pos < 1)
+        {
+            return -1;
+        }
 
-		return(short)(data.get(pos) & 0xff);
-	}
+        return(short)(data.get(pos) & 0xff);
+    }
 
-	/**
-	 * Writes a block of four bytes representing the given unsigned value to
-	 * the given stream.
-	 *
-	 * @param out the stream to write to
-	 * @param number the value to write to the stream in binary format
-	 * @throws IOException if an I/O error occurs
-	 *
-	 * @see #getUInt(long)
-	 * @see #getUInt(ByteBlock, int)
-	 */
-	public static void writeUInt(final OutputStream out, final long number)
-		throws IOException
-	{
-		out.write(getUInt(number));
-	}
+    /**
+     * Writes a block of four bytes representing the given unsigned value to
+     * the given stream.
+     *
+     * @param out the stream to write to
+     * @param number the value to write to the stream in binary format
+     * @throws IOException if an I/O error occurs
+     *
+     * @see #getUInt(long)
+     * @see #getUInt(ByteBlock, int)
+     */
+    public static void writeUInt(final OutputStream out, final long number)
+        throws IOException
+    {
+        out.write(getUInt(number));
+    }
 
-	/**
-	 * Writes a block of two bytes representing the given unsigned value to the
-	 * given stream.
-	 *
-	 * @param out the stream to write to
-	 * @param number the value to write to the stream in binary format
-	 * @throws IOException if an I/O error occurs
-	 *
-	 * @see #getUShort(int)
-	 * @see #getUShort(ByteBlock, int)
-	 */
-	public static void writeUShort(final OutputStream out, final int number)
-		throws IOException
-	{
-		out.write(getUShort(number));
-	}
+    /**
+     * Writes a block of two bytes representing the given unsigned value to the
+     * given stream.
+     *
+     * @param out the stream to write to
+     * @param number the value to write to the stream in binary format
+     * @throws IOException if an I/O error occurs
+     *
+     * @see #getUShort(int)
+     * @see #getUShort(ByteBlock, int)
+     */
+    public static void writeUShort(final OutputStream out, final int number)
+        throws IOException
+    {
+        out.write(getUShort(number));
+    }
 
-	/**
-	 * Writes a single (unsigned) byte representing the given unsigned value
-	 * to the given stream.
-	 *
-	 * @param out the stream to write to
-	 * @param number the value to write to the stream in binary format
-	 * @throws IOException if an I/O error occurs
-	 *
-	 * @see #getUByte(int)
-	 * @see #getUByte(ByteBlock, int)
-	 */
-	public static void writeUByte(final OutputStream out, final int number)
-		throws IOException
-	{
-		out.write(getUByte(number));
-	}
+    /**
+     * Writes a single (unsigned) byte representing the given unsigned value
+     * to the given stream.
+     *
+     * @param out the stream to write to
+     * @param number the value to write to the stream in binary format
+     * @throws IOException if an I/O error occurs
+     *
+     * @see #getUByte(int)
+     * @see #getUByte(ByteBlock, int)
+     */
+    public static void writeUByte(final OutputStream out, final int number)
+        throws IOException
+    {
+        out.write(getUByte(number));
+    }
 
-	/**
-	 * Returns a four-byte block representing the given unsigned value in binary
-	 * format.
-	 *
-	 * @param number the value to be written to the returned array
-	 * @return a four-byte binary representation of the given unsigned value
-	 *
-	 * @see #writeUInt
-	 * @see #getUInt(ByteBlock, int)
-	 */
-	public static byte[] getUInt(final long number)
-	{
-		return new byte[]
-			{
-			(byte)((number) & 0xff),
-			(byte)((number >> 8) & 0xff),
-			(byte)((number >> 16) & 0xff),
-			(byte)((number >> 24) & 0xff)
-		};
-	}
+    /**
+     * Returns a four-byte block representing the given unsigned value in binary
+     * format.
+     *
+     * @param number the value to be written to the returned array
+     * @return a four-byte binary representation of the given unsigned value
+     *
+     * @see #writeUInt
+     * @see #getUInt(ByteBlock, int)
+     */
+    public static byte[] getUInt(final long number)
+    {
+        return new byte[]
+            {
+            (byte)((number) & 0xff),
+            (byte)((number >> 8) & 0xff),
+            (byte)((number >> 16) & 0xff),
+            (byte)((number >> 24) & 0xff)
+        };
+    }
 
-	/**
-	 * Returns a two-byte block representing the given unsigned value in binary
-	 * format.
-	 *
-	 * @param number the value to be written to the returned array
-	 * @return a two-byte binary representation of the given unsigned value
-	 *
-	 * @see #writeUShort
-	 * @see #getUShort(ByteBlock, int)
-	 */
-	public static byte[] getUShort(final int number)
-	{
-		return new byte[]
-			{
-			(byte)(number & 0xff),
-			(byte)((number >> 8) & 0xff)
-		};
-	}
+    /**
+     * Returns a two-byte block representing the given unsigned value in binary
+     * format.
+     *
+     * @param number the value to be written to the returned array
+     * @return a two-byte binary representation of the given unsigned value
+     *
+     * @see #writeUShort
+     * @see #getUShort(ByteBlock, int)
+     */
+    public static byte[] getUShort(final int number)
+    {
+        return new byte[]
+            {
+            (byte)(number & 0xff),
+            (byte)((number >> 8) & 0xff)
+        };
+    }
 
-	/**
-	 * Returns a single-byte block representing the given unsigned value in
-	 * binary format.
-	 *
-	 * @param number the value to be written to the returned array
-	 * @return a one-byte binary representation of the given unsigned value
-	 *
-	 * @see #writeUByte
-	 * @see #getUByte(ByteBlock, int)
-	 */
-	public static byte[] getUByte(final int number)
-	{
-		return new byte[]
-			{(byte)(number & 0xff)};
-	}
+    /**
+     * Returns a single-byte block representing the given unsigned value in
+     * binary format.
+     *
+     * @param number the value to be written to the returned array
+     * @return a one-byte binary representation of the given unsigned value
+     *
+     * @see #writeUByte
+     * @see #getUByte(ByteBlock, int)
+     */
+    public static byte[] getUByte(final int number)
+    {
+        return new byte[]
+            {(byte)(number & 0xff)};
+    }
 }

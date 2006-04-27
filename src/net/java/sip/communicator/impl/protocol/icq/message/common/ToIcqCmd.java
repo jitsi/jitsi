@@ -44,54 +44,54 @@ import net.kano.joscar.flapcmd.SnacPacket;
 /**
  * A SNAC command used to send an ICQ command to the server.
  *
- * @snac.src client
- * @snac.cmd 0x15 0x02
+ * snac.src client
+ * snac.cmd 0x15 0x02
  *
  * @see FromIcqCmd
  */
 public class ToIcqCmd
-	extends AbstractIcqCmd
+    extends AbstractIcqCmd
 {
-	/**
-	 * Generates an incoming ICQ command from the given incoming
-	 * SNAC packet.
-	 *
-	 * @param packet an incoming rendezvous ICBM packet
-	 */
-	protected ToIcqCmd(SnacPacket packet)
-	{
-		super(IcqCommand.CMD_TO_ICQ, packet);
-	}
+    /**
+     * Generates an incoming ICQ command from the given incoming
+     * SNAC packet.
+     *
+     * @param packet an incoming rendezvous ICBM packet
+     */
+    protected ToIcqCmd(SnacPacket packet)
+    {
+        super(IcqCommand.CMD_TO_ICQ, packet);
+    }
 
-	/**
-	 * Creates a new outgoing ICQ command with the given properties.
-	 *
-	 * @param uin an ICQ UIN as an integer value
-	 * @param type the ICQ subtype for the command
-	 * @param id the sequence ID for this command
-	 * @param dataWriter an object used to write the ICQ-specific
-	 *        data to the connection
-	 */
-	public ToIcqCmd(long uin, IcqType type, int id, LiveWritable dataWriter)
-	{
-		super(IcqCommand.CMD_TO_ICQ, uin, type, id, dataWriter);
-	}
+    /**
+     * Creates a new outgoing ICQ command with the given properties.
+     *
+     * @param uin an ICQ UIN as an integer value
+     * @param type the ICQ subtype for the command
+     * @param id the sequence ID for this command
+     * @param dataWriter an object used to write the ICQ-specific
+     *        data to the connection
+     */
+    public ToIcqCmd(long uin, IcqType type, int id, LiveWritable dataWriter)
+    {
+        super(IcqCommand.CMD_TO_ICQ, uin, type, id, dataWriter);
+    }
 
-	/**
-	 * Creates a new outgoing ICQ command with the given properties.
-	 *
-	 * @param uin an ICQ UIN as an integer value
-	 * @param type the ICQ subtype for the command
-	 * @param id the sequence ID for this command
-	 * @param command an ICQ command that will be used to create this
-	 *        rendezvous packet
-	 */
-	public ToIcqCmd(long uin, IcqType type, int id, IcqCommand command)
-	{
-		super(IcqCommand.CMD_TO_ICQ, uin, type, id, command);
-	}
+    /**
+     * Creates a new outgoing ICQ command with the given properties.
+     *
+     * @param uin an ICQ UIN as an integer value
+     * @param type the ICQ subtype for the command
+     * @param id the sequence ID for this command
+     * @param command an ICQ command that will be used to create this
+     *        rendezvous packet
+     */
+    public ToIcqCmd(long uin, IcqType type, int id, IcqCommand command)
+    {
+        super(IcqCommand.CMD_TO_ICQ, uin, type, id, command);
+    }
 
-	public void writeIcqData(OutputStream out)
-		throws IOException
-	{}
+    public void writeIcqData(OutputStream out)
+        throws IOException
+    {}
 }
