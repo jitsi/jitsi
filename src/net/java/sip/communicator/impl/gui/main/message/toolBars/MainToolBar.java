@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.MsgToolbarButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
+import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.main.message.SmiliesSelectorBox;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
@@ -102,17 +103,38 @@ public class MainToolBar extends SIPCommToolBar
 		this.add(fontButton);
 		
 		this.saveButton.setName("save");
-		this.printButton.setName("print");
-		this.cutButton.setName("cut");
-		this.copyButton.setName("copy");
-		this.pasteButton.setName("paste");
-		this.smilyButton.setName("smily");
-		this.previousButton.setName("previous");
-		this.nextButton.setName("next");
-		this.sendFileButton.setName("sendFile");
-		this.historyButton.setName("history");
-		this.fontButton.setName("font");
+		this.saveButton.setToolTipText(Messages.getString("save"));
+        
+        this.printButton.setName("print");
+        this.printButton.setToolTipText(Messages.getString("print"));
 		
+        this.cutButton.setName("cut");
+        this.cutButton.setToolTipText(Messages.getString("cut"));
+		
+        this.copyButton.setName("copy");
+        this.copyButton.setToolTipText(Messages.getString("copy"));
+        
+		this.pasteButton.setName("paste");
+        this.pasteButton.setToolTipText(Messages.getString("paste"));
+        
+		this.smilyButton.setName("smily");
+        this.smilyButton.setToolTipText(Messages.getString("smily"));
+        
+		this.previousButton.setName("previous");
+        this.previousButton.setToolTipText(Messages.getString("previous"));
+        
+		this.nextButton.setName("next");
+        this.nextButton.setToolTipText(Messages.getString("next"));
+        
+		this.sendFileButton.setName("sendFile");
+        this.sendFileButton.setToolTipText(Messages.getString("sendFile"));
+        
+		this.historyButton.setName("history");
+        this.historyButton.setToolTipText(Messages.getString("history"));
+        
+		this.fontButton.setName("font");
+        this.fontButton.setToolTipText(Messages.getString("font"));
+        
 		this.saveButton.addActionListener(this);
 		this.printButton.addActionListener(this);
 		this.cutButton.addActionListener(this);

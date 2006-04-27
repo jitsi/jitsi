@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.events.PluginComponentEvent;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
+import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 /**
  * @author Yana Stamcheva
@@ -62,6 +63,11 @@ public class QuickMenu extends SIPCommToolBar
         this.configureButton.setPreferredSize(new Dimension(28, 28));		
         this.searchButton.setPreferredSize(new Dimension(28, 28));
         this.addButton.setPreferredSize(new Dimension(28, 28));
+        
+        this.infoButton.setToolTipText(Messages.getString("userInfo"));
+        this.configureButton.setToolTipText(Messages.getString("configure"));
+        this.searchButton.setToolTipText(Messages.getString("showOfflineUsers"));
+        this.addButton.setToolTipText(Messages.getString("addContact"));
         
 		this.init();
 	}

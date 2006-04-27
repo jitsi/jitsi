@@ -22,6 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
@@ -92,6 +93,10 @@ public class ChatContactPanel extends JPanel {
 			.setIcon(new ImageIcon(Constants.getStatusIcon(status)));
 		//this.personPhotoLabel.setIcon(new ImageIcon(contactItem.getPhoto()));
 				 
+        this.callButton.setToolTipText(Messages.getString("call"));
+        this.infoButton.setToolTipText(Messages.getString("userInfo"));
+        this.sendFileButton.setToolTipText(Messages.getString("sendFile"));
+        
 		this.buttonsPanel.add(callButton);
 		this.buttonsPanel.add(infoButton);
 		this.buttonsPanel.add(sendFileButton);
