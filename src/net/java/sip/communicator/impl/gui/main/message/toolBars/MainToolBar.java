@@ -118,7 +118,7 @@ public class MainToolBar extends SIPCommToolBar
         this.pasteButton.setToolTipText(Messages.getString("paste"));
         
 		this.smilyButton.setName("smily");
-        this.smilyButton.setToolTipText(Messages.getString("smily"));
+        this.smilyButton.setToolTipText(Messages.getString("insertSmiley"));
         
 		this.previousButton.setName("previous");
         this.previousButton.setToolTipText(Messages.getString("previous"));

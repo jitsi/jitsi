@@ -162,7 +162,8 @@ public class ChatConversationPanel extends JScrollPane
      * @return The message string with properly formatted links.
      */
 	private String processLinks(String message) {
-		String msgString = message;
+		/*
+        String msgString = message;
 
 		Pattern p = Pattern
 				.compile("(\\bwww\\.\\S+\\.\\S+\\b)");
@@ -182,6 +183,8 @@ public class ChatConversationPanel extends JScrollPane
 					+ m1.group() + "'>" + m1.group() + "</A>");
 		}
 		return msgString;
+        */
+        return URLRecognitionManager.processURL(message);
 	}
 
     /**

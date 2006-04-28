@@ -7,6 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.main.customcontrols;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -50,7 +51,8 @@ public class SIPCommButton extends JButton {
 		super();
 
 		this.bgImage = ImageLoader.getImage(ImageLoader.BUTTON_BG);
-		this.bgRolloverImage = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_BG);
+		this.bgRolloverImage 
+            = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_BG);
 		this.setIcon(new ImageIcon(this.bgImage));
 
 		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
@@ -66,7 +68,8 @@ public class SIPCommButton extends JButton {
 		super(text);
 
 		this.bgImage = ImageLoader.getImage(ImageLoader.BUTTON_BG);
-		this.bgRolloverImage = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_BG);
+		this.bgRolloverImage 
+            = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_BG);
 
 		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
 				this.bgImage.getHeight(null)));
@@ -83,7 +86,8 @@ public class SIPCommButton extends JButton {
 
 		this.iconImage = iconImage;
 		this.bgImage = ImageLoader.getImage(ImageLoader.BUTTON_BG);
-		this.bgRolloverImage = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_BG);
+		this.bgRolloverImage 
+            = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_BG);
 		
 		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
 				this.bgImage.getHeight(null)));
@@ -102,7 +106,8 @@ public class SIPCommButton extends JButton {
 		this.iconImage = iconImage;
 		this.iconLayout = iconLayout;
 		this.bgImage = ImageLoader.getImage(ImageLoader.BUTTON_BG);
-		this.bgRolloverImage = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_BG);
+		this.bgRolloverImage 
+            = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_BG);
 		
 		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
 				this.bgImage.getHeight(null)));
@@ -117,7 +122,8 @@ public class SIPCommButton extends JButton {
 	 * @param rolloverImage The rollover image
 	 * @param iconImage The icon.
 	 */
-	public SIPCommButton (Image bgImage, Image rolloverImage, Image iconImage) {
+	public SIPCommButton
+        (Image bgImage, Image rolloverImage, Image iconImage) {
 		super();
 
 		this.iconImage = iconImage;
@@ -168,14 +174,15 @@ public class SIPCommButton extends JButton {
 	}
 	
 	
-	public SIPCommButton(String text, Image bgImage, Image rolloverImage) {
+	public SIPCommButton
+        (String text, Image bgImage, Image rolloverImage) {
 		super(text);
 		
 		this.bgImage = bgImage;
 		this.bgRolloverImage = rolloverImage;
 		
-		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null) + 80,
-				this.bgImage.getHeight(null)));
+		this.setPreferredSize(new Dimension(this.bgImage.getWidth(null) 
+                + 80, this.bgImage.getHeight(null)));
 	}
 	
 	/**
@@ -186,8 +193,12 @@ public class SIPCommButton extends JButton {
 		
 		g.drawImage(this.bgImage, 0, 0, this);
 
-		if (this.iconImage != null) {
-
+        if (this.iconImage != null) {
+            if(!isEnabled()){
+                Graphics gImg = this.iconImage.getGraphics();
+                gImg.setColor(new Color(150, 150, 150, 200));
+                gImg.drawRect(0, 0, this.iconImage.getWidth(null), this.iconImage.getHeight(null));
+            }
 			//draw the button icon depending the current layout
 			if (this.iconLayout.equals(SIPCommButton.CENTER_ICON_LAYOUT))
 				g.drawImage(this.iconImage,
@@ -218,21 +229,24 @@ public class SIPCommButton extends JButton {
 
 			if (this.iconImage != null) {
 
-				if (this.iconLayout.equals(SIPCommButton.CENTER_ICON_LAYOUT))
+				if (this.iconLayout
+                            .equals(SIPCommButton.CENTER_ICON_LAYOUT))
 					g.drawImage(this.iconImage,
 									(this.bgImage.getWidth(null) - 
 									this.iconImage.getWidth(null)) / 2,
 									(this.bgImage.getHeight(null) - 
 									this.iconImage.getHeight(null)) / 2, this);
 				
-				else if (this.iconLayout.equals(SIPCommButton.LEFT_ICON_LAYOUT))
+				else if (this.iconLayout
+                                .equals(SIPCommButton.LEFT_ICON_LAYOUT))
 					g.drawImage(this.iconImage,
 								7, 
 								(this.bgImage.getHeight(null) - 
 								this.iconImage.getHeight(null)) / 2, 
 								this);
 				
-				else if (this.iconLayout.equals(SIPCommButton.LEFT_ICON_LAYOUT))
+				else if (this.iconLayout
+                                .equals(SIPCommButton.LEFT_ICON_LAYOUT))
 					g.drawImage(this.iconImage,
 							this.bgImage.getWidth(null) - 3, 
 							(this.bgImage.getHeight(null) - 
@@ -252,21 +266,24 @@ public class SIPCommButton extends JButton {
 				
 				if (this.iconImage != null) {
 					
-					if (this.iconLayout.equals(SIPCommButton.CENTER_ICON_LAYOUT))
+					if (this.iconLayout
+                            .equals(SIPCommButton.CENTER_ICON_LAYOUT))
 						g.drawImage(this.iconImage,
 										(this.bgImage.getWidth(null) - 
 										this.iconImage.getWidth(null)) / 2 + 1,
 										(this.bgImage.getHeight(null) - 
 										this.iconImage.getHeight(null)) / 2 + 1, this);
 					
-					else if (this.iconLayout.equals(SIPCommButton.LEFT_ICON_LAYOUT))
+					else if (this.iconLayout
+                                    .equals(SIPCommButton.LEFT_ICON_LAYOUT))
 						g.drawImage(this.iconImage,
 									7 + 1, 
 									(this.bgImage.getHeight(null) - 
 									this.iconImage.getHeight(null)) / 2 + 1, 
 									this);
 					
-					else if (this.iconLayout.equals(SIPCommButton.LEFT_ICON_LAYOUT))
+					else if (this.iconLayout
+                                    .equals(SIPCommButton.LEFT_ICON_LAYOUT))
 						g.drawImage(this.iconImage,
 								this.bgImage.getWidth(null) - 3 + 1, 
 								(this.bgImage.getHeight(null) - 
@@ -275,7 +292,7 @@ public class SIPCommButton extends JButton {
 				}
 			}
 		}
-		
+		        
 		if(this.getText() != null)
 			g.drawString(this.getText(), 12, 10);
 	}
