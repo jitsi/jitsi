@@ -124,6 +124,16 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
             logger.debug("We got thrown out while waiting for registration", t);
         }
 
+        // Here is registered the listner which will receive the first message
+        // This message is supposed to be offline message and as one is tested
+        // in TestOperationSetBasicInstantMessaging.testReceiveOfflineMessages()
+        Map supportedOperationSets =
+            fixture.provider.getSupportedOperationSets();
+        OperationSetBasicInstantMessaging opSetBasicIM =
+                    (OperationSetBasicInstantMessaging)supportedOperationSets.get(
+                OperationSetBasicInstantMessaging.class.getName());
+        fixture.offlineMsgCollector.register(opSetBasicIM);
+
         //give time for the AIM server to notify everyone of our arrival
         //simply waitinf is really not a reliable way of doing things but I
         //can't think of anything better

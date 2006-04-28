@@ -135,19 +135,30 @@ public class TestOperationSetPersistentPresence
             List expectedContactsInGroup
                 = (List)expectedContactList.get(group.getGroupName());
 
-            assertNotNull("Group " + group.getGroupName() + " was returned by "
-                          +"the server but was not in the expected contact list."
-                          , expectedContactsInGroup );
+            // When sending the offline message
+            // the sever creates a group NotInContactList,
+            // beacuse the buddy we are sending message to is not in
+            // the contactlist. So this group must be ignored
+            if(!group.getGroupName().equals("NotInContactList"))
+            {
+                assertNotNull("Group " + group.getGroupName() +
+                              " was returned by "
+                              +
+                    "the server but was not in the expected contact list."
+                              , expectedContactsInGroup);
 
-            Iterator contactsIter = group.contacts();
-            while (contactsIter.hasNext()){
-                String contactID = ((Contact)contactsIter.next()).getAddress();
-                expectedContactsInGroup.remove(contactID);
+                Iterator contactsIter = group.contacts();
+                while(contactsIter.hasNext())
+                {
+                    String contactID = ((Contact)contactsIter.next()).
+                        getAddress();
+                    expectedContactsInGroup.remove(contactID);
+                }
+
+                //If we've removed all the sub contacts, remove the group too.
+                if(expectedContactsInGroup.size() == 0)
+                    expectedContactList.remove(group.getGroupName());
             }
-
-            //If we've removed all the sub contacts, remove the group too.
-            if (expectedContactsInGroup.size() == 0 )
-                expectedContactList.remove(group.getGroupName());
         }
 
         //whatever we now have in the expected contact list snapshot are groups,

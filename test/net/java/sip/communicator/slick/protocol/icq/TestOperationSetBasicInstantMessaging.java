@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
 import net.kano.joustsim.*;
 import java.net.*;
+import net.java.sip.communicator.service.protocol.Message;
 
 /**
  * Performs testing of the basic instant messaging operation set. Tests include
@@ -472,5 +473,20 @@ public class TestOperationSetBasicInstantMessaging
         {
             fixture.testerAgent.sendMessage(tokenizer.nextToken(), message);
         }
+    }
+
+    /**
+     * Tests whether there is a offline message received
+     * and whether is the one we have send
+     */
+    public void testReceiveOfflineMessages()
+    {
+        String messageText =
+            fixture.offlineMsgCollector.getMessageText();
+
+        Message receiveMessage = fixture.offlineMsgCollector.getReceivedMessage();
+
+        assertNotNull("No Offline messages have been received", receiveMessage);
+        assertEquals("message body", messageText, receiveMessage.getContent());
     }
 }

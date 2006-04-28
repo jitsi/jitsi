@@ -4,6 +4,10 @@ import net.java.sip.communicator.service.protocol.*;
 import org.osgi.framework.*;
 import junit.framework.*;
 import java.util.*;
+import net.java.sip.communicator.service.protocol.event.MessageListener;
+import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
+import net.java.sip.communicator.service.protocol.event.MessageDeliveredEvent;
+import net.java.sip.communicator.service.protocol.event.MessageDeliveryFailedEvent;
 
 /**
  * Provides utility code, such as locating and obtaining references towards
@@ -44,6 +48,8 @@ public class IcqSlickFixture extends TestCase
     public ProtocolProviderService provider      = null;
     public AccountManager          accManager    = null;
     public String                  ourAccountID  = null;
+
+    public static OfflineMsgCollector offlineMsgCollector = null;
 
     public void setUp() throws Exception
     {
@@ -99,4 +105,54 @@ public class IcqSlickFixture extends TestCase
         bc.ungetService(icqServiceRef);
     }
 
+    //used in Offline Message receive test
+    //this MessageReceiver is created in IcqProtocolProviderSlick
+    //registered as listener in TestProtocolProviderServiceIcqImpl
+    // as soon tested account has been registed
+    //There is only one offline message send. And this message is the first message
+    // received after the successful regitration, so this listener is removed
+    // after receiving one message. This message is tested in TestOperationSetBasicInstantMessaging
+    // whether it is the one that has been send
+    static class OfflineMsgCollector implements MessageListener
+    {
+        private String offlineMessageToBeDelivered = null;
+        private OperationSetBasicInstantMessaging imOper = null;
+        private Message receivedMessage = null;
+
+        public void messageReceived(MessageReceivedEvent evt)
+        {
+            receivedMessage = evt.getSourceMessage();
+
+            imOper.removeMessageListener(this);
+        }
+
+        public void messageDelivered(MessageDeliveredEvent evt)
+        {
+        }
+
+        public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
+        {
+        }
+
+        public void setMessageText(String txt)
+        {
+            this.offlineMessageToBeDelivered = txt;
+        }
+
+        public String getMessageText()
+        {
+            return offlineMessageToBeDelivered;
+        }
+
+        public void register(OperationSetBasicInstantMessaging imOper)
+        {
+            this.imOper = imOper;
+            imOper.addMessageListener(this);
+        }
+
+        public Message getReceivedMessage()
+        {
+            return receivedMessage;
+        }
+    }
 }

@@ -25,6 +25,8 @@ import net.kano.joscar.snaccmd.error.*;
 import net.kano.joustsim.oscar.oscar.service.bos.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
 import java.io.*;
+import net.kano.joscar.snaccmd.icbm.SendImIcbm;
+import net.kano.joscar.tlv.Tlv;
 
 /**
  * An utility that we use to test AIM/ICQ implementations of the
@@ -1174,7 +1176,32 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         {
 
         }
+    }
 
+    /**
+     * Sends <tt>body</tt> to <tt>buddy</tt>  as an offline instant message
+     * @param buddy the screenname of the budy that we'd like to send our msg to.
+     * @param body the content of the message to send.
+     */
+    public void sendOfflineMessage(String buddy, String body)
+    {
+        conn.sendSnac(new OfflineSnacCmd(buddy, body));
+    }
+
+    private class OfflineSnacCmd  extends SendImIcbm
+    {
+        private static final int TYPE_OFFLINE = 0x0006;
+
+        protected OfflineSnacCmd(String sn, String message)
+        {
+            super(sn, message);
+        }
+
+        protected void writeChannelData(OutputStream out)
+                throws IOException
+        {
+                super.writeChannelData(out);
+                new Tlv(TYPE_OFFLINE).write(out);
+        }
     }
 }
-
