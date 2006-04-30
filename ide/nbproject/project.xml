@@ -3,7 +3,14 @@
     <type>org.netbeans.modules.ant.freeform</type>
     <configuration>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
-            <!--Do not use Project Properties customizer when editing this file manually.-->
+            <!-- Created by Brian Burch on April 25, 2006 
+               Do NOT use the Netbeans Project Properties customizer
+               because this file is maintained manually! The master
+               version is held in CVS, as /ide/nbproject/project.xml.
+               You should copy it to /nbproject/project.xml (when
+               NetBeans is not running!) to make it active on your
+               own system.
+            -->
             <name>sip-communicator-1.0</name>
             <properties/>
             <folders>
@@ -91,11 +98,28 @@
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
             <compilation-unit>
                 <package-root>src</package-root>
+		<!-- define the classes and jars needed by the source
+                     browser and debugger to resolve all imports for
+                     the main classes (relative to project base dir).
+                     N.B. leading colon and no-white-space are required!
+  classpathentry sourcepath="/opt/oscar/src.jar" kind="lib" path="lib/oscar.jar"
+                    -->
+                <classpath mode="compile">
+                    :lib/osgi.jar:lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/JainSipApi1.1.jar:lib/nist-sdp-1.0.jar:lib/nist-sip-1.2.jar:lib/skinlf.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/architectureviewer1.1.jar:lib/bcprov-jdk14-130.jar:lib/joscar-0.9.4-cvs-bin.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar
+                </classpath>
                 <source-level>1.4</source-level>
             </compilation-unit>
             <compilation-unit>
                 <package-root>test</package-root>
                 <unit-tests/>
+		<!-- define the classes and jars needed by the source
+                     browser and debugger to resolve all imports for
+                     the test classes (relative to project base dir).
+                     N.B. leading colon and no-white-space are required!
+                    -->
+                <classpath mode="compile">
+                    :classes:lib/junit.jar:lib/osgi.jar:lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/JainSipApi1.1.jar:lib/nist-sdp-1.0.jar:lib/nist-sip-1.2.jar:lib/skinlf.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/architectureviewer1.1.jar:lib/bcprov-jdk14-130.jar:lib/joscar-0.9.4-cvs-bin.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar
+                </classpath>
                 <source-level>1.4</source-level>
             </compilation-unit>
         </java-data>
