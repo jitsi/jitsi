@@ -319,7 +319,7 @@
     </target>
 
     <!--RUN-SIP-COMMUNICATOR-->
-    <target name="run" depends="compile,resource"
+    <target name="run" 
         description="Starts oscar and runs sip-comunicator gui.">
 
         <java classname="org.ungoverned.oscar.Main"
