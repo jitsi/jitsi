@@ -325,10 +325,18 @@ public class OperationSetPersistentPresenceIcqImpl
         {
             return IcqStatusEnum.OCCUPIED;
         }
-        else if ((icqStatus & ICQ_ONLINE_MASK) == 0 )
-        {
-            return IcqStatusEnum.OFFLINE;
-        }
+        // FIXED:  Issue 70
+        // Incomplete status information in ICQ
+
+        // if none of the statuses is satisfied
+        // then the default is Online
+        // there is no such status send from the server as Offline
+        // when received error from server, after a query
+        // the status is -1 so Offline
+//        else if ((icqStatus & ICQ_ONLINE_MASK) == 0 )
+//        {
+//            return IcqStatusEnum.OFFLINE;
+//        }
 
         return IcqStatusEnum.ONLINE;
     }
