@@ -291,10 +291,10 @@ public class ChatWindow extends JFrame{
         				.getDefaultContact().getPresenceStatus();
                 //Add the first two tabs to the tabbed pane.                
                 chatTabbedPane.addTab
-                		(currentChatPanel.getDefaultContact().getDisplayName(),
+                		(firstChatPanel.getDefaultContact().getDisplayName(),
                     new ImageIcon(Constants.getStatusIcon
                     			(currentContactStatus)),
-                    currentChatPanel);
+                    firstChatPanel);
                                
                 chatPanel = new ChatPanel(this, contactIMOperationSet);
                 
@@ -308,7 +308,7 @@ public class ChatWindow extends JFrame{
                     .setTabIndex(chatTabbedPane.getTabCount() - 1);
                 
                 this.contactTabsTable.put(contact.getMetaUID(),
-                                currentChatPanel);
+                                chatPanel);
             }
             
             this.getContentPane().add(chatTabbedPane, BorderLayout.CENTER);
