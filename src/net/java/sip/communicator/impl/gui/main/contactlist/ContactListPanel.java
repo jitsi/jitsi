@@ -592,15 +592,13 @@ public class ContactListPanel extends JScrollPane
                 = tabbedChatWindow.getContactTabsTable();
             
             ChatPanel chatPanel 
-            		= (ChatPanel)contactTabsTable.get(metaContact.getMetaUID());
+            	= (ChatPanel)contactTabsTable.get(metaContact.getMetaUID());
             		
-            if(chatPanel != null){
-            		int contactTabIndex = tabbedChatWindow.getTabInex(metaContact);
-            		
-            		tabbedChatWindow.setTabIcon(contactTabIndex,
-            			listModel.getMetaContactStatusIcon(metaContact));
-            		chatPanel.updateContactStatus(
-            				listModel.getMetaContactStatus(metaContact));
+            if(chatPanel != null){        		
+        		tabbedChatWindow.setTabIcon(metaContact,
+        			listModel.getMetaContactStatusIcon(metaContact));
+        		chatPanel.updateContactStatus(
+        				listModel.getMetaContactStatus(metaContact));
             }
         }
 	}

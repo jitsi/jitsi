@@ -281,7 +281,8 @@ public class MainFrame extends JFrame {
     /**
      * Adds an account.
      * 
-     * @param account The account to be added.
+     * @param identifier The identifier of the account.
+     * @param protocolProvider The protocol provider of the account.
      */
     public void addAccount(String identifier, 
     		ProtocolProviderService protocolProvider){
@@ -380,8 +381,8 @@ public class MainFrame extends JFrame {
                 = contactList.findMetaContactByContact(sourceContact);
            
             if (metaContact != null){
-            		ContactListPanel clistPanel 
-            			= tabbedPane.getContactListPanel();
+        		ContactListPanel clistPanel 
+        			= tabbedPane.getContactListPanel();
             		
                 ContactListModel model 
                     = (ContactListModel)clistPanel.getContactList().getModel();
@@ -391,7 +392,7 @@ public class MainFrame extends JFrame {
                 clistPanel.updateChatContactStatus(metaContact);
             }
         }
-    }        
+    } 
 
     /**
      * Listens for all providerStatusChanged and providerStatusMessageChanged

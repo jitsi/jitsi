@@ -253,9 +253,6 @@ public class ChatWindow extends JFrame{
             this.getContentPane().add(  chatPanel, 
                                         BorderLayout.CENTER);
             
-            //Set the tab index even it's not yet shown in tabbed pane
-            chatPanel.setTabIndex(0);
-            
             this.contactTabsTable.put(contact.getMetaUID(),
                                  chatPanel);
             
@@ -277,15 +274,12 @@ public class ChatWindow extends JFrame{
                 
                 chatTabbedPane.getParent().validate();
                 
-                //Set the tab index to the newly added chat panel
-                chatPanel
-                    .setTabIndex(chatTabbedPane.getTabCount() - 1);
-                
                 this.contactTabsTable.put(contact.getMetaUID(),
                                     chatPanel);
             }
             else{
-                ChatPanel firstChatPanel = (ChatPanel)contactTabsTable.elements().nextElement();
+                ChatPanel firstChatPanel 
+                    = (ChatPanel)contactTabsTable.elements().nextElement();
         		PresenceStatus currentContactStatus 
         			= firstChatPanel.getDefaultContact()
         				.getDefaultContact().getPresenceStatus();
@@ -303,9 +297,6 @@ public class ChatWindow extends JFrame{
                 chatTabbedPane.addTab(  contact.getDisplayName(),
                 		new ImageIcon(Constants.getStatusIcon(defaultStatus)),
                     chatPanel);
-                
-                chatPanel
-                    .setTabIndex(chatTabbedPane.getTabCount() - 1);
                 
                 this.contactTabsTable.put(contact.getMetaUID(),
                                 chatPanel);
@@ -329,26 +320,21 @@ public class ChatWindow extends JFrame{
             ChatPanel chatPanel = ((ChatPanel)this.contactTabsTable
                                     .get(contact.getMetaUID()));
             
-            this.chatTabbedPane.setSelectedIndex(chatPanel.getTabIndex());
+            this.chatTabbedPane.setSelectedComponent(chatPanel);
             chatPanel.getWriteMessagePanel()
 				.getEditorPane().requestFocus();
         }
     }    
     
     public void setSelectedContactTab(int index){
-    	Enumeration chatsTable = this.contactTabsTable.elements();
-    	
-    	while(chatsTable.hasMoreElements()){
-    		ChatPanel chatPanel = (ChatPanel)chatsTable.nextElement();
-    		if(chatPanel.getTabIndex() == index){
-    			this.setCurrentChatPanel(chatPanel);    			
-    			this.chatTabbedPane.setSelectedIndex(index);
-    			this.setVisible(true);
-    			getWriteMessagePanel()
-					.getEditorPane().requestFocus();
-    			break;
-    		}
-    	}
+        ChatPanel chatPanel 
+            = (ChatPanel)this.chatTabbedPane.getComponentAt(index);
+        
+		this.setCurrentChatPanel(chatPanel);    			
+		this.chatTabbedPane.setSelectedIndex(index);
+		this.setVisible(true);
+		chatPanel.getWriteMessagePanel()
+			.getEditorPane().requestFocus();
     }
     
     /**
@@ -360,24 +346,15 @@ public class ChatWindow extends JFrame{
 
         String title = chatTabbedPane.getTitleAt(index);
         
-        ChatPanel selectedChat = (ChatPanel)chatTabbedPane.getComponentAt(index);
+        ChatPanel selectedChat 
+            = (ChatPanel)chatTabbedPane.getComponentAt(index);
                 
         if(title != null){
 	        if(chatTabbedPane.getTabCount() > 1)	        		
-	        		this.contactTabsTable.remove(selectedChat.getDefaultContact().getMetaUID());
+	        		this.contactTabsTable.remove
+                        (selectedChat.getDefaultContact().getMetaUID());
 	        
 	        Enumeration contactTabs = this.contactTabsTable.elements();
-	        
-	        while(contactTabs.hasMoreElements()){
-	            
-	            ChatPanel chatPanel = (ChatPanel)contactTabs.nextElement();
-	            
-	            int tabIndex = chatPanel.getTabIndex();
-	            
-	            if(tabIndex > index){
-	                chatPanel.setTabIndex(tabIndex - 1);
-	            }
-	        }
 	        
 	        int selectedIndex = chatTabbedPane.getSelectedIndex();
 	        
@@ -453,8 +430,7 @@ public class ChatWindow extends JFrame{
      * @return int The chat tab index for the given MetaContact.
      */
     public int getTabInex(MetaContact contact){
-        return ((ChatPanel)this.contactTabsTable
-                .get(contact.getMetaUID())).getTabIndex();
+        return this.chatTabbedPane.indexOfComponent(getChatPanel(contact));
     }
     
     /**
@@ -477,10 +453,12 @@ public class ChatWindow extends JFrame{
     }
     
     /**
-     * Sets the icon at the given index to the new
-     * icon.
+     * Sets the given icon to the tab opened for the given MetaContact.
      */
-    public void setTabIcon(int index, Icon icon){
+    public void setTabIcon(MetaContact metaContact, Icon icon){
+        int index 
+            = this.chatTabbedPane.indexOfComponent
+                (this.getChatPanel(metaContact));
         this.chatTabbedPane.setIconAt(index, icon);
     }
 }

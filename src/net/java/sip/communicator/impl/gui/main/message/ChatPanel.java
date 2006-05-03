@@ -65,8 +65,6 @@ public class ChatPanel extends JPanel {
     
     private OperationSetBasicInstantMessaging imOperationSet;
     
-    private int tabIndex;
-    
     /**
      * Creates a chat panel which is added to the 
      * given chat window.
@@ -210,27 +208,6 @@ public class ChatPanel extends JPanel {
      */
     public MetaContact getDefaultContact(){
         return (MetaContact)this.getChatContacts().get(0);
-    }
-
-    /**
-     * Returns the tab index of this chat panel in case of tabbed chat
-     * window.
-     * 
-     * @return The tab index of this chat panel.
-     */
-    public int getTabIndex() {
-        return tabIndex;
-    }
-
-    /**
-     * Sets the tab index of this chat panel in case of tabbed chat 
-     * window.
-     * 
-     * @param tabIndex The tab index, where the panel will be added in the
-     * tabbedPane.
-     */
-    public void setTabIndex(int tabIndex) {
-        this.tabIndex = tabIndex;
     }
 
     /**
