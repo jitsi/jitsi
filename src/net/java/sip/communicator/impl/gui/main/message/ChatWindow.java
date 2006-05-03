@@ -225,18 +225,19 @@ public class ChatWindow extends JFrame{
      * 
      * @param contact The MetaContact added to the chat.
      */
-    public void addChatTab(MetaContact contact, PresenceStatus status){
+    public ChatPanel addChatTab(MetaContact contact, PresenceStatus status){
         
         OperationSetBasicInstantMessaging contactIMOperationSet 
         = this.mainFrame.getProtocolIM
                 (contact.getDefaultContact().getProtocolProvider());
         
+        ChatPanel chatPanel = null;
+        
         if(chatTabbedPane == null){
             //Initialize the tabbed pane for the first time           
+            chatPanel = new ChatPanel(this, contactIMOperationSet);
             
-            this.setCurrentChatPanel(new ChatPanel(this, contactIMOperationSet));
-            
-            this.currentChatPanel.addContactToChat(contact, status);
+            chatPanel.addContactToChat(contact, status);
             
             chatTabbedPane = new SIPCommTabbedPane(true);
             
@@ -249,44 +250,45 @@ public class ChatWindow extends JFrame{
                 }
             });
 
-            this.getContentPane().add(  this.currentChatPanel, 
+            this.getContentPane().add(  chatPanel, 
                                         BorderLayout.CENTER);
             
             //Set the tab index even it's not yet shown in tabbed pane
-            this.currentChatPanel.setTabIndex(0);
+            chatPanel.setTabIndex(0);
             
             this.contactTabsTable.put(contact.getMetaUID(),
-                                 currentChatPanel);
+                                 chatPanel);
             
             this.setTitle(contact.getDisplayName());
         }
         else{           
-        		PresenceStatus defaultStatus 
-    				=  contact.getDefaultContact().getPresenceStatus();
-        		
+    		PresenceStatus defaultStatus 
+				=  contact.getDefaultContact().getPresenceStatus();
+    		
             if(chatTabbedPane.getTabCount() > 0){                
-                //The tabbed pane contains already tabs.
-                this.setCurrentChatPanel(new ChatPanel(this, contactIMOperationSet));
+                //The tabbed pane contains already tabs.                
+                chatPanel = new ChatPanel(this, contactIMOperationSet);
                 
-                this.currentChatPanel.addContactToChat(contact, status);
+                chatPanel.addContactToChat(contact, status);
                 
                 chatTabbedPane.addTab(contact.getDisplayName(),
 					new ImageIcon(Constants.getStatusIcon(defaultStatus)),	
-					currentChatPanel);
+					chatPanel);
                 
                 chatTabbedPane.getParent().validate();
                 
                 //Set the tab index to the newly added chat panel
-                this.currentChatPanel
+                chatPanel
                     .setTabIndex(chatTabbedPane.getTabCount() - 1);
                 
                 this.contactTabsTable.put(contact.getMetaUID(),
-                                    currentChatPanel);
+                                    chatPanel);
             }
             else{
-            		PresenceStatus currentContactStatus 
-            			= currentChatPanel.getDefaultContact()
-            				.getDefaultContact().getPresenceStatus();
+                ChatPanel firstChatPanel = (ChatPanel)contactTabsTable.elements().nextElement();
+        		PresenceStatus currentContactStatus 
+        			= firstChatPanel.getDefaultContact()
+        				.getDefaultContact().getPresenceStatus();
                 //Add the first two tabs to the tabbed pane.                
                 chatTabbedPane.addTab
                 		(currentChatPanel.getDefaultContact().getDisplayName(),
@@ -294,16 +296,15 @@ public class ChatWindow extends JFrame{
                     			(currentContactStatus)),
                     currentChatPanel);
                                
-                this.setCurrentChatPanel
-                		(new ChatPanel(this, contactIMOperationSet));
+                chatPanel = new ChatPanel(this, contactIMOperationSet);
                 
-                this.currentChatPanel.addContactToChat(contact, status);
+                chatPanel.addContactToChat(contact, status);
                 
                 chatTabbedPane.addTab(  contact.getDisplayName(),
                 		new ImageIcon(Constants.getStatusIcon(defaultStatus)),
-                    currentChatPanel);
+                    chatPanel);
                 
-                currentChatPanel
+                chatPanel
                     .setTabIndex(chatTabbedPane.getTabCount() - 1);
                 
                 this.contactTabsTable.put(contact.getMetaUID(),
@@ -313,6 +314,7 @@ public class ChatWindow extends JFrame{
             this.getContentPane().add(chatTabbedPane, BorderLayout.CENTER);
             this.getContentPane().validate();
         }
+        return chatPanel;
     }
     
     /**

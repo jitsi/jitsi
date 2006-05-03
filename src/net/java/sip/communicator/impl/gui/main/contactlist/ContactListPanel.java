@@ -291,8 +291,10 @@ public class ContactListPanel extends JScrollPane
                         == null){
                     
                     // If there's no open tab for the given contact.                    
-                    tabbedChatWindow.addChatTab(this.contactItem,
+                    ChatPanel chatPanel = tabbedChatWindow.addChatTab(this.contactItem,
                     		contactStatus);
+                    
+                    tabbedChatWindow.setCurrentChatPanel(chatPanel);
                     
                     if(tabbedChatWindow.getTabCount() > 1)
                         tabbedChatWindow.setSelectedContactTab(this.contactItem);
@@ -436,9 +438,10 @@ public class ContactListPanel extends JScrollPane
             if(contactTabsTable.get(metaContact.getMetaUID()) 
                     == null){                
                 // If there's no open tab for the given contact.                    
-                tabbedChatWindow.addChatTab(metaContact, contactStatus);
- 
-                tabbedChatWindow.getCurrentChatPanel().getConversationPanel()
+                ChatPanel chatPanel 
+                    = tabbedChatWindow.addChatTab(metaContact, contactStatus);
+                
+                chatPanel.getConversationPanel()
                     .processMessage(evt.getSourceContact().getDisplayName(), 
                             calendar, ChatMessage.INCOMING_MESSAGE, 
                             evt.getSourceMessage().getContent());
