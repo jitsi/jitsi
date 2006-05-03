@@ -287,7 +287,7 @@ public class ContactListPanel extends JScrollPane
                 Hashtable contactTabsTable 
                     = tabbedChatWindow.getContactTabsTable();
 
-                if(contactTabsTable.get(this.contactItem.getDisplayName()) 
+                if(contactTabsTable.get(this.contactItem.getMetaUID()) 
                         == null){
                     
                     // If there's no open tab for the given contact.                    
@@ -433,7 +433,7 @@ public class ContactListPanel extends JScrollPane
             Hashtable contactTabsTable 
                 = tabbedChatWindow.getContactTabsTable();
 
-            if(contactTabsTable.get(metaContact.getDisplayName()) 
+            if(contactTabsTable.get(metaContact.getMetaUID()) 
                     == null){                
                 // If there's no open tab for the given contact.                    
                 tabbedChatWindow.addChatTab(metaContact, contactStatus);
@@ -560,7 +560,7 @@ public class ContactListPanel extends JScrollPane
             Hashtable contactTabsTable 
                 = tabbedChatWindow.getContactTabsTable();
             
-            if(contactTabsTable.get(metaContact.getDisplayName()) 
+            if(contactTabsTable.get(metaContact.getMetaUID()) 
                     != null){
                 
                 tabbedChatWindow.getChatPanel(metaContact)
@@ -589,7 +589,7 @@ public class ContactListPanel extends JScrollPane
                 = tabbedChatWindow.getContactTabsTable();
             
             ChatPanel chatPanel 
-            		= (ChatPanel)contactTabsTable.get(metaContact.getDisplayName());
+            		= (ChatPanel)contactTabsTable.get(metaContact.getMetaUID());
             		
             if(chatPanel != null){
             		int contactTabIndex = tabbedChatWindow.getTabInex(metaContact);

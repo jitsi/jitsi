@@ -255,7 +255,7 @@ public class ChatWindow extends JFrame{
             //Set the tab index even it's not yet shown in tabbed pane
             this.currentChatPanel.setTabIndex(0);
             
-            this.contactTabsTable.put(contact.getDisplayName(),
+            this.contactTabsTable.put(contact.getMetaUID(),
                                  currentChatPanel);
             
             this.setTitle(contact.getDisplayName());
@@ -280,7 +280,7 @@ public class ChatWindow extends JFrame{
                 this.currentChatPanel
                     .setTabIndex(chatTabbedPane.getTabCount() - 1);
                 
-                this.contactTabsTable.put(contact.getDisplayName(),
+                this.contactTabsTable.put(contact.getMetaUID(),
                                     currentChatPanel);
             }
             else{
@@ -306,7 +306,7 @@ public class ChatWindow extends JFrame{
                 currentChatPanel
                     .setTabIndex(chatTabbedPane.getTabCount() - 1);
                 
-                this.contactTabsTable.put(contact.getDisplayName(),
+                this.contactTabsTable.put(contact.getMetaUID(),
                                 currentChatPanel);
             }
             
@@ -325,7 +325,7 @@ public class ChatWindow extends JFrame{
         if(this.contactTabsTable != null && !this.contactTabsTable.isEmpty()){
                         
             ChatPanel chatPanel = ((ChatPanel)this.contactTabsTable
-                                    .get(contact.getDisplayName()));
+                                    .get(contact.getMetaUID()));
             
             this.chatTabbedPane.setSelectedIndex(chatPanel.getTabIndex());
             chatPanel.getWriteMessagePanel()
@@ -358,9 +358,11 @@ public class ChatWindow extends JFrame{
 
         String title = chatTabbedPane.getTitleAt(index);
         
+        ChatPanel selectedChat = (ChatPanel)chatTabbedPane.getComponentAt(index);
+                
         if(title != null){
 	        if(chatTabbedPane.getTabCount() > 1)	        		
-	        		this.contactTabsTable.remove(title);
+	        		this.contactTabsTable.remove(selectedChat.getDefaultContact().getMetaUID());
 	        
 	        Enumeration contactTabs = this.contactTabsTable.elements();
 	        
@@ -388,12 +390,12 @@ public class ChatWindow extends JFrame{
 	            
 	            String onlyTabtitle = chatTabbedPane.getTitleAt(0);
 	            
+                ChatPanel chatPanel 
+                    = (ChatPanel)this.chatTabbedPane.getComponentAt(0);
+                
 	            this.getContentPane().remove(chatTabbedPane);
 	            
 	            this.chatTabbedPane.removeAll();
-	            
-	            ChatPanel chatPanel 
-	                = (ChatPanel)this.contactTabsTable.get(onlyTabtitle);
 	            
 	            this.getContentPane().add(chatPanel, BorderLayout.CENTER);
 	            
@@ -450,7 +452,7 @@ public class ChatWindow extends JFrame{
      */
     public int getTabInex(MetaContact contact){
         return ((ChatPanel)this.contactTabsTable
-                .get(contact.getDisplayName())).getTabIndex();
+                .get(contact.getMetaUID())).getTabIndex();
     }
     
     /**
@@ -469,7 +471,7 @@ public class ChatWindow extends JFrame{
      * @return ChatPanel The ChatPanel for the given MetaContact.
      */
     public ChatPanel getChatPanel(MetaContact contact){
-        return (ChatPanel)this.contactTabsTable.get(contact.getDisplayName());
+        return (ChatPanel)this.contactTabsTable.get(contact.getMetaUID());
     }
     
     /**
