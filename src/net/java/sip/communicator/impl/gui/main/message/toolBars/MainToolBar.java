@@ -169,7 +169,7 @@ public class MainToolBar extends SIPCommToolBar
 		} else if (buttonText.equalsIgnoreCase("cut")) {
 			
 			JEditorPane editorPane 
-				= this.messageWindow.getWriteMessagePanel().getEditorPane();
+				= this.messageWindow.getCurrentChatWritePanel().getEditorPane();
 			
 			editorPane.cut();
 			
@@ -181,14 +181,14 @@ public class MainToolBar extends SIPCommToolBar
 			
 			if(editorPane.getSelectedText() == null){
 				editorPane 
-					= this.messageWindow.getWriteMessagePanel().getEditorPane();
+					= this.messageWindow.getCurrentChatWritePanel().getEditorPane();
 			}
 			editorPane.copy();
 			
 		} else if (buttonText.equalsIgnoreCase("paste")) {
 			
 			JEditorPane editorPane 
-				= this.messageWindow.getWriteMessagePanel().getEditorPane();
+				= this.messageWindow.getCurrentChatWritePanel().getEditorPane();
 			
 			editorPane.paste();
 			

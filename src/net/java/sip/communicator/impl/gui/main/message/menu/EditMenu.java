@@ -73,7 +73,7 @@ public class EditMenu extends JMenu
 		if (menuItemName.equalsIgnoreCase("cut")) {
 			
 			JEditorPane editorPane 
-				= this.chatWindow.getWriteMessagePanel().getEditorPane();
+				= this.chatWindow.getCurrentChatWritePanel().getEditorPane();
 			
 			editorPane.cut();
 			
@@ -85,14 +85,14 @@ public class EditMenu extends JMenu
 			
 			if(editorPane.getSelectedText() == null){
 				editorPane 
-					= this.chatWindow.getWriteMessagePanel().getEditorPane();
+					= this.chatWindow.getCurrentChatWritePanel().getEditorPane();
 			}
 			editorPane.copy();
 			
 		} else if (menuItemName.equalsIgnoreCase("paste")) {
 			
 			JEditorPane editorPane 
-				= this.chatWindow.getWriteMessagePanel().getEditorPane();
+				= this.chatWindow.getCurrentChatWritePanel().getEditorPane();
 			
 			editorPane.paste();
 		}

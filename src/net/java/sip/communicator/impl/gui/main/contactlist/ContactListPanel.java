@@ -264,8 +264,7 @@ public class ContactListPanel extends JScrollPane
 	                
 	    				msgWindow.setVisible(true);
 	    
-	    				msgWindow.getWriteMessagePanel()
-	                        .getEditorPane().requestFocus();
+	    				msgWindow.requestFocusInCurrentChat();
 	    			}
             }
             else{            	
@@ -304,8 +303,7 @@ public class ContactListPanel extends JScrollPane
                     
                     tabbedChatWindow.setVisible(true);
     
-                    tabbedChatWindow.getWriteMessagePanel()
-                        .getEditorPane().requestFocus();
+                    tabbedChatWindow.requestFocusInCurrentChat();
                 }
                 else{
                     //If a tab for the given contact already exists.
@@ -318,8 +316,7 @@ public class ContactListPanel extends JScrollPane
                     
                     tabbedChatWindow.setVisible(true);
                     
-                    tabbedChatWindow.getWriteMessagePanel()
-                        .getEditorPane().requestFocus();
+                    tabbedChatWindow.requestFocusInCurrentChat();
                 }
             }
 		}
@@ -434,11 +431,12 @@ public class ContactListPanel extends JScrollPane
              */
             Hashtable contactTabsTable 
                 = tabbedChatWindow.getContactTabsTable();
-
+            ChatPanel chatPanel;
+            
             if(contactTabsTable.get(metaContact.getMetaUID()) 
                     == null){                
                 // If there's no open tab for the given contact.                    
-                ChatPanel chatPanel 
+                chatPanel 
                     = tabbedChatWindow.addChatTab(metaContact, contactStatus);
                 
                 chatPanel.getConversationPanel()
@@ -446,22 +444,18 @@ public class ContactListPanel extends JScrollPane
                             calendar, ChatMessage.INCOMING_MESSAGE, 
                             evt.getSourceMessage().getContent());
                 
-                tabbedChatWindow.setVisible(true);
-                
-                tabbedChatWindow.getWriteMessagePanel()
-                    .getEditorPane().requestFocus();
+                tabbedChatWindow.setVisible(true);                
             }
             else{
-                tabbedChatWindow.getChatPanel(metaContact).getConversationPanel()
+                chatPanel = tabbedChatWindow.getChatPanel(metaContact); 
+                chatPanel.getConversationPanel()
                     .processMessage(evt.getSourceContact().getDisplayName(), 
                             calendar, ChatMessage.INCOMING_MESSAGE, 
                             evt.getSourceMessage().getContent());
                 
                 tabbedChatWindow.setVisible(true);
-                
-                tabbedChatWindow.getWriteMessagePanel()
-                    .getEditorPane().requestFocus();
             }            
+            
             if(tabbedChatWindow.getTabCount() > 1){
                 tabbedChatWindow.highlightTab(metaContact);
             }

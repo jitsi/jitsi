@@ -108,16 +108,14 @@ public class ChatWindow extends JFrame{
 	}
 
     /**
-     * Returns the chat write message panel for the currently selected 
-     * chat panel.
-     * 
-     * @return The ChatWritePanel for the currently selected 
-     * chat panel.
-     */
-	public ChatWritePanel getWriteMessagePanel() {
-		return this.currentChatPanel.getWriteMessagePanel();
+     * Requests the focus in the WriteMessagePanel in the current
+     * chat.
+     */    
+	public void requestFocusInCurrentChat() {
+		this.currentChatPanel.getWriteMessagePanel()
+            .getEditorPane().requestFocus();
 	}
-
+      
     /**
      * Returns the conversation panel for the currently selected 
      * chat panel.
@@ -453,6 +451,17 @@ public class ChatWindow extends JFrame{
     }
     
     /**
+     * Returns <code>ChatWritePanel</code> contained in currently selected
+     * chat.
+     * 
+     * @return ChatWritePanel The panel where messages are written for
+     * the current chat.
+     */
+    public ChatWritePanel getCurrentChatWritePanel(){
+        return this.currentChatPanel.getWriteMessagePanel();
+    }
+    
+    /**
      * Sets the given icon to the tab opened for the given MetaContact.
      */
     public void setTabIcon(MetaContact metaContact, Icon icon){
@@ -460,5 +469,5 @@ public class ChatWindow extends JFrame{
             = this.chatTabbedPane.indexOfComponent
                 (this.getChatPanel(metaContact));
         this.chatTabbedPane.setIconAt(index, icon);
-    }
+    }    
 }

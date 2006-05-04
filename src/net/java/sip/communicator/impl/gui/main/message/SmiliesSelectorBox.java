@@ -59,7 +59,7 @@ public class SmiliesSelectorBox extends BoxPopupMenu
 			
 			if(buttonText.equals(smily.getSmilyStrings()[0])){
 				
-				JEditorPane editorPane = this.messageWindow.getWriteMessagePanel().getEditorPane();
+				JEditorPane editorPane = this.messageWindow.getCurrentChatWritePanel().getEditorPane();
 				
 				editorPane.setText(editorPane.getText() + smily.getSmilyStrings()[0] + " ");
 				
