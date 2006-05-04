@@ -161,31 +161,41 @@ public class ChatConversationPanel extends JScrollPane
      * @param message The source message string.
      * @return The message string with properly formatted links.
      */
-	private String processLinks(String message) {
-		/*
-        String msgString = message;
-
-		Pattern p = Pattern
-				.compile("(\\bwww\\.\\S+\\.\\S+\\b)");
-		Pattern p1 = Pattern
-				.compile("(\\b\\w+://\\S+\\b)");
-		
-		Matcher m = p.matcher(message);
-		Matcher m1 = p1.matcher(message);
-		
-		while (m.find()) {			
-			msgString = msgString.replaceAll(m.group().trim(), "<A href='"
-					+ "http://" + m.group() + "'>" + m.group() + "</A>");
-		}
-		
-		while (m1.find()) {			
-			msgString = msgString.replaceAll(m1.group().trim(), "<A href='"
-					+ m1.group() + "'>" + m1.group() + "</A>");
-		}
-		return msgString;
-        */
-        return URLRecognitionManager.processURL(message);
-	}
+    public static String processLinks(String message){
+        
+        String wwwURL = "(\\bwww\\.\\S+\\.\\S+/*[?#]*(\\w+[&=;?]\\w+)*\\b)";
+        String protocolURL = "(\\b\\w+://\\S+/*[?#]*(\\w+[&=;?]\\w+)*\\b)";
+        String url = "(" + wwwURL + "|" + protocolURL + ")";
+        
+        Pattern p = Pattern.compile(url);
+                
+        Matcher m = p.matcher(message);
+                
+        StringBuffer msgBuffer = new StringBuffer();
+        
+        boolean matchSuccessfull = false;
+        
+        while (m.find()) {
+            if(!matchSuccessfull)
+                matchSuccessfull = true;
+            
+            String matchGroup = m.group().trim();
+            String replacement;
+            
+            if(matchGroup.startsWith("www")){
+                replacement = "<A href=\"" + "http://" + matchGroup 
+                                    + "\">" + matchGroup + "</A>";
+            }
+            else{
+                replacement = "<A href=\"" + matchGroup 
+                                    + "\">" + matchGroup + "</A>";
+            }            
+            m.appendReplacement(msgBuffer, replacement);                        
+        }        
+        m.appendTail(msgBuffer);
+        
+        return msgBuffer.toString();
+    }
 
     /**
      * Format message new lines.
