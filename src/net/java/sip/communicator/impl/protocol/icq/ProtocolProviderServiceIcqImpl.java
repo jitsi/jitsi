@@ -66,6 +66,11 @@ public class ProtocolProviderServiceIcqImpl
     private List registrationListeners = new ArrayList();
 
     /**
+     * The identifier of the account that this provider represents.
+     */
+    private AccountID accountID = null;
+
+    /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
      * currently in or null in case it is in a unknown state.
@@ -204,13 +209,18 @@ public class ProtocolProviderServiceIcqImpl
      * about to create
      * @param initializationProperties all properties needed fo initializing the
      * account.
+     * @param accountID the identifier of the account that this protocol
+     * provider represents.
      *
-     * @see net.java.sip.communicator.service.protocol.AccountProperties
+     * @see net.java.sip.communicator.service.protocol.AccountID
      */
-    protected void initialize(String screenname, Map initializationProperties)
+    protected void initialize(String screenname,
+                              Map initializationProperties,
+                              AccountID accountID)
     {
         synchronized(initializationLock)
         {
+            this.accountID = accountID;
             //extract the necessary properties and validate them
             String password =
                 (String)initializationProperties.get(AccountProperties.PASSWORD);
@@ -316,6 +326,16 @@ public class ProtocolProviderServiceIcqImpl
     }
 
     /**
+     * Returns the AccountID that uniquely identifies the account represented by
+     * this instance of the ProtocolProviderService.
+     * @return the id of the account represented by this provider.
+     */
+    public AccountID getAccountID()
+    {
+        return accountID;
+    }
+
+    /**
      * Creates a RegistrationStateChange event corresponding to the specified
      * old and new joust sim states and notifies all currently registered
      * listeners.
@@ -328,11 +348,18 @@ public class ProtocolProviderServiceIcqImpl
      * connection is currently in.
      * @param newJoustSimStateInfo the state info associated with the state of
      * the underlying connection state as it was before the change.
+     * @param reasonCode a value corresponding to one of the REASON_XXX fields
+     * of the RegistrationStateChangeEvent class, indicating the reason for this
+     * state transition.
+     * @param reason a String further explaining the reason code or null if
+     * no such explanation is necessary.
      */
     private void fireRegistrationStateChanged(  State      oldJoustSimState,
                                                 StateInfo oldJoustSimStateInfo,
                                                 State     newJoustSimState,
-                                                StateInfo newJoustSimStateInfo)
+                                                StateInfo newJoustSimStateInfo,
+                                                int       reasonCode,
+                                                String    reason)
     {
         RegistrationState oldRegistrationState
             = joustSimStateToRegistrationState(oldJoustSimState
@@ -342,8 +369,8 @@ public class ProtocolProviderServiceIcqImpl
                                                , newJoustSimStateInfo);
 
         RegistrationStateChangeEvent event =
-            new RegistrationStateChangeEvent(
-                this, oldRegistrationState, newRegistrationState);
+            new RegistrationStateChangeEvent(  this, oldRegistrationState
+                                , newRegistrationState, reasonCode, reason);
 
         logger.debug("Dispatching " + event + " to "
                      + registrationListeners.size()+ " listeners.");
@@ -378,12 +405,14 @@ public class ProtocolProviderServiceIcqImpl
             if (newState == State.ONLINE)
             {
                 icbmService = conn.getIcbmService();
-				icbmService.addIcbmListener(aimIcbmListener);
+                icbmService.addIcbmListener(aimIcbmListener);
 
-				conn.getInfoService().
-				getOscarConnection().getSnacProcessor().
-				getCmdFactoryMgr().getDefaultFactoryList().
-				registerAll(new DefaultCmdFactory());
+                //set our own cmd factory as we'd like some extra control on
+                //outgoing commands.
+                conn.getInfoService().
+                    getOscarConnection().getSnacProcessor().
+                        getCmdFactoryMgr().getDefaultFactoryList().
+                            registerAll(new DefaultCmdFactory());
             }
             else if (newState == State.DISCONNECTED
                      || newState == State.FAILED)
@@ -393,7 +422,8 @@ public class ProtocolProviderServiceIcqImpl
 
             //now tell all interested parties about what happened.
             fireRegistrationStateChanged(oldState, event.getOldStateInfo()
-                                         , newState, event.getNewStateInfo());
+                , newState, event.getNewStateInfo()
+                , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
 
         }
     }
