@@ -9,12 +9,22 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 /**
- * The AccountID is an account identifier that, combined with the protocol
- * itself, uniquely represents a specific user account. The class needs to be
- * extended by every protocol implementation because of its protected
+ * The AccountID is an account identifier that, uniquely represents a specific
+ * user account over a specific protocol. The class needs to be extended by
+ * every protocol implementation because of its protected
  * constructor. The reason why this constructor is protected is mostly avoiding
  * confusion and letting people (using the protocol provider service) believe
  * that they are the ones who are supposed to instantiate the accountid class.
+ * <p>
+ * Every instance of teh <tt>ProtocolProviderService</tt>, created through the
+ * account manager is assigned an AccountID instance, that uniquely represents
+ * it and whose string representation (obtainted through the getAccountUID()
+ * method) can be used for identification of persistently stored account details.
+ * <p>
+ * Account id's are guaranteed to be different for different accounts and in the
+ * same time are bound to be equal for multiple installations of the same
+ * account.
+
  *
  * @author Emil Ivov
  */
@@ -28,35 +38,66 @@ public abstract class AccountID
     protected Map accountProperties = null;
 
     /**
-     * A String uniquely identyfying the user for this particular service.
+     * A String uniquely identifying the user for this particular account.
      */
-    protected String accountID = null;
+    protected String userID = null;
+
+    /**
+     * A String uniquely identifying this account, that can also be used for
+     * storing and unambiguously retrieving details concerning it.
+     */
+    protected String accountUID = null;
 
     /**
      * Creates an account id for the specified provider userid and
-     * accountProperties
-     * @param accountID a String that uniquely identifies the user.
+     * accountProperties.
+     * @param userID a String that uniquely identifies the user.
      * @param accountProperties a Map containing any other protocol and
      * implementation specific account initialization properties
+     * @param protocolName the name of the protocol implemented by the provider
+     * that this id is meant for.
+     * @param serviceName the name of the service (e.g. iptel.org, jabber.org,
+     * icq.com) that this account is registered with.
      */
-    protected AccountID( String accountID,
-                         Map accountProperties)
+    protected AccountID( String userID,
+                         Map accountProperties,
+                         String protocolName,
+                         String serviceName)
     {
         super();
 
-        this.accountID = String.copyValueOf(accountID.toCharArray());
+        this.userID = userID;
         this.accountProperties = new Hashtable(accountProperties);
+
+        //create a unique identifier string
+        //NOTE: the service name is most probably already present in the userID
+        //(e.g. in sip or jabber uris) but since this string is not meant to be
+        //seen by the user, it won't hurt adding it again. It could avoid
+        //duplicate IDs with protocols that are not meant to work accross
+        //servers (e.g. imagine some weird case where you have the same icq id
+        //with both the AIM server and some private ICQ server).
+        this.accountUID = protocolName + ":" + userID + "@" + serviceName;
     }
 
     /**
-     * Returns the user id of this class.
+     * Returns the user id associated with this account.
      *
-     * @return A String uniquely identyfying the user inside this particular
-     * service.
+     * @return A String identyfying the user inside this particular service.
      */
-    public String getAccountID()
+    public String getAccountUserID()
     {
-        return accountID;
+        return userID;
+    }
+
+    /**
+     * Returns a String uniquely idnetifying this account, guaranteed to remain
+     * the same accross multiple installations of the same account and to always
+     * be unique for differing accounts.
+     * @return String
+     */
+    public String getAccountUID()
+    {
+        return accountUID;
     }
 
     /**
@@ -81,7 +122,7 @@ public abstract class AccountID
      */
     public int hashCode()
     {
-        return accountID == null? 0 : accountID.hashCode();
+        return accountUID == null? 0 : accountUID.hashCode();
     }
 
     /**
@@ -95,13 +136,16 @@ public abstract class AccountID
      */
     public boolean equals(Object obj)
     {
+        if (this == obj)
+            return true;
+
         if(     obj == null
           || ! (getClass().isInstance(obj))
-          || ! (accountID.equals(((AccountID)obj).accountID))
-          || ! (accountProperties.equals(((AccountID)obj).accountProperties)))
+          || ! (userID.equals(((AccountID)obj).userID)))
             return false;
 
         return true;
     }
+
 
 }

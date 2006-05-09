@@ -12,8 +12,8 @@ import net.java.sip.communicator.service.protocol.*;
 public class IcqAccountID
     extends AccountID
 {
-    IcqAccountID(String accountID, Map accountProperties)
+    IcqAccountID(String accountID, Map accountProperties )
     {
-        super(accountID, accountProperties);
+        super(accountID, accountProperties, ProtocolNames.ICQ, "icq.com");
     }
 }

@@ -66,41 +66,41 @@ public class AccountManagerIcqImpl
      *
      * @param context the BundleContext parameter where the newly created
      *   ProtocolProviderService would have to be registered.
-     * @param accountIDStr the user identifier for the new account
+     * @param userIDStr the user identifier for the new account
      * @param accountProperties a set of protocol (or implementation)
      *   specific properties defining the new account.
      * @return the AccountID of the newly created account
      */
     public AccountID installAccount( BundleContext context,
-                                     String accountIDStr,
+                                     String userIDStr,
                                      Map accountProperties)
     {
         if(context == null)
             throw new NullPointerException("The specified BundleContext was null");
 
-        if(accountIDStr == null)
+        if(userIDStr == null)
             throw new NullPointerException("The specified AccountID was null");
 
-        if(accountIDStr == null)
+        if(accountProperties == null)
             throw new NullPointerException("The specified property map was null");
 
-        AccountID accountID = new IcqAccountID(accountIDStr, accountProperties);
+        AccountID accountID = new IcqAccountID(userIDStr, accountProperties);
 
         //make sure we haven't seen this account id before.
         if( registeredAccounts.containsKey(accountID) )
             throw new IllegalStateException(
-                "An account for id " + accountIDStr + " was already installed!");
+                "An account for id " + userIDStr + " was already installed!");
 
         Hashtable properties = new Hashtable();
         properties.put(
             AccountManager.PROTOCOL_PROPERTY_NAME, ProtocolNames.ICQ);
         properties.put(
-            AccountManager.ACCOUNT_ID_PROPERTY_NAME, accountIDStr);
+            AccountManager.ACCOUNT_ID_PROPERTY_NAME, userIDStr);
 
         ProtocolProviderServiceIcqImpl icqProtocolProvider
             = new ProtocolProviderServiceIcqImpl();
 
-        icqProtocolProvider.initialize(accountIDStr, accountProperties);
+        icqProtocolProvider.initialize(userIDStr, accountProperties, accountID);
 
         ServiceRegistration registration
             = context.registerService( ProtocolProviderService.class.getName(),
