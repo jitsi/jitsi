@@ -84,4 +84,28 @@ public interface Contact
      */
     public boolean isPersistent();
 
+    /**
+     * Determines whether or not this contact has been resolved against the
+     * server. Unresolved contacts are used when initially loading a contact
+     * list that has been stored in a local file until the presence operation
+     * set has managed to retrieve all the contact list from the server and has
+     * properly mapped contacts to their on-line buddies.
+     * @return true if the contact has been resolved (mapped against a buddy)
+     * and false otherwise.
+     */
+    public boolean isResolved();
+
+    /**
+     * Returns a String that can be used to create a unresolved instance of
+     * this contact. Unresolved contacts are created through the
+     * createUnresolvedContact() method in the persistent presence operation
+     * set. The method may also return null if no such data is required and
+     * the contact address is sufficient for restoring the contact.
+     * <p>
+     * @return A <tt>String</tt> that could be used to create a unresolved
+     * instance of this contact during a next run of the application, before
+     * establishing network connectivity or null if no such data is required.
+     */
+    public String getPersistentData();
+
 }
