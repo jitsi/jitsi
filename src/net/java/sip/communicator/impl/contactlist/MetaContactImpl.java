@@ -53,11 +53,24 @@ public class MetaContactImpl
      */
     private Object parentGroupModLock = new Object();
 
+    /**
+     * Creates new meta contact with a newly generated meta contact UID.
+     */
     MetaContactImpl()
     {
         //create the uid
         this.uid = String.valueOf( System.currentTimeMillis())
                    + String.valueOf(hashCode());
+    }
+
+    /**
+     * Creates a new meta contact with the specified UID. This constructor
+     * MUST ONLY be used when restoring contacts stored in the contactlist.xml.
+     * @param metaUID the meta uid that this meta contact should have.
+     */
+    MetaContactImpl(String metaUID)
+    {
+        this.uid = metaUID;
     }
 
     /**
