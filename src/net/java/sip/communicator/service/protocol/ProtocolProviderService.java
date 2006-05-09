@@ -12,12 +12,25 @@ import java.util.*;
 
 /**
  * The ProtocolProvider interface should be implemented by bundles that wrap
- * telephony protocol stacks. It gives the user interface a way to plug into
- * those stacks and receive notifications on status change and incoming calls,
- * as well as deliver user requests for establishing or ending calls, putting
- * participants on hold and etc.
+ * Instant Messaging and telephony protocol stacks. It gives the user interface
+ * a way to plug into these stacks and receive notifications on status change
+ * and incoming calls, as well as deliver user requests for establishing or
+ * ending calls, putting participants on hold and etc.
+ * <p>
+ * An instance of a ProtocolProviderService corresponds to a particular user
+ * account and all operations performed through a provider (sending messages,
+ * modifying contact lists, receiving calls)would pertain to this particular
+ * user account.
+ *<p>
+ * ProtocolProviderService instances are created through the account manager.
+ * Each protocol provider is assigned a unique AccountID instance that uniquely
+ * identifies it. Account id's for different accounts are guaranteed to be
+ * different and in the same time the ID of a particular account against a given
+ * service over any protocol will always be the same (so that we detect attempts
+ * for creating the same account twice.)
  *
  * @author Emil Ivov
+ * @see AccountID
  */
 public interface ProtocolProviderService
 {
@@ -106,4 +119,11 @@ public interface ProtocolProviderService
      * hashtable keys.
      */
     public int hashCode();
+
+    /**
+     * Returns the AccountID that uniquely identifies the account represented by
+     * this instance of the ProtocolProviderService.
+     * @return the id of the account represented by this provider.
+     */
+    public AccountID getAccountID();
 }
