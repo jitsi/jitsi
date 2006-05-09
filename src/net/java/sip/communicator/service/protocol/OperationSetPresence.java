@@ -228,4 +228,24 @@ public interface OperationSetPresence
      * has confirmed.
      */
     public String getCurrentStatusMessage();
+
+    /**
+     * Creates and returns a unresolved contact from the specified
+     * <tt>address</tt> and <tt>persistentData</tt>. The method will not try
+     * to establish a network connection and resolve the newly created Contact
+     * against the server. The protocol provider may will later try and resolve
+     * the contact. When this happens the corresponding event would notify
+     * interested subscription listeners.
+     *
+     * @param address an identifier of the contact that we'll be creating.
+     * @param persistentData a String returned Contact's getPersistentData()
+     * method during a previous run and that has been persistently stored
+     * locally.
+     *
+     * @return the unresolved <tt>Contact</tt> created from the specified
+     * <tt>address</tt> and <tt>persistentData</tt>
+     */
+    public Contact createUnresolvedContact(
+        String address, String persistentData);
+
 }
