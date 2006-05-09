@@ -719,7 +719,6 @@ public class ConfigurationServiceImpl
 
         if(isSystem)
             newNode.setAttribute(SYSTEM_ATTRIBUTE_NAME, SYSTEM_ATTRIBUTE_TRUE);
-
     }
 
 

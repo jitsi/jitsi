@@ -42,7 +42,7 @@ public class XMLUtils
         }
     }
 
-        /**
+    /**
      * Extracts the String content of a TXT element.
      *
      * @param parentNode the node containing the data that we'd like to get.
@@ -170,7 +170,7 @@ public class XMLUtils
     }
 
     /**
-     * Returns element's TEXXT child node (if it has one).
+     * Returns element's TEXT child node (if it has one).
      * @param element the element whose TEXT we need to get.
      * @return a <tt>Text</tt> object containing the specified element's
      * text content.
