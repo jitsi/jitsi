@@ -239,7 +239,7 @@ public class MockPersistentPresenceOperationSet
         MockContactGroup newGroup
             = new MockContactGroup(groupName, parentProvider);
 
-        ((MockContactGroup)parent).addSubGroup(newGroup);
+        ((MockContactGroup)parent).addSubgroup(newGroup);
 
         this.fireServerStoredGroupEvent(
             newGroup, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
@@ -252,7 +252,7 @@ public class MockPersistentPresenceOperationSet
      */
     public void addMockGroup(MockContactGroup contactGroup)
     {
-        contactListRoot.addSubGroup(contactGroup);
+        contactListRoot.addSubgroup(contactGroup);
     }
 
     /**
@@ -265,7 +265,7 @@ public class MockPersistentPresenceOperationSet
     public void addMockGroupAndFireEvent(MockContactGroup parent
                                          , MockContactGroup contactGroup)
     {
-        parent.addSubGroup(contactGroup);
+        parent.addSubgroup(contactGroup);
 
         this.fireServerStoredGroupEvent(
             contactGroup, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
@@ -653,5 +653,108 @@ public class MockPersistentPresenceOperationSet
         fireSubscriptionEvent((MockContact)contact,
                                        ((MockContact)contact).getParentGroup(),
                                        SubscriptionEvent.SUBSCRIPTION_REMOVED);
+    }
+
+    /**
+     * Creates and returns a unresolved contact from the specified
+     * <tt>address</tt> and <tt>persistentData</tt>. The method will not try
+     * to establish a network connection and resolve the newly created Contact
+     * against the server. The protocol provider may will later try and resolve
+     * the contact. When this happens the corresponding event would notify
+     * interested subscription listeners.
+     *
+     * @param address an identifier of the contact that we'll be creating.
+     * @param persistentData a String returned Contact's getPersistentData()
+     * method during a previous run and that has been persistently stored
+     * locally.
+     * @return the unresolved <tt>Contact</tt> created from the specified
+     * <tt>address</tt> and <tt>persistentData</tt>
+     */
+    public Contact createUnresolvedContact(String address,
+                                           String persistentData)
+    {
+        MockContact contact = new MockContact(address, parentProvider);
+        contact.setResolved(false);
+
+        ( (MockContactGroup) getServerStoredContactListRoot())
+            .addContact(contact);
+
+        fireSubscriptionEvent(contact,
+                              getServerStoredContactListRoot(),
+                              SubscriptionEvent.SUBSCRIPTION_CREATED);
+
+        return contact;
+
+    }
+
+    /**
+     * Creates and returns a unresolved contact from the specified
+     * <tt>address</tt> and <tt>persistentData</tt>. The method will not try
+     * to establish a network connection and resolve the newly created Contact
+     * against the server. The protocol provider may will later try and resolve
+     * the contact. When this happens the corresponding event would notify
+     * interested subscription listeners.
+     *
+     * @param address an identifier of the contact that we'll be creating.
+     * @param persistentData a String returned Contact's getPersistentData()
+     * method during a previous run and that has been persistently stored
+     * locally.
+     * @param parentProtoGroup the group where the unresolved contact is
+     * supposed to belong to.
+     *
+     * @return the unresolved <tt>Contact</tt> created from the specified
+     * <tt>address</tt> and <tt>persistentData</tt>
+     */
+    public Contact createUnresolvedContact(String address,
+                                           String persistentData,
+                                           ContactGroup parent)
+    {
+        MockContact contact = new MockContact(address, parentProvider);
+        contact.setResolved(false);
+
+        ( (MockContactGroup) parent).addContact(contact);
+
+        fireSubscriptionEvent(contact,
+                              parent,
+                              SubscriptionEvent.SUBSCRIPTION_CREATED);
+
+        return contact;
+    }
+
+    /**
+     * Creates and returns a unresolved contact group from the specified
+     * <tt>address</tt> and <tt>persistentData</tt>. The method will not try
+     * to establish a network connection and resolve the newly created
+     * <tt>ContactGroup</tt> against the server or the contact itself. The
+     * protocol provider will later resolve the contact group. When this happens
+     * the corresponding event would notify interested subscription listeners.
+     *
+     * @param groupUID an identifier, returned by ContactGroup's getGroupUID,
+     * that the protocol provider may use in order to create the group.
+     * @param persistentData a String returned ContactGroups's getPersistentData()
+     * method during a previous run and that has been persistently stored
+     * locally.
+     * @param parentGroup the group under which the new group is to be created
+     * or null if this is group directly underneath the root.
+     * @return the unresolved <tt>ContactGroup</tt> created from the specified
+     * <tt>uid</tt> and <tt>persistentData</tt>
+     */
+    public ContactGroup createUnresolvedContactGroup(String groupUID,
+        String persistentData, ContactGroup parentGroup)
+    {
+        MockContactGroup newGroup
+            = new MockContactGroup(groupUID, parentProvider);
+        newGroup.setResolved(false);
+
+        //if parent is null then we're adding under root.
+        if(parentGroup == null)
+            parentGroup = getServerStoredContactListRoot();
+
+        ((MockContactGroup)parentGroup).addSubgroup(newGroup);
+
+        this.fireServerStoredGroupEvent(
+            newGroup, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+
+        return newGroup;
     }
 }
