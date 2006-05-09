@@ -36,15 +36,30 @@ public class MockProvider
     private MockPersistentPresenceOperationSet mockPresOpSet = null;
 
     /**
+     * The identifier of the account.
+     */
+    private AccountID accountID = null;
+
+    /**
      * Creates an instance of this mockprovider with a <tt>supportedOperationSet-s</tt>
      * map set to contain a single persistent presence operation set.
+     *
+     * @param userName an almost ignorable string (any value is accepted) that
+     * should be used when constructing account id's
      */
-    public MockProvider()
+    public MockProvider(String userName)
     {
+        accountID = new MockAccountID(userName);
+
         mockPresOpSet = new MockPersistentPresenceOperationSet(this);
         this.supportedOperationSets.put(
                 OperationSetPersistentPresence.class.getName(),
                 mockPresOpSet);
+
+        this.supportedOperationSets.put(
+                OperationSetPresence.class.getName(),
+                mockPresOpSet);
+
     }
 
     /**
@@ -133,5 +148,15 @@ public class MockProvider
      */
     public void unregister()
     {
+    }
+
+    /**
+     * Returns the AccountID that uniquely identifies the account represented by
+     * this instance of the ProtocolProviderService.
+     * @return the id of the account represented by this provider.
+     */
+    public AccountID getAccountID()
+    {
+        return accountID;
     }
 }
