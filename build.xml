@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created by Emil Ivov on Jul 6, 2005 8:30:22 PM-->
 
-<project basedir="." default="usage" name="sip-communicator-1.0">
+<project basedir="." default="ant-usage" name="sip-communicator-1.0">
 
     <property environment="system"/>
     <property name="jdk.home" value="/usr/java/java"/>
@@ -86,12 +86,18 @@
     </path>
 
   <!-- default Ant target does nothing except print helpful options -->
-  <!-- Ant-internal target does not appear in its own help display  -->
-    <target name="usage" >
-       <echo message="execute 'ant cc-buildloop' to initialise a sandbox (cruise control build cycle)" />
-       <echo message="execute 'ant rebuild' for a clean/build/test sequence" />
-       <echo message="execute 'ant -projecthelp' for other useful build targets" />
-       <echo message="execute 'ant -help' for Ant help" />
+  <!-- Ant-external target will appear in -projecthelp output       -->
+    <target name="ant-usage"
+        description="simply execute 'ant' to discover the most useful targets.">
+       <echo message="Useful ant commands for the SIP Communicator Project..." />
+       <echo message="'ant rebuild' for a safe clean/build sequence" />
+       <echo message="'ant rebuild run' for a safe clean/build/run" />
+       <echo message="'ant make run' for incremental build/run" />
+       <echo message="'ant run' to run the last build (use with care!)" />
+       <echo message="'ant test' for incremental build/test sequence" />
+       <echo message="'ant rebuild test' for safe clean/build/test sequence" />
+       <echo message="'ant -projecthelp' for other useful build targets" />
+       <echo message="'ant -help' for Ant help" />
     </target>
 
     <!-- java compile -->
@@ -107,7 +113,7 @@
 
     <!-- clean -->
     <target name="clean" depends="clean-bundle-repositories"
-        description="Remove all generated files and prepare for a clean restart.">
+        description="Remove all generated files and prepare for a clean build.">
         <delete failonerror="false" includeemptydirs="true">
             <fileset dir="${dest}"/>
             <fileset dir="${bundles.dest}"/>
@@ -168,17 +174,17 @@
     </target>
 
     <!--PACKAGE-->
-    <!--Copy resource files and create bundles jars. -->
+    <!--Copy resource files and update bundles jars. -->
     <target name="package" depends="resource,bundles"/>
 
 
     <!--MAKE-->
     <target name="make" depends="clean-bundle-repositories,compile,package"
-        description="Compile and package the project (incrementally)."/>
+        description="Incremental compile and package the project."/>
 
     <!--REBUILD-->
     <target name="rebuild" depends="clean,make"
-        description="Clean,re-compile and package the project (no bundles or tests)."/>
+        description="Clean and make the project (including bundles)."/>
 
     <!--INIT-->
     <target name="init">
@@ -318,9 +324,9 @@
       </junitreport>
     </target>
 
-    <!--RUN-SIP-COMMUNICATOR-->
+    <!--RUN-SIP-COMMUNICATOR - n.b. has NO Dependents!! -->
     <target name="run" 
-        description="Starts oscar and runs sip-comunicator gui.">
+        description="Starts oscar and runs sip-comunicator gui (use latest build).">
 
         <java classname="org.ungoverned.oscar.Main"
             fork="true"

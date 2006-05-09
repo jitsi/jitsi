@@ -27,7 +27,7 @@
             </folders>
             <ide-actions>
                 <action name="build">
-                    <target>cc-buildloop</target>
+                    <target>make</target>
                 </action>
                 <action name="clean">
                     <target>clean</target>
@@ -36,14 +36,18 @@
                     <target>javadoc</target>
                 </action>
                 <action name="run">
+		    <!-- run has NO dependents, but we have to protect
+                         users from not picking up the latest changes
+                         by doing an explicit incremental make.
+                    -->
+                    <target>make</target>
                     <target>run</target>
                 </action>
                 <action name="test">
                     <target>test</target>
                 </action>
                 <action name="rebuild">
-                    <target>clean</target>
-                    <target>cc-buildloop</target>
+                    <target>rebuild</target>
                 </action>
                 <action name="run.single">
                     <target>test</target>
