@@ -177,7 +177,6 @@ public interface OperationSetPersistentPresence
      */
     public ContactGroup getServerStoredContactListRoot();
 
-
     /**
      * Registers a listener that would receive events upong changes in server
      * stored groups.
@@ -194,5 +193,49 @@ public interface OperationSetPersistentPresence
      */
     public void removeServerStoredGroupChangeListener(
         ServerStoredGroupListener listener);
+
+
+    /**
+     * Creates and returns a unresolved contact from the specified
+     * <tt>address</tt> and <tt>persistentData</tt>. The method will not try
+     * to establish a network connection and resolve the newly created Contact
+     * against the server. The protocol provider may will later try and resolve
+     * the contact. When this happens the corresponding event would notify
+     * interested subscription listeners.
+     *
+     * @param address an identifier of the contact that we'll be creating.
+     * @param persistentData a String returned Contact's getPersistentData()
+     * method during a previous run and that has been persistently stored
+     * locally.
+     * @param parentGroup the group where the unresolved contact is
+     * supposed to belong to.
+     *
+     * @return the unresolved <tt>Contact</tt> created from the specified
+     * <tt>address</tt> and <tt>persistentData</tt>
+     */
+    public Contact createUnresolvedContact(
+        String address, String persistentData, ContactGroup parentGroup);
+
+    /**
+     * Creates and returns a unresolved contact group from the specified
+     * <tt>address</tt> and <tt>persistentData</tt>. The method will not try
+     * to establish a network connection and resolve the newly created
+     * <tt>ContactGroup</tt> against the server or the contact itself. The
+     * protocol provider will later resolve the contact group. When this happens
+     * the corresponding event would notify interested subscription listeners.
+     *
+     * @param groupUID an identifier, returned by ContactGroup's getGroupUID,
+     * that the protocol provider may use in order to create the group.
+     * @param persistentData a String returned ContactGroups's getPersistentData()
+     * method during a previous run and that has been persistently stored
+     * locally.
+     * @param parentGroup the group under which the new group is to be created
+     * or null if this is group directly underneath the root.
+     * @return the unresolved <tt>ContactGroup</tt> created from the specified
+     * <tt>uid</tt> and <tt>persistentData</tt>
+     */
+    public ContactGroup createUnresolvedContactGroup(
+        String groupUID, String persistentData, ContactGroup parentGroup);
+
 
 }
