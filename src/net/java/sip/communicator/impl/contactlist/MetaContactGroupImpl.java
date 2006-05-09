@@ -40,6 +40,11 @@ public class MetaContactGroupImpl
     private Vector protoGroups = new Vector();
 
     /**
+     * An id uniquely identifying the meta contact group in this contact list.
+     */
+    private String groupUID = null;
+
+    /**
      * The name of the group (fixed for root groups since it won't show).
      */
     private String groupName = null;
@@ -58,7 +63,41 @@ public class MetaContactGroupImpl
      */
     MetaContactGroupImpl(String groupName)
     {
+        this(groupName, null);
+    }
+
+    /**
+     * Creates an instance of the root meta contact group assigning it the
+     * specified meta contact uid. This constructor MUST NOT be used for nothing
+     * purposes else but restoring contacts extracted from the contactlist.xml
+     *
+     * @param groupName the name of the group to create
+     * @param metaUID a UID that has been stored earlier or null when a new
+     * UID needs to be created.
+     */
+    MetaContactGroupImpl(String groupName, String metaUID)
+    {
         this.groupName = groupName;
+
+        //create a new uid if necessary
+        if(metaUID == null)
+            metaUID = String.valueOf( System.currentTimeMillis())
+                       + String.valueOf(hashCode());
+
+        this.groupUID = metaUID;
+    }
+
+
+    /**
+     * Returns a String identifier (the actual contents is left to
+     * implementations) that uniquely represents this <tt>MetaContact</tt> in
+     * the containing <tt>MetaContactList</tt>
+     *
+     * @return a String uniquely identifying this meta contact.
+     */
+    public String getMetaUID()
+    {
+        return groupUID;
     }
 
     /**
