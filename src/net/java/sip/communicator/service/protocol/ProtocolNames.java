@@ -60,4 +60,9 @@ public interface ProtocolNames
      * The Skype protcool.
      */
     public static final String SKYPE  = "Skype";
+    /**
+     * The SIP Communicator MOCK protocol.
+     */
+    public static final String SIP_COMMUNICATOR_MOCK  = "sip-communicator-mock";
+
 }
