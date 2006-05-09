@@ -26,6 +26,7 @@ public class MockContactGroup
     private MockContactGroup parentGroup = null;
     private boolean isPersistent = true;
     private MockProvider parentProvider = null;
+    private boolean isResolved = true;
 
     /**
      * Creates a MockGroup with the specified name.
@@ -107,7 +108,7 @@ public class MockContactGroup
      * Adds the specified contact group to the contained by this group.
      * @param subGroup the MockContactGroup to add as a subgroup to this group.
      */
-    public void addSubGroup(MockContactGroup subgroup)
+    public void addSubgroup(MockContactGroup subgroup)
     {
         this.subGroups.add(subgroup);
         subgroup.setParentGroup(this);
@@ -375,6 +376,64 @@ public class MockContactGroup
     public boolean isPersistent()
     {
         return true;
+    }
+
+    /**
+     * Returns null as no persistent data is required and the contact address is
+     * sufficient for restoring the contact.
+     * <p>
+     * @return null as no such data is needed.
+     */
+    public String getPersistentData()
+    {
+        return null;
+    }
+
+    /**
+     * Determines whether or not this contact has been resolved against the
+     * server. Unresolved contacts are used when initially loading a contact
+     * list that has been stored in a local file until the presence operation
+     * set has managed to retrieve all the contact list from the server and has
+     * properly mapped contacts to their on-line buddies.
+     * @return true if the contact has been resolved (mapped against a buddy)
+     * and false otherwise.
+     */
+    public boolean isResolved()
+    {
+        return isResolved;
+    }
+
+    /**
+     * Makes the group resolved or unresolved.
+     *
+     * @param resolved  true to make the group resolved; false to
+     *		make it unresolved
+     */
+    public void setResolved(boolean resolved)
+    {
+        this.isResolved = resolved;
+    }
+
+    /**
+     * Returns a <tt>String</tt> that uniquely represnets the group inside
+     * the current protocol. The string MUST be persistent (it must not change
+     * across connections or runs of the application). In many cases (Jabber,
+     * ICQ) the string may match the name of the group as these protocols
+     * only allow a single level of contact groups and there is no danger of
+     * having the same name twice in the same contact list. Other protocols
+     * (no examples come to mind but that doesn't bother me ;) ) may be
+     * supporting mutilple levels of grooups so it might be possible for group
+     * A and group B to both contain groups named C. In such cases the
+     * implementation must find a way to return a unique identifier in this
+     * method and this UID should never change for a given group.
+     *
+     * @return a String representing this group in a unique and persistent
+     * way.
+     */
+    public String getUID()
+    {
+
+        return getGroupName();
     }
 
 }
