@@ -611,7 +611,7 @@ public class TestMetaContactList
         MockContactGroup newInnerContactGroup
             = new MockContactGroup(newGroupName, fixture.mockProvider);
 
-        newContactGroup.addSubGroup(newInnerContactGroup);
+        newContactGroup.addSubgroup(newInnerContactGroup);
 
         fixture.metaClService.addContactListListener(mclEvtCollector);
         ((MockPersistentPresenceOperationSet)opSetPersPresence)
@@ -668,7 +668,6 @@ public class TestMetaContactList
                      + "the right protocol contact group."
                      , newProtoGroup.getProtocolProvider()
                      , fixture.mockProvider);
-
 
         //rename the group and see that the corresponding events are handled
         //properly

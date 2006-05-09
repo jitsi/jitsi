@@ -100,7 +100,7 @@ public class MetaContactListServiceLick
     private void initMockProvider(BundleContext context)
     {
         //create and init an instance of a MockProvider
-        MockProvider provider = new MockProvider();
+        MockProvider provider = new MockProvider("SlickMockUser");
 
         //fill the provider with dummy contacts and contact groups
         fillMockContactList(provider);
@@ -166,9 +166,9 @@ public class MetaContactListServiceLick
         subLevelGroup.addContact( new MockContact("SContact3", provider));
         subLevelGroup.addContact( new MockContact("SContact4", provider));
 
-        topLevelMockGroup.addSubGroup(subLevelGroup);
+        topLevelMockGroup.addSubgroup(subLevelGroup);
 
-        root.addSubGroup(topLevelMockGroup);
+        root.addSubgroup(topLevelMockGroup);
 
     }
 }

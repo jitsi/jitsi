@@ -14,6 +14,8 @@ import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.xml.*;
+import java.io.*;
 
 /**
  * An implementation of the MetaContactListService that would connect to
@@ -25,10 +27,9 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public class MetaContactListServiceImpl
-    implements
-    MetaContactListService,
-    ServiceListener,
-    ContactPresenceStatusListener
+    implements MetaContactListService,
+               ServiceListener,
+               ContactPresenceStatusListener
 {
     private static final Logger logger = Logger
         .getLogger(MetaContactListServiceImpl.class);
@@ -41,7 +42,7 @@ public class MetaContactListServiceImpl
     /**
      * The list of protocol providers that we're currently aware of.
      */
-    private Vector currentlyInstalledProviders = new Vector();
+    private Map currentlyInstalledProviders = new Hashtable();
 
     /**
      * The root of the meta contact list.
@@ -86,6 +87,12 @@ public class MetaContactListServiceImpl
     private Hashtable contactEventIgnoreList = new Hashtable();
 
     /**
+     * The instance of the storage manager which is handling the local copy of
+     * our contact list.
+     */
+    private MclStorageManager storageManager = new MclStorageManager();
+
+    /**
      * Creates an instance of this class.
      */
     public MetaContactListServiceImpl()
@@ -120,11 +127,21 @@ public class MetaContactListServiceImpl
         logger.debug("Starting the meta contact list implementation.");
         this.bundleContext = bc;
 
+        //initializne the meta contact list from what has been stored locally.
+        try
+        {
+            storageManager.start(bundleContext);
+        }
+        catch (Exception exc)
+        {
+            logger.error("Failed loading the stored contact list.");
+        }
+
         // start listening for newly register or removed protocol providers
         bc.addServiceListener(this);
 
         // first discover the icq service
-        // find the protocol provider service
+        // then find the protocol provider service
         ServiceReference[] protocolProviderRefs = null;
         try
         {
@@ -1145,6 +1162,11 @@ public class MetaContactListServiceImpl
             ContactGroup group = (ContactGroup) subgroupsIter
                 .next();
 
+            //continue if we have already loaded this group from the locally
+            //stored contact list.
+            if(metaGroup.findMetaContactGroupByContactGroup(group) != null)
+                continue;
+
             // right now we simply map this group to an existing one
             // without being cautious and verify whether we already have it
             // registered
@@ -1169,6 +1191,13 @@ public class MetaContactListServiceImpl
         while (contactsIter.hasNext())
         {
             Contact contact = (Contact) contactsIter.next();
+
+            //continue if we have already loaded this contact from the locally
+            //stored contact list.
+            if(metaGroup.findMetaContactByContact(contact) != null)
+                continue;
+
+
             MetaContactImpl newMetaContact = new MetaContactImpl();
 
             newMetaContact.addProtoContact(contact);
@@ -1201,17 +1230,26 @@ public class MetaContactListServiceImpl
         logger.debug("Adding protocol provider "
                      + provider.getProtocolName());
 
-        // first check whether the provider has a persistent presence op set
+        // check whether the provider has a persistent presence op set
         OperationSetPersistentPresence opSetPersPresence
             = (OperationSetPersistentPresence) provider
             .getSupportedOperationSets().get(
                 OperationSetPersistentPresence.class
                 .getName());
 
+        this.currentlyInstalledProviders.put(
+                           provider.getAccountID().getAccountUID(), provider);
+
         //If we have a persistent presence op set - then retrieve its contat
         //list and merge it with the local one.
         if (opSetPersPresence != null)
         {
+            //load contacts, stored in the local contact list and corresponding to
+            //this provider.
+            storageManager.extractContactsForAccount(
+                this, provider.getAccountID().getAccountUID());
+
+
             synchronizeOpSetWithLocalContactList(opSetPersPresence);
         }
         else
@@ -1221,10 +1259,10 @@ public class MetaContactListServiceImpl
 
         /** @todo implement handling non persistent presence operation sets */
 
-        this.currentlyInstalledProviders.add(provider);
-
         //add a presence status listener so that we could reorder contacts upon
-        //status change
+        //status change. NOTE that we MUST NOT add the presence listener before
+        //extracting the locally stored contact list or  otherwise we'll get
+        //events for all contacts that we have already extracted
         opSetPersPresence.addContactPresenceStatusListener(this);
     }
 
@@ -1882,6 +1920,123 @@ public class MetaContactListServiceImpl
               findParentMetaContactGroup(metaContactImpl)
             , evt.getSourceProvider()
             , MetaContactGroupEvent.CHILD_CONTACTS_REORDERED);
+    }
+
+
+    /**
+     * The method is called from the storage manager whenever a new contact
+     * group has been parsed and it has to be created.
+     * @param parentGroup the group that contains the meta contact group we're
+     * about to load.
+     * @param metaContactGroupUID the unique identifier of the meta contact
+     * group.
+     * @param displayName the name of the meta contact group.
+     *
+     * @return the newly created meta contact group.
+     */
+    MetaContactGroupImpl loadStoredMetaContactGroup(
+        MetaContactGroup parentGroup,
+        String metaContactGroupUID,
+        String displayName)
+    {
+        MetaContactGroupImpl newMetaGroup
+            = new MetaContactGroupImpl(displayName, metaContactGroupUID);
+
+        ((MetaContactGroupImpl)parentGroup).addSubgroup(newMetaGroup);
+
+        //I don't think this method needs to produce events since it is
+        //currently only called upon initialization ... but it doesn't hurt
+        //trying
+        fireMetaContactGroupEvent(newMetaGroup, null
+            , MetaContactGroupEvent.META_CONTACT_GROUP_ADDED);
+
+        return newMetaGroup;
+    }
+
+    /**
+     * Creates a unresolved instance of the proto specific contact group
+     * according to the specified arguments and adds it to
+     * <tt>containingMetaContactGroup</tt>
+     *
+     * @param containingMetaGroup the <tt>MetaContactGroupImpl</tt> where the
+     * restored contact group should be added.
+     * @param contactGroupUID the unique identifier of the group.
+     * @param parentProtoGroup the identifier of the parent proto group.
+     * @param persistentData the persistent data last returned by the contact
+     * group.
+     * @param accountID the ID of the account that the proto group belongs to.
+     */
+    ContactGroup loadStoredContactGroup(MetaContactGroupImpl containingMetaGroup,
+                                        String               contactGroupUID,
+                                        ContactGroup         parentProtoGroup,
+                                        String               persistentData,
+                                        String               accountID)
+    {
+        //get the presence op set
+        ProtocolProviderService sourceProvider = (ProtocolProviderService)
+            currentlyInstalledProviders.get(accountID);
+        OperationSetPersistentPresence presenceOpSet =
+            (OperationSetPersistentPresence)sourceProvider
+                .getSupportedOperationSets().get(OperationSetPersistentPresence
+                                                    .class.getName());
+
+        ContactGroup newProtoGroup = presenceOpSet.createUnresolvedContactGroup(
+                            contactGroupUID, persistentData, parentProtoGroup);
+
+        containingMetaGroup.addProtoGroup(newProtoGroup);
+
+        return newProtoGroup;
+
+    }
+
+
+    /**
+     * The method is called from the storage manager whenever a new contact
+     * has been parsed and it has to be created.
+     * @param parentGroup the group that contains the meta contact we're about
+     * to load.
+     * @param metaUID the unique identifier of the meta contact.
+     * @param displayName the display name of the meta contact.
+     * @param protoContacts a list containing descirptors of proto contacts
+     * encapsulated by the meta contact that we're about to create.
+     * @param accountID the identifier of the account that the contacts
+     * originate from.
+     */
+    void loadStoredMetaContact(MetaContactGroupImpl parentGroup,
+                               String metaUID,
+                               String displayName,
+                               List    protoContacts,
+                               String accountID)
+    {
+        MetaContactImpl newMetaContact = new MetaContactImpl(metaUID);
+        newMetaContact.setDisplayName(displayName);
+
+        //create unresolved contacts for the protocontacts associated with this
+        //mc
+        ProtocolProviderService sourceProvider = (ProtocolProviderService)
+            currentlyInstalledProviders.get(accountID);
+        OperationSetPersistentPresence presenceOpSet =
+            (OperationSetPersistentPresence)sourceProvider
+                .getSupportedOperationSets().get(OperationSetPersistentPresence
+                                                    .class.getName());
+
+        Iterator contactsIter = protoContacts.iterator();
+        while (contactsIter.hasNext())
+        {
+            MclStorageManager.StoredProtoContactDescriptor contactDescriptor =
+                (MclStorageManager.StoredProtoContactDescriptor)contactsIter.next();
+
+            Contact protoContact = presenceOpSet.createUnresolvedContact(
+                contactDescriptor.contactAddress,
+                contactDescriptor.persistentData,
+                contactDescriptor.parentProtoGroup);
+
+            newMetaContact.addProtoContact(protoContact);
+        }
+
+        parentGroup.addMetaContact(newMetaContact);
+
+        logger.trace("Created meta contact: " + newMetaContact);
     }
 
     /**
