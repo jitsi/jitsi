@@ -18,6 +18,7 @@ public class ContactIcqImpl
     private PresenceStatus icqStatus = IcqStatusEnum.OFFLINE;
     private ServerStoredContactListIcqImpl ssclCallback = null;
     private boolean isPersistent = false;
+    private boolean isResolved = false;
 
     /**
      * Creates an IcqContactImpl
@@ -183,6 +184,31 @@ public class ContactIcqImpl
     public boolean isPersistent()
     {
         return isPersistent;
+    }
+
+    /**
+     * Returns null as no persistent data is required and the contact address is
+     * sufficient for restoring the contact.
+     * <p>
+     * @return null as no such data is needed.
+     */
+    public String getPersistentData()
+    {
+        return null;
+    }
+
+    /**
+     * Determines whether or not this contact has been resolved against the
+     * server. Unresolved contacts are used when initially loading a contact
+     * list that has been stored in a local file until the presence operation
+     * set has managed to retrieve all the contact list from the server and has
+     * properly mapped contacts to their on-line buddies.
+     * @return true if the contact has been resolved (mapped against a buddy)
+     * and false otherwise.
+     */
+    public boolean isResolved()
+    {
+        return isResolved;
     }
 
 }
