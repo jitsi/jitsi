@@ -112,4 +112,47 @@ public interface ContactGroup
      */
     public boolean isPersistent();
 
+    /**
+     * Returns a <tt>String</tt> that uniquely represnets the group inside
+     * the current protocol. The string MUST be persistent (it must not change
+     * across connections or runs of the application). In many cases (Jabber,
+     * ICQ) the string may match the name of the group as these protocols
+     * only allow a single level of contact groups and there is no danger of
+     * having the same name twice in the same contact list. Other protocols
+     * (no examples come to mind but that doesn't bother me ;) ) may be
+     * supporting mutilple levels of grooups so it might be possible for group
+     * A and group B to both contain groups named C. In such cases the
+     * implementation must find a way to return a unique identifier in this
+     * method and this UID should never change for a given group.
+     *
+     * @return a String representing this group in a unique and persistent
+     * way.
+     */
+    public String getUID();
+
+    /**
+     * Determines whether or not this group has been resolved against the server.
+     * Unresolved groups are used when initially loading a contact list that
+     * has been stored in a local file until the presence operation set has
+     * managed to retrieve all the contact list from the server and has properly
+     * mapped contact groups to their corresponding server stored groups.
+     * @return true if the group has been resolved (mapped against a server
+     * stored group) and false otherwise.
+     */
+    public boolean isResolved();
+
+    /**
+     * Returns a String that can be used to create a unresolved instance of
+     * this group. Unresolved contacts and groups are created through the
+     * createUnresolvedContactGroup() method in the persistent presence
+     * operation set. The method may also return null if no such data is
+     * required and the contact address is sufficient for restoring the contact
+     * group.
+     * <p>
+     * @return A <tt>String</tt> that could be used to create a unresolved
+     * instance of this contact group during a next run of the application,
+     * before establishing network connectivity or null if no such data is
+     * required and a UID would be sufficient.
+     */
+    public String getPersistentData();
 }
