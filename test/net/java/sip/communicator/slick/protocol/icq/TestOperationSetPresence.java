@@ -264,7 +264,7 @@ public class TestOperationSetPresence
             operationSetPresence.getPresenceStatus());
 
         IcqStatusEnum actualStatus = fixture.testerAgent.getBuddyStatus(
-                                    fixture.icqAccountID.getAccountID());
+                                    fixture.icqAccountID.getAccountUserID());
         assertEquals("The underlying implementation did not switch to the "
                      +"requested presence status.",
                      newStatus,

@@ -139,7 +139,7 @@ public class TestAccountInstallation extends TestCase
         osgiFilter =
             "(&("+AccountManager.PROTOCOL_PROPERTY_NAME +"="+ProtocolNames.ICQ+")"
              +"(" + AccountManager.ACCOUNT_ID_PROPERTY_NAME
-             + "=" + IcqSlickFixture.icqAccountID.getAccountID() + "))";
+             + "=" + IcqSlickFixture.icqAccountID.getAccountUserID() + "))";
 
         try
         {
