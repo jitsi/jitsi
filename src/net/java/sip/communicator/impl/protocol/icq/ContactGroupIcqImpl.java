@@ -29,6 +29,7 @@ public class ContactGroupIcqImpl
     extends AbstractContactGroupIcqImpl
 {
     private List buddies = new LinkedList();
+    private boolean isResolved = false;
 
     /**
      * The JoustSIM Group corresponding to this contact group.
@@ -430,6 +431,45 @@ public class ContactGroupIcqImpl
     public boolean isPersistent()
     {
         return joustSimSourceGroup != null;
+    }
+
+    /**
+     * Returns null as no persistent data is required and the contact address is
+     * sufficient for restoring the contact.
+     * <p>
+     * @return null as no such data is needed.
+     */
+    public String getPersistentData()
+    {
+        return null;
+    }
+
+    /**
+     * Determines whether or not this contact has been resolved against the
+     * server. Unresolved contacts are used when initially loading a contact
+     * list that has been stored in a local file until the presence operation
+     * set has managed to retrieve all the contact list from the server and has
+     * properly mapped contacts to their on-line buddies.
+     * @return true if the contact has been resolved (mapped against a buddy)
+     * and false otherwise.
+     */
+    public boolean isResolved()
+    {
+        return isResolved;
+    }
+
+    /**
+     * Returns a <tt>String</tt> that uniquely represnets the group. In this we
+     * use the name of the group as an identifier. This may cause problems
+     * though, in clase the name is changed by some other application between
+     * consecutive runs of the sip-communicator.
+     *
+     * @return a String representing this group in a unique and persistent
+     * way.
+     */
+    public String getUID()
+    {
+        return getGroupName();
     }
 
 
