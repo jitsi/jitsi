@@ -20,15 +20,10 @@ import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommLookAndFeel;
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
-import com.l2fprod.gui.plaf.skin.Skin;
-import com.l2fprod.gui.plaf.skin.SkinLookAndFeel;
-
-// import examples.demo;
-
 /**
- * @author Yana Stamcheva
- * 
  * Starts the GUI application using the SkinLookAndFeel of l2fprod.
+ *
+ * @author Yana Stamcheva
  */
 public class CommunicatorMain {
 
@@ -43,7 +38,7 @@ public class CommunicatorMain {
         mainFrame = new MainFrame();
 
         mainFrame.setConfigFrame(configFrame);
-        
+
         // In order to have the same icon when using option panes
         JOptionPane.getRootFrame().setIconImage(
                 ImageLoader.getImage(ImageLoader.SIP_LOGO));
@@ -51,10 +46,10 @@ public class CommunicatorMain {
 
     public void setDefaultThemePack() {
 
-        try {           
+        try {
             SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
             SIPCommLookAndFeel.setCurrentTheme(new SIPCommDefaultTheme());
-            
+
             // we need to set the UIDefaults class loader so that it may access
             // resources packed inside OSGI bundles
             UIManager.put("ClassLoader", getClass()
@@ -66,7 +61,7 @@ public class CommunicatorMain {
             e.printStackTrace();
         }
     }
-    
+
     public void showCommunicator(boolean isVisible) {
         this.mainFrame.pack();
         this.mainFrame.setVisible(isVisible);
