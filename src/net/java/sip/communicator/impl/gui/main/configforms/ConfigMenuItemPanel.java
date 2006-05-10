@@ -19,7 +19,7 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.ListCellPanel;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 
 public class ConfigMenuItemPanel extends ListCellPanel 
 	implements MouseListener {

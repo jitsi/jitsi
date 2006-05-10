@@ -18,8 +18,8 @@ import javax.swing.JMenuItem;
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenuItem;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
-import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 public class FileMenu extends JMenu 
 	implements ActionListener{

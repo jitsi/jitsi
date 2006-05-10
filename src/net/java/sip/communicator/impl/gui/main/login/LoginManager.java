@@ -14,11 +14,10 @@ import java.util.Set;
 
 import javax.swing.JOptionPane;
 
-import net.java.sip.communicator.impl.gui.main.Account;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.StatusPanel;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.AccountManager;
 import net.java.sip.communicator.service.protocol.AccountProperties;
@@ -135,8 +134,6 @@ public class LoginManager implements RegistrationStateChangeListener {
     	
         if(evt.getNewState().equals(RegistrationState.REGISTERED)){
         	
-        	((LoginWindow)this.loginWindows.get(protocolName)).dispose();
-        	
             Map supportedOpSets 
                 = evt.getProvider().getSupportedOperationSets();
             
@@ -178,10 +175,12 @@ public class LoginManager implements RegistrationStateChangeListener {
                     JOptionPane.ERROR_MESSAGE);
         }
         else if(evt.getNewState()
-                    .equals(RegistrationState.EXPIRED)){
-            
-            //TODO: Registration state changed listener: EXPIRED
-        }        
+                    .equals(RegistrationState.EXPIRED)){            
+            //TODO: Implement registration state changed to: EXPIRED
+        }  
+        else if(evt.getNewState().equals(RegistrationState.UNREGISTERED)){
+            //TODO: Implement registration state changed to UNREGISTERED
+        }
     }
 
     public MainFrame getMainFrame() {

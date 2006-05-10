@@ -8,25 +8,15 @@
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.Cursor;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.JList;
-import javax.swing.JTree;
-import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.text.Position;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.java.sip.communicator.impl.gui.main.ui.SIPCommTreeUI;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
@@ -36,8 +26,6 @@ import net.java.sip.communicator.service.contactlist.event.MetaContactListListen
 import net.java.sip.communicator.service.contactlist.event.MetaContactMovedEvent;
 import net.java.sip.communicator.service.contactlist.event.MetaContactRenamedEvent;
 import net.java.sip.communicator.service.contactlist.event.ProtoContactEvent;
-import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.service.protocol.PresenceStatus;
 
 public class ContactList extends JList 
     implements MetaContactListListener {

@@ -20,9 +20,8 @@ import javax.swing.JScrollPane;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommList;
 import net.java.sip.communicator.impl.gui.main.customcontrols.TitlePanel;
-import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationForm;
+import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 
 /**
  * @author Yana Stamcheva

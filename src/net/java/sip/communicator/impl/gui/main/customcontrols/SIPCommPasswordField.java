@@ -13,8 +13,8 @@ import java.awt.Graphics2D;
 
 import javax.swing.JPasswordField;
 
-import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 
 public class SIPCommPasswordField extends JPasswordField {
 

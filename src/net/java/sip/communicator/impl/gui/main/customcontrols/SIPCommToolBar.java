@@ -17,7 +17,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 
 import net.java.sip.communicator.impl.gui.main.ui.SIPCommToolBarSeparatorUI;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 public class SIPCommToolBar extends JToolBar {
 

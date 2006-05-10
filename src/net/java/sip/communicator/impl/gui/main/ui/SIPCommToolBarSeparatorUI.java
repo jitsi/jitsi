@@ -13,7 +13,7 @@ import java.awt.Graphics2D;
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicToolBarSeparatorUI;
 
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 
 public class SIPCommToolBarSeparatorUI extends BasicToolBarSeparatorUI {
 

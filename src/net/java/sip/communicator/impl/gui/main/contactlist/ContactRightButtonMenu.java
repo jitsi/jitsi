@@ -18,15 +18,12 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel.RunMessageWindow;
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenu;
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenuItem;
 import net.java.sip.communicator.impl.gui.main.customcontrols.MessageDialog;
 import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 
 public class ContactRightButtonMenu extends JPopupMenu implements

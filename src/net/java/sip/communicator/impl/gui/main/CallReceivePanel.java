@@ -20,16 +20,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 public class CallReceivePanel extends JDialog{
 	
-	private Image callButtonPressedIcon 
-								= ImageLoader.getImage(ImageLoader.CALL_PRESSED_BUTTON_BG);
-
-	private Image hangupButtonPressedIcon 
-								= ImageLoader.getImage(ImageLoader.HANGUP_PRESSED_BUTTON_BG);
-
 	private Image callButtonBG 	= ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG);
 
 	private Image callButtonRolloverBG 
@@ -71,11 +65,9 @@ public class CallReceivePanel extends JDialog{
 		
 		this.getContentPane().setLayout(new BorderLayout());
 		
-		callButton = new SIPCommButton(callButtonBG, callButtonRolloverBG,
-				callButtonPressedIcon, null);
+		callButton = new SIPCommButton(callButtonBG, callButtonRolloverBG);
 
-		hangupButton = new SIPCommButton(hangupButtonBG,
-				hangupButtonRolloverBG, hangupButtonPressedIcon, null);
+		hangupButton = new SIPCommButton(hangupButtonBG, hangupButtonRolloverBG);
 		
 		
 		

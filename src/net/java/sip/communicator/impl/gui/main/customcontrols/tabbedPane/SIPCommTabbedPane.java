@@ -26,6 +26,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.EventListenerList;
 import javax.swing.plaf.TabbedPaneUI;
+import javax.swing.plaf.basic.BasicTabbedPaneUI;
+import javax.swing.plaf.metal.MetalTabbedPaneUI;
 
 /**
  * A JTabbedPane with some added UI functionalities. A close and max/detach
@@ -402,7 +404,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
      * Overrides setSelectedIndex in JTabbedPane in order to remove the 
      * hightlight if the tab which is selected.
      */
-    public void setSelectedIndex(int tabIndex){
+    public void setSelectedIndex(int tabIndex){        
         if(paneUI.isTabHighlighted(tabIndex)){            
             paneUI.tabRemoveHighlight(tabIndex);
         }

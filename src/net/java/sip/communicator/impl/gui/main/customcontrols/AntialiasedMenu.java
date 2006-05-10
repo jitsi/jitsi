@@ -12,7 +12,7 @@ import java.awt.Graphics;
 import javax.swing.Icon;
 import javax.swing.JMenu;
 
-import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 
 public class AntialiasedMenu extends JMenu {
 

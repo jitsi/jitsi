@@ -16,8 +16,8 @@ import javax.swing.JEditorPane;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.BoxPopupMenu;
 import net.java.sip.communicator.impl.gui.main.customcontrols.MsgToolbarButton;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
-import net.java.sip.communicator.impl.gui.main.utils.Smily;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.Smily;
 
 public class SmiliesSelectorBox extends BoxPopupMenu 
 	implements ActionListener {

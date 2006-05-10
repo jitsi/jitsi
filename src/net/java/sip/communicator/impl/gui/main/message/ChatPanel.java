@@ -263,7 +263,7 @@ public class ChatPanel extends JPanel {
     	}
 
     	public void componentShown(ComponentEvent e) {
-    		Component component = e.getComponent();
+    		/*Component component = e.getComponent();
     		Container parent = component.getParent();
     		if ( parent instanceof JTabbedPane ) {    			
     			JTabbedPane tabbedPane = (JTabbedPane)parent;
@@ -280,7 +280,7 @@ public class ChatPanel extends JPanel {
     					}
     				});    				
     			}
-    		}
+    		}*/
     	}
 
     	public void componentHidden(ComponentEvent e) {

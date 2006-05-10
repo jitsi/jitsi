@@ -30,21 +30,29 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.message.*;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.message.ChatMessage;
+import net.java.sip.communicator.impl.gui.main.message.ChatPanel;
+import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
+import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.contactlist.MetaContactGroup;
+import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
-import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.event.MessageDeliveredEvent;
+import net.java.sip.communicator.service.protocol.event.MessageDeliveryFailedEvent;
+import net.java.sip.communicator.service.protocol.event.MessageListener;
+import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
+import net.java.sip.communicator.service.protocol.event.TypingNotificationEvent;
+import net.java.sip.communicator.service.protocol.event.TypingNotificationsListener;
 
 /**
  * The contactlist panel not only contains the contact 

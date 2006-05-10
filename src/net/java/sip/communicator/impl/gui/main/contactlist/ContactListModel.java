@@ -14,7 +14,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;

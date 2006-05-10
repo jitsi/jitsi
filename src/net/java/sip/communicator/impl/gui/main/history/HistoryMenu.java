@@ -17,7 +17,7 @@ import javax.swing.JMenuItem;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenuItem;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 
 public class HistoryMenu extends JMenu implements ActionListener {
 	

@@ -24,8 +24,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 public class SearchPanel extends JPanel implements ActionListener {
 

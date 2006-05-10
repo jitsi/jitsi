@@ -10,30 +10,23 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JViewport;
-import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
+
+import net.java.sip.communicator.impl.gui.main.customcontrols.RolloverButton;
+import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.main.login.LoginManager;
+import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.util.Logger;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-
-import net.java.sip.communicator.impl.gui.GuiActivator;
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.login.LoginManager;
-import net.java.sip.communicator.impl.gui.main.login.LoginWindow;
-import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.main.utils.BrowserLauncher;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
-import net.java.sip.communicator.util.Logger;
 
 public class WelcomeWindow extends JDialog
     implements ActionListener{

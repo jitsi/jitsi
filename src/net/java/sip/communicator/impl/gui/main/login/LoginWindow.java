@@ -17,7 +17,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -30,15 +29,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import net.java.sip.communicator.impl.gui.main.Account;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.main.customcontrols.RolloverButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommPasswordField;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTextField;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
-import net.java.sip.communicator.service.protocol.AccountID;
+import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.protocol.AccountManager;
 
 public class LoginWindow extends JDialog 
@@ -171,6 +167,8 @@ public class LoginWindow extends JDialog
         String buttonName = button.getName();
         
         if(buttonName.equals("login")){
+            
+            this.dispose();
             
             this.loginManager.login(accountManager,
                                     uinComboBox.getSelectedItem().toString(),

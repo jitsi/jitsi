@@ -18,7 +18,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /** 
  * @author Yana Stamcheva
@@ -35,15 +35,11 @@ public class CallPanel extends JPanel implements ActionListener{
 
 	private SIPCommButton callButton = new SIPCommButton
 								(ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG), 
-								 ImageLoader.getImage(ImageLoader.CALL_ROLLOVER_BUTTON_BG),
-								 ImageLoader.getImage(ImageLoader.CALL_PRESSED_BUTTON_BG), 
-								 null);
+								 ImageLoader.getImage(ImageLoader.CALL_ROLLOVER_BUTTON_BG));
 
 	private SIPCommButton hangupButton = new SIPCommButton
 								(ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG),
-								 ImageLoader.getImage(ImageLoader.HANGUP_ROLLOVER_BUTTON_BG), 
-								 ImageLoader.getImage(ImageLoader.HANGUP_PRESSED_BUTTON_BG), 
-								 null);	
+								 ImageLoader.getImage(ImageLoader.HANGUP_ROLLOVER_BUTTON_BG));	
 		
 	private SIPCommButton minimizeButton 
 					= new SIPCommButton(

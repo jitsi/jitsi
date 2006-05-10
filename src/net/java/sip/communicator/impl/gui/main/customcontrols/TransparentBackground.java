@@ -18,8 +18,8 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
 
-import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 
 
 

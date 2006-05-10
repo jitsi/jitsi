@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.gui.main.message;
 
 import java.util.ArrayList;
 
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 
 public class ChatBuffer extends ArrayList{	
 	

@@ -11,7 +11,7 @@ import java.awt.Graphics;
 
 import javax.swing.JEditorPane;
 
-import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 
 public class AntialiasedEditorPane extends JEditorPane {
 

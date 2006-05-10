@@ -11,7 +11,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ContainerEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -19,11 +18,11 @@ import javax.swing.JButton;
 
 import net.java.sip.communicator.impl.gui.events.ContainerPluginListener;
 import net.java.sip.communicator.impl.gui.events.PluginComponentEvent;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
+import net.java.sip.communicator.impl.gui.main.customcontrols.RolloverButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 /**
  * @author Yana Stamcheva
  *
@@ -32,19 +31,19 @@ import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
 public class QuickMenu extends SIPCommToolBar 
 	implements ActionListener, ContainerPluginListener {
 
-    JButton infoButton      = new JButton
+    RolloverButton infoButton      = new RolloverButton
                                 (new ImageIcon(ImageLoader.getImage
                                     (ImageLoader.QUICK_MENU_INFO_ICON)));
 
-    JButton configureButton = new JButton
+    RolloverButton configureButton = new RolloverButton
                                 (new ImageIcon(ImageLoader.getImage
                                     (ImageLoader.QUICK_MENU_CONFIGURE_ICON))); 
 
-    JButton searchButton    = new JButton
+    RolloverButton searchButton    = new RolloverButton
                                 (new ImageIcon(ImageLoader.getImage
                                     (ImageLoader.QUICK_MENU_SEARCH_ICON))); 
 
-    JButton addButton       = new JButton
+    RolloverButton addButton       = new RolloverButton
                                 (new ImageIcon(ImageLoader.getImage
                                     (ImageLoader.QUICK_MENU_ADD_ICON)));
 	

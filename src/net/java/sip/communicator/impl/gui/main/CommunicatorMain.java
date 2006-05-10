@@ -15,8 +15,10 @@ import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
 
+import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommDefaultTheme;
+import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommLookAndFeel;
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 import com.l2fprod.gui.plaf.skin.Skin;
 import com.l2fprod.gui.plaf.skin.SkinLookAndFeel;
@@ -49,86 +51,22 @@ public class CommunicatorMain {
 
     public void setDefaultThemePack() {
 
-        try {
-            // Instantiate the look and feel locally so that it gets loaded
-            // through the OSGI class loader and not the system one. Setting
-            // the UIDefaults "ClassLoader" property does not seem to do the
-            // trick and it looks like it is only being used when loading
-            // resources.
-            SkinLookAndFeel slnf = new SkinLookAndFeel();
-
-            SkinLookAndFeel.setSkin(SkinLookAndFeel
-                .loadThemePackDefinition(getClass()
-                    .getClassLoader()
-                    .getResource(
-                            "net/java/sip/communicator/impl/gui/themepacks/"
-                                    + "aquathemepack/skinlf-themepack.xml")));
-
+        try {           
+            SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
+            SIPCommLookAndFeel.setCurrentTheme(new SIPCommDefaultTheme());
+            
             // we need to set the UIDefaults class loader so that it may access
             // resources packed inside OSGI bundles
             UIManager.put("ClassLoader", getClass()
                     .getClassLoader());
 
-            UIManager.setLookAndFeel(slnf);
-        } catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            UIManager.setLookAndFeel(lf);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
-
-    public void setThemePack(String themePack) {
-
-        try {
-            if (themePack.endsWith(".xml")) {
-
-                SkinLookAndFeel.setSkin(SkinLookAndFeel
-                        .loadThemePackDefinition(new File(
-                                themePack).toURL()));
-
-                UIManager.put("ClassLoader", getClass()
-                        .getClassLoader());
-                UIManager.setLookAndFeel
-                    ("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
-
-            } else if (themePack.startsWith("class:")) {
-
-                String classname = themePack
-                        .substring("class:".length());
-                SkinLookAndFeel.setSkin((Skin) Class.forName(
-                        classname).newInstance());
-                UIManager.setLookAndFeel
-                    ("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
-
-            } else if (themePack.startsWith("theme:")) {
-
-                String classname = themePack
-                        .substring("theme:".length());
-                MetalTheme theme = (MetalTheme) Class.forName(
-                        classname).newInstance();
-                MetalLookAndFeel metal = new MetalLookAndFeel();
-                MetalLookAndFeel.setCurrentTheme(theme);
-                UIManager.setLookAndFeel(metal);
-                
-            } else {
-
-                SkinLookAndFeel.setSkin(SkinLookAndFeel
-                        .loadThemePack(themePack));
-                UIManager.setLookAndFeel
-                    ("com.l2fprod.gui.plaf.skin.SkinLookAndFeel");
-            }
-          
-        } catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
+    
     public void showCommunicator(boolean isVisible) {
         this.mainFrame.pack();
         this.mainFrame.setVisible(isVisible);

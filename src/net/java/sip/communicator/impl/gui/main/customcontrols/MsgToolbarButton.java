@@ -9,8 +9,7 @@ package net.java.sip.communicator.impl.gui.main.customcontrols;
 
 import java.awt.Image;
 
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 public class MsgToolbarButton extends SIPCommButton {
 

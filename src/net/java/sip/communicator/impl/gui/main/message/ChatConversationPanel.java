@@ -28,13 +28,13 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedEditorPane;
-import net.java.sip.communicator.impl.gui.main.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.main.utils.BrowserLauncher;
-import net.java.sip.communicator.impl.gui.main.utils.Constants;
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader;
-import net.java.sip.communicator.impl.gui.main.utils.MyHTMLEditorKit;
-import net.java.sip.communicator.impl.gui.main.utils.Smily;
-import net.java.sip.communicator.impl.gui.main.utils.StringUtils;
+import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.BrowserLauncher;
+import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.MyHTMLEditorKit;
+import net.java.sip.communicator.impl.gui.utils.Smily;
+import net.java.sip.communicator.impl.gui.utils.StringUtils;
 
 /**
  * This is the panel, where all sent and received 
