@@ -368,9 +368,32 @@ public class ProtocolProviderServiceIcqImpl
             = joustSimStateToRegistrationState(newJoustSimState
                                                , newJoustSimStateInfo);
 
+        fireRegistrationStateChanged(oldRegistrationState, newRegistrationState
+                                     , reasonCode, reason);
+
+    }
+
+    /**
+     * Creates a RegistrationStateChange event corresponding to the specified
+     * old and new states and notifies all currently registered listeners.
+     *
+     * @param oldState the state that the provider had before the change
+     * occurred
+     * @param newState the state that the provider is currently in.
+     * @param reasonCode a value corresponding to one of the REASON_XXX fields
+     * of the RegistrationStateChangeEvent class, indicating the reason for this
+     * state transition.
+     * @param reason a String further explaining the reason code or null if
+     * no such explanation is necessary.
+     */
+    private void fireRegistrationStateChanged( RegistrationState oldState,
+                                               RegistrationState newState,
+                                               int               reasonCode,
+                                               String            reason)
+    {
         RegistrationStateChangeEvent event =
-            new RegistrationStateChangeEvent(  this, oldRegistrationState
-                                , newRegistrationState, reasonCode, reason);
+            new RegistrationStateChangeEvent(
+                            this, newState, newState, reasonCode, reason);
 
         logger.debug("Dispatching " + event + " to "
                      + registrationListeners.size()+ " listeners.");
