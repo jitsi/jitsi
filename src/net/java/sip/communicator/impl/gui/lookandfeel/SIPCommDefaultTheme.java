@@ -75,11 +75,6 @@ public class SIPCommDefaultTheme
                         
             "Menu.opaque", Boolean.FALSE,
 
-            "MenuBar.gradient", Arrays.asList(new Object[] {
-                     new Float(1f), new Float(0f),
-                     getWhite(), DARK_BLUE,
-                     new ColorUIResource(DARK_BLUE) }),
-
             "InternalFrame.activeTitleGradient", buttonGradient,
             
             "OptionPane.warningIcon",
