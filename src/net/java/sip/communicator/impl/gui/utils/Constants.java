@@ -5,14 +5,13 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.main.utils;
+package net.java.sip.communicator.impl.gui.utils;
 
 import java.applet.Applet;
 import java.applet.AudioClip;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,12 +20,8 @@ import java.io.Reader;
 import java.util.Hashtable;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
 import javax.swing.text.html.StyleSheet;
 
-import sun.applet.AppletAudioClip;
-
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader.ImageID;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 
@@ -112,7 +107,7 @@ public class Constants {
 
 	public static final String FONT_NAME = "Verdana";
 
-	public static final String FONT_SIZE = "12";
+	public static final String FONT_SIZE = "10";
 
 	public static final String FONT_IN_MSG_COLOR = "#ef7b1e";
 

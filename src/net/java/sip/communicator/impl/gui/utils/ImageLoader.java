@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.main.utils;
+package net.java.sip.communicator.impl.gui.utils;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -28,6 +28,31 @@ public class ImageLoader {
     
     private static Hashtable   loadedImages = new Hashtable();
 
+    /*------------------------------------------------------------------------
+     * =========================LOOK AND FEEL IMAGES========================== 
+     * -----------------------------------------------------------------------
+     */
+    public static final ImageID BUTTON_LEFT = new ImageID("BUTTON_LEFT");
+    public static final ImageID BUTTON_MIDDLE = new ImageID("BUTTON_MIDDLE");
+    public static final ImageID BUTTON_RIGHT = new ImageID("BUTTON_RIGHT");
+    
+    public static final ImageID BUTTON_ROLLOVER_LEFT 
+        = new ImageID("BUTTON_ROLLOVER_LEFT");
+    public static final ImageID BUTTON_ROLLOVER_MIDDLE 
+        = new ImageID("BUTTON_ROLLOVER_MIDDLE");
+    public static final ImageID BUTTON_ROLLOVER_RIGHT 
+        = new ImageID("BUTTON_ROLLOVER_RIGHT");
+    
+    public static final ImageID SPLITPANE_HORIZONTAL
+        = new ImageID("SPLITPANE_HORIZONTAL");
+    
+    public static final ImageID SPLITPANE_VERTICAL
+        = new ImageID("SPLITPANE_VERTICAL");
+
+    /*------------------------------------------------------------------------
+     * ============================APPLICATION ICONS =========================
+     * -----------------------------------------------------------------------
+     */
 	public static final ImageID EMPTY_16x16_ICON
 											= new ImageID("EMPTY_16x16_ICON");
 
@@ -58,14 +83,8 @@ public class ImageLoader {
 	public static final ImageID CALL_ROLLOVER_BUTTON_BG
 											= new ImageID("CALL_ROLLOVER_BUTTON_BG");
 
-	public static final ImageID CALL_PRESSED_BUTTON_BG
-											= new ImageID("CALL_PRESSED_BUTTON_BG");
-
 	public static final ImageID HANGUP_ROLLOVER_BUTTON_BG
 											= new ImageID("HANGUP_ROLLOVER_BUTTON_BG");
-
-	public static final ImageID HANGUP_PRESSED_BUTTON_BG
-											= new ImageID("HANGUP_PRESSED_BUTTON_BG");
 
 	public static final ImageID STATUS_SELECTOR_BOX
 											= new ImageID("STATUS_SELECTOR_BOX");
@@ -495,7 +514,7 @@ public class ImageLoader {
             
             image = (BufferedImage)loadedImages.get(imageID);
         }
-        else {
+        else {            
             String path = Images.getString(imageID.getId());
 
             try {

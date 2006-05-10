@@ -5,11 +5,9 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.main.utils;
+package net.java.sip.communicator.impl.gui.utils;
 
-import java.awt.Image;
-
-import net.java.sip.communicator.impl.gui.main.utils.ImageLoader.ImageID;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader.ImageID;
 
 public class Smily {
 

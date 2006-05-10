@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.main.utils;
+package net.java.sip.communicator.impl.gui.utils;
 
 /////////////////////////////////////////////////////////
 //  Bare Bones Browser Launch                          //

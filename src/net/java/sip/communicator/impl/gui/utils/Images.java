@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.main.utils;
+package net.java.sip.communicator.impl.gui.utils;
 
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
 
 public class Images {
 	
-	private static final String BUNDLE_NAME = "net.java.sip.communicator.impl.gui.main.utils.images";
+	private static final String BUNDLE_NAME = "net.java.sip.communicator.impl.gui.utils.images";
 
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
 			.getBundle(BUNDLE_NAME);
