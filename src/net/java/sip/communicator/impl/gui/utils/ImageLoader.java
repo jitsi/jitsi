@@ -43,11 +43,17 @@ public class ImageLoader {
     public static final ImageID SPLITPANE_VERTICAL
         = new ImageID("SPLITPANE_VERTICAL");
 
-    public static final ImageID SCROLLBAR_VERTICAL
+    public static final ImageID SCROLLBAR_THUMB_VERTICAL
         = new ImageID("SCROLLBAR_VERTICAL");
     
-    public static final ImageID SCROLLBAR_HORIZONTAL
+    public static final ImageID SCROLLBAR_THUMB_HORIZONTAL
         = new ImageID("SCROLLBAR_HORIZONTAL");
+    
+    public static final ImageID SCROLLBAR_THUMB_HANDLE_HORIZONTAL
+        = new ImageID("SCROLLBAR_THUMB_HORIZONTAL");
+    
+    public static final ImageID SCROLLBAR_THUMB_HANDLE_VERTICAL
+        = new ImageID("SCROLLBAR_THUMB_VERTICAL");
     
     /*------------------------------------------------------------------------
      * ============================APPLICATION ICONS =========================

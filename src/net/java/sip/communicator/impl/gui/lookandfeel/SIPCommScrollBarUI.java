@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -26,10 +27,18 @@ public class SIPCommScrollBarUI extends MetalScrollBarUI {
     
     private BufferedImage horizontalThumb;
     private BufferedImage verticalThumb;
-        
+    private BufferedImage horizontalThumbHandle;
+    private BufferedImage verticalThumbHandle;
+    
     public SIPCommScrollBarUI(){
-        horizontalThumb = (BufferedImage)UIManager.get("ScrollBar.horizontalThumbIcon");
-        verticalThumb = (BufferedImage)UIManager.get("ScrollBar.verticalThumbIcon");
+        horizontalThumb         = (BufferedImage)UIManager
+                                    .get("ScrollBar.horizontalThumbIcon");
+        verticalThumb           = (BufferedImage)UIManager
+                                    .get("ScrollBar.verticalThumbIcon");
+        horizontalThumbHandle   = (BufferedImage)UIManager
+                                    .get("ScrollBar.horizontalThumbHandleIcon");
+        verticalThumbHandle     = (BufferedImage)UIManager
+                                    .get("ScrollBar.verticalThumbHandleIcon");
     }
     
     // ********************************
@@ -103,9 +112,9 @@ public class SIPCommScrollBarUI extends MetalScrollBarUI {
         int imgHeight;
         int indentWidth  = 10;
         
-        if ( scrollbar.getOrientation() == JScrollBar.VERTICAL )
+        if(scrollbar.getOrientation() == JScrollBar.VERTICAL)
         {            
-            if ( !isFreeStanding ) {
+            if(!isFreeStanding) {
                 thumbBounds.width += 2;
                 
                 if ( !leftToRight ) {
@@ -137,16 +146,23 @@ public class SIPCommScrollBarUI extends MetalScrollBarUI {
             g.drawImage(bottomImage, thumbBounds.x, thumbBounds.height-indentWidth,
                     thumbBounds.width-2, indentWidth, null);
 
-            if ( !isFreeStanding ) {
+            
+            g.drawImage(verticalThumbHandle, 
+                        thumbBounds.width/2-verticalThumbHandle.getWidth()/2,
+                        thumbBounds.height/2-verticalThumbHandle.getHeight()/2,
+                        verticalThumbHandle.getWidth(),
+                        verticalThumbHandle.getHeight(), null);
+            
+            if (!isFreeStanding) {
                 thumbBounds.width -= 2;
-                if ( !leftToRight ) {
+                if(!leftToRight) {
                     g.translate( 1, 0 );
                 }
             }
         }
         else  // HORIZONTAL
         {
-            if ( !isFreeStanding ) {
+            if (!isFreeStanding) {
                 thumbBounds.height += 2;
             }
             imgWidth = horizontalThumb.getWidth();
@@ -173,10 +189,25 @@ public class SIPCommScrollBarUI extends MetalScrollBarUI {
             g.drawImage(rightImage, thumbBounds.width-indentWidth, thumbBounds.y,
                     indentWidth, thumbBounds.height, null);
             
-            if ( !isFreeStanding ) {
+            g.drawImage(horizontalThumbHandle, 
+                    thumbBounds.width/2-horizontalThumbHandle.getWidth()/2,
+                    thumbBounds.height/2-horizontalThumbHandle.getHeight()/2,
+                    horizontalThumbHandle.getWidth(),
+                    horizontalThumbHandle.getHeight(), null);
+            
+            if (!isFreeStanding) {
                 thumbBounds.height -= 2;
             }
         }
-        g.translate( -thumbBounds.x, -thumbBounds.y );
+        g.translate(-thumbBounds.x, -thumbBounds.y);
     }
+    
+    protected Dimension getMinimumThumbSize()
+    {        
+        if(scrollbar.getOrientation() == JScrollBar.VERTICAL)
+            return new Dimension(scrollBarWidth, verticalThumbHandle.getHeight()+4);
+        else
+            return new Dimension(horizontalThumbHandle.getWidth()+4, scrollBarWidth);
+    }       
+
 }

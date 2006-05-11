@@ -85,8 +85,6 @@ public class SIPCommDefaultTheme
             "RadioButton.rollover", Boolean.TRUE,
 
             "RadioButtonMenuItem.gradient", buttonGradient,
-
-            "ScrollBar.width", new Integer(12),
             
             "Slider.altTrackColor", new ColorUIResource(0xD2E2EF),
             "Slider.gradient", sliderGradient,
@@ -95,15 +93,20 @@ public class SIPCommDefaultTheme
             "SplitPane.oneTouchButtonsOpaque", Boolean.FALSE,
             "SplitPane.dividerFocusColor", LIGHT_BLUE_GRAY,
             "SplitPane.dividerSize", new Integer(5),
-            
+
+            "ScrollBar.width", new Integer(12),
             "ScrollBar.horizontalThumbIcon", 
-                ImageLoader.getImage(ImageLoader.SCROLLBAR_HORIZONTAL),
+                ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_HORIZONTAL),
             "ScrollBar.verticalThumbIcon",
-                ImageLoader.getImage(ImageLoader.SCROLLBAR_VERTICAL),
+                ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_VERTICAL),
+            "ScrollBar.horizontalThumbHandleIcon",    
+                ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_HANDLE_HORIZONTAL),
+            "ScrollBar.verticalThumbHandleIcon",
+                ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_HANDLE_VERTICAL),
             "ScrollBar.trackHighlight", GRAY,
             "ScrollBar.highlight", LIGHT_GRAY,            
             "ScrollBar.darkShadow", GRAY,
-            
+                        
             "TabbedPane.borderHightlightColor", LIGHT_BLUE,            
             "TabbedPane.contentBorderInsets", new Insets(2, 2, 3, 3),
             "TabbedPane.selected", LIGHT_GRAY,            
