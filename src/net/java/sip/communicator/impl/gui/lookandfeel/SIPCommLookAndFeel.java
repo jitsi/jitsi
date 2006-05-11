@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
 import javax.swing.UIDefaults;
+import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
 /**
@@ -45,7 +46,9 @@ public class SIPCommLookAndFeel extends MetalLookAndFeel {
         Object[] uiDefaults = {
                 "ButtonUI", lfPackageName + "SIPCommButtonUI",
                 "SplitPaneUI", lfPackageName + "SIPCommSplitPaneUI",
-                "ScrollBarUI", lfPackageName + "SIPCommScrollBarUI"
+                "ScrollBarUI", lfPackageName + "SIPCommScrollBarUI",
+                "ComboBoxUI", lfPackageName + "SIPCommComboBoxUI",
+                "TextFieldUI", lfPackageName + "SIPCommTextFieldUI"
         };
         table.putDefaults(uiDefaults);
     }

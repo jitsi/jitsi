@@ -10,27 +10,27 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.metal.MetalComboBoxUI;
-import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.metal.MetalTextFieldUI;
 
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 
 /**
- * SIPCommComboBoxUI implementation.
+ * SIPCommTextFieldUI implementation.
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommComboBoxUI extends MetalComboBoxUI {
-    
+public class SIPCommTextFieldUI extends MetalTextFieldUI {
+
     public static ComponentUI createUI(JComponent c) {
-        return new SIPCommComboBoxUI();
+        return new SIPCommTextFieldUI();
     }
     
-    public void paint(Graphics g, JComponent c) {        
+    protected void paintSafely(Graphics g) {
         AntialiasingManager.activateAntialiasing(g);
-        super.paint(g, c);
+        super.paintSafely(g);
     }
 }

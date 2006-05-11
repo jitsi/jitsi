@@ -27,11 +27,12 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.customcontrols.RolloverButton;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommPasswordField;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -46,7 +47,7 @@ public class LoginWindow extends JDialog
     
 	private JComboBox uinComboBox;
 
-	private SIPCommPasswordField passwdField = new SIPCommPasswordField(15);
+	private JPasswordField passwdField = new JPasswordField(15);
     
     private JButton loginButton = new JButton(Messages.getString("login"));
     
@@ -101,7 +102,6 @@ public class LoginWindow extends JDialog
 		
         this.uinComboBox = new JComboBox();
         
-        this.passwdField.setEchoChar('*');
         this.uinComboBox.setEditable(true);
         
 		this.labelsPanel.add(uinLabel);
@@ -172,7 +172,7 @@ public class LoginWindow extends JDialog
             
             this.loginManager.login(accountManager,
                                     uinComboBox.getSelectedItem().toString(),
-                                    new String(passwdField.getPassword()));
+                                    /*new String(passwdField.getPassword())*/"");
         }
         else{
             this.dispose();

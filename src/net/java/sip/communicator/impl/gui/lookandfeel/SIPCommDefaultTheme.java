@@ -14,7 +14,10 @@ import java.util.List;
 import javax.swing.UIDefaults;
 import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.FontUIResource;
+import javax.swing.plaf.UIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
+
+import sun.swing.SwingLazyValue;
 
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -66,6 +69,8 @@ public class SIPCommDefaultTheme
                 new Float(.3f), new Float(.2f),
                 DARK_BLUE, getWhite(), new ColorUIResource(LIGHT_BLUE_GRAY) });
               
+        Object textFieldBorder = SIPCommBorders.getTextFieldBorder();
+        
         Object[] defaults = new Object[] {            
             "Button.rollover", Boolean.TRUE,          
             
@@ -97,7 +102,7 @@ public class SIPCommDefaultTheme
             "ScrollBar.width", new Integer(12),
             "ScrollBar.horizontalThumbIcon", 
                 ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_HORIZONTAL),
-            "ScrollBar.verticalThumbIcon",
+            "ScrollBar.verticalThumbIcon",  
                 ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_VERTICAL),
             "ScrollBar.horizontalThumbHandleIcon",    
                 ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_HANDLE_HORIZONTAL),
@@ -112,6 +117,8 @@ public class SIPCommDefaultTheme
             "TabbedPane.selected", LIGHT_GRAY,            
             "TabbedPane.tabAreaInsets", new Insets(2, 2, 0, 6),
             "TabbedPane.unselectedBackground", LIGHT_GRAY,
+            
+            "TextField.border", textFieldBorder,
             
             "Table.gridColor", LIGHT_BLUE_GRAY,
 
