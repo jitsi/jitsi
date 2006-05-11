@@ -20,6 +20,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -44,9 +45,9 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
 
 	private static final Color highlightedColor = new Color(249, 117, 10);
     
-    private static Image TAB_BACKGROUND = ImageLoader.getImage(ImageLoader.TAB_BG);
+    private static BufferedImage TAB_BACKGROUND = ImageLoader.getImage(ImageLoader.TAB_BG);
     
-    private static Image CLOSABLE_TAB_BACKGROUND 
+    private static BufferedImage CLOSABLE_TAB_BACKGROUND 
         = ImageLoader.getImage(ImageLoader.CLOSABLE_TAB_BG);   
     
 
@@ -119,7 +120,7 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
 	protected void paintTabBackground(Graphics g, int tabPlacement,
 			int tabIndex, int x, int y, int w, int h, boolean isSelected) {
 		
-        Image img= null;
+        BufferedImage img= null;
         
         Graphics2D g2 = (Graphics2D) g;
         

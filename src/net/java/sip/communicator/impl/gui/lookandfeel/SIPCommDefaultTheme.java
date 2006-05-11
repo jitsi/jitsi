@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
+import java.awt.Color;
 import java.awt.Insets;
 import java.util.Arrays;
 import java.util.List;
@@ -77,16 +78,16 @@ public class SIPCommDefaultTheme
 
             "InternalFrame.activeTitleGradient", buttonGradient,
             
-            "OptionPane.warningIcon",
-                   ImageLoader.getImage(ImageLoader.WARNING_ICON),
+           // "OptionPane.warningIcon",
+             //      ImageLoader.getImage(ImageLoader.WARNING_ICON),
 
             "RadioButton.gradient", buttonGradient,
             "RadioButton.rollover", Boolean.TRUE,
 
             "RadioButtonMenuItem.gradient", buttonGradient,
 
-            "ScrollBar.gradient", buttonGradient,
-
+            "ScrollBar.width", new Integer(12),
+            
             "Slider.altTrackColor", new ColorUIResource(0xD2E2EF),
             "Slider.gradient", sliderGradient,
             "Slider.focusGradient", sliderGradient,
@@ -94,6 +95,14 @@ public class SIPCommDefaultTheme
             "SplitPane.oneTouchButtonsOpaque", Boolean.FALSE,
             "SplitPane.dividerFocusColor", LIGHT_BLUE_GRAY,
             "SplitPane.dividerSize", new Integer(5),
+            
+            "ScrollBar.horizontalThumbIcon", 
+                ImageLoader.getImage(ImageLoader.SCROLLBAR_HORIZONTAL),
+            "ScrollBar.verticalThumbIcon",
+                ImageLoader.getImage(ImageLoader.SCROLLBAR_VERTICAL),
+            "ScrollBar.trackHighlight", GRAY,
+            "ScrollBar.highlight", LIGHT_GRAY,            
+            "ScrollBar.darkShadow", GRAY,
             
             "TabbedPane.borderHightlightColor", LIGHT_BLUE,            
             "TabbedPane.contentBorderInsets", new Insets(2, 2, 3, 3),

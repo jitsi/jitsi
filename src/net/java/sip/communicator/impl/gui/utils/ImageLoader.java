@@ -32,16 +32,10 @@ public class ImageLoader {
      * =========================LOOK AND FEEL IMAGES========================== 
      * -----------------------------------------------------------------------
      */
-    public static final ImageID BUTTON_LEFT = new ImageID("BUTTON_LEFT");
-    public static final ImageID BUTTON_MIDDLE = new ImageID("BUTTON_MIDDLE");
-    public static final ImageID BUTTON_RIGHT = new ImageID("BUTTON_RIGHT");
+    public static final ImageID BUTTON = new ImageID("BUTTON");
     
-    public static final ImageID BUTTON_ROLLOVER_LEFT 
-        = new ImageID("BUTTON_ROLLOVER_LEFT");
-    public static final ImageID BUTTON_ROLLOVER_MIDDLE 
-        = new ImageID("BUTTON_ROLLOVER_MIDDLE");
-    public static final ImageID BUTTON_ROLLOVER_RIGHT 
-        = new ImageID("BUTTON_ROLLOVER_RIGHT");
+    public static final ImageID BUTTON_ROLLOVER
+        = new ImageID("BUTTON_ROLLOVER");
     
     public static final ImageID SPLITPANE_HORIZONTAL
         = new ImageID("SPLITPANE_HORIZONTAL");
@@ -49,6 +43,12 @@ public class ImageLoader {
     public static final ImageID SPLITPANE_VERTICAL
         = new ImageID("SPLITPANE_VERTICAL");
 
+    public static final ImageID SCROLLBAR_VERTICAL
+        = new ImageID("SCROLLBAR_VERTICAL");
+    
+    public static final ImageID SCROLLBAR_HORIZONTAL
+        = new ImageID("SCROLLBAR_HORIZONTAL");
+    
     /*------------------------------------------------------------------------
      * ============================APPLICATION ICONS =========================
      * -----------------------------------------------------------------------
@@ -506,7 +506,7 @@ public class ImageLoader {
 	 * Loads an image from a given image identifier.
 	 */
 
-	public static Image getImage(ImageID imageID) {
+	public static BufferedImage getImage(ImageID imageID) {
 
         BufferedImage image = null;
         

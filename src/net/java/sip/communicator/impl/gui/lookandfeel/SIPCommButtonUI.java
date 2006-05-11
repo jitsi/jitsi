@@ -10,8 +10,8 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonModel;
@@ -28,31 +28,17 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
  */
 public class SIPCommButtonUI extends MetalButtonUI {
     
-    private final static Image buttonLeft 
-        = ImageLoader.getImage(ImageLoader.BUTTON_LEFT);
-    
-    private final static Image buttonMiddle 
-        = ImageLoader.getImage(ImageLoader.BUTTON_MIDDLE);
-    
-    private final static Image buttonRight 
-        = ImageLoader.getImage(ImageLoader.BUTTON_RIGHT);
-    
-    private final static Image buttonRolloverLeft 
-        = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_LEFT);
-    
-    private final static Image buttonRolloverMiddle 
-        = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_MIDDLE);
-    
-    private final static Image buttonRolloverRight
-        = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER_RIGHT);
-    
-    private final static SIPCommButtonUI sipCommButtonUI = new SIPCommButtonUI();
-    
-//  ********************************
+    private final static BufferedImage buttonBG 
+        = ImageLoader.getImage(ImageLoader.BUTTON);
+        
+    private final static BufferedImage buttonRolloverBG
+        = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER);
+        
+    // ********************************
     //          Create PLAF
     // ********************************
     public static ComponentUI createUI(JComponent c) {
-        return sipCommButtonUI;
+        return new SIPCommButtonUI();
     }
  
     // ********************************
@@ -81,23 +67,34 @@ public class SIPCommButtonUI extends MetalButtonUI {
         AbstractButton button = (AbstractButton)c;
         ButtonModel model = button.getModel();
         
-        Image leftImg;
-        Image middleImg;
-        Image rightImg;
+        BufferedImage leftImg;
+        BufferedImage middleImg;
+        BufferedImage rightImg;
         
+        int imgWidth;
+        int imgHeight;
+        int indentWidth  = 10;
         if(model.isRollover()){
+            imgWidth = buttonRolloverBG.getWidth();
+            imgHeight = buttonRolloverBG.getHeight();
            
-            leftImg = buttonRolloverLeft;
-            middleImg = buttonRolloverMiddle;
-            rightImg = buttonRolloverRight;
+            leftImg = buttonRolloverBG.getSubimage(0, 0, indentWidth, imgHeight);
+            middleImg = buttonRolloverBG.getSubimage(indentWidth, 0, 
+                                                     imgWidth-2*indentWidth, 
+                                                     imgHeight);
+            rightImg = buttonRolloverBG.getSubimage(imgWidth-indentWidth, 0, 
+                                                    indentWidth, imgHeight);
         }
         else{
-            leftImg = buttonLeft;
-            middleImg = buttonMiddle;
-            rightImg = buttonRight;        
+            imgWidth = buttonBG.getWidth();
+            imgHeight = buttonBG.getHeight();
+           
+            leftImg = buttonBG.getSubimage(0, 0, 10, imgHeight);
+            middleImg = buttonBG.getSubimage(10, 0, imgWidth-20, imgHeight);
+            rightImg = buttonBG.getSubimage(imgWidth-10, 0, 10, imgHeight);        
         }
         
-        int indentWidth  = leftImg.getWidth(null);
+        
         g.drawImage(leftImg, 0, 0, indentWidth, c.getHeight(), null);
         g.drawImage(middleImg, indentWidth, 0, 
                 c.getWidth()-2*indentWidth, c.getHeight(), null);

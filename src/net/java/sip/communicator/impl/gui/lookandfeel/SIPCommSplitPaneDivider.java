@@ -16,6 +16,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JButton;
 import javax.swing.JSplitPane;
@@ -33,8 +34,8 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
  */
 class SIPCommSplitPaneDivider extends BasicSplitPaneDivider {
 
-    private Image horizontalDivider = ImageLoader.getImage(ImageLoader.SPLITPANE_HORIZONTAL);
-    private Image verticalDivider = ImageLoader.getImage(ImageLoader.SPLITPANE_VERTICAL);
+    private BufferedImage horizontalDivider = ImageLoader.getImage(ImageLoader.SPLITPANE_HORIZONTAL);
+    private BufferedImage verticalDivider = ImageLoader.getImage(ImageLoader.SPLITPANE_VERTICAL);
     
     public SIPCommSplitPaneDivider(BasicSplitPaneUI ui) {
         super(ui);        
@@ -144,12 +145,7 @@ class SIPCommSplitPaneDivider extends BasicSplitPaneDivider {
                     }
                 }
             }
-        }
-
-        // Don't want the button to participate in focus traversable.
-        public boolean isFocusTraversable() {
-            return false;
-        }
+        }        
         };
     
         b.setRequestFocusEnabled(false);
@@ -241,11 +237,6 @@ class SIPCommSplitPaneDivider extends BasicSplitPaneDivider {
                 }
             }
         }
-    }
-
-    // Don't want the button to participate in focus traversable.
-    public boolean isFocusTraversable() {
-        return false;
     }
     };
     

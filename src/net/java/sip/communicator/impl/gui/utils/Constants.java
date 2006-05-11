@@ -12,6 +12,7 @@ import java.applet.AudioClip;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -329,8 +330,8 @@ public class Constants {
 		return protocolStatusList;
 	}
 
-	public static Image getStatusIcon(PresenceStatus status) {
-		return (Image)mainStatusSet.get(status);
+	public static BufferedImage getStatusIcon(PresenceStatus status) {
+		return (BufferedImage)mainStatusSet.get(status);
 	}
 
     /**

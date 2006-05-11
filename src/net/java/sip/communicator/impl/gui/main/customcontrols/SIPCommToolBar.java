@@ -11,6 +11,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import javax.swing.Box;
 import javax.swing.JSeparator;
@@ -44,7 +45,7 @@ public class SIPCommToolBar extends JToolBar {
 		
 		Graphics2D g2 = (Graphics2D)g;
 		
-		Image dragImage = ImageLoader.getImage(ImageLoader.TOOLBAR_DRAG_ICON);
+		BufferedImage dragImage = ImageLoader.getImage(ImageLoader.TOOLBAR_DRAG_ICON);
 		
 		g2.drawImage(dragImage, 
 					 0, (this.getHeight() - dragImage.getHeight(null))/2 - 2, null);
