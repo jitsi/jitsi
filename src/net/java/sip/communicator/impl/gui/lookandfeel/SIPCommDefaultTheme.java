@@ -115,6 +115,8 @@ public class SIPCommDefaultTheme
             "TabbedPane.unselectedBackground", LIGHT_GRAY,
 
             "TextField.border", textFieldBorder,
+            "PasswordField.border", textFieldBorder,
+            "FormattedTextField.border", textFieldBorder,
 
             "Table.gridColor", LIGHT_BLUE_GRAY,
 

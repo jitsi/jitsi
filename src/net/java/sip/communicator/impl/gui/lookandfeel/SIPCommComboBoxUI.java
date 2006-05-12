@@ -11,8 +11,10 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
+import javax.swing.ComboBoxEditor;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.metal.MetalComboBoxEditor;
 import javax.swing.plaf.metal.MetalComboBoxUI;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
@@ -31,6 +33,10 @@ public class SIPCommComboBoxUI extends MetalComboBoxUI {
     
     public void paint(Graphics g, JComponent c) {        
         AntialiasingManager.activateAntialiasing(g);
-        super.paint(g, c);
+        super.paint(g, c);        
+    }
+    
+    protected ComboBoxEditor createEditor() {
+        return new SIPCommComboBoxEditor.UIResource();
     }
 }

@@ -6,29 +6,23 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Shape;
 
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.metal.MetalTextFieldUI;
+import javax.swing.plaf.basic.BasicPasswordFieldUI;
 import javax.swing.text.JTextComponent;
 
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
-
 /**
- * SIPCommTextFieldUI implementation.
+ * The SIPCommPasswordFieldUI implementation.
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommTextFieldUI extends MetalTextFieldUI {
+public class SIPCommPasswordFieldUI extends BasicPasswordFieldUI {
 
     public static ComponentUI createUI(JComponent c) {
-        return new SIPCommTextFieldUI();
+        return new SIPCommPasswordFieldUI();
     }
     
     protected void paintSafely(Graphics g) {
@@ -36,7 +30,7 @@ public class SIPCommTextFieldUI extends MetalTextFieldUI {
         super.paintSafely(g);
     }
     
-    protected void paintBackground(Graphics g) {
+    protected void paintBackground(Graphics g) {        
         JTextComponent c = this.getComponent();
         g.setColor(c.getBackground());
         g.fillRoundRect(1, 1, c.getWidth()-2, c.getHeight()-2, 5, 5);
