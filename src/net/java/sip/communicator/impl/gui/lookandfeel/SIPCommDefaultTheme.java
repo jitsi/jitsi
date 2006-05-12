@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import java.awt.Color;
 import java.awt.Insets;
 import java.util.Arrays;
 import java.util.List;
@@ -14,53 +13,50 @@ import java.util.List;
 import javax.swing.UIDefaults;
 import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.FontUIResource;
-import javax.swing.plaf.UIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
-
-import sun.swing.SwingLazyValue;
 
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**
  * SipCommunicator default theme.
- * 
+ *
  * @author Yana Stamcheva
  */
 
 public class SIPCommDefaultTheme
     extends DefaultMetalTheme
-{        
-    private static final ColorUIResource DARK_BLUE 
+{
+    private static final ColorUIResource DARK_BLUE
             = new ColorUIResource(0x3f6296);
-    private static final ColorUIResource LIGHT_BLUE 
+    private static final ColorUIResource LIGHT_BLUE
             = new ColorUIResource(0x96A9C6);
-    private static final ColorUIResource LIGHT_BLUE_GRAY 
+    private static final ColorUIResource LIGHT_BLUE_GRAY
             = new ColorUIResource(0xD3DDED);
-    private static final ColorUIResource LIGHT_GRAY 
+    private static final ColorUIResource LIGHT_GRAY
             = new ColorUIResource(0xEEEEEE);
-    private static final ColorUIResource GRAY 
+    private static final ColorUIResource GRAY
             = new ColorUIResource(0xC0C0C0);
-    private static final ColorUIResource VERY_LIGHT_GRAY 
+    private static final ColorUIResource VERY_LIGHT_GRAY
             = new ColorUIResource(0xFAFAFA);
-    
-    private static final ColorUIResource CONTROL_TEXT_COLOR 
+
+    private static final ColorUIResource CONTROL_TEXT_COLOR
             = new ColorUIResource(0x333333);
-    private static final ColorUIResource INACTIVE_CONTROL_TEXT_COLOR 
+    private static final ColorUIResource INACTIVE_CONTROL_TEXT_COLOR
             = new ColorUIResource(0x999999);
-    private static final ColorUIResource MENU_DISABLED_FOREGROUND 
+    private static final ColorUIResource MENU_DISABLED_FOREGROUND
             = new ColorUIResource(0x999999);
-    private static final ColorUIResource OCEAN_BLACK 
+    private static final ColorUIResource OCEAN_BLACK
             = new ColorUIResource(0x333333);
 
-    private static final FontUIResource BASIC_FONT 
+    private static final FontUIResource BASIC_FONT
             = new FontUIResource(Constants.FONT);
-    
+
     public SIPCommDefaultTheme() {
     }
 
     public void addCustomEntriesToTable(UIDefaults table) {
-        
+
         List buttonGradient = Arrays.asList(
                  new Object[] {new Float(.3f), new Float(0f),
                  DARK_BLUE, getWhite(), getSecondary2()});
@@ -68,21 +64,21 @@ public class SIPCommDefaultTheme
         List sliderGradient = Arrays.asList(new Object[] {
                 new Float(.3f), new Float(.2f),
                 DARK_BLUE, getWhite(), new ColorUIResource(LIGHT_BLUE_GRAY) });
-              
+
         Object textFieldBorder = SIPCommBorders.getTextFieldBorder();
-        
-        Object[] defaults = new Object[] {            
-            "Button.rollover", Boolean.TRUE,          
-            
+
+        Object[] defaults = new Object[] {
+            "Button.rollover", Boolean.TRUE,
+
             "CheckBox.rollover", Boolean.TRUE,
             "CheckBox.gradient", buttonGradient,
 
             "CheckBoxMenuItem.gradient", buttonGradient,
-                        
+
             "Menu.opaque", Boolean.FALSE,
 
             "InternalFrame.activeTitleGradient", buttonGradient,
-            
+
            // "OptionPane.warningIcon",
              //      ImageLoader.getImage(ImageLoader.WARNING_ICON),
 
@@ -90,7 +86,7 @@ public class SIPCommDefaultTheme
             "RadioButton.rollover", Boolean.TRUE,
 
             "RadioButtonMenuItem.gradient", buttonGradient,
-            
+
             "Slider.altTrackColor", new ColorUIResource(0xD2E2EF),
             "Slider.gradient", sliderGradient,
             "Slider.focusGradient", sliderGradient,
@@ -100,32 +96,32 @@ public class SIPCommDefaultTheme
             "SplitPane.dividerSize", new Integer(5),
 
             "ScrollBar.width", new Integer(12),
-            "ScrollBar.horizontalThumbIcon", 
+            "ScrollBar.horizontalThumbIcon",
                 ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_HORIZONTAL),
-            "ScrollBar.verticalThumbIcon",  
+            "ScrollBar.verticalThumbIcon",
                 ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_VERTICAL),
-            "ScrollBar.horizontalThumbHandleIcon",    
+            "ScrollBar.horizontalThumbHandleIcon",
                 ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_HANDLE_HORIZONTAL),
             "ScrollBar.verticalThumbHandleIcon",
                 ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_HANDLE_VERTICAL),
             "ScrollBar.trackHighlight", GRAY,
-            "ScrollBar.highlight", LIGHT_GRAY,            
+            "ScrollBar.highlight", LIGHT_GRAY,
             "ScrollBar.darkShadow", GRAY,
-                        
-            "TabbedPane.borderHightlightColor", LIGHT_BLUE,            
+
+            "TabbedPane.borderHightlightColor", LIGHT_BLUE,
             "TabbedPane.contentBorderInsets", new Insets(2, 2, 3, 3),
-            "TabbedPane.selected", LIGHT_GRAY,            
+            "TabbedPane.selected", LIGHT_GRAY,
             "TabbedPane.tabAreaInsets", new Insets(2, 2, 0, 6),
             "TabbedPane.unselectedBackground", LIGHT_GRAY,
-            
+
             "TextField.border", textFieldBorder,
-            
+
             "Table.gridColor", LIGHT_BLUE_GRAY,
 
             "ToggleButton.gradient", buttonGradient,
-            
+
             "ToolBar.isRollover", Boolean.TRUE,
-           
+
             "ToolTip.background", LIGHT_GRAY,
             "ToolTip.backgroundInactive", LIGHT_GRAY,
             "ToolTip.hideAccelerator", Boolean.FALSE
@@ -151,7 +147,7 @@ public class SIPCommDefaultTheme
     protected ColorUIResource getPrimary2() {
         return LIGHT_BLUE;
     }
-    
+
     protected ColorUIResource getPrimary3() {
         return GRAY;
     }
@@ -175,7 +171,7 @@ public class SIPCommDefaultTheme
     public ColorUIResource getDesktopColor() {
         return new ColorUIResource( 255, 255, 255 );
     }
-    
+
     public ColorUIResource getWindowBackground() {
         return new ColorUIResource( 255, 255, 255 );
     }
@@ -183,11 +179,11 @@ public class SIPCommDefaultTheme
     public ColorUIResource getControl(){
         return VERY_LIGHT_GRAY;
     }
-    
+
     public ColorUIResource getMenuBackground(){
         return VERY_LIGHT_GRAY;
     }
-    
+
     public ColorUIResource getInactiveControlTextColor() {
         return INACTIVE_CONTROL_TEXT_COLOR;
     }
@@ -199,28 +195,28 @@ public class SIPCommDefaultTheme
     public ColorUIResource getMenuDisabledForeground() {
         return MENU_DISABLED_FOREGROUND;
     }
-    
-    public FontUIResource getControlTextFont() { 
+
+    public FontUIResource getControlTextFont() {
         return BASIC_FONT;
     }
 
-    public FontUIResource getSystemTextFont() { 
+    public FontUIResource getSystemTextFont() {
         return BASIC_FONT;
     }
 
-    public FontUIResource getUserTextFont() { 
+    public FontUIResource getUserTextFont() {
         return BASIC_FONT;
     }
 
-    public FontUIResource getMenuTextFont() { 
+    public FontUIResource getMenuTextFont() {
         return BASIC_FONT;
     }
 
-    public FontUIResource getWindowTitleFont() { 
+    public FontUIResource getWindowTitleFont() {
         return BASIC_FONT;
     }
 
-    public FontUIResource getSubTextFont() { 
+    public FontUIResource getSubTextFont() {
         return BASIC_FONT;
     }
 }
