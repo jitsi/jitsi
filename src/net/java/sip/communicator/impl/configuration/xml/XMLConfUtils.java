@@ -32,8 +32,7 @@ public class XMLConfUtils extends XMLUtils
      * @return the node represented by the specified chain
      */
     public static Element getChildElementByChain(Element parent,
-                                                 String[] chain,
-                                                 boolean create)
+                                                 String[] chain)
     {
         if(chain == null)
             return null;
