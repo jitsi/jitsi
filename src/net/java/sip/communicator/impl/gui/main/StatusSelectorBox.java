@@ -25,9 +25,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedPopupMenu;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -41,7 +41,7 @@ import net.java.sip.communicator.util.Logger;
 public class StatusSelectorBox extends JLabel
     implements MouseListener {
 
-    private AntialiasedPopupMenu popup;
+    private JPopupMenu popup;
 
     private Map itemsMap;
     
@@ -73,7 +73,7 @@ public class StatusSelectorBox extends JLabel
         
         this.protocolProvider = protocolProvider;
                 
-        this.popup = new AntialiasedPopupMenu();
+        this.popup = new JPopupMenu();
         
         this.popup.setInvoker(this);
         
@@ -99,7 +99,7 @@ public class StatusSelectorBox extends JLabel
         this.protocolProvider = protocolProvider;
         this.itemsMap = itemsMap;
         
-        this.popup = new AntialiasedPopupMenu();
+        this.popup = new JPopupMenu();
         
         this.popup.setInvoker(this);
         

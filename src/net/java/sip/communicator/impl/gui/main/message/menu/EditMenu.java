@@ -16,7 +16,6 @@ import javax.swing.JEditorPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenuItem;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
@@ -25,16 +24,16 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 public class EditMenu extends JMenu 
 	implements ActionListener{
 	
-	private AntialiasedMenuItem cutMenuItem 
-		= new AntialiasedMenuItem(Messages.getString("cut")
+	private JMenuItem cutMenuItem 
+		= new JMenuItem(Messages.getString("cut")
 				, new ImageIcon(ImageLoader.getImage(ImageLoader.CUT_ICON)));
 
-	private AntialiasedMenuItem copyMenuItem 
-		= new AntialiasedMenuItem(Messages.getString("copy")
+	private JMenuItem copyMenuItem 
+		= new JMenuItem(Messages.getString("copy")
 				, new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
 	
-	private AntialiasedMenuItem pasteMenuItem 
-		= new AntialiasedMenuItem(Messages.getString("paste")
+	private JMenuItem pasteMenuItem 
+		= new JMenuItem(Messages.getString("paste")
 				, new ImageIcon(ImageLoader.getImage(ImageLoader.PASTE_ICON)));
 
 	private ChatWindow chatWindow;

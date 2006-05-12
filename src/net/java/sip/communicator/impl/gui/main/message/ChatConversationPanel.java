@@ -27,7 +27,6 @@ import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedEditorPane;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.BrowserLauncher;
 import net.java.sip.communicator.impl.gui.utils.Constants;
@@ -50,7 +49,7 @@ import net.java.sip.communicator.impl.gui.utils.StringUtils;
 public class ChatConversationPanel extends JScrollPane 
     implements HyperlinkListener {
 
-	private AntialiasedEditorPane chatEditorPane = new AntialiasedEditorPane();
+	private JEditorPane chatEditorPane = new JEditorPane();
 
     private HTMLEditorKit editorKit = new MyHTMLEditorKit(); 
     

@@ -18,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
@@ -37,14 +38,14 @@ public class MessageDialog extends JDialog {
 	
 	private JLabel messageLabel = new JLabel();
 		
-	private AntialiasedPanel buttonsPanel 
-		= new AntialiasedPanel(new FlowLayout(FlowLayout.CENTER));
+	private JPanel buttonsPanel 
+		= new JPanel(new FlowLayout(FlowLayout.CENTER));
 	
-	private AntialiasedPanel checkBoxPanel 
-		= new AntialiasedPanel(new FlowLayout(FlowLayout.LEADING));
+	private JPanel checkBoxPanel 
+		= new JPanel(new FlowLayout(FlowLayout.LEADING));
 	
-	private AntialiasedPanel messagePanel 
-		= new AntialiasedPanel(new BorderLayout(5, 5));
+	private JPanel messagePanel 
+		= new JPanel(new BorderLayout(5, 5));
 	
 	public MessageDialog(Frame owner){
 		super(owner);

@@ -10,6 +10,8 @@ import java.awt.Insets;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.FontUIResource;
@@ -79,8 +81,8 @@ public class SIPCommDefaultTheme
 
             "InternalFrame.activeTitleGradient", buttonGradient,
 
-           // "OptionPane.warningIcon",
-             //      ImageLoader.getImage(ImageLoader.WARNING_ICON),
+            "OptionPane.warningIcon",
+                new ImageIcon(ImageLoader.getImage(ImageLoader.WARNING_ICON)),
 
             "RadioButton.gradient", buttonGradient,
             "RadioButton.rollover", Boolean.TRUE,

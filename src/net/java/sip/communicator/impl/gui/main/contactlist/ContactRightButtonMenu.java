@@ -13,13 +13,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenu;
-import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenuItem;
 import net.java.sip.communicator.impl.gui.main.customcontrols.MessageDialog;
 import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
@@ -29,35 +28,33 @@ import net.java.sip.communicator.service.contactlist.MetaContact;
 public class ContactRightButtonMenu extends JPopupMenu implements
 		ActionListener {
 
-	private AntialiasedMenu moveToMenu = new AntialiasedMenu(
-			Messages.getString("moveToGroup"),
-			new ImageIcon(ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
+	private JMenu moveToMenu 
+        = new JMenu(Messages.getString("moveToGroup"));
 
-	private AntialiasedMenu addSubcontactMenu = new AntialiasedMenu(
-			Messages.getString("addSubcontact"),
-			new ImageIcon(ImageLoader.getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
+	private JMenu addSubcontactMenu 
+        = new JMenu(Messages.getString("addSubcontact"));
 
-	private AntialiasedMenuItem sendMessageItem = new AntialiasedMenuItem(
+	private JMenuItem sendMessageItem = new JMenuItem(
 			Messages.getString("sendMessage"),
 			new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
 
-	private AntialiasedMenuItem sendFileItem = new AntialiasedMenuItem(
+	private JMenuItem sendFileItem = new JMenuItem(
 			Messages.getString("sendFile"),
 			new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_FILE_16x16_ICON)));
 
-	private AntialiasedMenuItem removeContactItem = new AntialiasedMenuItem(
+	private JMenuItem removeContactItem = new JMenuItem(
 			Messages.getString("removeContact"),
 			new ImageIcon(ImageLoader.getImage(ImageLoader.DELETE_16x16_ICON)));
 
-	private AntialiasedMenuItem renameContactItem = new AntialiasedMenuItem(
+	private JMenuItem renameContactItem = new JMenuItem(
 			Messages.getString("renameContact"),
 			new ImageIcon(ImageLoader.getImage(ImageLoader.RENAME_16x16_ICON)));
 
-	private AntialiasedMenuItem userInfoItem = new AntialiasedMenuItem(
+	private JMenuItem userInfoItem = new JMenuItem(
 			Messages.getString("userInfo"),
 			new ImageIcon(ImageLoader.getImage(ImageLoader.INFO_16x16_ICON)));
 
-	private AntialiasedMenuItem viewHistoryItem = new AntialiasedMenuItem(
+	private JMenuItem viewHistoryItem = new JMenuItem(
 			Messages.getString("viewHistory"),
 			new ImageIcon(ImageLoader.getImage(ImageLoader.HISTORY_16x16_ICON)));
 
@@ -85,13 +82,20 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
 		for (int i = 0; i < userProtocols.length; i++) {
 
-			AntialiasedMenuItem protocolMenuItem = new AntialiasedMenuItem(
+			JMenuItem protocolMenuItem = new JMenuItem(
 					userProtocols[i], 
 					new ImageIcon(Constants.getProtocolIcon(userProtocols[i])));
 
 			this.addSubcontactMenu.add(protocolMenuItem);
 		}
 */
+        
+        this.moveToMenu.setIcon(new ImageIcon
+                (ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
+        
+        this.addSubcontactMenu.setIcon(new ImageIcon
+                (ImageLoader.getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
+        
 		this.add(sendMessageItem);
 		this.add(sendFileItem);
 

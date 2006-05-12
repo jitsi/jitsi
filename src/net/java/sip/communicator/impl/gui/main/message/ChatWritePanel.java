@@ -24,14 +24,13 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedEditorPane;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 
 public class ChatWritePanel extends JScrollPane
 	implements UndoableEditListener {
 
-	private AntialiasedEditorPane editorPane = new AntialiasedEditorPane();
+	private JEditorPane editorPane = new JEditorPane();
 	
 	private UndoManager undo = new UndoManager();
 	

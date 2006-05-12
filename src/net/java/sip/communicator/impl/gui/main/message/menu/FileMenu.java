@@ -15,7 +15,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenuItem;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
@@ -24,16 +23,16 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 public class FileMenu extends JMenu 
 	implements ActionListener{
 
-	private AntialiasedMenuItem saveMenuItem 
-		= new AntialiasedMenuItem(Messages.getString("save")
+	private JMenuItem saveMenuItem 
+		= new JMenuItem(Messages.getString("save")
 				, new ImageIcon(ImageLoader.getImage(ImageLoader.SAVE_ICON)));
 
-	private AntialiasedMenuItem printMenuItem 
-		= new AntialiasedMenuItem(Messages.getString("print")
+	private JMenuItem printMenuItem 
+		= new JMenuItem(Messages.getString("print")
 				, new ImageIcon(ImageLoader.getImage(ImageLoader.PRINT_ICON)));
 	
-	private AntialiasedMenuItem closeMenuItem 
-		= new AntialiasedMenuItem(Messages.getString("close")
+	private JMenuItem closeMenuItem 
+		= new JMenuItem(Messages.getString("close")
 				, new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
 	
 	private ChatWindow parentWindow;

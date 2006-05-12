@@ -15,17 +15,16 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedMenuItem;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 
 public class HistoryMenu extends JMenu implements ActionListener {
 	
-	private AntialiasedMenuItem emptyMenuItem 
-						= new AntialiasedMenuItem(Messages.getString("emptyHistory"));
+	private JMenuItem emptyMenuItem 
+						= new JMenuItem(Messages.getString("emptyHistory"));
 
-	private AntialiasedMenuItem closeMenuItem 
-						= new AntialiasedMenuItem(Messages.getString("close"));
+	private JMenuItem closeMenuItem 
+						= new JMenuItem(Messages.getString("close"));
 		
 	private JFrame parentWindow;
 	

@@ -22,7 +22,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.AntialiasedPanel;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
@@ -34,8 +33,8 @@ public class ChatSendPanel extends JPanel
 
 	private JButton sendButton = new JButton(Messages.getString("send"));
 	
-	private AntialiasedPanel statusPanel 
-        = new AntialiasedPanel(new FlowLayout(FlowLayout.LEFT));
+	private JPanel statusPanel 
+        = new JPanel(new FlowLayout(FlowLayout.LEFT));
 	
 	private JPanel sendPanel = new JPanel(new BorderLayout(3, 0));
 
