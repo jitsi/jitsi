@@ -181,13 +181,14 @@ public class SIPCommScrollBarUI extends MetalScrollBarUI {
                                             imgHeight);
             
             g.drawImage(leftImage, 0, 0, 
-                    indentWidth, thumbBounds.height, null);
+                    indentWidth, thumbBounds.height-2, null);
             
-            g.drawImage(middleImage, thumbBounds.x+indentWidth, thumbBounds.y, 
-                    thumbBounds.width-2*indentWidth, thumbBounds.height , null);
+            g.drawImage(middleImage, indentWidth, thumbBounds.y, 
+                    thumbBounds.width-indentWidth, 
+                    thumbBounds.height-2 , null);
             
             g.drawImage(rightImage, thumbBounds.width-indentWidth, thumbBounds.y,
-                    indentWidth, thumbBounds.height, null);
+                    indentWidth, thumbBounds.height-2, null);
             
             g.drawImage(horizontalThumbHandle, 
                     thumbBounds.width/2-horizontalThumbHandle.getWidth()/2,
