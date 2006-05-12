@@ -172,7 +172,7 @@ public class LoginWindow extends JDialog
             
             this.loginManager.login(accountManager,
                                     uinComboBox.getSelectedItem().toString(),
-                                    /*new String(passwdField.getPassword())*/"");
+                                    new String(passwdField.getPassword()));
         }
         else{
             this.dispose();
