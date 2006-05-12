@@ -33,7 +33,7 @@ public class Messages {
 		try {
 			String sourceString = RESOURCE_BUNDLE.getString(key);
 			
-			return sourceString.replaceAll("?", param);
+			return sourceString.replaceAll("\\?", param);
 			
 		} catch (MissingResourceException e) {
 			

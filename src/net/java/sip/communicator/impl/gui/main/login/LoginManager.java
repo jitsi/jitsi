@@ -176,10 +176,16 @@ public class LoginManager implements RegistrationStateChangeListener {
         }
         else if(evt.getNewState()
                     .equals(RegistrationState.EXPIRED)){            
-            //TODO: Implement registration state changed to: EXPIRED
+            JOptionPane.showMessageDialog(null,                    
+                    Messages.getString("connectionExpiredMessage", protocolName), 
+                    Messages.getString("warning"),
+                    JOptionPane.WARNING_MESSAGE);
         }  
         else if(evt.getNewState().equals(RegistrationState.UNREGISTERED)){
-            //TODO: Implement registration state changed to UNREGISTERED
+            JOptionPane.showMessageDialog(null,                    
+                    Messages.getString("unregisteredMessage", protocolName), 
+                    Messages.getString("warning"),
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
 
