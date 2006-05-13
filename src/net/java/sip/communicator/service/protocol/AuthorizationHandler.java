@@ -31,34 +31,35 @@ public interface AuthorizationHandler
      * <p>
      * The returned AuthorizationResponse object is to be created by the
      * implementation of this interface, and it should contain a reason
-     * phrase (in case of a negative response) that will be sent to the remote
-     * user.
+     * phrase (especially in the case of a negative response) that will be sent
+     * to the remote user.
      * <p>
      * Note that some protocols do not support authorizations or allow them to
      * be turned off. In such cases the method will never be called.
-     *
-     * @param req the <tt>AuthorizationRequest</tt> that we should act upon.
-     * @return a new <tt>AuthorizationResponse</tt> instance indicating whether
+     * <p>
+     * @param req the authorization request that we should act upon.
+     * @return a new authorization response instance indicating whether
      * or not the request has been accepted and (if applicable) a reason for
      * turning it down.
      */
     public AuthorizationResponse processAuthorisationRequest(
-                                                     AuthorizationRequest req);
+                AuthorizationRequest req, Contact sourceContact);
     /**
      * Called by the protocol provider, this method should be implemented by the
      * user interface. The method will be called any time when the user has
      * tried to add a contact to the contact list and this contact requires
      * authorization. The returned AuthorizationRequest object is to be created
-     * by the implementation of this interface, and it should contain a reason
-     * phrase that will be sent to the remote user as well as an inidication
-     * of whether the specified contact should on its turn be authorized to
-     * add us to their contact list. In case the user would prefer to cancel the
-     * whole process, this method is to return null. This would subsequently
-     * lead to a SubscriptionFailedEvent.
+     * by the implementation of this interface, and it should also contain a
+     * reason phrase that will be sent to the remote user as well as an
+     * inidication of whether the specified contact should on its turn be
+     * authorized to add us to their contact list. In case the user would prefer
+     * to cancel the whole process, this method is to return null (this will
+     * be interpreted the same way as a response withe  an IGNORED response
+     * code). This would subsequently lead to a SubscriptionFailedEvent.
      * <p>
      * Note that some protocols do not support authorizations or allow them to
      * be turned off. In such cases the method will never be called.
-     *
+     * <p>
      * @param contact the <tt>Contact</tt> whose authorization we'll be
      * requesting.
      *
@@ -66,7 +67,8 @@ public interface AuthorizationHandler
      * interface has created, and which contains a reason phrase and/or a
      * pre-request authorization grant.
      */
-    public AuthorizationRequest createAuthorizationRequest( Contact contact );
+    public AuthorizationRequest createAuthorizationRequest(
+                                                             Contact contact );
 
     /**
      * Called by the protocol provider, this method should be implemented by the
@@ -74,5 +76,6 @@ public interface AuthorizationHandler
      * upone an authorization request that we have previously sent.
      * @param response the <tt>AuthorizationResponse</tt> that we have received.
      */
-    public void processAuthorizationResponse(AuthorizationResponse response);
+    public void processAuthorizationResponse(
+                AuthorizationResponse response, Contact sourceContact);
 }
