@@ -75,8 +75,4 @@ public class XMLConfUtils extends XMLUtils
         }
         return e;
     }
-
-
-
-
 }
