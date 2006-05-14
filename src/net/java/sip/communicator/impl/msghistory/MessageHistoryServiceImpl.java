@@ -212,7 +212,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService, Message
     /**
      * Set the configuration service.
      *
-     * @param configurationService
+     * @param historyService
      * @throws IOException 
      * @throws IllegalArgumentException 
      */
@@ -230,7 +230,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService, Message
     /**
      * Remove a configuration service.
      *
-     * @param configurationService
+     * @param historyService
      */
     public void unsetHistoryService(
     		HistoryService historyService)
