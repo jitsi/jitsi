@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.history;
 
 import java.io.IOException;
+import java.util.Date;
 
 import net.java.sip.communicator.service.history.records.HistoryRecord;
 
@@ -33,5 +34,15 @@ public interface HistoryWriter
      * @throws IOException
      */
     void addRecord(String[] propertyValues) throws IOException;
+    
+    /**
+     * Stores the passed propertyValues complying with the historyRecordStructure.
+     *
+     * @param propertyValues The values of the record.
+     * @param timestamp The timestamp of the record.
+     *
+     * @throws IOException
+     */
+    void addRecord(String[] propertyValues, Date timestamp) throws IOException;
 
 }

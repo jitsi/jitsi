@@ -1,0 +1,20 @@
+Bundle-Activator: net.java.sip.communicator.impl.msghistory.MessageHistoryActivator
+Bundle-Name: Message History Service Provider
+Bundle-Description: A bundle that implements the message history package.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: org.ungoverned.gravity.servicebinder,
+ org.osgi.framework,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.fileaccess,
+ net.java.sip.communicator.service.history,
+ net.java.sip.communicator.service.msghistory,
+ net.java.sip.communicator.impl.msghistory,
+ net.java.sip.communicator.service.history.records,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.icqconstants,
+ net.java.sip.communicator.service.protocol.event,
+Export-Package: net.java.sip.communicator.service.msghistory,
+ net.java.sip.communicator.impl.msghistory
+Metadata-Location: /net/java/sip/communicator/impl/msghistory/msghistory.metadata.xml

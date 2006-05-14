@@ -4,15 +4,16 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.history;
+package net.java.sip.communicator.impl.msghistory;
 
 import org.ungoverned.gravity.servicebinder.GenericActivator;
 
 /**
- * Invoke "Service Binder" to parse the service XML and register all services.
+ * Invoke "Service Binder" to parse the service XML and register
+ * all services.
  * 
  * @author Alexander Pelov
  */
-public class HistoryActivator extends GenericActivator {
-
+public class MessageHistoryActivator extends GenericActivator {
+	
 }

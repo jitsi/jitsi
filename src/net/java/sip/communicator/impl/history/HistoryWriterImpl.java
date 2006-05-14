@@ -23,133 +23,126 @@ import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
 /**
  * @author Alexander Pelov
  */
-public class HistoryWriterImpl
-    implements HistoryWriter
-{
+public class HistoryWriterImpl implements HistoryWriter {
 
-    public static final int MAX_RECORDS_PER_FILE = 100;
+	public static final int MAX_RECORDS_PER_FILE = 150;
 
-    private Object docCreateLock = new Object();
-    private Object docWriteLock = new Object();
+	private Object docCreateLock = new Object();
 
-    private HistoryImpl historyImpl;
-    private String[] structPropertyNames;
-    private Document currentDoc = null;
-    private String currentFile = null;
-    private int currentDocElements = -1;
+	private Object docWriteLock = new Object();
 
-    protected HistoryWriterImpl(HistoryImpl historyImpl)
-    {
-        this.historyImpl = historyImpl;
+	private HistoryImpl historyImpl;
 
-        HistoryRecordStructure struct =
-            this.historyImpl.getHistoryRecordsStructure();
-        this.structPropertyNames = struct.getPropertyNames();
-    }
+	private String[] structPropertyNames;
 
-    public void addRecord(HistoryRecord record) throws IOException
-    {
-        this.addRecord(record.getPropertyNames(), record.getPropertyValues(),
-                       record.getTimestamp());
-    }
+	private Document currentDoc = null;
 
-    public void addRecord(String[] propertyValues) throws IOException
-    {
-        this.addRecord(structPropertyNames, propertyValues, new Date());
-    }
+	private String currentFile = null;
 
-    private void addRecord(String[] propertyNames, String[] propertyValues,
-                           Date date) throws InvalidParameterException,
-        IOException
-    {
-        // Synchronized to assure that two concurent threads can insert records safely.
-        synchronized (docCreateLock)
-        {
-            if (this.currentDoc == null ||
-                this.currentDocElements > MAX_RECORDS_PER_FILE)
-            {
-                this.createNewDoc(date, this.currentDoc == null);
-            }
-        }
+	private int currentDocElements = -1;
 
-        synchronized (this.currentDoc)
-        {
-            Node root = this.currentDoc.getFirstChild();
-            synchronized (root)
-            {
-                Element elem = this.currentDoc.createElement("record");
-                elem.setAttribute("timestamp", Long.toString(date.getTime()));
+	protected HistoryWriterImpl(HistoryImpl historyImpl) {
+		this.historyImpl = historyImpl;
 
-                for (int i = 0; i < propertyNames.length; i++)
-                {
-                    Element propertyElement = this.currentDoc.createElement(
-                        propertyNames[i]);
+		HistoryRecordStructure struct = this.historyImpl
+				.getHistoryRecordsStructure();
+		this.structPropertyNames = struct.getPropertyNames();
+	}
 
-                    Text value = this.currentDoc.createTextNode(propertyValues[
-                        i]);
-                    propertyElement.appendChild(value);
+	public void addRecord(HistoryRecord record) throws IOException {
+		this.addRecord(record.getPropertyNames(), record.getPropertyValues(),
+				record.getTimestamp());
+	}
 
-                    elem.appendChild(propertyElement);
-                }
+	public void addRecord(String[] propertyValues) throws IOException {
+		this.addRecord(structPropertyNames, propertyValues, new Date());
+	}
 
-                root.appendChild(elem);
-                this.currentDocElements++;
-            }
-        }
+	public void addRecord(String[] propertyValues, Date timestamp)
+			throws IOException {
+		this.addRecord(structPropertyNames, propertyValues, timestamp);
+	}
 
-        // write changes
-        synchronized (docWriteLock)
-        {
-            this.historyImpl.writeFile(this.currentFile);
-        }
-    }
+	private void addRecord(String[] propertyNames, String[] propertyValues,
+			Date date) throws InvalidParameterException, IOException {
+		// Synchronized to assure that two concurent threads can insert records
+		// safely.
+		synchronized (this.docCreateLock) {
+			if (this.currentDoc == null
+					|| this.currentDocElements > MAX_RECORDS_PER_FILE) {
+				this.createNewDoc(date, this.currentDoc == null);
+			}
+		}
 
-    /**
-     * If no file is currently loaded loads the last opened file. If
-     * it does not exists or if the current file was set - create a
-     * new file.
-     *
-     * @param date
-     */
-    private void createNewDoc(Date date, boolean loadLastFile)
-    {
-        boolean loaded = false;
+		synchronized (this.currentDoc) {
+			Node root = this.currentDoc.getFirstChild();
+			synchronized (root) {
+				Element elem = this.currentDoc.createElement("record");
+				elem.setAttribute("timestamp", Long.toString(date.getTime()));
 
-        if (loadLastFile)
-        {
-            Iterator files = historyImpl.getFileList();
+				for (int i = 0; i < propertyNames.length; i++) {
+					if (propertyValues[i] != null) {
+						Element propertyElement = this.currentDoc
+								.createElement(propertyNames[i]);
 
-            String file = null;
-            while (files.hasNext())
-            {
-                file = (String) files.next();
-            }
+						Text value = this.currentDoc
+								.createTextNode(propertyValues[i]);
+						propertyElement.appendChild(value);
 
-            if (file != null)
-            {
-                this.currentDoc = this.historyImpl.getDocumentForFile(file);
-                this.currentFile = file;
-                loaded = true;
-            }
-        }
+						elem.appendChild(propertyElement);
+					}
+				}
 
-        if (!loaded)
-        {
-            this.currentFile = Long.toString(date.getTime());
-            while (this.currentFile.length() < 8)
-            {
-                this.currentFile = "0" + this.currentFile;
-            }
-            this.currentFile += ".xml";
+				root.appendChild(elem);
+				this.currentDocElements++;
+			}
+		}
 
-            this.currentDoc = this.historyImpl.createDocument(this.currentFile);
-        }
+		// write changes
+		synchronized (this.docWriteLock) {
+			this.historyImpl.writeFile(this.currentFile);
+		}
+	}
 
-        // TODO: Assert: Assert.assertNonNull(this.currentDoc,
-        //		"There should be a current document created.");
+	/**
+	 * If no file is currently loaded loads the last opened file. If it does not
+	 * exists or if the current file was set - create a new file.
+	 * 
+	 * @param date
+	 */
+	private void createNewDoc(Date date, boolean loadLastFile) {
+		boolean loaded = false;
 
-        this.currentDocElements = this.currentDoc.getFirstChild().getChildNodes().
-            getLength();
-    }
+		if (loadLastFile) {
+			Iterator files = historyImpl.getFileList();
+
+			String file = null;
+			while (files.hasNext()) {
+				file = (String) files.next();
+			}
+
+			if (file != null) {
+				this.currentDoc = this.historyImpl.getDocumentForFile(file);
+				this.currentFile = file;
+				loaded = true;
+			}
+		}
+
+		if (!loaded) {
+			this.currentFile = Long.toString(date.getTime());
+			while (this.currentFile.length() < 8) {
+				this.currentFile = "0" + this.currentFile;
+			}
+			this.currentFile += ".xml";
+
+			this.currentDoc = this.historyImpl.createDocument(this.currentFile);
+		}
+
+		// TODO: Assert: Assert.assertNonNull(this.currentDoc,
+		// "There should be a current document created.");
+
+		this.currentDocElements = this.currentDoc.getFirstChild()
+				.getChildNodes().getLength();
+	}
 
 }
