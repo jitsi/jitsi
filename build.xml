@@ -405,11 +405,12 @@
     <!-- - - - - - - - - - - - - - BUNDLE BUILDING TARGETS - - - - - - - -  - -->
     <!--ALL BUNDLES-->
     <target name="bundles"
-        depends="bundle-util,bundle-configuration,bundle-history,
-        bundle-history-slick,bundle-configuration-slick,bundle-netaddr,
-        bundle-netaddr-slick,bundle-slickless,bundle-slick-runner,bundle-sip,
-        bundle-fileaccess,bundle-fileaccess-slick,bundle-media,
-        bundle-media-slick,bundle-icq,bundle-icq-slick,bundle-swing-ui,
+        depends="bundle-util,bundle-configuration,bundle-configuration-slick,
+    	bundle-history,bundle-history-slick,bundle-messagehistory,
+    	bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
+    	bundle-slick-runner,bundle-sip,bundle-fileaccess,
+    	bundle-fileaccess-slick,bundle-media,bundle-media-slick,
+    	bundle-icq,bundle-icq-slick,bundle-swing-ui,
         meta-contactlist,meta-contactlist-slick"/>
 
     <!--BUNDLE-HISTORY-->
@@ -433,6 +434,18 @@
         </jar>
     </target>
 
+    <!--BUNDLE-MESSAGEHISTORY-->
+    <target name="bundle-messagehistory">
+        <jar compress="false" destfile="${bundles.dest}/msghistory.jar"
+            manifest="src/net/java/sip/communicator/impl/msghistory/msghistory.manifest.mf">
+            
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/msghistory"
+                prefix="net/java/sip/communicator/service/msghistory"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/msghistory"
+                prefix="net/java/sip/communicator/impl/msghistory" />
+        </jar>
+    </target>
+	
     <!--BUNDLE-FILEACCESS-->
     <target name="bundle-fileaccess">
         <jar compress="false" destfile="${bundles.dest}/fileaccess.jar"
