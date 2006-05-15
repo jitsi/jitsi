@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
+import java.awt.Dimension;
 import java.awt.Insets;
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +15,7 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.plaf.ColorUIResource;
+import javax.swing.plaf.DimensionUIResource;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 
@@ -125,7 +127,9 @@ public class SIPCommDefaultTheme
             "ToggleButton.gradient", buttonGradient,
 
             "ToolBar.isRollover", Boolean.TRUE,
-
+            "ToolBar.separatorColor", Constants.TOOLBAR_SEPARATOR_COLOR,
+            "ToolBar.separatorSize", new DimensionUIResource(8, 22),
+            
             "ToolTip.background", LIGHT_GRAY,
             "ToolTip.backgroundInactive", LIGHT_GRAY,
             "ToolTip.hideAccelerator", Boolean.FALSE

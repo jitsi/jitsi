@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.customcontrols.tabbedPane;
+package net.java.sip.communicator.impl.gui.lookandfeel;
 /*
  * The content of this file was based on code borrowed from
  * David Bismut, davidou@mageos.com
@@ -39,7 +39,7 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
  * @author David Bismut, davidou@mageos.com
  *  
  */
-public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
+public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
 
 	private static final Color whiteColor = Color.white;
 
@@ -52,7 +52,7 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
     
 
 	public static ComponentUI createUI(JComponent c) {
-		return new CloseTabPaneEnhancedUI();
+		return new SIPCommTabbedPaneEnhancedUI();
 	}
 
 	protected void paintFocusIndicator(Graphics g, int tabPlacement,
@@ -225,7 +225,7 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
 	}
 
 	protected class ScrollableTabButton extends
-			CloseTabPaneUI.ScrollableTabButton {
+			SIPCommTabbedPaneUI.ScrollableTabButton {
 
 		public ScrollableTabButton(int direction) {
 			super(direction);
@@ -319,7 +319,7 @@ public class CloseTabPaneEnhancedUI extends CloseTabPaneUI {
 
 	}
 
-	protected CloseTabPaneUI.ScrollableTabButton createScrollableTabButton(
+	protected SIPCommTabbedPaneUI.ScrollableTabButton createScrollableTabButton(
 			int direction) {
 		return new ScrollableTabButton(direction);
 	}

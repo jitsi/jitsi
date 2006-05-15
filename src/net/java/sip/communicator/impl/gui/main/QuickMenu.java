@@ -19,7 +19,6 @@ import javax.swing.JButton;
 import net.java.sip.communicator.impl.gui.events.ContainerPluginListener;
 import net.java.sip.communicator.impl.gui.events.PluginComponentEvent;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
-import net.java.sip.communicator.impl.gui.main.customcontrols.RolloverButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -31,19 +30,19 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 public class QuickMenu extends SIPCommToolBar 
 	implements ActionListener, ContainerPluginListener {
 
-    RolloverButton infoButton      = new RolloverButton
+    JButton infoButton      = new JButton
                                 (new ImageIcon(ImageLoader.getImage
                                     (ImageLoader.QUICK_MENU_INFO_ICON)));
 
-    RolloverButton configureButton = new RolloverButton
+    JButton configureButton = new JButton
                                 (new ImageIcon(ImageLoader.getImage
                                     (ImageLoader.QUICK_MENU_CONFIGURE_ICON))); 
 
-    RolloverButton searchButton    = new RolloverButton
+    JButton searchButton    = new JButton
                                 (new ImageIcon(ImageLoader.getImage
                                     (ImageLoader.QUICK_MENU_SEARCH_ICON))); 
 
-    RolloverButton addButton       = new RolloverButton
+    JButton addButton       = new JButton
                                 (new ImageIcon(ImageLoader.getImage
                                     (ImageLoader.QUICK_MENU_ADD_ICON)));
 	

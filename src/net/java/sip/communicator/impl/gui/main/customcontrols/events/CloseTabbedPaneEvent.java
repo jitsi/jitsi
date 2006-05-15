@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.customcontrols.tabbedPane;
+package net.java.sip.communicator.impl.gui.main.customcontrols.events;
 /*
  * The following code is borrowed from
  * David Bismut, davidou@mageos.com

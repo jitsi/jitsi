@@ -126,13 +126,6 @@ public class ListCellPanel extends JPanel implements MouseListener {
 		}
 	}
 
-	public void paint(Graphics g) {
-
-		AntialiasingManager.activateAntialiasing(g);
-
-		super.paint(g);
-	}
-
 	public void mouseClicked(MouseEvent e) {
 
 		this.setSelected(true);

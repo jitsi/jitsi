@@ -23,8 +23,8 @@ import javax.swing.JFrame;
 import javax.swing.KeyStroke;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.impl.gui.main.customcontrols.tabbedPane.CloseListener;
-import net.java.sip.communicator.impl.gui.main.customcontrols.tabbedPane.SIPCommTabbedPane;
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTabbedPane;
+import net.java.sip.communicator.impl.gui.main.customcontrols.events.CloseListener;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;

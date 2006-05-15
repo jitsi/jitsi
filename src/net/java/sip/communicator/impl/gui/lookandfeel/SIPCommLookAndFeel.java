@@ -53,7 +53,9 @@ public class SIPCommLookAndFeel extends MetalLookAndFeel {
                 "LabelUI", lfPackageName + "SIPCommLabelUI",
                 "EditorPaneUI", lfPackageName + "SIPCommEditorPaneUI",
                 "MenuItemUI", lfPackageName + "SIPCommMenuItemUI",
-                "MenuUI", lfPackageName + "SIPCommMenuUI"
+                "MenuUI", lfPackageName + "SIPCommMenuUI",
+                "ToolBarSeparatorUI", lfPackageName + "SIPCommToolBarSeparatorUI",
+                "TabbedPaneUI", lfPackageName + "SIPCommTabbedPaneUI"
         };
         table.putDefaults(uiDefaults);
     }

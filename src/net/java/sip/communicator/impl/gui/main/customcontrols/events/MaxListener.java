@@ -4,17 +4,18 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.customcontrols.tabbedPane;
+package net.java.sip.communicator.impl.gui.main.customcontrols.events;
 /*
- * The content of this file was based on code borrowed from
+ * The following code borrowed from
  * David Bismut, davidou@mageos.com
  * Intern, SETLabs, Infosys Technologies Ltd. May 2004 - Jul 2004
  * Ecole des Mines de Nantes, France
  */
+
+
 import java.awt.event.MouseEvent;
 import java.util.EventListener;
 
-
-public interface CloseListener extends EventListener {
-	public void closeOperation(MouseEvent e);
+public interface MaxListener extends EventListener {
+	public void maxOperation(MouseEvent e);
 }

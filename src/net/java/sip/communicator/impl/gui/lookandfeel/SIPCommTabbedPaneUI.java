@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.customcontrols.tabbedPane;
+package net.java.sip.communicator.impl.gui.lookandfeel;
 /*
  * The content of this file was based on code borrowed from
  * David Bismut, davidou@mageos.com
@@ -67,20 +67,13 @@ import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import javax.swing.text.View;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTabbedPane;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**
- * UI for <code>CloseAndMaxTabbedPane</code>.
- * <p>
- * Credits to:
- * 
- * @author Amy Fowler
- * @author Philip Milne
- * @author Steve Wilson
- * @author Tom Santos
- * @author Dave Moore
+ * SIPCommTabbedPaneUI implementation.
  */
-public class CloseTabPaneUI extends BasicTabbedPaneUI {
+public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
 	// Instance variables initialized at installation
 
@@ -153,7 +146,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
     
     protected Vector highlightedTabs = new Vector();
 
-	public CloseTabPaneUI() {
+	public SIPCommTabbedPaneUI() {
 
 		super();
 
@@ -344,7 +337,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 	}
 
 	public static ComponentUI createUI(JComponent c) {
-		return new CloseTabPaneUI();
+		return new SIPCommTabbedPaneUI();
 	}
 
 	/**
@@ -877,7 +870,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 	private static class RightAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			CloseTabPaneUI ui = (CloseTabPaneUI) pane.getUI();
+			SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 			ui.navigateSelectedTab(EAST);
 		}
 	};
@@ -885,7 +878,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 	private static class LeftAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			CloseTabPaneUI ui = (CloseTabPaneUI) pane.getUI();
+			SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 			ui.navigateSelectedTab(WEST);
 		}
 	};
@@ -893,7 +886,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 	private static class UpAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			CloseTabPaneUI ui = (CloseTabPaneUI) pane.getUI();
+			SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 			ui.navigateSelectedTab(NORTH);
 		}
 	};
@@ -901,7 +894,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 	private static class DownAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			CloseTabPaneUI ui = (CloseTabPaneUI) pane.getUI();
+			SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 			ui.navigateSelectedTab(SOUTH);
 		}
 	};
@@ -909,7 +902,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 	private static class NextAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			CloseTabPaneUI ui = (CloseTabPaneUI) pane.getUI();
+			SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 			ui.navigateSelectedTab(NEXT);
 		}
 	};
@@ -917,7 +910,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 	private static class PreviousAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			CloseTabPaneUI ui = (CloseTabPaneUI) pane.getUI();
+			SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 			ui.navigateSelectedTab(PREVIOUS);
 		}
 	};
@@ -925,7 +918,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 	private static class PageUpAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			CloseTabPaneUI ui = (CloseTabPaneUI) pane.getUI();
+			SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 			int tabPlacement = pane.getTabPlacement();
 			if (tabPlacement == TOP || tabPlacement == BOTTOM) {
 				ui.navigateSelectedTab(WEST);
@@ -938,7 +931,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 	private static class PageDownAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			CloseTabPaneUI ui = (CloseTabPaneUI) pane.getUI();
+			SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 			int tabPlacement = pane.getTabPlacement();
 			if (tabPlacement == TOP || tabPlacement == BOTTOM) {
 				ui.navigateSelectedTab(EAST);
@@ -958,7 +951,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 	private static class RequestFocusForVisibleAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			CloseTabPaneUI ui = (CloseTabPaneUI) pane.getUI();
+			SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 			ui.requestMyFocusForVisibleComponent();
 		}
 	};
@@ -972,8 +965,8 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 		public void actionPerformed(ActionEvent e) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
 
-			if (pane != null && (pane.getUI() instanceof CloseTabPaneUI)) {
-				CloseTabPaneUI ui = (CloseTabPaneUI) pane.getUI();
+			if (pane != null && (pane.getUI() instanceof SIPCommTabbedPaneUI)) {
+				SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 				String command = e.getActionCommand();
 
 				if (command != null && command.length() > 0) {
@@ -1002,7 +995,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 			} else {
 				return; // shouldn't happen
 			}
-			CloseTabPaneUI ui = (CloseTabPaneUI) pane.getUI();
+			SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 
 			ui.tabScroller.scrollForward(pane.getTabPlacement());
 
@@ -1020,7 +1013,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 			} else {
 				return; // shouldn't happen
 			}
-			CloseTabPaneUI ui = (CloseTabPaneUI) pane.getUI();
+			SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) pane.getUI();
 
 			ui.tabScroller.scrollBackward(pane.getTabPlacement());
 
@@ -1347,7 +1340,7 @@ public class CloseTabPaneUI extends BasicTabbedPaneUI {
 
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			CloseTabPaneUI.this.paintTabArea(g, tabPane.getTabPlacement(),
+			SIPCommTabbedPaneUI.this.paintTabArea(g, tabPane.getTabPlacement(),
 					tabPane.getSelectedIndex());
 
 		}

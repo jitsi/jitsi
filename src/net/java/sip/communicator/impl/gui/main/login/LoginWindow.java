@@ -32,7 +32,6 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.impl.gui.main.customcontrols.RolloverButton;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;

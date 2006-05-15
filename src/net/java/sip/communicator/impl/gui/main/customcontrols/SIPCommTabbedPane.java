@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.customcontrols.tabbedPane;
+package net.java.sip.communicator.impl.gui.main.customcontrols;
 /*
  * The following code borrowed from
  * David Bismut, davidou@mageos.com
@@ -29,6 +29,13 @@ import javax.swing.plaf.TabbedPaneUI;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import javax.swing.plaf.metal.MetalTabbedPaneUI;
 
+import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommTabbedPaneEnhancedUI;
+import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommTabbedPaneUI;
+import net.java.sip.communicator.impl.gui.main.customcontrols.events.CloseListener;
+import net.java.sip.communicator.impl.gui.main.customcontrols.events.DoubleClickListener;
+import net.java.sip.communicator.impl.gui.main.customcontrols.events.MaxListener;
+import net.java.sip.communicator.impl.gui.main.customcontrols.events.PopupOutsideListener;
+
 /**
  * A JTabbedPane with some added UI functionalities. A close and max/detach
  * icons are added to every tab, typically to let the user close or detach the
@@ -41,8 +48,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
 
 	private int overTabIndex = -1;
 
-	private CloseTabPaneUI paneUI;
-
+	
 	/**
 	 * Creates the <code>CloseAndMaxTabbedPane</code> with an enhanced UI if
 	 * <code>enhancedUI</code> parameter is set to <code>true</code>.
@@ -52,13 +58,9 @@ public class SIPCommTabbedPane extends JTabbedPane {
 	 */
 	public SIPCommTabbedPane(boolean enhancedUI) {
 		super.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-
-		if (enhancedUI)
-			paneUI = new CloseTabPaneEnhancedUI();
-		else
-			paneUI = new CloseTabPaneUI();
-
-		super.setUI(paneUI);
+        
+        if(enhancedUI)
+            this.setUI(new SIPCommTabbedPaneEnhancedUI());
         
         this.setMaxIcon(false);
 	}
@@ -74,14 +76,16 @@ public class SIPCommTabbedPane extends JTabbedPane {
 	 * Returns <code>true</code> if the close icon is enabled.
 	 */
 	public boolean isCloseEnabled() {
-		return paneUI.isCloseEnabled();
+        SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI)this.getUI();
+		return ui.isCloseEnabled();
 	}
 
 	/**
 	 * Returns <code>true</code> if the max/detach icon is enabled.
 	 */
 	public boolean isMaxEnabled() {
-		return paneUI.isMaxEnabled();
+        SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI)this.getUI();
+		return ui.isMaxEnabled();
 	}
 
 	/**
@@ -96,11 +100,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
 	public void setTabPlacement(int tabPlacement) {
 	}
 
-	/**
-	 * Override JTabbedPane method. Does nothing.
-	 */
-	public void setUI(TabbedPaneUI ui) {
-	}
+	
 
 	/**
 	 * Sets whether the tabbedPane should have a close icon or not.
@@ -109,7 +109,8 @@ public class SIPCommTabbedPane extends JTabbedPane {
 	 *            whether the tabbedPane should have a close icon or not
 	 */
 	public void setCloseIcon(boolean b) {
-		paneUI.setCloseIcon(b);
+        SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI)this.getUI();
+		ui.setCloseIcon(b);
 	}
 
 	/**
@@ -119,7 +120,8 @@ public class SIPCommTabbedPane extends JTabbedPane {
 	 *            whether the tabbedPane should have a max/detach icon or not
 	 */
 	public void setMaxIcon(boolean b) {
-		paneUI.setMaxIcon(b);
+        SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI)this.getUI();
+		ui.setMaxIcon(b);
 	}
 
 	/**
@@ -404,9 +406,10 @@ public class SIPCommTabbedPane extends JTabbedPane {
      * Overrides setSelectedIndex in JTabbedPane in order to remove the 
      * hightlight if the tab which is selected.
      */
-    public void setSelectedIndex(int tabIndex){        
-        if(paneUI.isTabHighlighted(tabIndex)){            
-            paneUI.tabRemoveHighlight(tabIndex);
+    public void setSelectedIndex(int tabIndex){
+        SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI)this.getUI();
+        if(ui.isTabHighlighted(tabIndex)){            
+            ui.tabRemoveHighlight(tabIndex);
         }
         super.setSelectedIndex(tabIndex);
     }
@@ -417,9 +420,10 @@ public class SIPCommTabbedPane extends JTabbedPane {
      * @param tabIndex The tab index.
      */
     public void highlightTab(int tabIndex){
-        if(!paneUI.isTabHighlighted(tabIndex)
+        SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI)this.getUI();
+        if(!ui.isTabHighlighted(tabIndex)
         		&& this.getSelectedIndex() != tabIndex)
-            this.paneUI.tabAddHightlight(tabIndex);
+            ui.tabAddHightlight(tabIndex);
         
         this.repaint();
     }
