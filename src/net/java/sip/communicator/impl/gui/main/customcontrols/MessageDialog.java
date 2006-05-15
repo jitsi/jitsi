@@ -84,11 +84,5 @@ public class MessageDialog extends JDialog {
 	
 	public void setMessage(String message) {
 		this.messageLabel.setText(message);
-	}	
-	
-	public void paint(Graphics g){
-		AntialiasingManager.activateAntialiasing(g);
-	
-		super.paint(g);
-	}	
+	}
 }

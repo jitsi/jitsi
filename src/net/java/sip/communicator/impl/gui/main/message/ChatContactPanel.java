@@ -142,15 +142,7 @@ public class ChatContactPanel extends JPanel {
 		g2.setPaint(p1);
 		g2.fillRect(0, this.getHeight() - Constants.CONTACTPANEL_GRADIENT_SIZE - 1, this.getWidth(), this.getHeight() - 1);
 	}
-	
-	public void paint(Graphics g){			
 		
-		AntialiasingManager.activateAntialiasing(g);
-	
-		super.paint(g);			
-	}
-	
-	
 	public void setMouseOver(boolean isMouseOver) {
 		this.isMouseOver = isMouseOver;
 	}

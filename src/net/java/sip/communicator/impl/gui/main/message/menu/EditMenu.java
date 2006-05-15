@@ -57,13 +57,6 @@ public class EditMenu extends JMenu
 		this.add(pasteMenuItem);
 	}
 	
-	public void paint(Graphics g){
-		
-		AntialiasingManager.activateAntialiasing(g);
-	
-		super.paint(g);		
-	}
-
 	public void actionPerformed(ActionEvent e) {
 		JMenuItem menuItem = (JMenuItem)e.getSource();
 		String menuItemName = menuItem.getName();

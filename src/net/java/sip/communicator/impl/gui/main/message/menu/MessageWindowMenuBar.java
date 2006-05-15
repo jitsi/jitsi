@@ -52,12 +52,5 @@ public class MessageWindowMenuBar extends JMenuBar {
 		//Disable all menus that are not yet implemented.
 		this.settingsMenu.setEnabled(false);
 		this.helpMenu.setEnabled(false);
-	}
-	
-	public void paint(Graphics g){
-		
-		AntialiasingManager.activateAntialiasing(g);
-	
-		super.paint(g);
-	}
+	}	
 }

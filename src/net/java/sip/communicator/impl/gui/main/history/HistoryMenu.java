@@ -43,13 +43,6 @@ public class HistoryMenu extends JMenu implements ActionListener {
 		this.add(emptyMenuItem);
 		this.add(closeMenuItem);		
 	}
-	
-	public void paint(Graphics g){
-		
-		AntialiasingManager.activateAntialiasing(g);
-	
-		super.paint(g);		
-	}
 
 	public void actionPerformed(ActionEvent e) {
 		JMenuItem menuItem = (JMenuItem)e.getSource();

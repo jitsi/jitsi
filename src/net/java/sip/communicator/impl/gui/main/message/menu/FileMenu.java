@@ -63,13 +63,6 @@ public class FileMenu extends JMenu
 		this.printMenuItem.setEnabled(false);
 	}
 	
-	public void paint(Graphics g){
-		
-		AntialiasingManager.activateAntialiasing(g);
-	
-		super.paint(g);
-	}
-
 	public void actionPerformed(ActionEvent e) {
 		
 		JMenuItem menuItem = (JMenuItem)e.getSource();

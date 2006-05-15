@@ -57,11 +57,4 @@ public class AppearanceConfigurationForm
 		
 		return this;
 	}
-
-	public void paint(Graphics g){
-		
-		AntialiasingManager.activateAntialiasing(g);
-	
-		super.paint(g);
-	}
 }

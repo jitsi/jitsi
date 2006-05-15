@@ -86,11 +86,4 @@ public class TitlePanel extends JPanel {
 		
 		this.add(titleLabel);
 	}
-	
-	public void paint(Graphics g) {
-
-		AntialiasingManager.activateAntialiasing(g);
-
-		super.paint(g);
-	}
 }

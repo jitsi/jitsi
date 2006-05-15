@@ -158,11 +158,4 @@ public class ConfigurationFrame extends JFrame
 
 	public void mouseReleased(MouseEvent e) {
 	}
-
-	public void paint(Graphics g) {
-
-		AntialiasingManager.activateAntialiasing(g);
-
-		super.paint(g);
-	}
 }

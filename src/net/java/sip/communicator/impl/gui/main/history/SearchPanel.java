@@ -148,12 +148,6 @@ public class SearchPanel extends JPanel implements ActionListener {
 		this.enableDefaultSearchSettings();
 	}
 	
-	public void paint(Graphics g){
-		AntialiasingManager.activateAntialiasing(g);
-		
-		super.paint(g);	
-	}
-
 	public void actionPerformed(ActionEvent e) {
 		
 		JButton button = (JButton) e.getSource();
