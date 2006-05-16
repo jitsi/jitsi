@@ -17,6 +17,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;
@@ -25,7 +27,9 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel.RunMessageWindow;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
@@ -58,8 +62,10 @@ public class ContactListCellRenderer extends JPanel
 		super(new BorderLayout());
 
 		this.setBackground(Color.WHITE);
-		this.buttonsPanel.setOpaque(false);
 		
+        this.buttonsPanel.setOpaque(false);
+		this.buttonsPanel.setName("buttonsPanel");
+        
 		this.setOpaque(true);	
 
 		this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -102,26 +108,36 @@ public class ContactListCellRenderer extends JPanel
             //this.buttonsPanel.add(extendPanelButton);
          
             Iterator i = contactItem.getContacts();
+            int buttonsPanelWidth = 0;
             while(i.hasNext()){
                 Contact protocolContact = (Contact)i.next();
                 
                 String protocolName 
                     = protocolContact.getProtocolProvider().getProtocolName();
                 
-                Image protocolStatusIcon = (Image)Constants.getProtocolStatusIcons
-                                        (protocolName).get(protocolContact.getPresenceStatus());
+                Image protocolStatusIcon 
+                    = (Image)Constants.getProtocolStatusIcons
+                          (protocolName).get(protocolContact.getPresenceStatus());
                 
-                SIPCommButton contactProtocolButton = new SIPCommButton(protocolStatusIcon, 
-                                                                                                            protocolStatusIcon);
+                ContactProtocolButton contactProtocolButton 
+                    = new ContactProtocolButton(protocolStatusIcon, 
+                                        protocolStatusIcon);                
+                
+                contactProtocolButton.setProtocolProvider
+                    (protocolContact.getProtocolProvider());
+                
+                contactProtocolButton.setSize(protocolStatusIcon.getWidth(null),
+                            protocolStatusIcon.getHeight(null));
+                
                 this.buttonsPanel.add(contactProtocolButton);
             	
+                buttonsPanelWidth += contactProtocolButton.getWidth();
             	//toolTipText 
-            		//+= "<img src='" 
-            			//+ ImageLoader.getImagePath(protocolStatusIcon) 
-            			//+ "'></img>";
+            	//+= "<img src='" 
+            	//+ ImageLoader.getImagePath(protocolStatusIcon) 
+            	//+ "'></img>";
             			
             }
-       
             this.add(buttonsPanel, BorderLayout.EAST);
             
             toolTipText += "</html>";

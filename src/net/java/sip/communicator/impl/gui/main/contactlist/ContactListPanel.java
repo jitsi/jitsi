@@ -43,6 +43,7 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
+import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
@@ -212,12 +213,29 @@ public class ContactListPanel extends JScrollPane
 					
 					popupMenu.setVisible(true);
 				}
-			} else if (component instanceof JButton) {				
+			} else if (component instanceof JButton) {                
                 //Click on the info button opens the info popup panel
 				SwingUtilities.invokeLater
                     (new RunInfoWindow(selectedCellPoint, 
                             contact));
-			}
+			} else if (component instanceof JPanel
+			        && component.getName().equals("buttonsPanel")){
+                JPanel panel = (JPanel)component;
+                
+			    int internalX = translatedX - (renderer.getWidth() - panel.getWidth() - 2);
+                int internalY = translatedY - (renderer.getHeight() - panel.getHeight());
+                                
+                Component c = panel.getComponentAt(4, 4);
+                
+                if(c instanceof ContactProtocolButton){
+                    
+                    SwingUtilities.invokeLater
+                        (new RunMessageWindow(contact,
+                                ((ContactProtocolButton)c)
+                                    .getProtocolProvider()));
+                }
+            }
+            
 		}
 	}
 
@@ -233,16 +251,25 @@ public class ContactListPanel extends JScrollPane
 	public class RunMessageWindow implements Runnable {
 
 		private MetaContact contactItem;
+        private ProtocolProviderService protocolProvider;
 
 		public RunMessageWindow(MetaContact contactItem) {
 			this.contactItem = contactItem;
+            this.protocolProvider 
+                = contactItem.getDefaultContact().getProtocolProvider();
 		}
+        
+        public RunMessageWindow(MetaContact contactItem,
+                                ProtocolProviderService protocolProvider){
+            this.contactItem = contactItem;
+            this.protocolProvider = protocolProvider;
+        }
 
 		public void run() {
 			PresenceStatus contactStatus 
      			= ((ContactListModel)contactList.getModel())
      				.getMetaContactStatus(this.contactItem);
-			 
+			
             if(!Constants.TABBED_CHAT_WINDOW){                
                 //If in mode "open all messages in new window"                
 	    			if (contactMsgWindows.containsKey(this.contactItem)) {    			    
@@ -266,7 +293,8 @@ public class ContactListPanel extends JScrollPane
 	          
 	                contactMsgWindows.put(this.contactItem, msgWindow);
 	                
-	                msgWindow.addChat(this.contactItem, contactStatus);
+	                msgWindow.addChat(this.contactItem, 
+                            contactStatus, protocolProvider);
 	                    
 	                msgWindow.pack();
 	                
@@ -299,7 +327,7 @@ public class ContactListPanel extends JScrollPane
                     
                     // If there's no open tab for the given contact.                    
                     ChatPanel chatPanel = tabbedChatWindow.addChatTab(this.contactItem,
-                    		contactStatus);
+                    		contactStatus, protocolProvider);
                     
                     tabbedChatWindow.setCurrentChatPanel(chatPanel);
                     
@@ -378,10 +406,14 @@ public class ContactListPanel extends JScrollPane
         MetaContact metaContact
             = mainFrame.getContactList()
             		.findMetaContactByContact(evt.getSourceContact());
+        
         PresenceStatus contactStatus
         		= ((ContactListModel)this.contactList.getModel())
         			.getMetaContactStatus(metaContact);
-        			
+        
+        ProtocolProviderService protocolProvider
+            = evt.getSourceContact().getProtocolProvider();
+                
         if(!Constants.TABBED_CHAT_WINDOW){                
             //If in mode "open all messages in new window"                
             if (contactMsgWindows.containsKey(metaContact)) {                  
@@ -408,7 +440,8 @@ public class ContactListPanel extends JScrollPane
           
                 contactMsgWindows.put(metaContact, msgWindow);
 
-                msgWindow.addChat(metaContact, contactStatus);
+                msgWindow.addChat(metaContact, contactStatus,
+                        protocolProvider);
                 
                 msgWindow.getCurrentChatPanel().getConversationPanel()
                     .processMessage(evt.getSourceContact().getDisplayName(), 
@@ -445,7 +478,8 @@ public class ContactListPanel extends JScrollPane
                     == null){                
                 // If there's no open tab for the given contact.                    
                 chatPanel 
-                    = tabbedChatWindow.addChatTab(metaContact, contactStatus);
+                    = tabbedChatWindow.addChatTab(metaContact, contactStatus,
+                            protocolProvider);
                 
                 chatPanel.getConversationPanel()
                     .processMessage(evt.getSourceContact().getDisplayName(), 
