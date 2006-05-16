@@ -30,6 +30,7 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
  * The chat window is the place, where users 
@@ -119,7 +120,7 @@ public class ChatWindow extends JFrame{
      * @return The ChatConversationPanel for the currently selected
      * chat panel.
      */
-	public ChatConversationPanel getConversationPanel() {
+	public ChatConversationPanel getCurrentConversationPanel() {
 		return this.currentChatPanel.getConversationPanel();
 	}    
 
@@ -194,13 +195,10 @@ public class ChatWindow extends JFrame{
      * adds it directly to the chat window.
      */
     public void addChat(MetaContact contact, 
-    						PresenceStatus status){
+    					PresenceStatus status,
+                        ProtocolProviderService protocolProvider){
         
-        OperationSetBasicInstantMessaging contactIMOperationSet 
-        = this.mainFrame.getProtocolIM
-                (contact.getDefaultContact().getProtocolProvider());
-        
-        this.setCurrentChatPanel(new ChatPanel(this, contactIMOperationSet));
+        this.setCurrentChatPanel(new ChatPanel(this, protocolProvider));
         
         this.currentChatPanel.addContactToChat(contact, status);
         
@@ -219,17 +217,15 @@ public class ChatWindow extends JFrame{
      * 
      * @param contact The MetaContact added to the chat.
      */
-    public ChatPanel addChatTab(MetaContact contact, PresenceStatus status){
-        
-        OperationSetBasicInstantMessaging contactIMOperationSet 
-        = this.mainFrame.getProtocolIM
-                (contact.getDefaultContact().getProtocolProvider());
-        
+    public ChatPanel addChatTab(MetaContact contact, 
+                                PresenceStatus status,
+                                ProtocolProviderService protocolProvider){
+       
         ChatPanel chatPanel = null;
         
         if(chatTabbedPane == null){
             //Initialize the tabbed pane for the first time           
-            chatPanel = new ChatPanel(this, contactIMOperationSet);
+            chatPanel = new ChatPanel(this, protocolProvider);
             
             chatPanel.addContactToChat(contact, status);
             
@@ -258,7 +254,7 @@ public class ChatWindow extends JFrame{
     		
             if(chatTabbedPane.getTabCount() > 0){                
                 //The tabbed pane contains already tabs.                
-                chatPanel = new ChatPanel(this, contactIMOperationSet);
+                chatPanel = new ChatPanel(this, protocolProvider);
                 
                 chatPanel.addContactToChat(contact, status);
                 
@@ -284,7 +280,7 @@ public class ChatWindow extends JFrame{
                     			(currentContactStatus)),
                     firstChatPanel);
                                
-                chatPanel = new ChatPanel(this, contactIMOperationSet);
+                chatPanel = new ChatPanel(this, protocolProvider);
                 
                 chatPanel.addContactToChat(contact, status);
                 

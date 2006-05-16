@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BasicStroke;
@@ -14,19 +13,27 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommSelectorBox;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 public class ChatSendPanel extends JPanel 
     implements ActionListener{
@@ -42,6 +49,10 @@ public class ChatSendPanel extends JPanel
 
 	private ChatPanel chatPanel;
     
+    private ArrayList protocolsList = new ArrayList();
+    
+    SIPCommSelectorBox protocolSelectorBox = new SIPCommSelectorBox();
+        
 	public ChatSendPanel(ChatPanel chatPanel) {
 
 		super(new BorderLayout(5, 5));
@@ -52,11 +63,11 @@ public class ChatSendPanel extends JPanel
 
 		this.statusPanel.add(statusLabel);
 						
-		//this.sendPanel.add(sendButton, BorderLayout.CENTER);
-		//this.sendPanel.add(protocolSelectorBox, BorderLayout.WEST);
+		this.sendPanel.add(sendButton, BorderLayout.CENTER);
+		this.sendPanel.add(protocolSelectorBox, BorderLayout.WEST);
 
 		this.add(statusPanel, BorderLayout.CENTER);
-		this.add(sendButton, BorderLayout.EAST);
+		this.add(sendPanel, BorderLayout.EAST);
 		
 		this.sendButton.addActionListener(this);
 	}
@@ -108,17 +119,53 @@ public class ChatSendPanel extends JPanel
 		return sendButton;
 	}
 
-	public void addProtocols(String[] protocolList) {
-		
-		for(int i = 0; i < protocolList.length; i ++){
-			
-		/*	protocolSelectorBox.addItem(protocolList[i], 
-						new ImageIcon(Constants.getProtocolIcon(protocolList[i])));
-                        */
-		}
+	public void addProtocols(MetaContact metaContact) {
+        
+        Iterator protocolContacts = metaContact.getContacts();
+        while(protocolContacts.hasNext()){
+            Contact contact = (Contact)protocolContacts.next();
+            
+            ProtocolProviderService protocolProvider
+                = contact.getProtocolProvider();
+            
+            if(!protocolsList.contains(protocolProvider))
+                protocolsList.add(protocolProvider);
+            
+            String protocolName = protocolProvider.getProtocolName();
+            protocolSelectorBox.addItem(protocolName, 
+                    new ImageIcon(Constants.getProtocolIcon(protocolName)),
+                    new ProtocolItemListener());            
+        }    
 	}
     
     public void setTypingStatus(String statusMessage){
         statusLabel.setText(statusMessage);
+    }
+    
+    public void setSelectedProtocol(ProtocolProviderService protocolProvider){
+        protocolSelectorBox.setIcon(new ImageIcon(Constants
+                .getProtocolIcon(protocolProvider.getProtocolName())));
+    }
+    
+    private class ProtocolItemListener implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            JMenuItem menuItem = (JMenuItem)e.getSource();
+            String itemTitle = menuItem.getText();
+            
+            for(int i = 0; i < protocolsList.size(); i ++){
+                ProtocolProviderService protocolProvider 
+                    = (ProtocolProviderService)protocolsList.get(i);
+                
+                if(protocolProvider.getProtocolName().equals(itemTitle)){
+                    OperationSetBasicInstantMessaging im
+                        = chatPanel.getChatWindow().getMainFrame()
+                            .getProtocolIM(protocolProvider);
+                    
+                    chatPanel.setImOperationSet(im);
+                    
+                    protocolSelectorBox.setSelected(menuItem);
+                }
+            }
+        }
     }
 }

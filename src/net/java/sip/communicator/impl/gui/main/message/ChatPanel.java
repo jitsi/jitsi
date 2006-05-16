@@ -25,6 +25,7 @@ import javax.swing.SwingUtilities;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
  * The ChatPanel is the panel, where users can write
@@ -37,8 +38,6 @@ import net.java.sip.communicator.service.protocol.PresenceStatus;
  * each ChatPanel corresponds to a ChatWindow. When 
  * chat is in mode "group all messages in one chat window",
  * each ChatPanel corresponds to a tab in the ChatWindow.
- * In the second case, each ChatPanel stores its tab index 
- * in the tabbed pane.    
  * 
  * @author Yana Stamcheva
  */
@@ -65,6 +64,8 @@ public class ChatPanel extends JPanel {
     
     private OperationSetBasicInstantMessaging imOperationSet;
     
+    private ProtocolProviderService protocolProvider;
+    
     /**
      * Creates a chat panel which is added to the 
      * given chat window.
@@ -73,18 +74,20 @@ public class ChatPanel extends JPanel {
      * chat panel.
      */
     public ChatPanel(ChatWindow chatWindow, 
-            OperationSetBasicInstantMessaging imOperationSet){
+            ProtocolProviderService protocolProvider){
         
         super(new BorderLayout());
         
         this.chatWindow = chatWindow;
-        this.imOperationSet = imOperationSet;
+        this.protocolProvider = protocolProvider;
+        this.imOperationSet = this.chatWindow.getMainFrame()
+                                .getProtocolIM(protocolProvider);;
         
-        conversationPanel = new ChatConversationPanel(this);
+        this.conversationPanel = new ChatConversationPanel(this);
         
-        sendPanel = new ChatSendPanel(this);
+        this.sendPanel = new ChatSendPanel(this);
         
-        writeMessagePanel = new ChatWritePanel(this);
+        this.writeMessagePanel = new ChatWritePanel(this);
         
         this.topSplitPane.setResizeWeight(1.0D);
         this.messagePane.setResizeWeight(1.0D);
@@ -99,7 +102,9 @@ public class ChatPanel extends JPanel {
         
         this.init();
         
-        addComponentListener(new TabSelectionFocusGainListener()); 
+        this.sendPanel.setSelectedProtocol(protocolProvider);
+        
+        addComponentListener(new TabSelectionFocusGainListener());
     }
     
     /**
@@ -123,12 +128,13 @@ public class ChatPanel extends JPanel {
      * 
      * @param contactItem The MetaContact to add.
      */
-    public void addContactToChat (	MetaContact contactItem,
-    									PresenceStatus status){     
-        
+    public void addContactToChat(MetaContact contactItem,
+                                PresenceStatus status){        
         this.chatContacts.add(contactItem);
         
         this.chatConferencePanel.addContactToChat(contactItem, status);
+        
+        this.sendPanel.addProtocols(contactItem);
     }
     
     /**
@@ -136,11 +142,13 @@ public class ChatPanel extends JPanel {
      * 
      * @param contactItem The MetaContact to add.
      */
-    public void addContactToChat(MetaContact contactItem){     
+    public void addContactToChat(MetaContact contactItem){
         
         this.chatContacts.add(contactItem);
         
         this.chatConferencePanel.addContactToChat(contactItem);
+        
+        this.sendPanel.addProtocols(contactItem);
     }
 
     /**
@@ -263,7 +271,7 @@ public class ChatPanel extends JPanel {
     	}
 
     	public void componentShown(ComponentEvent e) {
-    		/*Component component = e.getComponent();
+    		Component component = e.getComponent();
     		Container parent = component.getParent();
     		if ( parent instanceof JTabbedPane ) {    			
     			JTabbedPane tabbedPane = (JTabbedPane)parent;
@@ -280,7 +288,7 @@ public class ChatPanel extends JPanel {
     					}
     				});    				
     			}
-    		}*/
+    		}
     	}
 
     	public void componentHidden(ComponentEvent e) {
