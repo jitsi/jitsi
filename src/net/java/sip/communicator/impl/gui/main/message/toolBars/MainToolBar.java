@@ -176,7 +176,7 @@ public class MainToolBar extends SIPCommToolBar
 		} else if (buttonText.equalsIgnoreCase("copy")) {
 			
 			JEditorPane editorPane 
-				= this.messageWindow.getConversationPanel()
+				= this.messageWindow.getCurrentConversationPanel()
 					.getChatEditorPane();
 			
 			if(editorPane.getSelectedText() == null){

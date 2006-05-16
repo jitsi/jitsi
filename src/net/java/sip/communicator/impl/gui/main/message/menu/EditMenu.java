@@ -71,7 +71,7 @@ public class EditMenu extends JMenu
 		} else if (menuItemName.equalsIgnoreCase("copy")) {
 			
 			JEditorPane editorPane 
-				= this.chatWindow.getConversationPanel()
+				= this.chatWindow.getCurrentConversationPanel()
 					.getChatEditorPane();
 			
 			if(editorPane.getSelectedText() == null){
