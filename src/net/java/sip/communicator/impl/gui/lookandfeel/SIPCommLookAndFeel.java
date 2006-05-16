@@ -6,9 +6,16 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
+import javax.swing.GrayFilter;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.plaf.IconUIResource;
 import javax.swing.plaf.metal.MetalLookAndFeel;
+
+import net.java.sip.communicator.impl.gui.utils.LightGrayFilter;
 
 /**
  * The default SIP-Communicator look&feel.
@@ -59,5 +66,13 @@ public class SIPCommLookAndFeel extends MetalLookAndFeel {
                 "ToolTipUI", lfPackageName + "SIPCommToolTipUI"
         };
         table.putDefaults(uiDefaults);
+    }
+    
+    public Icon getDisabledIcon(JComponent component, Icon icon) {
+        if (icon instanceof ImageIcon) {
+            return new IconUIResource(new ImageIcon(LightGrayFilter.
+                   createDisabledImage(((ImageIcon)icon).getImage())));
+        }
+        return null;
     }
 }

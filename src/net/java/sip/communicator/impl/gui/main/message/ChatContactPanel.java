@@ -109,6 +109,10 @@ public class ChatContactPanel extends JPanel {
 		this.add(personPhotoLabel, BorderLayout.WEST);
 		this.add(mainPanel, BorderLayout.CENTER);
 		
+        //Disabled all unused buttons.
+        this.callButton.setEnabled(false);
+        this.infoButton.setEnabled(false);
+        this.sendFileButton.setEnabled(false);
 	}
 		
 	public void paintComponent(Graphics g){

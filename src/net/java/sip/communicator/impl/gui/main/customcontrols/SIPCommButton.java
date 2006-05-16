@@ -12,7 +12,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 
-import javax.swing.GrayFilter;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.plaf.IconUIResource;
@@ -20,6 +19,7 @@ import javax.swing.plaf.IconUIResource;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.LightGrayFilter;
 
 /**
  * @author Yana Stamcheva
@@ -96,14 +96,23 @@ public class SIPCommButton extends JButton {
 	public void paintComponent(Graphics g) {	
 		AntialiasingManager.activateAntialiasing(g);
 		
-        if(this.bgImage != null)
-            g.drawImage(this.bgImage, 0, 0, this);
+        if(this.bgImage != null){
+            // If there's no icon, we make grey the backgroundImage
+            // when disabled.
+            if(this.iconImage == null && !isEnabled()){
+                Image disabledImage = new ImageIcon(
+                    LightGrayFilter.createDisabledImage(bgImage)).getImage();
+                
+                g.drawImage(disabledImage, 0, 0, this);
+            }
+            else
+                g.drawImage(this.bgImage, 0, 0, this);
+        }
 
-        if (this.iconImage != null) {
-            
+        if (this.iconImage != null) {            
             if(!isEnabled()){
-                this.iconImage = new ImageIcon(
-                    GrayFilter.createDisabledImage(iconImage)).getImage();            
+                this.iconImage = new ImageIcon(LightGrayFilter
+                        .createDisabledImage(iconImage)).getImage();            
             }
             // draw the button icon depending the current button layout
             if (this.iconLayout.equals(SIPCommButton.CENTER_ICON_LAYOUT))

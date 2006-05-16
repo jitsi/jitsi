@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.BorderLayout;
@@ -94,7 +93,11 @@ public class CallPanel extends JPanel implements ActionListener{
 		
 		this.minimizeButtonPanel.add(restoreButton);
 		
-		this.add(minimizeButtonPanel,BorderLayout.SOUTH);		
+		this.add(minimizeButtonPanel,BorderLayout.SOUTH);
+        
+        //Disable all unused buttons.
+        this.callButton.setEnabled(false);
+        this.hangupButton.setEnabled(false);
 	}
 
 	public JComboBox getPhoneNumberCombo() {
