@@ -28,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommSelectorBox;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -38,12 +39,13 @@ import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 import net.java.sip.communicator.util.Logger;
 
-public class StatusSelectorBox extends JLabel
-    implements MouseListener {
-
-    private JPopupMenu popup;
-
-    private Map itemsMap;
+/**
+ * The component containging the list of statuses for a protocol,
+ * where the user could change its status.
+ * 
+ * @author Yana Stamcheva
+ */
+public class StatusSelectorBox extends SIPCommSelectorBox{
     
     private Logger logger = Logger.getLogger(StatusSelectorBox.class.getName());
     
@@ -51,90 +53,43 @@ public class StatusSelectorBox extends JLabel
     
     private BufferedImage[] animatedImageArray;
     
-    private Image backgroundImage = ImageLoader
-        .getImage(ImageLoader.STATUS_SELECTOR_BOX);
-    
     private Connecting connecting = new Connecting();
     
     private ProtocolProviderService protocolProvider;
     
+    private Map itemsMap;
+    
     public StatusSelectorBox(	MainFrame mainFrame,
     							ProtocolProviderService protocolProvider) {
+        super();
         
-        this.setPreferredSize(new Dimension(
-                                this.backgroundImage.getWidth(this),
-                                this.backgroundImage.getHeight(this)));
-        
-        this.setVerticalAlignment(JLabel.CENTER);
-        
-        this.setHorizontalAlignment(JLabel.CENTER);
-        
-        this.mainFrame = mainFrame;
-        
+        this.mainFrame = mainFrame;        
         this.protocolProvider = protocolProvider;
-                
-        this.popup = new JPopupMenu();
-        
-        this.popup.setInvoker(this);
-        
-        this.addMouseListener(this);
     }
     
     public StatusSelectorBox(   MainFrame mainFrame,
                                 ProtocolProviderService protocolProvider,
                                 Map itemsMap, 
                                 Image selectedItem) {
-       
-        this.setPreferredSize(new Dimension(
-                this.backgroundImage.getWidth(this),
-                this.backgroundImage.getHeight(this)));
-       
-        this.setVerticalAlignment(JLabel.CENTER);
+        super(selectedItem);
         
-        this.setHorizontalAlignment(JLabel.CENTER);
-        
-        this.setIcon(new ImageIcon(selectedItem));
-        
+        this.itemsMap = itemsMap;
         this.mainFrame = mainFrame;
         this.protocolProvider = protocolProvider;
-        this.itemsMap = itemsMap;
-        
-        this.popup = new JPopupMenu();
-        
-        this.popup.setInvoker(this);
-        
-        this.addMouseListener(this);
         
         this.init();
     }
     
     public void init() {
-
         Iterator iter = itemsMap.entrySet().iterator();
         
         while (iter.hasNext()) {
-
             Map.Entry entry = (Map.Entry)iter.next();
-        
-            JMenuItem item 
-                = new JMenuItem
-                    (((IcqStatusEnum)entry.getKey()).getStatusName(), 
-                     new ImageIcon((Image)entry.getValue()));
-            
-            item.addActionListener(new ItemActionListener());
-            
-            this.popup.add(item);
-        
+
+            this.addItem(((IcqStatusEnum)entry.getKey()).getStatusName(),
+                    new ImageIcon((Image)entry.getValue()),
+                    new ItemActionListener());            
         }       
-    }
-
-    public void addItem(String text, Icon icon){
-        
-        JMenuItem item = new JMenuItem( text, icon);
-
-        item.addActionListener(new ItemActionListener());
-
-        this.popup.add(item);
     }
     
     private class ItemActionListener implements ActionListener{
@@ -229,7 +184,7 @@ public class StatusSelectorBox extends JLabel
                         break;
                     }                
                 }                
-                setIcon(menuItem.getIcon());
+                setSelected(menuItem);
             }
         } 
     }
@@ -247,66 +202,7 @@ public class StatusSelectorBox extends JLabel
         
         this.connecting.stop();
     }
-    
-    public Point calculatePopupLocation(){
         
-        Component component = this;
-        Point point = new Point();
-        int x = this.getX();
-        int y = this.getY();
-        
-        while(component.getParent() != null){
-            
-            component = component.getParent();
-            
-            x += component.getX();
-            y += component.getY();
-        }
-        
-        point.x = x;
-        point.y = y + this.getHeight();
-        
-        return point;
-    }   
-    
-    protected void paintComponent(Graphics g){
-        
-        AntialiasingManager.activateAntialiasing(g);
-                
-        g.drawImage(this.backgroundImage, 0, 0, this);
-        
-        super.paintComponent(g);
-    }
-
-    public void mouseClicked(MouseEvent e) {
-            
-        if (!this.popup.isVisible()) {
-            this.popup.setLocation(calculatePopupLocation());
-            this.popup.setVisible(true);            
-        }
-    }
-
-    public void mouseEntered(MouseEvent e) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void mousePressed(MouseEvent e) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void mouseReleased(MouseEvent e) {
-        // TODO Auto-generated method stub
-        
-    }
-    
-    
     private class Connecting extends Timer {
          
         public Connecting(){      
