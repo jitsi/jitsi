@@ -620,19 +620,27 @@ public class ContactListPanel extends JScrollPane
 			= (ContactListModel)this.getContactList().getModel();
 		
 		if(!Constants.TABBED_CHAT_WINDOW){
-			//TODO: update chat contact status in 
-			//mode all messages in new window
+            if (contactMsgWindows.containsKey(metaContact)) {
+                ChatWindow msgWindow = (ChatWindow) contactMsgWindows
+                        .get(metaContact);
+                msgWindow.getCurrentChatPanel()
+                    .updateContactStatus(listModel
+                            .getMetaContactStatus(metaContact));
+            }
         }
-        else if(tabbedChatWindow != null && tabbedChatWindow.getTabCount() > 0){        		
+        else if(tabbedChatWindow != null){
+            
             Hashtable contactTabsTable 
                 = tabbedChatWindow.getContactTabsTable();
             
             ChatPanel chatPanel 
-            	= (ChatPanel)contactTabsTable.get(metaContact.getMetaUID());
-            		
-            if(chatPanel != null){        		
-        		tabbedChatWindow.setTabIcon(metaContact,
-        			listModel.getMetaContactStatusIcon(metaContact));
+                = (ChatPanel)contactTabsTable.get(metaContact.getMetaUID());
+            
+            if(chatPanel != null){
+                if(tabbedChatWindow.getTabCount() > 0){
+                    tabbedChatWindow.setTabIcon(metaContact,
+                            listModel.getMetaContactStatusIcon(metaContact));
+                }	
         		chatPanel.updateContactStatus(
         				listModel.getMetaContactStatus(metaContact));
             }
