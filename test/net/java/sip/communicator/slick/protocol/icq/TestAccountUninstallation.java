@@ -9,6 +9,11 @@ package net.java.sip.communicator.slick.protocol.icq;
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 import org.osgi.framework.*;
+import java.util.List;
+import java.util.LinkedList;
+import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeListener;
+import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeEvent;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * Tests whether accaounts are uninstalled properly. It is important that
@@ -20,7 +25,23 @@ import org.osgi.framework.*;
 public class TestAccountUninstallation
     extends TestCase
 {
+    private static final Logger logger =
+        Logger.getLogger(TestAccountUninstallation.class);
+
     IcqSlickFixture fixture = new IcqSlickFixture();
+
+    /**
+     * An event adapter that would collec registation state change events
+     */
+    public RegistrationEventCollector regEvtCollector
+        = new RegistrationEventCollector();
+
+    /**
+     * The lock that we wait on until registration is finalized.
+     */
+    private Object registrationLock = new Object();
+
+
 
     public TestAccountUninstallation(String name)
     {
@@ -37,6 +58,52 @@ public class TestAccountUninstallation
     {
         fixture.tearDown();
         super.tearDown();
+    }
+
+    /**
+     * Registers listener who will wait for Inregistered event.
+     * Than log in The tester with uin that is already logged in
+     * So we must get event that the account is unregistered due to
+     * multiple logins
+     */
+    public void testMultipleLogins()
+    {
+        fixture.provider.addRegistrationStateChangeListener(regEvtCollector);
+
+        String passwd = System.getProperty( IcqProtocolProviderSlick
+                                            .TESTED_IMPL_PWD_PROP_NAME, null );
+        String uin = System.getProperty( IcqProtocolProviderSlick
+                                         .TESTED_IMPL_ACCOUNT_ID_PROP_NAME, null);
+
+        IcqTesterAgent testerAgent = new IcqTesterAgent(uin);
+        testerAgent.register(passwd);
+
+        // give time to the register process
+        Object lock = new Object();
+        synchronized(lock)
+        {
+            try
+            {
+                logger.debug("Giving the aim server time to notify for our arrival!");
+                lock.wait(5000);
+            }
+            catch (Exception ex)
+            {}
+        }
+
+        testerAgent.unregister();
+
+        assertTrue(
+                    "No event was dispatched"
+                    ,regEvtCollector.stateRecieved != null);
+
+        assertTrue(
+                    "Event is not UNREGISTERED event"
+                    ,regEvtCollector.stateRecieved.equals(RegistrationState.UNREGISTERED));
+
+        assertTrue(
+            "No registration event notifying of Multiple logins dispatched "
+            , regEvtCollector.eventReason == RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS);
     }
 
     /**
@@ -87,4 +154,44 @@ public class TestAccountUninstallation
             );
     }
 
+    /**
+         * A class that would plugin as a registration listener to a protocol
+         * provider and simply record all events that it sees and notify the
+         * registrationLock if it sees an event that notifies us of a completed
+         * registration.
+         * @author Emil Ivov
+         */
+        public class RegistrationEventCollector implements RegistrationStateChangeListener
+        {
+            RegistrationState stateRecieved = null;
+            int eventReason = -1;
+
+            /**
+             * The method would simply register all received events so that they
+             * could be available for later inspection by the unit tests. In the
+             * case where a registraiton event notifying us of a completed
+             * registration is seen, the method would call notifyAll() on the
+             * registrationLock.
+             *
+             * @param evt ProviderStatusChangeEvent the event describing the status
+             * change.
+             */
+            public void registrationStateChanged(RegistrationStateChangeEvent evt)
+            {
+                logger.debug("Received a RegistrationStateChangeEvent: " + evt);
+
+                if(evt.getNewState().equals( RegistrationState.UNREGISTERED))
+                {
+                    logger.debug("Connection FAILED!");
+                    stateRecieved = evt.getNewState();
+                    eventReason = evt.getReasonCode();
+
+                    synchronized(registrationLock){
+                        logger.debug(".");
+                        registrationLock.notifyAll();
+                        logger.debug(".");
+                    }
+                }
+            }
+    }
 }
