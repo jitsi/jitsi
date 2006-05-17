@@ -64,7 +64,10 @@ public class ChatConferencePanel extends JPanel {
 		this.buttonPanel.add(addToChatButton);		
 		
 		this.add(contactsScrollPane, BorderLayout.CENTER);
-		this.add(buttonPanel, BorderLayout.SOUTH);		
+		this.add(buttonPanel, BorderLayout.SOUTH);
+        
+        //Disable all unused buttons. 
+        this.addToChatButton.setEnabled(false);
 	}
 	
 	public void addContactToChat (MetaContact contactItem){		

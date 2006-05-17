@@ -111,30 +111,55 @@ public class SIPCommButton extends JButton {
 
         if (this.iconImage != null) {            
             if(!isEnabled()){
-                this.iconImage = new ImageIcon(LightGrayFilter
-                        .createDisabledImage(iconImage)).getImage();            
-            }
-            // draw the button icon depending the current button layout
-            if (this.iconLayout.equals(SIPCommButton.CENTER_ICON_LAYOUT))
-                g.drawImage(this.iconImage,
+                Image disabledImage = new ImageIcon(LightGrayFilter
+                        .createDisabledImage(iconImage)).getImage();
+                
+//              draw the button icon depending the current button layout
+                if (this.iconLayout.equals(SIPCommButton.CENTER_ICON_LAYOUT))
+                    g.drawImage(disabledImage,
                                 (this.bgImage.getWidth(null) - 
-                                this.iconImage.getWidth(null)) / 2,
+                                disabledImage.getWidth(null)) / 2,
                                 (this.bgImage.getHeight(null) - 
-                                this.iconImage.getHeight(null)) / 2, this);
-            
-            else if (this.iconLayout.equals(SIPCommButton.LEFT_ICON_LAYOUT))
-                g.drawImage(this.iconImage,
-                            7, 
+                                disabledImage.getHeight(null)) / 2, this);
+                
+                else if (this.iconLayout.equals(SIPCommButton.LEFT_ICON_LAYOUT))
+                    g.drawImage(disabledImage,
+                                7, 
+                                (this.bgImage.getHeight(null) - 
+                                disabledImage.getHeight(null)) / 2, 
+                                this);
+                
+                else if (this.iconLayout.equals(SIPCommButton.LEFT_ICON_LAYOUT))
+                    g.drawImage(disabledImage,
+                            this.bgImage.getWidth(null) - 3, 
+                            (this.bgImage.getHeight(null) - 
+                            disabledImage.getHeight(null)) / 2, 
+                            this);
+            }
+            else{
+//              draw the button icon depending the current button layout
+                if (this.iconLayout.equals(SIPCommButton.CENTER_ICON_LAYOUT))
+                    g.drawImage(this.iconImage,
+                                    (this.bgImage.getWidth(null) - 
+                                    this.iconImage.getWidth(null)) / 2,
+                                    (this.bgImage.getHeight(null) - 
+                                    this.iconImage.getHeight(null)) / 2, this);
+                
+                else if (this.iconLayout.equals(SIPCommButton.LEFT_ICON_LAYOUT))
+                    g.drawImage(this.iconImage,
+                                7, 
+                                (this.bgImage.getHeight(null) - 
+                                this.iconImage.getHeight(null)) / 2, 
+                                this);
+                
+                else if (this.iconLayout.equals(SIPCommButton.LEFT_ICON_LAYOUT))
+                    g.drawImage(this.iconImage,
+                            this.bgImage.getWidth(null) - 3, 
                             (this.bgImage.getHeight(null) - 
                             this.iconImage.getHeight(null)) / 2, 
                             this);
+            }
             
-            else if (this.iconLayout.equals(SIPCommButton.LEFT_ICON_LAYOUT))
-                g.drawImage(this.iconImage,
-                        this.bgImage.getWidth(null) - 3, 
-                        (this.bgImage.getHeight(null) - 
-                        this.iconImage.getHeight(null)) / 2, 
-                        this);
 		}
 
 		if (this.bgRolloverImage != null && this.getModel().isRollover()) {
