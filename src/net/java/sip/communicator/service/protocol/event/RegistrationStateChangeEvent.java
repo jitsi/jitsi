@@ -104,6 +104,8 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
               RegistrationStateChangeEvent.class.getName(),
               oldValue,
               newValue);
+        this.reasonCode = reasonCode;
+        this.reason = reason;
     }
 
     /**
@@ -145,7 +147,9 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
     {
         return "RegistrationStateChangeEvent[ oldState="
             + getOldState().getStateName()
-            + "; newState="+ getNewState()+"]";
+            + "; newState="+ getNewState()
+            + ";reasonCode=" + getReasonCode()
+            + ";reason=" + getReason() + "]";
     }
 
     /**
