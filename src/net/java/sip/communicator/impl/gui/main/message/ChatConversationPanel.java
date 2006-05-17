@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +28,7 @@ import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
+import net.java.sip.communicator.impl.contactlist.MclStorageManager;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.BrowserLauncher;
 import net.java.sip.communicator.impl.gui.utils.Constants;
@@ -34,6 +36,7 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.impl.gui.utils.MyHTMLEditorKit;
 import net.java.sip.communicator.impl.gui.utils.Smily;
 import net.java.sip.communicator.impl.gui.utils.StringUtils;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * This is the panel, where all sent and received 
@@ -48,7 +51,10 @@ import net.java.sip.communicator.impl.gui.utils.StringUtils;
  */
 public class ChatConversationPanel extends JScrollPane 
     implements HyperlinkListener {
-
+    
+    private static final Logger logger =
+        Logger.getLogger(ChatConversationPanel.class.getName());
+    
 	private JEditorPane chatEditorPane = new JEditorPane();
 
     private HTMLEditorKit editorKit = new MyHTMLEditorKit(); 
@@ -112,13 +118,17 @@ public class ChatConversationPanel extends JScrollPane
      * or INCOMING_MESSAGE. 
      * @param message The message text.
      */
-    public void processMessage(String contactName,
-                                                Calendar calendar,
-                                                String messageType, 
-                                                String message){
+    public void processMessage( String contactName,
+                                Date date,
+                                String messageType, 
+                                String message){
            
         String chatString;
         String endHeaderTag;
+        
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        
         if(messageType.equals(ChatMessage.INCOMING_MESSAGE)){
             chatString = "<h2>";
             endHeaderTag = "</h2>";
@@ -142,13 +152,12 @@ public class ChatConversationPanel extends JScrollPane
         Element root = this.document.getDefaultRootElement();
         
         try {
-            this.document.insertAfterEnd(root.getElement(root.getElementCount() - 1), chatString);            
+            this.document.insertAfterEnd
+                (root.getElement(root.getElementCount() - 1), chatString);            
         } catch (BadLocationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("Insert in the HTMLDocument failed.", e);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("Insert in the HTMLDocument failed.", e);
         }
         //Scroll to the last inserted text in the document.
         this.chatEditorPane.setCaretPosition(this.document.getLength());

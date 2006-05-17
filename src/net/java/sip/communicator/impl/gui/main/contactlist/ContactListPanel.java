@@ -18,7 +18,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Calendar;
 import java.util.Hashtable;
 
 import javax.swing.AbstractAction;
@@ -399,10 +398,6 @@ public class ContactListPanel extends JScrollPane
      * shows the message in the appropriate chat panel.
      */
     public void messageReceived(MessageReceivedEvent evt) {
-        
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(evt.getTimestamp());
-        
         MetaContact metaContact
             = mainFrame.getContactList()
             		.findMetaContactByContact(evt.getSourceContact());
@@ -426,7 +421,7 @@ public class ContactListPanel extends JScrollPane
 
                 msgWindow.getCurrentChatPanel().getConversationPanel()
                     .processMessage(evt.getSourceContact().getDisplayName(),
-                            calendar, 
+                            evt.getTimestamp(), 
                             ChatMessage.INCOMING_MESSAGE, 
                             evt.getSourceMessage().getContent());
                 
@@ -445,7 +440,7 @@ public class ContactListPanel extends JScrollPane
                 
                 msgWindow.getCurrentChatPanel().getConversationPanel()
                     .processMessage(evt.getSourceContact().getDisplayName(), 
-                            calendar, ChatMessage.INCOMING_MESSAGE, 
+                            evt.getTimestamp(), ChatMessage.INCOMING_MESSAGE, 
                             evt.getSourceMessage().getContent());
                 
                 msgWindow.pack();
@@ -483,7 +478,7 @@ public class ContactListPanel extends JScrollPane
                 
                 chatPanel.getConversationPanel()
                     .processMessage(evt.getSourceContact().getDisplayName(), 
-                            calendar, ChatMessage.INCOMING_MESSAGE, 
+                            evt.getTimestamp(), ChatMessage.INCOMING_MESSAGE, 
                             evt.getSourceMessage().getContent());
                 
                 tabbedChatWindow.setVisible(true);                
@@ -492,7 +487,7 @@ public class ContactListPanel extends JScrollPane
                 chatPanel = tabbedChatWindow.getChatPanel(metaContact); 
                 chatPanel.getConversationPanel()
                     .processMessage(evt.getSourceContact().getDisplayName(), 
-                            calendar, ChatMessage.INCOMING_MESSAGE, 
+                            evt.getTimestamp(), ChatMessage.INCOMING_MESSAGE, 
                             evt.getSourceMessage().getContent());
                 
                 tabbedChatWindow.setVisible(true);
@@ -521,14 +516,12 @@ public class ContactListPanel extends JScrollPane
             JEditorPane messagePane = chatPanel.getWriteMessagePanel()
                 .getEditorPane(); 
             
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(evt.getTimestamp());
             ProtocolProviderService protocolProvider 
             	= evt.getDestinationContact().getProtocolProvider();
             
             chatPanel.getConversationPanel().processMessage(
                     this.mainFrame.getDefaultAccount(protocolProvider),
-                    calendar,                                 
+                    evt.getTimestamp(),                                 
                     ChatMessage.OUTGOING_MESSAGE,
                     msg.getContent());
     
