@@ -16,6 +16,12 @@ import net.kano.joustsim.oscar.oscar.service.icbm.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joustsim.oscar.oscar.loginstatus.*;
 import net.java.sip.communicator.impl.protocol.icq.message.DefaultCmdFactory;
+import net.kano.joscar.flap.FlapCommand;
+import net.kano.joscar.flap.FlapPacketListener;
+import net.kano.joscar.flap.FlapPacketEvent;
+import net.kano.joscar.flapcmd.CloseFlapCmd;
+import net.kano.joscar.snaccmd.auth.AuthResponse;
+import net.kano.joustsim.oscar.oscar.service.Service;
 
 /**
  * An implementation of the protocol provider service over the AIM/ICQ protocol
@@ -368,6 +374,22 @@ public class ProtocolProviderServiceIcqImpl
             = joustSimStateToRegistrationState(newJoustSimState
                                                , newJoustSimStateInfo);
 
+        if(newJoustSimStateInfo instanceof LoginFailureStateInfo)
+        {
+            LoginFailureInfo loginFailer =
+                ((LoginFailureStateInfo)newJoustSimStateInfo).getLoginFailureInfo();
+
+            if(loginFailer instanceof AuthFailureInfo)
+            {
+
+                int code =  ConnectionClosedListener.
+                    convertAuthCodeToReasonCode((AuthFailureInfo)loginFailer);
+                reasonCode = ConnectionClosedListener.
+                    convertCodeToRegistrationStateChangeEvent(code);
+                reason = ConnectionClosedListener.convertCodeToStringReason(code);
+            }
+        }
+
         fireRegistrationStateChanged(oldRegistrationState, newRegistrationState
                                      , reasonCode, reason);
 
@@ -425,6 +447,9 @@ public class ProtocolProviderServiceIcqImpl
                          + " changed registration status from "
                          + oldState + " to " + newState);
 
+            int reasonCode = RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+            String reasonStr = null;
+
             if (newState == State.ONLINE)
             {
                 icbmService = conn.getIcbmService();
@@ -436,17 +461,37 @@ public class ProtocolProviderServiceIcqImpl
                     getOscarConnection().getSnacProcessor().
                         getCmdFactoryMgr().getDefaultFactoryList().
                             registerAll(new DefaultCmdFactory());
+
+                conn.getInfoService().
+                    getOscarConnection().getSnacProcessor().
+                        getFlapProcessor().addPacketListener(new ConnectionClosedListener(conn));
             }
-            else if (newState == State.DISCONNECTED
-                     || newState == State.FAILED)
+            else if (newState == State.DISCONNECTED)
             {
-                logger.debug("The aim Connection was disconnected!");
+                // we need a Service here. no metter which
+                // I've choose BosService
+                // we just need the oscar conenction from the service
+                Service service = aimConnection.getBosService();
+                if(service != null)
+                {
+                    int discconectCode = service.getOscarConnection().getLastCloseCode();
+                    reasonCode = ConnectionClosedListener.convertCodeToRegistrationStateChangeEvent(discconectCode);
+                    reasonStr = ConnectionClosedListener.convertCodeToStringReason(discconectCode);
+                    logger.debug("The aim Connection was disconnected! with reason : " + reasonStr);
+                }
+                else
+                    logger.debug("The aim Connection was disconnected!");
             }
+            else
+                if(newState == State.FAILED)
+                {
+                    logger.debug("The aim Connection failed! " + event.getNewStateInfo());
+                }
 
             //now tell all interested parties about what happened.
             fireRegistrationStateChanged(oldState, event.getOldStateInfo()
                 , newState, event.getNewStateInfo()
-                , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+                , reasonCode, reasonStr);
 
         }
     }
@@ -540,4 +585,149 @@ public class ProtocolProviderServiceIcqImpl
 
     }
 
+    /**
+     * Fixture for late close conenction due to
+     * multiple logins.
+     * Listening for incoming packets for the close command
+     * when this is received we discconect the session to force it
+     * because otherwise is wait for timeout of reading from the socket stream
+     * which leads to from 10 to 20 seconds delay of closing the session
+     * and connection
+     * */
+    public static class ConnectionClosedListener
+        implements FlapPacketListener
+    {
+        AimConnection aimConnection = null;
+
+        private final static int REASON_MULTIPLE_LOGINS = 0x0001;
+        private final static int REASON_BAD_PASSWORD_A = 0x0004;
+        private final static int REASON_BAD_PASSWORD_B = 0x0005;
+        private final static int REASON_NON_EXISTING_ICQ_UIN_A = 0x0007;
+        private final static int REASON_NON_EXISTING_ICQ_UIN_B = 0x0008;
+        private final static int REASON_MANY_CLIENTS_FROM_SAME_IP_A = 0x0015;
+        private final static int REASON_MANY_CLIENTS_FROM_SAME_IP_B = 0x0016;
+        private final static int REASON_CONNECTION_RATE_EXCEEDED = 0x0018;
+        private final static int REASON_CONNECTION_TOO_FAST = 0x001D;
+        private final static int REASON_TRY_AGAIN = 0x001E;
+
+        private final static String REASON_STRING_MULTIPLE_LOGINS = "multiple logins (on same UIN)";
+        private final static String REASON_STRING_BAD_PASSWORD = "bad password";
+        private final static String REASON_STRING_NON_EXISTING_ICQ_UIN = "non-existant UIN";
+        private final static String REASON_STRING_MANY_CLIENTS_FROM_SAME_IP = "too many clients from same IP";
+        private final static String REASON_STRING_CONNECTION_RATE_EXCEEDED = "Rate exceeded. The server temporarily bans you.";
+        private final static String REASON_STRING_CONNECTION_TOO_FAST = "You are reconnecting too fast";
+        private final static String REASON_STRING_TRY_AGAIN = "Can't register on ICQ network, try again soon.";
+        private final static String REASON_STRING_NOT_SPECIFIED = "Not Specified";
+
+        ConnectionClosedListener(AimConnection aimConnection)
+        {
+            this.aimConnection = aimConnection;
+        }
+
+
+        public void handleFlapPacket(FlapPacketEvent e)
+        {
+            FlapCommand flapCommand = e.getFlapCommand();
+            if (flapCommand instanceof CloseFlapCmd)
+            {
+                CloseFlapCmd closeCmd = (CloseFlapCmd)flapCommand;
+                logger.debug("received close command with code : " + closeCmd.getCode());
+
+                aimConnection.disconnect();
+            }
+        }
+
+        /**
+         * Converts the codes in the close command
+         * or the lastCloseCode of OscarConnection to the states
+         * which are registered in the service protocol events
+         */
+        static int convertCodeToRegistrationStateChangeEvent(int reasonCode)
+        {
+            switch(reasonCode)
+            {
+                case REASON_MULTIPLE_LOGINS :
+                    return RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS;
+                case REASON_BAD_PASSWORD_A :
+                    return RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED;
+                case REASON_BAD_PASSWORD_B :
+                    return RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED;
+                case REASON_NON_EXISTING_ICQ_UIN_A :
+                    return RegistrationStateChangeEvent.REASON_NON_EXISTING_USER_ID;
+                case REASON_NON_EXISTING_ICQ_UIN_B :
+                    return RegistrationStateChangeEvent.REASON_NON_EXISTING_USER_ID;
+                case REASON_MANY_CLIENTS_FROM_SAME_IP_A :
+                    return RegistrationStateChangeEvent.REASON_CLIENT_LIMIT_REACHED_FOR_IP;
+                case REASON_MANY_CLIENTS_FROM_SAME_IP_B :
+                    return RegistrationStateChangeEvent.REASON_CLIENT_LIMIT_REACHED_FOR_IP;
+                case REASON_CONNECTION_RATE_EXCEEDED :
+                    return RegistrationStateChangeEvent.REASON_RECONNECTION_RATE_LIMIT_EXCEEDED;
+                case REASON_CONNECTION_TOO_FAST :
+                    return RegistrationStateChangeEvent.REASON_RECONNECTION_RATE_LIMIT_EXCEEDED;
+                case REASON_TRY_AGAIN :
+                    return RegistrationStateChangeEvent.REASON_RECONNECTION_RATE_LIMIT_EXCEEDED;
+                default :
+                    return RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+            }
+        }
+
+        /**
+         * returns the reason string corresponding to the code
+         * in the close command
+         */
+        static String convertCodeToStringReason(int reasonCode)
+        {
+            switch(reasonCode)
+            {
+                case REASON_MULTIPLE_LOGINS :
+                    return REASON_STRING_MULTIPLE_LOGINS;
+                case REASON_BAD_PASSWORD_A :
+                    return REASON_STRING_BAD_PASSWORD;
+                case REASON_BAD_PASSWORD_B :
+                    return REASON_STRING_BAD_PASSWORD;
+                case REASON_NON_EXISTING_ICQ_UIN_A :
+                    return REASON_STRING_NON_EXISTING_ICQ_UIN;
+                case REASON_NON_EXISTING_ICQ_UIN_B :
+                    return REASON_STRING_NON_EXISTING_ICQ_UIN;
+                case REASON_MANY_CLIENTS_FROM_SAME_IP_A :
+                    return REASON_STRING_MANY_CLIENTS_FROM_SAME_IP;
+                case REASON_MANY_CLIENTS_FROM_SAME_IP_B :
+                    return REASON_STRING_MANY_CLIENTS_FROM_SAME_IP;
+                case REASON_CONNECTION_RATE_EXCEEDED :
+                    return REASON_STRING_CONNECTION_RATE_EXCEEDED;
+                case REASON_CONNECTION_TOO_FAST :
+                    return REASON_STRING_CONNECTION_TOO_FAST;
+                case REASON_TRY_AGAIN :
+                    return REASON_STRING_TRY_AGAIN;
+                default :
+                    return REASON_STRING_NOT_SPECIFIED;
+            }
+        }
+
+        /**
+         * When receiving login failer
+         * the reasons for the failer are in the authorization
+         * part of the protocol ( 0x13 )
+         * In the AuthResponse are the possible reason codes
+         * here they are converted to those in the ConnectionClosedListener
+         * so the they can be converted to the one in service protocol events
+         */
+        static int convertAuthCodeToReasonCode(AuthFailureInfo afi)
+        {
+            switch(afi.getErrorCode())
+            {
+                case AuthResponse.ERROR_BAD_PASSWORD :
+                    return REASON_BAD_PASSWORD_A;
+                case AuthResponse.ERROR_CONNECTING_TOO_MUCH_A :
+                    return REASON_CONNECTION_RATE_EXCEEDED;
+                case AuthResponse.ERROR_CONNECTING_TOO_MUCH_B : return REASON_CONNECTION_RATE_EXCEEDED;
+                case AuthResponse.ERROR_INVALID_SN_OR_PASS_A : return REASON_BAD_PASSWORD_A;
+                case AuthResponse.ERROR_INVALID_SN_OR_PASS_B : return REASON_BAD_PASSWORD_A;
+                // 16 is also used for blocked from same IP
+                case 16 : return REASON_MANY_CLIENTS_FROM_SAME_IP_A;
+                case AuthResponse.ERROR_SIGNON_BLOCKED : return REASON_MANY_CLIENTS_FROM_SAME_IP_B;
+                default : return RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+            }
+        }
+    }
 }
