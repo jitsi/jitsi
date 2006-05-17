@@ -192,6 +192,8 @@ public class MainToolBar extends SIPCommToolBar
 			
 			editorPane.paste();
 			
+            editorPane.requestFocus();
+            
 		} else if (buttonText.equalsIgnoreCase("smily")) {
 			
 			if (e.getSource() instanceof SIPCommButton){				
