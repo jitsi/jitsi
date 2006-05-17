@@ -49,7 +49,7 @@ public class ChatSendPanel extends JPanel
 
 	private ChatPanel chatPanel;
     
-    private ArrayList protocolsList = new ArrayList();
+    private ArrayList protocolCList = new ArrayList();
     
     SIPCommSelectorBox protocolSelectorBox = new SIPCommSelectorBox();
         
@@ -82,8 +82,8 @@ public class ChatSendPanel extends JPanel
 		g2.setColor(Constants.CONTACTPANEL_MOVER_START_COLOR);
 		g2.setStroke(new BasicStroke(1f));
 
-		g2.drawRoundRect(3, 7, this.statusPanel.getWidth() - 4,
-				this.statusPanel.getHeight() - 4, 8, 8);
+		g2.drawRoundRect(3, 4, this.statusPanel.getWidth() - 2,
+				this.statusPanel.getHeight() - 2, 8, 8);
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -125,14 +125,13 @@ public class ChatSendPanel extends JPanel
         while(protocolContacts.hasNext()){
             Contact contact = (Contact)protocolContacts.next();
             
-            ProtocolProviderService protocolProvider
-                = contact.getProtocolProvider();
+            if(!protocolCList.contains(contact))
+                protocolCList.add(contact);
             
-            if(!protocolsList.contains(protocolProvider))
-                protocolsList.add(protocolProvider);
+            String protocolName = contact.getProtocolProvider()
+                                    .getProtocolName();
             
-            String protocolName = protocolProvider.getProtocolName();
-            protocolSelectorBox.addItem(protocolName, 
+            protocolSelectorBox.addItem(contact.getDisplayName(), 
                     new ImageIcon(Constants.getProtocolIcon(protocolName)),
                     new ProtocolItemListener());            
         }    
@@ -152,14 +151,14 @@ public class ChatSendPanel extends JPanel
             JMenuItem menuItem = (JMenuItem)e.getSource();
             String itemTitle = menuItem.getText();
             
-            for(int i = 0; i < protocolsList.size(); i ++){
-                ProtocolProviderService protocolProvider 
-                    = (ProtocolProviderService)protocolsList.get(i);
+            for(int i = 0; i < protocolCList.size(); i ++){
+                Contact protocolContact 
+                    = (Contact)protocolCList.get(i);
                 
-                if(protocolProvider.getProtocolName().equals(itemTitle)){
+                if(protocolContact.getDisplayName().equals(itemTitle)){
                     OperationSetBasicInstantMessaging im
                         = chatPanel.getChatWindow().getMainFrame()
-                            .getProtocolIM(protocolProvider);
+                            .getProtocolIM(protocolContact.getProtocolProvider());
                     
                     chatPanel.setImOperationSet(im);
                     
