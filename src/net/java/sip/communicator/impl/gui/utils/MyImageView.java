@@ -42,9 +42,10 @@ import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.ImageView;
 import javax.swing.text.html.StyleSheet;
 
-public class MyImageView extends View implements ImageObserver {
+public class MyImageView extends ImageView implements ImageObserver {
 
     // --- Attribute Values ------------------------------------------
     

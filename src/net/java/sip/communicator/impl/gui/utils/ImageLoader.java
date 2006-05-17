@@ -508,6 +508,26 @@ public class ImageLoader {
 		return defaultPackList;
 	}
 
+    public static Smily getSmily(String smilyString){
+        ArrayList smiliesList = getDefaultSmiliesPack();
+        
+        for (int i = 0; i < smiliesList.size(); i++) {
+
+            Smily smily = (Smily) smiliesList.get(i);
+
+            String[] smilyStrings = smily.getSmilyStrings();
+
+            for (int j = 0; j < smilyStrings.length; j++) {
+                
+                String srcString = smilyStrings[j];
+                
+                if(srcString.equals(smilyString))
+                    return smily;
+            }
+        }
+        return null;
+    }
+    
 	/**
 	 * Loads an image from a given image identifier.
 	 */

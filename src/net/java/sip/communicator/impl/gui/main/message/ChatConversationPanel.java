@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
+import javax.swing.ToolTipManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.BadLocationException;
@@ -65,13 +66,16 @@ public class ChatConversationPanel extends JScrollPane
 
 		super();
 
+        this.document = (HTMLDocument)editorKit.createDefaultDocument();
+        
         this.chatEditorPane.setContentType("text/html");
 
 		this.chatEditorPane.setEditable(false);
                 
-		this.chatEditorPane.setEditorKit(editorKit);
-
-        this.document = (HTMLDocument)this.chatEditorPane.getDocument();
+		this.chatEditorPane.setEditorKitForContentType("text/html", editorKit);
+        this.chatEditorPane.setEditorKit(editorKit);
+        
+        this.chatEditorPane.setDocument(document);
         
         Constants.loadStyle(document.getStyleSheet());
         
@@ -86,6 +90,8 @@ public class ChatConversationPanel extends JScrollPane
 		this.getViewport().add(chatEditorPane);
 		
 		this.getVerticalScrollBar().setUnitIncrement(30);
+        
+        ToolTipManager.sharedInstance().registerComponent(chatEditorPane);
 	}
     
     private void initEditor(){
@@ -101,11 +107,9 @@ public class ChatConversationPanel extends JScrollPane
         try {            
             this.document.insertAfterStart(root, chatHeader);
         } catch (BadLocationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("Insert in the HTMLDocument failed.", e);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("Insert in the HTMLDocument failed.", e);
         }
     }
     
@@ -226,8 +230,8 @@ public class ChatConversationPanel extends JScrollPane
 
 		ArrayList smiliesList = ImageLoader.getDefaultSmiliesPack();
 
-		String msgString = message;
-
+        String regexp = "";
+        
 		for (int i = 0; i < smiliesList.size(); i++) {
 
 			Smily smily = (Smily) smiliesList.get(i);
@@ -235,17 +239,36 @@ public class ChatConversationPanel extends JScrollPane
 			String[] smilyStrings = smily.getSmilyStrings();
 
 			for (int j = 0; j < smilyStrings.length; j++) {
-
-				if (message.indexOf(smilyStrings[j]) != -1) {
-
-					msgString = msgString.replaceAll(StringUtils
-							.replaceSpecialRegExpChars(smilyStrings[j]),
-							"<img src='" + smily.getImagePath() + "'></img>");
-				}
+                regexp += StringUtils
+                    .replaceSpecialRegExpChars(smilyStrings[j]) + "|";                
 			}
 		}
-
-		return msgString;
+		regexp = regexp.substring(0, regexp.length()-1);
+        
+        Pattern p = Pattern.compile(regexp);
+        
+        Matcher m = p.matcher(message);
+                
+        StringBuffer msgBuffer = new StringBuffer();
+        
+        boolean matchSuccessfull = false;
+        
+        while (m.find()) {
+            if(!matchSuccessfull)
+                matchSuccessfull = true;
+            
+            String matchGroup = m.group().trim();
+            
+            String replacement 
+                = "<IMG SRC='" 
+                    + ImageLoader.getSmily(matchGroup).getImagePath() 
+                    + "' ALT='" + matchGroup +"'></IMG>";
+                        
+            m.appendReplacement(msgBuffer, replacement);                        
+        }        
+        m.appendTail(msgBuffer);
+        
+        return msgBuffer.toString();
 	}
 	
     /**
