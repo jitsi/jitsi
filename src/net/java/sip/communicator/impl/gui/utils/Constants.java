@@ -23,8 +23,10 @@ import java.util.Map;
 
 import javax.swing.text.html.StyleSheet;
 
+import net.java.sip.communicator.impl.gui.main.CommunicatorMain;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * All look and feel related constants are stored here.
@@ -34,6 +36,7 @@ import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 
 public class Constants {
 
+    private static Logger logger = Logger.getLogger(CommunicatorMain.class.getName());
 	/*
 	 * ===================================================================
 	 * ------------------------ SIZE CONSTANTS ---------------------------
@@ -350,8 +353,7 @@ public class Constants {
             style.loadRules(r, null);
             r.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("Failed to load css style.", e);
         }
     }
     

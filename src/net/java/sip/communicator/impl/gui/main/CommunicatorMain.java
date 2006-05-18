@@ -12,6 +12,7 @@ import java.net.MalformedURLException;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
 
@@ -19,6 +20,7 @@ import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommDefaultTheme;
 import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommLookAndFeel;
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * Starts the GUI application using the SkinLookAndFeel of l2fprod.
@@ -29,6 +31,8 @@ public class CommunicatorMain {
 
     private MainFrame mainFrame;
 
+    private Logger logger = Logger.getLogger(CommunicatorMain.class.getName());
+    
     public CommunicatorMain() {
 
         this.setDefaultThemePack();
@@ -46,19 +50,18 @@ public class CommunicatorMain {
 
     public void setDefaultThemePack() {
 
-        try {
-            SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
-            SIPCommLookAndFeel.setCurrentTheme(new SIPCommDefaultTheme());
+        SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
+        SIPCommLookAndFeel.setCurrentTheme(new SIPCommDefaultTheme());
 
-            // we need to set the UIDefaults class loader so that it may access
-            // resources packed inside OSGI bundles
-            UIManager.put("ClassLoader", getClass()
-                    .getClassLoader());
-
+        // we need to set the UIDefaults class loader so that it may access
+        // resources packed inside OSGI bundles
+        UIManager.put("ClassLoader", getClass()
+                .getClassLoader());
+        try{
             UIManager.setLookAndFeel(lf);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        }
+        catch(UnsupportedLookAndFeelException e){
+            logger.error("The provided Look & Feel is not supported.", e);
         }
     }
 

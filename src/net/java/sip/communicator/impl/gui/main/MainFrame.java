@@ -39,6 +39,7 @@ import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusLis
 import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusChangeEvent;
 import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusListener;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * The main application frame.
@@ -47,6 +48,8 @@ import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
  */
 public class MainFrame extends JFrame {
 
+    private Logger logger = Logger.getLogger(MainFrame.class.getName());
+    
 	private JPanel contactListPanel = new JPanel(new BorderLayout());
 
 	private JPanel menusPanel = new JPanel(new BorderLayout());
@@ -212,29 +215,21 @@ public class MainFrame extends JFrame {
                 try {   
                     presence
                         .publishPresenceStatus(IcqStatusEnum.ONLINE, "");                    
-                     
-                    this.getStatusPanel().stopConnecting(
-                            protocolProvider.getProtocolName());
-                    
-                    this.statusPanel.setSelectedStatus
-                        (protocolProvider.getProtocolName(), 
-                                Constants.ONLINE_STATUS);
-                    
-                    //request the focus int the contact list panel, which
-                    //permits to search in the contact list
-                    this.tabbedPane.getContactListPanel()
-                    	.getContactList().requestFocus();
-                        
-                } catch (IllegalArgumentException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IllegalStateException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
                 } catch (OperationFailedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    logger.error("Publish presence status failed.", e);
                 }
+                
+                this.getStatusPanel().stopConnecting(
+                        protocolProvider.getProtocolName());
+                
+                this.statusPanel.setSelectedStatus
+                    (protocolProvider.getProtocolName(), 
+                            Constants.ONLINE_STATUS);
+                
+                //request the focus int the contact list panel, which
+                //permits to search in the contact list
+                this.tabbedPane.getContactListPanel()
+                	.getContactList().requestFocus();
             }
             else if(key.equals(OperationSetBasicInstantMessaging.class.getName())
                     || key.equals(OperationSetPresence.class.getName())){
