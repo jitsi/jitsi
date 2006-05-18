@@ -147,11 +147,9 @@ public class ContactListPanel extends JScrollPane
 	}
 
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
 	}
 
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
 	}
 
 	public void mousePressed(MouseEvent e) {        
