@@ -17,7 +17,7 @@ import javax.swing.JEditorPane;
 import net.java.sip.communicator.impl.gui.main.customcontrols.BoxPopupMenu;
 import net.java.sip.communicator.impl.gui.main.customcontrols.MsgToolbarButton;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.impl.gui.utils.Smily;
+import net.java.sip.communicator.impl.gui.utils.Smiley;
 
 public class SmiliesSelectorBox extends BoxPopupMenu 
 	implements ActionListener {
@@ -34,12 +34,12 @@ public class SmiliesSelectorBox extends BoxPopupMenu
 		
 		for (int i = 0; i < imageList.size(); i ++){
 			
-			Smily smily = (Smily)this.imageList.get(i);
+			Smiley smiley = (Smiley)this.imageList.get(i);
 						
 			MsgToolbarButton imageButton 
-								= new MsgToolbarButton(ImageLoader.getImage(smily.getImageID()));
+								= new MsgToolbarButton(ImageLoader.getImage(smiley.getImageID()));
 			
-			imageButton.setToolTipText(smily.getSmilyStrings()[0]);	
+			imageButton.setToolTipText(smiley.getSmileyStrings()[0]);	
 			
 			imageButton.addActionListener(this);
 						
@@ -55,13 +55,13 @@ public class SmiliesSelectorBox extends BoxPopupMenu
 		
 		for (int i = 0; i < this.imageList.size(); i ++){
 			
-			Smily smily = (Smily)this.imageList.get(i);
+			Smiley smiley = (Smiley)this.imageList.get(i);
 			
-			if(buttonText.equals(smily.getSmilyStrings()[0])){
+			if(buttonText.equals(smiley.getSmileyStrings()[0])){
 				
 				JEditorPane editorPane = this.messageWindow.getCurrentChatWritePanel().getEditorPane();
 				
-				editorPane.setText(editorPane.getText() + smily.getSmilyStrings()[0] + " ");
+				editorPane.setText(editorPane.getText() + smiley.getSmileyStrings()[0] + " ");
 				
 				editorPane.requestFocus();
 			}

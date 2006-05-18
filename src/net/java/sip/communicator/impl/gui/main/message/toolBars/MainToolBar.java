@@ -38,7 +38,7 @@ public class MainToolBar extends SIPCommToolBar
 	private MsgToolbarButton pasteButton 
 		= new MsgToolbarButton(ImageLoader.getImage(ImageLoader.PASTE_ICON));
 	
-	private MsgToolbarButton smilyButton 
+	private MsgToolbarButton smileyButton 
 		= new MsgToolbarButton(ImageLoader.getImage(ImageLoader.SMILIES_ICON));
 	
 	private MsgToolbarButton saveButton 
@@ -86,7 +86,7 @@ public class MainToolBar extends SIPCommToolBar
 		
 		this.addSeparator();
 		
-		this.add(smilyButton);
+		this.add(smileyButton);
 		
 		this.addSeparator();
 		
@@ -117,8 +117,8 @@ public class MainToolBar extends SIPCommToolBar
 		this.pasteButton.setName("paste");
         this.pasteButton.setToolTipText(Messages.getString("paste"));
         
-		this.smilyButton.setName("smily");
-        this.smilyButton.setToolTipText(Messages.getString("insertSmiley"));
+		this.smileyButton.setName("smiley");
+        this.smileyButton.setToolTipText(Messages.getString("insertSmiley"));
         
 		this.previousButton.setName("previous");
         this.previousButton.setToolTipText(Messages.getString("previous"));
@@ -140,7 +140,7 @@ public class MainToolBar extends SIPCommToolBar
 		this.cutButton.addActionListener(this);
 		this.copyButton.addActionListener(this);
 		this.pasteButton.addActionListener(this);
-		this.smilyButton.addActionListener(this);
+		this.smileyButton.addActionListener(this);
 		this.previousButton.addActionListener(this);
 		this.nextButton.addActionListener(this);
 		this.sendFileButton.addActionListener(this);
@@ -194,7 +194,7 @@ public class MainToolBar extends SIPCommToolBar
 			
             editorPane.requestFocus();
             
-		} else if (buttonText.equalsIgnoreCase("smily")) {
+		} else if (buttonText.equalsIgnoreCase("smiley")) {
 			
 			if (e.getSource() instanceof SIPCommButton){				
 				
