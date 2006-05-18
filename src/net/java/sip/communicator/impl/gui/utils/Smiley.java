@@ -9,32 +9,32 @@ package net.java.sip.communicator.impl.gui.utils;
 
 import net.java.sip.communicator.impl.gui.utils.ImageLoader.ImageID;
 
-public class Smily {
+public class Smiley {
 
 	private ImageID imageID;
 	
-	private String[] smilyStrings;
+	private String[] smileyStrings;
 
-	public Smily(ImageID imageID, String[] smilyStrings){
+	public Smiley(ImageID imageID, String[] smileyStrings){
 		
 		this.imageID = imageID;
 		
-		this.setSmilyStrings(smilyStrings);
+		this.setSmileyStrings(smileyStrings);
 	}
 		
-	public String[] getSmilyStrings() {
+	public String[] getSmileyStrings() {
 		
-		return smilyStrings;
+		return smileyStrings;
 	}
 
-	public void setSmilyStrings(String[] smilyStrings) {
+	public void setSmileyStrings(String[] smileyStrings) {
 		
-		this.smilyStrings = smilyStrings;
+		this.smileyStrings = smileyStrings;
 	}
 	
 	public String getDefaultString(){
 		
-		return this.smilyStrings[0];
+		return this.smileyStrings[0];
 	}
 	
 	public ImageID getImageID(){

@@ -45,7 +45,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.ImageView;
 import javax.swing.text.html.StyleSheet;
 
-public class MyImageView extends ImageView implements ImageObserver {
+public class SIPCommImageView extends ImageView implements ImageObserver {
 
     // --- Attribute Values ------------------------------------------
     
@@ -65,7 +65,7 @@ public class MyImageView extends ImageView implements ImageObserver {
      *
      * @param elem the element to create a view for
      */
-    public MyImageView(Element elem) {
+    public SIPCommImageView(Element elem) {
     	
     	super(elem);
     	
@@ -683,10 +683,10 @@ if(DEBUG) System.out.println("ImageView: changedUpdate end; valign="+getVertical
          * Class.getResourceAsStream just returns raw
          * bytes, which we can convert to an image.
          */
-	InputStream resource = MyImageView.class.getResourceAsStream(gifFile);
+	InputStream resource = SIPCommImageView.class.getResourceAsStream(gifFile);
 
         if (resource == null) {
-            System.err.println(MyImageView.class.getName() + "/" + 
+            System.err.println(SIPCommImageView.class.getName() + "/" + 
                                gifFile + " not found.");
             return null; 
         }
