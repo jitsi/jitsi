@@ -11,38 +11,38 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader.ImageID;
 
 public class Smiley {
 
-	private ImageID imageID;
-	
-	private String[] smileyStrings;
+    private ImageID imageID;
 
-	public Smiley(ImageID imageID, String[] smileyStrings){
-		
-		this.imageID = imageID;
-		
-		this.setSmileyStrings(smileyStrings);
-	}
-		
-	public String[] getSmileyStrings() {
-		
-		return smileyStrings;
-	}
+    private String[] smileyStrings;
 
-	public void setSmileyStrings(String[] smileyStrings) {
-		
-		this.smileyStrings = smileyStrings;
-	}
-	
-	public String getDefaultString(){
-		
-		return this.smileyStrings[0];
-	}
-	
-	public ImageID getImageID(){
-		
-		return this.imageID;
-	}
-	
-	public String getImagePath(){
-		return Images.getString(this.getImageID().getId());
-	}
+    public Smiley(ImageID imageID, String[] smileyStrings) {
+
+        this.imageID = imageID;
+
+        this.setSmileyStrings(smileyStrings);
+    }
+
+    public String[] getSmileyStrings() {
+
+        return smileyStrings;
+    }
+
+    public void setSmileyStrings(String[] smileyStrings) {
+
+        this.smileyStrings = smileyStrings;
+    }
+
+    public String getDefaultString() {
+
+        return this.smileyStrings[0];
+    }
+
+    public ImageID getImageID() {
+
+        return this.imageID;
+    }
+
+    public String getImagePath() {
+        return Images.getString(this.getImageID().getId());
+    }
 }
