@@ -127,12 +127,10 @@ public class QuickMenu extends SIPCommToolBar
 	}
 
     public void pluginComponentAdded(PluginComponentEvent event) {
-        // TODO Auto-generated method stub
-        
+        //TODO Implement pluginComponentAdded.
     }
 
     public void pluginComponentRemoved(PluginComponentEvent event) {
-        // TODO Auto-generated method stub
-        
+        //TODO Implement pluginComponentRemoved.
     }
 }

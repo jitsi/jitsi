@@ -70,38 +70,31 @@ public class ContactList extends JList
     }
    
     public void metaContactAdded(MetaContactEvent evt) {
-        // TODO Auto-generated method stub
-        
+        //TODO Implement MetaContactEvent metaContactAdded.
     }
 
     public void metaContactRenamed(MetaContactRenamedEvent evt) {
-        // TODO Auto-generated method stub
-        
+        //TODO Implement MetaContactEvent metaContactRenamed.
     }
 
     public void protoContactAdded(ProtoContactEvent evt) {
-        // TODO Auto-generated method stub
-        
+        //TODO Implement MetaContactEvent protoContactAdded.
     }
 
     public void protoContactRemoved(ProtoContactEvent evt) {
-        // TODO Auto-generated method stub
-        
+        //TODO Implement MetaContactEvent protoContactRemoved.
     }
 
     public void protoContactMoved(ProtoContactEvent evt) {
-        // TODO Auto-generated method stub
-        
+        //TODO Implement MetaContactEvent protoContactMoved.
     }
 
     public void metaContactRemoved(MetaContactEvent evt) {
-        // TODO Auto-generated method stub
-        
+        //TODO Implement MetaContactEvent metaContactRemoved.
     }
 
     public void metaContactMoved(MetaContactMovedEvent evt) {
-        // TODO Auto-generated method stub
-        
+        //TODO Implement MetaContactEvent metaContactMoved.
     }
 
     /**
