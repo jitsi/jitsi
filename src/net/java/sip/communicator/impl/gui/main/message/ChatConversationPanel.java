@@ -8,8 +8,10 @@
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BasicStroke;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.MouseInfo;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,7 +22,11 @@ import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.JEditorPane;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -34,8 +40,8 @@ import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.BrowserLauncher;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.impl.gui.utils.MyHTMLEditorKit;
-import net.java.sip.communicator.impl.gui.utils.Smily;
+import net.java.sip.communicator.impl.gui.utils.SIPCommHTMLEditorKit;
+import net.java.sip.communicator.impl.gui.utils.Smiley;
 import net.java.sip.communicator.impl.gui.utils.StringUtils;
 import net.java.sip.communicator.util.Logger;
 
@@ -58,9 +64,15 @@ public class ChatConversationPanel extends JScrollPane
     
 	private JEditorPane chatEditorPane = new JEditorPane();
 
-    private HTMLEditorKit editorKit = new MyHTMLEditorKit(); 
+    private HTMLEditorKit editorKit = new SIPCommHTMLEditorKit(); 
     
 	private HTMLDocument document;
+    
+    private JPopupMenu linkPopup = new JPopupMenu();
+    private JTextArea hrefItem = new JTextArea();
+    
+    private final int hrefPopupMaxWidth = 300;
+    private final int hrefPopupInitialHeight = 20;
     
 	public ChatConversationPanel(ChatPanel chatPanel) {
 
@@ -69,7 +81,7 @@ public class ChatConversationPanel extends JScrollPane
         this.document = (HTMLDocument)editorKit.createDefaultDocument();
         
         this.chatEditorPane.setContentType("text/html");
-
+        
 		this.chatEditorPane.setEditable(false);
                 
 		this.chatEditorPane.setEditorKitForContentType("text/html", editorKit);
@@ -92,6 +104,12 @@ public class ChatConversationPanel extends JScrollPane
 		this.getVerticalScrollBar().setUnitIncrement(30);
         
         ToolTipManager.sharedInstance().registerComponent(chatEditorPane);
+        
+        //////////////////////////////////////////
+        this.hrefItem.setLineWrap(true);
+        this.linkPopup.add(hrefItem);
+        this.hrefItem.setSize
+            (new Dimension(hrefPopupMaxWidth, hrefPopupInitialHeight));
 	}
     
     private void initEditor(){
@@ -234,13 +252,13 @@ public class ChatConversationPanel extends JScrollPane
         
 		for (int i = 0; i < smiliesList.size(); i++) {
 
-			Smily smily = (Smily) smiliesList.get(i);
+			Smiley smiley = (Smiley) smiliesList.get(i);
 
-			String[] smilyStrings = smily.getSmilyStrings();
+			String[] smileyStrings = smiley.getSmileyStrings();
 
-			for (int j = 0; j < smilyStrings.length; j++) {
+			for (int j = 0; j < smileyStrings.length; j++) {
                 regexp += StringUtils
-                    .replaceSpecialRegExpChars(smilyStrings[j]) + "|";                
+                    .replaceSpecialRegExpChars(smileyStrings[j]) + "|";                
 			}
 		}
 		regexp = regexp.substring(0, regexp.length()-1);
@@ -261,7 +279,7 @@ public class ChatConversationPanel extends JScrollPane
             
             String replacement 
                 = "<IMG SRC='" 
-                    + ImageLoader.getSmily(matchGroup).getImagePath() 
+                    + ImageLoader.getSmiley(matchGroup).getImagePath() 
                     + "' ALT='" + matchGroup +"'></IMG>";
                         
             m.appendReplacement(msgBuffer, replacement);                        
@@ -289,18 +307,33 @@ public class ChatConversationPanel extends JScrollPane
           
 		return resultString;
 	}
-
+    
     /**
-     * Opens a link in the default browser when clicked.
+     * Opens a link in the default browser when clicked and
+     * shows link url in a popup on mouseover. 
      */
 	public void hyperlinkUpdate(HyperlinkEvent e) {
-
-		if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-
+		if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED){
 			URL url = e.getURL();
-
 			BrowserLauncher.openURL(url.toString());
 		}
+        else if (e.getEventType() == HyperlinkEvent.EventType.ENTERED){
+            String href = e.getDescription();
+            int stringWidth = StringUtils.getStringWidth(hrefItem, href);
+            
+            hrefItem.setText(href);
+            
+            if(stringWidth < hrefPopupMaxWidth)
+                hrefItem.setSize(stringWidth, hrefItem.getHeight());
+            else
+                hrefItem.setSize(hrefPopupMaxWidth, hrefItem.getHeight());
+            
+            linkPopup.setLocation(MouseInfo.getPointerInfo().getLocation());
+            linkPopup.setVisible(true);
+        }
+        else if(e.getEventType() == HyperlinkEvent.EventType.EXITED){
+            linkPopup.setVisible(false);
+        }
 	}
        
     public void paint(Graphics g) {
