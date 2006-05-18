@@ -135,7 +135,7 @@ public class ChatConversationPanel extends JScrollPane
      * Process the message given by the parameters.
      * 
      * @param contactName The name of the contact sending the message.
-     * @param calendar The time at which the message is sent or received.
+     * @param date The time at which the message is sent or received.
      * @param messageType The type of the message. One of OUTGOING_MESSAGE 
      * or INCOMING_MESSAGE. 
      * @param message The message text.
