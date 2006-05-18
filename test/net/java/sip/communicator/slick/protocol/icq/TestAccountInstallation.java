@@ -45,6 +45,19 @@ public class TestAccountInstallation extends TestCase
         super.tearDown();
     }
 
+    public static Test suite()
+    {
+        TestSuite suite = new TestSuite();
+        suite.addTest(
+            new TestAccountInstallation("testRegisterUrongUsername"));
+        suite.addTest(
+            new TestAccountInstallation("testRegisterUrongPassword"));
+        suite.addTest(
+            new TestAccountInstallation("testInstallAccount"));
+
+        return suite;
+    }
+
     /**
      * We try to register with wrong uin which must fire event with status
      * AUTHENTICATION_FAILED. As the uin is new (not existing and not registered)

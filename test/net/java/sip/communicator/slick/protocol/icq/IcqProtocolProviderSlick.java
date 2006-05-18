@@ -95,7 +95,7 @@ public class IcqProtocolProviderSlick
 
         //First test account installation so that the service that has been
         //installed by it gets tested by the rest of the tests.
-        addTestSuite(TestAccountInstallation.class);
+        addTest(TestAccountInstallation.suite());
 
         //This must remain second as that's where the protocol would be made
         //to login/authenticate/signon its service provider.
@@ -111,7 +111,7 @@ public class IcqProtocolProviderSlick
 
         //This must remain last since it tests account uninstallation and
         //the accounts we use for testing won't be available after that.
-        addTestSuite(TestAccountUninstallation.class);
+        addTest(TestAccountUninstallation.suite());
 
         bundleContext.registerService(getClass().getName(), this, properties);
 

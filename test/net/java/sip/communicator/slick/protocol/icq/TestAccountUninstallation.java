@@ -60,6 +60,18 @@ public class TestAccountUninstallation
         super.tearDown();
     }
 
+    public static Test suite()
+    {
+        TestSuite suite = new TestSuite();
+        suite.addTest(
+            new TestAccountUninstallation("testMultipleLogins"));
+        suite.addTest(
+            new TestAccountUninstallation("testUninstallAccount"));
+
+        return suite;
+    }
+
+
     /**
      * Registers listener who will wait for Inregistered event.
      * Than log in The tester with uin that is already logged in
