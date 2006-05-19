@@ -25,6 +25,7 @@ import net.kano.joscar.snaccmd.error.*;
 import net.kano.joustsim.oscar.oscar.service.ssi.*;
 import net.kano.joustsim.oscar.oscar.service.buddy.*;
 import java.beans.PropertyChangeEvent;
+import net.java.sip.communicator.impl.protocol.icq.message.auth.*;
 
 /**
  * The ICQ implementation of a Persistent Presence Operation set. This class
@@ -772,7 +773,26 @@ public class OperationSetPersistentPresenceIcqImpl
      */
     public void setAuthorizationHandler(AuthorizationHandler handler)
     {
-        /** @todo implement setAuthorizationHandler(); */
+        /** @todo
+         * method to be removed and AuthorizationHandler to be set
+         * set upon creation of the
+         * provider so that there could be only one.
+         *
+         **/
+        ClientSnacProcessor snacProcessor = icqProvider.getAimConnection().
+            getInfoService().getOscarConnection().
+            getSnacProcessor();
+
+        AuthCmdFactory authCmdFactory =
+            new AuthCmdFactory(icqProvider, icqProvider.getAimConnection(), handler);
+
+        snacProcessor.getCmdFactoryMgr().
+            getDefaultFactoryList().registerAll(authCmdFactory);
+
+        snacProcessor.addGlobalResponseListener(authCmdFactory);
+
+        // incoming future authorization commands
+        // facList.registerAll(new AuthFutureCmdFactory());
     }
 
     /**
