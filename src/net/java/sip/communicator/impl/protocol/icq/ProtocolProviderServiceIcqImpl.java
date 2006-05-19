@@ -15,18 +15,17 @@ import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joustsim.oscar.oscar.loginstatus.*;
-import net.java.sip.communicator.impl.protocol.icq.message.DefaultCmdFactory;
-import net.kano.joscar.flap.FlapCommand;
-import net.kano.joscar.flap.FlapPacketListener;
-import net.kano.joscar.flap.FlapPacketEvent;
-import net.kano.joscar.flapcmd.CloseFlapCmd;
-import net.kano.joscar.snaccmd.auth.AuthResponse;
-import net.kano.joustsim.oscar.oscar.service.Service;
+import net.java.sip.communicator.impl.protocol.icq.message.*;
+import net.kano.joscar.flap.*;
+import net.kano.joscar.flapcmd.*;
+import net.kano.joscar.snaccmd.auth.*;
+import net.kano.joustsim.oscar.oscar.service.*;
 
 /**
  * An implementation of the protocol provider service over the AIM/ICQ protocol
  *
  * @author Emil Ivov
+ * @author Damian Minkov
  */
 public class ProtocolProviderServiceIcqImpl
     implements ProtocolProviderService
@@ -376,14 +375,15 @@ public class ProtocolProviderServiceIcqImpl
 
         if(newJoustSimStateInfo instanceof LoginFailureStateInfo)
         {
-            LoginFailureInfo loginFailer =
+            LoginFailureInfo loginFailure =
                 ((LoginFailureStateInfo)newJoustSimStateInfo).getLoginFailureInfo();
 
-            if(loginFailer instanceof AuthFailureInfo)
+            if(loginFailure instanceof AuthFailureInfo)
             {
-
-                int code =  ConnectionClosedListener.
-                    convertAuthCodeToReasonCode((AuthFailureInfo)loginFailer);
+                AuthFailureInfo afi = (AuthFailureInfo)loginFailure;
+                logger.debug("AuthFailureInfo code : " +
+                             afi.getErrorCode());
+                int code =  ConnectionClosedListener.convertAuthCodeToReasonCode(afi);
                 reasonCode = ConnectionClosedListener.
                     convertCodeToRegistrationStateChangeEvent(code);
                 reason = ConnectionClosedListener.convertCodeToStringReason(code);
@@ -586,7 +586,7 @@ public class ProtocolProviderServiceIcqImpl
     }
 
     /**
-     * Fixture for late close conenction due to
+     * Fix for late close conenction due to
      * multiple logins.
      * Listening for incoming packets for the close command
      * when this is received we discconect the session to force it
@@ -631,7 +631,7 @@ public class ProtocolProviderServiceIcqImpl
             if (flapCommand instanceof CloseFlapCmd)
             {
                 CloseFlapCmd closeCmd = (CloseFlapCmd)flapCommand;
-                logger.debug("received close command with code : " + closeCmd.getCode());
+                logger.trace("received close command with code : " + closeCmd.getCode());
 
                 aimConnection.disconnect();
             }
@@ -641,6 +641,9 @@ public class ProtocolProviderServiceIcqImpl
          * Converts the codes in the close command
          * or the lastCloseCode of OscarConnection to the states
          * which are registered in the service protocol events
+         *
+         * @param reasonCode int the reason of close connection
+         * @return int corresponding RegistrationStateChangeEvent
          */
         static int convertCodeToRegistrationStateChangeEvent(int reasonCode)
         {
@@ -674,6 +677,9 @@ public class ProtocolProviderServiceIcqImpl
         /**
          * returns the reason string corresponding to the code
          * in the close command
+         *
+         * @param reasonCode int the reason of close connection
+         * @return String describing the reason
          */
         static String convertCodeToStringReason(int reasonCode)
         {
@@ -705,12 +711,15 @@ public class ProtocolProviderServiceIcqImpl
         }
 
         /**
-         * When receiving login failer
-         * the reasons for the failer are in the authorization
+         * When receiving login failure
+         * the reasons for the failure are in the authorization
          * part of the protocol ( 0x13 )
          * In the AuthResponse are the possible reason codes
          * here they are converted to those in the ConnectionClosedListener
          * so the they can be converted to the one in service protocol events
+         *
+         * @param afi AuthFailureInfo the failure info
+         * @return int the corresponding code to this failure
          */
         static int convertAuthCodeToReasonCode(AuthFailureInfo afi)
         {
@@ -721,8 +730,8 @@ public class ProtocolProviderServiceIcqImpl
                 case AuthResponse.ERROR_CONNECTING_TOO_MUCH_A :
                     return REASON_CONNECTION_RATE_EXCEEDED;
                 case AuthResponse.ERROR_CONNECTING_TOO_MUCH_B : return REASON_CONNECTION_RATE_EXCEEDED;
-                case AuthResponse.ERROR_INVALID_SN_OR_PASS_A : return REASON_BAD_PASSWORD_A;
-                case AuthResponse.ERROR_INVALID_SN_OR_PASS_B : return REASON_BAD_PASSWORD_A;
+                case AuthResponse.ERROR_INVALID_SN_OR_PASS_A : return REASON_NON_EXISTING_ICQ_UIN_A;
+                case AuthResponse.ERROR_INVALID_SN_OR_PASS_B : return REASON_NON_EXISTING_ICQ_UIN_B;
                 // 16 is also used for blocked from same IP
                 case 16 : return REASON_MANY_CLIENTS_FROM_SAME_IP_A;
                 case AuthResponse.ERROR_SIGNON_BLOCKED : return REASON_MANY_CLIENTS_FROM_SAME_IP_B;

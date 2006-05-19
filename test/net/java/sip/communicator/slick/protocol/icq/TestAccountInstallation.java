@@ -17,6 +17,7 @@ import net.java.sip.communicator.util.Logger;
 /**
  * Tests basic account manager functionalitites
  * @author Emil Ivov
+ * @author Damian Minkov
  */
 public class TestAccountInstallation extends TestCase
 {
@@ -49,9 +50,9 @@ public class TestAccountInstallation extends TestCase
     {
         TestSuite suite = new TestSuite();
         suite.addTest(
-            new TestAccountInstallation("testRegisterUrongUsername"));
+            new TestAccountInstallation("testRegisterWrongUsername"));
         suite.addTest(
-            new TestAccountInstallation("testRegisterUrongPassword"));
+            new TestAccountInstallation("testRegisterWrongPassword"));
         suite.addTest(
             new TestAccountInstallation("testInstallAccount"));
 
@@ -64,7 +65,7 @@ public class TestAccountInstallation extends TestCase
      * we first install this account, then try to register and wait for the
      * supposed event. After all we unregister this account
      */
-    public void testRegisterUrongUsername()
+    public void testRegisterWrongUsername()
     {
         ServiceReference[] serRefs = null;
         String osgiFilter = "(" + AccountManager.PROTOCOL_PROPERTY_NAME
@@ -128,10 +129,12 @@ public class TestAccountInstallation extends TestCase
 
         //save the service for other tests to use.
         ServiceReference icqServiceRef = icqProviderRefs[0];
-        ProtocolProviderService provider = (ProtocolProviderService)IcqSlickFixture.bc.getService(icqServiceRef);
+        ProtocolProviderService provider =
+            (ProtocolProviderService)IcqSlickFixture.bc.getService(icqServiceRef);
 
 
-        RegistrationFailedEventCollector regFailedEvtCollector = new RegistrationFailedEventCollector();
+        RegistrationFailedEventCollector regFailedEvtCollector =
+            new RegistrationFailedEventCollector();
 
         logger.debug("install " + regFailedEvtCollector);
 
@@ -163,8 +166,13 @@ public class TestAccountInstallation extends TestCase
                     ,regFailedEvtCollector.collectedNewStates
                         .contains(RegistrationState.AUTHENTICATION_FAILED));
 
-        assertTrue("Registration status must be auth failed as we are logging in with wrong uin", regFailedEvtCollector.failedCode == RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED);
-        assertNotNull("We must have reason for auth failed", regFailedEvtCollector.failedReason);
+        assertEquals(
+            "Registration status must be auth failed as we are logging in with wrong uin",
+            regFailedEvtCollector.failedCode,
+                RegistrationStateChangeEvent.REASON_NON_EXISTING_USER_ID);
+
+        assertNotNull("We must have reason for auth failed",
+                      regFailedEvtCollector.failedReason);
 
         provider.removeRegistrationStateChangeListener(regFailedEvtCollector);
 
@@ -178,7 +186,7 @@ public class TestAccountInstallation extends TestCase
      * We get the already installed account. Change the password and try to register
      * After all tests we must return the original password so we don't break the other tests
      */
-    public void testRegisterUrongPassword()
+    public void testRegisterWrongPassword()
     {
         ServiceReference[] serRefs = null;
         String osgiFilter = "(" + AccountManager.PROTOCOL_PROPERTY_NAME
@@ -245,7 +253,8 @@ public class TestAccountInstallation extends TestCase
         ProtocolProviderService provider = (ProtocolProviderService)IcqSlickFixture.
             bc.getService(icqServiceRef);
 
-        RegistrationFailedEventCollector regFailedEvtCollector = new RegistrationFailedEventCollector();
+        RegistrationFailedEventCollector regFailedEvtCollector =
+            new RegistrationFailedEventCollector();
 
         logger.debug("install " + regFailedEvtCollector);
 
@@ -277,41 +286,16 @@ public class TestAccountInstallation extends TestCase
                     ,regFailedEvtCollector.collectedNewStates
                         .contains(RegistrationState.AUTHENTICATION_FAILED));
 
-        assertTrue("Registration status must be auth failed as we are logging in with wrong pass", regFailedEvtCollector.failedCode == RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED);
+        assertEquals(
+            "Registration status must be auth failed as we are logging in with wrong pass",
+            regFailedEvtCollector.failedCode,
+            RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED);
+
         assertNotNull("We must have reason for auth failed", regFailedEvtCollector.failedReason);
 
         provider.removeRegistrationStateChangeListener(regFailedEvtCollector);
 
         icqAccountManager.uninstallAccount(icqAccountID);
-    }
-
-    public class RegistrationFailedEventCollector
-        implements RegistrationStateChangeListener
-    {
-        public List collectedNewStates = new LinkedList();
-
-        public int failedCode;
-        public String failedReason = null;
-
-        public void registrationStateChanged(RegistrationStateChangeEvent evt)
-        {
-            collectedNewStates.add(evt.getNewState());
-
-            logger.debug("damencho col event - " + evt.getNewState());
-
-            if(evt.getNewState().equals( RegistrationState.AUTHENTICATION_FAILED))
-            {
-                failedCode = evt.getReasonCode();
-                failedReason = evt.getReason();
-
-                logger.debug("Our registration failed - " + failedCode + " = " + failedReason);
-                synchronized(registrationLock){
-                    logger.debug(".");
-                    registrationLock.notifyAll();
-                    logger.debug(".");
-                }
-            }
-        }
     }
 
     /**
@@ -442,5 +426,34 @@ public class TestAccountInstallation extends TestCase
         assertTrue("The installed protocol provider does not implement "
                   + "the protocol provider service."
                   ,icqProtocolProvider instanceof ProtocolProviderService);
+    }
+
+    public class RegistrationFailedEventCollector
+        implements RegistrationStateChangeListener
+    {
+        public List collectedNewStates = new LinkedList();
+
+        public int failedCode;
+        public String failedReason = null;
+
+        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        {
+            collectedNewStates.add(evt.getNewState());
+
+            logger.debug("damencho col event - " + evt.getNewState());
+
+            if(evt.getNewState().equals( RegistrationState.AUTHENTICATION_FAILED))
+            {
+                failedCode = evt.getReasonCode();
+                failedReason = evt.getReason();
+
+                logger.debug("Our registration failed - " + failedCode + " = " + failedReason);
+                synchronized(registrationLock){
+                    logger.debug(".");
+                    registrationLock.notifyAll();
+                    logger.debug(".");
+                }
+            }
+        }
     }
 }
