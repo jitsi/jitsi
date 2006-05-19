@@ -6,18 +6,12 @@
  */
 package net.java.sip.communicator.impl.protocol.icq.message.offline;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.io.*;
+import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.icq.message.common.AbstractIcqCmd;
-import net.java.sip.communicator.impl.protocol.icq.message.common.FromIcqCmd;
-import net.java.sip.communicator.impl.protocol.icq.message.common.LEBinaryTools;
-import net.kano.joscar.ByteBlock;
-import net.kano.joscar.OscarTools;
-import net.kano.joscar.flapcmd.SnacCommand;
+import net.java.sip.communicator.impl.protocol.icq.message.common.*;
+import net.kano.joscar.*;
+import net.kano.joscar.flapcmd.*;
 
 /**
  * Command received frin server. Parses incoming offline messages

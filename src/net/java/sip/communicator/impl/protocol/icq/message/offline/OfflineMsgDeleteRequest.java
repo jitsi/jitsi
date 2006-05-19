@@ -6,11 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.icq.message.offline;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 
-import net.java.sip.communicator.impl.protocol.icq.message.common.AbstractIcqCmd;
-import net.java.sip.communicator.impl.protocol.icq.message.common.IcqCommand;
+import net.java.sip.communicator.impl.protocol.icq.message.common.*;
 
 /**
  * Request send to the server to delete all offline messages

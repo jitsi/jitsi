@@ -21,6 +21,7 @@ import net.java.sip.communicator.util.Logger;
  * that have been used to test the implementations.
  *
  * @author Emil Ivov
+ * @author Damian Minkov
  */
 public class TestAccountUninstallation
     extends TestCase
@@ -73,10 +74,12 @@ public class TestAccountUninstallation
 
 
     /**
-     * Registers listener who will wait for Inregistered event.
-     * Than log in The tester with uin that is already logged in
-     * So we must get event that the account is unregistered due to
-     * multiple logins
+     * Before we uninstall the current account which is registered to the server
+     * we add a registration change listener and wait for unregistered event
+     * to be fired.
+     * Then we use the tester agent to register to the servers with
+     * the account info of the currently logged in account so we must
+     * receive multiple logins event.
      */
     public void testMultipleLogins()
     {
@@ -105,17 +108,19 @@ public class TestAccountUninstallation
 
         testerAgent.unregister();
 
-        assertTrue(
+        assertNotNull(
                     "No event was dispatched"
-                    ,regEvtCollector.stateRecieved != null);
+                    ,regEvtCollector.stateRecieved);
 
-        assertTrue(
+        assertEquals(
                     "Event is not UNREGISTERED event"
-                    ,regEvtCollector.stateRecieved.equals(RegistrationState.UNREGISTERED));
+                    , regEvtCollector.stateRecieved
+                    , RegistrationState.UNREGISTERED);
 
-        assertTrue(
+        assertEquals(
             "No registration event notifying of Multiple logins dispatched "
-            , regEvtCollector.eventReason == RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS);
+            , regEvtCollector.eventReason
+            , RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS);
     }
 
     /**
@@ -167,43 +172,42 @@ public class TestAccountUninstallation
     }
 
     /**
-         * A class that would plugin as a registration listener to a protocol
-         * provider and simply record all events that it sees and notify the
-         * registrationLock if it sees an event that notifies us of a completed
-         * registration.
-         * @author Emil Ivov
+     * A class that would plugin as a registration listener to a protocol
+     * provider and simply record all events that it sees and notify the
+     * registrationLock if it sees an event that notifies us of a completed
+     * registration.
+     */
+    public class RegistrationEventCollector implements RegistrationStateChangeListener
+    {
+        RegistrationState stateRecieved = null;
+        int eventReason = -1;
+
+        /**
+         * The method would simply register all received events so that they
+         * could be available for later inspection by the unit tests. In the
+         * case where a registraiton event notifying us of a completed
+         * registration is seen, the method would call notifyAll() on the
+         * registrationLock.
+         *
+         * @param evt ProviderStatusChangeEvent the event describing the status
+         * change.
          */
-        public class RegistrationEventCollector implements RegistrationStateChangeListener
+        public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            RegistrationState stateRecieved = null;
-            int eventReason = -1;
+            logger.debug("Received a RegistrationStateChangeEvent: " + evt);
 
-            /**
-             * The method would simply register all received events so that they
-             * could be available for later inspection by the unit tests. In the
-             * case where a registraiton event notifying us of a completed
-             * registration is seen, the method would call notifyAll() on the
-             * registrationLock.
-             *
-             * @param evt ProviderStatusChangeEvent the event describing the status
-             * change.
-             */
-            public void registrationStateChanged(RegistrationStateChangeEvent evt)
+            if(evt.getNewState().equals( RegistrationState.UNREGISTERED))
             {
-                logger.debug("Received a RegistrationStateChangeEvent: " + evt);
+                logger.debug("Connection FAILED!");
+                stateRecieved = evt.getNewState();
+                eventReason = evt.getReasonCode();
 
-                if(evt.getNewState().equals( RegistrationState.UNREGISTERED))
-                {
-                    logger.debug("Connection FAILED!");
-                    stateRecieved = evt.getNewState();
-                    eventReason = evt.getReasonCode();
-
-                    synchronized(registrationLock){
-                        logger.debug(".");
-                        registrationLock.notifyAll();
-                        logger.debug(".");
-                    }
+                synchronized(registrationLock){
+                    logger.debug(".");
+                    registrationLock.notifyAll();
+                    logger.debug(".");
                 }
             }
+        }
     }
 }

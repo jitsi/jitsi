@@ -6,17 +6,14 @@
  */
 package net.java.sip.communicator.impl.protocol.icq.message;
 
-import java.util.List;
+import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.icq.message.common.AbstractIcqCmd;
-import net.java.sip.communicator.impl.protocol.icq.message.common.FromIcqCmd;
-import net.java.sip.communicator.impl.protocol.icq.message.offline.OfflineMsgCmd;
-import net.java.sip.communicator.util.Logger;
-import net.kano.joscar.DefensiveTools;
-import net.kano.joscar.flapcmd.SnacCommand;
-import net.kano.joscar.flapcmd.SnacPacket;
-import net.kano.joscar.snac.CmdType;
-import net.kano.joscar.snac.SnacCmdFactory;
+import net.java.sip.communicator.impl.protocol.icq.message.common.*;
+import net.java.sip.communicator.impl.protocol.icq.message.offline.*;
+import net.java.sip.communicator.util.*;
+import net.kano.joscar.*;
+import net.kano.joscar.flapcmd.*;
+import net.kano.joscar.snac.*;
 
 /**
  * Registers the new commands implemented in this package.

@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.icq.message.offline;
 
-import net.kano.joscar.snaccmd.icbm.SendImIcbm;
-import java.io.IOException;
-import net.kano.joscar.tlv.Tlv;
-import java.io.OutputStream;
+import java.io.*;
+
+import net.kano.joscar.snaccmd.icbm.*;
+import net.kano.joscar.tlv.*;
 
 /**
  * Sending InstantMessages with TLV for delivering as offline message
