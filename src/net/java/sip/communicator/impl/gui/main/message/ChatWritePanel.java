@@ -205,4 +205,17 @@ public class ChatWritePanel extends JScrollPane
         typingState = OperationSetTypingNotifications.STATE_STOPPED;                    
         stoppedTypingTimer.stop();
     }
+    
+    /**
+     * Checks if the editor contains text.
+     * 
+     * @return TRUE if editor contains text, FALSE otherwise.
+     */
+    public boolean isEmpty(){
+        if(this.editorPane.getText() == null 
+                || this.editorPane.getText().equals(""))
+            return true;
+        else
+            return false;
+    }
 }

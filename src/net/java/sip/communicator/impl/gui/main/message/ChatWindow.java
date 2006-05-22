@@ -137,21 +137,33 @@ public class ChatWindow extends JFrame{
         {
             public void actionPerformed(ActionEvent e)
             {
-                int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
+                if(!getCurrentChatWritePanel().isEmpty()){
+                    int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
                                 Messages.getString("nonEmptyChatWindowClose"),
                                 Messages.getString("warning"),
                                 JOptionPane.OK_CANCEL_OPTION,
-                                JOptionPane.WARNING_MESSAGE);
+                                JOptionPane.WARNING_MESSAGE);                
                 
-                if(answer == JOptionPane.YES_OPTION){
+                    if(answer == JOptionPane.YES_OPTION){
+                        if(chatTabbedPane.getTabCount() > 1){
+                            removeContactTab(chatTabbedPane.getSelectedIndex());
+                        }
+                        else{
+                            ChatWindow.this.dispose();
+                            mainFrame.getTabbedPane().getContactListPanel()
+                            		.setTabbedChatWindow(null);
+                        }                
+                    }
+                }
+                else{
                     if(chatTabbedPane.getTabCount() > 1){
                         removeContactTab(chatTabbedPane.getSelectedIndex());
                     }
                     else{
                         ChatWindow.this.dispose();
                         mainFrame.getTabbedPane().getContactListPanel()
-                        		.setTabbedChatWindow(null);
-                    }
+                                .setTabbedChatWindow(null);
+                    }   
                 }
             }
         };
