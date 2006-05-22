@@ -480,13 +480,17 @@ public class ContactListPanel extends JScrollPane
                 chatPanel 
                     = tabbedChatWindow.addChatTab(metaContact, contactStatus,
                             protocolContact);
+
+                tabbedChatWindow.setCurrentChatPanel(chatPanel);
                 
                 chatPanel.getConversationPanel()
                     .processMessage(evt.getSourceContact().getDisplayName(), 
                             evt.getTimestamp(), ChatMessage.INCOMING_MESSAGE, 
                             evt.getSourceMessage().getContent());
                 
-                tabbedChatWindow.setVisible(true);                
+                tabbedChatWindow.setVisible(true);
+
+				tabbedChatWindow.requestFocusInCurrentChat();
             }
             else{
                 chatPanel = tabbedChatWindow.getChatPanel(metaContact); 
