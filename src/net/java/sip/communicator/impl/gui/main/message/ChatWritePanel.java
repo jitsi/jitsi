@@ -47,8 +47,12 @@ public class ChatWritePanel extends JScrollPane
 	private UndoManager undo = new UndoManager();
 	
 	private ChatPanel chatPanel;
-	
-    private TypingTimer typingTimer = new TypingTimer();
+	    
+    private Timer stoppedTypingTimer 
+        = new Timer(2*1000, new Timer1ActionListener());
+    
+    private Timer typingTimer 
+        = new Timer(5*1000, new Timer2ActionListener());
     
     private int typingState = -1; 
     
@@ -69,6 +73,8 @@ public class ChatWritePanel extends JScrollPane
         this.getViewport().add(editorPane, BorderLayout.CENTER);
 		
 		this.getVerticalScrollBar().setUnitIncrement(30);
+        
+        this.typingTimer.setRepeats(true);
 	}
 		
 	public void paint(Graphics g){
@@ -140,19 +146,20 @@ public class ChatWritePanel extends JScrollPane
             }                   
         }
         else{
-            if(typingState != OperationSetTypingNotifications.STATE_TYPING){
-                typingTimer.setDelay(2*1000);                
+            if(typingState != OperationSetTypingNotifications.STATE_TYPING){                
+                stoppedTypingTimer.setDelay(2*1000);                
                 typingState =  OperationSetTypingNotifications.STATE_TYPING;
                 chatPanel.getTnOperationSet()
                     .sendTypingNotification(chatPanel.getProtocolContact(), 
                                             typingState);
-            }
-            
-            if(!typingTimer.isRunning()){
                 typingTimer.start();
             }
+            
+            if(!stoppedTypingTimer.isRunning()){
+                stoppedTypingTimer.start();
+            }
             else{            
-                typingTimer.restart();
+                stoppedTypingTimer.restart();
             }
         }
     }
@@ -160,36 +167,42 @@ public class ChatWritePanel extends JScrollPane
     public void keyReleased(KeyEvent e){
     }
     
-    private class TypingTimer extends Timer {
         
-        public TypingTimer(){
-            //Set the initial delay
-            super(2*1000, null);
-            
-            this.addActionListener(new TimerActionListener());
-        }
-        
-        private class TimerActionListener implements ActionListener {
-            public void actionPerformed(ActionEvent e){
-                if(getDelay() == 2*1000){
-                    chatPanel.getTnOperationSet()
-                        .sendTypingNotification(chatPanel.getProtocolContact(), 
-                                OperationSetTypingNotifications.STATE_PAUSED);
-                    typingState = OperationSetTypingNotifications.STATE_PAUSED;
-                    setDelay(3*1000);
-                }
-                else{
-                    stopTyping();
-                }
+    private class Timer1ActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent e){
+            typingTimer.stop();
+            if(typingState 
+                    == OperationSetTypingNotifications.STATE_TYPING){                
+                chatPanel.getTnOperationSet()
+                    .sendTypingNotification(chatPanel.getProtocolContact(), 
+                            OperationSetTypingNotifications.STATE_PAUSED);
+                typingState = OperationSetTypingNotifications.STATE_PAUSED;
+                stoppedTypingTimer.setDelay(3*1000);
+            }   
+            else if(typingState
+                    == OperationSetTypingNotifications.STATE_PAUSED){                
+                stopTyping();
             }
         }
-    }    
+    }
+        
+    
+    private class Timer2ActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent e){
+            if(typingState 
+                    == OperationSetTypingNotifications.STATE_TYPING){                
+                chatPanel.getTnOperationSet()
+                    .sendTypingNotification(chatPanel.getProtocolContact(), 
+                            OperationSetTypingNotifications.STATE_TYPING);
+            }
+        }
+    }
     
     public void stopTyping(){
         chatPanel.getTnOperationSet()
             .sendTypingNotification(chatPanel.getProtocolContact(), 
                     OperationSetTypingNotifications.STATE_STOPPED);
         typingState = OperationSetTypingNotifications.STATE_STOPPED;                    
-        typingTimer.stop();
+        stoppedTypingTimer.stop();
     }
 }
