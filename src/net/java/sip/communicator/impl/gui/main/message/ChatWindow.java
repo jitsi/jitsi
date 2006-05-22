@@ -11,6 +11,9 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -81,6 +84,11 @@ public class ChatWindow extends JFrame{
 		this.init();
         
         this.enableKeyActions();
+        this.addWindowListener(new WindowAdapter(){
+            public void windowClosing(WindowEvent e){
+                close();
+            }
+        });
 	}
 	
     /**
@@ -138,32 +146,7 @@ public class ChatWindow extends JFrame{
         {
             public void actionPerformed(ActionEvent e)
             {   
-                if(!getCurrentChatWritePanel().isEmpty()){
-                    int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
-                                Messages.getString("nonEmptyChatWindowClose"),
-                                Messages.getString("warning"),
-                                JOptionPane.OK_CANCEL_OPTION,
-                                JOptionPane.WARNING_MESSAGE);                
-                
-                    if(answer == JOptionPane.YES_OPTION){
-                        closeChat();
-                    }
-                }
-                else if(System.currentTimeMillis() - getCurrentConversationPanel()
-                            .getLastIncomingMsgTimestamp().getTime() < 3*1000){
-                    int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
-                                Messages.getString("closeChatAfterNewMsg"),
-                                Messages.getString("warning"),
-                                JOptionPane.OK_CANCEL_OPTION,
-                                JOptionPane.WARNING_MESSAGE);                
-                
-                    if(answer == JOptionPane.YES_OPTION){
-                        closeChat();
-                    }
-                }
-                else{
-                    closeChat();   
-                }
+                close();
             }
         };
         
@@ -212,6 +195,39 @@ public class ChatWindow extends JFrame{
                 (KeyEvent.VK_LEFT, KeyEvent.ALT_DOWN_MASK), "changeTabBackword");
     }
     
+    /**
+     * Closes the current chat, triggering warnings to the user 
+     * when there are non-sent messages or a message is received
+     * in last 2 seconds.
+     */
+    private void close(){
+        if(!getCurrentChatWritePanel().isEmpty()){
+            int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
+                        Messages.getString("nonEmptyChatWindowClose"),
+                        Messages.getString("warning"),
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE);                
+        
+            if(answer == JOptionPane.YES_OPTION){
+                closeChat();
+            }
+        }
+        else if(System.currentTimeMillis() - getCurrentConversationPanel()
+                    .getLastIncomingMsgTimestamp().getTime() < 2*1000){
+            int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
+                        Messages.getString("closeChatAfterNewMsg"),
+                        Messages.getString("warning"),
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE);                
+        
+            if(answer == JOptionPane.YES_OPTION){
+                closeChat();
+            }
+        }
+        else{
+            closeChat();   
+        }
+    }
     /**
      * Closes the selected chat tab or the window if there
      * are no tabs.
