@@ -74,7 +74,7 @@ public class ChatConversationPanel extends JScrollPane
     private final int hrefPopupMaxWidth = 300;
     private final int hrefPopupInitialHeight = 20;
     
-    private Date lastIncomingMsgTimestamp = new Date();
+    private Date lastIncomingMsgTimestamp = new Date(0);
     
 	public ChatConversationPanel(ChatPanel chatPanel) {
 
