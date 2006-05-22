@@ -43,6 +43,8 @@ public class SIPCommSelectorBox extends JLabel
     private Image backgroundImage = ImageLoader
         .getImage(ImageLoader.STATUS_SELECTOR_BOX);
     
+    private Object selectedObject;
+    
     public SIPCommSelectorBox(){
         
         this.setPreferredSize(new Dimension(
@@ -131,7 +133,16 @@ public class SIPCommSelectorBox extends JLabel
     public void mouseReleased(MouseEvent e) {
     }
     
-    public void setSelected(JMenuItem menuItem){
+    public void setSelected(JMenuItem menuItem){        
         this.setIcon(menuItem.getIcon());
-    }    
+        this.setSelectedObject(menuItem.getText());
+    }
+    
+    public void setSelectedObject(Object o){
+        this.selectedObject = o;
+    }
+    
+    public Object getSelectedObject(){
+        return this.selectedObject;
+    }
 }
