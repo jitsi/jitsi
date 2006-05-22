@@ -20,11 +20,13 @@ import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTabbedPane;
 import net.java.sip.communicator.impl.gui.main.customcontrols.events.CloseListener;
+import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
@@ -135,13 +137,21 @@ public class ChatWindow extends JFrame{
         {
             public void actionPerformed(ActionEvent e)
             {
-                if(chatTabbedPane.getTabCount() > 1){
-                    removeContactTab(chatTabbedPane.getSelectedIndex());
-                }
-                else{
-                    ChatWindow.this.dispose();
-                    mainFrame.getTabbedPane().getContactListPanel()
-                    		.setTabbedChatWindow(null);
+                int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
+                                Messages.getString("nonEmptyChatWindowClose"),
+                                Messages.getString("warning"),
+                                JOptionPane.OK_CANCEL_OPTION,
+                                JOptionPane.WARNING_MESSAGE);
+                
+                if(answer == JOptionPane.YES_OPTION){
+                    if(chatTabbedPane.getTabCount() > 1){
+                        removeContactTab(chatTabbedPane.getSelectedIndex());
+                    }
+                    else{
+                        ChatWindow.this.dispose();
+                        mainFrame.getTabbedPane().getContactListPanel()
+                        		.setTabbedChatWindow(null);
+                    }
                 }
             }
         };
