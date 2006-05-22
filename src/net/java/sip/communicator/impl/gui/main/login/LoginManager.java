@@ -129,35 +129,62 @@ public class LoginManager implements RegistrationStateChangeListener {
         
     }
 
+    /**
+     * The method is called by a ProtocolProvider implementation whenver
+     * a change in the registration state of the corresponding provider had
+     * occurred.
+     * @param evt ProviderStatusChangeEvent the event describing the status
+     * change.
+     */
     public void registrationStateChanged(RegistrationStateChangeEvent evt) {
-    	String protocolName = evt.getProvider().getProtocolName();
+    	ProtocolProviderService protocolProvider = evt.getProvider();
     	
         if(evt.getNewState().equals(RegistrationState.REGISTERED)){
         	
             Map supportedOpSets 
-                = evt.getProvider().getSupportedOperationSets();
+                = protocolProvider.getSupportedOperationSets();
             
-            this.mainFrame.addProtocolProvider(evt.getProvider());
+            this.mainFrame.addProtocolProvider(protocolProvider);
             
             this.mainFrame.addProtocolSupportedOperationSets
-                (evt.getProvider(), supportedOpSets);
+                (protocolProvider, supportedOpSets);
         }        
         else if(evt.getNewState()
                     .equals(RegistrationState.AUTHENTICATION_FAILED)){
             
             StatusPanel statusPanel = this.mainFrame.getStatusPanel();
             
-            statusPanel.stopConnecting(evt.getProvider().getProtocolName());
+            statusPanel.stopConnecting(protocolProvider.getProtocolName());
             
-            statusPanel.setSelectedStatus( evt.getProvider().getProtocolName(),
+            statusPanel.setSelectedStatus(protocolProvider.getProtocolName(),
                                     Constants.OFFLINE_STATUS);
             
-            JOptionPane.showMessageDialog(null,
-                    Messages.getString("authenticationFailed"), 
-                    Messages.getString("authenticationFailed"),
-                    JOptionPane.ERROR_MESSAGE);            
-           
-            ((LoginWindow)this.loginWindows.get(protocolName)).showWindow();
+            if(evt.getReasonCode() == RegistrationStateChangeEvent
+                    .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED){                
+                JOptionPane.showMessageDialog(null,
+                        Messages.getString("reconnectionLimitExceeded", 
+                                protocolProvider.getAccountID().getAccountUserID()), 
+                        Messages.getString("error"),
+                        JOptionPane.ERROR_MESSAGE);
+            }
+            else if(evt.getReasonCode() == RegistrationStateChangeEvent
+                    .REASON_NON_EXISTING_USER_ID){
+                JOptionPane.showMessageDialog(null,
+                        Messages.getString("nonExistingUserId", 
+                                protocolProvider.getProtocolName()), 
+                        Messages.getString("error"),
+                        JOptionPane.ERROR_MESSAGE);
+            }
+            else if(evt.getReasonCode() 
+                    == RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED){
+                JOptionPane.showMessageDialog(null,
+                        Messages.getString("authenticationFailed"), 
+                        Messages.getString("error"),
+                        JOptionPane.ERROR_MESSAGE);            
+            }
+            
+            ((LoginWindow)this.loginWindows.get
+                    (protocolProvider.getProtocolName())).showWindow();
         }
         else if(evt.getNewState()
                     .equals(RegistrationState.CONNECTION_FAILED)){
@@ -171,21 +198,50 @@ public class LoginManager implements RegistrationStateChangeListener {
             
             JOptionPane.showMessageDialog(null,                    
                     Messages.getString("connectionFailedMessage"), 
-                    Messages.getString("connectionFailed"),
+                    Messages.getString("error"),
                     JOptionPane.ERROR_MESSAGE);
         }
         else if(evt.getNewState()
-                    .equals(RegistrationState.EXPIRED)){            
+                    .equals(RegistrationState.EXPIRED)){
             JOptionPane.showMessageDialog(null,                    
-                    Messages.getString("connectionExpiredMessage", protocolName), 
-                    Messages.getString("warning"),
-                    JOptionPane.WARNING_MESSAGE);
+                    Messages.getString("connectionExpiredMessage", 
+                            protocolProvider.getProtocolName()), 
+                    Messages.getString("error"),
+                    JOptionPane.ERROR_MESSAGE);
         }  
-        else if(evt.getNewState().equals(RegistrationState.UNREGISTERED)){
-            JOptionPane.showMessageDialog(null,                    
-                    Messages.getString("unregisteredMessage", protocolName), 
-                    Messages.getString("warning"),
-                    JOptionPane.WARNING_MESSAGE);
+        else if(evt.getNewState().equals(RegistrationState.UNREGISTERED)){         
+            
+            if(evt.getReasonCode() 
+                    == RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS){
+                                
+                JOptionPane.showMessageDialog(null,                    
+                    Messages.getString("multipleLogins", 
+                            protocolProvider.getAccountID().getAccountUserID()), 
+                    Messages.getString("error"),
+                    JOptionPane.ERROR_MESSAGE);
+            }
+            else if(evt.getReasonCode() == RegistrationStateChangeEvent
+                    .REASON_CLIENT_LIMIT_REACHED_FOR_IP){
+                JOptionPane.showMessageDialog(null,                    
+                        Messages.getString("limitReachedForIp", 
+                                protocolProvider.getProtocolName()), 
+                        Messages.getString("error"),
+                        JOptionPane.ERROR_MESSAGE);
+            }
+            else{
+                JOptionPane.showMessageDialog(null,                    
+                    Messages.getString("unregisteredMessage", 
+                            protocolProvider.getProtocolName()), 
+                    Messages.getString("error"),
+                    JOptionPane.ERROR_MESSAGE);
+            }
+            
+            this.mainFrame.getStatusPanel()
+            .stopConnecting(evt.getProvider().getProtocolName());
+        
+            this.mainFrame.getStatusPanel()
+                .setSelectedStatus( evt.getProvider().getProtocolName(),
+                                    Constants.OFFLINE_STATUS);
         }
     }
 
