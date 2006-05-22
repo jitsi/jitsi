@@ -74,6 +74,8 @@ public class ChatConversationPanel extends JScrollPane
     private final int hrefPopupMaxWidth = 300;
     private final int hrefPopupInitialHeight = 20;
     
+    private Date lastIncomingMsgTimestamp = new Date();
+    
 	public ChatConversationPanel(ChatPanel chatPanel) {
 
 		super();
@@ -152,6 +154,7 @@ public class ChatConversationPanel extends JScrollPane
         calendar.setTime(date);
         
         if(messageType.equals(ChatMessage.INCOMING_MESSAGE)){
+            this.lastIncomingMsgTimestamp = date;
             chatString = "<h2>";
             endHeaderTag = "</h2>";
         }
@@ -353,5 +356,14 @@ public class ChatConversationPanel extends JScrollPane
 
 	public JEditorPane getChatEditorPane() {
 		return chatEditorPane;
-	}    
+	}
+
+    /**
+     * Returns the time of the last received message.
+     * 
+     * @return The time of the last received message.
+     */
+    public Date getLastIncomingMsgTimestamp() {
+        return lastIncomingMsgTimestamp;
+    }    
 }

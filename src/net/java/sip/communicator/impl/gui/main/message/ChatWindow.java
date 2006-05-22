@@ -11,6 +11,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -136,7 +137,7 @@ public class ChatWindow extends JFrame{
         AbstractAction close = new AbstractAction()
         {
             public void actionPerformed(ActionEvent e)
-            {
+            {   
                 if(!getCurrentChatWritePanel().isEmpty()){
                     int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
                                 Messages.getString("nonEmptyChatWindowClose"),
@@ -145,25 +146,23 @@ public class ChatWindow extends JFrame{
                                 JOptionPane.WARNING_MESSAGE);                
                 
                     if(answer == JOptionPane.YES_OPTION){
-                        if(chatTabbedPane.getTabCount() > 1){
-                            removeContactTab(chatTabbedPane.getSelectedIndex());
-                        }
-                        else{
-                            ChatWindow.this.dispose();
-                            mainFrame.getTabbedPane().getContactListPanel()
-                            		.setTabbedChatWindow(null);
-                        }                
+                        closeChat();
+                    }
+                }
+                else if(System.currentTimeMillis() - getCurrentConversationPanel()
+                            .getLastIncomingMsgTimestamp().getTime() < 3*1000){
+                    int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
+                                Messages.getString("closeChatAfterNewMsg"),
+                                Messages.getString("warning"),
+                                JOptionPane.OK_CANCEL_OPTION,
+                                JOptionPane.WARNING_MESSAGE);                
+                
+                    if(answer == JOptionPane.YES_OPTION){
+                        closeChat();
                     }
                 }
                 else{
-                    if(chatTabbedPane.getTabCount() > 1){
-                        removeContactTab(chatTabbedPane.getSelectedIndex());
-                    }
-                    else{
-                        ChatWindow.this.dispose();
-                        mainFrame.getTabbedPane().getContactListPanel()
-                                .setTabbedChatWindow(null);
-                    }   
+                    closeChat();   
                 }
             }
         };
@@ -213,6 +212,20 @@ public class ChatWindow extends JFrame{
                 (KeyEvent.VK_LEFT, KeyEvent.ALT_DOWN_MASK), "changeTabBackword");
     }
     
+    /**
+     * Closes the selected chat tab or the window if there
+     * are no tabs.
+     */
+    private void closeChat(){
+        if(chatTabbedPane.getTabCount() > 1){
+            removeContactTab(chatTabbedPane.getSelectedIndex());
+        }
+        else{
+            ChatWindow.this.dispose();
+            mainFrame.getTabbedPane().getContactListPanel()
+                    .setTabbedChatWindow(null);
+        }    
+    }
     /**
      * Creates a ChatPanel for the given contact and 
      * adds it directly to the chat window.
