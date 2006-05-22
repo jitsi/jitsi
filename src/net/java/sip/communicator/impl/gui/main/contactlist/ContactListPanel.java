@@ -12,6 +12,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -32,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
@@ -76,6 +78,7 @@ public class ContactListPanel extends JScrollPane
     
     private ChatWindow tabbedChatWindow;
     
+    private TypingTimer typingTimer = new TypingTimer();
     /**
      * Creates the contactlist scroll panel defining the parent frame.
      * 
@@ -219,8 +222,12 @@ public class ContactListPanel extends JScrollPane
 			        && component.getName().equals("buttonsPanel")){
                 JPanel panel = (JPanel)component;
                 
-			    int internalX = translatedX - (renderer.getWidth() - panel.getWidth() - 2);
-                int internalY = translatedY - (renderer.getHeight() - panel.getHeight());
+			    int internalX = translatedX 
+                                - (renderer.getWidth() 
+                                        - panel.getWidth() - 2);
+                int internalY = translatedY 
+                                - (renderer.getHeight() 
+                                        - panel.getHeight());
                                 
                 Component c = panel.getComponentAt(4, 4);
                 
@@ -545,6 +552,9 @@ public class ContactListPanel extends JScrollPane
      * Informs the user what is the typing state of his chat contacts.
      */
     public void typingNotificationReceifed(TypingNotificationEvent evt) {
+        if(typingTimer.isRunning()) 
+            typingTimer.stop();
+        
         String notificationMsg = "";
         
         String contactName = this.mainFrame.getContactList()
@@ -559,30 +569,43 @@ public class ContactListPanel extends JScrollPane
         MetaContact metaContact
         		= mainFrame.getContactList()
         			.findMetaContactByContact(evt.getSourceContact());
+               
         
         if(typingState == OperationSetTypingNotifications.STATE_TYPING){
             notificationMsg = Messages.getString("contactTyping", contactName);
         }
         else if(typingState == OperationSetTypingNotifications.STATE_PAUSED){
             notificationMsg = Messages.getString("contactPausedTyping", contactName);
+            typingTimer.setMetaContact(metaContact);
+            typingTimer.start();
         }
         else if(typingState == OperationSetTypingNotifications.STATE_STOPPED){
-            notificationMsg = "";
+            notificationMsg = "";            
         }
         else if(typingState == OperationSetTypingNotifications.STATE_STALE){
             notificationMsg = Messages.getString("contactTypingStateStale");
         }
         else if(typingState == OperationSetTypingNotifications.STATE_UNKNOWN){
             //TODO: Implement state unknown
-        }
-        
+        }        
+        this.setChatNotificationMsg(metaContact, notificationMsg);
+    }
+    
+    /**
+     * Sets the typing notification message at the appropriate chat.
+     * 
+     * @param metaContact The meta contact.
+     * @param notificationMsg The typing notification message.
+     */
+    public void setChatNotificationMsg(MetaContact metaContact, 
+                                    String notificationMsg){
         if(!Constants.TABBED_CHAT_WINDOW){                
             //If in mode "open all messages in new window"                
             if (contactMsgWindows.containsKey(metaContact)) {
                 ChatWindow msgWindow = (ChatWindow) contactMsgWindows
                         .get(metaContact);
                 msgWindow.getChatPanel(metaContact)
-                .getSendPanel().setTypingStatus(notificationMsg);
+                    .getSendPanel().setTypingStatus(notificationMsg);
             } 
         }
         else if(tabbedChatWindow != null){
@@ -597,7 +620,7 @@ public class ContactListPanel extends JScrollPane
             }
         }
     }
-
+    
     /**
      * Updates the status of the given metacontact in all opened
      * chats containing this contact.
@@ -653,4 +676,31 @@ public class ContactListPanel extends JScrollPane
 					contact));
         }
     };
+    
+    /**
+     * The TypingTimer is started after a PAUSED typing notification
+     * is received. It waits 5 seconds and if no other typing event 
+     * occurs removes the PAUSED message from the chat status panel.
+     */
+    private class TypingTimer extends Timer {
+        
+        private MetaContact metaContact;
+        
+        public TypingTimer(){
+            //Set delay
+            super(5*1000, null);            
+            
+            this.addActionListener(new TimerActionListener());
+        }
+        
+        private class TimerActionListener implements ActionListener {
+            public void actionPerformed(ActionEvent e){
+                setChatNotificationMsg(metaContact, "");
+            }
+        }
+        
+        private void setMetaContact(MetaContact metaContact){
+            this.metaContact = metaContact;
+        }
+    }    
 }
