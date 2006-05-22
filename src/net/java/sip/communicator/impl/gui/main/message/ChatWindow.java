@@ -28,6 +28,7 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.events.CloseListen
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
@@ -196,9 +197,9 @@ public class ChatWindow extends JFrame{
      */
     public void addChat(MetaContact contact, 
     					PresenceStatus status,
-                        ProtocolProviderService protocolProvider){
+                        Contact protocolContact){
         
-        this.setCurrentChatPanel(new ChatPanel(this, protocolProvider));
+        this.setCurrentChatPanel(new ChatPanel(this, protocolContact));
         
         this.currentChatPanel.addContactToChat(contact, status);
         
@@ -219,13 +220,13 @@ public class ChatWindow extends JFrame{
      */
     public ChatPanel addChatTab(MetaContact contact, 
                                 PresenceStatus status,
-                                ProtocolProviderService protocolProvider){
+                                Contact protocolContact){
        
         ChatPanel chatPanel = null;
         
         if(chatTabbedPane == null){
             //Initialize the tabbed pane for the first time           
-            chatPanel = new ChatPanel(this, protocolProvider);
+            chatPanel = new ChatPanel(this, protocolContact);
             
             chatPanel.addContactToChat(contact, status);
             
@@ -234,9 +235,8 @@ public class ChatWindow extends JFrame{
             chatTabbedPane.addCloseListener(new CloseListener(){
                 public void closeOperation(MouseEvent e){
                    
-                    int selectedIndex = chatTabbedPane.getOverTabIndex();
-                    
-                    removeContactTab(selectedIndex);
+                    int tabIndex = chatTabbedPane.getOverTabIndex();
+                    removeContactTab(tabIndex);
                 }
             });
 
@@ -254,7 +254,7 @@ public class ChatWindow extends JFrame{
     		
             if(chatTabbedPane.getTabCount() > 0){                
                 //The tabbed pane contains already tabs.                
-                chatPanel = new ChatPanel(this, protocolProvider);
+                chatPanel = new ChatPanel(this, protocolContact);
                 
                 chatPanel.addContactToChat(contact, status);
                 
@@ -280,7 +280,7 @@ public class ChatWindow extends JFrame{
                     			(currentContactStatus)),
                     firstChatPanel);
                                
-                chatPanel = new ChatPanel(this, protocolProvider);
+                chatPanel = new ChatPanel(this, protocolContact);
                 
                 chatPanel.addContactToChat(contact, status);
                 
@@ -336,21 +336,15 @@ public class ChatWindow extends JFrame{
 
         String title = chatTabbedPane.getTitleAt(index);
         
-        ChatPanel selectedChat 
+        ChatPanel closeChat 
             = (ChatPanel)chatTabbedPane.getComponentAt(index);
                 
         if(title != null){
 	        if(chatTabbedPane.getTabCount() > 1)	        		
-	        		this.contactTabsTable.remove
-                        (selectedChat.getDefaultContact().getMetaUID());
+        		this.contactTabsTable.remove
+                    (closeChat.getDefaultContact().getMetaUID());
 	        
 	        Enumeration contactTabs = this.contactTabsTable.elements();
-	        
-	        int selectedIndex = chatTabbedPane.getSelectedIndex();
-	        
-	        if( selectedIndex > index){
-	            chatTabbedPane.setSelectedIndex(selectedIndex - 1);
-	        }
 	        
 	        if(chatTabbedPane.getTabCount() > 1)
 	            chatTabbedPane.remove(index);

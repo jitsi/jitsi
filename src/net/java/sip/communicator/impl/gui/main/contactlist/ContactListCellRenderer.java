@@ -123,8 +123,7 @@ public class ContactListCellRenderer extends JPanel
                     = new ContactProtocolButton(protocolStatusIcon, 
                                         protocolStatusIcon);                
                 
-                contactProtocolButton.setProtocolProvider
-                    (protocolContact.getProtocolProvider());
+                contactProtocolButton.setProtocolContact(protocolContact);
                 
                 contactProtocolButton.setSize(protocolStatusIcon.getWidth(null),
                             protocolStatusIcon.getHeight(null));

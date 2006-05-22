@@ -33,6 +33,7 @@ import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
+import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 public class ChatSendPanel extends JPanel 
@@ -51,7 +52,7 @@ public class ChatSendPanel extends JPanel
     
     private ArrayList protocolCList = new ArrayList();
     
-    SIPCommSelectorBox protocolSelectorBox = new SIPCommSelectorBox();
+    private SIPCommSelectorBox contactSelectorBox = new SIPCommSelectorBox();
         
 	public ChatSendPanel(ChatPanel chatPanel) {
 
@@ -64,7 +65,7 @@ public class ChatSendPanel extends JPanel
 		this.statusPanel.add(statusLabel);
 						
 		this.sendPanel.add(sendButton, BorderLayout.CENTER);
-		this.sendPanel.add(protocolSelectorBox, BorderLayout.WEST);
+		this.sendPanel.add(contactSelectorBox, BorderLayout.WEST);
 
 		this.add(statusPanel, BorderLayout.CENTER);
 		this.add(sendPanel, BorderLayout.EAST);
@@ -98,11 +99,15 @@ public class ChatSendPanel extends JPanel
             
             this.chatPanel.getChatWindow()
             		.getMainFrame().getWaitToBeDeliveredMsgs()
-            			.put(msg.getMessageUID(), this.chatPanel);
+            			.put(msg.getMessageUID(), this.chatPanel);           
             
-            try{
-            	im.sendInstantMessage(chatPanel.getDefaultContact()
-                		.getDefaultContact(), msg);
+            Contact contact = (Contact)contactSelectorBox.getSelectedObject();
+            
+            //Send TYPING STOPPED event before sending the message            
+            chatPanel.getWriteMessagePanel().stopTyping();
+            
+            try{                
+            	im.sendInstantMessage(contact, msg);
             }
             catch(IllegalStateException ex){
             	String errorMsg = Messages.getString("msgSendConnectionProblem");
@@ -119,7 +124,7 @@ public class ChatSendPanel extends JPanel
 		return sendButton;
 	}
 
-	public void addProtocols(MetaContact metaContact) {
+	public void addProtocolContacts(MetaContact metaContact) {
         
         Iterator protocolContacts = metaContact.getContacts();
         while(protocolContacts.hasNext()){
@@ -131,7 +136,7 @@ public class ChatSendPanel extends JPanel
             String protocolName = contact.getProtocolProvider()
                                     .getProtocolName();
             
-            protocolSelectorBox.addItem(contact.getDisplayName(), 
+            contactSelectorBox.addItem(contact.getDisplayName(), 
                     new ImageIcon(Constants.getProtocolIcon(protocolName)),
                     new ProtocolItemListener());            
         }    
@@ -141,9 +146,11 @@ public class ChatSendPanel extends JPanel
         statusLabel.setText(statusMessage);
     }
     
-    public void setSelectedProtocol(ProtocolProviderService protocolProvider){
-        protocolSelectorBox.setIcon(new ImageIcon(Constants
-                .getProtocolIcon(protocolProvider.getProtocolName())));
+    public void setSelectedProtocolContact(Contact protocolContact){
+        contactSelectorBox.setIcon(new ImageIcon(Constants
+                .getProtocolIcon(protocolContact.getProtocolProvider()
+                        .getProtocolName())));
+        contactSelectorBox.setSelectedObject(protocolContact);
     }
     
     private class ProtocolItemListener implements ActionListener{
@@ -161,8 +168,9 @@ public class ChatSendPanel extends JPanel
                             .getProtocolIM(protocolContact.getProtocolProvider());
                     
                     chatPanel.setImOperationSet(im);
+                    chatPanel.setProtocolContact(protocolContact);
                     
-                    protocolSelectorBox.setSelected(menuItem);
+                    contactSelectorBox.setSelected(menuItem);
                 }
             }
         }

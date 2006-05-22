@@ -23,7 +23,9 @@ import javax.swing.LayoutFocusTraversalPolicy;
 import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
+import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
@@ -64,7 +66,9 @@ public class ChatPanel extends JPanel {
     
     private OperationSetBasicInstantMessaging imOperationSet;
     
-    private ProtocolProviderService protocolProvider;
+    private OperationSetTypingNotifications tnOperationSet;
+    
+    private Contact protocolContact;
     
     /**
      * Creates a chat panel which is added to the 
@@ -74,14 +78,18 @@ public class ChatPanel extends JPanel {
      * chat panel.
      */
     public ChatPanel(ChatWindow chatWindow, 
-            ProtocolProviderService protocolProvider){
+            Contact protocolContact){
         
         super(new BorderLayout());
         
         this.chatWindow = chatWindow;
-        this.protocolProvider = protocolProvider;
+        this.protocolContact = protocolContact;
         this.imOperationSet = this.chatWindow.getMainFrame()
-                                .getProtocolIM(protocolProvider);;
+                                .getProtocolIM(protocolContact
+                                        .getProtocolProvider());
+        this.tnOperationSet = this.chatWindow.getMainFrame()
+                                .getTypingNotifications(protocolContact
+                                        .getProtocolProvider());
         
         this.conversationPanel = new ChatConversationPanel(this);
         
@@ -101,8 +109,6 @@ public class ChatPanel extends JPanel {
         		.setMinimumSize(new Dimension(400, 100));
         
         this.init();
-        
-        this.sendPanel.setSelectedProtocol(protocolProvider);
         
         addComponentListener(new TabSelectionFocusGainListener());
     }
@@ -134,7 +140,9 @@ public class ChatPanel extends JPanel {
         
         this.chatConferencePanel.addContactToChat(contactItem, status);
         
-        this.sendPanel.addProtocols(contactItem);
+        this.sendPanel.addProtocolContacts(contactItem);
+        
+        this.sendPanel.setSelectedProtocolContact(this.protocolContact);
     }
     
     /**
@@ -148,7 +156,7 @@ public class ChatPanel extends JPanel {
         
         this.chatConferencePanel.addContactToChat(contactItem);
         
-        this.sendPanel.addProtocols(contactItem);
+        this.sendPanel.addProtocolContacts(contactItem);
     }
 
     /**
@@ -251,6 +259,27 @@ public class ChatPanel extends JPanel {
     }
 
     /**
+     * Returns the typing notifications operation set for 
+     * this chat panel.
+     * 
+     * @return OperationSetTypingNotifications The typing
+     * notifications operation set for this chat panel.
+     */
+    public OperationSetTypingNotifications getTnOperationSet() {
+        return tnOperationSet;
+    }
+
+    /**
+     * Sets the typing notifications operation set for 
+     * this chat panel.
+     * @param tnOperationSet The operation set to be set.
+     */
+    public void setTnOperationSet
+            (OperationSetTypingNotifications tnOperationSet) {
+        this.tnOperationSet = tnOperationSet;
+    }
+    
+    /**
      * Returns the chat send panel.
      * @return ChatSendPanel The chat send panel.
      */
@@ -293,5 +322,13 @@ public class ChatPanel extends JPanel {
 
     	public void componentHidden(ComponentEvent e) {
     	}
+    }
+
+    public Contact getProtocolContact() {
+        return protocolContact;
+    }
+    
+    public void setProtocolContact(Contact protocolContact) {
+        this.protocolContact = protocolContact;
     }
 }

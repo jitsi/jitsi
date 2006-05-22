@@ -229,7 +229,7 @@ public class ContactListPanel extends JScrollPane
                     SwingUtilities.invokeLater
                         (new RunMessageWindow(contact,
                                 ((ContactProtocolButton)c)
-                                    .getProtocolProvider()));
+                                    .getProtocolContact()));
                 }
             }
             
@@ -248,18 +248,18 @@ public class ContactListPanel extends JScrollPane
 	public class RunMessageWindow implements Runnable {
 
 		private MetaContact contactItem;
-        private ProtocolProviderService protocolProvider;
+        private Contact protocolContact;
 
 		public RunMessageWindow(MetaContact contactItem) {
 			this.contactItem = contactItem;
-            this.protocolProvider 
-                = contactItem.getDefaultContact().getProtocolProvider();
+            this.protocolContact 
+                = contactItem.getDefaultContact();
 		}
         
         public RunMessageWindow(MetaContact contactItem,
-                                ProtocolProviderService protocolProvider){
+                                Contact protocolContact){
             this.contactItem = contactItem;
-            this.protocolProvider = protocolProvider;
+            this.protocolContact = protocolContact;
         }
 
 		public void run() {
@@ -291,7 +291,7 @@ public class ContactListPanel extends JScrollPane
 	                contactMsgWindows.put(this.contactItem, msgWindow);
 	                
 	                msgWindow.addChat(this.contactItem, 
-                            contactStatus, protocolProvider);
+                            contactStatus, protocolContact);
 	                    
 	                msgWindow.pack();
 	                
@@ -324,7 +324,7 @@ public class ContactListPanel extends JScrollPane
                     
                     // If there's no open tab for the given contact.                    
                     ChatPanel chatPanel = tabbedChatWindow.addChatTab(this.contactItem,
-                    		contactStatus, protocolProvider);
+                    		contactStatus, protocolContact);
                     
                     tabbedChatWindow.setCurrentChatPanel(chatPanel);
                     
@@ -404,8 +404,8 @@ public class ContactListPanel extends JScrollPane
         		= ((ContactListModel)this.contactList.getModel())
         			.getMetaContactStatus(metaContact);
         
-        ProtocolProviderService protocolProvider
-            = evt.getSourceContact().getProtocolProvider();
+        Contact protocolContact
+            = evt.getSourceContact();
                 
         if(!Constants.TABBED_CHAT_WINDOW){                
             //If in mode "open all messages in new window"                
@@ -434,7 +434,7 @@ public class ContactListPanel extends JScrollPane
                 contactMsgWindows.put(metaContact, msgWindow);
 
                 msgWindow.addChat(metaContact, contactStatus,
-                        protocolProvider);
+                        protocolContact);
                 
                 msgWindow.getCurrentChatPanel().getConversationPanel()
                     .processMessage(evt.getSourceContact().getDisplayName(), 
@@ -472,7 +472,7 @@ public class ContactListPanel extends JScrollPane
                 // If there's no open tab for the given contact.                    
                 chatPanel 
                     = tabbedChatWindow.addChatTab(metaContact, contactStatus,
-                            protocolProvider);
+                            protocolContact);
                 
                 chatPanel.getConversationPanel()
                     .processMessage(evt.getSourceContact().getDisplayName(), 
@@ -547,13 +547,12 @@ public class ContactListPanel extends JScrollPane
     public void typingNotificationReceifed(TypingNotificationEvent evt) {
         String notificationMsg = "";
         
-        notificationMsg 
-            += this.mainFrame.getContactList()
+        String contactName = this.mainFrame.getContactList()
             .findMetaContactByContact(evt.getSourceContact())
                     .getDisplayName() + " ";
         
-        if(notificationMsg.equals("")){
-            notificationMsg += Messages.getString("unknown") + " ";
+        if(contactName.equals("")){
+            contactName = Messages.getString("unknown") + " ";
         }
         
         int typingState = evt.getTypingState();
@@ -562,16 +561,16 @@ public class ContactListPanel extends JScrollPane
         			.findMetaContactByContact(evt.getSourceContact());
         
         if(typingState == OperationSetTypingNotifications.STATE_TYPING){
-            notificationMsg += Messages.getString("contactTyping");
+            notificationMsg = Messages.getString("contactTyping", contactName);
         }
         else if(typingState == OperationSetTypingNotifications.STATE_PAUSED){
-            notificationMsg = "";
+            notificationMsg = Messages.getString("contactPausedTyping", contactName);
         }
         else if(typingState == OperationSetTypingNotifications.STATE_STOPPED){
             notificationMsg = "";
         }
         else if(typingState == OperationSetTypingNotifications.STATE_STALE){
-            notificationMsg += Messages.getString("contactTypingStateStale");
+            notificationMsg = Messages.getString("contactTypingStateStale");
         }
         else if(typingState == OperationSetTypingNotifications.STATE_UNKNOWN){
             //TODO: Implement state unknown
