@@ -73,6 +73,8 @@ public class MainFrame extends JFrame {
     private Hashtable protocolProviders = new Hashtable();
     
     private Hashtable imOperationSets = new Hashtable();
+    
+    private Hashtable tnOperationSets = new Hashtable();
    
     private MetaContactListService contactList;
     
@@ -246,6 +248,12 @@ public class MainFrame extends JFrame {
             else if(key.equals(OperationSetTypingNotifications.class.getName())){
                 OperationSetTypingNotifications tn 
                     = (OperationSetTypingNotifications)value;
+                
+                this.tnOperationSets.put(protocolProvider, tn);
+                
+                //Add to all typing notification operation sets the Message 
+                //listener implemented in the ContactListPanel, which handles 
+                //all received messages.
                 tn.addTypingNotificationsListener
                 	(this.getTabbedPane().getContactListPanel());
             }
@@ -324,6 +332,12 @@ public class MainFrame extends JFrame {
         (ProtocolProviderService protocolProvider) {
         return (OperationSetBasicInstantMessaging)
             this.imOperationSets.get(protocolProvider);
+    }
+    
+    public OperationSetTypingNotifications getTypingNotifications
+        (ProtocolProviderService protocolProvider){
+        return (OperationSetTypingNotifications)
+            this.tnOperationSets.get(protocolProvider);
     }
     
     /**
