@@ -109,7 +109,7 @@
   classpathentry sourcepath="/opt/oscar/src.jar" kind="lib" path="lib/oscar.jar"
                     -->
                 <classpath mode="compile">
-                    :lib/osgi.jar:lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/JainSipApi1.1.jar:lib/nist-sdp-1.0.jar:lib/nist-sip-1.2.jar:lib/skinlf.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/architectureviewer1.1.jar:lib/bcprov-jdk14-130.jar:lib/joscar-0.9.4-cvs-bin.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar
+                    :lib/osgi.jar:lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/JainSipApi1.1.jar:lib/nist-sdp-1.0.jar:lib/nist-sip-1.2.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/architectureviewer1.1.jar:lib/bcprov-jdk14-130.jar:lib/joscar-0.9.4-cvs-bin.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar
                 </classpath>
                 <source-level>1.4</source-level>
             </compilation-unit>
@@ -122,7 +122,7 @@
                      N.B. leading colon and no-white-space are required!
                     -->
                 <classpath mode="compile">
-                    :classes:lib/junit.jar:lib/osgi.jar:lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/JainSipApi1.1.jar:lib/nist-sdp-1.0.jar:lib/nist-sip-1.2.jar:lib/skinlf.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/architectureviewer1.1.jar:lib/bcprov-jdk14-130.jar:lib/joscar-0.9.4-cvs-bin.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar
+                    :classes:lib/junit.jar:lib/osgi.jar:lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/JainSipApi1.1.jar:lib/nist-sdp-1.0.jar:lib/nist-sip-1.2.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/architectureviewer1.1.jar:lib/bcprov-jdk14-130.jar:lib/joscar-0.9.4-cvs-bin.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar
                 </classpath>
                 <source-level>1.4</source-level>
             </compilation-unit>
