@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.main.message.ChatPanel;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.main.message.SmiliesSelectorBox;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -175,36 +176,23 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
 
         if (buttonText.equalsIgnoreCase("save")) {
             // TODO: Implement the save operation in chat MainToolBar.
-        } else if (buttonText.equalsIgnoreCase("print")) {
+        }
+        else if (buttonText.equalsIgnoreCase("print")) {
             // TODO: Implement the print operation in chat MainToolBar.
-        } else if (buttonText.equalsIgnoreCase("cut")) {
-
-            JEditorPane editorPane = this.messageWindow
-                    .getCurrentChatWritePanel().getEditorPane();
-
-            editorPane.cut();
-
-        } else if (buttonText.equalsIgnoreCase("copy")) {
-
-            JEditorPane editorPane = this.messageWindow
-                    .getCurrentConversationPanel().getChatEditorPane();
-
-            if (editorPane.getSelectedText() == null) {
-                editorPane = this.messageWindow.getCurrentChatWritePanel()
-                        .getEditorPane();
-            }
-            editorPane.copy();
-
-        } else if (buttonText.equalsIgnoreCase("paste")) {
-
-            JEditorPane editorPane = this.messageWindow
-                    .getCurrentChatWritePanel().getEditorPane();
-
-            editorPane.paste();
-
-            editorPane.requestFocus();
-
-        } else if (buttonText.equalsIgnoreCase("smiley")) {
+        }
+        else if (buttonText.equalsIgnoreCase("cut")) {
+            
+            this.messageWindow.getCurrentChatPanel().cut();
+        }
+        else if (buttonText.equalsIgnoreCase("copy")) {
+            
+            this.messageWindow.getCurrentChatPanel().copy();
+        } 
+        else if (buttonText.equalsIgnoreCase("paste")) {
+            
+           this.messageWindow.getCurrentChatPanel().paste();
+        } 
+        else if (buttonText.equalsIgnoreCase("smiley")) {
 
             if (e.getSource() instanceof SIPCommButton) {
 

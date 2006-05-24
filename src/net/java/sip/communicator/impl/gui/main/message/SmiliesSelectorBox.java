@@ -69,13 +69,13 @@ public class SmiliesSelectorBox extends BoxPopupMenu implements ActionListener {
 
             if (buttonText.equals(smiley.getSmileyStrings()[0])) {
 
-                JEditorPane editorPane = this.messageWindow
-                        .getCurrentChatWritePanel().getEditorPane();
+                ChatPanel chatPanel = this.messageWindow
+                        .getCurrentChatPanel();
 
-                editorPane.setText(editorPane.getText()
-                        + smiley.getSmileyStrings()[0] + " ");
+                chatPanel.addTextInWriteArea(
+                        smiley.getSmileyStrings()[0] + " ");
 
-                editorPane.requestFocus();
+                chatPanel.requestFocusInWriteArea();
             }
         }
     }

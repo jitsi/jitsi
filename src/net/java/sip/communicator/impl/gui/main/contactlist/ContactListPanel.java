@@ -293,7 +293,7 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
 
                     msgWindow.setVisible(true);
 
-                    msgWindow.requestFocusInCurrentChat();
+                    msgWindow.getCurrentChatPanel().requestFocusInWriteArea();
                 }
             } else {
                 // If in mode "group messages in one chat window"
@@ -314,15 +314,13 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
                 Hashtable contactTabsTable = tabbedChatWindow
                         .getContactTabsTable();
 
+                //If there's no open tab for the given contact.
                 if (contactTabsTable
                         .get(this.contactItem.getMetaUID()) == null) {
-                    // If there's no open tab for the given contact.
-                    ChatPanel chatPanel = tabbedChatWindow.addChatTab(
+                    tabbedChatWindow.addChatTab(
                             this.contactItem, contactStatus, protocolContact);
 
-                    tabbedChatWindow.setCurrentChatPanel(chatPanel);
-
-                    if (tabbedChatWindow.getTabCount() > 1){
+                    if (tabbedChatWindow.getTabCount() > 1) {
                         tabbedChatWindow
                             .setSelectedContactTab(this.contactItem);
                     }
@@ -332,7 +330,8 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
 
                     tabbedChatWindow.setVisible(true);
 
-                    tabbedChatWindow.requestFocusInCurrentChat();
+                    tabbedChatWindow.getCurrentChatPanel()
+                        .requestFocusInWriteArea();
                 } else {
                     //If a tab for the given contact already exists.
                     if (tabbedChatWindow.getTabCount() > 1) {
@@ -345,7 +344,8 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
 
                     tabbedChatWindow.setVisible(true);
 
-                    tabbedChatWindow.requestFocusInCurrentChat();
+                    tabbedChatWindow.getCurrentChatPanel()
+                        .requestFocusInWriteArea();
                 }
             }
         }
@@ -412,8 +412,7 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
                 ChatWindow msgWindow = (ChatWindow) contactMsgWindows
                         .get(metaContact);
 
-                msgWindow.getCurrentChatPanel().getConversationPanel()
-                        .processMessage(
+                msgWindow.getCurrentChatPanel().processMessage(
                                 evt.getSourceContact().getDisplayName(),
                                 evt.getTimestamp(), Constants.INCOMING_MESSAGE,
                                 evt.getSourceMessage().getContent());
@@ -430,8 +429,7 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
 
                 msgWindow.addChat(metaContact, contactStatus, protocolContact);
 
-                msgWindow.getCurrentChatPanel().getConversationPanel()
-                        .processMessage(
+                msgWindow.getCurrentChatPanel().processMessage(
                                 evt.getSourceContact().getDisplayName(),
                                 evt.getTimestamp(), Constants.INCOMING_MESSAGE,
                                 evt.getSourceMessage().getContent());
@@ -460,24 +458,23 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
             Hashtable contactTabsTable = tabbedChatWindow.getContactTabsTable();
             ChatPanel chatPanel;
 
-            if (contactTabsTable.get(metaContact.getMetaUID()) == null) {
-                // If there's no open tab for the given contact.
+            //If there's no open tab for the given contact.
+            if (contactTabsTable.get(metaContact.getMetaUID()) == null) {                
                 chatPanel = tabbedChatWindow.addChatTab(metaContact,
                         contactStatus, protocolContact);
 
-                tabbedChatWindow.setCurrentChatPanel(chatPanel);
-
-                chatPanel.getConversationPanel().processMessage(
+                chatPanel.processMessage(
                         evt.getSourceContact().getDisplayName(),
                         evt.getTimestamp(), Constants.INCOMING_MESSAGE,
                         evt.getSourceMessage().getContent());
 
                 tabbedChatWindow.setVisible(true);
 
-                tabbedChatWindow.requestFocusInCurrentChat();
+                tabbedChatWindow.getCurrentChatPanel()
+                    .requestFocusInWriteArea();
             } else {
                 chatPanel = tabbedChatWindow.getChatPanel(metaContact);
-                chatPanel.getConversationPanel().processMessage(
+                chatPanel.processMessage(
                         evt.getSourceContact().getDisplayName(),
                         evt.getTimestamp(), Constants.INCOMING_MESSAGE,
                         evt.getSourceMessage().getContent());
@@ -506,21 +503,16 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
 
         if (waitToBeDelivered.containsKey(msgUID)) {
             ChatPanel chatPanel = (ChatPanel) waitToBeDelivered.get(msgUID);
-
-            JEditorPane messagePane = chatPanel.getWriteMessagePanel()
-                    .getEditorPane();
-
+            
             ProtocolProviderService protocolProvider = evt
                     .getDestinationContact().getProtocolProvider();
 
-            chatPanel.getConversationPanel().processMessage(
+            chatPanel.processMessage(
                     this.mainFrame.getDefaultAccount(protocolProvider),
                     evt.getTimestamp(), Constants.OUTGOING_MESSAGE,
                     msg.getContent());
-
-            messagePane.setText("");
-
-            messagePane.requestFocus();
+            
+            chatPanel.refreshWriteArea();
         }
     }
 
@@ -596,16 +588,16 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
             if (contactMsgWindows.containsKey(metaContact)) {
                 ChatWindow msgWindow = (ChatWindow) contactMsgWindows
                         .get(metaContact);
-                msgWindow.getChatPanel(metaContact).getSendPanel()
-                        .setTypingStatus(notificationMsg);
+                msgWindow.getChatPanel(metaContact)
+                    .setContactTypingStatus(notificationMsg);
             }
         } else if (tabbedChatWindow != null) {
             Hashtable contactTabsTable = tabbedChatWindow.getContactTabsTable();
 
             if (contactTabsTable.get(metaContact.getMetaUID()) != null) {
 
-                tabbedChatWindow.getChatPanel(metaContact).getSendPanel()
-                        .setTypingStatus(notificationMsg);
+                tabbedChatWindow.getChatPanel(metaContact)
+                    .setContactTypingStatus(notificationMsg);
             }
         }
     }

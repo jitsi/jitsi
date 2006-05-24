@@ -141,25 +141,25 @@ public class ChatWritePanel extends JScrollPane implements
     public void keyPressed(KeyEvent e) {
         if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
                 && (e.getKeyCode() == KeyEvent.VK_ENTER)) {
-            stopTyping();
+            stopTypingTimer();
 
-            JButton sendButton = chatPanel.getSendPanel().getSendButton();
-
-            sendButton.requestFocus();
-            sendButton.doClick();
-        } else if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
+            chatPanel.sendMessage();
+        }
+        else if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
                 && (e.getKeyCode() == KeyEvent.VK_Z)) {
 
             if (undo.canUndo()) {
                 undo();
             }
-        } else if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
+        }
+        else if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
                 && (e.getKeyCode() == KeyEvent.VK_R)) {
 
             if (undo.canRedo()) {
                 redo();
             }
-        } else {
+        }
+        else {
             if (typingState != OperationSetTypingNotifications.STATE_TYPING) {
                 stoppedTypingTimer.setDelay(2 * 1000);
                 typingState = OperationSetTypingNotifications.STATE_TYPING;
@@ -190,7 +190,7 @@ public class ChatWritePanel extends JScrollPane implements
                 stoppedTypingTimer.setDelay(3 * 1000);
             } else if (typingState 
                     == OperationSetTypingNotifications.STATE_PAUSED) {
-                stopTyping();
+                stopTypingTimer();
             }
         }
     }
@@ -208,24 +208,11 @@ public class ChatWritePanel extends JScrollPane implements
     /**
      * Stops the timer and sends a notification message.
      */
-    public void stopTyping() {
+    public void stopTypingTimer() {
         chatPanel.getTnOperationSet().sendTypingNotification(
                 chatPanel.getProtocolContact(),
                 OperationSetTypingNotifications.STATE_STOPPED);
         typingState = OperationSetTypingNotifications.STATE_STOPPED;
         stoppedTypingTimer.stop();
-    }
-
-    /**
-     * Checks if the editor contains text.
-     * 
-     * @return TRUE if editor contains text, FALSE otherwise.
-     */
-    public boolean isEmpty() {
-        if (this.editorPane.getText() == null
-                || this.editorPane.getText().equals(""))
-            return true;
-        else
-            return false;
-    }
+    }   
 }

@@ -14,8 +14,11 @@ import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.Date;
 import java.util.Vector;
 
+import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -28,18 +31,16 @@ import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessag
 import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
 
 /**
- * The ChatPanel is the panel, where users can write
- * and send messages, view received messages.
- * A ChatPanel is created for a contact or for a
- * group of contacts in case of a chat conference. There
- * is always one default contact for the chat, which is the
- * first contact which was added to the chat.
- * When chat is in mode "open all messages in new window",
- * each ChatPanel corresponds to a ChatWindow. When 
- * chat is in mode "group all messages in one chat window",
- * each ChatPanel corresponds to a tab in the ChatWindow.
+ * The ChatPanel is the panel, where users can write and send messages, view
+ * received messages. A ChatPanel is created for a contact or for a group of
+ * contacts in case of a chat conference. There is always one default contact
+ * for the chat, which is the first contact which was added to the chat.
+ * When chat is in mode "open all messages in new window", each ChatPanel
+ * corresponds to a ChatWindow. When chat is in mode "group all messages in
+ * one chat window", each ChatPanel corresponds to a tab in the ChatWindow.
  * 
  * @author Yana Stamcheva
  */
@@ -69,8 +70,7 @@ public class ChatPanel extends JPanel {
     private Contact protocolContact;
 
     /**
-     * Creates a chat panel which is added to the 
-     * given chat window.
+     * Creates a chat panel which is added to the given chat window.
      * 
      * @param chatWindow The parent window of this chat panel.
      * @param protocolContact The subContact which is selected ins
@@ -106,7 +106,7 @@ public class ChatPanel extends JPanel {
     }
 
     /**
-     * Initialize the chat panel.
+     * Initializes this panel.
      */
     private void init() {
         this.topSplitPane.setOneTouchExpandable(true);
@@ -196,19 +196,21 @@ public class ChatPanel extends JPanel {
      * 
      * @return The ChatWritePanel.
      */
+    /*
     public ChatWritePanel getWriteMessagePanel() {
         return writeMessagePanel;
     }
-
+*/
     /**
      * Returns the panel that contains the conversation.
      * 
      * @return The ChatConversationPanel.
      */
+    /*
     public ChatConversationPanel getConversationPanel() {
         return conversationPanel;
     }
-
+    */
     /**
      * Returns the default contact for the chat. The case of conference 
      * is not yet implemented and for now it returns the first contact.
@@ -276,10 +278,11 @@ public class ChatPanel extends JPanel {
      * Returns the chat send panel.
      * @return ChatSendPanel The chat send panel.
      */
+    /*
     public ChatSendPanel getSendPanel() {
         return sendPanel;
     }
-
+    */
     private class TabSelectionFocusGainListener 
         implements ComponentListener {
 
@@ -304,9 +307,9 @@ public class ChatPanel extends JPanel {
                             getChatWindow().setTitle(
                                     getDefaultContact().getDisplayName());
 
-                            getChatWindow().setCurrentChatPanel(ChatPanel.this);
+                            chatWindow.setCurrentChatPanel(ChatPanel.this);
 
-                            getWriteMessagePanel().getEditorPane()
+                            writeMessagePanel.getEditorPane()
                                     .requestFocus();
                         }
                     });
@@ -332,5 +335,140 @@ public class ChatPanel extends JPanel {
      */
     public void setProtocolContact(Contact protocolContact) {
         this.protocolContact = protocolContact;
+    }
+    
+    /**
+     * Passes the message to the contained <code>ChatConversationPanel</code>
+     * for processing.
+     * 
+     * @param contactName The name of the contact sending the message.
+     * @param date The time at which the message is sent or received.
+     * @param messageType The type of the message. One of OUTGOING_MESSAGE 
+     * or INCOMING_MESSAGE. 
+     * @param message The message text.
+     */
+    public void processMessage(String contactName, Date date,
+            String messageType, String message){
+        this.conversationPanel.processMessage(contactName, date, 
+                                            messageType, message);
+    }
+    
+    /**
+     * Refreshes write area editor pane. Deletes all existing text
+     * content.
+     */
+    public void refreshWriteArea(){
+        JEditorPane writeMsgPane = this.writeMessagePanel.getEditorPane();
+        
+        writeMsgPane.setText("");
+    }
+    
+    /**
+     * Requests the focus in the write message area.
+     */
+    public void requestFocusInWriteArea(){
+        JEditorPane writeMsgPane = this.writeMessagePanel.getEditorPane();
+        
+        writeMsgPane.requestFocus();
+    }
+    
+    /**
+     * Sets the current contact typing status.
+     */
+    public void setContactTypingStatus(String statusMessage){
+        this.sendPanel.setTypingStatus(statusMessage);
+    }
+    
+    /**
+     * Returns the time of the last received message.
+     * 
+     * @return The time of the last received message.
+     */
+    public Date getLastIncomingMsgTimestamp() {
+        return this.conversationPanel.getLastIncomingMsgTimestamp();
+    }
+    
+    /**
+     * Checks if the editor contains text.
+     * 
+     * @return TRUE if editor contains text, FALSE otherwise.
+     */
+    public boolean isWriteAreaEmpty(){
+        JEditorPane editorPane = this.writeMessagePanel.getEditorPane();
+        
+        if (editorPane.getText() == null
+                || editorPane.getText().equals(""))
+            return true;
+        else
+            return false;
+    }
+    
+    /**
+     * Adds text to the write area editor.
+     * 
+     * @param text The text to add.
+     */
+    public void addTextInWriteArea(String text){
+        JEditorPane editorPane = this.writeMessagePanel.getEditorPane();
+        
+        editorPane.setText(editorPane.getText() + text);
+    }
+    
+    /**
+     * Returns the text contained in the write area editor.
+     * @return The text contained in the write area editor.
+     */
+    public String getTextFromWriteArea(){
+        JEditorPane editorPane = this.writeMessagePanel.getEditorPane();
+        
+        return editorPane.getText();
+    }
+    
+    /**
+     * Stops typing notifications sending.
+     */
+    public void stopTypingNotifications(){
+        this.writeMessagePanel.stopTypingTimer();
+    }
+    
+    /**
+     * Cuts the write area selected content to the clipboard.
+     */
+    public void cut(){
+        this.writeMessagePanel.getEditorPane().cut();
+    }
+    
+    /**
+     * Copies either the selected write area content or the selected
+     * conversation panel content to the clipboard.
+     */
+    public void copy(){
+        JEditorPane editorPane = this.conversationPanel.getChatEditorPane();
+
+        if (editorPane.getSelectedText() == null) {
+            editorPane = this.writeMessagePanel.getEditorPane();
+        }
+        editorPane.copy();
+    }
+    
+    /**
+     * Pastes the content of the clipboard to the write area.
+     */
+    public void paste(){
+        JEditorPane editorPane = this.writeMessagePanel.getEditorPane();
+
+        editorPane.paste();
+
+        editorPane.requestFocus();
+    }
+    
+    /**
+     * Sends current write area content.
+     */
+    public void sendMessage(){
+        JButton sendButton = this.sendPanel.getSendButton();
+
+        sendButton.requestFocus();
+        sendButton.doClick();
     }
 }

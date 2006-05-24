@@ -103,16 +103,13 @@ public class ChatSendPanel extends JPanel implements ActionListener {
      * Defines actions when send buttons is pressed.
      * @param e The ActionEvent object.
      */
-    public void actionPerformed(ActionEvent e) {
-        JEditorPane messagePane = this.chatPanel.getWriteMessagePanel()
-                .getEditorPane();
+    public void actionPerformed(ActionEvent e) {       
 
-        if (messagePane.getText() != null 
-                && !messagePane.getText().equals("")) {
+        if (!this.chatPanel.isWriteAreaEmpty()) {
             OperationSetBasicInstantMessaging im = this.chatPanel
                     .getImOperationSet();
 
-            Message msg = im.createMessage(messagePane.getText());
+            Message msg = im.createMessage(chatPanel.getTextFromWriteArea());
 
             this.chatPanel.getChatWindow().getMainFrame()
                     .getWaitToBeDeliveredMsgs().put(msg.getMessageUID(),
@@ -121,8 +118,9 @@ public class ChatSendPanel extends JPanel implements ActionListener {
             Contact contact = (Contact) contactSelectorBox.getSelectedObject();
 
             //Send TYPING STOPPED event before sending the message            
-            chatPanel.getWriteMessagePanel().stopTyping();
+            chatPanel.stopTypingNotifications();
 
+            chatPanel.requestFocusInWriteArea();
             try {
                 im.sendInstantMessage(contact, msg);
             } catch (IllegalStateException ex) {

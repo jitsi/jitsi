@@ -115,27 +115,7 @@ public class ChatWindow extends JFrame {
     public void setMainFrame(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
     }
-
-    /**
-     * Requests the focus in the WriteMessagePanel in the current
-     * chat.
-     */
-    public void requestFocusInCurrentChat() {
-        this.currentChatPanel.getWriteMessagePanel().getEditorPane()
-                .requestFocus();
-    }
-
-    /**
-     * Returns the conversation panel for the currently selected 
-     * chat panel.
-     *  
-     * @return The ChatConversationPanel for the currently selected
-     * chat panel.
-     */
-    public ChatConversationPanel getCurrentConversationPanel() {
-        return this.currentChatPanel.getConversationPanel();
-    }
-
+       
     /**
      * Enables all key actions on this chat window. Closes 
      * tab or window when esc is pressed and changes tabs when 
@@ -195,7 +175,7 @@ public class ChatWindow extends JFrame {
      * in last 2 seconds.
      */
     private void close() {
-        if (!getCurrentChatWritePanel().isEmpty()) {
+        if (!getCurrentChatPanel().isWriteAreaEmpty()) {
             int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
                     Messages.getString("nonEmptyChatWindowClose"), Messages
                             .getString("warning"),
@@ -205,7 +185,7 @@ public class ChatWindow extends JFrame {
                 closeChat();
             }
         } else if (System.currentTimeMillis()
-                - getCurrentConversationPanel().getLastIncomingMsgTimestamp()
+                - getCurrentChatPanel().getLastIncomingMsgTimestamp()
                         .getTime() < 2 * 1000) {
             int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
                     Messages.getString("closeChatAfterNewMsg"), Messages
@@ -290,7 +270,10 @@ public class ChatWindow extends JFrame {
             this.contactTabsTable.put(contact.getMetaUID(), chatPanel);
 
             this.setTitle(contact.getDisplayName());
-        } else {
+            
+            this.setCurrentChatPanel(chatPanel);
+        }
+        else {
             PresenceStatus defaultStatus = contact.getDefaultContact()
                     .getPresenceStatus();
 
@@ -329,6 +312,10 @@ public class ChatWindow extends JFrame {
 
             this.getContentPane().add(chatTabbedPane, BorderLayout.CENTER);
             this.getContentPane().validate();
+            
+            int chatIndex = chatTabbedPane.getTabCount() - 1;
+            if(chatTabbedPane.getSelectedIndex() == chatIndex)
+                this.setCurrentChatPanel(chatPanel);
         }
         return chatPanel;
     }
@@ -346,7 +333,7 @@ public class ChatWindow extends JFrame {
                     .get(contact.getMetaUID()));
 
             this.chatTabbedPane.setSelectedComponent(chatPanel);
-            chatPanel.getWriteMessagePanel().getEditorPane().requestFocus();
+            chatPanel.requestFocusInWriteArea();
         }
     }
 
@@ -361,7 +348,7 @@ public class ChatWindow extends JFrame {
         this.setCurrentChatPanel(chatPanel);
         this.chatTabbedPane.setSelectedIndex(index);
         this.setVisible(true);
-        chatPanel.getWriteMessagePanel().getEditorPane().requestFocus();
+        chatPanel.requestFocusInWriteArea();
     }
 
     /**
@@ -472,18 +459,7 @@ public class ChatWindow extends JFrame {
     public ChatPanel getChatPanel(MetaContact contact) {
         return (ChatPanel) this.contactTabsTable.get(contact.getMetaUID());
     }
-
-    /**
-     * Returns <code>ChatWritePanel</code> contained in currently selected
-     * chat.
-     * 
-     * @return ChatWritePanel The panel where messages are written for
-     * the current chat.
-     */
-    public ChatWritePanel getCurrentChatWritePanel() {
-        return this.currentChatPanel.getWriteMessagePanel();
-    }
-
+    
     /**
      * Sets the given icon to the tab opened for the given MetaContact.
      * @param metaContact The MetaContact.
