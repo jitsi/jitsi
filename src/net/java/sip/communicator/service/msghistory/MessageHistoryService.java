@@ -14,6 +14,4 @@ import net.java.sip.communicator.service.protocol.Contact;
  */
 public interface MessageHistoryService extends HistoryReader {
 
-	
-    
 }

@@ -9,30 +9,29 @@ import java.util.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * This class launches the bundle which tests the fileaccess bundle.
- * This bundle is a set of (j)unit tests. It should be launched by the
- * cruisecontrol module.
- *
+ * This class launches the bundle which tests the fileaccess bundle. This bundle
+ * is a set of (j)unit tests. It should be launched by the cruisecontrol module.
+ * 
  * @author Alexander Pelov
  */
-public class FileAccessServiceLick
-    extends TestSuite
-    implements BundleActivator
-{
+public class FileAccessServiceLick extends TestSuite implements BundleActivator {
     private Logger logger = Logger.getLogger(getClass().getName());
 
     protected static FileAccessService fileAccessService = null;
+
     protected static BundleContext bc = null;
-    public static TestCase tcase = new TestCase(){};
+
+    public static TestCase tcase = new TestCase() {
+    };
 
     /**
      * Start the File Access Sevice Implementation Compatibility Kit.
-     *
-     * @param bundleContext BundleContext
+     * 
+     * @param bundleContext
+     *            BundleContext
      * @throws Exception
      */
-    public void start(BundleContext bundleContext) throws Exception
-    {
+    public void start(BundleContext bundleContext) throws Exception {
         FileAccessServiceLick.bc = bundleContext;
         setName("FileAccessServiceLick");
         Hashtable properties = new Hashtable();
@@ -46,12 +45,12 @@ public class FileAccessServiceLick
 
     /**
      * stop
-     *
-     * @param bundlecontext BundleContext
+     * 
+     * @param bundlecontext
+     *            BundleContext
      * @throws Exception
      */
-    public void stop(BundleContext bundlecontext) throws Exception
-    {
+    public void stop(BundleContext bundlecontext) throws Exception {
     }
 
 }

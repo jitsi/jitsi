@@ -23,55 +23,46 @@ import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-public class TestHistoryService
-    extends TestCase
-{
+public class TestHistoryService extends TestCase {
 
-    private static HistoryRecordStructure recordStructure =
-        new HistoryRecordStructure(new String[]
-                                   {"name", "age", "sex"});
+    private static HistoryRecordStructure recordStructure = new HistoryRecordStructure(
+            new String[] { "name", "age", "sex" });
 
     /**
      * The ConfigurationService that we will be testing.
      */
     private HistoryService historyService = null;
+
     private ServiceReference historyServiceRef = null;
 
     private History history = null;
 
     private Random random = new Random();
 
-    public TestHistoryService(String name) throws Exception
-    {
+    public TestHistoryService(String name) throws Exception {
         super(name);
     }
 
-    protected void setUp() throws Exception
-    {
+    protected void setUp() throws Exception {
         BundleContext context = HistoryServiceLick.bc;
 
-        historyServiceRef = context.getServiceReference(
-            HistoryService.class.getName());
-        this.historyService = (HistoryService) context.getService(
-            historyServiceRef);
+        historyServiceRef = context.getServiceReference(HistoryService.class
+                .getName());
+        this.historyService = (HistoryService) context
+                .getService(historyServiceRef);
 
-        HistoryID testID = HistoryID.createFromRawID(new String[]
-            {"test",
-            "alltests"});
+        HistoryID testID = HistoryID.createFromRawID(new String[] { "test",
+                "alltests" });
 
-        if (!this.historyService.isHistoryExisting(testID))
-        {
+        if (!this.historyService.isHistoryExisting(testID)) {
             this.history = this.historyService.createHistory(testID,
-                recordStructure);
-        }
-        else
-        {
+                    recordStructure);
+        } else {
             this.history = this.historyService.getHistory(testID);
         }
     }
 
-    protected void tearDown() throws Exception
-    {
+    protected void tearDown() throws Exception {
         BundleContext context = HistoryServiceLick.bc;
 
         context.ungetService(this.historyServiceRef);
@@ -81,18 +72,15 @@ public class TestHistoryService
         this.historyServiceRef = null;
     }
 
-    public void testCreateDB()
-    {
+    public void testCreateDB() {
         ArrayList al = new ArrayList();
 
         Iterator i = this.historyService.getExistingIDs();
-        while (i.hasNext())
-        {
+        while (i.hasNext()) {
             HistoryID id = (HistoryID) i.next();
             String[] components = id.getID();
 
-            if (components.length == 2 && "test".equals(components[0]))
-            {
+            if (components.length == 2 && "test".equals(components[0])) {
                 al.add(components[1]);
             }
         }
@@ -100,77 +88,59 @@ public class TestHistoryService
         int count = al.size();
         boolean unique = false;
         String lastComp = null;
-        while (!unique)
-        {
+        while (!unique) {
             lastComp = Integer.toHexString(random.nextInt());
-            for (int j = 0; j < count; j++)
-            {
-                if (lastComp.equals(al.get(j)))
-                {
+            for (int j = 0; j < count; j++) {
+                if (lastComp.equals(al.get(j))) {
                     continue;
                 }
             }
             unique = true;
         }
 
-        HistoryID id = HistoryID.createFromRawID(
-            new String[]
-            {"test", lastComp});
+        HistoryID id = HistoryID.createFromRawID(new String[] { "test",
+                lastComp });
 
-        try
-        {
+        try {
             this.historyService.createHistory(id, recordStructure);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             fail("Could not create database with id " + id + " with error " + e);
         }
     }
 
-    public void testWriteRecords()
-    {
+    public void testWriteRecords() {
         HistoryWriter writer = this.history.getWriter();
 
-        try
-        {
-            for (int i = 0; i < 202; i++)
-            {
-                writer.addRecord(new String[]
-                                 {"name" + i, "" + random.nextInt(),
-                                 i % 2 == 0 ? "m" : "f"});
+        try {
+            for (int i = 0; i < 202; i++) {
+                writer.addRecord(new String[] { "name" + i,
+                        "" + random.nextInt(), i % 2 == 0 ? "m" : "f" });
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             fail("Could not write records. Reason: " + e);
         }
     }
 
-    public void testReadRecords()
-    {
+    public void testReadRecords() {
         HistoryReader reader = this.history.getReader();
 
         QueryResultSet result = reader.findByKeyword("name2");
 
         assertTrue(result.hasNext());
 
-        while (result.hasNext())
-        {
+        while (result.hasNext()) {
             HistoryRecord record = result.nextRecord();
 
             String[] vals = record.getPropertyValues();
 
-            try
-            {
+            try {
                 int n = Integer.parseInt(vals[0].substring(4));
 
                 assertEquals(3, vals.length);
                 assertEquals(n % 2 == 0 ? "m" : "f", vals[2]);
-            }
-            catch (Exception e)
-            {
-                fail("Bad data! Expected nameXXXX, where XXXX is " +
-                     "an integer, but found: " + vals[0]);
+            } catch (Exception e) {
+                fail("Bad data! Expected nameXXXX, where XXXX is "
+                        + "an integer, but found: " + vals[0]);
             }
         }
     }

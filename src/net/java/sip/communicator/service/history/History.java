@@ -11,18 +11,17 @@ import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
 /**
  * @author Alexander Pelov
  */
-public interface History
-{
+public interface History {
 
     /**
-     * @return Returns an object which can be used to read and query
-     * this history.
+     * @return Returns an object which can be used to read and query this
+     *         history.
      */
     HistoryReader getReader();
 
     /**
-     * @return Returns an object which can be used to append records to
-     * this history.
+     * @return Returns an object which can be used to append records to this
+     *         history.
      */
     HistoryWriter getWriter();
 

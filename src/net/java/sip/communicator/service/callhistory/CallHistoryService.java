@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
- package net.java.sip.communicator.service.callhistory;
+package net.java.sip.communicator.service.callhistory;
 
 import net.java.sip.communicator.service.history.HistoryReader;
 

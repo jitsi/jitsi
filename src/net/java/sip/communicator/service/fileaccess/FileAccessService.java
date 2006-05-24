@@ -12,10 +12,10 @@ import java.io.IOException;
 /**
  * A service used to provide the basic functionality required to access the
  * undelying file system.
- *
+ * 
  * Note: Never store unencrypted sensitive information, such as passwords,
  * personal data, credit card numbers, etc..
- *
+ * 
  * @author Alexander Pelov
  */
 public interface FileAccessService {
@@ -29,14 +29,12 @@ public interface FileAccessService {
      * The key of the configuration property containing the user home dir - if
      * it is not defined the system property is used
      */
-    public static final String CONFPROPERTYKEY_USER_HOME =
-        "net.java.sip.communicator.user.home";
+    public static final String CONFPROPERTYKEY_USER_HOME = "net.java.sip.communicator.user.home";
 
     /**
      * The subdirectory of USER_HOME in which all user files will be stored
      */
-    public static final String CONFPROPERTYKEY_SIPCOMM_DIRECTORY =
-        "net.java.sip.communicator.user.home.sip-communicator-home";
+    public static final String CONFPROPERTYKEY_SIPCOMM_DIRECTORY = "net.java.sip.communicator.user.home.sip-communicator-home";
 
     /**
      * The default subdirectory
@@ -47,9 +45,9 @@ public interface FileAccessService {
      * This method returns a created temporary file. After you close this file
      * it is not guaranteed that you will be able to open it again nor that it
      * will contain any information.
-     *
+     * 
      * Note: DO NOT store unencrypted sensitive information in this file
-     *
+     * 
      * @return The created temporary file
      * @throws IOException
      *             If the file cannot be created
@@ -57,13 +55,13 @@ public interface FileAccessService {
     File getTemporaryFile() throws IOException;
 
     /**
-     * This method returns a created temporary directory. Any file you create
-     * in it will be a temporary file.
-     *
-     * Note: If there is no opened file in this directory it may be deleted
-     * at any time.
-     * Note: DO NOT store unencrypted sensitive information in this directory
-     *
+     * This method returns a created temporary directory. Any file you create in
+     * it will be a temporary file.
+     * 
+     * Note: If there is no opened file in this directory it may be deleted at
+     * any time. Note: DO NOT store unencrypted sensitive information in this
+     * directory
+     * 
      * @return The created directory
      * @throws IOException
      *             If the directory cannot be created
@@ -74,13 +72,13 @@ public interface FileAccessService {
      * This method returns a file specific to the current user. It may not
      * exist, but it is guaranteed that you will have the sufficient rights to
      * create it.
-     *
+     * 
      * This file should not be considered secure because the implementor may
-     * return a file accesible to everyone. Generaly it will reside in
-     * current user's homedir, but it may as well reside in a shared directory.
-     *
+     * return a file accesible to everyone. Generaly it will reside in current
+     * user's homedir, but it may as well reside in a shared directory.
+     * 
      * Note: DO NOT store unencrypted sensitive information in this file
-     *
+     * 
      * @param fileName
      *            The name of the private file you wish to access
      * @return The file
@@ -92,15 +90,15 @@ public interface FileAccessService {
 
     /**
      * This method creates a directory specific to the current user.
-     *
-     * This directory should not be considered secure because the implementor may
-     * return a directory accesible to everyone. Generaly it will reside in
+     * 
+     * This directory should not be considered secure because the implementor
+     * may return a directory accesible to everyone. Generaly it will reside in
      * current user's homedir, but it may as well reside in a shared directory.
-     *
+     * 
      * It is guaranteed that you will be able to create files in it.
-     *
+     * 
      * Note: DO NOT store unencrypted sensitive information in this file
-     *
+     * 
      * @param dirName
      *            The name of the private directory you wish to access.
      * @return The created directory.
@@ -112,9 +110,9 @@ public interface FileAccessService {
 
     /**
      * This method creates a directory specific to the current user.
-     *
+     * 
      * {@link #getPrivatePersistentDirectory(String)}
-     *
+     * 
      * @param dirNames
      *            The name of the private directory you wish to access.
      * @return The created directory.

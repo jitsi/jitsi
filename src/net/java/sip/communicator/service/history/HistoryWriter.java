@@ -14,33 +14,38 @@ import net.java.sip.communicator.service.history.records.HistoryRecord;
 /**
  * @author Alexander Pelov
  */
-public interface HistoryWriter
-{
+public interface HistoryWriter {
 
     /**
      * Stores the passed record complying with the historyRecordStructure.
-     *
-     * @param record The record to be added.
-     *
+     * 
+     * @param record
+     *            The record to be added.
+     * 
      * @throws IOException
      */
     void addRecord(HistoryRecord record) throws IOException;
 
     /**
-     * Stores the passed propertyValues complying with the historyRecordStructure.
-     *
-     * @param propertyValues The values of the record.
-     *
+     * Stores the passed propertyValues complying with the
+     * historyRecordStructure.
+     * 
+     * @param propertyValues
+     *            The values of the record.
+     * 
      * @throws IOException
      */
     void addRecord(String[] propertyValues) throws IOException;
-    
+
     /**
-     * Stores the passed propertyValues complying with the historyRecordStructure.
-     *
-     * @param propertyValues The values of the record.
-     * @param timestamp The timestamp of the record.
-     *
+     * Stores the passed propertyValues complying with the
+     * historyRecordStructure.
+     * 
+     * @param propertyValues
+     *            The values of the record.
+     * @param timestamp
+     *            The timestamp of the record.
+     * 
      * @throws IOException
      */
     void addRecord(String[] propertyValues, Date timestamp) throws IOException;
