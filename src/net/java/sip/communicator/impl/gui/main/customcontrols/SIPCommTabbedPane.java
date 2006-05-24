@@ -305,7 +305,6 @@ public class SIPCommTabbedPane extends JTabbedPane {
      *            the index of a tab, usually the tab over which the mouse is
      * 
      * @see #addCloseListener
-     * @see EventListenerList
      */
     public void fireCloseTabEvent(MouseEvent e, int overTabIndex) {
         this.overTabIndex = overTabIndex;
@@ -330,7 +329,6 @@ public class SIPCommTabbedPane extends JTabbedPane {
      *            the index of a tab, usually the tab over which the mouse is
      * 
      * @see #addMaxListener
-     * @see EventListenerList
      */
     public void fireMaxTabEvent(MouseEvent e, int overTabIndex) {
         this.overTabIndex = overTabIndex;
@@ -355,7 +353,6 @@ public class SIPCommTabbedPane extends JTabbedPane {
      *            the index of a tab, usually the tab over which the mouse is
      * 
      * @see #addDoubleClickListener
-     * @see EventListenerList
      */
     public void fireDoubleClickTabEvent(MouseEvent e, int overTabIndex) {
         this.overTabIndex = overTabIndex;
@@ -377,8 +374,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
      * @param e
      *            the <code>MouseEvent</code> to be sent
      * 
-     * @see #addPopupOutsideListener
-     * @see EventListenerList
+     * @see #addPopupOutsideListener 
      */
     public void firePopupOutsideTabEvent(MouseEvent e) {
         this.overTabIndex = -1;
