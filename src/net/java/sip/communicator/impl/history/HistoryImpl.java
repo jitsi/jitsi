@@ -30,177 +30,177 @@ import org.w3c.dom.Document;
  */
 public class HistoryImpl implements History {
 
-	private static Logger log = Logger.getLogger(HistoryImpl.class);
-	
-	public static final String SUPPORTED_FILETYPE = "xml";
+    private static Logger log = Logger.getLogger(HistoryImpl.class);
 
-	private HistoryID id;
+    public static final String SUPPORTED_FILETYPE = "xml";
 
-	private HistoryRecordStructure historyRecordStructure;
+    private HistoryID id;
 
-	private HistoryServiceImpl historyServiceImpl;
+    private HistoryRecordStructure historyRecordStructure;
 
-	private File directory;
+    private HistoryServiceImpl historyServiceImpl;
 
-	private HistoryReader reader;
+    private File directory;
 
-	private HistoryWriter writer;
+    private HistoryReader reader;
 
-	private SortedMap historyDocuments = new TreeMap();
+    private HistoryWriter writer;
 
-	protected HistoryImpl(HistoryID id, File directory,
-			HistoryRecordStructure historyRecordStructure,
-			HistoryServiceImpl historyServiceImpl) {
-		try {
-			log.logEntry();
+    private SortedMap historyDocuments = new TreeMap();
 
-			// TODO: Assert: Assert.assertNonNull(historyServiceImpl, "The
-			// historyServiceImpl should be non-null.");
-			// TODO: Assert: Assert.assertNonNull(id, "The ID should be
-			// non-null.");
-			// TODO: Assert: Assert.assertNonNull(historyRecordStructure, "The
-			// structure should be non-null.");
+    protected HistoryImpl(HistoryID id, File directory,
+            HistoryRecordStructure historyRecordStructure,
+            HistoryServiceImpl historyServiceImpl) {
+        try {
+            log.logEntry();
 
-			this.id = id;
-			this.directory = directory;
-			this.historyServiceImpl = historyServiceImpl;
-			this.historyRecordStructure = historyRecordStructure;
-			this.reader = null;
-			this.writer = null;
+            // TODO: Assert: Assert.assertNonNull(historyServiceImpl, "The
+            // historyServiceImpl should be non-null.");
+            // TODO: Assert: Assert.assertNonNull(id, "The ID should be
+            // non-null.");
+            // TODO: Assert: Assert.assertNonNull(historyRecordStructure, "The
+            // structure should be non-null.");
 
-			this.reloadDocumentList();
-		} finally {
-			log.logExit();
-		}
-	}
+            this.id = id;
+            this.directory = directory;
+            this.historyServiceImpl = historyServiceImpl;
+            this.historyRecordStructure = historyRecordStructure;
+            this.reader = null;
+            this.writer = null;
 
-	public HistoryID getID() {
-		return this.id;
-	}
+            this.reloadDocumentList();
+        } finally {
+            log.logExit();
+        }
+    }
 
-	public HistoryRecordStructure getHistoryRecordsStructure() {
-		return this.historyRecordStructure;
-	}
+    public HistoryID getID() {
+        return this.id;
+    }
 
-	public HistoryReader getReader() {
-		if (this.reader == null) {
-			this.reader = new HistoryReaderImpl(this);
-		}
+    public HistoryRecordStructure getHistoryRecordsStructure() {
+        return this.historyRecordStructure;
+    }
 
-		return this.reader;
-	}
+    public HistoryReader getReader() {
+        if (this.reader == null) {
+            this.reader = new HistoryReaderImpl(this);
+        }
 
-	public HistoryWriter getWriter() {
-		if (this.writer == null) {
-			this.writer = new HistoryWriterImpl(this);
-		}
+        return this.reader;
+    }
 
-		return this.writer;
-	}
+    public HistoryWriter getWriter() {
+        if (this.writer == null) {
+            this.writer = new HistoryWriterImpl(this);
+        }
 
-	protected HistoryServiceImpl getHistoryServiceImpl() {
-		return this.historyServiceImpl;
-	}
+        return this.writer;
+    }
 
-	private void reloadDocumentList() {
-		synchronized (this.historyDocuments) {
-			this.historyDocuments.clear();
+    protected HistoryServiceImpl getHistoryServiceImpl() {
+        return this.historyServiceImpl;
+    }
 
-			File[] files = this.directory.listFiles();
-			// TODO: Assert: Assert.assertNonNull(files, "The list of files
-			// should be non-null.");
+    private void reloadDocumentList() {
+        synchronized (this.historyDocuments) {
+            this.historyDocuments.clear();
 
-			for (int i = 0; i < files.length; i++) {
-				if (!files[i].isDirectory()) {
-					String filename = files[i].getName();
-					
-					if(filename.endsWith(SUPPORTED_FILETYPE)) {
-						this.historyDocuments.put(filename, files[i]);
-					}
-				}
-			}
-		}
-	}
+            File[] files = this.directory.listFiles();
+            // TODO: Assert: Assert.assertNonNull(files, "The list of files
+            // should be non-null.");
 
-	protected Document createDocument(String filename) {
-		Document retVal = null;
+            for (int i = 0; i < files.length; i++) {
+                if (!files[i].isDirectory()) {
+                    String filename = files[i].getName();
 
-		synchronized (this.historyDocuments) {
-			if (this.historyDocuments.containsKey(filename)) {
-				retVal = getDocumentForFile(filename);
-			} else {
-				retVal = this.historyServiceImpl.getDocumentBuilder()
-						.newDocument();
-				retVal.appendChild(retVal.createElement("history"));
+                    if (filename.endsWith(SUPPORTED_FILETYPE)) {
+                        this.historyDocuments.put(filename, files[i]);
+                    }
+                }
+            }
+        }
+    }
 
-				this.historyDocuments.put(filename, retVal);
-			}
-		}
+    protected Document createDocument(String filename) {
+        Document retVal = null;
 
-		return retVal;
-	}
+        synchronized (this.historyDocuments) {
+            if (this.historyDocuments.containsKey(filename)) {
+                retVal = getDocumentForFile(filename);
+            } else {
+                retVal = this.historyServiceImpl.getDocumentBuilder()
+                        .newDocument();
+                retVal.appendChild(retVal.createElement("history"));
 
-	protected void writeFile(String filename) throws InvalidParameterException,
-			IOException {
-		File file = new File(this.directory, filename);
+                this.historyDocuments.put(filename, retVal);
+            }
+        }
 
-		synchronized (this.historyDocuments) {
-			if (!this.historyDocuments.containsKey(filename)) {
-				throw new InvalidParameterException("The requested "
-						+ "filename does not exist in the document list.");
-			}
+        return retVal;
+    }
 
-			Object obj = this.historyDocuments.get(filename);
-			if (obj instanceof Document) {
-				Document doc = (Document) obj;
+    protected void writeFile(String filename) throws InvalidParameterException,
+            IOException {
+        File file = new File(this.directory, filename);
 
-				synchronized (doc) {
-					XMLUtils.writeXML(doc, file);
-				}
-			}
-		}
-	}
+        synchronized (this.historyDocuments) {
+            if (!this.historyDocuments.containsKey(filename)) {
+                throw new InvalidParameterException("The requested "
+                        + "filename does not exist in the document list.");
+            }
 
-	protected Iterator getFileList() {
-		return this.historyDocuments.keySet().iterator();
-	}
+            Object obj = this.historyDocuments.get(filename);
+            if (obj instanceof Document) {
+                Document doc = (Document) obj;
 
-	protected Document getDocumentForFile(String filename)
-			throws InvalidParameterException, RuntimeException {
-		Document retVal = null;
+                synchronized (doc) {
+                    XMLUtils.writeXML(doc, file);
+                }
+            }
+        }
+    }
 
-		synchronized (this.historyDocuments) {
-			if (!this.historyDocuments.containsKey(filename)) {
-				throw new InvalidParameterException("The requested "
-						+ "filename does not exist in the document list.");
-			}
+    protected Iterator getFileList() {
+        return this.historyDocuments.keySet().iterator();
+    }
 
-			Object obj = this.historyDocuments.get(filename);
-			if (obj instanceof Document) {
-				// Document already loaded. Use it directly
-				retVal = (Document) obj;
-			} else if (obj instanceof File) {
-				File file = (File) obj;
+    protected Document getDocumentForFile(String filename)
+            throws InvalidParameterException, RuntimeException {
+        Document retVal = null;
 
-				DocumentBuilder builder = this.historyServiceImpl
-						.getDocumentBuilder();
+        synchronized (this.historyDocuments) {
+            if (!this.historyDocuments.containsKey(filename)) {
+                throw new InvalidParameterException("The requested "
+                        + "filename does not exist in the document list.");
+            }
 
-				try {
-					retVal = builder.parse(file);
-				} catch (Exception e) {
-					throw new RuntimeException("Error occured while "
-							+ "parsing XML document.", e);
-				}
+            Object obj = this.historyDocuments.get(filename);
+            if (obj instanceof Document) {
+                // Document already loaded. Use it directly
+                retVal = (Document) obj;
+            } else if (obj instanceof File) {
+                File file = (File) obj;
 
-				// Cache the loaded document for reuse
-				this.historyDocuments.put(filename, retVal);
-			} else {
-				// TODO: Assert: Assert.fail("Internal error - the data type " +
-				// "should be either Document or File.");
-			}
-		}
+                DocumentBuilder builder = this.historyServiceImpl
+                        .getDocumentBuilder();
 
-		return retVal;
-	}
+                try {
+                    retVal = builder.parse(file);
+                } catch (Exception e) {
+                    throw new RuntimeException("Error occured while "
+                            + "parsing XML document.", e);
+                }
+
+                // Cache the loaded document for reuse
+                this.historyDocuments.put(filename, retVal);
+            } else {
+                // TODO: Assert: Assert.fail("Internal error - the data type " +
+                // "should be either Document or File.");
+            }
+        }
+
+        return retVal;
+    }
 
 }

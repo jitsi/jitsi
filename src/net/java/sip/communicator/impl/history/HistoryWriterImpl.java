@@ -25,124 +25,124 @@ import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
  */
 public class HistoryWriterImpl implements HistoryWriter {
 
-	public static final int MAX_RECORDS_PER_FILE = 150;
+    public static final int MAX_RECORDS_PER_FILE = 150;
 
-	private Object docCreateLock = new Object();
+    private Object docCreateLock = new Object();
 
-	private Object docWriteLock = new Object();
+    private Object docWriteLock = new Object();
 
-	private HistoryImpl historyImpl;
+    private HistoryImpl historyImpl;
 
-	private String[] structPropertyNames;
+    private String[] structPropertyNames;
 
-	private Document currentDoc = null;
+    private Document currentDoc = null;
 
-	private String currentFile = null;
+    private String currentFile = null;
 
-	private int currentDocElements = -1;
+    private int currentDocElements = -1;
 
-	protected HistoryWriterImpl(HistoryImpl historyImpl) {
-		this.historyImpl = historyImpl;
+    protected HistoryWriterImpl(HistoryImpl historyImpl) {
+        this.historyImpl = historyImpl;
 
-		HistoryRecordStructure struct = this.historyImpl
-				.getHistoryRecordsStructure();
-		this.structPropertyNames = struct.getPropertyNames();
-	}
+        HistoryRecordStructure struct = this.historyImpl
+                .getHistoryRecordsStructure();
+        this.structPropertyNames = struct.getPropertyNames();
+    }
 
-	public void addRecord(HistoryRecord record) throws IOException {
-		this.addRecord(record.getPropertyNames(), record.getPropertyValues(),
-				record.getTimestamp());
-	}
+    public void addRecord(HistoryRecord record) throws IOException {
+        this.addRecord(record.getPropertyNames(), record.getPropertyValues(),
+                record.getTimestamp());
+    }
 
-	public void addRecord(String[] propertyValues) throws IOException {
-		this.addRecord(structPropertyNames, propertyValues, new Date());
-	}
+    public void addRecord(String[] propertyValues) throws IOException {
+        this.addRecord(structPropertyNames, propertyValues, new Date());
+    }
 
-	public void addRecord(String[] propertyValues, Date timestamp)
-			throws IOException {
-		this.addRecord(structPropertyNames, propertyValues, timestamp);
-	}
+    public void addRecord(String[] propertyValues, Date timestamp)
+            throws IOException {
+        this.addRecord(structPropertyNames, propertyValues, timestamp);
+    }
 
-	private void addRecord(String[] propertyNames, String[] propertyValues,
-			Date date) throws InvalidParameterException, IOException {
-		// Synchronized to assure that two concurent threads can insert records
-		// safely.
-		synchronized (this.docCreateLock) {
-			if (this.currentDoc == null
-					|| this.currentDocElements > MAX_RECORDS_PER_FILE) {
-				this.createNewDoc(date, this.currentDoc == null);
-			}
-		}
+    private void addRecord(String[] propertyNames, String[] propertyValues,
+            Date date) throws InvalidParameterException, IOException {
+        // Synchronized to assure that two concurent threads can insert records
+        // safely.
+        synchronized (this.docCreateLock) {
+            if (this.currentDoc == null
+                    || this.currentDocElements > MAX_RECORDS_PER_FILE) {
+                this.createNewDoc(date, this.currentDoc == null);
+            }
+        }
 
-		synchronized (this.currentDoc) {
-			Node root = this.currentDoc.getFirstChild();
-			synchronized (root) {
-				Element elem = this.currentDoc.createElement("record");
-				elem.setAttribute("timestamp", Long.toString(date.getTime()));
+        synchronized (this.currentDoc) {
+            Node root = this.currentDoc.getFirstChild();
+            synchronized (root) {
+                Element elem = this.currentDoc.createElement("record");
+                elem.setAttribute("timestamp", Long.toString(date.getTime()));
 
-				for (int i = 0; i < propertyNames.length; i++) {
-					if (propertyValues[i] != null) {
-						Element propertyElement = this.currentDoc
-								.createElement(propertyNames[i]);
+                for (int i = 0; i < propertyNames.length; i++) {
+                    if (propertyValues[i] != null) {
+                        Element propertyElement = this.currentDoc
+                                .createElement(propertyNames[i]);
 
-						Text value = this.currentDoc
-								.createTextNode(propertyValues[i]);
-						propertyElement.appendChild(value);
+                        Text value = this.currentDoc
+                                .createTextNode(propertyValues[i]);
+                        propertyElement.appendChild(value);
 
-						elem.appendChild(propertyElement);
-					}
-				}
+                        elem.appendChild(propertyElement);
+                    }
+                }
 
-				root.appendChild(elem);
-				this.currentDocElements++;
-			}
-		}
+                root.appendChild(elem);
+                this.currentDocElements++;
+            }
+        }
 
-		// write changes
-		synchronized (this.docWriteLock) {
-			this.historyImpl.writeFile(this.currentFile);
-		}
-	}
+        // write changes
+        synchronized (this.docWriteLock) {
+            this.historyImpl.writeFile(this.currentFile);
+        }
+    }
 
-	/**
-	 * If no file is currently loaded loads the last opened file. If it does not
-	 * exists or if the current file was set - create a new file.
-	 * 
-	 * @param date
-	 */
-	private void createNewDoc(Date date, boolean loadLastFile) {
-		boolean loaded = false;
+    /**
+     * If no file is currently loaded loads the last opened file. If it does not
+     * exists or if the current file was set - create a new file.
+     * 
+     * @param date
+     */
+    private void createNewDoc(Date date, boolean loadLastFile) {
+        boolean loaded = false;
 
-		if (loadLastFile) {
-			Iterator files = historyImpl.getFileList();
+        if (loadLastFile) {
+            Iterator files = historyImpl.getFileList();
 
-			String file = null;
-			while (files.hasNext()) {
-				file = (String) files.next();
-			}
+            String file = null;
+            while (files.hasNext()) {
+                file = (String) files.next();
+            }
 
-			if (file != null) {
-				this.currentDoc = this.historyImpl.getDocumentForFile(file);
-				this.currentFile = file;
-				loaded = true;
-			}
-		}
+            if (file != null) {
+                this.currentDoc = this.historyImpl.getDocumentForFile(file);
+                this.currentFile = file;
+                loaded = true;
+            }
+        }
 
-		if (!loaded) {
-			this.currentFile = Long.toString(date.getTime());
-			while (this.currentFile.length() < 8) {
-				this.currentFile = "0" + this.currentFile;
-			}
-			this.currentFile += ".xml";
+        if (!loaded) {
+            this.currentFile = Long.toString(date.getTime());
+            while (this.currentFile.length() < 8) {
+                this.currentFile = "0" + this.currentFile;
+            }
+            this.currentFile += ".xml";
 
-			this.currentDoc = this.historyImpl.createDocument(this.currentFile);
-		}
+            this.currentDoc = this.historyImpl.createDocument(this.currentFile);
+        }
 
-		// TODO: Assert: Assert.assertNonNull(this.currentDoc,
-		// "There should be a current document created.");
+        // TODO: Assert: Assert.assertNonNull(this.currentDoc,
+        // "There should be a current document created.");
 
-		this.currentDocElements = this.currentDoc.getFirstChild()
-				.getChildNodes().getLength();
-	}
+        this.currentDocElements = this.currentDoc.getFirstChild()
+                .getChildNodes().getLength();
+    }
 
 }
