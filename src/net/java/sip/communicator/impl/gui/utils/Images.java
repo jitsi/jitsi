@@ -7,28 +7,31 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
-import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+/**
+ * Manages the access to the properties file containing all image paths.
+ * @author Yana Stamcheva
+ */
 public class Images {
-	
-	private static final String BUNDLE_NAME = "net.java.sip.communicator.impl.gui.utils.images";
 
-	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-			.getBundle(BUNDLE_NAME);
+    private static final String BUNDLE_NAME 
+        = "net.java.sip.communicator.impl.gui.utils.images";
 
-	private Images() {
-	}
+    private static final ResourceBundle RESOURCE_BUNDLE 
+        = ResourceBundle.getBundle(BUNDLE_NAME);
 
-	public static String getString(String key) {
-		
-		try {
-			return RESOURCE_BUNDLE.getString(key);
-			
-		} catch (MissingResourceException e) {
-			
-			return '!' + key + '!';
-		}
-	}
+    private Images() {
+    }
+
+    public static String getString(String key) {
+        try {
+            return RESOURCE_BUNDLE.getString(key);
+
+        } catch (MissingResourceException e) {
+
+            return '!' + key + '!';
+        }
+    }
 }

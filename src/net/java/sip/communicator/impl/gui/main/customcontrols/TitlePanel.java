@@ -17,73 +17,82 @@ import java.awt.Graphics2D;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 
+/**
+ * The TitlePanel is a decorated panel, that could be used for a header or a
+ * title area.
+ * 
+ * @author Yana Stamcheva
+ */
 public class TitlePanel extends JPanel {
-	
-	private JLabel titleLabel = new JLabel();
-	
-	public TitlePanel(){
-		
-		super(new FlowLayout(FlowLayout.CENTER));
-		
-		this.setPreferredSize(new Dimension(0, 30));
-		
-		this.titleLabel.setFont(this.getFont().deriveFont(Font.BOLD, 14));
-	}
 
-	public TitlePanel(String title){
-		
-		super(new FlowLayout(FlowLayout.CENTER));
-		
-		this.titleLabel.setFont(this.getFont().deriveFont(Font.BOLD, 14));
-		
-		this.titleLabel.setText(title);
-		
-		this.add(titleLabel);
-	}
+    private JLabel titleLabel = new JLabel();
 
-	
-	public void paintComponent(Graphics g){
-		super.paintComponent(g);
-		
-		Graphics2D g2 = (Graphics2D) g;
-		
-		GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
-				Constants.CONTACTPANEL_MOVER_START_COLOR,
-				this.getWidth() / 2, Constants.CONTACTPANEL_GRADIENT_SIZE,
-				Constants.CONTACTPANEL_MOVER_END_COLOR);
+    /**
+     * Creates an instance of TitlePanel.
+     */
+    public TitlePanel() {
 
-		GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
-				.getHeight()
-				- Constants.CONTACTPANEL_GRADIENT_SIZE,
-				Constants.CONTACTPANEL_MOVER_END_COLOR,
-				this.getWidth() / 2, this.getHeight(),
-				Constants.CONTACTPANEL_MOVER_START_COLOR);
+        super(new FlowLayout(FlowLayout.CENTER));
 
-		g2.setPaint(p);
-		g2.fillRect(0, 0, this.getWidth(),
-				Constants.CONTACTPANEL_GRADIENT_SIZE);			
+        this.setPreferredSize(new Dimension(0, 30));
 
-		g2.setColor(Constants.CONTACTPANEL_MOVER_END_COLOR);
-		g2.fillRect(0, Constants.CONTACTPANEL_GRADIENT_SIZE, this
-				.getWidth(), this.getHeight()
-				- Constants.CONTACTPANEL_GRADIENT_SIZE);
-		
-		g2.setPaint(p1);
-		g2.fillRect(0, this.getHeight()
-				- Constants.CONTACTPANEL_GRADIENT_SIZE - 1,
-				this.getWidth(), this.getHeight() - 1);
-		
-		g2.setColor(Constants.MSG_WINDOW_BORDER_COLOR);
-		g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() -1, 5, 5);
-	}
-	
-	public void setTitleText(String title){
-		
-		this.titleLabel.setText(title);
-		
-		this.add(titleLabel);
-	}
+        this.titleLabel.setFont(this.getFont().deriveFont(Font.BOLD, 14));
+    }
+
+    /**
+     * Creates an instance of TitlePanel by specifying a title.
+     * 
+     * @param title A title string.
+     */
+    public TitlePanel(String title) {
+
+        super(new FlowLayout(FlowLayout.CENTER));
+
+        this.titleLabel.setFont(this.getFont().deriveFont(Font.BOLD, 14));
+
+        this.titleLabel.setText(title);
+
+        this.add(titleLabel);
+    }
+
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        Graphics2D g2 = (Graphics2D) g;
+
+        GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
+                Constants.CONTACTPANEL_MOVER_START_COLOR, this.getWidth() / 2,
+                Constants.CONTACTPANEL_GRADIENT_SIZE,
+                Constants.CONTACTPANEL_MOVER_END_COLOR);
+
+        GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
+                .getHeight()
+                - Constants.CONTACTPANEL_GRADIENT_SIZE,
+                Constants.CONTACTPANEL_MOVER_END_COLOR, this.getWidth() / 2,
+                this.getHeight(), Constants.CONTACTPANEL_MOVER_START_COLOR);
+
+        g2.setPaint(p);
+        g2
+                .fillRect(0, 0, this.getWidth(),
+                        Constants.CONTACTPANEL_GRADIENT_SIZE);
+
+        g2.setColor(Constants.CONTACTPANEL_MOVER_END_COLOR);
+        g2.fillRect(0, Constants.CONTACTPANEL_GRADIENT_SIZE, this.getWidth(),
+                this.getHeight() - Constants.CONTACTPANEL_GRADIENT_SIZE);
+
+        g2.setPaint(p1);
+        g2.fillRect(0, this.getHeight() - Constants.CONTACTPANEL_GRADIENT_SIZE
+                - 1, this.getWidth(), this.getHeight() - 1);
+
+        g2.setColor(Constants.MSG_WINDOW_BORDER_COLOR);
+        g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1, 5, 5);
+    }
+
+    public void setTitleText(String title) {
+        this.titleLabel.setText(title);
+
+        this.add(titleLabel);
+    }
 }

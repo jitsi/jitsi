@@ -21,64 +21,62 @@ import javax.swing.JComponent;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 
-
-
+/** * 
+ * @author Yana Stamcheva
+ */
 public class TransparentBackground extends JComponent {
-	
-	private BufferedImage background;
 
-	private Robot robot;
-	
-	private Window window;
-	
-	// constructor -------------------------------------------------------------
+    private BufferedImage background;
 
-	public TransparentBackground(Window window) {
-		
-		this.window = window;
-		
-		try {
+    private Robot robot;
 
-			robot = new Robot();
+    private Window window;
 
-		} catch (AWTException e) {
+    /**
+     * Creates an instance of TransparentBackground.
+     * 
+     * @param window
+     */
+    public TransparentBackground(Window window) {
 
-			e.printStackTrace();
+        this.window = window;
 
-			return;
+        try {
 
-		}
-	}
+            robot = new Robot();
 
+        } catch (AWTException e) {
 
-	// protected ---------------------------------------------------------------
+            e.printStackTrace();
 
-	public void updateBackground(int x, int y ) {
-		
-		this.background = robot.createScreenCapture(
-			        new Rectangle(x, y, x + this.window.getWidth(),
-			                           y + this.window.getHeight()));
-			                          
-	}
+            return;
 
-	// JComponent --------------------------------------------------------------
+        }
+    }
 
-	protected void paintComponent(Graphics g) {
-		
-		AntialiasingManager.activateAntialiasing(g);
-		
-		Graphics2D g2 = (Graphics2D) g;
-		
-		g2.drawImage(this.background, 0, 0, null);
-		
-		g2.setColor(new Color(255, 255, 255, 180));
+    
+    public void updateBackground(int x, int y) {
 
-		g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-		
-		g2.setColor(Constants.TOOLBAR_SEPARATOR_COLOR);
-		
-		g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
+        this.background = robot.createScreenCapture(new Rectangle(x, y, x
+                + this.window.getWidth(), y + this.window.getHeight()));
 
-	}
-	
+    }
+
+    
+    protected void paintComponent(Graphics g) {
+
+        AntialiasingManager.activateAntialiasing(g);
+
+        Graphics2D g2 = (Graphics2D) g;
+
+        g2.drawImage(this.background, 0, 0, null);
+
+        g2.setColor(new Color(255, 255, 255, 180));
+
+        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+
+        g2.setColor(Constants.TOOLBAR_SEPARATOR_COLOR);
+
+        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
+    }
 }

@@ -17,135 +17,136 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JPanel;
 
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 
+/**
+ * @author Yana Stamcheva
+ */
 public class ListCellPanel extends JPanel implements MouseListener {
 
-	private boolean isMouseOver = false;
+    private boolean isMouseOver = false;
 
-	private boolean isSelected = false;
+    private boolean isSelected = false;
 
-	public ListCellPanel() {
+    public ListCellPanel() {
 
-		super(new BorderLayout());
+        super(new BorderLayout());
 
-		this.setBackground(Color.WHITE);
+        this.setBackground(Color.WHITE);
 
-		this.setOpaque(true);		
-	}
+        this.setOpaque(true);
+    }
 
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
 
-		Graphics2D g2 = (Graphics2D) g;
+        Graphics2D g2 = (Graphics2D) g;
 
-		if (this.isSelected()) {
-			GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
-					Constants.CONTACTPANEL_SELECTED_START_COLOR, this
-							.getWidth() / 2,
-					Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE,
-					Constants.CONTACTPANEL_SELECTED_END_COLOR);
+        if (this.isSelected()) {
+            GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
+                    Constants.CONTACTPANEL_SELECTED_START_COLOR, this
+                            .getWidth() / 2,
+                    Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE,
+                    Constants.CONTACTPANEL_SELECTED_END_COLOR);
 
-			GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
-					.getHeight()
-					- Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE,
-					Constants.CONTACTPANEL_SELECTED_END_COLOR,
-					this.getWidth() / 2, this.getHeight() - 1,
-					Constants.CONTACTPANEL_SELECTED_START_COLOR);
+            GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
+                    .getHeight()
+                    - Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE,
+                    Constants.CONTACTPANEL_SELECTED_END_COLOR,
+                    this.getWidth() / 2, this.getHeight() - 1,
+                    Constants.CONTACTPANEL_SELECTED_START_COLOR);
 
-			g2.setPaint(p);
-			g2.fillRect(0, 0, this.getWidth(),
-					Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE);			
+            g2.setPaint(p);
+            g2.fillRect(0, 0, this.getWidth(),
+                    Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE);
 
-			g2.setColor(Constants.CONTACTPANEL_SELECTED_END_COLOR);
-			g2.fillRect(0, Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE,
-					this.getWidth(), 
-					this.getHeight() - Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE);
-			
-			g2.setPaint(p1);
-			g2.fillRect(0, this.getHeight() - Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, 
-					this.getWidth(), this.getHeight() - 1);
-			
-		
-			
-		} else if (this.isMouseOver()) {
-			GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
-					Constants.CONTACTPANEL_MOVER_START_COLOR,
-					this.getWidth() / 2, Constants.CONTACTPANEL_GRADIENT_SIZE,
-					Constants.CONTACTPANEL_MOVER_END_COLOR);
+            g2.setColor(Constants.CONTACTPANEL_SELECTED_END_COLOR);
+            g2.fillRect(0, Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, this
+                    .getWidth(), this.getHeight()
+                    - Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE);
 
-			GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
-					.getHeight()
-					- Constants.CONTACTPANEL_GRADIENT_SIZE,
-					Constants.CONTACTPANEL_MOVER_END_COLOR,
-					this.getWidth() / 2, this.getHeight(),
-					Constants.CONTACTPANEL_MOVER_START_COLOR);
+            g2.setPaint(p1);
+            g2.fillRect(0, this.getHeight()
+                    - Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, this
+                    .getWidth(), this.getHeight() - 1);
 
-			g2.setPaint(p);
-			g2.fillRect(0, 0, this.getWidth(),
-					Constants.CONTACTPANEL_GRADIENT_SIZE);			
+        } else if (this.isMouseOver()) {
+            GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
+                    Constants.CONTACTPANEL_MOVER_START_COLOR,
+                    this.getWidth() / 2, Constants.CONTACTPANEL_GRADIENT_SIZE,
+                    Constants.CONTACTPANEL_MOVER_END_COLOR);
 
-			g2.setColor(Constants.CONTACTPANEL_MOVER_END_COLOR);
-			g2.fillRect(0, Constants.CONTACTPANEL_GRADIENT_SIZE, this
-					.getWidth(), this.getHeight()
-					- Constants.CONTACTPANEL_GRADIENT_SIZE);
-			
-			g2.setPaint(p1);
-			g2.fillRect(0, this.getHeight()
-					- Constants.CONTACTPANEL_GRADIENT_SIZE - 1,
-					this.getWidth(), this.getHeight() - 1);
-			
-		}
+            GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
+                    .getHeight()
+                    - Constants.CONTACTPANEL_GRADIENT_SIZE,
+                    Constants.CONTACTPANEL_MOVER_END_COLOR,
+                    this.getWidth() / 2, this.getHeight(),
+                    Constants.CONTACTPANEL_MOVER_START_COLOR);
 
-		this.addMouseListener(this);
-	}
+            g2.setPaint(p);
+            g2.fillRect(0, 0, this.getWidth(),
+                    Constants.CONTACTPANEL_GRADIENT_SIZE);
 
-	public boolean isMouseOver() {
-		return isMouseOver;
-	}
+            g2.setColor(Constants.CONTACTPANEL_MOVER_END_COLOR);
+            g2.fillRect(0, Constants.CONTACTPANEL_GRADIENT_SIZE, this
+                    .getWidth(), this.getHeight()
+                    - Constants.CONTACTPANEL_GRADIENT_SIZE);
 
-	public void setMouseOver(boolean isMouseOver) {
-		this.isMouseOver = isMouseOver;
-	}
+            g2.setPaint(p1);
+            g2.fillRect(0, this.getHeight()
+                    - Constants.CONTACTPANEL_GRADIENT_SIZE - 1,
+                    this.getWidth(), this.getHeight() - 1);
 
-	public boolean isSelected() {
-		return isSelected;
-	}
+        }
 
-	public void setSelected(boolean isSelected) {
-		if (this.isSelected != isSelected) {
-			this.isSelected = isSelected;
-			/*
-			 * if(isSelected) { this.setSize(new Dimension(this.getWidth(),
-			 * LookAndFeelConstants.CONTACTPANEL_SELECTED_HEIGHT)); } else {
-			 * this.setSize(new Dimension(this.getWidth(),
-			 * LookAndFeelConstants.CONTACTPANEL_HEIGHT)); }
-			 */
-			this.repaint();
-		}
-	}
+        this.addMouseListener(this);
+    }
 
-	public void mouseClicked(MouseEvent e) {
+    public boolean isMouseOver() {
+        return isMouseOver;
+    }
 
-		this.setSelected(true);
-	}
+    public void setMouseOver(boolean isMouseOver) {
+        this.isMouseOver = isMouseOver;
+    }
 
-	public void mouseEntered(MouseEvent e) {
+    public boolean isSelected() {
+        return isSelected;
+    }
 
-		this.setMouseOver(true);
-		this.repaint();
-	}
+    public void setSelected(boolean isSelected) {
+        if (this.isSelected != isSelected) {
+            this.isSelected = isSelected;
+            /*
+             * if(isSelected) { this.setSize(new Dimension(this.getWidth(),
+             * LookAndFeelConstants.CONTACTPANEL_SELECTED_HEIGHT)); } else {
+             * this.setSize(new Dimension(this.getWidth(),
+             * LookAndFeelConstants.CONTACTPANEL_HEIGHT)); }
+             */
+            this.repaint();
+        }
+    }
 
-	public void mouseExited(MouseEvent e) {
+    public void mouseClicked(MouseEvent e) {
 
-		this.setMouseOver(false);
-		this.repaint();
-	}
+        this.setSelected(true);
+    }
 
-	public void mousePressed(MouseEvent e) {
-	}
+    public void mouseEntered(MouseEvent e) {
 
-	public void mouseReleased(MouseEvent e) {
-	}
+        this.setMouseOver(true);
+        this.repaint();
+    }
+
+    public void mouseExited(MouseEvent e) {
+
+        this.setMouseOver(false);
+        this.repaint();
+    }
+
+    public void mousePressed(MouseEvent e) {
+    }
+
+    public void mouseReleased(MouseEvent e) {
+    }
 }

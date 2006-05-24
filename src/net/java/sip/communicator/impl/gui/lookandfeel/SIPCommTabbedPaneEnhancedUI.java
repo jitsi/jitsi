@@ -5,11 +5,11 @@
  * See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
+
 /*
- * The content of this file was based on code borrowed from
- * David Bismut, davidou@mageos.com
- * Intern, SETLabs, Infosys Technologies Ltd. May 2004 - Jul 2004
- * Ecole des Mines de Nantes, France
+ * The content of this file was based on code borrowed from David Bismut,
+ * davidou@mageos.com Intern, SETLabs, Infosys Technologies Ltd. May 2004 - Jul
+ * 2004 Ecole des Mines de Nantes, France
  */
 
 import java.awt.Color;
@@ -18,7 +18,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
@@ -33,296 +32,292 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**
  * This UI displays a different interface, which is independent from the look
- * and feel.
- * 
+ * and feel. 
  * 
  * @author David Bismut, davidou@mageos.com
- *  
+ * @author Yana Stamcheva
  */
 public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
 
-	private static final Color whiteColor = Color.white;
+    private static final Color whiteColor = Color.white;
 
-	private static final Color highlightedColor = new Color(249, 117, 10);
-    
-    private static BufferedImage TAB_BACKGROUND = ImageLoader.getImage(ImageLoader.TAB_BG);
-    
-    private static BufferedImage CLOSABLE_TAB_BACKGROUND 
-        = ImageLoader.getImage(ImageLoader.CLOSABLE_TAB_BG);   
-    
+    private static final Color highlightedColor = new Color(249, 117, 10);
 
-	public static ComponentUI createUI(JComponent c) {
-		return new SIPCommTabbedPaneEnhancedUI();
-	}
+    private static BufferedImage TAB_BACKGROUND = ImageLoader
+            .getImage(ImageLoader.TAB_BG);
 
-	protected void paintFocusIndicator(Graphics g, int tabPlacement,
-			Rectangle[] rects, int tabIndex, Rectangle iconRect,
-			Rectangle textRect, boolean isSelected) {
-	}
+    private static BufferedImage CLOSABLE_TAB_BACKGROUND = ImageLoader
+            .getImage(ImageLoader.CLOSABLE_TAB_BG);
+
+    public static ComponentUI createUI(JComponent c) {
+        return new SIPCommTabbedPaneEnhancedUI();
+    }
+
+    protected void paintFocusIndicator(Graphics g, int tabPlacement,
+            Rectangle[] rects, int tabIndex, Rectangle iconRect,
+            Rectangle textRect, boolean isSelected) {
+    }
 
     /**
      * Overriden to paint nothing.
      */
-	protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex,
-			int x, int y, int w, int h, boolean isSelected) {
-	}
+    protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex,
+            int x, int y, int w, int h, boolean isSelected) {
+    }
 
-	protected void paintContentBorderTopEdge(Graphics g, int tabPlacement,
-			int selectedIndex, int x, int y, int w, int h) {
+    protected void paintContentBorderTopEdge(Graphics g, int tabPlacement,
+            int selectedIndex, int x, int y, int w, int h) {
 
-		if (tabPane.getTabCount() < 1)
-			return;
+        if (tabPane.getTabCount() < 1)
+            return;
 
-		g.setColor(shadow);
-		g.drawLine(x, y, x + w - 2, y);
-	}
+        g.setColor(shadow);
+        g.drawLine(x, y, x + w - 2, y);
+    }
 
-	protected void paintContentBorderLeftEdge(Graphics g, int tabPlacement,
-			int selectedIndex, int x, int y, int w, int h) {
+    protected void paintContentBorderLeftEdge(Graphics g, int tabPlacement,
+            int selectedIndex, int x, int y, int w, int h) {
 
-		if (tabPane.getTabCount() < 1)
-			return;
+        if (tabPane.getTabCount() < 1)
+            return;
 
-		g.setColor(shadow);
+        g.setColor(shadow);
 
-		g.drawLine(x, y, x, y + h - 3);
-	}
+        g.drawLine(x, y, x, y + h - 3);
+    }
 
-	protected void paintContentBorderBottomEdge(Graphics g, int tabPlacement,
-			int selectedIndex, int x, int y, int w, int h) {
+    protected void paintContentBorderBottomEdge(Graphics g, int tabPlacement,
+            int selectedIndex, int x, int y, int w, int h) {
 
-		if (tabPane.getTabCount() < 1)
-			return;
+        if (tabPane.getTabCount() < 1)
+            return;
 
-		g.setColor(shadow);
-		g.drawLine(x + 1, y + h - 3, x + w - 2, y + h - 3);
-		g.drawLine(x + 1, y + h - 2, x + w - 2, y + h - 2);
-		g.setColor(shadow.brighter());
-		g.drawLine(x + 2, y + h - 1, x + w - 1, y + h - 1);
+        g.setColor(shadow);
+        g.drawLine(x + 1, y + h - 3, x + w - 2, y + h - 3);
+        g.drawLine(x + 1, y + h - 2, x + w - 2, y + h - 2);
+        g.setColor(shadow.brighter());
+        g.drawLine(x + 2, y + h - 1, x + w - 1, y + h - 1);
 
-	}
+    }
 
-	protected void paintContentBorderRightEdge(Graphics g, int tabPlacement,
-			int selectedIndex, int x, int y, int w, int h) {
+    protected void paintContentBorderRightEdge(Graphics g, int tabPlacement,
+            int selectedIndex, int x, int y, int w, int h) {
 
-		if (tabPane.getTabCount() < 1)
-			return;
+        if (tabPane.getTabCount() < 1)
+            return;
 
-		g.setColor(shadow);
+        g.setColor(shadow);
 
-		g.drawLine(x + w - 3, y + 1, x + w - 3, y + h - 3);
-		g.drawLine(x + w - 2, y + 1, x + w - 2, y + h - 3);
-		g.setColor(shadow.brighter());
-		g.drawLine(x + w - 1, y + 2, x + w - 1, y + h - 2);
+        g.drawLine(x + w - 3, y + 1, x + w - 3, y + h - 3);
+        g.drawLine(x + w - 2, y + 1, x + w - 2, y + h - 3);
+        g.setColor(shadow.brighter());
+        g.drawLine(x + w - 1, y + 2, x + w - 1, y + h - 2);
 
-	}
+    }
 
-	protected void paintTabBackground(Graphics g, int tabPlacement,
-			int tabIndex, int x, int y, int w, int h, boolean isSelected) {
-		
-        BufferedImage img= null;
-        
+    protected void paintTabBackground(Graphics g, int tabPlacement,
+            int tabIndex, int x, int y, int w, int h, boolean isSelected) {
+
+        BufferedImage img = null;
+
         Graphics2D g2 = (Graphics2D) g;
-        
+
         AntialiasingManager.activateAntialiasing(g2);
-        
-        if(!isOneActionButtonEnabled()){
+
+        if (!isOneActionButtonEnabled()) {
             if (isSelected) {
-    		
+
                 if (tabPane.isEnabledAt(tabIndex)) {
                     img = ImageLoader.getImage(ImageLoader.SELECTED_TAB_BG);
-    			} else {
+                } else {
                     img = ImageLoader.getImage(ImageLoader.TAB_BG);
-    			}
-    	               
-                g2.drawImage(img, x, y, null);
-    		}
-            else{
-                img = ImageLoader.getImage(ImageLoader.TAB_BG);
-                
-                g2.drawImage(img, x, y, null);
-            }
-        }
-        else{            
-            if(isSelected){
-                img = ImageLoader.getImage(ImageLoader.SELECTED_CLOSABLE_TAB_BG);
-                
-                g2.drawImage(img, x, y, null);
-            }
-            else{
-                img = ImageLoader.getImage(ImageLoader.CLOSABLE_TAB_BG);
-                
-                g2.drawImage(img, x, y, null);
-            }
-        }
-	}
+                }
 
-	protected void paintText(Graphics g, int tabPlacement, Font font,
-			FontMetrics metrics, int tabIndex, String title,
-			Rectangle textRect, boolean isSelected) {
-	   
+                g2.drawImage(img, x, y, null);
+            } else {
+                img = ImageLoader.getImage(ImageLoader.TAB_BG);
+
+                g2.drawImage(img, x, y, null);
+            }
+        } else {
+            if (isSelected) {
+                img = ImageLoader
+                        .getImage(ImageLoader.SELECTED_CLOSABLE_TAB_BG);
+
+                g2.drawImage(img, x, y, null);
+            } else {
+                img = ImageLoader.getImage(ImageLoader.CLOSABLE_TAB_BG);
+
+                g2.drawImage(img, x, y, null);
+            }
+        }
+    }
+
+    protected void paintText(Graphics g, int tabPlacement, Font font,
+            FontMetrics metrics, int tabIndex, String title,
+            Rectangle textRect, boolean isSelected) {
+
         g.setFont(font);
 
         int titleWidth = SwingUtilities.computeStringWidth(metrics, title);
-        
-        if(isOneActionButtonEnabled()){
-            int preferredWidth = CLOSABLE_TAB_BACKGROUND.getWidth(null) 
-                                            - 2*WIDTHDELTA - 20;            
-            if(isCloseEnabled())
+
+        if (isOneActionButtonEnabled()) {
+            int preferredWidth = CLOSABLE_TAB_BACKGROUND.getWidth(null) - 2
+                    * WIDTHDELTA - 20;
+            if (isCloseEnabled())
                 preferredWidth -= BUTTONSIZE;
-            
-            if(isMaxEnabled())
+
+            if (isMaxEnabled())
                 preferredWidth -= BUTTONSIZE;
-            
-            while(titleWidth > preferredWidth){
-                if(title.endsWith("..."))
+
+            while (titleWidth > preferredWidth) {
+                if (title.endsWith("..."))
                     title = title.substring(0, title.indexOf("...") - 1)
-                    				.concat("...");
+                            .concat("...");
                 else
                     title = title.substring(0, title.length() - 3)
-                    				.concat("...");
-                
+                            .concat("...");
+
                 titleWidth = SwingUtilities.computeStringWidth(metrics, title);
                 textRect.width = titleWidth;
             }
         }
-        
-		View v = getTextViewForTab(tabIndex);
-		if (v != null) {
-			// html
-			v.paint(g, textRect);
-		} else {
-			// plain text
-			int mnemIndex = tabPane.getDisplayedMnemonicIndexAt(tabIndex);
 
-			if (tabPane.isEnabled() && tabPane.isEnabledAt(tabIndex)) {
-				if (isSelected)
-					g.setColor(whiteColor);
-				else{
-                    if(this.isTabHighlighted(tabIndex)){                        
+        View v = getTextViewForTab(tabIndex);
+        if (v != null) {
+            // html
+            v.paint(g, textRect);
+        } else {
+            // plain text
+            int mnemIndex = tabPane.getDisplayedMnemonicIndexAt(tabIndex);
+
+            if (tabPane.isEnabled() && tabPane.isEnabledAt(tabIndex)) {
+                if (isSelected)
+                    g.setColor(whiteColor);
+                else {
+                    if (this.isTabHighlighted(tabIndex)) {
                         g.setColor(highlightedColor);
-                    }
-                    else
+                    } else
                         g.setColor(tabPane.getForegroundAt(tabIndex));
                 }
 
-				BasicGraphicsUtils
-						.drawStringUnderlineCharAt(g, title, mnemIndex,
-								textRect.x, textRect.y + metrics.getAscent());
+                BasicGraphicsUtils
+                        .drawStringUnderlineCharAt(g, title, mnemIndex,
+                                textRect.x, textRect.y + metrics.getAscent());
 
-			} else { // tab disabled                
-                g.setColor(tabPane.getBackgroundAt(tabIndex).brighter());                
-				BasicGraphicsUtils
-						.drawStringUnderlineCharAt(g, title, mnemIndex,
-								textRect.x, textRect.y + metrics.getAscent());
-                
-				g.setColor(tabPane.getBackgroundAt(tabIndex).darker());
-				BasicGraphicsUtils.drawStringUnderlineCharAt(g, title,
-						mnemIndex, textRect.x - 1, textRect.y
-								+ metrics.getAscent() - 1);				
-			}
-		}
-	}
+            } else { // tab disabled
+                g.setColor(tabPane.getBackgroundAt(tabIndex).brighter());
+                BasicGraphicsUtils
+                        .drawStringUnderlineCharAt(g, title, mnemIndex,
+                                textRect.x, textRect.y + metrics.getAscent());
 
-	protected class ScrollableTabButton extends
-			SIPCommTabbedPaneUI.ScrollableTabButton {
+                g.setColor(tabPane.getBackgroundAt(tabIndex).darker());
+                BasicGraphicsUtils.drawStringUnderlineCharAt(g, title,
+                        mnemIndex, textRect.x - 1, textRect.y
+                                + metrics.getAscent() - 1);
+            }
+        }
+    }
 
-		public ScrollableTabButton(int direction) {
-			super(direction);
-			setRolloverEnabled(true);
-		}
+    protected class ScrollableTabButton extends
+            SIPCommTabbedPaneUI.ScrollableTabButton {
 
-		public Dimension getPreferredSize() {
-			return new Dimension(16, calculateMaxTabHeight(0));
-		}
+        public ScrollableTabButton(int direction) {
+            super(direction);
+            setRolloverEnabled(true);
+        }
 
-		public void paint(Graphics g) {
-			Color origColor;
-			boolean isPressed, isRollOver, isEnabled;
-			int w, h, size;
+        public Dimension getPreferredSize() {
+            return new Dimension(16, calculateMaxTabHeight(0));
+        }
 
-			w = getSize().width;
-			h = getSize().height;
-			origColor = g.getColor();
-			isPressed = getModel().isPressed();
-			isRollOver = getModel().isRollover();
-			isEnabled = isEnabled();
+        public void paint(Graphics g) {
+            Color origColor;
+            boolean isPressed, isRollOver, isEnabled;
+            int w, h, size;
 
-			g.setColor(getBackground());
-			g.fillRect(0, 0, w, h);
+            w = getSize().width;
+            h = getSize().height;
+            origColor = g.getColor();
+            isPressed = getModel().isPressed();
+            isRollOver = getModel().isRollover();
+            isEnabled = isEnabled();
 
-			g.setColor(shadow);
-			// Using the background color set above
-			if (direction == WEST) {
-				g.drawLine(0, 0, 0, h - 1); //left
-				g.drawLine(w - 1, 0, w - 1, 0); //right
-			} else
-				g.drawLine(w - 2, h - 1, w - 2, 0); //right
+            g.setColor(getBackground());
+            g.fillRect(0, 0, w, h);
 
-			g.drawLine(0, 0, w - 2, 0); //top
+            g.setColor(shadow);
+            // Using the background color set above
+            if (direction == WEST) {
+                g.drawLine(0, 0, 0, h - 1); // left
+                g.drawLine(w - 1, 0, w - 1, 0); // right
+            } else
+                g.drawLine(w - 2, h - 1, w - 2, 0); // right
 
-			if (isRollOver) {
-				//do highlights or shadows
+            g.drawLine(0, 0, w - 2, 0); // top
 
-				Color color1;
-				Color color2;
+            if (isRollOver) {
+                // do highlights or shadows
 
-				if (isPressed) {
-					color2 = whiteColor;
-					color1 = shadow;
-				} else {
-					color1 = whiteColor;
-					color2 = shadow;
-				}
+                Color color1;
+                Color color2;
 
-				g.setColor(color1);
+                if (isPressed) {
+                    color2 = whiteColor;
+                    color1 = shadow;
+                } else {
+                    color1 = whiteColor;
+                    color2 = shadow;
+                }
 
-				if (direction == WEST) {
-					g.drawLine(1, 1, 1, h - 1); //left
-					g.drawLine(1, 1, w - 2, 1); //top
-					g.setColor(color2);
-					g.drawLine(w - 1, h - 1, w - 1, 1); //right
-				} else {
-					g.drawLine(0, 1, 0, h - 1);
-					g.drawLine(0, 1, w - 3, 1); //top
-					g.setColor(color2);
-					g.drawLine(w - 3, h - 1, w - 3, 1); //right
-				}
+                g.setColor(color1);
 
-			}
+                if (direction == WEST) {
+                    g.drawLine(1, 1, 1, h - 1); // left
+                    g.drawLine(1, 1, w - 2, 1); // top
+                    g.setColor(color2);
+                    g.drawLine(w - 1, h - 1, w - 1, 1); // right
+                } else {
+                    g.drawLine(0, 1, 0, h - 1);
+                    g.drawLine(0, 1, w - 3, 1); // top
+                    g.setColor(color2);
+                    g.drawLine(w - 3, h - 1, w - 3, 1); // right
+                }
 
-			//g.drawLine(0, h - 1, w - 1, h - 1); //bottom
+            }
 
-			// If there's no room to draw arrow, bail
-			if (h < 5 || w < 5) {
-				g.setColor(origColor);
-				return;
-			}
+            // g.drawLine(0, h - 1, w - 1, h - 1); //bottom
 
-			if (isPressed) {
-				g.translate(1, 1);
-			}
+            // If there's no room to draw arrow, bail
+            if (h < 5 || w < 5) {
+                g.setColor(origColor);
+                return;
+            }
 
-			// Draw the arrow
-			size = Math.min((h - 4) / 3, (w - 4) / 3);
-			size = Math.max(size, 2);
-			paintTriangle(g, (w - size) / 2, (h - size) / 2, size, direction,
-					isEnabled);
+            if (isPressed) {
+                g.translate(1, 1);
+            }
 
-			// Reset the Graphics back to it's original settings
-			if (isPressed) {
-				g.translate(-1, -1);
-			}
-			g.setColor(origColor);
+            // Draw the arrow
+            size = Math.min((h - 4) / 3, (w - 4) / 3);
+            size = Math.max(size, 2);
+            paintTriangle(g, (w - size) / 2, (h - size) / 2, size, direction,
+                    isEnabled);
 
-		}
+            // Reset the Graphics back to it's original settings
+            if (isPressed) {
+                g.translate(-1, -1);
+            }
+            g.setColor(origColor);
 
-	}
+        }
 
-	protected SIPCommTabbedPaneUI.ScrollableTabButton createScrollableTabButton(
-			int direction) {
-		return new ScrollableTabButton(direction);
-	}
+    }
+
+    protected SIPCommTabbedPaneUI.ScrollableTabButton createScrollableTabButton(
+            int direction) {
+        return new ScrollableTabButton(direction);
+    }
 
     protected int calculateTabWidth(int tabPlacement, int tabIndex,
             FontMetrics metrics) {
@@ -332,7 +327,7 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
         else {
             width = CLOSABLE_TAB_BACKGROUND.getWidth(null) - 14;
         }
-        
+
         return width;
-    }    
+    }
 }

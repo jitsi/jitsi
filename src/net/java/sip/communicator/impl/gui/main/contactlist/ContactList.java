@@ -27,27 +27,37 @@ import net.java.sip.communicator.service.contactlist.event.MetaContactMovedEvent
 import net.java.sip.communicator.service.contactlist.event.MetaContactRenamedEvent;
 import net.java.sip.communicator.service.contactlist.event.ProtoContactEvent;
 
+/**
+ * The ContactList list.
+ * 
+ * @author Yana Stamcheva
+ */
 public class ContactList extends JList 
     implements MetaContactListListener {
 
     private MetaContactListService contactList;
 
-    private ContactListModel listModel;    
-    
+    private ContactListModel listModel;
+
     private MetaContact currentlySelectedContact;
-    
-    public ContactList(MetaContactListService contactList){
+
+    /**
+     * Creates an instance of the ContactList.
+     * 
+     * @param contactList The related meta contactlist.
+     */
+    public ContactList(MetaContactListService contactList) {
 
         this.contactList = contactList;
 
         this.listModel = new ContactListModel(contactList);
-        
+
         this.setModel(listModel);
 
         this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
-        this.getSelectionModel().setSelectionMode
-                (TreeSelectionModel .SINGLE_TREE_SELECTION);
+        this.getSelectionModel().setSelectionMode(
+                TreeSelectionModel.SINGLE_TREE_SELECTION);
 
         this.setCellRenderer(new ContactListCellRenderer());
 
@@ -56,19 +66,18 @@ public class ContactList extends JList
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         this.addKeyListener(new CListKeySearchListener(this));
-        
+
         this.contactList.addContactListListener(this);
-        
-        this.addListSelectionListener(new ListSelectionListener(){
-			public void valueChanged(ListSelectionEvent e) {
-				if(getSelectedValue() instanceof MetaContact){
-					currentlySelectedContact 
-						= (MetaContact)getSelectedValue();
-				}
-			}
+
+        this.addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e) {
+                if (getSelectedValue() instanceof MetaContact) {
+                    currentlySelectedContact = (MetaContact) getSelectedValue();
+                }
+            }
         });
     }
-   
+
     public void metaContactAdded(MetaContactEvent evt) {
         //TODO Implement MetaContactEvent metaContactAdded.
     }
@@ -99,71 +108,69 @@ public class ContactList extends JList
 
     /**
      * Indicates that a MetaContactGroup has been added.
+     * @param evt The MetaContactGroupEvent event.
      */
     public void metaContactGroupAdded(MetaContactGroupEvent evt) {
-        
         MetaContactGroup sourceGroup = evt.getSourceMetaContactGroup();
-       
+
         this.groupAdded(sourceGroup);
-        
-        this.ensureIndexIsVisible(0);  
+
+        this.ensureIndexIsVisible(0);
     }
-   
+
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
         // TODO Auto-generated method stub
-        
+
     }
 
     public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
         // TODO Auto-generated method stub
-        
+
     }
 
     public void childContactsReordered(MetaContactGroupEvent evt) {
-    	
+
         MetaContactGroup group = evt.getSourceMetaContactGroup();
-        
-        int startIndex 
-            = this.listModel.indexOf(group.getMetaContact(0));
-        int endIndex 
-            = this.listModel.indexOf
-            	(group.getMetaContact(group.countChildContacts() - 1));        
-        
+
+        int startIndex = this.listModel.indexOf(group.getMetaContact(0));
+        int endIndex = this.listModel.indexOf(group.getMetaContact(group
+                .countChildContacts() - 1));
+
         this.listModel.contentChanged(startIndex, endIndex);
-        
-        if(currentlySelectedContact != null)
-        	this.setSelectedValue(currentlySelectedContact, false);
+
+        if (currentlySelectedContact != null)
+            this.setSelectedValue(currentlySelectedContact, false);
     }
-    
+
     /**
      * Refreshes the jlist when a group is added.
      * 
      * @param group The group which is added.
      */
-    private void groupAdded(MetaContactGroup group){
-        
+    private void groupAdded(MetaContactGroup group) {
+
         int index = this.listModel.indexOf(group);
 
-        this.listModel.contentAdded(index, index);        
-                
+        this.listModel.contentAdded(index, index);
+
         Iterator childContacts = group.getChildContacts();
-        
-        while(childContacts.hasNext()){
-            MetaContact contact = (MetaContact)childContacts.next();
-            
+
+        while (childContacts.hasNext()) {
+            MetaContact contact = (MetaContact) childContacts.next();
+
             int contactIndex = this.listModel.indexOf(contact);
             this.listModel.contentAdded(contactIndex, contactIndex);
         }
-        
+
         Iterator subGroups = group.getSubgroups();
-        
-        while(subGroups.hasNext()){
-            MetaContactGroup subGroup = (MetaContactGroup)subGroups.next();
-            
+
+        while (subGroups.hasNext()) {
+            MetaContactGroup subGroup = (MetaContactGroup) subGroups.next();
+
             this.groupAdded(subGroup);
         }
     }
-    
+
     /**
      * Returns the next list element that starts with 
      * a prefix.
@@ -174,11 +181,9 @@ public class ContactList extends JList
      * Position.Bias.Forward or Position.Bias.Backward.
      * @return the index of the next list element that
      * starts with the prefix; otherwise -1
-     * @exception IllegalArgumentException if prefix is null
-     * or startIndex is out of bounds
      */
     public int getNextMatch(String prefix, int startIndex, Position.Bias bias) {
-        ContactListModel model = (ContactListModel)this.getModel();
+        ContactListModel model = (ContactListModel) this.getModel();
         int max = model.getSize();
         if (prefix == null) {
             throw new IllegalArgumentException();
@@ -187,20 +192,21 @@ public class ContactList extends JList
             throw new IllegalArgumentException();
         }
         prefix = prefix.toUpperCase();
-    
+
         // start search from the next element after the selected element
         int increment = (bias == Position.Bias.Forward) ? 1 : -1;
         int index = startIndex;
         do {
             Object o = model.getElementAt(index);
-            
-            if (o != null) {            
+
+            if (o != null) {
                 String contactName = null;
-                
+
                 if (o instanceof MetaContact) {
-                    contactName = ((MetaContact)o).getDisplayName().toUpperCase();
+                    contactName = ((MetaContact) o).getDisplayName()
+                            .toUpperCase();
                 }
-                
+
                 if (contactName != null && contactName.startsWith(prefix)) {
                     return index;
                 }
@@ -210,5 +216,3 @@ public class ContactList extends JList
         return -1;
     }
 }
-
-

@@ -13,73 +13,73 @@ import java.awt.Point;
 
 import javax.swing.JPopupMenu;
 
+/**
+ * @author Yana Stamcheva
+ */
+public class BoxPopupMenu extends JPopupMenu {
 
-public class BoxPopupMenu extends JPopupMenu{	
+    private int itemsCount;
 
-	private int itemsCount;
-	
-	private int gridRowCount = 0;
-	
-	private int gridColCount = 0;
-	
-	public BoxPopupMenu(){	
-		super();		
-	}
-	
-	public BoxPopupMenu(int itemsCount){
-		
-		this.itemsCount = itemsCount;
-		
-		this.calculateGridDimensions();
-		
-		this.setLayout(new GridLayout(this.gridRowCount, this.gridColCount, 5, 5));	
-	}	
-	
-	/**
-	 * In order to have a popup which is at the form closest to sqware 
-	 * 
-	 * @return
-	 */
-	private void calculateGridDimensions(){
-		
-		this.gridRowCount = (int)Math.round(Math.sqrt(this.itemsCount));
-		
-		this.gridColCount = (int)Math.round(this.itemsCount/gridRowCount);
-	}
-	
-	
-	public Point getPopupLocation() {
+    private int gridRowCount = 0;
 
-		Component component = this.getInvoker();
-		
-		Point point = new Point();
-		int x = component.getX();
-		int y = component.getY();
+    private int gridColCount = 0;
 
-		while (component.getParent() != null) {
+    public BoxPopupMenu() {
+        super();
+    }
 
-			component = component.getParent();
+    public BoxPopupMenu(int itemsCount) {
 
-			x += component.getX();
-			y += component.getY();
-		}
-		
-		point.x = x;
-		point.y = y + this.getInvoker().getHeight();
+        this.itemsCount = itemsCount;
 
-		return point;
-	}
+        this.calculateGridDimensions();
 
-	public void setItemsCount(int itemsCount) {
-		
-		this.itemsCount = itemsCount;
-		
-		this.calculateGridDimensions();
-		
-		this.setLayout(new GridLayout(this.gridRowCount, this.gridColCount, 5, 5));
-	}
+        this.setLayout(new GridLayout(
+                this.gridRowCount, this.gridColCount, 5, 5));
+    }
 
-	public int getItemsCount() {
-		return itemsCount;
-	}	
+    /**
+     * In order to have a popup which is at the form closest to sqware.
+     */
+    private void calculateGridDimensions() {
+
+        this.gridRowCount = (int) Math.round(Math.sqrt(this.itemsCount));
+
+        this.gridColCount = (int) Math.round(this.itemsCount / gridRowCount);
+    }
+
+    public Point getPopupLocation() {
+        Component component = this.getInvoker();
+
+        Point point = new Point();
+        int x = component.getX();
+        int y = component.getY();
+
+        while (component.getParent() != null) {
+
+            component = component.getParent();
+
+            x += component.getX();
+            y += component.getY();
+        }
+
+        point.x = x;
+        point.y = y + this.getInvoker().getHeight();
+
+        return point;
+    }
+
+    public void setItemsCount(int itemsCount) {
+
+        this.itemsCount = itemsCount;
+
+        this.calculateGridDimensions();
+
+        this.setLayout(new GridLayout(this.gridRowCount, this.gridColCount, 5,
+                5));
+    }
+
+    public int getItemsCount() {
+        return itemsCount;
+    }
 }

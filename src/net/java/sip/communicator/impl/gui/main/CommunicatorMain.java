@@ -7,14 +7,9 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
-import java.io.File;
-import java.net.MalformedURLException;
-
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.plaf.metal.MetalTheme;
 
 import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommDefaultTheme;
 import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommLookAndFeel;
@@ -32,7 +27,7 @@ public class CommunicatorMain {
     private MainFrame mainFrame;
 
     private Logger logger = Logger.getLogger(CommunicatorMain.class.getName());
-    
+
     public CommunicatorMain() {
 
         this.setDefaultThemePack();
@@ -55,12 +50,10 @@ public class CommunicatorMain {
 
         // we need to set the UIDefaults class loader so that it may access
         // resources packed inside OSGI bundles
-        UIManager.put("ClassLoader", getClass()
-                .getClassLoader());
-        try{
+        UIManager.put("ClassLoader", getClass().getClassLoader());
+        try {
             UIManager.setLookAndFeel(lf);
-        }
-        catch(UnsupportedLookAndFeelException e){
+        } catch (UnsupportedLookAndFeelException e) {
             logger.error("The provided Look & Feel is not supported.", e);
         }
     }

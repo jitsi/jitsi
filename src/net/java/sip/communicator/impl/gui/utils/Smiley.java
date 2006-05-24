@@ -9,6 +9,9 @@ package net.java.sip.communicator.impl.gui.utils;
 
 import net.java.sip.communicator.impl.gui.utils.ImageLoader.ImageID;
 
+/** 
+ * @author Yana Stamcheva
+ */
 public class Smiley {
 
     private ImageID imageID;

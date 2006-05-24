@@ -44,118 +44,111 @@ import net.java.sip.communicator.service.protocol.ProtocolProviderService;
  * @author Yana Stamcheva
  */
 public class ChatPanel extends JPanel {
-    
-    private JSplitPane topSplitPane 
-    		= new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-    
-    private JSplitPane messagePane 
-        = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-       
+
+    private JSplitPane topSplitPane = new JSplitPane(
+            JSplitPane.HORIZONTAL_SPLIT);
+
+    private JSplitPane messagePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
     private ChatConversationPanel conversationPanel;
-    
+
     private ChatWritePanel writeMessagePanel;
-    
-    private ChatConferencePanel chatConferencePanel 
-        = new ChatConferencePanel();
-    
+
+    private ChatConferencePanel chatConferencePanel = new ChatConferencePanel();
+
     private ChatSendPanel sendPanel;
-    
+
     private Vector chatContacts = new Vector();
-    
+
     private ChatWindow chatWindow;
-    
+
     private OperationSetBasicInstantMessaging imOperationSet;
-    
+
     private OperationSetTypingNotifications tnOperationSet;
-    
+
     private Contact protocolContact;
-    
+
     /**
      * Creates a chat panel which is added to the 
      * given chat window.
      * 
-     * @param chatWindow The parent window of this 
-     * chat panel.
+     * @param chatWindow The parent window of this chat panel.
+     * @param protocolContact The subContact which is selected ins
+     * the chat.
      */
-    public ChatPanel(ChatWindow chatWindow, 
-            Contact protocolContact){
-        
+    public ChatPanel(ChatWindow chatWindow, Contact protocolContact) {
+
         super(new BorderLayout());
-        
+
         this.chatWindow = chatWindow;
         this.protocolContact = protocolContact;
-        this.imOperationSet = this.chatWindow.getMainFrame()
-                                .getProtocolIM(protocolContact
-                                        .getProtocolProvider());
+        this.imOperationSet = this.chatWindow.getMainFrame().getProtocolIM(
+                protocolContact.getProtocolProvider());
         this.tnOperationSet = this.chatWindow.getMainFrame()
-                                .getTypingNotifications(protocolContact
-                                        .getProtocolProvider());
-        
+                .getTypingNotifications(protocolContact.getProtocolProvider());
+
         this.conversationPanel = new ChatConversationPanel(this);
-        
+
         this.sendPanel = new ChatSendPanel(this);
-        
+
         this.writeMessagePanel = new ChatWritePanel(this);
-        
+
         this.topSplitPane.setResizeWeight(1.0D);
         this.messagePane.setResizeWeight(1.0D);
-        this.chatConferencePanel
-        		.setPreferredSize(new Dimension(120, 100));        
-        this.chatConferencePanel
-        		.setMinimumSize(new Dimension(120, 100));
-        this.writeMessagePanel
-        		.setPreferredSize(new Dimension(400, 100));        
-        this.writeMessagePanel
-        		.setMinimumSize(new Dimension(400, 100));
-        
+        this.chatConferencePanel.setPreferredSize(new Dimension(120, 100));
+        this.chatConferencePanel.setMinimumSize(new Dimension(120, 100));
+        this.writeMessagePanel.setPreferredSize(new Dimension(400, 100));
+        this.writeMessagePanel.setMinimumSize(new Dimension(400, 100));
+
         this.init();
-        
+
         addComponentListener(new TabSelectionFocusGainListener());
     }
-    
+
     /**
      * Initialize the chat panel.
      */
-    private void init(){        
+    private void init() {
         this.topSplitPane.setOneTouchExpandable(true);
-        
+
         topSplitPane.setLeftComponent(conversationPanel);
         topSplitPane.setRightComponent(chatConferencePanel);
-        
+
         this.messagePane.setTopComponent(topSplitPane);
         this.messagePane.setBottomComponent(writeMessagePanel);
-        
+
         this.add(messagePane, BorderLayout.CENTER);
-        this.add(sendPanel, BorderLayout.SOUTH);       
+        this.add(sendPanel, BorderLayout.SOUTH);
     }
-    
+
     /**
      * Adds a new MetaContact to this chat panel.
      * 
      * @param contactItem The MetaContact to add.
+     * @param status The current presence status of the contact.
      */
-    public void addContactToChat(MetaContact contactItem,
-                                PresenceStatus status){        
+    public void addContactToChat(MetaContact contactItem, 
+                                PresenceStatus status) {
         this.chatContacts.add(contactItem);
-        
+
         this.chatConferencePanel.addContactToChat(contactItem, status);
-        
+
         this.sendPanel.addProtocolContacts(contactItem);
-        
+
         this.sendPanel.setSelectedProtocolContact(this.protocolContact);
     }
-    
+
     /**
      * Adds a new MetaContact to this chat panel.
      * 
      * @param contactItem The MetaContact to add.
      */
-    public void addContactToChat(MetaContact contactItem){
-        
+    public void addContactToChat(MetaContact contactItem) {
+
         this.chatContacts.add(contactItem);
-        
+
         this.chatConferencePanel.addContactToChat(contactItem);
-        
+
         this.sendPanel.addProtocolContacts(contactItem);
     }
 
@@ -164,10 +157,10 @@ public class ChatPanel extends JPanel {
      * 
      * @param contactItem The MetaContact to remove.
      */
-    public void removeContactFromChat (MetaContact contactItem){
+    public void removeContactFromChat(MetaContact contactItem) {
         this.chatContacts.remove(contactItem);
     }
-    
+
     /**
      * Returns all contacts for this chat.
      * 
@@ -187,15 +180,16 @@ public class ChatPanel extends JPanel {
     public void setChatContacts(Vector chatContacts) {
         this.chatContacts = chatContacts;
     }
-    
+
     /**
      * Updates the contact status in the contact info panel.
      * 
      * @param status The presence status of the contact.
      */
-    public void updateContactStatus(PresenceStatus status){
-    		this.chatConferencePanel.updateContactStatus(status);
+    public void updateContactStatus(PresenceStatus status) {
+        this.chatConferencePanel.updateContactStatus(status);
     }
+
     /**
      * Returns the panel that contains the "write" editor 
      * pane of this chat.
@@ -205,7 +199,6 @@ public class ChatPanel extends JPanel {
     public ChatWritePanel getWriteMessagePanel() {
         return writeMessagePanel;
     }
-    
 
     /**
      * Returns the panel that contains the conversation.
@@ -222,8 +215,8 @@ public class ChatPanel extends JPanel {
      * 
      * @return The default contact for the chat.
      */
-    public MetaContact getDefaultContact(){
-        return (MetaContact)this.getChatContacts().get(0);
+    public MetaContact getDefaultContact() {
+        return (MetaContact) this.getChatContacts().get(0);
     }
 
     /**
@@ -253,8 +246,8 @@ public class ChatPanel extends JPanel {
      * this chat panel.
      * @param imOperationSet The operation set to be set.
      */
-    public void setImOperationSet
-    		(OperationSetBasicInstantMessaging imOperationSet) {
+    public void setImOperationSet(
+            OperationSetBasicInstantMessaging imOperationSet) {
         this.imOperationSet = imOperationSet;
     }
 
@@ -274,11 +267,11 @@ public class ChatPanel extends JPanel {
      * this chat panel.
      * @param tnOperationSet The operation set to be set.
      */
-    public void setTnOperationSet
-            (OperationSetTypingNotifications tnOperationSet) {
+    public void setTnOperationSet(
+            OperationSetTypingNotifications tnOperationSet) {
         this.tnOperationSet = tnOperationSet;
     }
-    
+
     /**
      * Returns the chat send panel.
      * @return ChatSendPanel The chat send panel.
@@ -286,48 +279,57 @@ public class ChatPanel extends JPanel {
     public ChatSendPanel getSendPanel() {
         return sendPanel;
     }
-    
-    public class TabSelectionFocusGainListener implements ComponentListener {
 
-    	public TabSelectionFocusGainListener() {
-    		super();
-    	}
+    private class TabSelectionFocusGainListener 
+        implements ComponentListener {
 
-    	public void componentResized(ComponentEvent e) {
-    	}
+        public TabSelectionFocusGainListener() {
+            super();
+        }
 
-    	public void componentMoved(ComponentEvent e) {
-    	}
+        public void componentResized(ComponentEvent e) {
+        }
 
-    	public void componentShown(ComponentEvent e) {
-    		Component component = e.getComponent();
-    		Container parent = component.getParent();
-    		if ( parent instanceof JTabbedPane ) {    			
-    			JTabbedPane tabbedPane = (JTabbedPane)parent;
-    			if ( tabbedPane.getSelectedComponent() == component ){
-    				SwingUtilities.invokeLater(new Runnable(){
-    					public void run(){
-    						getChatWindow().setTitle(getDefaultContact()
-    	                            .getDisplayName());
-    	                    
-    	                    getChatWindow().setCurrentChatPanel(ChatPanel.this);
-    	                    
-    	                    getWriteMessagePanel()
-    	                    	.getEditorPane().requestFocus();
-    					}
-    				});    				
-    			}
-    		}
-    	}
+        public void componentMoved(ComponentEvent e) {
+        }
 
-    	public void componentHidden(ComponentEvent e) {
-    	}
+        public void componentShown(ComponentEvent e) {
+            Component component = e.getComponent();
+            Container parent = component.getParent();
+            if (parent instanceof JTabbedPane) {
+                JTabbedPane tabbedPane = (JTabbedPane) parent;
+                if (tabbedPane.getSelectedComponent() == component) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            getChatWindow().setTitle(
+                                    getDefaultContact().getDisplayName());
+
+                            getChatWindow().setCurrentChatPanel(ChatPanel.this);
+
+                            getWriteMessagePanel().getEditorPane()
+                                    .requestFocus();
+                        }
+                    });
+                }
+            }
+        }
+
+        public void componentHidden(ComponentEvent e) {
+        }
     }
 
+    /**
+     * Returns the protocol contact for this chat.
+     * @return The protocol contact for this chat.
+     */
     public Contact getProtocolContact() {
         return protocolContact;
     }
-    
+
+    /**
+     * Sets the protocol contact for this chat.
+     * @param protocolContact The subcontact for the protocol.
+     */
     public void setProtocolContact(Contact protocolContact) {
         this.protocolContact = protocolContact;
     }

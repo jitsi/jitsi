@@ -25,137 +25,135 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 
 /**
  * @author Yana Stamcheva
- * 
  */
-public class ConfigurationFrame extends JFrame 
-    implements MouseListener {
+public class ConfigurationFrame extends JFrame implements MouseListener {
 
-	private Vector configContainer = new Vector();
+    private Vector configContainer = new Vector();
 
-	private JScrollPane formScrollPane = new JScrollPane();
+    private JScrollPane formScrollPane = new JScrollPane();
 
-	private SIPCommList configList = new SIPCommList();
-	
-	private TitlePanel titlePanel = new TitlePanel();
-	
-	private JPanel centerPanel = new JPanel(new BorderLayout());
+    private SIPCommList configList = new SIPCommList();
 
-	public ConfigurationFrame() {
+    private TitlePanel titlePanel = new TitlePanel();
 
-		this.getContentPane().setLayout(new BorderLayout());
+    private JPanel centerPanel = new JPanel(new BorderLayout());
 
-		this.addDefaultForms();
+    public ConfigurationFrame() {
 
-		this.centerPanel.add(formScrollPane, BorderLayout.CENTER);
-		
-		this.getContentPane().add(centerPanel, BorderLayout.CENTER);
+        this.getContentPane().setLayout(new BorderLayout());
 
-		this.getContentPane().add(configList, BorderLayout.WEST);
-	}
+        this.addDefaultForms();
 
-	public void addDefaultForms() {
+        this.centerPanel.add(formScrollPane, BorderLayout.CENTER);
 
-		this.addConfigurationForm(new GeneralConfigurationForm());
-		this.addConfigurationForm(new AppearanceConfigurationForm());
-		this.addConfigurationForm(new AccountsConfigurationForm());
-	}
+        this.getContentPane().add(centerPanel, BorderLayout.CENTER);
 
-	public void addConfigurationForm(ConfigurationForm configForm) {
+        this.getContentPane().add(configList, BorderLayout.WEST);
+    }
 
-		this.configContainer.add(configForm);
+    public void addDefaultForms() {
 
-		ConfigMenuItemPanel configItem = new ConfigMenuItemPanel(configForm
-				.getTitle(), configForm.getIcon());
+        this.addConfigurationForm(new GeneralConfigurationForm());
+        this.addConfigurationForm(new AppearanceConfigurationForm());
+        this.addConfigurationForm(new AccountsConfigurationForm());
+    }
 
-		configItem.addMouseListener(this);
+    public void addConfigurationForm(ConfigurationForm configForm) {
 
-		this.configList.addCell(configItem);
-	}
+        this.configContainer.add(configForm);
 
-	public void removeConfigurationForm(ConfigurationForm configForm) {
+        ConfigMenuItemPanel configItem = new ConfigMenuItemPanel(configForm
+                .getTitle(), configForm.getIcon());
 
-		this.configContainer.remove(configForm);
-	}
+        configItem.addMouseListener(this);
 
-	/**
-	 * Calculates the size of the frame depending on the size of the largest
-	 * contained form.
-	 */
-	public void setCalculatedSize() {
+        this.configList.addCell(configItem);
+    }
 
-		double width = 0;
+    public void removeConfigurationForm(ConfigurationForm configForm) {
 
-		double height = 0;
+        this.configContainer.remove(configForm);
+    }
 
-		for (int i = 0; i < configContainer.size(); i++) {
+    /**
+     * Calculates the size of the frame depending on the size of the largest
+     * contained form.
+     */
+    public void setCalculatedSize() {
 
-			ConfigurationForm configForm = (ConfigurationForm) configContainer
-					.get(i);
+        double width = 0;
 
-			if (width < configForm.getForm().getPreferredSize().getWidth())
-				width = configForm.getForm().getPreferredSize().getWidth();
+        double height = 0;
 
-			if (height < configForm.getForm().getPreferredSize().getHeight())
-				height = configForm.getForm().getPreferredSize().getHeight();
-		}
+        for (int i = 0; i < configContainer.size(); i++) {
 
-		if (width > Constants.CONFIG_FRAME_MAX_WIDTH)
-			width = Constants.CONFIG_FRAME_MAX_WIDTH;
+            ConfigurationForm configForm = (ConfigurationForm) configContainer
+                    .get(i);
 
-		if (height > Constants.CONFIG_FRAME_MAX_HEIGHT)
-			height = Constants.CONFIG_FRAME_MAX_HEIGHT;
+            if (width < configForm.getForm().getPreferredSize().getWidth())
+                width = configForm.getForm().getPreferredSize().getWidth();
 
-		width = width	+ configList.getPreferredSize().getWidth();
-		
-		height = height + titlePanel.getPreferredSize().getHeight();
-		
-		this.setSize((int)width + 50, (int) height + 50);
-	}
+            if (height < configForm.getForm().getPreferredSize().getHeight())
+                height = configForm.getForm().getPreferredSize().getHeight();
+        }
 
-	
-	public void mouseClicked(MouseEvent e) {
-		
-		ConfigMenuItemPanel configItemPanel = (ConfigMenuItemPanel) e
-				.getSource();
+        if (width > Constants.CONFIG_FRAME_MAX_WIDTH)
+            width = Constants.CONFIG_FRAME_MAX_WIDTH;
 
-		this.configList.refreshCellStatus(configItemPanel);
+        if (height > Constants.CONFIG_FRAME_MAX_HEIGHT)
+            height = Constants.CONFIG_FRAME_MAX_HEIGHT;
 
-		if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK) {
+        width = width + configList.getPreferredSize().getWidth();
 
-			for (int i = 0; i < this.configContainer.size(); i++) {
+        height = height + titlePanel.getPreferredSize().getHeight();
 
-				ConfigurationForm configForm = 
-										(ConfigurationForm) this.configContainer.get(i);
+        this.setSize((int) width + 50, (int) height + 50);
+    }
 
-				if (configItemPanel.getText().equals(configForm.getTitle())) {
+    public void mouseClicked(MouseEvent e) {
 
-					this.formScrollPane.getViewport().removeAll();
+        ConfigMenuItemPanel configItemPanel = (ConfigMenuItemPanel) e
+                .getSource();
 
-					this.formScrollPane.getViewport().add(configForm.getForm());
+        this.configList.refreshCellStatus(configItemPanel);
 
-					this.titlePanel.removeAll();
-					
-					this.titlePanel.setTitleText(configForm.getTitle());
-					
-					this.centerPanel.remove(titlePanel);
-					
-					this.centerPanel.add(titlePanel, BorderLayout.NORTH);
-					
-					this.validate();
-				}
-			}
-		}
-	}
+        if ((e.getModifiers() & InputEvent.BUTTON1_MASK) 
+                == InputEvent.BUTTON1_MASK) {
 
-	public void mouseEntered(MouseEvent e) {		
-	}
+            for (int i = 0; i < this.configContainer.size(); i++) {
 
-	public void mouseExited(MouseEvent e) {
-	}
+                ConfigurationForm configForm 
+                    = (ConfigurationForm) this.configContainer.get(i);
 
-	public void mousePressed(MouseEvent e) {		
-	}
+                if (configItemPanel.getText().equals(configForm.getTitle())) {
 
-	public void mouseReleased(MouseEvent e) {
-	}
+                    this.formScrollPane.getViewport().removeAll();
+
+                    this.formScrollPane.getViewport().add(configForm.getForm());
+
+                    this.titlePanel.removeAll();
+
+                    this.titlePanel.setTitleText(configForm.getTitle());
+
+                    this.centerPanel.remove(titlePanel);
+
+                    this.centerPanel.add(titlePanel, BorderLayout.NORTH);
+
+                    this.validate();
+                }
+            }
+        }
+    }
+
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    public void mouseExited(MouseEvent e) {
+    }
+
+    public void mousePressed(MouseEvent e) {
+    }
+
+    public void mouseReleased(MouseEvent e) {
+    }
 }

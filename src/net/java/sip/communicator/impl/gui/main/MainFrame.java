@@ -42,98 +42,98 @@ import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 import net.java.sip.communicator.util.Logger;
 
 /**
- * The main application frame.
- * 
+ * The main application frame. This is the core of the user interface.
+ *  
  * @author Yana Stamcheva
  */
 public class MainFrame extends JFrame {
 
     private Logger logger = Logger.getLogger(MainFrame.class.getName());
-    
-	private JPanel contactListPanel = new JPanel(new BorderLayout());
 
-	private JPanel menusPanel = new JPanel(new BorderLayout());
+    private JPanel contactListPanel = new JPanel(new BorderLayout());
 
-	private Menu menu = new Menu();
+    private JPanel menusPanel = new JPanel(new BorderLayout());
 
-	private ConfigurationFrame configFrame = new ConfigurationFrame();
+    private Menu menu = new Menu();
 
-	private CallPanel callPanel;
+    private ConfigurationFrame configFrame = new ConfigurationFrame();
 
-	private StatusPanel statusPanel;
+    private CallPanel callPanel;
 
-	private MainTabbedPane tabbedPane;
+    private StatusPanel statusPanel;
 
-	private QuickMenu quickMenu;
-	
+    private MainTabbedPane tabbedPane;
+
+    private QuickMenu quickMenu;
+
     private Hashtable protocolSupportedOperationSets = new Hashtable();
-    
+
     private Hashtable protocolPresenceSets = new Hashtable();
-    
+
     private Hashtable protocolProviders = new Hashtable();
-    
+
     private Hashtable imOperationSets = new Hashtable();
-    
+
     private Hashtable tnOperationSets = new Hashtable();
-   
+
     private MetaContactListService contactList;
-    
+
     private Hashtable accounts = new Hashtable();
-    
+
     private Hashtable waitToBeDeliveredMsgs = new Hashtable();
-    
-	public MainFrame() {		
-		callPanel = new CallPanel(this);
-		tabbedPane = new MainTabbedPane(this);
-		quickMenu = new QuickMenu(this);
-		statusPanel = new StatusPanel(this);
 
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setInitialBounds();
+    public MainFrame() {
+        callPanel = new CallPanel(this);
+        tabbedPane = new MainTabbedPane(this);
+        quickMenu = new QuickMenu(this);
+        statusPanel = new StatusPanel(this);
 
-		this.setTitle(Messages.getString("sipCommunicator"));
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setInitialBounds();
 
-		this.setIconImage(ImageLoader.getImage(ImageLoader.SIP_LOGO));
-		
-		this.init();
-	}
+        this.setTitle(Messages.getString("sipCommunicator"));
+
+        this.setIconImage(ImageLoader.getImage(ImageLoader.SIP_LOGO));
+
+        this.init();
+    }
 
     /**
      * Initiates the content of this frame.
      */
-	private void init() {
-		this.menusPanel.add(menu, BorderLayout.NORTH);
-		this.menusPanel.add(quickMenu, BorderLayout.CENTER);
+    private void init() {
+        this.menusPanel.add(menu, BorderLayout.NORTH);
+        this.menusPanel.add(quickMenu, BorderLayout.CENTER);
 
-		this.contactListPanel.add(tabbedPane, BorderLayout.CENTER);
-		this.contactListPanel.add(callPanel, BorderLayout.SOUTH);
+        this.contactListPanel.add(tabbedPane, BorderLayout.CENTER);
+        this.contactListPanel.add(callPanel, BorderLayout.SOUTH);
 
-		this.getContentPane().add(menusPanel, BorderLayout.NORTH);
-		this.getContentPane().add(contactListPanel, BorderLayout.CENTER);
-		this.getContentPane().add(statusPanel, BorderLayout.SOUTH);
-	}
+        this.getContentPane().add(menusPanel, BorderLayout.NORTH);
+        this.getContentPane().add(contactListPanel, BorderLayout.CENTER);
+        this.getContentPane().add(statusPanel, BorderLayout.SOUTH);
+    }
 
     /**
      * Sets frame size and position.
      */
-	private void setInitialBounds() {
-		
-		this.setSize(200, 450);
+    private void setInitialBounds() {
+
+        this.setSize(200, 450);
         this.contactListPanel.setPreferredSize(new Dimension(180, 400));
         this.contactListPanel.setMinimumSize(new Dimension(80, 200));
-        
-		this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width
-				- this.getWidth(), 50);
-	}
-    
+
+        this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width
+                - this.getWidth(), 50);
+    }
+
     /**
      * Returns the current meta contactlist.
      * 
      * @return MetaContactListService The current meta contactlist.
      */
-	public MetaContactListService getContactList() {
-		return this.contactList;
-	}
+    public MetaContactListService getContactList() {
+        return this.contactList;
+    }
 
     /**
      * Inits the contact list tree.
@@ -141,27 +141,27 @@ public class MainFrame extends JFrame {
      * @param contactList The MetaContactListService containing 
      * the contact list data.
      */
-	public void setContactList(MetaContactListService contactList) {
-		
-		this.contactList = contactList;
-        
-		ContactListPanel clistPanel = this.tabbedPane.getContactListPanel();
-        
-		clistPanel.initTree(contactList);
-        
-		//add a key listener to the tabbed pane, when the contactlist is 
-		//initialized
-        this.tabbedPane.addKeyListener(new CListKeySearchListener
-        		(clistPanel.getContactList()));
-	}
-	
-	public ConfigurationFrame getConfigFrame() {	
-		return configFrame;
-	}
-    
-	public void setConfigFrame(ConfigurationFrame configFrame) {	
-		this.configFrame = configFrame;
-	}
+    public void setContactList(MetaContactListService contactList) {
+
+        this.contactList = contactList;
+
+        ContactListPanel clistPanel = this.tabbedPane.getContactListPanel();
+
+        clistPanel.initTree(contactList);
+
+        //add a key listener to the tabbed pane, when the contactlist is 
+        //initialized
+        this.tabbedPane.addKeyListener(new CListKeySearchListener(clistPanel
+                .getContactList()));
+    }
+
+    public ConfigurationFrame getConfigFrame() {
+        return configFrame;
+    }
+
+    public void setConfigFrame(ConfigurationFrame configFrame) {
+        this.configFrame = configFrame;
+    }
 
     /**
      * Returns a set of all operation sets supported by the given 
@@ -171,9 +171,9 @@ public class MainFrame extends JFrame {
      * @return a set of all operation sets supported by the given 
      * protocol provider.
      */
-    public Map getSupportedOperationSets
-        (ProtocolProviderService protocolProvider) {
-        return (Map)this.protocolSupportedOperationSets.get(protocolProvider);
+    public Map getSupportedOperationSets(
+            ProtocolProviderService protocolProvider) {
+        return (Map) this.protocolSupportedOperationSets.get(protocolProvider);
     }
 
     /**
@@ -183,83 +183,76 @@ public class MainFrame extends JFrame {
      * @param protocolProvider 
      * @param supportedOperationSets
      */
-    public void addProtocolSupportedOperationSets
-            (ProtocolProviderService protocolProvider,
-                    Map supportedOperationSets) {
-        
-        this.protocolSupportedOperationSets.put(protocolProvider, 
+    public void addProtocolSupportedOperationSets(
+            ProtocolProviderService protocolProvider, Map supportedOperationSets) {
+
+        this.protocolSupportedOperationSets.put(protocolProvider,
                 supportedOperationSets);
-        
+
         Iterator entrySetIter = supportedOperationSets.entrySet().iterator();
-        
-        for (int i = 0; i < supportedOperationSets.size(); i++)
-        {
+
+        for (int i = 0; i < supportedOperationSets.size(); i++) {
             Map.Entry entry = (Map.Entry) entrySetIter.next();
 
             Object key = entry.getKey();
-            Object value = entry.getValue();        
-            
-            if(key.equals(OperationSetPersistentPresence.class.getName())
-                    || key.equals(OperationSetPresence.class.getName())){
+            Object value = entry.getValue();
 
-                OperationSetPresence presence 
-                    = (OperationSetPresence)value;
-                
-                this.protocolPresenceSets.put(  protocolProvider,
-                                                presence);                
-                presence
-                    .addProviderPresenceStatusListener
-                        (new ProviderPresenceStatusAdapter());
-                presence
-                    .addContactPresenceStatusListener
-                        (new ContactPresenceStatusAdapter());
-                
-                try {   
-                    presence
-                        .publishPresenceStatus(IcqStatusEnum.ONLINE, "");                    
+            if (key.equals(OperationSetPersistentPresence.class.getName())
+                    || key.equals(OperationSetPresence.class.getName())) {
+
+                OperationSetPresence presence = (OperationSetPresence) value;
+
+                this.protocolPresenceSets.put(protocolProvider, presence);
+                presence.addProviderPresenceStatusListener(
+                            new ProviderPresenceStatusAdapter());
+                presence.addContactPresenceStatusListener(
+                            new ContactPresenceStatusAdapter());
+
+                try {
+                    presence.publishPresenceStatus(IcqStatusEnum.ONLINE, "");
                 } catch (OperationFailedException e) {
                     logger.error("Publish presence status failed.", e);
                 }
-                
+
                 this.getStatusPanel().stopConnecting(
                         protocolProvider.getProtocolName());
-                
-                this.statusPanel.setSelectedStatus
-                    (protocolProvider.getProtocolName(), 
-                            Constants.ONLINE_STATUS);
-                
+
+                this.statusPanel.setSelectedStatus(protocolProvider
+                        .getProtocolName(), Constants.ONLINE_STATUS);
+
                 //request the focus int the contact list panel, which
                 //permits to search in the contact list
-                this.tabbedPane.getContactListPanel()
-                	.getContactList().requestFocus();
-            }
-            else if(key.equals(OperationSetBasicInstantMessaging.class.getName())
-                    || key.equals(OperationSetPresence.class.getName())){
-                
+                this.tabbedPane.getContactListPanel().getContactList()
+                        .requestFocus();
+            } else if (key.equals(OperationSetBasicInstantMessaging.class
+                    .getName())
+                    || key.equals(OperationSetPresence.class.getName())) {
+
                 OperationSetBasicInstantMessaging im 
-                    = (OperationSetBasicInstantMessaging)value;
-                
+                    = (OperationSetBasicInstantMessaging) value;
+
                 this.imOperationSets.put(protocolProvider, im);
                 //Add to all instant messaging operation sets the Message 
                 //listener implemented in the ContactListPanel, which handles 
                 //all received messages.
-                im.addMessageListener(this.getTabbedPane().getContactListPanel());
-            }
-            else if(key.equals(OperationSetTypingNotifications.class.getName())){
+                im.addMessageListener(this.getTabbedPane()
+                        .getContactListPanel());
+            } else if (key.equals(OperationSetTypingNotifications.class
+                    .getName())) {
                 OperationSetTypingNotifications tn 
-                    = (OperationSetTypingNotifications)value;
-                
+                    = (OperationSetTypingNotifications) value;
+
                 this.tnOperationSets.put(protocolProvider, tn);
-                
+
                 //Add to all typing notification operation sets the Message 
                 //listener implemented in the ContactListPanel, which handles 
                 //all received messages.
-                tn.addTypingNotificationsListener
-                	(this.getTabbedPane().getContactListPanel());
+                tn.addTypingNotificationsListener(this.getTabbedPane()
+                        .getContactListPanel());
             }
-        }        
+        }
     }
-    
+
     /**
      * Returns a set of all protocol providers.
      * 
@@ -273,37 +266,35 @@ public class MainFrame extends JFrame {
      * Adds a protocol provider.
      * @param protocolProvider The protocol provider to be added.
      */
-    public void addProtocolProvider(
-            ProtocolProviderService protocolProvider) {
-        
-        this.protocolProviders.put( protocolProvider.getProtocolName(),
-                                    protocolProvider);
+    public void addProtocolProvider(ProtocolProviderService protocolProvider) {
+
+        this.protocolProviders.put(protocolProvider.getProtocolName(),
+                protocolProvider);
     }
-    
+
     /**
      * Adds an account.
      * 
      * @param identifier The identifier of the account.
      * @param protocolProvider The protocol provider of the account.
      */
-    public void addAccount(String identifier, 
-    		ProtocolProviderService protocolProvider){
-    	String protocolName = protocolProvider.getProtocolName();
-    	
-        if(!getStatusPanel().isProtocolActivated(protocolName)){
-        	this.accounts.put(protocolProvider, identifier);
-	    	this.getStatusPanel().activateAccount(protocolProvider);
+    public void addAccount(String identifier,
+            ProtocolProviderService protocolProvider) {
+        String protocolName = protocolProvider.getProtocolName();
+
+        if (!getStatusPanel().isProtocolActivated(protocolName)) {
+            this.accounts.put(protocolProvider, identifier);
+            this.getStatusPanel().activateAccount(protocolProvider);
         }
-        this.getStatusPanel()
-        	.startConnecting(protocolName);
+        this.getStatusPanel().startConnecting(protocolName);
     }
-    
+
     /**
      * Returns the default account (for now is returning the first one).
      * @return the default account (for now is returning the first one).
      */
-    public String getDefaultAccount(ProtocolProviderService protocolProvider){
-        return (String)this.accounts.get(protocolProvider);
+    public String getDefaultAccount(ProtocolProviderService protocolProvider) {
+        return (String) this.accounts.get(protocolProvider);
     }
 
     /**
@@ -313,33 +304,42 @@ public class MainFrame extends JFrame {
      * presence operation set is searched.
      * @return the presence operation set for the given protocol provider.
      */
-    public OperationSetPresence getProtocolPresence
-        (ProtocolProviderService protocolProvider) {
-        return (OperationSetPresence)
-            this.protocolPresenceSets.get(protocolProvider);
+    public OperationSetPresence getProtocolPresence(
+            ProtocolProviderService protocolProvider) {
+        return (OperationSetPresence) this.protocolPresenceSets
+                .get(protocolProvider);
     }
 
     /**
-     * Returns the basic instant messaging operation set for the given 
+     * Returns the basic instant messaging(IM) operation set for the given 
      * protocol provider.
      * 
      * @param protocolProvider The protocol provider for which the IM 
      * is searched.
-     * @return OperationSetBasicInstantMessaging The basic instant messaging 
-     * operation set for the given protocol provider.
+     * @return OperationSetBasicInstantMessaging The IM for the given 
+     * protocol provider.
      */
-    public OperationSetBasicInstantMessaging getProtocolIM
-        (ProtocolProviderService protocolProvider) {
-        return (OperationSetBasicInstantMessaging)
-            this.imOperationSets.get(protocolProvider);
+    public OperationSetBasicInstantMessaging getProtocolIM(
+            ProtocolProviderService protocolProvider) {
+        return (OperationSetBasicInstantMessaging) this.imOperationSets
+                .get(protocolProvider);
     }
-    
-    public OperationSetTypingNotifications getTypingNotifications
-        (ProtocolProviderService protocolProvider){
-        return (OperationSetTypingNotifications)
-            this.tnOperationSets.get(protocolProvider);
+
+    /**
+     * Returns the typing notifications(TN) operation set for the given 
+     * protocol provider.
+     * 
+     * @param protocolProvider The protocol provider for which the TN 
+     * is searched.
+     * @return OperationSetTypingNotifications The TN for the given 
+     * protocol provider.
+     */
+    public OperationSetTypingNotifications getTypingNotifications(
+            ProtocolProviderService protocolProvider) {
+        return (OperationSetTypingNotifications) this.tnOperationSets
+                .get(protocolProvider);
     }
-    
+
     /**
      * Returns the main tabbed pane containing the contactlist, call list etc.
      * @return MainTabbedPane The main tabbed pane containing the 
@@ -356,7 +356,7 @@ public class MainFrame extends JFrame {
     public CallPanel getCallPanel() {
         return callPanel;
     }
-    
+
     /**
      * Returns the quick menu, placed above the main tabbed pane.
      * @return QuickMenu The quick menu, placed above the main tabbed pane.
@@ -364,7 +364,7 @@ public class MainFrame extends JFrame {
     public QuickMenu getQuickMenu() {
         return quickMenu;
     }
-    
+
     /**
      * Returns the status panel.
      * @return StatusPanel The status panel.
@@ -372,51 +372,49 @@ public class MainFrame extends JFrame {
     public StatusPanel getStatusPanel() {
         return statusPanel;
     }
-    
+
     /**
      * Listens for all contactPresenceStatusChanged events in order 
      * to refresh tha contact list, when a status is changed.
      */
-    private class ContactPresenceStatusAdapter
-        implements ContactPresenceStatusListener {
+    private class ContactPresenceStatusAdapter implements
+            ContactPresenceStatusListener {
 
-        public void contactPresenceStatusChanged
-            (ContactPresenceStatusChangeEvent evt) {
-          
+        public void contactPresenceStatusChanged(
+                ContactPresenceStatusChangeEvent evt) {
+
             Contact sourceContact = evt.getSourceContact();
-            
-            MetaContact metaContact
-                = contactList.findMetaContactByContact(sourceContact);
-           
-            if (metaContact != null){
-        		ContactListPanel clistPanel 
-        			= tabbedPane.getContactListPanel();
-            		
-                ContactListModel model 
-                    = (ContactListModel)clistPanel.getContactList().getModel();
-                
+
+            MetaContact metaContact = contactList
+                    .findMetaContactByContact(sourceContact);
+
+            if (metaContact != null) {
+                ContactListPanel clistPanel = tabbedPane.getContactListPanel();
+
+                ContactListModel model = (ContactListModel) clistPanel
+                        .getContactList().getModel();
+
                 model.updateContactStatus(metaContact, evt.getNewStatus());
-                
+
                 clistPanel.updateChatContactStatus(metaContact);
             }
         }
-    } 
+    }
 
     /**
      * Listens for all providerStatusChanged and providerStatusMessageChanged
-     * events in order to refresh the account status panel, when a status is changed.
+     * events in order to refresh the account status panel, when a status is
+     * changed.
      */
-    private class ProviderPresenceStatusAdapter
-        implements ProviderPresenceStatusListener {
-    
-        public void providerStatusChanged
-            (ProviderPresenceStatusChangeEvent evt) {
-            
+    private class ProviderPresenceStatusAdapter implements
+            ProviderPresenceStatusListener {
+
+        public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt) {
+
         }
-    
-        public void providerStatusMessageChanged
-            (PropertyChangeEvent evt) {           
-            
+
+        public void providerStatusMessageChanged(PropertyChangeEvent evt) {
+
         }
     }
 

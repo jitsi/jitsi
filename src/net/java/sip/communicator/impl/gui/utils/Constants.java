@@ -36,318 +36,313 @@ import net.java.sip.communicator.util.Logger;
 
 public class Constants {
 
-    private static Logger logger = Logger.getLogger(CommunicatorMain.class.getName());
-	/*
-	 * ===================================================================
-	 * ------------------------ SIZE CONSTANTS ---------------------------
-	 * ===================================================================
-	 */
-	
-	public static final int MAINFRAME_MIN_HEIGHT = 200;
+    private static Logger logger = Logger.getLogger(CommunicatorMain.class
+            .getName());
 
-	public static final int MAINFRAME_MIN_WIDTH = 80;
+    public static final String OUTGOING_MESSAGE = "OutgoingMessage";
 
-	public static final int CONTACTPANEL_HEIGHT = 20;
+    public static final String INCOMING_MESSAGE = "IncomingMessage";
 
-	public static final int CONTACTPANEL_WIDTH = 10;
+    /*
+     * ===================================================================
+     * ------------------------ SIZE CONSTANTS ---------------------------
+     * ===================================================================
+     */
 
-	public static final int CONTACTPANEL_SELECTED_HEIGHT = 50;
+    public static final int MAINFRAME_MIN_HEIGHT = 200;
 
-	public static final int CONTACTPANEL_SELECTED_GRADIENT_SIZE = 5;
+    public static final int MAINFRAME_MIN_WIDTH = 80;
 
-	public static final int CONTACTPANEL_GRADIENT_SIZE = 10;
+    public static final int CONTACTPANEL_HEIGHT = 20;
 
-	public static final int HISTORY_WINDOW_HEIGHT = 450;
+    public static final int CONTACTPANEL_WIDTH = 10;
 
-	public static final int HISTORY_WINDOW_WIDTH = 450;
+    public static final int CONTACTPANEL_SELECTED_HEIGHT = 50;
 
-	public static final int OPTION_PANE_WIDTH = 330;
+    public static final int CONTACTPANEL_SELECTED_GRADIENT_SIZE = 5;
 
-	public static final int OPTION_PANE_HEIGHT = 150;
+    public static final int CONTACTPANEL_GRADIENT_SIZE = 10;
 
-	public static final int CHAT_BUFFER_SIZE = 100;
+    public static final int HISTORY_WINDOW_HEIGHT = 450;
 
-	public static final int CONFIG_FRAME_MAX_WIDTH = 800;
+    public static final int HISTORY_WINDOW_WIDTH = 450;
 
-	public static final int CONFIG_FRAME_MAX_HEIGHT = 600;
+    public static final int OPTION_PANE_WIDTH = 330;
 
-	/*
-	 * ======================================================================
-	 * -------------------- FONTS AND COLOR CONSTANTS ------------------------
-	 * ======================================================================
-	 */
+    public static final int OPTION_PANE_HEIGHT = 150;
 
-	public static final Color CONTACTPANEL_SELECTED_START_COLOR 
-											= new Color(151, 169, 198);
+    public static final int CHAT_BUFFER_SIZE = 100;
 
-	public static final Color CONTACTPANEL_SELECTED_END_COLOR 
-											= new Color(209, 212, 225);
+    public static final int CONFIG_FRAME_MAX_WIDTH = 800;
 
-	public static final Color CONTACTPANEL_MOVER_START_COLOR 
-											= new Color(230, 230, 230);
+    public static final int CONFIG_FRAME_MAX_HEIGHT = 600;
 
-	public static final Color CONTACTPANEL_MOVER_END_COLOR 
-											= new Color(255, 255, 255);
+    /*
+     * ======================================================================
+     * -------------------- FONTS AND COLOR CONSTANTS ------------------------
+     * ======================================================================
+     */
 
-	public static final Color CONTACTPANEL_LINES_COLOR 
-											= new Color(154, 154, 154);
+    public static final Color CONTACTPANEL_SELECTED_START_COLOR = new Color(
+            151, 169, 198);
 
-	public static final Color MSG_WINDOW_BORDER_COLOR 
-											= new Color(142, 160, 188);
+    public static final Color CONTACTPANEL_SELECTED_END_COLOR = new Color(209,
+            212, 225);
 
-	public static final Color CONTACTPANEL_BORDER_COLOR 
-											= new Color(131, 149, 178);
+    public static final Color CONTACTPANEL_MOVER_START_COLOR = new Color(230,
+            230, 230);
 
-	public static final Color TOOLBAR_SEPARATOR_COLOR 
-											= new Color(200, 200, 200);
-	
-	public static final Color TRANSPARENT_WHITE_COLOR 
-											= new Color(255, 255, 255, 60);
-	/*
-	 * ======================================================================
-	 * ---------------------- MESSAGE WINDOW FONT CONSTANTS ------------------
-	 * ======================================================================
-	 */
+    public static final Color CONTACTPANEL_MOVER_END_COLOR = new Color(255,
+            255, 255);
 
-	public static final String FONT_NAME = "Verdana";
+    public static final Color CONTACTPANEL_LINES_COLOR = new Color(154, 154,
+            154);
 
-	public static final String FONT_SIZE = "10";
+    public static final Color MSG_WINDOW_BORDER_COLOR = new Color(142, 160, 188);
 
-	public static final String FONT_IN_MSG_COLOR = "#ef7b1e";
+    public static final Color CONTACTPANEL_BORDER_COLOR = new Color(131, 149,
+            178);
 
-	public static final String FONT_OUT_MSG_COLOR = "#2e538b";
+    public static final Color TOOLBAR_SEPARATOR_COLOR = new Color(200, 200, 200);
 
-	public static final String FONT_CHAT_HEADER_COLOR = "c6d0e1";
+    public static final Color TRANSPARENT_WHITE_COLOR = new Color(255, 255,
+            255, 60);
 
-	public static final Font FONT 
-        = new Font(	Constants.FONT_NAME, 
-					Font.PLAIN,
-					new Integer(Constants.FONT_SIZE).intValue());
-	
-	/*
-	 * ======================================================================
-	 * ------------------------ STATUS LABELS --------------------------------
-	 * ======================================================================
-	 */
+    /*
+     * ======================================================================
+     * ---------------------- MESSAGE WINDOW FONT CONSTANTS ------------------
+     * ======================================================================
+     */
 
-    public static final IcqStatusEnum ONLINE_STATUS 
-                                        = IcqStatusEnum.ONLINE;
+    public static final String FONT_NAME = "Verdana";
 
-	public static final IcqStatusEnum OFFLINE_STATUS 
-                                        = IcqStatusEnum.OFFLINE;
+    public static final String FONT_SIZE = "10";
 
-	public static final IcqStatusEnum OCCUPIED_STATUS 
-                                        = IcqStatusEnum.OCCUPIED;
+    public static final String FONT_IN_MSG_COLOR = "#ef7b1e";
 
-	public static final IcqStatusEnum CHAT_STATUS 
-                                        = IcqStatusEnum.FREE_FOR_CHAT;
+    public static final String FONT_OUT_MSG_COLOR = "#2e538b";
 
-	public static final IcqStatusEnum AWAY_STATUS 
-                                        = IcqStatusEnum.AWAY;
+    public static final String FONT_CHAT_HEADER_COLOR = "c6d0e1";
 
-	public static final IcqStatusEnum NA_STATUS 
-                                        = IcqStatusEnum.NOT_AVAILABLE;
+    public static final Font FONT = new Font(Constants.FONT_NAME, Font.PLAIN,
+            new Integer(Constants.FONT_SIZE).intValue());
 
-	public static final IcqStatusEnum INVISIBLE_STATUS 
-                                        = IcqStatusEnum.INVISIBLE;
+    /*
+     * ======================================================================
+     * ------------------------ STATUS LABELS --------------------------------
+     * ======================================================================
+     */
 
-	public static final IcqStatusEnum DND_STATUS 
-                                        = IcqStatusEnum.DO_NOT_DISTURB;
+    public static final IcqStatusEnum ONLINE_STATUS = IcqStatusEnum.ONLINE;
 
-	private static final Hashtable mainStatusSet =new Hashtable();
-    static{
-    	mainStatusSet.put(Constants.ONLINE_STATUS, 
-    			ImageLoader.getImage(ImageLoader.USER_ONLINE_ICON));
-    	mainStatusSet.put(Constants.OCCUPIED_STATUS, 
-    			ImageLoader.getImage(ImageLoader.USER_OCCUPIED_ICON));
-    	mainStatusSet.put(Constants.NA_STATUS, 
-    			ImageLoader.getImage(ImageLoader.USER_NA_ICON));
-    	mainStatusSet.put(Constants.DND_STATUS, 
-    			ImageLoader.getImage(ImageLoader.USER_DND_ICON));
-    	mainStatusSet.put(Constants.CHAT_STATUS, 
-    			ImageLoader.getImage(ImageLoader.USER_FFC_ICON));
-    	mainStatusSet.put(Constants.AWAY_STATUS, 
-    			ImageLoader.getImage(ImageLoader.USER_AWAY_ICON));
-    	mainStatusSet.put(Constants.OFFLINE_STATUS, 
-    			ImageLoader.getImage(ImageLoader.USER_OFFLINE_ICON));
-    	mainStatusSet.put(Constants.INVISIBLE_STATUS, 
-    			ImageLoader.getImage(ImageLoader.USER_ONLINE_ICON));
+    public static final IcqStatusEnum OFFLINE_STATUS = IcqStatusEnum.OFFLINE;
+
+    public static final IcqStatusEnum OCCUPIED_STATUS = IcqStatusEnum.OCCUPIED;
+
+    public static final IcqStatusEnum CHAT_STATUS = IcqStatusEnum.FREE_FOR_CHAT;
+
+    public static final IcqStatusEnum AWAY_STATUS = IcqStatusEnum.AWAY;
+
+    public static final IcqStatusEnum NA_STATUS = IcqStatusEnum.NOT_AVAILABLE;
+
+    public static final IcqStatusEnum INVISIBLE_STATUS = IcqStatusEnum.INVISIBLE;
+
+    public static final IcqStatusEnum DND_STATUS = IcqStatusEnum.DO_NOT_DISTURB;
+
+    private static final Hashtable mainStatusSet = new Hashtable();
+    static {
+        mainStatusSet.put(Constants.ONLINE_STATUS, ImageLoader
+                .getImage(ImageLoader.USER_ONLINE_ICON));
+        mainStatusSet.put(Constants.OCCUPIED_STATUS, ImageLoader
+                .getImage(ImageLoader.USER_OCCUPIED_ICON));
+        mainStatusSet.put(Constants.NA_STATUS, ImageLoader
+                .getImage(ImageLoader.USER_NA_ICON));
+        mainStatusSet.put(Constants.DND_STATUS, ImageLoader
+                .getImage(ImageLoader.USER_DND_ICON));
+        mainStatusSet.put(Constants.CHAT_STATUS, ImageLoader
+                .getImage(ImageLoader.USER_FFC_ICON));
+        mainStatusSet.put(Constants.AWAY_STATUS, ImageLoader
+                .getImage(ImageLoader.USER_AWAY_ICON));
+        mainStatusSet.put(Constants.OFFLINE_STATUS, ImageLoader
+                .getImage(ImageLoader.USER_OFFLINE_ICON));
+        mainStatusSet.put(Constants.INVISIBLE_STATUS, ImageLoader
+                .getImage(ImageLoader.USER_ONLINE_ICON));
     }
 
-	/*
-	 * ======================================================================
-	 * ------------------------ PROTOCOL NAMES -------------------------------
-	 * ======================================================================
-	 */
+    /*
+     * ======================================================================
+     * ------------------------ PROTOCOL NAMES -------------------------------
+     * ======================================================================
+     */
 
-	public static final String ICQ = "ICQ";
+    public static final String ICQ = "ICQ";
 
-	public static final String MSN = "MSN";
+    public static final String MSN = "MSN";
 
-	public static final String AIM = "AIM";
+    public static final String AIM = "AIM";
 
-	public static final String YAHOO = "Yahoo";
+    public static final String YAHOO = "Yahoo";
 
-	public static final String JABBER = "Jabber";
+    public static final String JABBER = "Jabber";
 
-	public static final String SKYPE = "Skype";
+    public static final String SKYPE = "Skype";
 
-	public static final String SIP = "SIP";
+    public static final String SIP = "SIP";
 
-	/*
-	 * ======================================================================
-	 * ------------------------ OTHER CONSTANTS ------------------------------
-	 * ======================================================================
-	 */
+    /*
+     * ======================================================================
+     * ------------------------ OTHER CONSTANTS ------------------------------
+     * ======================================================================
+     */
 
-	public static final int RIGHT_SHIFT_STATUS_ICON = 2;
-	
-	public static final boolean TABBED_CHAT_WINDOW = true;
-	
+    public static final int RIGHT_SHIFT_STATUS_ICON = 2;
 
-	/**
-	 * Gets protocol logo icon.
-	 */
+    public static final boolean TABBED_CHAT_WINDOW = true;
 
-	public static Image getProtocolIcon(String protocolName) {
+    /**
+     * Gets protocol logo icon.
+     */
 
-		Image protocolIcon = null;
+    public static Image getProtocolIcon(String protocolName) {
 
-		if (protocolName.equals(Constants.SIP)) {
+        Image protocolIcon = null;
 
-			protocolIcon = ImageLoader.getImage(ImageLoader.SIP_ONLINE_ICON);
-		} else if (protocolName.equals(Constants.ICQ)) {
+        if (protocolName.equals(Constants.SIP)) {
 
-			protocolIcon = ImageLoader.getImage(ImageLoader.ICQ_LOGO);
-		} else if (protocolName.equals(Constants.MSN)) {
+            protocolIcon = ImageLoader.getImage(ImageLoader.SIP_ONLINE_ICON);
+        } else if (protocolName.equals(Constants.ICQ)) {
 
-			protocolIcon = ImageLoader.getImage(ImageLoader.MSN_LOGO);
-		} else if (protocolName.equals(Constants.AIM)) {
+            protocolIcon = ImageLoader.getImage(ImageLoader.ICQ_LOGO);
+        } else if (protocolName.equals(Constants.MSN)) {
 
-			protocolIcon = ImageLoader.getImage(ImageLoader.AIM_LOGO);
+            protocolIcon = ImageLoader.getImage(ImageLoader.MSN_LOGO);
+        } else if (protocolName.equals(Constants.AIM)) {
 
-		} else if (protocolName.equals(Constants.YAHOO)) {
+            protocolIcon = ImageLoader.getImage(ImageLoader.AIM_LOGO);
 
-			protocolIcon = ImageLoader.getImage(ImageLoader.YAHOO_LOGO);
+        } else if (protocolName.equals(Constants.YAHOO)) {
 
-		} else if (protocolName.equals(Constants.JABBER)) {
+            protocolIcon = ImageLoader.getImage(ImageLoader.YAHOO_LOGO);
 
-			protocolIcon = ImageLoader.getImage(ImageLoader.JABBER_LOGO);
+        } else if (protocolName.equals(Constants.JABBER)) {
 
-		} else if (protocolName.equals(Constants.SKYPE)) {
+            protocolIcon = ImageLoader.getImage(ImageLoader.JABBER_LOGO);
 
-			protocolIcon = ImageLoader.getImage(ImageLoader.SKYPE_LOGO);
-		}
+        } else if (protocolName.equals(Constants.SKYPE)) {
 
-		return protocolIcon;
-	}
+            protocolIcon = ImageLoader.getImage(ImageLoader.SKYPE_LOGO);
+        }
 
-	/**
-	 * Gets all protocol statuses, including status and text.
-	 * 
-	 * @param protocolName
-	 * @return an ArrayList of all status Icons for the given protocol.
-	 */
+        return protocolIcon;
+    }
 
-	public static Map getProtocolStatusIcons(String protocolName) {
-		Map protocolStatusList = new Hashtable();
+    /**
+     * Gets all protocol statuses, including status and text.
+     * 
+     * @param protocolName
+     * @return an ArrayList of all status Icons for the given protocol.
+     */
 
-		if (protocolName.equals(Constants.SIP)) {
+    public static Map getProtocolStatusIcons(String protocolName) {
+        Map protocolStatusList = new Hashtable();
 
-			protocolStatusList.put(ONLINE_STATUS,
-                    ImageLoader.getImage(ImageLoader.SIP_ONLINE_ICON));
+        if (protocolName.equals(Constants.SIP)) {
 
-			protocolStatusList.put(CHAT_STATUS,
-                    ImageLoader.getImage(ImageLoader.SIP_CHAT_ICON));
-                        
-			protocolStatusList.put(AWAY_STATUS, 
-                    ImageLoader.getImage(ImageLoader.SIP_AWAY_ICON));
+            protocolStatusList.put(ONLINE_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_ONLINE_ICON));
 
-			protocolStatusList.put(OCCUPIED_STATUS,
-					ImageLoader.getImage(ImageLoader.SIP_OCCUPIED_ICON));
+            protocolStatusList.put(CHAT_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_CHAT_ICON));
 
-			protocolStatusList.put(NA_STATUS,
-					ImageLoader.getImage(ImageLoader.SIP_NA_ICON));
+            protocolStatusList.put(AWAY_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_AWAY_ICON));
 
-			protocolStatusList.put(DND_STATUS,
-					ImageLoader.getImage(ImageLoader.SIP_DND_ICON));
+            protocolStatusList.put(OCCUPIED_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_OCCUPIED_ICON));
 
-			protocolStatusList.put(OFFLINE_STATUS,
-					ImageLoader.getImage(ImageLoader.SIP_OFFLINE_ICON));
+            protocolStatusList.put(NA_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_NA_ICON));
 
-			protocolStatusList.put(INVISIBLE_STATUS,
-					ImageLoader.getImage(ImageLoader.SIP_INVISIBLE_ICON));
+            protocolStatusList.put(DND_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_DND_ICON));
 
-		} else if (protocolName.equals(Constants.ICQ)) {
+            protocolStatusList.put(OFFLINE_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_OFFLINE_ICON));
 
-			protocolStatusList.put(ONLINE_STATUS,
-					ImageLoader.getImage(ImageLoader.ICQ_LOGO));
+            protocolStatusList.put(INVISIBLE_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_INVISIBLE_ICON));
 
-			protocolStatusList.put(CHAT_STATUS,  
-					ImageLoader.getImage(ImageLoader.ICQ_FF_CHAT_ICON));
+        } else if (protocolName.equals(Constants.ICQ)) {
 
-			protocolStatusList.put(AWAY_STATUS,  
-					ImageLoader.getImage(ImageLoader.ICQ_AWAY_ICON));
+            protocolStatusList.put(ONLINE_STATUS, ImageLoader
+                    .getImage(ImageLoader.ICQ_LOGO));
 
-			protocolStatusList.put(NA_STATUS,  
-					ImageLoader.getImage(ImageLoader.ICQ_NA_ICON));
+            protocolStatusList.put(CHAT_STATUS, ImageLoader
+                    .getImage(ImageLoader.ICQ_FF_CHAT_ICON));
 
-			protocolStatusList.put(DND_STATUS,  
-					ImageLoader.getImage(ImageLoader.ICQ_DND_ICON));
+            protocolStatusList.put(AWAY_STATUS, ImageLoader
+                    .getImage(ImageLoader.ICQ_AWAY_ICON));
 
-			protocolStatusList.put(OCCUPIED_STATUS,  
-					ImageLoader.getImage(ImageLoader.ICQ_OCCUPIED_ICON));
+            protocolStatusList.put(NA_STATUS, ImageLoader
+                    .getImage(ImageLoader.ICQ_NA_ICON));
 
-			protocolStatusList.put(OFFLINE_STATUS, 
-					ImageLoader.getImage(ImageLoader.ICQ_OFFLINE_ICON));
+            protocolStatusList.put(DND_STATUS, ImageLoader
+                    .getImage(ImageLoader.ICQ_DND_ICON));
 
-			protocolStatusList.put(INVISIBLE_STATUS, 
-					ImageLoader.getImage(ImageLoader.ICQ_INVISIBLE_ICON));
+            protocolStatusList.put(OCCUPIED_STATUS, ImageLoader
+                    .getImage(ImageLoader.ICQ_OCCUPIED_ICON));
 
-		} else if (protocolName.equals(Constants.MSN)) {
+            protocolStatusList.put(OFFLINE_STATUS, ImageLoader
+                    .getImage(ImageLoader.ICQ_OFFLINE_ICON));
 
-			protocolStatusList.put(ONLINE_STATUS, 
-					ImageLoader.getImage(ImageLoader.MSN_LOGO));
+            protocolStatusList.put(INVISIBLE_STATUS, ImageLoader
+                    .getImage(ImageLoader.ICQ_INVISIBLE_ICON));
 
-		} else if (protocolName.equals(Constants.AIM)) {
+        } else if (protocolName.equals(Constants.MSN)) {
 
-			protocolStatusList.put(ONLINE_STATUS, 
-					ImageLoader.getImage(ImageLoader.AIM_LOGO));
+            protocolStatusList.put(ONLINE_STATUS, ImageLoader
+                    .getImage(ImageLoader.MSN_LOGO));
 
-		} else if (protocolName.equals(Constants.YAHOO)) {
+        } else if (protocolName.equals(Constants.AIM)) {
 
-			protocolStatusList.put(ONLINE_STATUS, 
-					ImageLoader.getImage(ImageLoader.YAHOO_LOGO));
+            protocolStatusList.put(ONLINE_STATUS, ImageLoader
+                    .getImage(ImageLoader.AIM_LOGO));
 
-		} else if (protocolName.equals(Constants.JABBER)) {
+        } else if (protocolName.equals(Constants.YAHOO)) {
 
-			protocolStatusList.put(ONLINE_STATUS, 
-					ImageLoader.getImage(ImageLoader.JABBER_LOGO));
+            protocolStatusList.put(ONLINE_STATUS, ImageLoader
+                    .getImage(ImageLoader.YAHOO_LOGO));
 
-		} else if (protocolName.equals(Constants.SKYPE)) {
+        } else if (protocolName.equals(Constants.JABBER)) {
 
-			protocolStatusList.put(ONLINE_STATUS, 
-					ImageLoader.getImage(ImageLoader.SKYPE_LOGO));
-		}
+            protocolStatusList.put(ONLINE_STATUS, ImageLoader
+                    .getImage(ImageLoader.JABBER_LOGO));
 
-		return protocolStatusList;
-	}
+        } else if (protocolName.equals(Constants.SKYPE)) {
 
-	public static BufferedImage getStatusIcon(PresenceStatus status) {
-		return (BufferedImage)mainStatusSet.get(status);
-	}
+            protocolStatusList.put(ONLINE_STATUS, ImageLoader
+                    .getImage(ImageLoader.SKYPE_LOGO));
+        }
+
+        return protocolStatusList;
+    }
+
+    public static BufferedImage getStatusIcon(PresenceStatus status) {
+        return (BufferedImage) mainStatusSet.get(status);
+    }
 
     /**
      * Temporary method to load the css style used in the chat window.
      * 
      * @param style
      */
-    public static void loadStyle(StyleSheet style){        
-        
-        InputStream is = Constants.class.getClassLoader()
-            .getResourceAsStream
-            ("net/java/sip/communicator/impl/gui/resources/styles/defaultStyle.css");
-        
+    public static void loadStyle(StyleSheet style) {
+
+        InputStream is = Constants.class
+                .getClassLoader()
+                .getResourceAsStream(
+                        "net/java/sip/communicator/impl/gui/resources/styles/defaultStyle.css");
+
         Reader r = new BufferedReader(new InputStreamReader(is));
         try {
             style.loadRules(r, null);
@@ -356,11 +351,14 @@ public class Constants {
             logger.error("Failed to load css style.", e);
         }
     }
-    
+
     public static AudioClip getDefaultAudio() {
-        AudioClip audio = Applet.newAudioClip(Constants.class.getClassLoader()
-        .getResource("net/java/sip/communicator/impl/gui/resources/sounds/ship-sink.wav"));
-        
+        AudioClip audio = Applet
+                .newAudioClip(Constants.class
+                        .getClassLoader()
+                        .getResource(
+                                "net/java/sip/communicator/impl/gui/resources/sounds/ship-sink.wav"));
+
         return audio;
-	}
+    }
 }

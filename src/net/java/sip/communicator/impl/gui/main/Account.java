@@ -9,17 +9,20 @@ package net.java.sip.communicator.impl.gui.main;
 
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
+/**
+ * @author Yana Stamcheva
+ */
 public class Account {
-    
+
     private String identifier;
-    
+
     private ProtocolProviderService protocolProvider;
-    
+
     private String protocolName;
-    
-    public Account( String identifier, 
-                    ProtocolProviderService protocolProvider){
-        
+
+    public Account(String identifier, 
+                ProtocolProviderService protocolProvider) {
+
         this.identifier = identifier;
         this.protocolProvider = protocolProvider;
         this.protocolName = protocolProvider.getProtocolName();
@@ -36,7 +39,7 @@ public class Account {
     public ProtocolProviderService getProtocolProvider() {
         return this.protocolProvider;
     }
-    
+
     public String getIdentifier() {
         return identifier;
     }

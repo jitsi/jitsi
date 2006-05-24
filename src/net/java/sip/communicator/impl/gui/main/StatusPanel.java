@@ -21,7 +21,7 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
- * The StatusPanel is the place where the user can see and change its status 
+ * The StatusPanel is the place where the user can see and change its status
  * for all registered protocols. 
  * 
  * @author Yana Stamcheva
@@ -29,79 +29,75 @@ import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 public class StatusPanel extends JPanel {
 
     private Hashtable protocolStatusCombos = new Hashtable();
-    
+
     private MainFrame mainFrame;
-    
-	public StatusPanel(MainFrame mainFrame) {
+
+    public StatusPanel(MainFrame mainFrame) {
 
         this.mainFrame = mainFrame;
-        
-		this.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 
-		this.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
-				Constants.CONTACTPANEL_MOVER_START_COLOR));
-	}
+        this.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 
-	/**
-	 * Creates the selector box, containing all protocol statuses, adds it to 
-	 * the StatusPanel and refreshes the panel.
-	 * 
-	 * @param protocolProvider The protocol provider.
-	 */
-	public void activateAccount(ProtocolProviderService protocolProvider) {
+        this.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
+                Constants.CONTACTPANEL_MOVER_START_COLOR));
+    }
+
+    /**
+     * Creates the selector box, containing all protocol statuses, adds it to 
+     * the StatusPanel and refreshes the panel.
+     * 
+     * @param protocolProvider The protocol provider.
+     */
+    public void activateAccount(ProtocolProviderService protocolProvider) {
 
         Map protocolStatusMap = Constants
-            .getProtocolStatusIcons(protocolProvider.getProtocolName());
+                .getProtocolStatusIcons(protocolProvider.getProtocolName());
 
-		StatusSelectorBox protocolStatusCombo 
-            = new StatusSelectorBox(
-                this.mainFrame,
-                protocolProvider,
-				protocolStatusMap, 
-                (Image)protocolStatusMap.get(Constants.OFFLINE_STATUS));
+        StatusSelectorBox protocolStatusCombo = new StatusSelectorBox(
+                this.mainFrame, protocolProvider, protocolStatusMap,
+                (Image) protocolStatusMap.get(Constants.OFFLINE_STATUS));
 
-        this.protocolStatusCombos.put(  protocolProvider.getProtocolName(), 
-                                        protocolStatusCombo);
-        
-		this.add(protocolStatusCombo);
-        
+        this.protocolStatusCombos.put(protocolProvider.getProtocolName(),
+                protocolStatusCombo);
+
+        this.add(protocolStatusCombo);
+
         this.getParent().validate();
-	}
-    
-	/**
-	 * Sets the selected status.
-	 * 
-	 * @param protocol The protocol name.
-	 * @param status The newly selected status.
-	 */
-    public void setSelectedStatus(String protocol, Object status){
-        
-        Map protocolStatusMap = Constants
-            .getProtocolStatusIcons(protocol);
-        
-        StatusSelectorBox selectorBox
-            = (StatusSelectorBox)protocolStatusCombos.get(protocol);
-        
-        selectorBox.setIcon(new ImageIcon(
-                (Image)protocolStatusMap.get(status)));
-        
+    }
+
+    /**
+     * Sets the selected status.
+     * 
+     * @param protocol The protocol name.
+     * @param status The newly selected status.
+     */
+    public void setSelectedStatus(String protocol, Object status) {
+
+        Map protocolStatusMap = Constants.getProtocolStatusIcons(protocol);
+
+        StatusSelectorBox selectorBox 
+            = (StatusSelectorBox) protocolStatusCombos.get(protocol);
+
+        selectorBox
+                .setIcon(new ImageIcon((Image) protocolStatusMap.get(status)));
+
         selectorBox.repaint();
     }
-    
+
     /**
      * Shows the protocol animated icon, indicating that it is in a connecting 
      * state.
      * 
      * @param protocol The protocol name.
      */
-    public void startConnecting(String protocol){
-        
-        StatusSelectorBox selectorBox
-            = (StatusSelectorBox)protocolStatusCombos.get(protocol);
-        
+    public void startConnecting(String protocol) {
+
+        StatusSelectorBox selectorBox 
+            = (StatusSelectorBox) protocolStatusCombos.get(protocol);
+
         selectorBox.startConnecting(ImageLoader
                 .getAnimatedImage(ImageLoader.ICQ_CONNECTING));
-        
+
         selectorBox.repaint();
     }
 
@@ -111,16 +107,16 @@ public class StatusPanel extends JPanel {
      * 
      * @param protocol The protocol name.
      */
-    public void stopConnecting(String protocol){
-        
-        StatusSelectorBox selectorBox
-            = (StatusSelectorBox)protocolStatusCombos.get(protocol);
-        
+    public void stopConnecting(String protocol) {
+
+        StatusSelectorBox selectorBox 
+            = (StatusSelectorBox) protocolStatusCombos.get(protocol);
+
         selectorBox.stopConnecting();
-        
+
         selectorBox.repaint();
     }
-    
+
     /**
      * Checks if the given protocol has already its StatusSelectorBox in the 
      * StatusPanel.
@@ -129,13 +125,13 @@ public class StatusPanel extends JPanel {
      * @return True if the protcol has already its StatusSelectorBox in the 
      * StatusPanel, False otherwise.
      */
-    public boolean isProtocolActivated(String protocolName){
-    	if(protocolStatusCombos.containsKey(protocolName))
-    		return true;
-    	else 
-    		return false;
+    public boolean isProtocolActivated(String protocolName) {
+        if (protocolStatusCombos.containsKey(protocolName))
+            return true;
+        else
+            return false;
     }
-    
+
     public MainFrame getMainFrame() {
         return mainFrame;
     }

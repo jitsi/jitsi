@@ -33,143 +33,160 @@ import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
-import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
-public class ChatSendPanel extends JPanel 
-    implements ActionListener{
+/**
+ * The ChatSendPanel is the panel in the bottom of the chat. It contains
+ * the send button, the status panel, where typing notifications are 
+ * shown and the selector box, where the protocol specific contact is 
+ * choosen.
+ * @author Yana Stamcheva
+ */
+public class ChatSendPanel extends JPanel implements ActionListener {
 
-	private JButton sendButton = new JButton(Messages.getString("send"));
-	
-	private JPanel statusPanel 
-        = new JPanel(new FlowLayout(FlowLayout.LEFT));
-	
-	private JPanel sendPanel = new JPanel(new BorderLayout(3, 0));
+    private JButton sendButton = new JButton(Messages.getString("send"));
 
-	private JLabel statusLabel = new JLabel();
+    private JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-	private ChatPanel chatPanel;
-    
+    private JPanel sendPanel = new JPanel(new BorderLayout(3, 0));
+
+    private JLabel statusLabel = new JLabel();
+
+    private ChatPanel chatPanel;
+
     private ArrayList protocolCList = new ArrayList();
-    
+
     private SIPCommSelectorBox contactSelectorBox = new SIPCommSelectorBox();
-        
-	public ChatSendPanel(ChatPanel chatPanel) {
 
-		super(new BorderLayout(5, 5));
+    /**
+     * Creates an instance of ChatSendPanel.
+     * @param chatPanel The parent ChatPanel.
+     */
+    public ChatSendPanel(ChatPanel chatPanel) {
 
-		this.chatPanel = chatPanel;
+        super(new BorderLayout(5, 5));
 
-		this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        this.chatPanel = chatPanel;
 
-		this.statusPanel.add(statusLabel);
-						
-		this.sendPanel.add(sendButton, BorderLayout.CENTER);
-		this.sendPanel.add(contactSelectorBox, BorderLayout.WEST);
+        this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
-		this.add(statusPanel, BorderLayout.CENTER);
-		this.add(sendPanel, BorderLayout.EAST);
-		
-		this.sendButton.addActionListener(this);
-	}
+        this.statusPanel.add(statusLabel);
 
-	public void paint(Graphics g) {
-		AntialiasingManager.activateAntialiasing(g);
+        this.sendPanel.add(sendButton, BorderLayout.CENTER);
+        this.sendPanel.add(contactSelectorBox, BorderLayout.WEST);
 
-		super.paint(g);
+        this.add(statusPanel, BorderLayout.CENTER);
+        this.add(sendPanel, BorderLayout.EAST);
 
-		Graphics2D g2 = (Graphics2D) g;
+        this.sendButton.addActionListener(this);
+    }
 
-		g2.setColor(Constants.CONTACTPANEL_MOVER_START_COLOR);
-		g2.setStroke(new BasicStroke(1f));
+    /**
+     * Overrides the javax.swing.JComponent.paint() to provide
+     * a new round border for the status panel.
+     * @param g The Graphics object.
+     */
+    public void paint(Graphics g) {
+        AntialiasingManager.activateAntialiasing(g);
 
-		g2.drawRoundRect(3, 4, this.statusPanel.getWidth() - 2,
-				this.statusPanel.getHeight() - 2, 8, 8);
-	}
+        super.paint(g);
 
-	public void actionPerformed(ActionEvent e) {
+        Graphics2D g2 = (Graphics2D) g;
+
+        g2.setColor(Constants.CONTACTPANEL_MOVER_START_COLOR);
+        g2.setStroke(new BasicStroke(1f));
+
+        g2.drawRoundRect(3, 4, this.statusPanel.getWidth() - 2,
+                this.statusPanel.getHeight() - 2, 8, 8);
+    }
+
+    /**
+     * Defines actions when send buttons is pressed.
+     * @param e The ActionEvent object.
+     */
+    public void actionPerformed(ActionEvent e) {
         JEditorPane messagePane = this.chatPanel.getWriteMessagePanel()
-        .getEditorPane(); 
-        
-		if(messagePane.getText() != null && !messagePane.getText().equals("")){
-            OperationSetBasicInstantMessaging im 
-            		= this.chatPanel.getImOperationSet();
-            
+                .getEditorPane();
+
+        if (messagePane.getText() != null 
+                && !messagePane.getText().equals("")) {
+            OperationSetBasicInstantMessaging im = this.chatPanel
+                    .getImOperationSet();
+
             Message msg = im.createMessage(messagePane.getText());
-            
-            this.chatPanel.getChatWindow()
-            		.getMainFrame().getWaitToBeDeliveredMsgs()
-            			.put(msg.getMessageUID(), this.chatPanel);           
-            
-            Contact contact = (Contact)contactSelectorBox.getSelectedObject();
-            
+
+            this.chatPanel.getChatWindow().getMainFrame()
+                    .getWaitToBeDeliveredMsgs().put(msg.getMessageUID(),
+                            this.chatPanel);
+
+            Contact contact = (Contact) contactSelectorBox.getSelectedObject();
+
             //Send TYPING STOPPED event before sending the message            
             chatPanel.getWriteMessagePanel().stopTyping();
-            
-            try{                
-            	im.sendInstantMessage(contact, msg);
-            }
-            catch(IllegalStateException ex){
-            	String errorMsg = Messages.getString("msgSendConnectionProblem");
-            	
-            	String title = Messages.getString("msgDeliveryFailure");
-            	
-                JOptionPane.showMessageDialog(this, errorMsg, title, 
-                		JOptionPane.WARNING_MESSAGE);
-            }
-		}
-	}
 
-	public JButton getSendButton() {
-		return sendButton;
-	}
+            try {
+                im.sendInstantMessage(contact, msg);
+            } catch (IllegalStateException ex) {
+                String errorMsg = Messages
+                        .getString("msgSendConnectionProblem");
 
-	public void addProtocolContacts(MetaContact metaContact) {
-        
-        Iterator protocolContacts = metaContact.getContacts();
-        while(protocolContacts.hasNext()){
-            Contact contact = (Contact)protocolContacts.next();
-            
-            if(!protocolCList.contains(contact))
-                protocolCList.add(contact);
-            
-            String protocolName = contact.getProtocolProvider()
-                                    .getProtocolName();
-            
-            contactSelectorBox.addItem(contact.getDisplayName(), 
-                    new ImageIcon(Constants.getProtocolIcon(protocolName)),
-                    new ProtocolItemListener());            
-        }    
-	}
+                String title = Messages.getString("msgDeliveryFailure");
+
+                JOptionPane.showMessageDialog(this, errorMsg, title,
+                        JOptionPane.WARNING_MESSAGE);
+            }
+        }
+    }
+
     
-    public void setTypingStatus(String statusMessage){
+    public JButton getSendButton() {
+        return sendButton;
+    }
+
+    public void addProtocolContacts(MetaContact metaContact) {
+
+        Iterator protocolContacts = metaContact.getContacts();
+        while (protocolContacts.hasNext()) {
+            Contact contact = (Contact) protocolContacts.next();
+
+            if (!protocolCList.contains(contact))
+                protocolCList.add(contact);
+
+            String protocolName = contact.getProtocolProvider()
+                    .getProtocolName();
+
+            contactSelectorBox.addItem(contact.getDisplayName(), new ImageIcon(
+                    Constants.getProtocolIcon(protocolName)),
+                    new ProtocolItemListener());
+        }
+    }
+
+    public void setTypingStatus(String statusMessage) {
         statusLabel.setText(statusMessage);
     }
-    
-    public void setSelectedProtocolContact(Contact protocolContact){
+
+    public void setSelectedProtocolContact(Contact protocolContact) {
         contactSelectorBox.setIcon(new ImageIcon(Constants
                 .getProtocolIcon(protocolContact.getProtocolProvider()
                         .getProtocolName())));
         contactSelectorBox.setSelectedObject(protocolContact);
     }
-    
-    private class ProtocolItemListener implements ActionListener{
-        public void actionPerformed(ActionEvent e){
-            JMenuItem menuItem = (JMenuItem)e.getSource();
+
+    private class ProtocolItemListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            JMenuItem menuItem = (JMenuItem) e.getSource();
             String itemTitle = menuItem.getText();
-            
-            for(int i = 0; i < protocolCList.size(); i ++){
-                Contact protocolContact 
-                    = (Contact)protocolCList.get(i);
-                
-                if(protocolContact.getDisplayName().equals(itemTitle)){
-                    OperationSetBasicInstantMessaging im
-                        = chatPanel.getChatWindow().getMainFrame()
-                            .getProtocolIM(protocolContact.getProtocolProvider());
-                    
+
+            for (int i = 0; i < protocolCList.size(); i++) {
+                Contact protocolContact = (Contact) protocolCList.get(i);
+
+                if (protocolContact.getDisplayName().equals(itemTitle)) {
+                    OperationSetBasicInstantMessaging im = chatPanel
+                            .getChatWindow().getMainFrame().getProtocolIM(
+                                    protocolContact.getProtocolProvider());
+
                     chatPanel.setImOperationSet(im);
                     chatPanel.setProtocolContact(protocolContact);
-                    
+
                     contactSelectorBox.setSelected(menuItem);
                 }
             }

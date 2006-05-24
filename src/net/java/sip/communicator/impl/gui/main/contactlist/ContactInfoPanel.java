@@ -21,91 +21,87 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.TransparentBackgro
 import net.java.sip.communicator.service.contactlist.MetaContact;
 
 /**
- * @author Yana Stamcheva
+ * The ContactInfoPanel is a popup dialog containing the contact detailed info.
  * 
- * The ContactListPanel contains the contact list.
+ * @author Yana Stamcheva
  */
+public class ContactInfoPanel extends JDialog 
+    implements WindowFocusListener {
 
-public class ContactInfoPanel extends JDialog
-	implements WindowFocusListener {
+    private JPanel protocolsPanel = new JPanel(new GridLayout(0, 1));
 
-	private JPanel	protocolsPanel = new JPanel(new GridLayout(0, 1));
-	
-	private MetaContact contactItem;
-	
-	TransparentBackground bg;
-	
-	public ContactInfoPanel(Frame owner, MetaContact contactItem){		
-		
-		super(owner);
-				
-		this.contactItem = contactItem;
-		
-		this.setUndecorated(true);
-		
-		this.setModal(true);
-		
-		this.protocolsPanel.setOpaque(false);
-		
-		//Create the transparent background component
-		this.bg = new TransparentBackground(this);	
-		
-		this.bg.setLayout(new BorderLayout());
-		
-		this.bg.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		
-		this.getContentPane().setLayout(new BorderLayout());
-		
-		this.init();
-		
-		this.getContentPane().add(bg, BorderLayout.CENTER);
-		
-		this.pack();
-		
-		this.setSize(140, 50);
-		
-		this.addWindowFocusListener(this);
-	}
-	
-	private void init() {
-		/*
-		String[] protocolList = this.contactItem.getC();
-		
-		if(protocolsPanel.getComponentCount() == 0){
-			for(int i = 0; i < protocolList.length; i ++){
-				
-				JLabel protocolLabel = new JLabel(protocolList[i],
-						new ImageIcon(Constants.getProtocolIcon(protocolList[i])),
-						JLabel.LEFT);
-				
-				this.protocolsPanel.add(protocolLabel);		
-			}
-		}
-					
-		this.bg.add(protocolsPanel, BorderLayout.CENTER);
-        */
-	}
+    private MetaContact contactItem;
 
-	public JPanel getProtocolsPanel() {
-		return protocolsPanel;
-	}
+    private TransparentBackground bg;
 
-	
-	public void windowGainedFocus(WindowEvent e) {
-		
-	}
-	
-	public void windowLostFocus(WindowEvent e) {
-		
-		this.setVisible(false);
-		this.dispose();
-	}
-	
-	
-	public void setPopupLocation(int x, int y){
-		
-		this.setLocation(x, y);
-		
-		this.bg.updateBackground(x, y);
-	}
+    /**
+     * Creates an instance of the ContactInfoPanel.
+     * @param owner The frame owner of this dialog.
+     * @param contactItem The MetaContact for the info.
+     */
+    public ContactInfoPanel(Frame owner, MetaContact contactItem) {
+        super(owner);
+
+        this.contactItem = contactItem;
+
+        this.setUndecorated(true);
+
+        this.setModal(true);
+
+        this.protocolsPanel.setOpaque(false);
+
+        // Create the transparent background component
+        this.bg = new TransparentBackground(this);
+
+        this.bg.setLayout(new BorderLayout());
+
+        this.bg.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        this.getContentPane().setLayout(new BorderLayout());
+
+        this.init();
+
+        this.getContentPane().add(bg, BorderLayout.CENTER);
+
+        this.pack();
+
+        this.setSize(140, 50);
+
+        this.addWindowFocusListener(this);
+    }
+
+    private void init() {
+        /*
+         * String[] protocolList = this.contactItem.getC();
+         * 
+         * if(protocolsPanel.getComponentCount() == 0){ for(int i = 0; i <
+         * protocolList.length; i ++){
+         * 
+         * JLabel protocolLabel = new JLabel(protocolList[i], new
+         * ImageIcon(Constants.getProtocolIcon(protocolList[i])), JLabel.LEFT);
+         * 
+         * this.protocolsPanel.add(protocolLabel); } }
+         * 
+         * this.bg.add(protocolsPanel, BorderLayout.CENTER);
+         */
+    }
+
+    public JPanel getProtocolsPanel() {
+        return protocolsPanel;
+    }
+
+    public void windowGainedFocus(WindowEvent e) {
+
+    }
+
+    public void windowLostFocus(WindowEvent e) {
+        this.setVisible(false);
+        this.dispose();
+    }
+
+    public void setPopupLocation(int x, int y) {
+        this.setLocation(x, y);
+
+        this.bg.updateBackground(x, y);
+    }
 }
