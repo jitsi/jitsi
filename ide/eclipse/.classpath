@@ -8,7 +8,6 @@
 	<classpathentry kind="lib" path="lib/JainSipApi1.1.jar"/>
 	<classpathentry kind="lib" path="lib/nist-sdp-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/nist-sip-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/skinlf.jar"/>
 	<classpathentry sourcepath="/opt/oscar/src.jar" kind="lib" path="lib/oscar.jar"/>
 	<classpathentry kind="lib" path="lib/osgi.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
