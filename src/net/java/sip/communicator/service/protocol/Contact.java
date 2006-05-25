@@ -47,13 +47,6 @@ public interface Contact
     public byte[] getImage();
 
     /**
-     * Determines whether or not this contact represents our own identity.
-     * @return true in case this is a contact that represents ourselves and
-     * false otherwise.
-     */
-    public boolean isLocal();
-
-    /**
      * Returns the status of the contact as per the last status update we've
      * received for it. Note that this method is not to perform any network
      * operations and will simply return the status received in the last
@@ -64,6 +57,16 @@ public interface Contact
      * pertaining to this contact.
      */
     public PresenceStatus getPresenceStatus();
+
+    /**
+     * Returns a reference to the contact group that this contact is currently
+     * a child of or null if the underlying protocol does not suppord persistent
+     * presence.
+     * @return a reference to the contact group that this contact is currently
+     * a child of or null if the underlying protocol does not suppord persistent
+     * presence.
+     */
+    public ContactGroup getParentContactGroup();
 
     /**
      * Returns a reference to the protocol provider that created the contact.
@@ -107,5 +110,4 @@ public interface Contact
      * establishing network connectivity or null if no such data is required.
      */
     public String getPersistentData();
-
 }

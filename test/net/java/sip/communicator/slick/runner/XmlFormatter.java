@@ -45,6 +45,7 @@ import java.io.PrintWriter;
 import junit.framework.*;
 import junit.textui.*;
 import java.io.*;
+import net.java.sip.communicator.util.xml.*;
 
 
 /**

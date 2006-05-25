@@ -305,7 +305,7 @@ public class TestOperationSetPersistentPresence
 
         assertEquals("Group name.",  testGroupName,
             ((ServerStoredGroupEvent)groupChangeCollector.collectedEvents
-                .get(0)).getSrouceGroup().getGroupName());
+                .get(0)).getSourceGroup().getGroupName());
 
         // check whether the group is retrievable
         ContactGroup group = opSetPersPresence.getServerStoredContactListRoot()
@@ -349,7 +349,7 @@ public class TestOperationSetPersistentPresence
 
         assertEquals("Group name.",  testGroupName2,
             ((ServerStoredGroupEvent)groupChangeCollector.collectedEvents
-                .get(0)).getSrouceGroup().getGroupName());
+                .get(0)).getSourceGroup().getGroupName());
 
         // check whether the group is still on the contact list
         ContactGroup group = opSetPersPresence.getServerStoredContactListRoot()
@@ -391,7 +391,7 @@ public class TestOperationSetPersistentPresence
 
         assertEquals("Group name.",  testGroupName2,
             ((ServerStoredGroupEvent)groupChangeCollector.collectedEvents
-                .get(0)).getSrouceGroup().getGroupName());
+                .get(0)).getSourceGroup().getGroupName());
 
         // check whether the group is still on the contact list
         ContactGroup oldGroup = opSetPersPresence.getServerStoredContactListRoot()

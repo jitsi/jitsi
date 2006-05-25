@@ -131,6 +131,15 @@ public class RootContactGroupIcqImpl
     }
 
     /**
+     * Returns null as this is the root contact group.
+     * @return null as this is the root contact group.
+     */
+    public ContactGroup getParentContactGroup()
+    {
+        return null;
+    }
+
+    /**
      * Returns the subgroup with the specified index.
      *
      * @param index the index of the <tt>ContactGroup</tt> to retrieve.

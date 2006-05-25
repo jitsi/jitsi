@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.util.xml;
 
 
@@ -321,6 +327,30 @@ public class XMLUtils
         }
     }
 
+    /**
+     * A simple implementation of XML writing that also allows for indentation.
+     * @param doc the Document that we will be writing.
+     * @param wri a Writer to write the document through.
+     */
+    public static void indentedWriteXML(Document doc, Writer wri)
+    {
+        Element rootElement = doc.getDocumentElement();
+        if (wri != null)
+        {
+            try
+            {
+                wri.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+                (new DOMElementWriter()).write(rootElement, wri, 0, "  ");
+                wri.flush();
+            }
+            catch (IOException exc)
+            {
+                throw new RuntimeException("Unable to write xml", exc);
+            }
+        }
+    }
+
+
         /**
      * Whenever you'd need to print a configuration node and/or its children.
      *
@@ -399,5 +429,52 @@ public class XMLUtils
         return null;
     }
 
+    /**
+     * Looks through all child elements of the specified root (recursively)
+     * and returns the first element that corresponds to all parameters.
+     *
+     * @param root the Element where the search should begin
+     * @param tagName the name of the node we're looking for
+     * @param keyAttributeName the name of an attribute that the node has to
+     * have
+     * @param keyAttributeValue the value that attribute must have
+     * @return the Element in the tree under root that matches the specified
+     * paameters.
+     * @throws NullPointerException if any of the arguments is null.
+     */
+    public static Element locateElement(Element root,
+                                        String tagName,
+                                        String keyAttributeName,
+                                        String keyAttributeValue)
+    {
+        NodeList nodes = root.getChildNodes();
+        Node node;
+        int len = nodes.getLength();
+        for(int i = 0; i < len; i++)
+        {
+            node = nodes.item(i);
+            if(node.getNodeType() != Node.ELEMENT_NODE)
+                continue;
 
+            // is this the node we're looking for?
+            if(node.getNodeName().equals(tagName))
+            {
+                String attr = ((Element)node).getAttribute(keyAttributeName);
+
+                if(    attr!= null
+                    && attr.equals(keyAttributeValue))
+                    return (Element) node;
+            }
+
+            //look inside.
+            Element child = locateElement( (Element) node, tagName
+                          , keyAttributeName, keyAttributeValue);
+
+            if (child != null)
+                return child;
+
+        }
+
+        return null;
+    }
 }

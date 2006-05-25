@@ -443,4 +443,15 @@ public class MetaContactImpl
     {
         return parentGroup;
     }
+
+    /**
+     * Returns the MetaContactGroup currently containin this meta contact
+     * @return a reference to the MetaContactGroup currently containing this
+     * meta contact.
+     */
+    public MetaContactGroup getParentMetaContactGroup()
+    {
+        return getParentGroup();
+    }
+
 }

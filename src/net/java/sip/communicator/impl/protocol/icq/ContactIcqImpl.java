@@ -23,6 +23,9 @@ public class ContactIcqImpl
     /**
      * Creates an IcqContactImpl
      * @param buddy the JoustSIM object that we will be encapsulating.
+     * @param ssclCallback a reference to the ServerStoredContactListIcqImpl
+     * instance that created us.
+     * @param isPersistent determines whether this contact is persistent or not.
      */
     ContactIcqImpl(Buddy buddy,
                    ServerStoredContactListIcqImpl ssclCallback,
@@ -31,6 +34,7 @@ public class ContactIcqImpl
         this.joustSimBuddy = buddy;
         this.isLocal = isLocal;
         this.ssclCallback = ssclCallback;
+        this.isPersistent = isPersistent;
     }
 
     /**
@@ -160,6 +164,20 @@ public class ContactIcqImpl
         String alias = joustSimBuddy.getAlias();
         return  alias == null? getUIN():alias;
     }
+
+    /**
+     * Returns a reference to the contact group that this contact is currently
+     * a child of or null if the underlying protocol does not suppord persistent
+     * presence.
+     * @return a reference to the contact group that this contact is currently
+     * a child of or null if the underlying protocol does not suppord persistent
+     * presence.
+     */
+    public ContactGroup getParentContactGroup()
+    {
+        return ssclCallback.findContactGroup(this);
+    }
+
 
     /**
      * Returns a reference to the protocol provider that created the contact.

@@ -117,7 +117,7 @@ public class Logger
     /**
      * Log a message, with associated Throwable information.
      * <p>
-     * @param msg	The message to log
+     * @param msg   The message to log
      * @param   t   Throwable associated with log message.
      */
     public void trace(Object msg, Throwable t)
@@ -153,7 +153,7 @@ public class Logger
     /**
      * Log a message, with associated Throwable information.
      * <p>
-     * @param msg	The message to log
+     * @param msg    The message to log
      * @param t  Throwable associated with log message.
      */
     public void debug(Object msg, Throwable t)
@@ -189,7 +189,7 @@ public class Logger
     /**
      * Log a message, with associated Throwable information.
      * <p>
-     * @param msg	The message to log
+     * @param msg   The message to log
      * @param t  Throwable associated with log message.
      */
     public void info(Object msg, Throwable t)
@@ -214,7 +214,7 @@ public class Logger
     /**
      * Log a message, with associated Throwable information.
      * <p>
-     * @param msg	The message to log
+     * @param msg   The message to log
      * @param t  Throwable associated with log message.
      */
     public void warn(Object msg, Throwable t)
@@ -239,7 +239,7 @@ public class Logger
     /**
      * Log a message, with associated Throwable information.
      * <p>
-     * @param msg	The message to log
+     * @param msg   The message to log
      * @param t  Throwable associated with log message.
      */
     public void error(Object msg, Throwable t)
@@ -264,7 +264,7 @@ public class Logger
     /**
      * Log a message, with associated Throwable information.
      * <p>
-     * @param msg	The message to log
+     * @param msg   The message to log
      * @param t  Throwable associated with log message.
      */
     public void fatal(Object msg, Throwable t)

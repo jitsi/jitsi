@@ -29,10 +29,10 @@ import net.java.sip.communicator.service.contactlist.event.ProtoContactEvent;
 
 /**
  * The ContactList list.
- * 
+ *
  * @author Yana Stamcheva
  */
-public class ContactList extends JList 
+public class ContactList extends JList
     implements MetaContactListListener {
 
     private MetaContactListService contactList;
@@ -43,7 +43,7 @@ public class ContactList extends JList
 
     /**
      * Creates an instance of the ContactList.
-     * 
+     *
      * @param contactList The related meta contactlist.
      */
     public ContactList(MetaContactListService contactList) {
@@ -67,7 +67,7 @@ public class ContactList extends JList
 
         this.addKeyListener(new CListKeySearchListener(this));
 
-        this.contactList.addContactListListener(this);
+        this.contactList.addMetaContactListListener(this);
 
         this.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
@@ -144,7 +144,7 @@ public class ContactList extends JList
 
     /**
      * Refreshes the jlist when a group is added.
-     * 
+     *
      * @param group The group which is added.
      */
     private void groupAdded(MetaContactGroup group) {
@@ -172,12 +172,12 @@ public class ContactList extends JList
     }
 
     /**
-     * Returns the next list element that starts with 
+     * Returns the next list element that starts with
      * a prefix.
      *
      * @param prefix the string to test for a match
      * @param startIndex the index for starting the search
-     * @param bias the search direction, either 
+     * @param bias the search direction, either
      * Position.Bias.Forward or Position.Bias.Backward.
      * @return the index of the next list element that
      * starts with the prefix; otherwise -1

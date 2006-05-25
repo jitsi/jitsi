@@ -56,7 +56,7 @@ public class ServerStoredGroupEvent
      * pertaining to.
      * @return a reference to the ContactGroup that caused the event.
      */
-    public ContactGroup getSrouceGroup()
+    public ContactGroup getSourceGroup()
     {
         return (ContactGroup)getSource();
     }

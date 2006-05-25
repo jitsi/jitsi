@@ -53,6 +53,26 @@ public interface MetaContactGroup
     public Iterator getContactGroupsForProvider(ProtocolProviderService provider);
 
     /**
+     * Returns all protocol specific ContactGroups, encapsulated by this
+     * MetaContactGroup and coming from the provider matching the
+     * <tt>accountID</tt> param. If none of the contacts encapsulated by this
+     * MetaContact is originating from the specified account then an empty
+     * iterator is returned.
+     * <p>
+     * Note to implementors:  In order to prevent problems with concurrency, the
+     * <tt>Iterator</tt> returned by this method should not be over the actual
+     * list of groups but rather over a copy of that list.
+     * <p>
+     * @param accountID the id of the account whose contact groups we'd like to
+     * retrieve.
+     * @return an <tt>Iterator</tt> over all contacts encapsulated in this
+     * <tt>MetaContact</tt> and originating from the provider with the specified
+     * account id.
+     */
+    public Iterator getContactGroupsForAccountID(String accountID);
+
+
+    /**
      * Returns true if and only if <tt>contact</tt> is a direct child of this
      * group.
      * @param contact the <tt>MetaContact</tt> whose relation to this group
@@ -77,7 +97,7 @@ public interface MetaContactGroup
      * the specified groupName and coming from the indicated ownerProvider.
      *
      * @param groupName the name of the contact group who we're looking for.
-     * @param ownerProvider a reference to the ProtocolProviderService that
+     * @para ownerProvider a reference to the ProtocolProviderService that
      * the contact we're looking for belongs to.
      * @return a reference to a <tt>ContactGroup</tt>, encapsulated by this
      * MetaContactGroup, carrying the specified name and originating from the
@@ -107,6 +127,15 @@ public interface MetaContactGroup
      * contains.
      */
     public int countChildContacts();
+
+    /**
+     * Returns the number of <tt>ContactGroups</tt>s that this group
+     * encapsulates
+     * <p>
+     * @return an int indicating the number of ContactGroups-s that this group
+     * encapsulates.
+     */
+    public int countContactGroups();
 
     /**
      * Returns an <tt>java.util.Iterator</tt> over the sub groups that this
@@ -230,10 +259,28 @@ public interface MetaContactGroup
         throws IndexOutOfBoundsException;
 
     /**
+     * Returns the MetaContactGroup currently containing this group or null if
+     * this is the root group
+     * @return a reference to the MetaContactGroup currently containing this
+     * meta contact group or null if this is the root group.
+     */
+    public MetaContactGroup getParentMetaContactGroup();
+
+
+    /**
      * Returns a String representation of this group and the contacts it
      * contains (may turn out to be a relatively long string).
      * @return a String representing this group and its child contacts.
      */
     public String toString();
+
+    /**
+     * Returns a String identifier (the actual contents is left to
+     * implementations) that uniquely represents this <tt>MetaContact</tt> in
+     * the containing <tt>MetaContactList</tt>
+     *
+     * @return a String uniquely identifying this meta contact.
+     */
+    public String getMetaUID();
 
 }

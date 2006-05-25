@@ -105,6 +105,14 @@ public interface ContactGroup
     public ProtocolProviderService getProtocolProvider();
 
     /**
+     * Returns the contact group that currently contains this group or null if
+     * this is the root contact group.
+     * @return the contact group that currently contains this group or null if
+     * this is the root contact group.
+     */
+    public ContactGroup getParentContactGroup();
+
+    /**
      * Determines whether or not this contact group is being stored by the
      * server. Non persistent contact groups exist for the sole purpose of
      * containing non persistent contacts.

@@ -150,7 +150,7 @@ public class MockPersistentPresenceOperationSet
                                            int               eventID)
     {
         ServerStoredGroupEvent evt  = new ServerStoredGroupEvent(
-            source, eventID,  source.getParentGroup()
+            source, eventID,  (MockContactGroup)source.getParentContactGroup()
            , this.parentProvider, this);
 
         for ( int i = 0; i < serverStoredGroupListeners.size(); i++ )
@@ -486,7 +486,7 @@ public class MockPersistentPresenceOperationSet
      */
     public MockContactGroup findContactParent(MockContact mockContact)
     {
-        return mockContact.getParentGroup();
+        return (MockContactGroup)mockContact.getParentContactGroup();
     }
 
 
@@ -647,11 +647,13 @@ public class MockPersistentPresenceOperationSet
     public void unsubscribe(Contact contact) throws IllegalArgumentException,
         IllegalStateException, OperationFailedException
     {
-        ((MockContact)contact).getParentGroup()
-            .removeContact((MockContact)contact);
+        MockContactGroup parentGroup = (MockContactGroup)((MockContact)contact)
+            .getParentContactGroup();
+
+        parentGroup.removeContact((MockContact)contact);
 
         fireSubscriptionEvent((MockContact)contact,
-                                       ((MockContact)contact).getParentGroup(),
+                                       ((MockContact)contact).getParentContactGroup(),
                                        SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
 
@@ -743,7 +745,8 @@ public class MockPersistentPresenceOperationSet
         String persistentData, ContactGroup parentGroup)
     {
         MockContactGroup newGroup
-            = new MockContactGroup(groupUID, parentProvider);
+            = new MockContactGroup(MockContactGroup.createNameFromUID(groupUID)
+                                   , parentProvider);
         newGroup.setResolved(false);
 
         //if parent is null then we're adding under root.

@@ -63,7 +63,7 @@ public class MetaContactEvent
      * Returns the source MetaContact.
      * @return the source MetaContact.
      */
-    public MetaContact getSourceContact()
+    public MetaContact getSourceMetaContact()
     {
         return (MetaContact)getSource();
     }
@@ -87,7 +87,7 @@ public class MetaContactEvent
     {
         StringBuffer buff
             = new StringBuffer("MetaContactEvent-[ ContactID=");
-        buff.append(getSourceContact().getDisplayName());
+        buff.append(getSourceMetaContact().getDisplayName());
         buff.append(", eventID=").append(getEventID());
         if(getParentGroup() != null)
             buff.append(", ParentGroup=").append(getParentGroup().getGroupName());

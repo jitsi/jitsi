@@ -29,13 +29,7 @@ public class MetaContactListServiceLick
     private static final Logger logger =
         Logger.getLogger(MetaContactListServiceLick.class);
 
-    /**
-     * A reference to the registration of the mock provider.
-     */
-    private ServiceRegistration mockProviderRegistration = null;
-
     //Convenience referenes to some groups and contacts.
-
     static final String topLevelGroupName = "SomePeople";
 
     static MockContactGroup topLevelMockGroup = null;
@@ -70,15 +64,43 @@ public class MetaContactListServiceLick
 
         //initialize and register a mock protocol provider that woul fill the
         //meta contact list with dummy data.
-        initMockProvider(context);
+        //create and init an instance of a MockProvider
+        MockProvider provider = new MockProvider("SlickMockUser");
+
+        //fill the provider with dummy contacts and contact groups
+        fillMockContactList(provider);
+
+        MclSlickFixture.mockPrServiceRegistration
+            = registerMockProviderService(provider);
+
+        //store the created mock provider for later reference
+        MclSlickFixture.mockProvider = provider;
+
+        //store thre presence op set of the new provider into the fixture
+        Map supportedOperationSets =
+            MclSlickFixture.mockProvider.getSupportedOperationSets();
+
+        //get the operation set presence here.
+        MclSlickFixture.mockPresOpSet =
+            (MockPersistentPresenceOperationSet)supportedOperationSets.get(
+                OperationSetPersistentPresence.class.getName());
+
 
         //add the meta contact list tests.
         addTestSuite(TestMetaContactList.class);
         addTestSuite(TestMetaContact.class);
         addTestSuite(TestMetaContactGroup.class);
 
+        //tests that verify proper support of multiple protocol providers
+        addTest(TestSupportForMultipleProviders.suite());
+
+        //tests that verify persistence of the meta contact list.
+        addTest(TestMetaContactListPersistence.suite());
+
         //register the slick itself
-        context.registerService(getClass().getName(), this, slickServiceProperties);
+        context.registerService(getClass().getName()
+                                , this
+                                , slickServiceProperties);
         logger.debug("Service  " + getClass().getName() + " [REGISTERED]");
     }
 
@@ -89,22 +111,23 @@ public class MetaContactListServiceLick
      */
     public void stop(BundleContext context)
     {
-        mockProviderRegistration.unregister();
+        MclSlickFixture.mockPrServiceRegistration.unregister();
+        MclSlickFixture.mockP1ServiceRegistration.unregister();
+        MclSlickFixture.mockP2ServiceRegistration.unregister();
     }
 
     /**
-     * Initializes the mock provider.
+     * Registers the specified mock provider as an implementation of the
+     * ProtocolProviderService in the currently valid bundle context.
      *
-     * @param context a currently valid bundle context.
+     * @param provider the protocol provider we'd like to export as an OSGI
+     * service.
+     * @return the ServiceRegistration reference returned when registering
+     * the specified provider.
      */
-    private void initMockProvider(BundleContext context)
+    public static ServiceRegistration registerMockProviderService(
+                                                        MockProvider provider)
     {
-        //create and init an instance of a MockProvider
-        MockProvider provider = new MockProvider("SlickMockUser");
-
-        //fill the provider with dummy contacts and contact groups
-        fillMockContactList(provider);
-
         //in order to make sure that only our mock provider will be taken into
         //account by the meta contact list implementation, we need to set the
         //provider mask both as a system property and as one of the service
@@ -115,15 +138,15 @@ public class MetaContactListServiceLick
         mockProvProperties.put(MetaContactListService.PROVIDER_MASK_PROPERTY,
                                "1");
 
-        mockProviderRegistration = context.registerService(
-            ProtocolProviderService.class.getName(),
-            provider,
-            mockProvProperties);
+        ServiceRegistration osgiRegistration
+                    = MclSlickFixture.bundleContext.registerService(
+                            ProtocolProviderService.class.getName(),
+                            provider,
+                            mockProvProperties);
 
-        logger.debug("Registerd a mock protocol provider!");
+        logger.debug("Registered a mock protocol provider!");
 
-        //store the created mock provider for later reference
-        MclSlickFixture.mockProvider = provider;
+        return osgiRegistration;
     }
 
     /**

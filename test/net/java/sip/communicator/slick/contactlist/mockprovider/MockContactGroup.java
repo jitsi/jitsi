@@ -27,6 +27,8 @@ public class MockContactGroup
     private boolean isPersistent = true;
     private MockProvider parentProvider = null;
     private boolean isResolved = true;
+    private String uid = null;
+    private static final String UID_SUFFIX = ".uid";
 
     /**
      * Creates a MockGroup with the specified name.
@@ -36,6 +38,7 @@ public class MockContactGroup
     public MockContactGroup(String groupName, MockProvider parentProvider)
     {
         this.groupName = groupName;
+        this.uid = groupName + UID_SUFFIX;
         this.parentProvider = parentProvider;
     }
 
@@ -106,7 +109,7 @@ public class MockContactGroup
 
     /**
      * Adds the specified contact group to the contained by this group.
-     * @param subGroup the MockContactGroup to add as a subgroup to this group.
+     * @param subgroup the MockContactGroup to add as a subgroup to this group.
      */
     public void addSubgroup(MockContactGroup subgroup)
     {
@@ -124,19 +127,19 @@ public class MockContactGroup
     }
 
     /**
-     * Returns the <tt>MockContactGroup</tt> that is currently parent og this
-     * group.
-     * @return a reference to the <tt>MockContactGroup</tt> that is currently
-     * the parent of this group.
+     * Returns the contact group that currently contains this group or null if
+     * this is the root contact group.
+     * @return the contact group that currently contains this group or null if
+     * this is the root contact group.
      */
-    public MockContactGroup getParentGroup()
+    public ContactGroup getParentContactGroup()
     {
         return this.parentGroup;
     }
 
     /**
      * Removes the specified contact group from the this group's subgroups.
-     * @param subGroup the MockContactGroup subgroup to remove.
+     * @param subgroup the MockContactGroup subgroup to remove.
      */
     public void removeSubGroup(MockContactGroup subgroup)
     {
@@ -375,7 +378,7 @@ public class MockContactGroup
      */
     public boolean isPersistent()
     {
-        return true;
+        return isPersistent;
     }
 
     /**
@@ -432,8 +435,76 @@ public class MockContactGroup
      */
     public String getUID()
     {
+        return uid;
+    }
 
-        return getGroupName();
+    /**
+     * Ugly but tricky conversion method.
+     * @param uid the uid we'd like to get a name from
+     * @return the name of the group with the specified <tt>uid</tt>.
+     */
+    static String createNameFromUID(String uid)
+    {
+        return uid.substring(0, uid.length() - (UID_SUFFIX.length()));
+    }
+
+    /**
+     * Indicates whether some other object is "equal to" this one which in terms
+     * of contact groups translates to having the equal names and matching
+     * subgroups and child contacts. The resolved status of contactgroups and
+     * contacts is deliberately ignored so that groups and/or contacts would
+     * be assumed equal even if it differs.
+     * <p>
+     * @param   obj   the reference object with which to compare.
+     * @return  <code>true</code> if this contact group has the equal child
+     * contacts and subgroups to those of the <code>obj</code> argument.
+     */
+    public boolean equals(Object obj)
+    {
+        if(obj == null
+           || !(obj instanceof MockContactGroup))
+            return false;
+
+        MockContactGroup mockGroup = (MockContactGroup)obj;
+
+        if(    ! mockGroup.getGroupName().equals(getGroupName())
+            || ! mockGroup.getUID().equals(getUID())
+            || mockGroup.countContacts() != countContacts()
+            || mockGroup.countSubgroups() != countSubgroups())
+            return false;
+
+        //traverse child contacts
+        Iterator theirContacts = mockGroup.contacts();
+
+        while(theirContacts.hasNext())
+        {
+            MockContact theirContact = (MockContact)theirContacts.next();
+
+            MockContact ourContact
+                = (MockContact)getContact(theirContact.getAddress());
+
+            if(ourContact == null
+                || !ourContact.equals(theirContact))
+                return false;
+        }
+
+        //traverse subgroups
+        Iterator theirSubgroups = mockGroup.subgroups();
+
+        while(theirSubgroups.hasNext())
+        {
+            MockContactGroup theirSubgroup
+                = (MockContactGroup)theirSubgroups.next();
+
+            MockContactGroup ourSubgroup
+                = (MockContactGroup)getGroup(theirSubgroup.getGroupName());
+
+            if(ourSubgroup == null
+                || !ourSubgroup.equals(theirSubgroup))
+                return false;
+        }
+
+        return true;
     }
 
 }

@@ -137,7 +137,7 @@ public interface MetaContactListService
      *
      * @param l the listener to add
      */
-    public void addContactListListener(MetaContactListListener l);
+    public void addMetaContactListListener(MetaContactListListener l);
 
     /**
      * Removes a listener previously added with
@@ -145,7 +145,7 @@ public interface MetaContactListService
      *
      * @param l the listener to remove
      */
-    public void removeContactListListener(MetaContactListListener l);
+    public void removeMetaContactListListener(MetaContactListListener l);
 
     /**
      * Makes the specified <tt>contact</tt> a child of the
@@ -309,4 +309,11 @@ public interface MetaContactListService
      */
     public void removeMetaContactGroup(MetaContactGroup groupToRemove)
         throws MetaContactListException;
+
+    /**
+     * Removes local resources storing copies of the meta contact list. This
+     * method is meant primarily to aid automated testing which may depend on
+     * beginning the tests with an empty local contact list.
+     */
+    public void purgeLocallyStoredContactListCopy();
 }

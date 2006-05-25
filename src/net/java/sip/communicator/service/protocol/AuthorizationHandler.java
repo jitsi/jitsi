@@ -38,6 +38,7 @@ public interface AuthorizationHandler
      * be turned off. In such cases the method will never be called.
      * <p>
      * @param req the authorization request that we should act upon.
+     * @param sourceContact a reference to the Contact demanding authorization
      * @return a new authorization response instance indicating whether
      * or not the request has been accepted and (if applicable) a reason for
      * turning it down.
@@ -75,6 +76,7 @@ public interface AuthorizationHandler
      * user interface. The method will be called any whenever someone acts
      * upone an authorization request that we have previously sent.
      * @param response the <tt>AuthorizationResponse</tt> that we have received.
+     * @param sourceContact a reference to the Contact demanding authorization
      */
     public void processAuthorizationResponse(
                 AuthorizationResponse response, Contact sourceContact);

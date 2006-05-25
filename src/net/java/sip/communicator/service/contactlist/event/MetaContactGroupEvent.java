@@ -10,6 +10,7 @@ import java.util.EventObject;
 
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  *
@@ -54,31 +55,42 @@ public class MetaContactGroupEvent
      * contain multiple protocol groups and their name cannot change each time
      * one of them is renamed.
      */
-    public static final int CONTACT_GROUP_RENAMED_IN_META_GROUP = 3;
+    public static final int CONTACT_GROUP_RENAMED_IN_META_GROUP = 5;
 
+    /**
+     * Indicates that the MetaContactGroupEvent instance was triggered by adding
+     * a protocol specific ContactGroup to the source MetaContactGroup.
+     */
+    public static final int CONTACT_GROUP_ADDED_TO_META_GROUP = 6;
 
     /**
      * Indicates that the MetaContactGroupEvent instance was triggered by the
      * renaming of an existing MetaContactGroup.
      */
-    public static final int META_CONTACT_GROUP_RENAMED = 4;
+    public static final int META_CONTACT_GROUP_RENAMED = 7;
 
     private ProtocolProviderService sourceProvider = null;
+
+    private ContactGroup sourceProtoGroup = null;
 
     /**
      * Creates a new MetaContactGroup event according to the specified parameters.
      * @param source the MetaContactGroup instance that is added to the MetaContactList
      * @param provider the ProtocolProviderService instance where this event
      * occurred
+     * @param sourceProtoGroup the proto group associated with this event or
+     * null if the event does not concern a particular source group.
      * @param eventID one of the METACONTACT_XXX static fields indicating the
      * nature of the event.
      */
     public MetaContactGroupEvent( MetaContactGroup source,
                        ProtocolProviderService provider,
+                       ContactGroup sourceProtoGroup,
                        int eventID)
     {
         super(source);
         this.sourceProvider = provider;
+        this.sourceProtoGroup = sourceProtoGroup;
         this.eventID = eventID;
     }
 
@@ -89,6 +101,18 @@ public class MetaContactGroupEvent
     public ProtocolProviderService getSourceProvider()
     {
         return sourceProvider;
+    }
+
+    /**
+     * Returns the proto group associated with this event or null if the event
+     * does not concern a particular source group.
+     *
+     * @return the proto group associated with this event or null if the event
+     * does not concern a particular source group.
+     */
+    public ContactGroup getSourceProtoGroup()
+    {
+        return this.sourceProtoGroup;
     }
 
     /**

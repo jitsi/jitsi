@@ -57,6 +57,11 @@ public class MetaContactGroupImpl
     private List childContactsOrderedCopy = new LinkedList();
 
     /**
+     * The meta contact group that is currently containing us.
+     */
+    private MetaContactGroupImpl parentMetaContactGroup = null;
+
+    /**
      * Creates an instance of the root meta contact group.
      *
      * @param groupName the name of the group to create
@@ -87,7 +92,6 @@ public class MetaContactGroupImpl
         this.groupUID = metaUID;
     }
 
-
     /**
      * Returns a String identifier (the actual contents is left to
      * implementations) that uniquely represents this <tt>MetaContact</tt> in
@@ -98,6 +102,17 @@ public class MetaContactGroupImpl
     public String getMetaUID()
     {
         return groupUID;
+    }
+
+    /**
+     * Returns the MetaContactGroup currently containing this group or null if
+     * this is the root group
+     * @return a reference to the MetaContactGroup currently containing this
+     * meta contact group or null if this is the root group.
+     */
+    public MetaContactGroup getParentMetaContactGroup()
+    {
+        return parentMetaContactGroup;
     }
 
     /**
@@ -119,6 +134,18 @@ public class MetaContactGroupImpl
     public int countChildContacts()
     {
         return childContacts.size();
+    }
+
+    /**
+     * Returns the number of <tt>ContactGroups</tt>s that this group
+     * encapsulates
+     * <p>
+     * @return an int indicating the number of ContactGroups-s that this group
+     * encapsulates.
+     */
+    public int countContactGroups()
+    {
+        return protoGroups.size();
     }
 
     /**
@@ -350,6 +377,41 @@ public class MetaContactGroupImpl
 
             if(group.getProtocolProvider() == provider)
                 protoGroups.add(group);
+        }
+        return protoGroups.iterator();
+    }
+
+    /**
+     * Returns all protocol specific ContactGroups, encapsulated by this
+     * MetaContactGroup and coming from the provider matching the
+     * <tt>accountID</tt> param. If none of the contacts encapsulated by this
+     * MetaContact is originating from the specified account then an empty
+     * iterator is returned.
+     * <p>
+     * Note to implementors:  In order to prevent problems with concurrency, the
+     * <tt>Iterator</tt> returned by this method should not be over the actual
+     * list of groups but rather over a copy of that list.
+     * <p>
+     * @param accountID the id of the account whose contact groups we'd like to
+     * retrieve.
+     * @return an <tt>Iterator</tt> over all contacts encapsulated in this
+     * <tt>MetaContact</tt> and originating from the provider with the specified
+     * account id.
+     */
+    public Iterator getContactGroupsForAccountID(String accountID)
+    {
+        Iterator encapsulatedGroups = getContactGroups();
+        LinkedList protoGroups = new LinkedList();
+
+        while(encapsulatedGroups.hasNext())
+        {
+            ContactGroup group = (ContactGroup)encapsulatedGroups.next();
+
+            if(group.getProtocolProvider().getAccountID()
+               .getAccountUID().equals(accountID))
+            {
+                protoGroups.add(group);
+            }
         }
         return protoGroups.iterator();
     }
@@ -690,6 +752,7 @@ public class MetaContactGroupImpl
         logger.trace("Adding subgroup " + subgroup.getGroupName()
                      + " to" + getGroupName());
         this.subgroups.add(subgroup);
+        ((MetaContactGroupImpl)subgroup).parentMetaContactGroup = this;
     }
 
     /**
@@ -699,7 +762,13 @@ public class MetaContactGroupImpl
      */
     MetaContactGroupImpl removeSubgroup(int index)
     {
-        return (MetaContactGroupImpl)subgroups.remove(index);
+        MetaContactGroupImpl subgroup
+            = (MetaContactGroupImpl)subgroups.remove(index);
+
+        if (subgroup != null)
+            subgroup.parentMetaContactGroup = null;
+
+        return subgroup;
     }
 
     /**

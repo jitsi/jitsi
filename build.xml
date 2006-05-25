@@ -226,7 +226,7 @@
     <!-- - - - - - - - - - - - - - UNIT TESTING - - - - - - - - - - - - - - -->
 
     <!--PREPARE-TESTS-->
-    <target name="identify-test" depends="make">
+    <target name="identify-test">
         <!--internal-target- identify Service Impl Compatibility Kits to run -->
         <condition property="test.name.known">
             <!-- has a single test class has been defined?    -->
@@ -254,7 +254,7 @@
     </target>
 
     <!--RUN-TESTS-->
-    <target name="test" depends="init,prepare-single-test,prepare-all-tests"
+    <target name="test" depends="prepare-single-test,prepare-all-tests"
         description="Starts oscar and runs selected Service Impl Compatibility Kits.">
 
         <!-- Do the testing itself. Note that we don't fail on error as we need
@@ -293,11 +293,13 @@
              see its "Build Successful" output line as users might confuse it
              for a general build success while this might not be the case.-->
         <echo message="Generating HTML test reports ..."/>
-        <exec executable="ant" output="${test.html.reports.dir}/output.txt">
-            <env key="CLASSPATH"
-                 path="${java.class.path}:lib/xalan-2.6.0.jar.ant"/>
-            <arg value="htmlreport"/>
-        </exec>
+        <java fork="true"
+              classname="org.apache.tools.ant.launch.Launcher"
+              classpath="${java.class.path}:lib/xalan-2.6.0.jar.ant"
+              failonerror="true"
+              output="${test.html.reports.dir}/output.txt">
+           <arg value="htmlreport"/>
+        </java>
         <echo message="Done."/>
 
         <!-- Check whether testing went alright and fail if not.-->
@@ -325,7 +327,7 @@
     </target>
 
     <!--RUN-SIP-COMMUNICATOR - n.b. has NO Dependents!! -->
-    <target name="run" 
+    <target name="run"
         description="Starts oscar and runs sip-comunicator gui (use latest build).">
 
         <java classname="org.ungoverned.oscar.Main"
@@ -406,11 +408,11 @@
     <!--ALL BUNDLES-->
     <target name="bundles"
         depends="bundle-util,bundle-configuration,bundle-configuration-slick,
-    	bundle-history,bundle-history-slick,bundle-messagehistory,
-    	bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
-    	bundle-slick-runner,bundle-sip,bundle-fileaccess,
-    	bundle-fileaccess-slick,bundle-media,bundle-media-slick,
-    	bundle-icq,bundle-icq-slick,bundle-swing-ui,
+        bundle-history,bundle-history-slick,bundle-messagehistory,
+        bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
+        bundle-slick-runner,bundle-sip,bundle-fileaccess,
+        bundle-fileaccess-slick,bundle-media,bundle-media-slick,
+        bundle-icq,bundle-icq-slick,bundle-swing-ui,
         meta-contactlist,meta-contactlist-slick"/>
 
     <!--BUNDLE-HISTORY-->
@@ -438,14 +440,14 @@
     <target name="bundle-messagehistory">
         <jar compress="false" destfile="${bundles.dest}/msghistory.jar"
             manifest="src/net/java/sip/communicator/impl/msghistory/msghistory.manifest.mf">
-            
+
             <zipfileset dir="${dest}/net/java/sip/communicator/service/msghistory"
                 prefix="net/java/sip/communicator/service/msghistory"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/msghistory"
                 prefix="net/java/sip/communicator/impl/msghistory" />
         </jar>
     </target>
-	
+
     <!--BUNDLE-FILEACCESS-->
     <target name="bundle-fileaccess">
         <jar compress="false" destfile="${bundles.dest}/fileaccess.jar"

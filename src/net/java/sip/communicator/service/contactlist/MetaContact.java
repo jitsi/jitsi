@@ -82,6 +82,13 @@ public interface MetaContact extends Comparable
     public Iterator getContactsForProvider(ProtocolProviderService provider);
 
     /**
+     * Returns the MetaContactGroup currently containin this meta contact
+     * @return a reference to the MetaContactGroup currently containing this
+     * meta contact.
+     */
+    public MetaContactGroup getParentMetaContactGroup();
+
+    /**
      * Returns a String identifier (the actual contents is left to
      * implementations) that uniquely represents this <tt>MetaContact</tt>
      * in the containing <tt>MetaContactList</tt>

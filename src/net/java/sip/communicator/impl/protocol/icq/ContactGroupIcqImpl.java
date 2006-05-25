@@ -106,6 +106,16 @@ public class ContactGroupIcqImpl
     }
 
     /**
+     * Returns a reference to the root icq group which in ICQ is the parent of
+     * any other group since the protocol does not support subgroups.
+     * @return a reference to the root icq group.
+     */
+    public ContactGroup getParentContactGroup()
+    {
+        return ssclCallback.getRootGroup();
+    }
+
+    /**
      * Adds the specified contact at the specified position.
      * @param contact the new contact to add to this group
      * @param index the position where the new contact should be added.

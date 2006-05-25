@@ -129,7 +129,7 @@ public class MockContact
      * Returns the group that contains this contact.
      * @return a reference to the MockContactGroup that contains this contact.
      */
-    public MockContactGroup getParentGroup()
+    public ContactGroup getParentContactGroup()
     {
         return this.parentGroup;
     }
@@ -200,6 +200,24 @@ public class MockContact
         this.isResolved = resolved;
     }
 
+    /**
+     * Indicates whether some other object is "equal to" this one which in terms
+     * of contacts translates to having equal ids. The resolved status of the
+     * contacts deliberately ignored so that contacts would be declared equal
+     * even if it differs.
+     * <p>
+     * @param   obj   the reference object with which to compare.
+     * @return  <code>true</code> if this contact has the same id as that of the
+     * <code>obj</code> argument.
+     */
+    public boolean equals(Object obj)
+    {
+        if (obj == null
+            || ! (obj instanceof MockContact))
+            return false;
 
+        MockContact mockContact = (MockContact) obj;
 
+        return this.getAddress().equals(mockContact.getAddress());
+    }
 }

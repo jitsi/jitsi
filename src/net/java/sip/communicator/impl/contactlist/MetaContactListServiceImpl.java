@@ -14,8 +14,6 @@ import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.xml.*;
-import java.io.*;
 
 /**
  * An implementation of the MetaContactListService that would connect to
@@ -48,7 +46,8 @@ public class MetaContactListServiceImpl
      * The root of the meta contact list.
      */
     MetaContactGroupImpl rootMetaGroup
-        = new MetaContactGroupImpl("RootMetaContactGroup");
+        = new MetaContactGroupImpl("RootMetaContactGroup",
+                                   "RootMetaContactGroup");
 
     /**
      * The number of miliseconds to wait for confirmations of account
@@ -130,7 +129,7 @@ public class MetaContactListServiceImpl
         //initializne the meta contact list from what has been stored locally.
         try
         {
-            storageManager.start(bundleContext);
+            storageManager.start(bundleContext, this);
         }
         catch (Exception exc)
         {
@@ -181,7 +180,7 @@ public class MetaContactListServiceImpl
      *
      * @param l the listener to add
      */
-    public void addContactListListener(MetaContactListListener l)
+    public void addMetaContactListListener(MetaContactListListener l)
     {
         synchronized (metaContactListListeners)
         {
@@ -419,9 +418,6 @@ public class MetaContactListServiceImpl
                 evtRetriever);
         }
 
-        removeGroupFromEventIgnoreList(
-            metaGroup.getGroupName(), protoProvider);
-
         //sth went wrong.
         if (evtRetriever.evt == null)
         {
@@ -433,9 +429,15 @@ public class MetaContactListServiceImpl
         }
 
         //now add the proto group to the meta group.
-        metaGroup.addProtoGroup(evtRetriever.evt.getSrouceGroup());
+        metaGroup.addProtoGroup(evtRetriever.evt.getSourceGroup());
 
-        return evtRetriever.evt.getSrouceGroup();
+        fireMetaContactGroupEvent(
+            metaGroup
+            , evtRetriever.evt.getSourceProvider()
+            , evtRetriever.evt.getSourceGroup()
+            , MetaContactGroupEvent.CONTACT_GROUP_ADDED_TO_META_GROUP);
+
+        return evtRetriever.evt.getSourceGroup();
     }
 
     /**
@@ -465,26 +467,7 @@ public class MetaContactListServiceImpl
     private MetaContactGroup findParentMetaContactGroup(
         MetaContactGroupImpl root, MetaContactGroup child)
     {
-        if (root.contains(child))
-        {
-            return root;
-        }
-
-        Iterator subgroups = root.getSubgroups();
-
-        while (subgroups.hasNext())
-        {
-            MetaContactGroup contactGroup
-                = findParentMetaContactGroup( (MetaContactGroupImpl) subgroups
-                                             .next(), child);
-            if (contactGroup != null)
-            {
-                return contactGroup;
-            }
-
-        }
-
-        return null;
+        return child.getParentMetaContactGroup();
     }
 
     /**
@@ -624,10 +607,8 @@ public class MetaContactListServiceImpl
         ( (MetaContactGroupImpl) parent).addSubgroup(newMetaGroup);
 
         //fire the event
-        fireMetaContactGroupEvent(newMetaGroup, null
-                                  ,
-                                  MetaContactGroupEvent.
-                                  META_CONTACT_GROUP_ADDED);
+        fireMetaContactGroupEvent(newMetaGroup
+            , null, null, MetaContactGroupEvent. META_CONTACT_GROUP_ADDED);
     }
 
     /**
@@ -645,10 +626,8 @@ public class MetaContactListServiceImpl
     {
         ( (MetaContactGroupImpl) group).setGroupName(newGroupName);
 
-        fireMetaContactGroupEvent(group, null
-                                  ,
-                                  MetaContactGroupEvent.
-                                  META_CONTACT_GROUP_RENAMED);
+        fireMetaContactGroupEvent(group, null, null
+            , MetaContactGroupEvent.META_CONTACT_GROUP_RENAMED);
     }
 
     /**
@@ -691,7 +670,8 @@ public class MetaContactListServiceImpl
         fireMetaContactGroupEvent(
                     findParentMetaContactGroup( metaContact )
                     , null
-                    , MetaContactGroupEvent.META_CONTACT_GROUP_RENAMED);
+                    , null
+                    , MetaContactGroupEvent.CHILD_CONTACTS_REORDERED);
 
     }
 
@@ -745,7 +725,10 @@ public class MetaContactListServiceImpl
         ContactGroup parentProtoGroup = resolveProtoPath(contact
             .getProtocolProvider(), (MetaContactGroupImpl) newParentGroup);
 
-        opSetPresence.moveContactToGroup(contact, parentProtoGroup);
+        //if the contact is not currently in the proto group corresponding to
+        //its new metacontact group parent then move it
+        if(contact.getParentContactGroup() != parentProtoGroup)
+            opSetPresence.moveContactToGroup(contact, parentProtoGroup);
 
         ( (MetaContactImpl) newParentMetaContact).addProtoContact(contact);
 
@@ -753,6 +736,24 @@ public class MetaContactListServiceImpl
         //parent.
         fireProtoContactEvent(contact, ProtoContactEvent.PROTO_CONTACT_MOVED
             , currentParentMetaContact , newParentMetaContact);
+
+        //if this was the last contact in the meta contact - remove it.
+        //it is true that in some cases the move would be followed by some kind
+        //of protocol provider events indicating the change which on its turn
+        //may trigger the removal of empty meta contacts. Yet in many cases
+        //particularly if parent groups were not changed in the protocol contact
+        //list no event would come and the meta contact will remain empty
+        //that's why we delete it here and if an event follows it would simply
+        //be ignored.
+        if (currentParentMetaContact.getContactCount() == 0)
+        {
+            MetaContactGroupImpl parentMetaGroup =
+                currentParentMetaContact.getParentGroup();
+            parentMetaGroup.removeMetaContact(currentParentMetaContact);
+
+            fireMetaContactEvent(currentParentMetaContact, parentMetaGroup
+                                     , MetaContactEvent.META_CONTACT_REMOVED);
+        }
     }
 
     /**
@@ -883,7 +884,7 @@ public class MetaContactListServiceImpl
      * @param l
      *            the listener to remove
      */
-    public void removeContactListListener(
+    public void removeMetaContactListListener(
         MetaContactListListener l)
     {
         synchronized (metaContactListListeners)
@@ -966,9 +967,8 @@ public class MetaContactListServiceImpl
 
         parentMetaGroup.removeSubgroup(groupToRemove);
 
-        fireMetaContactGroupEvent(groupToRemove, null,
-                                  MetaContactGroupEvent.
-                                  META_CONTACT_GROUP_REMOVED);
+        fireMetaContactGroupEvent( groupToRemove, null, null
+            , MetaContactGroupEvent.META_CONTACT_GROUP_REMOVED);
     }
 
     /**
@@ -993,10 +993,19 @@ public class MetaContactListServiceImpl
         //removed
         locallyRemoveAllContactsForProvider(metaContainer, sourceProvider);
 
-        fireMetaContactGroupEvent(metaContainer, sourceProvider,
-                                  MetaContactGroupEvent.
-                                  CONTACT_GROUP_REMOVED_FROM_META_GROUP);
+        fireMetaContactGroupEvent(metaContainer, sourceProvider, groupToRemove
+            , MetaContactGroupEvent.CONTACT_GROUP_REMOVED_FROM_META_GROUP);
 
+    }
+
+    /**
+     * Removes local resources storing copies of the meta contact list. This
+     * method is meant primarily to aid automated testing which may depend on
+     * beginning the tests with an empty local contact list.
+     */
+    public void purgeLocallyStoredContactListCopy()
+    {
+        this.storageManager.removeContactListFile();
     }
 
     /**
@@ -1179,10 +1188,12 @@ public class MetaContactListServiceImpl
 
             if (fireEvents)
             {
-                this.fireMetaContactGroupEvent(newMetaGroup,
-                                               group.getProtocolProvider(),
-                                               MetaContactGroupEvent.
-                                               META_CONTACT_GROUP_ADDED);
+                this.fireMetaContactGroupEvent(
+                        newMetaGroup
+                        , group.getProtocolProvider()
+                        , group
+                        , MetaContactGroupEvent.
+                        META_CONTACT_GROUP_ADDED);
             }
         }
 
@@ -1247,7 +1258,7 @@ public class MetaContactListServiceImpl
             //load contacts, stored in the local contact list and corresponding to
             //this provider.
             storageManager.extractContactsForAccount(
-                this, provider.getAccountID().getAccountUID());
+                provider.getAccountID().getAccountUID());
 
 
             synchronizeOpSetWithLocalContactList(opSetPersPresence);
@@ -1660,7 +1671,7 @@ public class MetaContactListServiceImpl
             logger.trace("ContactGroup created: " + evt);
 
             //ignore the event if the source group is in the ignore list
-            if (isGroupInEventIgnoreList(evt.getSrouceGroup().getGroupName()
+            if (isGroupInEventIgnoreList(evt.getSourceGroup().getGroupName()
                                          , evt.getSourceProvider()))
             {
                 return;
@@ -1672,17 +1683,18 @@ public class MetaContactListServiceImpl
             if (parentMetaGroup == null)
             {
                 logger.error("Failed to identify a parent where group "
-                    + evt.getSrouceGroup().getGroupName() + "should be placed.");
+                    + evt.getSourceGroup().getGroupName() + "should be placed.");
             }
 
             // add parent group to the ServerStoredGroupEvent
             MetaContactGroup newMetaGroup
-                = handleGroupCreatedEvent(parentMetaGroup, evt.getSrouceGroup());
+                = handleGroupCreatedEvent(parentMetaGroup, evt.getSourceGroup());
 
-            fireMetaContactGroupEvent(newMetaGroup,
-                                      evt.getSourceProvider(),
-                                      MetaContactGroupEvent.
-                                      META_CONTACT_GROUP_ADDED);
+            fireMetaContactGroupEvent(
+                newMetaGroup
+                , evt.getSourceProvider()
+                , null
+                , MetaContactGroupEvent.META_CONTACT_GROUP_ADDED);
         }
 
         /**
@@ -1697,18 +1709,18 @@ public class MetaContactListServiceImpl
             logger.trace("ContactGroup removed: " + evt);
 
             MetaContactGroupImpl metaContactGroup = (MetaContactGroupImpl)
-                findMetaContactGroupByContactGroup(evt.getSrouceGroup());
+                findMetaContactGroupByContactGroup(evt.getSourceGroup());
 
             if (metaContactGroup == null)
             {
                 logger.error(
                     "Received a RemovedGroup event for an orphan grp: "
-                    + evt.getSrouceGroup());
+                    + evt.getSourceGroup());
                 return;
             }
 
             removeContactGroupFromMetaContactGroup(metaContactGroup,
-                evt.getSrouceGroup(), evt.getSourceProvider());
+                evt.getSourceGroup(), evt.getSourceProvider());
 
             //do not remove the meta contact group even if this is the las
             //protocol specific contact group. Contrary to contacts, meta
@@ -1730,11 +1742,13 @@ public class MetaContactListServiceImpl
             logger.trace("ContactGroup renamed: " + evt);
 
             MetaContactGroup metaContactGroup
-                = findMetaContactGroupByContactGroup(evt.getSrouceGroup());
+                = findMetaContactGroupByContactGroup(evt.getSourceGroup());
 
-            fireMetaContactGroupEvent(metaContactGroup, evt.getSourceProvider(),
-                                      MetaContactGroupEvent.
-                                      CONTACT_GROUP_RENAMED_IN_META_GROUP);
+            fireMetaContactGroupEvent(
+                metaContactGroup
+                , evt.getSourceProvider()
+                , evt.getSourceGroup()
+                , MetaContactGroupEvent.CONTACT_GROUP_RENAMED_IN_META_GROUP);
         }
     }
 
@@ -1919,6 +1933,7 @@ public class MetaContactListServiceImpl
         fireMetaContactGroupEvent(
               findParentMetaContactGroup(metaContactImpl)
             , evt.getSourceProvider()
+            , null
             , MetaContactGroupEvent.CHILD_CONTACTS_REORDERED);
     }
 
@@ -1947,7 +1962,7 @@ public class MetaContactListServiceImpl
         //I don't think this method needs to produce events since it is
         //currently only called upon initialization ... but it doesn't hurt
         //trying
-        fireMetaContactGroupEvent(newMetaGroup, null
+        fireMetaContactGroupEvent(newMetaGroup, null, null
             , MetaContactGroupEvent.META_CONTACT_GROUP_ADDED);
 
         return newMetaGroup;
@@ -1965,6 +1980,8 @@ public class MetaContactListServiceImpl
      * @param persistentData the persistent data last returned by the contact
      * group.
      * @param accountID the ID of the account that the proto group belongs to.
+     *
+     * @return a reference to the newly created (unresolved) contact group.
      */
     ContactGroup loadStoredContactGroup(MetaContactGroupImpl containingMetaGroup,
                                         String               contactGroupUID,
@@ -1981,7 +1998,10 @@ public class MetaContactListServiceImpl
                                                     .class.getName());
 
         ContactGroup newProtoGroup = presenceOpSet.createUnresolvedContactGroup(
-                            contactGroupUID, persistentData, parentProtoGroup);
+            contactGroupUID, persistentData,
+                parentProtoGroup == null
+                    ? presenceOpSet.getServerStoredContactListRoot()
+                    : parentProtoGroup);
 
         containingMetaGroup.addProtoGroup(newProtoGroup);
 
@@ -2029,7 +2049,9 @@ public class MetaContactListServiceImpl
             Contact protoContact = presenceOpSet.createUnresolvedContact(
                 contactDescriptor.contactAddress,
                 contactDescriptor.persistentData,
-                contactDescriptor.parentProtoGroup);
+                contactDescriptor.parentProtoGroup == null
+                    ? presenceOpSet.getServerStoredContactListRoot()
+                    : contactDescriptor.parentProtoGroup);
 
             newMetaContact.addProtoContact(protoContact);
         }
@@ -2049,16 +2071,19 @@ public class MetaContactListServiceImpl
      *            MetaContactList
      * @param provider
      *            the ProtocolProviderService instance where this event occurred
+     * @param sourceProtoGroup the proto group associated with this event or
+     *            null if the event does not concern a particular source group.
      * @param eventID
      *            one of the METACONTACT_GROUP_XXX static fields indicating the
      *            nature of the event.
      */
-    private void fireMetaContactGroupEvent(
-        MetaContactGroup source,
-        ProtocolProviderService provider, int eventID)
+    private void fireMetaContactGroupEvent( MetaContactGroup source,
+                                            ProtocolProviderService provider,
+                                            ContactGroup sourceProtoGroup,
+                                            int eventID)
     {
         MetaContactGroupEvent evt = new MetaContactGroupEvent(
-            source, provider, eventID);
+            source, provider, sourceProtoGroup, eventID);
 
         logger.trace("Will dispatch the following mcl event: "
                      + evt);
@@ -2081,15 +2106,19 @@ public class MetaContactListServiceImpl
                     case MetaContactGroupEvent.META_CONTACT_GROUP_REMOVED:
                         l.metaContactGroupRemoved(evt);
                         break;
-                    case MetaContactGroupEvent
-                        .CONTACT_GROUP_REMOVED_FROM_META_GROUP:
-                        l.metaContactGroupModified(evt);
-                        break;
                     case MetaContactGroupEvent.CHILD_CONTACTS_REORDERED:
                         l.childContactsReordered(evt);
                         break;
-
-
+                    case MetaContactGroupEvent
+                        .META_CONTACT_GROUP_RENAMED:
+                    case MetaContactGroupEvent
+                        .CONTACT_GROUP_RENAMED_IN_META_GROUP:
+                    case MetaContactGroupEvent
+                        .CONTACT_GROUP_REMOVED_FROM_META_GROUP:
+                    case MetaContactGroupEvent
+                        .CONTACT_GROUP_ADDED_TO_META_GROUP:
+                        l.metaContactGroupModified(evt);
+                        break;
                     default:
                         logger.error("Unknown event type (" + eventID
                                      + ") for event: " + evt);
@@ -2128,7 +2157,7 @@ public class MetaContactListServiceImpl
         {
             synchronized (this)
             {
-                if (evt.getSrouceGroup().getGroupName().equals(groupName))
+                if (evt.getSourceGroup().getGroupName().equals(groupName))
                 {
                     this.evt = evt;
                     this.notifyAll();
