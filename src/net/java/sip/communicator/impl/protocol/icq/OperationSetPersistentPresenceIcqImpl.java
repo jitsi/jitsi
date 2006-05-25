@@ -395,7 +395,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * @param screenname the UIN/Screenname of the contact to create.
      * @return the newly created volatile <tt>ContactIcqImpl</tt>
      */
-    ContactIcqImpl createVolatileContact(Screenname screenname)
+    public ContactIcqImpl createVolatileContact(Screenname screenname)
     {
         return ssContactList.createVolatileContact(screenname);
     }
