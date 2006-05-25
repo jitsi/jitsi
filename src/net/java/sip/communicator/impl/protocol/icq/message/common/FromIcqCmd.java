@@ -58,7 +58,7 @@ public class FromIcqCmd
      *
      * @param packet an incoming rendezvous ICBM packet
      */
-//	protected FromIcqCmd(SnacPacket packet) {
+//  protected FromIcqCmd(SnacPacket packet) {
     public FromIcqCmd(SnacPacket packet)
     {
         super(IcqCommand.CMD_FROM_ICQ, packet);
@@ -77,7 +77,6 @@ public class FromIcqCmd
         super(IcqCommand.CMD_FROM_ICQ, uin, type, id, dataWriter);
     }
 
-    public void writeIcqData(OutputStream out)
-        throws IOException
+    public void writeIcqData(OutputStream out) throws IOException
     {}
 }

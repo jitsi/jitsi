@@ -17,16 +17,15 @@ import net.java.sip.communicator.impl.protocol.icq.message.common.*;
  * @author Damian Minkov
  */
 public class OfflineMsgRequest
-	extends IcqCommand
+    extends IcqCommand
 {
-	public OfflineMsgRequest()
-	{
-		super(AbstractIcqCmd.CMD_OFFLINE_MSG_REQ);
-	}
+    public OfflineMsgRequest()
+    {
+        super(AbstractIcqCmd.CMD_OFFLINE_MSG_REQ);
+    }
 
-	public void writeIcqData(OutputStream out)
-		throws IOException
-	{
-		// no specific data
-	}
+    public void writeIcqData(OutputStream out) throws IOException
+    {
+        // no specific data
+    }
 }

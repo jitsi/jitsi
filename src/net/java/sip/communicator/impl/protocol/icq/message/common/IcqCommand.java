@@ -103,6 +103,5 @@ public abstract class IcqCommand
      *
      * @throws IOException if an I/O error occurs
      */
-    public abstract void writeIcqData(OutputStream out)
-        throws IOException;
+    public abstract void writeIcqData(OutputStream out) throws IOException;
 }

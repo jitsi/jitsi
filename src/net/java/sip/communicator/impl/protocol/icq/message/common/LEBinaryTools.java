@@ -137,15 +137,15 @@ public final class LEBinaryTools
      */
     public static long getUInt(final ByteBlock data, final int pos)
     {
-        if(data.getLength() - pos < 4)
+        if (data.getLength() - pos < 4)
         {
             return -1;
         }
 
-        return(((long)data.get(pos + 3) & 0xffL) << 24)
-            | (((long)data.get(pos + 2) & 0xffL) << 16)
-            | (((long)data.get(pos + 1) & 0xffL) << 8)
-            | ((long)data.get(pos) & 0xffL);
+        return ( ( (long) data.get(pos + 3) & 0xffL) << 24)
+            | ( ( (long) data.get(pos + 2) & 0xffL) << 16)
+            | ( ( (long) data.get(pos + 1) & 0xffL) << 8)
+            | ( (long) data.get(pos) & 0xffL);
     }
 
     /**
@@ -170,12 +170,12 @@ public final class LEBinaryTools
      */
     public static int getUShort(final ByteBlock data, final int pos)
     {
-        if(data.getLength() - pos < 2)
+        if (data.getLength() - pos < 2)
         {
             return -1;
         }
 
-        return((data.get(pos + 1) & 0xff) << 8) | (data.get(pos) & 0xff);
+        return ( (data.get(pos + 1) & 0xff) << 8) | (data.get(pos) & 0xff);
     }
 
     /**
@@ -200,12 +200,12 @@ public final class LEBinaryTools
      */
     public static short getUByte(final ByteBlock data, final int pos)
     {
-        if(data.getLength() - pos < 1)
+        if (data.getLength() - pos < 1)
         {
             return -1;
         }
 
-        return(short)(data.get(pos) & 0xff);
+        return (short) (data.get(pos) & 0xff);
     }
 
     /**
@@ -219,8 +219,8 @@ public final class LEBinaryTools
      * @see #getUInt(long)
      * @see #getUInt(ByteBlock, int)
      */
-    public static void writeUInt(final OutputStream out, final long number)
-        throws IOException
+    public static void writeUInt(final OutputStream out, final long number) throws
+        IOException
     {
         out.write(getUInt(number));
     }
@@ -236,8 +236,8 @@ public final class LEBinaryTools
      * @see #getUShort(int)
      * @see #getUShort(ByteBlock, int)
      */
-    public static void writeUShort(final OutputStream out, final int number)
-        throws IOException
+    public static void writeUShort(final OutputStream out, final int number) throws
+        IOException
     {
         out.write(getUShort(number));
     }
@@ -253,8 +253,8 @@ public final class LEBinaryTools
      * @see #getUByte(int)
      * @see #getUByte(ByteBlock, int)
      */
-    public static void writeUByte(final OutputStream out, final int number)
-        throws IOException
+    public static void writeUByte(final OutputStream out, final int number) throws
+        IOException
     {
         out.write(getUByte(number));
     }
@@ -273,10 +273,10 @@ public final class LEBinaryTools
     {
         return new byte[]
             {
-            (byte)((number) & 0xff),
-            (byte)((number >> 8) & 0xff),
-            (byte)((number >> 16) & 0xff),
-            (byte)((number >> 24) & 0xff)
+            (byte) ( (number) & 0xff),
+            (byte) ( (number >> 8) & 0xff),
+            (byte) ( (number >> 16) & 0xff),
+            (byte) ( (number >> 24) & 0xff)
         };
     }
 
@@ -294,8 +294,8 @@ public final class LEBinaryTools
     {
         return new byte[]
             {
-            (byte)(number & 0xff),
-            (byte)((number >> 8) & 0xff)
+            (byte) (number & 0xff),
+            (byte) ( (number >> 8) & 0xff)
         };
     }
 
@@ -312,6 +312,7 @@ public final class LEBinaryTools
     public static byte[] getUByte(final int number)
     {
         return new byte[]
-            {(byte)(number & 0xff)};
+            {
+            (byte) (number & 0xff)};
     }
 }

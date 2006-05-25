@@ -19,66 +19,64 @@ import net.kano.joscar.tlv.*;
  * @author Damian Minkov
  */
 public class BuddyAwaitingAuth
-	extends SsiItem
+    extends SsiItem
 {
     private static final Logger logger =
         Logger.getLogger(BuddyAwaitingAuth.class);
 
+    private static final int TYPE_LOCALLY_SPECIFIED_BUDDY_NAME = 0x0131;
+    private static final int TYPE_AWAITING_AUTHORIZATION = 0x0066;
 
-	private static final int TYPE_LOCALLY_SPECIFIED_BUDDY_NAME = 0x0131;
-	private static final int TYPE_AWAITING_AUTHORIZATION = 0x0066;
+    private SsiItem originalItem = null;
+    public BuddyAwaitingAuth(SsiItem originalItem)
+    {
+        super(
+            originalItem.getName(),
+            originalItem.getParentId(),
+            originalItem.getId(),
+            originalItem.getItemType(),
+            getSpecTlvData());
 
-	private SsiItem originalItem = null;
-	public BuddyAwaitingAuth(SsiItem originalItem)
-	{
-		super(
-			originalItem.getName(),
-			originalItem.getParentId(),
-			originalItem.getId(),
-			originalItem.getItemType(),
-			getSpecTlvData());
+        this.originalItem = originalItem;
+    }
 
-		this.originalItem = originalItem;
-	}
+    public void write(OutputStream out) throws IOException
+    {
+        byte[] namebytes = BinaryTools.getAsciiBytes(originalItem.getName());
+        BinaryTools.writeUShort(out, namebytes.length);
+        out.write(namebytes);
 
-	public void write(OutputStream out)
-		throws IOException
-	{
-		byte[] namebytes = BinaryTools.getAsciiBytes(originalItem.getName());
-		BinaryTools.writeUShort(out, namebytes.length);
-		out.write(namebytes);
+        BinaryTools.writeUShort(out, originalItem.getParentId());
+        BinaryTools.writeUShort(out, originalItem.getId());
+        BinaryTools.writeUShort(out, originalItem.getItemType());
 
-		BinaryTools.writeUShort(out, originalItem.getParentId());
-		BinaryTools.writeUShort(out, originalItem.getId());
-		BinaryTools.writeUShort(out, originalItem.getItemType());
+        ByteBlock data = getData();
+        // here we are nice and let data be null
+        int len = data == null ? 0 : data.getLength();
+        BinaryTools.writeUShort(out, len);
+        if (data != null)
+        {
+            data.write(out);
+        }
+    }
 
-		ByteBlock data = getData();
-		// here we are nice and let data be null
-		int len = data == null ? 0 : data.getLength();
-		BinaryTools.writeUShort(out, len);
-		if(data != null)
-		{
-			data.write(out);
-		}
-	}
-
-	private static ByteBlock getSpecTlvData()
-	{
-		try
-		{
-			ByteArrayOutputStream o = new ByteArrayOutputStream();
-//		    Tlv.getStringInstance(
+    private static ByteBlock getSpecTlvData()
+    {
+        try
+        {
+            ByteArrayOutputStream o = new ByteArrayOutputStream();
+//            Tlv.getStringInstance(
 //                TYPE_LOCALLY_SPECIFIED_BUDDY_NAME,
 //                "damencho").write(o);
-			new Tlv(TYPE_AWAITING_AUTHORIZATION).write(o);
+            new Tlv(TYPE_AWAITING_AUTHORIZATION).write(o);
 
-			ByteBlock block = ByteBlock.wrap(o.toByteArray());
-			return block;
-		}
-		catch(IOException ex)
-		{
-			logger.error("Error creating buddy awaiting auth tlv", ex);
-			return null;
-		}
-	}
+            ByteBlock block = ByteBlock.wrap(o.toByteArray());
+            return block;
+        }
+        catch (IOException ex)
+        {
+            logger.error("Error creating buddy awaiting auth tlv", ex);
+            return null;
+        }
+    }
 }

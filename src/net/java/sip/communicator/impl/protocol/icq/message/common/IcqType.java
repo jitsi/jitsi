@@ -11,79 +11,79 @@ package net.java.sip.communicator.impl.protocol.icq.message.common;
  */
 public class IcqType
 {
-	private final int primary;
-	private final int secondary;
+    private final int primary;
+    private final int secondary;
 
-	/**
-	 * Create an ICQ one-element subtype.
-	 *
-	 * @param primary the primary part of the subtype
-	 */
-	public IcqType(int primary)
-	{
-		this(primary, 0);
-	}
+    /**
+     * Create an ICQ one-element subtype.
+     *
+     * @param primary the primary part of the subtype
+     */
+    public IcqType(int primary)
+    {
+        this(primary, 0);
+    }
 
-	/**
-	 * Create an ICQ two-element subtype.
-	 *
-	 * @param primary the primary part of the subtype
-	 * @param secondary the secondary part of the subtype
-	 */
-	public IcqType(int primary, int secondary)
-	{
-		this.primary = primary;
-		this.secondary = secondary;
-	}
+    /**
+     * Create an ICQ two-element subtype.
+     *
+     * @param primary the primary part of the subtype
+     * @param secondary the secondary part of the subtype
+     */
+    public IcqType(int primary, int secondary)
+    {
+        this.primary = primary;
+        this.secondary = secondary;
+    }
 
-	/**
-	 * Returns the primary part of the subtype.
-	 *
-	 * @return the primary part of the subtype.
-	 */
-	public int getPrimary()
-	{
-		return primary;
-	}
+    /**
+     * Returns the primary part of the subtype.
+     *
+     * @return the primary part of the subtype.
+     */
+    public int getPrimary()
+    {
+        return primary;
+    }
 
-	/**
-	 * Returns the secondary part of the subtype, which may be missing.
-	 *
-	 * @return the secondary part of the subtype, or zero if it's not present.
-	 */
-	public int getSecondary()
-	{
-		return secondary;
-	}
+    /**
+     * Returns the secondary part of the subtype, which may be missing.
+     *
+     * @return the secondary part of the subtype, or zero if it's not present.
+     */
+    public int getSecondary()
+    {
+        return secondary;
+    }
 
-	public String toString()
-	{
-		if(0 != secondary)
-		{
-			return "(" + primary + ", " + secondary + ")";
-		}
-		else
-		{
-			return "(" + primary + ")";
-		}
-	}
+    public String toString()
+    {
+        if (0 != secondary)
+        {
+            return "(" + primary + ", " + secondary + ")";
+        }
+        else
+        {
+            return "(" + primary + ")";
+        }
+    }
 
-	public boolean equals(Object obj)
-	{
-		if(null == obj)
-		{
-			return false;
-		}
-		if(!(obj instanceof IcqType))
-		{
-			return false;
-		}
-		IcqType other = (IcqType)obj;
-		return primary == other.primary && secondary == other.secondary;
-	}
+    public boolean equals(Object obj)
+    {
+        if (null == obj)
+        {
+            return false;
+        }
+        if (! (obj instanceof IcqType))
+        {
+            return false;
+        }
+        IcqType other = (IcqType) obj;
+        return primary == other.primary && secondary == other.secondary;
+    }
 
-	public int hashCode()
-	{
-		return primary ^ (secondary << 16);
-	}
+    public int hashCode()
+    {
+        return primary ^ (secondary << 16);
+    }
 }

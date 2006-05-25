@@ -17,23 +17,22 @@ import net.kano.joscar.tlv.*;
  * @author Damian Minkov
  */
 public class SendOfflineIm
-	extends SendImIcbm
+    extends SendImIcbm
 {
-	/**
-	 * A TLV type present if this message must be offline delivered.
-	 */
-	private static final int TYPE_OFFLINE = 0x0006;
+    /**
+     * A TLV type present if this message must be offline delivered.
+     */
+    private static final int TYPE_OFFLINE = 0x0006;
 
-	public SendOfflineIm(String sn, String message)
-	{
-		super(sn, message);
-	}
+    public SendOfflineIm(String sn, String message)
+    {
+        super(sn, message);
+    }
 
-	protected void writeChannelData(OutputStream out)
-		throws IOException
-	{
-		super.writeChannelData(out);
-		new Tlv(TYPE_OFFLINE).write(out);
-	}
+    protected void writeChannelData(OutputStream out) throws IOException
+    {
+        super.writeChannelData(out);
+        new Tlv(TYPE_OFFLINE).write(out);
+    }
 
 }

@@ -18,6 +18,7 @@ import net.kano.joscar.snaccmd.*;
 import net.kano.joscar.snaccmd.icbm.*;
 import net.kano.joscar.snaccmd.ssi.*;
 import net.kano.joustsim.oscar.*;
+import net.kano.joustsim.Screenname;
 
 /**
  * Extending the normal messages factory as its not handling the channel 4
@@ -35,8 +36,7 @@ import net.kano.joustsim.oscar.*;
  * @author Damian Minkov
  */
 public class AuthCmdFactory
-    extends ClientIcbmCmdFactory
-    implements SnacResponseListener
+    extends ClientIcbmCmdFactory implements SnacResponseListener
 {
     private static final Logger logger =
         Logger.getLogger(AuthCmdFactory.class);
@@ -47,7 +47,7 @@ public class AuthCmdFactory
 
     private ProtocolProviderServiceIcqImpl icqProvider;
     private AuthorizationHandler authorizationHandler;
-    private OperationSetPresence operationSetPresence;
+    private OperationSetPersistentPresenceIcqImpl operationSetPresence;
     private AimConnection aimConnection = null;
 
     public AuthCmdFactory(ProtocolProviderServiceIcqImpl icqProvider,
@@ -65,7 +65,7 @@ public class AuthCmdFactory
         this.SUPPORTED_TYPES = DefensiveTools.getUnmodifiable(tempTypes);
 
         this.operationSetPresence =
-            (OperationSetPresence)
+            (OperationSetPersistentPresenceIcqImpl)
             icqProvider.getSupportedOperationSets().
             get(OperationSetPresence.class.getName());
     }
@@ -88,6 +88,17 @@ public class AuthCmdFactory
 
             int messageType = messageCommand.getMessageType();
 
+            String uin = String.valueOf(messageCommand.getSender());
+            Contact srcContact = operationSetPresence.findContactByID(uin);
+
+            // Contact my be not in the contact list
+            // as we added it as Volatile stopped the application
+            // and after that received authorization response
+            if(srcContact == null)
+                srcContact = operationSetPresence.createVolatileContact(
+                    new Screenname(uin));
+
+
             if (messageType == AuthOldMsgCmd.MTYPE_AUTHREQ)
             {
                 // this is a authorisation request with or without reason
@@ -97,27 +108,28 @@ public class AuthCmdFactory
                 AuthorizationResponse authResponse =
                     authorizationHandler.processAuthorisationRequest(
                         authRequest,
-                        operationSetPresence.findContactByID(String.valueOf(
-                            messageCommand.getSender()))
+                        srcContact
                     );
 
                 if (authResponse.getResponseCode() ==
                     AuthorizationResponse.ACCEPT)
                 {
                     aimConnection.getInfoService().sendSnac(
-                    new AuthReplyCmd(
-                        String.valueOf(icqProvider.getAccountID().getAccountUserID()),
-                        authResponse.getReason(),
-                        true));
+                        new AuthReplyCmd(
+                            String.valueOf(icqProvider.getAccountID().
+                                           getAccountUserID()),
+                            authResponse.getReason(),
+                            true));
                 }
                 else if (authResponse.getResponseCode() ==
                          AuthorizationResponse.REJECT)
                 {
                     aimConnection.getInfoService().sendSnac(
-                    new AuthReplyCmd(
-                        String.valueOf(icqProvider.getAccountID().getAccountUserID()),
-                        authResponse.getReason(),
-                        false));
+                        new AuthReplyCmd(
+                            String.valueOf(icqProvider.getAccountID().
+                                           getAccountUserID()),
+                            authResponse.getReason(),
+                            false));
                 }
                 // all other is ignored
             }
@@ -133,8 +145,7 @@ public class AuthCmdFactory
 
                 authorizationHandler.processAuthorizationResponse(
                     authResponse,
-                    operationSetPresence.findContactByID(String.valueOf(
-                            messageCommand.getSender())));
+                    srcContact);
             }
             else
             if (messageType == AuthOldMsgCmd.MTYPE_AUTHOK)
@@ -148,8 +159,7 @@ public class AuthCmdFactory
 
                 authorizationHandler.processAuthorizationResponse(
                     authResponse,
-                    operationSetPresence.findContactByID(String.valueOf(
-                            messageCommand.getSender())));
+                    srcContact);
             }
             else
             if (messageType == AuthOldMsgCmd.MTYPE_ADDED)
@@ -187,52 +197,70 @@ public class AuthCmdFactory
      */
     public void handleResponse(SnacResponseEvent snacResponseEvent)
     {
-        if(snacResponseEvent.getSnacCommand() instanceof SsiDataModResponse)
+        if (snacResponseEvent.getSnacCommand() instanceof SsiDataModResponse)
         {
             SsiDataModResponse dataModResponse =
-                (SsiDataModResponse)snacResponseEvent.getSnacCommand();
+                (SsiDataModResponse) snacResponseEvent.getSnacCommand();
 
             int[] results = dataModResponse.getResults();
-            List items = ((ItemsCmd)snacResponseEvent.getRequest().getCommand()).
+            List items = ( (ItemsCmd) snacResponseEvent.getRequest().getCommand()).
                 getItems();
+            items = new LinkedList(items);
 
-            for(int i = 0; i < results.length; i++)
+            for (int i = 0; i < results.length; i++)
             {
                 int result = results[i];
-                if(result ==
-                   SsiDataModResponse.RESULT_ICQ_AUTH_REQUIRED)
+                if (result ==
+                    SsiDataModResponse.RESULT_ICQ_AUTH_REQUIRED)
                 {
 
                     // authorisation required for user
-                    SsiItem buddyItem = (SsiItem)items.get(i);
+                    SsiItem buddyItem = (SsiItem) items.get(i);
 
                     String uinToAskForAuth = buddyItem.getName();
 
+                    logger.trace("finding buddy : " + uinToAskForAuth);
+                    Contact srcContact =
+//                        new VolatileBuddy();
+                        operationSetPresence.findContactByID(uinToAskForAuth);
                     AuthorizationRequest authRequest =
                         authorizationHandler.createAuthorizationRequest(
-                            operationSetPresence.findContactByID(uinToAskForAuth));
+                        srcContact);
 
-                    //SNAC(13,14)	  send future authorization grant to client
-                    aimConnection.getIcbmService().sendSnac(
-                        new AuthFutureCmd(
-                            uinToAskForAuth,
-                            authRequest.getReason()));
+                    if (authRequest != null)
+                    {
+                        //SNAC(13,14)     send future authorization grant to client
+                        aimConnection.getIcbmService().sendSnac(
+                            new AuthFutureCmd(
+                                uinToAskForAuth,
+                                authRequest.getReason()));
 
-                    //SNAC(13,18)	  send authorization request
-                    aimConnection.getIcbmService().sendSnac(
-                        new RequestAuthCmd(
-                            uinToAskForAuth,
-                            authRequest.getReason()));
+                        //SNAC(13,18)     send authorization request
+                        aimConnection.getIcbmService().sendSnac(
+                            new RequestAuthCmd(
+                                uinToAskForAuth,
+                                authRequest.getReason()));
 
-                    Vector buddiesToBeAdded = new Vector();
-                    BuddyAwaitingAuth newBuddy = new BuddyAwaitingAuth(buddyItem);
-                    items.add(newBuddy);
+                        Vector buddiesToBeAdded = new Vector();
 
-                    CreateItemsCmd addCMD = new CreateItemsCmd(buddiesToBeAdded);
+                        BuddyAwaitingAuth newBuddy = new BuddyAwaitingAuth(
+                            buddyItem);
+                        items.add(newBuddy);
 
-                    aimConnection.getIcbmService().sendSnac(addCMD);
+                        CreateItemsCmd addCMD = new CreateItemsCmd(
+                            buddiesToBeAdded);
 
-                    return;
+                        logger.trace("Adding buddy as awaiting authorization");
+                        aimConnection.getIcbmService().sendSnac(addCMD);
+
+                        return;
+                    }
+                    else
+                    {
+                        logger.trace(
+                            "AuthorizationRequest is NULL after calling " +
+                            "-> createAuthorizationRequest");
+                    }
                 }
             }
         }

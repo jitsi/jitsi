@@ -15,25 +15,25 @@ import net.kano.joscar.snaccmd.ssi.*;
  * @author Damian Minkov
  */
 public abstract class AbstractAuthCommand
-	extends SsiCommand
+    extends SsiCommand
 {
-	/** A command subtype for command used
-	 * to send future authorization grant to client you
-	 * just added to your contact list.
-	 * And client will be able to add you in its contact list later
-	 * without asking permissions.  */
-	public static final int CMD_AUTH_FUTURE = 0x0014;
+    /** A command subtype for command used
+     * to send future authorization grant to client you
+     * just added to your contact list.
+     * And client will be able to add you in its contact list later
+     * without asking permissions.  */
+    public static final int CMD_AUTH_FUTURE = 0x0014;
 
-	public static final int CMD_AUTH_FUTURE_GRANTED = 0x0015;
+    public static final int CMD_AUTH_FUTURE_GRANTED = 0x0015;
 
-	/** A command subtype.
-	 * Use this command to send authorization request. */
-	public static final int CMD_AUTH_REQUEST = 0x0018;
+    /** A command subtype.
+     * Use this command to send authorization request. */
+    public static final int CMD_AUTH_REQUEST = 0x0018;
 
-	public static final int CMD_AUTH_REPLY = 0x001a;
+    public static final int CMD_AUTH_REPLY = 0x001a;
 
-	protected AbstractAuthCommand(int command)
-	{
-		super(command);
-	}
+    protected AbstractAuthCommand(int command)
+    {
+        super(command);
+    }
 }

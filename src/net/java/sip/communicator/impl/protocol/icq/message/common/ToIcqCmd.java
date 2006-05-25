@@ -91,7 +91,6 @@ public class ToIcqCmd
         super(IcqCommand.CMD_TO_ICQ, uin, type, id, command);
     }
 
-    public void writeIcqData(OutputStream out)
-        throws IOException
+    public void writeIcqData(OutputStream out) throws IOException
     {}
 }
