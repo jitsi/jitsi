@@ -178,6 +178,10 @@ public class DOMElementWriter {
     /**
      * Escape &lt;, &gt; &amp; &apos;, &quot; as their entities and
      * drop characters that are illegal in XML documents.
+     *
+     * @param value the value to encode
+     *
+     * @return a String containing the encoded element.
      */
     public String encode(String value) {
         StringBuffer sb = new StringBuffer();
@@ -227,7 +231,10 @@ public class DOMElementWriter {
      * href="http://www.w3.org/TR/1998/REC-xml-19980210#charsets">http://www.w3.org/TR/1998/REC-xml-19980210#charsets</a> and
      * 2.7 <a
      * href="http://www.w3.org/TR/1998/REC-xml-19980210#sec-cdata-sect">http://www.w3.org/TR/1998/REC-xml-19980210#sec-cdata-sect</a>.</p>
-
+     *
+     * @param value the value to encode
+     *
+     * @return a String containing the encoded value.
      */
     public String encodedata(final String value) {
         StringBuffer sb = new StringBuffer();
@@ -254,6 +261,11 @@ public class DOMElementWriter {
 
     /**
      * Is the given argument a character or entity reference?
+     *
+     *
+     * @param ent the string whose nature we need to determine.
+     *
+     * @return true if ent is an entity reference and false otherwise.
      */
     public boolean isReference(String ent) {
         if (!(ent.charAt(0) == '&') || !ent.endsWith(";")) {
@@ -295,6 +307,10 @@ public class DOMElementWriter {
      * http://www.w3.org/TR/1998/REC-xml-19980210#charsets</a>.</p>
      *
      * @since 1.10, Ant 1.5
+     *
+     * @param c the character hose nature we'd like to determine.
+     *
+     * @return true if c is a legal character and false otherwise
      */
     public boolean isLegalCharacter(char c) {
         if (c == 0x9 || c == 0xA || c == 0xD) {

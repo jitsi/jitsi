@@ -97,7 +97,7 @@ public interface MetaContactGroup
      * the specified groupName and coming from the indicated ownerProvider.
      *
      * @param groupName the name of the contact group who we're looking for.
-     * @para ownerProvider a reference to the ProtocolProviderService that
+     * @param ownerProvider a reference to the ProtocolProviderService that
      * the contact we're looking for belongs to.
      * @return a reference to a <tt>ContactGroup</tt>, encapsulated by this
      * MetaContactGroup, carrying the specified name and originating from the
