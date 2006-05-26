@@ -193,7 +193,7 @@ public class MockContact
      * Makes the contact resolved or unresolved.
      *
      * @param resolved  true to make the contact resolved; false to
-     *		make it unresolved
+     *                  make it unresolved
      */
     public void setResolved(boolean resolved)
     {

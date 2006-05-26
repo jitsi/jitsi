@@ -37,7 +37,7 @@ public interface VetoableChangeListener
      * an empty implementation of the method.
      *
      * @param     evt a <tt>PropertyChangeEvent</tt> object describing the
-     *   	      event source and the property that has changed.
+     *                event source and the property that has changed.
      * @exception PropertyVetoException if the recipient wishes the property
      *              change to be rolled back.
      */

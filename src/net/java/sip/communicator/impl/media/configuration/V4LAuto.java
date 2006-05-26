@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  *
  * File based on:
- * @(#)V4LAuto.java	1.2 01/03/13
+ * @(#)V4LAuto.java 1.2 01/03/13
  * Copyright (c) 1999-2001 Sun Microsystems, Inc. All Rights Reserved.
  */
 package net.java.sip.communicator.impl.media.configuration;
@@ -21,9 +21,9 @@ import net.java.sip.communicator.util.Logger;
 import com.sun.media.protocol.v4l.V4LDeviceQuery;
 
 public class V4LAuto {
-    
+
     private static final Logger logger = Logger.getLogger(V4LAuto.class);
-    
+
     public V4LAuto() {
         Vector devices = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
         Enumeration enumeration = devices.elements();
@@ -33,13 +33,13 @@ public class V4LAuto {
             if (name.startsWith("v4l:"))
                 CaptureDeviceManager.removeDevice(cdi);
         }
-        
+
         autoDetect(0);
-//        for (int i = 0; i < 10; i++) {	    
+//        for (int i = 0; i < 10; i++) {
 //            autoDetect(i);
 //        }
     }
-    
+
     protected CaptureDeviceInfo autoDetect(int cardNo) {
         CaptureDeviceInfo cdi = null;
         try {
@@ -51,17 +51,17 @@ public class V4LAuto {
                     logger.info("Added device " + cdi);
                     CaptureDeviceManager.commit();
                 }
-                
+
             }
         } catch (Throwable t) {
             logger.error("Could not add device!", t);
             if (t instanceof ThreadDeath)
                 throw (ThreadDeath)t;
         }
-        
+
         return cdi;
     }
-    
+
     public static void main(String [] args) {
         V4LAuto a = new V4LAuto();
         System.exit(0);

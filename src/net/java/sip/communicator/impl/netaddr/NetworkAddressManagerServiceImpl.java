@@ -534,7 +534,7 @@ public class NetworkAddressManagerServiceImpl
     /**
      * This method gets called when a bound property is changed.
      * @param evt A PropertyChangeEvent object describing the event source
-     *   	and the property that has changed.
+     *            and the property that has changed.
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
@@ -555,8 +555,8 @@ public class NetworkAddressManagerServiceImpl
      * change. In case we don't like the new value we throw a
      * PropertyVetoException to prevent the actual change from happening.
      *
-     * @param     evt a <tt>PropertyChangeEvent</tt> object describing the
-     *   	      event source and the property that will change.
+     * @param evt a <tt>PropertyChangeEvent</tt> object describing the
+     *            event source and the property that will change.
      * @exception PropertyVetoException if we don't want the change to happen.
      */
     public void vetoableChange(PropertyChangeEvent evt) throws

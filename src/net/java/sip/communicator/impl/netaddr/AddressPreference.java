@@ -68,7 +68,7 @@ public class AddressPreference
      *
      * @param   o the Object to be compared.
      * @return  a negative integer, zero, or a positive integer as this object
-     *		is less than, equal to, or greater than the specified object.
+     *          is less than, equal to, or greater than the specified object.
      *
      * @throws ClassCastException if the specified object's type is not an
      * instance or a descendant of AddressPreference.

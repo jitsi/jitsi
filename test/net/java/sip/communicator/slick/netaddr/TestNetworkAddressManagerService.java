@@ -187,7 +187,7 @@ public class TestNetworkAddressManagerService extends TestCase {
     public void testBadIpAddressNoIPversionSpecified() throws Exception
     {
         initProperties();
-        //		set th original properties
+        //set the original properties
         //Integer valuePropertyPreferedIPVersion;
         String valuePropertyStunName="stun01.sipphone.com";
         Integer valuePropertyStunPort=new Integer(3478);
@@ -211,7 +211,7 @@ public class TestNetworkAddressManagerService extends TestCase {
     public void testBadIpAddressIPv4Specified() throws Exception
     {
         initProperties();
-        //		set th original properties
+        //set th original properties
         //Integer valuePropertyPreferedIPVersion;
         String valuePropertyStunName="stun01.sipphone.com";
         Integer valuePropertyStunPort=new Integer(3478);
@@ -234,7 +234,7 @@ public class TestNetworkAddressManagerService extends TestCase {
     public void testBadStun() throws Exception
     {
         initProperties();
-        //		set th original properties
+        //set the original properties
         //Integer valuePropertyPreferedIPVersion;
         String valuePropertyStunName="stun01.sipphone.com";
         Integer valuePropertyStunPort=new Integer(3478);
@@ -292,7 +292,7 @@ public class TestNetworkAddressManagerService extends TestCase {
 
             // test must crash if the localHost is an IPv6 Address
             if(serviceAdress instanceof Inet4Address)
-                assertTrue(foundInetAddr(	serviceAdress,
+                assertTrue(foundInetAddr(serviceAdress,
                                             propertyIpV6Pref.booleanValue()));
             else
                 assertTrue(false);
@@ -383,7 +383,7 @@ public class TestNetworkAddressManagerService extends TestCase {
                 assertTrue(false);
 
         }
-        catch (Exception e) {	}
+        catch (Exception e) {}
 
     }*/
 
@@ -435,8 +435,8 @@ public class TestNetworkAddressManagerService extends TestCase {
      *
      * @param serviceAdress : address to check
      * @param ipv6version : if true verifie if this address is an ipv6 belong
-     * 			to the local interface. if false, et do the same thing for
-     * 			IPv4 Addresses
+     * to the local interface. if false, et do the same thing for
+     * IPv4 Addresses
      * @return : true if it is an ipv4 address and if this addres belong to the
      *         local interface
      */
@@ -454,7 +454,7 @@ public class TestNetworkAddressManagerService extends TestCase {
                         InetAddress addr = (InetAddress) addrs.nextElement();
                         if (!addr.isLoopbackAddress()
                         && serviceAdress.equals(addr)
-                        && 	((!ipv6version && addr.getClass().equals(Inet4Address.class)
+                        && ((!ipv6version && addr.getClass().equals(Inet4Address.class)
                             ||
                             (ipv6version && addr.getClass().equals(Inet6Address.class)))))
                             return true;

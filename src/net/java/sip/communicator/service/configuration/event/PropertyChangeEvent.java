@@ -61,7 +61,7 @@ public class PropertyChangeEvent
      *
      * @param source  The bean that fired the event.
      * @param propertyName  The programmatic name of the property
-     *		that was changed.
+     *                      that was changed.
      * @param oldValue  The old value of the property.
      * @param newValue  The new value of the property.
      */
@@ -89,7 +89,7 @@ public class PropertyChangeEvent
      * Sets the new value for the property, expressed as an Object.
      *
      * @return  The new value for the property, expressed as an Object.
-     *		May be null if multiple properties have changed.
+     *          May be null if multiple properties have changed.
      */
     public Object getNewValue()
     {

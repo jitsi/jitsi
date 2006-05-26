@@ -29,7 +29,7 @@ public interface NetworkAddressManagerService
      * if stun is enabled - queries STUN server and saves returned address
      * Scans addresses for all network interfaces<br>
      *       if an address that matches the one returned by the STUN server is found - it is returned<br>
-     * 	     else<br>
+     *       else<br>
      *       if a non link local (starting with 172.16-31, 10, or 192.168) address is found it is returned<br>
      *       else<br>
      *       if a link local address is found it is returned<br>

@@ -81,17 +81,17 @@ public class IcqProtocolProviderSlick
         initializeTestedContactList();
 
 
-		//As Tested account is not registered here we send him a message.
-		//Message will be delivered offline
+        //As Tested account is not registered here we send him a message.
+        //Message will be delivered offline
         //receive test is in TestOperationSetBasicInstantMessaging.testReceiveOfflineMessages()
 //        String offlineMsgBody = "This is a Test Message. Supposed to be delivered as offline message!";
 //        IcqSlickFixture.offlineMsgCollector =
 //            new IcqSlickFixture.OfflineMsgCollector();
 //        IcqSlickFixture.offlineMsgCollector.setMessageText(offlineMsgBody);
-//		IcqSlickFixture.testerAgent.sendOfflineMessage(
-//			  System.getProperty(TESTED_IMPL_ACCOUNT_ID_PROP_NAME, null),
+//      IcqSlickFixture.testerAgent.sendOfflineMessage(
+//            System.getProperty(TESTED_IMPL_ACCOUNT_ID_PROP_NAME, null),
 //              offlineMsgBody
-//			);
+//          );
 
         //First test account installation so that the service that has been
         //installed by it gets tested by the rest of the tests.

@@ -244,7 +244,7 @@ public class ChangeEventDispatcher
      * No event is fired if old and new are equal and non-null.
      *
      * @param propertyName  The programmatic name of the property
-     *		that is about to change..
+     *                      that is about to change..
      * @param oldValue  The old value of the property.
      * @param newValue  The new value of the property.
      * @exception PropertyVetoException if the recipient wishes the property
@@ -324,7 +324,7 @@ public class ChangeEventDispatcher
      * No event is fired if old and new are equal and non-null.
      *
      * @param propertyName  The programmatic name of the property
-     *		that was changed.
+     *                      that was changed.
      * @param oldValue  The old value of the property.
      * @param newValue  The new value of the property.
      */

@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  *
  * File based on:
- * @(#)JMFInit.java	1.14 03/04/30
+ * @(#)JMFInit.java 1.14 03/04/30
  * Copyright (c) 1996-2002 Sun Microsystems, Inc.  All rights reserved.
  */
 package net.java.sip.communicator.impl.media.configuration;
@@ -89,7 +89,7 @@ public class JMFInit
             throw td;
         }
         catch (Throwable t) {
-        	logger.warn("DirectSound capturer detection failed!", t);
+            logger.warn("DirectSound capturer detection failed!", t);
         }
 
         Class jsauto = null;
@@ -123,14 +123,14 @@ public class JMFInit
 //                        "net.java.sip.communicator.impl.media.configuration.SunVideoAuto");
 //            }
 //            catch (Exception ee) {
-//            	logger.warn("SunVideoAuto capturer detection failed!", ee);
+//              logger.warn("SunVideoAuto capturer detection failed!", ee);
 //            }
 //            try {
 //                autoPlus = Class.forName(
 //                        "net.java.sip.communicator.impl.media.configuration.SunVideoPlusAuto");
 //            }
 //            catch (Exception ee) {
-//            	logger.warn("SunVideoPlusAuto capturer detection failed!", ee);
+//              logger.warn("SunVideoPlusAuto capturer detection failed!", ee);
 //            }
 //        }
         if (auto == null) {
@@ -139,7 +139,7 @@ public class JMFInit
                         "net.java.sip.communicator.impl.media.configuration.V4LAuto");
             }
             catch (Exception ee) {
-            	logger.warn("V4lAuto capturer detection failed!", ee);
+                logger.warn("V4lAuto capturer detection failed!", ee);
             }
         }
         try {
@@ -245,7 +245,7 @@ public class JMFInit
         catch (Throwable tt) {
         }
     }
-    
+
     /**
      * Runs JMFInit the first time the application is started so that capture
      * devices are properly detected and initialized by JMF.

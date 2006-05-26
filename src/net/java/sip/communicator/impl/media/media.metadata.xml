@@ -4,14 +4,14 @@
   <component class="net.java.sip.communicator.impl.media.MediaServiceImpl">
     <provides service="net.java.sip.communicator.service.media.MediaService"/>
 
-	<requires
-		service="net.java.sip.communicator.service.configuration.ConfigurationService"
-		filter=""
-		policy="static"
-		cardinality="1..1"
-		bind-method="setConfigurationService"
-		unbind-method="unsetConfigurationService"
-		/>
+    <requires
+        service="net.java.sip.communicator.service.configuration.ConfigurationService"
+        filter=""
+        policy="static"
+        cardinality="1..1"
+        bind-method="setConfigurationService"
+        unbind-method="unsetConfigurationService"
+        />
   </component>
-  
+
 </bundle>

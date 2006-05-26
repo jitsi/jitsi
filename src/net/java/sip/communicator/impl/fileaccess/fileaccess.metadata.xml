@@ -3,16 +3,16 @@
 <bundle>
   <component class="net.java.sip.communicator.impl.fileaccess.FileAccessServiceImpl">
     <provides service="net.java.sip.communicator.service.fileaccess.FileAccessService"/>
-    
+
     <!--
-    	One and only one reference to a configuration service is needed.
-    	If this service is stopped, the file access service is also uninstalled
+        One and only one reference to a configuration service is needed.
+        If this service is stopped, the file access service is also uninstalled
     -->
     <requires service="net.java.sip.communicator.service.configuration.ConfigurationService"
-    	filter="" 
-    	policy="static" 
-    	cardinality="1..1" 
-    	bind-method="setConfigurationService" 
-    	unbind-method="unsetConfigurationService" />
+        filter=""
+        policy="static"
+        cardinality="1..1"
+        bind-method="setConfigurationService"
+        unbind-method="unsetConfigurationService" />
   </component>
 </bundle>

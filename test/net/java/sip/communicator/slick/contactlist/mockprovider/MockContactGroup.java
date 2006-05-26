@@ -410,7 +410,7 @@ public class MockContactGroup
      * Makes the group resolved or unresolved.
      *
      * @param resolved  true to make the group resolved; false to
-     *		make it unresolved
+     *                  make it unresolved
      */
     public void setResolved(boolean resolved)
     {

@@ -174,20 +174,21 @@ public class OperationSetBasicInstantMessagingIcqImpl
     {
         assertConnected();
 
-		if(to.getPresenceStatus().isOnline())
-		{
-			ImConversation imConversation =
-				icqProvider.getAimConnection().getIcbmService().getImConversation(
-					new Screenname(to.getAddress()));
+        if (to.getPresenceStatus().isOnline())
+        {
+            ImConversation imConversation =
+                icqProvider.getAimConnection().getIcbmService().
+                getImConversation(
+                    new Screenname(to.getAddress()));
 
-			//do not add the conversation listener in here. we'll add it
-			//inside the icbm listener
+            //do not add the conversation listener in here. we'll add it
+            //inside the icbm listener
 
-			imConversation.sendMessage(new SimpleMessage(message.getContent()));
-		}
+            imConversation.sendMessage(new SimpleMessage(message.getContent()));
+        }
         else
-			icqProvider.getAimConnection().getIcbmService().
-				sendSnac(new SendOfflineIm(to.getAddress(), message.getContent()));
+            icqProvider.getAimConnection().getIcbmService().
+                sendSnac(new SendOfflineIm(to.getAddress(), message.getContent()));
 
         //temporarily and uglity fire the sent event here.
         /** @todo move elsewhaere */
@@ -199,93 +200,99 @@ public class OperationSetBasicInstantMessagingIcqImpl
 
     }
 
-	/**
-	 * Retreives all offline Messages If any.
-	 * Then delete them from the server.
-	 *
-	 * @param listener the <tt>MessageListener</tt> receiving the messages.
-	 */
-	private static int offlineMessageRequestID = 0;
-	private void retreiveOfflineMessages()
-	{
-		OfflineMsgRequest offlineMsgsReq = new OfflineMsgRequest();
-		int requestID = offlineMessageRequestID++;
-		SnacCommand cmd = new ToIcqCmd(
-				  Long.parseLong(
-					icqProvider.getAimSession().getScreenname().getNormal()),
-				  offlineMsgsReq.getType(),
-				  requestID,
-				  offlineMsgsReq);
+    /**
+     * Retreives all offline Messages If any.
+     * Then delete them from the server.
+     *
+     * @param listener the <tt>MessageListener</tt> receiving the messages.
+     */
+    private static int offlineMessageRequestID = 0;
+    private void retreiveOfflineMessages()
+    {
+        OfflineMsgRequest offlineMsgsReq = new OfflineMsgRequest();
+        int requestID = offlineMessageRequestID++;
+        SnacCommand cmd = new ToIcqCmd(
+            Long.parseLong(
+                icqProvider.getAimSession().getScreenname().getNormal()),
+            offlineMsgsReq.getType(),
+            requestID,
+            offlineMsgsReq);
 
-		OfflineMessagesRetriever responseRetriever =
-			new OfflineMessagesRetriever(requestID);
-		SnacRequest snReq = new SnacRequest(cmd, responseRetriever);
+        OfflineMessagesRetriever responseRetriever =
+            new OfflineMessagesRetriever(requestID);
+        SnacRequest snReq = new SnacRequest(cmd, responseRetriever);
 
-		icqProvider.getAimConnection().getInfoService().sendSnacRequest(snReq);
-	}
+        icqProvider.getAimConnection().getInfoService().sendSnacRequest(snReq);
+    }
 
-	private class OfflineMessagesRetriever
-		extends SnacRequestAdapter
-	{
-		private int requestID;
+    private class OfflineMessagesRetriever
+        extends SnacRequestAdapter
+    {
+        private int requestID;
 
-		public OfflineMessagesRetriever(int requestID)
-		{
-			this.requestID = requestID;
-		}
+        public OfflineMessagesRetriever(int requestID)
+        {
+            this.requestID = requestID;
+        }
 
-		public void handleResponse(SnacResponseEvent e)
-		{
-			SnacCommand snac = e.getSnacCommand();
-            logger.debug("Received a response to our offline message request: " + snac);
+        public void handleResponse(SnacResponseEvent e)
+        {
+            SnacCommand snac = e.getSnacCommand();
+            logger.debug("Received a response to our offline message request: " +
+                         snac);
 
-			if(snac instanceof OfflineMsgCmd)
-			{
-				OfflineMsgCmd offlineMsgCmd = (OfflineMsgCmd)snac;
-				if(!offlineMsgCmd.isEndOfOfflineMessages())
-				{
-					String contactUIN = String.valueOf(offlineMsgCmd.getUin());
-					Contact sourceContact =
-						opSetPersPresence.findContactByID(contactUIN);
-					if(sourceContact == null)
-					{
-						logger.debug("received a message from a unknown contact: "
-										   + contactUIN);
-						//create the volatile contact
-						sourceContact = opSetPersPresence
-										.createVolatileContact(new Screenname(contactUIN));
-					}
+            if (snac instanceof OfflineMsgCmd)
+            {
+                OfflineMsgCmd offlineMsgCmd = (OfflineMsgCmd) snac;
+                if (!offlineMsgCmd.isEndOfOfflineMessages())
+                {
+                    String contactUIN = String.valueOf(offlineMsgCmd.getUin());
+                    Contact sourceContact =
+                        opSetPersPresence.findContactByID(contactUIN);
+                    if (sourceContact == null)
+                    {
+                        logger.debug(
+                            "received a message from a unknown contact: "
+                            + contactUIN);
+                        //create the volatile contact
+                        sourceContact = opSetPersPresence
+                            .createVolatileContact(new Screenname(contactUIN));
+                    }
 
-					MessageReceivedEvent msgReceivedEvt
-						= new MessageReceivedEvent(
-											  createMessage(offlineMsgCmd.getContents()),
-											  sourceContact,
-											  offlineMsgCmd.getDate());
-					logger.debug("fire msg received for : " + offlineMsgCmd.getContents());
-					fireMessageEvent(msgReceivedEvt);
-				}
-				else
-				{
-					logger.debug("send ack to delete offline messages");
+                    MessageReceivedEvent msgReceivedEvt
+                        = new MessageReceivedEvent(
+                            createMessage(offlineMsgCmd.getContents()),
+                            sourceContact,
+                            offlineMsgCmd.getDate());
+                    logger.debug("fire msg received for : " +
+                                 offlineMsgCmd.getContents());
+                    fireMessageEvent(msgReceivedEvt);
+                }
+                else
+                {
+                    logger.debug("send ack to delete offline messages");
 
-					OfflineMsgDeleteRequest offlineMsgDeleteReq = new OfflineMsgDeleteRequest();
-					SnacCommand cmd = new ToIcqCmd(
-						Long.parseLong(
-							icqProvider.getAimSession().getScreenname().getNormal()),
-							offlineMsgDeleteReq.getType(),
-							requestID,
-							offlineMsgDeleteReq);
+                    OfflineMsgDeleteRequest offlineMsgDeleteReq = new
+                        OfflineMsgDeleteRequest();
+                    SnacCommand cmd = new ToIcqCmd(
+                        Long.parseLong(
+                            icqProvider.getAimSession().getScreenname().
+                            getNormal()),
+                        offlineMsgDeleteReq.getType(),
+                        requestID,
+                        offlineMsgDeleteReq);
 
-					icqProvider.getAimConnection().getInfoService().sendSnac(cmd);
-				}
-			}
-			else
-				if( snac instanceof SnacError)
-				{
-					logger.debug("error receiving offline messages");
-				}
-		}
-	}
+                    icqProvider.getAimConnection().getInfoService().sendSnac(
+                        cmd);
+                }
+            }
+            else
+            if (snac instanceof SnacError)
+            {
+                logger.debug("error receiving offline messages");
+            }
+        }
+    }
 
 
     /**
@@ -335,7 +342,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                     icqProvider.getSupportedOperationSets()
                         .get(OperationSetPersistentPresence.class.getName());
 
-				retreiveOfflineMessages();
+                retreiveOfflineMessages();
             }
         }
     }

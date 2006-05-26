@@ -11,7 +11,7 @@ import net.java.stun4j.stack.*;
  *
  * ApplicationThread:
  *     sendMessage()
- * 	   wait();
+ *    wait();
  *
  * StackThread:
  *     processMessage/Timeout()

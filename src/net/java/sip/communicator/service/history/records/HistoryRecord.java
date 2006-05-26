@@ -74,7 +74,7 @@ public class HistoryRecord
         // TODO: Validate: Assert.assertNonNull(timestamp, "The timestamp should be non-null.");
 
         // TODO: Validate Assert.assertTrue(propertyNames.length == propertyValues.length,
-        //		"The length of the property names and property values should be equal.");
+        //"The length of the property names and property values should be equal.");
 
         this.propertyNames = propertyNames;
         this.propertyValues = propertyValues;
