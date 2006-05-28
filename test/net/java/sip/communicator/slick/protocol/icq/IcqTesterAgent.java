@@ -1002,25 +1002,6 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         Thread.sleep(1000);
         icqtests.conn.getSsiService()
             .getBuddyList().addRetroactiveLayoutListener(icqtests.rl);
-        bos.addMainBosServiceListener(new MainBosServiceListener(){
-            public void handleYourExtraInfo(List extraInfos)
-        {
-            System.out.println("Bosiat.extrainfo=" + extraInfos);
-        }
-
-        /**
-         * Saves the full user info and calls a notifyAll on the infoLock
-         * @param service the source bos service
-         * @param userInfo the FullUserInfo as received from the aim server.
-         */
-        public void handleYourInfo(MainBosService service,
-                                   FullUserInfo userInfo)
-        {
-            System.out.println("Bosiat.yourinfo=" + userInfo);
-        }
-
-        });
-
         Thread.sleep(1000);
         System.out.println("\n\nr u ready?");
         Thread.sleep(3000);
@@ -1029,130 +1010,62 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
 
 
 
-//        icqtests.conn.disconnect();
-//        System.out.println("disconnected");
-//        Thread.sleep(4000);
-//        icqtests.conn.connect();
-//        System.out.println("connected");
-//        Thread.sleep(4000);
+        MutableBuddyList list = icqtests.conn.getSsiService().getBuddyList();
 
-//
-//        icqtests.enterStatus(FullUserInfo.ICQSTATUS_DND);
+        MutableGroup dupeGroup = null;
+        MutableGroup grpGroup = null;
+        Buddy buddyToMove = null;
 
-//        Thread.sleep(4000);
+        List groups = list.getGroups();
+        Iterator groupsIter = groups.iterator();
+        while(groupsIter.hasNext())
+        {
+            MutableGroup group = (MutableGroup)groupsIter.next();
+            if (group.getName().equals("dupe"))
+                dupeGroup = group;
+            if (group.getName().equals("grp"))
+                grpGroup = group;
+            List buddies = group.getBuddiesCopy();
+            System.out.println("Printing buddies for group " + group.getName());
+            Thread.sleep(1000);
+            for (int i = 0; i < buddies.size(); i++)
+            {
+                Buddy buddy = (Buddy) buddies.get(i);
+                System.out.println(buddy.getScreenname());
+                if (buddy.getScreenname().getFormatted().equals("201345337"))
+                    buddyToMove = buddy;
+            }
+        }
 
-//        icqtests.enterStatus(FullUserInfo.ICQSTATUS_NA);
+        System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();
+        System.out.println("will move buddyyyyyyyyyy");
+        Thread.sleep(5000);
+        List listToMove = new ArrayList();
+        listToMove.add(buddyToMove);
+        list.moveBuddies(listToMove, grpGroup);
+        System.out.println("MOved i sega triabva da doidat eventi ");
+        Thread.sleep(50000);
 
-//        icqtests.conn.getBuddyInfoManager().addGlobalBuddyInfoListener(null);
-//        icqtests.conn.getBuddyInfoTracker().addTracker(new Screenname("19312124"), new BuddyInfoTrackerListener(){});
-//        System.out.println("sega shte go dobavim");
-//
-//        MutableGroup group = (MutableGroup)icqtests.conn.getSsiService().getBuddyList().getGroups().get(0);
-//        MutableBuddyList list = icqtests.conn.getSsiService().getBuddyList();
-//
-//        list.addGroup("MyNewGrp"+System.currentTimeMillis());
-//        System.out.println("created group.");
-//        Thread.sleep(5000);
-//        System.out.println("will rename.");
-//        MutableGroup grp  =(MutableGroup)list.getGroups().get(0);
-//        System.out.println("grp.oldname="+ grp.getName());
-//        grp.addGroupListener(new GroupListener(){
-//            public void groupNameChanged(Group group, String oldName,
-//                                         String newName)
-//            {
-//                System.out.println("hihihi group.getname="+ group.getName());
-//                System.out.println("hihihi oldname="+ oldName);
-//                System.out.println("hihihi new name="+ newName);
-//
-//            }
-//
-//        });
-//        grp.rename("dupe22");
-//        System.out.println("done");
-//        Thread.sleep(50000);
+        //find the buddy again.
+        Buddy movedBuddy = null;
+        groupsIter = list.getGroups().iterator();
+        while(groupsIter.hasNext())
+        {
+            MutableGroup group = (MutableGroup)groupsIter.next();
+            List buddies = group.getBuddiesCopy();
+            for (int i = 0; i < buddies.size(); i++)
+            {
+                Buddy buddy = (Buddy) buddies.get(i);
+                if (buddy.getScreenname().getFormatted().equals("201345337"))
+                    movedBuddy = buddy;
+            }
+        }
 
-//        List buddies = group.getBuddiesCopy();
-//        System.out.println("Will try to remove");
-//        Thread.sleep(1000);
-//        for (int i = 0; i < buddies.size(); i++)
-//        {
-//            Buddy buddy = (Buddy)buddies.get(i);
-//            if(buddy.getScreenname().getFormatted().equals("38687470")){
-//                System.out.println("found buddy");
-//                group.deleteBuddy(buddy);
-//                System.out.println("removed");
-//                Thread.sleep(2000);
-//                break;
-//            }
-//
-//        }
-//        System.out.println("will add buddy in 5");
-//        Thread.sleep(5000);
-//
-//        group.addBuddy("38687470");
-//
-//        Thread.sleep(1500);
-//        System.out.println("will add buddy one more time in 5");
-//        Thread.sleep(5000);
-//
-//        group.addBuddy("38687470");
-
-        //my current away message.
-//        System.out.println(
-//            "icqtests.conn.getInfoService().getCurrentAwayMessage()="
-//            + icqtests.conn.getInfoService().getCurrentAwayMessage());
+        if (buddyToMove == movedBuddy)
+            System.out.println("hahaha");
 
 
 
-
-        //request away message.
-//        Thread.sleep(1000);
-//        System.out.println("Requesting away message");
-//        icqtests.conn.getInfoService()
-//            .requestAwayMessage(new Screenname("319305099"),
-//                                new InfoRespListener());
-//
-//                Thread.sleep(1000);
-//        System.out.println("Requesting directory info");
-//        icqtests.conn.getInfoService()
-//            .requestDirectoryInfo(new Screenname("319305099"));
-//
-//        Thread.sleep(3000);
-//        System.out.println("Requesting buddy info");
-//        //get away message
-//        BuddyInfo binfo
-//            = icqtests.conn.getBuddyInfoManager()
-//                .getBuddyInfo(new Screenname("319305099"));
-//
-//        System.out.println("binfo.getAwayMessage()=" + binfo.getAwayMessage());;
-//        System.out.println("binfo.getDirectoryInfo()=" + binfo.getDirectoryInfo());
-//        System.out.println("binfo.getStatusMessage()=" + binfo.getStatusMessage());
-//        System.out.println("binfo.getScreenname()=" + binfo.getScreenname());
-//        System.out.println("binfo.getUserProfile()=" + binfo.getUserProfile());
-//
-//        //get status in loop
-//
-//        System.out.println("request status loop");
-//
-//        while(true){
-//            System.out.println("REQUESTING STATUS FOR BUDDY " + "38687470");
-//            icqtests.getBuddyStatus("38687470");
-//            Thread.sleep(5000);
-//        }
-
-    //first init the guy that'll tell us that it's ok.
-//        BosEventNotifier bosEventNotifier = new BosEventNotifier();
-//        icqtests.conn.getBosService().addMainBosServiceListener(bosEventNotifier);
-//
-//        //do the state switch
-//        GetInfoCmd getInfoCmd =
-//            new GetInfoCmd(GetInfoCmd.CMD_NEW_GET_INFO | GetInfoCmd.FLAG_AWAYMSG | GetInfoCmd.FLAG_INFO,
-//                           new Screenname("319305099").getFormatted());
-//
-//        icqtests.conn.getBosService().sendSnacRequest(getInfoCmd, new StatusResponseRetriever() );
-
-//        System.out.println("group.toString()=" + group.toString());
-        //icqtests.conn.getBosService().
 
     }
 
