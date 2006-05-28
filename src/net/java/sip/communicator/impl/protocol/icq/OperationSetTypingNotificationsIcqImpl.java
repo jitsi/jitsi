@@ -285,7 +285,8 @@ public class OperationSetTypingNotificationsIcqImpl
                              "buddy=" + conversation.getBuddy());
                 //create the volatile contact
                 sourceContact = opSetPersPresence
-                                .createVolatileContact(conversation.getBuddy());
+                    .createVolatileContact(
+                        conversation.getBuddy().getFormatted());
             }
 
             fireTypingNotificationsEvent(

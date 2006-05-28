@@ -95,8 +95,7 @@ public class AuthCmdFactory
             // as we added it as Volatile stopped the application
             // and after that received authorization response
             if(srcContact == null)
-                srcContact = operationSetPresence.createVolatileContact(
-                    new Screenname(uin));
+                srcContact = operationSetPresence.createVolatileContact(uin);
 
 
             if (messageType == AuthOldMsgCmd.MTYPE_AUTHREQ)

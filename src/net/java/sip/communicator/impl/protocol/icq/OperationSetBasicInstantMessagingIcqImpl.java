@@ -256,7 +256,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                             + contactUIN);
                         //create the volatile contact
                         sourceContact = opSetPersPresence
-                            .createVolatileContact(new Screenname(contactUIN));
+                            .createVolatileContact(contactUIN);
                     }
 
                     MessageReceivedEvent msgReceivedEvt
@@ -445,7 +445,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
                                    + conversation.getBuddy());
                 //create the volatile contact
                 sourceContact = opSetPersPresence
-                                .createVolatileContact(conversation.getBuddy());
+                    .createVolatileContact(
+                        conversation.getBuddy().getFormatted());
 
             }
 
