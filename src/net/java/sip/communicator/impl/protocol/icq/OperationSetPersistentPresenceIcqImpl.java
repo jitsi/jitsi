@@ -391,13 +391,15 @@ public class OperationSetPersistentPresenceIcqImpl
     /**
      * Creates a non persistent contact for the specified address. This would
      * also create (if necessary) a group for volatile contacts that would not
-     * be added to the server stored contact list.
-     * @param screenname the UIN/Screenname of the contact to create.
+     * be added to the server stored contact list. The volatile contact would
+     * remain in the list until it is really added to the contact list or
+     * until the application is terminated.
+     * @param uin the UIN/Screenname of the contact to create.
      * @return the newly created volatile <tt>ContactIcqImpl</tt>
      */
-    public ContactIcqImpl createVolatileContact(Screenname screenname)
+    public ContactIcqImpl createVolatileContact(String uin)
     {
-        return ssContactList.createVolatileContact(screenname);
+        return ssContactList.createVolatileContact(new Screenname(uin));
     }
 
     /**
@@ -1046,6 +1048,40 @@ public class OperationSetPersistentPresenceIcqImpl
             }
         }
     }
+
+    /**
+     * Notify all subscription listeners of the corresponding event.
+     *
+     * @param sourceContact the ContactIcqImpl instance that this event is
+     * pertaining to.
+     * @param oldParentGroup the group that was previously a parent of the
+     * source contact.
+     * @param newParentGroup the group under which the corresponding
+     * subscription is currently located.
+     */
+    void fireSubscriptionMovedEvent( ContactIcqImpl sourceContact,
+                                     ContactGroupIcqImpl oldParentGroup,
+                                     ContactGroupIcqImpl newParentGroup)
+    {
+        SubscriptionMovedEvent evt =
+            new SubscriptionMovedEvent(sourceContact, icqProvider
+                                       , oldParentGroup, newParentGroup);
+
+        logger.debug("Dispatching a Subscription Event to"
+                     +subscriptionListeners.size() + " listeners. Evt="+evt);
+
+        synchronized(subscriptionListeners){
+            Iterator listeners = subscriptionListeners.iterator();
+
+            while (listeners.hasNext())
+            {
+                SubscriptionListener listener =
+                    (SubscriptionListener) listeners.next();
+                listener.subscriptionMoved(evt);
+            }
+        }
+    }
+
 
     /**
      * Notify all contact presence listeners of the corresponding event change
