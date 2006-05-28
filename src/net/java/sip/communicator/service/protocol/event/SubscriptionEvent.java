@@ -66,7 +66,7 @@ public class SubscriptionEvent
         this.eventID = eventID;
     }
 
-/**
+    /**
      * Returns the provider that the source contact belongs to.
      * @return the provider that the source contact belongs to.
      */
@@ -99,8 +99,7 @@ public class SubscriptionEvent
     /**
      * Returns a String representation of this ContactPresenceStatusChangeEvent
      *
-     * @return  A a String representation of this
-     * ContactPresenceStatusChangeEvent.
+     * @return  A a String representation of this <tt>SubscriptionEvent</tt>.
      */
     public String toString()
     {
