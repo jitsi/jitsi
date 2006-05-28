@@ -45,4 +45,15 @@ public interface SubscriptionListener
      * @param evt the SubscriptionEvent containing the corresponding contact
      */
     public void subscriptionRemoved(SubscriptionEvent evt);
+
+    /**
+     * Indicates that a contact/subscription has been moved from one server
+     * stored group to another. The method would only be called by
+     * implementations of OperationSetPersistentPresence as non persistent
+     * presence operation sets do not support the notion of server stored groups.
+     *
+     * @param evt a reference to the SubscriptionMovedEvent containing previous
+     * and new parents as well as a ref to the source contact.
+     */
+    public void subscriptionMoved(SubscriptionMovedEvent evt);
 }
