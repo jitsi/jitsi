@@ -1511,8 +1511,7 @@ public class MetaContactListServiceImpl
      * <tt>SubscriptionListener</tt>s.
      */
     private class ContactListSubscriptionListener
-        implements
-        SubscriptionListener
+        implements SubscriptionListener
     {
 
         /**
@@ -1527,10 +1526,10 @@ public class MetaContactListServiceImpl
         {
             logger.trace("Subscription created: " + evt);
 
-            //ignore the event if the source group is in the ignore list
+            //ignore the event if the source contact is in the ignore list
             if (isContactInEventIgnoreList(
-                evt.getSourceContact().getAddress()
-                , evt.getSourceProvider()))
+                      evt.getSourceContact().getAddress()
+                    , evt.getSourceProvider()))
             {
                 return;
             }
@@ -1541,7 +1540,7 @@ public class MetaContactListServiceImpl
             if (parentGroup == null)
             {
                 logger.error("Received a subscription for a group that we "
-                             + "hadn't seen before! " + evt);
+                             + "hadn't seen before! ");
                 return;
             }
 
@@ -1558,6 +1557,95 @@ public class MetaContactListServiceImpl
             fireMetaContactEvent(newMetaContact,
                                  parentGroup,
                                  MetaContactEvent.META_CONTACT_ADDED);
+        }
+
+        /**
+         * Indicates that a contact/subscription has been moved from one server
+         * stored group to another. The way we handle the event depends on
+         * whether the source contact/subscription is the only proto contact
+         * found in its current MetaContact encapsulator or not.
+         * <p>
+         * If this is the case (the source contact has no siblings in its current
+         * meta contact list encapsulator) then we will move the whole meta
+         * contact to the meta contact group corresponding to the new parent
+         * ContactGroup of the source contact. In this case we would only fire
+         * a MetaContactMovedEvent containing the old and new parents of the
+         * MetaContact in question.
+         * <p>
+         * If, however, the MetaContact that currently encapsulates the source
+         * contact also encapsulates other proto contacts, then we will create
+         * a new MetaContact instance, place it in the MetaContactGroup
+         * corresponding to the new parent ContactGroup of the source contact
+         * and add the source contact inside it. In this case we would first
+         * fire a metacontact added event over the empty meta contact and then,
+         * once the proto contact has been moved inside it, we would also fire
+         * a ProtoContactEvent with event id PROTO_CONTACT_MOVED.
+         * <p>
+         * @param evt a reference to the SubscriptionMovedEvent containing previous
+         * and new parents as well as a ref to the source contact.
+         */
+        public void subscriptionMoved(SubscriptionMovedEvent evt)
+        {
+            logger.trace("Subscription moved: " + evt);
+
+            //ignore the event if the source contact is in the ignore list
+            if (isContactInEventIgnoreList(
+                     evt.getSourceContact().getAddress()
+                   , evt.getSourceProvider()))
+            {
+                return;
+            }
+
+
+            MetaContactGroupImpl oldParentGroup = (MetaContactGroupImpl)
+                findMetaContactGroupByContactGroup(evt.getOldParentGroup());
+            MetaContactGroupImpl newParentGroup = (MetaContactGroupImpl)
+                findMetaContactGroupByContactGroup(evt.getNewParentGroup());
+
+            if (newParentGroup == null || oldParentGroup == null)
+            {
+                logger.error("Received a subscription for a group that we "
+                             + "hadn't seen before! ");
+                return;
+            }
+
+            MetaContactImpl currentMetaContact = (MetaContactImpl)
+                findMetaContactByContact(evt.getSourceContact());
+
+            //if the meta contact does not have other children apart from the
+            //contact that we're currently moving then move the whole meta
+            //contact to the new parent group.
+            if( currentMetaContact.getContactCount() == 1 )
+            {
+                oldParentGroup.removeMetaContact(currentMetaContact);
+                newParentGroup.addMetaContact(currentMetaContact);
+                fireMetaContactEvent(new MetaContactMovedEvent(
+                    currentMetaContact, oldParentGroup, newParentGroup));
+            }
+            //if the source contact is not the only contact encapsulated by the
+            //currentMetaContact, then create a new meta contact in the new
+            //parent group and move the source contact to it.
+            else
+            {
+                MetaContactImpl newMetaContact = new MetaContactImpl();
+                newMetaContact.setDisplayName(evt
+                                          .getSourceContact().getDisplayName());
+                newParentGroup.addMetaContact(newMetaContact);
+
+                //fire an event notifying that a new meta contact was added.
+                fireMetaContactEvent(newMetaContact,
+                                     newParentGroup,
+                                     MetaContactEvent.META_CONTACT_ADDED);
+
+                //move the proto contact and fire the corresponding event
+                currentMetaContact.removeProtoContact(evt.getSourceContact());
+                newMetaContact.addProtoContact(evt.getSourceContact());
+
+                fireProtoContactEvent(evt.getSourceContact()
+                                      , ProtoContactEvent.PROTO_CONTACT_MOVED
+                                      , currentMetaContact
+                                      , newMetaContact);
+            }
         }
 
         public void subscriptionFailed(SubscriptionEvent evt)
@@ -2249,17 +2337,24 @@ public class MetaContactListServiceImpl
         }
 
         /**
-         * Evens delivered through this method are ignored
+         * Events delivered through this method are ignored
          * @param evt param ignored
          */
         public void subscriptionRemoved(SubscriptionEvent evt)
         {}
 
         /**
-         * Evens delivered through this method are ignored
+         * Events delivered through this method are ignored
          * @param evt param ignored
          */
         public void subscriptionFailed(SubscriptionEvent evt)
+        {}
+
+        /**
+         * Events delivered through this method are ignored
+         * @param evt param ignored
+         */
+        public void subscriptionMoved(SubscriptionMovedEvent evt)
         {}
 
         /**
