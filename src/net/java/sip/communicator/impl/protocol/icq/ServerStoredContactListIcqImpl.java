@@ -198,6 +198,32 @@ public class ServerStoredContactListIcqImpl
     }
 
     /**
+     * Make the parent persistent presence operation set dispatch a subscription
+     * moved event.
+     * @param oldParentGroup the group where the source contact was located
+     * before being moved
+     * @param newParentGroup the group that the source contact is currently in.
+     * @param contact the contact that was added
+     * @param index the index at which it was added.
+     */
+    private void fireContactMoved( ContactGroupIcqImpl oldParentGroup,
+                                   ContactGroupIcqImpl newParentGroup,
+                                   ContactIcqImpl contact,
+                                   int index)
+    {
+        //bail out if no one's listening
+        if(parentOperationSet == null){
+            logger.debug("No presence op. set available. Bailing out.");
+            return;
+        }
+
+        //dispatch
+        parentOperationSet.fireSubscriptionMovedEvent(
+            contact, oldParentGroup, newParentGroup);
+    }
+
+
+    /**
      * Make the parent persistent presence operation set dispatch a contact
      * removed event.
      * @param parentGroup the group where that the removed contact belonged to.
@@ -398,12 +424,13 @@ public class ServerStoredContactListIcqImpl
         logger.trace("Addint contact " + screenname
                      + " to parent=" + parent.getGroupName());
 
-        //if the contact is already in the contact list, only broadcast an event
+        //if the contact is already in the contact list and is not volatile,
+        //then only broadcast an event
         final ContactIcqImpl existingContact
             = findContactByScreenName(screenname);
 
-        //if the contact already exists - just issue an event.
-        if( existingContact != null)
+        if( existingContact != null
+            && existingContact.isPersistent() )
         {
             logger.debug("Contact " + screenname + " already exists. Gen. evt.");
             //broadcast the event in a separate thread so that we don't
@@ -612,8 +639,28 @@ public class ServerStoredContactListIcqImpl
         public void buddyAdded(BuddyList list, Group joustSimGroup, List oldItems,
                                List newItems, Buddy buddy)
         {
-            ContactIcqImpl newContact = new ContactIcqImpl(
+            //it is possible that the buddy being added is already in our
+            //contact list. For example if they have sent a message to us they
+            //would have been added to the local contact list as a
+            //volatile/non-persistent contact without being added to the server
+            //stored contact list. if this is the case make sure we keep the
+            //same contact instance and issue a contact moved event instead of
+            //a contact added event.
+            ContactGroupIcqImpl oldParentGroup = null;
+            ContactIcqImpl newContact
+                = findContactByScreenName(buddy.getScreenname().getFormatted());
+
+            if(newContact == null)
+            {
+                newContact = new ContactIcqImpl(
                     buddy, ServerStoredContactListIcqImpl.this, true);
+            }
+            else
+            {
+                oldParentGroup = findContactGroup(newContact);
+                newContact.setJoustSimBuddy(buddy);
+                newContact.setPersistent(true);
+            }
             ContactGroupIcqImpl parentGroup = findContactGroup(joustSimGroup);
 
             if (parentGroup == null)
@@ -644,7 +691,6 @@ public class ServerStoredContactListIcqImpl
             {
                 for (; buddyIndex >= 0; buddyIndex--)
                 {
-
                     int prevContactIndex = parentGroup.findContactIndex(
                             (Buddy) newItems.get(buddyIndex));
 
@@ -660,12 +706,19 @@ public class ServerStoredContactListIcqImpl
             buddy.addBuddyListener(jsimBuddyListener);
 
             //tell listeners about the added group
-            fireContactAdded(parentGroup, newContact, insertPos);
+            if(oldParentGroup == null)
+            {
+                fireContactAdded(parentGroup, newContact, insertPos);
+            }
+            else
+            {
+                fireContactMoved(oldParentGroup, parentGroup
+                                 , newContact, insertPos);
+            }
         }
 
         /**
-
-b         * Called by joust sim when a buddy is removed
+         * Called by joust sim when a buddy is removed
          *
          * @param list the <tt>BuddyList</tt> containing the buddy
          * @param group the joust sim group that the buddy is removed from.
