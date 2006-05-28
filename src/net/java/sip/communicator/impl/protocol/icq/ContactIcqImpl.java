@@ -124,6 +124,18 @@ public class ContactIcqImpl
     }
 
     /**
+     * Changes the buddy encapsulated by this method to be <tt>newBuddy</tt>.
+     * This method is to be used _only_ when converting a non-persistent buddy
+     * into a normal one.
+     * @param newBuddy the new <tt>Buddy</tt> reference that this contact will
+     * encapsulate.
+     */
+    void setJoustSimBuddy(Buddy newBuddy)
+    {
+        this.joustSimBuddy = newBuddy;
+    }
+
+    /**
      * Sets the status that this contact is currently in. The method is to
      * only be called as a result of a status update received from the AIM
      * server.
@@ -202,6 +214,19 @@ public class ContactIcqImpl
     public boolean isPersistent()
     {
         return isPersistent;
+    }
+
+    /**
+     * Specifies whether this contact is to be considered persistent or not. The
+     * method is to be used _only_ when a non-persistent contact has been added
+     * to the contact list and its encapsulated VolatileBuddy has been repalced
+     * with a standard joustsim buddy.
+     * @param persistent true if the buddy is to be considered persistent and
+     * false for volatile.
+     */
+    void setPersistent(boolean persistent)
+    {
+        this.isPersistent = persistent;
     }
 
     /**
