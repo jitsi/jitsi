@@ -16,6 +16,7 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * Before being able to use this service calles would have to make sure that
  * it is initialized (i.e. consult the isInitialized() method).
+ *
  * @author Emil Ivov
  * @author Martin Andre
  */
@@ -50,14 +51,14 @@ public interface MediaService
      * @return a String containing an SDP answer.
      */
     public String generateSdpAnswer(CallParticipant callParticipant);
-    
+
     /**
      * Adds a listener that will be listening for incoming media and changes
      * in the state of the media listener
      * @param listener the listener to register
      */
     public void addMediaListener(MediaListener listener);
-    
+
     /**
      * Removes a listener that was listening for incoming media and changes
      * in the state of the media listener
