@@ -478,7 +478,7 @@ public class TestOperationSetBasicInstantMessaging
     /**
      * Tests whether there is a offline message received
      * and whether is the one we have send
-     */
+
     public void testReceiveOfflineMessages()
     {
         String messageText =
@@ -489,5 +489,5 @@ public class TestOperationSetBasicInstantMessaging
         assertNotNull("No Offline messages have been received", receiveMessage);
         assertEquals("message body", messageText, receiveMessage.getContent());
     }
-
+*/
 }
