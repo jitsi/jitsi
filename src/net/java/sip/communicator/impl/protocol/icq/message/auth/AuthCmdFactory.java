@@ -91,12 +91,11 @@ public class AuthCmdFactory
             String uin = String.valueOf(messageCommand.getSender());
             Contact srcContact = operationSetPresence.findContactByID(uin);
 
-            // Contact my be not in the contact list
+            // Contact may be not in the contact list
             // as we added it as Volatile stopped the application
             // and after that received authorization response
             if(srcContact == null)
                 srcContact = operationSetPresence.createVolatileContact(uin);
-
 
             if (messageType == AuthOldMsgCmd.MTYPE_AUTHREQ)
             {

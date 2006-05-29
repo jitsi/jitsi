@@ -440,8 +440,6 @@ public class TestAccountInstallation extends TestCase
         {
             collectedNewStates.add(evt.getNewState());
 
-            logger.debug("damencho col event - " + evt.getNewState());
-
             if(evt.getNewState().equals( RegistrationState.AUTHENTICATION_FAILED))
             {
                 failedCode = evt.getReasonCode();
