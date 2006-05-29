@@ -8,10 +8,19 @@
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BasicStroke;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -22,9 +31,10 @@ import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.JEditorPane;
-import javax.swing.JPopupMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JSeparator;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -33,6 +43,8 @@ import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
+import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.main.message.menu.ChatRightButtonMenu;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.BrowserLauncher;
 import net.java.sip.communicator.impl.gui.utils.Constants;
@@ -52,7 +64,7 @@ import net.java.sip.communicator.util.Logger;
  * @author Yana Stamcheva
  */
 public class ChatConversationPanel extends JScrollPane implements
-        HyperlinkListener {
+        HyperlinkListener, MouseListener, ClipboardOwner {
 
     private static final Logger LOGGER = Logger
             .getLogger(ChatConversationPanel.class.getName());
@@ -63,14 +75,27 @@ public class ChatConversationPanel extends JScrollPane implements
 
     private HTMLDocument document;
 
-    private JPopupMenu linkPopup = new JPopupMenu();
-
-    private JTextArea hrefItem = new JTextArea();
-
-    private final int hrefPopupMaxWidth = 300;
-
-    private final int hrefPopupInitialHeight = 20;
-
+    private ChatPanel chatPanel;
+    
+    private ChatRightButtonMenu rightButtonMenu;
+    
+    private String currentHref;
+    
+    private JMenuItem copyLinkItem 
+        = new JMenuItem(Messages.getString("copyLink"));
+    
+    private JSeparator copyLinkSeparator = new JSeparator();
+    /*
+     * Tooltip on hyperlinks - JDK 1.5+
+     * 
+     * private JPopupMenu linkPopup = new JPopupMenu();
+     * 
+     * private JTextArea hrefItem = new JTextArea();
+     * 
+     * private final int hrefPopupMaxWidth = 300;
+     * private final int hrefPopupInitialHeight = 20;
+     */
+    
     private Date lastIncomingMsgTimestamp = new Date(0);
 
     /**
@@ -81,6 +106,11 @@ public class ChatConversationPanel extends JScrollPane implements
 
         super();
 
+        this.chatPanel = chatPanel;
+
+        this.rightButtonMenu 
+            = new ChatRightButtonMenu(chatPanel.getChatWindow());
+        
         this.document = (HTMLDocument) editorKit.createDefaultDocument();
 
         this.chatEditorPane.setContentType("text/html");
@@ -97,7 +127,8 @@ public class ChatConversationPanel extends JScrollPane implements
         this.initEditor();
 
         this.chatEditorPane.addHyperlinkListener(this);
-
+        this.chatEditorPane.addMouseListener(this);
+        
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         this.setWheelScrollingEnabled(true);
@@ -108,11 +139,24 @@ public class ChatConversationPanel extends JScrollPane implements
 
         ToolTipManager.sharedInstance().registerComponent(chatEditorPane);
 
-        //////////////////////////////////////////
-        this.hrefItem.setLineWrap(true);
-        this.linkPopup.add(hrefItem);
-        this.hrefItem.setSize(new Dimension(hrefPopupMaxWidth,
-                hrefPopupInitialHeight));
+        copyLinkItem.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){                
+                StringSelection stringSelection 
+                    = new StringSelection(currentHref);
+                Clipboard clipboard 
+                    = Toolkit.getDefaultToolkit().getSystemClipboard();
+                clipboard.setContents(stringSelection, 
+                            ChatConversationPanel.this);
+            }
+        });
+        /*
+         * Tooltip on hyperlinks - JDK 1.5+
+         * 
+         * this.hrefItem.setLineWrap(true);
+         * this.linkPopup.add(hrefItem);
+         * this.hrefItem.setSize(new Dimension(hrefPopupMaxWidth,
+         *       hrefPopupInitialHeight));
+         */
     }
 
     /**
@@ -183,7 +227,7 @@ public class ChatConversationPanel extends JScrollPane implements
             LOGGER.error("Insert in the HTMLDocument failed.", e);
         }
         //Scroll to the last inserted text in the document.
-        this.chatEditorPane.setCaretPosition(this.document.getLength());
+        this.setCarretToEnd();
     }
 
     /**
@@ -319,19 +363,34 @@ public class ChatConversationPanel extends JScrollPane implements
             BrowserLauncher.openURL(url.toString());
         } else if (e.getEventType() == HyperlinkEvent.EventType.ENTERED) {
             String href = e.getDescription();
-            int stringWidth = StringUtils.getStringWidth(hrefItem, href);
-
-            hrefItem.setText(href);
-
-            if (stringWidth < hrefPopupMaxWidth)
-                hrefItem.setSize(stringWidth, hrefItem.getHeight());
-            else
-                hrefItem.setSize(hrefPopupMaxWidth, hrefItem.getHeight());
-
-            linkPopup.setLocation(MouseInfo.getPointerInfo().getLocation());
-            linkPopup.setVisible(true);
+            
+            this.chatPanel.setChatStatus(href);
+            
+            this.currentHref = href;
+            /*
+             * Tooltip on hyperlinks - JDK1.5+
+             * 
+             * int stringWidth = StringUtils.getStringWidth(hrefItem, href);
+             *
+             * hrefItem.setText(href);
+             *
+             * if (stringWidth < hrefPopupMaxWidth)
+             *       hrefItem.setSize(stringWidth, hrefItem.getHeight());
+             *  else
+             *       hrefItem.setSize(hrefPopupMaxWidth, hrefItem.getHeight());
+             *
+             * linkPopup.setLocation(MouseInfo.getPointerInfo().getLocation());
+             * linkPopup.setVisible(true); 
+             */    
+            
         } else if (e.getEventType() == HyperlinkEvent.EventType.EXITED) {
-            linkPopup.setVisible(false);
+            
+            this.chatPanel.setChatStatus("");
+            this.currentHref = "";
+            /*
+             * Tooltip on hyperlinks - JDK1.5+
+             * linkPopup.setVisible(false);
+             */
         }
     }
 
@@ -370,5 +429,51 @@ public class ChatConversationPanel extends JScrollPane implements
      */
     public Date getLastIncomingMsgTimestamp() {
         return lastIncomingMsgTimestamp;
+    }
+
+    /**
+     * Moves the caret to the end of the editor pane.
+     */
+    public void setCarretToEnd(){
+        this.chatEditorPane.setCaretPosition(this.document.getLength());
+    }
+    
+    public void mouseClicked(MouseEvent e) {
+        if((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0){
+            
+            if(currentHref != null){
+                if(currentHref != ""){
+                    rightButtonMenu.insert(copyLinkItem, 0);
+                    rightButtonMenu.insert(copyLinkSeparator, 1);
+                }
+                else{
+                    rightButtonMenu.remove(copyLinkItem);
+                    rightButtonMenu.remove(copyLinkSeparator);
+                }
+            }
+            
+            Point p = e.getPoint();
+            SwingUtilities.convertPointToScreen(p, e.getComponent());
+            
+            rightButtonMenu.setInvoker(chatEditorPane);
+            rightButtonMenu.setLocation(p.x, p.y);
+            rightButtonMenu.setVisible(true);
+        }
+    }
+
+    public void mousePressed(MouseEvent e) {
+    }
+
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    public void mouseExited(MouseEvent e) {
+    }
+
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {
+        
     }
 }
