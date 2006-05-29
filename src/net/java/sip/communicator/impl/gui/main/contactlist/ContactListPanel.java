@@ -189,13 +189,13 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
                     translatedY);
 
             if (component instanceof JLabel) {
+                //Left click on the contact label opens Chat window
                 if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
-
-                    //Left click on the contact label opens Chat window
                     SwingUtilities.invokeLater(new RunMessageWindow(contact));
-
-                } else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
-                    //Right click on the contact label opens Popup menu
+                } 
+                //Right click on the contact label opens Popup menu
+                else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+                    
                     ContactRightButtonMenu popupMenu
                         = new ContactRightButtonMenu(mainFrame, contact);
 
@@ -209,11 +209,13 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
 
                     popupMenu.setVisible(true);
                 }
-            } else if (component instanceof JButton) {
+            } 
+            else if (component instanceof JButton) {
                 //Click on the info button opens the info popup panel
                 SwingUtilities.invokeLater(new RunInfoWindow(selectedCellPoint,
                         contact));
-            } else if (component instanceof JPanel
+            } 
+            else if (component instanceof JPanel
                     && component.getName().equals("buttonsPanel")) {
                 JPanel panel = (JPanel) component;
 
@@ -589,7 +591,7 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
                 ChatWindow msgWindow = (ChatWindow) contactMsgWindows
                         .get(metaContact);
                 msgWindow.getChatPanel(metaContact)
-                    .setContactTypingStatus(notificationMsg);
+                    .setChatStatus(notificationMsg);
             }
         } else if (tabbedChatWindow != null) {
             Hashtable contactTabsTable = tabbedChatWindow.getContactTabsTable();
@@ -597,7 +599,7 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
             if (contactTabsTable.get(metaContact.getMetaUID()) != null) {
 
                 tabbedChatWindow.getChatPanel(metaContact)
-                    .setContactTypingStatus(notificationMsg);
+                    .setChatStatus(notificationMsg);
             }
         }
     }
