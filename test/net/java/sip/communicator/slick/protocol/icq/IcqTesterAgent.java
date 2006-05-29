@@ -6,27 +6,31 @@
  */
 package net.java.sip.communicator.slick.protocol.icq;
 
-import net.java.sip.communicator.util.*;
-import java.util.*;
-import net.kano.joustsim.oscar.*;
-import net.kano.joustsim.oscar.oscar.service.buddy.*;
-import net.kano.joscar.snaccmd.*;
-import net.kano.joustsim.oscar.oscar.service.info.*;
-import net.kano.joustsim.oscar.oscar.service.icbm.*;
-import net.kano.joustsim.*;
 import java.beans.*;
-import net.kano.joustsim.trust.*;
-import net.kano.joscar.snaccmd.loc.*;
-import net.kano.joscar.snac.*;
-import net.kano.joscar.flapcmd.*;
-import net.kano.joscar.snaccmd.conn.*;
-import net.kano.joustsim.oscar.oscar.service.ssi.*;
-import net.kano.joscar.snaccmd.error.*;
-import net.kano.joustsim.oscar.oscar.service.bos.*;
-import net.java.sip.communicator.service.protocol.icqconstants.*;
 import java.io.*;
-import net.kano.joscar.snaccmd.icbm.SendImIcbm;
-import net.kano.joscar.tlv.Tlv;
+import java.util.*;
+
+import net.java.sip.communicator.service.protocol.icqconstants.*;
+import net.java.sip.communicator.util.*;
+import net.kano.joscar.*;
+import net.kano.joscar.flapcmd.*;
+import net.kano.joscar.snac.*;
+import net.kano.joscar.snaccmd.*;
+import net.kano.joscar.snaccmd.conn.*;
+import net.kano.joscar.snaccmd.error.*;
+import net.kano.joscar.snaccmd.icbm.*;
+import net.kano.joscar.snaccmd.loc.*;
+import net.kano.joscar.snaccmd.ssi.*;
+import net.kano.joscar.tlv.*;
+import net.kano.joustsim.*;
+import net.kano.joustsim.oscar.*;
+import net.kano.joustsim.oscar.State;
+import net.kano.joustsim.oscar.oscar.service.bos.*;
+import net.kano.joustsim.oscar.oscar.service.buddy.*;
+import net.kano.joustsim.oscar.oscar.service.icbm.*;
+import net.kano.joustsim.oscar.oscar.service.info.*;
+import net.kano.joustsim.oscar.oscar.service.ssi.*;
+import net.kano.joustsim.trust.*;
 
 /**
  * An utility that we use to test AIM/ICQ implementations of the
@@ -36,6 +40,7 @@ import net.kano.joscar.tlv.Tlv;
  * that icq implementations behave properly.
  *
  * @author Emil Ivov
+ * @author Damian Minkov
  */
 public class IcqTesterAgent
 {
@@ -74,6 +79,8 @@ public class IcqTesterAgent
      * onto the aim service.
      */
     private Screenname icqUIN = null;
+
+    private AuthCmdFactory authCmdFactory = new AuthCmdFactory();
 
     /**
      * The IcqTesterAgent constructor that would create a tester agent instance,
@@ -373,6 +380,10 @@ public class IcqTesterAgent
                 {
                     icbmService = conn.getIcbmService();
                     connectionLock.notifyAll();
+
+                    icbmService.getOscarConnection().getSnacProcessor().
+                        getCmdFactoryMgr().getDefaultFactoryList().
+                        registerAll(authCmdFactory);
                 }
                 else if (event.getNewState() == State.FAILED
                          || event.getNewState() == State.DISCONNECTED)
@@ -622,6 +633,12 @@ public class IcqTesterAgent
     public IcqStatusEnum getPresneceStatus()
     {
         return getBuddyStatus(getIcqUIN());
+    }
+
+    public net.java.sip.communicator.slick.protocol.icq.IcqTesterAgent.
+        AuthCmdFactory getAuthCmdFactory()
+    {
+        return authCmdFactory;
     }
 
     /**
@@ -1117,4 +1134,230 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
                 new Tlv(TYPE_OFFLINE).write(out);
         }
     }
+
+/*
+    private class AuthRequiredListener
+        implements SnacResponseListener
+    {
+        public void handleResponse(SnacResponseEvent snacResponseEvent)
+        {
+            if (snacResponseEvent.getSnacCommand() instanceof SsiDataModResponse)
+            {
+                SsiDataModResponse dataModResponse =
+                    (SsiDataModResponse) snacResponseEvent.getSnacCommand();
+
+                int[] results = dataModResponse.getResults();
+                List items = ( (ItemsCmd) snacResponseEvent.getRequest().getCommand()).
+                    getItems();
+                items = new LinkedList(items);
+
+                for (int i = 0; i < results.length; i++)
+                {
+                    int result = results[i];
+                    if (result ==
+                        SsiDataModResponse.RESULT_ICQ_AUTH_REQUIRED)
+                    {
+                        conn.sendSnac(new AuthReplyCmd("", "First Test - Not Accepted!", false));
+                    }
+                }
+            }
+        }
+    }
+ */
+
+    private class AuthReplyCmd
+        extends SsiCommand
+    {
+        private int FLAG_AUTH_ACCEPTED = 1;
+        private int FLAG_AUTH_DECLINED = 0;
+
+        private String uin = null;
+        private String reason = null;
+        private boolean accepted = false;
+
+        public AuthReplyCmd(String uin, String reason, boolean accepted)
+        {
+            super(0x001a);
+
+            this.uin = uin;
+            this.reason = reason;
+            this.accepted = accepted;
+        }
+
+        public void writeData(OutputStream out)
+            throws IOException
+        {
+            byte[] uinBytes = BinaryTools.getAsciiBytes(uin);
+            BinaryTools.writeUByte(out, uinBytes.length);
+            out.write(uinBytes);
+
+            if(accepted)
+            {
+                BinaryTools.writeUByte(out, FLAG_AUTH_ACCEPTED);
+            }
+            else
+            {
+                BinaryTools.writeUByte(out, FLAG_AUTH_DECLINED);
+            }
+
+            if(reason == null)
+                reason = "";
+
+            byte[] reasonBytes = BinaryTools.getAsciiBytes(reason);
+            BinaryTools.writeUShort(out, reasonBytes.length);
+            out.write(reasonBytes);
+        }
+    }
+
+    public class AuthCmdFactory
+        extends ClientIcbmCmdFactory
+    {
+        List SUPPORTED_TYPES = null;
+
+        public static final int CHANNEL_AUTH = 0x0004;
+
+        public String responseReasonStr = null;
+        public String requestReasonStr = null;
+        public boolean ACCEPT = false;
+
+        public AuthCmdFactory()
+        {
+            List types = super.getSupportedTypes();
+            ArrayList tempTypes = new ArrayList(types);
+            tempTypes.add(new CmdType(4, 7));
+
+            this.SUPPORTED_TYPES = DefensiveTools.getUnmodifiable(tempTypes);
+        }
+
+        public SnacCommand genSnacCommand(SnacPacket packet)
+        {
+            if (AbstractIcbm.getIcbmChannel(packet) == CHANNEL_AUTH)
+            {
+                AuthOldMsgCmd messageCommand = new AuthOldMsgCmd(packet);
+
+                int messageType = messageCommand.messageType;
+
+                if (messageType == AuthOldMsgCmd.MTYPE_AUTHREQ)
+                {
+                    requestReasonStr = messageCommand.reason;
+
+                    logger.trace("sending authorization " + ACCEPT);
+
+                    conn.sendSnac(
+                        new AuthReplyCmd(
+                            String.valueOf(messageCommand.sender),
+                            responseReasonStr,
+                            ACCEPT));
+                }
+                else
+                if (messageType == AuthOldMsgCmd.MTYPE_AUTHDENY)
+                {
+    //
+                }
+                else
+                if (messageType == AuthOldMsgCmd.MTYPE_AUTHOK)
+                {
+    //
+                }
+                else
+
+                return messageCommand;
+            }
+
+            return super.genSnacCommand(packet);
+        }
+
+        public List getSupportedTypes()
+        {
+            return SUPPORTED_TYPES;
+        }
+    }
+
+    private class AuthOldMsgCmd
+        extends AbstractImIcbm
+    {
+        private static final int TYPE_MESSAGE_DATA = 0x0005;
+
+        public static final int MTYPE_AUTHREQ = 0x06;
+        public static final int MTYPE_AUTHDENY = 0x07;
+        public static final int MTYPE_AUTHOK = 0x08;
+        public static final int MTYPE_ADDED = 0x0c;
+
+        private int messageType = -1;
+
+        private long sender;
+        private String reason;
+
+        public AuthOldMsgCmd(SnacPacket packet)
+        {
+            super(IcbmCommand.CMD_ICBM, packet);
+
+            DefensiveTools.checkNull(packet, "packet");
+
+            ByteBlock snacData = getChannelData();
+
+            FullUserInfo userInfo = FullUserInfo.readUserInfo(snacData);
+
+            ByteBlock tlvBlock = snacData.subBlock(userInfo.getTotalSize());
+
+            TlvChain chain = TlvTools.readChain(tlvBlock);
+
+            Tlv messageDataTlv = chain.getLastTlv(TYPE_MESSAGE_DATA);
+            ByteBlock messageData = messageDataTlv.getData();
+
+            sender = LEBinaryTools.getUInt(messageData, 0);
+            messageType = LEBinaryTools.getUByte(messageData, 4);
+            int msgFlags = LEBinaryTools.getUByte(messageData, 5);
+            int textlen = LEBinaryTools.getUShort(messageData, 6);
+
+            ByteBlock field = messageData.subBlock(8, textlen);
+            reason = OscarTools.getString(field, "US-ASCII");
+        }
+
+        protected void writeChannelData(OutputStream out)
+            throws IOException
+        {}
+    }
+
+    private static class LEBinaryTools
+    {
+        public static final long UINT_MAX = 4294967295L;
+        public static final int USHORT_MAX = 65535;
+        public static final short UBYTE_MAX = 255;
+
+        public static long getUInt(final ByteBlock data, final int pos)
+        {
+            if (data.getLength() - pos < 4)
+            {
+                return -1;
+            }
+
+            return ( ( (long) data.get(pos + 3) & 0xffL) << 24)
+                | ( ( (long) data.get(pos + 2) & 0xffL) << 16)
+                | ( ( (long) data.get(pos + 1) & 0xffL) << 8)
+                | ( (long) data.get(pos) & 0xffL);
+        }
+
+        public static short getUByte(final ByteBlock data, final int pos)
+        {
+            if (data.getLength() - pos < 1)
+            {
+                return -1;
+            }
+
+            return (short) (data.get(pos) & 0xff);
+        }
+
+        public static int getUShort(final ByteBlock data, final int pos)
+        {
+            if (data.getLength() - pos < 2)
+            {
+                return -1;
+            }
+
+            return ( (data.get(pos + 1) & 0xff) << 8) | (data.get(pos) & 0xff);
+        }
+    }
+
+
 }
