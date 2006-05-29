@@ -6,16 +6,15 @@
  */
 package net.java.sip.communicator.slick.protocol.icq;
 
-import junit.framework.*;
-
-import net.java.sip.communicator.service.protocol.*;
+import java.beans.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.protocol.icqconstants.*;
+import junit.framework.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.icqconstants.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joscar.snaccmd.*;
-import java.beans.PropertyChangeEvent;
 
 /**
  * Tests ICQ implementations of a Presence Operation Set. Tests in this class
@@ -39,6 +38,10 @@ public class TestOperationSetPresence
     private IcqSlickFixture fixture = new IcqSlickFixture();
     private OperationSetPresence    operationSetPresence = null;
     private String statusMessageRoot = new String("Our status is now: ");
+
+    private AuthEventCollector authEventCollector = new AuthEventCollector();
+//    private AuthCmdFactory authCmdFactory = new AuthCmdFactory();
+    private Object authorizationLock = new Object();
 
     public TestOperationSetPresence(String name)
     {
@@ -416,8 +419,128 @@ public class TestOperationSetPresence
             = new SubscriptionEventCollector();
         operationSetPresence.addSubsciptionListener(subEvtCollector);
 
+
+//        operationSetPresence.setAuthorizationHandler(authEventCollector);
+
         synchronized(subEvtCollector){
-            operationSetPresence.subscribe(fixture.testerAgent.getIcqUIN());
+
+
+//            try
+//            {
+//                synchronized(authorizationLock)
+//                {
+//                    authEventCollector.authorizationRequestReason =
+//                        "Please deny my request!";
+//                    fixture.testerAgent.getAuthCmdFactory().responseReasonStr =
+//                        "First authorization I will Deny!!!";
+//                    fixture.testerAgent.getAuthCmdFactory().ACCEPT = false;
+//
+//                    logger.trace("is contact there 1 = " +
+//                                 operationSetPresence.findContactByID(fixture.testerAgent.getIcqUIN()));
+//
+                    operationSetPresence.subscribe(fixture.testerAgent.getIcqUIN());
+//
+//                    logger.debug("Waiting for authorization error and authorization response...");
+//                    authorizationLock.wait(5000);
+//
+//                    assertTrue("Error adding buddy not recieved or the buddy(" +
+//                               fixture.testerAgent.getIcqUIN() +
+//                               ") doesn't require authorization",
+//                               authEventCollector.isAuthorizationRequestSent);
+//
+//                    assertNotNull("Agent haven't received any reason for authorization",
+//                               fixture.testerAgent.getAuthCmdFactory().requestReasonStr);
+
+// not working for now
+//                    assertEquals("Error sent request reason is not as the received one",
+//                                 authEventCollector.authorizationRequestReason,
+//                                 fixture.testerAgent.getAuthCmdFactory().requestReasonStr
+//                        );
+
+//                    assertTrue("Response not received!",
+//                               authEventCollector.isAuthorizationResponseReceived);
+//
+//                    boolean isAcceptedAuthReuest =
+//                        authEventCollector.response.getResponseCode().equals(AuthorizationResponse.ACCEPT);
+//
+//                    assertEquals("Response is not as the sent one",
+//                                 fixture.testerAgent.getAuthCmdFactory().ACCEPT,
+//                                 isAcceptedAuthReuest);
+//                    assertNotNull("We didn't receive any reason! ",
+//                               authEventCollector.authorizationResponseString);
+
+// the same as request reason
+//                    assertEquals("The sent response reason is not as the received one",
+//                                 fixture.testerAgent.getAuthCmdFactory().responseReasonStr,
+//                                 authEventCollector.authorizationResponseString);
+
+//                    logger.trace("is contact there 2 = " +
+//                                 operationSetPresence.findContactByID(fixture.testerAgent.getIcqUIN()));
+
+//                    operationSetPresence.unsubscribe(
+//                        operationSetPresence.findContactByID(
+//                            fixture.testerAgent.getIcqUIN()));
+
+                    // so we haven't asserted so everithing is fine lets try to be authorized
+//                    authEventCollector.authorizationRequestReason =
+//                        "Please accept my request!";
+//                    fixture.testerAgent.getAuthCmdFactory().responseReasonStr =
+//                        "Second authorization I will Accept!!!";
+//                    fixture.testerAgent.getAuthCmdFactory().ACCEPT = true;
+//
+//                    // clear some things
+//                    authEventCollector.isAuthorizationRequestSent = false;
+//                    authEventCollector.authorizationRequestReason = null;
+//                    authEventCollector.isAuthorizationResponseReceived = false;
+//                    authEventCollector.authorizationResponseString = null;
+
+                    // subscribe again so we can trigger again the authorization procedure
+//                    operationSetPresence.subscribe(fixture.testerAgent.getIcqUIN());
+
+//                    logger.debug("Waiting for response...");
+//                    authorizationLock.wait(5000);
+//
+//                    assertTrue("Error adding buddy not recieved or the buddy(" +
+//                               fixture.testerAgent.getIcqUIN() +
+//                               ") doesn't require authorization",
+//                               authEventCollector.isAuthorizationRequestSent);
+//
+//                    assertNotNull("Agent haven't received any reason for authorization",
+//                               fixture.testerAgent.getAuthCmdFactory().requestReasonStr);
+
+                    // not working for now
+//                    assertEquals("Error sent request reason",
+//                                 authEventCollector.authorizationRequestReason,
+//                                 fixture.testerAgent.getAuthCmdFactory().requestReasonStr
+//                        );
+
+
+// suspect that response is never received just the buddy is added
+//                    assertTrue("Response not received!",
+//                               authEventCollector.isAuthorizationResponseReceived);
+//
+//                    isAcceptedAuthReuest =
+//                        authEventCollector.response.getResponseCode().equals(AuthorizationResponse.ACCEPT);
+//
+//                    assertEquals("Response is not as the sent one",
+//                                 fixture.testerAgent.getAuthCmdFactory().ACCEPT,
+//                                 isAcceptedAuthReuest);
+//
+//                    assertNotNull("We didn't receive any reason! ",
+//                               authEventCollector.authorizationResponseString);
+
+// the same as request reason
+//                    assertEquals("The sent response reason",
+//                                 fixture.testerAgent.getAuthCmdFactory().responseReasonStr,
+//                                 authEventCollector.authorizationResponseString);
+//                }
+//            }
+//            catch (InterruptedException ex)
+//            {
+//                logger.debug("Interrupted while waiting ... ", ex);
+//            }
+
+
             subEvtCollector.waitForEvent(10000);
             //don't want any more events
             operationSetPresence.removeSubscriptionListener(subEvtCollector);
@@ -845,6 +968,54 @@ public class TestOperationSetPresence
                 logger.debug("Collected evt("+collectedEvents.size()+")= "+evt);
                 collectedEvents.add(evt);
                 notifyAll();
+            }
+        }
+    }
+
+    private class AuthEventCollector
+        implements AuthorizationHandler
+    {
+        boolean isAuthorizationRequestSent = false;
+        String authorizationRequestReason = null;
+
+        boolean isAuthorizationResponseReceived = false;
+        AuthorizationResponse response = null;
+        String authorizationResponseString = null;
+
+        public AuthorizationResponse processAuthorisationRequest(
+                        AuthorizationRequest req, Contact sourceContact)
+        {
+            logger.trace("processAuthorisationRequest " + req + " " + sourceContact);
+            return null;
+        }
+
+        public AuthorizationRequest createAuthorizationRequest(Contact contact)
+        {
+            logger.trace("createAuthorizationRequest " + contact);
+
+            AuthorizationRequest authReq = new AuthorizationRequest();
+            authReq.setReason(authorizationRequestReason);
+
+            isAuthorizationRequestSent = true;
+
+            return authReq;
+        }
+
+        public void processAuthorizationResponse(AuthorizationResponse
+            response, Contact sourceContact)
+        {
+            isAuthorizationResponseReceived = true;
+            this.response = response;
+            authorizationResponseString = response.getReason();
+
+            logger.trace("processAuthorizationResponse '" +
+                         authorizationResponseString + "' " +
+                         response.getResponseCode() + " " +
+                         sourceContact);
+
+            synchronized(authorizationLock)
+            {
+                authorizationLock.notifyAll();
             }
         }
     }
