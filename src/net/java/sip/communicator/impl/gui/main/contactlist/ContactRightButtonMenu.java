@@ -40,7 +40,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
             .getString("addSubcontact"));
 
     private JMenuItem sendMessageItem = new JMenuItem(Messages
-            .getString("sendMess age"), new ImageIcon(ImageLoader
+            .getString("sendMessage"), new ImageIcon(ImageLoader
             .getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
 
     private JMenuItem sendFileItem = new JMenuItem(Messages
@@ -80,6 +80,8 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
         this.contactItem = contactItem;
 
+        this.setLocation(getLocation());
+        
         this.init();
     }
 
@@ -143,7 +145,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         this.addSubcontactMenu.addActionListener(this);
         this.removeContactItem.addActionListener(this);
         this.renameContactItem.addActionListener(this);
-        this.viewHistoryItem.addActionListener(this);
+        this.viewHistoryItem.addActionListener(this);   
         this.userInfoItem.addActionListener(this);
 
         // Disable all menu items that do nothing.
@@ -154,31 +156,6 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         this.renameContactItem.setEnabled(false);
         this.viewHistoryItem.setEnabled(false);
         this.userInfoItem.setEnabled(false);
-    }
-
-    /**
-     * Returns the related popup location where the menu will appear.
-     * @return The related popup location where the menu will appear.
-     */
-    public Point getPopupLocation() {
-
-        Component component = this.getInvoker();
-        Point point = new Point();
-        int x = component.getX();
-        int y = component.getY();
-
-        while (component.getParent() != null) {
-
-            component = component.getParent();
-
-            x += component.getX();
-            y += component.getY();
-        }
-
-        point.x = x;
-        point.y = y + this.getInvoker().getHeight();
-
-        return point;
     }
 
     public void actionPerformed(ActionEvent e) {
