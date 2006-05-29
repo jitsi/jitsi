@@ -11,7 +11,6 @@ import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicMenuItemUI;
-import javax.swing.plaf.basic.BasicPopupMenuUI;
 
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 /**
