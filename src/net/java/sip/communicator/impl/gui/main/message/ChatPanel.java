@@ -375,8 +375,8 @@ public class ChatPanel extends JPanel {
     /**
      * Sets the current contact typing status.
      */
-    public void setContactTypingStatus(String statusMessage){
-        this.sendPanel.setTypingStatus(statusMessage);
+    public void setChatStatus(String statusMessage){
+        this.sendPanel.setChatStatus(statusMessage);
     }
     
     /**
@@ -470,5 +470,12 @@ public class ChatPanel extends JPanel {
 
         sendButton.requestFocus();
         sendButton.doClick();
+    }
+    
+    /**
+     * Moves the caret to the end of the conversation panel.
+     */
+    public void setCaretToEnd(){
+        this.conversationPanel.setCarretToEnd();
     }
 }

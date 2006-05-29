@@ -24,11 +24,13 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommSelectorBox;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.StringUtils;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.Message;
@@ -100,7 +102,7 @@ public class ChatSendPanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Defines actions when send buttons is pressed.
+     * Defines actions when send button is pressed.
      * @param e The ActionEvent object.
      */
     public void actionPerformed(ActionEvent e) {       
@@ -135,7 +137,10 @@ public class ChatSendPanel extends JPanel implements ActionListener {
         }
     }
 
-    
+    /**
+     * Returns the send button.
+     * @return The send button.
+     */
     public JButton getSendButton() {
         return sendButton;
     }
@@ -158,7 +163,29 @@ public class ChatSendPanel extends JPanel implements ActionListener {
         }
     }
 
-    public void setTypingStatus(String statusMessage) {
+    /**
+     * Sets a text to the status panel at the bottom of the chat window.
+     * 
+     * @param statusMessage The text to be displayed. 
+     */
+    public void setChatStatus(String statusMessage) {
+        int stringWidth = StringUtils
+            .getStringWidth(statusLabel, statusMessage);
+        
+        while (stringWidth > statusPanel.getWidth() - 10) {
+            if (statusMessage.endsWith("...")) {
+                statusMessage = statusMessage
+                    .substring(0, statusMessage.indexOf("...") - 1)
+                        .concat("...");
+            }
+            else {
+                statusMessage = statusMessage
+                    .substring(0, statusMessage.length() - 3)
+                        .concat("...");
+            }
+            stringWidth = StringUtils
+                .getStringWidth(statusLabel, statusMessage);
+        }   
         statusLabel.setText(statusMessage);
     }
 
