@@ -295,11 +295,13 @@ public class ChatWindow extends JFrame {
                 PresenceStatus currentContactStatus = firstChatPanel
                         .getDefaultContact().getDefaultContact()
                         .getPresenceStatus();
-                //Add the first two tabs to the tabbed pane.                
+                //Add the first two tabs to the tabbed pane.
                 chatTabbedPane.addTab(firstChatPanel.getDefaultContact()
                         .getDisplayName(), new ImageIcon(Constants
                         .getStatusIcon(currentContactStatus)), firstChatPanel);
 
+                firstChatPanel.setCaretToEnd();
+                
                 chatPanel = new ChatPanel(this, protocolContact);
 
                 chatPanel.addContactToChat(contact, status);
