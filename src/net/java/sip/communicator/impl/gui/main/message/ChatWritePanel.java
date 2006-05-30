@@ -24,6 +24,7 @@ import javax.swing.Timer;
 
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.text.StyledEditorKit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
@@ -54,6 +55,7 @@ public class ChatWritePanel extends JScrollPane implements
 
     private int typingState = -1;
 
+    private StyledEditorKit styledEditor = new StyledEditorKit();
     /**
      * Creates an instance of ChatWritePanel.
      * @param chatPanel The parent ChatPanel.
@@ -69,6 +71,9 @@ public class ChatWritePanel extends JScrollPane implements
         this.setHorizontalScrollBarPolicy(
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
+        this.editorPane.setFont(Constants.FONT);
+        
+        this.editorPane.setEditorKit(styledEditor);
         this.editorPane.getDocument().addUndoableEditListener(this);
         this.editorPane.addKeyListener(this);
 
