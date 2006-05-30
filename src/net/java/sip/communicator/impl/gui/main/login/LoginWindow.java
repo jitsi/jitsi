@@ -101,6 +101,8 @@ public class LoginWindow extends JDialog implements ActionListener {
 
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
+        this.setTitle(Messages.getString("loginWindowTitle", protocolName));
+        
         this.enableKeyActions();
     }
 
