@@ -10,6 +10,9 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -18,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import net.java.sip.communicator.impl.gui.main.customcontrols.events.CloseListener;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.login.LoginManager;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
@@ -30,7 +34,7 @@ import org.osgi.framework.BundleException;
 /**
  * @author Yana Stamcheva
  */
-public class WelcomeWindow extends JDialog 
+public class WelcomeWindow extends JDialog
     implements ActionListener {
 
     private JLabel welcomeLabel = new JLabel(
@@ -59,10 +63,10 @@ public class WelcomeWindow extends JDialog
     private Logger logger = Logger.getLogger(WelcomeWindow.class.getName());
 
     public WelcomeWindow(CommunicatorMain communicator,
-            LoginManager loginManager, BundleContext bc) {
+            LoginManager loginManager, BundleContext context) {
         super(communicator.getMainFrame(), Messages.getString("warning"));
-
-        this.bc = bc;
+        
+        this.bc = context;
         this.communicator = communicator;
         this.loginManager = loginManager;
 
@@ -84,6 +88,19 @@ public class WelcomeWindow extends JDialog
 
         this.windowBackground.setBorder(BorderFactory.createEmptyBorder(5, 10,
                 5, 5));
+        
+        this.setDefaultCloseOperation(JDialog.EXIT_ON_CLOSE);
+        
+        this.addWindowListener(new WindowAdapter(){
+            public void windowClosing(WindowEvent e) {
+                try {
+                    bc.getBundle(0).stop();
+                } catch (BundleException ex) {
+                    logger.error("Failed to gently shutdown Oscar", ex);
+                }
+                System.exit(0);
+            }
+        });
     }
 
     private void setTransparent(boolean transparent) {
@@ -141,7 +158,7 @@ public class WelcomeWindow extends JDialog
             this.dispose();
             this.communicator.showCommunicator(true);
             SwingUtilities.invokeLater(new RunLogin());
-        } else {
+        } else {            
             try {
                 this.bc.getBundle(0).stop();
             } catch (BundleException ex) {
@@ -155,5 +172,5 @@ public class WelcomeWindow extends JDialog
         public void run() {
             loginManager.showLoginWindows(communicator.getMainFrame());
         }
-    }
+    }   
 }
