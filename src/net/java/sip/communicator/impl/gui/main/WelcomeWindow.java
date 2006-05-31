@@ -10,15 +10,20 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.events.CloseListener;
@@ -62,12 +67,12 @@ public class WelcomeWindow extends JDialog
 
     private Logger logger = Logger.getLogger(WelcomeWindow.class.getName());
 
-    public WelcomeWindow(CommunicatorMain communicator,
+    public WelcomeWindow(CommunicatorMain c,
             LoginManager loginManager, BundleContext context) {
-        super(communicator.getMainFrame(), Messages.getString("warning"));
+        super(c.getMainFrame(), Messages.getString("warning"));
         
         this.bc = context;
-        this.communicator = communicator;
+        this.communicator = c;
         this.loginManager = loginManager;
 
         this.continueButton.addActionListener(this);
@@ -93,14 +98,18 @@ public class WelcomeWindow extends JDialog
         
         this.addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e) {
-                try {
-                    bc.getBundle(0).stop();
-                } catch (BundleException ex) {
-                    logger.error("Failed to gently shutdown Oscar", ex);
-                }
-                System.exit(0);
+                dispose();
+                communicator.showCommunicator(true);
+                SwingUtilities.invokeLater(new RunLogin());
             }
         });
+        
+        getRootPane().getActionMap().put("close", new CloseAction());
+        
+        InputMap imap = this.getRootPane().getInputMap(
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
     }
 
     private void setTransparent(boolean transparent) {
@@ -172,5 +181,13 @@ public class WelcomeWindow extends JDialog
         public void run() {
             loginManager.showLoginWindows(communicator.getMainFrame());
         }
-    }   
+    }
+    
+    private class CloseAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            dispose();
+            communicator.showCommunicator(true);
+            SwingUtilities.invokeLater(new RunLogin());
+        }
+    };
 }
