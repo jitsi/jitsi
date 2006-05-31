@@ -75,6 +75,8 @@ public class WelcomeWindow extends JDialog
         this.communicator = c;
         this.loginManager = loginManager;
 
+        this.getRootPane().setDefaultButton(continueButton);
+        
         this.continueButton.addActionListener(this);
         this.exitButton.addActionListener(this);
 
@@ -159,7 +161,6 @@ public class WelcomeWindow extends JDialog
 
             g2.fillRect(0, 0, getWidth(), getHeight());
         }
-
     }
 
     public void actionPerformed(ActionEvent e) {
