@@ -24,6 +24,7 @@ import net.kano.joustsim.oscar.*;
  * corresponding sip-communicator events to all events coming from joustsim.
  *
  * @author Emil Ivov
+ * @author Damian Minkov
  */
 public class ServerStoredContactListIcqImpl
         implements BuddyInfoTrackerListener
@@ -362,8 +363,7 @@ public class ServerStoredContactListIcqImpl
      */
     public void addContact(String screenname)
     {
-        ContactGroupIcqImpl parent =
-            (ContactGroupIcqImpl)getRootGroup().getGroup(0);
+        ContactGroupIcqImpl parent = getFirstPersistentGroup();
 
         addContact(parent, screenname);
     }
@@ -532,6 +532,20 @@ public class ServerStoredContactListIcqImpl
         buddyList.addRetroactiveLayoutListener(buddyListListener);
     }
 
+    private ContactGroupIcqImpl getFirstPersistentGroup()
+    {
+        for (int i = 0; i < getRootGroup().countSubgroups(); i++)
+        {
+            ContactGroupIcqImpl gr =
+                (ContactGroupIcqImpl)getRootGroup().getGroup(i);
+
+            if(gr.isPersistent())
+                return gr;
+        }
+
+        return null;
+    }
+
     private class BuddyListListener
         implements BuddyListLayoutListener
     {
@@ -658,6 +672,7 @@ public class ServerStoredContactListIcqImpl
             else
             {
                 oldParentGroup = findContactGroup(newContact);
+                oldParentGroup.removeContact(newContact);
                 newContact.setJoustSimBuddy(buddy);
                 newContact.setPersistent(true);
             }
