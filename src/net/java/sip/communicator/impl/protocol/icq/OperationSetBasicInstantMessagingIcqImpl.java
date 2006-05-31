@@ -8,8 +8,15 @@ package net.java.sip.communicator.impl.protocol.icq;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.impl.protocol.icq.message.common.*;
+import net.java.sip.communicator.impl.protocol.icq.message.offline.*;
+import net.java.sip.communicator.impl.protocol.icq.message.imicbm.*;
 import java.util.*;
 import net.kano.joustsim.*;
+import net.kano.joscar.snac.*;
+import net.kano.joscar.snaccmd.icbm.*;
+import net.kano.joscar.snaccmd.error.*;
+import net.kano.joscar.flapcmd.*;
 import net.java.sip.communicator.util.*;
 
 //the package net.kano.joustsim.oscar.oscar.service.icbm contains a Message
@@ -26,23 +33,13 @@ import net.kano.joustsim.oscar.oscar.service.icbm.ImConversation;
 import net.kano.joustsim.oscar.oscar.service.icbm.TypingInfo;
 import net.kano.joustsim.oscar.oscar.service.icbm.MissedImInfo;
 import net.kano.joustsim.oscar.oscar.service.icbm.ImConversationListener;
-import net.java.sip.communicator.impl.protocol.icq.message.offline.SendOfflineIm;
-import net.java.sip.communicator.impl.protocol.icq.message.offline.OfflineMsgRequest;
-import net.kano.joscar.flapcmd.SnacCommand;
-import net.java.sip.communicator.impl.protocol.icq.message.common.ToIcqCmd;
-import net.kano.joscar.snac.SnacRequestAdapter;
-import net.kano.joscar.snac.SnacResponseEvent;
-import net.kano.joscar.snac.SnacRequest;
-import net.java.sip.communicator.impl.protocol.icq.message.offline.OfflineMsgCmd;
-import net.java.sip.communicator.impl.protocol.icq.message.offline.OfflineMsgDeleteRequest;
-import net.kano.joscar.snaccmd.error.SnacError;
-import net.kano.joscar.snac.SnacRequestTimeoutEvent;
 
 /**
  * A straightforward implementation of the basic instant messaging operation
  * set.
  *
  * @author Emil Ivov
+ * @author Damian Minkov
  */
 public class OperationSetBasicInstantMessagingIcqImpl
     implements OperationSetBasicInstantMessaging
@@ -87,6 +84,13 @@ public class OperationSetBasicInstantMessagingIcqImpl
     private OperationSetPersistentPresenceIcqImpl opSetPersPresence = null;
 
     /**
+     * Incoming messages has channels.
+     * joscar and joustsim handle only channel one and two.
+     * This is patch to handle and fourth one.
+     */
+    private ChannelFourCmdFactory channelFourCmdFactory = new ChannelFourCmdFactory();
+
+    /**
      * Creates an instance of this operation set.
      * @param icqProvider a ref to the <tt>ProtocolProviderServiceIcqImpl</tt>
      * that created us and that we'll use for retrieving the underlying aim
@@ -97,6 +101,9 @@ public class OperationSetBasicInstantMessagingIcqImpl
     {
         this.icqProvider = icqProvider;
         icqProvider.addRegistrationStateChangeListener(providerRegListener);
+
+        channelFourCmdFactory.addCommandHandler
+            (IcbmChannelFourCommand.MTYPE_PLAIN, new PlainMessageHandler());
     }
 
     /**
@@ -314,6 +321,40 @@ public class OperationSetBasicInstantMessagingIcqImpl
     }
 
     /**
+     * This method is used to provide the factory instance so
+     * othe operations can add their handlers in it, for certain commands.
+     *
+     * @return ChannelFourCmdFactory the factory instance
+     */
+    public ChannelFourCmdFactory getChannelFourFactory()
+    {
+        return channelFourCmdFactory;
+    }
+
+    /**
+     * Fix of issue 142
+     * Some clients send messages through channel 4
+     */
+    private class PlainMessageHandler
+        implements ChFourPacketHandler
+    {
+        public SnacCommand handle(IcbmChannelFourCommand cmd)
+        {
+            return new RecvImIcbm(
+                        cmd.getRequestID(),
+                        cmd.getUserInfo(),
+                        new InstantMessage(cmd.getReason()),
+                        cmd.isAutoResponse(),
+                        cmd.senderWantsIcon(),
+                        cmd.getIconInfo(),
+                        null,
+                        cmd.getFeaturesBlock(),
+                        true);
+        }
+
+    }
+
+    /**
      * Our listener that will tell us when we're registered to icq and joust
      * sim is ready to accept us as a listener.
      */
@@ -341,6 +382,11 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 opSetPersPresence = (OperationSetPersistentPresenceIcqImpl)
                     icqProvider.getSupportedOperationSets()
                         .get(OperationSetPersistentPresence.class.getName());
+
+                // registers the factory handling channel 4 messages
+                icqProvider.getAimConnection().getIcbmService().
+                    getOscarConnection().getSnacProcessor().getCmdFactoryMgr().
+                    getDefaultFactoryList().registerAll(channelFourCmdFactory);
 
                 retreiveOfflineMessages();
             }
