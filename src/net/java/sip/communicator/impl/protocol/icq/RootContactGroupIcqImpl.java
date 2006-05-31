@@ -82,7 +82,7 @@ public class RootContactGroupIcqImpl
      */
     void addSubGroup(ContactGroupIcqImpl group)
     {
-        addSubGroup(countContacts(), group);
+        addSubGroup(countContacts() + countSubgroups(), group);
     }
 
     /**
