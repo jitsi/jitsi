@@ -19,6 +19,7 @@ import net.kano.joscar.snaccmd.icbm.*;
 import net.kano.joscar.snaccmd.ssi.*;
 import net.kano.joustsim.oscar.*;
 import net.kano.joustsim.Screenname;
+import net.java.sip.communicator.impl.protocol.icq.message.imicbm.*;
 
 /**
  * Extending the normal messages factory as its not handling the channel 4
@@ -36,14 +37,10 @@ import net.kano.joustsim.Screenname;
  * @author Damian Minkov
  */
 public class AuthCmdFactory
-    extends ClientIcbmCmdFactory implements SnacResponseListener
+    implements SnacResponseListener, ChFourPacketHandler
 {
     private static final Logger logger =
         Logger.getLogger(AuthCmdFactory.class);
-
-    protected static List SUPPORTED_TYPES = null;
-
-    public static final int CHANNEL_AUTH = 0x0004;
 
     private ProtocolProviderServiceIcqImpl icqProvider;
     private AuthorizationHandler authorizationHandler;
@@ -58,131 +55,10 @@ public class AuthCmdFactory
         this.authorizationHandler = authorizationHandler;
         this.aimConnection = aimConnection;
 
-        List types = super.getSupportedTypes();
-        ArrayList tempTypes = new ArrayList(types);
-        tempTypes.add(new CmdType(4, 7));
-
-        this.SUPPORTED_TYPES = DefensiveTools.getUnmodifiable(tempTypes);
-
         this.operationSetPresence =
             (OperationSetPersistentPresenceIcqImpl)
             icqProvider.getSupportedOperationSets().
             get(OperationSetPresence.class.getName());
-    }
-
-    /**
-     * Attempts to convert the given SNAC packet to a
-     * <code>SnacCommand</code>.
-     *
-     * @param packet the packet to use for generation of a
-     *   <code>SnacCommand</code>
-     * @return an appropriate <code>SnacCommand</code> for representing the
-     *   given <code>SnacPacket</code>, or <code>null</code> if no such
-     *   object can be created
-     */
-    public SnacCommand genSnacCommand(SnacPacket packet)
-    {
-        if (AbstractIcbm.getIcbmChannel(packet) == CHANNEL_AUTH)
-        {
-            AuthOldMsgCmd messageCommand = new AuthOldMsgCmd(packet);
-
-            int messageType = messageCommand.getMessageType();
-
-            String uin = String.valueOf(messageCommand.getSender());
-            Contact srcContact = operationSetPresence.findContactByID(uin);
-
-            // Contact may be not in the contact list
-            // as we added it as Volatile stopped the application
-            // and after that received authorization response
-            if(srcContact == null)
-                srcContact = operationSetPresence.createVolatileContact(uin);
-
-            if (messageType == AuthOldMsgCmd.MTYPE_AUTHREQ)
-            {
-                // this is a authorisation request with or without reason
-                AuthorizationRequest authRequest = new AuthorizationRequest();
-                authRequest.setReason(messageCommand.getReason());
-
-                AuthorizationResponse authResponse =
-                    authorizationHandler.processAuthorisationRequest(
-                        authRequest,
-                        srcContact
-                    );
-
-                if (authResponse.getResponseCode() ==
-                    AuthorizationResponse.ACCEPT)
-                {
-                    aimConnection.getInfoService().sendSnac(
-                        new AuthReplyCmd(
-                            String.valueOf(icqProvider.getAccountID().
-                                           getAccountUserID()),
-                            authResponse.getReason(),
-                            true));
-                }
-                else if (authResponse.getResponseCode() ==
-                         AuthorizationResponse.REJECT)
-                {
-                    aimConnection.getInfoService().sendSnac(
-                        new AuthReplyCmd(
-                            String.valueOf(icqProvider.getAccountID().
-                                           getAccountUserID()),
-                            authResponse.getReason(),
-                            false));
-                }
-                // all other is ignored
-            }
-            else
-            if (messageType == AuthOldMsgCmd.MTYPE_AUTHDENY)
-            {
-                // this is authorisation reply deny
-                // with or without reason
-                AuthorizationResponse authResponse =
-                    new AuthorizationResponse(
-                        AuthorizationResponse.REJECT,
-                        messageCommand.getReason());
-
-                authorizationHandler.processAuthorizationResponse(
-                    authResponse,
-                    srcContact);
-            }
-            else
-            if (messageType == AuthOldMsgCmd.MTYPE_AUTHOK)
-            {
-                // this is authorization reply with accept
-                // with reason == null
-                AuthorizationResponse authResponse =
-                    new AuthorizationResponse(
-                        AuthorizationResponse.ACCEPT,
-                        messageCommand.getReason());
-
-                authorizationHandler.processAuthorizationResponse(
-                    authResponse,
-                    srcContact);
-            }
-            else
-            if (messageType == AuthOldMsgCmd.MTYPE_ADDED)
-            {
-                /** Info that user has added us to their contact list */
-                logger.trace("User (" + messageCommand.getSender() +
-                             ") has added us to his contact list!");
-            }
-
-            return messageCommand;
-        }
-
-        return super.genSnacCommand(packet);
-    }
-
-    /**
-     * Returns a list of the SNAC command types this factory can possibly
-     * convert to <code>SnacCommand</code>s.
-     *
-     * @return a list of command types that can be passed to
-     *   <code>genSnacCommand</code>
-     */
-    public List getSupportedTypes()
-    {
-        return SUPPORTED_TYPES;
     }
 
     /**
@@ -219,8 +95,11 @@ public class AuthCmdFactory
 
                     logger.trace("finding buddy : " + uinToAskForAuth);
                     Contact srcContact =
-//                        new VolatileBuddy();
                         operationSetPresence.findContactByID(uinToAskForAuth);
+
+                    if(srcContact == null)
+                        srcContact = operationSetPresence.createVolatileContact(uinToAskForAuth);
+
                     AuthorizationRequest authRequest =
                         authorizationHandler.createAuthorizationRequest(
                         srcContact);
@@ -263,5 +142,84 @@ public class AuthCmdFactory
             }
         }
 
+    }
+
+    public SnacCommand handle(IcbmChannelFourCommand messageCommand)
+    {
+        int messageType = messageCommand.getMessageType();
+
+        String uin = String.valueOf(messageCommand.getSender());
+        Contact srcContact = operationSetPresence.findContactByID(uin);
+
+        // Contact may be not in the contact list
+        // as we added it as Volatile stopped the application
+        // and after that received authorization response
+        if(srcContact == null)
+            srcContact = operationSetPresence.createVolatileContact(uin);
+
+        if (messageType == IcbmChannelFourCommand.MTYPE_AUTHREQ)
+        {
+            // this is a authorisation request with or without reason
+            AuthorizationRequest authRequest = new AuthorizationRequest();
+            authRequest.setReason(messageCommand.getReason());
+
+            AuthorizationResponse authResponse =
+                authorizationHandler.processAuthorisationRequest(
+                    authRequest,
+                    srcContact
+                );
+
+            if (authResponse.getResponseCode() ==
+                AuthorizationResponse.ACCEPT)
+            {
+                aimConnection.getInfoService().sendSnac(
+                    new AuthReplyCmd(
+                        String.valueOf(icqProvider.getAccountID().
+                                       getAccountUserID()),
+                        authResponse.getReason(),
+                        true));
+            }
+            else if (authResponse.getResponseCode() ==
+                     AuthorizationResponse.REJECT)
+            {
+                aimConnection.getInfoService().sendSnac(
+                    new AuthReplyCmd(
+                        String.valueOf(icqProvider.getAccountID().
+                                       getAccountUserID()),
+                        authResponse.getReason(),
+                        false));
+            }
+            // all other is ignored
+        }
+        else
+        if (messageType == IcbmChannelFourCommand.MTYPE_AUTHDENY)
+        {
+            // this is authorisation reply deny
+            // with or without reason
+            AuthorizationResponse authResponse =
+                new AuthorizationResponse(
+                    AuthorizationResponse.REJECT,
+                    messageCommand.getReason());
+
+            authorizationHandler.processAuthorizationResponse(
+                authResponse,
+                srcContact);
+        }
+        else
+        if (messageType == IcbmChannelFourCommand.MTYPE_AUTHOK)
+        {
+            // this is authorization reply with accept
+            // with reason == null
+            AuthorizationResponse authResponse =
+                new AuthorizationResponse(
+                    AuthorizationResponse.ACCEPT,
+                    messageCommand.getReason());
+
+            authorizationHandler.processAuthorizationResponse(
+                authResponse,
+                srcContact);
+        }
+
+        return messageCommand;
     }
 }

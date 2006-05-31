@@ -26,6 +26,7 @@ import net.kano.joustsim.oscar.oscar.service.ssi.*;
 import net.kano.joustsim.oscar.oscar.service.buddy.*;
 import java.beans.PropertyChangeEvent;
 import net.java.sip.communicator.impl.protocol.icq.message.auth.*;
+import net.java.sip.communicator.impl.protocol.icq.message.imicbm.*;
 
 /**
  * The ICQ implementation of a Persistent Presence Operation set. This class
@@ -788,8 +789,18 @@ public class OperationSetPersistentPresenceIcqImpl
         AuthCmdFactory authCmdFactory =
             new AuthCmdFactory(icqProvider, icqProvider.getAimConnection(), handler);
 
-        snacProcessor.getCmdFactoryMgr().
-            getDefaultFactoryList().registerAll(authCmdFactory);
+        ChannelFourCmdFactory channelFourFactory =
+        ((OperationSetBasicInstantMessagingIcqImpl)
+            icqProvider.getSupportedOperationSets()
+            .get(OperationSetBasicInstantMessagingIcqImpl.class.getName())).
+            getChannelFourFactory();
+
+        channelFourFactory.addCommandHandler(
+            IcbmChannelFourCommand.MTYPE_AUTHREQ, authCmdFactory);
+        channelFourFactory.addCommandHandler(
+            IcbmChannelFourCommand.MTYPE_AUTHDENY, authCmdFactory);
+        channelFourFactory.addCommandHandler(
+            IcbmChannelFourCommand.MTYPE_AUTHOK, authCmdFactory);
 
         snacProcessor.addGlobalResponseListener(authCmdFactory);
 
