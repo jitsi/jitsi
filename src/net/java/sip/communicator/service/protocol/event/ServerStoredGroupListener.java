@@ -20,7 +20,7 @@ public interface ServerStoredGroupListener
     /**
      * Called whnever an indication is received that a new server stored group
      * is created.
-     * @param evt a ServerStoredGroupChangeEvent containing a reference to the
+     * @param evt a ServerStoredGroupEvent containing a reference to the
      * newly created group.
      */
     public void groupCreated(ServerStoredGroupEvent evt);
@@ -28,7 +28,7 @@ public interface ServerStoredGroupListener
     /**
      * Called whnever an indication is received that an existing server stored
      * group has been removed.
-     * @param evt a ServerStoredGroupChangeEvent containing a reference to the
+     * @param evt a ServerStoredGroupEvent containing a reference to the
      * newly created group.
      */
     public void groupRemoved(ServerStoredGroupEvent evt);
@@ -36,8 +36,20 @@ public interface ServerStoredGroupListener
     /**
      * Called when an indication is received that the name of a server stored
      * contact group has changed.
-     * @param evt a ServerStoredGroupChangeEvent containing the details of the
+     * @param evt a ServerStoredGroupEvent containing the details of the
      * name change.
      */
     public void groupNameChanged(ServerStoredGroupEvent evt);
+
+    /**
+     * Called when a contact group has been successfully resolved against the
+     * server. ContactGroup-s are considered unresolved when they have been
+     * stored locally and thus re-loaded when the application was started. A
+     * group is resolved when the fact that it is still present in the server
+     * stored contact list has been confirmed by the server.
+     * <p>
+     * @param evt a ServerStoredGroupEvent containing the source group.
+     */
+    public void groupResolved(ServerStoredGroupEvent evt);
+
 }
