@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.xml.*;
 
 /**
  * An implementation of the MetaContactListService that would connect to
@@ -133,7 +134,7 @@ public class MetaContactListServiceImpl
         }
         catch (Exception exc)
         {
-            logger.error("Failed loading the stored contact list.");
+            logger.error("Failed loading the stored contact list.", exc);
         }
 
         // start listening for newly register or removed protocol providers
@@ -1257,8 +1258,16 @@ public class MetaContactListServiceImpl
         {
             //load contacts, stored in the local contact list and corresponding to
             //this provider.
-            storageManager.extractContactsForAccount(
-                provider.getAccountID().getAccountUID());
+            try
+            {
+                storageManager.extractContactsForAccount(
+                    provider.getAccountID().getAccountUID());
+            }
+            catch (XMLException exc)
+            {
+                logger.error("Failed to load contacts for account "
+                             + provider.getAccountID().getAccountUID(), exc);
+            }
 
 
             synchronizeOpSetWithLocalContactList(opSetPersPresence);
@@ -1654,6 +1663,16 @@ public class MetaContactListServiceImpl
         }
 
         /**
+         * Events delivered through this method are ignored as they are of no
+         * interest to this implementation of the meta contact list service.
+         * @param evt the SubscriptionEvent containing the source contact
+         */
+        public void subscriptionResolved(SubscriptionEvent evt)
+        {
+            //who cares?
+        }
+
+        /**
          * Locates the <tt>MetaContact</tt> corresponding to the contact
          * that has been removed and updates it. If the removed proto contact
          * was the last one in it, then the <tt>MetaContact</tt> is also
@@ -1753,6 +1772,11 @@ public class MetaContactListServiceImpl
             return newMetaGroup;
         }
 
+        /**
+         * Adds the source group and its child contacts to the meta contact
+         * list.
+         * @param evt the ServerStoredGroupEvent containing the source group.
+         */
         public void groupCreated(ServerStoredGroupEvent evt)
         {
 
@@ -1783,6 +1807,16 @@ public class MetaContactListServiceImpl
                 , evt.getSourceProvider()
                 , null
                 , MetaContactGroupEvent.META_CONTACT_GROUP_ADDED);
+        }
+
+        /**
+         * Dummy implementation.
+         * <p>
+         * @param evt a ServerStoredGroupEvent containing the source group.
+         */
+        public void groupResolved(ServerStoredGroupEvent evt)
+        {
+            //we couldn't care less :)
         }
 
         /**
@@ -2268,6 +2302,13 @@ public class MetaContactListServiceImpl
         {}
 
         /**
+         * Evens delivered through this method are ignored
+         * @param evt param ignored
+         */
+        public void groupResolved(ServerStoredGroupEvent evt)
+        {}
+
+        /**
          * Block the execution of the current thread until either a group
          * created event is received or milis miliseconds pass.
          * @param millis the number of millis that we should wait before we
@@ -2356,6 +2397,14 @@ public class MetaContactListServiceImpl
          */
         public void subscriptionMoved(SubscriptionMovedEvent evt)
         {}
+
+        /**
+         * Events delivered through this method are ignored
+         * @param evt param ignored
+         */
+        public void subscriptionResolved(SubscriptionEvent evt)
+        {}
+
 
         /**
          * Block the execution of the current thread until either a contact
