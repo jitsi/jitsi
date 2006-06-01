@@ -26,15 +26,19 @@ public class ContactIcqImpl
      * @param ssclCallback a reference to the ServerStoredContactListIcqImpl
      * instance that created us.
      * @param isPersistent determines whether this contact is persistent or not.
+     * @param isResolved specifies whether the contact has been resolved against
+     * the server contact list
      */
     ContactIcqImpl(Buddy buddy,
                    ServerStoredContactListIcqImpl ssclCallback,
-                   boolean isPersistent)
+                   boolean isPersistent,
+                   boolean isResolved)
     {
         this.joustSimBuddy = buddy;
         this.isLocal = isLocal;
         this.ssclCallback = ssclCallback;
         this.isPersistent = isPersistent;
+        this.isResolved = isResolved;
     }
 
     /**
@@ -227,6 +231,20 @@ public class ContactIcqImpl
     void setPersistent(boolean persistent)
     {
         this.isPersistent = persistent;
+    }
+
+    /**
+     * Specifies whether this contact has been resolved, or in other words that
+     * its presence in the server stored contact list has been confirmed.
+     * Unresolved contacts are created by services which need to quickly obtain
+     * a reference to the contact corresponding to a specific address possibly
+     * even before logging on the net.
+     * @param resolved true if the buddy is resolved against the server stored
+     * contact list and false otherwise.
+     */
+    void setResolved(boolean resolved)
+    {
+        this.isResolved = resolved;
     }
 
     /**
