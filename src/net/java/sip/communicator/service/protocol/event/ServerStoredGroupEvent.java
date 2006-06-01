@@ -18,9 +18,25 @@ import net.java.sip.communicator.service.protocol.*;
 public class ServerStoredGroupEvent
     extends EventObject
 {
+    /**
+     * Indicates that a contact group has been successfully created.
+     */
     public static final int GROUP_CREATED_EVENT = 1;
+
+    /**
+     * Indicates that a contact group has been successfully deleted.
+     */
     public static final int GROUP_REMOVED_EVENT = 2;
+
+    /**
+     * Indicates that a group has been successfully renamed.
+     */
     public static final int GROUP_RENAMED_EVENT = 3;
+
+    /**
+     * Indicates that a group has just been resolved against the server.
+     */
+    public static final int GROUP_RESOLVED_EVENT = 4;
 
     private int eventID = -1;
     private ProtocolProviderService sourceProvider = null;
