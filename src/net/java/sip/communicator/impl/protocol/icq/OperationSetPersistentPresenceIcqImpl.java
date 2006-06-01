@@ -418,14 +418,22 @@ public class OperationSetPersistentPresenceIcqImpl
      * @param parentGroup the group that the unresolved contact should belong to.
      * @return the unresolved <tt>Contact</tt> created from the specified
      * <tt>address</tt> and <tt>persistentData</tt>
+     *
+     * @throws java.lang.IllegalArgumentException if <tt>parentGroup</tt> is not
+     * an instance of ContactGroupIcqImpl
      */
     public Contact createUnresolvedContact(String address,
                                            String persistentData,
                                            ContactGroup parentGroup)
+        throws IllegalArgumentException
     {
-        /**@todo implement createUnresolvedContact() */
-        System.out.println("@todo implement createUnresolvedContact()");
-        return null;
+        if(! (parentGroup instanceof ContactGroupIcqImpl) )
+            throw new IllegalArgumentException(
+                "Argument is not an icq contact group (group="
+                + parentGroup + ")");
+
+        return ssContactList.createUnresolvedContact(
+            (ContactGroupIcqImpl)parentGroup, new Screenname(address));
     }
 
     /**
@@ -447,11 +455,10 @@ public class OperationSetPersistentPresenceIcqImpl
     public Contact createUnresolvedContact(String address,
                                            String persistentData)
     {
-        /**@todo implement createUnresolvedContact() */
-        System.out.println("@todo implement createUnresolvedContact()");
-        return null;
+        return createUnresolvedContact(  address
+                                       , persistentData
+                                       , getServerStoredContactListRoot());
     }
-
 
     /**
      * Creates and returns a unresolved contact group from the specified
@@ -474,8 +481,10 @@ public class OperationSetPersistentPresenceIcqImpl
     public ContactGroup createUnresolvedContactGroup(String groupUID,
         String persistentData, ContactGroup parentGroup)
     {
-
-        return null;
+        //silently ignore the parent group. ICQ does not support subgroups so
+        //parentGroup is supposed to be root. if it is not however we're not
+        //going to complain because we're cool :).
+        return ssContactList.createUnresolvedContactGroup(groupUID);
     }
 
     /**
@@ -1165,6 +1174,57 @@ public class OperationSetPersistentPresenceIcqImpl
 //                 contacts and we really need it here ...*/
                 icqProvider.getAimConnection().getBuddyInfoManager()
                     .addGlobalBuddyInfoListener(new GlobalBuddyInfoListener());
+            }
+            else if(evt.getNewState() == RegistrationState.UNREGISTERED
+                 || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
+                 || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
+            {
+                //since we are disconnected, we won't receive any further status
+                //updates so we need to change by ourselves our own status as
+                //well as set to offline all contacts in our contact list that
+                //were online
+
+                //start by notifying that our own status has changed
+                long oldStatus  = currentIcqStatus;
+                currentIcqStatus = -1;
+
+                //only notify of an event change if there was really one.
+                if( oldStatus != -1 )
+                    fireProviderPresenceStatusChangeEvent(oldStatus,
+                                                          currentIcqStatus);
+
+                //send event notifications saying that all our buddies are
+                //offline. The icq protocol does not implement top level buddies
+                //nor subgroups for top level groups so a simple nested loop
+                //would be enough.
+                Iterator groupsIter = getServerStoredContactListRoot()
+                                                                .subgroups();
+                while(groupsIter.hasNext())
+                {
+                    ContactGroupIcqImpl group
+                        = (ContactGroupIcqImpl)groupsIter.next();
+
+                    Iterator contactsIter = group.contacts();
+
+                    while(contactsIter.hasNext())
+                    {
+                        ContactIcqImpl contact
+                            = (ContactIcqImpl)contactsIter.next();
+
+                        PresenceStatus oldContactStatus
+                            = contact.getPresenceStatus();
+
+                        if(!oldContactStatus.isOnline())
+                            continue;
+
+                        contact.updatePresenceStatus(IcqStatusEnum.OFFLINE);
+
+                        fireContactPresenceStatusChangeEvent(
+                              contact
+                            , contact.getParentContactGroup()
+                            , oldContactStatus, IcqStatusEnum.OFFLINE);
+                    }
+                }
             }
         }
 
