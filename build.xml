@@ -94,8 +94,9 @@
        <echo message="'ant rebuild run' for a safe clean/build/run" />
        <echo message="'ant make run' for incremental build/run" />
        <echo message="'ant run' to run the last build (use with care!)" />
-       <echo message="'ant test' for incremental build/test sequence" />
+       <echo message="'ant test' to run the tests over the last build" />
        <echo message="'ant rebuild test' for safe clean/build/test sequence" />
+       <echo message="'ant make test' for incremental build/test sequence" />
        <echo message="'ant -projecthelp' for other useful build targets" />
        <echo message="'ant -help' for Ant help" />
     </target>
