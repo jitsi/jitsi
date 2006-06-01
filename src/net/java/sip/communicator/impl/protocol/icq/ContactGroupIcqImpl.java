@@ -66,15 +66,17 @@ public class ContactGroupIcqImpl
      * @param joustSimGroup the JoustSIM Group correspoinding to the group
      * @param groupMembers the group members that we should add to the group.
      * @param ssclCallback a callback to the server stored contact list
-     *
      * we're creating.
+     * @param isResolved a boolean indicating whether or not the group has been
+     * resolved against the server.
      */
     ContactGroupIcqImpl(MutableGroup joustSimGroup,
                         List groupMembers,
-                        ServerStoredContactListIcqImpl ssclCallback)
+                        ServerStoredContactListIcqImpl ssclCallback,
+                        boolean isResolved)
     {
         this.joustSimSourceGroup = joustSimGroup;
-
+        this.isResolved = isResolved;
         this.ssclCallback = ssclCallback;
 
         //store a copy of the name now so that we can detect changes in the
@@ -88,9 +90,8 @@ public class ContactGroupIcqImpl
         for (int i = 0; i < groupMembers.size(); i++)
         {
             addContact( new ContactIcqImpl((Buddy)groupMembers.get(i),
-                                           ssclCallback, true) );
+                                           ssclCallback, true, true) );
         }
-
     }
 
     /**
@@ -440,7 +441,7 @@ public class ContactGroupIcqImpl
      */
     public boolean isPersistent()
     {
-        return joustSimSourceGroup != null;
+        return joustSimSourceGroup instanceof VolatileGroup;
     }
 
     /**
@@ -455,17 +456,88 @@ public class ContactGroupIcqImpl
     }
 
     /**
-     * Determines whether or not this contact has been resolved against the
-     * server. Unresolved contacts are used when initially loading a contact
+     * Determines whether or not this contact group has been resolved against
+     * the server. Unresolved group are used when initially loading a contact
      * list that has been stored in a local file until the presence operation
      * set has managed to retrieve all the contact list from the server and has
-     * properly mapped contacts to their on-line buddies.
+     * properly mapped contacts and groups to their corresponding on-line
+     * buddies.
      * @return true if the contact has been resolved (mapped against a buddy)
      * and false otherwise.
      */
     public boolean isResolved()
     {
         return isResolved;
+    }
+
+    /**
+     * Specifies whether or not this contact group is to be considered resolved
+     * against the server. Note that no actions are to be undertaken against
+     * group buddies in this method.
+     * @param resolved true if this group hase been resolved against the server
+     * and false otherwise.
+     */
+    void setResolved(boolean resolved)
+    {
+        this.isResolved = resolved;
+    }
+
+    /**
+     * Sets this group and contacts corresponding to buddies in the
+     * serverBuddies list as resolved.
+     * @param serverBuddies a List of joust sim Buddy objects as they were
+     * returned by the server
+     * @param newContacts a list of ContactIcqImpl objects containing contacts
+     * that were present as joust sim buddies in the <tt>serverBuddies</tt>
+     * list but were not present in the group itself.
+     * @param removedContacts contacts assumed deleted because they were in the
+     * local group but were not in the serverBuddies list.
+     */
+     void updateGroup(List serverBuddies,
+                      List newContacts,
+                      List removedContacts)
+    {
+        setResolved(true);
+        Iterator serverBuddiesIter = serverBuddies.iterator();
+
+        while(serverBuddiesIter.hasNext())
+        {
+            Buddy buddy = (Buddy)serverBuddiesIter.next();
+            ContactIcqImpl contact
+                = findContact(buddy.getScreenname().getFormatted());
+
+            if(contact == null)
+            {
+                //if the contact was not in the list, create it and mark it as
+                //new
+                contact = new ContactIcqImpl(
+                    buddy, this.ssclCallback, true, true);
+
+                newContacts.add(contact);
+                addContact(contact);
+            }
+            else
+            {
+                //the contact was already in the list. we need to only set it
+                //as resolved.
+                contact.setResolved(true);
+            }
+        }
+
+        //discover and remove contacts that were not resolved and report them
+        //as removed
+        Iterator childContacts = this.buddies.listIterator();
+
+        while(childContacts.hasNext())
+        {
+            Contact contact = (Contact)childContacts.next();
+
+            if(!contact.isResolved())
+            {
+                childContacts.remove();
+                removedContacts.add(contact);
+            }
+        }
     }
 
     /**
