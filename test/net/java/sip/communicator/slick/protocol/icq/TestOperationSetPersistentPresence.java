@@ -486,6 +486,22 @@ public class TestOperationSetPersistentPresence
                 notifyAll();
             }
         }
+
+        /**
+         * Called whnever an indication is received that an existing server
+         * stored group has been resolved.
+         * @param evt a ServerStoredGroupChangeEvent containing a reference to
+         * the resolved group.
+         */
+        public void groupResolved(ServerStoredGroupEvent evt)
+        {
+            synchronized(this)
+            {
+                logger.debug("Collected evt("+collectedEvents.size()+")= "+evt);
+                collectedEvents.add(evt);
+                notifyAll();
+            }
+        }
     }
 
     /**
@@ -571,6 +587,22 @@ public class TestOperationSetPersistentPresence
                 notifyAll();
             }
         }
+
+        /**
+         * Stores the received subsctiption and notifies all waiting on this
+         * object
+         * @param evt the SubscriptionEvent containing the corresponding contact
+         */
+        public void subscriptionResolved(SubscriptionEvent evt)
+        {
+            synchronized(this)
+            {
+                logger.debug("Collected evt("+collectedEvents.size()+")= "+evt);
+                collectedEvents.add(evt);
+                notifyAll();
+            }
+        }
+
 
         /**
          * Stores the received subsctiption and notifies all waiting on this
