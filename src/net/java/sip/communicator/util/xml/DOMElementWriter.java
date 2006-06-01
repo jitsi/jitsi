@@ -39,10 +39,11 @@ import org.w3c.dom.Text;
 /**
  * Writes a DOM tree to a given Writer.
  *
- * <p>Utility class used by {@link org.apache.tools.ant.XmlLogger
- * XmlLogger} and
- * org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter
- * XMLJUnitResultFormatter}.</p>
+ * <p>Utility class used by {@link net.java.sip.communicator.util.xml.XMLUtils
+ * XMLUtils}
+ * and the {@link net.java.sip.communicator.slick.runner.SipCommunicatorSlickRunner
+ * SipCommunicatorSlickRunner}.
+ * </p>
  *
  */
 public class DOMElementWriter {
