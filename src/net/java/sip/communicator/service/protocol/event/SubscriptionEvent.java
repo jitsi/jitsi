@@ -42,6 +42,14 @@ public class SubscriptionEvent
      */
     public static final int SUBSCRIPTION_FAILED  = 3;
 
+    /**
+     * Indicates that the SubscriptionEvent instance was triggered by the fact
+     * that the presence of a particular contact in the contact list has been
+     * confirmed by the server (resolved).
+     */
+    public static final int SUBSCRIPTION_RESOLVED  = 4;
+
+
     private ProtocolProviderService sourceProvider = null;
     private ContactGroup  parentGroup = null;
 
