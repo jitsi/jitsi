@@ -166,6 +166,8 @@ public class ServerStoredContactListIcqImpl
                     l.groupNameChanged(evt);
                 else if (eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
                     l.groupCreated(evt);
+                else if (eventID == ServerStoredGroupEvent.GROUP_RESOLVED_EVENT)
+                    l.groupResolved(evt);
             }
         }
     }
@@ -197,6 +199,27 @@ public class ServerStoredContactListIcqImpl
         parentOperationSet.fireSubscriptionEvent(
             SubscriptionEvent.SUBSCRIPTION_CREATED, contact, parentGroup);
     }
+
+    /**
+     * Make the parent persistent presence operation set dispatch a contact
+     * resolved event.
+     * @param parentGroup the group that the resolved contact belongs to.
+     * @param contact the contact that was resolved
+     */
+    private void fireContactResolved( ContactGroupIcqImpl parentGroup,
+                                      ContactIcqImpl contact)
+    {
+        //bail out if no one's listening
+        if(parentOperationSet == null){
+            logger.debug("No presence op. set available. Bailing out.");
+            return;
+        }
+
+        //dispatch
+        parentOperationSet.fireSubscriptionEvent(
+            SubscriptionEvent.SUBSCRIPTION_RESOLVED, contact, parentGroup);
+    }
+
 
     /**
      * Make the parent persistent presence operation set dispatch a subscription
@@ -281,6 +304,31 @@ public class ServerStoredContactListIcqImpl
         }
         return -1;
     }
+
+    /**
+     * Returns the ConntactGroup with the specified name or null if no such
+     * group was found.
+     * <p>
+     * @param name the name of the group we're looking for.
+     * @return a reference to the ContactGroupIcqImpl instance we're looking for
+     * or null if no such group was found.
+     */
+    public ContactGroupIcqImpl findContactGroup(String name)
+    {
+        Iterator contactGroups = rootGroup.subgroups();
+
+        while(contactGroups.hasNext())
+        {
+            ContactGroupIcqImpl contactGroup
+                = (ContactGroupIcqImpl) contactGroups.next();
+
+            if (contactGroup.getGroupName().equals(name))
+                return contactGroup;
+
+        }
+        return null;
+    }
+
 
     /**
      * Returns the ContactGroup corresponding to the specified joust sim group.
@@ -376,24 +424,24 @@ public class ServerStoredContactListIcqImpl
      * @param screenname the UIN/Screenname of the contact to create.
      * @return the newly created volatile <tt>ContactIcqImpl</tt>
      */
-    ContactIcqImpl createVolatileContact(Screenname  screenname)
+    ContactIcqImpl createVolatileContact(Screenname screenname)
     {
         //First create the new volatile contact;
         Buddy volatileBuddy = new VolatileBuddy(screenname);
 
         ContactIcqImpl newVolatileContact
-            = new ContactIcqImpl(volatileBuddy, this, true);
+            = new ContactIcqImpl(volatileBuddy, this, false, false);
 
         //Check whether a volatile group already exists and if not create
         //one
         ContactGroupIcqImpl theVolatileGroup = findContactGroup((Group)null);
 
-        //if necessary create the group
+        //if the parent group is null then add necessary create the group
         if (theVolatileGroup == null)
         {
             List emptyBuddies = new LinkedList();
             theVolatileGroup = new ContactGroupIcqImpl(
-                new VolatileGroup(), emptyBuddies, this);
+                new VolatileGroup(), emptyBuddies, this, false);
             theVolatileGroup.addContact(newVolatileContact);
 
             this.rootGroup.addSubGroup(theVolatileGroup);
@@ -412,6 +460,61 @@ public class ServerStoredContactListIcqImpl
         return newVolatileContact;
     }
 
+    /**
+     * Creates a non resolved contact for the specified address and inside the
+     * specified group. The newly created contact would be added to the local
+     * contact list as a standard contact but when an event is received from the
+     * server concerning this contact, then it will be reused and only its
+     * isResolved field would be updated instead of creating the whole contact
+     * again.
+     *
+     * @param parentGroup the group where the unersolved contact is to be
+     * created
+     * @param screenname the UIN/Screenname of the contact to create.
+     * @return the newly created unresolved <tt>ContactIcqImpl</tt>
+     */
+    ContactIcqImpl createUnresolvedContact(ContactGroupIcqImpl parentGroup,
+                                           Screenname  screenname)
+    {
+        //First create the new volatile contact;
+        Buddy volatileBuddy = new VolatileBuddy(screenname);
+
+        ContactIcqImpl newUnresolvedContact
+            = new ContactIcqImpl(volatileBuddy, this, false, false);
+
+        parentGroup.addContact(newUnresolvedContact);
+
+        fireContactAdded(  parentGroup
+                         , newUnresolvedContact
+                         , parentGroup.findContactIndex(volatileBuddy));
+
+        return newUnresolvedContact;
+    }
+
+    /**
+     * Creates a non resolved contact group for the specified name. The newly
+     * created group would be added to the local contact list as any other group
+     * but when an event is received from the server concerning this group, then
+     * it will be reused and only its isResolved field would be updated instead
+     * of creating the whole group again.
+     * <p>
+     * @param groupName the name of the group to create.
+     * @return the newly created unresolved <tt>ContactGroupIcqImpl</tt>
+     */
+    ContactGroupIcqImpl createUnresolvedContactGroup(String groupName)
+    {
+        //First create the new volatile contact;
+        List emptyBuddies = new LinkedList();
+        ContactGroupIcqImpl newUnresolvedGroup = new ContactGroupIcqImpl(
+                new VolatileGroup(groupName), emptyBuddies, this, false);
+
+        this.rootGroup.addSubGroup(newUnresolvedGroup);
+
+        fireGroupEvent(newUnresolvedGroup
+                        , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+
+        return newUnresolvedGroup;
+    }
 
     /**
      * Adds a new contact with the specified screenname to the list under the
@@ -421,7 +524,7 @@ public class ServerStoredContactListIcqImpl
      */
     public void addContact(ContactGroupIcqImpl parent, String screenname)
     {
-        logger.trace("Addint contact " + screenname
+        logger.trace("Adding contact " + screenname
                      + " to parent=" + parent.getGroupName());
 
         //if the contact is already in the contact list and is not volatile,
@@ -566,9 +669,54 @@ public class ServerStoredContactListIcqImpl
         {
             logger.trace("Group added: " + group.getName());
             logger.trace("Buddies: " + buddies);
-            ContactGroupIcqImpl newGroup
-                = new ContactGroupIcqImpl((MutableGroup)group, buddies,
-                        ServerStoredContactListIcqImpl.this);
+
+            ContactGroupIcqImpl newGroup = findContactGroup(group.getName());
+
+            //verify that this is indeed a new group
+            if(newGroup == null)
+            {
+                newGroup = new ContactGroupIcqImpl(
+                      (MutableGroup) group
+                    , buddies
+                    , ServerStoredContactListIcqImpl.this, true);
+            }
+            else
+            {
+                // if this is not a new group then it must be a unresolved one.
+                // set it to resolved, do the same with its child buddies, fire
+                // the corresponding events and bail out.
+                List newContacts = new ArrayList();
+                List deletedContacts = new ArrayList();
+                newGroup.updateGroup(buddies, newContacts, deletedContacts);
+
+                //fire an event saying that the group has been resolved
+                fireGroupEvent(newGroup
+                               , ServerStoredGroupEvent.GROUP_RESOLVED_EVENT);
+
+                //fire events for contacts that have been removed;
+                Iterator deletedContactsIter = deletedContacts.iterator();
+                while(deletedContactsIter.hasNext())
+                {
+                    ContactIcqImpl contact
+                        = (ContactIcqImpl)deletedContactsIter.next();
+                    fireContactRemoved(newGroup, contact);
+                }
+
+                //fire events for that contacts have been resolved or added
+                Iterator contactsIter = newGroup.contacts();
+                while(contactsIter.hasNext())
+                {
+                    ContactIcqImpl contact
+                        = (ContactIcqImpl)contactsIter.next();
+
+                    if(newContacts.contains(contact))
+                        fireContactAdded(newGroup, contact, 0);
+                    else
+                        fireContactResolved(newGroup, contact);
+                }
+
+
+            }
 
             //add a joust sim buddy listener to all of the buddies in this group
             for(int i = 0; i < buddies.size(); i++)
@@ -667,7 +815,7 @@ public class ServerStoredContactListIcqImpl
             if(newContact == null)
             {
                 newContact = new ContactIcqImpl(
-                    buddy, ServerStoredContactListIcqImpl.this, true);
+                    buddy, ServerStoredContactListIcqImpl.this, true, true);
             }
             else
             {
@@ -675,6 +823,7 @@ public class ServerStoredContactListIcqImpl
                 oldParentGroup.removeContact(newContact);
                 newContact.setJoustSimBuddy(buddy);
                 newContact.setPersistent(true);
+                newContact.setResolved(true);
             }
             ContactGroupIcqImpl parentGroup = findContactGroup(joustSimGroup);
 
