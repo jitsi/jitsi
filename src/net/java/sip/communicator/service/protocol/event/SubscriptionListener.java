@@ -56,4 +56,12 @@ public interface SubscriptionListener
      * and new parents as well as a ref to the source contact.
      */
     public void subscriptionMoved(SubscriptionMovedEvent evt);
+
+    /**
+     * Indicates that a subscription has been successfully resolved and that
+     * the server has acknowledged taking it into account.
+     * @param evt the SubscriptionEvent containing the source contact
+     */
+    public void subscriptionResolved(SubscriptionEvent evt);
+
 }
