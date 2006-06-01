@@ -359,29 +359,41 @@ public class MclStorageManager
      *
      * @param accountID the identifier of the account whose contacts we're
      * interested in.
+     * @throws XMLException if a problem occurs while parsing contact lsit
+     * contents.
      */
     void extractContactsForAccount(String accountID)
+        throws XMLException
     {
         if(!isStarted())
             return;
+        try
+        {
+            //we don't want to receive meta contact events triggerred by ourselves
+            //so we stop listening. it is possible but very unlikely that other
+            //events, not triggerred by us are received while we're off the channel
+            //but that would be a very bizzare case ..... I guess we got to live
+            //with the risk.
+            this.mclServiceImpl.removeMetaContactListListener(this);
 
-        //we don't want to receive meta contact events triggerred by ourselves
-        //so we stop listening. it is possible but very unlikely that other
-        //events, not triggerred by us are received while we're off the channel
-        //but that would be a very bizzare case ..... I guess we got to live
-        //with the risk.
-        this.mclServiceImpl.removeMetaContactListListener(this);
+            Element root = findMetaContactGroupNode(
+                mclServiceImpl.getRoot().getMetaUID());
 
-        Element root  = findMetaContactGroupNode(
-                                mclServiceImpl.getRoot().getMetaUID());
+            //parse the group node and extract all its child groups and contacts
+            processGroupXmlNode(mclServiceImpl, accountID, root
+                                , null, null);
 
-        //parse the group node and extract all its child groups and contacts
-        processGroupXmlNode(mclServiceImpl, accountID, root
-                           , null, null);
-
-        //now that we're done updating the contact list we can start listening
-        //again
-        this.mclServiceImpl.addMetaContactListListener(this);
+            //now that we're done updating the contact list we can start listening
+            //again
+            this.mclServiceImpl.addMetaContactListListener(this);
+        }catch(Throwable exc)
+        {
+            // catch everything because we MUST NOT disturb the thread
+            //initializing the meta CL for a new provider with null point
+            //exceptions or others of the sort
+            throw new XMLException("Failed to extract contacts for account "
+                                   +accountID, exc);
+        }
     }
 
     /**
@@ -552,11 +564,21 @@ public class MclStorageManager
                 || !currentGroupNode.getNodeName().equals(GROUP_NODE_NAME))
                 continue;
 
-            processGroupXmlNode(mclServiceImpl
-                                , accountID
-                                , (Element)currentGroupNode
-                                , currentMetaGroup
-                                , protoGroupsMap);
+            try
+            {
+                processGroupXmlNode(mclServiceImpl
+                                    , accountID
+                                    , (Element) currentGroupNode
+                                    , currentMetaGroup
+                                    , protoGroupsMap);
+            }
+            catch(Throwable t)
+            {
+                //catch everything and bravely continue with remaining groups
+                //and contacts
+                logger.error("Failed to process group node " + currentGroupNode
+                             , t);
+            }
         }
     }
 
