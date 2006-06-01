@@ -21,6 +21,11 @@ class VolatileGroup
 
     VolatileGroup(){}
 
+    VolatileGroup(String groupName)
+    {
+        this.groupName = groupName;
+    }
+
     /**
      * Returns the name of this group.
      *
