@@ -557,6 +557,9 @@ public class TestOperationSetPresence
         Contact srcContact = null;
         ProtocolProviderService srcProvider = null;
 
+        // the event can be SubscriptionEvent and the new added one
+        // SubscriptionMovedEvent
+
         if(evt instanceof SubscriptionEvent)
         {
             SubscriptionEvent subEvt = (SubscriptionEvent)evt;
