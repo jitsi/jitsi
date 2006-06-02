@@ -441,7 +441,7 @@ public class ContactGroupIcqImpl
      */
     public boolean isPersistent()
     {
-        return joustSimSourceGroup instanceof VolatileGroup;
+        return !(joustSimSourceGroup instanceof VolatileGroup);
     }
 
     /**

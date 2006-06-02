@@ -438,8 +438,9 @@ public class TestOperationSetPresence
 //                    logger.trace("is contact there 1 = " +
 //                                 operationSetPresence.findContactByID(fixture.testerAgent.getIcqUIN()));
 //
+
                     operationSetPresence.subscribe(fixture.testerAgent.getIcqUIN());
-//
+
 //                    logger.debug("Waiting for authorization error and authorization response...");
 //                    authorizationLock.wait(5000);
 //
@@ -548,18 +549,41 @@ public class TestOperationSetPresence
 
         assertEquals("Subscription event dispatching failed."
                      , 1, subEvtCollector.collectedEvents.size());
-        SubscriptionEvent subEvt =
-            (SubscriptionEvent)subEvtCollector.collectedEvents.get(0);
+
+        EventObject evt =
+            (EventObject)subEvtCollector.collectedEvents.get(0);
+
+        Object source = null;
+        Contact srcContact = null;
+        ProtocolProviderService srcProvider = null;
+
+        if(evt instanceof SubscriptionEvent)
+        {
+            SubscriptionEvent subEvt = (SubscriptionEvent)evt;
+
+            source = subEvt.getSource();
+            srcContact = subEvt.getSourceContact();
+            srcProvider = subEvt.getSourceProvider();
+        }
+        else
+            if(evt instanceof SubscriptionMovedEvent)
+            {
+                SubscriptionMovedEvent mvEvt = (SubscriptionMovedEvent)evt;
+
+                source = mvEvt.getSource();
+                srcContact = mvEvt.getSourceContact();
+                srcProvider = mvEvt.getSourceProvider();
+            }
 
         assertEquals("SubscriptionEvent Source:",
                      fixture.testerAgent.getIcqUIN(),
-                     ((Contact)subEvt.getSource()).getAddress());
+                     ((Contact)source).getAddress());
         assertEquals("SubscriptionEvent Source Contact:",
                      fixture.testerAgent.getIcqUIN(),
-                     subEvt.getSourceContact().getAddress());
+                     srcContact.getAddress());
         assertSame("SubscriptionEvent Source Provider:",
                      fixture.provider,
-                     subEvt.getSourceProvider());
+                     srcProvider);
 
         subEvtCollector.collectedEvents.clear();
 
