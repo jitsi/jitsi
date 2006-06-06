@@ -75,6 +75,7 @@ public class IcqProtocolProviderSlick
                 "Registering the IcqTesterAgent on icq has failed.(Possible "
                 +"reasons: authetification failed, or Connection rate limit "
                 +"exceeded.)");
+        IcqSlickFixture.testerAgent.setAuthorizationRequired();
 
         //initialize the tested account's contact list so that it could be ready
         //when testing starts.
@@ -196,6 +197,7 @@ public class IcqProtocolProviderSlick
         cListInitTesterAgent.register(
                 System.getProperty(TESTED_IMPL_PWD_PROP_NAME, null)
             );
+        cListInitTesterAgent.setAuthorizationRequired();
 
         cListInitTesterAgent.initializeBuddyList(contactListToCreate);
 

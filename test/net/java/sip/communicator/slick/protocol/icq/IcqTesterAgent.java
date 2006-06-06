@@ -1135,36 +1135,6 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         }
     }
 
-/*
-    private class AuthRequiredListener
-        implements SnacResponseListener
-    {
-        public void handleResponse(SnacResponseEvent snacResponseEvent)
-        {
-            if (snacResponseEvent.getSnacCommand() instanceof SsiDataModResponse)
-            {
-                SsiDataModResponse dataModResponse =
-                    (SsiDataModResponse) snacResponseEvent.getSnacCommand();
-
-                int[] results = dataModResponse.getResults();
-                List items = ( (ItemsCmd) snacResponseEvent.getRequest().getCommand()).
-                    getItems();
-                items = new LinkedList(items);
-
-                for (int i = 0; i < results.length; i++)
-                {
-                    int result = results[i];
-                    if (result ==
-                        SsiDataModResponse.RESULT_ICQ_AUTH_REQUIRED)
-                    {
-                        conn.sendSnac(new AuthReplyCmd("", "First Test - Not Accepted!", false));
-                    }
-                }
-            }
-        }
-    }
- */
-
     private class AuthReplyCmd
         extends SsiCommand
     {
@@ -1174,6 +1144,25 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         private String uin = null;
         private String reason = null;
         private boolean accepted = false;
+
+        public AuthReplyCmd(SnacPacket packet)
+        {
+            super(0x001b);
+
+            ByteBlock messageData = packet.getData();
+            // parse data
+            int offset = 0;
+            short uinLen = BinaryTools.getUByte(messageData, offset++);
+            uin = OscarTools.getString(messageData.subBlock(offset, uinLen), "US-ASCII");
+            offset += uinLen;
+
+            accepted = BinaryTools.getUByte(messageData, offset++) == 1;
+
+            int reasonLen = BinaryTools.getUShort(messageData, offset);
+            offset += 2;
+            reason = OscarTools.getString(messageData.subBlock(offset, reasonLen), "US-ASCII");
+        }
+
 
         public AuthReplyCmd(String uin, String reason, boolean accepted)
         {
@@ -1210,11 +1199,9 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
     }
 
     public class AuthCmdFactory
-        extends ClientIcbmCmdFactory
+        extends ServerSsiCmdFactory
     {
         List SUPPORTED_TYPES = null;
-
-        public static final int CHANNEL_AUTH = 0x0004;
 
         public String responseReasonStr = null;
         public String requestReasonStr = null;
@@ -1224,140 +1211,173 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         {
             List types = super.getSupportedTypes();
             ArrayList tempTypes = new ArrayList(types);
-            tempTypes.add(new CmdType(4, 7));
+            tempTypes.add(new CmdType(SsiCommand.FAMILY_SSI, 0x001b)); // 1b auth request reply
+            tempTypes.add(new CmdType(SsiCommand.FAMILY_SSI, 0x0019)); // 19 auth request
 
             this.SUPPORTED_TYPES = DefensiveTools.getUnmodifiable(tempTypes);
         }
 
+        public List getSupportedTypes()
+        {return SUPPORTED_TYPES;}
+
         public SnacCommand genSnacCommand(SnacPacket packet)
         {
-            if (AbstractIcbm.getIcbmChannel(packet) == CHANNEL_AUTH)
+            int command = packet.getCommand();
+
+            // auth reply
+//            if (command == 0x001b)
+            // auth request
+            if (command == 25)
             {
-                AuthOldMsgCmd messageCommand = new AuthOldMsgCmd(packet);
+                RequestAuthCmd cmd = new RequestAuthCmd(packet);
+                requestReasonStr = cmd.reason;
+                System.out.println("sending authorization " + ACCEPT);
+                logger.trace("sending authorization " + ACCEPT);
+                conn.sendSnac(
+                    new AuthReplyCmd(
+                        String.valueOf(cmd.uin),
+                        responseReasonStr,
+                        ACCEPT));
+                return cmd;
+            }
+            else if (command == 26) // auth reply
+            {
+                AuthReplyCmd cmd = new AuthReplyCmd(packet);
 
-                int messageType = messageCommand.messageType;
+                System.out.println("cmd " + cmd);
+                System.out.println("is accepted " + cmd.accepted);
+                System.out.println("reason " + cmd.reason);
 
-                if (messageType == AuthOldMsgCmd.MTYPE_AUTHREQ)
-                {
-                    requestReasonStr = messageCommand.reason;
-
-                    logger.trace("sending authorization " + ACCEPT);
-
-                    conn.sendSnac(
-                        new AuthReplyCmd(
-                            String.valueOf(messageCommand.sender),
-                            responseReasonStr,
-                            ACCEPT));
-                }
-                else
-                if (messageType == AuthOldMsgCmd.MTYPE_AUTHDENY)
-                {
-    //
-                }
-                else
-                if (messageType == AuthOldMsgCmd.MTYPE_AUTHOK)
-                {
-    //
-                }
-                else
-
-                return messageCommand;
+                return cmd;
             }
 
             return super.genSnacCommand(packet);
         }
+    }
 
-        public List getSupportedTypes()
+    public class RequestAuthCmd
+        extends SsiCommand
+    {
+        String uin;
+        String reason;
+
+        public RequestAuthCmd(String uin, String reason)
         {
-            return SUPPORTED_TYPES;
+            super(0x0018);
+            this.uin = uin;
+            this.reason = reason;
+        }
+
+        public RequestAuthCmd(SnacPacket packet)
+        {
+            super(0x0019);
+
+            ByteBlock messageData = packet.getData();
+            // parse data
+            int offset = 0;
+            short uinLen = BinaryTools.getUByte(messageData, offset);
+            offset++;
+
+            uin = OscarTools.getString(messageData.subBlock(offset, uinLen),"US-ASCII");
+
+            offset += uinLen;
+
+            int reasonLen = BinaryTools.getUShort(messageData, offset);
+            offset+=2;
+
+            reason =
+                OscarTools.getString(messageData.subBlock(offset, reasonLen), "US-ASCII");
+        }
+
+        public void writeData(OutputStream out) throws IOException
+        {
+            byte[] uinBytes = BinaryTools.getAsciiBytes(uin);
+            BinaryTools.writeUByte(out, uinBytes.length);
+            out.write(uinBytes);
+
+            if (reason == null)
+            {
+                reason = "";
+            }
+
+            byte[] reasonBytes = BinaryTools.getAsciiBytes(reason);
+            BinaryTools.writeUShort(out, reasonBytes.length);
+            out.write(reasonBytes);
         }
     }
 
-    private class AuthOldMsgCmd
-        extends AbstractImIcbm
+    public void setAuthorizationRequired()
     {
-        private static final int TYPE_MESSAGE_DATA = 0x0005;
+        logger.debug("sending auth required");
+        conn.getSsiService().sendSnac(new SaveInfoRequest());
+    }
 
-        public static final int MTYPE_AUTHREQ = 0x06;
-        public static final int MTYPE_AUTHDENY = 0x07;
-        public static final int MTYPE_AUTHOK = 0x08;
-        public static final int MTYPE_ADDED = 0x0c;
-
-        private int messageType = -1;
-
-        private long sender;
-        private String reason;
-
-        public AuthOldMsgCmd(SnacPacket packet)
+    private class SaveInfoRequest
+        extends SnacCommand
+    {
+        public SaveInfoRequest()
         {
-            super(IcbmCommand.CMD_ICBM, packet);
-
-            DefensiveTools.checkNull(packet, "packet");
-
-            ByteBlock snacData = getChannelData();
-
-            FullUserInfo userInfo = FullUserInfo.readUserInfo(snacData);
-
-            ByteBlock tlvBlock = snacData.subBlock(userInfo.getTotalSize());
-
-            TlvChain chain = TlvTools.readChain(tlvBlock);
-
-            Tlv messageDataTlv = chain.getLastTlv(TYPE_MESSAGE_DATA);
-            ByteBlock messageData = messageDataTlv.getData();
-
-            sender = LEBinaryTools.getUInt(messageData, 0);
-            messageType = LEBinaryTools.getUByte(messageData, 4);
-            int msgFlags = LEBinaryTools.getUByte(messageData, 5);
-            int textlen = LEBinaryTools.getUShort(messageData, 6);
-
-            ByteBlock field = messageData.subBlock(8, textlen);
-            reason = OscarTools.getString(field, "US-ASCII");
+            super(21,2);
         }
 
-        protected void writeChannelData(OutputStream out)
+        public void writeData(OutputStream out)
             throws IOException
-        {}
+        {
+            ByteArrayOutputStream icqout = new ByteArrayOutputStream();
+
+            ByteArrayOutputStream icqDataOut = new ByteArrayOutputStream();
+            byte b[] = new byte[]{
+                (byte)0xf8, (byte)0x02, // 0x02F8  User 'show web status' permissions
+                (byte)0x01, (byte)0x00, (byte)0x00,
+                (byte)0x0c, (byte)0x03, // 0x030C User authorization permissions
+                (byte)0x01, (byte)0x00, (byte)0x00
+            };
+            icqDataOut.write(b);
+
+//            new Tlv(0x030C, ByteBlock.wrap(b)).write(icqDataOut);
+
+            int hdrlen = 10; // The expected header length, not counting the length field itself.
+            int primary = 0x07D0;
+            int secondary = 0x0c3a;
+
+            long icqUINlong = Long.parseLong(icqUIN.getFormatted());
+
+            int length = hdrlen + icqDataOut.size();
+
+            writeUShort(icqout, length);
+            writeUInt(icqout, icqUINlong);
+            writeUShort(icqout, primary);
+            writeUShort(icqout, 0); // the sequence
+
+            writeUShort(icqout, secondary);
+
+            icqDataOut.writeTo(icqout);
+
+            logger.debug("now we will write data!");
+            System.out.println("now we will write data!");
+            new Tlv(0x0001, ByteBlock.wrap(icqout.toByteArray())).write(out);
+        }
+
+        public void writeUInt(final OutputStream out, final long number)
+            throws IOException
+        {
+            out.write(new byte[] {
+                (byte)((number) & 0xff),
+                (byte)((number >> 8) & 0xff),
+                (byte)((number >> 16) & 0xff),
+                (byte)((number >> 24) & 0xff)
+            });
+        }
+
+        public void writeUShort(OutputStream out, int number)
+            throws IOException
+        {
+            out.write(new byte[]
+                {
+                (byte)(number & 0xff),
+                (byte)((number >> 8) & 0xff)
+            });
+        }
     }
-
-    private static class LEBinaryTools
-    {
-        public static final long UINT_MAX = 4294967295L;
-        public static final int USHORT_MAX = 65535;
-        public static final short UBYTE_MAX = 255;
-
-        public static long getUInt(final ByteBlock data, final int pos)
-        {
-            if (data.getLength() - pos < 4)
-            {
-                return -1;
-            }
-
-            return ( ( (long) data.get(pos + 3) & 0xffL) << 24)
-                | ( ( (long) data.get(pos + 2) & 0xffL) << 16)
-                | ( ( (long) data.get(pos + 1) & 0xffL) << 8)
-                | ( (long) data.get(pos) & 0xffL);
-        }
-
-        public static short getUByte(final ByteBlock data, final int pos)
-        {
-            if (data.getLength() - pos < 1)
-            {
-                return -1;
-            }
-
-            return (short) (data.get(pos) & 0xff);
-        }
-
-        public static int getUShort(final ByteBlock data, final int pos)
-        {
-            if (data.getLength() - pos < 2)
-            {
-                return -1;
-            }
-
-            return ( (data.get(pos + 1) & 0xff) << 8) | (data.get(pos) & 0xff);
-        }
-    }
-
 
 }

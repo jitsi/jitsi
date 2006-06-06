@@ -30,7 +30,20 @@ public abstract class AbstractAuthCommand
      * Use this command to send authorization request. */
     public static final int CMD_AUTH_REQUEST = 0x0018;
 
+    /** A command subtype.
+     * Use this command to send authorization reply. */
     public static final int CMD_AUTH_REPLY = 0x001a;
+
+    /** A command subtype.
+     * This command indicates that authorization reply is received. */
+    public static final int CMD_AUTH_REPLY_RECV = 0x001b;
+    /** A command subtype.
+     * This command indicates that authorization request is received. */
+    public static final int CMD_AUTH_REQUEST_RECV = 0x0019;
+
+    /** A command subtype.
+     * This command indicates that authorization request is received. */
+    public static final int CMD_YOU_WERE_ADDED_RECV = 0x001c;
 
     protected AbstractAuthCommand(int command)
     {

@@ -8,7 +8,9 @@ package net.java.sip.communicator.impl.protocol.icq.message.auth;
 
 import java.io.*;
 
+import net.java.sip.communicator.impl.protocol.icq.message.common.*;
 import net.kano.joscar.*;
+import net.kano.joscar.flapcmd.*;
 
 /**
  * Sending authorization reply
@@ -32,6 +34,29 @@ public class AuthReplyCmd
         this.uin = uin;
         this.reason = reason;
         this.accepted = accepted;
+    }
+
+    /**
+     * Incoming Command reply for our Authorization request
+     * @param packet SnacPacket the incoming packet
+     */
+    public AuthReplyCmd(SnacPacket packet)
+    {
+        super(CMD_AUTH_REPLY_RECV);
+
+        ByteBlock messageData = packet.getData();
+        // parse data
+        int offset = 0;
+        short uinLen = BinaryTools.getUByte(messageData, offset++);
+        uin = OscarTools.getString(messageData.subBlock(offset, uinLen), "US-ASCII");
+        offset += uinLen;
+
+        accepted =
+            BinaryTools.getUByte(messageData, offset++) == FLAG_AUTH_ACCEPTED;
+
+        int reasonLen = BinaryTools.getUShort(messageData, offset);
+        offset += 2;
+        reason = OscarTools.getString(messageData.subBlock(offset, reasonLen), "US-ASCII");
     }
 
     /**
@@ -63,5 +88,20 @@ public class AuthReplyCmd
         byte[] reasonBytes = BinaryTools.getAsciiBytes(reason);
         BinaryTools.writeUShort(out, reasonBytes.length);
         out.write(reasonBytes);
+    }
+
+    public String getSender()
+    {
+        return uin;
+    }
+
+    public String getReason()
+    {
+        return reason;
+    }
+
+    public boolean isAccepted()
+    {
+        return accepted;
     }
 }

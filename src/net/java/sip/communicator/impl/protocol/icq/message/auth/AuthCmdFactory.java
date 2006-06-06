@@ -9,17 +9,13 @@ package net.java.sip.communicator.impl.protocol.icq.message.auth;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.icq.*;
+import net.java.sip.communicator.impl.protocol.icq.message.imicbm.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.kano.joscar.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
-import net.kano.joscar.snaccmd.*;
-import net.kano.joscar.snaccmd.icbm.*;
 import net.kano.joscar.snaccmd.ssi.*;
 import net.kano.joustsim.oscar.*;
-import net.kano.joustsim.Screenname;
-import net.java.sip.communicator.impl.protocol.icq.message.imicbm.*;
 
 /**
  * Extending the normal messages factory as its not handling the channel 4
@@ -107,13 +103,13 @@ public class AuthCmdFactory
                     if (authRequest != null)
                     {
                         //SNAC(13,14)     send future authorization grant to client
-                        aimConnection.getIcbmService().sendSnac(
-                            new AuthFutureCmd(
-                                uinToAskForAuth,
-                                authRequest.getReason()));
+//                        aimConnection.getSsiService().sendSnac(
+//                            new AuthFutureCmd(
+//                                uinToAskForAuth,
+//                                authRequest.getReason()));
 
                         //SNAC(13,18)     send authorization request
-                        aimConnection.getIcbmService().sendSnac(
+                        aimConnection.getSsiService().sendSnac(
                             new RequestAuthCmd(
                                 uinToAskForAuth,
                                 authRequest.getReason()));
@@ -122,13 +118,12 @@ public class AuthCmdFactory
 
                         BuddyAwaitingAuth newBuddy = new BuddyAwaitingAuth(
                             buddyItem);
-                        items.add(newBuddy);
+                        buddiesToBeAdded.add(newBuddy);
 
-                        CreateItemsCmd addCMD = new CreateItemsCmd(
-                            buddiesToBeAdded);
+                        CreateItemsCmd addCMD = new CreateItemsCmd(buddiesToBeAdded);
 
                         logger.trace("Adding buddy as awaiting authorization");
-                        aimConnection.getIcbmService().sendSnac(addCMD);
+                        aimConnection.getSsiService().sendSnac(addCMD);
 
                         return;
                     }

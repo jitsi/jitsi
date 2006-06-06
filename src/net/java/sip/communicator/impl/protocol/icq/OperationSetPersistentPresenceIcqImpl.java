@@ -798,10 +798,13 @@ public class OperationSetPersistentPresenceIcqImpl
         AuthCmdFactory authCmdFactory =
             new AuthCmdFactory(icqProvider, icqProvider.getAimConnection(), handler);
 
+        SsiCmdFactory ssiCmdFactory =
+            new SsiCmdFactory(icqProvider, icqProvider.getAimConnection(), handler);
+
         ChannelFourCmdFactory channelFourFactory =
         ((OperationSetBasicInstantMessagingIcqImpl)
             icqProvider.getSupportedOperationSets()
-            .get(OperationSetBasicInstantMessagingIcqImpl.class.getName())).
+            .get(OperationSetBasicInstantMessaging.class.getName())).
             getChannelFourFactory();
 
         channelFourFactory.addCommandHandler(
@@ -812,6 +815,8 @@ public class OperationSetPersistentPresenceIcqImpl
             IcbmChannelFourCommand.MTYPE_AUTHOK, authCmdFactory);
 
         snacProcessor.addGlobalResponseListener(authCmdFactory);
+        snacProcessor.getCmdFactoryMgr().getDefaultFactoryList().
+            registerAll(ssiCmdFactory);
 
         // incoming future authorization commands
         // facList.registerAll(new AuthFutureCmdFactory());
