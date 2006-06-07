@@ -299,34 +299,34 @@ public class OperationSetPersistentPresenceIcqImpl
      */
     private IcqStatusEnum icqStatusLongToPresenceStatus(long icqStatus)
     {
-        if ( icqStatus == -1)
+        // Fixed order of status checking
+        // The order does matter, as the icqStatus consists of more than one
+        // status for example DND = OCCUPIED | DND | AWAY
+        if ( (icqStatus & FullUserInfo.ICQSTATUS_INVISIBLE ) != 0)
         {
-            return IcqStatusEnum.OFFLINE;
-        }
-        else if ( (icqStatus & FullUserInfo.ICQSTATUS_AWAY ) != 0)
-        {
-            return IcqStatusEnum.AWAY;
+            return IcqStatusEnum.INVISIBLE;
         }
         else if ( (icqStatus & FullUserInfo.ICQSTATUS_DND ) != 0)
         {
             return IcqStatusEnum.DO_NOT_DISTURB;
         }
-        else if ( (icqStatus & FullUserInfo.ICQSTATUS_FFC ) != 0)
+        else if ( (icqStatus & FullUserInfo.ICQSTATUS_OCCUPIED ) != 0)
         {
-            return IcqStatusEnum.FREE_FOR_CHAT;
-        }
-        else if ( (icqStatus & FullUserInfo.ICQSTATUS_INVISIBLE ) != 0)
-        {
-            return IcqStatusEnum.INVISIBLE;
+            return IcqStatusEnum.OCCUPIED;
         }
         else if ( (icqStatus & FullUserInfo.ICQSTATUS_NA ) != 0)
         {
             return IcqStatusEnum.NOT_AVAILABLE;
         }
-        else if ( (icqStatus & FullUserInfo.ICQSTATUS_OCCUPIED ) != 0)
+        else if ( (icqStatus & FullUserInfo.ICQSTATUS_AWAY ) != 0)
         {
-            return IcqStatusEnum.OCCUPIED;
+            return IcqStatusEnum.AWAY;
         }
+        else if ( (icqStatus & FullUserInfo.ICQSTATUS_FFC ) != 0)
+        {
+            return IcqStatusEnum.FREE_FOR_CHAT;
+        }
+
         // FIXED:  Issue 70
         // Incomplete status information in ICQ
 
