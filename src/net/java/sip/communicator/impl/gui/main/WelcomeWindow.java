@@ -107,11 +107,14 @@ public class WelcomeWindow extends JDialog
         });
         
         getRootPane().getActionMap().put("close", new CloseAction());
+        getRootPane().getActionMap().put("exit", new ExitAction());
         
         InputMap imap = this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, 
+                KeyEvent.ALT_DOWN_MASK), "exit");
     }
 
     private void setTransparent(boolean transparent) {
@@ -189,6 +192,17 @@ public class WelcomeWindow extends JDialog
             dispose();
             communicator.showCommunicator(true);
             SwingUtilities.invokeLater(new RunLogin());
+        }
+    };
+    
+    private class ExitAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            try {
+                bc.getBundle(0).stop();
+            } catch (BundleException ex) {
+                logger.error("Failed to gently shutdown Oscar", ex);
+            }
+            System.exit(0);
         }
     };
 }
