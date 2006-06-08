@@ -177,13 +177,13 @@ public class SIPCommDefaultTheme
     }
 
     public ColorUIResource getDesktopColor() {
-        return new ColorUIResource( 255, 255, 255 );
+        return VERY_LIGHT_GRAY;
     }
 
     public ColorUIResource getWindowBackground() {
-        return new ColorUIResource( 255, 255, 255 );
+        return getWhite();
     }
-
+    
     public ColorUIResource getControl(){
         return VERY_LIGHT_GRAY;
     }

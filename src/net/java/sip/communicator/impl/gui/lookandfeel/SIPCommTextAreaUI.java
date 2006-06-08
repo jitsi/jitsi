@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 public class SIPCommTextAreaUI extends BasicTextAreaUI {
 
     public static ComponentUI createUI(JComponent c) {
+        c.setOpaque(false);
         return new SIPCommTextAreaUI();
     }
     
