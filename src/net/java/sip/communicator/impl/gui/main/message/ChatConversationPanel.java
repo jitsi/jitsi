@@ -137,10 +137,13 @@ public class ChatConversationPanel extends JScrollPane implements
 
         this.getVerticalScrollBar().setUnitIncrement(30);
 
+        this.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        
         ToolTipManager.sharedInstance().registerComponent(chatEditorPane);
 
-        copyLinkItem.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e){                
+        copyLinkItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 StringSelection stringSelection 
                     = new StringSelection(currentHref);
                 Clipboard clipboard 
@@ -441,16 +444,18 @@ public class ChatConversationPanel extends JScrollPane implements
     /**
      * When a right button click is performed in the editor pane, a
      * popup menu is opened.
+     * 
+     * @param e The MouseEvent.
      */
     public void mouseClicked(MouseEvent e) {
-        if((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0){
+        if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
             
-            if(currentHref != null){
-                if(currentHref != ""){
+            if (currentHref != null) {
+                if (currentHref != "") {
                     rightButtonMenu.insert(copyLinkItem, 0);
                     rightButtonMenu.insert(copyLinkSeparator, 1);
                 }
-                else{
+                else {
                     rightButtonMenu.remove(copyLinkItem);
                     rightButtonMenu.remove(copyLinkSeparator);
                 }
