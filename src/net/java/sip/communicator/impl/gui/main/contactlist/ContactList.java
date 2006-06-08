@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.Position;
@@ -57,7 +58,7 @@ public class ContactList extends JList
         this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.getSelectionModel().setSelectionMode(
-                TreeSelectionModel.SINGLE_TREE_SELECTION);
+                ListSelectionModel.SINGLE_SELECTION);
 
         this.setCellRenderer(new ContactListCellRenderer());
 
