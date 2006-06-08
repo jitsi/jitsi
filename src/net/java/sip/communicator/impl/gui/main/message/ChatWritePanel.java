@@ -145,12 +145,6 @@ public class ChatWritePanel extends JScrollPane implements
 
     public void keyPressed(KeyEvent e) {
         if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
-                && (e.getKeyCode() == KeyEvent.VK_ENTER)) {
-            stopTypingTimer();
-
-            chatPanel.sendMessage();
-        }
-        else if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
                 && (e.getKeyCode() == KeyEvent.VK_Z)) {
 
             if (undo.canUndo()) {

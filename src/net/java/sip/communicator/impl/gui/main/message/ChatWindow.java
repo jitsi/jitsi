@@ -88,7 +88,12 @@ public class ChatWindow extends JFrame {
                 .put("changeTabForword", new ForwordTabAction());
         getRootPane().getActionMap()
                 .put("changeTabBackword", new BackwordTabAction());
-
+        getRootPane().getActionMap()
+                .put("sendMessage", new SendMessageAction());
+        
+        getRootPane().getActionMap().put("copy", new CopyAction());
+        getRootPane().getActionMap().put("paste", new PasteAction());
+        
         InputMap imap = this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
@@ -97,6 +102,12 @@ public class ChatWindow extends JFrame {
                 KeyEvent.ALT_DOWN_MASK), "changeTabForword");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
                 KeyEvent.ALT_DOWN_MASK), "changeTabBackword");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,
+                KeyEvent.CTRL_DOWN_MASK), "copy");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,
+                KeyEvent.SHIFT_DOWN_MASK), "paste");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,
+                KeyEvent.CTRL_DOWN_MASK), "sendMessage");
         
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -470,4 +481,25 @@ public class ChatWindow extends JFrame {
             }
         }
     };
+    
+    private class CopyAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            getCurrentChatPanel().copy();
+        }
+    };
+    
+    private class PasteAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            getCurrentChatPanel().paste();
+        }
+    };
+    
+    private class SendMessageAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            ChatPanel chatPanel = getCurrentChatPanel();
+            chatPanel.stopTypingNotifications();
+
+            chatPanel.sendMessage();
+        } 
+    }
 }
