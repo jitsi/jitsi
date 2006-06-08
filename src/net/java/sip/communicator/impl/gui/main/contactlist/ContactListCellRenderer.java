@@ -148,7 +148,8 @@ public class ContactListCellRenderer extends JPanel
 
             MetaContactGroup groupItem = (MetaContactGroup) value;
 
-            this.nameLabel.setText(groupItem.getGroupName());
+            this.nameLabel.setText(groupItem.getGroupName() 
+                    + "  ( " + groupItem.countChildContacts() + " )");
 
             this.nameLabel.setIcon(new ImageIcon(ImageLoader
                     .getImage(ImageLoader.GROUPS_16x16_ICON)));

@@ -18,10 +18,13 @@ import javax.swing.JButton;
 
 import net.java.sip.communicator.impl.gui.events.ContainerPluginListener;
 import net.java.sip.communicator.impl.gui.events.PluginComponentEvent;
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 
 /**
  * The QuickMenu is the toolbar on the top of the main program window.
@@ -111,16 +114,35 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
             mainFrame.getConfigFrame().setVisible(true);
         } else if (buttonName.equals("search")) {
 
-            ContactListModel listModel = (ContactListModel) mainFrame
-                    .getTabbedPane().getContactListPanel().getContactList()
-                    .getModel();
+            ContactList contactList = mainFrame.getTabbedPane()
+                .getContactListPanel().getContactList();
+            
+            ContactListModel listModel 
+                = (ContactListModel) contactList.getModel();
 
             if (listModel.showOffline()) {
-                listModel.setShowOffline(false);
+                listModel.setShowOffline(false);                
                 listModel.removeOfflineContacts();
             } else {
+                
+                int currentlySelectedIndex = contactList.getSelectedIndex();
+                Object selectedObject 
+                    = listModel.getElementAt(currentlySelectedIndex);
+
                 listModel.setShowOffline(true);
                 listModel.addOfflineContacts();
+                
+                if (selectedObject != null) {
+                    if (selectedObject instanceof MetaContact) {
+                        contactList.setSelectedIndex(
+                            listModel.indexOf((MetaContact) selectedObject));
+                    }
+                    else {
+                        contactList.setSelectedIndex(
+                            listModel.indexOf(
+                                    (MetaContactGroup) selectedObject));
+                    }
+                }
             }
         } else if (buttonName.equals("info")) {
 

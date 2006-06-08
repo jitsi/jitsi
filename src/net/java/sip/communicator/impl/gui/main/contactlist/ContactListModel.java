@@ -26,7 +26,7 @@ import net.java.sip.communicator.service.protocol.PresenceStatus;
  * MetaContactListService itself. The ContactListModel plays only the role of
  * a "list" face of the "tree" MetaContactListService structure. It provides
  * an implementation of the AbstractListModel and adds some methods facilitating
- * the access to the contact list. Some more contact list specific methods were 
+ * the access to the contact list. Some more contact list specific methods are
  * added like: getMetaContactStatus, getMetaContactStatusIcon,
  * changeContactStatus, etc.
  * 
@@ -215,12 +215,12 @@ public class ContactListModel extends AbstractListModel {
 
                     currentIndex += countSubgroupContacts(subGroup);
                 }
-
+              
                 currentIndex += parentGroup.indexOf(contact) + 1;
 
                 index = currentIndex;
             }
-        }
+        }        
         return index;
     }
 
@@ -239,8 +239,9 @@ public class ContactListModel extends AbstractListModel {
 
         if (parentGroup != null && !this.isGroupClosed(parentGroup)) {
             currentIndex += this.indexOf(parentGroup);
+            
             currentIndex += parentGroup.indexOf(group) + 1;
-
+            
             for (int i = 0; i < parentGroup.indexOf(group); i++) {
                 MetaContactGroup subGroup = parentGroup
                         .getMetaContactSubgroup(i);
@@ -250,7 +251,6 @@ public class ContactListModel extends AbstractListModel {
 
             index = currentIndex;
         }
-
         return index;
     }
 
@@ -270,7 +270,7 @@ public class ContactListModel extends AbstractListModel {
             if (showOffline) {
                 count = parentGroup.countChildContacts();
             }
-            else {
+            else {                
                 Iterator i = parentGroup.getChildContacts();
                 while (i.hasNext()) {
                     MetaContact contact = (MetaContact) i.next();
@@ -286,7 +286,7 @@ public class ContactListModel extends AbstractListModel {
 
                 count += countSubgroupContacts(subgroup);
             }
-        }
+        }        
         return count;
     }
 
@@ -326,7 +326,7 @@ public class ContactListModel extends AbstractListModel {
                         element = getElementAt(subgroup, searchedIndex);
                         if (element != null)
                             break;
-                    } else {
+                    } else {                        
                         element = subgroup;
                         break;
                     }
@@ -341,11 +341,14 @@ public class ContactListModel extends AbstractListModel {
      * 
      * @param group The group to close.
      */
-    public void closeGroup(MetaContactGroup group) {
-        contentRemoved(this.indexOf(group.getMetaContact(0)), this
-                .indexOf(group.getMetaContact(group.countChildContacts() - 1)));
-
-        this.closedGroups.add(group);
+    public void closeGroup(MetaContactGroup group) {        
+        if (countSubgroupContacts(group) > 0) {
+            contentRemoved(this.indexOf(group.getMetaContact(0)),
+                this.indexOf(group.getMetaContact(
+                        countSubgroupContacts(group) - 1)));
+            
+            this.closedGroups.add(group);
+        }
     }
 
     /**
@@ -353,11 +356,11 @@ public class ContactListModel extends AbstractListModel {
      * 
      * @param group The group to open.
      */
-    public void openGroup(MetaContactGroup group) {
+    public void openGroup(MetaContactGroup group) {        
         this.closedGroups.remove(group);
-
-        contentAdded(this.indexOf(group.getMetaContact(0)), this.indexOf(group
-                .getMetaContact(group.countChildContacts() - 1)));
+        contentAdded(this.indexOf(group.getMetaContact(0)), 
+            this.indexOf(group.getMetaContact(
+                    countSubgroupContacts(group) - 1)));
     }
 
     /**
@@ -384,7 +387,6 @@ public class ContactListModel extends AbstractListModel {
         Vector offlineContactsCopy = new Vector();
         // A copy of the size as it was before removing an offline contact.
         int size = this.getSize();
-
         for (int i = 0; i < size; i++) {
             Object element = this.getElementAt(i);
 
@@ -394,11 +396,46 @@ public class ContactListModel extends AbstractListModel {
                 if (!getMetaContactStatus(contactNode).isOnline()) {
                     int index = indexOf(contactNode);
                     this.contentRemoved(index, index);
+                                        
                     offlineContactsCopy.add(contactNode);
                 }
             }
         }
+        //Remove also offline contacts in closed groups.
+        for (int j = 0; j < closedGroups.size(); j++) {
+            MetaContactGroup closedGroup 
+                = (MetaContactGroup) closedGroups.get(j);
+            
+            removeClosedOfflineContacts(closedGroup, offlineContactsCopy);
+        }
+        
         this.offlineContacts = offlineContactsCopy;
+    }
+    
+    /**
+     * Recursively removes offline contacts contained in closed groups.
+     *  
+     * @param group A MetaContactGroup.
+     * @param offlineContactsCopy A copy of the offlineContacts Vector. 
+     */
+    private void removeClosedOfflineContacts(MetaContactGroup group,
+            Vector offlineContactsCopy) {
+        Iterator iter = group.getChildContacts();
+        while (iter.hasNext()) {
+            MetaContact contact = (MetaContact) iter.next();
+            if (!getMetaContactStatus(contact).isOnline()) {
+                offlineContactsCopy.add(contact);
+            }
+        }
+        
+        Iterator iter1 = group.getSubgroups();
+        while (iter1.hasNext()) {
+            MetaContactGroup subgroup = (MetaContactGroup) iter1.next();
+            if (subgroup.countChildContacts() > 0
+                    || subgroup.countSubgroups() > 0) {
+                removeClosedOfflineContacts(subgroup, offlineContactsCopy);
+            }
+        }
     }
 
     /**
@@ -410,12 +447,15 @@ public class ContactListModel extends AbstractListModel {
         //when calculating indexOf.
         Vector contacts = (Vector) this.offlineContacts.clone();
         this.offlineContacts.removeAllElements();
-
+        
         for (int i = 0; i < contacts.size(); i++) {
+            
             MetaContact contact = (MetaContact) contacts.get(i);
-            this.offlineContacts.remove(contact);
-            int index = this.indexOf(contact);
-            contentAdded(index, index);
+            
+            if (!isGroupClosed(contact.getParentMetaContactGroup())) {
+                int index = this.indexOf(contact);
+                contentAdded(index, index);
+            }
         }
     }
 
