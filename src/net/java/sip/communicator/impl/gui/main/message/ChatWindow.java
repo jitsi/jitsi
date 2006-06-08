@@ -28,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTabbedPane;
 import net.java.sip.communicator.impl.gui.main.customcontrols.events.CloseListener;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
@@ -40,15 +41,13 @@ import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
- * The chat window is the place, where users 
- * can write and send messages, view received messages. 
- * The ChatWindow supports two modes of use: "Group all 
- * messages in one window" and "Open messages in new 
- * window". In the first case a TabbedPane is added in
- * the window, where each tab contains a ChatPanel. In
- * the second case the ChatPanel is added directly to 
- * the window. The ChatPanel itself contains all message 
- * containers and corresponds to a contact or a conference.
+ * The chat window is the place, where users can write and send messages, view
+ * received messages. The ChatWindow supports two modes of use: "Group all
+ * messages in one window" and "Open messages in new window". In the first case
+ * a TabbedPane is added in the window, where each tab contains a ChatPanel. In
+ * the second case the ChatPanel is added directly to the window. The ChatPanel
+ * itself contains all message containers and corresponds to a contact or a
+ * conference.
  * 
  * @author Yana Stamcheva
  */
@@ -83,7 +82,22 @@ public class ChatWindow extends JFrame {
 
         this.init();
 
-        this.enableKeyActions();
+        getRootPane().getActionMap()
+                .put("close", new CloseAction());
+        getRootPane().getActionMap()
+                .put("changeTabForword", new ForwordTabAction());
+        getRootPane().getActionMap()
+                .put("changeTabBackword", new BackwordTabAction());
+
+        InputMap imap = this.getRootPane().getInputMap(
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
+                KeyEvent.ALT_DOWN_MASK), "changeTabForword");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
+                KeyEvent.ALT_DOWN_MASK), "changeTabBackword");
+        
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 close();
@@ -115,60 +129,7 @@ public class ChatWindow extends JFrame {
     public void setMainFrame(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
     }
-       
-    /**
-     * Enables all key actions on this chat window. Closes 
-     * tab or window when esc is pressed and changes tabs when 
-     * Alt+Right/Left Arrow is pressed. 
-     */
-    private void enableKeyActions() {
-        AbstractAction close = new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                close();
-            }
-        };
-
-        AbstractAction changeTabForword = new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                if (chatTabbedPane != null) {
-                    int selectedIndex = chatTabbedPane.getSelectedIndex();
-                    if (selectedIndex < chatTabbedPane.getTabCount() - 1) {
-                        setSelectedContactTab(selectedIndex + 1);
-                    } else {
-                        setSelectedContactTab(0);
-                    }
-                }
-            }
-        };
-
-        AbstractAction changeTabBackword = new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                if (chatTabbedPane != null) {
-                    int selectedIndex = chatTabbedPane.getSelectedIndex();
-                    if (selectedIndex != 0) {
-                        setSelectedContactTab(selectedIndex - 1);
-                    } else {
-                        setSelectedContactTab(chatTabbedPane.getTabCount() - 1);
-                    }
-                }
-            }
-        };
-
-        getRootPane().getActionMap().put("close", close);
-        getRootPane().getActionMap().put("changeTabForword", changeTabForword);
-        getRootPane().getActionMap()
-                .put("changeTabBackword", changeTabBackword);
-
-        InputMap imap = this.getRootPane().getInputMap(
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
-                KeyEvent.ALT_DOWN_MASK), "changeTabForword");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
-                KeyEvent.ALT_DOWN_MASK), "changeTabBackword");
-    }
-
+    
     /**
      * Closes the current chat, triggering warnings to the user 
      * when there are non-sent messages or a message is received
@@ -176,8 +137,10 @@ public class ChatWindow extends JFrame {
      */
     private void close() {
         if (!getCurrentChatPanel().isWriteAreaEmpty()) {
+            SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
+                    Messages.getString("nonEmptyChatWindowClose"));
             int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
-                    Messages.getString("nonEmptyChatWindowClose"), Messages
+                    msgText, Messages
                             .getString("warning"),
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
@@ -187,8 +150,11 @@ public class ChatWindow extends JFrame {
         } else if (System.currentTimeMillis()
                 - getCurrentChatPanel().getLastIncomingMsgTimestamp()
                         .getTime() < 2 * 1000) {
+            SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
+                    Messages.getString("closeChatAfterNewMsg"));
+            
             int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
-                    Messages.getString("closeChatAfterNewMsg"), Messages
+                    msgText, Messages
                             .getString("warning"),
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
@@ -295,20 +261,20 @@ public class ChatWindow extends JFrame {
                 PresenceStatus currentContactStatus = firstChatPanel
                         .getDefaultContact().getDefaultContact()
                         .getPresenceStatus();
-                //Add the first two tabs to the tabbed pane.
+                //Add first two tabs to the tabbed pane.
                 chatTabbedPane.addTab(firstChatPanel.getDefaultContact()
                         .getDisplayName(), new ImageIcon(Constants
                         .getStatusIcon(currentContactStatus)), firstChatPanel);
-
-                firstChatPanel.setCaretToEnd();
-                
+               
                 chatPanel = new ChatPanel(this, protocolContact);
 
                 chatPanel.addContactToChat(contact, status);
 
                 chatTabbedPane.addTab(contact.getDisplayName(), new ImageIcon(
                         Constants.getStatusIcon(defaultStatus)), chatPanel);
-
+                
+                firstChatPanel.setCaretToEnd();
+                
                 this.contactTabsTable.put(contact.getMetaUID(), chatPanel);
             }
 
@@ -472,4 +438,36 @@ public class ChatWindow extends JFrame {
                 .getChatPanel(metaContact));
         this.chatTabbedPane.setIconAt(index, icon);
     }
+    
+    private class CloseAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            close();
+        }
+    };
+
+    private class ForwordTabAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            if (chatTabbedPane != null) {
+                int selectedIndex = chatTabbedPane.getSelectedIndex();
+                if (selectedIndex < chatTabbedPane.getTabCount() - 1) {
+                    setSelectedContactTab(selectedIndex + 1);
+                } else {
+                    setSelectedContactTab(0);
+                }
+            }
+        }
+    };
+
+    private class BackwordTabAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            if (chatTabbedPane != null) {
+                int selectedIndex = chatTabbedPane.getSelectedIndex();
+                if (selectedIndex != 0) {
+                    setSelectedContactTab(selectedIndex - 1);
+                } else {
+                    setSelectedContactTab(chatTabbedPane.getTabCount() - 1);
+                }
+            }
+        }
+    };
 }
