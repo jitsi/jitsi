@@ -434,10 +434,14 @@ public class ChatConversationPanel extends JScrollPane implements
     /**
      * Moves the caret to the end of the editor pane.
      */
-    public void setCarretToEnd(){
+    public void setCarretToEnd() {
         this.chatEditorPane.setCaretPosition(this.document.getLength());
     }
     
+    /**
+     * When a right button click is performed in the editor pane, a
+     * popup menu is opened.
+     */
     public void mouseClicked(MouseEvent e) {
         if((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0){
             
