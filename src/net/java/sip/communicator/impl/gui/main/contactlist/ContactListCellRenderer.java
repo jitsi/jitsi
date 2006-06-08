@@ -12,6 +12,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -75,7 +76,9 @@ public class ContactListCellRenderer extends JPanel
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         this.nameLabel.setIconTextGap(2);
-
+        
+        this.nameLabel.setPreferredSize(new Dimension(10, 17));
+        
         this.add(nameLabel, BorderLayout.CENTER);
     }
 
@@ -97,7 +100,7 @@ public class ContactListCellRenderer extends JPanel
                     .getMetaContactStatusIcon(contactItem));
 
             this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
-
+            
             this.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
             // We should set the bounds of the cell explicitely in order to
