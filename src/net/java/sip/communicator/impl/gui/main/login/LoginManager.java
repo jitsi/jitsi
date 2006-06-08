@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.StatusPanel;
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.AccountID;
@@ -180,20 +181,27 @@ public class LoginManager implements RegistrationStateChangeListener {
 
             if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED) {
-                JOptionPane.showMessageDialog(null, Messages.getString(
+                SIPCommMsgTextArea msgText 
+                    = new SIPCommMsgTextArea(Messages.getString(
                         "reconnectionLimitExceeded", protocolProvider
-                                .getAccountID().getAccountUserID()), Messages
+                        .getAccountID().getAccountUserID()));
+                
+                JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             } else if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_NON_EXISTING_USER_ID) {
-                JOptionPane.showMessageDialog(null, Messages
+                SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
                         .getString("nonExistingUserId", protocolProvider
-                                .getProtocolName()), Messages
+                                .getProtocolName()));
+                
+                JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             } else if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_AUTHENTICATION_FAILED) {
-                JOptionPane.showMessageDialog(null, Messages
-                        .getString("authenticationFailed"), Messages
+                SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
+                        .getString("authenticationFailed"));
+                
+                JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             }
 
@@ -209,32 +217,48 @@ public class LoginManager implements RegistrationStateChangeListener {
                     evt.getProvider().getProtocolName(),
                     Constants.OFFLINE_STATUS);
 
-            JOptionPane.showMessageDialog(null, Messages
-                    .getString("connectionFailedMessage"), Messages
+            SIPCommMsgTextArea msgText 
+                = new SIPCommMsgTextArea(
+                        Messages.getString("connectionFailedMessage"));
+            
+            JOptionPane.showMessageDialog(null, msgText, Messages
                     .getString("error"), JOptionPane.ERROR_MESSAGE);
         } else if (evt.getNewState().equals(RegistrationState.EXPIRED)) {
-            JOptionPane.showMessageDialog(null, Messages.getString(
-                    "connectionExpiredMessage", protocolProvider
-                            .getProtocolName()), Messages.getString("error"),
+            SIPCommMsgTextArea msgText 
+                = new SIPCommMsgTextArea(Messages.getString(
+                        "connectionExpiredMessage", protocolProvider
+                            .getProtocolName()));
+            
+            JOptionPane.showMessageDialog(null, msgText, 
+                    Messages.getString("error"),
                     JOptionPane.ERROR_MESSAGE);
         } else if (evt.getNewState().equals(RegistrationState.UNREGISTERED)) {
 
             if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_MULTIPLE_LOGINS) {
-                JOptionPane.showMessageDialog(null, Messages.getString(
+                SIPCommMsgTextArea msgText 
+                    = new SIPCommMsgTextArea(Messages.getString(
                         "multipleLogins", protocolProvider.getAccountID()
-                                .getAccountUserID()), Messages
+                        .getAccountUserID()));
+                
+                JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             } else if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_CLIENT_LIMIT_REACHED_FOR_IP) {
-                JOptionPane.showMessageDialog(null, Messages
-                        .getString("limitReachedForIp", protocolProvider
-                                .getProtocolName()), Messages
+                SIPCommMsgTextArea msgText 
+                    = new SIPCommMsgTextArea(Messages
+                            .getString("limitReachedForIp", protocolProvider
+                                    .getProtocolName()));
+                
+                JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(null, Messages.getString(
-                        "unregisteredMessage", protocolProvider
-                                .getProtocolName()), Messages
+                SIPCommMsgTextArea msgText 
+                    = new SIPCommMsgTextArea(Messages.getString(
+                            "unregisteredMessage", protocolProvider
+                            .getProtocolName()));
+                
+                JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             }
 

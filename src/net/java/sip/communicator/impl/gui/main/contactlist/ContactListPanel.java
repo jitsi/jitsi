@@ -36,6 +36,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.ChatPanel;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
@@ -524,8 +525,9 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
      * @param evt the event containing details on the message delivery failure
      */
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt) {
-        String msg = Messages.getString("msgNotDelivered", evt
-                .getDestinationContact().getDisplayName());
+        SIPCommMsgTextArea msg = new SIPCommMsgTextArea(
+                Messages.getString("msgNotDelivered", evt
+                .getDestinationContact().getDisplayName()));
         String title = Messages.getString("msgDeliveryFailure");
 
         JOptionPane.showMessageDialog(this, msg, title,

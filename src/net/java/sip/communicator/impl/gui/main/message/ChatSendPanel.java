@@ -26,6 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommSelectorBox;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
@@ -126,8 +127,8 @@ public class ChatSendPanel extends JPanel implements ActionListener {
             try {
                 im.sendInstantMessage(contact, msg);
             } catch (IllegalStateException ex) {
-                String errorMsg = Messages
-                        .getString("msgSendConnectionProblem");
+                SIPCommMsgTextArea errorMsg = new SIPCommMsgTextArea(
+                        Messages.getString("msgSendConnectionProblem"));
 
                 String title = Messages.getString("msgDeliveryFailure");
 

@@ -20,6 +20,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommSelectorBox;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
@@ -129,25 +130,37 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
 
                             if (e1.getErrorCode() 
                                     == OperationFailedException.GENERAL_ERROR) {
-                                JOptionPane.showMessageDialog(null, Messages
-                                        .getString("statusChangeGeneralError"),
+                                SIPCommMsgTextArea msgText 
+                                    = new SIPCommMsgTextArea(Messages
+                                        .getString("statusChangeGeneralError"));
+                                
+                                JOptionPane.showMessageDialog(null, msgText,
                                         Messages.getString("generalError"),
                                         JOptionPane.ERROR_MESSAGE);
                             }
                             else if (e1.getErrorCode() 
                                     == OperationFailedException.NETWORK_FAILURE) {
-
+                                SIPCommMsgTextArea msgText 
+                                    = new SIPCommMsgTextArea(
+                                            Messages.getString(
+                                                    "statusChangeNetworkFailure"));
+                                
                                 JOptionPane.showMessageDialog(
                                     null,
-                                    Messages.getString("statusChangeNetworkFailure"),
+                                    msgText,
                                     Messages.getString("networkFailure"),
                                     JOptionPane.ERROR_MESSAGE);
                             } 
                             else if (e1.getErrorCode()
                                     == OperationFailedException.PROVIDER_NOT_REGISTERED) {
+                                SIPCommMsgTextArea msgText 
+                                    = new SIPCommMsgTextArea(
+                                        Messages.getString(
+                                                "statusChangeNetworkFailure"));
+                                
                                 JOptionPane.showMessageDialog(
                                     null,
-                                    Messages.getString("statusChangeNetworkFailure"),
+                                    msgText,
                                     Messages.getString("networkFailure"),
                                     JOptionPane.ERROR_MESSAGE);
                             }
