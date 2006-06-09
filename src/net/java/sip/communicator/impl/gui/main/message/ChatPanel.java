@@ -12,8 +12,11 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Vector;
 
@@ -22,8 +25,13 @@ import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JViewport;
 import javax.swing.LayoutFocusTraversalPolicy;
 import javax.swing.SwingUtilities;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.Element;
+import javax.swing.text.html.HTMLDocument;
 
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.Contact;
@@ -32,6 +40,7 @@ import net.java.sip.communicator.service.protocol.OperationSetTypingNotification
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * The ChatPanel is the panel, where users can write and send messages, view
@@ -46,6 +55,9 @@ import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
  */
 public class ChatPanel extends JPanel {
 
+    private static final Logger logger = Logger
+        .getLogger(ChatPanel.class.getName());
+    
     private JSplitPane topSplitPane = new JSplitPane(
             JSplitPane.HORIZONTAL_SPLIT);
 
@@ -474,8 +486,29 @@ public class ChatPanel extends JPanel {
     
     /**
      * Moves the caret to the end of the conversation panel.
+     * 
+     * Workaround for the following problem:  
+     * The scrollbar in the conversation area moves up when the
+     * scrollpane is resized. This happens when ChatWindow is in
+     * mode "Group messages in one window" and the first chat panel
+     * is added to the tabbed pane. Then the scrollpane in the 
+     * conversation area is slightly resized and is made smaller,
+     * which moves the scrollbar up.
      */
     public void setCaretToEnd(){
+        HTMLDocument doc = (HTMLDocument)this.conversationPanel.getChatEditorPane()
+            .getDocument();
+        Element root = doc.getDefaultRootElement();
+
+        try {
+            doc.insertAfterEnd(root
+                    .getElement(root.getElementCount() - 1), "<br>");
+        } catch (BadLocationException e) {
+            logger.error("Insert in the HTMLDocument failed.", e);
+        } catch (IOException e) {
+            logger.error("Insert in the HTMLDocument failed.", e);
+        }
+        //Scroll to the last inserted text in the document.
         this.conversationPanel.setCarretToEnd();
     }
 }

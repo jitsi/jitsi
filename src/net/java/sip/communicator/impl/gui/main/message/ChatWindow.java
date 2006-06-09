@@ -284,6 +284,13 @@ public class ChatWindow extends JFrame {
                 chatTabbedPane.addTab(contact.getDisplayName(), new ImageIcon(
                         Constants.getStatusIcon(defaultStatus)), chatPanel);
                 
+                // Workaround for the following problem:
+                // The scrollbar in the conversation area moves up when the
+                // scrollpane is resized. This happens when ChatWindow is in
+                // mode "Group messages in one window" and the first chat panel
+                // is added to the tabbed pane. Then the scrollpane in the 
+                // conversation area is slightly resized and is made smaller,
+                // which moves the scrollbar up.
                 firstChatPanel.setCaretToEnd();
                 
                 this.contactTabsTable.put(contact.getMetaUID(), chatPanel);
