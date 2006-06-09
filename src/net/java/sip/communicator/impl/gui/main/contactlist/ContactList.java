@@ -16,8 +16,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.Position;
-import javax.swing.tree.TreeSelectionModel;
-
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
@@ -116,7 +114,9 @@ public class ContactList extends JList
 
         this.groupAdded(sourceGroup);
 
-        this.ensureIndexIsVisible(0);
+        //this.ensureIndexIsVisible(0);
+        
+        this.revalidate();
     }
 
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
