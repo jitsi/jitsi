@@ -8,6 +8,7 @@
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BasicStroke;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -128,7 +129,7 @@ public class ChatConversationPanel extends JScrollPane implements
 
         this.chatEditorPane.addHyperlinkListener(this);
         this.chatEditorPane.addMouseListener(this);
-        
+
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         this.setWheelScrollingEnabled(true);
@@ -138,7 +139,7 @@ public class ChatConversationPanel extends JScrollPane implements
         this.getVerticalScrollBar().setUnitIncrement(30);
 
         this.setHorizontalScrollBarPolicy(
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         
         ToolTipManager.sharedInstance().registerComponent(chatEditorPane);
 

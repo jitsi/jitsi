@@ -7,14 +7,19 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
+import javax.swing.SizeRequirements;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
+import javax.swing.text.LabelView;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.ImageView;
+import javax.swing.text.html.InlineView;
+import javax.swing.text.html.ParagraphView;
 import javax.swing.text.html.StyleSheet;
 
 /**
@@ -30,25 +35,45 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit {
         return new HTMLFactoryX();
     }
 
-    public static class HTMLFactoryX extends HTMLFactory 
+    static class HTMLFactoryX extends HTMLFactory 
         implements ViewFactory {
 
         public View create(Element elem) {
 
-            Object o = elem.getAttributes().getAttribute(
-                    StyleConstants.NameAttribute);
+            View v=super.create(elem);
 
-            if (o instanceof HTML.Tag) {
-
-                HTML.Tag kind = (HTML.Tag) o;
-
-                if (kind == HTML.Tag.IMG)
-                    return new SIPCommImageView(elem);
+            if(v instanceof ImageView){
+                return new SIPCommImageView(elem);
             }
-
-            return super.create(elem);
+            else if (v instanceof ParagraphView) {
+                return new ParagraphViewX(elem);
+            }
+            
+            return v;
         }
     }
+    
+    static class ParagraphViewX extends ParagraphView {
+        public ParagraphViewX(Element elem) {
+            super(elem);
+        }
+        
+        protected SizeRequirements calculateMinorAxisRequirements (
+                int axis, SizeRequirements r) {
+            if (r == null) {
+                r = new SizeRequirements();
+            }
+            float pref = layoutPool.getPreferredSpan(axis);
+            float min = layoutPool.getMinimumSpan(axis);
+            // Don't include insets, Box.getXXXSpan will include them.
+            r.minimum = (int)min;
+            r.preferred = Math.max(r.minimum, (int) pref);
+            r.maximum = Short.MAX_VALUE;
+            r.alignment = 0.5f;
+            return r;
+        }
+    }
+
 
     /**
      * Create an uninitialized text storage model
