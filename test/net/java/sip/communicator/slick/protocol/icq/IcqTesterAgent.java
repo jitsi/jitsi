@@ -1231,7 +1231,16 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
             {
                 RequestAuthCmd cmd = new RequestAuthCmd(packet);
                 requestReasonStr = cmd.reason;
-                System.out.println("sending authorization " + ACCEPT);
+
+                // will wait as a normal user
+                Object lock = new Object();
+                synchronized(lock){
+                    try{
+                        lock.wait(2000);
+                    }
+                    catch (Exception ex){}
+                }
+
                 logger.trace("sending authorization " + ACCEPT);
                 conn.sendSnac(
                     new AuthReplyCmd(
