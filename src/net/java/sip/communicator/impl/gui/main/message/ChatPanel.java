@@ -23,6 +23,7 @@ import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
@@ -33,6 +34,7 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
 
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommSelectorBox;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
@@ -510,5 +512,17 @@ public class ChatPanel extends JPanel {
         }
         //Scroll to the last inserted text in the document.
         this.conversationPanel.setCarretToEnd();
+    }
+    
+    public void openProtocolSelectorBox() {
+        SIPCommSelectorBox contactSelector 
+            = this.sendPanel.getContactSelectorBox();
+        JPopupMenu popup 
+            = contactSelector.getPopup();
+        
+        if (!popup.isVisible()) {
+            popup.setLocation(contactSelector.calculatePopupLocation());
+            popup.setVisible(true);
+        }
     }
 }

@@ -56,4 +56,8 @@ public class MenusPanel extends JPanel {
     public void addToolBar(JToolBar toolBar) {
         this.add(toolBar);
     }
+
+    public MainToolBar getMainToolBar() {
+        return mainToolBar;
+    }
 }

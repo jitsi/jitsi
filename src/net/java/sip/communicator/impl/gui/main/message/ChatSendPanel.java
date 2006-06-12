@@ -218,4 +218,8 @@ public class ChatSendPanel extends JPanel implements ActionListener {
             }
         }
     }
+
+    public SIPCommSelectorBox getContactSelectorBox() {
+        return contactSelectorBox;
+    }
 }

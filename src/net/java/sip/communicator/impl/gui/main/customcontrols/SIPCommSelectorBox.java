@@ -12,6 +12,8 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -31,7 +33,8 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommSelectorBox extends JLabel implements MouseListener {
+public class SIPCommSelectorBox extends JLabel
+    implements MouseListener {
 
     private JPopupMenu popup;
 
@@ -141,4 +144,8 @@ public class SIPCommSelectorBox extends JLabel implements MouseListener {
     public Object getSelectedObject() {
         return this.selectedObject;
     }
+
+    public JPopupMenu getPopup() {
+        return popup;
+    }   
 }

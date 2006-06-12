@@ -68,9 +68,6 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
     private MsgToolbarButton fontButton = new MsgToolbarButton(ImageLoader
             .getImage(ImageLoader.FONT_ICON));
 
-    private JLabel toolbarDivider = new JLabel(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.TOOLBAR_DIVIDER)));
-
     private ChatWindow messageWindow;
 
     /**
@@ -228,5 +225,9 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
         } else if (buttonText.equalsIgnoreCase("font")) {
 
         }
+    }
+
+    public MsgToolbarButton getSmileyButton() {
+        return smileyButton;
     }
 }

@@ -13,8 +13,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -36,9 +34,7 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
  * The chat window is the place, where users can write and send messages, view
@@ -90,6 +86,10 @@ public class ChatWindow extends JFrame {
                 .put("changeTabBackword", new BackwordTabAction());
         getRootPane().getActionMap()
                 .put("sendMessage", new SendMessageAction());
+        getRootPane().getActionMap()
+                .put("openSmilies", new OpenSmilyAction());
+        getRootPane().getActionMap()
+                .put("changeProtocol", new ChangeProtocolAction());
         
         getRootPane().getActionMap().put("copy", new CopyAction());
         getRootPane().getActionMap().put("paste", new PasteAction());
@@ -108,6 +108,10 @@ public class ChatWindow extends JFrame {
                 KeyEvent.SHIFT_DOWN_MASK), "paste");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,
                 KeyEvent.CTRL_DOWN_MASK), "sendMessage");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                KeyEvent.ALT_DOWN_MASK), "openSmilies");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P,
+                KeyEvent.ALT_DOWN_MASK), "changeProtocol");
         
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -507,6 +511,18 @@ public class ChatWindow extends JFrame {
             chatPanel.stopTypingNotifications();
 
             chatPanel.sendMessage();
+        } 
+    }
+    
+    private class OpenSmilyAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            menusPanel.getMainToolBar().getSmileyButton().doClick();
+        } 
+    }
+    
+    private class ChangeProtocolAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            getCurrentChatPanel().openProtocolSelectorBox();
         } 
     }
 }
