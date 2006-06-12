@@ -108,12 +108,6 @@ public class AuthCmdFactory
 //                                uinToAskForAuth,
 //                                authRequest.getReason()));
 
-                        //SNAC(13,18)     send authorization request
-                        aimConnection.getSsiService().sendSnac(
-                            new RequestAuthCmd(
-                                uinToAskForAuth,
-                                authRequest.getReason()));
-
                         Vector buddiesToBeAdded = new Vector();
 
                         BuddyAwaitingAuth newBuddy = new BuddyAwaitingAuth(
@@ -123,7 +117,14 @@ public class AuthCmdFactory
                         CreateItemsCmd addCMD = new CreateItemsCmd(buddiesToBeAdded);
 
                         logger.trace("Adding buddy as awaiting authorization");
+
                         aimConnection.getSsiService().sendSnac(addCMD);
+
+                        //SNAC(13,18)     send authorization request
+                        aimConnection.getSsiService().sendSnac(
+                          new RequestAuthCmd(
+                              uinToAskForAuth,
+                              authRequest.getReason()));
 
                         return;
                     }
