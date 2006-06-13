@@ -832,7 +832,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * method so that those that are waiting on it be notified.
      */
     private class StatusResponseRetriever extends SnacRequestAdapter
-     {
+    {
             private boolean ran = false;
             private long status = -1;
 
