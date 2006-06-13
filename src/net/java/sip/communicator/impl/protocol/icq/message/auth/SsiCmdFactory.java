@@ -118,27 +118,16 @@ public class SsiCmdFactory
                     authorizationHandler.processAuthorisationRequest(
                         authRequest,srcContact);
 
-                if (authResponse.getResponseCode() ==
-                    AuthorizationResponse.ACCEPT)
+                if (authResponse.getResponseCode() == AuthorizationResponse.IGNORE)
                 {
-                    aimConnection.getInfoService().sendSnac(
-                        new AuthReplyCmd(
-                            String.valueOf(icqProvider.getAccountID().
-                                           getAccountUserID()),
-                            authResponse.getReason(),
-                            true));
-                }
-                else if (authResponse.getResponseCode() ==
-                         AuthorizationResponse.REJECT)
-                {
-                    aimConnection.getInfoService().sendSnac(
-                        new AuthReplyCmd(
-                            String.valueOf(icqProvider.getAccountID().
-                                           getAccountUserID()),
-                            authResponse.getReason(),
-                            false));
+                    return cmd;
                 }
 
+                aimConnection.getInfoService().sendSnac(
+                    new AuthReplyCmd(
+                        cmd.getSender(),
+                        authResponse.getReason(),
+                        authResponse.getResponseCode() == AuthorizationResponse.ACCEPT));
 
                 return cmd;
             }
