@@ -49,7 +49,7 @@ public class IcqTesterAgent
     /**
      * We use this field to determine whether registration has gone ok.
      */
-    private IcbmService icbmService =  null;
+    private IcbmService icbmService = null;
 
     /**
      * The AimConnection that the IcqEchoTest user has established with the icq
@@ -384,6 +384,9 @@ public class IcqTesterAgent
                     icbmService.getOscarConnection().getSnacProcessor().
                         getCmdFactoryMgr().getDefaultFactoryList().
                         registerAll(authCmdFactory);
+
+                    icbmService.getOscarConnection().getSnacProcessor().
+                        addGlobalResponseListener(authCmdFactory);
                 }
                 else if (event.getNewState() == State.FAILED
                          || event.getNewState() == State.DISCONNECTED)
@@ -695,6 +698,7 @@ public class IcqTesterAgent
     {
         public Vector addedGroups  = new Vector();
         public Vector addedBuddies = new Vector();
+        public Vector removedBuddies = new Vector();
 
         /**
          * The method would wait until at least one new buddy is collected by
@@ -737,6 +741,26 @@ public class IcqTesterAgent
                 }
             }
         }
+
+        public void waitForRemovedBuddy(int milliseconds)
+        {
+            synchronized (this.removedBuddies)
+            {
+                if (!removedBuddies.isEmpty())
+                {
+                    return;
+                }
+                try
+                {
+                    this.removedBuddies.wait(milliseconds);
+                }
+                catch (InterruptedException ex)
+                {
+                    logger.warn("A strange thing happened while waiting", ex);
+                }
+            }
+        }
+
 
         /**
          * Registers a reference to the group that has just been created and
@@ -1004,6 +1028,7 @@ public class IcqTesterAgent
         }
 
     }
+
 ////////////////////////// ugly unused testing code //////////////////////////
     private RetroListener rl = new RetroListener();
     public static void main(String[] args) throws Throwable
@@ -1024,8 +1049,6 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         Thread.sleep(3000);
 
         java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.FINEST);
-
-
 
         MutableBuddyList list = icqtests.conn.getSsiService().getBuddyList();
 
@@ -1081,9 +1104,6 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         if (buddyToMove == movedBuddy)
             System.out.println("hahaha");
 
-
-
-
     }
 
     private class TestSnacCmd  extends SnacCommand
@@ -1106,6 +1126,79 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         {
 
         }
+    }
+
+    public void deleteBuddy(String screenname)
+    {
+        logger.debug("Will delete buddy : " + screenname);
+        MutableBuddyList joustSimBuddyList
+            = (MutableBuddyList)conn.getSsiService().getBuddyList();
+
+        LayoutEventCollector evtCollector = new LayoutEventCollector();
+        joustSimBuddyList.addLayoutListener(evtCollector);
+
+        List grList = joustSimBuddyList.getGroups();
+        boolean isDeleted = false;
+        Iterator iter = grList.iterator();
+        while (iter.hasNext())
+        {
+            MutableGroup item = (MutableGroup) iter.next();
+
+            List bs = item.getBuddiesCopy();
+            Iterator iter1 = bs.iterator();
+            while (iter1.hasNext())
+            {
+                Buddy b = (Buddy) iter1.next();
+                if(b.getScreenname().getFormatted().equals(screenname))
+                {
+                    item.deleteBuddy(b);
+                    isDeleted = true;
+                }
+            }
+
+            if(isDeleted)
+                break;
+        }
+
+        evtCollector.waitForRemovedBuddy(10000);
+        joustSimBuddyList.removeLayoutListener(evtCollector);
+    }
+
+    public void addBuddy(String screenname)
+    {
+        logger.debug("Will add buddy : " + screenname);
+        MutableBuddyList joustSimBuddyList
+            = (MutableBuddyList)conn.getSsiService().getBuddyList();
+
+        LayoutEventCollector evtCollector = new LayoutEventCollector();
+        joustSimBuddyList.addLayoutListener(evtCollector);
+
+        List grList = joustSimBuddyList.getGroups();
+
+        Iterator iter = grList.iterator();
+        while (iter.hasNext())
+        {
+            MutableGroup item = (MutableGroup) iter.next();
+            logger.debug("group : " + item);
+            List bs = item.getBuddiesCopy();
+            Iterator iter1 = bs.iterator();
+            while (iter1.hasNext())
+            {
+                Object b = (Object) iter1.next();
+                logger.debug("buddy : " + b);
+            }
+        }
+
+        if(grList.size() < 1)
+        {
+            logger.debug("No groups! Will stop now");
+            return;
+        }
+
+        ((MutableGroup)grList.get(0)).addBuddy(screenname);
+
+        evtCollector.waitForANewBuddy(10000);
+        joustSimBuddyList.removeLayoutListener(evtCollector);
     }
 
     /**
@@ -1200,12 +1293,16 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
 
     public class AuthCmdFactory
         extends ServerSsiCmdFactory
+        implements SnacResponseListener
     {
         List SUPPORTED_TYPES = null;
 
         public String responseReasonStr = null;
         public String requestReasonStr = null;
         public boolean ACCEPT = false;
+
+        public boolean isErrorAddingReceived = false;
+        public boolean isRequestAccepted = false;
 
         public AuthCmdFactory()
         {
@@ -1249,22 +1346,82 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
                         ACCEPT));
                 return cmd;
             }
-            else if (command == 26) // auth reply
+            else if (command == 27) // auth reply
             {
                 AuthReplyCmd cmd = new AuthReplyCmd(packet);
 
-                System.out.println("cmd " + cmd);
-                System.out.println("is accepted " + cmd.accepted);
-                System.out.println("reason " + cmd.reason);
+                isRequestAccepted = cmd.accepted;
+                responseReasonStr = cmd.reason;
 
                 return cmd;
             }
 
             return super.genSnacCommand(packet);
         }
+
+        public void handleResponse(SnacResponseEvent e)
+        {
+            if (e.getSnacCommand() instanceof SsiDataModResponse)
+            {
+                SsiDataModResponse dataModResponse =
+                    (SsiDataModResponse) e.getSnacCommand();
+
+                int[] results = dataModResponse.getResults();
+                List items = ( (ItemsCmd) e.getRequest().getCommand()).
+                    getItems();
+                items = new LinkedList(items);
+
+                for (int i = 0; i < results.length; i++)
+                {
+                    int result = results[i];
+                    if (result ==
+                        SsiDataModResponse.RESULT_ICQ_AUTH_REQUIRED)
+                    {
+                        isErrorAddingReceived = true;
+
+                        // authorisation required for user
+                        SsiItem buddyItem = (SsiItem) items.get(i);
+
+                        String uinToAskForAuth = buddyItem.getName();
+
+                        logger.trace("finding buddy : " + uinToAskForAuth);
+
+                        Vector buddiesToBeAdded = new Vector();
+
+                        BuddyAwaitingAuth newBuddy = new BuddyAwaitingAuth(
+                            buddyItem);
+                        buddiesToBeAdded.add(newBuddy);
+
+                        CreateItemsCmd addCMD = new CreateItemsCmd(buddiesToBeAdded);
+
+                        logger.trace("Adding buddy as awaiting authorization");
+
+                        MutableBuddyList joustSimBuddyList
+                            = (MutableBuddyList)conn.getSsiService().getBuddyList();
+
+                        LayoutEventCollector evtCollector = new LayoutEventCollector();
+                        joustSimBuddyList.addLayoutListener(evtCollector);
+
+                        conn.getSsiService().sendSnac(addCMD);
+
+                        evtCollector.waitForANewBuddy(15000);
+                        joustSimBuddyList.removeLayoutListener(evtCollector);
+
+                        logger.trace("Finished - Adding buddy as awaiting authorization");
+
+                        //SNAC(13,18)     send authorization request
+                        conn.getSsiService().sendSnac(
+                            new RequestAuthCmd(
+                                uinToAskForAuth,
+                                requestReasonStr));
+                    }
+                }
+            }
+
+        }
     }
 
-    public class RequestAuthCmd
+    private class RequestAuthCmd
         extends SsiCommand
     {
         String uin;
@@ -1389,4 +1546,57 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         }
     }
 
+    private static class BuddyAwaitingAuth
+        extends SsiItem
+    {
+        private SsiItem originalItem = null;
+        public BuddyAwaitingAuth(SsiItem originalItem)
+        {
+            super(
+                originalItem.getName(),
+                originalItem.getParentId(),
+                originalItem.getId(),
+                originalItem.getItemType(),
+                getSpecTlvData());
+
+            this.originalItem = originalItem;
+        }
+
+        public void write(OutputStream out) throws IOException
+        {
+            byte[] namebytes = BinaryTools.getAsciiBytes(originalItem.getName());
+            BinaryTools.writeUShort(out, namebytes.length);
+            out.write(namebytes);
+
+            BinaryTools.writeUShort(out, originalItem.getParentId());
+            BinaryTools.writeUShort(out, originalItem.getId());
+            BinaryTools.writeUShort(out, originalItem.getItemType());
+
+            ByteBlock data = getData();
+            // here we are nice and let data be null
+            int len = data == null ? 0 : data.getLength();
+            BinaryTools.writeUShort(out, len);
+            if (data != null)
+            {
+                data.write(out);
+            }
+        }
+
+        private static ByteBlock getSpecTlvData()
+        {
+            try
+            {
+                ByteArrayOutputStream o = new ByteArrayOutputStream();
+                new Tlv(0x0066).write(o);
+
+                ByteBlock block = ByteBlock.wrap(o.toByteArray());
+                return block;
+            }
+            catch (IOException ex)
+            {
+                logger.error("Error creating buddy awaiting auth tlv", ex);
+                return null;
+            }
+        }
+    }
 }

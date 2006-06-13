@@ -28,6 +28,7 @@ import net.kano.joscar.snaccmd.*;
  * postTestUnsubscribe().
  * <p>
  * @author Emil Ivov
+ * @author Damian Minkov
  */
 public class TestOperationSetPresence
     extends TestCase
@@ -38,6 +39,9 @@ public class TestOperationSetPresence
     private IcqSlickFixture fixture = new IcqSlickFixture();
     private OperationSetPresence    operationSetPresence = null;
     private String statusMessageRoot = new String("Our status is now: ");
+
+    // be sure its only one
+    private static AuthEventCollector authEventCollector = new AuthEventCollector();
 
     public TestOperationSetPresence(String name)
     {
@@ -95,6 +99,10 @@ public class TestOperationSetPresence
         //postTestSubscribe() )
         suite.addTest(new TestOperationSetPresence("postTestSubscribe"));
         suite.addTest(new TestOperationSetPresence("postTestUnsubscribe"));
+
+        // execute this test after postTestSubscribe
+        // to be sure that AuthorizationHandler is installed
+        suite.addTest(new TestOperationSetPresence("postTestReceiveAuthorizatinonRequest"));
 
         return suite;
     }
@@ -413,8 +421,6 @@ public class TestOperationSetPresence
         // First create a subscription and verify that it really gets created.
         SubscriptionEventCollector subEvtCollector
             = new SubscriptionEventCollector();
-
-        AuthEventCollector authEventCollector = new AuthEventCollector();
 
         logger.trace("set Auth Handler");
         operationSetPresence.setAuthorizationHandler(authEventCollector);
@@ -1018,7 +1024,7 @@ public class TestOperationSetPresence
         }
     }
 
-    private class AuthEventCollector
+    private static class AuthEventCollector
         implements AuthorizationHandler
     {
         boolean isAuthorizationRequestSent = false;
@@ -1028,11 +1034,38 @@ public class TestOperationSetPresence
         AuthorizationResponse response = null;
         String authorizationResponseString = null;
 
+        // receiving auth request
+        AuthorizationResponse responseToRequest = null;
+        boolean isAuthorizationRequestReceived = false;
+
         public AuthorizationResponse processAuthorisationRequest(
                         AuthorizationRequest req, Contact sourceContact)
         {
-            logger.trace("processAuthorisationRequest " + req + " " + sourceContact);
-            return null;
+            logger.debug("Processing in " + this);
+            synchronized(this)
+            {
+                logger.trace("processAuthorisationRequest " + req + " " +
+                             sourceContact);
+
+                isAuthorizationRequestReceived = true;
+                authorizationRequestReason = req.getReason();
+
+                notifyAll();
+
+                // will wait as a normal user
+                Object lock = new Object();
+                synchronized (lock)
+                {
+                    try
+                    {
+                        lock.wait(2000);
+                    }
+                    catch (Exception ex)
+                    {}
+                }
+
+                return responseToRequest;
+            }
         }
 
         public AuthorizationRequest createAuthorizationRequest(Contact contact)
@@ -1079,6 +1112,21 @@ public class TestOperationSetPresence
             }
         }
 
+        public void waitForAuthRequest(long waitFor)
+        {
+            synchronized(this){
+                if(isAuthorizationRequestReceived) return;
+                try{
+                    wait(waitFor);
+                }
+                catch (InterruptedException ex){
+                    logger.debug(
+                        "Interrupted while waiting for a subscription evt", ex);
+                }
+            }
+        }
+
+
     }
 
     private class UnsubscribeWait implements SubscriptionListener
@@ -1115,4 +1163,128 @@ public class TestOperationSetPresence
         {}
     }
 
+    /**
+     * Tests for receiving authorization requests
+     */
+    public void postTestReceiveAuthorizatinonRequest()
+    {
+        logger.debug("Testing receive of authorization request!");
+
+        // set first response isAccepted and responseString
+        String firstRequestResponse = "First Request will be denied!!!";
+        authEventCollector.responseToRequest = new AuthorizationResponse(AuthorizationResponse.REJECT, firstRequestResponse);
+        logger.debug("authEventCollector " + authEventCollector);
+        authEventCollector.isAuthorizationRequestReceived = false;
+        authEventCollector.authorizationRequestReason = null;
+        fixture.testerAgent.getAuthCmdFactory().requestReasonStr = "Deny my first request!";
+        fixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived = false;
+        fixture.testerAgent.getAuthCmdFactory().responseReasonStr = null;
+        fixture.testerAgent.getAuthCmdFactory().isRequestAccepted = false;
+
+        // be sure buddy is not already in the list
+        fixture.testerAgent.deleteBuddy(fixture.ourAccountID);
+        fixture.testerAgent.addBuddy(fixture.ourAccountID);
+
+        // wait agent to receive error and to request us for our authorization
+        authEventCollector.waitForAuthRequest(25000);
+
+        // check have we received authorization request?
+        assertTrue("Error adding buddy not recieved or the buddy(" +
+                       fixture.ourAccountID +
+                       ") doesn't require authorization",
+                       fixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived);
+
+        assertTrue("We haven't received any authorization request ",
+                       authEventCollector.isAuthorizationRequestReceived);
+
+        assertNotNull("We haven't received any reason for authorization",
+                      authEventCollector.authorizationRequestReason);
+
+        assertEquals("Error sent request reason is not as the received one",
+                     fixture.testerAgent.getAuthCmdFactory().requestReasonStr,
+                     authEventCollector.authorizationRequestReason
+        );
+
+        // wait agent to receive our response
+        Object lock = new Object();
+        synchronized(lock){
+            try{
+                lock.wait(5000);
+            }
+            catch (Exception ex){}
+        }
+
+
+        // check is correct - the received response from the agent
+        assertNotNull("Agent haven't received any reason from authorization reply",
+                      authEventCollector.authorizationRequestReason);
+
+        assertEquals("Received auth response from agent is not as the sent one",
+                     fixture.testerAgent.getAuthCmdFactory().responseReasonStr,
+                     firstRequestResponse);
+
+        boolean isAcceptedAuthReuest =
+                authEventCollector.responseToRequest.getResponseCode().equals(AuthorizationResponse.ACCEPT);
+        assertEquals("Agent received Response is not as the sent one",
+                     fixture.testerAgent.getAuthCmdFactory().isRequestAccepted,
+                     isAcceptedAuthReuest);
+
+        // delete us from his list
+        // be sure buddy is not already in the list
+        fixture.testerAgent.deleteBuddy(fixture.ourAccountID);
+
+        // set second response isAccepted and responseString
+        String secondRequestResponse = "Second Request will be accepted!!!";
+        authEventCollector.responseToRequest =
+            new AuthorizationResponse(AuthorizationResponse.ACCEPT, secondRequestResponse);
+        authEventCollector.isAuthorizationRequestReceived = false;
+        authEventCollector.authorizationRequestReason = null;
+        fixture.testerAgent.getAuthCmdFactory().requestReasonStr = "Accept my second request!";
+        fixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived = false;
+        fixture.testerAgent.getAuthCmdFactory().responseReasonStr = null;
+        fixture.testerAgent.getAuthCmdFactory().isRequestAccepted = false;
+
+        // add us to his list again
+        fixture.testerAgent.addBuddy(fixture.ourAccountID);
+
+        // wait agent to receive error and to request us for our authorization
+        authEventCollector.waitForAuthRequest(25000);
+
+        // check have we received authorization request?
+        assertTrue("Error adding buddy not recieved or the buddy(" +
+                              fixture.ourAccountID +
+                              ") doesn't require authorization",
+                              fixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived);
+
+       assertTrue("We haven't received any authorization request ",
+                      authEventCollector.isAuthorizationRequestReceived);
+
+       assertNotNull("We haven't received any reason for authorization",
+                     authEventCollector.authorizationRequestReason);
+
+       assertEquals("Error sent request reason is not as the received one",
+                    fixture.testerAgent.getAuthCmdFactory().requestReasonStr,
+                    authEventCollector.authorizationRequestReason
+        );
+        // wait agent to receive our response
+        synchronized(lock){
+            try{
+                lock.wait(5000);
+            }
+            catch (Exception ex){}
+        }
+        // check is correct the received response from the agent
+        assertNotNull("Agent haven't received any reason from authorization reply",
+                              authEventCollector.authorizationRequestReason);
+
+        assertEquals("Received auth response from agent is not as the sent one",
+                     fixture.testerAgent.getAuthCmdFactory().responseReasonStr,
+                     secondRequestResponse);
+
+        isAcceptedAuthReuest =
+                authEventCollector.responseToRequest.getResponseCode().equals(AuthorizationResponse.ACCEPT);
+        assertEquals("Agent received Response is not as the sent one",
+                     fixture.testerAgent.getAuthCmdFactory().isRequestAccepted,
+             isAcceptedAuthReuest);
+    }
 }
