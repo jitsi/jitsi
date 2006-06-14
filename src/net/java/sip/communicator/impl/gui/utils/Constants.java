@@ -12,12 +12,14 @@ import java.applet.AudioClip;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -199,6 +201,33 @@ public class Constants {
 
     public static final boolean TABBED_CHAT_WINDOW = true;
 
+    /*
+     * ======================================================================
+     * ------------------------ SPECIAL CHARS LIST --------------------------
+     * ======================================================================
+     */
+    private static final ArrayList specialCharsList = new ArrayList();
+    static{
+        specialCharsList.add(new Integer(KeyEvent.VK_PLUS));
+        specialCharsList.add(new Integer(KeyEvent.VK_MINUS));
+        specialCharsList.add(new Integer(KeyEvent.VK_SPACE));
+        specialCharsList.add(new Integer(KeyEvent.VK_ENTER));
+        specialCharsList.add(new Integer(KeyEvent.VK_LEFT));
+        specialCharsList.add(new Integer(KeyEvent.VK_RIGHT));
+    };
+    
+    /**
+     * Checks if the given char is in the list of application special chars.
+     * 
+     * @param charCode The char code.
+     */
+    public static boolean isSpecialChar(int charCode) {
+        if(specialCharsList.contains(new Integer(charCode)))
+            return true;
+        else
+            return false;
+    }
+    
     /**
      * Gets protocol logo icon.
      */

@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -97,7 +98,6 @@ public class ContactListPanel extends JScrollPane
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         this.getVerticalScrollBar().setUnitIncrement(30);
-
     }
 
     /**
@@ -118,20 +118,11 @@ public class ContactListPanel extends JScrollPane
 
         this.getRootPane().getActionMap().put("runChat",
                 new RunMessageWindowAction());
-        this.getRootPane().getActionMap().put("closeGroup",
-                new CloseGroupAction());
-        this.getRootPane().getActionMap().put("openGroup",
-                new OpenGroupAction());
-
+        
         InputMap imap = this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "runChat");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "closeGroup");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, 0), "openGroup");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0), "closeGroup");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "closeGroup");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "openGroup");
     }
 
     public ContactList getContactList() {
@@ -686,46 +677,6 @@ public class ContactListPanel extends JScrollPane
             }
         }
     };
-
-    /**
-     * Closes a group when it's opened.
-     */
-    private class CloseGroupAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {            
-            Object selectedValue = getContactList().getSelectedValue();
-            
-            if (selectedValue instanceof MetaContactGroup) {
-                MetaContactGroup group = (MetaContactGroup) selectedValue;
-                
-                ContactListModel model 
-                    = (ContactListModel)contactList.getModel();
-                
-                if (!model.isGroupClosed(group)) {
-                    model.closeGroup(group);
-                }
-            }
-        }
-    };
-    
-    /**
-     * Opens a group when it's closed.
-     */
-    private class OpenGroupAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
-            Object selectedValue = getContactList().getSelectedValue();
-            
-            if (selectedValue instanceof MetaContactGroup) {
-                MetaContactGroup group = (MetaContactGroup) selectedValue;
-                
-                ContactListModel model 
-                    = (ContactListModel)contactList.getModel();
-                
-                if (model.isGroupClosed(group)) {
-                    model.openGroup(group);
-                }
-            }
-        }
-    };
     
     /**
      * The TypingTimer is started after a PAUSED typing notification
@@ -752,5 +703,5 @@ public class ContactListPanel extends JScrollPane
         private void setMetaContact(MetaContact metaContact) {
             this.metaContact = metaContact;
         }
-    }
+    }   
 }
