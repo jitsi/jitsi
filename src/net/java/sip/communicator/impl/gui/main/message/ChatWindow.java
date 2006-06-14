@@ -61,6 +61,8 @@ public class ChatWindow extends JFrame {
 
     private Hashtable contactTabsTable = new Hashtable();
 
+    private boolean enableTypingNotification = true;
+    
     /**
      * Creates a chat window.
      * 
@@ -524,5 +526,13 @@ public class ChatWindow extends JFrame {
         public void actionPerformed(ActionEvent e) {
             getCurrentChatPanel().openProtocolSelectorBox();
         } 
+    }
+    
+    public void enableTypingNotification(boolean enable) {
+        this.enableTypingNotification = enable;
+    }
+    
+    public boolean isTypingNotificationEnabled(){
+        return enableTypingNotification;
     }
 }

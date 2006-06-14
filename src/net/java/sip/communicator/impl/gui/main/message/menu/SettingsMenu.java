@@ -35,10 +35,10 @@ public class SettingsMenu extends JMenu
         JCheckBoxMenuItem item = (JCheckBoxMenuItem)e.getSource();
         
         if (item.isSelected()) {
-            chatWindow.getCurrentChatPanel().enableTypingNotification(true);
+            chatWindow.enableTypingNotification(true);
         }
         else {
-            chatWindow.getCurrentChatPanel().enableTypingNotification(false);
+            chatWindow.enableTypingNotification(false);
         }   
     }
 }
