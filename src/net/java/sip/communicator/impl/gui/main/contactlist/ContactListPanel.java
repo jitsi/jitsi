@@ -63,8 +63,10 @@ import net.java.sip.communicator.service.protocol.event.TypingNotificationsListe
  *
  * @author Yana Stamcheva
  */
-public class ContactListPanel extends JScrollPane implements MouseListener,
-        MessageListener, TypingNotificationsListener {
+public class ContactListPanel extends JScrollPane
+    implements  MouseListener, 
+                MessageListener, 
+                TypingNotificationsListener {
 
     private MainFrame mainFrame;
 
@@ -116,11 +118,20 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
 
         this.getRootPane().getActionMap().put("runChat",
                 new RunMessageWindowAction());
+        this.getRootPane().getActionMap().put("closeGroup",
+                new CloseGroupAction());
+        this.getRootPane().getActionMap().put("openGroup",
+                new OpenGroupAction());
 
         InputMap imap = this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "runChat");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "closeGroup");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, 0), "openGroup");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0), "closeGroup");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "closeGroup");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "openGroup");
     }
 
     public ContactList getContactList() {
@@ -650,14 +661,72 @@ public class ContactListPanel extends JScrollPane implements MouseListener,
         this.tabbedChatWindow = tabbedChatWindow;
     }
 
+    /**
+     * Opens chat window when the selected value is a MetaContact 
+     * and opens a group when the selected value is a MetaContactGroup.
+     */
     private class RunMessageWindowAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
-            MetaContact contact = (MetaContact) getContactList()
-                    .getSelectedValue();
-            SwingUtilities.invokeLater(new RunMessageWindow(contact));
+            Object selectedValue = getContactList().getSelectedValue();
+            
+            if(selectedValue instanceof MetaContact) {            
+                MetaContact contact = (MetaContact) selectedValue;
+                
+                SwingUtilities.invokeLater(new RunMessageWindow(contact));
+            }
+            else if (selectedValue instanceof MetaContactGroup) {
+                MetaContactGroup group = (MetaContactGroup) selectedValue;
+                
+                ContactListModel model 
+                    = (ContactListModel)contactList.getModel();
+                
+                if (model.isGroupClosed(group)) {
+                    model.openGroup(group);
+                }
+            }
         }
     };
 
+    /**
+     * Closes a group when it's opened.
+     */
+    private class CloseGroupAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {            
+            Object selectedValue = getContactList().getSelectedValue();
+            
+            if (selectedValue instanceof MetaContactGroup) {
+                MetaContactGroup group = (MetaContactGroup) selectedValue;
+                
+                ContactListModel model 
+                    = (ContactListModel)contactList.getModel();
+                
+                if (!model.isGroupClosed(group)) {
+                    model.closeGroup(group);
+                }
+            }
+        }
+    };
+    
+    /**
+     * Opens a group when it's closed.
+     */
+    private class OpenGroupAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            Object selectedValue = getContactList().getSelectedValue();
+            
+            if (selectedValue instanceof MetaContactGroup) {
+                MetaContactGroup group = (MetaContactGroup) selectedValue;
+                
+                ContactListModel model 
+                    = (ContactListModel)contactList.getModel();
+                
+                if (model.isGroupClosed(group)) {
+                    model.openGroup(group);
+                }
+            }
+        }
+    };
+    
     /**
      * The TypingTimer is started after a PAUSED typing notification
      * is received. It waits 5 seconds and if no other typing event
