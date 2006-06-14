@@ -466,6 +466,24 @@ public class ChatPanel extends JPanel {
     }
     
     /**
+     * Copies the selected conversation panel content to the clipboard.
+     */
+    public void copyConversation(){
+        JEditorPane editorPane = this.conversationPanel.getChatEditorPane();
+
+        editorPane.copy();
+    }
+    
+    /**
+     * Copies the selected write panel content to the clipboard.
+     */
+    public void copyWriteArea(){
+        JEditorPane editorPane = this.writeMessagePanel.getEditorPane();
+
+        editorPane.copy();
+    }
+    
+    /**
      * Pastes the content of the clipboard to the write area.
      */
     public void paste(){

@@ -85,6 +85,9 @@ public class ChatConversationPanel extends JScrollPane implements
     private JMenuItem copyLinkItem 
         = new JMenuItem(Messages.getString("copyLink"));
     
+    private JMenuItem openLinkItem 
+        = new JMenuItem(Messages.getString("openInBrowser"));
+    
     private JSeparator copyLinkSeparator = new JSeparator();
     /*
      * Tooltip on hyperlinks - JDK 1.5+
@@ -151,6 +154,11 @@ public class ChatConversationPanel extends JScrollPane implements
                     = Toolkit.getDefaultToolkit().getSystemClipboard();
                 clipboard.setContents(stringSelection, 
                             ChatConversationPanel.this);
+            }
+        });
+        openLinkItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {                
+                BrowserLauncher.openURL(currentHref);
             }
         });
         /*
@@ -453,10 +461,12 @@ public class ChatConversationPanel extends JScrollPane implements
             
             if (currentHref != null) {
                 if (currentHref != "") {
-                    rightButtonMenu.insert(copyLinkItem, 0);
-                    rightButtonMenu.insert(copyLinkSeparator, 1);
+                    rightButtonMenu.insert(openLinkItem, 0);
+                    rightButtonMenu.insert(copyLinkItem, 1);
+                    rightButtonMenu.insert(copyLinkSeparator, 2);
                 }
                 else {
+                    rightButtonMenu.remove(openLinkItem);
                     rightButtonMenu.remove(copyLinkItem);
                     rightButtonMenu.remove(copyLinkSeparator);
                 }

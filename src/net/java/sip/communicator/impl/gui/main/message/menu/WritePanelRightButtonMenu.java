@@ -26,21 +26,21 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
  *  
  * @author Yana Stamcheva
  */
-public class ChatRightButtonMenu extends JPopupMenu
+public class WritePanelRightButtonMenu extends JPopupMenu
     implements ActionListener {
 
     private ChatWindow parentWindow;
     
+    private JMenuItem cutMenuItem = new JMenuItem(Messages.getString("cut"),
+            new ImageIcon(ImageLoader.getImage(ImageLoader.CUT_ICON)));
+
     private JMenuItem copyMenuItem = new JMenuItem(Messages.getString("copy"),
             new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
+
+    private JMenuItem pasteMenuItem = new JMenuItem(
+            Messages.getString("paste"), new ImageIcon(ImageLoader
+                    .getImage(ImageLoader.PASTE_ICON)));
     
-    private JMenuItem saveMenuItem = new JMenuItem(Messages.getString("save"),
-            new ImageIcon(ImageLoader.getImage(ImageLoader.SAVE_ICON)));
-
-    private JMenuItem printMenuItem = new JMenuItem(
-            Messages.getString("print"), new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.PRINT_ICON)));
-
     private JMenuItem closeMenuItem = new JMenuItem(
             Messages.getString("close"), new ImageIcon(ImageLoader
                     .getImage(ImageLoader.CLOSE_ICON)));
@@ -49,7 +49,7 @@ public class ChatRightButtonMenu extends JPopupMenu
      *  
      * @param parentWindow The window owner of this popup menu.
      */
-    public ChatRightButtonMenu(ChatWindow parentWindow) {
+    public WritePanelRightButtonMenu(ChatWindow parentWindow) {
         super();
 
         this.parentWindow = parentWindow;
@@ -63,43 +63,41 @@ public class ChatRightButtonMenu extends JPopupMenu
     private void init() {
         
         this.add(copyMenuItem);
-        
-        this.addSeparator();
-        
-        this.add(saveMenuItem);
-        this.add(printMenuItem);
+        this.add(cutMenuItem);
+        this.add(pasteMenuItem);
 
         this.addSeparator();
 
         this.add(closeMenuItem);
 
         this.copyMenuItem.setName("copy");
-        this.saveMenuItem.setName("save");
-        this.printMenuItem.setName("print");
+        this.cutMenuItem.setName("cut");
+        this.pasteMenuItem.setName("paste");
         this.closeMenuItem.setName("close");
 
         this.copyMenuItem.addActionListener(this);
-        this.saveMenuItem.addActionListener(this);
-        this.printMenuItem.addActionListener(this);
+        this.cutMenuItem.addActionListener(this);
+        this.pasteMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
-
-        // Disable all menu items that do nothing.
-        this.saveMenuItem.setEnabled(false);
-        this.printMenuItem.setEnabled(false);
     }
     
     public void actionPerformed(ActionEvent e) {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemText = menuItem.getName();
 
-        if (itemText.equalsIgnoreCase("copy")) {
-            this.parentWindow.getCurrentChatPanel().copyConversation();
+        if (itemText.equalsIgnoreCase("cut")) {
+
+            this.parentWindow.getCurrentChatPanel().cut();            
+        }
+        else if (itemText.equalsIgnoreCase("copy")) {
             
-        } else if (itemText.equalsIgnoreCase("save")) {
+            this.parentWindow.getCurrentChatPanel().copyWriteArea();
+        }
+        else if (itemText.equalsIgnoreCase("paste")) {
 
-        } else if (itemText.equalsIgnoreCase("print")) {
-
-        } else if (itemText.equalsIgnoreCase("close")) {
+            this.parentWindow.getCurrentChatPanel().paste();
+        }
+        else if (itemText.equalsIgnoreCase("close")) {
 
             this.parentWindow.setVisible(false);
             this.parentWindow.dispose();

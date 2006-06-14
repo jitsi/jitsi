@@ -11,15 +11,20 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import javax.swing.event.UndoableEditEvent;
@@ -29,6 +34,8 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
+import net.java.sip.communicator.impl.gui.main.message.menu.ChatRightButtonMenu;
+import net.java.sip.communicator.impl.gui.main.message.menu.WritePanelRightButtonMenu;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
@@ -38,7 +45,7 @@ import net.java.sip.communicator.util.Logger;
  * @author Yana Stamcheva
  */
 public class ChatWritePanel extends JScrollPane implements
-        UndoableEditListener, KeyListener {
+        UndoableEditListener, KeyListener, MouseListener {
 
     private Logger logger = Logger.getLogger(ChatWritePanel.class);
 
@@ -57,6 +64,8 @@ public class ChatWritePanel extends JScrollPane implements
 
     private StyledEditorKit styledEditor = new StyledEditorKit();
     
+    private WritePanelRightButtonMenu rightButtonMenu;
+    
     /**
      * Creates an instance of ChatWritePanel.
      * @param chatPanel The parent ChatPanel.
@@ -66,6 +75,9 @@ public class ChatWritePanel extends JScrollPane implements
         super();
 
         this.chatPanel = chatPanel;
+        
+        this.rightButtonMenu 
+            = new WritePanelRightButtonMenu(chatPanel.getChatWindow());
 
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
@@ -77,6 +89,7 @@ public class ChatWritePanel extends JScrollPane implements
         this.editorPane.setEditorKit(styledEditor);
         this.editorPane.getDocument().addUndoableEditListener(this);
         this.editorPane.addKeyListener(this);
+        this.editorPane.addMouseListener(this);
 
         this.getViewport().add(editorPane, BorderLayout.CENTER);
 
@@ -214,5 +227,28 @@ public class ChatWritePanel extends JScrollPane implements
                 OperationSetTypingNotifications.STATE_STOPPED);
         typingState = OperationSetTypingNotifications.STATE_STOPPED;
         stoppedTypingTimer.stop();
+    }
+
+    public void mouseClicked(MouseEvent e) {
+        if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {            
+            Point p = e.getPoint();
+            SwingUtilities.convertPointToScreen(p, e.getComponent());
+            
+            rightButtonMenu.setInvoker(editorPane);
+            rightButtonMenu.setLocation(p.x, p.y);
+            rightButtonMenu.setVisible(true);
+        }
+    }
+
+    public void mousePressed(MouseEvent e) {
+    }
+
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    public void mouseExited(MouseEvent e) {
     }   
 }
