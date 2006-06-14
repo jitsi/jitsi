@@ -82,6 +82,8 @@ public class ChatPanel extends JPanel {
     private OperationSetTypingNotifications tnOperationSet;
 
     private Contact protocolContact;
+    
+    private boolean enableTypingNotification = true;
 
     /**
      * Creates a chat panel which is added to the given chat window.
@@ -524,5 +526,13 @@ public class ChatPanel extends JPanel {
             popup.setLocation(contactSelector.calculatePopupLocation());
             popup.setVisible(true);
         }
+    }
+    
+    public void enableTypingNotification(boolean enable) {
+        this.enableTypingNotification = enable;
+    }
+    
+    public boolean isTypingNotificationEnabled(){
+        return enableTypingNotification;
     }
 }

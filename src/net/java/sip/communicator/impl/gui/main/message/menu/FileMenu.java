@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 /**
  * The FileMenu contains save, print and close.
+ * 
  * @author Yana Stamcheva
  */
 public class FileMenu extends JMenu 

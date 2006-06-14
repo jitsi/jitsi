@@ -60,6 +60,7 @@ public class SIPCommLookAndFeel extends MetalLookAndFeel {
                 "LabelUI", lfPackageName + "SIPCommLabelUI",
                 "EditorPaneUI", lfPackageName + "SIPCommEditorPaneUI",
                 "MenuItemUI", lfPackageName + "SIPCommMenuItemUI",
+                "CheckBoxMenuItemUI", lfPackageName + "SIPCommCheckBoxMenuItemUI",
                 "MenuUI", lfPackageName + "SIPCommMenuUI",
                 "ToolBarSeparatorUI", lfPackageName + "SIPCommToolBarSeparatorUI",
                 "TabbedPaneUI", lfPackageName + "SIPCommTabbedPaneUI",

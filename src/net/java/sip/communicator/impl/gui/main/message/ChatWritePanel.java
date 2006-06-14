@@ -56,6 +56,7 @@ public class ChatWritePanel extends JScrollPane implements
     private int typingState = -1;
 
     private StyledEditorKit styledEditor = new StyledEditorKit();
+    
     /**
      * Creates an instance of ChatWritePanel.
      * @param chatPanel The parent ChatPanel.
@@ -158,7 +159,7 @@ public class ChatWritePanel extends JScrollPane implements
                 redo();
             }
         }
-        else {
+        else if (chatPanel.isTypingNotificationEnabled()){
             if (typingState != OperationSetTypingNotifications.STATE_TYPING) {
                 stoppedTypingTimer.setDelay(2 * 1000);
                 typingState = OperationSetTypingNotifications.STATE_TYPING;
