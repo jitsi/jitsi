@@ -1160,7 +1160,9 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
                 break;
         }
 
-        evtCollector.waitForRemovedBuddy(10000);
+        if(isDeleted)
+            evtCollector.waitForRemovedBuddy(10000);
+
         joustSimBuddyList.removeLayoutListener(evtCollector);
     }
 
@@ -1169,9 +1171,6 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         logger.debug("Will add buddy : " + screenname);
         MutableBuddyList joustSimBuddyList
             = (MutableBuddyList)conn.getSsiService().getBuddyList();
-
-        LayoutEventCollector evtCollector = new LayoutEventCollector();
-        joustSimBuddyList.addLayoutListener(evtCollector);
 
         List grList = joustSimBuddyList.getGroups();
 
@@ -1197,8 +1196,13 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
 
         ((MutableGroup)grList.get(0)).addBuddy(screenname);
 
-        evtCollector.waitForANewBuddy(10000);
-        joustSimBuddyList.removeLayoutListener(evtCollector);
+        Object lock = new Object();
+        synchronized(lock){
+            try{
+                lock.wait(5000);
+            }
+            catch (Exception ex){}
+        }
     }
 
     /**
@@ -1321,8 +1325,6 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         {
             int command = packet.getCommand();
 
-            // auth reply
-//            if (command == 0x001b)
             // auth request
             if (command == 25)
             {
@@ -1384,8 +1386,6 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
 
                         String uinToAskForAuth = buddyItem.getName();
 
-                        logger.trace("finding buddy : " + uinToAskForAuth);
-
                         Vector buddiesToBeAdded = new Vector();
 
                         BuddyAwaitingAuth newBuddy = new BuddyAwaitingAuth(
@@ -1394,7 +1394,7 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
 
                         CreateItemsCmd addCMD = new CreateItemsCmd(buddiesToBeAdded);
 
-                        logger.trace("Adding buddy as awaiting authorization");
+                        logger.trace("Adding buddy as awaiting authorization " + uinToAskForAuth);
 
                         MutableBuddyList joustSimBuddyList
                             = (MutableBuddyList)conn.getSsiService().getBuddyList();
@@ -1404,7 +1404,7 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
 
                         conn.getSsiService().sendSnac(addCMD);
 
-                        evtCollector.waitForANewBuddy(15000);
+                        evtCollector.waitForANewBuddy(20000);
                         joustSimBuddyList.removeLayoutListener(evtCollector);
 
                         logger.trace("Finished - Adding buddy as awaiting authorization");

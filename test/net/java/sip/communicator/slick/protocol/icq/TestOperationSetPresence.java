@@ -1191,7 +1191,7 @@ public class TestOperationSetPresence
         // check have we received authorization request?
         assertTrue("Error adding buddy not recieved or the buddy(" +
                        fixture.ourAccountID +
-                       ") doesn't require authorization",
+                       ") doesn't require authorization 1",
                        fixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived);
 
         assertTrue("We haven't received any authorization request ",
@@ -1253,7 +1253,7 @@ public class TestOperationSetPresence
         // check have we received authorization request?
         assertTrue("Error adding buddy not recieved or the buddy(" +
                               fixture.ourAccountID +
-                              ") doesn't require authorization",
+                              ") doesn't require authorization 2",
                               fixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived);
 
        assertTrue("We haven't received any authorization request ",
