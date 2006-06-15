@@ -102,7 +102,7 @@ public class TestOperationSetPresence
 
         // execute this test after postTestSubscribe
         // to be sure that AuthorizationHandler is installed
-//        suite.addTest(new TestOperationSetPresence("postTestReceiveAuthorizatinonRequest"));
+        suite.addTest(new TestOperationSetPresence("postTestReceiveAuthorizatinonRequest"));
 
         return suite;
     }
