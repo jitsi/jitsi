@@ -1188,13 +1188,39 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
             }
         }
 
+        MutableGroup targetGroup = null;
+
         if(grList.size() < 1)
         {
             logger.debug("No groups! Will stop now");
-            return;
+
+            LayoutEventCollector evtCollector = new LayoutEventCollector();
+
+            String groupName = "test-group";
+            logger.debug("Will add group " + groupName);
+
+            joustSimBuddyList.addLayoutListener(evtCollector);
+
+            joustSimBuddyList.addGroup(groupName);
+
+            //wait for a notification from the aim server that the group has
+            //been added
+            evtCollector.waitForANewGroup(10000);
+            joustSimBuddyList.removeLayoutListener(evtCollector);
+
+            //now see if it all worked ok and if yes get a ref to the newly
+            //added group.
+            if (evtCollector.addedGroups.size() == 0
+                || (targetGroup = (MutableGroup)evtCollector.addedGroups.get(0))
+                == null)
+                throw new NullPointerException("Couldn't create group " + groupName);
+        }
+        else
+        {
+            targetGroup = (MutableGroup)grList.get(0);
         }
 
-        ((MutableGroup)grList.get(0)).addBuddy(screenname);
+        targetGroup.addBuddy(screenname);
 
         Object lock = new Object();
         synchronized(lock){
