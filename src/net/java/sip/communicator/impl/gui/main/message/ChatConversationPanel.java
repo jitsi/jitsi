@@ -126,7 +126,7 @@ public class ChatConversationPanel extends JScrollPane implements
 
         this.chatEditorPane.setDocument(document);
 
-        Constants.loadStyle(document.getStyleSheet());
+        Constants.loadSimpleStyle(document.getStyleSheet());
 
         this.initEditor();
 
