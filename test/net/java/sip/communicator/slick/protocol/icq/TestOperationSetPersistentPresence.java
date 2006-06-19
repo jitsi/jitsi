@@ -21,6 +21,7 @@ import net.java.sip.communicator.util.*;
  * have the same thing with the other agent
  *
  * @author Emil Ivov
+ * @author Damian Minkov
  */
 public class TestOperationSetPersistentPresence
     extends TestCase
