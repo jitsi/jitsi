@@ -15,10 +15,12 @@ import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
@@ -200,6 +202,9 @@ public class Constants {
     public static final int RIGHT_SHIFT_STATUS_ICON = 2;
 
     public static final boolean TABBED_CHAT_WINDOW = true;
+    
+    public static final String DEFAULT_STYLE_PATH  
+        = "net/java/sip/communicator/impl/gui/resources/styles";
 
     /*
      * ======================================================================
@@ -265,6 +270,33 @@ public class Constants {
         return protocolIcon;
     }
 
+    public static BufferedImage[] getProtocolAnimatedIcon(String protocolName) {
+        
+        if (protocolName.equals(Constants.SIP)) {
+            return null;
+        }
+        else if (protocolName.equals(Constants.ICQ)){
+            return ImageLoader.getAnimatedImage(
+                    ImageLoader.ICQ_CONNECTING);
+        }
+        else if (protocolName.equals(Constants.MSN)) {
+            return null;
+        }
+        else if (protocolName.equals(Constants.AIM)) {
+            return null;
+        }
+        else if (protocolName.equals(Constants.YAHOO)) {
+            return null;
+        }
+        else if (protocolName.equals(Constants.JABBER)) {
+            return null;
+        }
+        else if (protocolName.equals(Constants.SKYPE)) {
+            return null;
+        }
+        
+        return null;
+    }
     /**
      * Gets all protocol statuses, including status and text.
      * 
@@ -360,17 +392,27 @@ public class Constants {
         return (BufferedImage) mainStatusSet.get(status);
     }
 
+    
+    public static void loadAdiumStyle(){
+        try {
+            File is = new File(Constants.class.getClassLoader()
+                .getResource(DEFAULT_STYLE_PATH + "/TotallyClear").toURI());
+            System.out.println("FAILAAAAAAAAAAAAAA ==========" + is);
+        }
+        catch (URISyntaxException e) {
+            logger.error("Syntax error in the URI.", e);
+        }
+    }
     /**
      * Temporary method to load the css style used in the chat window.
      * 
      * @param style
      */
-    public static void loadStyle(StyleSheet style) {
+    public static void loadSimpleStyle(StyleSheet style) {
 
         InputStream is = Constants.class
                 .getClassLoader()
-                .getResourceAsStream(
-                        "net/java/sip/communicator/impl/gui/resources/styles/defaultStyle.css");
+                .getResourceAsStream(DEFAULT_STYLE_PATH + "/defaultStyle.css");
 
         Reader r = new BufferedReader(new InputStreamReader(is));
         try {

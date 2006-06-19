@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.AccountManager;
 import net.java.sip.communicator.service.protocol.AccountProperties;
+import net.java.sip.communicator.service.protocol.ProtocolNames;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.RegistrationState;
 import net.java.sip.communicator.service.protocol.SecurityAuthority;
@@ -102,7 +103,7 @@ public class LoginManager implements RegistrationStateChangeListener {
         ProtocolProviderService protocolProvider 
             = (ProtocolProviderService) this.bc.getService(serRef);
 
-        this.mainFrame.addAccount(user, protocolProvider);
+        this.mainFrame.addAccount(protocolProvider);
 
         protocolProvider.addRegistrationStateChangeListener(this);
 
@@ -125,7 +126,10 @@ public class LoginManager implements RegistrationStateChangeListener {
             String protocolName = (String) entry.getKey();
 
             showLoginWindow(parent, protocolName, accountManager);
-        }
+            
+            //TEST SUPPORT FOR MORE ACCOUNTS!!!!!
+            //showLoginWindow(parent, protocolName, accountManager);
+        }        
     }
 
     /**
@@ -174,9 +178,9 @@ public class LoginManager implements RegistrationStateChangeListener {
 
             StatusPanel statusPanel = this.mainFrame.getStatusPanel();
 
-            statusPanel.stopConnecting(protocolProvider.getProtocolName());
+            statusPanel.stopConnecting(protocolProvider);
 
-            statusPanel.setSelectedStatus(protocolProvider.getProtocolName(),
+            statusPanel.setSelectedStatus(protocolProvider,
                     Constants.OFFLINE_STATUS);
 
             if (evt.getReasonCode() == RegistrationStateChangeEvent
@@ -211,10 +215,10 @@ public class LoginManager implements RegistrationStateChangeListener {
                 .equals(RegistrationState.CONNECTION_FAILED)) {
 
             this.mainFrame.getStatusPanel().stopConnecting(
-                    evt.getProvider().getProtocolName());
+                    evt.getProvider());
 
             this.mainFrame.getStatusPanel().setSelectedStatus(
-                    evt.getProvider().getProtocolName(),
+                    evt.getProvider(),
                     Constants.OFFLINE_STATUS);
 
             SIPCommMsgTextArea msgText 
@@ -263,10 +267,10 @@ public class LoginManager implements RegistrationStateChangeListener {
             }
 
             this.mainFrame.getStatusPanel().stopConnecting(
-                    evt.getProvider().getProtocolName());
+                    evt.getProvider());
 
             this.mainFrame.getStatusPanel().setSelectedStatus(
-                    evt.getProvider().getProtocolName(),
+                    evt.getProvider(),
                     Constants.OFFLINE_STATUS);
         }
     }

@@ -67,6 +67,8 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
         this.mainFrame = mainFrame;
         this.protocolProvider = protocolProvider;
 
+        this.setToolTipText(protocolProvider.getAccountID().getAccountUserID());
+        
         this.init();
     }
 
@@ -83,9 +85,7 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
     }
 
     private class ItemActionListener implements ActionListener {
-
         public void actionPerformed(ActionEvent e) {
-
             if (e.getSource() instanceof JMenuItem) {
 
                 JMenuItem menuItem = (JMenuItem) e.getSource();

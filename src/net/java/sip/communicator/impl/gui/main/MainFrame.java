@@ -11,6 +11,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -27,6 +28,7 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
+import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
@@ -78,7 +80,7 @@ public class MainFrame extends JFrame {
 
     private MetaContactListService contactList;
 
-    private Hashtable accounts = new Hashtable();
+    private ArrayList accounts = new ArrayList();
 
     private Hashtable waitToBeDeliveredMsgs = new Hashtable();
 
@@ -215,10 +217,10 @@ public class MainFrame extends JFrame {
                 }
 
                 this.getStatusPanel().stopConnecting(
-                        protocolProvider.getProtocolName());
+                        protocolProvider);
 
-                this.statusPanel.setSelectedStatus(protocolProvider
-                        .getProtocolName(), Constants.ONLINE_STATUS);
+                this.statusPanel.setSelectedStatus(
+                        protocolProvider, Constants.ONLINE_STATUS);
 
                 //request the focus int the contact list panel, which
                 //permits to search in the contact list
@@ -275,26 +277,24 @@ public class MainFrame extends JFrame {
     /**
      * Adds an account.
      * 
-     * @param identifier The identifier of the account.
      * @param protocolProvider The protocol provider of the account.
      */
-    public void addAccount(String identifier,
-            ProtocolProviderService protocolProvider) {
-        String protocolName = protocolProvider.getProtocolName();
+    public void addAccount(ProtocolProviderService protocolProvider) {
+        AccountID accountID = protocolProvider.getAccountID();
 
-        if (!getStatusPanel().isProtocolActivated(protocolName)) {
-            this.accounts.put(protocolProvider, identifier);
+        if (!getStatusPanel().isAccountActivated(accountID)) {
+            this.accounts.add(protocolProvider);
             this.getStatusPanel().activateAccount(protocolProvider);
         }
-        this.getStatusPanel().startConnecting(protocolName);
+        this.getStatusPanel().startConnecting(protocolProvider);
     }
 
     /**
-     * Returns the default account (for now is returning the first one).
-     * @return the default account (for now is returning the first one).
+     * Returns the account user id for the given protocol provider.
+     * @return The account user id for the given protocol provider.
      */
-    public String getDefaultAccount(ProtocolProviderService protocolProvider) {
-        return (String) this.accounts.get(protocolProvider);
+    public String getAccount(ProtocolProviderService protocolProvider) {
+        return protocolProvider.getAccountID().getAccountUserID();
     }
 
     /**
