@@ -20,6 +20,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Date;
 import java.util.Hashtable;
 
 import javax.swing.AbstractAction;
@@ -399,14 +400,18 @@ public class ContactListPanel extends JScrollPane
      * @param evt the event containing details on the received message
      */
     public void messageReceived(MessageReceivedEvent evt) {
+        Contact protocolContact = evt.getSourceContact();
+        Date date = evt.getTimestamp();
+        Message message = evt.getSourceMessage();
+        
         MetaContact metaContact = mainFrame.getContactList()
-                .findMetaContactByContact(evt.getSourceContact());
+                .findMetaContactByContact(protocolContact);
 
         PresenceStatus contactStatus = ((ContactListModel) this.contactList
                 .getModel()).getMetaContactStatus(metaContact);
 
-        Contact protocolContact = evt.getSourceContact();
-
+        
+        
         if (!Constants.TABBED_CHAT_WINDOW) {
             //If in mode "open all messages in new window"
             if (contactMsgWindows.containsKey(metaContact)) {
@@ -418,9 +423,9 @@ public class ContactListPanel extends JScrollPane
                         .get(metaContact);
 
                 msgWindow.getCurrentChatPanel().processMessage(
-                                evt.getSourceContact().getDisplayName(),
-                                evt.getTimestamp(), Constants.INCOMING_MESSAGE,
-                                evt.getSourceMessage().getContent());
+                                protocolContact.getDisplayName(),
+                                date, Constants.INCOMING_MESSAGE,
+                                message.getContent());
 
                 msgWindow.setVisible(true);
             } else {
@@ -435,9 +440,9 @@ public class ContactListPanel extends JScrollPane
                 msgWindow.addChat(metaContact, contactStatus, protocolContact);
 
                 msgWindow.getCurrentChatPanel().processMessage(
-                                evt.getSourceContact().getDisplayName(),
-                                evt.getTimestamp(), Constants.INCOMING_MESSAGE,
-                                evt.getSourceMessage().getContent());
+                                protocolContact.getDisplayName(),
+                                date, Constants.INCOMING_MESSAGE,
+                                message.getContent());
 
                 msgWindow.pack();
 
@@ -469,9 +474,9 @@ public class ContactListPanel extends JScrollPane
                         contactStatus, protocolContact);
 
                 chatPanel.processMessage(
-                        evt.getSourceContact().getDisplayName(),
-                        evt.getTimestamp(), Constants.INCOMING_MESSAGE,
-                        evt.getSourceMessage().getContent());
+                        protocolContact.getDisplayName(),
+                        date, Constants.INCOMING_MESSAGE,
+                        message.getContent());
 
                 tabbedChatWindow.setVisible(true);
 
@@ -480,9 +485,9 @@ public class ContactListPanel extends JScrollPane
             } else {
                 chatPanel = tabbedChatWindow.getChatPanel(metaContact);
                 chatPanel.processMessage(
-                        evt.getSourceContact().getDisplayName(),
-                        evt.getTimestamp(), Constants.INCOMING_MESSAGE,
-                        evt.getSourceMessage().getContent());
+                        protocolContact.getDisplayName(),
+                        date, Constants.INCOMING_MESSAGE,
+                        message.getContent());
 
                 tabbedChatWindow.setVisible(true);
             }
@@ -513,7 +518,7 @@ public class ContactListPanel extends JScrollPane
                     .getDestinationContact().getProtocolProvider();
 
             chatPanel.processMessage(
-                    this.mainFrame.getDefaultAccount(protocolProvider),
+                    this.mainFrame.getAccount(protocolProvider),
                     evt.getTimestamp(), Constants.OUTGOING_MESSAGE,
                     msg.getContent());
             
