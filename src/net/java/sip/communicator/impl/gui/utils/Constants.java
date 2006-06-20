@@ -394,14 +394,10 @@ public class Constants {
 
     
     public static void loadAdiumStyle(){
-        try {
-            File is = new File(Constants.class.getClassLoader()
-                .getResource(DEFAULT_STYLE_PATH + "/TotallyClear").toURI());
-            System.out.println("FAILAAAAAAAAAAAAAA ==========" + is);
-        }
-        catch (URISyntaxException e) {
-            logger.error("Syntax error in the URI.", e);
-        }
+        
+        File is = new File(Constants.class.getClassLoader()
+            .getResource(DEFAULT_STYLE_PATH + "/TotallyClear").toString());
+        System.out.println("FAILAAAAAAAAAAAAAA ==========" + is);
     }
     /**
      * Temporary method to load the css style used in the chat window.
