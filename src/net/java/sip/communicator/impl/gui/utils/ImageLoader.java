@@ -193,6 +193,10 @@ public class ImageLoader {
 
     public static final ImageID SELECTED_CLOSABLE_TAB_BG 
         = new ImageID("SELECTED_CLOSABLE_TAB_BG");
+    
+    
+    public static final ImageID ADD_CONTACT_WIZARD_ICON 
+        = new ImageID("ADD_CONTACT_WIZARD_ICON");
 
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
