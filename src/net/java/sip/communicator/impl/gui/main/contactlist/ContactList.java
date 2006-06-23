@@ -78,7 +78,9 @@ public class ContactList extends JList
     }
 
     public void metaContactAdded(MetaContactEvent evt) {
-        //TODO Implement MetaContactEvent metaContactAdded.
+        int index = this.listModel.indexOf(evt.getSourceMetaContact());
+
+        this.listModel.contentAdded(index, index);
     }
 
     public void metaContactRenamed(MetaContactRenamedEvent evt) {
@@ -86,7 +88,7 @@ public class ContactList extends JList
     }
 
     public void protoContactAdded(ProtoContactEvent evt) {
-        //TODO Implement MetaContactEvent protoContactAdded.
+        
     }
 
     public void protoContactRemoved(ProtoContactEvent evt) {
