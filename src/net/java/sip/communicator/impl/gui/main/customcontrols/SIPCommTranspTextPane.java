@@ -16,19 +16,14 @@ import javax.swing.JTextArea;
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommMsgTextArea extends JTextArea {
+public class SIPCommTranspTextPane extends JTextArea {
 
-    public SIPCommMsgTextArea(String text){
+    public SIPCommTranspTextPane(String text){
         super(text);
         
         this.setEditable(false);
         this.setLineWrap(true);
         this.setWrapStyleWord(true);
         this.setOpaque(false);
-        
-        int col = 40;
-        this.setColumns(col);
-        int docLen = this.getDocument().getLength();
-        this.setRows((int)Math.ceil(docLen/col));
     }
 }
