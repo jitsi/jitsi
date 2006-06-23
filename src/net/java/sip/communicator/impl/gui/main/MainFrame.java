@@ -72,7 +72,7 @@ public class MainFrame extends JFrame {
 
     private Hashtable protocolPresenceSets = new Hashtable();
 
-    private Hashtable protocolProviders = new Hashtable();
+    private ArrayList protocolProviders = new ArrayList();
 
     private Hashtable imOperationSets = new Hashtable();
 
@@ -210,6 +210,8 @@ public class MainFrame extends JFrame {
                 presence.addContactPresenceStatusListener(
                             new ContactPresenceStatusAdapter());
 
+                presence.setAuthorizationHandler(new AuthorizationHandlerImpl());
+                
                 try {
                     presence.publishPresenceStatus(IcqStatusEnum.ONLINE, "");
                 } catch (OperationFailedException e) {
@@ -260,18 +262,38 @@ public class MainFrame extends JFrame {
      * 
      * @return Map a set of all protocol providers.
      */
-    public Map getProtocolProviders() {
+    public ArrayList getProtocolProviders() {
         return this.protocolProviders;
     }
 
+    /**
+     * Returns the protocol provider associated to the given account.
+     * 
+     * @param accountName The account user identifier.
+     * @return The protocol provider associated to the given account.
+     */
+    public ProtocolProviderService getProtocolProviderForAccount(
+            String accountName) {
+        
+        for(int i = 0; i < protocolProviders.size(); i ++) {
+            ProtocolProviderService pps 
+                = (ProtocolProviderService)protocolProviders.get(i);
+            
+            if (pps.getAccountID().getAccountUserID().equals(accountName)) {
+               return pps; 
+            }
+        }
+        
+        return null;
+    }
+    
     /**
      * Adds a protocol provider.
      * @param protocolProvider The protocol provider to be added.
      */
     public void addProtocolProvider(ProtocolProviderService protocolProvider) {
 
-        this.protocolProviders.put(protocolProvider.getProtocolName(),
-                protocolProvider);
+        this.protocolProviders.add(protocolProvider);
     }
 
     /**
