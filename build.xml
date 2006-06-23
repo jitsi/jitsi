@@ -286,6 +286,7 @@
             <!-- Tell all protocol testers their account details. -->
             <syspropertyset id="accounts">
               <propertyref prefix="accounts"/>
+              <propertyref prefix="net"/>
             </syspropertyset>
         </java>
 
