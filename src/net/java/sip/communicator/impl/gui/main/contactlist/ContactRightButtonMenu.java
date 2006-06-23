@@ -9,8 +9,10 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
@@ -19,11 +21,14 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactDialog;
 import net.java.sip.communicator.impl.gui.main.customcontrols.MessageDialog;
 import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
  * The ContactRightButtonMenu is the menu, which the user could open by clicking
@@ -109,6 +114,23 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         this.addSubcontactMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
 
+        ArrayList providers = this.mainFrame.getProtocolProviders();
+        for(int i = 0; i < providers.size(); i ++) {
+            ProtocolProviderService pps 
+                = (ProtocolProviderService)providers.get(i);
+            
+            String protocolName = pps.getProtocolName();
+            
+            JMenuItem menuItem = new JMenuItem(pps.getAccountID()
+                    .getAccountUserID(),
+                    new ImageIcon(Constants.getProtocolIcon(protocolName)));
+            
+            menuItem.setName(protocolName);
+            menuItem.addActionListener(this);
+            
+            this.addSubcontactMenu.add(menuItem);
+        }
+        
         this.add(sendMessageItem);
         this.add(sendFileItem);
 
@@ -141,8 +163,6 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
         this.sendMessageItem.addActionListener(this);
         this.sendFileItem.addActionListener(this);
-        this.moveToMenu.addActionListener(this);
-        this.addSubcontactMenu.addActionListener(this);
         this.removeContactItem.addActionListener(this);
         this.renameContactItem.addActionListener(this);
         this.viewHistoryItem.addActionListener(this);   
@@ -150,8 +170,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
         // Disable all menu items that do nothing.
         this.sendFileItem.setEnabled(false);
-        this.moveToMenu.setEnabled(false);
-        this.addSubcontactMenu.setEnabled(false);
+        this.moveToMenu.setEnabled(false);        
         this.removeContactItem.setEnabled(false);
         this.renameContactItem.setEnabled(false);
         this.viewHistoryItem.setEnabled(false);
@@ -162,6 +181,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
+        String itemText = menuItem.getText();
 
         if (itemName.equalsIgnoreCase("sendMessage")) {
             ContactListPanel clistPanel = mainFrame.getTabbedPane()
@@ -196,6 +216,22 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         } 
         else if (itemName.equalsIgnoreCase("userInfo")) {
 
+        }
+        else if(mainFrame.getProtocolProviderForAccount(itemText) != null) {
+            ProtocolProviderService pps 
+                = mainFrame.getProtocolProviderForAccount(itemText);
+            
+            AddContactDialog dialog = new AddContactDialog(mainFrame.getContactList(),
+                    contactItem, pps);
+            
+            dialog.setLocation(
+                    Toolkit.getDefaultToolkit().getScreenSize().width/2 
+                        - 250,
+                    Toolkit.getDefaultToolkit().getScreenSize().height/2 
+                        - 100
+                    );
+            
+            dialog.setVisible(true);
         }
     }
 }

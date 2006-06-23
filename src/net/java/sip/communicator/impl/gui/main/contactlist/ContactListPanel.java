@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.Hashtable;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -91,10 +92,8 @@ public class ContactListPanel extends JScrollPane
 
         this.mainFrame = mainFrame;
 
-        this.getViewport().add(treePanel);
-
-        this.treePanel.setBackground(Color.WHITE);
-
+        this.getViewport().add(treePanel);       
+                
         this.setHorizontalScrollBarPolicy(
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -108,13 +107,16 @@ public class ContactListPanel extends JScrollPane
      * be used for a contact list data model.
      */
     public void initTree(MetaContactListService contactListService) {
-
+        
         this.contactList = new ContactList(contactListService);
 
         this.contactList.addMouseListener(this);
-
+        
         this.treePanel.add(contactList, BorderLayout.NORTH);
 
+        this.treePanel.setBackground(Color.WHITE);
+        this.contactList.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        
         this.addKeyListener(new CListKeySearchListener(this.contactList));
 
         this.getRootPane().getActionMap().put("runChat",
@@ -131,7 +133,6 @@ public class ContactListPanel extends JScrollPane
     }
 
     public void mouseClicked(MouseEvent e) {
-        //Expand and collapse groups on double click.
         if (e.getClickCount() > 1) {
 
             int selectedIndex = this.contactList.locationToIndex(e.getPoint());
@@ -166,32 +167,53 @@ public class ContactListPanel extends JScrollPane
             this.contactList.setSelectedIndex(contactList.locationToIndex(e
                     .getPoint()));
         }
+        
+        int selectedIndex = this.contactList.getSelectedIndex();
+        Object selectedValue = this.contactList.getSelectedValue();
+
+        ContactListCellRenderer renderer 
+            = (ContactListCellRenderer) this.contactList
+                .getCellRenderer().getListCellRendererComponent(
+                        this.contactList, selectedValue, selectedIndex, true,
+                        true);
+
+        Point selectedCellPoint = this.contactList
+                .indexToLocation(selectedIndex);
+
+        int translatedX = e.getX() - selectedCellPoint.x;
+
+        int translatedY = e.getY() - selectedCellPoint.y;
+
+        
+        if(selectedValue instanceof MetaContactGroup) {
+            MetaContactGroup group = (MetaContactGroup) selectedValue;
+            
+            if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+                
+                GroupRightButtonMenu popupMenu
+                    = new GroupRightButtonMenu(mainFrame, group);
+
+                SwingUtilities.convertPointToScreen(selectedCellPoint,
+                        renderer);
+
+                popupMenu.setInvoker(this.contactList);
+
+                popupMenu.setLocation(selectedCellPoint.x,
+                        selectedCellPoint.y + renderer.getHeight());
+
+                popupMenu.setVisible(true);
+            }
+        }
+        
         // Open message window, right button menu or contact info when
         // mouse is pressed. Distinguish on which component was pressed
         // the mouse and make the appropriate work.
-        if (this.contactList.getSelectedValue() instanceof MetaContact) {
-            MetaContact contact = (MetaContact) this.contactList
-                    .getSelectedValue();
-
-            int selectedIndex = this.contactList.getSelectedIndex();
-
-            ContactListCellRenderer renderer 
-                = (ContactListCellRenderer) this.contactList
-                    .getCellRenderer().getListCellRendererComponent(
-                            this.contactList, contact, selectedIndex, true,
-                            true);
-
-            Point selectedCellPoint = this.contactList
-                    .indexToLocation(selectedIndex);
-
-            int translatedX = e.getX() - selectedCellPoint.x;
-
-            int translatedY = e.getY() - selectedCellPoint.y;
-
+        if (selectedValue instanceof MetaContact) {
+            MetaContact contact = (MetaContact) selectedValue;
+            
             //get the component under the mouse
             Component component = renderer.getComponentAt(translatedX,
                     translatedY);
-
             if (component instanceof JLabel) {
                 //Left click on the contact label opens Chat window
                 if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
