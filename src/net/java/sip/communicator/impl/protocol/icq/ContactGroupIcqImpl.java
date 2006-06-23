@@ -407,8 +407,8 @@ public class ContactGroupIcqImpl
         while (contacts.hasNext())
         {
             ContactIcqImpl item = (ContactIcqImpl) contacts.next();
-            if(item.getJoustSimBuddy().getScreenname()
-                .equals(new Screenname(screenName)))
+            if(item.getJoustSimBuddy().getScreenname().getFormatted()
+                .equals(screenName))
                 return item;
         }
         return null;
