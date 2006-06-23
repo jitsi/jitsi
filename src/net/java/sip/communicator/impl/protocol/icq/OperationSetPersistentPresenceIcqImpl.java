@@ -161,8 +161,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * The server stored contact list that will be encapsulating joustsim's
      * buddy list.
      */
-    private ServerStoredContactListIcqImpl ssContactList
-        = new ServerStoredContactListIcqImpl();
+    private ServerStoredContactListIcqImpl ssContactList = null;
 
     /**
      * Creates a new Presence OperationSet over the specified icq provider.
@@ -174,6 +173,8 @@ public class OperationSetPersistentPresenceIcqImpl
                     String uin)
     {
         this.icqProvider = icqProvider;
+
+        ssContactList = new ServerStoredContactListIcqImpl( this , icqProvider);
 
         //add a listener that'll follow the provider's state.
         icqProvider.addRegistrationStateChangeListener(
@@ -1167,9 +1168,7 @@ public class OperationSetPersistentPresenceIcqImpl
                     .addMainBosServiceListener(joustSimBosListener);
 
                 ssContactList.init(
-                    icqProvider.getAimConnection().getSsiService(),
-                    OperationSetPersistentPresenceIcqImpl.this,
-                    icqProvider);
+                    icqProvider.getAimConnection().getSsiService());
 
 //                /**@todo implement the following
                  icqProvider.getAimConnection().getBuddyService()
