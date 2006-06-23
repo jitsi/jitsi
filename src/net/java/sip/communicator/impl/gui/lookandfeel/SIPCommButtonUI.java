@@ -19,6 +19,7 @@ import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.metal.MetalButtonUI;
 
+import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**
@@ -64,6 +65,8 @@ public class SIPCommButtonUI extends MetalButtonUI {
     
     public void paint(Graphics g, JComponent c) {
     
+        AntialiasingManager.activateAntialiasing(g);
+        
         AbstractButton button = (AbstractButton)c;
         ButtonModel model = button.getModel();
         
