@@ -1269,7 +1269,6 @@ public class MetaContactListServiceImpl
                              + provider.getAccountID().getAccountUID(), exc);
             }
 
-
             synchronizeOpSetWithLocalContactList(opSetPersPresence);
         }
         else
