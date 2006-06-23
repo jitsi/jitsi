@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 
-import org.ungoverned.radical.util.editor.BooleanEditor;
-
 import net.java.sip.communicator.impl.gui.main.customcontrols.wizard.WizardPanelDescriptor;
 
 public class AddContactWizardPage1 
