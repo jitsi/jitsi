@@ -161,7 +161,7 @@ public class ChatWindow extends JFrame {
                             .getString("warning"),
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
-            if (answer == JOptionPane.YES_OPTION) {
+            if (answer == JOptionPane.OK_OPTION) {
                 closeChat();
             }
         } else if (System.currentTimeMillis()
@@ -175,7 +175,7 @@ public class ChatWindow extends JFrame {
                             .getString("warning"),
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
-            if (answer == JOptionPane.YES_OPTION) {
+            if (answer == JOptionPane.OK_OPTION) {
                 closeChat();
             }
         } else {
