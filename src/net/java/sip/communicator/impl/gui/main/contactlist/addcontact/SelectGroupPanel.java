@@ -23,6 +23,7 @@ import javax.swing.JTextPane;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableModel;
 
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTranspTextPane;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -37,9 +38,11 @@ public class SelectGroupPanel extends JPanel {
     
     private ArrayList groupsList = new ArrayList();
     
-    private JTextPane infoLabel = new JTextPane();
+    private SIPCommTranspTextPane infoLabel 
+        = new SIPCommTranspTextPane(Messages.getString("selectGroupWizard"));
     
-    private JLabel infoTitleLabel = new JLabel(Messages.getString("selectGroupWizardTitle"));
+    private JLabel infoTitleLabel = new JLabel(
+            Messages.getString("selectGroupWizardTitle"));
     
     private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
     
@@ -69,7 +72,6 @@ public class SelectGroupPanel extends JPanel {
         this.initGroupsTable();
                 
         this.infoLabel.setEditable(false);
-        this.infoLabel.setText(Messages.getString("selectGroupWizard"));
         
         this.infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
         this.infoTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));

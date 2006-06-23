@@ -26,6 +26,7 @@ import javax.swing.table.TableModel;
 
 import com.ibm.media.bean.multiplayer.ImageLabel;
 
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTranspTextPane;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -50,7 +51,8 @@ public class SelectAccountPanel extends JPanel {
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
     
-    private JTextPane infoLabel = new JTextPane();
+    private SIPCommTranspTextPane infoLabel 
+        = new SIPCommTranspTextPane(Messages.getString("selectProvidersWizard"));
     
     private JLabel infoTitleLabel 
         = new JLabel(Messages.getString("selectProvidersWizardTitle"), 
@@ -68,8 +70,7 @@ public class SelectAccountPanel extends JPanel {
         this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
        
         this.infoLabel.setEditable(false);
-        this.infoLabel.setText(Messages.getString("selectProvidersWizard"));
-        
+               
         this.infoTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
                 
         this.labelsPanel.add(infoTitleLabel);

@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTranspTextPane;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -31,7 +32,8 @@ public class AddContactPanel extends JPanel {
     
     private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
     
-    private JTextPane infoLabel = new JTextPane();
+    private SIPCommTranspTextPane infoLabel 
+        = new SIPCommTranspTextPane(Messages.getString("addContactWizard"));
     
     private JLabel infoTitleLabel = new JLabel(Messages.getString("addContact"));
     
@@ -50,8 +52,7 @@ public class AddContactPanel extends JPanel {
         this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
         
         this.infoLabel.setEditable(false);
-        this.infoLabel.setText(Messages.getString("addContactWizard"));
-        
+                
         this.dataPanel.add(uinLabel, BorderLayout.WEST);
         
         this.dataPanel.add(textField, BorderLayout.CENTER);
