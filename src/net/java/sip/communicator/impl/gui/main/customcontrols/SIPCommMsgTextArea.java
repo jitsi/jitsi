@@ -21,6 +21,7 @@ public class SIPCommMsgTextArea extends JTextArea {
     public SIPCommMsgTextArea(String text){
         super(text);
         
+        this.setEditable(false);
         this.setLineWrap(true);
         this.setWrapStyleWord(true);
         
