@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -30,6 +31,7 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.events.CloseListen
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.login.LoginManager;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.util.Logger;
 
@@ -86,6 +88,7 @@ public class WelcomeWindow extends JDialog
         this.windowBackground.setLayout(new BorderLayout());
         this.getContentPane().setLayout(new BorderLayout());
 
+        this.welcomeLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
         this.windowBackground.add(welcomeLabel, BorderLayout.CENTER);
         this.windowBackground.add(buttonPanel, BorderLayout.SOUTH);
 

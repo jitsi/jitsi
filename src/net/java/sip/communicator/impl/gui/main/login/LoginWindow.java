@@ -10,6 +10,7 @@ package net.java.sip.communicator.impl.gui.main.login;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -33,6 +34,7 @@ import javax.swing.KeyStroke;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.protocol.AccountManager;
 /**
@@ -110,6 +112,10 @@ public class LoginWindow extends JDialog implements ActionListener {
      * Constructs the LoginWindow.
      */
     private void init() {
+        
+        this.uinLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
+        this.passwdLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
+        
         this.uinComboBox = new JComboBox();
 
         this.uinComboBox.setEditable(true);
