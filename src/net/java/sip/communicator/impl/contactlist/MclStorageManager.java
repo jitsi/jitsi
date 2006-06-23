@@ -137,7 +137,6 @@ public class MclStorageManager
      */
     private static final String SUBGROUPS_NODE_NAME = "subgroups";
 
-
     /**
      * The name of the XML attribute that contains group names.
      */
@@ -261,8 +260,11 @@ public class MclStorageManager
         String fileName = configurationService.getString(FILE_NAME_PROPERTY);
 
         if( fileName == null )
-            fileName = DEFAULT_FILE_NAME;
-
+        {
+            fileName = System.getProperty(FILE_NAME_PROPERTY);
+            if( fileName == null )
+                fileName = DEFAULT_FILE_NAME;
+        }
         //get a reference to the contact list file.
         try{
             contactlistFile  = faService.getPrivatePersistentFile(fileName);
