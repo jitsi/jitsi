@@ -93,12 +93,24 @@ public class ServerStoredContactListIcqImpl
 
     /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
+     *
+     * @param parentOperationSet the operation set that created us and that
+     * we could use for dispatching subscription events
+     * @param icqProvider the icqProvider that has instantiated us.
      */
-    ServerStoredContactListIcqImpl()
+    ServerStoredContactListIcqImpl(
+        OperationSetPersistentPresenceIcqImpl parentOperationSet,
+        ProtocolProviderServiceIcqImpl        icqProvider)
     {
         //don't add the sub ICQ groups to rootGroup here as we'll be having
         //event notifications for every one of them through the
         //RetroactiveBuddyListListener
+
+        //We need to init these as early as possible to ensure that the provider
+        //and the operationsset would not be null in the incoming events.
+        this.parentOperationSet = parentOperationSet;
+
+        this.icqProvider = icqProvider;
     }
 
     /**
@@ -144,6 +156,12 @@ public class ServerStoredContactListIcqImpl
      */
     private void fireGroupEvent(ContactGroupIcqImpl group, int eventID)
     {
+        //bail out if no one's listening
+        if(parentOperationSet == null){
+            logger.debug("No presence op. set available. Bailing out.");
+            return;
+        }
+
         ServerStoredGroupEvent evt = new ServerStoredGroupEvent(
                   group
                 , eventID
@@ -611,21 +629,9 @@ public class ServerStoredContactListIcqImpl
      * server stored information
      * @param joustSimSsiService a valid reference to the currently active JoustSIM
      * SsiService.
-     * @param parentOperationSet the operation set that created us and that
-     * we could use for dispatching subscription events
-     * @param icqProvider the icqProvider that has instantiated us.
      */
-    void init(  SsiService joustSimSsiService,
-                OperationSetPersistentPresenceIcqImpl parentOperationSet,
-
-                ProtocolProviderServiceIcqImpl icqProvider)
+    void init(  SsiService joustSimSsiService )
     {
-        //We need to keep this on top to ensure that the provider
-        //and the operationsset would not be null in the incoming events.
-        this.parentOperationSet = parentOperationSet;
-
-        this.icqProvider = icqProvider;
-
         this.rootGroup.setOwnerProvider(icqProvider);
 
         this.jSimSsiService = joustSimSsiService;
@@ -1001,6 +1007,7 @@ public class ServerStoredContactListIcqImpl
                 logger.debug(
                     "group name changed event received for unknown group"
                     + group);
+                return;
             }
 
             //check whether the name has really changed (the joust sim stack
