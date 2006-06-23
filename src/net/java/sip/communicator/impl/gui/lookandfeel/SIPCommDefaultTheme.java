@@ -181,7 +181,7 @@ public class SIPCommDefaultTheme
     }
 
     public ColorUIResource getWindowBackground() {
-        return getWhite();
+        return VERY_LIGHT_GRAY;
     }
     
     public ColorUIResource getControl(){
