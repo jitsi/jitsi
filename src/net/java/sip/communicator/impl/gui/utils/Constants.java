@@ -295,7 +295,8 @@ public class Constants {
             return null;
         }
         
-        return null;
+        return ImageLoader.getAnimatedImage(
+                ImageLoader.ICQ_CONNECTING);
     }
     /**
      * Gets all protocol statuses, including status and text.
@@ -378,6 +379,28 @@ public class Constants {
 
             protocolStatusList.put(ONLINE_STATUS, ImageLoader
                     .getImage(ImageLoader.JABBER_LOGO));
+ 
+            protocolStatusList.put(CHAT_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_CHAT_ICON));
+
+            protocolStatusList.put(AWAY_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_AWAY_ICON));
+
+            protocolStatusList.put(OCCUPIED_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_OCCUPIED_ICON));
+
+            protocolStatusList.put(NA_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_NA_ICON));
+
+            protocolStatusList.put(DND_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_DND_ICON));
+
+            protocolStatusList.put(OFFLINE_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_OFFLINE_ICON));
+
+            protocolStatusList.put(INVISIBLE_STATUS, ImageLoader
+                    .getImage(ImageLoader.SIP_INVISIBLE_ICON));
+
 
         } else if (protocolName.equals(Constants.SKYPE)) {
 
