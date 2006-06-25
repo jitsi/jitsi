@@ -70,7 +70,7 @@ public interface AccountManager
      * in this protocol provider.
      * @return ArrayList
      */
-    public ArrayList getRegisteredAcounts();
+    public ArrayList getRegisteredAccounts();
 
     /**
      * Returns the ServiceReference for the protocol provider corresponding to

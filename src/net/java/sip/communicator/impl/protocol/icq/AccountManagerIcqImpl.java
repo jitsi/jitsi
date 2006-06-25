@@ -36,7 +36,7 @@ public class AccountManagerIcqImpl
      * @return a copy of the llist containing all accounts currently installed
      * in the protocol provider.
      */
-    public ArrayList getRegisteredAcounts()
+    public ArrayList getRegisteredAccounts()
     {
         return new ArrayList(registeredAccounts.keySet());
     }

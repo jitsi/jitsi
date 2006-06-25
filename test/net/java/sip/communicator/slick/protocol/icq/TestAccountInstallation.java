@@ -327,7 +327,7 @@ public class TestAccountInstallation extends TestCase
         //make sure the account is empty
         assertTrue("There was an account registered with the account mananger "
                    +"before we've installed any",
-                   icqAccountManager.getRegisteredAcounts().size() == 0);
+                   icqAccountManager.getRegisteredAccounts().size() == 0);
 
 
         //Prepare the properties of the icq account.
@@ -394,7 +394,7 @@ public class TestAccountInstallation extends TestCase
         assertTrue(
             "The newly installed account was not in the acc man's "
             +"registered accounts!",
-            icqAccountManager.getRegisteredAcounts().size() == 1);
+            icqAccountManager.getRegisteredAccounts().size() == 1);
 
         //Verify that the protocol provider corresponding to the new account has
         //been properly registered with the osgi framework.

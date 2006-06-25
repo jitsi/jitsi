@@ -129,7 +129,7 @@ public class TestAccountUninstallation
     public void testUninstallAccount()
     {
         assertFalse("No installed accaounts found",
-                    fixture.accManager.getRegisteredAcounts().isEmpty());
+                    fixture.accManager.getRegisteredAccounts().isEmpty());
 
         assertNotNull(
             "Found no provider corresponding to account ID "
@@ -166,7 +166,7 @@ public class TestAccountUninstallation
         assertTrue(
             "The ICQ account manager kept a reference to the provider we just "
             +"uninstalled (accID="+fixture.icqAccountID+")",
-            fixture.accManager.getRegisteredAcounts().isEmpty()
+            fixture.accManager.getRegisteredAccounts().isEmpty()
             && fixture.accManager.getProviderForAccount(fixture.icqAccountID) == null
             );
     }
