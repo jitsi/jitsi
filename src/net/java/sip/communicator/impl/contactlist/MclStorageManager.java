@@ -776,6 +776,11 @@ public class MclStorageManager
         while (protoGroups.hasNext())
         {
             ContactGroup group = (ContactGroup)protoGroups.next();
+
+            //ignore if the proto group is not persistent:
+            if(!group.isPersistent())
+                continue;
+
             Element protoGroupEl = createProtoContactGroupNode(group);
             protoGroupsElement.appendChild(protoGroupEl);
         }
@@ -860,6 +865,12 @@ public class MclStorageManager
      */
     public void metaContactGroupAdded(MetaContactGroupEvent evt)
     {
+        //if the group was created as an encapsulator of a non persistent proto
+        //group then we'll ignore it.
+        if (evt.getSourceProtoGroup() != null
+            && !evt.getSourceProtoGroup().isPersistent())
+            return;
+
         MetaContactGroup parentGroup = evt.getSourceMetaContactGroup()
             .getParentMetaContactGroup();
 
