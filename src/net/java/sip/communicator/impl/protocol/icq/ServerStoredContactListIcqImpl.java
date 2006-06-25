@@ -282,7 +282,7 @@ public class ServerStoredContactListIcqImpl
 
         //dispatch
         parentOperationSet.fireSubscriptionEvent(
-            SubscriptionEvent.SUBSCRIPTION_CREATED, contact, parentGroup);
+            SubscriptionEvent.SUBSCRIPTION_REMOVED, contact, parentGroup);
     }
 
     private void fireContactsReordered( ContactGroupIcqImpl parentGroup)
@@ -685,6 +685,13 @@ public class ServerStoredContactListIcqImpl
                       (MutableGroup) group
                     , buddies
                     , ServerStoredContactListIcqImpl.this, true);
+
+                //this is the first group so insert at 0.
+                rootGroup.addSubGroup(newGroup);
+
+                //tell listeners about the added group
+                fireGroupEvent(newGroup
+                               , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
             }
             else
             {
@@ -720,48 +727,14 @@ public class ServerStoredContactListIcqImpl
                     else
                         fireContactResolved(newGroup, contact);
                 }
-
-
             }
 
             //add a joust sim buddy listener to all of the buddies in this group
             for(int i = 0; i < buddies.size(); i++)
                 ((Buddy)buddies.get(i)).addBuddyListener(jsimBuddyListener);
 
-
-            //elements in the newItems list may include groups that have not
-            //yet been reported through this method. In order to make sure that
-            //we keep the order  specified by the server, we try to add after a
-            //newItems member that has a corresponding ContactGroup entry in our
-            //contact list, and add the new entry after it
-            int groupIndex = newItems.indexOf(group);
-
-            int insertPos = 0;
-            if (groupIndex == 0)
-            {
-                //this is the first group so insert at 0.
-                rootGroup.addSubGroup(insertPos, newGroup);
-            }
-            else
-            {
-                for (; groupIndex >= 0; groupIndex--)
-                {
-                    int prevContactGroupIndex
-                        = findContactGroupIndex( (Group) newItems.get(groupIndex));
-
-                    //if we've found the nearest previous group that we already
-                    //know of we should insert the new group behind it.
-                    if (prevContactGroupIndex != -1)
-                        insertPos = prevContactGroupIndex + 1;
-                }
-                rootGroup.addSubGroup(insertPos, newGroup);
-            }
-
             //register a listener for name changes of this group
             group.addGroupListener(jsimGroupChangeListener);
-
-            //tell listeners about the added group
-            fireGroupEvent(newGroup, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
         }
 
         /**
