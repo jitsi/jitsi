@@ -1,4 +1,3 @@
-Bundle-Activator: net.java.sip.communicator.util.Activator
 Bundle-Name: SIP Communicator Utility Packages
 Bundle-Description: A bundle that export packages with utility classes.
 Bundle-Vendor: sip-communicator.org
