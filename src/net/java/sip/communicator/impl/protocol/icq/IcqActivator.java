@@ -29,7 +29,7 @@ public class IcqActivator
     public void start(BundleContext context) throws Exception
     {
         Hashtable hashtable = new Hashtable();
-        hashtable.put(AccountManager.PROTOCOL_PROPERTY_NAME, "ICQ");
+        hashtable.put(AccountManager.PROTOCOL_PROPERTY_NAME, ProtocolNames.ICQ);
 
         AccountManagerIcqImpl icqAccountManager =
                                         new AccountManagerIcqImpl();
