@@ -1,0 +1,353 @@
+.Chat
+{
+	letter-spacing: 1px;
+	font-family: arial;
+	font-size: 11px;
+	padding: 5px;
+
+}
+
+
+.KopeteMessage
+{
+	margin-left: 6px;
+	margin-right: 6px;
+	margin-bottom: 10px;
+}
+
+.IncomingMessageHeader
+{
+	background: url(images/header-inbound-background.png) repeat-x;
+	background-color: #c9d9f0;
+
+}
+.IncomingMessageHeader1
+{
+	background: url(images/header-inbound-left.png) no-repeat top left;
+	padding-left: 4px;
+
+}
+.IncomingMessageHeader2
+{
+	background: url(images/header-inbound-right.png) no-repeat top right;
+	padding-right: 4px;
+	padding-left: 4px;
+	vertical-align: middle;
+	line-height: 20px;
+	height: 20px;
+}
+.IncomingBody
+{
+	background: url(images/body-background.png) repeat-x top;
+	background-color: #f5f6fa;
+	border-bottom: 1px solid #c9d9f0;
+}
+.IncomingBody1
+{
+	background: url(images/body-inbound-left.png) no-repeat top left;
+}
+.IncomingBody2
+{
+	background: url(images/body-inbound-right.png) no-repeat top right;
+	padding: 5px;
+	padding-bottom: 7px;
+}
+
+.IncomingMessage
+{
+            overflow: auto;
+            padding-left: 2px;
+            padding-right: 2px;
+}
+
+.NextIncomingMessage
+{
+           overflow: auto;
+            padding-left: 2px;
+            padding-right: 2px;
+}
+
+.inStatusIcon
+{
+	float: left;
+	padding-right: 1ex;
+}
+
+.inTime
+{
+	background: url(images/icon-time.png) no-repeat center right;
+	position: relative;
+	padding-right: 18px;
+	padding-left: 5px;
+	text-align: right;
+	font-weight: bold;
+	font-size: 10px;
+	float: right;
+	z-index: 1;
+	color: #567199;
+}
+.inMetacontact
+{
+	position: absolute;
+	text-align: left; font-size: 10px; font-weight: bold;
+	padding-right: 20px;
+	padding-left: 20px;
+	overflow: hidden;
+	height: 20px;
+	background: url(images/icon-you.png) no-repeat center left;
+	color: #567199;
+}
+
+.IncomingFooter
+{
+	background: url(images/footer-inbound-background.png) repeat-x;
+	background-color: #ffffff;
+}
+.IncomingFooter1
+{
+	background: url(images/footer-inbound-left.png) no-repeat top left;
+	height: 9px;
+}
+.IncomingFooter2
+{
+	background: url(images/footer-inbound-right.png) no-repeat top right;
+	height: 9px;
+}
+
+.IncomingAction
+{
+	background: #fafafa;
+	margin-left: 6px;
+	margin-right: 6px;
+	padding-left: 3px;
+	padding-right: 3px;
+	margin-bottom: 10px;
+	border: 1px solid #e0e0e0;
+	vertical-align: middle;
+	line-height: 20px;
+	height: 20px;
+}
+
+.IncomingActionBody
+{
+	position: absolute;
+	background: url(images/icon-action.png) no-repeat center left;
+	text-align: left; font-size: 10px; font-weight: bold; color: #808080;
+	padding-right: 20px;
+	padding-left: 20px;
+	overflow: hidden;
+	height: 20px;
+	float: left;
+}
+
+.inActionMetacontact
+{
+/*	margin-left: 5px;
+	font-weight: bold;*/
+}
+.inActionMessage
+{
+
+}
+.IncomingActionTime
+{
+	position: relative;
+	background: url(images/icon-time.png) no-repeat center right;
+	text-align: right; font-size: 10px; font-weight: bold; color: #808080;
+	padding-right: 18px;
+	padding-left: 5px;
+	float: right;
+	z-index: 1;
+}
+
+.OutgoingMessageHeader
+{
+	background: url(images/header-outbound-background.png) repeat-x;
+	background-color: #e1e1e1;
+
+}
+.OutgoingMessageHeader1
+{
+	background: url(images/header-outbound-left.png) no-repeat top left;
+	padding-left: 4px;
+}
+.OutgoingMessageHeader2
+{
+	background: url(images/header-outbound-right.png) no-repeat top right;
+	padding-right: 4px;
+	padding-left: 4px;
+	vertical-align: middle;
+	line-height: 20px;
+	height: 20px;
+}
+.OutgoingBody
+{
+	background: url(images/body-background.png) repeat-x top;
+	background-color: #f9f9f9;
+	border-bottom: 1px solid #e1e1e1;
+}
+.OutgoingBody1
+{
+	background: url(images/body-outbound-left.png) no-repeat top left;
+}
+.OutgoingBody2
+{
+	background: url(images/body-outbound-right.png) no-repeat top right;
+	padding: 5px;
+	padding-bottom: 7px;
+}
+
+.OutgoingMessage
+{
+            overflow: auto;
+            padding-left: 2px;
+            padding-right: 2px;
+/* font:
+color:
+background-color:*/
+}
+
+.NextOutgoingMessage
+{
+           overflow: auto;
+            padding-left: 2px;
+            padding-right: 2px;
+}
+
+.outStatusIcon
+{
+	float: left;
+	padding-right: 1ex;
+}
+
+.outTime
+{
+	background: url(images/icon-time.png) no-repeat center right;
+	position: relative;
+	padding-right: 18px;
+	padding-left: 5px;
+	text-align: right;
+	font-weight: bold;
+	font-size: 10px;
+	float: right;
+	z-index: 1;
+	color: #707070;
+}
+.outMetacontact
+{
+	position: absolute;
+	text-align: left; font-size: 10px; font-weight: bold;
+	padding-right: 20px;
+	padding-left: 20px;
+	overflow: hidden;
+	height: 20px;
+	background: url(images/icon-me.png) no-repeat center left;
+	color: #707070;
+}
+
+.OutgoingFooter
+{
+	background: url(images/footer-outbound-background.png) repeat-x;
+	background-color: #ffffff;
+}
+.OutgoingFooter1
+{
+	background: url(images/footer-outbound-right.png) no-repeat top right;
+	height: 9px;
+}
+.OutgoingFooter2
+{
+	background: url(images/footer-outbound-left.png) no-repeat top right;
+	height: 9px;
+}
+
+.OutgoingAction
+{
+	background: #fafafa;
+	margin-left: 6px;
+	margin-right: 6px;
+	padding-left: 3px;
+	padding-right: 3px;
+	margin-bottom: 10px;
+	border: 1px solid #e0e0e0;
+	vertical-align: middle;
+	line-height: 20px;
+	height: 20px;
+}
+
+.OutgoingActionBody
+{
+	position: absolute;
+	background: url(images/icon-action.png) no-repeat center left;
+	text-align: left; font-size: 10px; font-weight: bold; color: #808080;
+	padding-right: 20px;
+	padding-left: 20px;
+	margin-left: 4px;
+	overflow: hidden;
+	height: 20px;
+	float: left;
+}
+
+.outActionMetacontact
+{
+	/*margin-left: 10px;
+	font-weight: bold;*/
+}
+.outActionMessage
+{
+}
+.OutgoingActionTime
+{
+	position: relative;
+	background: url(images/icon-time.png) no-repeat center right;
+	text-align: right; font-size: 10px; font-weight: bold; color: #808080;
+	padding-right: 18px;
+	padding-left: 5px;
+	float: right;
+	z-index: 1;
+}
+.InternalMessageHeader
+{
+	background: #fafafa;
+	margin-left: 6px;
+	margin-right: 6px;
+	padding-left: 3px;
+	padding-right: 3px;
+	margin-bottom: 10px;
+	border: 1px solid #e0e0e0;
+	vertical-align: middle;
+	line-height: 20px;
+	height: 20px;
+}
+
+.InternalMessage
+{
+	position: absolute;
+	background: url(images/icon-internal.png) no-repeat center left;
+	text-align: left; font-size: 10px; font-weight: bold; color: #808080;
+	padding-right: 20px;
+	padding-left: 20px;
+	margin-left: 4px;
+	overflow: hidden;
+	height: 20px;
+	float: left;
+}
+
+.InternalMessageHeaderTime
+{
+	position: relative;
+	background: url(images/icon-time.png) no-repeat center right;
+	text-align: right; font-size: 10px; font-weight: bold; color: #808080;
+	padding-right: 18px;
+	padding-left: 5px;
+	float: right;
+	z-index: 1;
+}
+
+.systemLogo
+{
+	float: left;
+	vertical-align: middle;
+	padding-right: 1ex;
+}
+

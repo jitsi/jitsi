@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.events.ContainerPluginListener;
@@ -31,8 +32,10 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.customcontrols.wizard.Wizard;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.protocol.icq.ContactIcqImpl;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
+import net.java.sip.communicator.service.contactlist.MetaContactListException;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
@@ -128,7 +131,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
 
             AddContactWizardPage2 page2 
                 = new AddContactWizardPage2(newContact,
-                        mainFrame.getContactList());
+                        mainFrame.getAllGroups());
             
             wizard.registerWizardPanel(AddContactWizardPage2.IDENTIFIER, page2);
             
@@ -160,8 +163,19 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
                         MetaContactGroup group
                             = (MetaContactGroup)groupList.get(j);
                         
-                        mainFrame.getContactList()
-                            .createMetaContact(pps, group, newContact.getUin());
+                        try {
+                            mainFrame.getContactList()
+                                .createMetaContact(
+                                    pps, group, newContact.getUin());
+                        }
+                        catch (MetaContactListException ex) {
+                            JOptionPane.showMessageDialog(mainFrame,
+                                Messages.getString(
+                                        "addContactError", newContact.getUin()),
+                                Messages.getString(
+                                        "addContactErrorTitle"),
+                                JOptionPane.WARNING_MESSAGE);
+                        }                       
                     }
                 }
             }

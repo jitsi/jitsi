@@ -10,6 +10,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
@@ -20,6 +21,7 @@ import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactDialog;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
@@ -38,12 +40,15 @@ public class GroupRightButtonMenu extends JPopupMenu
         this.group = group;
         this.mainFrame = mainFrame;
         
+        this.addContactMenu.setIcon(new ImageIcon(ImageLoader
+                .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
+
         this.add(addContactMenu);
         
-        ArrayList providers = mainFrame.getProtocolProviders();
-        for(int i = 0; i < providers.size(); i ++) {
+        Iterator providers = mainFrame.getProtocolProviders();
+        while(providers.hasNext()) {
             ProtocolProviderService pps 
-                = (ProtocolProviderService)providers.get(i);
+                = (ProtocolProviderService)providers.next();
             
             String protocolName = pps.getProtocolName();
             

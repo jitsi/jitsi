@@ -27,6 +27,7 @@ import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.Contact;
@@ -262,8 +263,8 @@ public class MainFrame extends JFrame {
      * 
      * @return Map a set of all protocol providers.
      */
-    public ArrayList getProtocolProviders() {
-        return this.protocolProviders;
+    public Iterator getProtocolProviders() {
+        return this.protocolProviders.iterator();
     }
 
     /**
@@ -442,5 +443,25 @@ public class MainFrame extends JFrame {
 
     public Hashtable getWaitToBeDeliveredMsgs() {
         return waitToBeDeliveredMsgs;
+    }
+    
+    /**
+     * Returns the list of all groups. 
+     * @return The list of all groups.
+     */
+    public Iterator getAllGroups() {
+        return getTabbedPane().getContactListPanel()
+            .getContactList().getAllGroups();
+    }
+    
+    /**
+     * Returns the Meta Contact Group corresponding to the given MetaUID.
+     * 
+     * @param metaUID An identifier of a group.
+     * @return The Meta Contact Group corresponding to the given MetaUID.
+     */
+    public MetaContactGroup getGroupByID(String metaUID) {
+        return getTabbedPane().getContactListPanel()
+            .getContactList().getGroupByID(metaUID);
     }
 }

@@ -7,6 +7,8 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
+import java.util.Iterator;
+
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 
@@ -22,9 +24,9 @@ public class AddContactWizardPage2
     private SelectGroupPanel selectGroupPanel;
     
     public AddContactWizardPage2(NewContact newContact,
-            MetaContactListService contactList) {
+            Iterator groupsList) {
                 
-        selectGroupPanel = new SelectGroupPanel(newContact, contactList);
+        selectGroupPanel = new SelectGroupPanel(newContact, groupsList);
         
         selectGroupPanel.addCheckBoxCellListener(this);
         

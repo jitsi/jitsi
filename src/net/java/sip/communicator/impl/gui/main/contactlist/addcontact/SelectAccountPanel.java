@@ -12,6 +12,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -42,7 +43,7 @@ public class SelectAccountPanel extends JPanel {
     
     private NewContact newContact;
     
-    private ArrayList protocolProvidersList;
+    private Iterator protocolProvidersList;
     
     private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
     
@@ -59,7 +60,7 @@ public class SelectAccountPanel extends JPanel {
                 JLabel.CENTER);
     
     public SelectAccountPanel(NewContact newContact, 
-            ArrayList protocolProvidersList) {
+            Iterator protocolProvidersList) {
         super(new BorderLayout());
     
         this.setPreferredSize(new Dimension(500, 200));
@@ -94,9 +95,9 @@ public class SelectAccountPanel extends JPanel {
         tableModel.addColumn(Messages.getString("account"));
         tableModel.addColumn(Messages.getString("protocol"));
                 
-        for(int i = 0; i < protocolProvidersList.size(); i ++) {
+        while(protocolProvidersList.hasNext()) {
             ProtocolProviderService pps 
-                = (ProtocolProviderService)protocolProvidersList.get(i);
+                = (ProtocolProviderService)protocolProvidersList.next();
             
             String pName = pps.getProtocolName();
             JLabel protocolLabel = new JLabel();

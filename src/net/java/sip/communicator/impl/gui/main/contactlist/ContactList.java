@@ -8,6 +8,7 @@
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.Cursor;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;
@@ -39,7 +40,9 @@ public class ContactList extends JList
     private ContactListModel listModel;
 
     private MetaContact currentlySelectedContact;
-
+    
+    private ArrayList groupsList = new ArrayList();
+    
     /**
      * Creates an instance of the ContactList.
      *
@@ -84,11 +87,11 @@ public class ContactList extends JList
     }
 
     public void metaContactRenamed(MetaContactRenamedEvent evt) {
-        //TODO Implement MetaContactEvent metaContactRenamed.
+        this.revalidate();
     }
 
     public void protoContactAdded(ProtoContactEvent evt) {
-        
+        this.revalidate();
     }
 
     public void protoContactRemoved(ProtoContactEvent evt) {
@@ -104,7 +107,7 @@ public class ContactList extends JList
     }
 
     public void metaContactMoved(MetaContactMovedEvent evt) {
-        //TODO Implement MetaContactEvent metaContactMoved.
+        this.revalidate();
     }
 
     /**
@@ -119,6 +122,8 @@ public class ContactList extends JList
         //this.ensureIndexIsVisible(0);
         
         this.revalidate();
+        
+        this.groupsList.add(sourceGroup);
     }
 
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
@@ -217,5 +222,30 @@ public class ContactList extends JList
             index = (index + increment + max) % max;
         } while (index != startIndex);
         return -1;
+    }
+
+    /**
+     * Returns the list of all groups. 
+     * @return The list of all groups.
+     */
+    public Iterator getAllGroups() {
+        return groupsList.iterator();
+    }
+    
+    /**
+     * Returns the Meta Contact Group corresponding to the given MetaUID.
+     * 
+     * @param metaUID An identifier of a group.
+     * @return The Meta Contact Group corresponding to the given MetaUID.
+     */
+    public MetaContactGroup getGroupByID(String metaUID) {               
+        for(int i = 0; i < groupsList.size(); i ++) {
+            MetaContactGroup group = (MetaContactGroup)groupsList.get(i);
+            
+            if(group.getMetaUID().equals(metaUID)) {
+                return group;
+            }
+        }
+        return null;
     }
 }

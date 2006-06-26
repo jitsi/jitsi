@@ -7,12 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.awt.Component;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
 
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
@@ -28,6 +28,7 @@ import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
@@ -94,30 +95,18 @@ public class ContactRightButtonMenu extends JPopupMenu implements
      * Initializes the menu, by adding all containing menu items.
      */
     private void init() {
-        // This feature is disabled until it's implemented
-        this.sendFileItem.setEnabled(false);
         
-        /*
-         * String[] userProtocols = contactItem.getProtocols();
-         * 
-         * for (int i = 0; i < userProtocols.length; i++) {
-         * 
-         * JMenuItem protocolMenuItem = new JMenuItem( userProtocols[i], new
-         * ImageIcon(Constants.getProtocolIcon(userProtocols[i])));
-         * 
-         * this.addSubcontactMenu.add(protocolMenuItem); }
-         */
-
         this.moveToMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.GROUPS_16x16_ICON)));
 
         this.addSubcontactMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
-
-        ArrayList providers = this.mainFrame.getProtocolProviders();
-        for(int i = 0; i < providers.size(); i ++) {
+        
+        //Initialize the addSubcontact menu.
+        Iterator providers = this.mainFrame.getProtocolProviders();
+        while(providers.hasNext()) {
             ProtocolProviderService pps 
-                = (ProtocolProviderService)providers.get(i);
+                = (ProtocolProviderService)providers.next();
             
             String protocolName = pps.getProtocolName();
             
@@ -129,6 +118,19 @@ public class ContactRightButtonMenu extends JPopupMenu implements
             menuItem.addActionListener(this);
             
             this.addSubcontactMenu.add(menuItem);
+        }
+                
+        Iterator groups = this.mainFrame.getAllGroups();
+                
+        while(groups.hasNext()) {
+            MetaContactGroup group = (MetaContactGroup)groups.next();
+            
+            JMenuItem menuItem = new JMenuItem(group.getGroupName());
+            
+            menuItem.setName(group.getMetaUID());
+            menuItem.addActionListener(this);
+            
+            this.moveToMenu.add(menuItem);
         }
         
         this.add(sendMessageItem);
@@ -170,11 +172,9 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
         // Disable all menu items that do nothing.
         this.sendFileItem.setEnabled(false);
-        this.moveToMenu.setEnabled(false);        
         this.removeContactItem.setEnabled(false);
-        this.renameContactItem.setEnabled(false);
         this.viewHistoryItem.setEnabled(false);
-        this.userInfoItem.setEnabled(false);
+        this.userInfoItem.setEnabled(false);        
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -182,8 +182,29 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
         String itemText = menuItem.getText();
-
-        if (itemName.equalsIgnoreCase("sendMessage")) {
+        
+        if(mainFrame.getProtocolProviderForAccount(itemText) != null) {
+            ProtocolProviderService pps 
+                = mainFrame.getProtocolProviderForAccount(itemText);
+            
+            AddContactDialog dialog = new AddContactDialog(mainFrame.getContactList(),
+                    contactItem, pps);
+            
+            dialog.setLocation(
+                    Toolkit.getDefaultToolkit().getScreenSize().width/2 
+                        - 250,
+                    Toolkit.getDefaultToolkit().getScreenSize().height/2 
+                        - 100
+                    );
+            
+            dialog.setVisible(true);
+        }
+        else if (mainFrame.getGroupByID(itemName) != null) {
+            MetaContactGroup group = mainFrame.getGroupByID(itemName);
+           
+            mainFrame.getContactList().moveMetaContact(contactItem, group);
+        }
+        else if (itemName.equalsIgnoreCase("sendMessage")) {
             ContactListPanel clistPanel = mainFrame.getTabbedPane()
                     .getContactListPanel();
             SwingUtilities.invokeLater(clistPanel.new RunMessageWindow(
@@ -205,7 +226,17 @@ public class ContactRightButtonMenu extends JPopupMenu implements
             warning.setVisible(true);
         } 
         else if (itemName.equalsIgnoreCase("renameContact")) {
-
+            RenameContactDialog dialog = new RenameContactDialog(
+                    mainFrame.getContactList(), contactItem);
+            
+            dialog.setLocation(
+                    Toolkit.getDefaultToolkit().getScreenSize().width/2 
+                        - 200,
+                    Toolkit.getDefaultToolkit().getScreenSize().height/2 
+                        - 50
+                    );
+            
+            dialog.setVisible(true);
         } 
         else if (itemName.equalsIgnoreCase("viewHistory")) {
 
@@ -216,22 +247,6 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         } 
         else if (itemName.equalsIgnoreCase("userInfo")) {
 
-        }
-        else if(mainFrame.getProtocolProviderForAccount(itemText) != null) {
-            ProtocolProviderService pps 
-                = mainFrame.getProtocolProviderForAccount(itemText);
-            
-            AddContactDialog dialog = new AddContactDialog(mainFrame.getContactList(),
-                    contactItem, pps);
-            
-            dialog.setLocation(
-                    Toolkit.getDefaultToolkit().getScreenSize().width/2 
-                        - 250,
-                    Toolkit.getDefaultToolkit().getScreenSize().height/2 
-                        - 100
-                    );
-            
-            dialog.setVisible(true);
-        }
-    }
+        }        
+    }    
 }

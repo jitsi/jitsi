@@ -10,6 +10,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
@@ -25,7 +26,7 @@ public class AddContactWizardPage1
     private SelectAccountPanel selectAccountPanel;
     
     public AddContactWizardPage1(NewContact newContact, 
-            ArrayList protocolProvidersList) {
+            Iterator protocolProvidersList) {
         
         selectAccountPanel = new SelectAccountPanel(
                 newContact, protocolProvidersList);

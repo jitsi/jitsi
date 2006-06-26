@@ -17,7 +17,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTranspTextPane;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
@@ -26,7 +25,7 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 public class AddContactPanel extends JPanel {
 
-    private JLabel uinLabel = new JLabel(Messages.getString("uin"));
+    private JLabel uinLabel = new JLabel(Messages.getString("identifier"));
     
     private JTextField textField = new JTextField();
     

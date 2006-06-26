@@ -36,8 +36,6 @@ public class SelectGroupPanel extends JPanel {
         
     private CustomTableModel tableModel = new CustomTableModel();
     
-    private ArrayList groupsList = new ArrayList();
-    
     private SIPCommTranspTextPane infoLabel 
         = new SIPCommTranspTextPane(Messages.getString("selectGroupWizard"));
     
@@ -55,10 +53,10 @@ public class SelectGroupPanel extends JPanel {
     
     private NewContact newContact;
     
-    private MetaContactListService contactList;
-    
+    private Iterator groupsList;
+        
     public SelectGroupPanel(NewContact newContact, 
-            MetaContactListService contactList) {
+            Iterator groupsList) {
         super(new BorderLayout());
     
         this.setPreferredSize(new Dimension(500, 200));
@@ -67,8 +65,8 @@ public class SelectGroupPanel extends JPanel {
         
         this.newContact = newContact;
         
-        this.contactList = contactList;
-        
+        this.groupsList = groupsList;
+           
         this.initGroupsTable();
                 
         this.infoLabel.setEditable(false);
@@ -91,13 +89,11 @@ public class SelectGroupPanel extends JPanel {
         
         tableModel.addColumn("");
         tableModel.addColumn(Messages.getString("group"));
-
-        this.addGroups(contactList.getRoot());
         
-        for(int i = 0; i < groupsList.size(); i ++) {
+        while(groupsList.hasNext()) {
             
             MetaContactGroup group
-                = (MetaContactGroup)groupsList.get(i);
+                = (MetaContactGroup)groupsList.next();
             
             tableModel.addRow(new Object[]{new Boolean(false), group});
         }
@@ -131,19 +127,5 @@ public class SelectGroupPanel extends JPanel {
             }
         }
         return isSelected;
-    }
-    
-    private void addGroups(MetaContactGroup parentGroup) {        
-        Iterator i = parentGroup.getSubgroups();
-
-        while (i.hasNext()) {
-            MetaContactGroup group = (MetaContactGroup)i.next();
-            
-            groupsList.add(group);
-            
-            if (group.countSubgroups() > 0) {
-               addGroups(group); 
-            }
-        }
     }
 }
