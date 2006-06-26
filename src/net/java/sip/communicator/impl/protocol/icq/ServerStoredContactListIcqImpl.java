@@ -700,7 +700,8 @@ public class ServerStoredContactListIcqImpl
                 // the corresponding events and bail out.
                 List newContacts = new ArrayList();
                 List deletedContacts = new ArrayList();
-                newGroup.updateGroup(buddies, newContacts, deletedContacts);
+                newGroup.updateGroup((MutableGroup)group, buddies
+                                     , newContacts, deletedContacts);
 
                 //fire an event saying that the group has been resolved
                 fireGroupEvent(newGroup

@@ -485,6 +485,8 @@ public class ContactGroupIcqImpl
     /**
      * Sets this group and contacts corresponding to buddies in the
      * serverBuddies list as resolved.
+     * @param joustSimGroup the joustSimGroup sent by the server that we should
+     * use to replace the volatile group with.
      * @param serverBuddies a List of joust sim Buddy objects as they were
      * returned by the server
      * @param newContacts a list of ContactIcqImpl objects containing contacts
@@ -493,11 +495,14 @@ public class ContactGroupIcqImpl
      * @param removedContacts contacts assumed deleted because they were in the
      * local group but were not in the serverBuddies list.
      */
-     void updateGroup(List serverBuddies,
-                      List newContacts,
-                      List removedContacts)
+     void updateGroup(MutableGroup  joustSimGroup,
+                      List          serverBuddies,
+                      List          newContacts,
+                      List          removedContacts)
     {
         setResolved(true);
+        this.joustSimSourceGroup = joustSimGroup;
+
         Iterator serverBuddiesIter = serverBuddies.iterator();
 
         while(serverBuddiesIter.hasNext())
@@ -520,6 +525,7 @@ public class ContactGroupIcqImpl
             {
                 //the contact was already in the list. we need to only set it
                 //as resolved.
+                contact.setJoustSimBuddy(buddy);
                 contact.setResolved(true);
             }
         }
