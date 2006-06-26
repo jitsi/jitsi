@@ -1091,8 +1091,12 @@ public class MclStorageManager
             return;
         }
 
-        metaContactNode.setAttribute(META_CONTACT_DISPLAY_NAME_NODE_NAME
-                                     , evt.getNewDisplayName());
+        Element displayNameNode = XMLUtils.findChild(
+                metaContactNode
+                , META_CONTACT_DISPLAY_NAME_NODE_NAME);
+
+        XMLUtils.setText(displayNameNode, evt.getNewDisplayName());
+
 
         try{
             storeContactList();
