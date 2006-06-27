@@ -95,15 +95,15 @@ public class ContactList extends JList
     }
 
     public void protoContactRemoved(ProtoContactEvent evt) {
-        //TODO Implement MetaContactEvent protoContactRemoved.
+        this.revalidate();
     }
 
     public void protoContactMoved(ProtoContactEvent evt) {
-        //TODO Implement MetaContactEvent protoContactMoved.
+        this.revalidate();
     }
 
     public void metaContactRemoved(MetaContactEvent evt) {
-        //TODO Implement MetaContactEvent metaContactRemoved.
+        this.revalidate();
     }
 
     public void metaContactMoved(MetaContactMovedEvent evt) {
@@ -127,13 +127,11 @@ public class ContactList extends JList
     }
 
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
-        // TODO Auto-generated method stub
-
+        this.revalidate();
     }
 
     public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
-        // TODO Auto-generated method stub
-
+        this.revalidate();
     }
 
     public void childContactsReordered(MetaContactGroupEvent evt) {

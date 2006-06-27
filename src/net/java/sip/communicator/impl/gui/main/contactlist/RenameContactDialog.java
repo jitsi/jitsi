@@ -12,13 +12,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import com.ibm.media.bean.multiplayer.ImageLabel;
+
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
@@ -40,6 +44,9 @@ public class RenameContactDialog extends JDialog
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
     private JPanel mainPanel = new JPanel(new BorderLayout());
+    
+    //private JLabel iconLabel = new JLabel(new ImageIcon(
+    //        ImageLoader.getImage(ImageLoader.RENAME_DIALOG_ICON)));
     
     private MetaContactListService clist;
     
@@ -78,7 +85,9 @@ public class RenameContactDialog extends JDialog
         this.mainPanel.add(renameContactPanel, BorderLayout.NORTH);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
-        this.getContentPane().add(mainPanel);
+        this.getContentPane().setLayout(new BorderLayout());
+        this.getContentPane().add(mainPanel, BorderLayout.CENTER);
+        //this.getContentPane().add(iconLabel, BorderLayout.WEST);
     }
     
     public void actionPerformed(ActionEvent e) {
