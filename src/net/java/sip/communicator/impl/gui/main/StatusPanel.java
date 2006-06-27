@@ -127,7 +127,7 @@ public class StatusPanel extends JPanel {
      * Checks if the given protocol has already its StatusSelectorBox in the 
      * StatusPanel.
      * 
-     * @param protocolName The protocol name.
+     * @param accountID The account id.
      * @return True if the protcol has already its StatusSelectorBox in the 
      * StatusPanel, False otherwise.
      */
