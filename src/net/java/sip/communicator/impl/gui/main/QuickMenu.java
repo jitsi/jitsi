@@ -175,7 +175,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
                                 Messages.getString(
                                         "addContactErrorTitle"),
                                 JOptionPane.WARNING_MESSAGE);
-                        }                       
+                        }
                     }
                 }
             }
