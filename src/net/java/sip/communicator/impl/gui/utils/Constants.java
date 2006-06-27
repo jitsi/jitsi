@@ -43,6 +43,19 @@ public class Constants {
     private static Logger logger = Logger.getLogger(CommunicatorMain.class
             .getName());
 
+    /*
+     * ===================================================================
+     * ------------------------ CONFIG CONSTANTS ---------------------------
+     * ===================================================================
+     */
+    public static boolean REMOVE_CONTACT_ASK = true;
+    
+    /*
+     * ===================================================================
+     * ------------------------ MESSAGE TYPES ---------------------------
+     * ===================================================================
+     */
+    
     public static final String OUTGOING_MESSAGE = "OutgoingMessage";
 
     public static final String INCOMING_MESSAGE = "IncomingMessage";

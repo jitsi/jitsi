@@ -197,6 +197,10 @@ public class ImageLoader {
     
     public static final ImageID ADD_CONTACT_WIZARD_ICON 
         = new ImageID("ADD_CONTACT_WIZARD_ICON");
+    
+    public static final ImageID RENAME_DIALOG_ICON 
+        = new ImageID("RENAME_DIALOG_ICON");
+    
 
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
