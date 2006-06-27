@@ -7,6 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,7 +15,9 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -107,6 +110,17 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         
         //Initialize the addSubcontact menu.
         Iterator providers = this.mainFrame.getProtocolProviders();
+        
+        if(providers.hasNext()) {
+            JLabel infoLabel = new JLabel(Messages.getString("selectAccount"));
+                      
+            infoLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+            infoLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
+            
+            this.addSubcontactMenu.add(infoLabel);
+            this.addSubcontactMenu.addSeparator();
+        }
+        
         while (providers.hasNext()) {
             ProtocolProviderService pps 
                 = (ProtocolProviderService)providers.next();
@@ -125,7 +139,17 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         
         //Initialize moveTo menu.
         Iterator groups = this.mainFrame.getAllGroups();
-                
+        
+        if(groups.hasNext()) {
+            JLabel infoLabel = new JLabel(Messages.getString("selectGroup"));
+            
+            infoLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+            infoLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
+            
+            this.moveToMenu.add(infoLabel);
+            this.moveToMenu.addSeparator();
+        }
+        
         while (groups.hasNext()) {
             MetaContactGroup group = (MetaContactGroup)groups.next();
             
