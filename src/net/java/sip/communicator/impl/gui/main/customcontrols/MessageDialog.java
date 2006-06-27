@@ -10,6 +10,8 @@ package net.java.sip.communicator.impl.gui.main.customcontrols;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -26,11 +28,12 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 /**
  * @author Yana Stamcheva
  */
-public class MessageDialog extends JDialog {
+public class MessageDialog extends JDialog
+    implements ActionListener {
 
-    private JButton noButton = new JButton(Messages.getString("cancel"));
+    private JButton cancelButton = new JButton(Messages.getString("cancel"));
 
-    private JButton yesButton = new JButton(Messages.getString("remove"));
+    private JButton okButton = new JButton(Messages.getString("ok"));
 
     private JCheckBox doNotAskAgain = new JCheckBox(Messages
             .getString("doNotAskAgain"));
@@ -46,6 +49,14 @@ public class MessageDialog extends JDialog {
             new FlowLayout(FlowLayout.LEADING));
 
     private JPanel messagePanel = new JPanel(new BorderLayout(5, 5));
+    
+    private int returnCode;
+    
+    public static final int OK_RETURN_CODE = 0;
+    
+    public static final int CANCEL_RETURN_CODE = 1;
+    
+    public static final int OK_DONT_ASK_CODE = 2;
 
     public MessageDialog(Frame owner) {
         super(owner);
@@ -53,8 +64,6 @@ public class MessageDialog extends JDialog {
         this.setLocationRelativeTo(owner);
 
         this.setTitle(Messages.getString("removeContact"));
-
-        this.setModal(true);
 
         this.setSize(Constants.OPTION_PANE_WIDTH, Constants.OPTION_PANE_HEIGHT);
 
@@ -67,13 +76,29 @@ public class MessageDialog extends JDialog {
 
         this.init();
     }
+    
+    public MessageDialog(Frame owner, String message) {
+        this(owner);
+        
+        this.messageLabel.setText(message);
+    }
 
+    public MessageDialog(Frame owner, String message, 
+            String okButtonName) {
+        this(owner, message);
+        
+        this.okButton.setText(okButtonName);
+    }
+    
     private void init() {
         this.checkBoxPanel.add(doNotAskAgain);
 
-        this.buttonsPanel.add(yesButton);
-        this.buttonsPanel.add(noButton);
+        this.buttonsPanel.add(okButton);
+        this.buttonsPanel.add(cancelButton);
 
+        this.okButton.addActionListener(this);
+        this.cancelButton.addActionListener(this);
+        
         this.messagePanel.add(iconLabel, BorderLayout.WEST);
         this.messagePanel.add(messageLabel, BorderLayout.CENTER);
 
@@ -84,5 +109,30 @@ public class MessageDialog extends JDialog {
 
     public void setMessage(String message) {
         this.messageLabel.setText(message);
+    }
+    
+    public int showDialog() {
+        this.setModal(true);
+        this.setVisible(true);
+        
+        return returnCode;
+    }
+    
+    public void actionPerformed(ActionEvent e) {
+        JButton button = (JButton)e.getSource();
+        
+        if(button.equals(okButton)) {
+            if (doNotAskAgain.isSelected()) {
+                this.returnCode = OK_DONT_ASK_CODE;
+            }
+            else {
+                this.returnCode = OK_RETURN_CODE;
+            }
+        }
+        else {
+            this.returnCode = CANCEL_RETURN_CODE;
+        }
+        
+        this.dispose();
     }
 }
