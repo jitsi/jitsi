@@ -11,7 +11,7 @@ import java.util.Iterator;
 /**
  * The Account Info Operation set is a means of accessing and modifying detailed
  * information on the user/account that is currently logged in through this
- * provider. This operation set is more or less reciproce to the
+ * provider. This operation set is more or less reciproce to
  * OperationSetServerStoredUserInfo with the most essential difference being the
  * fact that the account info operation set allows you to modify data in
  * addition to reading it (quite natural given that it's your own info that
@@ -20,111 +20,156 @@ import java.util.Iterator;
  * Examples of account details are your picture, postal or e-mail addresses,
  * work, hobbies, interests, and many many others.
  * <p>
- * Details can be retrieved through the getObject() method or through one of the
- * convenience methods (e.g. getString() or getBytes() for String and binary
- * details respectively).
+ * Various types of details have been defined in the ServerStoredDetails class
+ * and can be used with the get methods of this interface. Implementors may also
+ * define their own details by extending or instantiating the
+ * ServerStoredDetails.GenericDetail class. Yet, they are encouraged to use
+ * existing detail types as fully as possible. Defining your own detail type
+ * may lead to limited visualisation of its value.
  * <p>
- * Exhaustive lists of details names can be retrieved through the
- * getDetailNames() method.
- * <p>
- * Some detail names are specified in the ServerStoredDetails interface. If one
- * or more of the details defined there are available for a Contact then they
- * MUST be defined under that name.
- * <p>
- * You should know however that the static Strings in ServerStoredDetails are in
- * no way exhaustive and that an implementation of the account info operation
- * set may contain none, some, all of them or even details with names that are
- * not defined there.
+ * As mentioned earlier the operation set supports adding, removing or replaing
+ * various details. The exact set of details that can be manipulated through
+ * this operation set depends on the implementation and can be retrieved through
+ * the getSupportedDetailTypes() method. The maximum number of detail instances
+ * supported for a given type of details can be retrieved through the
+ * getMaxDetailInstances() method.
  * <p>
  * The OperationSetServerStoredAccountInfo only concerns us (the user currently
  * logged through this provider) and our own details. In order to query details
- * concerning Contacts in our contact list one needs to use the
+ * concerning Contacts in our contact list we'd need to use the
  * OperationSetServerStoredUserInfo
  *
  * @author Emil Ivov
  */
 public interface OperationSetServerStoredAccountInfo
 {
-/**
-     * Returns a String containg the value of the detail named
-     * <tt>detailName</tt> if such a detail exists for <tt>contact</tt> or null
-     * if there is no such String detail for the specified contact. Note that
-     * method would return a non-null result if and only if the speicifed detail
-     * exists as a String (i.e. if a Binary detail with the same name exists,
-     * it would not be returned). If you need a blind way of retrieving a
-     * detail - use the getObject() method.
+    /**
+     * Returns an iterator over all details that are instances or descendants of
+     * the specified class. If for example an our account has a workaddress
+     * and an address detail, a call to this method with AddressDetail.class
+     * would return both of them.
      * <p>
-     * String details generally include (but are not limited to) addresses,
-     * names, contact information, interests, work etc.
+     * @param detailClass one of the detail classes defined in the
+     * ServerStoredDetails class, indicating the kind of details we're
+     * interested in.
      * <p>
-     * @param contact the <tt>Contact</tt> whose details we'd like to retrieve.
-     * @param detailName a <tt>String</tt> indicating the detail that we'd like
-     * to retrieve (generally one of the static Strings defined in
-     * ServerStoredDetails).
-     *
-     * @return a String containing the value corresponding to <tt>detail</tt>
-     * or null if no such String detail exists for <tt>contact</tt>.
+     * @return a java.util.Iterator over all details that are instances or
+     * descendants of the specified class.
      */
-    public String getString(Contact contact, String detailName);
+    public Iterator getDetailsAndDescendants(Class detailClass);
 
     /**
-     * Returns an iterator over all String details available for the specified
-     * contact.
-     * @param contact the Contact whose String details we'd like to retrieve
-     * @return an Iterator over all String details (and only String details)
-     * available for the specified Contact.
+     * Returns an iterator over all details that are instances of exactly the
+     * same class as the one specified. Not that, contrary to the
+     * getDetailsAndDescendants() method this one would only return details
+     * that are instances of the specified class and not only its desendants.
+     * If for example our account has both a workaddress and an address detail,
+     * a call to this method with AddressDetail.class would return only the
+     * AddressDetail instance and not the WorkAddressDetail instance.
+     * <p>
+     * @param detailClass one of the detail classes defined in the
+     * ServerStoredDetails class, indicating the kind of details we're
+     * interested in.
+     * <p>
+     * @return a java.util.Iterator over all details of specified class.
      */
-    public Iterator getStringDetailNames(Contact contact);
+    public Iterator getDetails(Class detailClass);
 
     /**
-     * Returns a byte array containg the value of <tt>detailName</tt> if such a
-     * binary detail exists for <tt>contact</tt> or null if there is no such
-     * binary detail for the specified <tt>contact</tt>.
+     * Returns all details currently available and set for our account.
      * <p>
-     * Binary details generally include (but are not limited to) images, sounds,
-     * files and others.
-     * <p>
-     * @param contact the <tt>Contact</tt> whose detail we'd like to retrieve.
-     * @param detailName a <tt>String</tt> indicating the name of the binary
-     * detail
-     * that we'd like to retrieve (generally one of the static Strings defined
-     * in ServerStoredDetails).
-     * @return a byte array containing the value corresponding to the
-     * <tt>detail</tt> string or null if no such String detail exists for
-     * <tt>contact</tt>.
+     * @return a java.util.Iterator over all details currently set our account.
      */
-    public byte[] getBytes(Contact contact, String detailName);
+    public Iterator getAllAvailableDetails();
 
     /**
-     * Returns an iterator over all Binary details available for the specified
-     * contact.
+     * Returns all detail Class-es that the underlying implementation supports
+     * setting. Note that if you call one of the modification methods (add
+     * remove or replace) with a detail not contained by the iterator returned
+     * by this method, an IllegalArgumentException will be thrown.
      * <p>
-     * Note that method would return a non-null result if and only if the
-     * speicifed detail exists as a byte array (i.e. if a String detail with the
-     * same name exists, it would not be returned). If you need a blind way of
-     * retrieving a detail regardless of its class - use the getObject() method.
-     * <p>
-     * @param contact the Contact whose String details we'd like to retrieve
-     * @return an Iterator over all Binary details (and only Binary details)
-     * available for the specified Contact.
+     * @return a java.util.Iterator over all detail classes supported by the
+     * implementation.
      */
-    public Iterator getBinaryDetailNames(Contact contact);
+    public Iterator getSupportedDetailTypes();
 
     /**
-     * Returns the value of the detail named <tt>detailName</tt> if it exists
-     * for Contact <tt>contact</tt> or null otherwise.
-     * @param contact the <tt>Contact</tt> whose details we're interested in.
-     * @param detailName a String containing the name of the detail.
-     * @return the value of the detail named <tt>detailName</tt> if it exists
-     * for Contact <tt>contact</tt> or null otherwise.
+     * Determines wheter a detail class represents a detail supported by the
+     * underlying implementation or not. Note that if you call one of the
+     * modification methods (add remove or replace) with a detail that this
+     * method has determined to be unsupported (returned false) this would lead
+     * to an IllegalArgumentException being thrown.
+     * <p>
+     * @param detailClass the class the support for which we'd like to
+     * determine.
+     * <p>
+     * @return true if the underlying implementation supports setting details of
+     * this type and false otherwise.
      */
-    public Object getObject(Contact contact, String detailName);
+    public boolean isDetailClassSupported(Class detailClass);
 
     /**
-     * Returns an Iterator over all details available for this <tt>contact</tt>
-     *
-     * @param contact the contact whose details we're interested in.
-     * @return an Iterator over all details available for this <tt>contact</tt>
+     * The method returns the number of instances supported for a particular
+     * detail type. Some protocols offer storing mutliple values for a
+     * particular detail type. Spoken languages are a good example.
+     * @param detailClass the class whose max instance number we'd like to find
+     * out.
+     * <p>
+     * @return int the maximum number of detail instances.
      */
-    public Iterator getDetailNames(Contact contact);
+    public int getMaxDetailInstances(Class detailClass);
+
+    /**
+     * Adds the specified detail to the list of details registered on-line
+     * for this account. If such a detail already exists its max instance number
+     * is consulted and if it allows it - a second instance is added or otherwise
+     * and illegal argument exception is thrown. An IllegalArgumentException is
+     * also thrown in case the class of the specified detail is not supported by
+     * the underlying implementation, i.e. its class name was not returned by the
+     * getSupportedDetailTypes() method.
+     * <p>
+     * @param detail the detail that we'd like registered on the server.
+     * <p>
+     * @throws IllegalArgumentException if such a detail already exists and its
+     * max instances number has been atteined or if the underlying
+     * implementation does not support setting details of the corresponding
+     * class.
+     * @throws OperationFailedException with code Network Failure if putting the
+     * new value online has failed
+     */
+    public void addDetail(ServerStoredDetails.GenericDetail detail)
+        throws IllegalArgumentException, OperationFailedException;
+
+    /**
+     * Removes the specified detail from the list of details stored online for
+     * this account. The method returns a boolean indicating if such a detail
+     * was found (and removed) or not.
+     * <p>
+     * @param detail the detail to remove
+     * @return true if the specified detail existed and was successfully removed
+     * and false otherwise.
+     * @throws OperationFailedException with code Network Failure if removing the
+     * detail from the server has failed
+     */
+    public boolean removeDetail(ServerStoredDetails.GenericDetail detail)
+        throws OperationFailedException;
+
+    /**
+     * Replaces the currentDetailValue detail with newDetailValue and returns
+     * true if the operation was a success or false if currentDetailValue did
+     * not previously exist (in this case an additional call to addDetail is
+     * required).
+     * <p>
+     * @param currentDetailValue the detail value we'd like to replace.
+     * @param newDetailValue the value of the detail that we'd like to replace
+     * currentDetailValue with.
+     * @throws ClassCastException if newDetailValue is not an instance of the
+     * same class as currentDetailValue.
+     * @throws OperationFailedException with code Network Failure if putting the
+     * new value back online has failed
+     */
+    public boolean replaceDetail(
+                    ServerStoredDetails.GenericDetail currentDetailValue,
+                    ServerStoredDetails.GenericDetail newDetailValue)
+        throws ClassCastException, OperationFailedException;
 }
