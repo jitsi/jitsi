@@ -45,7 +45,7 @@ import java.util.*;
  * that you should leave space for internationalization when doing so).
  * <p>
  * This class is meant for usage with the  OperationSetServerStoredAccountInfo
- * and OperationSetServerStoredUserInfo operation sets.
+ * and OperationSetServerStoredContactInfo operation sets.
  *
  * @author Emil Ivov
  */
