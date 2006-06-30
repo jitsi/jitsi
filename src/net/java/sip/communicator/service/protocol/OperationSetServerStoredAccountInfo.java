@@ -12,7 +12,7 @@ import java.util.Iterator;
  * The Account Info Operation set is a means of accessing and modifying detailed
  * information on the user/account that is currently logged in through this
  * provider. This operation set is more or less reciproce to
- * OperationSetServerStoredUserInfo with the most essential difference being the
+ * OperationSetServerStoredContactInfo with the most essential difference being the
  * fact that the account info operation set allows you to modify data in
  * addition to reading it (quite natural given that it's your own info that
  * you're dealing with).
@@ -37,7 +37,7 @@ import java.util.Iterator;
  * The OperationSetServerStoredAccountInfo only concerns us (the user currently
  * logged through this provider) and our own details. In order to query details
  * concerning Contacts in our contact list we'd need to use the
- * OperationSetServerStoredUserInfo
+ * OperationSetServerStoredContactInfo
  *
  * @author Emil Ivov
  */
