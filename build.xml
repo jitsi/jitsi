@@ -410,7 +410,7 @@
     <!--ALL BUNDLES-->
     <target name="bundles"
         depends="bundle-util,bundle-configuration,bundle-configuration-slick,
-        bundle-history,bundle-history-slick,bundle-messagehistory,
+        bundle-history,bundle-history-slick,bundle-messagehistory, bundle-msghistory-slick,
         bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
         bundle-slick-runner,bundle-sip,bundle-fileaccess,
         bundle-fileaccess-slick,bundle-media,bundle-media-slick,
@@ -447,6 +447,15 @@
                 prefix="net/java/sip/communicator/service/msghistory"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/msghistory"
                 prefix="net/java/sip/communicator/impl/msghistory" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-MESSAGEHISTORY-SLICK-->
+    <target name="bundle-msghistory-slick">
+        <jar compress="false" destfile="${bundles.dest}/msghistory-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/msghistory/msghistory.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/msghistory"
+                prefix="net/java/sip/communicator/slick/msghistory"/>
         </jar>
     </target>
 

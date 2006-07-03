@@ -6,12 +6,29 @@
  */
 package net.java.sip.communicator.service.msghistory;
 
-import net.java.sip.communicator.service.history.HistoryReader;
-import net.java.sip.communicator.service.protocol.Contact;
+import java.util.*;
+
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.history.*;
 
 /**
  * @author Alexander Pelov
+ * @author Damian Minkov
  */
-public interface MessageHistoryService extends HistoryReader {
-
+public interface MessageHistoryService
+{
+    QueryResultSet findByStartDate(MetaContact contact, Date startDate)
+        throws RuntimeException;
+    QueryResultSet findByEndDate(MetaContact contact, Date endDate)
+        throws RuntimeException;
+    QueryResultSet findByPeriod(MetaContact contact, Date startDate, Date endDate)
+        throws RuntimeException;
+    QueryResultSet findByPeriod(MetaContact contact, Date startDate, Date endDate, String[] keywords)
+        throws UnsupportedOperationException;
+    QueryResultSet findByKeyword(MetaContact contact, String keyword)
+        throws RuntimeException;
+    QueryResultSet findByKeywords(MetaContact contact, String[] keywords)
+        throws RuntimeException;
+    QueryResultSet findLast(MetaContact contact, int count)
+        throws RuntimeException;
 }

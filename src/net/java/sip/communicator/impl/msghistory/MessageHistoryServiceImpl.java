@@ -1,3 +1,5 @@
+
+
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
@@ -6,28 +8,22 @@
  */
 package net.java.sip.communicator.impl.msghistory;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
-import net.java.sip.communicator.service.configuration.ConfigurationService;
-import net.java.sip.communicator.service.history.History;
-import net.java.sip.communicator.service.history.HistoryID;
-import net.java.sip.communicator.service.history.HistoryService;
-import net.java.sip.communicator.service.history.HistoryWriter;
-import net.java.sip.communicator.service.history.QueryResultSet;
-import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
-import net.java.sip.communicator.service.msghistory.MessageHistoryService;
-import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.service.protocol.Message;
-import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
-import net.java.sip.communicator.service.protocol.event.MessageDeliveredEvent;
-import net.java.sip.communicator.service.protocol.event.MessageDeliveryFailedEvent;
-import net.java.sip.communicator.service.protocol.event.MessageListener;
-import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.history.*;
+import net.java.sip.communicator.service.history.records.*;
+import net.java.sip.communicator.service.msghistory.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
+/**
+ * @author Alexander Pelov
+ * @author Damian Minkov
+ */
 public class MessageHistoryServiceImpl implements MessageHistoryService,
         MessageListener {
 
@@ -56,38 +52,214 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
         return historyService;
     }
 
-    public QueryResultSet findByStartDate(Date startDate)
-            throws RuntimeException {
-        return null;
-        // return this.historyReader.findByStartDate(startDate);
+    public QueryResultSet findByStartDate(MetaContact contact, Date startDate)
+        throws RuntimeException
+    {
+        Vector result = new Vector();
+
+        Iterator iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = (Contact) iter.next();
+
+            try
+            {
+                History history = this.getHistory(null, item);
+
+                Iterator recs = history.getReader().findByStartDate(startDate);
+                while (recs.hasNext())
+                {
+                    result.add(recs.next());
+                }
+            } catch (IOException e)
+            {
+                log.error("Could not read history", e);
+            }
+        }
+
+        return new DefaultQueryResultSet(result);
     }
 
-    public QueryResultSet findByEndDate(Date endDate) throws RuntimeException {
-        return null;
-        // return this.historyReader.findByEndDate(endDate);
+    public QueryResultSet findByEndDate(MetaContact contact, Date endDate)
+        throws RuntimeException
+    {
+        Vector result = new Vector();
+
+        Iterator iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = (Contact) iter.next();
+
+            try
+            {
+                History history = this.getHistory(null, item);
+
+                Iterator recs = history.getReader().findByEndDate(endDate);
+                while (recs.hasNext())
+                {
+                    result.add(recs.next());
+                }
+            } catch (IOException e)
+            {
+                log.error("Could not read history", e);
+            }
+        }
+
+        return new DefaultQueryResultSet(result);
     }
 
-    public QueryResultSet findByPeriod(Date startDate, Date endDate)
-            throws RuntimeException {
-        return null;
-        // return this.historyReader.findByPeriod(startDate, endDate);
+    public QueryResultSet findByPeriod(MetaContact contact, Date startDate, Date endDate)
+        throws RuntimeException
+    {
+        Vector result = new Vector();
+
+        Iterator iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = (Contact) iter.next();
+
+            try
+            {
+                History history = this.getHistory(null, item);
+
+                Iterator recs = history.getReader().findByPeriod(startDate, endDate);
+                while (recs.hasNext())
+                {
+                    result.add(recs.next());
+                }
+            } catch (IOException e)
+            {
+                log.error("Could not read history", e);
+            }
+        }
+
+        return new DefaultQueryResultSet(result);
     }
 
-    public QueryResultSet findByKeyword(String keyword) throws RuntimeException {
-        return null;
-        // return this.historyReader.findByKeyword(keyword);
+    public QueryResultSet findByPeriod(MetaContact contact,
+                                       Date startDate, Date endDate,
+                                       String[] keywords)
+        throws UnsupportedOperationException
+    {
+        Vector result = new Vector();
+
+        Iterator iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = (Contact) iter.next();
+
+            try
+            {
+                History history = this.getHistory(null, item);
+
+                Iterator recs = history.getReader().
+                    findByPeriod(startDate, endDate, keywords);
+                while (recs.hasNext())
+                {
+                    result.add(recs.next());
+                }
+            } catch (IOException e)
+            {
+                log.error("Could not read history", e);
+            }
+        }
+
+        return new DefaultQueryResultSet(result);
     }
 
-    public QueryResultSet findByKeywords(String[] keywords)
-            throws RuntimeException {
-        return null;
-        // return this.historyReader.findByKeywords(keywords);
+    public QueryResultSet findByKeyword(MetaContact contact, String keyword)
+        throws RuntimeException
+    {
+        Vector result = new Vector();
+
+        Iterator iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = (Contact) iter.next();
+
+            try
+            {
+                History history = this.getHistory(null, item);
+
+                Iterator recs = history.getReader().findByKeyword(keyword);
+                while (recs.hasNext())
+                {
+                    result.add(recs.next());
+                }
+            } catch (IOException e)
+            {
+                log.error("Could not read history", e);
+            }
+        }
+
+        return new DefaultQueryResultSet(result);
     }
 
-    public QueryResultSet findByText(Date startDate, Date endDate,
-            String[] keywords) throws UnsupportedOperationException {
-        return null;
-        // return this.historyReader.findByText(startDate, endDate, keywords);
+    public QueryResultSet findByKeywords(MetaContact contact, String[] keywords)
+        throws RuntimeException
+    {
+        Vector result = new Vector();
+
+        Iterator iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = (Contact) iter.next();
+
+            try
+            {
+                History history = this.getHistory(null, item);
+
+                Iterator recs = history.getReader().findByKeywords(keywords);
+                while (recs.hasNext())
+                {
+                    result.add(recs.next());
+                }
+            } catch (IOException e)
+            {
+                log.error("Could not read history", e);
+            }
+        }
+
+        return new DefaultQueryResultSet(result);
+    }
+
+    public QueryResultSet findLast(MetaContact contact, int count)
+        throws RuntimeException
+    {
+        List result = new ArrayList();
+
+        // too stupid but there is no such metod in the history service
+        // to be implemented
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.YEAR, c.get(Calendar.YEAR) - 10);
+        Date startDate = c.getTime();
+
+        Iterator iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = (Contact) iter.next();
+
+            try
+            {
+                History history = this.getHistory(null, item);
+
+                Iterator recs = history.getReader().findByStartDate(startDate);
+                while (recs.hasNext())
+                {
+                    result.add(recs.next());
+                }
+            } catch (IOException e)
+            {
+                log.error("Could not read history", e);
+            }
+        }
+
+        if(result.size() > count)
+        {
+            result = result.subList(result.size() - count, result.size());
+        }
+
+        return new DefaultQueryResultSet(new Vector(result));
     }
 
     private History getHistory(Contact localContact, Contact remoteContact)
@@ -173,7 +345,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
 
     /**
      * Set the configuration service.
-     * 
+     *
      * @param configurationService
      */
     public void setConfigurationService(
@@ -186,7 +358,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
 
     /**
      * Remove a configuration service.
-     * 
+     *
      * @param configurationService
      */
     public void unsetConfigurationService(
@@ -201,7 +373,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
 
     /**
      * Set the configuration service.
-     * 
+     *
      * @param historyService
      * @throws IOException
      * @throws IllegalArgumentException
@@ -217,7 +389,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
 
     /**
      * Remove a configuration service.
-     * 
+     *
      * @param historyService
      */
     public void unsetHistoryService(HistoryService historyService) {
