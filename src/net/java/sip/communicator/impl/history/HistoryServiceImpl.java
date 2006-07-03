@@ -166,7 +166,7 @@ public class HistoryServiceImpl implements HistoryService {
     private File createHistoryDirectories(HistoryID id) throws IOException {
         String[] idComponents = id.getID();
         String[] dirs = new String[idComponents.length + 1];
-        dirs[0] = "history";
+        dirs[0] = DATA_DIRECTORY;
         System.arraycopy(idComponents, 0, dirs, 1, dirs.length - 1);
 
         File directory = null;
@@ -191,7 +191,7 @@ public class HistoryServiceImpl implements HistoryService {
     // //////////////////////////////////////////////////////////////////////////
     /**
      * Set the configuration service.
-     * 
+     *
      * @param configurationService
      */
     public void setConfigurationService(
@@ -204,7 +204,7 @@ public class HistoryServiceImpl implements HistoryService {
 
     /**
      * Remove a configuration service.
-     * 
+     *
      * @param configurationService
      */
     public void unsetConfigurationService(
@@ -219,7 +219,7 @@ public class HistoryServiceImpl implements HistoryService {
 
     /**
      * Set the file access service.
-     * 
+     *
      * @param fileAccessService
      */
     public void setFileAccessService(FileAccessService fileAccessService) {
@@ -231,7 +231,7 @@ public class HistoryServiceImpl implements HistoryService {
 
     /**
      * Remove the file access service.
-     * 
+     *
      * @param fileAccessService
      */
     public void unsetFileAccessService(FileAccessService fileAccessService) {
