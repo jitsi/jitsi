@@ -25,7 +25,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * 
+ *
  * @author Alexander Pelov
  */
 public class DBStructSerializer {
@@ -91,14 +91,14 @@ public class DBStructSerializer {
      * the information from it. The parsing is non-validating, so if a malformed
      * XML is passed the results are undefined. The file should be with the
      * following structure:
-     * 
+     *
      * <dbstruct version="1.0"> <id value="idcomponent1"> <id
      * value="idcomponent2"> <id value="idcomponent3"/> </id> </id>
-     * 
+     *
      * <structure> <property name="propertyName" type="textType" /> <property
      * name="propertyName" type="textType" /> <property name="propertyName"
      * type="textType" /> </structure> </dbstruct>
-     * 
+     *
      * @param dbDatFile
      *            The file to be parsed.
      * @return A History object corresponding to this dbstruct file.
@@ -125,7 +125,7 @@ public class DBStructSerializer {
     /**
      * This method parses a "structure" tag and returns the corresponging
      * HistoryRecordStructure.
-     * 
+     *
      * @throws ParseException
      *             Thrown if there is no structure tag.
      */
@@ -183,6 +183,11 @@ public class DBStructSerializer {
                 throw new ParseException(
                         "There is an ID object without value.", 0);
             }
+        }
+        else
+        {
+            // no more nodes
+            return loadedIDs;
         }
 
         return loadID(loadedIDs, node);
