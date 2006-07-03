@@ -74,7 +74,7 @@ public class HistoryReaderImpl implements HistoryReader {
         return this.findByXpath(expr);
     }
 
-    public QueryResultSet findByText(Date startDate, Date endDate,
+    public QueryResultSet findByPeriod(Date startDate, Date endDate,
             String[] keywords) throws UnsupportedOperationException {
         String expr = "/history/record[@timestamp>" + startDate.getTime() + "]"
                 + "[@timestamp<" + endDate.getTime() + "]";
