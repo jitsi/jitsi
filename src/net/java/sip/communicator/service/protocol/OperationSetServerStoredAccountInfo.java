@@ -136,9 +136,14 @@ public interface OperationSetServerStoredAccountInfo
      * class.
      * @throws OperationFailedException with code Network Failure if putting the
      * new value online has failed
+     * @throws java.lang.ArrayIndexOutOfBoundsException if the number of
+     * instances currently registered by the application is already equal to the
+     * maximum number of supported instances (@see getMaxDetailInstances())
      */
     public void addDetail(ServerStoredDetails.GenericDetail detail)
-        throws IllegalArgumentException, OperationFailedException;
+        throws IllegalArgumentException,
+               OperationFailedException,
+               ArrayIndexOutOfBoundsException;
 
     /**
      * Removes the specified detail from the list of details stored online for
