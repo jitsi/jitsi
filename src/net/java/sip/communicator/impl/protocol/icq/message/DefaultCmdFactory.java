@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.icq.message.common.*;
 import net.java.sip.communicator.impl.protocol.icq.message.offline.*;
+import net.java.sip.communicator.impl.protocol.icq.message.usrinfo.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joscar.*;
 import net.kano.joscar.flapcmd.*;
@@ -51,11 +52,11 @@ public class DefaultCmdFactory
 //                  new MetaShortInfoCmd(fromICQCmd);
         }
         else
-//        if(FullInfoCmd.isOfType(fromICQCmd.getType()))
-//        {
-//            return new FullInfoCmd(fromICQCmd);
-//        }
-//        else
+        if(FullInfoCmd.isOfType(fromICQCmd.getType()))
+        {
+            return new FullInfoCmd(fromICQCmd);
+        }
+        else
         if (fromICQCmd.getType().equals(AbstractIcqCmd.CMD_OFFLINE_MSG) ||
             fromICQCmd.getType().equals(AbstractIcqCmd.CMD_OFFLINE_MSG_DONE))
         {
