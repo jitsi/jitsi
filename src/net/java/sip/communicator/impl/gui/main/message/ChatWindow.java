@@ -236,9 +236,7 @@ public class ChatWindow extends JFrame {
     /**
      * Creates a ChatPanel for the given contact and adds it to a tabbedPane.
      * 
-     * @param contact The MetaContact added to the chat.
-     * @param status The current status.
-     * @param protocolContact The protocol contact.
+     * @param chatPanel The chat panel to add.
      */
     public void addChatTab(ChatPanel chatPanel) {
         String contactName = chatPanel.getDefaultContact().getDisplayName();
