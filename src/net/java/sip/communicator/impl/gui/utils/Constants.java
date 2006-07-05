@@ -50,6 +50,8 @@ public class Constants {
      */
     public static boolean REMOVE_CONTACT_ASK = true;
     
+    public static boolean AUTO_POPUP_NEW_MESSAGE = true;
+    
     /*
      * ===================================================================
      * ------------------------ MESSAGE TYPES ---------------------------
