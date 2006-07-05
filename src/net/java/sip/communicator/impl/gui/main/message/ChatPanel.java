@@ -11,9 +11,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FocusTraversalPolicy;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.IOException;
@@ -26,22 +23,19 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JViewport;
-import javax.swing.LayoutFocusTraversalPolicy;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommSelectorBox;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.gui.ExportedDialog;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
-import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
 import net.java.sip.communicator.util.Logger;
 
 /**
@@ -55,7 +49,8 @@ import net.java.sip.communicator.util.Logger;
  * 
  * @author Yana Stamcheva
  */
-public class ChatPanel extends JPanel {
+public class ChatPanel extends JPanel
+    implements ExportedDialog {
 
     private static final Logger logger = Logger
         .getLogger(ChatPanel.class.getName());
@@ -83,6 +78,9 @@ public class ChatPanel extends JPanel {
 
     private Contact protocolContact;
     
+    private boolean isVisible = false;
+    
+    
     /**
      * Creates a chat panel which is added to the given chat window.
      * 
@@ -100,7 +98,7 @@ public class ChatPanel extends JPanel {
                 protocolContact.getProtocolProvider());
         this.tnOperationSet = this.chatWindow.getMainFrame()
                 .getTypingNotifications(protocolContact.getProtocolProvider());
-
+        
         this.conversationPanel = new ChatConversationPanel(this);
 
         this.sendPanel = new ChatSendPanel(this);
@@ -330,7 +328,7 @@ public class ChatPanel extends JPanel {
                 }
             }
         }
-
+        
         public void componentHidden(ComponentEvent e) {
         }
     }
@@ -542,5 +540,45 @@ public class ChatPanel extends JPanel {
             popup.setLocation(contactSelector.calculatePopupLocation());
             popup.setVisible(true);
         }
+    }
+    
+    public PresenceStatus getPresenceStatus() {
+        return getDefaultContact().getDefaultContact().getPresenceStatus();
+    }
+
+    public boolean isDialogVisible() {
+        return this.isVisible;
+    }
+
+    public void showDialog() {
+        if(Constants.TABBED_CHAT_WINDOW) {
+            this.chatWindow.addChatTab(this);
+        }
+        else {
+            this.chatWindow.addChat(this);
+        }
+        
+        this.chatWindow.setVisible(true);
+    }
+
+    public void hideDialog() {
+        if(Constants.TABBED_CHAT_WINDOW) {
+            this.chatWindow.removeChatTab(this);
+        }
+        else {
+            this.chatWindow.removeChat(this);
+        }
+    }
+
+    public void resizeDialog(int width, int height) {
+        this.chatWindow.setSize(width, height);
+    }
+
+    public void moveDialog(int x, int y) {
+        this.chatWindow.setLocation(x, y);
+    }
+
+    public void setChatVisible(boolean isVisible) {
+        this.isVisible = isVisible;
     }
 }

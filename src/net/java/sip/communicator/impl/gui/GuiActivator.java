@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui;
 
 import net.java.sip.communicator.impl.gui.main.CommunicatorMain;
+import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.WelcomeWindow;
 import net.java.sip.communicator.impl.gui.main.login.LoginManager;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
@@ -30,9 +31,12 @@ public class GuiActivator implements BundleActivator {
     private LoginManager loginManager;
 
     public void start(BundleContext bundleContext) throws Exception {
-        this.loginManager = new LoginManager(bundleContext);
 
-        this.loginManager.setMainFrame(communicatorMain.getMainFrame());
+        MainFrame mainFrame = communicatorMain.getMainFrame();
+        
+        this.loginManager = new LoginManager(bundleContext);
+        
+        this.loginManager.setMainFrame(mainFrame);
 
         try {
             ServiceReference clistReference = bundleContext
@@ -42,10 +46,12 @@ public class GuiActivator implements BundleActivator {
                 = (MetaContactListService) bundleContext
                     .getService(clistReference);
 
+            mainFrame.setContactList(contactListService);
+            
             logger.logEntry();
 
             //Create the ui service
-            this.uiService = new UIServiceImpl();
+            this.uiService = new UIServiceImpl(mainFrame);
 
             logger.info("UI Service...[  STARTED ]");
 
@@ -53,9 +59,6 @@ public class GuiActivator implements BundleActivator {
                     this.uiService, null);
 
             logger.info("UI Service ...[REGISTERED]");
-
-            this.communicatorMain.getMainFrame().setContactList(
-                    contactListService);
 
             /*
              * TO BE UNCOMMENTED when the welcome window is removed.

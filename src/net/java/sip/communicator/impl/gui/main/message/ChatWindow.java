@@ -59,7 +59,7 @@ public class ChatWindow extends JFrame {
 
     private SIPCommTabbedPane chatTabbedPane = null;
 
-    private Hashtable contactTabsTable = new Hashtable();
+    private Hashtable contactChats = new Hashtable();
 
     private boolean enableTypingNotification = true;
     
@@ -203,23 +203,36 @@ public class ChatWindow extends JFrame {
      * @param contact The MetaContact for this chat.
      * @param status The current status.
      * @param protocolContact The protocol contact.
+     * @return The <code>ChatPanel</code> newly created.
      */
-    public void addChat(MetaContact contact, PresenceStatus status,
-            Contact protocolContact) {
+    public ChatPanel createChat(MetaContact contact,
+            PresenceStatus status, Contact protocolContact) {
 
-        this.setCurrentChatPanel(new ChatPanel(this, protocolContact));
+        ChatPanel chatPanel = new ChatPanel(this, protocolContact);
+        
+        chatPanel.addContactToChat(contact, status);
 
-        this.currentChatPanel.addContactToChat(contact, status);
-
+        this.contactChats.put(contact.getMetaUID(), chatPanel);
+        
+//      this.sendPanel.addProtocols(contactItem.getProtocolList());
+        
+        return chatPanel;
+    }
+    
+    public void addChat(ChatPanel chatPanel) {
+        chatPanel.setChatVisible(true);
+        
+        this.setCurrentChatPanel(chatPanel);
+        
         this.getContentPane().add(this.currentChatPanel, BorderLayout.CENTER);
-
-        //this.sendPanel.addProtocols(contactItem.getProtocolList());
-
-        this.windowTitle += contact.getDisplayName() + " ";
+        
+        this.windowTitle += chatPanel.getDefaultContact()
+            .getDisplayName() + " ";
 
         this.setTitle(this.windowTitle);
     }
-
+   
+    
     /**
      * Creates a ChatPanel for the given contact and adds it to a tabbedPane.
      * 
@@ -227,16 +240,12 @@ public class ChatWindow extends JFrame {
      * @param status The current status.
      * @param protocolContact The protocol contact.
      */
-    public ChatPanel addChatTab(MetaContact contact, PresenceStatus status,
-            Contact protocolContact) {
-
-        ChatPanel chatPanel = null;
-
+    public void addChatTab(ChatPanel chatPanel) {
+        String contactName = chatPanel.getDefaultContact().getDisplayName();
+        PresenceStatus status = chatPanel.getPresenceStatus();
+        
         if (chatTabbedPane == null) {
-            //Initialize the tabbed pane for the first time           
-            chatPanel = new ChatPanel(this, protocolContact);
-
-            chatPanel.addContactToChat(contact, status);
+            //Initialize the tabbed pane for the first time            
 
             chatTabbedPane = new SIPCommTabbedPane(true);
 
@@ -250,45 +259,31 @@ public class ChatWindow extends JFrame {
 
             this.getContentPane().add(chatPanel, BorderLayout.CENTER);
 
-            this.contactTabsTable.put(contact.getMetaUID(), chatPanel);
-
-            this.setTitle(contact.getDisplayName());
+            this.setTitle(contactName);
             
             this.setCurrentChatPanel(chatPanel);
         }
         else {
-            PresenceStatus defaultStatus = contact.getDefaultContact()
-                    .getPresenceStatus();
-
             if (chatTabbedPane.getTabCount() > 0) {
-                //The tabbed pane contains already tabs.                
-                chatPanel = new ChatPanel(this, protocolContact);
+                //The tabbed pane contains already tabs.              
+                
+                chatTabbedPane.addTab(contactName, new ImageIcon(
+                        Constants.getStatusIcon(status)),
+                        chatPanel);
 
-                chatPanel.addContactToChat(contact, status);
-
-                chatTabbedPane.addTab(contact.getDisplayName(), new ImageIcon(
-                        Constants.getStatusIcon(defaultStatus)), chatPanel);
-
-                chatTabbedPane.getParent().validate();
-
-                this.contactTabsTable.put(contact.getMetaUID(), chatPanel);
+                chatTabbedPane.getParent().validate();                
             } else {
-                ChatPanel firstChatPanel = (ChatPanel) contactTabsTable
-                        .elements().nextElement();
+                ChatPanel firstChatPanel = getCurrentChatPanel();
+                
                 PresenceStatus currentContactStatus = firstChatPanel
-                        .getDefaultContact().getDefaultContact()
                         .getPresenceStatus();
                 //Add first two tabs to the tabbed pane.
                 chatTabbedPane.addTab(firstChatPanel.getDefaultContact()
                         .getDisplayName(), new ImageIcon(Constants
                         .getStatusIcon(currentContactStatus)), firstChatPanel);
-               
-                chatPanel = new ChatPanel(this, protocolContact);
-
-                chatPanel.addContactToChat(contact, status);
-
-                chatTabbedPane.addTab(contact.getDisplayName(), new ImageIcon(
-                        Constants.getStatusIcon(defaultStatus)), chatPanel);
+                
+                chatTabbedPane.addTab(contactName, new ImageIcon(
+                        Constants.getStatusIcon(status)), chatPanel);
                 
                 // Workaround for the following problem:
                 // The scrollbar in the conversation area moves up when the
@@ -297,9 +292,7 @@ public class ChatWindow extends JFrame {
                 // is added to the tabbed pane. Then the scrollpane in the 
                 // conversation area is slightly resized and is made smaller,
                 // which moves the scrollbar up.
-                firstChatPanel.setCaretToEnd();
-                
-                this.contactTabsTable.put(contact.getMetaUID(), chatPanel);
+                firstChatPanel.setCaretToEnd();                
             }
 
             this.getContentPane().add(chatTabbedPane, BorderLayout.CENTER);
@@ -309,7 +302,6 @@ public class ChatWindow extends JFrame {
             if(chatTabbedPane.getSelectedIndex() == chatIndex)
                 this.setCurrentChatPanel(chatPanel);
         }
-        return chatPanel;
     }
 
     /**
@@ -319,9 +311,10 @@ public class ChatWindow extends JFrame {
      */
     public void setSelectedContactTab(MetaContact contact) {
 
-        if (this.contactTabsTable != null && !this.contactTabsTable.isEmpty()) {
+        if (this.contactChats != null 
+                && contactChats.get(contact.getMetaUID()) != null) {
 
-            ChatPanel chatPanel = ((ChatPanel) this.contactTabsTable
+            ChatPanel chatPanel = ((ChatPanel) this.contactChats
                     .get(contact.getMetaUID()));
 
             this.chatTabbedPane.setSelectedComponent(chatPanel);
@@ -356,11 +349,9 @@ public class ChatWindow extends JFrame {
 
         if (title != null) {
             if (chatTabbedPane.getTabCount() > 1) {
-                this.contactTabsTable.remove(closeChat.getDefaultContact()
+                this.contactChats.remove(closeChat.getDefaultContact()
                         .getMetaUID());
             }
-
-            Enumeration contactTabs = this.contactTabsTable.elements();
 
             if (chatTabbedPane.getTabCount() > 1)
                 chatTabbedPane.remove(index);
@@ -384,15 +375,25 @@ public class ChatWindow extends JFrame {
             }
         }
     }
+    
+    public void removeChat(ChatPanel chatPanel) {
+        this.close();
+    }
 
+    public void removeChatTab(ChatPanel chatPanel) {
+        this.chatTabbedPane.remove(chatPanel);
+        this.contactChats.remove(chatPanel.getDefaultContact().getMetaUID());
+        this.validate();
+    }
+    
     /**
      * Returns the table of all MetaContact-s for this chat window. 
      * This is used in case of tabbed chat window.
      * 
      * @return The table of all MetaContact-s for this chat window.
      */
-    public Hashtable getContactTabsTable() {
-        return this.contactTabsTable;
+    public Hashtable getContactChatsTable() {
+        return this.contactChats;
     }
 
     /**
@@ -449,7 +450,7 @@ public class ChatWindow extends JFrame {
      * @return ChatPanel The ChatPanel for the given MetaContact.
      */
     public ChatPanel getChatPanel(MetaContact contact) {
-        return (ChatPanel) this.contactTabsTable.get(contact.getMetaUID());
+        return (ChatPanel) this.contactChats.get(contact.getMetaUID());
     }
     
     /**

@@ -22,11 +22,13 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommList;
 import net.java.sip.communicator.impl.gui.main.customcontrols.TitlePanel;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.service.gui.ExportedDialog;
 
 /**
  * @author Yana Stamcheva
  */
-public class ConfigurationFrame extends JFrame implements MouseListener {
+public class ConfigurationFrame extends JFrame
+    implements MouseListener, ExportedDialog {
 
     private Vector configContainer = new Vector();
 
@@ -155,5 +157,25 @@ public class ConfigurationFrame extends JFrame implements MouseListener {
     }
 
     public void mouseReleased(MouseEvent e) {
+    }
+
+    public boolean isDialogVisible() {        
+        return this.isVisible();
+    }
+
+    public void showDialog() {
+        this.setVisible(true);
+    }
+
+    public void hideDialog() {
+        this.setVisible(false);
+    }
+
+    public void resizeDialog(int width, int height) {
+        this.setSize(width, height);
+    }
+
+    public void moveDialog(int x, int y) {
+        this.setLocation(x, y);
     }
 }
