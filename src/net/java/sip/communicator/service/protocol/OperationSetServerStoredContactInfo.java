@@ -47,7 +47,7 @@ public interface OperationSetServerStoredContactInfo
      * @return a java.util.Iterator over all details that are instances or
      * descendants of the specified class.
      */
-    public Iterator getDetailsAndDescendants(Contact contat, Class detailClass);
+    public Iterator getDetailsAndDescendants(Contact contact, Class detailClass);
 
     /**
      * Returns an iterator over all details that are instances of exactly the
@@ -66,10 +66,11 @@ public interface OperationSetServerStoredContactInfo
      * <p>
      * @return a java.util.Iterator over all details of specified class.
      */
-    public Iterator getDetails(Contact contat, Class detailClass);
+    public Iterator getDetails(Contact contact, Class detailClass);
 
     /**
      * Returns all details existing for the specified cotact.
+     * @param contact the specified cotact
      * @return a java.util.Iterator over all details existing for the specified
      * contact.
      */
