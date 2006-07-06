@@ -1518,15 +1518,14 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
             ByteArrayOutputStream icqout = new ByteArrayOutputStream();
 
             ByteArrayOutputStream icqDataOut = new ByteArrayOutputStream();
-            byte b[] = new byte[]{
-                (byte)0xf8, (byte)0x02, // 0x02F8  User 'show web status' permissions
-                (byte)0x01, (byte)0x00, (byte)0x00,
-                (byte)0x0c, (byte)0x03, // 0x030C User authorization permissions
-                (byte)0x01, (byte)0x00, (byte)0x00
-            };
-            icqDataOut.write(b);
 
-//            new Tlv(0x030C, ByteBlock.wrap(b)).write(icqDataOut);
+            writeUShort(icqDataOut, 0x030c); // 0x030C User authorization permissions
+            writeUShort(icqDataOut, 1);
+            writeUByte(icqDataOut, 0);
+
+            writeUShort(icqDataOut, 0x02F8); // 0x02F8  User 'show web status' permissions
+			writeUShort(icqDataOut, 1);
+            writeUByte(icqDataOut, 0);
 
             int hdrlen = 10; // The expected header length, not counting the length field itself.
             int primary = 0x07D0;
@@ -1569,6 +1568,12 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
                 (byte)(number & 0xff),
                 (byte)((number >> 8) & 0xff)
             });
+        }
+
+        public void writeUByte(OutputStream out, int number)
+            throws IOException
+        {
+            out.write(new byte[]{(byte) (number & 0xff)});
         }
     }
 

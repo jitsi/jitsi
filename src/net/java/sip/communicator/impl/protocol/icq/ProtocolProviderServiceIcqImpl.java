@@ -269,6 +269,24 @@ public class ProtocolProviderServiceIcqImpl
                 OperationSetTypingNotifications.class.getName(),
                 typingNotifications);
 
+            InfoRetreiver infoRetreiver = new InfoRetreiver(this);
+
+            OperationSetServerStoredContactInfo serverStoredContactInfo =
+                new OperationSetServerStoredContactInfoIcqImpl(infoRetreiver);
+
+            supportedOperationSets.put(
+                OperationSetServerStoredContactInfo.class.getName(),
+                serverStoredContactInfo);
+
+
+            OperationSetServerStoredAccountInfo serverStoredAccountInfo =
+                new OperationSetServerStoredAccountInfoIcqImpl
+                    (infoRetreiver, screenname, this);
+
+            supportedOperationSets.put(
+                OperationSetServerStoredAccountInfo.class.getName(),
+                serverStoredAccountInfo);
+
             isInitialized = true;
         }
     }
