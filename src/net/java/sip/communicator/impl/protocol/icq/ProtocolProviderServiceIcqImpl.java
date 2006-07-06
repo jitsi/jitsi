@@ -287,6 +287,18 @@ public class ProtocolProviderServiceIcqImpl
                 OperationSetServerStoredAccountInfo.class.getName(),
                 serverStoredAccountInfo);
 
+            OperationSetWebAccountRegistration webAccountRegistration =
+                new OperationSetWebAccountRegistrationIcqImpl();
+            supportedOperationSets.put(
+                OperationSetWebAccountRegistration.class.getName(),
+                webAccountRegistration);
+
+            OperationSetWebContactInfo webContactInfo =
+                new OperationSetWebContactInfoIcqImpl();
+            supportedOperationSets.put(
+                OperationSetWebContactInfo.class.getName(),
+                webContactInfo);
+
             isInitialized = true;
         }
     }
