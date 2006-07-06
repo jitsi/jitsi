@@ -7,14 +7,14 @@
 package net.java.sip.communicator.impl.protocol.icq.message.usrinfo;
 
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.icq.message.common.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.kano.joscar.*;
 import net.kano.joscar.flapcmd.*;
-import java.net.URL;
-import java.net.*;
+import net.kano.joscar.tlv.*;
 
 /**
  * Parses the incoming data for the requested user info.
@@ -34,6 +34,12 @@ public class FullInfoCmd
 
     private boolean lastOfSequences = false;
     private int requestID = -1;
+
+    // used when semding this command for changeg details stored on the server
+    private String senderUin = null;
+    private Vector changeDataTlvs = new Vector();
+    public static final IcqType CMD_SET_FULLINFO = new IcqType(0x07D0, 0x0c3a);
+    private static final int TYPE_ICQ_DATA = 0x0001;
 
     // String corresponding to type indexes
     private static ServerStoredDetails.GenderDetail[] genders =
@@ -122,7 +128,7 @@ public class FullInfoCmd
         new Locale("gu"), // LC_GUJARATI  Gujarati
         new Locale("ta"), // LC_TAMIL Tamil
         new Locale("be"), // LC_BELORUSSIAN   Belorussian
-        null // LC_OTHER 	255 	other
+        null // LC_OTHER     255     other
     };
 
     private static String[] occupations = new String[]{
@@ -464,6 +470,47 @@ public class FullInfoCmd
 //        countryIndexToLocaleString.put(new Integer(9999),""); //other
     }
 
+    // the value is int[]
+    // int[0] - the max count of this detail
+    // the Tlv type for this detail
+    public static Hashtable supportedTypes = new Hashtable();
+    static {
+        supportedTypes.put(ServerStoredDetails.CountryDetail.class,     new int[]{1, 0x01A4});
+        supportedTypes.put(ServerStoredDetails.NicknameDetail.class,    new int[]{1, 0x0154});
+        supportedTypes.put(ServerStoredDetails.FirstNameDetail.class,   new int[]{1, 0x0140});
+        supportedTypes.put(ServerStoredDetails.LastNameDetail.class,    new int[]{1, 0x014A});
+        supportedTypes.put(ServerStoredDetails.EmailAddressDetail.class, new int[]{5, 0x015E});
+        supportedTypes.put(ServerStoredDetails.CityDetail.class,        new int[]{1, 0x0190});
+        supportedTypes.put(ServerStoredDetails.ProvinceDetail.class,    new int[]{1, 0x019A});
+        supportedTypes.put(ServerStoredDetails.PhoneNumberDetail.class, new int[]{1, 0x0276});
+        supportedTypes.put(ServerStoredDetails.FaxDetail.class,         new int[]{1, 0x0280});
+        supportedTypes.put(ServerStoredDetails.AddressDetail.class,     new int[]{1, 0x0262});
+        supportedTypes.put(ServerStoredDetails.MobilePhoneDetail.class, new int[]{1, 0x028A});
+        supportedTypes.put(ServerStoredDetails.PostalCodeDetail.class,  new int[]{1, 0x026C});
+        supportedTypes.put(ServerStoredDetails.GenderDetail.class,      new int[]{1, 0x017C});
+        supportedTypes.put(ServerStoredDetails.WebPageDetail.class,     new int[]{1, 0x0213});
+        supportedTypes.put(ServerStoredDetails.BirthDateDetail.class,   new int[]{1, 0x023A});
+        supportedTypes.put(ServerStoredDetails.SpokenLanguageDetail.class, new int[]{3, 0x0186});
+        supportedTypes.put(FullInfoCmd.OriginCityDetail.class,          new int[]{1, 0x0320});
+        supportedTypes.put(FullInfoCmd.OriginProvinceDetail.class,      new int[]{1, 0x032A});
+        supportedTypes.put(FullInfoCmd.OriginCountryDetail.class,       new int[]{1, 0x0334});
+        supportedTypes.put(ServerStoredDetails.WorkCityDetail.class,    new int[]{1, 0x029E});
+        supportedTypes.put(ServerStoredDetails.WorkProvinceDetail.class, new int[]{1, 0x02A8});
+        supportedTypes.put(ServerStoredDetails.WorkPhoneDetail.class,   new int[]{1, 0x02C6});
+        supportedTypes.put(FullInfoCmd.WorkFaxDetail.class,             new int[]{1, 0x02D0});
+        supportedTypes.put(ServerStoredDetails.WorkAddressDetail.class, new int[]{1, 0x0294});
+        supportedTypes.put(ServerStoredDetails.WorkPostalCodeDetail.class, new int[]{1, 0x02BC});
+        supportedTypes.put(ServerStoredDetails.WorkCountryDetail.class, new int[]{1, 0x02B2});
+        supportedTypes.put(ServerStoredDetails.WorkOrganizationNameDetail.class, new int[]{1, 0x01AE});
+        supportedTypes.put(FullInfoCmd.WorkDepartmentNameDetail.class,  new int[]{1, 0x01B8});
+        supportedTypes.put(FullInfoCmd.WorkPositionNameDetail.class,    new int[]{1, 0x01C2});
+        supportedTypes.put(FullInfoCmd.WorkOcupationDetail.class,       new int[]{1, 0x01CC});
+        supportedTypes.put(ServerStoredDetails.WorkPageDetail.class,    new int[]{1, 0x02DA});
+        supportedTypes.put(FullInfoCmd.NotesDetail.class,               new int[]{1, 0x0258});
+        supportedTypes.put(FullInfoCmd.InterestDetail.class,            new int[]{10, 0x01EA});
+        supportedTypes.put(ServerStoredDetails.TimeZoneDetail.class,    new int[]{1, 0x0316});
+    }
+
     public FullInfoCmd(FromIcqCmd packet)
     {
         super(21, 3);
@@ -507,9 +554,201 @@ public class FullInfoCmd
         }
     }
 
+    public FullInfoCmd(String senderUin, Vector changedData, boolean isToBeCleared)
+    {
+        super(21,2);
+        this.senderUin = senderUin;
+
+        Iterator iter = changedData.iterator();
+        while(iter.hasNext())
+        {
+            ServerStoredDetails.GenericDetail item =
+                (ServerStoredDetails.GenericDetail)iter.next();
+
+            if(isToBeCleared)
+                changeDataTlvs.add(getClearTlv(item));
+            else
+                changeDataTlvs.add(getTlvForChange(item));
+        }
+    }
+
     public void writeData(OutputStream out) throws IOException
     {
-        // noting to write as it is only for receiving
+        ByteArrayOutputStream icqout = new ByteArrayOutputStream();
+
+        ByteArrayOutputStream icqDataOut = new ByteArrayOutputStream();
+
+        // write tlvs with data here
+        Iterator iter = changeDataTlvs.iterator();
+        while(iter.hasNext())
+        {
+            DetailTlv item = (DetailTlv)iter.next();
+            item.write(icqDataOut);
+        }
+
+        int hdrlen = 10; // The expected header length, not counting the length field itself.
+        int primary = CMD_SET_FULLINFO.getPrimary();
+        int secondary = CMD_SET_FULLINFO.getSecondary();
+
+        long icqUINlong = Long.parseLong(senderUin);
+
+        int length = hdrlen + icqDataOut.size();
+
+        LEBinaryTools.writeUShort(icqout, length);
+        LEBinaryTools.writeUInt(icqout, icqUINlong);
+        LEBinaryTools.writeUShort(icqout, primary);
+        LEBinaryTools.writeUShort(icqout, 0x0002); // the sequence
+
+        LEBinaryTools.writeUShort(icqout, secondary);
+
+        icqDataOut.writeTo(icqout);
+
+        new Tlv(TYPE_ICQ_DATA, ByteBlock.wrap(icqout.toByteArray())).write(out);
+    }
+
+    private DetailTlv getTlvForChange(ServerStoredDetails.GenericDetail detail)
+    {
+        int typeOfDetail = ((int[])supportedTypes.get(detail.getClass()))[1];
+
+        DetailTlv result = new DetailTlv(((int[])supportedTypes.get(detail.getClass()))[1]);
+
+        switch(typeOfDetail)
+        {
+            case 0x01A4 : //CountryDetail
+            case 0x0334 : //OriginCountryDetail
+            case 0x02B2 : //WorkCountryDetail
+                result.writeUShort(getCountryCode(((ServerStoredDetails.LocaleDetail)detail).getLocale()));break;
+
+            case 0x0186 : //SpokenLanguageDetail
+                writeLanguageCode((ServerStoredDetails.LocaleDetail)detail, result);
+            case 0x017C : //GenderDetail
+                writeGenderCode((ServerStoredDetails.GenderDetail)detail, result);
+            case 0x023A : //BirthDateDetail
+                writeCalendarCode((ServerStoredDetails.CalendarDetail)detail, result);
+            case 0x01CC : //WorkOcupationDetail
+                writeOccupationCode((WorkOcupationDetail)detail, result);
+            case 0x01EA : //InterestDetail
+                writeInterestCode((InterestDetail)detail, result);
+            default :
+                writeGenericDetail(detail, result);
+        }
+
+        return result;
+    }
+
+    private DetailTlv getClearTlv(ServerStoredDetails.GenericDetail detail)
+    {
+        int typeOfDetail = ((int[])supportedTypes.get(detail.getClass()))[1];
+
+        DetailTlv result = new DetailTlv(((int[])supportedTypes.get(detail.getClass()))[1]);
+
+        switch(typeOfDetail)
+        {
+            case 0x01A4 : //CountryDetail
+            case 0x0334 : //OriginCountryDetail
+            case 0x02B2 : //WorkCountryDetail
+                result.writeUShort(0);break;
+
+            case 0x0186 : //SpokenLanguageDetail
+                result.writeUShort(0);
+            case 0x017C : //GenderDetail
+                result.writeUByte(0);
+            case 0x023A : //BirthDateDetail
+                result.writeUShort(0);
+                result.writeUShort(0);
+                result.writeUShort(0);
+            case 0x01CC : //WorkOcupationDetail
+                result.writeUShort(0);
+            case 0x01EA : //InterestDetail
+                result.writeUShort(0);
+                result.writeString("");
+            case 0x0316 :
+                result.writeUByte(0);
+            default :
+                result.writeString("");
+        }
+
+        return result;
+    }
+
+
+    private void writeLanguageCode(ServerStoredDetails.LocaleDetail detail, DetailTlv tlv)
+    {
+        String newLang = detail.getLocale().getLanguage();
+        for(int i = 0; i < spokenLanguages.length; i++)
+        {
+            if(spokenLanguages[i].getLanguage().equals(newLang))
+            {
+                tlv.writeUShort(i);
+                return;
+            }
+        }
+    }
+
+    private void writeGenderCode(ServerStoredDetails.GenderDetail detail, DetailTlv tlv)
+    {
+        int gender = 0;
+
+        if(detail.equals(ServerStoredDetails.GenderDetail.FEMALE))
+            gender = 1;
+        else if(detail.equals(ServerStoredDetails.GenderDetail.MALE))
+            gender = 2;
+
+        tlv.writeUByte(gender);
+    }
+
+    private void writeCalendarCode(ServerStoredDetails.CalendarDetail detail, DetailTlv tlv)
+    {
+        Calendar calendar = detail.getCalendar();
+
+        tlv.writeUShort(calendar.get(Calendar.YEAR));
+        tlv.writeUShort(calendar.get(Calendar.MONTH));
+        tlv.writeUShort(calendar.get(Calendar.DAY_OF_MONTH));
+    }
+
+    private void writeOccupationCode(WorkOcupationDetail detail, DetailTlv tlv)
+    {
+        for(int i = 0; i < occupations.length; i++)
+        {
+            if(occupations[i].equals(detail.getDetailValue()))
+                tlv.writeUShort(i);
+        }
+    }
+
+    private void writeInterestCode(InterestDetail detail, DetailTlv tlv)
+    {
+        String category = detail.getCategory();
+        int categoryInt = 0;
+        for(int i = 0; i < interestsCategories.length; i++)
+        {
+            if(interestsCategories[i].equals(category))
+            {
+                if(i != 0)
+                    categoryInt = i + 99;
+                else
+                    categoryInt = 0;
+
+                break;
+            }
+        }
+
+        tlv.writeUShort(categoryInt);
+        tlv.writeString(detail.getInterest());
+    }
+
+    private void writeGenericDetail(ServerStoredDetails.GenericDetail detail,  DetailTlv tlv)
+    {
+        if(detail instanceof ServerStoredDetails.StringDetail)
+        {
+            tlv.writeString(((ServerStoredDetails.StringDetail)detail).getString());
+        }
+        else
+            if(detail instanceof ServerStoredDetails.TimeZoneDetail)
+            {
+                int offset = ((ServerStoredDetails.TimeZoneDetail)detail).
+                    getTimeZone().getRawOffset()/(60*60*1000);
+                tlv.writeUByte(offset);
+            }
     }
 
     // START method for parsing incoming data
@@ -583,12 +822,19 @@ public class FullInfoCmd
         short birthdayDay = LEBinaryTools.getUByte(block, offset);
         offset += 1;
 
-        Calendar birthDate = Calendar.getInstance();
-        birthDate.set(Calendar.YEAR, birthdayYear);
-        birthDate.set(Calendar.MONTH, birthdayMonth);
-        birthDate.set(Calendar.DAY_OF_MONTH, birthdayDay);
+        if(birthdayYear == 0 || birthdayMonth == 0 || birthdayDay == 0)
+        {
+            infoData.add(new ServerStoredDetails.BirthDateDetail(null));
+        }
+        else
+        {
+            Calendar birthDate = Calendar.getInstance();
+            birthDate.set(Calendar.YEAR, birthdayYear);
+            birthDate.set(Calendar.MONTH, birthdayMonth);
+            birthDate.set(Calendar.DAY_OF_MONTH, birthdayDay);
 
-        infoData.add(new ServerStoredDetails.BirthDateDetail(birthDate));
+            infoData.add(new ServerStoredDetails.BirthDateDetail(birthDate));
+        }
 
         short speakingLanguage1 = LEBinaryTools.getUByte(block, offset);
         offset += 1;
@@ -618,8 +864,16 @@ public class FullInfoCmd
         offset += 2;
         infoData.add(new OriginCountryDetail(getCountry(originCountryCode)));
 
-//        short userTimeZone = LEBinaryTools.getUByte(block, offset);
-//        offset += 1;
+        short userGMTOffset = LEBinaryTools.getUByte(block, offset);
+        offset += 1;
+
+        TimeZone userTimeZone = null;
+        if(userGMTOffset >= 0)
+            userTimeZone = TimeZone.getTimeZone("GMT+" + userGMTOffset);
+        else
+            userTimeZone = TimeZone.getTimeZone("GMT" + userGMTOffset);
+
+        infoData.add(new ServerStoredDetails.TimeZoneDetail("GMT Offest", userTimeZone));
     }
 
     private void readEmailUserInfo(ByteBlock block, int requestID)
@@ -699,7 +953,10 @@ public class FullInfoCmd
 
         int workOccupationCode = LEBinaryTools.getUShort(block, offset);
         offset += 2;
-        infoData.add(new WorkOcupationDetail(occupations[workOccupationCode]));
+        if(workOccupationCode == 99)
+            infoData.add(new WorkOcupationDetail(occupations[occupations.length - 1]));
+        else
+            infoData.add(new WorkOcupationDetail(occupations[workOccupationCode]));
 
         String[] tmp = new String[1];
         offset = readStrings(block, tmp, offset);
@@ -720,7 +977,7 @@ public class FullInfoCmd
         String[] tmp = new String[1];
         offset = readStrings(block, tmp, offset);
 
-		infoData.add(new NotesDetail(tmp[0]));
+        infoData.add(new NotesDetail(tmp[0]));
     }
 
     private void readInterestsUserInfo(ByteBlock block, int requestID)
@@ -892,6 +1149,24 @@ public class FullInfoCmd
         return new Locale("", cryStr);
     }
 
+    private static int getCountryCode(Locale cLocale)
+    {
+        if(cLocale == null)
+            return 0;// not specified
+
+        Iterator iter = countryIndexToLocaleString.keySet().iterator();
+        while(iter.hasNext())
+        {
+            Integer key = (Integer)iter.next();
+
+            String countryString = ((String)countryIndexToLocaleString.get(key)).toUpperCase();
+            if(countryString.equals(cLocale.getCountry()))
+                return key.intValue();
+        }
+
+        return 0; // not specified
+    }
+
     public static class OriginCityDetail extends ServerStoredDetails.CityDetail
     {
         public OriginCityDetail(String cityName)
@@ -988,5 +1263,4 @@ public class FullInfoCmd
             super(locale);
         }
     }
-
 }
