@@ -30,7 +30,9 @@ public class IcqSlickFixture extends TestCase
     /**
      * The agent that we use to verify whether the tested implementation is
      * being honest with us. The icq tester agent is instantiated and registered
-     * by the icq slick activator.
+     * by the icq slick activator. If it is still null when a test is running,
+     * it means there was something seriously wrong with the test account
+     * properties file.
      */
     static IcqTesterAgent testerAgent = null;
 

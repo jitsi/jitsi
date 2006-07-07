@@ -111,9 +111,12 @@ public class MetaContactListServiceLick
      */
     public void stop(BundleContext context)
     {
-        MclSlickFixture.mockPrServiceRegistration.unregister();
-        MclSlickFixture.mockP1ServiceRegistration.unregister();
-        MclSlickFixture.mockP2ServiceRegistration.unregister();
+        if (MclSlickFixture.mockPrServiceRegistration != null)
+            MclSlickFixture.mockPrServiceRegistration.unregister();
+        if (MclSlickFixture.mockP1ServiceRegistration != null)
+            MclSlickFixture.mockP1ServiceRegistration.unregister();
+        if (MclSlickFixture.mockP2ServiceRegistration != null)
+            MclSlickFixture.mockP2ServiceRegistration.unregister();
     }
 
     /**
