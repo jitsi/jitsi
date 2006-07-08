@@ -13,6 +13,7 @@ import org.osgi.framework.*;
 import net.java.sip.communicator.impl.configuration.xml.*;
 import net.java.sip.communicator.util.xml.*;
 import net.java.sip.communicator.slick.slickless.*;
+import java.util.*;
 
 /**
  * Tests basic ConfiguratioService behaviour.
@@ -191,6 +192,9 @@ public class TestConfigurationService extends TestCase
     /**
      * Tests whether getString properly returns string values and that it
      * correctly handles corner cases.
+     *
+     * @throws PropertyVetoException if someone vetoes our change (which
+     * shouldn't happen)
      */
     public void testGetString() throws PropertyVetoException
     {
@@ -218,6 +222,66 @@ public class TestConfigurationService extends TestCase
         actualReturn = configurationService.getString(propertyName);
         assertNull("getString did not trim a white space only string",
                      actualReturn);
+    }
+
+    /**
+     * Records a few properties with a similar prefix and verifies that they're
+     * all returned by the getPropertyNamesByPrefix() method.
+     *
+     * @throws PropertyVetoException if someone vetoes our change (which
+     * shouldn't happen)
+     */
+    public void testGetPropertyNamesByPrefix() throws PropertyVetoException
+    {
+        String prefix = "this.is.a.prefix";
+        String exactPrefixProp1Name = prefix + ".PROP1";
+        String exactPrefixProp2Name = prefix + ".PROP3";
+        String longerPrefixProp3Name = prefix + ".which.is.longer.PROP3";
+        String completeMismatchProp4Name = "and.hereis.one.other.prefix.PROP4";
+
+        configurationService.setProperty(exactPrefixProp1Name, new Object());
+        configurationService.setProperty(exactPrefixProp2Name, new Object());
+        configurationService.setProperty(longerPrefixProp3Name, new Object());
+        configurationService.setProperty(completeMismatchProp4Name
+                                         , new Object());
+
+        //try an exact match first
+        List propertyNames
+            = configurationService.getPropertyNamesByPrefix(prefix, true);
+
+        assertTrue("Returned list did not contain all property names. "
+                   + " MissingPropertyName: " + exactPrefixProp1Name
+                   , propertyNames.contains(exactPrefixProp1Name));
+
+        assertTrue("Returned list did not contain all property names. "
+                   + " MissingPropertyName: " + exactPrefixProp2Name
+                   , propertyNames.contains(exactPrefixProp2Name));
+
+        assertEquals("Returned list contains more properties than expected. "
+                   + " List was: " + propertyNames
+                   , 2, propertyNames.size() );
+
+        //try a broader search
+        propertyNames
+            = configurationService.getPropertyNamesByPrefix(prefix, false);
+
+        assertTrue("Returned list did not contain all property names. "
+                   + " MissingPropertyName: " + exactPrefixProp1Name
+                   , propertyNames.contains(exactPrefixProp1Name));
+
+        assertTrue("Returned list did not contain all property names. "
+                   + " MissingPropertyName: " + exactPrefixProp2Name
+                   , propertyNames.contains(exactPrefixProp2Name));
+
+        assertTrue("Returned list did not contain all property names. "
+                   + " MissingPropertyName: " + longerPrefixProp3Name
+                   , propertyNames.contains(longerPrefixProp3Name));
+
+        assertEquals("Returned list contains more properties than expected. "
+                   + " List was: " + propertyNames
+                   , 3, propertyNames.size());
+
+
     }
 
     /**
@@ -437,6 +501,9 @@ public class TestConfigurationService extends TestCase
      * only gets us events for that listeners. Removing a listener for a
      * specific property should also be proved to no obstruct event delivery to
      * the same listener had it been registered for other properties.
+     *
+     * @throws PropertyVetoException if someone vetoes our change (which
+     * shouldn't happen)
      */
     public void testSinglePropertyEventNotification()
         throws PropertyVetoException
@@ -509,6 +576,9 @@ public class TestConfigurationService extends TestCase
      * only gets us events for that listeners. Removing a listener for a
      * specific property should also be proved to no obstruct event delivery to
      * the same listener had it been registered for other properties.
+     *
+     * @throws PropertyVetoException if someone vetoes our change (which
+     * shouldn't happen)
      */
     public void testSinglePropertyVetoEventNotification()
         throws PropertyVetoException
