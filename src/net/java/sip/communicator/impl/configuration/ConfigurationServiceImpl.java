@@ -160,12 +160,21 @@ public class ConfigurationServiceImpl
             if (changeEventDispatcher.hasPropertyChangeListeners(propertyName))
                 changeEventDispatcher.firePropertyChange(
                     propertyName, oldValue, property);
+/*
+            try{
+                storeConfiguration();
+            }
+            catch (IOException ex)
+            {
+                logger.error("Failed to store configuration after "
+                             +"a property change");
+            }
+*/
         }
         finally
         {
             logger.logExit();
         }
-
     }
 
     /**
@@ -184,6 +193,61 @@ public class ConfigurationServiceImpl
             return ((PropertyReference)value).getValue();
         else
             return value;
+    }
+
+    /**
+     * Returns a <tt>java.util.List</tt> of <tt>String</tt>s containing the
+     * all property names that have the specified prefix. Depending on the value
+     * of the <tt>exactPrefixMatch</tt> parameter the method will (when false)
+     * or will not (when exactPrefixMatch is true) include property names that
+     * have prefixes longer than the specified <tt>prefix</tt> param.
+     * <p>
+     * Example:
+     * <p>
+     * Imagine a configuration service instance containing 2 properties only:<br>
+     * <code>
+     * net.java.sip.communicator.PROP1=value1<br>
+     * net.java.sip.communicator.service.protocol.PROP1=value2
+     * </code>
+     * <p>
+     * A call to this method with a prefix="net.java.sip.communicator" and
+     * exactPrefixMatch=true would only return the first property -
+     * net.java.sip.communicator.PROP1, whereas the same call with
+     * exactPrefixMatch=false would return both properties as the second prefix
+     * includes the requested prefix string.
+     * <p>
+     * @param prefix a String containing the prefix (the non dotted non-caps
+     * part of a property name) that we're looking for.
+     * @param exactPrefixMatch a boolean indicating whether the returned
+     * property names should all have a prefix that is an exact match of the
+     * the <tt>prefix</tt> param or whether properties with prefixes that
+     * contain it but are longer than it are also accepted.
+     * @return a <tt>java.util.List</tt>containing all property name String-s
+     * matching the specified conditions.
+     */
+    public List getPropertyNamesByPrefix(String prefix, boolean exactPrefixMatch)
+    {
+        LinkedList resultKeySet = new LinkedList();
+        Iterator keys = properties.keySet().iterator();
+
+        while(keys.hasNext())
+        {
+            String key = (String)keys.next();
+            String keyPrefix = key.substring(0, key.lastIndexOf('.'));
+
+            if(exactPrefixMatch)
+            {
+                if(prefix.equals(keyPrefix))
+                    resultKeySet.add(key);
+            }
+            else
+            {
+                if(keyPrefix.startsWith(prefix))
+                    resultKeySet.add(key);
+            }
+        }
+
+        return resultKeySet;
     }
 
     /**
@@ -332,7 +396,12 @@ public class ConfigurationServiceImpl
             DocumentBuilder builder = factory.newDocumentBuilder();
             Map properties = new Hashtable();
 
-            propertiesDocument = builder.parse(file);
+            //if the file is empyt (or contains only sth insignificant)
+            //ifnore it and create a ne wdocument.
+            if(file.length() < "<sip-communicator>".length()*2)
+                propertiesDocument = createPropertiesDocument();
+            else
+                propertiesDocument = builder.parse(file);
 
             Node root = propertiesDocument.getFirstChild();
 
@@ -377,6 +446,28 @@ public class ConfigurationServiceImpl
 
     }
 
+    private Document createPropertiesDocument()
+    {
+        if(propertiesDocument == null)
+        {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = null;
+            try
+            {
+                builder = factory.newDocumentBuilder();
+            }
+            catch (ParserConfigurationException ex)
+            {
+                logger.error("Failed to create a DocumentBuilder", ex);
+                return null;
+            }
+            propertiesDocument = builder.newDocument();
+            propertiesDocument.appendChild(
+                propertiesDocument.createElement("sip-communicator"));
+        }
+        return propertiesDocument;
+    }
+
     /**
      * Stores local properties in the specified configuration file.
      * @param file a reference to the configuration file where properties should
@@ -390,11 +481,11 @@ public class ConfigurationServiceImpl
         {
             logger.logEntry();
 
-            DocumentBuilderFactory factory =
-                DocumentBuilderFactory.newInstance();
-
             //resolve the properties that were initially in the file - back to
             //the document.
+
+            if(propertiesDocument == null)
+                propertiesDocument = createPropertiesDocument();
 
             Node root = propertiesDocument.getFirstChild();
 
