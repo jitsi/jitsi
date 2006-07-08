@@ -64,4 +64,10 @@ public interface SubscriptionListener
      */
     public void subscriptionResolved(SubscriptionEvent evt);
 
+    /**
+     * Indicates that the source contact has had one of its properties changed.
+     * @param evt the <tt>ContactPropertyChangeEvent</tt> containing the source
+     * contact and the old and new values of the changed property.
+     */
+    public void contactModified(ContactPropertyChangeEvent evt);
 }
