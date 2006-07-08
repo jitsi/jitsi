@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.configuration;
 
 import net.java.sip.communicator.service.configuration.event.*;
 import java.io.*;
+import java.util.*;
 
 import net.java.sip.communicator.util.xml.*;
 
@@ -63,6 +64,39 @@ public interface ConfigurationService
      * @return the value of the property with the specified name.
      */
     public Object getProperty(String propertyName);
+
+    /**
+     * Returns a <tt>java.util.List</tt> of <tt>String</tt>s containing the
+     * all property names that have the specified prefix. Depending on the value
+     * of the <tt>exactPrefixMatch</tt> parameter the method will (when false)
+     * or will not (when exactPrefixMatch is true) include property names that
+     * have prefixes longer than the specified <tt>prefix</tt> param.
+     * <p>
+     * Example:
+     * <p>
+     * Imagine a configuration service instance containing 2 properties only:<br>
+     * <code>
+     * net.java.sip.communicator.PROP1=value1<br>
+     * net.java.sip.communicator.service.protocol.PROP1=value2
+     * </code>
+     * <p>
+     * A call to this method with a prefix="net.java.sip.communicator" and
+     * exactPrefixMatch=true would only return the first property -
+     * net.java.sip.communicator.PROP1, whereas the same call with
+     * exactPrefixMatch=false would return both properties as the second prefix
+     * includes the requested prefix string.
+     * <p>
+     * @param prefix a String containing the prefix (the non dotted non-caps
+     * part of a property name) that we're looking for.
+     * @param exactPrefixMatch a boolean indicating whether the returned
+     * property names should all have a prefix that is an exact match of the
+     * the <tt>prefix</tt> param or whether properties with prefixes that
+     * contain it but are longer than it are also accepted.
+     * @return a <tt>java.util.List</tt>containing all property name String-s
+     * matching the specified conditions.
+     */
+    public List getPropertyNamesByPrefix(String  prefix,
+                                         boolean exactPrefixMatch);
 
     /**
      * Returns the String value of the specified property and null in case no
