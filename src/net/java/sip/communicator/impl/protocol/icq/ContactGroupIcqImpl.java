@@ -529,21 +529,6 @@ public class ContactGroupIcqImpl
                 contact.setResolved(true);
             }
         }
-
-        //discover and remove contacts that were not resolved and report them
-        //as removed
-        Iterator childContacts = this.buddies.listIterator();
-
-        while(childContacts.hasNext())
-        {
-            Contact contact = (Contact)childContacts.next();
-
-            if(!contact.isResolved())
-            {
-                childContacts.remove();
-                removedContacts.add(contact);
-            }
-        }
     }
 
     /**
