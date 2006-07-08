@@ -303,6 +303,7 @@
            <arg value="htmlreport"/>
         </java>
         <echo message="Done."/>
+        <echo message="Test results available in ./test-reports/html/index.html "/>
 
         <!-- Check whether testing went alright and fail if not.-->
         <condition property="testing.failed">
