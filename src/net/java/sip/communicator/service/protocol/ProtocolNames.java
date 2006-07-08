@@ -6,7 +6,7 @@ package net.java.sip.communicator.service.protocol;
  * with the osgi framwke. These names must be set in the properties dictionary
  * that one specifies when registering an OSGI service. When setting one of
  * these names a protocol implementor must map it against the
- * ProtocolAccountManager.PROTOCOL_PROPERTY_NAME key.
+ * ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME key.
  * @author Emil Ivov
  */
 public interface ProtocolNames
