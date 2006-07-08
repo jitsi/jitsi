@@ -38,6 +38,8 @@ public class ConfigurationActivator
 
             logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
 
+            impl.start();
+
             bundleContext.registerService( ConfigurationService.class.getName(),
                                            impl,
                                            new java.util.Hashtable() );
