@@ -1672,6 +1672,33 @@ public class MetaContactListServiceImpl
         }
 
         /**
+         * In the case where the event refers to a change in the display name
+         * we compare the old value with the display name of the corresponding
+         * meta contact. If they are equal this means that the user has not
+         * speciified their own display name for the meta contact and that the
+         * display name was using this contact's display name for its own
+         * display name. In this case we change the display name of the meta
+         * contact to match the new display name of the proto contact.
+         * <p>
+         * @param evt the <tt>ContactPropertyChangeEvent</tt> containing the source
+         * contact and the old and new values of the changed property.
+         */
+        public void contactModified(ContactPropertyChangeEvent evt)
+        {
+            MetaContactImpl mc
+                = (MetaContactImpl)findMetaContactByContact(
+                    evt.getSourceContact());
+
+            if( evt.getPropertyName().equals(ContactPropertyChangeEvent
+                                             .PROPERTY_DISPLAY_NAME)
+                && evt.getOldValue() != null
+                && ((String)evt.getOldValue()).equals(mc.getDisplayName()))
+            {
+                renameMetaContact(mc, (String)evt.getNewValue());
+            }
+        }
+
+        /**
          * Locates the <tt>MetaContact</tt> corresponding to the contact
          * that has been removed and updates it. If the removed proto contact
          * was the last one in it, then the <tt>MetaContact</tt> is also
@@ -2404,6 +2431,12 @@ public class MetaContactListServiceImpl
         public void subscriptionResolved(SubscriptionEvent evt)
         {}
 
+        /**
+         * Events delivered through this method are ignored
+         * @param evt param ignored
+         */
+        public void contactModified(ContactPropertyChangeEvent evt)
+        {}
 
         /**
          * Block the execution of the current thread until either a contact
