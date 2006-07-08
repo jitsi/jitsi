@@ -619,5 +619,21 @@ public class TestOperationSetPersistentPresence
                 notifyAll();
             }
         }
+
+        /**
+         * Stores the received subsctiption and notifies all waiting on this
+         * object
+         * @param evt the SubscriptionEvent containing the corresponding contact
+         */
+        public void contactModified(ContactPropertyChangeEvent evt)
+        {
+            synchronized(this)
+            {
+                logger.debug("Collected evt("+collectedEvents.size()+")= "+evt);
+                collectedEvents.add(evt);
+                notifyAll();
+            }
+        }
+
     }
 }

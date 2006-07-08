@@ -6,7 +6,7 @@ import java.util.Hashtable;
 import net.java.sip.communicator.service.configuration.*;
 
 /**
- * Loads the  ICQ account manager and registers it with  service in the OSGI
+ * Loads the  ICQ provider factory and registers it with  service in the OSGI
  * bundle context.
  *
  * @author Emil Ivov
@@ -29,10 +29,10 @@ public class IcqActivator
     public void start(BundleContext context) throws Exception
     {
         Hashtable hashtable = new Hashtable();
-        hashtable.put(AccountManager.PROTOCOL_PROPERTY_NAME, ProtocolNames.ICQ);
+        hashtable.put(ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME, ProtocolNames.ICQ);
 
-        AccountManagerIcqImpl icqAccountManager =
-                                        new AccountManagerIcqImpl();
+        ProtocolProviderFactoryIcqImpl icqProviderFactory =
+                                        new ProtocolProviderFactoryIcqImpl();
 
         ServiceReference confReference
             = context.getServiceReference(ConfigurationService.class.getName());
@@ -40,12 +40,12 @@ public class IcqActivator
             = (ConfigurationService)context.getService(confReference);
 
         //load all icq providers
-        icqAccountManager.loadStoredAccounts(context, configurationService);
+        icqProviderFactory.loadStoredAccounts(context, configurationService);
 
         //reg the icq account man.
         icqAccManRegistration =  context.registerService(
-                    AccountManager.class.getName(),
-                    icqAccountManager,
+                    ProtocolProviderFactory.class.getName(),
+                    icqProviderFactory,
                     hashtable);
     }
 

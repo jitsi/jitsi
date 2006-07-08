@@ -48,20 +48,20 @@ public class IcqSlickFixture extends TestCase
 
     public ServiceReference        icqServiceRef = null;
     public ProtocolProviderService provider      = null;
-    public AccountManager          accManager    = null;
+    public ProtocolProviderFactory          accManager    = null;
     public String                  ourAccountID  = null;
 
     public static OfflineMsgCollector offlineMsgCollector = null;
 
     public void setUp() throws Exception
     {
-        // first obtain a reference to the account manager
+        // first obtain a reference to the provider factory
         ServiceReference[] serRefs = null;
-        String osgiFilter = "(" + AccountManager.PROTOCOL_PROPERTY_NAME
+        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME
                             + "="+ProtocolNames.ICQ+")";
         try{
             serRefs = IcqSlickFixture.bc.getServiceReferences(
-                    AccountManager.class.getName(), osgiFilter);
+                    ProtocolProviderFactory.class.getName(), osgiFilter);
         }
         catch (InvalidSyntaxException ex){
             //this really shouldhn't occur as the filter expression is static.
@@ -69,11 +69,11 @@ public class IcqSlickFixture extends TestCase
         }
 
         assertTrue(
-            "Failed to find an account manager service for protocol ICQ",
+            "Failed to find an provider factory service for protocol ICQ",
             serRefs != null || serRefs.length >  0);
 
         //Keep the reference for later usage.
-        accManager = (AccountManager)
+        accManager = (ProtocolProviderFactory)
             IcqSlickFixture.bc.getService(serRefs[0]);
 
         ourAccountID =
@@ -86,8 +86,8 @@ public class IcqSlickFixture extends TestCase
             = bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(&"
-                +"("+AccountManager.PROTOCOL_PROPERTY_NAME+"="+ProtocolNames.ICQ+")"
-                +"("+AccountManager.ACCOUNT_ID_PROPERTY_NAME+"="
+                +"("+ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME+"="+ProtocolNames.ICQ+")"
+                +"("+ProtocolProviderFactory.ACCOUNT_ID_PROPERTY_NAME+"="
                 + ourAccountID +")"
                 +")");
 
