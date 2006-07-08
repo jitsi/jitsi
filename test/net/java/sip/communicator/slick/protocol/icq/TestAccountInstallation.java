@@ -15,7 +15,7 @@ import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeE
 import net.java.sip.communicator.util.Logger;
 
 /**
- * Tests basic account manager functionalitites
+ * Tests basic provider factory functionalitites
  * @author Emil Ivov
  * @author Damian Minkov
  */
@@ -28,7 +28,7 @@ public class TestAccountInstallation extends TestCase
      */
     private Object registrationLock = new Object();
 
-    AccountManager icqAccountManager  = null;
+    ProtocolProviderFactory icqProviderFactory  = null;
 
     public TestAccountInstallation(String name)
     {
@@ -68,11 +68,11 @@ public class TestAccountInstallation extends TestCase
     public void testRegisterWrongUsername()
     {
         ServiceReference[] serRefs = null;
-        String osgiFilter = "(" + AccountManager.PROTOCOL_PROPERTY_NAME
+        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME
                             + "="+ProtocolNames.ICQ+")";
         try{
             serRefs = IcqSlickFixture.bc.getServiceReferences(
-                    AccountManager.class.getName(), osgiFilter);
+                    ProtocolProviderFactory.class.getName(), osgiFilter);
         }
         catch (InvalidSyntaxException ex){
             //this really shouldhn't occur as the filter expression is static.
@@ -80,12 +80,12 @@ public class TestAccountInstallation extends TestCase
         }
 
         assertTrue(
-            "Failed to find an account manager service for protocol ICQ",
+            "Failed to find an provider factory service for protocol ICQ",
             serRefs != null || serRefs.length >  0);
 
         //Keep the reference for later usage.
-        AccountManager icqAccountManager =
-            (AccountManager)IcqSlickFixture.bc.getService(serRefs[0]);
+        ProtocolProviderFactory icqProviderFactory =
+            (ProtocolProviderFactory)IcqSlickFixture.bc.getService(serRefs[0]);
 
         //Prepare the properties of the icq account.
 
@@ -100,7 +100,7 @@ public class TestAccountInstallation extends TestCase
         Hashtable icqAccountProperties = new Hashtable();
         icqAccountProperties.put(AccountProperties.PASSWORD, passwd);
 
-        AccountID icqAccountID = icqAccountManager.installAccount(
+        AccountID icqAccountID = icqProviderFactory.installAccount(
             IcqSlickFixture.bc, uin, icqAccountProperties);
 
         //find the protocol provider service
@@ -111,9 +111,9 @@ public class TestAccountInstallation extends TestCase
                 = IcqSlickFixture.bc.getServiceReferences(
                     ProtocolProviderService.class.getName(),
                     "(&"
-                    + "(" + AccountManager.PROTOCOL_PROPERTY_NAME + "=" +
+                    + "(" + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME + "=" +
                     ProtocolNames.ICQ + ")"
-                    + "(" + AccountManager.ACCOUNT_ID_PROPERTY_NAME + "="
+                    + "(" + ProtocolProviderFactory.ACCOUNT_ID_PROPERTY_NAME + "="
                     + uin + ")"
                     + ")");
         }
@@ -176,7 +176,7 @@ public class TestAccountInstallation extends TestCase
 
         provider.removeRegistrationStateChangeListener(regFailedEvtCollector);
 
-        icqAccountManager.uninstallAccount(icqAccountID);
+        icqProviderFactory.uninstallAccount(icqAccountID);
     }
 
 
@@ -189,11 +189,11 @@ public class TestAccountInstallation extends TestCase
     public void testRegisterWrongPassword()
     {
         ServiceReference[] serRefs = null;
-        String osgiFilter = "(" + AccountManager.PROTOCOL_PROPERTY_NAME
+        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME
                             + "="+ProtocolNames.ICQ+")";
         try{
             serRefs = IcqSlickFixture.bc.getServiceReferences(
-                    AccountManager.class.getName(), osgiFilter);
+                    ProtocolProviderFactory.class.getName(), osgiFilter);
         }
         catch (InvalidSyntaxException ex){
             //this really shouldhn't occur as the filter expression is static.
@@ -201,12 +201,12 @@ public class TestAccountInstallation extends TestCase
         }
 
         assertTrue(
-            "Failed to find an account manager service for protocol ICQ",
+            "Failed to find an provider factory service for protocol ICQ",
             serRefs != null || serRefs.length >  0);
 
         //Keep the reference for later usage.
-        AccountManager icqAccountManager =
-            (AccountManager)IcqSlickFixture.bc.getService(serRefs[0]);
+        ProtocolProviderFactory icqProviderFactory =
+            (ProtocolProviderFactory)IcqSlickFixture.bc.getService(serRefs[0]);
 
         //Prepare the properties of the icq account.
 
@@ -220,7 +220,7 @@ public class TestAccountInstallation extends TestCase
         Hashtable icqAccountProperties = new Hashtable();
         icqAccountProperties.put(AccountProperties.PASSWORD, passwd);
 
-        AccountID icqAccountID = icqAccountManager.installAccount(
+        AccountID icqAccountID = icqProviderFactory.installAccount(
             IcqSlickFixture.bc, uin, icqAccountProperties);
 
         //find the protocol provider service
@@ -231,9 +231,9 @@ public class TestAccountInstallation extends TestCase
                 = IcqSlickFixture.bc.getServiceReferences(
                     ProtocolProviderService.class.getName(),
                     "(&"
-                    + "(" + AccountManager.PROTOCOL_PROPERTY_NAME + "=" +
+                    + "(" + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME + "=" +
                     ProtocolNames.ICQ + ")"
-                    + "(" + AccountManager.ACCOUNT_ID_PROPERTY_NAME + "="
+                    + "(" + ProtocolProviderFactory.ACCOUNT_ID_PROPERTY_NAME + "="
                     + icqAccountID.getAccountUserID() + ")"
                     + ")");
         }
@@ -295,7 +295,7 @@ public class TestAccountInstallation extends TestCase
 
         provider.removeRegistrationStateChangeListener(regFailedEvtCollector);
 
-        icqAccountManager.uninstallAccount(icqAccountID);
+        icqProviderFactory.uninstallAccount(icqAccountID);
     }
 
     /**
@@ -303,13 +303,13 @@ public class TestAccountInstallation extends TestCase
      */
     public void testInstallAccount()
     {
-        // first obtain a reference to the account manager
+        // first obtain a reference to the provider factory
         ServiceReference[] serRefs = null;
-        String osgiFilter = "(" + AccountManager.PROTOCOL_PROPERTY_NAME
+        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME
                             + "="+ProtocolNames.ICQ+")";
         try{
             serRefs = IcqSlickFixture.bc.getServiceReferences(
-                    AccountManager.class.getName(), osgiFilter);
+                    ProtocolProviderFactory.class.getName(), osgiFilter);
         }
         catch (InvalidSyntaxException ex){
             //this really shouldhn't occur as the filter expression is static.
@@ -317,17 +317,17 @@ public class TestAccountInstallation extends TestCase
         }
 
         assertTrue(
-            "Failed to find an account manager service for protocol ICQ",
+            "Failed to find an provider factory service for protocol ICQ",
             serRefs != null || serRefs.length >  0);
 
         //Keep the reference for later usage.
-        icqAccountManager = (AccountManager)
+        icqProviderFactory = (ProtocolProviderFactory)
             IcqSlickFixture.bc.getService(serRefs[0]);
 
         //make sure the account is empty
         assertTrue("There was an account registered with the account mananger "
                    +"before we've installed any",
-                   icqAccountManager.getRegisteredAccounts().size() == 0);
+                   icqProviderFactory.getRegisteredAccounts().size() == 0);
 
 
         //Prepare the properties of the icq account.
@@ -356,7 +356,7 @@ public class TestAccountInstallation extends TestCase
 
         //try to install an account with a null bundle context
         try{
-            icqAccountManager.installAccount( null, uin, icqAccountProperties);
+            icqProviderFactory.installAccount( null, uin, icqAccountProperties);
             fail("installing an account with a null BundleContext must result "
                  +"in a NullPointerException");
         }catch(NullPointerException exc){
@@ -365,7 +365,7 @@ public class TestAccountInstallation extends TestCase
 
         //try to install an account with a null account id
         try{
-            icqAccountManager.installAccount(
+            icqProviderFactory.installAccount(
                 IcqSlickFixture.bc, null, icqAccountProperties);
             fail("installing an account with a null account id must result "
                  +"in a NullPointerException");
@@ -374,13 +374,13 @@ public class TestAccountInstallation extends TestCase
         }
 
         //now really install the account
-        IcqSlickFixture.icqAccountID = icqAccountManager.installAccount(
+        IcqSlickFixture.icqAccountID = icqProviderFactory.installAccount(
             IcqSlickFixture.bc, uin, icqAccountProperties);
 
         //try to install the account one more time and verify that an excepion
         //is thrown.
         try{
-            IcqSlickFixture.icqAccountID = icqAccountManager.installAccount(
+            IcqSlickFixture.icqAccountID = icqProviderFactory.installAccount(
                 IcqSlickFixture.bc, uin, icqAccountProperties);
             fail("An IllegalStateException must be thrown when trying to "+
                  "install a duplicate account");
@@ -390,18 +390,18 @@ public class TestAccountInstallation extends TestCase
             //that's what supposed to happen.
         }
 
-        //Verify that the account manager is aware of our installation
+        //Verify that the provider factory is aware of our installation
         assertTrue(
             "The newly installed account was not in the acc man's "
             +"registered accounts!",
-            icqAccountManager.getRegisteredAccounts().size() == 1);
+            icqProviderFactory.getRegisteredAccounts().size() == 1);
 
         //Verify that the protocol provider corresponding to the new account has
         //been properly registered with the osgi framework.
 
         osgiFilter =
-            "(&("+AccountManager.PROTOCOL_PROPERTY_NAME +"="+ProtocolNames.ICQ+")"
-             +"(" + AccountManager.ACCOUNT_ID_PROPERTY_NAME
+            "(&("+ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME +"="+ProtocolNames.ICQ+")"
+             +"(" + ProtocolProviderFactory.ACCOUNT_ID_PROPERTY_NAME
              + "=" + IcqSlickFixture.icqAccountID.getAccountUserID() + "))";
 
         try

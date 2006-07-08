@@ -147,8 +147,8 @@ public class TestAccountUninstallation
             icqProviderRefs = fixture.bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(&"
-                + "(" + AccountManager.PROTOCOL_PROPERTY_NAME + "=" +ProtocolNames.ICQ + ")"
-                + "(" + AccountManager.ACCOUNT_ID_PROPERTY_NAME + "="+ fixture.icqAccountID + ")"
+                + "(" + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME + "=" +ProtocolNames.ICQ + ")"
+                + "(" + ProtocolProviderFactory.ACCOUNT_ID_PROPERTY_NAME + "="+ fixture.icqAccountID + ")"
                 + ")");
         }
         catch (InvalidSyntaxException ex)
@@ -164,11 +164,11 @@ public class TestAccountUninstallation
 
         //verify that the provider knows that we have uninstalled the service.
         assertTrue(
-            "The ICQ account manager kept a reference to the provider we just "
-            +"uninstalled (accID="+fixture.icqAccountID+")",
-            fixture.accManager.getRegisteredAccounts().isEmpty()
-            && fixture.accManager.getProviderForAccount(fixture.icqAccountID) == null
-            );
+          "The ICQ provider factory kept a reference to the provider we just "
+          +"uninstalled (accID="+fixture.icqAccountID+")",
+          fixture.accManager.getRegisteredAccounts().isEmpty()
+          && fixture.accManager.getProviderForAccount(fixture.icqAccountID)
+              == null);
     }
 
     /**

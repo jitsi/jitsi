@@ -22,7 +22,7 @@ import java.util.*;
  * modifying contact lists, receiving calls)would pertain to this particular
  * user account.
  *<p>
- * ProtocolProviderService instances are created through the account manager.
+ * ProtocolProviderService instances are created through the provider factory.
  * Each protocol provider is assigned a unique AccountID instance that uniquely
  * identifies it. Account id's for different accounts are guaranteed to be
  * different and in the same time the ID of a particular account against a given

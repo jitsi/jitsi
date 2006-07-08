@@ -20,7 +20,7 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.AccountID;
-import net.java.sip.communicator.service.protocol.AccountManager;
+import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 import net.java.sip.communicator.service.protocol.AccountProperties;
 import net.java.sip.communicator.service.protocol.ProtocolNames;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
@@ -42,7 +42,7 @@ public class LoginManager implements RegistrationStateChangeListener {
 
     private BundleContext bc;
 
-    private Hashtable accountManagersMap = new Hashtable();
+    private Hashtable providerFactoriesMap = new Hashtable();
 
     private Hashtable loginWindows = new Hashtable();
 
@@ -58,8 +58,8 @@ public class LoginManager implements RegistrationStateChangeListener {
 
         ServiceReference[] serRefs = null;
         try {
-            //get all registered account managers
-            serRefs = this.bc.getServiceReferences(AccountManager.class
+            //get all registered provider factories
+            serRefs = this.bc.getServiceReferences(ProtocolProviderFactory.class
                     .getName(), null);
 
         } catch (InvalidSyntaxException e) {
@@ -69,38 +69,38 @@ public class LoginManager implements RegistrationStateChangeListener {
 
         for (int i = 0; i < serRefs.length; i++) {
 
-            AccountManager accountManager = (AccountManager) this.bc
+            ProtocolProviderFactory providerFactory = (ProtocolProviderFactory) this.bc
                     .getService(serRefs[i]);
 
-            this.accountManagersMap.put(serRefs[i]
-                    .getProperty(AccountManager.PROTOCOL_PROPERTY_NAME),
-                    accountManager);
+            this.providerFactoriesMap.put(serRefs[i]
+                    .getProperty(ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME),
+                    providerFactory);
         }
     }
 
     /**
      * Implements the login. Installs the account and registers
      * the appropriate protocol provider.
-     * 
-     * @param accountManager The AccountManager where the account 
+     *
+     * @param providerFactory The ProtocolProviderFactory where the account
      * should be installed.
      * @param user The user identifier.
      * @param passwd The password.
      */
-    public void login(AccountManager accountManager, 
-                        String user, 
+    public void login(ProtocolProviderFactory providerFactory,
+                        String user,
                         String passwd) {
 
         Hashtable accountProperties = new Hashtable();
         accountProperties.put(AccountProperties.PASSWORD, passwd);
 
-        this.accountID = accountManager.installAccount(this.bc, user,
+        this.accountID = providerFactory.installAccount(this.bc, user,
                 accountProperties);
 
-        ServiceReference serRef = accountManager
+        ServiceReference serRef = providerFactory
                 .getProviderForAccount(this.accountID);
 
-        ProtocolProviderService protocolProvider 
+        ProtocolProviderService protocolProvider
             = (ProtocolProviderService) this.bc.getService(serRef);
 
         this.mainFrame.addAccount(protocolProvider);
@@ -116,31 +116,31 @@ public class LoginManager implements RegistrationStateChangeListener {
      */
     public void showLoginWindows(MainFrame parent) {
 
-        Set set = this.accountManagersMap.entrySet();
+        Set set = this.providerFactoriesMap.entrySet();
         Iterator iter = set.iterator();
 
         while (iter.hasNext()) {
             Map.Entry entry = (Map.Entry) iter.next();
 
-            AccountManager accountManager = (AccountManager) entry.getValue();
+            ProtocolProviderFactory providerFactory = (ProtocolProviderFactory) entry.getValue();
             String protocolName = (String) entry.getKey();
 
-            showLoginWindow(parent, protocolName, accountManager);
-            
+            showLoginWindow(parent, protocolName, providerFactory);
+
             //TEST SUPPORT FOR MORE ACCOUNTS!!!!!
-            //showLoginWindow(parent, protocolName, accountManager);
-        }        
+            //showLoginWindow(parent, protocolName, providerFactory);
+        }
     }
 
     /**
-     * Shows the login window for the given protocol and accountManager.
+     * Shows the login window for the given protocol and providerFactory.
      * @param parent The parent MainFrame window.
      * @param protocolName The protocolName.
-     * @param accoundManager The AccountManager.
+     * @param accoundManager The ProtocolProviderFactory to use.
      */
-    private void showLoginWindow(MainFrame parent, 
+    private void showLoginWindow(MainFrame parent,
                                 String protocolName,
-                                AccountManager accoundManager) {
+                                ProtocolProviderFactory accoundManager) {
 
         LoginWindow loginWindow = new LoginWindow(parent, protocolName,
                 accoundManager);
@@ -185,11 +185,11 @@ public class LoginManager implements RegistrationStateChangeListener {
 
             if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED) {
-                SIPCommMsgTextArea msgText 
+                SIPCommMsgTextArea msgText
                     = new SIPCommMsgTextArea(Messages.getString(
                         "reconnectionLimitExceeded", protocolProvider
                         .getAccountID().getAccountUserID()));
-                
+
                 JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             } else if (evt.getReasonCode() == RegistrationStateChangeEvent
@@ -197,14 +197,14 @@ public class LoginManager implements RegistrationStateChangeListener {
                 SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
                         .getString("nonExistingUserId", protocolProvider
                                 .getProtocolName()));
-                
+
                 JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             } else if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_AUTHENTICATION_FAILED) {
                 SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
                         .getString("authenticationFailed"));
-                
+
                 JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             }
@@ -221,47 +221,47 @@ public class LoginManager implements RegistrationStateChangeListener {
                     evt.getProvider(),
                     Constants.OFFLINE_STATUS);
 
-            SIPCommMsgTextArea msgText 
+            SIPCommMsgTextArea msgText
                 = new SIPCommMsgTextArea(
                         Messages.getString("connectionFailedMessage"));
-            
+
             JOptionPane.showMessageDialog(null, msgText, Messages
                     .getString("error"), JOptionPane.ERROR_MESSAGE);
         } else if (evt.getNewState().equals(RegistrationState.EXPIRED)) {
-            SIPCommMsgTextArea msgText 
+            SIPCommMsgTextArea msgText
                 = new SIPCommMsgTextArea(Messages.getString(
                         "connectionExpiredMessage", protocolProvider
                             .getProtocolName()));
-            
-            JOptionPane.showMessageDialog(null, msgText, 
+
+            JOptionPane.showMessageDialog(null, msgText,
                     Messages.getString("error"),
                     JOptionPane.ERROR_MESSAGE);
         } else if (evt.getNewState().equals(RegistrationState.UNREGISTERED)) {
 
             if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_MULTIPLE_LOGINS) {
-                SIPCommMsgTextArea msgText 
+                SIPCommMsgTextArea msgText
                     = new SIPCommMsgTextArea(Messages.getString(
                         "multipleLogins", protocolProvider.getAccountID()
                         .getAccountUserID()));
-                
+
                 JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             } else if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_CLIENT_LIMIT_REACHED_FOR_IP) {
-                SIPCommMsgTextArea msgText 
+                SIPCommMsgTextArea msgText
                     = new SIPCommMsgTextArea(Messages
                             .getString("limitReachedForIp", protocolProvider
                                     .getProtocolName()));
-                
+
                 JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             } else {
-                SIPCommMsgTextArea msgText 
+                SIPCommMsgTextArea msgText
                     = new SIPCommMsgTextArea(Messages.getString(
                             "unregisteredMessage", protocolProvider
                             .getProtocolName()));
-                
+
                 JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             }

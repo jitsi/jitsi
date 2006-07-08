@@ -36,10 +36,10 @@ import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.service.protocol.AccountManager;
+import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 /**
  * The LoginWindow is the window where the user should type his
- * user identifier and password to login. 
+ * user identifier and password to login.
  * @author Yana Stamcheva
  */
 public class LoginWindow extends JDialog implements ActionListener {
@@ -66,7 +66,7 @@ public class LoginWindow extends JDialog implements ActionListener {
 
     private LoginWindowBackground backgroundPanel = new LoginWindowBackground();
 
-    private AccountManager accountManager;
+    private ProtocolProviderFactory providerFactory;
 
     private LoginManager loginManager;
 
@@ -74,13 +74,13 @@ public class LoginWindow extends JDialog implements ActionListener {
      * Creates an instance of the LoginWindow.
      * @param mainFrame The parent MainFrame window.
      * @param protocolName The name of the protocol.
-     * @param accountManager The account manager.
+     * @param providerFactory The provider factory.
      */
     public LoginWindow(MainFrame mainFrame, String protocolName,
-            AccountManager accountManager) {
+            ProtocolProviderFactory providerFactory) {
         super(mainFrame);
 
-        this.accountManager = accountManager;
+        this.providerFactory = providerFactory;
 
         this.setModal(true);
 
@@ -104,7 +104,7 @@ public class LoginWindow extends JDialog implements ActionListener {
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         this.setTitle(Messages.getString("loginWindowTitle", protocolName));
-        
+
         this.enableKeyActions();
     }
 
@@ -112,10 +112,10 @@ public class LoginWindow extends JDialog implements ActionListener {
      * Constructs the LoginWindow.
      */
     private void init() {
-        
+
         this.uinLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
         this.passwdLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
-        
+
         this.uinComboBox = new JComboBox();
 
         this.uinComboBox.setEditable(true);
@@ -183,11 +183,11 @@ public class LoginWindow extends JDialog implements ActionListener {
     }
 
     /**
-     * Returns the account manager for this login window.
-     * @return The account manager for this login window.
+     * Returns the provider factory for this login window.
+     * @return The provider factory for this login window.
      */
-    public AccountManager getAccountManager() {
-        return accountManager;
+    public ProtocolProviderFactory getProviderFactory() {
+        return providerFactory;
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -199,7 +199,7 @@ public class LoginWindow extends JDialog implements ActionListener {
 
             this.dispose();
 
-            this.loginManager.login(accountManager, uinComboBox
+            this.loginManager.login(providerFactory, uinComboBox
                     .getSelectedItem().toString(), new String(passwdField
                     .getPassword()));
         } else {
@@ -242,7 +242,7 @@ public class LoginWindow extends JDialog implements ActionListener {
     }
 
     /**
-     * Enables the actions when a key is pressed, for now 
+     * Enables the actions when a key is pressed, for now
      * closes the window when esc is pressed.
      */
     private void enableKeyActions() {

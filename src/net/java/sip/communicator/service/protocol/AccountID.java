@@ -16,10 +16,11 @@ import java.util.*;
  * confusion and letting people (using the protocol provider service) believe
  * that they are the ones who are supposed to instantiate the accountid class.
  * <p>
- * Every instance of teh <tt>ProtocolProviderService</tt>, created through the
- * account manager is assigned an AccountID instance, that uniquely represents
- * it and whose string representation (obtainted through the getAccountUID()
- * method) can be used for identification of persistently stored account details.
+ * Every instance of the <tt>ProtocolProviderService</tt>, created through the
+ * ProtocolProviderFactory is assigned an AccountID instance, that uniquely
+ * represents it and whose string representation (obtainted through the
+ * getAccountUID() method) can be used for identification of persistently stored
+ * account details.
  * <p>
  * Account id's are guaranteed to be different for different accounts and in the
  * same time are bound to be equal for multiple installations of the same
