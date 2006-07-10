@@ -88,7 +88,7 @@ public class RenameContactDialog extends JDialog
         if (name.equals("rename")) {
             if (metaContact != null) {
                 this.clist.renameMetaContact(
-                    metaContact, renameContactPanel.getName());
+                    metaContact, renameContactPanel.getNewName());
             }
             this.dispose();
         }
