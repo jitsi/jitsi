@@ -94,7 +94,7 @@ public interface UIService
     /*
      * DialogID-s
      */
-    public static final DialogID DIALOG_MAIN_CONFIGURATION
+    public static final DialogID DIALOG_CONFIGURATION
         = new DialogID("MainConfigurationDialog");
     
     public static final DialogID DIALOG_CONFIGURATION1
@@ -172,10 +172,14 @@ public interface UIService
      * one of the DIALOG_XXX obtained by the getExportedDialogs method.
      *  
      * @param dialogID One of the DIALOG_XXX DialogID-s.
+     * @throws IllegalArgumentException if the specified <tt>dialogID</tt>
+     * is not recognized by the implementation (note that implementations
+     * MUST properly handle all DIALOG_XXX ID-s.
      * @return the dialog to be shown
      * @see #getExportedDialogs()
      */
-    public ExportedDialog getApplicationDialog(DialogID dialogID);
+    public ExportedDialog getApplicationDialog(DialogID dialogID)
+        throws IllegalArgumentException;
     
     /**
      * Returns a configurable popup dialog, that could be used to show either
