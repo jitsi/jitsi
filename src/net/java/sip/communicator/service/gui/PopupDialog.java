@@ -165,7 +165,7 @@ public interface PopupDialog extends ExportedDialog {
             String title, int messageType);
    
     /**
-     * Shows a dialog with the options <i>Yes</i>, <i>No</i> and <i>Cancel</i>.
+     * Shows a dialog that prompts the user for confirmation.
      *
      * @param message   the <code>Object</code> to display
      * @return one of the YES_OPTION, NO_OPTION,.., XXX_OPTION, indicating the
