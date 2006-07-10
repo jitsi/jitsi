@@ -23,6 +23,12 @@ import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
+/**
+ * The <tt>AddContactPanel</tt> is the form for adding a contact. It's used
+ * in the "Add Contact" wizard and the "Add Contact" dialog.
+ *  
+ * @author Yana Stamcheva
+ */
 public class AddContactPanel extends JPanel {
 
     private JLabel uinLabel = new JLabel(Messages.getString("identifier"));
@@ -43,6 +49,9 @@ public class AddContactPanel extends JPanel {
     
     private JPanel rightPanel = new JPanel(new BorderLayout());
     
+    /**
+     * Creates and initializes the <tt>AddContactPanel</tt>.
+     */
     public AddContactPanel() {
         super(new BorderLayout());
         
@@ -69,6 +78,10 @@ public class AddContactPanel extends JPanel {
         this.add(rightPanel, BorderLayout.CENTER);
     }
     
+    /**
+     * Returns the string identifier entered by user.
+     * @return the string identifier entered by user
+     */
     public String getUIN(){
         return textField.getText();
     }

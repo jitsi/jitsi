@@ -10,7 +10,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;
@@ -19,7 +18,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextPane;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableModel;
 
@@ -28,8 +26,13 @@ import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
-import net.java.sip.communicator.service.contactlist.MetaContactListService;
 
+/**
+ * The <tt>SelectGroupPanel</tt> is where the user should select the group,
+ * in which the new contact will be added.
+ * 
+ * @author Yana Stamcheva
+ */
 public class SelectGroupPanel extends JPanel {
     
     private JTable groupsTable = new JTable();
@@ -54,7 +57,15 @@ public class SelectGroupPanel extends JPanel {
     private NewContact newContact;
     
     private Iterator groupsList;
-        
+    
+    /**
+     * Creates an instance of <tt>SelectGroupPanel</tt>.
+     * 
+     * @param newContact An object that collects all user choices through the
+     * wizard.
+     * @param groupsList The list of all <tt>MetaContactGroup</tt>s, from which
+     * the user could select.
+     */
     public SelectGroupPanel(NewContact newContact, 
             Iterator groupsList) {
         super(new BorderLayout());
@@ -84,6 +95,9 @@ public class SelectGroupPanel extends JPanel {
         this.add(rightPanel, BorderLayout.CENTER);
     } 
     
+    /**
+     * Initializes the groups table.
+     */
     private void initGroupsTable(){
         groupsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
         
@@ -111,6 +125,11 @@ public class SelectGroupPanel extends JPanel {
         groupsTable.getCellEditor(0, 0).addCellEditorListener(l);
     }
     
+    /**
+     * Checks whether there is a selected check box in the table.
+     * @return <code>true</code> if any of the check boxes is selected,
+     * <code>false</code> otherwise.
+     */
     public boolean isCheckBoxSelected(){
         boolean isSelected = false;
         TableModel model = groupsTable.getModel();

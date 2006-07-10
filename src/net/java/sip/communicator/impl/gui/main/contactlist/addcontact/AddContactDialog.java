@@ -22,6 +22,15 @@ import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
+/**
+ * The <tt>AddContactDialog</tt> is the dialog containing the form for adding
+ * a contact. It is different from the "Add Contact" wizard opened from the
+ * quick menu button. The <tt>AddContactDialog</tt> is used when a new contact
+ * is added to an already existing meta contact or when adding a meta contact
+ * to an already existing meta contact group.
+ * 
+ * @author Yana Stamcheva
+ */
 public class AddContactDialog extends JDialog
     implements ActionListener {
 
@@ -43,6 +52,15 @@ public class AddContactDialog extends JDialog
     
     private ProtocolProviderService pps;
     
+    /**
+     * Creates an instance of <tt>AddContactDialog</tt> that represents a dialog
+     * that adds a new contact to an already existing meta contact.
+     * 
+     * @param clist The <tt>MetaContactListService</tt>.
+     * @param metaContact The <tt>MetaContact</tt> that would contain the
+     * newly created contact.
+     * @param pps The <tt>ProtocolProviderService</tt>.
+     */
     public AddContactDialog(MetaContactListService clist,
             MetaContact metaContact,
             ProtocolProviderService pps) {
@@ -54,6 +72,15 @@ public class AddContactDialog extends JDialog
         this.init();
     }
     
+    /**
+     * Creates an instance of <tt>AddContactDialog</tt> that represents a dialog
+     * that adds a new meta contact to an already existing meta contact group.
+     * 
+     * @param clist The <tt>MetaContactListService</tt>.
+     * @param group The <tt>MetaContactGroup</tt> that would contain the
+     * newly created meta contact.
+     * @param pps The <tt>ProtocolProviderService</tt>.
+     */
     public AddContactDialog(MetaContactListService clist,
             MetaContactGroup group,
             ProtocolProviderService pps) {
@@ -65,6 +92,9 @@ public class AddContactDialog extends JDialog
         this.init();
     }
 
+    /**
+     * Initializes the dialog.
+     */
     private void init() {
         this.setTitle(Messages.getString("addContact"));
         

@@ -15,6 +15,13 @@ import javax.swing.table.TableCellRenderer;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
+/**
+ * Custom <tt>TableCellRenderer</tt> that renders
+ * <tt>ProtocolProviderService</tt> objects and <tt>MetaContactGroup</tt>
+ * objects.
+ * 
+ * @author Yana Stamcheva
+ */
 public class LabelTableCellRenderer extends JLabel
     implements TableCellRenderer {
 

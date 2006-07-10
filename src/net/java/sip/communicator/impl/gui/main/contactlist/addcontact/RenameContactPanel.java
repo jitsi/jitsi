@@ -22,6 +22,12 @@ import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
+/**
+ * The <tt>RenameContactPanel</tt> is where the user could change the name of
+ * a meta contact.
+ * 
+ * @author Yana Stamcheva
+ */
 public class RenameContactPanel extends JPanel {
 
     private JLabel uinLabel = new JLabel(Messages.getString("newName"));
@@ -33,7 +39,8 @@ public class RenameContactPanel extends JPanel {
     private SIPCommTranspTextPane infoLabel 
         = new SIPCommTranspTextPane(Messages.getString("renameContactWizard"));
     
-    private JLabel infoTitleLabel = new JLabel(Messages.getString("renameContact"));
+    private JLabel infoTitleLabel 
+        = new JLabel(Messages.getString("renameContact"));
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.RENAME_DIALOG_ICON)));
@@ -42,6 +49,9 @@ public class RenameContactPanel extends JPanel {
     
     private JPanel rightPanel = new JPanel(new BorderLayout());
     
+    /**
+     * Creates an instance of <tt>RenameContactPanel</tt> and initializes it.
+     */
     public RenameContactPanel() {
         super(new BorderLayout());
         
@@ -68,6 +78,10 @@ public class RenameContactPanel extends JPanel {
         this.add(rightPanel, BorderLayout.CENTER);
     }
     
+    /**
+     * Returns the new name entered by the user.
+     * @return the new name entered by the user.
+     */
     public String getNewName(){
         return textField.getText();
     }

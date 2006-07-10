@@ -10,8 +10,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;
@@ -20,12 +18,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextPane;
 import javax.swing.event.CellEditorListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
-
-import com.ibm.media.bean.multiplayer.ImageLabel;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTranspTextPane;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
@@ -33,6 +27,12 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
+/**
+ * The <tt>SelectAccountPanel</tt> is where the user should select the account,
+ * where the new contact will be created.
+ * 
+ * @author Yana Stamcheva
+ */
 public class SelectAccountPanel extends JPanel {
     
     private JScrollPane tablePane = new JScrollPane();
@@ -59,6 +59,14 @@ public class SelectAccountPanel extends JPanel {
         = new JLabel(Messages.getString("selectProvidersWizardTitle"), 
                 JLabel.CENTER);
     
+    /**
+     * Creates and initializes the <tt>SelectAccountPanel</tt>.
+     * 
+     * @param newContact An object that collects all user choices through the
+     * wizard.
+     * @param protocolProvidersList The list of available 
+     * <tt>ProtocolProviderServices</tt>, from which the user could select.
+     */
     public SelectAccountPanel(NewContact newContact, 
             Iterator protocolProvidersList) {
         super(new BorderLayout());
@@ -87,6 +95,9 @@ public class SelectAccountPanel extends JPanel {
         this.tableInit();
     }  
     
+    /**
+     * Initializes the accounts table.
+     */
     private void tableInit(){
         
         accountsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
@@ -124,6 +135,11 @@ public class SelectAccountPanel extends JPanel {
         accountsTable.getCellEditor(0, 0).addCellEditorListener(l);
     }
     
+    /**
+     * Checks whether there is a selected check box in the table.
+     * @return <code>true</code> if any of the check boxes is selected,
+     * <code>false</code> otherwise.
+     */
     public boolean isCheckBoxSelected(){
         boolean isSelected = false;
         TableModel model = accountsTable.getModel();

@@ -12,6 +12,12 @@ import java.util.ArrayList;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
+/**
+ * The <tt>NewContact</tt> is meant to be used from the "Add Contact" wizard
+ * to collect all user choices through the wizard process.
+ * 
+ * @author Yana Stamcheva
+ */
 public class NewContact {
 
     private ArrayList protocolProviders = new ArrayList();
@@ -20,30 +26,61 @@ public class NewContact {
     
     private String uin = new String();
     
+    /**
+     * Adds a protocol provider to the list of protocol providers, where this
+     * contact will be added.
+     * 
+     * @param protocolProvider The <tt>ProtocolProviderService</tt> to add.
+     */
     public void addProtocolProvider(
             ProtocolProviderService protocolProvider) {
         protocolProviders.add(protocolProvider);
     }
     
+    /**
+     * Adds a group to the list of meta contact groups, where this contact will
+     * be added.
+     * 
+     * @param group The <tt>MetaContactGroup</tt> to add.
+     */
     public void addGroup(MetaContactGroup group) {
         groups.add(group);
     }
 
-    public String getUin() {
-        return uin;
-    }
-
+    /**
+     * Sets the identifier of the contact.
+     * @param uin The String identifier.
+     */
     public void setUin(String uin) {
         this.uin = uin;
     }
-
+    
+    /**
+     * Returns the identifier of the contact.
+     * 
+     * @return the identifier of the contact.
+     */
+    public String getUin() {
+        return uin;
+    }
+    
+    /**
+     * Returns a list of meta contact groups, where this contact should be
+     * added.
+     * @return a list of meta contact groups, where this contact should be
+     * added.
+     */
     public ArrayList getGroups() {
         return groups;
     }
 
+    /**
+     * Returns a list of protocol providers, where this contact should be
+     * added.
+     * @return a list of protocol providers, where this contact should be
+     * added.
+     */
     public ArrayList getProtocolProviders() {
         return protocolProviders;
     }
-    
-    
 }
