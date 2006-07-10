@@ -18,7 +18,8 @@ import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI {
+public class SIPCommCheckBoxMenuItemUI 
+    extends BasicCheckBoxMenuItemUI {
     /**
      * Creates a new SIPCommCheckBoxMenuItemUI instance.
      */
@@ -26,7 +27,7 @@ public class SIPCommCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI {
         return new SIPCommCheckBoxMenuItemUI();
     }
 
-    public void paint(Graphics g, JComponent c) {        
+    public void paint(Graphics g, JComponent c) {
         AntialiasingManager.activateAntialiasing(g);
         super.paint(g, c);        
     }

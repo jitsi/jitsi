@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -17,8 +16,6 @@ import javax.swing.plaf.BorderUIResource;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicBorders;
 import javax.swing.text.JTextComponent;
-
-import net.java.sip.communicator.slick.runner.SipCommunicatorSlickRunner;
 
 /**
  * SIPCommBorders is where all component borders used in the SIPComm L&F
@@ -32,7 +29,8 @@ public class SIPCommBorders {
      * The RoundBorder is common border which is used throughout the 
      * SIPComm L&F.
      */
-    public static class RoundBorder extends AbstractBorder implements UIResource{
+    public static class RoundBorder extends AbstractBorder
+        implements UIResource{
 
         private static final Insets insets = new Insets(2, 2, 2, 2);
 
@@ -62,9 +60,9 @@ public class SIPCommBorders {
     /**
      * Returns a border instance for a JTextField.
      */ 
-    public static Border getTextFieldBorder() {        
+    public static Border getTextFieldBorder() {
         if (textFieldBorder == null 
-            || !(textFieldBorder instanceof SIPCommBorders.TextFieldBorder)) {            
+            || !(textFieldBorder instanceof SIPCommBorders.TextFieldBorder)) {
             textFieldBorder =  new BorderUIResource.CompoundBorderUIResource(
                     new SIPCommBorders.TextFieldBorder(),
                     new BasicBorders.MarginBorder());

@@ -94,7 +94,7 @@ public class SIPCommButtonUI extends MetalButtonUI {
            
             leftImg = buttonBG.getSubimage(0, 0, 10, imgHeight);
             middleImg = buttonBG.getSubimage(10, 0, imgWidth-20, imgHeight);
-            rightImg = buttonBG.getSubimage(imgWidth-10, 0, 10, imgHeight);        
+            rightImg = buttonBG.getSubimage(imgWidth-10, 0, 10, imgHeight);
         }
         
         
@@ -139,13 +139,13 @@ public class SIPCommButtonUI extends MetalButtonUI {
                 2.0f));
         g2.setColor(Color.GRAY);
         g2.drawRoundRect((focusRect.x-3), (focusRect.y-3),
-                focusRect.width+4, focusRect.height+4, 5, 5);        
+                focusRect.width+4, focusRect.height+4, 5, 5);
     }
  
     /**
      * Overriden to do nothing.
      */
-    protected void paintButtonPressed(Graphics g, AbstractButton b){        
+    protected void paintButtonPressed(Graphics g, AbstractButton b){
     }
     
     

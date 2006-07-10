@@ -12,7 +12,6 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
@@ -34,31 +33,33 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
  */
 class SIPCommSplitPaneDivider extends BasicSplitPaneDivider {
 
-    private BufferedImage horizontalDivider = ImageLoader.getImage(ImageLoader.SPLITPANE_HORIZONTAL);
-    private BufferedImage verticalDivider = ImageLoader.getImage(ImageLoader.SPLITPANE_VERTICAL);
+    private BufferedImage horizontalDivider 
+        = ImageLoader.getImage(ImageLoader.SPLITPANE_HORIZONTAL);
+    private BufferedImage verticalDivider 
+        = ImageLoader.getImage(ImageLoader.SPLITPANE_VERTICAL);
     
     public SIPCommSplitPaneDivider(BasicSplitPaneUI ui) {
         super(ui);        
         setLayout(new DividerLayout());        
     }
     
-    public void paint(Graphics g) {        
+    public void paint(Graphics g) {
         Rectangle clip = g.getClipBounds();
         
         if(getOrientationFromSuper() == JSplitPane.VERTICAL_SPLIT)
             g.drawImage(horizontalDivider, 
-                        (getSize().width - horizontalDivider.getWidth(null))/2 , 
-                        clip.y + (getSize().height - horizontalDivider.getHeight(null))/2,
-                        horizontalDivider.getWidth(null), 
-                        horizontalDivider.getHeight(null),
-                        null);
+                (getSize().width - horizontalDivider.getWidth(null))/2 ,
+                clip.y + (getSize().height - horizontalDivider.getHeight(null))/2,
+                horizontalDivider.getWidth(null), 
+                horizontalDivider.getHeight(null),
+                null);
         else
             g.drawImage(verticalDivider, 
-                    clip.x + (getSize().width - verticalDivider.getWidth(null))/2 , 
-                    (getSize().height - verticalDivider.getHeight(null))/2,
-                    verticalDivider.getWidth(null), 
-                    verticalDivider.getHeight(null),
-                    null);
+                clip.x + (getSize().width - verticalDivider.getWidth(null))/2 ,
+                (getSize().height - verticalDivider.getHeight(null))/2,
+                verticalDivider.getWidth(null), 
+                verticalDivider.getHeight(null),
+                null);
         
         super.paint(g);
     }
@@ -269,16 +270,21 @@ class SIPCommSplitPaneDivider extends BasicSplitPaneDivider {
                   insets = new Insets(0 , 0, 0, 0);
                 }
                 if (orientation == JSplitPane.VERTICAL_SPLIT) {
-                  int blockSize = getDividerSize() - (insets.left + insets.right);
+                  int blockSize = getDividerSize() 
+                      - (insets.left + insets.right);
                   int y = (c.getSize().height - blockSize) / 2;
-                  leftButton.setBounds(insets.left + leftSize.width, y, leftSize.width, leftSize.height);
-                  rightButton.setBounds((insets.left * 2) + leftSize.width +
-                      rightSize.width, y, rightSize.width, rightSize.height);
+                  leftButton.setBounds(insets.left + leftSize.width, y, 
+                          leftSize.width, leftSize.height);
+                  rightButton.setBounds((insets.left * 2) + leftSize.width 
+                          + rightSize.width, y, rightSize.width, 
+                          rightSize.height);
                 }
                 else {
-                  int blockSize = getDividerSize() - (insets.top + insets.bottom);
+                  int blockSize = getDividerSize() 
+                      - (insets.top + insets.bottom);
                   int x = (c.getSize().width - blockSize) / 2;
-                  leftButton.setBounds(x, insets.top + leftSize.height, leftSize.width, leftSize.height);
+                  leftButton.setBounds(x, insets.top + leftSize.height,
+                          leftSize.width, leftSize.height);
                   rightButton.setBounds(x, (insets.top * 2) + leftSize.height +
                       rightSize.height, rightSize.width, rightSize.height);
                 }

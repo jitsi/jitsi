@@ -6,12 +6,10 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import javax.swing.GrayFilter;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.UIDefaults;
-import javax.swing.UIManager;
 import javax.swing.plaf.IconUIResource;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 

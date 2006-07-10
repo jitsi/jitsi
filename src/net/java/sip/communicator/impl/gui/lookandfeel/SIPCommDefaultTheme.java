@@ -101,13 +101,17 @@ public class SIPCommDefaultTheme
 
             "ScrollBar.width", new Integer(12),
             "ScrollBar.horizontalThumbIcon",
-                ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_HORIZONTAL),
+                ImageLoader.getImage(
+                        ImageLoader.SCROLLBAR_THUMB_HORIZONTAL),
             "ScrollBar.verticalThumbIcon",
-                ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_VERTICAL),
+                ImageLoader.getImage(
+                        ImageLoader.SCROLLBAR_THUMB_VERTICAL),
             "ScrollBar.horizontalThumbHandleIcon",
-                ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_HANDLE_HORIZONTAL),
+                ImageLoader.getImage(
+                        ImageLoader.SCROLLBAR_THUMB_HANDLE_HORIZONTAL),
             "ScrollBar.verticalThumbHandleIcon",
-                ImageLoader.getImage(ImageLoader.SCROLLBAR_THUMB_HANDLE_VERTICAL),
+                ImageLoader.getImage(
+                        ImageLoader.SCROLLBAR_THUMB_HANDLE_VERTICAL),
             "ScrollBar.trackHighlight", GRAY,
             "ScrollBar.highlight", LIGHT_GRAY,
             "ScrollBar.darkShadow", GRAY,

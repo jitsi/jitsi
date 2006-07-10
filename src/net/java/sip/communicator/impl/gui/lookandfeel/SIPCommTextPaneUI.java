@@ -11,7 +11,6 @@ import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicTextPaneUI;
-import javax.swing.text.JTextComponent;
 
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 

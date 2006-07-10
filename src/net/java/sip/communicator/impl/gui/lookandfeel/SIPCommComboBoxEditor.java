@@ -36,11 +36,14 @@ public class SIPCommComboBoxEditor extends MetalComboBoxEditor {
         editor.setBorder(new EditorBorder());        
     }
     
-    protected static Insets editorBorderInsets = new Insets(2, 2, 2, 0);
-    private static final Insets SAFE_EDITOR_BORDER_INSETS = new Insets(2, 2, 2, 0);
+    protected static Insets editorBorderInsets 
+        = new Insets(2, 2, 2, 0);
+    private static final Insets SAFE_EDITOR_BORDER_INSETS 
+        = new Insets(2, 2, 2, 0);
 
     class EditorBorder extends AbstractBorder {
-        public void paintBorder(Component c, Graphics g, int x, int y, int w, int h) {
+        public void paintBorder(Component c, Graphics g, 
+                int x, int y, int w, int h) {
             Graphics2D g2d = (Graphics2D)g;
             
             AntialiasingManager.activateAntialiasing(g2d);

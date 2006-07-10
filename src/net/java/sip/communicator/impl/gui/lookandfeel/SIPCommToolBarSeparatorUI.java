@@ -6,21 +6,13 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import javax.swing.JComponent;
-import javax.swing.JSeparator;
-import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicToolBarSeparatorUI;
-
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.utils.Constants;
 
 /**
  * SIPCommToolBarSeparatorUI implementation.
