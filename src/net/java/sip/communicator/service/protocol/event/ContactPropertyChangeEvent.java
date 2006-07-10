@@ -29,10 +29,10 @@ public class ContactPropertyChangeEvent
      * @param oldValue the value of the property before the change occurred.
      * @param newValue the value of the property after the change occurred.
      */
-    public ContactPropertyChangeEvent( Contact source,
-                                       String  propertyName,
-                                       Object  oldValue,
-                                       Object  newValue)
+    public ContactPropertyChangeEvent( Contact                 source,
+                                       String                  propertyName,
+                                       Object                  oldValue,
+                                       Object                  newValue)
     {
         super(source, propertyName, oldValue, newValue);
     }
@@ -45,5 +45,27 @@ public class ContactPropertyChangeEvent
     public Contact getSourceContact()
     {
         return (Contact)getSource();
+    }
+
+    /**
+     * Returns a reference to the protocol provider where the event has
+     * originated.
+     * <p>
+     * @return a reference to the ProtocolProviderService instance where this
+     * event originated.
+     */
+    public ProtocolProviderService getProtocolProvider()
+    {
+        return getSourceContact().getProtocolProvider();
+    }
+
+    /**
+     * Returns a reference to the source contact parent <tt>ContactGroup</tt>.
+     * @return a reference to the <tt>ContactGroup</tt> instance that contains
+     * the source <tt>Contact</tt>.
+     */
+    public ContactGroup getParentContactGroup()
+    {
+        return getSourceContact().getParentContactGroup();
     }
 }

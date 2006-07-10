@@ -1070,10 +1070,46 @@ public class OperationSetPersistentPresenceIcqImpl
                     listener.subscriptionRemoved(evt);
                 else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_FAILED)
                     listener.subscriptionFailed(evt);
-
             }
         }
     }
+
+    /**
+     * Notify all subscription listeners of the corresponding contact property
+     * change event.
+     *
+     * @param eventID the String ID of the event to dispatch
+     * @param sourceContact the ContactIcqImpl instance that this event is
+     * pertaining to.
+     * @param oldValue the value that the changed property had before the change
+     * occurred.
+     * @param newValue the value that the changed property currently has (after
+     * the change has occurred).
+     */
+    void fireContactPropertyChangeEvent( String               eventID,
+                                         ContactIcqImpl       sourceContact,
+                                         Object               oldValue,
+                                         Object               newValue)
+    {
+        ContactPropertyChangeEvent evt =
+            new ContactPropertyChangeEvent(sourceContact, eventID
+                                  , oldValue, newValue);
+
+        logger.debug("Dispatching a Contact Property Change Event to"
+                     +subscriptionListeners.size() + " listeners. Evt="+evt);
+
+        synchronized(subscriptionListeners){
+            Iterator listeners = subscriptionListeners.iterator();
+
+            while (listeners.hasNext())
+            {
+                SubscriptionListener listener =
+                    (SubscriptionListener) listeners.next();
+                listener.contactModified(evt);
+            }
+        }
+    }
+
 
     /**
      * Notify all subscription listeners of the corresponding event.
