@@ -18,10 +18,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
-import net.java.sip.communicator.impl.gui.events.ContainerPluginListener;
-import net.java.sip.communicator.impl.gui.events.PluginComponentEvent;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactWizardPage1;
@@ -32,10 +29,11 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.customcontrols.wizard.Wizard;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.impl.protocol.icq.ContactIcqImpl;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListException;
+import net.java.sip.communicator.service.gui.event.PluginComponentEvent;
+import net.java.sip.communicator.service.gui.event.PluginComponentListener;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
@@ -46,7 +44,7 @@ import net.java.sip.communicator.service.protocol.ProtocolProviderService;
  * @author Yana Stamcheva 
  */
 public class QuickMenu extends SIPCommToolBar implements ActionListener,
-        ContainerPluginListener {
+        PluginComponentListener {
 
     private JButton infoButton = new JButton(new ImageIcon(ImageLoader
             .getImage(ImageLoader.QUICK_MENU_INFO_ICON)));
