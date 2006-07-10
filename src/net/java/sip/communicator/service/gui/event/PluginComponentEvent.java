@@ -4,13 +4,16 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.events;
+package net.java.sip.communicator.service.gui.event;
 
 import java.util.EventObject;
 
-import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.gui.ContainerID;
 
+/**
+ * The <tt>PluginComponentEvent</tt> 
+ * @author Yana Stamcheva
+ */
 public class PluginComponentEvent
     extends EventObject{
 
@@ -29,12 +32,13 @@ public class PluginComponentEvent
     public static final int PLUGIN_COMPONENT_REMOVED = 2;
 
     /**
-     * Creates a new PluginComponentEvent according to the specified parameters.
+     * Creates a new PluginComponentEvent according to the specified
+     * parameters.
      * @param source The pluginComponent that is added to the container.
-     * @param containerID The containerID pointing to the container where the component 
-     * is added.
-     * @param eventID one of the PLUGIN_COMPONENT_XXX static fields indicating the
-     * nature of the event.
+     * @param containerID The containerID pointing to the container where the
+     * component is added.
+     * @param eventID one of the PLUGIN_COMPONENT_XXX static fields indicating
+     * the nature of the event.
      */
     public PluginComponentEvent(Object source, ContainerID containerID, int eventID) {
         super(source);

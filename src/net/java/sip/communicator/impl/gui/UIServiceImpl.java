@@ -17,8 +17,6 @@ import java.util.Vector;
 
 import javax.swing.JFrame;
 
-import net.java.sip.communicator.impl.gui.events.ContainerPluginListener;
-import net.java.sip.communicator.impl.gui.events.PluginComponentEvent;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
@@ -28,6 +26,8 @@ import net.java.sip.communicator.service.gui.DialogID;
 import net.java.sip.communicator.service.gui.ExportedDialog;
 import net.java.sip.communicator.service.gui.PopupDialog;
 import net.java.sip.communicator.service.gui.UIService;
+import net.java.sip.communicator.service.gui.event.PluginComponentEvent;
+import net.java.sip.communicator.service.gui.event.PluginComponentListener;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.util.Logger;
 
@@ -57,7 +57,7 @@ public class UIServiceImpl implements UIService {
     
     private static final Hashtable exportedDialogs = new Hashtable();
     static {        
-        exportedDialogs.put(UIService.DIALOG_MAIN_CONFIGURATION, 
+        exportedDialogs.put(UIService.DIALOG_CONFIGURATION, 
                 new ConfigurationFrame());
     }
     
@@ -167,7 +167,7 @@ public class UIServiceImpl implements UIService {
             Iterator listeners = this.containerPluginListeners.iterator();
 
             while (listeners.hasNext()) {
-                ContainerPluginListener l = (ContainerPluginListener) listeners
+                PluginComponentListener l = (PluginComponentListener) listeners
                         .next();
 
                 switch (evt.getEventID()) {
