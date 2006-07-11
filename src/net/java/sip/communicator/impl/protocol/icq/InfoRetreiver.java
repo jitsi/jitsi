@@ -40,10 +40,16 @@ public class InfoRetreiver
         this.ownerUin = ownerUin;
     }
 
-    // returns the user details from the specified class or its descendants
-    // the class is one from the
-    // net.java.sip.communicator.service.protocol.ServerStoredDetails
-    // or implemented one in the operation set for the user info
+    /**
+     * returns the user details from the specified class or its descendants
+     * the class is one from the
+     * net.java.sip.communicator.service.protocol.ServerStoredDetails
+     * or implemented one in the operation set for the user info
+     *
+     * @param uin String
+     * @param detailClass Class
+     * @return Iterator
+     */
     public Iterator getDetailsAndDescendants(String uin, Class detailClass)
     {
         Vector details = getContactDetails(uin);
@@ -60,8 +66,14 @@ public class InfoRetreiver
         return result.iterator();
     }
 
-    // returns the user details from the specified class
-    // exactly that class not its descendants
+    /**
+     * returns the user details from the specified class
+     * exactly that class not its descendants
+     *
+     * @param uin String
+     * @param detailClass Class
+     * @return Iterator
+     */
     public Iterator getDetails(String uin, Class detailClass)
     {
         Vector details = getContactDetails(uin);
@@ -78,8 +90,13 @@ public class InfoRetreiver
         return result.iterator();
     }
 
-    // request the full info for the given uin
-    // waits and return this details
+    /**
+     * request the full info for the given uin
+     * waits and return this details
+     *
+     * @param uin String
+     * @return Vector
+     */
     protected Vector getContactDetails(String uin)
     {
         Vector result = (Vector)retreivedDetails.get(uin);
@@ -122,7 +139,9 @@ public class InfoRetreiver
         return result;
     }
 
-    // waits for the last snac from the full info response sequence
+    /**
+     * waits for the last snac from the full info response sequence
+     */
     private class UserInfoResponseRetriever extends SnacRequestAdapter
     {
         int requestID;
@@ -152,7 +171,9 @@ public class InfoRetreiver
         }
     }
 
-    // wait for response of our ShorInfo Requests
+    /**
+     * wait for response of our ShorInfo Requests
+     */
     private class ShortInfoResponseRetriever extends SnacRequestAdapter
     {
         String nickname = null;
