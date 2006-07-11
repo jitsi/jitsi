@@ -1040,6 +1040,19 @@ public class TestOperationSetPresence
         }
     }
 
+    /**
+     * Authorization handler for the implementation tests
+     *
+     * 1. when authorization request is received we answer with the already set
+     * Authorization response, but before that wait some time as a normal user
+     *
+     * 2. When authorization request is required for adding buddy
+     * the request is made with already set authorization reason
+     *
+     * 3. When authorization replay is received - we store that it is received
+     * and the reason that was received
+     *
+     */
     private static class AuthEventCollector
         implements AuthorizationHandler
     {
@@ -1141,10 +1154,12 @@ public class TestOperationSetPresence
                 }
             }
         }
-
-
     }
 
+    /**
+     * Used to wait till buddy is removed from our contact list.
+     * Used in the authorization process tests
+     */
     private class UnsubscribeWait implements SubscriptionListener
     {
         public void waitForUnsubscribre(long waitFor)
@@ -1189,6 +1204,9 @@ public class TestOperationSetPresence
         logger.debug("Testing receive of authorization request!");
 
         // set first response isAccepted and responseString
+        // the first authorization process is negative
+        // the agent try to add us to his contact list and ask us for
+        // authorization but we deny him
         String firstRequestResponse = "First Request will be denied!!!";
         authEventCollector.responseToRequest = new AuthorizationResponse(AuthorizationResponse.REJECT, firstRequestResponse);
         logger.debug("authEventCollector " + authEventCollector);
@@ -1252,6 +1270,8 @@ public class TestOperationSetPresence
         fixture.testerAgent.deleteBuddy(fixture.ourAccountID);
 
         // set second response isAccepted and responseString
+        // the second test is the same as first, but this time we accept
+        // the request and check that everything is OK.
         String secondRequestResponse = "Second Request will be accepted!!!";
         authEventCollector.responseToRequest =
             new AuthorizationResponse(AuthorizationResponse.ACCEPT, secondRequestResponse);
