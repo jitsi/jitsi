@@ -178,25 +178,29 @@ public class ContactIcqImpl
      */
     public String getDisplayName()
     {
-        if(nickName != null)
-        {
+        String alias = joustSimBuddy.getAlias();
+
+        if(alias != null)
+            return nickName = alias;
+        else if (nickName != null)
             return nickName;
-        }
         else
         {
-            String alias = joustSimBuddy.getAlias();
-
             // if there is no alias we put this contact
             // for future update, as we may be not registered yet
-            if(alias == null)
-                ssclCallback.addContactForUpdate(this);
+            ssclCallback.addContactForUpdate(this);
 
-            nickName = alias == null ? getUIN() : alias;
-            return nickName;
+            return getUIN();
         }
     }
 
-    protected void setDisplayName(String nickname)
+    /**
+     * Used to set the nickname of the contact if it is update
+     * in the ContactList
+     *
+     * @param nickname String the value
+     */
+    protected void setNickname(String nickname)
     {
         this.nickName = nickname;
     }
@@ -268,10 +272,10 @@ public class ContactIcqImpl
     }
 
     /**
-     * Returns null as no persistent data is required and the contact address is
-     * sufficient for restoring the contact.
+     * Returns the persistent data - for now only the nickname is needed
+     * for restoring the contact data. Fields are properties separated by ;
      * <p>
-     * @return null as no such data is needed.
+     * @return the persistent data
      */
     public String getPersistentData()
     {
@@ -305,7 +309,6 @@ public class ContactIcqImpl
             String data[] = dataToks.nextToken().split("=");
             if(data[0].equals("nickname"))
             {
-                // here we must inform that nick has changed
                 nickName = data[1];
             }
         }
