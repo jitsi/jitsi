@@ -48,8 +48,7 @@ public class DefaultCmdFactory
 
         if (fromICQCmd.getType().equals(AbstractIcqCmd.CMD_META_SHORT_INFO_CMD))
         {
-            return null;
-//                  new MetaShortInfoCmd(fromICQCmd);
+            return new MetaShortInfoCmd(fromICQCmd);
         }
         else
         if(FullInfoCmd.isOfType(fromICQCmd.getType()))
