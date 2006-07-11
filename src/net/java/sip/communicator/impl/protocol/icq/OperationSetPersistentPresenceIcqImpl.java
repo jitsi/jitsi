@@ -433,8 +433,13 @@ public class OperationSetPersistentPresenceIcqImpl
                 "Argument is not an icq contact group (group="
                 + parentGroup + ")");
 
-        return ssContactList.createUnresolvedContact(
+        ContactIcqImpl contact =
+            ssContactList.createUnresolvedContact(
             (ContactGroupIcqImpl)parentGroup, new Screenname(address));
+
+        contact.setPersistentData(persistentData);
+
+        return contact;
     }
 
     /**
