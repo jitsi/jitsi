@@ -4,6 +4,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.kano.joscar.snaccmd.*;
 import net.kano.joustsim.oscar.oscar.service.ssi.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
+import java.util.*;
 
 /**
  * The ICQ implementation of the service.protocol.Contact interface.
@@ -19,6 +20,8 @@ public class ContactIcqImpl
     private ServerStoredContactListIcqImpl ssclCallback = null;
     private boolean isPersistent = false;
     private boolean isResolved = false;
+
+    private String nickName = null;
 
     /**
      * Creates an IcqContactImpl
@@ -175,10 +178,27 @@ public class ContactIcqImpl
      */
     public String getDisplayName()
     {
-        //temporarily return the uin as we don't have alias support in joust
-        //sim right now.
-        String alias = joustSimBuddy.getAlias();
-        return  alias == null? getUIN():alias;
+        if(nickName != null)
+        {
+            return nickName;
+        }
+        else
+        {
+            String alias = joustSimBuddy.getAlias();
+
+            // if there is no alias we put this contact
+            // for future update, as we may be not registered yet
+            if(alias == null)
+                ssclCallback.addContactForUpdate(this);
+
+            nickName = alias == null ? getUIN() : alias;
+            return nickName;
+        }
+    }
+
+    protected void setDisplayName(String nickname)
+    {
+        this.nickName = nickname;
     }
 
     /**
@@ -255,7 +275,7 @@ public class ContactIcqImpl
      */
     public String getPersistentData()
     {
-        return null;
+        return "nickname=" + getDisplayName() + ";";
     }
 
     /**
@@ -272,4 +292,22 @@ public class ContactIcqImpl
         return isResolved;
     }
 
+    public void setPersistentData(String persistentData)
+    {
+        if(persistentData == null)
+        {
+            return;
+        }
+
+        StringTokenizer dataToks = new StringTokenizer(persistentData, ";");
+        while(dataToks.hasMoreTokens())
+        {
+            String data[] = dataToks.nextToken().split("=");
+            if(data[0].equals("nickname"))
+            {
+                // here we must inform that nick has changed
+                nickName = data[1];
+            }
+        }
+    }
 }
