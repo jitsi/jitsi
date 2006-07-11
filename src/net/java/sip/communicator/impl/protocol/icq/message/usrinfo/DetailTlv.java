@@ -90,10 +90,9 @@ public class DetailTlv
         data = newData;
     }
 
-
     public String toString()
     {
-        StringBuilder result = new StringBuilder();
+        StringBuffer result = new StringBuffer();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try
