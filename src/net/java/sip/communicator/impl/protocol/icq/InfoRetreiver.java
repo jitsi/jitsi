@@ -23,15 +23,27 @@ public class InfoRetreiver
      */
     private ProtocolProviderServiceIcqImpl icqProvider = null;
 
+    // the uin of the account using us,
+    // used when sending commands for user info to the server
+    private String ownerUin = null;
+
+    // here is kept all the details retreived so far
     private Hashtable retreivedDetails = new Hashtable();
+
+    // used to generate request id when sending commands for retreiving user info
     private static int requestID = 0;
 
     protected InfoRetreiver
-        (ProtocolProviderServiceIcqImpl icqProvider)
+        (ProtocolProviderServiceIcqImpl icqProvider, String ownerUin)
     {
         this.icqProvider = icqProvider;
+        this.ownerUin = ownerUin;
     }
 
+    // returns the user details from the specified class or its descendants
+    // the class is one from the
+    // net.java.sip.communicator.service.protocol.ServerStoredDetails
+    // or implemented one in the operation set for the user info
     public Iterator getDetailsAndDescendants(String uin, Class detailClass)
     {
         Vector details = getContactDetails(uin);
@@ -48,6 +60,8 @@ public class InfoRetreiver
         return result.iterator();
     }
 
+    // returns the user details from the specified class
+    // exactly that class not its descendants
     public Iterator getDetails(String uin, Class detailClass)
     {
         Vector details = getContactDetails(uin);
@@ -64,7 +78,8 @@ public class InfoRetreiver
         return result.iterator();
     }
 
-
+    // request the full info for the given uin
+    // waits and return this details
     protected Vector getContactDetails(String uin)
     {
         Vector result = (Vector)retreivedDetails.get(uin);
@@ -81,7 +96,7 @@ public class InfoRetreiver
                 new UserInfoResponseRetriever(reqID);
 
             SnacCommand cmd = new ToIcqCmd(
-                toICQUin,
+                Long.parseLong(ownerUin),
                 infoRequest.getType(),
                 reqID,
                 infoRequest);
@@ -107,6 +122,7 @@ public class InfoRetreiver
         return result;
     }
 
+    // waits for the last snac from the full info response sequence
     private class UserInfoResponseRetriever extends SnacRequestAdapter
     {
         int requestID;
@@ -136,6 +152,27 @@ public class InfoRetreiver
         }
     }
 
+    // wait for response of our ShorInfo Requests
+    private class ShortInfoResponseRetriever extends SnacRequestAdapter
+    {
+        String nickname = null;
+
+        public void handleResponse(SnacResponseEvent e)
+        {
+            SnacCommand snac = e.getSnacCommand();
+
+            if (snac instanceof MetaShortInfoCmd)
+            {
+                MetaShortInfoCmd infoSnac = (MetaShortInfoCmd)snac;
+
+                nickname = infoSnac.getNickname();
+
+                synchronized(this){this.notifyAll();}
+            }
+        }
+    }
+
+
     /**
      * when detail is changed we remove it from the cache,
      * from retreivedDetails so the next time we want the details
@@ -146,5 +183,41 @@ public class InfoRetreiver
     protected void detailsChanged(String uin)
     {
         retreivedDetails.remove(uin);
+    }
+
+    /**
+     * Get the nickname of the specified uin
+     * @param uin String the uin
+     * @return String the nickname of the uin
+     */
+    public String getNickName(String uin)
+    {
+        ShortInfoResponseRetriever responseRetriever =
+                new ShortInfoResponseRetriever();
+
+        long longUin = Long.parseLong(uin);
+        MetaShortInfoRequest req = new MetaShortInfoRequest(longUin);
+
+        SnacCommand cmd = new ToIcqCmd(
+                        Long.parseLong(ownerUin),
+                        req.getType(),
+                        2,
+                        req);
+
+        icqProvider.getAimConnection().getInfoService()
+            .sendSnacRequest(cmd, responseRetriever);
+
+        synchronized(responseRetriever)
+        {
+            try{
+                responseRetriever.wait(30000);
+            }
+            catch (InterruptedException ex)
+            {
+                //we don't care
+            }
+        }
+
+        return responseRetriever.nickname;
     }
 }
