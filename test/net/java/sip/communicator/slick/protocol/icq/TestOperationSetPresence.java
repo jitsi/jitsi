@@ -1042,16 +1042,18 @@ public class TestOperationSetPresence
 
     /**
      * Authorization handler for the implementation tests
-     *
+     * <p>
      * 1. when authorization request is received we answer with the already set
      * Authorization response, but before that wait some time as a normal user
-     *
+     * </p>
+     * <p>
      * 2. When authorization request is required for adding buddy
      * the request is made with already set authorization reason
-     *
+     * </p>
+     * <p>
      * 3. When authorization replay is received - we store that it is received
      * and the reason that was received
-     *
+     * </p>
      */
     private static class AuthEventCollector
         implements AuthorizationHandler
