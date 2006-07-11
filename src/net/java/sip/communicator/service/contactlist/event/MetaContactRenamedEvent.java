@@ -35,7 +35,7 @@ public class MetaContactRenamedEvent
      */
     public String getNewDisplayName()
     {
-        return (String)getOldValue();
+        return (String)getNewValue();
     }
 
     /**
@@ -45,6 +45,6 @@ public class MetaContactRenamedEvent
      */
     public String getOldDisplayName()
     {
-        return (String)getNewValue();
+        return (String)getOldValue();
     }
 }
