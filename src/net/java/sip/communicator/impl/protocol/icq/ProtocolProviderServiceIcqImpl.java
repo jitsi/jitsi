@@ -76,6 +76,11 @@ public class ProtocolProviderServiceIcqImpl
     private AccountID accountID = null;
 
     /**
+     * Retrieves short or full user info, such as Name, Address, Nickname etc.
+     */
+    private InfoRetreiver infoRetreiver = null;
+
+    /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
      * currently in or null in case it is in a unknown state.
@@ -269,7 +274,7 @@ public class ProtocolProviderServiceIcqImpl
                 OperationSetTypingNotifications.class.getName(),
                 typingNotifications);
 
-            InfoRetreiver infoRetreiver = new InfoRetreiver(this);
+            this.infoRetreiver = new InfoRetreiver(this, screenname);
 
             OperationSetServerStoredContactInfo serverStoredContactInfo =
                 new OperationSetServerStoredContactInfoIcqImpl(infoRetreiver);
@@ -458,6 +463,11 @@ public class ProtocolProviderServiceIcqImpl
         }
 
         logger.trace("Done.");
+    }
+
+    InfoRetreiver getInfoRetreiver()
+    {
+        return infoRetreiver;
     }
 
     /**
