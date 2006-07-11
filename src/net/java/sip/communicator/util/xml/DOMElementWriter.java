@@ -124,7 +124,7 @@ public class DOMElementWriter {
 
             case Node.TEXT_NODE:
                 //if this is a new line don't print it as we print our own.
-                if(child.getNodeValue().indexOf(lSep) == -1)
+                if(child.getNodeValue() != null && child.getNodeValue().indexOf(lSep) == -1)
                     out.write(encode(child.getNodeValue()));
                 break;
 
