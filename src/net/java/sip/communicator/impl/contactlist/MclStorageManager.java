@@ -331,8 +331,12 @@ public class MclStorageManager
                                   , new FileWriter( this.contactlistFile));
     }
 
-    // update persistent data in the dom object model
-    // for the given metacontact and its contacts
+    /**
+     * update persistent data in the dom object model
+     * for the given metacontact and its contacts
+     *
+     * @param metaContact MetaContact target meta contact
+     */
     private void updatePersistentDataForMetaContact(MetaContact metaContact)
     {
         Element metaContactNode =
@@ -343,16 +347,28 @@ public class MclStorageManager
         {
             Contact item = (Contact)iter.next();
 
-            Element currentNode = XMLUtils.locateElement(
-                metaContactNode
-                , PROTO_CONTACT_NODE_NAME
-                , PROTO_CONTACT_ADDRESS_ATTR_NAME
-                , item.getAddress());
+            if(item.getPersistentData() != null)
+            {
+                Element currentNode = XMLUtils.locateElement(
+                    metaContactNode
+                    , PROTO_CONTACT_NODE_NAME
+                    , PROTO_CONTACT_ADDRESS_ATTR_NAME
+                    , item.getAddress());
 
-            Element persistentDataNode = XMLUtils.findChild(
-                        currentNode, PERSISTENT_DATA_NODE_NAME);
+                Element persistentDataNode = XMLUtils.findChild(
+                    currentNode, PERSISTENT_DATA_NODE_NAME);
 
-            XMLUtils.setText(persistentDataNode, item.getPersistentData());
+                // if node does not exist - create it
+                if (persistentDataNode == null)
+                {
+                    persistentDataNode = contactListDocument.createElement(
+                        PERSISTENT_DATA_NODE_NAME);
+
+                    currentNode.appendChild(persistentDataNode);
+                }
+
+                XMLUtils.setText(persistentDataNode, item.getPersistentData());
+            }
         }
     }
 
@@ -693,7 +709,7 @@ public class MclStorageManager
         Element persDataNode = contactListDocument.createElement(
                 PERSISTENT_DATA_NODE_NAME);
 
-        persDataNode.setTextContent(protoContact.getPersistentData());
+        XMLUtils.setText(persDataNode, protoContact.getPersistentData());
 
         protoContactElement.appendChild(persDataNode);
 
@@ -726,7 +742,7 @@ public class MclStorageManager
         Element persDataNode = contactListDocument.createElement(
                 PERSISTENT_DATA_NODE_NAME);
 
-        persDataNode.setTextContent(protoGroup.getPersistentData());
+        XMLUtils.setText(persDataNode, protoGroup.getPersistentData());
 
         protoGroupElement.appendChild(persDataNode);
 
