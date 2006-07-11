@@ -36,6 +36,7 @@ import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessag
 import net.java.sip.communicator.service.protocol.OperationSetPersistentPresence;
 import net.java.sip.communicator.service.protocol.OperationSetPresence;
 import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
+import net.java.sip.communicator.service.protocol.OperationSetWebContactInfo;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusChangeEvent;
 import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusListener;
@@ -78,6 +79,8 @@ public class MainFrame extends JFrame {
     private Hashtable imOperationSets = new Hashtable();
 
     private Hashtable tnOperationSets = new Hashtable();
+    
+    private Hashtable webContactInfoOperationSets = new Hashtable();
 
     private MetaContactListService contactList;
 
@@ -229,7 +232,8 @@ public class MainFrame extends JFrame {
                 //permits to search in the contact list
                 this.tabbedPane.getContactListPanel().getContactList()
                         .requestFocus();
-            } else if (key.equals(OperationSetBasicInstantMessaging.class
+            }
+            else if (key.equals(OperationSetBasicInstantMessaging.class
                     .getName())
                     || key.equals(OperationSetPresence.class.getName())) {
 
@@ -242,7 +246,8 @@ public class MainFrame extends JFrame {
                 //all received messages.
                 im.addMessageListener(this.getTabbedPane()
                         .getContactListPanel());
-            } else if (key.equals(OperationSetTypingNotifications.class
+            }
+            else if (key.equals(OperationSetTypingNotifications.class
                     .getName())) {
                 OperationSetTypingNotifications tn 
                     = (OperationSetTypingNotifications) value;
@@ -254,6 +259,13 @@ public class MainFrame extends JFrame {
                 //all received messages.
                 tn.addTypingNotificationsListener(this.getTabbedPane()
                         .getContactListPanel());
+            }
+            else if (key.equals(OperationSetWebContactInfo.class.getName())) {
+                OperationSetWebContactInfo wContactInfo
+                    = (OperationSetWebContactInfo) value;
+                
+                this.webContactInfoOperationSets
+                    .put(protocolProvider, wContactInfo);
             }
         }
     }
@@ -363,6 +375,21 @@ public class MainFrame extends JFrame {
                 .get(protocolProvider);
     }
 
+    /**
+     * Returns the Web Contact Info operation set for the given 
+     * protocol provider.
+     * 
+     * @param protocolProvider The protocol provider for which the TN 
+     * is searched.
+     * @return OperationSetWebContactInfo The Web Contact Info operation
+     * set for the given protocol provider.
+     */
+    public OperationSetWebContactInfo getWebContactInfo(
+            ProtocolProviderService protocolProvider) {
+        return (OperationSetWebContactInfo) this.webContactInfoOperationSets
+                .get(protocolProvider);
+    }
+    
     /**
      * Returns the main tabbed pane containing the contactlist, call list etc.
      * @return MainTabbedPane The main tabbed pane containing the 

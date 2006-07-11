@@ -28,11 +28,13 @@ import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContact
 import net.java.sip.communicator.impl.gui.main.customcontrols.MessageDialog;
 import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.utils.BrowserLauncher;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.protocol.Contact;
+import net.java.sip.communicator.service.protocol.OperationSetWebContactInfo;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
@@ -225,8 +227,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
         // Disable all menu items that do nothing.
         this.sendFileItem.setEnabled(false);
-        this.viewHistoryItem.setEnabled(false);
-        this.userInfoItem.setEnabled(false);        
+        this.viewHistoryItem.setEnabled(false);                
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -282,7 +283,17 @@ public class ContactRightButtonMenu extends JPopupMenu implements
             history.setVisible(true);
         } 
         else if (itemName.equalsIgnoreCase("userInfo")) {
-
+            Contact defaultContact = contactItem.getDefaultContact();
+            
+            ProtocolProviderService defaultProvider
+                = defaultContact.getProtocolProvider();
+            
+            OperationSetWebContactInfo wContactInfo 
+                = mainFrame.getWebContactInfo(defaultProvider);
+            
+            BrowserLauncher.openURL(
+                    wContactInfo.getWebContactInfo(defaultContact)
+                        .toString());
         }
         else if (mainFrame.getGroupByID(itemName) != null) {
             MetaContactGroup group = mainFrame.getGroupByID(itemName);

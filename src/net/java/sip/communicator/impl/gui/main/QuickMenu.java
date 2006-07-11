@@ -28,12 +28,15 @@ import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.NewContact
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.customcontrols.wizard.Wizard;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.utils.BrowserLauncher;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListException;
 import net.java.sip.communicator.service.gui.event.PluginComponentEvent;
 import net.java.sip.communicator.service.gui.event.PluginComponentListener;
+import net.java.sip.communicator.service.protocol.Contact;
+import net.java.sip.communicator.service.protocol.OperationSetWebContactInfo;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
@@ -106,8 +109,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
         this.infoButton.addActionListener(this);
 
         //Disable all buttons that do nothing.
-        //this.configureButton.setEnabled(false);
-        this.infoButton.setEnabled(false);
+        this.configureButton.setEnabled(false);        
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -222,7 +224,21 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
             }
         } 
         else if (buttonName.equals("info")) {
-
+            MetaContact selectedMetaContact = 
+                (MetaContact) mainFrame.getTabbedPane().getContactListPanel()
+                    .getContactList().getSelectedValue();
+            
+            Contact defaultContact = selectedMetaContact.getDefaultContact();
+            
+            ProtocolProviderService defaultProvider
+                = defaultContact.getProtocolProvider();
+            
+            OperationSetWebContactInfo wContactInfo 
+                = mainFrame.getWebContactInfo(defaultProvider);
+            
+            BrowserLauncher.openURL(
+                    wContactInfo.getWebContactInfo(defaultContact)
+                        .toString());
         }
     }
 
