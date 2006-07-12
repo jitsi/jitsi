@@ -71,9 +71,9 @@ public class TestAccountInvalidNotification extends TestCase
     public void failIcqTesterAgentMissing()
     {
         fail("The IcqTesterAgent on icq was not defined. "
-             +"(Possible reasons: account.properties file not found "
-             +"in lib directory. Please see wiki for advice on unit "
-             +"test setup.)");
+            +"Possible reasons: account.properties file not found "
+            +"in lib directory. Please see wiki for advice on unit "
+            +"test setup.");
     }
 
     /**
@@ -85,7 +85,8 @@ public class TestAccountInvalidNotification extends TestCase
     public void failIcqTesterAgentRegisterRejected()
     {
         fail("Registering the IcqTesterAgent on icq has failed. "
-             +"(Possible reasons: password not defined, authentification " +
-                "failed, or Connection rate limit exceeded.)");
+            +"Possible reasons: authentification failure (wrong ICQ "
+            +"account number, no password, wrong password), "
+            +"or Connection rate limit exceeded.");
     }
 }
