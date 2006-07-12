@@ -75,4 +75,17 @@ public class TestAccountInvalidNotification extends TestCase
              +"in lib directory. Please see wiki for advice on unit "
              +"test setup.)");
     }
+
+    /**
+     * This test is ONLY executed when icqProtocolProviderSlick.start()
+     * has failed to register with the icq service when providing
+     * the username and password defined in the account.properties file.
+     * It deliberately fails with a meaningful message.
+     */
+    public void failIcqTesterAgentRegisterRejected()
+    {
+        fail("Registering the IcqTesterAgent on icq has failed. "
+             +"(Possible reasons: password not defined, authentification " +
+                "failed, or Connection rate limit exceeded.)");
+    }
 }

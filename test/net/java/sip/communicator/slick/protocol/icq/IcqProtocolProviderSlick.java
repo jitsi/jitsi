@@ -65,7 +65,7 @@ public class IcqProtocolProviderSlick
         //store the bundle cache reference for usage by other others
         IcqSlickFixture.bc = bundleContext;
 
-        //identify our testing agent on icq - it MUST be defined.
+        // identify our testing agent on icq - it MUST be defined.
         String icqTestAgentName = System.getProperty(
                 TESTING_IMPL_ACCOUNT_ID_PROP_NAME, null);
         
@@ -75,54 +75,66 @@ public class IcqProtocolProviderSlick
             //it is defined, so register our testing agent on icq.
             IcqSlickFixture.testerAgent =
                     new IcqTesterAgent(icqTestAgentName);
-            if (!IcqSlickFixture.testerAgent.register(System.getProperty(
-                    TESTING_IMPL_PWD_PROP_NAME, null)))
-                throw new Exception(
-                    "Registering the IcqTesterAgent on icq has failed."
-                    +"(Possible reasons: authentification failed, or "
-                    +"Connection rate limit exceeded.)");
-            IcqSlickFixture.testerAgent.setAuthorizationRequired();
+            
+            // find out the password for the test agent on icq. It
+            // probably exists because we found the properties file above
+            String icqTestAgentPwd = System.getProperty(
+                    TESTING_IMPL_PWD_PROP_NAME, null);
+            
+            // .. and try to register the icq test agent (online)
+            if (IcqSlickFixture.testerAgent.register(icqTestAgentPwd)) {
+                IcqSlickFixture.testerAgent.setAuthorizationRequired();
 
-            //initialize the tested account's contact list so that
-            //it could be ready when testing starts.
-            initializeTestedContactList();
+                //initialize the tested account's contact list so that
+                //it could be ready when testing starts.
+                initializeTestedContactList();
 
 
-            //As Tested account is not registered here we send him a message.
-            //Message will be delivered offline
-            //receive test is in TestOperationSetBasicInstantMessaging.testReceiveOfflineMessages()
-            String offlineMsgBody =
-                "This is a Test Message. Supposed to be delivered as offline message!";
-            IcqSlickFixture.offlineMsgCollector =
-                    new IcqSlickFixture.OfflineMsgCollector();
-            IcqSlickFixture.offlineMsgCollector.setMessageText(offlineMsgBody);
-            IcqSlickFixture.testerAgent.sendOfflineMessage(
+                //As Tested account is not registered here we send him a message.
+                //Message will be delivered offline. receive test is in
+                // TestOperationSetBasicInstantMessaging.testReceiveOfflineMessages()
+                String offlineMsgBody =
+                        "This is a Test Message. "
+                        +"Supposed to be delivered as offline message!";
+                IcqSlickFixture.offlineMsgCollector =
+                        new IcqSlickFixture.OfflineMsgCollector();
+                IcqSlickFixture.offlineMsgCollector.setMessageText(offlineMsgBody);
+                IcqSlickFixture.testerAgent.sendOfflineMessage(
                     System.getProperty(TESTED_IMPL_ACCOUNT_ID_PROP_NAME, null),
                     offlineMsgBody
-            );
+                );
 
-            //First test account installation so that the service that has
-            //been installed by it gets tested by the rest of the tests.
-            addTest(TestAccountInstallation.suite());
+                //First test account installation so that the service that has
+                //been installed by it gets tested by the rest of the tests.
+                addTest(TestAccountInstallation.suite());
 
-            //This must remain second as that's where the protocol would be
-            //made to login/authenticate/signon its service provider.
-            addTest(TestProtocolProviderServiceIcqImpl.suite());
+                //This must remain second as that's where the protocol would be
+                //made to login/authenticate/signon its service provider.
+                addTest(TestProtocolProviderServiceIcqImpl.suite());
 
-            addTest(TestOperationSetPresence.suite());
+                addTest(TestOperationSetPresence.suite());
 
-            addTest(TestOperationSetPersistentPresence.suite());
+                addTest(TestOperationSetPersistentPresence.suite());
 
-            addTest(TestOperationSetBasicInstantMessaging.suite());
+                addTest(TestOperationSetBasicInstantMessaging.suite());
 
-            addTest(TestOperationSetTypingNotifications.suite());
+                addTest(TestOperationSetTypingNotifications.suite());
 
-            //This must remain last since it tests account uninstallation and
-            //the accounts we use for testing won't be available after that.
-            addTest(TestAccountUninstallation.suite());
+                //This must remain last since it tests account uninstallation and
+                //the accounts we use for testing won't be available after that.
+                addTest(TestAccountUninstallation.suite());
+            }
+            else {
+                // accounts.properties file exists - but register failed
+                // so install a single test to fail in a meaningful way
+                addTest(new TestAccountInvalidNotification(
+                        "failIcqTesterAgentRegisterRejected"));
+            }
         }
         else {
-            //install a single test to fail in a meaningful way
+            // accounts.properties file probably missing - it defines the
+            // two test accounts required for most unit tests
+            // so install a single test to fail in a meaningful way
             addTest(
                 new TestAccountInvalidNotification("failIcqTesterAgentMissing"));
 
