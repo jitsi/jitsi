@@ -562,6 +562,8 @@ public class ChatPanel extends JPanel
     }
 
     public void hideDialog() {
+        this.isVisible = false;
+        
         if(Constants.TABBED_CHAT_WINDOW) {
             this.chatWindow.removeChatTab(this);
         }

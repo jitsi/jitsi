@@ -239,6 +239,8 @@ public class ChatWindow extends JFrame {
      * @param chatPanel The chat panel to add.
      */
     public void addChatTab(ChatPanel chatPanel) {
+        chatPanel.setChatVisible(true);
+        
         String contactName = chatPanel.getDefaultContact().getDisplayName();
         PresenceStatus status = chatPanel.getPresenceStatus();
         
@@ -378,7 +380,7 @@ public class ChatWindow extends JFrame {
         this.close();
     }
 
-    public void removeChatTab(ChatPanel chatPanel) {
+    public void removeChatTab(ChatPanel chatPanel) {        
         this.chatTabbedPane.remove(chatPanel);
         this.contactChats.remove(chatPanel.getDefaultContact().getMetaUID());
         this.validate();
