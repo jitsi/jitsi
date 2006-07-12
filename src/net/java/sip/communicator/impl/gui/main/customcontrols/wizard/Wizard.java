@@ -42,26 +42,33 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     /**
      * The String-based action command for the 'Next' button.
      */    
-    public static final String NEXT_BUTTON_ACTION_COMMAND = "NextButtonActionCommand";
+    public static final String NEXT_BUTTON_ACTION_COMMAND
+        = "NextButtonActionCommand";
     /**
      * The String-based action command for the 'Back' button.
      */    
-    public static final String BACK_BUTTON_ACTION_COMMAND = "BackButtonActionCommand";
+    public static final String BACK_BUTTON_ACTION_COMMAND
+        = "BackButtonActionCommand";
     /**
      * The String-based action command for the 'Cancel' button.
      */    
-    public static final String CANCEL_BUTTON_ACTION_COMMAND = "CancelButtonActionCommand";
+    public static final String CANCEL_BUTTON_ACTION_COMMAND
+        = "CancelButtonActionCommand";
         
 
-    // The i18n text used for the buttons. Loaded from a property resource file.    
-    
+    /**
+     *  The i18n text used for the buttons. Loaded from a property resource
+     *  file.
+     */
     static String BACK_TEXT;
     static String NEXT_TEXT;
     static String FINISH_TEXT;
     static String CANCEL_TEXT;
 
-    // The image icons used for the buttons. Filenames are loaded from a property resource file.    
-
+    /**
+     *  The image icons used for the buttons. Filenames are loaded from a
+     *  property resource file.
+     */
     static Icon BACK_ICON;
     static Icon NEXT_ICON;
     static Icon FINISH_ICON;
@@ -83,8 +90,8 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     
     
     /**
-     * Default constructor. This method creates a new WizardModel object and passes it
-     * into the overloaded constructor.
+     * Default constructor. This method creates a new WizardModel object and
+     * passes it into the overloaded constructor.
      */    
     public Wizard() {
         this((Frame)null);
@@ -104,7 +111,8 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     /**
      * This method accepts a java.awt.Frame object as the javax.swing.JDialog's
      * parent.
-     * @param owner The java.awt.Frame object that is the owner of the javax.swing.JDialog.
+     * @param owner The java.awt.Frame object that is the owner of the
+     * javax.swing.JDialog.
      */    
     public Wizard(Frame owner) {
         wizardModel = new WizardModel();
@@ -113,8 +121,9 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     }
     
     /**
-     * Returns an instance of the JDialog that this class created. This is useful in
-     * the event that you want to change any of the JDialog parameters manually.
+     * Returns an instance of the JDialog that this class created.This is useful
+     * in the event that you want to change any of the JDialog parameters
+     * manually. 
      * @return The JDialog instance that this class created.
      */    
     public JDialog getDialog() {
@@ -123,7 +132,8 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     
     /**
      * Returns the owner of the generated javax.swing.JDialog.
-     * @return The owner (java.awt.Frame or java.awt.Dialog) of the javax.swing.JDialog generated
+     * @return The owner (java.awt.Frame or java.awt.Dialog) of the
+     * javax.swing.JDialog generated
      * by this class.
      */    
     public Component getOwner() {
@@ -156,17 +166,18 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     
     /**
      * Returns the modality of the dialog.
-     * @return A boolean indicating whether or not the generated javax.swing.JDialog is modal.
+     * @return A boolean indicating whether or not the generated
+     * javax.swing.JDialog is modal.
      */    
     public boolean isModal() {
         return wizardDialog.isModal();
     }
     
     /**
-     * Convienence method that displays a modal wizard dialog and blocks until the dialog
-     * has completed.
-     * @return Indicates how the dialog was closed. Compare this value against the RETURN_CODE
-     * constants at the beginning of the class.
+     * Convienence method that displays a modal wizard dialog and blocks until
+     * the dialog has completed.
+     * @return Indicates how the dialog was closed. Compare this value against
+     * the RETURN_CODE constants at the beginning of the class.
      */    
     public int showModalDialog() {
         
@@ -179,7 +190,8 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     
     /**
      * Returns the current model of the wizard dialog.
-     * @return A WizardModel instance, which serves as the model for the wizard dialog.
+     * @return A WizardModel instance, which serves as the model for the
+     * wizard dialog.
      */    
     public WizardModel getModel() {
         return wizardModel;
@@ -187,11 +199,13 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     
     /**
      * Add a Component as a panel for the wizard dialog by registering its
-     * WizardPanelDescriptor object. Each panel is identified by a unique Object-based
-     * identifier (often a String), which can be used by the setCurrentPanel()
-     * method to display the panel at runtime.
-     * @param id An Object-based identifier used to identify the WizardPanelDescriptor object.
-     * @param panel The WizardPanelDescriptor object which contains helpful information about the panel.
+     * WizardPanelDescriptor object. Each panel is identified by a unique
+     * Object-based identifier (often a String), which can be used by the
+     * setCurrentPanel() method to display the panel at runtime.
+     * @param id An Object-based identifier used to identify the
+     * WizardPanelDescriptor object.
+     * @param panel The WizardPanelDescriptor object which contains helpful
+     * information about the panel.
      */    
     public void registerWizardPanel(Object id, WizardPanelDescriptor panel) {
         
@@ -211,8 +225,8 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     }  
     
     /**
-     * Displays the panel identified by the object passed in. This is the same Object-based
-     * identified used when registering the panel.
+     * Displays the panel identified by the object passed in. This is the same
+     * Object-based identified used when registering the panel.
      * @param id The Object-based identifier of the panel to be displayed.
      */    
     public void setCurrentPanel(Object id) {
@@ -224,7 +238,8 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
         if (id == null)
             close(ERROR_RETURN_CODE);
         
-        WizardPanelDescriptor oldPanelDescriptor = wizardModel.getCurrentPanelDescriptor();
+        WizardPanelDescriptor oldPanelDescriptor
+            = wizardModel.getCurrentPanelDescriptor();
         if (oldPanelDescriptor != null)
             oldPanelDescriptor.aboutToHidePanel();
         
@@ -240,31 +255,42 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     }
     
     /**
-     * Method used to listen for property change events from the model and update the
-     * dialog's graphical components as necessary.
-     * @param evt PropertyChangeEvent passed from the model to signal that one of its properties has changed value.
+     * Method used to listen for property change events from the model and
+     * update the dialog's graphical components as necessary.
+     * @param evt PropertyChangeEvent passed from the model to signal that one
+     * of its properties has changed value.
      */    
     public void propertyChange(PropertyChangeEvent evt) {
         
-        if (evt.getPropertyName().equals(WizardModel.CURRENT_PANEL_DESCRIPTOR_PROPERTY)) {
-            wizardController.resetButtonsToPanelRules(); 
-        } else if (evt.getPropertyName().equals(WizardModel.NEXT_FINISH_BUTTON_TEXT_PROPERTY)) {            
+        if (evt.getPropertyName().equals(
+                WizardModel.CURRENT_PANEL_DESCRIPTOR_PROPERTY)) {
+            wizardController.resetButtonsToPanelRules();
+        } else if (evt.getPropertyName().equals(
+                WizardModel.NEXT_FINISH_BUTTON_TEXT_PROPERTY)) {
             nextButton.setText(evt.getNewValue().toString());
-        } else if (evt.getPropertyName().equals(WizardModel.BACK_BUTTON_TEXT_PROPERTY)) {            
+        } else if (evt.getPropertyName().equals(
+                WizardModel.BACK_BUTTON_TEXT_PROPERTY)) {
             backButton.setText(evt.getNewValue().toString());
-        } else if (evt.getPropertyName().equals(WizardModel.CANCEL_BUTTON_TEXT_PROPERTY)) {            
+        } else if (evt.getPropertyName().equals(
+                WizardModel.CANCEL_BUTTON_TEXT_PROPERTY)) {
             cancelButton.setText(evt.getNewValue().toString());
-        } else if (evt.getPropertyName().equals(WizardModel.NEXT_FINISH_BUTTON_ENABLED_PROPERTY)) {            
+        } else if (evt.getPropertyName().equals(
+                WizardModel.NEXT_FINISH_BUTTON_ENABLED_PROPERTY)) {
             nextButton.setEnabled(((Boolean)evt.getNewValue()).booleanValue());
-        } else if (evt.getPropertyName().equals(WizardModel.BACK_BUTTON_ENABLED_PROPERTY)) {            
+        } else if (evt.getPropertyName().equals(
+                WizardModel.BACK_BUTTON_ENABLED_PROPERTY)) {
             backButton.setEnabled(((Boolean)evt.getNewValue()).booleanValue());
-        } else if (evt.getPropertyName().equals(WizardModel.CANCEL_BUTTON_ENABLED_PROPERTY)) {            
+        } else if (evt.getPropertyName().equals(
+                WizardModel.CANCEL_BUTTON_ENABLED_PROPERTY)) {
             cancelButton.setEnabled(((Boolean)evt.getNewValue()).booleanValue());
-        } else if (evt.getPropertyName().equals(WizardModel.NEXT_FINISH_BUTTON_ICON_PROPERTY)) {            
+        } else if (evt.getPropertyName().equals(
+                WizardModel.NEXT_FINISH_BUTTON_ICON_PROPERTY)) {
             nextButton.setIcon((Icon)evt.getNewValue());
-        } else if (evt.getPropertyName().equals(WizardModel.BACK_BUTTON_ICON_PROPERTY)) {            
+        } else if (evt.getPropertyName().equals(
+                WizardModel.BACK_BUTTON_ICON_PROPERTY)) {
             backButton.setIcon((Icon)evt.getNewValue());
-        } else if (evt.getPropertyName().equals(WizardModel.CANCEL_BUTTON_ICON_PROPERTY)) {            
+        } else if (evt.getPropertyName().equals(
+                WizardModel.CANCEL_BUTTON_ICON_PROPERTY)) {
             cancelButton.setIcon((Icon)evt.getNewValue());
         }
         
@@ -272,8 +298,8 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     
     /**
      * Retrieves the last return code set by the dialog.
-     * @return An integer that identifies how the dialog was closed. See the *_RETURN_CODE
-     * constants of this class for possible values.
+     * @return An integer that identifies how the dialog was closed. See the
+     * RETURN_CODE constants of this class for possible values.
      */    
     public int getReturnCode() {
         return returnCode;
@@ -332,7 +358,8 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
      * @param code The return code.
      */    
     void close(int code) {
-        WizardPanelDescriptor oldPanelDescriptor = wizardModel.getCurrentPanelDescriptor();
+        WizardPanelDescriptor oldPanelDescriptor 
+            = wizardModel.getCurrentPanelDescriptor();
         if (oldPanelDescriptor != null)
             oldPanelDescriptor.aboutToHidePanel();
         
@@ -341,9 +368,9 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     }
     
     /**
-     * This method initializes the components for the wizard dialog: it creates a JDialog
-     * as a CardLayout panel surrounded by a small amount of space on each side, as well
-     * as three buttons at the bottom.
+     * This method initializes the components for the wizard dialog: it creates
+     * a JDialog as a CardLayout panel surrounded by a small amount of space on
+     * each side, as well as three buttons at the bottom.
      */
     
     private void initComponents() {
@@ -354,10 +381,12 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
         wizardDialog.getContentPane().setLayout(new BorderLayout());
         wizardDialog.addWindowListener(this);
                 
-        //  Create the outer wizard panel, which is responsible for three buttons:
-        //  Next, Back, and Cancel. It is also responsible a JPanel above them that
-        //  uses a CardLayout layout manager to display multiple panels in the 
-        //  same spot.
+        /*
+         * Create the outer wizard panel, which is responsible for three 
+         * buttons: Next, Back, and Cancel. It is also responsible a JPanel
+         * above them that uses a CardLayout layout manager to display multiple
+         * panels in the same spot.
+         */
         
         JPanel buttonPanel = new JPanel();
         JSeparator separator = new JSeparator();
@@ -398,8 +427,10 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
         
         buttonPanel.add(buttonBox, java.awt.BorderLayout.EAST);
         
-        wizardDialog.getContentPane().add(buttonPanel, java.awt.BorderLayout.SOUTH);
-        wizardDialog.getContentPane().add(cardPanel, java.awt.BorderLayout.CENTER);
+        wizardDialog.getContentPane().add(
+                buttonPanel, java.awt.BorderLayout.SOUTH);
+        wizardDialog.getContentPane().add(
+                cardPanel, java.awt.BorderLayout.CENTER);
 
     }
     
@@ -412,8 +443,7 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
     public void windowClosing(WindowEvent e) {
         returnCode = CANCEL_RETURN_CODE;
     }
-    
-    
+     
     
     static {
         try {
@@ -424,7 +454,7 @@ public class Wizard extends WindowAdapter implements PropertyChangeListener {
             BACK_TEXT = (String)(resources.getObject("backButtonText"));
             NEXT_TEXT = (String)(resources.getObject("nextButtonText"));
             CANCEL_TEXT = (String)(resources.getObject("cancelButtonText"));
-            FINISH_TEXT = (String)(resources.getObject("finishButtonText"));            
+            FINISH_TEXT = (String)(resources.getObject("finishButtonText"));
         } catch (MissingResourceException mre) {
             System.out.println(mre);
             System.exit(1);

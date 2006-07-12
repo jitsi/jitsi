@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.ImageIcon;
@@ -25,6 +24,13 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
+/**
+ * The GroupRightButtonMenu is the menu, opened when user clicks with the
+ * right mouse button on a group in the contact list. Through this menu the
+ * user could add a contact to a group.
+ * 
+ * @author Yana Stamcheva
+ */
 public class GroupRightButtonMenu extends JPopupMenu
     implements ActionListener {
 
@@ -34,6 +40,12 @@ public class GroupRightButtonMenu extends JPopupMenu
     
     private MainFrame mainFrame;
     
+    /**
+     * Creates an instance of GroupRightButtonMenu.
+     * 
+     * @param mainFrame The parent <tt>MainFrame</tt> window. 
+     * @param group The <tt>MetaContactGroup</tt> for which the menu is opened.
+     */
     public GroupRightButtonMenu(MainFrame mainFrame,
             MetaContactGroup group) {
         
@@ -62,6 +74,13 @@ public class GroupRightButtonMenu extends JPopupMenu
             this.addContactMenu.add(menuItem);
         }
     }
+    
+    /**
+     * Handles the <tt>ActionEvent</tt>. The choosen menu item should correspond
+     * to an account, where the new contact will be added. We obtain here the
+     * protocol provider corresponding to the choosen account and show the
+     * dialog, where the user could add the contact.
+     */
     public void actionPerformed(ActionEvent e) {
         JMenuItem item = (JMenuItem)e.getSource();
         String itemText = item.getText();
@@ -70,8 +89,8 @@ public class GroupRightButtonMenu extends JPopupMenu
             ProtocolProviderService pps 
                 = mainFrame.getProtocolProviderForAccount(itemText);
             
-            AddContactDialog dialog = new AddContactDialog(mainFrame.getContactList(),
-                    group, pps);
+            AddContactDialog dialog = new AddContactDialog(
+                    mainFrame.getContactList(), group, pps);
             
             dialog.setLocation(
                     Toolkit.getDefaultToolkit().getScreenSize().width/2 

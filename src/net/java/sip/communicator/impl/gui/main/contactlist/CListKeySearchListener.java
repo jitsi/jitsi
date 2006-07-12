@@ -7,22 +7,34 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-import javax.swing.AbstractAction;
 import javax.swing.text.Position;
 
-import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 
 /**
- * Search the ContactList by typing a letter.
- *
+ * The main goal of the <tt>CListKeySearchListener</tt> is to listen for key
+ * events and to search the ContactList when a key is typed over it. It selects
+ * the Contact name closest to the typed string. 
+ * 
+ * The time between two button presses is checked to determine whether the user
+ * makes a new search or a continious search. When user types the same letter
+ * consecutively the search mechanism selects the next Contact name starting
+ * with the same letter.
+ * 
+ * The <tt>CListKeySearchListener</tt> is added to the <tt>MainFrame</tt> and
+ * the <tt>ContactListPanel</tt> to provide a search functionality over the
+ * contact list when one of them is focused.
+ * 
+ * The 'space' key, the '+' and the '-' keys are proccess seperately to provide
+ * another functionality completely different from the search. When user types
+ * a '-' or 'space' and there's currently a group selected, the selected group
+ * is closed. When user types '+' the selected group is opened.
+ *  
  * @author Yana Stamcheva
- *
  */
 public class CListKeySearchListener implements KeyListener {
 
@@ -49,6 +61,14 @@ public class CListKeySearchListener implements KeyListener {
     public void keyReleased(KeyEvent e) {
     }
 
+    /**
+     * Searches the contact list when any key, different from "space", "+" or
+     * "-" is typed. Selects the Contact name closest to the typed string. The
+     * time between two button presses is checked to determine whether the user
+     * makes a new search or a continious search. When user types the same
+     * letter consecutively the search mechanism selects the next Contact name
+     * starting with the same letter.
+     */
     public void keyTyped(KeyEvent e) {
         long eventTimestamp = e.getWhen();
         String keyChar = String.valueOf(e.getKeyChar());

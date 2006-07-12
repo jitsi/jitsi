@@ -23,12 +23,12 @@ import net.java.sip.communicator.service.protocol.PresenceStatus;
 
 /**
  * The list model of the ContactList. This class use as a data model the
- * MetaContactListService itself. The ContactListModel plays only the role of
- * a "list" face of the "tree" MetaContactListService structure. It provides
- * an implementation of the AbstractListModel and adds some methods facilitating
- * the access to the contact list. Some more contact list specific methods are
- * added like: getMetaContactStatus, getMetaContactStatusIcon,
- * changeContactStatus, etc.
+ * <tt>MetaContactListService</tt> itself. The <tt>ContactListModel</tt>
+ * plays only a role of a "list" face of the "tree" MetaContactListService
+ * structure. It provides an implementation of the AbstractListModel and adds
+ * some methods facilitating the access to the contact list. Some more contact
+ * list specific methods are added like: getMetaContactStatus,
+ * getMetaContactStatusIcon, changeContactStatus, etc.
  * 
  * @author Yana Stamcheva
  *

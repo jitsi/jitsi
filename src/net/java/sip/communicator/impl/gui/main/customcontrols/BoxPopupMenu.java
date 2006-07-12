@@ -14,6 +14,10 @@ import java.awt.Point;
 import javax.swing.JPopupMenu;
 
 /**
+ * The <tt>BoxPopupMenu</tt> is a <tt>JPopupMenu</tt>, which orders its
+ * components in a grid, where the column and row count are determined from
+ * the total items count in order to have a grid closest to square.
+ * 
  * @author Yana Stamcheva
  */
 public class BoxPopupMenu extends JPopupMenu {
@@ -28,6 +32,12 @@ public class BoxPopupMenu extends JPopupMenu {
         super();
     }
 
+    /**
+     * Creates an instance of <tt>BoxPopupMenu</tt>.
+     * 
+     * @param itemsCount The count of components that will be added to
+     * the grid.
+     */
     public BoxPopupMenu(int itemsCount) {
 
         this.itemsCount = itemsCount;
@@ -48,6 +58,13 @@ public class BoxPopupMenu extends JPopupMenu {
         this.gridColCount = (int) Math.round(this.itemsCount / gridRowCount);
     }
 
+    /**
+     * Returns the location of the popup depending on the invoking component
+     * coordinates.
+     * 
+     * @return the location of the popup depending on the invoking component
+     * coordinates.
+     */
     public Point getPopupLocation() {
         Component component = this.getInvoker();
 
@@ -69,6 +86,11 @@ public class BoxPopupMenu extends JPopupMenu {
         return point;
     }
 
+    /**
+     * Sets the count of components that will be added to the grid.
+     * 
+     * @param itemsCount the count of components that will be added to the grid.
+     */
     public void setItemsCount(int itemsCount) {
 
         this.itemsCount = itemsCount;
@@ -79,6 +101,10 @@ public class BoxPopupMenu extends JPopupMenu {
                 5));
     }
 
+    /**
+     * Returns the count of components that will be added to the grid.
+     * @return the count of components that will be added to the grid.
+     */
     public int getItemsCount() {
         return itemsCount;
     }

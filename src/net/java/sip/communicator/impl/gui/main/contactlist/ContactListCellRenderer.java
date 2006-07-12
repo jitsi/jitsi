@@ -26,6 +26,8 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
@@ -36,16 +38,16 @@ import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.protocol.Contact;
 
 /**
- * The ContactListCellRenderer is the custom cell renderer set to the
- * SIP-Communicator's contactlist. It extends JPanel instead of JLabel,
+ * The <tt>ContactListCellRenderer</tt> is the custom cell renderer used in the
+ * SIP-Communicator's <tt>ContactList</tt>. It extends JPanel instead of JLabel,
  * which allows adding different buttons and icons to the contact cell.
- * The cell border and background are also repainted. 
+ * The cell border and background are repainted. 
  * 
  * @author Yana Stamcheva
  */
 public class ContactListCellRenderer extends JPanel 
     implements ListCellRenderer {
-
+      
     private JLabel nameLabel = new JLabel();
 
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,
@@ -78,10 +80,16 @@ public class ContactListCellRenderer extends JPanel
         this.nameLabel.setIconTextGap(2);
         
         this.nameLabel.setPreferredSize(new Dimension(10, 17));
-        
+                
         this.add(nameLabel, BorderLayout.CENTER);
     }
 
+    /**
+     * Implements the <tt>ListCellRenderer</tt> method.
+     * 
+     * Returns this panel that has been configured to display the meta contact
+     * and meta contact group cells.
+     */
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus) {
 
@@ -108,8 +116,7 @@ public class ContactListCellRenderer extends JPanel
             this.setBounds(0, 0, list.getWidth() - 2, 17);
 
             this.buttonsPanel.removeAll();
-            // this.buttonsPanel.add(extendPanelButton);
-
+            
             Iterator i = contactItem.getContacts();
             int buttonsPanelWidth = 0;
             while (i.hasNext()) {
@@ -175,6 +182,10 @@ public class ContactListCellRenderer extends JPanel
         return this;
     }
 
+    /**
+     * Paint a background for all groups and a round blue border and background
+     * when a cell is selected. 
+     */
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
@@ -198,9 +209,5 @@ public class ContactListCellRenderer extends JPanel
             g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1,
                     7, 7);
         }
-    }
-
-    public SIPCommButton getExtendPanelButton() {
-        return extendPanelButton;
-    }
+    }   
 }

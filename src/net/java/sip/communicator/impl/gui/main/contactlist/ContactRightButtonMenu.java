@@ -11,8 +11,6 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;
@@ -38,8 +36,9 @@ import net.java.sip.communicator.service.protocol.OperationSetWebContactInfo;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
- * The ContactRightButtonMenu is the menu, which the user could open by clicking
- * on a contact in the contact list with the right button of the mouse.
+ * The ContactRightButtonMenu is the menu, opened when user clicks with the
+ * right mouse button on a contact in the contact list. Through this menu the
+ * user could add a subcontact, remove a contact, send message, etc. 
  * 
  * @author Yana Stamcheva
  */
@@ -230,13 +229,17 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         this.viewHistoryItem.setEnabled(false);                
     }
 
-    public void actionPerformed(ActionEvent e) {
+    /**
+     * Handles the <tt>ActionEvent</tt>. Determines which menu item was
+     * selected and makes the appropriate operations.
+     */
+    public void actionPerformed(ActionEvent e){
 
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
         String itemText = menuItem.getText();
         
-        if(mainFrame.getProtocolProviderForAccount(itemText) != null) {
+        if (mainFrame.getProtocolProviderForAccount(itemText) != null) {
             ProtocolProviderService pps 
                 = mainFrame.getProtocolProviderForAccount(itemText);
             
@@ -338,10 +341,12 @@ public class ContactRightButtonMenu extends JPopupMenu implements
                 int returnCode = dialog.showDialog();
                 
                 if (returnCode == MessageDialog.OK_RETURN_CODE) {
-                    this.mainFrame.getContactList().removeMetaContact(contactItem);
+                    this.mainFrame.getContactList()
+                        .removeMetaContact(contactItem);
                 }
                 else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
-                    this.mainFrame.getContactList().removeMetaContact(contactItem);
+                    this.mainFrame.getContactList()
+                        .removeMetaContact(contactItem);
                     
                     Constants.REMOVE_CONTACT_ASK = false;
                 }
@@ -352,6 +357,14 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         }
     }
     
+    /**
+     * Obtains the <tt>Contact</tt> corresponding to the given address
+     * identifier.
+     * 
+     * @param itemID The address of the <tt>Contact</tt>.
+     * @return the <tt>Contact</tt> corresponding to the given address
+     * identifier.
+     */
     private Contact getContactFromMetaContact(String itemID) {
         Iterator i = contactItem.getContacts();
         

@@ -7,13 +7,15 @@
 
 package net.java.sip.communicator.impl.gui.main.customcontrols.wizard;
 
-import java.io.*;
-
+/**
+ * A <tt>RuntimeException</tt>, which is thrown if the wizard doesn't find
+ * the panel corresponding to a given <tt>WizardPanelDescriptor</tt>.
+ * 
+ * @author Yana Stamcheva
+ */
 public class WizardPanelNotFoundException extends RuntimeException {
         
     public WizardPanelNotFoundException() {
         super();
     }
-     
-    
 }

@@ -13,23 +13,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-
-import com.ibm.media.bean.multiplayer.ImageLabel;
 
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.RenameContactPanel;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
+/**
+ * The <tt>RenameContactDialog</tt> is the dialog containing the form for
+ * renaming a contact. 
+ * 
+ * @author Yana Stamcheva
+ */
 public class RenameContactDialog extends JDialog
     implements ActionListener {
 
@@ -48,6 +46,12 @@ public class RenameContactDialog extends JDialog
     
     private MetaContact metaContact;
         
+    /**
+     * Creates an instance of <tt>RenameContactDialog</tt>.
+     * 
+     * @param clist The <tt>MetaContactListService</tt>.
+     * @param metaContact The <tt>MetaContact</tt> to rename.
+     */
     public RenameContactDialog(MetaContactListService clist,
             MetaContact metaContact) {
         
@@ -59,6 +63,10 @@ public class RenameContactDialog extends JDialog
         this.init();
     }
     
+    /**
+     * Initializes the <tt>RenameContactDialog</tt> by adding the buttons,
+     * fields, etc.
+     */
     private void init() {
         this.setTitle(Messages.getString("renameContact"));
         
@@ -81,6 +89,11 @@ public class RenameContactDialog extends JDialog
         this.getContentPane().add(mainPanel);
     }
     
+    /**
+     * Handles the <tt>ActionEvent</tt>. In order to rename the contact invokes
+     * the <code>renameMetaContact</code> method of the current
+     * <tt>MetaContactListService</tt>.
+     */
     public void actionPerformed(ActionEvent e) {
         JButton button = (JButton)e.getSource();
         String name = button.getName();

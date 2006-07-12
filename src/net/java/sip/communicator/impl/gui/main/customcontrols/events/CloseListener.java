@@ -13,7 +13,7 @@ package net.java.sip.communicator.impl.gui.main.customcontrols.events;
  */
 import java.awt.event.MouseEvent;
 import java.util.EventListener;
-/** 
+/**
  * @author Yana Stamcheva
  */
 public interface CloseListener extends EventListener {

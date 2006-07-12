@@ -8,7 +8,7 @@ import net.java.sip.communicator.service.protocol.Contact;
 /**
  * The ContactProtocolButton is a button behind a "meta contact" in the
  * contactlist, which corresponds to a specific protocol contact. This
- * button allows opening a chat with a given "meta contact" by specifing
+ * button allows opening a chat for a given "meta contact" by specifing
  * the exact protocol contact to use for the chat.
  *  
  * @author Yana Stamcheva

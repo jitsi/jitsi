@@ -28,7 +28,10 @@ import net.java.sip.communicator.service.contactlist.event.MetaContactRenamedEve
 import net.java.sip.communicator.service.contactlist.event.ProtoContactEvent;
 
 /**
- * The ContactList list.
+ * The <tt>ContactList</tt> is a JList that represents the contact list. A
+ * custom data model and a custom list cell renderer is used. This class
+ * manages all meta contact list events, like <code>metaContactAdded</code>,
+ * <code>metaContactMoved</code>, <code>metaContactGroupAdded</code>, etc. 
  *
  * @author Yana Stamcheva
  */
@@ -44,7 +47,7 @@ public class ContactList extends JList
     private ArrayList groupsList = new ArrayList();
     
     /**
-     * Creates an instance of the ContactList.
+     * Creates an instance of the <tt>ContactList</tt>.
      *
      * @param contactList The related meta contactlist.
      */
@@ -63,8 +66,6 @@ public class ContactList extends JList
 
         this.setCellRenderer(new ContactListCellRenderer());
 
-        this.putClientProperty("JTree.lineStyle", "None");
-
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         this.addKeyListener(new CListKeySearchListener(this));
@@ -80,39 +81,67 @@ public class ContactList extends JList
         });
     }
 
+    /**
+     * Handles the <tt>MetaContactEvent</tt>.
+     * Refreshes the list model.
+     */
     public void metaContactAdded(MetaContactEvent evt) {
         int index = this.listModel.indexOf(evt.getSourceMetaContact());
 
         this.listModel.contentAdded(index, index);
     }
 
+    /**
+     * Handles the <tt>MetaContactRenamedEvent</tt>.
+     * Refreshes the list when a meta contact is renamed.
+     */
     public void metaContactRenamed(MetaContactRenamedEvent evt) {
         this.revalidate();
     }
 
+    /**
+     * Handles the <tt>ProtoContactEvent</tt>.
+     * Refreshes the list when a protocol contact has been added.
+     */
     public void protoContactAdded(ProtoContactEvent evt) {
         this.revalidate();
     }
 
+    /**
+     * Handles the <tt>ProtoContactEvent</tt>.
+     * Refreshes the list when a protocol contact has been removed.
+     */
     public void protoContactRemoved(ProtoContactEvent evt) {
         this.revalidate();
     }
 
+    /**
+     * Handles the <tt>ProtoContactEvent</tt>.
+     * Refreshes the list when a protocol contact has been moved.
+     */
     public void protoContactMoved(ProtoContactEvent evt) {
         this.revalidate();
     }
 
+    /**
+     * Handles the <tt>MetaContactEvent</tt>.
+     * Refreshes the list when a meta contact has been removed.
+     */
     public void metaContactRemoved(MetaContactEvent evt) {
         this.revalidate();
     }
 
+    /**
+     * Handles the <tt>MetaContactMovedEvent</tt>.
+     * Refreshes the list when a meta contact has been moved.
+     */
     public void metaContactMoved(MetaContactMovedEvent evt) {
         this.revalidate();
     }
 
     /**
-     * Indicates that a MetaContactGroup has been added.
-     * @param evt The MetaContactGroupEvent event.
+     * Handles the <tt>MetaContactGroupEvent</tt>.
+     * Refreshes the list model when a new meta contact group has been added.
      */
     public void metaContactGroupAdded(MetaContactGroupEvent evt) {
         MetaContactGroup sourceGroup = evt.getSourceMetaContactGroup();
@@ -126,14 +155,29 @@ public class ContactList extends JList
         this.groupsList.add(sourceGroup);
     }
 
+    /**
+     * Handles the <tt>MetaContactGroupEvent</tt>.
+     * Refreshes the list when a meta contact group has been modified.
+     */
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
         this.revalidate();
     }
 
+    /**
+     * Handles the <tt>MetaContactGroupEvent</tt>.
+     * Refreshes the list when a meta contact group has been removed.
+     */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
         this.revalidate();
     }
 
+    /**
+     * Handles the <tt>MetaContactGroupEvent</tt>.
+     * Refreshes the list model when the contact list groups has been
+     * reordered. Moves the selection index to the index of the contact
+     * that was selected before the reordered event. This way the selection
+     * depends on the contact and not on the index.
+     */
     public void childContactsReordered(MetaContactGroupEvent evt) {
 
         MetaContactGroup group = evt.getSourceMetaContactGroup();
@@ -149,7 +193,7 @@ public class ContactList extends JList
     }
 
     /**
-     * Refreshes the jlist when a group is added.
+     * Refreshes the list model when a group is added.
      *
      * @param group The group which is added.
      */

@@ -126,10 +126,18 @@ public class ContactListPanel extends JScrollPane
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "runChat");
     }
 
+    /**
+     * Returns the contact list.
+     * 
+     * @return the contact list
+     */
     public ContactList getContactList() {
         return this.contactList;
     }
 
+    /**
+     * Closes or opens a group on a double click.
+     */
     public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() > 1) {
 
@@ -159,9 +167,29 @@ public class ContactListPanel extends JScrollPane
     public void mouseExited(MouseEvent e) {
     }
 
+    /**
+     * Manages a mouse press over the contact list. 
+     * 
+     * When the left mouse button is pressed on a contact cell different things
+     * may happen depending on the contained component under the mouse. If the
+     * mouse is pressed on the "contact name" the chat window is opened, 
+     * configured to use the default protocol contact for the selected
+     * MetaContact. If the mouse is pressed on one of the protocol icons, the
+     * chat window is opened, configured to use the protocol contact
+     * corresponding to the given icon.
+     * 
+     * When the right mouse button is pressed on a contact cell, the cell is
+     * selected and the <tt>ContactRightButtonMenu</tt> is opened.
+     * 
+     * When the right mouse button is pressed on a group cell, the cell is
+     * selected and the <tt>GroupRightButtonMenu</tt> is opened.
+     * 
+     * When the middle mouse button is pressed on a cell, the cell is selected.
+     */
     public void mousePressed(MouseEvent e) {
         // Select the contact under the right button click.
-        if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+        if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
+                || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
             this.contactList.setSelectedIndex(contactList.locationToIndex(e
                     .getPoint()));
         }
@@ -234,7 +262,7 @@ public class ContactListPanel extends JScrollPane
                     popupMenu.setVisible(true);
                 }
             } 
-            else if (component instanceof JButton) {
+            else if (component instanceof JButton) {                
                 //Click on the info button opens the info popup panel
                 SwingUtilities.invokeLater(new RunInfoWindow(selectedCellPoint,
                         contact));
@@ -264,8 +292,18 @@ public class ContactListPanel extends JScrollPane
     }
 
     /**
-     * Runs the chat window for the specified contact.
+     * Runs the chat window for the specified contact. We examine different
+     * cases here, depending on the chat window mode. 
+     * 
+     * In mode "Open messages in new window" a new window is opened for the
+     * given <tt>MetaContact</tt> if there's no opened window for it, 
+     * otherwise the existing chat window is made visible and focused.
      *
+     * In mode "Group messages in one chat window" a JTabbedPane is used to
+     * show chats for different contacts in ona window. A new tab is opened
+     * for the given <tt>MetaContact</tt> if there's no opened tab for it,
+     * otherwise the existing chat tab is selected and focused.
+     *  
      * @author Yana Stamcheva
      */
     public class RunMessageWindow implements Runnable {
@@ -290,7 +328,7 @@ public class ContactListPanel extends JScrollPane
                     .getModel()).getMetaContactStatus(this.contactItem);
 
             if (!Constants.TABBED_CHAT_WINDOW) {
-                //If in mode "open all messages in new window"
+                //If in mode "open messages in new window"
                 if (contactMsgWindows.containsKey(this.contactItem)) {
                     /*
                      * If a chat window for this contact is already opened
@@ -419,7 +457,8 @@ public class ContactListPanel extends JScrollPane
      * When message is received determines whether to open a new chat
      * window or chat window tab, or to indicate that a message is received
      * from a contact which already has an open chat. When the chat is found
-     * shows the message in the appropriate chat panel.
+     * checks if in mode "Auto popup enabled" and if this is the case shows
+     * the message in the appropriate chat panel.
      *
      * @param evt the event containing details on the received message
      */
@@ -524,11 +563,13 @@ public class ContactListPanel extends JScrollPane
                         protocolContact.getDisplayName(),
                         date, Constants.INCOMING_MESSAGE,
                         message.getContent());
-                
-                tabbedChatWindow.setVisible(true);
-                
-                if (tabbedChatWindow.getTabCount() > 1) {
-                    tabbedChatWindow.highlightTab(metaContact);
+                        
+                if(chatPanel.isDialogVisible()) {
+                    tabbedChatWindow.setVisible(true);
+                    
+                    if (tabbedChatWindow.getTabCount() > 1) {
+                        tabbedChatWindow.highlightTab(metaContact);
+                    }
                 }
             }
         }
@@ -538,8 +579,7 @@ public class ContactListPanel extends JScrollPane
     }
 
     /**
-     * Shows message in the chat conversation panel when
-     * delivered.
+     * When a sent message is delivered shows it in the chat conversation panel.
      *
      * @param evt the event containing details on the message delivery
      */
@@ -565,7 +605,7 @@ public class ContactListPanel extends JScrollPane
     }
 
     /**
-     * Shows message to the user when message delivery failed.
+     * Shows a warning message to the user when message delivery failed.
      *
      * @param evt the event containing details on the message delivery failure
      */
@@ -691,10 +731,23 @@ public class ContactListPanel extends JScrollPane
         }
     }
 
+    /**
+     * Returns the <tt>ChatWindow</tt>, when in mode "Group messages in one
+     * window".
+     * 
+     * @return the <tt>ChatWindow</tt>, when in mode "Group messages in one
+     * window"
+     */
     public ChatWindow getTabbedChatWindow() {
         return tabbedChatWindow;
     }
 
+    /**
+     * Sets the <tt>ChatWindow</tt>, when in mode "Group messages in one
+     * window".
+     * 
+     * @param tabbedChatWindow The <tt>ChatWindow</tt> to set. 
+     */
     public void setTabbedChatWindow(ChatWindow tabbedChatWindow) {
         this.tabbedChatWindow = tabbedChatWindow;
     }
@@ -752,6 +805,15 @@ public class ContactListPanel extends JScrollPane
         }
     }
     
+    /**
+     * Checks if there is an open chat tab or window for the given contact,
+     * depending on the chat mode and if this is the case returns
+     * <code>true</code>, otherwise returns <code>false</code>.
+     * 
+     * @param contact The <tt>Contact</tt> for which to check.
+     * @return <code>true</code> if there is an open chat tab or chat window
+     * for the given contact, <code>false</code> otherwise.
+     */
     public boolean isChatOpenedForContact (Contact contact) {
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(contact);        

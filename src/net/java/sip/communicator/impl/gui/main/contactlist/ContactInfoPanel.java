@@ -21,7 +21,8 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.TransparentBackgro
 import net.java.sip.communicator.service.contactlist.MetaContact;
 
 /**
- * The ContactInfoPanel is a popup dialog containing the contact detailed info.
+ * The <tt>ContactInfoPanel</tt> is a popup dialog containing the contact
+ * detailed info.
  * 
  * @author Yana Stamcheva
  */
@@ -35,9 +36,9 @@ public class ContactInfoPanel extends JDialog
     private TransparentBackground bg;
 
     /**
-     * Creates an instance of the ContactInfoPanel.
+     * Creates an instance of the <tt>ContactInfoPanel</tt>.
      * @param owner The frame owner of this dialog.
-     * @param contactItem The MetaContact for the info.
+     * @param contactItem The <tt>MetaContact</tt> for the info.
      */
     public ContactInfoPanel(Frame owner, MetaContact contactItem) {
         super(owner);
@@ -70,6 +71,9 @@ public class ContactInfoPanel extends JDialog
         this.addWindowFocusListener(this);
     }
 
+    /**
+     * Initializes the <tt>ContactInfoPanel</tt>.
+     */
     private void init() {
         /*
          * String[] protocolList = this.contactItem.getC();
@@ -86,6 +90,11 @@ public class ContactInfoPanel extends JDialog
          */
     }
 
+    /**
+     * Returns the panel containing all contact protocols' information.
+     * 
+     * @return the panel containing all contact protocols' information.
+     */
     public JPanel getProtocolsPanel() {
         return protocolsPanel;
     }

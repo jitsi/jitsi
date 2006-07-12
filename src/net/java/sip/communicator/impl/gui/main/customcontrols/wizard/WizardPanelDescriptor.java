@@ -12,17 +12,20 @@ import javax.swing.*;
 
 
 /**
- * A base descriptor class used to reference a Component panel for the Wizard, as
- * well as provide general rules as to how the panel should behave.
+ * A base descriptor class used to reference a Component panel for the Wizard,
+ * as well as provide general rules as to how the panel should behave.
+ * 
+ * @author Yana Stamcheva
  */
 public class WizardPanelDescriptor {
     
-    private static final String DEFAULT_PANEL_IDENTIFIER = "defaultPanelIdentifier";
-    
-    
+    private static final String DEFAULT_PANEL_IDENTIFIER
+        = "defaultPanelIdentifier";
+        
     /**
-     * Identifier returned by getNextPanelDescriptor() to indicate that this is the
-     * last panel and the text of the 'Next' button should change to 'Finish'.
+     * Identifier returned by getNextPanelDescriptor() to indicate that this
+     * is the last panel and the text of the 'Next' button should change to
+     * 'Finish'.
      */    
     public static final FinishIdentifier FINISH = new FinishIdentifier();
     
@@ -31,7 +34,8 @@ public class WizardPanelDescriptor {
     private Object panelIdentifier;
     
     /**
-     * Default constructor. The id and the Component panel must be set separately.
+     * Default constructor. The id and the Component panel must be set
+     * separately.
      */    
     public WizardPanelDescriptor() {
         panelIdentifier = DEFAULT_PANEL_IDENTIFIER;
@@ -39,11 +43,11 @@ public class WizardPanelDescriptor {
     }
     
     /**
-     * Constructor which accepts both the Object-based identifier and a reference to
-     * the Component class which makes up the panel.
+     * Constructor which accepts both the Object-based identifier and a
+     * reference to the Component class which makes up the panel.
      * @param id Object-based identifier
-     * @param panel A class which extends java.awt.Component that will be inserted as a
-     * panel into the wizard dialog.
+     * @param panel A class which extends java.awt.Component that will be
+     * inserted as a panel into the wizard dialog.
      */    
     public WizardPanelDescriptor(Object id, Component panel) {
         panelIdentifier = id;
@@ -107,12 +111,13 @@ public class WizardPanelDescriptor {
     //  for the next panel.
     
     /**
-     * Override this class to provide the Object-based identifier of the panel that the
-     * user should traverse to when the Next button is pressed. Note that this method
-     * is only called when the button is actually pressed, so that the panel can change
-     * the next panel's identifier dynamically at runtime if necessary. Return null if
-     * the button should be disabled. Return FinishIdentfier if the button text
-     * should change to 'Finish' and the dialog should end.
+     * Override this class to provide the Object-based identifier of the panel
+     * that the user should traverse to when the Next button is pressed. Note
+     * that this method is only called when the button is actually pressed, so
+     * that the panel can change the next panel's identifier dynamically at
+     * runtime if necessary. Return null if the button should be disabled.
+     * Returns FinishIdentfier if the button text should change to 'Finish' and
+     * the dialog should end.
      * @return Object-based identifier.
      */    
     public Object getNextPanelDescriptor() {
@@ -123,50 +128,41 @@ public class WizardPanelDescriptor {
     //  for the previous panel.
     
     /**
-     * Override this class to provide the Object-based identifier of the panel that the
-     * user should traverse to when the Back button is pressed. Note that this method
-     * is only called when the button is actually pressed, so that the panel can change
-     * the previous panel's identifier dynamically at runtime if necessary. Return null if
-     * the button should be disabled.
+     * Override this class to provide the Object-based identifier of the panel
+     * that the user should traverse to when the Back button is pressed. Note
+     * that this method is only called when the button is actually pressed,
+     * so that the panel can change the previous panel's identifier dynamically
+     * at runtime if necessary. Return null if the button should be disabled.
      * @return Object-based identifier
      */    
     public Object getBackPanelDescriptor() {
         return null;
     }
-    
-    //  Override this method in the subclass if you wish it to be called
-    //  just before the panel is displayed.
-    
+        
     /**
-     * Override this method to provide functionality that will be performed just before
-     * the panel is to be displayed.
+     * Override this method to provide functionality that will be performed
+     * just before the panel is to be displayed.
      */    
     public void aboutToDisplayPanel() {
 
     }
- 
-    //  Override this method in the subclass if you wish to do something
-    //  while the panel is displaying.
-    
+     
     /**
-     * Override this method to perform functionality when the panel itself is displayed.
+     * Override this method to perform functionality when the panel itself is
+     * displayed.
      */    
     public void displayingPanel() {
 
     }
- 
-    //  Override this method in the subclass if you wish it to be called
-    //  just before the panel is switched to another or finished.
-    
+     
     /**
-     * Override this method to perform functionality just before the panel is to be
-     * hidden.
+     * Override this method to perform functionality just before the panel is
+     * to be hidden.
      */    
     public void aboutToHidePanel() {
 
     }    
-    
-    
+      
     
     static class FinishIdentifier {
         public static final String ID = "FINISH";
