@@ -215,8 +215,9 @@ public class MetaContactImpl
         return ( (PresenceStatus.MAX_STATUS_VALUE - totalStatus)
                     - (PresenceStatus.MAX_STATUS_VALUE - target.totalStatus))
                * 1000000
-                + getDisplayName().compareTo(target.getDisplayName()) * 100000
-                + getMetaUID().compareToIgnoreCase(target.getMetaUID());
+                + getDisplayName().compareToIgnoreCase(target.getDisplayName())
+                  * 100000
+                + getMetaUID().compareTo(target.getMetaUID());
     }
 
     /**
