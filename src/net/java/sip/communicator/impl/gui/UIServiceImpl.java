@@ -293,4 +293,12 @@ public class UIServiceImpl implements UIService {
                     metaContact, contact.getPresenceStatus(), contact);        
         }
     }
+
+    public boolean isDialogExported(DialogID dialogID) {        
+        return exportedDialogs.contains(dialogID);
+    }
+
+    public boolean isContainerSupported(ContainerID containderID) {        
+        return supportedContainers.contains(containderID);
+    }
 }

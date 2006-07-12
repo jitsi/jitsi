@@ -16,8 +16,8 @@ import net.java.sip.communicator.service.protocol.Contact;
  * Through the <tt>UIService</tt> all modules can add their own components in
  * different menus, toolbars, etc. within the ui. Each <tt>UIService</tt>
  * implementation should export its supported "plugable" containers - a set of
- * <tt>ContainerID</tt>s corresponding to different "places", where a module
- * can add a component.
+ * <tt>ContainerID</tt>s corresponding to different "places" in the application,
+ * where a module can add a component.
  * <p>
  * The <tt>UIService</tt> provides also methods that would allow to other
  * modules to control the visibility, size and position of the main application
@@ -218,6 +218,17 @@ public interface UIService
     public Iterator getExportedDialogs();
     
     /**
+     * Chechks if the application dialog with the given <tt>DialogID</tt> is
+     * exported from the current UI implementation.
+     * 
+     * @param dialogID One of the DIALOG_XXX DialogID-s. 
+     * @return <code>true</code> if the application dialog with the given 
+     * <tt>DialogID</tt> is exported from the current UI implementation,
+     * <code>false</code> otherwise.
+     */
+    public boolean isDialogExported(DialogID dialogID);
+    
+    /**
      * Adds the specified UI component to the container given by ContainerID. 
      * The method is meant to be used by plugins or bundles that would like to
      * add components to the user interface. The <tt>containerID</tt> is used 
@@ -298,6 +309,17 @@ public interface UIService
      */
     public Iterator getSupportedContainers();
     
+    /**
+     * Chechks if the container with the given <tt>ContainerID</tt> is supported
+     * from the current UI implementation.
+     * 
+     * @param containderID One of the CONTAINER_XXX ContainerID-s. 
+     * @return <code>true</code> if the contaner with the given 
+     * <tt>ContainerID</tt> is supported from the current UI implementation,
+     * <code>false</code> otherwise.
+     */
+    public boolean isContainerSupported(ContainerID containderID);
+        
     /**
      * Returns an iterator over a set of all constraints supported by the
      * given <tt>containerID</tt>. Each constraint in the set is one of the
