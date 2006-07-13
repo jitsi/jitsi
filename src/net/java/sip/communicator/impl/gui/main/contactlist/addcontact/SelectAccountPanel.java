@@ -21,7 +21,7 @@ import javax.swing.JTable;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableModel;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTranspTextPane;
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -52,8 +52,8 @@ public class SelectAccountPanel extends JPanel {
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
     
-    private SIPCommTranspTextPane infoLabel 
-        = new SIPCommTranspTextPane(Messages.getString("selectProvidersWizard"));
+    private SIPCommMsgTextArea infoLabel 
+        = new SIPCommMsgTextArea(Messages.getString("selectProvidersWizard"));
     
     private JLabel infoTitleLabel 
         = new JLabel(Messages.getString("selectProvidersWizardTitle"), 

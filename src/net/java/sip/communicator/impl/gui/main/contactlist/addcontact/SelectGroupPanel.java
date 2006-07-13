@@ -21,7 +21,7 @@ import javax.swing.JTable;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableModel;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTranspTextPane;
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -39,8 +39,8 @@ public class SelectGroupPanel extends JPanel {
         
     private CustomTableModel tableModel = new CustomTableModel();
     
-    private SIPCommTranspTextPane infoLabel 
-        = new SIPCommTranspTextPane(Messages.getString("selectGroupWizard"));
+    private SIPCommMsgTextArea infoLabel 
+        = new SIPCommMsgTextArea(Messages.getString("selectGroupWizard"));
     
     private JLabel infoTitleLabel = new JLabel(
             Messages.getString("selectGroupWizardTitle"));

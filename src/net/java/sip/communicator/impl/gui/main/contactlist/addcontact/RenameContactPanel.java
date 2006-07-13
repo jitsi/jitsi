@@ -17,7 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTranspTextPane;
+import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -36,8 +36,8 @@ public class RenameContactPanel extends JPanel {
     
     private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
     
-    private SIPCommTranspTextPane infoLabel 
-        = new SIPCommTranspTextPane(Messages.getString("renameContactWizard"));
+    private SIPCommMsgTextArea infoLabel 
+        = new SIPCommMsgTextArea(Messages.getString("renameContactWizard"));
     
     private JLabel infoTitleLabel 
         = new JLabel(Messages.getString("renameContact"));
