@@ -71,8 +71,8 @@ public class LoginWindow extends JDialog implements ActionListener {
     private LoginManager loginManager;
 
     /**
-     * Creates an instance of the LoginWindow.
-     * @param mainFrame The parent MainFrame window.
+     * Creates an instance of the <tt>LoginWindow</tt>.
+     * @param mainFrame The parent <tt>MainFrame</tt> window.
      * @param protocolName The name of the protocol.
      * @param providerFactory The provider factory.
      */
@@ -109,7 +109,7 @@ public class LoginWindow extends JDialog implements ActionListener {
     }
 
     /**
-     * Constructs the LoginWindow.
+     * Constructs the <tt>LoginWindow</tt>.
      */
     private void init() {
 
@@ -149,7 +149,8 @@ public class LoginWindow extends JDialog implements ActionListener {
     /**
      * Sets transparent background to all components in the login window,
      * because of the nonwhite background.
-     * @param transparent
+     * @param transparent <code>true</code> to set a transparent background,
+     * <code>false</code> otherwise.
      */
     private void setTransparent(boolean transparent) {
         this.mainPanel.setOpaque(!transparent);
@@ -160,7 +161,7 @@ public class LoginWindow extends JDialog implements ActionListener {
     }
 
     /**
-     * Shows the window.
+     * Specifies the window location and shows it.
      */
     public void showWindow() {
         if (!this.isVisible()) {
@@ -208,21 +209,26 @@ public class LoginWindow extends JDialog implements ActionListener {
     }
 
     /**
-     * Returns the LoginManager for this login window.
-     * @return The LoginManager for this login window.
+     * Returns the <tt>LoginManager</tt> for this login window.
+     * @return The <tt>LoginManager</tt> for this login window.
      */
     public LoginManager getLoginManager() {
         return loginManager;
     }
 
     /**
-     * Sets the LoginManager for this login window.
-     * @param loginManager The related LoginManager.
+     * Sets the <tt>LoginManager</tt> for this login window.
+     * @param <tt>loginManager</tt> The related LoginManager.
      */
     public void setLoginManager(LoginManager loginManager) {
         this.loginManager = loginManager;
     }
 
+    /**
+     * The <tt>LoginWindowBackground</tt> is a <tt>JPanel</tt> that overrides
+     * the <code>paintComponent</code> method to provide a custom background
+     * image for this window. 
+     */
     private class LoginWindowBackground extends JPanel {
         protected void paintComponent(Graphics g) {
 

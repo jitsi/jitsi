@@ -22,8 +22,10 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 
 /**
- * The HistoryWindow is the window, where user could view or search
- * in the message history.
+ * The <tt>HistoryWindow</tt> is the window, where user could view or search
+ * in the message history. The <tt>HistoryWindow</tt> could contain the history
+ * for one or a group of <tt>MetaContact</tt>s.
+ * 
  * @author Yana Stamcheva
  */
 public class HistoryWindow extends JFrame {
@@ -51,7 +53,7 @@ public class HistoryWindow extends JFrame {
     private String title = Messages.getString("history") + " - ";
 
     /**
-     * Creates an instance of the HistoryWindow.
+     * Creates an instance of the <tt>HistoryWindow</tt>.
      */
     public HistoryWindow() {
         historyMenu = new HistoryMenu(this);
@@ -85,10 +87,24 @@ public class HistoryWindow extends JFrame {
         this.getContentPane().add(mainPanel);
     }
 
+    /**
+     * The <tt>HistoryWindow</tt> could contain the history for one or a
+     * group of <tt>MetaContact</tt>s. This method returns the list of
+     * <tt>MetaContact</tt>s for this history.
+     * 
+     * @return returns the list of contacts for this history.
+     */
     public Vector getContacts() {
         return contacts;
     }
 
+    /**
+     * The <tt>HistoryWindow</tt> could contain the history for one or a
+     * group of <tt>MetaContact</tt>s. Sets the list of contacts for this
+     * <tt>HistoryWindow</tt>.
+     * @param contacts The Vector containing all <tt>MetaContact</tt>s for
+     * this <tt>HistoryWindow</tt>.
+     */
     public void setContacts(Vector contacts) {
         this.contacts = contacts;
 
@@ -101,6 +117,11 @@ public class HistoryWindow extends JFrame {
         this.setTitle(title);
     }
 
+    /**
+     * Sets the contact, which history will be displayed in the case of a 
+     * <tt>HistoryWindow</tt> for only one contact.
+     * @param contact The <tt>MetaContact</tt>, which history will be displayed.
+     */
     public void setContact(MetaContact contact) {
         this.contactItem = contact;
 

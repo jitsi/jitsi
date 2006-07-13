@@ -13,8 +13,9 @@ import javax.swing.JMenuBar;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 /**
- * The MessageWindowMenuBar is the menu bar in the chat window where 
+ * The <tt>MessageWindowMenuBar</tt> is the menu bar in the chat window where 
  * all menus are added.
+ * 
  * @author Yana Stamcheva
  */
 public class MessageWindowMenuBar extends JMenuBar {
@@ -30,7 +31,7 @@ public class MessageWindowMenuBar extends JMenuBar {
     private ChatWindow parentWindow;
 
     /**
-     * Creates an instance of MessageWindowMenuBar.
+     * Creates an instance of <tt>MessageWindowMenuBar</tt>.
      * @param parentWindow The parent ChatWindow.
      */
     public MessageWindowMenuBar(ChatWindow parentWindow) {
@@ -47,7 +48,7 @@ public class MessageWindowMenuBar extends JMenuBar {
     }
 
     /**
-     * Initialize the menu bar, by adding all contained menus.
+     * Initializes the menu bar, by adding all contained menus.
      */
     private void init() {
 

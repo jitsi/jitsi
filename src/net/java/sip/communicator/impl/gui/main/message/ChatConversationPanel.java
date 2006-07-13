@@ -8,7 +8,6 @@
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.BasicStroke;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -56,11 +55,11 @@ import net.java.sip.communicator.impl.gui.utils.StringUtils;
 import net.java.sip.communicator.util.Logger;
 
 /**
- * This is the panel, where all sent and received messages appear.
- * All data is stored in HTML document. An external CSS file is 
- * applied to the document to provide the look&feel. All smilies 
- * and links strings are processed and finally replaced by 
- * corresponding images and html links.
+ * The <tt>ChatConversationPanel</tt> is the panel, where all sent and received
+ * messages appear. All data is stored in an HTML document. An external CSS file
+ * is applied to the document to provide the look&feel. All smilies and link
+ * strings are processed and finally replaced by corresponding images and html
+ * links.
  * 
  * @author Yana Stamcheva
  */
@@ -103,8 +102,8 @@ public class ChatConversationPanel extends JScrollPane implements
     private Date lastIncomingMsgTimestamp = new Date(0);
 
     /**
-     * Creates an instance of ChatConversationPanel.
-     * @param chatPanel The parent ChatPanel.
+     * Creates an instance of <tt>ChatConversationPanel</tt>.
+     * @param chatPanel The parent <tt>ChatPanel</tt>.
      */
     public ChatConversationPanel(ChatPanel chatPanel) {
 
@@ -194,7 +193,7 @@ public class ChatConversationPanel extends JScrollPane implements
     }
 
     /**
-     * Process the message given by the parameters.
+     * Processes the message given by the parameters.
      * 
      * @param contactName The name of the contact sending the message.
      * @param date The time at which the message is sent or received.
@@ -243,7 +242,7 @@ public class ChatConversationPanel extends JScrollPane implements
     }
 
     /**
-     * Format message containing links.
+     * Formats all links in the given message.
      * 
      * @param message The source message string.
      * @return The message string with properly formatted links.
@@ -284,7 +283,7 @@ public class ChatConversationPanel extends JScrollPane implements
     }
 
     /**
-     * Format message new lines.
+     * Formats message new lines.
      * 
      * @param message The source message string.
      * @return The message string with properly formatted new lines.
@@ -295,7 +294,7 @@ public class ChatConversationPanel extends JScrollPane implements
     }
 
     /**
-     * Format message smilies.
+     * Formats message smilies.
      * 
      * @param message The source message string.
      * @return The message string with properly formated smilies.
@@ -346,7 +345,7 @@ public class ChatConversationPanel extends JScrollPane implements
     }
 
     /**
-     * Format time string.
+     * Formats a time string.
      * 
      * @param time The time parameter could be hours, minutes or seconds.
      * @return The formatted minutes string.

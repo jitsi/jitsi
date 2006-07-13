@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.message.menu;
 
-import java.awt.Component;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -20,9 +18,9 @@ import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**
- * The ChatRightButtonMenu appears when the user makes a right button click
- * on the chat window conversation area (where sent and received messages are
- * displayed).
+ * The <tt>ChatRightButtonMenu</tt> appears when the user makes a right button
+ * click on the chat window conversation area (where sent and received messages
+ * are displayed).
  *  
  * @author Yana Stamcheva
  */
@@ -45,7 +43,7 @@ public class ChatRightButtonMenu extends JPopupMenu
             Messages.getString("close"), new ImageIcon(ImageLoader
                     .getImage(ImageLoader.CLOSE_ICON)));
     /**
-     * Creates an instance of ChatRightButtonMenu.
+     * Creates an instance of <tt>ChatRightButtonMenu</tt>.
      *  
      * @param parentWindow The window owner of this popup menu.
      */
@@ -58,7 +56,7 @@ public class ChatRightButtonMenu extends JPopupMenu
     }
     
     /**
-     * Initialize menu with menu items.
+     * Initializes the menu with all menu items.
      */
     private void init() {
         
@@ -88,6 +86,9 @@ public class ChatRightButtonMenu extends JPopupMenu
         this.printMenuItem.setEnabled(false);
     }
     
+    /**
+     * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
+     */
     public void actionPerformed(ActionEvent e) {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemText = menuItem.getName();

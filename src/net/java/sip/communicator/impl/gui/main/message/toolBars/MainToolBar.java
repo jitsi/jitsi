@@ -13,23 +13,24 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JEditorPane;
-import javax.swing.JLabel;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.MsgToolbarButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.message.ChatPanel;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.main.message.SmiliesSelectorBox;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**
- * The MainToolBar is the main toolbar in the chat. It contains buttons for file
- * operations, like save and pring, for copy-paste operations and others.
+ * The <tt>MainToolBar</tt> is a <tt>JToolBar</tt> which contains buttons for
+ * file operations, like save and print, for copy-paste operations, etc. It's
+ * the main toolbar in the <tt>ChatWindow</tt>. It contains only
+ * <tt>MsgToolbarButton</tt>s, which have a specific background icon and
+ * rollover behaviour to differentiates them from normal buttons.
+ * 
+ * @see net.java.sip.communicator.impl.gui.main.customcontrols.MsgToolbarButton
  * 
  * @author Yana Stamcheva
  */
@@ -71,10 +72,9 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
     private ChatWindow messageWindow;
 
     /**
-     * Creates an instance and constructs the MainToolBar.
+     * Creates an instance and constructs the <tt>MainToolBar</tt>.
      * 
-     * @param messageWindow
-     *            The parent ChatWindow.
+     * @param messageWindow The parent <tt>ChatWindow</tt>.
      */
     public MainToolBar(ChatWindow messageWindow) {
 
@@ -166,6 +166,11 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
         this.fontButton.setEnabled(false);
     }
 
+
+    /**
+     * Handles the <tt>ActionEvent</tt>, when one of the toolbar buttons is
+     * clicked.
+     */
     public void actionPerformed(ActionEvent e) {
 
         MsgToolbarButton button = (MsgToolbarButton) e.getSource();
@@ -227,6 +232,10 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
         }
     }
 
+    /**
+     * Returns the button used to show the list of smilies.
+     * @return the button used to show the list of smilies.
+     */
     public MsgToolbarButton getSmileyButton() {
         return smileyButton;
     }

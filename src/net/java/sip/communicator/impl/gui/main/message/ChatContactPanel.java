@@ -29,11 +29,19 @@ import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 
 /**
- * The ChatContactPanel is the panel containing the chat contact information.
- * Here we show to the user the contact name and its contact status. We add also
- * a call button, an info button and a send file button, which allows fast
- * access on those operations.
- * 
+ * The <tt>ChatContactPanel</tt> is the panel that appears on the right of the
+ * chat conversation area. It contains the name, status and other informations
+ * for a <tt>MetaContact</tt> engaged in a chat conversation. 
+ * <p>
+ * Fast access to some operations with this <tt>MetaContact</tt> is provided
+ * by buttons added above the contact name. At this moment there are three
+ * a Call button, an Info button and a Send file button. When clicked the Call
+ * button makes a call. The Info button shows the Information window for this
+ * <tt>MetaContact</tt> and the Send file button sends a file to this contact.
+ * <p>
+ * Note that all buttons are now disabled, because the functionality they should
+ * provide is not yet implemented.  
+ *  
  * @author Yana Stamcheva
  */
 public class ChatContactPanel extends JPanel {
@@ -66,22 +74,19 @@ public class ChatContactPanel extends JPanel {
     private PresenceStatus status;
 
     /**
-     * Creates an instance of ChatContactPanel.
+     * Creates an instance of the <tt>ChatContactPanel</tt>.
      * 
-     * @param contactItem
-     *            The MetaContact.
+     * @param contactItem The <tt>MetaContact</tt>.
      */
     public ChatContactPanel(MetaContact contactItem) {
         this(contactItem, null);
     }
 
     /**
-     * Creates an instance of ChatContactPanel.
+     * Creates an instance of <tt>ChatContactPanel</tt>.
      * 
-     * @param contactItem
-     *            The MetaContact.
-     * @param status
-     *            The contact status.
+     * @param contactItem The <tt>MetaContact</tt>.
+     * @param status The contact status.
      */
     public ChatContactPanel(MetaContact contactItem, PresenceStatus status) {
 
@@ -103,7 +108,7 @@ public class ChatContactPanel extends JPanel {
     }
 
     /**
-     * Constructs the ChatContactPanel.
+     * Constructs the <tt>ChatContactPanel</tt>.
      */
     private void init() {
         this.personNameLabel.setText(contactItem.getDisplayName());
@@ -135,11 +140,10 @@ public class ChatContactPanel extends JPanel {
     }
 
     /**
-     * Overrides the javax.swing.JComponent.paintComponent() in order to provide
-     * a new look for the background of the panel.
+     * Overrides the <code>javax.swing.JComponent.paintComponent()</code> in
+     * order to paint a gradient background.
      * 
-     * @param g
-     *            The Graphics object.
+     * @param g The Graphics object.
      */
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -174,8 +178,7 @@ public class ChatContactPanel extends JPanel {
     /**
      * Changes the status icon left to the contact name when the status changes.
      * 
-     * @param newStatus
-     *            The new status.
+     * @param newStatus The new status.
      */
     public void setStatusIcon(PresenceStatus newStatus) {
         this.personNameLabel.setIcon(new ImageIcon(Constants

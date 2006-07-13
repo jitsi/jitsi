@@ -20,9 +20,8 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.AccountID;
-import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 import net.java.sip.communicator.service.protocol.AccountProperties;
-import net.java.sip.communicator.service.protocol.ProtocolNames;
+import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.RegistrationState;
 import net.java.sip.communicator.service.protocol.SecurityAuthority;
@@ -35,7 +34,17 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
 /**
- * The LoginManager manages the login operation.
+ * The <tt>LoginManager</tt> manages the login operation. Here we obtain the
+ * <tt>ProtocolProviderFactory</tt>, we make the account installation and we
+ * handle all events related to the registration state.
+ * <p>
+ * The <tt>LoginManager</tt> is the one that opens one or more 
+ * <tt>LoginWindow</tt>s for each <tt>ProtocolProviderFactory</tt>. The
+ * <tt>LoginWindow</tt> is where user could enter an identifier and password.
+ * <p>
+ * Note that the behaviour of this class will be changed when the Configuration
+ * Service is ready.
+ * 
  * @author Yana Stamcheva
  */
 public class LoginManager implements RegistrationStateChangeListener {
@@ -52,6 +61,13 @@ public class LoginManager implements RegistrationStateChangeListener {
 
     private MainFrame mainFrame;
 
+    /**
+     * Creates an instance of <tt>LoginManager</tt> by specifying the
+     * <tt>BundleContext</tt>, from which to obtain all registered
+     * <tt>ProtocolProviderFactory</tt>s.
+     * 
+     * @param bc The <tt>BundleContext</tt>.
+     */
     public LoginManager(BundleContext bc) {
 
         this.bc = bc;
@@ -69,11 +85,11 @@ public class LoginManager implements RegistrationStateChangeListener {
 
         for (int i = 0; i < serRefs.length; i++) {
 
-            ProtocolProviderFactory providerFactory = (ProtocolProviderFactory) this.bc
-                    .getService(serRefs[i]);
+            ProtocolProviderFactory providerFactory
+                = (ProtocolProviderFactory) this.bc.getService(serRefs[i]);
 
-            this.providerFactoriesMap.put(serRefs[i]
-                    .getProperty(ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME),
+            this.providerFactoriesMap.put(serRefs[i].getProperty(
+                    ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME),
                     providerFactory);
         }
     }
@@ -122,7 +138,8 @@ public class LoginManager implements RegistrationStateChangeListener {
         while (iter.hasNext()) {
             Map.Entry entry = (Map.Entry) iter.next();
 
-            ProtocolProviderFactory providerFactory = (ProtocolProviderFactory) entry.getValue();
+            ProtocolProviderFactory providerFactory
+                = (ProtocolProviderFactory) entry.getValue();
             String protocolName = (String) entry.getKey();
 
             showLoginWindow(parent, protocolName, providerFactory);
@@ -156,7 +173,7 @@ public class LoginManager implements RegistrationStateChangeListener {
     }
 
     /**
-     * The method is called by a ProtocolProvider implementation whenver
+     * The method is called by a ProtocolProvider implementation whenever
      * a change in the registration state of the corresponding provider had
      * occurred.
      * @param evt ProviderStatusChangeEvent the event describing the status

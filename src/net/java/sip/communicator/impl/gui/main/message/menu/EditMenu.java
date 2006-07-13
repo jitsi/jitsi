@@ -20,7 +20,9 @@ import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 /**
- * The EditMenu is the menu which contains cut, copy and paste.
+ * The <tt>EditMenu</tt> is the menu in the chat window menu bar, which contains
+ * cut, copy and paste.
+ * 
  * @author Yana Stamcheva
  */
 public class EditMenu extends JMenu 
@@ -39,8 +41,9 @@ public class EditMenu extends JMenu
     private ChatWindow chatWindow;
 
     /**
-     * Creates an instance of EditMenu.
-     * @param chatWindow The parent ChatWindow.
+     * Creates an instance of <tt>EditMenu</tt>.
+     * 
+     * @param chatWindow The parent <tt>ChatWindow</tt>.
      */
     public EditMenu(ChatWindow chatWindow) {
 
@@ -61,6 +64,9 @@ public class EditMenu extends JMenu
         this.add(pasteMenuItem);
     }
 
+    /**
+     * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
+     */
     public void actionPerformed(ActionEvent e) {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String menuItemName = menuItem.getName();

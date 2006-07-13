@@ -17,7 +17,8 @@ import javax.swing.JMenuItem;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 
 /**
- * The HistoryMenu is the main menu in the history window.
+ * The <tt>HistoryMenu</tt> is the main menu in the history window.
+ * 
  * @author Yana Stamcheva
  */
 public class HistoryMenu extends JMenu implements ActionListener {
@@ -31,7 +32,7 @@ public class HistoryMenu extends JMenu implements ActionListener {
     private JFrame parentWindow;
 
     /**
-     * Creates an instance of HistoryMenu.
+     * Creates an instance of <tt>HistoryMenu</tt>.
      * @param parentWindow The parent window.
      */
     public HistoryMenu(JFrame parentWindow) {
@@ -50,6 +51,10 @@ public class HistoryMenu extends JMenu implements ActionListener {
         this.add(closeMenuItem);
     }
 
+    /**
+     * Handles the <tt>ActionEvent</tt> when user selects an item from the
+     * menu. When the close item is selected disposes the window.
+     */
     public void actionPerformed(ActionEvent e) {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String menuName = menuItem.getName();

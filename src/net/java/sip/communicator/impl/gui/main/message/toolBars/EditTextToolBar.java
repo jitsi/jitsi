@@ -18,8 +18,13 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**
- * The EditTextToolBar is the toolbar which allows all text formatting
- * operations, like Make text in bold or italic, change the font, etc.
+ * The <tt>EditTextToolBar</tt> is a <tt>JToolBar</tt> which contains buttons
+ * for formatting a text, like make text in bold or italic, change the font,
+ * etc. It contains only <tt>MsgToolbarButton</tt>s, which have a specific
+ * background icon and rollover behaviour to differentiates them from normal
+ * buttons.
+ * 
+ * @see net.java.sip.communicator.impl.gui.main.customcontrols.MsgToolbarButton
  * 
  * @author Yana Stamcheva
  */
@@ -54,7 +59,7 @@ public class EditTextToolBar extends SIPCommToolBar {
     private JComboBox fontNameCombo = new JComboBox();
 
     /**
-     * Creates an instance and constructs the EditTextToolBar.
+     * Creates an instance and constructs the <tt>EditTextToolBar</tt>.
      */
     public EditTextToolBar() {
 

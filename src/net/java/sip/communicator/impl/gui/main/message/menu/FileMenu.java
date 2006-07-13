@@ -19,7 +19,8 @@ import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 /**
- * The FileMenu contains save, print and close.
+ * The <tt>FileMenu</tt> is the menu in the chat window menu bar that contains
+ * save, print and close.
  * 
  * @author Yana Stamcheva
  */
@@ -40,8 +41,8 @@ public class FileMenu extends JMenu
     private ChatWindow parentWindow;
 
     /**
-     * Creates an instance of FileMenu.
-     * @param parentWindow The parent ChatWindow.
+     * Creates an instance of <tt>FileMenu</tt>.
+     * @param parentWindow The parent <tt>ChatWindow</tt>.
      */
     public FileMenu(ChatWindow parentWindow) {
 
@@ -69,6 +70,9 @@ public class FileMenu extends JMenu
         this.printMenuItem.setEnabled(false);
     }
 
+    /**
+     * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
+     */
     public void actionPerformed(ActionEvent e) {
 
         JMenuItem menuItem = (JMenuItem) e.getSource();

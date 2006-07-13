@@ -25,8 +25,8 @@ import javax.swing.JTextField;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 /**
- * The SearchPanel is the panel, where user could make a search in
- * the message history. The search could be made by specifing a date
+ * The <tt>SearchPanel</tt> is the panel, where user could make a search in
+ * the message history. The search could be made by specifying a date
  * or an hour, or searching by a keyword.
  * 
  * @author Yana Stamcheva
@@ -100,7 +100,7 @@ public class SearchPanel extends JPanel implements ActionListener {
     // private JPanel extendedSearchPanel = new JPanel(new BorderLayout());
 
     /**
-     * Creates an instance of the SearchPanel.
+     * Creates an instance of the <tt>SearchPanel</tt>.
      */
     public SearchPanel() {
         super();
@@ -112,7 +112,7 @@ public class SearchPanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Constructs the SearchPanel.
+     * Constructs the <tt>SearchPanel</tt>.
      */
     public void init() {
         this.searchPanel.add(searchLabel, BorderLayout.WEST);
@@ -162,6 +162,10 @@ public class SearchPanel extends JPanel implements ActionListener {
         this.enableDefaultSearchSettings();
     }
 
+    /**
+     * Handles the <tt>ActionEvent</tt> which occured when user clicks
+     * the Search button.
+     */
     public void actionPerformed(ActionEvent e) {
         JButton button = (JButton) e.getSource();
         String buttonName = button.getName();
@@ -188,6 +192,9 @@ public class SearchPanel extends JPanel implements ActionListener {
          */
     }
 
+    /**
+     * Enables the settings for a default search.
+     */
     private void enableDefaultSearchSettings() {
         this.allMessagesRadio.setSelected(true);
     }

@@ -21,8 +21,16 @@ import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
 
 /**
- * This panel contains info for all contacts participating the chat.
- *
+ * The <tt>ChatConferencePanel</tt> is the panel added on the right of the
+ * chat conversation area, containing information for all contacts
+ * participating the chat. It contains a list of <tt>ChatContactPanel</tt>s.
+ * Each of these panels is containing the name, status, etc. of only one
+ * <tt>MetaContact</tt>. There is also a button, which allows to add new
+ * contact to the chat. May be we will add another button to remove a contact
+ * from the chat which will be disabled for protocols that doesn't allow that.
+ * <p>
+ * Note that at this moment the conference functionality is not yet implemented.
+ * 
  * @author Yana Stamcheva
  */
 public class ChatConferencePanel extends JPanel {
@@ -43,7 +51,7 @@ public class ChatConferencePanel extends JPanel {
     private ChatContactPanel chatContactPanel;
 
     /**
-     * Creates an instance of ChatConferencePanel.
+     * Creates an instance of <tt>ChatConferencePanel</tt>.
      */
     public ChatConferencePanel() {
 
@@ -55,7 +63,7 @@ public class ChatConferencePanel extends JPanel {
     }
 
     /**
-     * Construct the ChatConferencePanel.
+     * Constructs the <tt>ChatConferencePanel</tt>.
      */
     private void init() {
         this.contactsPanel.setLayout(new BoxLayout(this.contactsPanel,
@@ -74,8 +82,8 @@ public class ChatConferencePanel extends JPanel {
     }
 
     /**
-     * Adds a MetaContact to the chat.
-     * @param contactItem The MetaContact to be added.
+     * Adds a <tt>MetaContact</tt> to the chat.
+     * @param contactItem The <tt>MetaContact</tt> to be added.
      */
     public void addContactToChat(MetaContact contactItem) {
 
@@ -85,10 +93,10 @@ public class ChatConferencePanel extends JPanel {
     }
 
     /**
-     * Adds a MetaContact to the chat, by specifying the contact
+     * Adds a <tt>MetaContact</tt> to the chat, by specifying the contact
      * presence status.
-     * @param contactItem The MetaContact to be added.
-     * @param status The PresenceStatus of the contact.
+     * @param contactItem The <tt>MetaContact</tt> to be added.
+     * @param status The <tt>PresenceStatus</tt> of the contact.
      */
     public void addContactToChat(MetaContact contactItem, 
                                 PresenceStatus status) {
@@ -99,8 +107,9 @@ public class ChatConferencePanel extends JPanel {
     }
 
     /**
-     * Updates the status icon of the contact in this ChatConferencePanel.
-     * @param status The new PresenceStatus.
+     * Updates the status icon of the contact in this
+     * <tt>ChatConferencePanel</tt>.
+     * @param status The new <tt>PresenceStatus</tt>.
      */
     public void updateContactStatus(PresenceStatus status) {
         this.chatContactPanel.setStatusIcon(status);

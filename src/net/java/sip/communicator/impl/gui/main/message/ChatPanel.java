@@ -39,9 +39,9 @@ import net.java.sip.communicator.service.protocol.PresenceStatus;
 import net.java.sip.communicator.util.Logger;
 
 /**
- * The ChatPanel is the panel, where users can write and send messages, view
- * received messages. A ChatPanel is created for a contact or for a group of
- * contacts in case of a chat conference. There is always one default contact
+ * The <tt>ChatPanel</tt> is the panel, where users can write and send messages,
+ * view received messages. A ChatPanel is created for a contact or for a group
+ * of contacts in case of a chat conference. There is always one default contact
  * for the chat, which is the first contact which was added to the chat.
  * When chat is in mode "open all messages in new window", each ChatPanel
  * corresponds to a ChatWindow. When chat is in mode "group all messages in
@@ -82,7 +82,7 @@ public class ChatPanel extends JPanel
     
     
     /**
-     * Creates a chat panel which is added to the given chat window.
+     * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
      * 
      * @param chatWindow The parent window of this chat panel.
      * @param protocolContact The subContact which is selected ins
@@ -134,7 +134,7 @@ public class ChatPanel extends JPanel
     }
 
     /**
-     * Adds a new MetaContact to this chat panel.
+     * Adds a new <tt>MetaContact</tt> to this chat panel.
      * 
      * @param contactItem The MetaContact to add.
      * @param status The current presence status of the contact.
@@ -151,9 +151,9 @@ public class ChatPanel extends JPanel
     }
 
     /**
-     * Adds a new MetaContact to this chat panel.
+     * Adds a new <tt>MetaContact</tt> to this chat panel.
      * 
-     * @param contactItem The MetaContact to add.
+     * @param contactItem The <tt>MetaContact</tt> to add.
      */
     public void addContactToChat(MetaContact contactItem) {
 
@@ -165,16 +165,16 @@ public class ChatPanel extends JPanel
     }
 
     /**
-     * Removes a MetaContact from the chat.
+     * Removes a <tt>MetaContact</tt> from the chat.
      * 
-     * @param contactItem The MetaContact to remove.
+     * @param contactItem The <tt>MetaContact</tt> to remove.
      */
     public void removeContactFromChat(MetaContact contactItem) {
         this.chatContacts.remove(contactItem);
     }
 
     /**
-     * Returns all contacts for this chat.
+     * Returns a list of contacts corresponding to this chat.
      * 
      * @return A Vector containing all MetaContact-s 
      * for the chat.

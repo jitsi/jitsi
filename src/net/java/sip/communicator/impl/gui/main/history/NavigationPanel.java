@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 /**
- * The NavigationPanel is the panel where user could navigate through
+ * The <tt>NavigationPanel</tt> is the panel where user could navigate through
  * the message history.
  * 
  * @author Yana Stamcheva
@@ -31,7 +31,7 @@ public class NavigationPanel extends JPanel {
     private JButton firstPageButton = new JButton(Messages.getString("first"));
 
     /**
-     * Constructs the NavigationPanel by adding all navigation buttons.
+     * Constructs the <tt>NavigationPanel</tt> by adding all navigation buttons.
      */
     public NavigationPanel() {
         super(new FlowLayout(FlowLayout.CENTER));
