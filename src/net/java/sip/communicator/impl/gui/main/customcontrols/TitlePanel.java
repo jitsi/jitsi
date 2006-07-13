@@ -20,8 +20,9 @@ import javax.swing.JPanel;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 
 /**
- * The TitlePanel is a decorated panel, that could be used for a header or a
- * title area.
+ * The <tt>TitlePanel</tt> is a decorated panel, that could be used for a
+ * header or a title area. This panel is used for example in the
+ * <tt>ConfigurationFrame</tt>.
  * 
  * @author Yana Stamcheva
  */
@@ -30,7 +31,7 @@ public class TitlePanel extends JPanel {
     private JLabel titleLabel = new JLabel();
 
     /**
-     * Creates an instance of TitlePanel.
+     * Creates an instance of <tt>TitlePanel</tt>.
      */
     public TitlePanel() {
 
@@ -42,9 +43,10 @@ public class TitlePanel extends JPanel {
     }
 
     /**
-     * Creates an instance of TitlePanel by specifying a title.
+     * Creates an instance of <tt>TitlePanel</tt> by specifying the title
+     * String.
      * 
-     * @param title A title string.
+     * @param title A String title.
      */
     public TitlePanel(String title) {
 
@@ -57,6 +59,10 @@ public class TitlePanel extends JPanel {
         this.add(titleLabel);
     }
 
+    /**
+     * Overrides the <code>paintComponent</code> method of <tt>JPanel</tt>
+     * to paint a gradient background of this panel.
+     */
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
@@ -90,6 +96,10 @@ public class TitlePanel extends JPanel {
         g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1, 5, 5);
     }
 
+    /**
+     * Sets the title String.
+     * @param title The title String.
+     */
     public void setTitleText(String title) {
         this.titleLabel.setText(title);
 

@@ -20,6 +20,10 @@ import javax.swing.JPanel;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 
 /**
+ * The <tt>ListCellPanel</tt> is a <tt>JPanel</tt>, which is repainted to have
+ * a specific look when selected and when a mouse is over it. It represents the
+ * cells in the <tt>SIPCommList</tt>, which is used in the Configuration form.
+ * 
  * @author Yana Stamcheva
  */
 public class ListCellPanel extends JPanel implements MouseListener {
@@ -28,6 +32,9 @@ public class ListCellPanel extends JPanel implements MouseListener {
 
     private boolean isSelected = false;
 
+    /**
+     * Creates an instance of <tt>ListCellPanel</tt>.
+     */
     public ListCellPanel() {
 
         super(new BorderLayout());
@@ -37,6 +44,11 @@ public class ListCellPanel extends JPanel implements MouseListener {
         this.setOpaque(true);
     }
 
+    /**
+     * Overrides the <code>paintComponent</code> method of <tt>JPanel</tt>
+     * to provide a custom look for this panel. A gradient background is
+     * painted when the panel is selected and when the mouse is over it.
+     */
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
@@ -102,18 +114,40 @@ public class ListCellPanel extends JPanel implements MouseListener {
         this.addMouseListener(this);
     }
 
+    /**
+     * Returns <code>true</code> if the mouse is over the panel,
+     * <code>false</code> otherwise.
+     * @return <code>true</code> if the mouse is over the panel,
+     * <code>false</code> otherwise.
+     */
     public boolean isMouseOver() {
         return isMouseOver;
     }
 
+    /**
+     * Sets the "mouse over" status for this panel.
+     * @param isMouseOver <code>true</code> to indicate that the mouse is over
+     * the panel, <code>false</code> otherwise.
+     */
     public void setMouseOver(boolean isMouseOver) {
         this.isMouseOver = isMouseOver;
     }
 
+    /**
+     * Returns <code>true</code> if the panel is selected,
+     * <code>false</code> otherwise.
+     * @return <code>true</code> if the panel is selected,
+     * <code>false</code> otherwise.
+     */
     public boolean isSelected() {
         return isSelected;
     }
 
+    /**
+     * Sets the selection status for this panel.
+     * @param isSelected <code>true</code> to indicate that the panel is
+     * selected, <code>false</code> otherwise.
+     */
     public void setSelected(boolean isSelected) {
         if (this.isSelected != isSelected) {
             this.isSelected = isSelected;
@@ -127,19 +161,29 @@ public class ListCellPanel extends JPanel implements MouseListener {
         }
     }
 
+    /**
+     * When the mouse is clicked over this panel sets the selection to
+     * <code>true</code>.
+     */
     public void mouseClicked(MouseEvent e) {
-
         this.setSelected(true);
     }
 
+    /**
+     * When the mouse enters the panel area sets the "mouse over" status to
+     * <code>true</code> and repaints the panel.
+     */
     public void mouseEntered(MouseEvent e) {
 
         this.setMouseOver(true);
         this.repaint();
     }
 
+    /**
+     * When the mouse exits the panel area sets the "mouse over" status to 
+     * <code>true</code> and repaints the panel.
+     */
     public void mouseExited(MouseEvent e) {
-
         this.setMouseOver(false);
         this.repaint();
     }

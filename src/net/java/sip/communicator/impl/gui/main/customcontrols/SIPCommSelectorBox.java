@@ -27,10 +27,12 @@ import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**
- * SIPCommSelectorBox is very similar to a JComboBox. It 
- * allows having a list of icon-text pairs and when choosing
- * on of them, to show only the selected icon without the text.
- * 
+ * The <tt>SIPCommSelectorBox</tt> is very similar to a JComboBox. The main
+ * component here is a JLabel only with an icon. When user clicks on the
+ * icon a popup menu is opened, containing a list of icon-text pairs from
+ * which the user could choose one item. When user selects the desired item,
+ * the icon of the selected item is set to the main component label.
+ *  
  * @author Yana Stamcheva
  */
 public class SIPCommSelectorBox extends JLabel
@@ -45,6 +47,9 @@ public class SIPCommSelectorBox extends JLabel
 
     private Object selectedObject;
 
+    /**
+     * Creates an instance of <tt>SIPCommSelectorBox</tt>.
+     */
     public SIPCommSelectorBox() {
         this.setPreferredSize(new Dimension(
                 this.backgroundImage.getWidth(this), this.backgroundImage
@@ -61,6 +66,11 @@ public class SIPCommSelectorBox extends JLabel
         this.addMouseListener(this);
     }
 
+    /**
+     * Creates an instance of <tt>SIPCommSelectorBox</tt> by specifying
+     * the initialy selected item.
+     * @param selectedItem The item that is initialy selected.
+     */
     public SIPCommSelectorBox(Object selectedItem) {
         this();
 
@@ -72,6 +82,13 @@ public class SIPCommSelectorBox extends JLabel
             this.setText(selectedItem.toString());
     }
 
+    /**
+     * Adds an item to the "choice list" of this selector box.
+     * @param text The text of the item.
+     * @param icon The icon of the item.
+     * @param actionListener The <tt>ActionListener</tt>, which handles
+     * the case, when the item is selected.
+     */
     public void addItem(String text, Icon icon, 
                         ActionListener actionListener) {
 
@@ -82,6 +99,12 @@ public class SIPCommSelectorBox extends JLabel
         this.popup.add(item);
     }
 
+    /**
+     * Calculates the "choice list" popup location depending on the
+     * main label coordinates.
+     * 
+     * @return The <tt>Point</tt> where the popup should be shown.
+     */
     public Point calculatePopupLocation() {
 
         Component component = this;
@@ -103,6 +126,10 @@ public class SIPCommSelectorBox extends JLabel
         return point;
     }
 
+    /**
+     * Overrides the <code>paintComponent</code> method of <tt>JLabel</tt>
+     * to provide a different look for the main label component.
+     */
     protected void paintComponent(Graphics g) {
 
         AntialiasingManager.activateAntialiasing(g);
@@ -112,6 +139,10 @@ public class SIPCommSelectorBox extends JLabel
         super.paintComponent(g);
     }
 
+    /**
+     * Shows the "choice list" popup window on a mouse click over
+     * the main label component.
+     */
     public void mouseClicked(MouseEvent e) {
 
         if (!this.popup.isVisible()) {
@@ -132,19 +163,35 @@ public class SIPCommSelectorBox extends JLabel
     public void mouseReleased(MouseEvent e) {
     }
 
+    /**
+     * Selects the given item.
+     * @param menuItem The item to select.
+     */
     public void setSelected(JMenuItem menuItem) {
         this.setIcon(menuItem.getIcon());
         this.setSelectedObject(menuItem.getText());
     }
 
+    /**
+     * Selects the given object.
+     * @param o The <tt>Object</tt> to select.
+     */
     public void setSelectedObject(Object o) {
         this.selectedObject = o;
     }
 
+    /**
+     * Returns the selected object.
+     * @return the selected object.
+     */
     public Object getSelectedObject() {
         return this.selectedObject;
     }
 
+    /**
+     * Returns the popup menu for this selector box.
+     * @return the popup menu for this selector box.
+     */
     public JPopupMenu getPopup() {
         return popup;
     }   

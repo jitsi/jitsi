@@ -25,6 +25,9 @@ public class SIPCommList extends JScrollPane {
 
     private JPanel listPanel = new JPanel();
 
+    /**
+     * Creates an instance of <tt>SIPCommList</tt>
+     */
     public SIPCommList() {
 
         this.mainPanel.setBackground(Color.WHITE);
@@ -38,11 +41,18 @@ public class SIPCommList extends JScrollPane {
         this.getViewport().add(mainPanel);
     }
 
+    /**
+     * Adds a cell to this list. 
+     * @param cell The <tt>ListCellPanel</tt> to add.
+     */
     public void addCell(ListCellPanel cell) {
-
         this.listPanel.add(cell);
     }
 
+    /**
+     * Deselects all previously selected cells when a new cell is selected.
+     * @param cellSelected The newly selected cell.
+     */
     public void refreshCellStatus(ListCellPanel cellSelected) {
 
         for (int i = 0; i < this.listPanel.getComponentCount(); i++) {

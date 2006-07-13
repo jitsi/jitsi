@@ -26,6 +26,12 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**
+ * The <tt>MessageDialog</tt> is a <tt>JDialog</tt> that contains a question
+ * message, two buttons to confirm or cancel the question and a check box that
+ * allows user to choose to not be questioned any more over this subject.
+ * <p>
+ * The message and the name of the "OK" button could be configured.
+ * 
  * @author Yana Stamcheva
  */
 public class MessageDialog extends JDialog
@@ -58,6 +64,11 @@ public class MessageDialog extends JDialog
     
     public static final int OK_DONT_ASK_CODE = 2;
 
+    /**
+     * Creates an instance of <tt>MessageDialog</tt> by specifying the
+     * owner window.
+     * @param owner This dialog owner.
+     */
     public MessageDialog(Frame owner) {
         super(owner);
 
@@ -77,19 +88,34 @@ public class MessageDialog extends JDialog
         this.init();
     }
     
+    /**
+     * Creates an instance of <tt>MessageDialog</tt> by specifying the
+     * owner window and the message to be displayed.
+     * @param owner The dialog owner.
+     * @param message The message to be displayed.
+     */
     public MessageDialog(Frame owner, String message) {
         this(owner);
         
         this.messageLabel.setText(message);
     }
 
-    public MessageDialog(Frame owner, String message, 
+    /**
+     * Creates an instance of <tt>MessageDialog</tt> by specifying the
+     * owner window and the message to be displayed.
+     * @param owner The dialog owner.
+     * @param message The message to be displayed.
+     */
+    public MessageDialog(Frame owner, String message,
             String okButtonName) {
         this(owner, message);
         
         this.okButton.setText(okButtonName);
     }
     
+    /**
+     * Initializes this dialog.
+     */
     private void init() {
         this.checkBoxPanel.add(doNotAskAgain);
 
@@ -107,10 +133,20 @@ public class MessageDialog extends JDialog
         this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Sets the message to be displayed.
+     * @param message The message to be displayed.
+     */
     public void setMessage(String message) {
         this.messageLabel.setText(message);
     }
     
+    /**
+     * Shows the dialog.
+     * @return The return code that should indicate what was the choice of
+     * the user. If the user chooses cancel, the return code is the 
+     * CANCEL_RETURN_CODE.
+     */
     public int showDialog() {
         this.setModal(true);
         this.setVisible(true);
@@ -118,6 +154,10 @@ public class MessageDialog extends JDialog
         return returnCode;
     }
     
+    /**
+     * Handles the <tt>ActionEvent</tt>. Depending on the user choice sets
+     * the return code to the appropriate value.
+     */
     public void actionPerformed(ActionEvent e) {
         JButton button = (JButton)e.getSource();
         
