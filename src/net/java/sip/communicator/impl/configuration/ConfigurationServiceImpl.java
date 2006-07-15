@@ -54,7 +54,12 @@ public class ConfigurationServiceImpl
      * file.
      */
     private static final String FILE_NAME_PROPERTY =
-        "net.java.sip.communicator.PROPERTIES_FILE_NAME";
+        "net.java.sip.communicator.CONFIGURATION_FILE_NAME";
+
+    /**
+     * A reference to the currently used configuration file.
+     */
+    private File configurationFile = null;
 
     /**
      * Our event dispatcher.
@@ -160,7 +165,7 @@ public class ConfigurationServiceImpl
             if (changeEventDispatcher.hasPropertyChangeListeners(propertyName))
                 changeEventDispatcher.firePropertyChange(
                     propertyName, oldValue, property);
-/*
+
             try{
                 storeConfiguration();
             }
@@ -169,7 +174,6 @@ public class ConfigurationServiceImpl
                 logger.error("Failed to store configuration after "
                              +"a property change");
             }
-*/
         }
         finally
         {
@@ -369,6 +373,8 @@ public class ConfigurationServiceImpl
         throws IOException, XMLException
     {
         properties = new Hashtable();
+        this.configurationFile = null;
+
         fileExtractedProperties =
                 loadConfiguration(getConfigurationFile());
             this.properties.putAll(fileExtractedProperties);
@@ -612,8 +618,8 @@ public class ConfigurationServiceImpl
             if(currentNode.getNodeType() == Node.ELEMENT_NODE)
             {
                 StringBuffer newPropBuff =
-                    new StringBuffer(propertyNameBuff
-                                     + "." +currentNode.getNodeName());
+                    new StringBuffer(propertyNameBuff.toString()).append(".")
+                                     .append(currentNode.getNodeName());
 
                 Attr attr =
                     ((Element)currentNode).getAttributeNode(ATTRIBUTE_VALUE);
@@ -622,6 +628,15 @@ public class ConfigurationServiceImpl
                 {
                     //update the corresponding node
                     Object value = properties.get(newPropBuff.toString());
+                    if (newPropBuff.toString().indexOf("SYSTEM_PROPERTY")!= -1)
+                        System.out.println("aaaa");
+
+                    if(value == null)
+                    {
+                        node.removeChild(currentNode);
+                        continue;
+                    }
+
                     boolean isSystem = value instanceof PropertyReference;
                     String prop = isSystem
                         ?((PropertyReference)value).getValue().toString()
@@ -647,6 +662,20 @@ public class ConfigurationServiceImpl
     }
 
     /**
+     * Returns the configuration file currently used by the implementation.
+     * If there is no such file or this is the first time we reference it
+     * a new one is created.
+     * @return the configuration File currently used by the implementation.
+     */
+    private File getConfigurationFile()
+    {
+        if ( configurationFile == null )
+            configurationFile = createConfigurationFile();
+
+        return configurationFile;
+    }
+
+    /**
      * Returns a reference to the configuration file that the service should
      * load. The method would try to load a file with the name
      * sip-communicator.xml unless a different one is specified in the system
@@ -662,9 +691,9 @@ public class ConfigurationServiceImpl
      * returns a link to that one.
      *
      *
-     * @return the configuration the sip-
+     * @return the configuration file currently used by the implementation.
      */
-    File getConfigurationFile()
+    File createConfigurationFile()
     {
         try
         {
@@ -929,6 +958,18 @@ public class ConfigurationServiceImpl
     {
         return properties.containsKey(propertyName)
                && properties.get(propertyName) instanceof PropertyReference;
+    }
+
+    /**
+     * Deletes the configuration file currently used by this implementation.
+     */
+    public void purgeStoredConfiguration()
+    {
+        if (this.configurationFile != null)
+        {
+            configurationFile.delete();
+            configurationFile = null;
+        }
     }
 
 }
