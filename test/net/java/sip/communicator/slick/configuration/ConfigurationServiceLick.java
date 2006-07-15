@@ -35,6 +35,7 @@ public class ConfigurationServiceLick
 
         addTestSuite(TestConfigurationService.class);
         addTestSuite(TestConfigurationServicePersistency.class);
+        addTestSuite(TestConfigurationSlickFinalizer.class);
         bundleContext.registerService(getClass().getName(), this, properties);
 
         logger.debug("Successfully registered " + getClass().getName());
