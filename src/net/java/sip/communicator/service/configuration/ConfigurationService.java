@@ -232,4 +232,11 @@ public interface ConfigurationService
     public void reloadConfiguration()
         throws IOException, XMLException;
 
+    /**
+     * Removes all locally stored properties leaving an empty configuration.
+     * Implementations that use a file for storing properties may simply delete
+     * it when this method is called.
+     */
+    public void purgeStoredConfiguration();
+
 }
