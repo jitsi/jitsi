@@ -23,7 +23,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 
 /**
- * @todo this is not relevant any more - fix.
  * The class handles read / write operations over the file where a persistent
  * copy of the meta contact list is stored.
  * <p>
@@ -32,35 +31,12 @@ import net.java.sip.communicator.service.contactlist.event.*;
  * <p>
  * 1) The MetaContactListService is started. <br>
  * 2) If no file exists for the meta contact list, create one.
- * 2) We fill in the Contact list from what we have in the local file, by first
- *    creating empty <tt>MetaContact</tt> instances (with no proto
- *    <tt>Contact</tt>).<br>
- * 3) paralelno s loadvaneto se syzdava index koito mapva
- * contactaddress:accountid na meta contact<br>
- * 4) We receive an OSGI event telling us that a new ProtocolProviderService
- *    or we simply retrieve one that was in the bundle context, before us. This
- *    This gives us two possible cases:<br>
- * A) The newly registered PP supports persistent presence (has
- *    OperationSetPersistentPresence).<br>
- *
- *    - In this case all <tt>Contact</tt> instances retrieved from the protocol
- *      provider are first being matched to all existing meta contacts, looking
- *      for one that already contained the contact in question and we add it
- *      into it. If the contact is a new on, we simply create a new MetaContact
- *      to encapsulate it.<br>
- * B) The newly registered PP does NOT support persistent presence.
- *    - If this is the case, then we simply go through all contacts that have
- *      been registered for this provider and create subscriptions for every
- *      one of them.<br>
+ * 3) We receive an OSGI event telling us that a new ProtocolProviderService
+ *    is registered or we simply retrieve one that was already in the bundle
+ * 4) We look through the contact list file and load groups and contacts
+ *    belonging to this new provider. Unresolved proto groups and contacts
+ *    will be created for every one of them.
  * <p>
- * After completing the above procedure we would have two kinds of contacts that
- * remain unresolved.<br>
- * 1) contacts whose corresponding provider was not found.<br>
- * 2) Those who first  originated out of a persistent operation set but were not
- *    resolved during this run. <br>
- * <p>
- * @todo We should most probably delete the first and ask the user what to do
- * with the second type.
  *
  * @author Emil Ivov
  */
