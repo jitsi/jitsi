@@ -41,7 +41,7 @@ import org.w3c.dom.Text;
  *
  * <p>Utility class used by {@link net.java.sip.communicator.util.xml.XMLUtils
  * XMLUtils}
- * and the {@link net.java.sip.communicator.slick.runner.SipCommunicatorSlickRunner
+ * and the {@see net.java.sip.communicator.slick.runner.SipCommunicatorSlickRunner
  * SipCommunicatorSlickRunner}.
  * </p>
  *
