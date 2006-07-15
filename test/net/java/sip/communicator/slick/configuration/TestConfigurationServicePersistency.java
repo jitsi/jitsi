@@ -310,7 +310,6 @@ public class TestConfigurationServicePersistency extends TestCase
         Node innerpropNode =
             XMLUtils.findChild( (Element) parent, "innerprops");
 
-
         Node innerPropertyNode =
             XMLUtils.findChild((Element)innerpropNode, innerProperty);
 
