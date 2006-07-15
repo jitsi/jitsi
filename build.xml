@@ -238,7 +238,7 @@
         <!--internal-target- identify Service Impl Compatibility Kits to run -->
         <condition property="test.name.known">
             <!-- has a single test class has been defined?    -->
-            <!-- e.g. ant test -Dtest.name=./path/to/test/testname.java    -->
+            <!-- e.g. ant test -Dtest.name=SlickName    -->
             <isset property="test.name"/>
         </condition>
     </target>
@@ -247,8 +247,7 @@
             if="test.name.known">
         <!--internal-target- prepare to run a single Service Impl Compatibility Kit -->
         <!-- extract the simple Test class name. -->
-        <basename property="simple.test.names"
-                file="${test.name}" suffix=".java"/>
+        <basename property="simple.test.names" file="${test.name}"/>
     </target>
 
     <!--internal-target- prepare to run all known Service Impl Compatibility Kit -->
@@ -262,7 +261,7 @@
     </target>
 
     <!--RUN-TESTS-->
-    <target name="test" 
+    <target name="test"
         depends="prepare-single-test,prepare-all-tests,clean-test-reports"
         description="Starts oscar and runs selected Service Impl Compatibility Kits.">
 
@@ -311,6 +310,7 @@
            <arg value="htmlreport"/>
         </java>
         <echo message="Done."/>
+        <echo/><echo/><echo/>
         <echo message="Test results available in ./test-reports/html/index.html "/>
 
         <!-- Check whether testing went alright and fail if not.-->
