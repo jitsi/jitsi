@@ -77,7 +77,10 @@ public class TestConfigurationServicePersistency extends TestCase
         "    </parent>" +"\n"+
         "</sip-communicator>\n";
 
-    private static final String confFileName = "test.sip-communicator.xml";
+    private static final String ourConfFileName
+        = "test.persistency.sip-communicator.xml";
+
+    private String originalConfFileName = null;
 
     /** the configuration file itself (created and deleted for every test)*/
     private File confFile = null;
@@ -107,9 +110,17 @@ public class TestConfigurationServicePersistency extends TestCase
      */
     protected void setUp() throws Exception
     {
-        confFile = new File(confFileName);
-        System.setProperty("net.java.sip.communicator.PROPERTIES_FILE_NAME",
-                            confFileName);
+        confFile = new File(System.getProperty("user.home")
+                            + File.separator
+                            + ".sip-communicator"
+                            + File.separator
+                            + ourConfFileName);
+
+        configurationService.purgeStoredConfiguration();
+        originalConfFileName = System.getProperty(
+            "net.java.sip.communicator.CONFIGURATION_FILE_NAME");
+        System.setProperty("net.java.sip.communicator.CONFIGURATION_FILE_NAME",
+                            ourConfFileName);
 
         confFile.createNewFile();
 
@@ -132,9 +143,11 @@ public class TestConfigurationServicePersistency extends TestCase
         //delete the temp conf file
         confFile.delete();
 
+        configurationService.purgeStoredConfiguration();
+
         //reset the fileNameProperty
-        System.setProperty("net.java.sip.communicator.PROPERTIES_FILE_NAME",
-                            "sip-communicator.xml");
+        System.setProperty("net.java.sip.communicator.CONFIGURATION_FILE_NAME",
+                            originalConfFileName);
 
         super.tearDown();
     }
