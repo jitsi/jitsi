@@ -19,6 +19,15 @@
     <property name="utest.bin" value="sip-communicator.utest.bin"/>
     <property name="test.reports.dir" value="test-reports"/>
     <property name="test.html.reports.dir" value="${test.reports.dir}/html"/>
+    <property name="release" value="release"/>
+    <property name="inst.resrc" value="resources/install"/>
+
+    <!-- Put here the release directory -->
+    <property name="macosx.app.dir" value="${release}/macosx"/>
+    <!-- Put here the Application name -->
+    <property name="macosx.app.name" value="SIP Communicator"/>
+    <!-- Put here the Application version -->
+    <property name="macosx.app.ver" value="1.0.rc1"/>
 
     <!-- load properties needed for running the automated tests (e.g. test.list)-->
     <property file="lib/testing.properties"/>
@@ -120,6 +129,7 @@
             <fileset dir="${bundles.dest}"/>
             <fileset dir="${native.libs}"/>
             <fileset dir="${java.doc}"/>
+            <fileset dir="${release}"/>
         </delete>
     </target>
 
@@ -202,6 +212,7 @@
         <mkdir dir="${bundles.dest}"/>
         <mkdir dir="${test.reports.dir}"/>
         <mkdir dir="${test.reports.dir}/html"/>
+        <mkdir dir="${release}"/>
 
         <!-- set the jmf.performancepack.extracted property so that we know
              whether we'll have to extract jmf native libs -->
@@ -229,6 +240,82 @@
                 <include name="jmf-native.jar"/>
             </fileset>
         </unjar>
+    </target>
+
+    <!-- - - - - - - - - - - BUILDING RELEASE PACKAGES - - - - - - - - - - - -->
+    <target name="macosx" depends="make"
+            description="Create an .app package for MACOSX">
+
+      <taskdef name="jarbundler"
+               classname="net.sourceforge.jarbundler.JarBundler"/>
+
+      <property name="macosx.stubfile"
+                value="${macosx.app.dir}/utils/JavaApplicationStub"/>
+      <condition property="macosx.stubfile"
+                 value="/System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub">
+        <equals arg1="${os.name}"
+                arg2="Mac OS X"
+                casesensitive="false"
+                trim="true"/>
+      </condition>
+
+      <!-- Delete the old .app if it exists -->
+      <delete dir="${macosx.app.dir}/${macosx.app.name}-${macosx.app.ver}.app"
+              quiet="yes" failonerror="false"/>
+
+      <!-- This creates the .app for MacOSX -->
+      <jarbundler dir="${macosx.app.dir}"
+                  name="${macosx.app.name}-${macosx.app.ver}"
+                  shortname="SIP Communicator"
+                  signature="sipc"
+                  mainclass="org.ungoverned.oscar.Main"
+                  icon="${macosx.app.dir}/utils/sipcom.icns"
+                  jvmversion="1.4+"
+                  version="${macosx.app.ver}"
+                  build="draft"
+                  infostring="SIP Communicator"
+                  bundleid="org.sip-communicator"
+                  stubfile="${macosx.stubfile}"
+                  workingdirectory="$APP_PACKAGE/Contents/Resources/Java">
+
+        <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
+        <javaproperty name="apple.awt.brushMetalRounded" value="true"/>
+        <javaproperty name="apple.awt.showGrowBox" value="false"/>
+
+        <!-- Tell oscar to run sip-communicator -->
+        <javaproperty name="oscar.config.properties"
+                      value="file:oscar.client.run.properties"/>
+        <!-- Tell java.util.logging about our logging preferences -->
+        <javaproperty name="java.util.logging.config.file"
+                      value="logging.properties"/>
+
+        <jarfileset dir=".">
+          <include name="${lib}/*.jar" />
+          <include name="${lib}/bundle/*.jar" />
+          <include name="${jmf.home}/*.jar" />
+          <include name="${bundles.dest}/*.jar" />
+        </jarfileset>
+        <javafilelist dir="${lib}"
+                      files="logging.properties, oscar.client.run.properties"/>
+      </jarbundler>
+    </target>
+
+    <!-- Create the DMG - This only works on MacOSX (need hdiutil) -->
+    <target name="dmg" depends="macosx"
+            description="Create a .dmg package for MACOSX (only works on MACOSX)">
+      <property name="macosx.dmg.name"
+                value="${macosx.app.name}-${macosx.app.ver}.dmg"/>
+
+      <!-- This is executed only if the OS is MacOSX -->
+      <exec executable="/usr/bin/hdiutil" os="Mac OS X">
+        <arg value="create"/>
+        <arg value="-srcfolder"/>
+        <arg value="${macosx.app.dir}/${macosx.app.name}-${macosx.app.ver}.app"/>
+        <arg value="-volname"/>
+        <arg value="${macosx.app.name} ${macosx.app.ver}"/>
+        <arg value="-ov"/>
+        <arg value="${macosx.app.dir}/${macosx.dmg.name}"/>
+      </exec>
     </target>
 
     <!-- - - - - - - - - - - - - - UNIT TESTING - - - - - - - - - - - - - - -->
