@@ -8,10 +8,10 @@ package net.java.sip.communicator.impl.protocol.icq;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.icq.message.common.*;
 import net.java.sip.communicator.impl.protocol.icq.message.usrinfo.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.util.*;
 import net.kano.joscar.snac.*;
 
 /**
@@ -20,6 +20,9 @@ import net.kano.joscar.snac.*;
 public class OperationSetServerStoredAccountInfoIcqImpl
     implements OperationSetServerStoredAccountInfo
 {
+    private static final Logger logger =
+        Logger.getLogger(OperationSetServerStoredAccountInfoIcqImpl.class);
+
     private InfoRetreiver infoRetreiver = null;
     private String uin = null;
 
@@ -146,25 +149,30 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                 "implementation does not support such details " +
                 detail.getClass());
 
+        Vector alreadySetDetails = new Vector();
         Iterator iter = getDetails(detail.getClass());
-        int count = 0;
         while (iter.hasNext())
         {
-            count++;
+            alreadySetDetails.add(iter.next());
         }
 
-        if(count >= getMaxDetailInstances(detail.getClass()))
+        if(alreadySetDetails.size() >= getMaxDetailInstances(detail.getClass()))
             throw new ArrayIndexOutOfBoundsException(
                 "Max count for this detail is already reached");
 
         // everything is ok , so set it
-        Vector change = new Vector();
-        change.add(detail);
+        alreadySetDetails.add(detail);
 
         SuccessResponseListener responseListener = new SuccessResponseListener();
         icqProvider.getAimConnection().getInfoService().
-            sendSnacRequest(new FullInfoCmd(uin, change, false), responseListener);
-        responseListener.wait(2000);
+            sendSnacRequest(new FullInfoCmd(uin, alreadySetDetails, null), responseListener);
+
+        synchronized(responseListener.waitingForResponseLock){
+            try{
+                responseListener.waitingForResponseLock.wait(2000);
+            }
+            catch (InterruptedException ex){}
+        }
 
         if(!responseListener.success)
             if(responseListener.timeout)
@@ -194,28 +202,38 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         // set it with empty or default value
 
         boolean isFound = false;
+        // as there is items like langusge, which must be changed all the values
+        // we write not only the changed one but and the other found
+        ArrayList foundValues = new ArrayList();
         Iterator iter = infoRetreiver.getDetails(uin, detail.getClass());
         while (iter.hasNext())
         {
             GenericDetail item = (GenericDetail) iter.next();
-            if(item.getDetailDisplayName().equals(detail.getDetailDisplayName()) &&
-                item.getDetailValue().equals(detail.getDetailValue()))
+            if(item.equals(detail))
             {
                 isFound = true;
-                break;
+                foundValues.add(detail);
             }
+            else
+                foundValues.add(item);
         }
         // current detail value does not exist
         if(!isFound)
             return false;
 
-        Vector change = new Vector();
-        change.add(detail);
+        List removeValues = new ArrayList();
+        removeValues.add(detail);
 
         SuccessResponseListener responseListener = new SuccessResponseListener();
         icqProvider.getAimConnection().getInfoService().
-            sendSnacRequest(new FullInfoCmd(uin, change, true), responseListener);
-        responseListener.wait(2000);
+            sendSnacRequest(new FullInfoCmd(uin, foundValues, removeValues), responseListener);
+
+        synchronized(responseListener.waitingForResponseLock){
+            try{
+                responseListener.waitingForResponseLock.wait(2000);}
+            catch (InterruptedException ex)
+            {}
+        }
 
         if(!responseListener.success && responseListener.timeout)
             throw new OperationFailedException("Replacing Detail Failed!",
@@ -253,28 +271,37 @@ public class OperationSetServerStoredAccountInfoIcqImpl
             throw new ClassCastException("New value to be replaced is not as the current one");
 
         boolean isFound = false;
+        Vector alreadySetDetails = new Vector();
         Iterator iter = infoRetreiver.getDetails(uin, currentDetailValue.getClass());
         while (iter.hasNext())
         {
             GenericDetail item = (GenericDetail) iter.next();
-            if(item.getDetailDisplayName().equals(currentDetailValue.getDetailDisplayName()) &&
-                item.getDetailValue().equals(currentDetailValue.getDetailValue()))
+            if(item.equals(currentDetailValue))
             {
                 isFound = true;
-                break;
+                // add the details to the list. We will save the list on one pass
+                // most of the multiple details require saving at one time, like Spoken Language
+                // we are placing it at the right place. replacing the old one
+                alreadySetDetails.add(newDetailValue);
             }
+            else
+                alreadySetDetails.add(item);
         }
         // current detail value does not exist
         if(!isFound)
             return false;
 
-        Vector change = new Vector();
-        change.add(newDetailValue);
-
         SuccessResponseListener responseListener = new SuccessResponseListener();
         icqProvider.getAimConnection().getInfoService().
-            sendSnacRequest(new FullInfoCmd(uin, change, false), responseListener);
-        responseListener.wait(2000);
+            sendSnacRequest(
+                new FullInfoCmd(uin, alreadySetDetails, null), responseListener);
+
+        synchronized(responseListener.waitingForResponseLock){
+            try{
+                responseListener.waitingForResponseLock.wait(2000);
+            }
+            catch (InterruptedException ex){}
+        }
 
         if(!responseListener.success && responseListener.timeout)
             throw new OperationFailedException("Replacing Detail Failed!",
@@ -289,28 +316,37 @@ public class OperationSetServerStoredAccountInfoIcqImpl
             return false;
     }
 
+    /**
+     * Waiting for Acknowledge package and success byte.
+     * To set that the operation was succesful
+     */
     private class SuccessResponseListener
         implements SnacRequestListener
     {
+        public Object waitingForResponseLock = new Object();
+
         private boolean ran = false;
         boolean success = false;
 
         private boolean timeout = false;
-
-        private IcqType RESPONSE_TYPE = new IcqType(0x07DA, 0x0C3F);
-        private int SUCCESS_BYTE = 0x0A;
 
         public void handleSent(SnacRequestSentEvent e)
         {}
 
         public void handleTimeout(SnacRequestTimeoutEvent event)
         {
-            timeout = true;
+            logger.trace("Timeout!");
 
             synchronized(this) {
                 if (ran) return;
+
                 ran = true;
-                notifyAll();
+                timeout = true;
+            }
+
+            synchronized(waitingForResponseLock)
+            {
+                waitingForResponseLock.notifyAll();
             }
         }
 
@@ -319,16 +355,18 @@ public class OperationSetServerStoredAccountInfoIcqImpl
             synchronized(this) {
                 if (ran) return;
                 ran = true;
-
-                FromIcqCmd cmd = new FromIcqCmd(e.getSnacPacket());
-                byte[] data = cmd.getIcqData().toByteArray();
-                if (cmd.getType().equals(RESPONSE_TYPE) &&
-                    data.length == 1 &&
-                    data[0] == SUCCESS_BYTE)
+            }
+            if(e.getSnacCommand() instanceof FullInfoAck)
+            {
+                FullInfoAck cmd = (FullInfoAck)e.getSnacCommand();;
+                if(cmd.isCommandSuccesful())
                 {
                     success = true;
-                    notifyAll();
                 }
+            }
+
+            synchronized(waitingForResponseLock){
+                waitingForResponseLock.notifyAll();
             }
         }
 
