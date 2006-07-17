@@ -181,7 +181,7 @@ public class ContactIcqImpl
         String alias = joustSimBuddy.getAlias();
 
         if(alias != null)
-            return nickName = alias;
+            return alias;
         else if (nickName != null)
             return nickName;
         else
