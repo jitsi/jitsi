@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.icq.message.common.*;
 import net.java.sip.communicator.impl.protocol.icq.message.usrinfo.*;
+import net.java.sip.communicator.util.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
 
@@ -18,6 +19,9 @@ import net.kano.joscar.snac.*;
  */
 public class InfoRetreiver
 {
+    private static final Logger logger =
+        Logger.getLogger(InfoRetreiver.class);
+
     /**
      * A callback to the ICQ provider that created us.
      */
@@ -52,8 +56,8 @@ public class InfoRetreiver
      */
     public Iterator getDetailsAndDescendants(String uin, Class detailClass)
     {
-        Vector details = getContactDetails(uin);
-        Vector result = new Vector();
+        List details = getContactDetails(uin);
+        List result = new LinkedList();
 
         Iterator iter = details.iterator();
         while (iter.hasNext())
@@ -76,8 +80,8 @@ public class InfoRetreiver
      */
     public Iterator getDetails(String uin, Class detailClass)
     {
-        Vector details = getContactDetails(uin);
-        Vector result = new Vector();
+        List details = getContactDetails(uin);
+        List result = new LinkedList();
 
         Iterator iter = details.iterator();
         while (iter.hasNext())
@@ -97,9 +101,9 @@ public class InfoRetreiver
      * @param uin String
      * @return Vector
      */
-    protected Vector getContactDetails(String uin)
+    protected List getContactDetails(String uin)
     {
-        Vector result = (Vector)retreivedDetails.get(uin);
+        List result = (List)retreivedDetails.get(uin);
 
         if(result == null)
         {
@@ -145,7 +149,7 @@ public class InfoRetreiver
     private class UserInfoResponseRetriever extends SnacRequestAdapter
     {
         int requestID;
-        Vector result = null;
+        List result = null;
 
         UserInfoResponseRetriever(int requestID)
         {
@@ -165,6 +169,7 @@ public class InfoRetreiver
                 {
                     //get the result
                     result = infoSnac.getInfo();
+
                     synchronized(this){this.notifyAll();}
                 }
             }
