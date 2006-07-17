@@ -12,6 +12,7 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.icq.message.common.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.kano.joscar.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.tlv.*;
@@ -25,6 +26,8 @@ import net.kano.joscar.tlv.*;
 public class FullInfoCmd
     extends SnacCommand
 {
+    private static final Logger logger = Logger.getLogger(FullInfoCmd.class);
+
     /**
      * As all the FullUserInfo comes in
      * sequences of 8 packets acording to the
@@ -37,7 +40,7 @@ public class FullInfoCmd
 
     // used when semding this command for changeg details stored on the server
     private String senderUin = null;
-    private Vector changeDataTlvs = new Vector();
+    private List changeDataTlvs = new LinkedList();
     public static final IcqType CMD_SET_FULLINFO = new IcqType(0x07D0, 0x0c3a);
     private static final int TYPE_ICQ_DATA = 0x0001;
 
@@ -554,10 +557,39 @@ public class FullInfoCmd
         }
     }
 
-    public FullInfoCmd(String senderUin, Vector changedData, boolean isToBeCleared)
+    public FullInfoCmd(String senderUin, List changedData, List toBeCleared)
     {
         super(21,2);
         this.senderUin = senderUin;
+
+        // if toBeCleared == null. make it empty one
+        if(toBeCleared == null)
+            toBeCleared = new ArrayList();
+
+        // fix the spoken languages must be 3
+        int lastSpokenIndex = -1;
+        int countOfLanguages = 0;
+        boolean isLanguageFound = false;
+        for(int i = 0; i < changedData.size(); i++)
+        {
+            Object item = changedData.get(i);
+            if(item instanceof ServerStoredDetails.SpokenLanguageDetail)
+            {
+                isLanguageFound = true;
+                lastSpokenIndex = i;
+                countOfLanguages++;
+            }
+        }
+
+        if(isLanguageFound)
+        {
+            for (int i = countOfLanguages; i < 3; i++)
+            {
+                lastSpokenIndex++;
+                changedData.add(lastSpokenIndex,
+                                new ServerStoredDetails.SpokenLanguageDetail(null));
+            }
+        }
 
         Iterator iter = changedData.iterator();
         while(iter.hasNext())
@@ -565,7 +597,7 @@ public class FullInfoCmd
             ServerStoredDetails.GenericDetail item =
                 (ServerStoredDetails.GenericDetail)iter.next();
 
-            if(isToBeCleared)
+            if(toBeCleared.contains(item))
                 changeDataTlvs.add(getClearTlv(item));
             else
                 changeDataTlvs.add(getTlvForChange(item));
@@ -610,7 +642,7 @@ public class FullInfoCmd
     {
         int typeOfDetail = ((int[])supportedTypes.get(detail.getClass()))[1];
 
-        DetailTlv result = new DetailTlv(((int[])supportedTypes.get(detail.getClass()))[1]);
+        DetailTlv result = new DetailTlv(typeOfDetail);
 
         switch(typeOfDetail)
         {
@@ -620,15 +652,15 @@ public class FullInfoCmd
                 result.writeUShort(getCountryCode(((ServerStoredDetails.LocaleDetail)detail).getLocale()));break;
 
             case 0x0186 : //SpokenLanguageDetail
-                writeLanguageCode((ServerStoredDetails.LocaleDetail)detail, result);
+                writeLanguageCode((ServerStoredDetails.LocaleDetail)detail, result);break;
             case 0x017C : //GenderDetail
-                writeGenderCode((ServerStoredDetails.GenderDetail)detail, result);
+                writeGenderCode((ServerStoredDetails.GenderDetail)detail, result);break;
             case 0x023A : //BirthDateDetail
-                writeCalendarCode((ServerStoredDetails.CalendarDetail)detail, result);
+                writeCalendarCode((ServerStoredDetails.CalendarDetail)detail, result);break;
             case 0x01CC : //WorkOcupationDetail
-                writeOccupationCode((WorkOcupationDetail)detail, result);
+                writeOccupationCode((WorkOcupationDetail)detail, result);break;
             case 0x01EA : //InterestDetail
-                writeInterestCode((InterestDetail)detail, result);
+                writeInterestCode((InterestDetail)detail, result);break;
             default :
                 writeGenericDetail(detail, result);
         }
@@ -650,6 +682,7 @@ public class FullInfoCmd
                 result.writeUShort(0);break;
 
             case 0x0186 : //SpokenLanguageDetail
+                logger.trace("write lang 0");
                 result.writeUShort(0);
             case 0x017C : //GenderDetail
                 result.writeUByte(0);
@@ -674,13 +707,24 @@ public class FullInfoCmd
 
     private void writeLanguageCode(ServerStoredDetails.LocaleDetail detail, DetailTlv tlv)
     {
-        String newLang = detail.getLocale().getLanguage();
-        for(int i = 0; i < spokenLanguages.length; i++)
+        Locale newLang = detail.getLocale();
+        if(newLang == null)
         {
-            if(spokenLanguages[i].getLanguage().equals(newLang))
+            // this indicates that we must set language as not specified
+            tlv.writeUShort(0);
+            logger.trace("write lang 0");
+        }
+        else
+        {
+            for (int i = 1; i < spokenLanguages.length; i++)
             {
-                tlv.writeUShort(i);
-                return;
+                // indicating that language is not set
+                if (getSpokenLanguage(i).equals(newLang))
+                {
+                    logger.trace("write lang " + i);
+                    tlv.writeUShort(i);
+                    return;
+                }
             }
         }
     }
@@ -754,7 +798,7 @@ public class FullInfoCmd
     // START method for parsing incoming data
     private void readBasicUserInfo(ByteBlock block, int requestID)
     {
-        Vector infoData = getInfoForRequest(requestID);
+        List infoData = getInfoForRequest(requestID);
 
         // sequence of 11 String fields
         String bscInfo[] = new String[11];
@@ -762,7 +806,9 @@ public class FullInfoCmd
 
         int homeCountryCode = LEBinaryTools.getUShort(block, offset);
         offset += 2;
-        infoData.add(new ServerStoredDetails.CountryDetail(getCountry(homeCountryCode)));
+        Locale countryCodeLocale = getCountry(homeCountryCode);
+        if(countryCodeLocale != null)
+            infoData.add(new ServerStoredDetails.CountryDetail(countryCodeLocale));
 
         // the following are not used
 //        short GMT_Offset = LEBinaryTools.getUByte(block, offset);
@@ -776,39 +822,52 @@ public class FullInfoCmd
 //        short publishPrimaryEmailFlag = LEBinaryTools.getUByte(block, offset);
 //        offset++;
 
-
         // everything is read lets store it
-        infoData.add(new ServerStoredDetails.NicknameDetail(bscInfo[0]));
-        infoData.add(new ServerStoredDetails.FirstNameDetail(bscInfo[1]));
-        infoData.add(new ServerStoredDetails.LastNameDetail(bscInfo[2]));
-        infoData.add(new ServerStoredDetails.EmailAddressDetail(bscInfo[3]));
-        infoData.add(new ServerStoredDetails.CityDetail(bscInfo[4]));
-        infoData.add(new ServerStoredDetails.ProvinceDetail(bscInfo[5]));
-        infoData.add(new ServerStoredDetails.PhoneNumberDetail(bscInfo[6]));
-        infoData.add(new ServerStoredDetails.FaxDetail(bscInfo[7]));
-        infoData.add(new ServerStoredDetails.AddressDetail(bscInfo[8]));
-        infoData.add(new ServerStoredDetails.MobilePhoneDetail(bscInfo[9]));
-        infoData.add(new ServerStoredDetails.PostalCodeDetail(bscInfo[10]));
+        if(bscInfo[0] != null)
+            infoData.add(new ServerStoredDetails.NicknameDetail(bscInfo[0]));
+        if(bscInfo[1] != null)
+            infoData.add(new ServerStoredDetails.FirstNameDetail(bscInfo[1]));
+        if(bscInfo[2] != null)
+            infoData.add(new ServerStoredDetails.LastNameDetail(bscInfo[2]));
+        if(bscInfo[3] != null)
+            infoData.add(new ServerStoredDetails.EmailAddressDetail(bscInfo[3]));
+        if(bscInfo[4] != null)
+            infoData.add(new ServerStoredDetails.CityDetail(bscInfo[4]));
+        if(bscInfo[5] != null)
+            infoData.add(new ServerStoredDetails.ProvinceDetail(bscInfo[5]));
+        if(bscInfo[6] != null)
+            infoData.add(new ServerStoredDetails.PhoneNumberDetail(bscInfo[6]));
+        if(bscInfo[7] != null)
+            infoData.add(new ServerStoredDetails.FaxDetail(bscInfo[7]));
+        if(bscInfo[8] != null)
+            infoData.add(new ServerStoredDetails.AddressDetail(bscInfo[8]));
+        if(bscInfo[9] != null)
+            infoData.add(new ServerStoredDetails.MobilePhoneDetail(bscInfo[9]));
+        if(bscInfo[10] != null)
+            infoData.add(new ServerStoredDetails.PostalCodeDetail(bscInfo[10]));
     }
 
     private void readMoreUserInfo(ByteBlock block, int requestID)
     {
-        Vector infoData = getInfoForRequest(requestID);
+        List infoData = getInfoForRequest(requestID);
 
         int offset = 1;
         String[] tmp = new String[1];
 
-        int age = LEBinaryTools.getUShort(block, offset);
+//        int age = LEBinaryTools.getUShort(block, offset);
         offset += 2;
 
-        short gender = LEBinaryTools.getUByte(block, offset);
-        infoData.add(genders[gender]);
+        short genderCode = LEBinaryTools.getUByte(block, offset);
+        ServerStoredDetails.GenderDetail gender = genders[genderCode];
+        if(gender != null)
+            infoData.add(gender);
         offset += 1;
 
         offset = readStrings(block, tmp, offset);
         try
         {
-            infoData.add(new ServerStoredDetails.WebPageDetail(new URL(tmp[0])));
+            if(tmp[0] != null)
+                infoData.add(new ServerStoredDetails.WebPageDetail(new URL(tmp[0])));
         }
         catch (MalformedURLException ex)
         {}
@@ -822,11 +881,7 @@ public class FullInfoCmd
         short birthdayDay = LEBinaryTools.getUByte(block, offset);
         offset += 1;
 
-        if(birthdayYear == 0 || birthdayMonth == 0 || birthdayDay == 0)
-        {
-            infoData.add(new ServerStoredDetails.BirthDateDetail(null));
-        }
-        else
+        if(birthdayYear != 0 && birthdayMonth != 0 && birthdayDay != 0)
         {
             Calendar birthDate = Calendar.getInstance();
             birthDate.set(Calendar.YEAR, birthdayYear);
@@ -838,31 +893,44 @@ public class FullInfoCmd
 
         short speakingLanguage1 = LEBinaryTools.getUByte(block, offset);
         offset += 1;
-        infoData.add(new ServerStoredDetails.SpokenLanguageDetail(
-            spokenLanguages[speakingLanguage1]));
+        logger.trace("read lang 1 " + speakingLanguage1);
+        Locale spokenLanguage1 = getSpokenLanguage(speakingLanguage1);
+        if(spokenLanguage1 != null)
+        infoData.add(
+            new ServerStoredDetails.SpokenLanguageDetail(spokenLanguage1));
 
         short speakingLanguage2 = LEBinaryTools.getUByte(block, offset);
         offset += 1;
-        infoData.add(new ServerStoredDetails.SpokenLanguageDetail(
-            spokenLanguages[speakingLanguage2]));
+        logger.trace("read lang 2 " + speakingLanguage2);
+        Locale spokenLanguage2 = getSpokenLanguage(speakingLanguage2);
+        if(spokenLanguage2 != null)
+        infoData.add(
+            new ServerStoredDetails.SpokenLanguageDetail(spokenLanguage2));
 
         short speakingLanguage3 = LEBinaryTools.getUByte(block, offset);
         offset += 1;
-        infoData.add(new ServerStoredDetails.SpokenLanguageDetail(
-            spokenLanguages[speakingLanguage3]));
+        logger.trace("read lang 3 " + speakingLanguage3);
+        Locale spokenLanguage3 = getSpokenLanguage(speakingLanguage3);
+        if(spokenLanguage3 != null)
+        infoData.add(
+            new ServerStoredDetails.SpokenLanguageDetail(spokenLanguage3));
 
-        int moreInfoUnknown = LEBinaryTools.getUShort(block, offset);
+//        int moreInfoUnknown = LEBinaryTools.getUShort(block, offset);
         offset += 2;
 
         offset = readStrings(block, tmp, offset);
-        infoData.add(new OriginCityDetail(tmp[0]));
+        if(tmp[0] != null)
+            infoData.add(new OriginCityDetail(tmp[0]));
 
         offset = readStrings(block, tmp, offset);
-        infoData.add(new OriginProvinceDetail(tmp[0]));
+        if(tmp[0] != null)
+            infoData.add(new OriginProvinceDetail(tmp[0]));
 
         int originCountryCode = LEBinaryTools.getUShort(block, offset);
         offset += 2;
-        infoData.add(new OriginCountryDetail(getCountry(originCountryCode)));
+        Locale originCountryLocale = getCountry(originCountryCode);
+        if(originCountryLocale != null)
+            infoData.add(new OriginCountryDetail(originCountryLocale));
 
         short userGMTOffset = LEBinaryTools.getUByte(block, offset);
         offset += 1;
@@ -878,7 +946,7 @@ public class FullInfoCmd
 
     private void readEmailUserInfo(ByteBlock block, int requestID)
     {
-        Vector infoData = getInfoForRequest(requestID);
+        List infoData = getInfoForRequest(requestID);
 
         int offset = 1;
         String[] tmp = new String[1];
@@ -886,9 +954,7 @@ public class FullInfoCmd
         short emailCount = LEBinaryTools.getUByte(block, offset);
         offset += 1;
 
-        String[] emails = new String[emailCount];
-        short[] emailRights = new short[emailCount];
-
+//        short[] emailRights = new short[emailCount];
         for (int i = 0; i < emailCount; i++)
         {
             // per email rights
@@ -896,22 +962,23 @@ public class FullInfoCmd
             offset += 1;
 
             offset = readStrings(block, tmp, offset);
-            infoData.add(new ServerStoredDetails.EmailAddressDetail(tmp[0]));
-            emailRights[i] = publish;
+            if(tmp[0] != null)
+                infoData.add(new ServerStoredDetails.EmailAddressDetail(tmp[0]));
+//            emailRights[i] = publish;
         }
     }
 
     private void readHomePageUserInfo(ByteBlock block, int requestID)
     {
-        Vector infoData = getInfoForRequest(requestID);
+        List infoData = getInfoForRequest(requestID);
 
         int offset = 1;
 
         //1-enabled, 0-disabled
-        short enabled = LEBinaryTools.getUByte(block, offset);
+//        short enabled = LEBinaryTools.getUByte(block, offset);
         offset += 1;
 
-        int homePageCategory = LEBinaryTools.getUShort(block, offset);
+//        int homePageCategory = LEBinaryTools.getUShort(block, offset);
         offset += 2;
 
         String[] tmp = new String[1];
@@ -919,7 +986,8 @@ public class FullInfoCmd
 
         try
         {
-            infoData.add(new ServerStoredDetails.WebPageDetail(new URL(tmp[0])));
+            if(tmp[0] != null)
+                infoData.add(new ServerStoredDetails.WebPageDetail(new URL(tmp[0])));
         }
         catch (MalformedURLException ex)
         {}
@@ -927,29 +995,39 @@ public class FullInfoCmd
 
     private void readWorkUserInfo(ByteBlock block, int requestID)
     {
-        Vector infoData = getInfoForRequest(requestID);
+        List infoData = getInfoForRequest(requestID);
 
         int offset = 1;
 
         String[] workAddress = new String[6];
         offset = readStrings(block, workAddress, offset);
-        infoData.add(new ServerStoredDetails.WorkCityDetail(workAddress[0]));
-        infoData.add(new ServerStoredDetails.WorkProvinceDetail(workAddress[1]));
-        infoData.add(new ServerStoredDetails.WorkPhoneDetail(workAddress[2]));
-        infoData.add(new WorkFaxDetail(workAddress[3]));
-        infoData.add(new ServerStoredDetails.WorkAddressDetail(workAddress[4]));
-        infoData.add(new ServerStoredDetails.WorkPostalCodeDetail(workAddress[5]));
+        if(workAddress[0] != null)
+            infoData.add(new ServerStoredDetails.WorkCityDetail(workAddress[0]));
+        if(workAddress[1] != null)
+            infoData.add(new ServerStoredDetails.WorkProvinceDetail(workAddress[1]));
+        if(workAddress[2] != null)
+            infoData.add(new ServerStoredDetails.WorkPhoneDetail(workAddress[2]));
+        if(workAddress[3] != null)
+            infoData.add(new WorkFaxDetail(workAddress[3]));
+        if(workAddress[4] != null)
+            infoData.add(new ServerStoredDetails.WorkAddressDetail(workAddress[4]));
+        if(workAddress[5] != null)
+            infoData.add(new ServerStoredDetails.WorkPostalCodeDetail(workAddress[5]));
 
         int workCountryCode = LEBinaryTools.getUShort(block, offset);
         offset += 2;
-        infoData.add(
-            new ServerStoredDetails.WorkCountryDetail(getCountry(workCountryCode)));
+        Locale workCountry = getCountry(workCountryCode);
+        if(workCountry != null)
+            infoData.add(new ServerStoredDetails.WorkCountryDetail(workCountry));
 
         String[] workInfo = new String[3];
         offset = readStrings(block, workInfo, offset);
-        infoData.add(new ServerStoredDetails.WorkOrganizationNameDetail(workInfo[0]));
-        infoData.add(new WorkDepartmentNameDetail(workInfo[1]));
-        infoData.add(new WorkPositionNameDetail(workInfo[2]));
+        if(workInfo[0] != null)
+            infoData.add(new ServerStoredDetails.WorkOrganizationNameDetail(workInfo[0]));
+        if(workInfo[1] != null)
+            infoData.add(new WorkDepartmentNameDetail(workInfo[1]));
+        if(workInfo[2] != null)
+            infoData.add(new WorkPositionNameDetail(workInfo[2]));
 
         int workOccupationCode = LEBinaryTools.getUShort(block, offset);
         offset += 2;
@@ -963,7 +1041,8 @@ public class FullInfoCmd
 
         try
         {
-            infoData.add(new ServerStoredDetails.WorkPageDetail(new URL(tmp[0])));
+            if(tmp[0] != null)
+                infoData.add(new ServerStoredDetails.WorkPageDetail(new URL(tmp[0])));
         }
         catch (MalformedURLException ex)
         {}
@@ -971,18 +1050,19 @@ public class FullInfoCmd
 
     private void readUserAboutInfo(ByteBlock block, int requestID)
     {
-        Vector infoData = getInfoForRequest(requestID);
+        List infoData = getInfoForRequest(requestID);
 
         int offset = 1;
         String[] tmp = new String[1];
         offset = readStrings(block, tmp, offset);
 
-        infoData.add(new NotesDetail(tmp[0]));
+        if(tmp[0] != null)
+            infoData.add(new NotesDetail(tmp[0]));
     }
 
     private void readInterestsUserInfo(ByteBlock block, int requestID)
     {
-        Vector infoData = getInfoForRequest(requestID);
+        List infoData = getInfoForRequest(requestID);
 
         int offset = 1;
         String[] tmp = new String[1];
@@ -990,8 +1070,8 @@ public class FullInfoCmd
         short interestsCount = LEBinaryTools.getUByte(block, offset);
         offset += 1;
 
-        String[] interests = new String[interestsCount];
-        int[] categories = new int[interestsCount];
+//        String[] interests = new String[interestsCount];
+//        int[] categories = new int[interestsCount];
 
         for (int i = 0; i < interestsCount; i++)
         {
@@ -1094,14 +1174,14 @@ public class FullInfoCmd
         return requestID;
     }
 
-    public Vector getInfo()
+    public List getInfo()
     {
         return getInfoForRequest(getRequestID());
     }
 
-    protected Vector getInfoForRequest(int requestID)
+    protected List getInfoForRequest(int requestID)
     {
-        Vector res = (Vector) retreivedInfo.get(new Integer(requestID));
+        List res = (List) retreivedInfo.get(new Integer(requestID));
 
         if (res == null)
         {
@@ -1109,7 +1189,7 @@ public class FullInfoCmd
             // doesn't exists, so this is the first packet
             // from the sequence (basic info)
 
-            res = new Vector();
+            res = new LinkedList();
             retreivedInfo.put(new Integer(requestID), res);
         }
 
@@ -1166,6 +1246,15 @@ public class FullInfoCmd
 
         return 0; // not specified
     }
+
+    private static Locale getSpokenLanguage(int code)
+    {
+        if(code == 0 || code == 255) // not specified or other
+            return null;
+
+        return spokenLanguages[code];
+    }
+
 
     public static class OriginCityDetail extends ServerStoredDetails.CityDetail
     {
