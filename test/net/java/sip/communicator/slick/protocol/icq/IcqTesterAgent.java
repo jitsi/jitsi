@@ -386,6 +386,10 @@ public class IcqTesterAgent
                         registerAll(authCmdFactory);
 
                     icbmService.getOscarConnection().getSnacProcessor().
+                        getCmdFactoryMgr().getDefaultFactoryList().
+                        registerAll(FullUserInfoCmd.getCommandFactory());
+
+                    icbmService.getOscarConnection().getSnacProcessor().
                         addGlobalResponseListener(authCmdFactory);
                 }
                 else if (event.getNewState() == State.FAILED
@@ -685,8 +689,6 @@ public class IcqTesterAgent
                 infoLock.notifyAll();
             }
         }
-
-
     }
 
     /**
@@ -1501,79 +1503,75 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
     public void setAuthorizationRequired()
     {
         logger.debug("sending auth required");
-        conn.getSsiService().sendSnac(new SaveInfoRequest());
+        FullUserInfoCmd cmd = new FullUserInfoCmd(getIcqUIN());
+        cmd.writeOutByte(0x030c, 0); // 0x030C User authorization permissions
+        cmd.writeOutByte(0x02F8, 0); // 0x02F8  User 'show web status' permissions
+        conn.getSsiService().sendSnac(cmd);
     }
 
-    private class SaveInfoRequest
-        extends SnacCommand
+    public Hashtable getUserInfo(String uin)
     {
-        public SaveInfoRequest()
+        UserInfoResponse response = new UserInfoResponse();
+
+        conn.getInfoService().sendSnacRequest(
+            FullUserInfoCmd.getFullInfoRequestCommand(getIcqUIN(), uin),
+            response);
+
+        synchronized(response)
         {
-            super(21,2);
+            try{response.wait(5000);}
+            catch (InterruptedException ex){}
         }
 
-        public void writeData(OutputStream out)
-            throws IOException
+        return response.info;
+    }
+
+    public void setUserInfoLastName(String lastName)
+    {
+        FullUserInfoCmd cmd = new FullUserInfoCmd(getIcqUIN());
+        cmd.writeOutString(0x014A, lastName);
+        conn.getSsiService().sendSnac(cmd);
+    }
+    public void setUserInfoPhoneNumber(String phone)
+    {
+        FullUserInfoCmd cmd = new FullUserInfoCmd(getIcqUIN());
+        cmd.writeOutString(0x0276, phone);
+        conn.getSsiService().sendSnac(cmd);
+    }
+    public void setUserInfoLanguage(int language1, int language2, int language3)
+    {
+        FullUserInfoCmd cmd = new FullUserInfoCmd(getIcqUIN());
+        cmd.writeOutShort(0x0186, language1);
+        cmd.writeOutShort(0x0186, language2);
+        cmd.writeOutShort(0x0186, language3);
+        conn.getSsiService().sendSnac(cmd);
+    }
+    public void setUserInfoHomeCountry(int countryCode)
+    {
+        FullUserInfoCmd cmd = new FullUserInfoCmd(getIcqUIN());
+        cmd.writeOutShort(0x01A4, countryCode);
+        conn.getSsiService().sendSnac(cmd);
+    }
+
+
+    private class UserInfoResponse
+        extends SnacRequestAdapter
+    {
+        Hashtable info = null;
+
+        public void handleResponse(SnacResponseEvent e)
         {
-            ByteArrayOutputStream icqout = new ByteArrayOutputStream();
+            if(e.getSnacCommand() instanceof FullUserInfoCmd)
+            {
+                FullUserInfoCmd cmd = (FullUserInfoCmd)e.getSnacCommand();
 
-            ByteArrayOutputStream icqDataOut = new ByteArrayOutputStream();
-
-            writeUShort(icqDataOut, 0x030c); // 0x030C User authorization permissions
-            writeUShort(icqDataOut, 1);
-            writeUByte(icqDataOut, 0);
-
-            writeUShort(icqDataOut, 0x02F8); // 0x02F8  User 'show web status' permissions
-			writeUShort(icqDataOut, 1);
-            writeUByte(icqDataOut, 0);
-
-            int hdrlen = 10; // The expected header length, not counting the length field itself.
-            int primary = 0x07D0;
-            int secondary = 0x0c3a;
-
-            long icqUINlong = Long.parseLong(icqUIN.getFormatted());
-
-            int length = hdrlen + icqDataOut.size();
-
-            writeUShort(icqout, length);
-            writeUInt(icqout, icqUINlong);
-            writeUShort(icqout, primary);
-            writeUShort(icqout, 0); // the sequence
-
-            writeUShort(icqout, secondary);
-
-            icqDataOut.writeTo(icqout);
-
-            logger.debug("now we will write data!");
-            System.out.println("now we will write data!");
-            new Tlv(0x0001, ByteBlock.wrap(icqout.toByteArray())).write(out);
-        }
-
-        public void writeUInt(final OutputStream out, final long number)
-            throws IOException
-        {
-            out.write(new byte[] {
-                (byte)((number) & 0xff),
-                (byte)((number >> 8) & 0xff),
-                (byte)((number >> 16) & 0xff),
-                (byte)((number >> 24) & 0xff)
-            });
-        }
-
-        public void writeUShort(OutputStream out, int number)
-            throws IOException
-        {
-            out.write(new byte[]
+                if(cmd.lastOfSequences)
                 {
-                (byte)(number & 0xff),
-                (byte)((number >> 8) & 0xff)
-            });
-        }
-
-        public void writeUByte(OutputStream out, int number)
-            throws IOException
-        {
-            out.write(new byte[]{(byte) (number & 0xff)});
+                    info = cmd.getInfo();
+                    synchronized(this)
+                    {notifyAll();}
+                }
+            }
         }
     }
 
