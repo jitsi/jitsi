@@ -8,11 +8,7 @@ package net.java.sip.communicator.impl.protocol.icq;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.icq.message.common.*;
-import net.java.sip.communicator.impl.protocol.icq.message.usrinfo.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.kano.joscar.flapcmd.*;
-import net.kano.joscar.snac.*;
 
 /**
  * @author Damian Minkov

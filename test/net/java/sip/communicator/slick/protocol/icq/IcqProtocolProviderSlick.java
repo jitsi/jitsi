@@ -68,19 +68,19 @@ public class IcqProtocolProviderSlick
         // identify our testing agent on icq - it MUST be defined.
         String icqTestAgentName = System.getProperty(
                 TESTING_IMPL_ACCOUNT_ID_PROP_NAME, null);
-        
+
         // we can only set up the real icq test suites when the
         // accounts.properties file defines the two test accounts
         if (icqTestAgentName != null) {
             //it is defined, so register our testing agent on icq.
             IcqSlickFixture.testerAgent =
                     new IcqTesterAgent(icqTestAgentName);
-            
+
             // find out the password for the test agent on icq. It
             // probably exists because we found the properties file above
             String icqTestAgentPwd = System.getProperty(
                     TESTING_IMPL_PWD_PROP_NAME, null);
-            
+
             // .. and try to register the icq test agent (online)
             if (IcqSlickFixture.testerAgent.register(icqTestAgentPwd)) {
                 IcqSlickFixture.testerAgent.setAuthorizationRequired();
@@ -120,6 +120,8 @@ public class IcqProtocolProviderSlick
 
                 addTest(TestOperationSetTypingNotifications.suite());
 
+                addTest(TestOperationSetServerStoredInfo.suite());
+
                 //This must remain last since it tests account uninstallation and
                 //the accounts we use for testing won't be available after that.
                 addTest(TestAccountUninstallation.suite());
@@ -139,7 +141,7 @@ public class IcqProtocolProviderSlick
                 new TestAccountInvalidNotification("failIcqTesterAgentMissing"));
 
         }
-        
+
         bundleContext.registerService(getClass().getName(), this, properties);
 
         logger.debug("Successfully registered " + getClass().getName());
