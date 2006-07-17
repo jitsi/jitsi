@@ -62,8 +62,15 @@ public class DefaultCmdFactory
             return new OfflineMsgCmd(fromICQCmd);
         }
         else
+        if(fromICQCmd.getType().equals(FullInfoAck.SET_FULLINFO_ACK))
+        {
+            return new FullInfoAck(fromICQCmd);
+        }
+        else
         {
             logger.debug("Packet Received we don't know about! " + packet);
+            logger.debug("Packet primary : " + fromICQCmd.getType().getPrimary());
+            logger.debug("Packet secondary : " + fromICQCmd.getType().getSecondary());
 
             return null;
         }
