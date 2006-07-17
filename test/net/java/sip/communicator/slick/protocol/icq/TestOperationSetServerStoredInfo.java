@@ -103,12 +103,8 @@ public class TestOperationSetServerStoredInfo
     /**
      * Creates a test suite containing tests of this class in a specific order.
      * We'll first execute tests beginning with the "test" prefix and then go to
-     * ordered tests.We first execture tests for receiving messagese, so that
-     * a volatile contact is created for the sender. we'll then be able to
-     * retrieve this volatile contact and send them a message on our turn.
-     * We need to do things this way as the contact corresponding to the tester
-     * agent has been removed in the previous test and we no longer have it
-     * in our contact list.
+     * ordered tests. We first execute tests for reading info, then writing.
+     * Then the ordered tests - error handling and finaly for removing details
      *
      * @return Test a testsuite containing all tests to execute.
      */
@@ -191,6 +187,7 @@ public class TestOperationSetServerStoredInfo
         Contact testerAgentContact
             = opSetPresence.findContactByID(fixture.testerAgent.getIcqUIN());
 
+        // Get the last name info
         Iterator iter =
             opSetServerStoredContactInfo.
                 getDetails(testerAgentContact,
@@ -206,6 +203,7 @@ public class TestOperationSetServerStoredInfo
             break;
         }
 
+        // Get phone number info
         iter =
             opSetServerStoredContactInfo.
                 getDetails(testerAgentContact,
@@ -220,6 +218,7 @@ public class TestOperationSetServerStoredInfo
             break;
         }
 
+        // get the spoken languages
         iter =
             opSetServerStoredContactInfo.
                 getDetails(testerAgentContact,
@@ -244,6 +243,7 @@ public class TestOperationSetServerStoredInfo
         assertTrue("Must contain langiage " + spokenLanguages[lang3],
                    spokenLanguagesServer.contains(spokenLanguages[lang3]));
 
+        // get home country code detail
         iter =
             opSetServerStoredContactInfo.
                 getDetails(testerAgentContact,
@@ -277,21 +277,25 @@ public class TestOperationSetServerStoredInfo
         Iterator iterSpokenLangDetails = null;
         ServerStoredDetails.CountryDetail homeCountryDetail = null;
 
+        // Get Last name info detail
         Iterator iter =
             opSetServerStoredAccountInfo.
             getDetails(ServerStoredDetails.LastNameDetail.class);
         if (iter.hasNext())
             lastNameDetail = (ServerStoredDetails.LastNameDetail) iter.next();
 
+        // Get phone number info
         iter = opSetServerStoredAccountInfo.
             getDetails(ServerStoredDetails.PhoneNumberDetail.class);
         if (iter.hasNext())
             phoneNumberDetail = (ServerStoredDetails.PhoneNumberDetail)
                 iter.next();
 
+        // Get spoken languages
         iterSpokenLangDetails = opSetServerStoredAccountInfo.
             getDetails(ServerStoredDetails.SpokenLanguageDetail.class);
 
+        // Get home country code detail
         iter = opSetServerStoredAccountInfo.
             getDetails(ServerStoredDetails.CountryDetail.class);
         if (iter.hasNext())
@@ -505,6 +509,10 @@ public class TestOperationSetServerStoredInfo
                      , userInfo.get(FullUserInfoCmd.HOME_COUNTRY));
     }
 
+    /**
+     * Checking if the error handling works (all throw clauses in the methods)
+     * If max number of details is ok. Chacking of details classes.
+     */
     public void errorHandling()
     {
         Iterator iter =
@@ -565,6 +573,11 @@ public class TestOperationSetServerStoredInfo
         {}
     }
 
+    /**
+     * Details used only for class checking when passing it to
+     * modification methods. As its not in the implementation
+     * ClassCastException must be thrown
+     */
     private class DummyDetail
         extends ServerStoredDetails.NameDetail
     {
@@ -641,6 +654,8 @@ public class TestOperationSetServerStoredInfo
         }
     }
 
+    // Indexes of countries as stored in the icq server
+    // and their corresponding locale strings
     private static Object[][] countryIndexToLocaleString =
     {
             //        {new Integer(0),""}, //not specified
@@ -891,7 +906,8 @@ public class TestOperationSetServerStoredInfo
 
         };
 
-
+    // the index in the array is the index stored in icq server
+    // the values are the corresponding locales
     private static Locale spokenLanguages[] =
         new Locale[]
         {
@@ -970,5 +986,4 @@ public class TestOperationSetServerStoredInfo
         new Locale("be"), // LC_BELORUSSIAN   Belorussian
         null // LC_OTHER     255     other
     };
-
 }

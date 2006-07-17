@@ -27,6 +27,12 @@ public class FullInfoAck
 
     private boolean isSuccess = false;
 
+    /**
+     * Constructs incoming Command
+     * and extracts data from it
+     *
+     * @param packet FromIcqCmd
+     */
     public FullInfoAck(FromIcqCmd packet)
     {
         super(21, 3);
@@ -40,11 +46,24 @@ public class FullInfoAck
         }
     }
 
+    /**
+     * Do nothing as this packet is received only
+     *
+     * @param out OutputStream
+     * @throws IOException
+     */
     public void writeData(OutputStream out) throws IOException
     {
         // nothing to write
     }
 
+    /**
+     * Return the data from this command
+     * whether the command which this packet is reply to
+     * is succesful or not
+     *
+     * @return boolean
+     */
     public boolean isCommandSuccesful()
     {
         return isSuccess;

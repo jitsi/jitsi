@@ -23,17 +23,41 @@ public class OperationSetServerStoredContactInfoIcqImpl
     {
         this.infoRetreiver = infoRetreiver;
     }
-
-    public Iterator getDetailsAndDescendants(Contact contat, Class detailClass)
+    /**
+     * returns the user details from the specified class or its descendants
+     * the class is one from the
+     * net.java.sip.communicator.service.protocol.ServerStoredDetails
+     * or implemented one in the operation set for the user info
+     *
+     * @param contact Contact
+     * @param detailClass Class
+     * @return Iterator
+     */
+    public Iterator getDetailsAndDescendants(Contact contact, Class detailClass)
     {
-        return infoRetreiver.getDetailsAndDescendants(contat.getAddress(), detailClass);
+        return infoRetreiver.getDetailsAndDescendants(contact.getAddress(), detailClass);
     }
 
-    public Iterator getDetails(Contact contat, Class detailClass)
+    /**
+     * returns the user details from the specified class
+     * exactly that class not its descendants
+     *
+     * @param contact Contact
+     * @param detailClass Class
+     * @return Iterator
+     */
+    public Iterator getDetails(Contact contact, Class detailClass)
     {
-        return infoRetreiver.getDetails(contat.getAddress(), detailClass);
+        return infoRetreiver.getDetails(contact.getAddress(), detailClass);
     }
 
+    /**
+     * request the full info for the given uin
+     * waits and return this details
+     *
+     * @param contact Contact
+     * @return Iterator
+     */
     public Iterator getAllDetailsForContact(Contact contact)
     {
         return infoRetreiver.getContactDetails(contact.getAddress()).iterator();

@@ -514,6 +514,10 @@ public class FullInfoCmd
         supportedTypes.put(ServerStoredDetails.TimeZoneDetail.class,    new int[]{1, 0x0316});
     }
 
+    /**
+     * Construct incoming command from server
+     * @param packet FromIcqCmd
+     */
     public FullInfoCmd(FromIcqCmd packet)
     {
         super(21, 3);
@@ -557,6 +561,13 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * Constructs command send to server
+     * @param senderUin String the uin of the sender
+     * @param changedData List the data to be changed
+     * @param toBeCleared List the data to be cleared,
+     *      if no such data null can be passed
+     */
     public FullInfoCmd(String senderUin, List changedData, List toBeCleared)
     {
         super(21,2);
@@ -604,6 +615,11 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * Data writen to the sever corresponding the changes passed to the constructor
+     * @param out OutputStream
+     * @throws IOException
+     */
     public void writeData(OutputStream out) throws IOException
     {
         ByteArrayOutputStream icqout = new ByteArrayOutputStream();
@@ -638,6 +654,12 @@ public class FullInfoCmd
         new Tlv(TYPE_ICQ_DATA, ByteBlock.wrap(icqout.toByteArray())).write(out);
     }
 
+    /**
+     * Converts ServerStoredDetails to Tlv which later is converted to bytes
+     * and send to server
+     * @param detail GenericDetail the detail
+     * @return DetailTlv
+     */
     private DetailTlv getTlvForChange(ServerStoredDetails.GenericDetail detail)
     {
         int typeOfDetail = ((int[])supportedTypes.get(detail.getClass()))[1];
@@ -668,6 +690,12 @@ public class FullInfoCmd
         return result;
     }
 
+    /**
+     * Correspondig the type of ServerStoredDetails returns empty Tlv or Tlv
+     * with default value
+     * @param detail GenericDetail
+     * @return DetailTlv
+     */
     private DetailTlv getClearTlv(ServerStoredDetails.GenericDetail detail)
     {
         int typeOfDetail = ((int[])supportedTypes.get(detail.getClass()))[1];
@@ -704,7 +732,11 @@ public class FullInfoCmd
         return result;
     }
 
-
+    /**
+     * Writes the corresponding index for Language from ServerStoredDetails to the tlv
+     * @param detail LocaleDetail
+     * @param tlv DetailTlv
+     */
     private void writeLanguageCode(ServerStoredDetails.LocaleDetail detail, DetailTlv tlv)
     {
         Locale newLang = detail.getLocale();
@@ -729,6 +761,11 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * Writes the corresponding index for Gender from ServerStoredDetails to the tlv
+     * @param detail GenderDetail
+     * @param tlv DetailTlv
+     */
     private void writeGenderCode(ServerStoredDetails.GenderDetail detail, DetailTlv tlv)
     {
         int gender = 0;
@@ -741,6 +778,11 @@ public class FullInfoCmd
         tlv.writeUByte(gender);
     }
 
+    /**
+     * Writes the corresponding index for Calendar(BirthDate) from ServerStoredDetails to the tlv
+     * @param detail CalendarDetail
+     * @param tlv DetailTlv
+     */
     private void writeCalendarCode(ServerStoredDetails.CalendarDetail detail, DetailTlv tlv)
     {
         Calendar calendar = detail.getCalendar();
@@ -750,6 +792,11 @@ public class FullInfoCmd
         tlv.writeUShort(calendar.get(Calendar.DAY_OF_MONTH));
     }
 
+    /**
+     * Writes the corresponding index for Occupation from ServerStoredDetails to the tlv
+     * @param detail WorkOcupationDetail
+     * @param tlv DetailTlv
+     */
     private void writeOccupationCode(WorkOcupationDetail detail, DetailTlv tlv)
     {
         for(int i = 0; i < occupations.length; i++)
@@ -759,6 +806,11 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * Writes the corresponding index for Interests from ServerStoredDetails to the tlv
+     * @param detail InterestDetail
+     * @param tlv DetailTlv
+     */
     private void writeInterestCode(InterestDetail detail, DetailTlv tlv)
     {
         String category = detail.getCategory();
@@ -780,6 +832,11 @@ public class FullInfoCmd
         tlv.writeString(detail.getInterest());
     }
 
+    /**
+     * Writes the corresponding value for ServerStoredDetails to the tlv
+     * @param detail GenericDetail
+     * @param tlv DetailTlv
+     */
     private void writeGenericDetail(ServerStoredDetails.GenericDetail detail,  DetailTlv tlv)
     {
         if(detail instanceof ServerStoredDetails.StringDetail)
@@ -795,7 +852,12 @@ public class FullInfoCmd
             }
     }
 
-    // START method for parsing incoming data
+    /**
+     * Method for parsing incoming data
+     * Read data in BasicUserInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readBasicUserInfo(ByteBlock block, int requestID)
     {
         List infoData = getInfoForRequest(requestID);
@@ -847,6 +909,12 @@ public class FullInfoCmd
             infoData.add(new ServerStoredDetails.PostalCodeDetail(bscInfo[10]));
     }
 
+    /**
+     * Method for parsing incoming data
+     * Read data in MoreUserInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readMoreUserInfo(ByteBlock block, int requestID)
     {
         List infoData = getInfoForRequest(requestID);
@@ -944,6 +1012,12 @@ public class FullInfoCmd
         infoData.add(new ServerStoredDetails.TimeZoneDetail("GMT Offest", userTimeZone));
     }
 
+    /**
+     * Method for parsing incoming data
+     * Read data in EmailUserInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readEmailUserInfo(ByteBlock block, int requestID)
     {
         List infoData = getInfoForRequest(requestID);
@@ -968,6 +1042,12 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * Method for parsing incoming data
+     * Read data in HomePageUserInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readHomePageUserInfo(ByteBlock block, int requestID)
     {
         List infoData = getInfoForRequest(requestID);
@@ -993,6 +1073,12 @@ public class FullInfoCmd
         {}
     }
 
+    /**
+     * Method for parsing incoming data
+     * Read data in WorkUserInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readWorkUserInfo(ByteBlock block, int requestID)
     {
         List infoData = getInfoForRequest(requestID);
@@ -1048,6 +1134,12 @@ public class FullInfoCmd
         {}
     }
 
+    /**
+     * Method for parsing incoming data
+     * Read data in UserAboutInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readUserAboutInfo(ByteBlock block, int requestID)
     {
         List infoData = getInfoForRequest(requestID);
@@ -1060,6 +1152,12 @@ public class FullInfoCmd
             infoData.add(new NotesDetail(tmp[0]));
     }
 
+    /**
+     * Method for parsing incoming data
+     * Read data in InterestsUserInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readInterestsUserInfo(ByteBlock block, int requestID)
     {
         List infoData = getInfoForRequest(requestID);
@@ -1137,8 +1235,11 @@ public class FullInfoCmd
         lastOfSequences = true;
     }
 
-    // END method for parsing incoming data
-
+    /**
+     * Checks the type of the current command
+     * @param type IcqType
+     * @return boolean
+     */
     public static boolean isOfType(IcqType type)
     {
         switch (type.getSecondary())
@@ -1164,21 +1265,39 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * Whether this command is last of the sequence
+     * @return boolean
+     */
     public boolean isLastOfSequences()
     {
         return lastOfSequences;
     }
 
+    /**
+     * The request id of the current command
+     * @return int
+     */
     public int getRequestID()
     {
         return requestID;
     }
 
+    /**
+     * Return the retreived info from the last received request
+     * @return List
+     */
     public List getInfo()
     {
         return getInfoForRequest(getRequestID());
     }
 
+    /**
+     * Returns the stored info so far on the specified request
+     *
+     * @param requestID int
+     * @return List
+     */
     protected List getInfoForRequest(int requestID)
     {
         List res = (List) retreivedInfo.get(new Integer(requestID));
@@ -1196,6 +1315,15 @@ public class FullInfoCmd
         return res;
     }
 
+    /**
+     * Extracts String from the given byte block
+     * starting from the specified position
+     *
+     * @param block ByteBlock
+     * @param result String[] the result strings
+     * @param offset int
+     * @return int
+     */
     private static int readStrings(ByteBlock block, String[] result, int offset)
     {
         for (int i = 0; i < result.length; i++)
@@ -1215,6 +1343,12 @@ public class FullInfoCmd
         return offset;
     }
 
+    /**
+     * Returns the Locale corresponding the index coming from icq server
+     *
+     * @param code int
+     * @return Locale
+     */
     private static Locale getCountry(int code)
     {
         if(code == 0 || code == 9999) // not specified or other
@@ -1229,6 +1363,11 @@ public class FullInfoCmd
         return new Locale("", cryStr);
     }
 
+    /**
+     * Returns the index stored on the server corresponding the given locale
+     * @param cLocale Locale
+     * @return int
+     */
     private static int getCountryCode(Locale cLocale)
     {
         if(cLocale == null)
@@ -1247,6 +1386,11 @@ public class FullInfoCmd
         return 0; // not specified
     }
 
+    /**
+     * Returns the Locale corresponding the index coming from icq server
+     * @param code int
+     * @return Locale
+     */
     private static Locale getSpokenLanguage(int code)
     {
         if(code == 0 || code == 255) // not specified or other
@@ -1255,7 +1399,9 @@ public class FullInfoCmd
         return spokenLanguages[code];
     }
 
-
+    /**
+     * Origin City of user
+     */
     public static class OriginCityDetail extends ServerStoredDetails.CityDetail
     {
         public OriginCityDetail(String cityName)
@@ -1264,6 +1410,9 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * Origin Province of User
+     */
     public static class OriginProvinceDetail
         extends ServerStoredDetails.ProvinceDetail
     {
@@ -1273,6 +1422,9 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * Origin Postal Code of user
+     */
     public static class OriginPostalCodeDetail
         extends ServerStoredDetails.PostalCodeDetail
     {
@@ -1282,6 +1434,9 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * Fax at work
+     */
     public static class WorkFaxDetail
         extends ServerStoredDetails.PhoneNumberDetail
     {
@@ -1292,6 +1447,9 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * Work department
+     */
     public static class WorkDepartmentNameDetail
         extends ServerStoredDetails.NameDetail
     {
@@ -1301,6 +1459,9 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * User position name at work
+     */
     public static class WorkPositionNameDetail
         extends ServerStoredDetails.StringDetail
     {
@@ -1310,6 +1471,9 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * User ocupation at work
+     */
     public static class WorkOcupationDetail
         extends ServerStoredDetails.StringDetail
     {
@@ -1319,6 +1483,9 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * User notes
+     */
     public static class NotesDetail
         extends ServerStoredDetails.StringDetail
     {
@@ -1328,6 +1495,9 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * User interests
+     */
     public static class InterestDetail extends ServerStoredDetails.InterestDetail
     {
         private String category = null;
@@ -1344,6 +1514,9 @@ public class FullInfoCmd
         }
     }
 
+    /**
+     * Origin country Code of user
+     */
     public static class OriginCountryDetail
         extends ServerStoredDetails.CountryDetail
     {

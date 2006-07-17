@@ -98,6 +98,11 @@ public class FullUserInfoCmd
         }
     }
 
+    /**
+     * Process the data in the received packet
+     *
+     * @param icqData ByteBlock
+     */
     private void processICQData(ByteBlock icqData)
     {
         switch (secondaryType)
@@ -153,6 +158,12 @@ public class FullUserInfoCmd
         new Tlv(TYPE_ICQ_DATA, ByteBlock.wrap(icqout.toByteArray())).write(out);
     }
 
+    /**
+     * Returns the stored info so far on the specified request
+     *
+     * @param requestID int
+     * @return Hashtable
+     */
     private Hashtable getInfoForRequest(int requestID)
     {
         Hashtable res = (Hashtable) retreivedInfo.get(new Integer(requestID));
@@ -170,12 +181,21 @@ public class FullUserInfoCmd
         return res;
     }
 
+    /**
+     * Return the retreived info from the last received request
+     * @return Hashtable
+     */
     public Hashtable getInfo()
     {
         return getInfoForRequest(requestID);
     }
 
-    // START method for parsing incoming data
+    /**
+     * Method for parsing incoming data
+     * Read data in BasicUserInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readBasicUserInfo(ByteBlock block, int requestID)
     {
         Hashtable infoData = getInfoForRequest(requestID);
@@ -221,6 +241,12 @@ public class FullUserInfoCmd
 //        infoData.add(new ServerStoredDetails.PostalCodeDetail(bscInfo[10]));
     }
 
+    /**
+     * Method for parsing incoming data
+     * Read data in MoreUserInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readMoreUserInfo(ByteBlock block, int requestID)
     {
         Hashtable infoData = getInfoForRequest(requestID);
@@ -315,6 +341,12 @@ public class FullUserInfoCmd
 //        infoData.add(new ServerStoredDetails.TimeZoneDetail("GMT Offest", userTimeZone));
     }
 
+    /**
+     * Method for parsing incoming data
+     * Read data in EmailUserInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readEmailUserInfo(ByteBlock block, int requestID)
     {
 //        Vector infoData = getInfoForRequest(requestID);
@@ -340,6 +372,12 @@ public class FullUserInfoCmd
 //        }
     }
 
+    /**
+     * Method for parsing incoming data
+     * Read data in HomePageUserInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readHomePageUserInfo(ByteBlock block, int requestID)
     {
 //        Vector infoData = getInfoForRequest(requestID);
@@ -364,6 +402,12 @@ public class FullUserInfoCmd
 //        {}
     }
 
+    /**
+     * Method for parsing incoming data
+     * Read data in WorkUserInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readWorkUserInfo(ByteBlock block, int requestID)
     {
 //        Vector infoData = getInfoForRequest(requestID);
@@ -408,6 +452,12 @@ public class FullUserInfoCmd
 //        {}
     }
 
+    /**
+     * Method for parsing incoming data
+     * Read data in UserAboutInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readUserAboutInfo(ByteBlock block, int requestID)
     {
 //        Vector infoData = getInfoForRequest(requestID);
@@ -419,6 +469,12 @@ public class FullUserInfoCmd
 //        infoData.add(new NotesDetail(tmp[0]));
     }
 
+    /**
+     * Method for parsing incoming data
+     * Read data in InterestsUserInfo command
+     * @param block ByteBlock
+     * @param requestID int
+     */
     private void readInterestsUserInfo(ByteBlock block, int requestID)
     {
 //        Vector infoData = getInfoForRequest(requestID);
@@ -496,9 +552,12 @@ public class FullUserInfoCmd
         lastOfSequences = true;
     }
 
-    // END method for parsing incoming data
-
-
+    /**
+     * Writes Byte data to the icqDataOut
+     * which is send to the server
+     * @param dataType int the data type used in the Tlv
+     * @param value int
+     */
     protected void writeOutByte(int dataType, int value)
     {
         try
@@ -511,6 +570,12 @@ public class FullUserInfoCmd
         {}
     }
 
+    /**
+     * Writes Short data to the icqDataOut
+     * which is send to the server
+     * @param dataType int the data type used in the Tlv
+     * @param value int
+     */
     protected void writeOutShort(int dataType, int value)
     {
         try
@@ -523,7 +588,12 @@ public class FullUserInfoCmd
         {}
     }
 
-
+    /**
+     * Writes String data to the icqDataOut
+     * which is send to the server
+     * @param dataType int the data type used in the Tlv
+     * @param value String
+     */
     protected void writeOutString(int dataType, String value)
     {
         try
@@ -538,7 +608,13 @@ public class FullUserInfoCmd
         {}
     }
 
-
+    /**
+     * Writes Int data to the icqDataOut
+     * which is send to the server
+     * @param out OutputStream
+     * @param number long the data type used in the Tlv
+     * @throws IOException
+     */
     private static void writeUInt(final OutputStream out, final long number)
         throws IOException
     {
@@ -550,6 +626,12 @@ public class FullUserInfoCmd
         });
     }
 
+    /**
+     * Writes Short data to the stream
+     * @param out OutputStream
+     * @param number int
+     * @throws IOException
+     */
     private static void writeUShort(OutputStream out, int number)
         throws IOException
     {
@@ -560,12 +642,25 @@ public class FullUserInfoCmd
         });
     }
 
+    /**
+     * Writes Byte data to the stream
+     * @param out OutputStream
+     * @param number int
+     * @throws IOException
+     */
     private static void writeUByte(OutputStream out, int number)
         throws IOException
     {
         out.write(new byte[]{(byte) (number & 0xff)});
     }
 
+    /**
+     * Extracts Int from the given byte block
+     * starting from the specified position
+     * @param data ByteBlock
+     * @param pos int
+     * @return long
+     */
     private static long getUInt(final ByteBlock data, final int pos)
     {
         if (data.getLength() - pos < 4)
@@ -579,6 +674,13 @@ public class FullUserInfoCmd
             | ( (long) data.get(pos) & 0xffL);
     }
 
+    /**
+     * Extracts Short from the given byte block
+     * starting from the specified position
+     * @param data ByteBlock
+     * @param pos int
+     * @return int
+     */
     private static int getUShort(final ByteBlock data, final int pos)
     {
         if (data.getLength() - pos < 2)
@@ -589,6 +691,13 @@ public class FullUserInfoCmd
         return ( (data.get(pos + 1) & 0xff) << 8) | (data.get(pos) & 0xff);
     }
 
+    /**
+     * Extracts Byte from the given byte block
+     * starting from the specified position
+     * @param data ByteBlock
+     * @param pos int
+     * @return short
+     */
     public static short getUByte(final ByteBlock data, final int pos)
     {
         if (data.getLength() - pos < 1)
@@ -599,6 +708,15 @@ public class FullUserInfoCmd
         return (short) (data.get(pos) & 0xff);
     }
 
+    /**
+     * Extracts String from the given byte block
+     * starting from the specified position
+     *
+     * @param block ByteBlock
+     * @param result String[] the result strings
+     * @param offset int
+     * @return int
+     */
     private static int readStrings(ByteBlock block, String[] result, int offset)
     {
         for (int i = 0; i < result.length; i++)
@@ -618,17 +736,31 @@ public class FullUserInfoCmd
         return offset;
     }
 
-
+    /**
+     * The factory used to pass incoming commands
+     *
+     * @return SnacCmdFactory
+     */
     protected static SnacCmdFactory getCommandFactory()
     {
         return commandFactory;
     }
 
+    /**
+     * Return the command for requesting full user info
+     * @param senderUIN String the uin of the sender
+     * @param userInfoUIN String the uin of the requested user info
+     * @return SnacCommand
+     */
     protected static SnacCommand getFullInfoRequestCommand(String senderUIN, String userInfoUIN)
     {
         return new FullInfoRequest(senderUIN, userInfoUIN);
     }
 
+    /**
+     * Factory used for registering FullUserInfoCmd
+     * for receiving command
+     */
     private static class CommandFactory
         implements SnacCmdFactory
     {
@@ -649,12 +781,22 @@ public class FullUserInfoCmd
         }
     }
 
+    /**
+     * Command used for requestin full user info
+     */
     private static class FullInfoRequest
         extends SnacCommand
     {
         private String senderUIN;
         private String userInfoUIN;
 
+        /**
+         * Creating request for the specified user info
+         * from specified sender
+         *
+         * @param senderUIN String
+         * @param userInfoUIN String
+         */
         FullInfoRequest(String senderUIN, String userInfoUIN)
         {
             super(21, 2);
@@ -663,6 +805,11 @@ public class FullUserInfoCmd
             this.userInfoUIN = userInfoUIN;
         }
 
+        /**
+         * Writing data to the stream sending it to server
+         * @param out OutputStream
+         * @throws IOException
+         */
         public void writeData(OutputStream out) throws IOException
         {
             ByteArrayOutputStream icqout = new ByteArrayOutputStream();
