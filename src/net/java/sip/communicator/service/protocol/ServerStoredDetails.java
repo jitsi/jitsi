@@ -104,6 +104,36 @@ public class ServerStoredDetails
         {
             return value == null ? "": value.toString();
         }
+
+        /**
+         * Compares two GenericDetails according
+         * their DetailDisplayName and Value
+         *
+         * @param obj Object expected GenericDetail otherwise return false
+         * @return boolean whether this is equals obj
+         */
+        public boolean equals(Object obj)
+        {
+            if(!(obj instanceof GenericDetail))
+                return false;
+
+            GenericDetail other = (GenericDetail)obj;
+
+
+            if(this.detailDisplayName != null &&    // equals DisplayName
+               other.getDetailDisplayName() != null &&
+               this.detailDisplayName.equals(other.getDetailDisplayName()) &&
+
+               ((this.value != null &&              // equals not null values
+               other.getDetailValue() != null &&
+               this.value.equals(other.getDetailValue()))
+               ||
+               (this.value == null &&               // or both values are null
+               other.getDetailValue() == null)))
+                return true;
+            else
+                return false;
+        }
     }
 
     /**
@@ -301,7 +331,7 @@ public class ServerStoredDetails
             super("Phone", number);
         }
 
-        public String getNumber(String number)
+        public String getNumber()
         {
             return getString();
         }
@@ -559,7 +589,7 @@ public class ServerStoredDetails
     {
         public CalendarDetail(String detailDisplayName, Calendar date)
         {
-            super(detailDisplayName, date);date.getTime();
+            super(detailDisplayName, date);
         }
 
         public Calendar getCalendar()
