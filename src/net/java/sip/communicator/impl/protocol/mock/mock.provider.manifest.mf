@@ -1,0 +1,11 @@
+Bundle-Name: MockProvider
+Bundle-Description: Mock provider service.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: net.java.sip.communicator.service.contactlist,
+ net.java.sip.communicator.service.contactlist.event,
+ org.osgi.framework,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.event
+Export-Package: net.java.sip.communicator.impl.protocol.mock,

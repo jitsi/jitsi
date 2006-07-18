@@ -510,7 +510,7 @@
         bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
         bundle-slick-runner,bundle-sip,bundle-fileaccess,
         bundle-fileaccess-slick,bundle-media,bundle-media-slick,
-        bundle-icq,bundle-icq-slick,bundle-swing-ui,
+        bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,bundle-swing-ui,
         meta-contactlist,meta-contactlist-slick"/>
 
     <!--BUNDLE-HISTORY-->
@@ -722,13 +722,21 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+    <!-- BUNDLE-PROTOCOL -->
+    <target name="bundle-protocol">
+        <!-- Creates a bundle containing the icq impl of the protocol provider."-->
+        <jar compress="false" destfile="${bundles.dest}/protocol.jar"
+            manifest="src/net/java/sip/communicator/service/protocol/protocol.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
+                prefix="net/java/sip/communicator/service/protocol"/>
+        </jar>
+    </target>
+
     <!-- BUNDLE-ICQ -->
     <target name="bundle-icq">
         <!-- Creates a bundle containing the icq impl of the protocol provider."-->
         <jar compress="false" destfile="${bundles.dest}/protocol-icq.jar"
             manifest="src/net/java/sip/communicator/impl/protocol/icq/icq.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
-                prefix="net/java/sip/communicator/service/protocol"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/icq"
                 prefix="net/java/sip/communicator/impl/protocol/icq"/>
             <zipfileset src="${lib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
@@ -747,6 +755,18 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
             <zipfileset src="${lib}/oscar-aim.jar" prefix=""/>
             <zipfileset src="${lib}/retroweaver-rt.jar" prefix=""/>
+        </jar>
+    </target>
+
+     <!--BUNDLE-MOCK-PROVIDER-->
+    <target name="bundle-mock">
+        <!--internal-target- Creates a bundle containing the mock implementation of the protocol provider package -->
+        <jar compress="false" destfile="${bundles.dest}/protocol-mock.jar"
+            manifest="src/net/java/sip/communicator/impl/protocol/mock/mock.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
+                prefix="net/java/sip/communicator/service/protocol"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/mock"
+                prefix="net/java/sip/communicator/impl/protocol/mock"/>
         </jar>
     </target>
 

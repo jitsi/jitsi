@@ -7,7 +7,6 @@
 package net.java.sip.communicator.slick.contactlist;
 
 import junit.framework.*;
-import net.java.sip.communicator.slick.contactlist.mockprovider.*;
 import net.java.sip.communicator.service.protocol.*;
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.contactlist.*;
