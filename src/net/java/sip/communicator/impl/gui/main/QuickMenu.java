@@ -107,9 +107,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
         this.configureButton.addActionListener(this);
         this.searchButton.addActionListener(this);
         this.infoButton.addActionListener(this);
-
-        //Disable all buttons that do nothing.
-        this.configureButton.setEnabled(false);        
+                
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -228,17 +226,20 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
                 (MetaContact) mainFrame.getTabbedPane().getContactListPanel()
                     .getContactList().getSelectedValue();
             
-            Contact defaultContact = selectedMetaContact.getDefaultContact();
-            
-            ProtocolProviderService defaultProvider
-                = defaultContact.getProtocolProvider();
-            
-            OperationSetWebContactInfo wContactInfo 
-                = mainFrame.getWebContactInfo(defaultProvider);
-            
-            BrowserLauncher.openURL(
-                    wContactInfo.getWebContactInfo(defaultContact)
-                        .toString());
+            if(selectedMetaContact != null) {
+                Contact defaultContact = selectedMetaContact
+                    .getDefaultContact();
+                
+                ProtocolProviderService defaultProvider
+                    = defaultContact.getProtocolProvider();
+                
+                OperationSetWebContactInfo wContactInfo 
+                    = mainFrame.getWebContactInfo(defaultProvider);
+                
+                BrowserLauncher.openURL(
+                        wContactInfo.getWebContactInfo(defaultContact)
+                            .toString());
+            }
         }
     }
 
