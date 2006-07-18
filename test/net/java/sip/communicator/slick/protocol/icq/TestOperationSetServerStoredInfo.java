@@ -139,7 +139,7 @@ public class TestOperationSetServerStoredInfo
         // give the server time to change things
         synchronized(lock){
             try{
-                lock.wait(1500);}
+                lock.wait(3000);}
             catch (InterruptedException ex){}
         }
 
@@ -150,7 +150,7 @@ public class TestOperationSetServerStoredInfo
         // give the server time to change things
         synchronized(lock){
             try{
-                lock.wait(1500);}
+                lock.wait(3000);}
             catch (InterruptedException ex){}
         }
 
@@ -165,10 +165,9 @@ public class TestOperationSetServerStoredInfo
         // give the server time to change things
         synchronized(lock){
             try{
-                lock.wait(1500);}
+                lock.wait(3000);}
             catch (InterruptedException ex){}
         }
-
 
         // get a random country from countryIndexToLocaleString Array
         // 232 is the count of the countries in this array
@@ -344,7 +343,7 @@ public class TestOperationSetServerStoredInfo
             // give time to server to change things
             synchronized (lock){
                 try{
-                    lock.wait(1500);}
+                    lock.wait(3000);}
                 catch (InterruptedException ex)
                 {}
             }
@@ -368,7 +367,7 @@ public class TestOperationSetServerStoredInfo
             // give time to server to change things
             synchronized (lock){
                 try{
-                    lock.wait(1500);}
+                    lock.wait(3000);}
                 catch (InterruptedException ex)
                 {}
             }
@@ -392,7 +391,7 @@ public class TestOperationSetServerStoredInfo
             // give time to server to change things
             synchronized (lock){
                 try{
-                    lock.wait(1500);}
+                    lock.wait(3000);}
                 catch (InterruptedException ex)
                 {}
             }
@@ -616,7 +615,7 @@ public class TestOperationSetServerStoredInfo
                                (ServerStoredDetails.SpokenLanguageDetail)iter.next()));
                 synchronized (lock){
                 try{
-                    lock.wait(1500);
+                    lock.wait(3000);
                 }
                 catch (InterruptedException ex)
                 {}
