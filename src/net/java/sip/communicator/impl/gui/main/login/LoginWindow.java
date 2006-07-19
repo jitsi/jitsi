@@ -38,8 +38,9 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 /**
- * The LoginWindow is the window where the user should type his
+ * The <tt>LoginWindow</tt> is the window where the user should type his
  * user identifier and password to login.
+ * 
  * @author Yana Stamcheva
  */
 public class LoginWindow extends JDialog implements ActionListener {
