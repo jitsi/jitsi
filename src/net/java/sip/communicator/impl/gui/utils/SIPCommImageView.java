@@ -45,28 +45,30 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.ImageView;
 import javax.swing.text.html.StyleSheet;
 
+/*
+ * The content of this file was based on code borrowed from Rob Kenworthy,
+ * http://www.javaworld.com/javaworld/javatips/jw-javatip109.html#resources.
+ */
 /**
- * The SIPCommImageView is an ImageView which allows to specify a related path
- * when describing an image within an html document.
+ * The <tt>SIPCommImageView</tt> is an <tt>ImageView</tt> which allows to
+ * specify a related path when describing an image within an html document.
  * 
  * @author Yana Stamcheva
  */
 public class SIPCommImageView extends ImageView 
     implements ImageObserver {
 
-    // --- Attribute Values ------------------------------------------
-
-    public static final String TOP = "top", TEXTTOP = "texttop",
-            MIDDLE = "middle", ABSMIDDLE = "absmiddle", CENTER = "center",
-            BOTTOM = "bottom";
-
-    // --- Construction ----------------------------------------------
+    public static final String TOP = "top";
+    public static final String TEXTTOP = "texttop";
+    public static final String MIDDLE = "middle";
+    public static final String ABSMIDDLE = "absmiddle";
+    public static final String CENTER = "center";
+    public static final String BOTTOM = "bottom";
 
     /**
      * Creates a new view that represents an IMG element.
      * 
-     * @param elem
-     *            the element to create a view for
+     * @param elem the element to create a view for.
      */
     public SIPCommImageView(Element elem) {
 
@@ -79,6 +81,11 @@ public class SIPCommImageView extends ImageView
         attr = sheet.getViewAttributes(this);
     }
 
+    /**
+     * Initializes this view.
+     * 
+     * @param elem the element.
+     */
     private void initialize(Element elem) {
         synchronized (this) {
             loading = true;
@@ -112,7 +119,7 @@ public class SIPCommImageView extends ImageView
                 }
             } else {
 
-                /** ****** Code to load from relative path ************ */
+                /*--Code to load from relative path--*/
                 String src = (String) fElement.getAttributes().getAttribute(
                         HTML.Attribute.SRC);
 
@@ -130,9 +137,7 @@ public class SIPCommImageView extends ImageView
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-                /** *************************************************** */
-
+                /*----------------------------------*/
             }
 
             // Get height/width from params or image or defaults:
@@ -163,16 +168,7 @@ public class SIPCommImageView extends ImageView
                             width, this);
                 else
                     Toolkit.getDefaultToolkit().prepareImage(fImage, -1, -1,
-                            this);
-
-            /*******************************************************************
-             * // Rob took this out. Changed scope of src. if( DEBUG ) { if(
-             * fImage != null ) System.out.println("ImageInfo: new on "+src+ "
-             * ("+fWidth+"x"+fHeight+")"); else System.out.println("ImageInfo:
-             * couldn't get image at "+ src); if(isLink()) System.out.println("
-             * It's a link! Border = "+ getBorder());
-             * //((AbstractDocument.AbstractElement)elem).dump(System.out,4); }
-             ******************************************************************/
+                            this);            
         } finally {
 
             synchronized (this) {
@@ -190,7 +186,7 @@ public class SIPCommImageView extends ImageView
 
     
     /**
-     * Determines if path is in the form of a URL.
+     * Determines if path is in the form of an URL.
      * @return TRUE if the source is URL, FALSE otherwise.
      */
     private boolean isURL() {
@@ -202,7 +198,7 @@ public class SIPCommImageView extends ImageView
     }
 
     /**
-     * Make sure an image is loaded - ie no broken images. So far its used only 
+     * Make sure an image is loaded - ie no broken images. So far its used only
      * for images loaded off the disk (non-URL).
      * @throws InterruptedException
      */
@@ -235,7 +231,9 @@ public class SIPCommImageView extends ImageView
         return attr;
     }
 
-    /** Is this image within a link? */
+    /** 
+     * Checks if the image is within a link.
+     */
     boolean isLink() {
         // ! It would be nice to cache this but in an editor it can change
         // See if I have an HREF attribute courtesy of the enclosing A tag:
@@ -250,24 +248,32 @@ public class SIPCommImageView extends ImageView
         return false;
     }
 
-    /** Returns the size of the border to use. */
+    /**
+     * Returns the size of the border to use.
+     */
     int getBorder() {
         return getIntAttr(HTML.Attribute.BORDER, isLink() ? DEFAULT_BORDER : 0);
     }
 
-    /** Returns the amount of extra space to add along an axis. */
+    /**
+     * Returns the amount of extra space to add along an axis.
+     */
     int getSpace(int axis) {
         return getIntAttr(axis == X_AXIS ? HTML.Attribute.HSPACE
                 : HTML.Attribute.VSPACE, 0);
     }
 
-    /** Returns the border's color, or null if this is not a link. */
+    /**
+     * Returns the border's color, or null if this is not a link.
+     */
     Color getBorderColor() {
         StyledDocument doc = (StyledDocument) getDocument();
         return doc.getForeground(getAttributes());
     }
 
-    /** Returns the image's vertical alignment. */
+    /**
+     * Returns the image's vertical alignment.
+     */
     float getVerticalAlignment() {
         String align = (String) fElement.getAttributes().getAttribute(
                 HTML.Attribute.ALIGN);
@@ -283,6 +289,12 @@ public class SIPCommImageView extends ImageView
         return 1.0f; // default alignment is bottom
     }
 
+    /**
+     * Checks if the image is at least one pixel.
+     * @param obs The <tt>ImageObserver</tt>.
+     * @return <code>true</code> if the image is not null and is at least one
+     * pixel big, <code>false</code> otherwise.
+     */
     boolean hasPixels(ImageObserver obs) {
 
         return fImage != null && fImage.getHeight(obs) > 0
@@ -290,7 +302,8 @@ public class SIPCommImageView extends ImageView
     }
 
     /**
-     * Return a URL for the image source, or null if it could not be determined.
+     * Returns an URL for the image source, or null if it could not be
+     * determined.
      */
     private URL getSourceURL() {
 
@@ -308,7 +321,9 @@ public class SIPCommImageView extends ImageView
         }
     }
 
-    /** Look up an integer-valued attribute. <b>Not</b> recursive. */
+    /**
+     * Look up an integer-valued attribute. <b>Not</b> recursive.
+     */
     private int getIntAttr(HTML.Attribute name, int deflt) {
         AttributeSet attr = fElement.getAttributes();
         if (attr.isDefined(name)) { // does not check parents!
@@ -340,7 +355,9 @@ public class SIPCommImageView extends ImageView
         }
     }
 
-    /** My attributes may have changed. */
+    /**
+     * The attributes may have changed.
+     */
     public void changedUpdate(DocumentEvent e, Shape a, ViewFactory f) {
         if (DEBUG)
             System.out.println("ImageView: changedUpdate begin...");
@@ -364,15 +381,11 @@ public class SIPCommImageView extends ImageView
                     + getVerticalAlignment());
     }
 
-    // --- Painting --------------------------------------------------------
-
     /**
      * Paints the image.
      * 
-     * @param g
-     *            the rendering surface to use
-     * @param a
-     *            the allocated region to render into
+     * @param g the rendering surface to use
+     * @param a the allocated region to render into
      * @see View#paint
      */
     public void paint(Graphics g, Shape a) {
@@ -384,15 +397,7 @@ public class SIPCommImageView extends ImageView
         int width = fWidth;
         int height = fHeight;
         int sel = getSelectionState();
-
-        // Make sure my Component is in the right place:
-        /*
-         * if( fComponent == null ) { fComponent = new Component() { };
-         * fComponent.addMouseListener(this);
-         * fComponent.addMouseMotionListener(this);
-         * fComponent.setCursor(Cursor.getDefaultCursor()); // use arrow cursor
-         * fContainer.add(fComponent); } fComponent.setBounds(x,y,width,height);
-         */
+        
         // If no pixels yet, draw gray outline and icon:
         if (!hasPixels(this)) {
             g.setColor(Color.lightGray);
@@ -482,12 +487,19 @@ public class SIPCommImageView extends ImageView
         return 0;
     }
 
+    /**
+     * Checks whether the container is editable.
+     * @return <code>true</code> if the container is editable,
+     * <code>false</code> otherwise.
+     */
     protected boolean isEditable() {
         return fContainer instanceof JEditorPane
                 && ((JEditorPane) fContainer).isEditable();
     }
 
-    /** Returns the text editor's highlight color. */
+    /**
+     * Returns the text editor's highlight color.
+     */
     protected Color getHighlightColor() {
         JTextComponent textComp = (JTextComponent) fContainer;
         return textComp.getSelectionColor();
@@ -567,7 +579,7 @@ public class SIPCommImageView extends ImageView
     }
 
     /*
-     * /** Static properties for incremental drawing. Swiped from Component.java
+     * Static properties for incremental drawing. Swiped from Component.java
      * 
      * @see #imageUpdate
      */

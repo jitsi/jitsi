@@ -12,6 +12,7 @@ import java.util.ResourceBundle;
 
 /**
  * Manages the access to the properties file containing all image paths.
+ * 
  * @author Yana Stamcheva
  */
 public class Images {
@@ -25,6 +26,11 @@ public class Images {
     private Images() {
     }
 
+    /**
+     * Returns an image path corresponding to the given image key.
+     * @param key The key of the image.
+     * @return An image path corresponding to the given image key.
+     */
     public static String getString(String key) {
         try {
             return RESOURCE_BUNDLE.getString(key);

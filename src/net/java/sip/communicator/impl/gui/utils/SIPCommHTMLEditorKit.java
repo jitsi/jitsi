@@ -23,19 +23,26 @@ import javax.swing.text.html.ParagraphView;
 import javax.swing.text.html.StyleSheet;
 
 /**
- * The SIPCommHTMLEditorKit is a custom HTMLEditorKit which defines its own
- * image view in the html document. The image view used to represent the image
- * is the SIPCommImageView.
+ * The <tt>SIPCommHTMLEditorKit</tt> is an <tt>HTMLEditorKit</tt> which uses
+ * the <tt>SIPCommImageView</tt> and an extended <tt>ParagraphView</tt>.
  * 
  * @author Yana Stamcheva
  */
 public class SIPCommHTMLEditorKit extends HTMLEditorKit {
 
+    /**
+     * Returns the extended <tt>HTMLFactory</tt> defined here.
+     */
     public ViewFactory getViewFactory() {
         return new HTMLFactoryX();
     }
 
-    static class HTMLFactoryX extends HTMLFactory 
+    /**
+     * An extended <tt>HTMLFactory</tt> that uses the <tt>SIPCommImageView</tt>
+     * to represent images and the <tt>ParagraphViewX</tt> to represent
+     * paragraphs.
+     */
+    static class HTMLFactoryX extends HTMLFactory
         implements ViewFactory {
 
         public View create(Element elem) {
@@ -47,17 +54,30 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit {
             }
             else if (v instanceof ParagraphView) {
                 return new ParagraphViewX(elem);
-            }
-            
+            }            
             return v;
         }
     }
     
+    /**
+     * The <tt>ParagraphViewX</tt> is created in order to solve the following
+     * problem (Bug ID: 4855207):
+     * <p>
+     * When a paragraph in a JTextPane has a large amount of text the
+     * processing needed to layout the entire paragraph increases as the
+     * paragraph grows.
+     */
     static class ParagraphViewX extends ParagraphView {
         public ParagraphViewX(Element elem) {
             super(elem);
         }
         
+        /**
+         * Calculate equirements along the minor axis.  This
+         * is implemented to forward the request to the logical
+         * view by calling getMinimumSpan, getPreferredSpan, and
+         * getMaximumSpan on it.
+         */
         protected SizeRequirements calculateMinorAxisRequirements (
                 int axis, SizeRequirements r) {
             if (r == null) {
@@ -79,7 +99,7 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit {
      * Create an uninitialized text storage model
      * that is appropriate for this type of editor.
      *
-     * @return the model
+     * @return the model.
      */
     public Document createDefaultDocument() {
         StyleSheet styles = getStyleSheet();

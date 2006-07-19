@@ -12,7 +12,7 @@ import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.service.gui.PopupDialog;
 
 /**
- * Implements <code>PopupDialog</code>.
+ * Implements <code>PopupDialog</code> interface. 
  * 
  * @author Yana Stamcheva
  */
@@ -21,20 +21,38 @@ public class PopupDialogImpl extends JOptionPane
 
     private MainFrame parentWindow;
     
+    /**
+     * Creates an instance of <tt>PopupDialogImpl</tt>.
+     * @param parentWindow The main application window.
+     */
     public PopupDialogImpl(MainFrame parentWindow) {
         this.parentWindow = parentWindow;
     }
     
+    /**
+     * Implements the <tt>PopupDialog.showInputPopupDialog(Object)</tt> method.
+     * Invokes the corresponding <tt>JOptionPane.showInputDialog</tt> method.
+     */
     public String showInputPopupDialog(Object message) {
         return showInputDialog(parentWindow, message);
     }
     
+    /**
+     * Implements the <tt>PopupDialog.showInputPopupDialog(Object, String)</tt>
+     * method. Invokes the corresponding <tt>JOptionPane.showInputDialog</tt>
+     * method.
+     */
     public String showInputPopupDialog(Object message, 
             String initialSelectionValue) {
         return showInputDialog(parentWindow, message, 
                 initialSelectionValue);
     }    
     
+    /**
+     * Implements the 
+     * <tt>PopupDialog.showInputPopupDialog(Object, String, int)</tt> method.
+     * Invokes the corresponding <tt>JOptionPane.showInputDialog</tt> method.
+     */
     public String showInputPopupDialog(Object message, String title,
             int messageType) {
         
@@ -58,6 +76,12 @@ public class PopupDialogImpl extends JOptionPane
                 title, type);
     }
 
+    /**
+     * Implements the 
+     * <tt>PopupDialog.showInputPopupDialog(Object, String, int, Object[],
+     * Object)</tt> method. Invokes the corresponding
+     * <tt>JOptionPane.showInputDialog</tt> method.
+     */
     public Object showInputPopupDialog(Object message, String title,
             int messageType, Object[] selectionValues,
             Object initialSelectionValue) {
@@ -83,10 +107,20 @@ public class PopupDialogImpl extends JOptionPane
                null, selectionValues, initialSelectionValue);
     }
 
+    /**
+     * Implements the <tt>PopupDialog.showMessagePopupDialog(Object)</tt>
+     * method. Invokes the corresponding
+     * <tt>JOptionPane.showMessageDialog</tt> method.
+     */
     public void showMessagePopupDialog(Object message) {
         showMessageDialog(parentWindow, message);
     }
 
+    /**
+     * Implements the <tt>PopupDialog.showMessagePopupDialog(Object, String,
+     * int)</tt> method. Invokes the corresponding
+     * <tt>JOptionPane.showMessageDialog</tt> method.
+     */
     public void showMessagePopupDialog(Object message, String title,
             int messageType) {
         int type;
@@ -109,10 +143,20 @@ public class PopupDialogImpl extends JOptionPane
         showMessageDialog(parentWindow, message, title, type);
     }
 
+    /**
+     * Implements the <tt>PopupDialog.showConfirmPopupDialog(Object)</tt>
+     * method. Invokes the corresponding
+     * <tt>JOptionPane.showConfirmDialog</tt> method.
+     */
     public int showConfirmPopupDialog(Object message) {
         return showConfirmDialog(parentWindow, message);
     }
 
+    /**
+     * Implements the <tt>PopupDialog.showConfirmPopupDialog(Object, String, 
+     * int)</tt> method. Invokes the corresponding
+     * <tt>JOptionPane.showConfirmDialog</tt> method.
+     */
     public int showConfirmPopupDialog(Object message, String title,
             int optionType) {
         int type;
@@ -132,6 +176,11 @@ public class PopupDialogImpl extends JOptionPane
         return showConfirmDialog(parentWindow, message, title, type);
     }
 
+    /**
+     * Implements the <tt>PopupDialog.showConfirmPopupDialog(Object, String, 
+     * int, int)</tt> method. Invokes the corresponding
+     * <tt>JOptionPane.showConfirmDialog</tt> method.
+     */
     public int showConfirmPopupDialog(Object message, String title,
             int optionType, int messageType) {
         
@@ -170,22 +219,43 @@ public class PopupDialogImpl extends JOptionPane
                 optType, msgType);
     }
 
+    /**
+     * Implements the <tt>PopupDialog.isDialogVisible</tt> method.
+     * @return <code>true</code> if the dialog is visible, <code>false</code>
+     * otherwise.
+     */
     public boolean isDialogVisible() {
         return this.isVisible();
     }
 
+    /**
+     * Implements the <tt>PopupDialog.isDialogVisible</tt> method.
+     * Shows this <tt>JOptionPane</tt>.
+     */
     public void showDialog() {
         this.setVisible(true);
     }
 
+    /**
+     * Implements the <tt>PopupDialog.isDialogVisible</tt> method.
+     * Hides this <tt>JOptionPane</tt>.
+     */
     public void hideDialog() {
         this.setVisible(false);
     }
 
+    /**
+     * Implements the <tt>PopupDialog.isDialogVisible</tt> method.
+     * Resizes this <tt>JOptionPane</tt>.
+     */
     public void resizeDialog(int width, int height) {
         this.setSize(width, height);
     }
 
+    /**
+     * Implements the <tt>PopupDialog.isDialogVisible</tt> method.
+     * Moves this <tt>JOptionPane</tt>.
+     */
     public void moveDialog(int x, int y) {
         this.setLocation(x, y);
     }    

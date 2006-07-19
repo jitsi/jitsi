@@ -18,7 +18,9 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-/** 
+/**
+ * The GUI Activator class.
+ * 
  * @author Yana Stamcheva
  */
 public class GuiActivator implements BundleActivator {
@@ -30,6 +32,12 @@ public class GuiActivator implements BundleActivator {
 
     private LoginManager loginManager;
 
+    /**
+     * Called when this bundle is started.
+     *
+     * @param context The execution context of the bundle being started.
+     * @throws Exception If
+     */
     public void start(BundleContext bundleContext) throws Exception {
 
         MainFrame mainFrame = communicatorMain.getMainFrame();
@@ -75,10 +83,24 @@ public class GuiActivator implements BundleActivator {
         }
     }
 
+    /**
+     * Called when this bundle is stopped so the Framework can perform the
+     * bundle-specific activities necessary to stop the bundle.
+     *
+     * @param context The execution context of the bundle being stopped.
+     * @throws Exception If this method throws an exception, the bundle is
+     *   still marked as stopped, and the Framework will remove the bundle's
+     *   listeners, unregister all services registered by the bundle, and
+     *   release all services used by the bundle.
+     */
     public void stop(BundleContext bundleContext) throws Exception {
         logger.info("UI Service ...[STOPPED]");
     }
 
+    /**
+     * The <tt>RunLogin</tt> implements the Runnable interface and is used to
+     * shows the login windows in new thread.
+     */
     private class RunLogin implements Runnable {
         public void run() {
             loginManager.showLoginWindows(communicatorMain.getMainFrame());
