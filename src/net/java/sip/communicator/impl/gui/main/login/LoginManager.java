@@ -14,6 +14,7 @@ import java.util.Set;
 
 import javax.swing.JOptionPane;
 
+import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.StatusPanel;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
@@ -68,9 +69,9 @@ public class LoginManager implements RegistrationStateChangeListener {
      * 
      * @param bc The <tt>BundleContext</tt>.
      */
-    public LoginManager(BundleContext bc) {
+    public LoginManager() {
 
-        this.bc = bc;
+        this.bc = GuiActivator.bundleContext;
 
         ServiceReference[] serRefs = null;
         try {
