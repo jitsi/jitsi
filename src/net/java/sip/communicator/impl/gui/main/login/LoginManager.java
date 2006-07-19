@@ -183,13 +183,9 @@ public class LoginManager implements RegistrationStateChangeListener {
         ProtocolProviderService protocolProvider = evt.getProvider();
 
         if (evt.getNewState().equals(RegistrationState.REGISTERED)) {
-
-            Map supportedOpSets = protocolProvider.getSupportedOperationSets();
-
+            
             this.mainFrame.addProtocolProvider(protocolProvider);
-
-            this.mainFrame.addProtocolSupportedOperationSets(protocolProvider,
-                    supportedOpSets);
+            
         } else if (evt.getNewState().equals(
                 RegistrationState.AUTHENTICATION_FAILED)) {
 
