@@ -6,17 +6,6 @@
  */
 
 package net.java.sip.communicator.impl.gui.utils;
-
-// ///////////////////////////////////////////////////////
-// Bare Bones Browser Launch //
-// Version 1.5 //
-// December 10, 2005 //
-// Supports: Mac OS X, GNU/Linux, Unix, Windows XP //
-// Example Usage: //
-// String url = "http://www.centerkey.com/"; //
-// BareBonesBrowserLaunch.openURL(url); //
-// Public Domain Software -- Free to Use as You Like //
-// ///////////////////////////////////////////////////////
 /*
  * The content of this file was based on code borrowed from 
  * http://www.centerkey.com/.
@@ -24,14 +13,25 @@ package net.java.sip.communicator.impl.gui.utils;
 import java.lang.reflect.Method;
 import javax.swing.JOptionPane;
 
+import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+
 /**
+ * Launches a browser, depending on the operation system and the browsers
+ * available.
+ *  
  * @author Yana Stamcheva
  */
 public class BrowserLauncher {
 
     private static final String errMsg 
-        = "Error attempting to launch web browser";
+        = Messages.getString("launchBrowserError");
 
+    /**
+     * Launches a browser for the given url, depending on the operation system
+     * and the browsers available.
+     * 
+     * @param url The url to open in the browser.
+     */
     public static void openURL(String url) {
         String osName = System.getProperty("os.name");
         try {
@@ -50,7 +50,7 @@ public class BrowserLauncher {
                 String browser = null;
                 for (int count = 0; count < browsers.length 
                                     && browser == null; count++) {
-                    if (Runtime.getRuntime().exec(new String[] { 
+                    if (Runtime.getRuntime().exec(new String[] {
                             "which", browsers[count] }).waitFor() == 0)
                         browser = browsers[count];
                 }

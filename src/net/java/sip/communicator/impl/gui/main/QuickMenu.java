@@ -19,6 +19,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
+import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactWizardPage1;
@@ -40,9 +41,14 @@ import net.java.sip.communicator.service.protocol.OperationSetWebContactInfo;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
- * The QuickMenu is the toolbar on the top of the main program window.
- * It contains quick launch buttons for accessing the user info, the 
- * configuration window, etc.
+ * The <tt>QuickMenu</tt> is the toolbar on the top of the main
+ * application window. It provides quick access to the "User info" window, the 
+ * "Configuration" window, the "Add contact" window and the "Hide/Open offline
+ * contacts" window.
+ * <p>
+ * Note that this class implements the <tt>PluginComponentListener</tt>. This
+ * means that this toolbar is a plugable container and could contain plugin
+ * components.
  * 
  * @author Yana Stamcheva 
  */
@@ -61,11 +67,13 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
     private JButton addButton = new JButton(new ImageIcon(ImageLoader
             .getImage(ImageLoader.QUICK_MENU_ADD_ICON)));
 
+    private ConfigurationFrame configFrame = new ConfigurationFrame();
+    
     private MainFrame mainFrame;
 
     /**
-     * Create an instance of the QuickMenu.
-     * @param mainFrame The parent MainFrame window.
+     * Create an instance of the <tt>QuickMenu</tt>.
+     * @param mainFrame The parent <tt>MainFrame</tt> window.
      */
     public QuickMenu(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -90,7 +98,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
     }
 
     /**
-     * Initialize the QuickMenu by adding the buttons.
+     * Initialize the <tt>QuickMenu</tt> by adding the buttons.
      */
     private void init() {
         this.add(addButton);
@@ -110,6 +118,10 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
                 
     }
 
+    /**
+     * Handles the <tt>ActionEvent</tt> triggered when user clicks on one of
+     * the buttons in this toolbar.
+     */
     public void actionPerformed(ActionEvent e) {
         JButton button = (JButton) e.getSource();
         String buttonName = button.getName();
@@ -183,9 +195,9 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
         } 
         else if (buttonName.equals("config")) {
 
-            mainFrame.getConfigFrame().setCalculatedSize();
+            configFrame.setCalculatedSize();
 
-            mainFrame.getConfigFrame().setVisible(true);
+            configFrame.setVisible(true);
         } 
         else if (buttonName.equals("search")) {
 
@@ -243,10 +255,18 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
         }
     }
 
+    /**
+     * Implements the <code>PluginComponentListener.pluginComponentAdded</code>
+     * method.
+     */
     public void pluginComponentAdded(PluginComponentEvent event) {
         //TODO Implement pluginComponentAdded.
     }
 
+    /**
+     * Implements the <code>PluginComponentListener.pluginComponentRemoved</code>
+     * method.
+     */
     public void pluginComponentRemoved(PluginComponentEvent event) {
         //TODO Implement pluginComponentRemoved.
     }

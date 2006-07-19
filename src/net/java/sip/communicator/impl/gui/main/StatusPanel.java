@@ -22,8 +22,8 @@ import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
- * The StatusPanel is the place where the user can see and change its status
- * for all registered protocols. 
+ * The <tt>StatusPanel</tt> is the place where the user can see and change
+ * its status for all registered protocols. 
  * 
  * @author Yana Stamcheva
  */
@@ -33,6 +33,10 @@ public class StatusPanel extends JPanel {
 
     private MainFrame mainFrame;
 
+    /**
+     * Creates an instance of <tt>StatusPanel</tt>.
+     * @param mainFrame The main application window.
+     */
     public StatusPanel(MainFrame mainFrame) {
 
         this.mainFrame = mainFrame;
@@ -40,7 +44,7 @@ public class StatusPanel extends JPanel {
         this.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 
         this.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
-                Constants.CONTACTPANEL_MOVER_START_COLOR));
+                Constants.MOVER_START_COLOR));
     }
 
     /**
@@ -89,8 +93,8 @@ public class StatusPanel extends JPanel {
     }
 
     /**
-     * Shows the protocol animated icon, indicating that it is in a connecting 
-     * state.
+     * Shows the protocol animated icon, which indicates that it is in a
+     * connecting state.
      * 
      * @param protocolProvider The protocol provider.
      */
@@ -107,7 +111,7 @@ public class StatusPanel extends JPanel {
     }
 
     /**
-     * Removes the protocol animated icon, indicating that the connecting 
+     * Removes the protocol animated icon, which indicates that the connecting 
      * process is finished.
      * 
      * @param protocolProvider The ProtocolProvider.
@@ -124,10 +128,10 @@ public class StatusPanel extends JPanel {
     }
 
     /**
-     * Checks if the given protocol has already its StatusSelectorBox in the 
-     * StatusPanel.
+     * Checks if the given protocol has already its <tt>StatusSelectorBox</tt>
+     * in the <tt>StatusPanel</tt>.
      * 
-     * @param accountID The account id.
+     * @param accountID The identifier of the account.
      * @return True if the protcol has already its StatusSelectorBox in the 
      * StatusPanel, False otherwise.
      */
@@ -136,13 +140,5 @@ public class StatusPanel extends JPanel {
             return true;
         else
             return false;
-    }
-
-    public MainFrame getMainFrame() {
-        return mainFrame;
-    }
-
-    public void setMainFrame(MainFrame mainFrame) {
-        this.mainFrame = mainFrame;
-    }
+    }   
 }

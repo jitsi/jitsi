@@ -19,12 +19,10 @@ import java.util.Iterator;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommSelectorBox;
@@ -38,10 +36,11 @@ import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 
 /**
- * The ChatSendPanel is the panel in the bottom of the chat. It contains
- * the send button, the status panel, where typing notifications are 
+ * The <tt>ChatSendPanel</tt> is the panel in the bottom of the chat. It
+ * contains the send button, the status panel, where typing notifications are 
  * shown and the selector box, where the protocol specific contact is 
  * choosen.
+ * 
  * @author Yana Stamcheva
  */
 public class ChatSendPanel extends JPanel implements ActionListener {
@@ -61,8 +60,8 @@ public class ChatSendPanel extends JPanel implements ActionListener {
     private SIPCommSelectorBox contactSelectorBox = new SIPCommSelectorBox();
 
     /**
-     * Creates an instance of ChatSendPanel.
-     * @param chatPanel The parent ChatPanel.
+     * Creates an instance of <tt>ChatSendPanel</tt>.
+     * @param chatPanel The parent <tt>ChatPanel</tt>.
      */
     public ChatSendPanel(ChatPanel chatPanel) {
 
@@ -84,7 +83,7 @@ public class ChatSendPanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Overrides the javax.swing.JComponent.paint() to provide
+     * Overrides the <code>javax.swing.JComponent.paint()</code> to provide
      * a new round border for the status panel.
      * @param g The Graphics object.
      */
@@ -95,7 +94,7 @@ public class ChatSendPanel extends JPanel implements ActionListener {
 
         Graphics2D g2 = (Graphics2D) g;
 
-        g2.setColor(Constants.CONTACTPANEL_MOVER_START_COLOR);
+        g2.setColor(Constants.MOVER_START_COLOR);
         g2.setStroke(new BasicStroke(1f));
 
         g2.drawRoundRect(3, 4, this.statusPanel.getWidth() - 2,
@@ -104,7 +103,7 @@ public class ChatSendPanel extends JPanel implements ActionListener {
 
     /**
      * Defines actions when send button is pressed.
-     * @param e The ActionEvent object.
+     * @param e The <tt>ActionEvent</tt> object.
      */
     public void actionPerformed(ActionEvent e) {       
 
@@ -146,6 +145,12 @@ public class ChatSendPanel extends JPanel implements ActionListener {
         return sendButton;
     }
 
+    /**
+     * Initializes the <tt>ContactSelectorBox</tt> with all protocol
+     * specific contacts for the given <tt>MetaContact</tt>.
+     * 
+     * @param metaContact The <tt>MetaContact</tt>.
+     */
     public void addProtocolContacts(MetaContact metaContact) {
 
         Iterator protocolContacts = metaContact.getContacts();
@@ -165,11 +170,11 @@ public class ChatSendPanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Sets a text to the status panel at the bottom of the chat window.
-     * 
-     * @param statusMessage The text to be displayed. 
+     * Sets the message text to the status panel in the bottom of the chat
+     * window. Used to show typing notification messages, links' hrefs, etc.
+     * @param statusMessage The message text to be displayed. 
      */
-    public void setChatStatus(String statusMessage) {
+    public void setChatStatusMessage(String statusMessage) {
         int stringWidth = StringUtils
             .getStringWidth(statusLabel, statusMessage);
         
@@ -190,6 +195,13 @@ public class ChatSendPanel extends JPanel implements ActionListener {
         statusLabel.setText(statusMessage);
     }
 
+    /**
+     * Selects the given protocol contact from the list of protocol specific
+     * contacts and shows its icon in the component on the left of the "Send"
+     * button.
+     * 
+     * @param protocolContact The protocol specific contact to select.
+     */
     public void setSelectedProtocolContact(Contact protocolContact) {
         contactSelectorBox.setIcon(new ImageIcon(Constants
                 .getProtocolIcon(protocolContact.getProtocolProvider()
@@ -197,6 +209,9 @@ public class ChatSendPanel extends JPanel implements ActionListener {
         contactSelectorBox.setSelectedObject(protocolContact);
     }
 
+    /**
+     * The listener of the protocol contact's selector box.
+     */
     private class ProtocolItemListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             JMenuItem menuItem = (JMenuItem) e.getSource();
@@ -219,6 +234,10 @@ public class ChatSendPanel extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Returns the protocol contact selector box.
+     * @return the protocol contact selector box.
+     */
     public SIPCommSelectorBox getContactSelectorBox() {
         return contactSelectorBox;
     }

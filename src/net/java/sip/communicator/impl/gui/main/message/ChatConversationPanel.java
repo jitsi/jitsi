@@ -375,7 +375,7 @@ public class ChatConversationPanel extends JScrollPane implements
         } else if (e.getEventType() == HyperlinkEvent.EventType.ENTERED) {
             String href = e.getDescription();
             
-            this.chatPanel.setChatStatus(href);
+            this.chatPanel.setChatStatusMessage(href);
             
             this.currentHref = href;
             /*
@@ -396,7 +396,7 @@ public class ChatConversationPanel extends JScrollPane implements
             
         } else if (e.getEventType() == HyperlinkEvent.EventType.EXITED) {
             
-            this.chatPanel.setChatStatus("");
+            this.chatPanel.setChatStatusMessage("");
             this.currentHref = "";
             /*
              * Tooltip on hyperlinks - JDK1.5+
@@ -418,7 +418,7 @@ public class ChatConversationPanel extends JScrollPane implements
 
         Graphics2D g2 = (Graphics2D) g;
 
-        g2.setColor(Constants.MSG_WINDOW_BORDER_COLOR);
+        g2.setColor(Constants.BLUE_GRAY_BORDER_COLOR);
         g2.setStroke(new BasicStroke(1.5f));
 
         g2.drawRoundRect(3, 3, this.getWidth() - 7, this.getHeight() - 5, 8, 8);

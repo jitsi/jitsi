@@ -23,7 +23,12 @@ import javax.swing.JScrollPane;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.service.protocol.AuthorizationRequest;
 import net.java.sip.communicator.service.protocol.Contact;
-
+/**
+ * The <tt>RequestAuthorisationDialog</tt> is a <tt>JDialog</tt> that is
+ * shown when user is trying to add a contact, which requires authorization.
+ * 
+ * @author Yana Stamcheva
+ */
 public class RequestAuthorisationDialog extends JDialog
     implements ActionListener {
 
@@ -43,6 +48,12 @@ public class RequestAuthorisationDialog extends JDialog
     
     private AuthorizationRequest request;
     
+    /**
+     * Constructs the <tt>RequestAuthorisationDialog</tt>.
+     * 
+     * @param contact The <tt>Contact</tt>, which requires authorisation.
+     * @param request The <tt>AuthorizationRequest</tt> that will be sent.
+     */
     public RequestAuthorisationDialog(Contact contact,
             AuthorizationRequest request) {
         
@@ -75,6 +86,10 @@ public class RequestAuthorisationDialog extends JDialog
         this.getContentPane().add(mainPanel);
     }
 
+    /**
+     * Handles the <tt>ActionEvent</tt> triggered when one user clicks
+     * on one of the buttons.
+     */
     public void actionPerformed(ActionEvent e) {
         JButton button = (JButton)e.getSource();
         String name = button.getName();

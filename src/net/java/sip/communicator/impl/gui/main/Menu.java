@@ -7,13 +7,10 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
-import java.awt.Graphics;
-
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 
 /**
  * The main menu.
@@ -29,10 +26,16 @@ public class Menu extends JMenuBar {
 
     private JMenu helpMenu = new JMenu();
 
+    /**
+     * Creates an instance of <tt>Menu</tt>.
+     */
     public Menu() {
         this.init();
     }
 
+    /**
+     * Constructs the menu.
+     */
     private void init() {
         userMenu.setText(Messages.getString("file"));
         userMenu.setMnemonic(Messages.getString("mnemonic.file").charAt(0));

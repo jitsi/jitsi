@@ -23,9 +23,10 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**
- * @author Yana Stamcheva
+ * The <tt>DialPanel</tt> is the panel that contains the buttons to
+ * dial a phone number.
  * 
- * The DialPanel contains the dial buttons.
+ * @author Yana Stamcheva
  */
 
 public class DialPanel extends JPanel implements ActionListener {
@@ -82,6 +83,9 @@ public class DialPanel extends JPanel implements ActionListener {
 
     private JPanel dialPadPanel = new JPanel(new GridLayout(4, 3, 5, 5));
 
+    /**
+     * Creates an instance of <tt>DialPanel</tt>.
+     */
     public DialPanel() {
         super(new FlowLayout(FlowLayout.CENTER));
 
@@ -90,6 +94,9 @@ public class DialPanel extends JPanel implements ActionListener {
         this.init();
     }
 
+    /**
+     * Initializes this panel by adding all dial buttons to it.
+     */
     public void init() {
         oneButton.setName("one");
         twoButton.setName("two");
@@ -146,6 +153,10 @@ public class DialPanel extends JPanel implements ActionListener {
         this.add(dialPadPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Handles the <tt>ActionEvent</tt> triggered when user presses one of
+     * the dial buttons.
+     */
     public void actionPerformed(ActionEvent e) {
         JButton button = (JButton) e.getSource();
         String buttonName = button.getName();
@@ -187,6 +198,11 @@ public class DialPanel extends JPanel implements ActionListener {
         this.phoneNumberCombo.requestFocus();
     }
 
+    /**
+     * Sets the combo box, where user enters the phone number to call to.
+     * @param combo The combo box, where user enters the phone number to
+     * call to.
+     */
     public void setPhoneNumberCombo(JComboBox combo) {
         this.phoneNumberCombo = combo;
     }

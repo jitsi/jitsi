@@ -20,28 +20,32 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.impl.gui.utils.Smiley;
 
 /**
- * SmiliesSelectorBox is the component where user could choose a smily to send.
+ * The <tt>SmiliesSelectorBox</tt> is the component where user could choose
+ * a smily icon to send.
  * 
  * @author Yana Stamcheva
  */
-public class SmiliesSelectorBox extends BoxPopupMenu implements ActionListener {
+public class SmiliesSelectorBox extends BoxPopupMenu
+    implements ActionListener {
 
-    private ChatWindow messageWindow;
+    private ChatWindow chatWindow;
 
     private ArrayList imageList;
 
     /**
-     * Creates an instance of this SmiliesSelectorBox and initializes the panel
-     * with the smily icons given by the incoming imageList.
+     * Creates an instance of this <tt>SmiliesSelectorBox</tt> and initializes
+     * the panel with the smily icons given by the incoming imageList.
      * 
      * @param imageList The pack of smily icons.
      */
-    public SmiliesSelectorBox(ArrayList imageList) {
+    public SmiliesSelectorBox(ArrayList imageList, ChatWindow chatWindow) {
 
         super(imageList.size());
-
+        
         this.imageList = imageList;
 
+        this.chatWindow = chatWindow;
+        
         for (int i = 0; i < imageList.size(); i++) {
 
             Smiley smiley = (Smiley) this.imageList.get(i);
@@ -58,6 +62,10 @@ public class SmiliesSelectorBox extends BoxPopupMenu implements ActionListener {
 
     }
 
+    /**
+     * Writes the symbol corresponding to a choosen smily icon to the write
+     * message area at the end of the current text.
+     */
     public void actionPerformed(ActionEvent e) {
 
         JButton imageButton = (JButton) e.getSource();
@@ -69,7 +77,7 @@ public class SmiliesSelectorBox extends BoxPopupMenu implements ActionListener {
 
             if (buttonText.equals(smiley.getSmileyStrings()[0])) {
 
-                ChatPanel chatPanel = this.messageWindow
+                ChatPanel chatPanel = this.chatWindow
                         .getCurrentChatPanel();
 
                 chatPanel.addTextInWriteArea(
@@ -78,13 +86,5 @@ public class SmiliesSelectorBox extends BoxPopupMenu implements ActionListener {
                 chatPanel.requestFocusInWriteArea();
             }
         }
-    }
-
-    public ChatWindow getMessageWindow() {
-        return messageWindow;
-    }
-
-    public void setMessageWindow(ChatWindow messageWindow) {
-        this.messageWindow = messageWindow;
     }
 }

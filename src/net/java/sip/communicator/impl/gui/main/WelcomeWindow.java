@@ -39,6 +39,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 
 /**
+ * The <tt>WelcomeWindow</tt> is the window shown at the very beginning,
+ * when the application is run and indicates that the current version is
+ * not a final release and may not work as expected.
+ * 
  * @author Yana Stamcheva
  */
 public class WelcomeWindow extends JDialog
@@ -69,6 +73,13 @@ public class WelcomeWindow extends JDialog
 
     private Logger logger = Logger.getLogger(WelcomeWindow.class.getName());
 
+    /**
+     * Constructs the <tt>WelcomeWindow</tt>.
+     * @param c The application main class that runs the main application
+     * window.
+     * @param loginManager The login manager that runs all login windows.
+     * @param context The bundle context.
+     */
     public WelcomeWindow(CommunicatorMain c,
             LoginManager loginManager, BundleContext context) {
         super(c.getMainFrame(), Messages.getString("warning"));
@@ -120,10 +131,20 @@ public class WelcomeWindow extends JDialog
                 KeyEvent.ALT_DOWN_MASK), "exit");
     }
 
+    /**
+     * Sets a transparent background to some components, because of the
+     * background image of this window.
+     * 
+     * @param transparent <code>true</code> to make components transparent,
+     * <code>false</code> otherwise.
+     */
     private void setTransparent(boolean transparent) {
         this.buttonPanel.setOpaque(!transparent);
     }
 
+    /**
+     * Shows this window.
+     */
     public void showWindow() {
 
         this.pack();
@@ -133,6 +154,9 @@ public class WelcomeWindow extends JDialog
         this.setVisible(true);
     }
 
+    /**
+     * Sets the location of this window.
+     */
     private void setWindowLocation() {
 
         int x = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth()
@@ -144,6 +168,9 @@ public class WelcomeWindow extends JDialog
         this.setLocation(x, y);
     }
 
+    /**
+     * Constructs the window background in order to have a background image.
+     */
     private class WindowBackground extends JPanel {
 
         private Image bgImage 
@@ -169,6 +196,10 @@ public class WelcomeWindow extends JDialog
         }
     }
 
+    /**
+     * Handles the <tt>ActionEvent</tt> triggered when user clicks on one
+     * of the buttons.
+     */
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(continueButton)) {
             this.dispose();
@@ -184,12 +215,21 @@ public class WelcomeWindow extends JDialog
         }
     }
 
+    /**
+     * The <tt>RunLogin</tt> implements the Runnable interface and is used to
+     * shows the login windows in new thread.
+     */
     private class RunLogin implements Runnable {
         public void run() {
             loginManager.showLoginWindows(communicator.getMainFrame());
         }
     }
     
+    /**
+     * The <tt>CloseAction</tt> is an <tt>AbstractAction</tt> that
+     * closes this <tt>WelcomeWindow</tt> and shows the main application
+     * window and the login windows.
+     */
     private class CloseAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
             dispose();
@@ -198,6 +238,10 @@ public class WelcomeWindow extends JDialog
         }
     };
     
+    /**
+     * The <tt>ExitAction</tt> is an <tt>AbstractAction</tt> that
+     * exits the application.
+     */
     private class ExitAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
             try {

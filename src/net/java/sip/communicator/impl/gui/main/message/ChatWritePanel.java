@@ -21,12 +21,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.StyledEditorKit;
@@ -34,14 +32,16 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
-import net.java.sip.communicator.impl.gui.main.message.menu.ChatRightButtonMenu;
 import net.java.sip.communicator.impl.gui.main.message.menu.WritePanelRightButtonMenu;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
 import net.java.sip.communicator.util.Logger;
 /**
- * The ChatWritePanel is the panel, where user write his messages.
+ * The <tt>ChatWritePanel</tt> is the panel, where user writes her messages.
+ * It is located at the bottom of the split in the <tt>ChatPanel</tt> and
+ * it contains an editor, where user writes the text.
+ * 
  * @author Yana Stamcheva
  */
 public class ChatWritePanel extends JScrollPane implements
@@ -67,8 +67,8 @@ public class ChatWritePanel extends JScrollPane implements
     private WritePanelRightButtonMenu rightButtonMenu;
     
     /**
-     * Creates an instance of ChatWritePanel.
-     * @param chatPanel The parent ChatPanel.
+     * Creates an instance of <tt>ChatWritePanel</tt>.
+     * @param chatPanel The parent <tt>ChatPanel</tt>.
      */
     public ChatWritePanel(ChatPanel chatPanel) {
 
@@ -99,7 +99,7 @@ public class ChatWritePanel extends JScrollPane implements
     }
 
     /**
-     * Overrides the javax.swing.JComponent.paint() in order
+     * Overrides the <code>javax.swing.JComponent.paint()</code> in order
      * to privide a round border.
      * @param g The Graphics object.
      */
@@ -111,22 +111,24 @@ public class ChatWritePanel extends JScrollPane implements
 
         Graphics2D g2 = (Graphics2D) g;
 
-        g2.setColor(Constants.MSG_WINDOW_BORDER_COLOR);
+        g2.setColor(Constants.BLUE_GRAY_BORDER_COLOR);
         g2.setStroke(new BasicStroke(1.5f));
 
         g2.drawRoundRect(3, 3, this.getWidth() - 4, this.getHeight() - 4, 8, 8);
     }
 
     /**
-     * Returns the editor panel in this panel.
-     * @return The editor panel in this panel.
+     * Returns the editor panel, contained in this <tt>ChatWritePanel</tt>.
+     * @return The editor panel, contained in this <tt>ChatWritePanel</tt>.
      */
     public JEditorPane getEditorPane() {
         return editorPane;
     }
 
     /**
-     * @param e The UndoableEditEvent.
+     * Handles the <tt>UndoableEditEvent</tt>, by adding the content edit
+     * to the <tt>UndoManager</tt>.
+     * @param e The <tt>UndoableEditEvent</tt>.
      */
     public void undoableEditHappened(UndoableEditEvent e) {
         this.undo.addEdit(e.getEdit());
@@ -157,6 +159,13 @@ public class ChatWritePanel extends JScrollPane implements
     public void keyTyped(KeyEvent e) {
     }
 
+    /**
+     * When CTRL+Z is pressed invokes the <code>ChatWritePanel.undo()</code>
+     * method, when CTRL+R is pressed invokes the
+     * <code>ChatWritePanel.redo()</code> method.
+     * <p>
+     * Sends typing notifications when user types.
+     */
     public void keyPressed(KeyEvent e) {
         if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
                 && (e.getKeyCode() == KeyEvent.VK_Z)) {
@@ -192,6 +201,9 @@ public class ChatWritePanel extends JScrollPane implements
     public void keyReleased(KeyEvent e) {
     }
 
+    /**
+     * Listens for <code>stoppedTypingTimer</tt> events.
+     */
     private class Timer1ActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             typingTimer.stop();
@@ -208,6 +220,9 @@ public class ChatWritePanel extends JScrollPane implements
         }
     }
 
+    /**
+     * Listens for <code>typingTimer</tt> events.
+     */
     private class Timer2ActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             if (typingState == OperationSetTypingNotifications.STATE_TYPING) {
@@ -229,6 +244,10 @@ public class ChatWritePanel extends JScrollPane implements
         stoppedTypingTimer.stop();
     }
 
+    /**
+     * Opens the <tt>WritePanelRightButtonMenu</tt> whe user clicks with the
+     * right mouse button on the editor area.
+     */
     public void mouseClicked(MouseEvent e) {
         if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {            
             Point p = e.getPoint();

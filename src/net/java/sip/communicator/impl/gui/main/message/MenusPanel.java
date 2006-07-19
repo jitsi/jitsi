@@ -16,7 +16,8 @@ import net.java.sip.communicator.impl.gui.main.message.menu.MessageWindowMenuBar
 import net.java.sip.communicator.impl.gui.main.message.toolBars.EditTextToolBar;
 import net.java.sip.communicator.impl.gui.main.message.toolBars.MainToolBar;
 /**
- * MenusPanel is the panel, containing all toolbars in the chat window.
+ * The <tt>MenusPanel</tt> is the panel, containing all toolbars in the chat
+ * window.
  * @author Yana Stamcheva
  */
 public class MenusPanel extends JPanel {
@@ -30,8 +31,8 @@ public class MenusPanel extends JPanel {
     private ChatWindow parentWindow;
 
     /**
-     * Creates an instance and constructs the MenusPanel.
-     * @param parentWindow The parent ChatWindow for this panel.
+     * Creates an instance and constructs the <tt>MenusPanel</tt>.
+     * @param parentWindow The parent <tt>ChatWindow</tt> for this panel.
      */
     public MenusPanel(ChatWindow parentWindow) {
 
@@ -50,13 +51,17 @@ public class MenusPanel extends JPanel {
     }
 
     /**
-     * Adds a new toolbar to this MenusPanel.
+     * Adds a new toolbar to this <tt>MenusPanel</tt>.
      * @param toolBar The toolbar to add.
      */
     public void addToolBar(JToolBar toolBar) {
         this.add(toolBar);
     }
 
+    /**
+     * Returns the <tt>MainToolBar</tt>.
+     * @return the <tt>MainToolBar</tt>.
+     */
     public MainToolBar getMainToolBar() {
         return mainToolBar;
     }

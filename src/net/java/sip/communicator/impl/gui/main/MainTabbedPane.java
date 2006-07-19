@@ -14,8 +14,9 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTabbedPane;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 
 /** 
- * The main tabbed pane containing the contact list panel, the call list panel
- * and the dial panel.
+ * The <tt>MainTabbedPane</tt> is a <tt>SIPCommTabbedPane</tt> that contains
+ * three tabs: the <tt>ContactListPanel</tt>, the call list panel and
+ * the <tt>DialPanel</tt>.
  * 
  * @author Yana Stamcheva
  */
@@ -25,6 +26,11 @@ public class MainTabbedPane extends SIPCommTabbedPane {
 
     private ContactListPanel contactListPanel;
 
+    /**
+     * Constructs the <tt>MainTabbedPane</tt>.
+     * 
+     * @param parent The main application frame.
+     */
     public MainTabbedPane(MainFrame parent) {
         super(true);
 
@@ -45,6 +51,10 @@ public class MainTabbedPane extends SIPCommTabbedPane {
         this.setEnabledAt(2, false);
     }
 
+    /**
+     * Returns the <tt>ContactListPanel</tt> contained in this tabbed pane.
+     * @return the <tt>ContactListPanel</tt> contained in this tabbed pane.
+     */
     public ContactListPanel getContactListPanel() {
         return contactListPanel;
     }

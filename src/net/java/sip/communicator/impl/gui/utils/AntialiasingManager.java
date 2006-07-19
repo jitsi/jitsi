@@ -11,8 +11,21 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
+/**
+ * Through the <tt>AntialiasingManager</tt> the developer could activate the
+ * antialiasing mechanism when painting. The method that do the job is
+ * the <code>activateAntialiasing</code> method. It takes a <tt>Graphics</tt>
+ * object and activates the antialiasing for it.
+ * 
+ * @author Yana Stamcheva
+ */
 public class AntialiasingManager {
 
+    /**
+     * Activates the antialiasing mechanism for the given <tt>Graphics</tt>
+     * object.
+     * @param g The <tt>Graphics</tt> object.
+     */
     public static void activateAntialiasing(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
 

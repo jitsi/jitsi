@@ -46,7 +46,11 @@ import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 import net.java.sip.communicator.util.Logger;
 
 /**
- * The main application frame. This is the core of the user interface.
+ * The main application window. This class is the core of this ui
+ * implementation. It stores all available protocol providers and their
+ * operation sets, as well as all registered accounts, the
+ * <tt>MetaContactListService</tt> and all sent messages that aren't
+ * delivered yet.  
  *  
  * @author Yana Stamcheva
  */
@@ -59,8 +63,6 @@ public class MainFrame extends JFrame {
     private JPanel menusPanel = new JPanel(new BorderLayout());
 
     private Menu menu = new Menu();
-
-    private ConfigurationFrame configFrame = new ConfigurationFrame();
 
     private CallPanel callPanel;
 
@@ -88,6 +90,9 @@ public class MainFrame extends JFrame {
 
     private Hashtable waitToBeDeliveredMsgs = new Hashtable();
 
+    /**
+     * Creates an instance of <tt>MainFrame</tt>.
+     */
     public MainFrame() {
         callPanel = new CallPanel(this);
         tabbedPane = new MainTabbedPane(this);
@@ -133,18 +138,18 @@ public class MainFrame extends JFrame {
     }
 
     /**
-     * Returns the current meta contactlist.
+     * Returns the <tt>MetaContactListService</tt>.
      * 
-     * @return MetaContactListService The current meta contactlist.
+     * @return <tt>MetaContactListService</tt> The current meta contact list.
      */
     public MetaContactListService getContactList() {
         return this.contactList;
     }
 
     /**
-     * Inits the contact list tree.
+     * Initializes the contact list panel.
      * 
-     * @param contactList The MetaContactListService containing 
+     * @param contactList The <tt>MetaContactListService</tt> containing 
      * the contact list data.
      */
     public void setContactList(MetaContactListService contactList) {
@@ -153,7 +158,7 @@ public class MainFrame extends JFrame {
 
         ContactListPanel clistPanel = this.tabbedPane.getContactListPanel();
 
-        clistPanel.initTree(contactList);
+        clistPanel.initList(contactList);
 
         //add a key listener to the tabbed pane, when the contactlist is 
         //initialized
@@ -161,14 +166,7 @@ public class MainFrame extends JFrame {
                 .getContactList()));
     }
 
-    public ConfigurationFrame getConfigFrame() {
-        return configFrame;
-    }
-
-    public void setConfigFrame(ConfigurationFrame configFrame) {
-        this.configFrame = configFrame;
-    }
-
+    
     /**
      * Returns a set of all operation sets supported by the given 
      * protocol provider.
@@ -183,15 +181,16 @@ public class MainFrame extends JFrame {
     }
 
     /**
-     * Adds protocol supported operation sets. For now adds the presence and
-     * instant messaging operation sets.
+     * Adds all protocol supported operation sets.
      * 
-     * @param protocolProvider 
-     * @param supportedOperationSets
+     * @param protocolProvider The protocol provider.
      */
     public void addProtocolSupportedOperationSets(
-            ProtocolProviderService protocolProvider, Map supportedOperationSets) {
+            ProtocolProviderService protocolProvider) {
 
+        Map supportedOperationSets
+            = protocolProvider.getSupportedOperationSets();
+        
         this.protocolSupportedOperationSets.put(protocolProvider,
                 supportedOperationSets);
 
@@ -214,7 +213,8 @@ public class MainFrame extends JFrame {
                 presence.addContactPresenceStatusListener(
                             new ContactPresenceStatusAdapter());
 
-                presence.setAuthorizationHandler(new AuthorizationHandlerImpl());
+                presence.setAuthorizationHandler(
+                        new AuthorizationHandlerImpl());
                 
                 try {
                     presence.publishPresenceStatus(IcqStatusEnum.ONLINE, "");
@@ -273,14 +273,15 @@ public class MainFrame extends JFrame {
     /**
      * Returns a set of all protocol providers.
      * 
-     * @return Map a set of all protocol providers.
+     * @return a set of all protocol providers.
      */
     public Iterator getProtocolProviders() {
         return this.protocolProviders.iterator();
     }
 
     /**
-     * Returns the protocol provider associated to the given account.
+     * Returns the protocol provider associated to the account given
+     * by the account user identifier.
      * 
      * @param accountName The account user identifier.
      * @return The protocol provider associated to the given account.
@@ -302,11 +303,13 @@ public class MainFrame extends JFrame {
     
     /**
      * Adds a protocol provider.
-     * @param protocolProvider The protocol provider to be added.
+     * @param protocolProvider The protocol provider to add.
      */
     public void addProtocolProvider(ProtocolProviderService protocolProvider) {
 
         this.protocolProviders.add(protocolProvider);
+        
+        this.addProtocolSupportedOperationSets(protocolProvider);
     }
 
     /**

@@ -31,8 +31,9 @@ import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 import net.java.sip.communicator.util.Logger;
 
 /**
- * The component containging the list of statuses for a protocol,
- * where the user could change its status.
+ * The <tt>StatusSelectorBox</tt> is a <tt>SIPCommSelectorBox</tt> that contains
+ * the list of statuses for a protocol provider. This is where the user could
+ * select its status.
  * 
  * @author Yana Stamcheva
  */
@@ -50,6 +51,12 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
 
     private Map itemsMap;
 
+    /**
+     * Creates an instance of <tt>StatusSelectorBox</tt>.
+     * 
+     * @param mainFrame The main application window.
+     * @param protocolProvider The protocol provider.
+     */
     public StatusSelectorBox(MainFrame mainFrame,
             ProtocolProviderService protocolProvider) {
         super();
@@ -58,8 +65,18 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
         this.protocolProvider = protocolProvider;
     }
 
+    /**
+     * Creates an instance of <tt>StatusSelectorBox</tt> and initializes
+     * the selector box with data.
+     * 
+     * @param mainFrame The main application window.
+     * @param protocolProvider The protocol provider.
+     * @param itemsMap The list from which to initialize the selector box.
+     * @param selectedItem The initially selected item.
+     */
     public StatusSelectorBox(MainFrame mainFrame,
-            ProtocolProviderService protocolProvider, Map itemsMap,
+            ProtocolProviderService protocolProvider,
+            Map itemsMap,
             Image selectedItem) {
         super(selectedItem);
 
@@ -72,6 +89,9 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
         this.init();
     }
 
+    /**
+     * Constructs the list of choices of the selector box.
+     */
     public void init() {
         Iterator iter = itemsMap.entrySet().iterator();
 
@@ -84,6 +104,10 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
         }
     }
 
+    /**
+     * Handles the <tt>ActionEvent</tt> triggered when one of the items
+     * in the list is selected.
+     */
     private class ItemActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() instanceof JMenuItem) {
@@ -139,11 +163,12 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
                                         JOptionPane.ERROR_MESSAGE);
                             }
                             else if (e1.getErrorCode() 
-                                    == OperationFailedException.NETWORK_FAILURE) {
+                                    == OperationFailedException
+                                        .NETWORK_FAILURE) {
                                 SIPCommMsgTextArea msgText 
                                     = new SIPCommMsgTextArea(
                                             Messages.getString(
-                                                    "statusChangeNetworkFailure"));
+                                                "statusChangeNetworkFailure"));
                                 
                                 JOptionPane.showMessageDialog(
                                     null,
@@ -152,7 +177,8 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
                                     JOptionPane.ERROR_MESSAGE);
                             } 
                             else if (e1.getErrorCode()
-                                    == OperationFailedException.PROVIDER_NOT_REGISTERED) {
+                                    == OperationFailedException
+                                        .PROVIDER_NOT_REGISTERED) {
                                 SIPCommMsgTextArea msgText 
                                     = new SIPCommMsgTextArea(
                                         Messages.getString(
@@ -174,6 +200,13 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
         }
     }
 
+    /**
+     * Starts the timer that changes the images given by the array, thus
+     * creating an animated image that indicates that the user is connecting.
+     * 
+     * @param images A <tt>BufferedImage</tt> array that contains all images
+     * from which to create the animated image indicating the connecting state.
+     */
     public void startConnecting(BufferedImage[] images) {
 
         this.animatedImageArray = images;
@@ -183,11 +216,18 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
         this.connecting.start();
     }
 
+    /**
+     * Stops the timer that manages the connecting animated icon.
+     */
     public void stopConnecting() {
 
         this.connecting.stop();
     }
 
+    /**
+     * A <tt>Timer</tt> that creates an animated icon, which indicates the
+     * connecting state.
+     */
     private class Connecting extends Timer {
 
         public Connecting() {

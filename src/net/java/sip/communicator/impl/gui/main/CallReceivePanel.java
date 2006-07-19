@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**
+ * 
  * @author Yana Stamcheva
  */
 public class CallReceivePanel extends JDialog {

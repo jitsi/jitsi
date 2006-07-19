@@ -20,6 +20,10 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**
+ * The <tt>CallPanel</tt> is the panel that contains the "Call" and "Hangup"
+ * buttons, as well as the field, where user could enter the phone number or
+ * the contact name of the person, to which he would like to call.
+ * 
  * @author Yana Stamcheva
  */
 
@@ -53,6 +57,10 @@ public class CallPanel extends JPanel implements ActionListener {
 
     private MainFrame parentWindow;
 
+    /**
+     * Creates an instance of <tt>CallPanel</tt>.
+     * @param parentWindow The main application window.
+     */
     public CallPanel(MainFrame parentWindow) {
 
         super(new BorderLayout());
@@ -67,6 +75,9 @@ public class CallPanel extends JPanel implements ActionListener {
         this.init();
     }
 
+    /**
+     * Initializes and constructs this panel.
+     */
     private void init() {
 
         this.phoneNumberCombo.setEditable(true);
@@ -98,10 +109,18 @@ public class CallPanel extends JPanel implements ActionListener {
         this.hangupButton.setEnabled(false);
     }
 
+    /**
+     * Returns the combo box, where user enters the phone number to call to.
+     * @return the combo box, where user enters the phone number to call to.
+     */
     public JComboBox getPhoneNumberCombo() {
         return phoneNumberCombo;
     }
 
+    /**
+     * Handles the <tt>ActionEvent</tt> generated when user presses one of the
+     * buttons in this panel.
+     */
     public void actionPerformed(ActionEvent e) {
         JButton button = (JButton) e.getSource();
         String buttonName = button.getName();

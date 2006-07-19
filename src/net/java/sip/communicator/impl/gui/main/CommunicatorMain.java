@@ -18,7 +18,8 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.util.Logger;
 
 /**
- * Starts the GUI application using the SkinLookAndFeel of l2fprod.
+ * Starts the GUI application using the SIPCommLookAndFeel with the
+ * SIPCommDefaultTheme.
  *
  * @author Yana Stamcheva
  */
@@ -28,6 +29,10 @@ public class CommunicatorMain {
 
     private Logger logger = Logger.getLogger(CommunicatorMain.class.getName());
 
+    /**
+     * Creates an instance of <tt>CommunicatorMain</tt>. Creates the
+     * <tt>MainFrame</tt>.
+     */
     public CommunicatorMain() {
 
         this.setDefaultThemePack();
@@ -36,13 +41,14 @@ public class CommunicatorMain {
 
         mainFrame = new MainFrame();
 
-        mainFrame.setConfigFrame(configFrame);
-
         // In order to have the same icon when using option panes
         JOptionPane.getRootFrame().setIconImage(
                 ImageLoader.getImage(ImageLoader.SIP_LOGO));
     }
 
+    /**
+     * Sets the look&feel and the theme.
+     */
     public void setDefaultThemePack() {
 
         SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
@@ -58,18 +64,21 @@ public class CommunicatorMain {
         }
     }
 
+    /**
+     * Shows or hides the main application window.
+     * 
+     * @param isVisible <code>true</code> to show the main application
+     * window, <code>false</code> to hide it.
+     */
     public void showCommunicator(boolean isVisible) {
         this.mainFrame.pack();
         this.mainFrame.setVisible(isVisible);
     }
 
-    public static void main(String args[]) {
-
-        CommunicatorMain communicatorMain = new CommunicatorMain();
-
-        communicatorMain.showCommunicator(true);
-    }
-
+    /**
+     * Returns the main application window.
+     * @return the main application window.
+     */
     public MainFrame getMainFrame() {
         return mainFrame;
     }
