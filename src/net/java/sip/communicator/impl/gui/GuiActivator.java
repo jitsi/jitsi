@@ -10,6 +10,7 @@ import net.java.sip.communicator.impl.gui.main.CommunicatorMain;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.WelcomeWindow;
 import net.java.sip.communicator.impl.gui.main.login.LoginManager;
+import net.java.sip.communicator.service.configuration.ConfigurationService;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.gui.UIService;
 import net.java.sip.communicator.util.Logger;
@@ -32,6 +33,9 @@ public class GuiActivator implements BundleActivator {
 
     private LoginManager loginManager;
 
+    public static BundleContext bundleContext;
+    
+    private static ConfigurationService configService;
     /**
      * Called when this bundle is started.
      *
@@ -40,9 +44,11 @@ public class GuiActivator implements BundleActivator {
      */
     public void start(BundleContext bundleContext) throws Exception {
 
+        GuiActivator.bundleContext = bundleContext;
+        
         MainFrame mainFrame = communicatorMain.getMainFrame();
         
-        this.loginManager = new LoginManager(bundleContext);
+        this.loginManager = new LoginManager();
         
         this.loginManager.setMainFrame(mainFrame);
 
@@ -105,5 +111,17 @@ public class GuiActivator implements BundleActivator {
         public void run() {
             loginManager.showLoginWindows(communicatorMain.getMainFrame());
         }
+    }
+    
+    public static ConfigurationService getConfigurationService() {
+        if(configService == null) {
+            ServiceReference configReference = bundleContext
+                .getServiceReference(ConfigurationService.class.getName());
+
+            configService = (ConfigurationService) bundleContext
+                .getService(configReference);
+        }
+        
+        return configService;
     }
 }
