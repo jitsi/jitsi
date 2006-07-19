@@ -15,7 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JEditorPane;
 
 import net.java.sip.communicator.impl.gui.main.customcontrols.BoxPopupMenu;
-import net.java.sip.communicator.impl.gui.main.customcontrols.MsgToolbarButton;
+import net.java.sip.communicator.impl.gui.main.customcontrols.ChatToolbarButton;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.impl.gui.utils.Smiley;
 
@@ -50,7 +50,7 @@ public class SmiliesSelectorBox extends BoxPopupMenu
 
             Smiley smiley = (Smiley) this.imageList.get(i);
 
-            MsgToolbarButton imageButton = new MsgToolbarButton(
+            ChatToolbarButton imageButton = new ChatToolbarButton(
                     ImageLoader.getImage(smiley.getImageID()));
 
             imageButton.setToolTipText(smiley.getSmileyStrings()[0]);

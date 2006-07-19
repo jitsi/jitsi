@@ -14,7 +14,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.MsgToolbarButton;
+import net.java.sip.communicator.impl.gui.main.customcontrols.ChatToolbarButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
@@ -27,46 +27,46 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
  * The <tt>MainToolBar</tt> is a <tt>JToolBar</tt> which contains buttons for
  * file operations, like save and print, for copy-paste operations, etc. It's
  * the main toolbar in the <tt>ChatWindow</tt>. It contains only
- * <tt>MsgToolbarButton</tt>s, which have a specific background icon and
+ * <tt>ChatToolbarButton</tt>s, which have a specific background icon and
  * rollover behaviour to differentiates them from normal buttons.
  * 
- * @see net.java.sip.communicator.impl.gui.main.customcontrols.MsgToolbarButton
+ * @see net.java.sip.communicator.impl.gui.main.customcontrols.ChatToolbarButton
  * 
  * @author Yana Stamcheva
  */
 public class MainToolBar extends SIPCommToolBar implements ActionListener {
 
-    private MsgToolbarButton copyButton = new MsgToolbarButton(ImageLoader
+    private ChatToolbarButton copyButton = new ChatToolbarButton(ImageLoader
             .getImage(ImageLoader.COPY_ICON));
 
-    private MsgToolbarButton cutButton = new MsgToolbarButton(ImageLoader
+    private ChatToolbarButton cutButton = new ChatToolbarButton(ImageLoader
             .getImage(ImageLoader.CUT_ICON));
 
-    private MsgToolbarButton pasteButton = new MsgToolbarButton(ImageLoader
+    private ChatToolbarButton pasteButton = new ChatToolbarButton(ImageLoader
             .getImage(ImageLoader.PASTE_ICON));
 
-    private MsgToolbarButton smileyButton = new MsgToolbarButton(ImageLoader
+    private ChatToolbarButton smileyButton = new ChatToolbarButton(ImageLoader
             .getImage(ImageLoader.SMILIES_ICON));
 
-    private MsgToolbarButton saveButton = new MsgToolbarButton(ImageLoader
+    private ChatToolbarButton saveButton = new ChatToolbarButton(ImageLoader
             .getImage(ImageLoader.SAVE_ICON));
 
-    private MsgToolbarButton printButton = new MsgToolbarButton(ImageLoader
+    private ChatToolbarButton printButton = new ChatToolbarButton(ImageLoader
             .getImage(ImageLoader.PRINT_ICON));
 
-    private MsgToolbarButton previousButton = new MsgToolbarButton(ImageLoader
+    private ChatToolbarButton previousButton = new ChatToolbarButton(ImageLoader
             .getImage(ImageLoader.PREVIOUS_ICON));
 
-    private MsgToolbarButton nextButton = new MsgToolbarButton(ImageLoader
+    private ChatToolbarButton nextButton = new ChatToolbarButton(ImageLoader
             .getImage(ImageLoader.NEXT_ICON));
 
-    private MsgToolbarButton historyButton = new MsgToolbarButton(ImageLoader
+    private ChatToolbarButton historyButton = new ChatToolbarButton(ImageLoader
             .getImage(ImageLoader.HISTORY_ICON));
 
-    private MsgToolbarButton sendFileButton = new MsgToolbarButton(ImageLoader
+    private ChatToolbarButton sendFileButton = new ChatToolbarButton(ImageLoader
             .getImage(ImageLoader.SEND_FILE_ICON));
 
-    private MsgToolbarButton fontButton = new MsgToolbarButton(ImageLoader
+    private ChatToolbarButton fontButton = new ChatToolbarButton(ImageLoader
             .getImage(ImageLoader.FONT_ICON));
 
     private ChatWindow messageWindow;
@@ -173,7 +173,7 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
      */
     public void actionPerformed(ActionEvent e) {
 
-        MsgToolbarButton button = (MsgToolbarButton) e.getSource();
+        ChatToolbarButton button = (ChatToolbarButton) e.getSource();
         String buttonText = button.getName();
 
         if (buttonText.equalsIgnoreCase("save")) {
@@ -234,7 +234,7 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
      * Returns the button used to show the list of smilies.
      * @return the button used to show the list of smilies.
      */
-    public MsgToolbarButton getSmileyButton() {
+    public ChatToolbarButton getSmileyButton() {
         return smileyButton;
     }
 }

@@ -18,16 +18,16 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
  * 
  * @author Yana Stamcheva
  */
-public class MsgToolbarButton extends SIPCommButton {
+public class ChatToolbarButton extends SIPCommButton {
 
     /**
      * Creates an instance of <tt>MsgToolbarButton</tt>.
      * @param iconImage The icon to display on this button.
      */
-    public MsgToolbarButton(Image iconImage) {
-        super(ImageLoader.getImage(ImageLoader.MSG_TOOLBAR_BUTTON_BG),
+    public ChatToolbarButton(Image iconImage) {
+        super(ImageLoader.getImage(ImageLoader.CHAT_TOOLBAR_BUTTON_BG),
                 ImageLoader
-                        .getImage(ImageLoader.MSG_TOOLBAR_ROLLOVER_BUTTON_BG),
+                        .getImage(ImageLoader.CHAT_TOOLBAR_ROLLOVER_BUTTON_BG),
                 iconImage);
     }
 }
