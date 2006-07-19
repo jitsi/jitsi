@@ -199,13 +199,11 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
             if (e.getSource() instanceof SIPCommButton) {
 
                 SmiliesSelectorBox smiliesBox = new SmiliesSelectorBox(
-                        ImageLoader.getDefaultSmiliesPack());
+                        ImageLoader.getDefaultSmiliesPack(), messageWindow);
 
                 if (!smiliesBox.isVisible()) {
 
                     smiliesBox.setInvoker((Component) e.getSource());
-
-                    smiliesBox.setMessageWindow(this.messageWindow);
 
                     smiliesBox.setLocation(smiliesBox.getPopupLocation());
 
