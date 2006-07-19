@@ -218,7 +218,7 @@ public class LoginWindow extends JDialog implements ActionListener {
 
     /**
      * Sets the <tt>LoginManager</tt> for this login window.
-     * @param <tt>loginManager</tt> The related LoginManager.
+     * @param loginManager The related LoginManager.
      */
     public void setLoginManager(LoginManager loginManager) {
         this.loginManager = loginManager;
