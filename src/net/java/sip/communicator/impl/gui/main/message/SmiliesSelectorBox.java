@@ -21,7 +21,7 @@ import net.java.sip.communicator.impl.gui.utils.Smiley;
 
 /**
  * The <tt>SmiliesSelectorBox</tt> is the component where user could choose
- * a smily icon to send.
+ * a smiley icon to send.
  * 
  * @author Yana Stamcheva
  */
@@ -34,9 +34,9 @@ public class SmiliesSelectorBox extends BoxPopupMenu
 
     /**
      * Creates an instance of this <tt>SmiliesSelectorBox</tt> and initializes
-     * the panel with the smily icons given by the incoming imageList.
+     * the panel with the smiley icons given by the incoming imageList.
      * 
-     * @param imageList The pack of smily icons.
+     * @param imageList The pack of smiley icons.
      */
     public SmiliesSelectorBox(ArrayList imageList, ChatWindow chatWindow) {
 
@@ -63,7 +63,7 @@ public class SmiliesSelectorBox extends BoxPopupMenu
     }
 
     /**
-     * Writes the symbol corresponding to a choosen smily icon to the write
+     * Writes the symbol corresponding to a choosen smiley icon to the write
      * message area at the end of the current text.
      */
     public void actionPerformed(ActionEvent e) {

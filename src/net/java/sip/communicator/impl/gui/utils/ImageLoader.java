@@ -479,7 +479,7 @@ public class ImageLoader {
     public static final ImageID PASTE_ICON = new ImageID("PASTE_ICON");
 
     /**
-     * Smily icon, used for the "Smily" button in the <tt>MainToolBar</tt>.
+     * Smiley icon, used for the "Smiley" button in the <tt>MainToolBar</tt>.
      */
     public static final ImageID SMILIES_ICON = new ImageID("SMILIES_ICON");
 
@@ -888,9 +888,9 @@ public class ImageLoader {
     }
 
     /**
-     * Returns a Smily object for a given smily string.
+     * Returns a Smiley object for a given smiley string.
      * @param smileyString One of :-), ;-), etc.
-     * @return A Smily object for a given smily string.
+     * @return A Smiley object for a given smiley string.
      */
     public static Smiley getSmiley(String smileyString) {
         ArrayList smiliesList = getDefaultSmiliesPack();
