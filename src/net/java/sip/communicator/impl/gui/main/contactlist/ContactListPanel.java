@@ -99,12 +99,12 @@ public class ContactListPanel extends JScrollPane
     }
 
     /**
-     * Initialize the contact list tree.
+     * Initializes the contact list.
      * 
      * @param contactListService The MetaContactListService which will
      * be used for a contact list data model.
      */
-    public void initTree(MetaContactListService contactListService) {
+    public void initList(MetaContactListService contactListService) {
         
         this.contactList = new ContactList(contactListService);
 
@@ -680,7 +680,7 @@ public class ContactListPanel extends JScrollPane
                 ChatWindow msgWindow = (ChatWindow) contactMsgWindows
                         .get(metaContact);
                 msgWindow.getChatPanel(metaContact)
-                    .setChatStatus(notificationMsg);
+                    .setChatStatusMessage(notificationMsg);
             }
         } else if (tabbedChatWindow != null) {
             Hashtable contactTabsTable 
@@ -689,7 +689,7 @@ public class ContactListPanel extends JScrollPane
             if (contactTabsTable.get(metaContact.getMetaUID()) != null) {
 
                 tabbedChatWindow.getChatPanel(metaContact)
-                    .setChatStatus(notificationMsg);
+                    .setChatStatusMessage(notificationMsg);
             }
         }
     }

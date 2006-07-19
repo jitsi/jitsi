@@ -15,6 +15,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -385,10 +386,12 @@ public class ChatPanel extends JPanel
     }
     
     /**
-     * Sets the current contact typing status.
+     * Sets the message text to the status panel in the bottom of the chat
+     * window. Used to show typing notification messages, links' hrefs, etc.
+     * @param statusMessage The message text to be displayed. 
      */
-    public void setChatStatus(String statusMessage){
-        this.sendPanel.setChatStatus(statusMessage);
+    public void setChatStatusMessage(String statusMessage){
+        this.sendPanel.setChatStatusMessage(statusMessage);
     }
     
     /**
@@ -514,8 +517,8 @@ public class ChatPanel extends JPanel
      * which moves the scrollbar up.
      */
     public void setCaretToEnd(){
-        HTMLDocument doc = (HTMLDocument)this.conversationPanel.getChatEditorPane()
-            .getDocument();
+        HTMLDocument doc = (HTMLDocument)this.conversationPanel
+            .getChatEditorPane().getDocument();
         Element root = doc.getDefaultRootElement();
 
         try {
@@ -530,6 +533,11 @@ public class ChatPanel extends JPanel
         this.conversationPanel.setCarretToEnd();
     }
     
+    /**
+     * Opens the selector box containing the protocol contact icons. This is the
+     * menu, where user could select the protocol specific contact to
+     * communicate through.
+     */
     public void openProtocolSelectorBox() {
         SIPCommSelectorBox contactSelector 
             = this.sendPanel.getContactSelectorBox();
@@ -542,25 +550,51 @@ public class ChatPanel extends JPanel
         }
     }
     
+    /**
+     * Returns the <tt>PresenceStatus</tt> of the default contact for this chat
+     * panel.
+     * @return the <tt>PresenceStatus</tt> of the default contact for this chat
+     * panel.
+     */
     public PresenceStatus getPresenceStatus() {
         return getDefaultContact().getDefaultContact().getPresenceStatus();
     }
 
+    /**
+     * Implements the <code>ExportedDialog.isDialogVisible</code> method, to 
+     * check whether this chat panel is currently visible.
+     * @return <code>true</code> if this chat panel is currently visible,
+     * <code>false</code> otherwise.
+     */
     public boolean isDialogVisible() {
         return this.isVisible;
     }
 
+    /**
+     * Implements the <code>ExportedDialog.showDialog</code> method, to 
+     * make a chat panel visible.
+     */
     public void showDialog() {
+        Hashtable contactChats = chatWindow.getContactChatsTable();
+        
         if(Constants.TABBED_CHAT_WINDOW) {
-            this.chatWindow.addChatTab(this);
+            if(!contactChats.containsValue(this))
+                this.chatWindow.addChatTab(this);
+            else
+                this.chatWindow.setSelectedContactTab(getDefaultContact());
         }
         else {
-            this.chatWindow.addChat(this);
+            if(!contactChats.containsValue(this))
+                this.chatWindow.addChat(this);
         }
         
         this.chatWindow.setVisible(true);
     }
 
+    /**
+     * Implements the <code>ExportedDialog.hideDialog</code> method, to 
+     * hide a chat panel.
+     */
     public void hideDialog() {
         this.isVisible = false;
         
@@ -572,14 +606,31 @@ public class ChatPanel extends JPanel
         }
     }
 
+    /**
+     * Implements the <code>ExportedDialog.resizeDialog</code> method, to 
+     * resize the chat window to the given width and height.
+     * @param width The new width to set.
+     * @param height The new height to set.
+     */
     public void resizeDialog(int width, int height) {
         this.chatWindow.setSize(width, height);
     }
 
+    /**
+     * Implements the <code>ExportedDialog.moveDialog</code> method, to 
+     * move the chat window to the given x and y coordinates.
+     * @param x The <code>x</code> coordinate.
+     * @param y The <code>y</code> coordinate.
+     */
     public void moveDialog(int x, int y) {
         this.chatWindow.setLocation(x, y);
     }
 
+    /**
+     * Sets the chat <code>isVisible</code> variable to <code>true</code> or
+     * <code>false</code> to indicate that this chat panel is visible or
+     * invisible.
+     */
     public void setChatVisible(boolean isVisible) {
         this.isVisible = isVisible;
     }
