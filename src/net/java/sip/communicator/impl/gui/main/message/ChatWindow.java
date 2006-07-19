@@ -26,6 +26,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
+import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
 import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTabbedPane;
@@ -33,9 +34,12 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.events.CloseListen
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.service.configuration.ConfigurationService;
+import net.java.sip.communicator.service.configuration.PropertyVetoException;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * The chat window is the place, where users can write and send messages, view
@@ -53,6 +57,8 @@ import net.java.sip.communicator.service.protocol.PresenceStatus;
  */
 public class ChatWindow extends JFrame {
 
+    private Logger logger = Logger.getLogger(ChatWindow.class.getName());
+    
     private ChatPanel currentChatPanel;
 
     private MenusPanel menusPanel;
@@ -82,10 +88,12 @@ public class ChatWindow extends JFrame {
 
         menusPanel = new MenusPanel(this);
 
+        this.setSizeAndLocation();
+        
         this.init();
         
-        this.setLocation();
-
+        this.addWindowListener(new ChatWindowAdapter());
+        
         getRootPane().getActionMap()
                 .put("close", new CloseAction());
         getRootPane().getActionMap()
@@ -95,7 +103,7 @@ public class ChatWindow extends JFrame {
         getRootPane().getActionMap()
                 .put("sendMessage", new SendMessageAction());
         getRootPane().getActionMap()
-                .put("openSmilies", new OpenSmilyAction());
+                .put("openSmilies", new OpenSmileyAction());
         getRootPane().getActionMap()
                 .put("changeProtocol", new ChangeProtocolAction());
         
@@ -138,7 +146,7 @@ public class ChatWindow extends JFrame {
     /**
      * Positions this window in the center of the screen.
      */
-    private void setLocation(){
+    private void setCenterLocation(){
         this.setLocation(
                 Toolkit.getDefaultToolkit().getScreenSize().width/2 
                     - this.getWidth()/2,
@@ -577,10 +585,10 @@ public class ChatWindow extends JFrame {
     }
     
     /**
-     * The <tt>OpenSmilyAction</tt> is an <tt>AbstractAction</tt> that
+     * The <tt>OpenSmileyAction</tt> is an <tt>AbstractAction</tt> that
      * opens the menu, containing all available smilies' icons.
      */
-    private class OpenSmilyAction extends AbstractAction {
+    private class OpenSmileyAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
             menusPanel.getMainToolBar().getSmileyButton().doClick();
         } 
@@ -613,5 +621,70 @@ public class ChatWindow extends JFrame {
      */
     public boolean isTypingNotificationEnabled(){
         return enableTypingNotification;
+    }
+    
+    /**
+     * Before closing the chat window saves the current size and position
+     * through the <tt>ConfigurationService</tt>.
+     */
+    public class ChatWindowAdapter extends WindowAdapter {
+
+        public void windowClosing(WindowEvent e) {
+            ConfigurationService configService
+                = GuiActivator.getConfigurationService();
+            
+            try {
+                configService.setProperty(
+                    "net.java.sip.communicator.impl.ui.chatWindowWidth",
+                    new Integer(getWidth()));
+                
+                configService.setProperty(
+                    "net.java.sip.communicator.impl.ui.chatWindowHeight",
+                    new Integer(getHeight()));
+                
+                configService.setProperty(
+                        "net.java.sip.communicator.impl.ui.chatWindowX",
+                        new Integer(getX()));
+                
+                configService.setProperty(
+                        "net.java.sip.communicator.impl.ui.chatWindowY",
+                        new Integer(getY()));
+            }
+            catch (PropertyVetoException e1) {
+                logger.error("The proposed property change "
+                        + "represents an unacceptable value");
+            }
+        }
+    }
+    
+    /**
+     * Sets the window size and position.
+     */
+    public void setSizeAndLocation() {
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+        
+        String width = configService.getString(
+                "net.java.sip.communicator.impl.ui.chatWindowWidth");
+        
+        String height = configService.getString(
+                "net.java.sip.communicator.impl.ui.chatWindowHeight");
+        
+        String x = configService.getString(
+            "net.java.sip.communicator.impl.ui.chatWindowX");
+        
+        String y = configService.getString(
+            "net.java.sip.communicator.impl.ui.chatWindowY");
+        
+       
+        if(width != null && height != null)
+            this.setSize(new Integer(width).intValue(), 
+                    new Integer(height).intValue());
+        
+        if(x != null && y != null)
+            this.setLocation(new Integer(x).intValue(), 
+                    new Integer(y).intValue());
+        else
+            this.setCenterLocation();
     }
 }

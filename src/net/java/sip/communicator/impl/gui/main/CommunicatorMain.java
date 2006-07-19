@@ -11,10 +11,12 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommDefaultTheme;
 import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommLookAndFeel;
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.service.configuration.ConfigurationService;
 import net.java.sip.communicator.util.Logger;
 
 /**
@@ -71,10 +73,12 @@ public class CommunicatorMain {
      * window, <code>false</code> to hide it.
      */
     public void showCommunicator(boolean isVisible) {
-        this.mainFrame.pack();
+        
+        this.mainFrame.setSizeAndLocation();
+        
         this.mainFrame.setVisible(isVisible);
     }
-
+    
     /**
      * Returns the main application window.
      * @return the main application window.

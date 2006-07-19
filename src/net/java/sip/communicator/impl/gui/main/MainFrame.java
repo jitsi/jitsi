@@ -9,8 +9,13 @@ package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.beans.PropertyChangeEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -19,6 +24,7 @@ import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.CListKeySearchListener;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
@@ -26,6 +32,8 @@ import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
 import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.service.configuration.ConfigurationService;
+import net.java.sip.communicator.service.configuration.PropertyVetoException;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
@@ -44,6 +52,7 @@ import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusCh
 import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusListener;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.xml.XMLException;
 
 /**
  * The main application window. This class is the core of this ui
@@ -99,6 +108,8 @@ public class MainFrame extends JFrame {
         quickMenu = new QuickMenu(this);
         statusPanel = new StatusPanel(this);
 
+        this.addWindowListener(new MainFrameWindowAdapter());
+        
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setInitialBounds();
 
@@ -493,5 +504,68 @@ public class MainFrame extends JFrame {
     public MetaContactGroup getGroupByID(String metaUID) {
         return getTabbedPane().getContactListPanel()
             .getContactList().getGroupByID(metaUID);
+    }
+    
+    /**
+     * Before closing the application window saves the current size and position
+     * through the <tt>ConfigurationService</tt>.
+     */
+    public class MainFrameWindowAdapter extends WindowAdapter {
+
+        public void windowClosing(WindowEvent e) {
+            ConfigurationService configService
+                = GuiActivator.getConfigurationService();
+            
+            try {
+                configService.setProperty(
+                    "net.java.sip.communicator.impl.ui.mainWindowWidth",
+                    new Integer(getWidth()));
+                
+                configService.setProperty(
+                    "net.java.sip.communicator.impl.ui.mainWindowHeight",
+                    new Integer(getHeight()));
+                
+                configService.setProperty(
+                        "net.java.sip.communicator.impl.ui.mainWindowX",
+                        new Integer(getX()));
+                
+                configService.setProperty(
+                        "net.java.sip.communicator.impl.ui.mainWindowY",
+                        new Integer(getY()));
+            }
+            catch (PropertyVetoException e1) {
+                logger.error("The proposed property change "
+                        + "represents an unacceptable value");
+            }
+        }
+    }
+    
+    /**
+     * Sets the window size and position.
+     */
+    public void setSizeAndLocation() {
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+        
+        String width = configService.getString(
+                "net.java.sip.communicator.impl.ui.mainWindowWidth");
+        
+        String height = configService.getString(
+                "net.java.sip.communicator.impl.ui.mainWindowHeight");
+        
+        String x = configService.getString(
+            "net.java.sip.communicator.impl.ui.mainWindowX");
+        
+        String y = configService.getString(
+            "net.java.sip.communicator.impl.ui.mainWindowY");
+        
+       
+        if(width != null && height != null)
+            this.setSize(new Integer(width).intValue(), 
+                    new Integer(height).intValue());
+        
+        if(x != null && y != null)
+            this.setLocation(new Integer(x).intValue(), 
+                    new Integer(y).intValue());
     }
 }
