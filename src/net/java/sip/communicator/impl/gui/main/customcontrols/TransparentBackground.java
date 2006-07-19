@@ -107,7 +107,7 @@ public class TransparentBackground extends JComponent {
 
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
 
-        g2.setColor(Constants.TOOLBAR_SEPARATOR_COLOR);
+        g2.setColor(Constants.LIGHT_GRAY_COLOR);
 
         g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
     }

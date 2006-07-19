@@ -56,57 +56,57 @@ public class ListCellPanel extends JPanel implements MouseListener {
 
         if (this.isSelected()) {
             GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
-                    Constants.CONTACTPANEL_SELECTED_START_COLOR, this
+                    Constants.SELECTED_START_COLOR, this
                             .getWidth() / 2,
-                    Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE,
-                    Constants.CONTACTPANEL_SELECTED_END_COLOR);
+                    Constants.SELECTED_GRADIENT_SIZE,
+                    Constants.SELECTED_END_COLOR);
 
             GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
                     .getHeight()
-                    - Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE,
-                    Constants.CONTACTPANEL_SELECTED_END_COLOR,
+                    - Constants.SELECTED_GRADIENT_SIZE,
+                    Constants.SELECTED_END_COLOR,
                     this.getWidth() / 2, this.getHeight() - 1,
-                    Constants.CONTACTPANEL_SELECTED_START_COLOR);
+                    Constants.SELECTED_START_COLOR);
 
             g2.setPaint(p);
             g2.fillRect(0, 0, this.getWidth(),
-                    Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE);
+                    Constants.SELECTED_GRADIENT_SIZE);
 
-            g2.setColor(Constants.CONTACTPANEL_SELECTED_END_COLOR);
-            g2.fillRect(0, Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, this
+            g2.setColor(Constants.SELECTED_END_COLOR);
+            g2.fillRect(0, Constants.SELECTED_GRADIENT_SIZE, this
                     .getWidth(), this.getHeight()
-                    - Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE);
+                    - Constants.SELECTED_GRADIENT_SIZE);
 
             g2.setPaint(p1);
             g2.fillRect(0, this.getHeight()
-                    - Constants.CONTACTPANEL_SELECTED_GRADIENT_SIZE, this
+                    - Constants.SELECTED_GRADIENT_SIZE, this
                     .getWidth(), this.getHeight() - 1);
 
         } else if (this.isMouseOver()) {
             GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
-                    Constants.CONTACTPANEL_MOVER_START_COLOR,
-                    this.getWidth() / 2, Constants.CONTACTPANEL_GRADIENT_SIZE,
-                    Constants.CONTACTPANEL_MOVER_END_COLOR);
+                    Constants.MOVER_START_COLOR,
+                    this.getWidth() / 2, Constants.GRADIENT_SIZE,
+                    Constants.MOVER_END_COLOR);
 
             GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
                     .getHeight()
-                    - Constants.CONTACTPANEL_GRADIENT_SIZE,
-                    Constants.CONTACTPANEL_MOVER_END_COLOR,
+                    - Constants.GRADIENT_SIZE,
+                    Constants.MOVER_END_COLOR,
                     this.getWidth() / 2, this.getHeight(),
-                    Constants.CONTACTPANEL_MOVER_START_COLOR);
+                    Constants.MOVER_START_COLOR);
 
             g2.setPaint(p);
             g2.fillRect(0, 0, this.getWidth(),
-                    Constants.CONTACTPANEL_GRADIENT_SIZE);
+                    Constants.GRADIENT_SIZE);
 
-            g2.setColor(Constants.CONTACTPANEL_MOVER_END_COLOR);
-            g2.fillRect(0, Constants.CONTACTPANEL_GRADIENT_SIZE, this
+            g2.setColor(Constants.MOVER_END_COLOR);
+            g2.fillRect(0, Constants.GRADIENT_SIZE, this
                     .getWidth(), this.getHeight()
-                    - Constants.CONTACTPANEL_GRADIENT_SIZE);
+                    - Constants.GRADIENT_SIZE);
 
             g2.setPaint(p1);
             g2.fillRect(0, this.getHeight()
-                    - Constants.CONTACTPANEL_GRADIENT_SIZE - 1,
+                    - Constants.GRADIENT_SIZE - 1,
                     this.getWidth(), this.getHeight() - 1);
 
         }

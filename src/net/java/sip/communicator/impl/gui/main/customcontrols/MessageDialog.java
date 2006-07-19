@@ -76,7 +76,7 @@ public class MessageDialog extends JDialog
 
         this.setTitle(Messages.getString("removeContact"));
 
-        this.setSize(Constants.OPTION_PANE_WIDTH, Constants.OPTION_PANE_HEIGHT);
+        this.setSize(Constants.MSG_DIALOG_WIDTH, Constants.MSG_DIALOG_HEIGHT);
 
         this.getContentPane().setLayout(new BorderLayout(5, 5));
 

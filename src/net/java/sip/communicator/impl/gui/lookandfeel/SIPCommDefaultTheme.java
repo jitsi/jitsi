@@ -131,7 +131,7 @@ public class SIPCommDefaultTheme
             "ToggleButton.gradient", buttonGradient,
 
             "ToolBar.isRollover", Boolean.TRUE,
-            "ToolBar.separatorColor", Constants.TOOLBAR_SEPARATOR_COLOR,
+            "ToolBar.separatorColor", Constants.LIGHT_GRAY_COLOR,
             "ToolBar.separatorSize", new DimensionUIResource(8, 22),
             
             "ToolTip.background", LIGHT_GRAY,

@@ -173,7 +173,7 @@ public class SIPCommButton extends JButton {
 
         if (this.bgRolloverImage != null && this.getModel().isRollover()) {
 
-            g.setColor(Constants.CONTACTPANEL_LINES_COLOR);
+            g.setColor(Constants.GRAY_COLOR);
             g.drawImage(this.bgRolloverImage, 0, 0, this);
 
             if (this.iconImage != null) {
@@ -207,7 +207,7 @@ public class SIPCommButton extends JButton {
             if (this.pressedImage != null) {
                 g.drawImage(this.pressedImage, 0, 0, this);
             } else {
-                g.setColor(Constants.CONTACTPANEL_LINES_COLOR);
+                g.setColor(Constants.GRAY_COLOR);
                 g.drawImage(this.bgRolloverImage, 0, 0, this);
 
                 if (this.iconImage != null) {

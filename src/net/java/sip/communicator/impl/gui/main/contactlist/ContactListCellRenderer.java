@@ -195,16 +195,16 @@ public class ContactListCellRenderer extends JPanel
 
         if (!this.isLeaf) {
 
-            g2.setColor(Constants.CONTACTPANEL_MOVER_START_COLOR);
+            g2.setColor(Constants.MOVER_START_COLOR);
             g2.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 7, 7);
         }
 
         if (this.isSelected) {
 
-            g2.setColor(Constants.CONTACTPANEL_SELECTED_END_COLOR);
+            g2.setColor(Constants.SELECTED_END_COLOR);
             g2.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 7, 7);
 
-            g2.setColor(Constants.CONTACTPANEL_BORDER_COLOR);
+            g2.setColor(Constants.BLUE_GRAY_BORDER_DARKER_COLOR);
             g2.setStroke(new BasicStroke(1.5f));
             g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1,
                     7, 7);

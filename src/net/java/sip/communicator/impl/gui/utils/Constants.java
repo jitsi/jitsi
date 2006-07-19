@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
@@ -48,8 +47,15 @@ public class Constants {
      * ------------------------ CONFIG CONSTANTS ---------------------------
      * ===================================================================
      */
+    /**
+     * Indicates whether to ask for confirmation when user tries to delete
+     * a contact.
+     */
     public static boolean REMOVE_CONTACT_ASK = true;
     
+    /**
+     * Indicates whether the message automatic popup is enabled.
+     */
     public static boolean AUTO_POPUP_NEW_MESSAGE = true;
     
     /*
@@ -58,8 +64,14 @@ public class Constants {
      * ===================================================================
      */
     
+    /**
+     * The outging message type.
+     */
     public static final String OUTGOING_MESSAGE = "OutgoingMessage";
 
+    /**
+     * The incoming message type.
+     */
     public static final String INCOMING_MESSAGE = "IncomingMessage";
 
     /*
@@ -68,32 +80,62 @@ public class Constants {
      * ===================================================================
      */
 
+    /**
+     * The minimum height of the main application window.
+     */
     public static final int MAINFRAME_MIN_HEIGHT = 200;
 
+    /**
+     * The minimum width of the main application window.
+     */
     public static final int MAINFRAME_MIN_WIDTH = 80;
+    
+    /**
+     * The size of the gradient used for painting the selected background of
+     * some components.
+     */
+    public static final int SELECTED_GRADIENT_SIZE = 5;
 
-    public static final int CONTACTPANEL_HEIGHT = 20;
+    /**
+     * The size of the gradient used for painting the background of some
+     * components.
+     */
+    public static final int GRADIENT_SIZE = 10;
 
-    public static final int CONTACTPANEL_WIDTH = 10;
-
-    public static final int CONTACTPANEL_SELECTED_HEIGHT = 50;
-
-    public static final int CONTACTPANEL_SELECTED_GRADIENT_SIZE = 5;
-
-    public static final int CONTACTPANEL_GRADIENT_SIZE = 10;
-
+    /**
+     * The height of the <tt>HistoryWindow</tt>.
+     */
     public static final int HISTORY_WINDOW_HEIGHT = 450;
 
+    /**
+     * The width of the <tt>HistoryWindow</tt>.
+     */
     public static final int HISTORY_WINDOW_WIDTH = 450;
 
-    public static final int OPTION_PANE_WIDTH = 330;
+    /**
+     * The width of a <tt>MessageDialog</tt>.
+     */
+    public static final int MSG_DIALOG_WIDTH = 330;
 
-    public static final int OPTION_PANE_HEIGHT = 150;
+    /**
+     * The height of a <tt>MessageDialog</tt>.
+     */
+    public static final int MSG_DIALOG_HEIGHT = 150;
 
+    /**
+     * The size of the buffer that indicates how many messages will be stored
+     * in the conversation area in the chat window.
+     */
     public static final int CHAT_BUFFER_SIZE = 100;
 
+    /**
+     * The maximum width of the <tt>ConfigurationFrame</tt>.
+     */
     public static final int CONFIG_FRAME_MAX_WIDTH = 800;
 
+    /**
+     * The maximum height of the <tt>ConfigurationFrame</tt>.
+     */
     public static final int CONFIG_FRAME_MAX_HEIGHT = 600;
 
     /*
@@ -102,47 +144,77 @@ public class Constants {
      * ======================================================================
      */
 
-    public static final Color CONTACTPANEL_SELECTED_START_COLOR = new Color(
-            151, 169, 198);
+    /**
+     * The start color used to paint a gradient selected background of some
+     * components.
+     */
+    public static final Color SELECTED_START_COLOR
+        = new Color(151, 169, 198);
 
-    public static final Color CONTACTPANEL_SELECTED_END_COLOR = new Color(209,
-            212, 225);
+    /**
+     * The end color used to paint a gradient selected background of some
+     * components.
+     */
+    public static final Color SELECTED_END_COLOR
+        = new Color(209, 212, 225);
 
-    public static final Color CONTACTPANEL_MOVER_START_COLOR = new Color(230,
+    /**
+     * The start color used to paint a gradient mouse over background of some 
+     * components.
+     */
+    public static final Color MOVER_START_COLOR = new Color(230,
             230, 230);
-
-    public static final Color CONTACTPANEL_MOVER_END_COLOR = new Color(255,
+    
+    /**
+     * The end color used to paint a gradient mouse over background of some 
+     * components.
+     */
+    public static final Color MOVER_END_COLOR = new Color(255,
             255, 255);
 
-    public static final Color CONTACTPANEL_LINES_COLOR = new Color(154, 154,
+    /**
+     * Gray color used to paint some borders, like the button border for
+     * example.
+     */
+    public static final Color GRAY_COLOR = new Color(154, 154,
             154);
 
-    public static final Color MSG_WINDOW_BORDER_COLOR = new Color(142, 160, 188);
+    /**
+     * A color between blue and gray used to paint some borders.
+     */
+    public static final Color BLUE_GRAY_BORDER_COLOR = new Color(142, 160, 188);
 
-    public static final Color CONTACTPANEL_BORDER_COLOR = new Color(131, 149,
+    /**
+     * A color between blue and gray (darker than the other one), used to paint
+     * some borders.
+     */
+    public static final Color BLUE_GRAY_BORDER_DARKER_COLOR = new Color(131, 149,
             178);
 
-    public static final Color TOOLBAR_SEPARATOR_COLOR = new Color(200, 200, 200);
-
-    public static final Color TRANSPARENT_WHITE_COLOR = new Color(255, 255,
-            255, 60);
+    /**
+     * Light gray color used in the look and feel.
+     */
+    public static final Color LIGHT_GRAY_COLOR = new Color(200, 200, 200);
 
     /*
      * ======================================================================
-     * ---------------------- MESSAGE WINDOW FONT CONSTANTS ------------------
+     * --------------------------- FONT CONSTANTS ---------------------------
      * ======================================================================
      */
 
+    /**
+     * The name of the font used in this ui implementation.
+     */
     public static final String FONT_NAME = "Verdana";
 
+    /**
+     * The size of the font used in this ui implementation.
+     */
     public static final String FONT_SIZE = "10";
 
-    public static final String FONT_IN_MSG_COLOR = "#ef7b1e";
-
-    public static final String FONT_OUT_MSG_COLOR = "#2e538b";
-
-    public static final String FONT_CHAT_HEADER_COLOR = "c6d0e1";
-
+    /**
+     * The default <tt>Font</tt> object used through this ui implementation.
+     */
     public static final Font FONT = new Font(Constants.FONT_NAME, Font.PLAIN,
             new Integer(Constants.FONT_SIZE).intValue());
 
@@ -151,23 +223,49 @@ public class Constants {
      * ------------------------ STATUS LABELS --------------------------------
      * ======================================================================
      */
-
+    /**
+     * The "online" presence status.
+     */
     public static final IcqStatusEnum ONLINE_STATUS = IcqStatusEnum.ONLINE;
 
+    /**
+     * The "offline" presence status.
+     */
     public static final IcqStatusEnum OFFLINE_STATUS = IcqStatusEnum.OFFLINE;
 
+    /**
+     * The "occupied" presence status.
+     */
     public static final IcqStatusEnum OCCUPIED_STATUS = IcqStatusEnum.OCCUPIED;
 
+    /**
+     * The "chat" presence status.
+     */
     public static final IcqStatusEnum CHAT_STATUS = IcqStatusEnum.FREE_FOR_CHAT;
 
+    /**
+     * The "away" presence status.
+     */
     public static final IcqStatusEnum AWAY_STATUS = IcqStatusEnum.AWAY;
 
+    /**
+     * The "not available" presence status.
+     */
     public static final IcqStatusEnum NA_STATUS = IcqStatusEnum.NOT_AVAILABLE;
 
+    /**
+     * The "invisible" presence status.
+     */
     public static final IcqStatusEnum INVISIBLE_STATUS = IcqStatusEnum.INVISIBLE;
 
+    /**
+     * The "do not disturb" presence status.
+     */
     public static final IcqStatusEnum DND_STATUS = IcqStatusEnum.DO_NOT_DISTURB;
 
+    /**
+     * A set of all statuses and corresponging icons.
+     */
     private static final Hashtable mainStatusSet = new Hashtable();
     static {
         mainStatusSet.put(Constants.ONLINE_STATUS, ImageLoader
@@ -193,19 +291,39 @@ public class Constants {
      * ------------------------ PROTOCOL NAMES -------------------------------
      * ======================================================================
      */
-
+    /**
+     * The ICQ protocol.
+     */
     public static final String ICQ = "ICQ";
 
+    /**
+     * The MSN protocol.
+     */
     public static final String MSN = "MSN";
 
+    /**
+     * The AIM protocol.
+     */
     public static final String AIM = "AIM";
 
+    /**
+     * The Yahoo protocol.
+     */
     public static final String YAHOO = "Yahoo";
 
+    /**
+     * The Jabber protocol.
+     */
     public static final String JABBER = "Jabber";
 
+    /**
+     * The Skype protocol.
+     */
     public static final String SKYPE = "Skype";
 
+    /**
+     * The SIP protocol.
+     */
     public static final String SIP = "SIP";
 
     /*
@@ -213,11 +331,15 @@ public class Constants {
      * ------------------------ OTHER CONSTANTS ------------------------------
      * ======================================================================
      */
-
-    public static final int RIGHT_SHIFT_STATUS_ICON = 2;
-
+    /**
+     * Indicates whether the application is in mode "group messages in one
+     * window".
+     */
     public static final boolean TABBED_CHAT_WINDOW = true;
     
+    /**
+     * The default path, where chat window styles could be found.
+     */
     public static final String DEFAULT_STYLE_PATH  
         = "net/java/sip/communicator/impl/gui/resources/styles";
 
@@ -225,6 +347,9 @@ public class Constants {
      * ======================================================================
      * ------------------------ SPECIAL CHARS LIST --------------------------
      * ======================================================================
+     */
+    /**
+     * A list of all special chars that should be escaped for some reasons.
      */
     private static final ArrayList specialCharsList = new ArrayList();
     static{
@@ -249,9 +374,10 @@ public class Constants {
     }
     
     /**
-     * Gets protocol logo icon.
+     * Gets the protocol logo icon.
+     * @param protocolName The protocol name.
+     * @return the protocol logo image.
      */
-
     public static Image getProtocolIcon(String protocolName) {
 
         Image protocolIcon = null;
@@ -285,6 +411,12 @@ public class Constants {
         return protocolIcon;
     }
 
+    /**
+     * Gets the protocol connecting animated icon.
+     * @param protocolName The name of the protocol.
+     * @return the animated icon in the form of array of all images that it
+     * contains.
+     */
     public static BufferedImage[] getProtocolAnimatedIcon(String protocolName) {
         
         if (protocolName.equals(Constants.SIP)) {
@@ -313,13 +445,15 @@ public class Constants {
         return ImageLoader.getAnimatedImage(
                 ImageLoader.ICQ_CONNECTING);
     }
+    
     /**
-     * Gets all protocol statuses, including status and text.
+     * Returns a set of <tt>Status</tt> objects for a given protocol. Each
+     * <tt>Status</tt> contains a status icon and a status text. 
      * 
-     * @param protocolName
-     * @return an ArrayList of all status Icons for the given protocol.
+     * @param protocolName The name of the protocol.
+     * @return a set of <tt>Status</tt> objects for a given protocol. Each
+     * <tt>Status</tt> contains a status icon and a status text.
      */
-
     public static Map getProtocolStatusIcons(String protocolName) {
         Map protocolStatusList = new Hashtable();
 
@@ -426,19 +560,26 @@ public class Constants {
         return protocolStatusList;
     }
 
+    /**
+     * Returns the image corresponding to the given presence status.
+     * @param status The presence status. 
+     * @return the image corresponding to the given presence status.
+     */
     public static BufferedImage getStatusIcon(PresenceStatus status) {
         return (BufferedImage) mainStatusSet.get(status);
     }
 
-    
+    /**
+     * Loads a chat window style.
+     */
     public static void loadAdiumStyle(){
         
         File is = new File(Constants.class.getClassLoader()
-            .getResource(DEFAULT_STYLE_PATH + "/TotallyClear").toString());        
+            .getResource(DEFAULT_STYLE_PATH + "/TotallyClear").toString());
     }
+    
     /**
      * Temporary method to load the css style used in the chat window.
-     * 
      * @param style
      */
     public static void loadSimpleStyle(StyleSheet style) {
@@ -456,12 +597,16 @@ public class Constants {
         }
     }
 
+    /**
+     * Returns the default sound used when user receives a message.
+     * @return the default sound used when user receives a message.
+     */
     public static AudioClip getDefaultAudio() {
         AudioClip audio = Applet
                 .newAudioClip(Constants.class
                         .getClassLoader()
                         .getResource(
-                                "net/java/sip/communicator/impl/gui/resources/sounds/ship-sink.wav"));
+        "net/java/sip/communicator/impl/gui/resources/sounds/ship-sink.wav"));
 
         return audio;
     }

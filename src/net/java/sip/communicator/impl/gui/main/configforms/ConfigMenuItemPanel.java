@@ -62,12 +62,12 @@ public class ConfigMenuItemPanel extends ListCellPanel
 
         if (this.isSelected()) {
 
-            g2.setColor(Constants.CONTACTPANEL_BORDER_COLOR);
+            g2.setColor(Constants.BLUE_GRAY_BORDER_DARKER_COLOR);
             g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1,
                     5, 5);
         } else if (this.isMouseOver()) {
 
-            g2.setColor(Constants.MSG_WINDOW_BORDER_COLOR);
+            g2.setColor(Constants.BLUE_GRAY_BORDER_COLOR);
             g2.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1,
                     5, 5);
         }
