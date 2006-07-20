@@ -267,21 +267,22 @@ public class ContactListPanel extends JScrollPane
                 SwingUtilities.invokeLater(new RunInfoWindow(selectedCellPoint,
                         contact));
             } 
-            else if (component instanceof JPanel
-                    && component.getName().equals("buttonsPanel")) {
-                JPanel panel = (JPanel) component;
-
-                int internalX = translatedX
-                        - (renderer.getWidth() - panel.getWidth() - 2);
-                int internalY = translatedY
-                        - (renderer.getHeight() - panel.getHeight());
-
-                Component c = panel.getComponentAt(4, 4);
-
-                if (c instanceof ContactProtocolButton) {
-
-                    SwingUtilities.invokeLater(new RunMessageWindow(contact,
-                            ((ContactProtocolButton) c).getProtocolContact()));
+            else if (component instanceof JPanel) {
+                if(component.getName().equals("buttonsPanel")){
+                    JPanel panel = (JPanel) component;
+    
+                    int internalX = translatedX
+                            - (renderer.getWidth() - panel.getWidth() - 2);
+                    int internalY = translatedY
+                            - (renderer.getHeight() - panel.getHeight());
+    
+                    Component c = panel.getComponentAt(4, 4);
+    
+                    if (c instanceof ContactProtocolButton) {
+    
+                        SwingUtilities.invokeLater(new RunMessageWindow(contact,
+                                ((ContactProtocolButton) c).getProtocolContact()));
+                    }
                 }
             }
 
@@ -454,7 +455,7 @@ public class ContactListPanel extends JScrollPane
     }
 
     /**
-     * When message is received determines whether to open a new chat
+     * When a message is received determines whether to open a new chat
      * window or chat window tab, or to indicate that a message is received
      * from a contact which already has an open chat. When the chat is found
      * checks if in mode "Auto popup enabled" and if this is the case shows
@@ -475,7 +476,7 @@ public class ContactListPanel extends JScrollPane
                 .getModel()).getMetaContactStatus(metaContact);
         
         if (!Constants.TABBED_CHAT_WINDOW) {
-            //If in mode "open all message  s in new window"
+            //If in mode "open all messages in new window"
             if (contactMsgWindows.containsKey(metaContact)) {
                 /*
                  * If a chat window for this contact is already opened
@@ -489,7 +490,13 @@ public class ContactListPanel extends JScrollPane
                                 date, Constants.INCOMING_MESSAGE,
                                 message.getContent());
 
-                msgWindow.setVisible(true);
+                if(msgWindow.getState() == JFrame.ICONIFIED) {
+                    msgWindow.setTitle(msgWindow.getTitle()+"*");
+                }
+                
+                if(Constants.AUTO_POPUP_NEW_MESSAGE) {
+                    msgWindow.setVisible(true);
+                }
             }
             else {                
                 ChatWindow msgWindow = new ChatWindow(mainFrame);
@@ -530,7 +537,9 @@ public class ContactListPanel extends JScrollPane
                 });
             }
                 
-            Hashtable contactTabsTable = tabbedChatWindow.getContactChatsTable();
+            Hashtable contactTabsTable
+                = tabbedChatWindow.getContactChatsTable();
+            
             ChatPanel chatPanel;
 
             //If there's no open tab for the given contact.
@@ -563,18 +572,28 @@ public class ContactListPanel extends JScrollPane
                         protocolContact.getDisplayName(),
                         date, Constants.INCOMING_MESSAGE,
                         message.getContent());
-                        
-                if(chatPanel.isDialogVisible()) {
-                    tabbedChatWindow.setVisible(true);
+                                          
+                if (tabbedChatWindow.getState() == JFrame.ICONIFIED) {
+                    if (tabbedChatWindow.getTabCount() > 1) {
+                        tabbedChatWindow.setSelectedContactTab(metaContact);
+                    }
                     
+                    if (!tabbedChatWindow.getTitle().endsWith("*")) {
+                        tabbedChatWindow.setTitle(
+                                tabbedChatWindow.getTitle() + "*");
+                    }
+                }
+                else {
                     if (tabbedChatWindow.getTabCount() > 1) {
                         tabbedChatWindow.highlightTab(metaContact);
                     }
+                    
+                    tabbedChatWindow.setVisible(true);
                 }
             }
         }
         
-        if(Constants.AUTO_POPUP_NEW_MESSAGE)
+        if (Constants.AUTO_POPUP_NEW_MESSAGE)
             Constants.getDefaultAudio().play();
     }
 

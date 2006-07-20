@@ -92,8 +92,6 @@ public class ChatWindow extends JFrame {
         
         this.init();
         
-        this.addWindowListener(new ChatWindowAdapter());
-        
         getRootPane().getActionMap()
                 .put("close", new CloseAction());
         getRootPane().getActionMap()
@@ -129,11 +127,7 @@ public class ChatWindow extends JFrame {
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P,
                 KeyEvent.ALT_DOWN_MASK), "changeProtocol");
         
-        this.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                close();
-            }
-        });
+        this.addWindowListener(new ChatWindowAdapter());       
     }
 
     /**
@@ -350,7 +344,9 @@ public class ChatWindow extends JFrame {
             ChatPanel chatPanel = ((ChatPanel) this.contactChats
                     .get(contact.getMetaUID()));
 
-            this.chatTabbedPane.setSelectedComponent(chatPanel);
+            this.chatTabbedPane.setSelectedComponent(chatPanel);            
+            this.setTitle(chatPanel.getDefaultContact().getDisplayName());
+            this.setCurrentChatPanel(chatPanel);            
             chatPanel.requestFocusInWriteArea();
         }
     }
@@ -365,6 +361,7 @@ public class ChatWindow extends JFrame {
 
         this.setCurrentChatPanel(chatPanel);
         this.chatTabbedPane.setSelectedIndex(index);
+        this.setTitle(chatPanel.getDefaultContact().getDisplayName());
         this.setVisible(true);
         chatPanel.requestFocusInWriteArea();
     }
@@ -629,6 +626,14 @@ public class ChatWindow extends JFrame {
      */
     public class ChatWindowAdapter extends WindowAdapter {
 
+        public void windowDeiconified(WindowEvent e) {
+            String title = getTitle();
+            
+            if (title.endsWith("*")) {
+                setTitle(title.substring(0, title.length() - 1));
+            }
+        }
+       
         public void windowClosing(WindowEvent e) {
             ConfigurationService configService
                 = GuiActivator.getConfigurationService();
@@ -654,6 +659,8 @@ public class ChatWindow extends JFrame {
                 logger.error("The proposed property change "
                         + "represents an unacceptable value");
             }
+            
+            close();
         }
     }
     
