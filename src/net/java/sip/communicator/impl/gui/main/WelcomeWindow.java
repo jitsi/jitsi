@@ -221,7 +221,7 @@ public class WelcomeWindow extends JDialog
      */
     private class RunLogin implements Runnable {
         public void run() {
-            loginManager.showLoginWindows(communicator.getMainFrame());
+            loginManager.runLogin(communicator.getMainFrame());
         }
     }
     

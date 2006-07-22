@@ -6,6 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui;
 
+import java.util.Hashtable;
+import java.util.Map;
+
 import net.java.sip.communicator.impl.gui.main.CommunicatorMain;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.WelcomeWindow;
@@ -13,10 +16,12 @@ import net.java.sip.communicator.impl.gui.main.login.LoginManager;
 import net.java.sip.communicator.service.configuration.ConfigurationService;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.gui.UIService;
+import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 import net.java.sip.communicator.util.Logger;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
 /**
@@ -25,7 +30,8 @@ import org.osgi.framework.ServiceReference;
  * @author Yana Stamcheva
  */
 public class GuiActivator implements BundleActivator {
-    private Logger logger = Logger.getLogger(GuiActivator.class.getName());
+    
+    private static Logger logger = Logger.getLogger(GuiActivator.class.getName());
 
     private UIService uiService = null;
 
@@ -36,6 +42,9 @@ public class GuiActivator implements BundleActivator {
     public static BundleContext bundleContext;
     
     private static ConfigurationService configService;
+    
+    private static Map providerFactoriesMap = new Hashtable();
+    
     /**
      * Called when this bundle is started.
      *
@@ -109,7 +118,7 @@ public class GuiActivator implements BundleActivator {
      */
     private class RunLogin implements Runnable {
         public void run() {
-            loginManager.showLoginWindows(communicatorMain.getMainFrame());
+            loginManager.runLogin(communicatorMain.getMainFrame());
         }
     }
     
@@ -123,5 +132,31 @@ public class GuiActivator implements BundleActivator {
         }
         
         return configService;
+    }
+    
+    public static Map getProtocolProviderFactories() {
+  
+        ServiceReference[] serRefs = null;
+        try {
+            //get all registered provider factories
+            serRefs = bundleContext.getServiceReferences(
+                    ProtocolProviderFactory.class.getName(), null);
+
+        } catch (InvalidSyntaxException e) {
+            logger.error("LoginManager : " + e);
+        }
+
+        for (int i = 0; i < serRefs.length; i++) {
+            
+            ProtocolProviderFactory providerFactory
+                = (ProtocolProviderFactory) bundleContext
+                    .getService(serRefs[i]);
+
+            providerFactoriesMap.put(serRefs[i].getProperty(
+                    ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME),
+                    providerFactory);
+        }
+        
+        return providerFactoriesMap;
     }
 }

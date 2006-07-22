@@ -7,6 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.main.login;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -30,8 +31,6 @@ import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeE
 import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeListener;
 import net.java.sip.communicator.util.Logger;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
 /**
@@ -50,75 +49,51 @@ import org.osgi.framework.ServiceReference;
  */
 public class LoginManager implements RegistrationStateChangeListener {
 
-    private BundleContext bc;
-
-    private Hashtable providerFactoriesMap = new Hashtable();
-
+    private Logger logger = Logger.getLogger(LoginManager.class.getName());
+    
     private Hashtable loginWindows = new Hashtable();
 
-    private AccountID accountID;
-
-    private Logger logger = Logger.getLogger(LoginManager.class.getName());
-
     private MainFrame mainFrame;
-
+       
     /**
-     * Creates an instance of <tt>LoginManager</tt> by specifying the
-     * <tt>BundleContext</tt>, from which to obtain all registered
-     * <tt>ProtocolProviderFactory</tt>s.
+     * In the given <tt>ProtocolProviderFactory</tt> creates an account 
+     * for the given user and password.
      * 
-     * @param bc The <tt>BundleContext</tt>.
+     * @param providerFactory The <tt>ProtocolProviderFactory</tt> where the
+     * new account is created.
+     * @param user The user identifier for this account.
+     * @param passwd The password for this account.
+     * 
+     * @return The <tt>AccountID</tt> of the newly created account.
      */
-    public LoginManager() {
-
-        this.bc = GuiActivator.bundleContext;
-
-        ServiceReference[] serRefs = null;
-        try {
-            //get all registered provider factories
-            serRefs = this.bc.getServiceReferences(ProtocolProviderFactory.class
-                    .getName(), null);
-
-        } catch (InvalidSyntaxException e) {
-
-            logger.error("LoginManager : " + e);
-        }
-
-        for (int i = 0; i < serRefs.length; i++) {
-
-            ProtocolProviderFactory providerFactory
-                = (ProtocolProviderFactory) this.bc.getService(serRefs[i]);
-
-            this.providerFactoriesMap.put(serRefs[i].getProperty(
-                    ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME),
-                    providerFactory);
-        }
-    }
-
-    /**
-     * Implements the login. Installs the account and registers
-     * the appropriate protocol provider.
-     *
-     * @param providerFactory The ProtocolProviderFactory where the account
-     * should be installed.
-     * @param user The user identifier.
-     * @param passwd The password.
-     */
-    public void login(ProtocolProviderFactory providerFactory,
-                        String user,
-                        String passwd) {
+    public AccountID installAccount( ProtocolProviderFactory providerFactory,
+                                String user,
+                                String passwd) {
 
         Hashtable accountProperties = new Hashtable();
         accountProperties.put(AccountProperties.PASSWORD, passwd);
-
-        this.accountID = providerFactory.installAccount(this.bc, user,
-                accountProperties);
-
+        
+        return providerFactory.installAccount(
+                    GuiActivator.bundleContext, user,
+                    accountProperties);
+    }
+    
+    /**
+     * Registers the appropriate protocol provider for the given account.
+     *
+     * @param providerFactory the ProtocolProviderFactory where the account
+     * should be installed
+     * @param accountID the account to register
+     */
+    public void login(  ProtocolProviderFactory providerFactory,
+                        AccountID accountID) {
+        
         ServiceReference serRef = providerFactory
-                .getProviderForAccount(this.accountID);
+                .getProviderForAccount(accountID);
 
         ProtocolProviderService protocolProvider
-            = (ProtocolProviderService) this.bc.getService(serRef);
+            = (ProtocolProviderService) GuiActivator.bundleContext
+                .getService(serRef);
 
         this.mainFrame.addAccount(protocolProvider);
 
@@ -131,9 +106,9 @@ public class LoginManager implements RegistrationStateChangeListener {
      * Shows login window for each registered account.
      * @param parent The parent MainFrame window.
      */
-    public void showLoginWindows(MainFrame parent) {
+    public void runLogin(MainFrame parent) {
 
-        Set set = this.providerFactoriesMap.entrySet();
+        Set set = GuiActivator.getProtocolProviderFactories().entrySet();
         Iterator iter = set.iterator();
 
         while (iter.hasNext()) {
@@ -143,8 +118,19 @@ public class LoginManager implements RegistrationStateChangeListener {
                 = (ProtocolProviderFactory) entry.getValue();
             String protocolName = (String) entry.getKey();
 
-            showLoginWindow(parent, protocolName, providerFactory);
-
+            ArrayList accountsList
+                = providerFactory.getRegisteredAccounts();
+            
+            if(accountsList.size() > 0) {
+                for(int i = 0; i < accountsList.size(); i ++) {
+                    AccountID accountID = (AccountID)accountsList.get(i);
+                    
+                    this.login(providerFactory, accountID);
+                }
+            }
+            else {
+                showLoginWindow(parent, protocolName, providerFactory);
+            }
             //TEST SUPPORT FOR MORE ACCOUNTS!!!!!
             //showLoginWindow(parent, protocolName, providerFactory);
         }

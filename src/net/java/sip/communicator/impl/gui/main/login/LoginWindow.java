@@ -36,6 +36,7 @@ import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 /**
  * The <tt>LoginWindow</tt> is the window where the user should type his
@@ -192,6 +193,11 @@ public class LoginWindow extends JDialog implements ActionListener {
         return providerFactory;
     }
 
+    /**
+     * Handles the <tt>ActionEvent</tt> triggered when one of the buttons is
+     * clicked. When "Login" button is choosen installs a new account from
+     * the user input and logs in. 
+     */
     public void actionPerformed(ActionEvent e) {
 
         JButton button = (JButton) e.getSource();
@@ -201,9 +207,13 @@ public class LoginWindow extends JDialog implements ActionListener {
 
             this.dispose();
 
-            this.loginManager.login(providerFactory, uinComboBox
-                    .getSelectedItem().toString(), new String(passwdField
-                    .getPassword()));
+            AccountID accountID = this.loginManager.installAccount(
+                    providerFactory, 
+                    uinComboBox.getSelectedItem().toString(), 
+                    new String(passwdField.getPassword()));
+            
+            this.loginManager.login(providerFactory, accountID);
+            
         } else {
             this.dispose();
         }
