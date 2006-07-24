@@ -279,7 +279,11 @@ public class ContactIcqImpl
      */
     public String getPersistentData()
     {
-        return "nickname=" + getDisplayName() + ";";
+        // to store data only when nick is set
+        if(nickName != null)
+            return "nickname=" + nickName + ";";
+        else
+            return null;
     }
 
     /**
