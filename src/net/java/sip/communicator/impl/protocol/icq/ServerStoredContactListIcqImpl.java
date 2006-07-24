@@ -6,15 +6,15 @@
  */
 package net.java.sip.communicator.impl.protocol.icq;
 
-import net.java.sip.communicator.service.protocol.*;
-import net.kano.joustsim.oscar.oscar.service.ssi.*;
 import java.util.*;
-import net.java.sip.communicator.util.*;
-import net.kano.joustsim.Screenname;
-import net.kano.joscar.snaccmd.ssi.SsiItem;
+
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.kano.joscar.ssiitem.*;
+import net.java.sip.communicator.util.*;
+import net.kano.joscar.snaccmd.ssi.*;
+import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.*;
+import net.kano.joustsim.oscar.oscar.service.ssi.*;
 
 /**
  * This class encapsulates the net.kano BuddyList class. Once created, it will
@@ -92,14 +92,9 @@ public class ServerStoredContactListIcqImpl
     private Vector serverStoredGroupListeners = new Vector();
 
     /**
-     * Listens when the provider is regestered to the server
-     * so we can retreive the missing nicknames of the accounts
+     * Used for retrieveing missing nicks on specified contacts
      */
-    private ProviderListener providerListener = null;
-    /**
-     * list with the accounts with missing nicknames
-     */
-    private Vector contactsForUpdate = new Vector();
+    private NickRetriever nickRetriever = new NickRetriever();
 
     /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
@@ -121,6 +116,13 @@ public class ServerStoredContactListIcqImpl
         this.parentOperationSet = parentOperationSet;
 
         this.icqProvider = icqProvider;
+
+        // waiting for the first contact to come
+        // to start retreiving the missing nicknames
+        parentOperationSet.addContactPresenceStatusListener(nickRetriever);
+
+        // start the nick retreiver thread
+        nickRetriever.start();
     }
 
     /**
@@ -667,30 +669,14 @@ public class ServerStoredContactListIcqImpl
 
     /**
      * when there is no alias for contact we must retreive its nickname from server
-     * but when the contact list is loaded the provider is not yet registered to server
-     * we wait to register process to finish and then retreive the nicknames
-     * this happens only the first time contact list is loaded
+     * but when the contact list is loaded the client is not yet registered to
+     * server we wait this and then retreive the nicknames
      *
      * @param c ContactIcqImpl
      */
     protected void addContactForUpdate(ContactIcqImpl c)
     {
-        if(getParentProvider().getRegistrationState().
-           equals(RegistrationState.REGISTERED))
-        {
-            new Thread(new NickRetriever(c)).start();
-        }
-        else
-        {
-            if (providerListener == null)
-            {
-                providerListener = new ProviderListener();
-                getParentProvider().addRegistrationStateChangeListener(
-                    providerListener);
-            }
-
-            contactsForUpdate.add(c);
-        }
+        nickRetriever.addContact(c);
     }
 
     private class BuddyListListener
@@ -1178,57 +1164,101 @@ public class ServerStoredContactListIcqImpl
     }
 
     /**
-     * Waits for registration process to finish
-     * then updates all contacts that need their nickname to be updated
-     */
-    private class ProviderListener
-        implements RegistrationStateChangeListener
-    {
-        public void registrationStateChanged(RegistrationStateChangeEvent evt)
-        {
-            if(evt.getNewState().equals(RegistrationState.REGISTERED))
-            {
-                // update
-                Iterator iter = contactsForUpdate.iterator();
-                while (iter.hasNext())
-                {
-                    ContactIcqImpl item = (ContactIcqImpl) iter.next();
-
-                    // In new thread! There is apperantly some problem
-                    // when not in new thread response is posponed from 30 to 80 seconds
-                    new Thread(new NickRetriever(item)).start();
-                }
-
-                contactsForUpdate.removeAllElements();
-                // after updating has finished we can remove this listener
-                getParentProvider().removeRegistrationStateChangeListener(this);
-                providerListener = null;
-            }
-        }
-    }
-
-    /**
      * Thread retreiving nickname and firing event for the change
      */
     private class NickRetriever
-        implements Runnable
+        extends Thread
+        implements ContactPresenceStatusListener
     {
-        ContactIcqImpl c;
-        NickRetriever(ContactIcqImpl c)
-        {
-            this.c = c;
-        }
+        /**
+         * list with the accounts with missing nicknames
+         */
+        private Vector contactsForUpdate = new Vector();
+
+        private boolean isReadyForRetreive = false;
+
         public void run()
         {
-            String oldNickname = c.getDisplayName();
+            try
+            {
+                while (true)
+                {
+                    synchronized(contactsForUpdate){
 
-            String nickName = getParentProvider().
-                getInfoRetreiver().getNickName(c.getUIN());
+                        if(contactsForUpdate.isEmpty())
+                            contactsForUpdate.wait();
 
-            c.setNickname(nickName);
+                        Iterator iter = contactsForUpdate.iterator();
+                        while (iter.hasNext())
+                        {
+                            ContactIcqImpl contact = (ContactIcqImpl) iter.next();
 
-            parentOperationSet.fireContactPropertyChangeEvent(
-                ContactPropertyChangeEvent.PROPERTY_DISPLAY_NAME, c, oldNickname, nickName);
+                            String oldNickname = contact.getDisplayName();
+
+                            String nickName = getParentProvider().
+                                getInfoRetreiver().getNickName(contact.getUIN());
+
+                            if(nickName != null)
+                            {
+                                contact.setNickname(nickName);
+                                parentOperationSet.fireContactPropertyChangeEvent(
+                                    ContactPropertyChangeEvent.
+                                    PROPERTY_DISPLAY_NAME, contact,
+                                    oldNickname, nickName);
+                            }
+                        }
+
+                        // clear the contacts they are retreived
+                        contactsForUpdate.clear();
+                    }
+                }
+            }
+            catch (InterruptedException ex)
+            {
+                logger.error("NickRetriever error waiting will stop now!", ex);
+            }
+        }
+
+        /**
+         * Add contact for retreiving
+         * if the provider is register notify the retreiver to get the nicks
+         * if we are not registered add a listener to wiat for registering
+         *
+         * @param contact ContactIcqImpl
+         */
+        synchronized void addContact(ContactIcqImpl contact)
+        {
+            synchronized(contactsForUpdate){
+                if (!contactsForUpdate.contains(contact))
+                {
+                    if (isReadyForRetreive)
+                    {
+                        contactsForUpdate.add(contact);
+                        contactsForUpdate.notifyAll();
+                    }
+                    else
+                    {
+                        contactsForUpdate.add(contact);
+                    }
+                }
+            }
+        }
+
+        /**
+         * This is one of the first events after the client ready command
+         * Used to start retreiving.
+         * @param evt ContactPresenceStatusChangeEvent
+         */
+        public void contactPresenceStatusChanged(
+            ContactPresenceStatusChangeEvent evt)
+        {
+            if(!isReadyForRetreive)
+            {
+               isReadyForRetreive = true;
+               synchronized(contactsForUpdate){
+                   contactsForUpdate.notifyAll();
+               }
+            }
         }
     }
 }
