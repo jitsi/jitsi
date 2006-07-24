@@ -727,8 +727,8 @@ javax.swing.event, javax.swing.border"/>
         <!-- Creates a bundle containing the icq impl of the protocol provider."-->
         <jar compress="false" destfile="${bundles.dest}/protocol.jar"
             manifest="src/net/java/sip/communicator/service/protocol/protocol.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/mock"
-                prefix="net/java/sip/communicator/impl/protocol/mock"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
+                prefix="net/java/sip/communicator/service/protocol"/>
         </jar>
     </target>
 
@@ -763,8 +763,6 @@ javax.swing.event, javax.swing.border"/>
         <!--internal-target- Creates a bundle containing the mock implementation of the protocol provider package -->
         <jar compress="false" destfile="${bundles.dest}/protocol-mock.jar"
             manifest="src/net/java/sip/communicator/impl/protocol/mock/mock.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
-                prefix="net/java/sip/communicator/service/protocol"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/mock"
                 prefix="net/java/sip/communicator/impl/protocol/mock"/>
         </jar>
