@@ -71,6 +71,7 @@ public class DefaultCmdFactory
             logger.debug("Packet Received we don't know about! " + packet);
             logger.debug("Packet primary : " + fromICQCmd.getType().getPrimary());
             logger.debug("Packet secondary : " + fromICQCmd.getType().getSecondary());
+
             return null;
         }
     }
