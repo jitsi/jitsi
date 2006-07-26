@@ -26,11 +26,13 @@ import org.jaxen.saxpath.SAXPathException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * @author Alexander Pelov
  */
 public class HistoryReaderImpl implements HistoryReader {
+    private static Logger logger = Logger.getLogger(HistoryReaderImpl.class);
 
     private HistoryImpl historyImpl;
 
@@ -59,27 +61,27 @@ public class HistoryReaderImpl implements HistoryReader {
         return this.findByXpath(expr);
     }
 
-    public QueryResultSet findByKeyword(String keyword) throws RuntimeException {
-        return findByKeywords(new String[] { keyword });
+    public QueryResultSet findByKeyword(String keyword, String field) throws RuntimeException {
+        return findByKeywords(new String[] { keyword }, field);
     }
 
-    public QueryResultSet findByKeywords(String[] keywords)
+    public QueryResultSet findByKeywords(String[] keywords, String field)
             throws RuntimeException {
 
         String expr = "/history/record";
         for (int i = 0; i < keywords.length; i++) {
-            expr += "[contains(*/text(),'" + keywords[i] + "')]";
+            expr += "[contains(" + field + "/text(),'" + keywords[i] + "')]";
         }
 
         return this.findByXpath(expr);
     }
 
     public QueryResultSet findByPeriod(Date startDate, Date endDate,
-            String[] keywords) throws UnsupportedOperationException {
+            String[] keywords, String field) throws UnsupportedOperationException {
         String expr = "/history/record[@timestamp>" + startDate.getTime() + "]"
                 + "[@timestamp<" + endDate.getTime() + "]";
         for (int i = 0; i < keywords.length; i++) {
-            expr += "[contains(*/text(),'" + keywords[i] + "')]";
+            expr += "[contains(" + field + "/text(),'" + keywords[i] + "')]";
         }
 
         return this.findByXpath(expr);
@@ -111,6 +113,7 @@ public class HistoryReaderImpl implements HistoryReader {
 
         while (filelist.hasNext()) {
             String filename = (String) filelist.next();
+
             Document doc = this.historyImpl.getDocumentForFile(filename);
 
             List nodes;
@@ -123,6 +126,7 @@ public class HistoryReaderImpl implements HistoryReader {
             Iterator i = nodes.iterator();
             while (i.hasNext()) {
                 Node node = (Node) i.next();
+
                 NodeList propertyNodes = node.getChildNodes();
 
                 String ts = node.getAttributes().getNamedItem("timestamp")
