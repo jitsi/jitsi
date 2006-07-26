@@ -8,7 +8,6 @@ import java.io.*;
 import net.java.sip.communicator.impl.protocol.icq.message.common.*;
 import net.kano.joscar.*;
 import net.kano.joscar.flapcmd.*;
-import net.java.sip.communicator.util.Logger;
 
 /**
  * @author jkohen
@@ -16,9 +15,6 @@ import net.java.sip.communicator.util.Logger;
 public class MetaShortInfoCmd
     extends SnacCommand
 {
-    private static final Logger logger =
-        Logger.getLogger(MetaShortInfoCmd.class);
-
     private static final int NDX_NICKNAME = 0;
     private static final int NDX_FNAME = 1;
     private static final int NDX_LNAME = 2;
@@ -31,7 +27,7 @@ public class MetaShortInfoCmd
         super(21, 3);
 
         ByteBlock block = packet.getIcqData();
-        logger.info("received response ---- ");
+
         // Byte 0: unknown
         int offset = 1;
         for (int i = 0; i < s.length; i++)
@@ -45,7 +41,7 @@ public class MetaShortInfoCmd
                 s[i] = OscarTools.getString(field, "US-ASCII");
                 offset += textlen;
             }
-            logger.info("----- " + s[i]);
+
             offset++; // Skip trailing NUL.
         }
     }
