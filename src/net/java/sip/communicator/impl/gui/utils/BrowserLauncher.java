@@ -11,9 +11,10 @@ package net.java.sip.communicator.impl.gui.utils;
  * http://www.centerkey.com/.
  */
 import java.lang.reflect.Method;
+
 import javax.swing.JOptionPane;
 
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 
 /**
  * Launches a browser, depending on the operation system and the browsers
