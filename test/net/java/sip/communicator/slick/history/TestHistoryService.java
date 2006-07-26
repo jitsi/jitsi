@@ -25,8 +25,8 @@ import org.osgi.framework.ServiceReference;
 
 public class TestHistoryService extends TestCase {
 
-    private static HistoryRecordStructure recordStructure = new HistoryRecordStructure(
-            new String[] { "name", "age", "sex" });
+    private static HistoryRecordStructure recordStructure =
+        new HistoryRecordStructure(new String[] { "age", "name_CDATA", "sex" });
 
     /**
      * The ConfigurationService that we will be testing.
@@ -113,8 +113,9 @@ public class TestHistoryService extends TestCase {
 
         try {
             for (int i = 0; i < 202; i++) {
-                writer.addRecord(new String[] { "name" + i,
-                        "" + random.nextInt(), i % 2 == 0 ? "m" : "f" });
+                writer.addRecord(new String[] { "" + random.nextInt(),
+                                 "name" + i,
+                                 i % 2 == 0 ? "m" : "f" });
             }
         } catch (Exception e) {
             fail("Could not write records. Reason: " + e);
@@ -124,9 +125,9 @@ public class TestHistoryService extends TestCase {
     public void testReadRecords() {
         HistoryReader reader = this.history.getReader();
 
-        QueryResultSet result = reader.findByKeyword("name2");
+        QueryResultSet result = reader.findByKeyword("name2", "name");
 
-        assertTrue(result.hasNext());
+        assertTrue("Nothing found", result.hasNext());
 
         while (result.hasNext()) {
             HistoryRecord record = result.nextRecord();
@@ -134,7 +135,7 @@ public class TestHistoryService extends TestCase {
             String[] vals = record.getPropertyValues();
 
             try {
-                int n = Integer.parseInt(vals[0].substring(4));
+                int n = Integer.parseInt(vals[1].substring(4));
 
                 assertEquals(3, vals.length);
                 assertEquals(n % 2 == 0 ? "m" : "f", vals[2]);
@@ -144,5 +145,4 @@ public class TestHistoryService extends TestCase {
             }
         }
     }
-
 }
