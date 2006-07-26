@@ -39,8 +39,6 @@ public class CommunicatorMain {
 
         this.setDefaultThemePack();
 
-        ConfigurationFrame configFrame = new ConfigurationFrame();
-
         mainFrame = new MainFrame();
 
         // In order to have the same icon when using option panes
