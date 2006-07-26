@@ -18,9 +18,11 @@ import java.util.Vector;
 import javax.swing.JFrame;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
 import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
 import net.java.sip.communicator.service.gui.ContainerID;
 import net.java.sip.communicator.service.gui.DialogID;
 import net.java.sip.communicator.service.gui.ExportedDialog;
@@ -44,6 +46,8 @@ public class UIServiceImpl implements UIService {
 
     private PopupDialogImpl popupDialog;
     
+    private AccountRegWizardContainerImpl wizardContainer;
+    
     private Map registeredPlugins = new Hashtable();
 
     private Vector containerPluginListeners = new Vector();
@@ -52,29 +56,33 @@ public class UIServiceImpl implements UIService {
     static {
         supportedContainers.add(UIService.CONTAINER_MAIN_TOOL_BAR);
         supportedContainers.add(UIService.CONTAINER_CHAT_TOOL_BAR);
-        supportedContainers.add(UIService.CONTAINER_CHAT_NEW_TOOL_BAR);
     }
     
     private static final Hashtable exportedDialogs = new Hashtable();
-    static {        
-        exportedDialogs.put(UIService.DIALOG_CONFIGURATION, 
-                new ConfigurationFrame());
-    }
-    
+        
     private MainFrame mainFrame;
     
     private ContactListPanel contactList;
 
+    /**
+     * Creates an instance of <tt>UIServiceImpl</tt>.
+     * @param mainFrame The main application window.
+     */
     public UIServiceImpl(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.contactList = mainFrame.getTabbedPane().getContactListPanel();
         
         this.popupDialog = new PopupDialogImpl(mainFrame);
+        this.wizardContainer = new AccountRegWizardContainerImpl();
+        
+        this.exportedDialogs.put(UIService.DIALOG_CONFIGURATION, 
+                new ConfigurationFrame(mainFrame));
     }
     
     /**
      * Implements addComponent in UIService interface.
-     * @param containerID
+     * 
+     * @param containerID 
      * @param component
      */
     public void addComponent(ContainerID containerID, Object component)
@@ -294,11 +302,15 @@ public class UIServiceImpl implements UIService {
         }
     }
 
-    public boolean isDialogExported(DialogID dialogID) {        
+    public boolean isDialogExported(DialogID dialogID) {
         return exportedDialogs.contains(dialogID);
     }
 
-    public boolean isContainerSupported(ContainerID containderID) {        
+    public boolean isContainerSupported(ContainerID containderID) {
         return supportedContainers.contains(containderID);
+    }
+
+    public AccountRegistrationWizardContainer getAccountRegWizardContainer() {
+        return this.wizardContainer;
     }
 }
