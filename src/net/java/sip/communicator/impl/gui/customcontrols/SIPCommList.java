@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.main.customcontrols;
+package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

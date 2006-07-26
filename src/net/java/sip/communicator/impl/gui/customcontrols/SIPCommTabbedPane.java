@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.customcontrols;
+package net.java.sip.communicator.impl.gui.customcontrols;
 
 /*
  * The following code borrowed from David Bismut, davidou@mageos.com Intern,
@@ -25,12 +25,12 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
+import net.java.sip.communicator.impl.gui.customcontrols.events.CloseListener;
+import net.java.sip.communicator.impl.gui.customcontrols.events.DoubleClickListener;
+import net.java.sip.communicator.impl.gui.customcontrols.events.MaxListener;
+import net.java.sip.communicator.impl.gui.customcontrols.events.PopupOutsideListener;
 import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommTabbedPaneEnhancedUI;
 import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommTabbedPaneUI;
-import net.java.sip.communicator.impl.gui.main.customcontrols.events.CloseListener;
-import net.java.sip.communicator.impl.gui.main.customcontrols.events.DoubleClickListener;
-import net.java.sip.communicator.impl.gui.main.customcontrols.events.MaxListener;
-import net.java.sip.communicator.impl.gui.main.customcontrols.events.PopupOutsideListener;
 
 /**
  * A JTabbedPane with some added UI functionalities. A close and max/detach
