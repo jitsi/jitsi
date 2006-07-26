@@ -66,8 +66,8 @@ import javax.swing.plaf.basic.BasicHTML;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import javax.swing.text.View;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTabbedPane;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommTabbedPane;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**

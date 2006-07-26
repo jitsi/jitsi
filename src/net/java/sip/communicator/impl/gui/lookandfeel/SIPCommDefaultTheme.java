@@ -136,7 +136,9 @@ public class SIPCommDefaultTheme
             
             "ToolTip.background", LIGHT_GRAY,
             "ToolTip.backgroundInactive", LIGHT_GRAY,
-            "ToolTip.hideAccelerator", Boolean.FALSE
+            "ToolTip.hideAccelerator", Boolean.FALSE,
+            
+            "TitledBorder.border", SIPCommBorders.getRoundBorder()
         };
         table.putDefaults(defaults);
     }

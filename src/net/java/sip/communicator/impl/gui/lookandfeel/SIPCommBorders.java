@@ -55,6 +55,19 @@ public class SIPCommBorders {
         }       
     }
     
+    private static Border roundBorder;
+    
+    public static Border getRoundBorder() {
+        if (roundBorder == null 
+            || !(roundBorder instanceof SIPCommBorders.RoundBorder)) {
+            roundBorder =  new BorderUIResource.CompoundBorderUIResource(
+                    new SIPCommBorders.RoundBorder(),
+                    new BasicBorders.MarginBorder());
+        }
+        return roundBorder;
+    }
+
+    
     private static Border textFieldBorder;
 
     /**
