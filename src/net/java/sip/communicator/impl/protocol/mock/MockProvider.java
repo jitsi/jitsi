@@ -52,6 +52,9 @@ public class MockProvider
         accountID = new MockAccountID(userName);
 
         mockPresOpSet = new MockPersistentPresenceOperationSet(this);
+        MockBasicInstantMessaging mockBImOpSet =
+            new MockBasicInstantMessaging(this, mockPresOpSet);
+
         this.supportedOperationSets.put(
                 OperationSetPersistentPresence.class.getName(),
                 mockPresOpSet);
@@ -60,6 +63,9 @@ public class MockProvider
                 OperationSetPresence.class.getName(),
                 mockPresOpSet);
 
+        this.supportedOperationSets.put(
+                OperationSetBasicInstantMessaging.class.getName(),
+                mockBImOpSet);
     }
 
     /**
