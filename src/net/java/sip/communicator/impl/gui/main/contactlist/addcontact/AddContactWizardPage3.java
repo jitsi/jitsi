@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.wizard.WizardPanelDescriptor;
+import net.java.sip.communicator.service.gui.WizardPage;
 
 /**
  * The <tt>AddContactWizardPage3</tt> is the last page of the "Add Contact"
@@ -15,7 +15,7 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.wizard.WizardPanel
  * 
  * @author Yana Stamcheva
  */
-public class AddContactWizardPage3 extends WizardPanelDescriptor {
+public class AddContactWizardPage3 implements WizardPage {
 
     public static final String IDENTIFIER = "ADD_CONTACT_PANEL";
     
@@ -32,24 +32,21 @@ public class AddContactWizardPage3 extends WizardPanelDescriptor {
         this.addContactPanel = new AddContactPanel();
         
         this.newContact = newContact;
-        
-        setPanelDescriptorIdentifier(IDENTIFIER);
-        setPanelComponent(addContactPanel);
     }
     
     /**
      * Implements the <tt>WizardPanelDescriptor</tt> method to return the
      * identifier of the next wizard page.
      */
-    public Object getNextPanelDescriptor() {
-        return FINISH;
+    public Object getNextPageIdentifier() {
+        return WizardPage.FINISH_PAGE_IDENTIFIER;
     }
     
     /**
      * Implements the <tt>WizardPanelDescriptor</tt> method to return the
      * identifier of the previous wizard page.
      */
-    public Object getBackPanelDescriptor() {
+    public Object getBackPageIdentifier() {
         return AddContactWizardPage2.IDENTIFIER;
     }
     
@@ -57,7 +54,27 @@ public class AddContactWizardPage3 extends WizardPanelDescriptor {
      * Before finishing the wizard sets the identifier entered by the user
      * to the <tt>NewContact</tt> object.
      */
-    public void aboutToHidePanel() {
+    public void pageHiding() {
         newContact.setUin(addContactPanel.getUIN());
+    }
+
+    public Object getIdentifier() {
+        return IDENTIFIER;
+    }
+
+    public Object getWizardForm() {
+        return addContactPanel;
+    }
+
+    public void pageShown() {
+    }
+
+    public void pageShowing() {
+    }
+
+    public void pageNext() {
+    }
+
+    public void pageBack() {
     }
 }

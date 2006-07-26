@@ -12,7 +12,8 @@ import java.util.Iterator;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.wizard.WizardPanelDescriptor;
+import net.java.sip.communicator.service.gui.WizardContainer;
+import net.java.sip.communicator.service.gui.WizardPage;
 
 /**
  * The <tt>AddContactWizardPage1</tt> is the first page of the "Add Contact"
@@ -21,13 +22,14 @@ import net.java.sip.communicator.impl.gui.main.customcontrols.wizard.WizardPanel
  * 
  * @author Yana Stamcheva
  */
-public class AddContactWizardPage1 
-    extends WizardPanelDescriptor 
-        implements CellEditorListener {
+public class AddContactWizardPage1
+        implements WizardPage, CellEditorListener {
 
     public static final String IDENTIFIER = "SELECT_ACCOUNT_PANEL";
     
     private SelectAccountPanel selectAccountPanel;
+    
+    private WizardContainer wizard;
     
     /**
      * Creates an instance of <tt>AddContactWizardPage1</tt>.
@@ -36,31 +38,23 @@ public class AddContactWizardPage1
      * @param protocolProvidersList The list of available 
      * <tt>ProtocolProviderServices</tt>, from which the user could select.
      */
-    public AddContactWizardPage1(NewContact newContact, 
+    public AddContactWizardPage1(WizardContainer wizard,
+            NewContact newContact, 
             Iterator protocolProvidersList) {
+        
+        this.wizard = wizard;
         
         selectAccountPanel = new SelectAccountPanel(
                 newContact, protocolProvidersList);
-        selectAccountPanel.addCheckBoxCellListener(this);
-        
-        setPanelDescriptorIdentifier(IDENTIFIER);
-        setPanelComponent(selectAccountPanel);
+        selectAccountPanel.addCheckBoxCellListener(this);        
     }
     
-    /**
-     * Implements the <tt>WizardPanelDescriptor</tt> method to return the
-     * identifier of the next wizard page.
-     */
-    public Object getNextPanelDescriptor() {
-        return AddContactWizardPage2.IDENTIFIER;
-    }
-        
     /**
      * Before the panel is displayed checks the selections and enables the
      * next button if a checkbox is already selected or disables it if 
      * nothing is selected.
      */
-    public void aboutToDisplayPanel() {
+    public void pageShowing() {
         setNextButtonAccordingToCheckBox();
     }    
     
@@ -70,9 +64,9 @@ public class AddContactWizardPage1
      */
     private void setNextButtonAccordingToCheckBox() {
         if (selectAccountPanel.isCheckBoxSelected())
-            getWizard().setNextFinishButtonEnabled(true);
+            this.wizard.setNextFinishButtonEnabled(true);
         else
-            getWizard().setNextFinishButtonEnabled(false);
+            this.wizard.setNextFinishButtonEnabled(false);
     }
 
     /**
@@ -89,5 +83,33 @@ public class AddContactWizardPage1
      */
     public void editingStopped(ChangeEvent e) {
         setNextButtonAccordingToCheckBox();
+    }
+
+    public Object getIdentifier() {
+        return IDENTIFIER;
+    }
+
+    public Object getNextPageIdentifier() {
+        return AddContactWizardPage2.IDENTIFIER;
+    }
+
+    public Object getBackPageIdentifier() {
+        return IDENTIFIER;
+    }
+
+    public Object getWizardForm() {
+        return selectAccountPanel;
+    }
+
+    public void pageHiding() {
+    }
+
+    public void pageShown() {
+    }
+
+    public void pageNext() {
+    }
+
+    public void pageBack() {
     }
 }
