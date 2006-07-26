@@ -511,7 +511,7 @@
         bundle-slick-runner,bundle-sip,bundle-fileaccess,
         bundle-fileaccess-slick,bundle-media,bundle-media-slick,
         bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,bundle-swing-ui,
-        meta-contactlist,meta-contactlist-slick"/>
+        meta-contactlist,meta-contactlist-slick,bundle-plugin-icqaccregwizz"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -799,6 +799,16 @@ javax.swing.event, javax.swing.border"/>
             manifest="test/net/java/sip/communicator/slick/contactlist/meta.cl.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/contactlist"
                 prefix="net/java/sip/communicator/slick/contactlist"/>
+        </jar>
+    </target>
+	
+	<!-- BUNDLE-PLUGIN-ICQACCREGWIZZ -->
+    <target name="bundle-plugin-icqaccregwizz">
+        <!-- Creates a bundle for the pligon Icq Account Registration Wizard."-->
+        <jar compress="false" destfile="${bundles.dest}/icqaccregwizz.jar"
+            manifest="src/net/java/sip/communicator/plugin/icqaccregwizz/icqaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/icqaccregwizz"
+                prefix="net/java/sip/communicator/plugin/icqaccregwizz"/>
         </jar>
     </target>
 
