@@ -2,7 +2,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.Image;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommButton;
 import net.java.sip.communicator.service.protocol.Contact;
 
 /**

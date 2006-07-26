@@ -8,7 +8,6 @@
 package net.java.sip.communicator.impl.gui.main.configforms;
 
 import java.awt.BorderLayout;
-import java.awt.Graphics;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -18,9 +17,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommList;
-import net.java.sip.communicator.impl.gui.main.customcontrols.TitlePanel;
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommList;
+import net.java.sip.communicator.impl.gui.customcontrols.TitlePanel;
+import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.ExportedDialog;
 
@@ -40,7 +39,11 @@ public class ConfigurationFrame extends JFrame
 
     private JPanel centerPanel = new JPanel(new BorderLayout());
 
-    public ConfigurationFrame() {
+    private MainFrame mainFrame;
+    
+    public ConfigurationFrame(MainFrame mainFrame) {
+        
+        this.mainFrame = mainFrame;
 
         this.getContentPane().setLayout(new BorderLayout());
 
@@ -57,7 +60,8 @@ public class ConfigurationFrame extends JFrame
 
         this.addConfigurationForm(new GeneralConfigurationForm());
         this.addConfigurationForm(new AppearanceConfigurationForm());
-        this.addConfigurationForm(new AccountsConfigurationForm());
+        this.addConfigurationForm(
+                new AccountsConfigurationForm(mainFrame));
     }
 
     public void addConfigurationForm(ConfigurationForm configForm) {

@@ -14,11 +14,11 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.ChatToolbarButton;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
+import net.java.sip.communicator.impl.gui.customcontrols.ChatToolbarButton;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommToolBar;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.main.message.SmiliesSelectorBox;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;

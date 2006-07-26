@@ -14,7 +14,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Enumeration;
 import java.util.Hashtable;
 
 import javax.swing.AbstractAction;
@@ -27,11 +26,11 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import net.java.sip.communicator.impl.gui.GuiActivator;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommMsgTextArea;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommTabbedPane;
+import net.java.sip.communicator.impl.gui.customcontrols.events.CloseListener;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTabbedPane;
-import net.java.sip.communicator.impl.gui.main.customcontrols.events.CloseListener;
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.configuration.ConfigurationService;

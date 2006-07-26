@@ -9,13 +9,10 @@ package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.beans.PropertyChangeEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -25,11 +22,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.GuiActivator;
-import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.contactlist.CListKeySearchListener;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.configuration.ConfigurationService;
@@ -52,7 +48,6 @@ import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusCh
 import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusListener;
 import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
 import net.java.sip.communicator.util.Logger;
-import net.java.sip.communicator.util.xml.XMLException;
 
 /**
  * The main application window. This class is the core of this ui

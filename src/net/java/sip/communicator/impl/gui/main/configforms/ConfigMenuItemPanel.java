@@ -18,7 +18,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.ListCellPanel;
+import net.java.sip.communicator.impl.gui.customcontrols.ListCellPanel;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 
 /**

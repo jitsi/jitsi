@@ -36,9 +36,9 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommMsgTextArea;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.ChatPanel;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.utils.Constants;

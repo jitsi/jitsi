@@ -17,7 +17,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.TransparentBackground;
+import net.java.sip.communicator.impl.gui.customcontrols.TransparentBackground;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 
 /**

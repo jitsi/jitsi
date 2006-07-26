@@ -12,10 +12,9 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.BoxPopupMenu;
-import net.java.sip.communicator.impl.gui.main.customcontrols.ChatToolbarButton;
+import net.java.sip.communicator.impl.gui.customcontrols.BoxPopupMenu;
+import net.java.sip.communicator.impl.gui.customcontrols.ChatToolbarButton;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.impl.gui.utils.Smiley;
 

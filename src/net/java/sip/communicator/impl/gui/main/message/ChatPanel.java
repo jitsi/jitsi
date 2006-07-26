@@ -29,7 +29,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommSelectorBox;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommSelectorBox;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.gui.ExportedDialog;

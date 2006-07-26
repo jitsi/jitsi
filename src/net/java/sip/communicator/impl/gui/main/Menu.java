@@ -10,7 +10,7 @@ package net.java.sip.communicator.impl.gui.main;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 
 /**
  * The main menu.

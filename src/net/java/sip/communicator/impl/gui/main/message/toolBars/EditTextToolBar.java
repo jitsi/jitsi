@@ -13,8 +13,8 @@ import java.awt.FlowLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**

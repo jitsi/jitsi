@@ -20,7 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.service.protocol.AuthorizationRequest;
 import net.java.sip.communicator.service.protocol.Contact;
 /**

@@ -19,6 +19,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommToolBar;
+import net.java.sip.communicator.impl.gui.customcontrols.wizard.Wizard;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
@@ -26,9 +29,6 @@ import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContact
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactWizardPage2;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactWizardPage3;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.NewContact;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommToolBar;
-import net.java.sip.communicator.impl.gui.main.customcontrols.wizard.Wizard;
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.BrowserLauncher;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
@@ -67,7 +67,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
     private JButton addButton = new JButton(new ImageIcon(ImageLoader
             .getImage(ImageLoader.QUICK_MENU_ADD_ICON)));
 
-    private ConfigurationFrame configFrame = new ConfigurationFrame();
+    private ConfigurationFrame configFrame;
     
     private MainFrame mainFrame;
 
@@ -82,7 +82,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
         this.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
         this.setFloatable(false);
-
+        
         this.infoButton.setPreferredSize(new Dimension(28, 28));
         this.configureButton.setPreferredSize(new Dimension(28, 28));
         this.searchButton.setPreferredSize(new Dimension(28, 28));
@@ -129,28 +129,28 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
         if (buttonName.equals("add")) {
 
             Wizard wizard = new Wizard();
-            wizard.getDialog().setTitle("Add contact wizard");
+            wizard.getDialog().setTitle(Messages.getString("addContactWizard"));
            
             NewContact newContact = new NewContact();
             
             AddContactWizardPage1 page1 
-                = new AddContactWizardPage1(newContact, 
+                = new AddContactWizardPage1(wizard, newContact, 
                         mainFrame.getProtocolProviders());
             
-            wizard.registerWizardPanel(AddContactWizardPage1.IDENTIFIER, page1);
+            wizard.registerWizardPage(AddContactWizardPage1.IDENTIFIER, page1);
 
             AddContactWizardPage2 page2 
-                = new AddContactWizardPage2(newContact,
+                = new AddContactWizardPage2(wizard, newContact,
                         mainFrame.getAllGroups());
             
-            wizard.registerWizardPanel(AddContactWizardPage2.IDENTIFIER, page2);
+            wizard.registerWizardPage(AddContactWizardPage2.IDENTIFIER, page2);
             
             AddContactWizardPage3 page3 
                 = new AddContactWizardPage3(newContact);
             
-            wizard.registerWizardPanel(AddContactWizardPage3.IDENTIFIER, page3);
+            wizard.registerWizardPage(AddContactWizardPage3.IDENTIFIER, page3);
             
-            wizard.setCurrentPanel(AddContactWizardPage1.IDENTIFIER);
+            wizard.setCurrentPage(AddContactWizardPage1.IDENTIFIER);
             
             wizard.getDialog().setLocation(
                     Toolkit.getDefaultToolkit().getScreenSize().width/2 
@@ -195,6 +195,8 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
         } 
         else if (buttonName.equals("config")) {
 
+            configFrame = new ConfigurationFrame(mainFrame);
+            
             configFrame.setCalculatedSize();
 
             configFrame.setVisible(true);

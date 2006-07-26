@@ -21,11 +21,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
+import net.java.sip.communicator.impl.gui.customcontrols.MessageDialog;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactDialog;
-import net.java.sip.communicator.impl.gui.main.customcontrols.MessageDialog;
 import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.BrowserLauncher;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;

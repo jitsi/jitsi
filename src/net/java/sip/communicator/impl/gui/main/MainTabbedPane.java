@@ -9,9 +9,9 @@ package net.java.sip.communicator.impl.gui.main;
 
 import javax.swing.JPanel;
 
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommTabbedPane;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommTabbedPane;
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 
 /** 
  * The <tt>MainTabbedPane</tt> is a <tt>SIPCommTabbedPane</tt> that contains

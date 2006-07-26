@@ -18,8 +18,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommMsgTextArea;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
@@ -38,7 +38,7 @@ public class AddContactPanel extends JPanel {
     private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
     
     private SIPCommMsgTextArea infoLabel 
-        = new SIPCommMsgTextArea(Messages.getString("addContactWizard"));
+        = new SIPCommMsgTextArea(Messages.getString("addContactIdentifier"));
     
     private JLabel infoTitleLabel = new JLabel(Messages.getString("addContact"));
     

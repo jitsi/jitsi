@@ -19,7 +19,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
 /**

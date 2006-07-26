@@ -8,7 +8,6 @@
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.Image;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -20,9 +19,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommSelectorBox;
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommMsgTextArea;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommSelectorBox;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.service.protocol.OperationSetPresence;
 import net.java.sip.communicator.service.protocol.PresenceStatus;

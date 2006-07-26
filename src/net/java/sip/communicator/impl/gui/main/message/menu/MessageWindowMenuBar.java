@@ -10,7 +10,7 @@ package net.java.sip.communicator.impl.gui.main.message.menu;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 /**
  * The <tt>MessageWindowMenuBar</tt> is the menu bar in the chat window where 
