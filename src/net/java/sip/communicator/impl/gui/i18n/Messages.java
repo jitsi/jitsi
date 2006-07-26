@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.main.i18n;
+package net.java.sip.communicator.impl.gui.i18n;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -16,7 +16,7 @@ import java.util.ResourceBundle;
  */
 public class Messages {
     private static final String BUNDLE_NAME 
-        = "net.java.sip.communicator.impl.gui.main.i18n.messages";
+        = "net.java.sip.communicator.impl.gui.i18n.messages";
 
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
             .getBundle(BUNDLE_NAME);
