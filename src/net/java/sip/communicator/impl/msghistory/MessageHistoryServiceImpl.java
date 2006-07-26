@@ -33,8 +33,11 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
     private static Logger log = Logger
             .getLogger(MessageHistoryServiceImpl.class);
 
-    private static HistoryRecordStructure recordStructure = new HistoryRecordStructure(
-            new String[] { "dir", "msg", "msgTyp", "enc", "uid", "sub" });
+    private static HistoryRecordStructure recordStructure =
+        new HistoryRecordStructure(
+            new String[] { "dir", "msg_CDATA", "msgTyp", "enc", "uid", "sub" });
+
+    private static final String SEARCH_FIELD = "msg";
 
     private ConfigurationService configurationService = null;
 
@@ -153,7 +156,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
                 History history = this.getHistory(null, item);
 
                 Iterator recs = history.getReader().
-                    findByPeriod(startDate, endDate, keywords);
+                    findByPeriod(startDate, endDate, keywords, SEARCH_FIELD);
                 while (recs.hasNext())
                 {
                     result.add(recs.next());
@@ -181,7 +184,8 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
             {
                 History history = this.getHistory(null, item);
 
-                Iterator recs = history.getReader().findByKeyword(keyword);
+                Iterator recs = history.getReader().
+                    findByKeyword(keyword, SEARCH_FIELD);
                 while (recs.hasNext())
                 {
                     result.add(recs.next());
@@ -209,7 +213,8 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
             {
                 History history = this.getHistory(null, item);
 
-                Iterator recs = history.getReader().findByKeywords(keywords);
+                Iterator recs = history.getReader().
+                    findByKeywords(keywords, SEARCH_FIELD);
                 while (recs.hasNext())
                 {
                     result.add(recs.next());
