@@ -33,7 +33,7 @@ public class GuiActivator implements BundleActivator {
     
     private static Logger logger = Logger.getLogger(GuiActivator.class.getName());
 
-    private UIService uiService = null;
+    private static UIService uiService = null;
 
     private CommunicatorMain communicatorMain = new CommunicatorMain();
 
@@ -158,5 +158,9 @@ public class GuiActivator implements BundleActivator {
         }
         
         return providerFactoriesMap;
+    }
+    
+    public static UIService getUIService() {
+        return uiService;
     }
 }
