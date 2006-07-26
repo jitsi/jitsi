@@ -16,10 +16,10 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 
 import net.java.sip.communicator.impl.gui.GuiActivator;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommMsgTextArea;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.StatusPanel;
-import net.java.sip.communicator.impl.gui.main.customcontrols.SIPCommMsgTextArea;
-import net.java.sip.communicator.impl.gui.main.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.AccountProperties;
@@ -192,7 +192,8 @@ public class LoginManager implements RegistrationStateChangeListener {
 
                 JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
-            } else if (evt.getReasonCode() == RegistrationStateChangeEvent
+            }
+            else if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_NON_EXISTING_USER_ID) {
                 SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
                         .getString("nonExistingUserId", protocolProvider
@@ -200,18 +201,21 @@ public class LoginManager implements RegistrationStateChangeListener {
 
                 JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
-            } else if (evt.getReasonCode() == RegistrationStateChangeEvent
+            }
+            else if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_AUTHENTICATION_FAILED) {
                 SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
                         .getString("authenticationFailed"));
 
                 JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
-            }
-
+            }            
+            logger.error(evt.getReason());
+            
             ((LoginWindow) this.loginWindows.get(protocolProvider
                     .getProtocolName())).showWindow();
-        } else if (evt.getNewState()
+        }
+        else if (evt.getNewState()
                 .equals(RegistrationState.CONNECTION_FAILED)) {
 
             this.mainFrame.getStatusPanel().stopConnecting(
@@ -227,7 +231,10 @@ public class LoginManager implements RegistrationStateChangeListener {
 
             JOptionPane.showMessageDialog(null, msgText, Messages
                     .getString("error"), JOptionPane.ERROR_MESSAGE);
-        } else if (evt.getNewState().equals(RegistrationState.EXPIRED)) {
+            
+            logger.error(evt.getReason());
+        }
+        else if (evt.getNewState().equals(RegistrationState.EXPIRED)) {
             SIPCommMsgTextArea msgText
                 = new SIPCommMsgTextArea(Messages.getString(
                         "connectionExpiredMessage", protocolProvider
@@ -236,7 +243,10 @@ public class LoginManager implements RegistrationStateChangeListener {
             JOptionPane.showMessageDialog(null, msgText,
                     Messages.getString("error"),
                     JOptionPane.ERROR_MESSAGE);
-        } else if (evt.getNewState().equals(RegistrationState.UNREGISTERED)) {
+            
+            logger.error(evt.getReason());
+        }
+        else if (evt.getNewState().equals(RegistrationState.UNREGISTERED)) {
 
             if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_MULTIPLE_LOGINS) {
@@ -266,6 +276,8 @@ public class LoginManager implements RegistrationStateChangeListener {
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             }
 
+            logger.error(evt.getReason());
+            
             this.mainFrame.getStatusPanel().stopConnecting(
                     evt.getProvider());
 
