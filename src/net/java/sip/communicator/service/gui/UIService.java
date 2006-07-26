@@ -32,8 +32,8 @@ import net.java.sip.communicator.service.protocol.Contact;
  * <p>
  * Certain application dialogs within the GUI, like "Configuration" or 
  * "AddContact" dialogs, could be also shown from outside the ui. To make one of
- * these dialogs showable, the <tt>UIService</tt> implementation should attach to
- * it a <tt>DialogID</tt> and export it. A dialog then could be shown, by
+ * these dialogs showable, the <tt>UIService</tt> implementation should attach
+ * to it a <tt>DialogID</tt> and export it. A dialog then could be shown, by
  * invoking <code>getApplicationDialog(DialogID)</code> and then 
  * <code>show</code>. The <tt>DialogID</tt> above should be one of the exported
  * <tt>DialogID</tt>s obtained from <code>getExportedDialogs</code>.
@@ -50,45 +50,99 @@ public interface UIService
     /*
      * ContainerID-s
      */
+    /**
+     * Main application window "file menu" container.
+     */
     public static final ContainerID CONTAINER_FILE_MENU 
         = new ContainerID("File");
+    /**
+     * Main application window "tools menu" container.
+     */
     public static final ContainerID CONTAINER_TOOLS_MENU 
         = new ContainerID("Tools");
+    /**
+     * Main application window "view menu" container.
+     */
     public static final ContainerID CONTAINER_VIEW_MENU 
         = new ContainerID("View");
+    /**
+     * Main application window "help menu" container.
+     */    
     public static final ContainerID CONTAINER_HELP_MENU 
         = new ContainerID("Help");
+    /**
+     * Main application window "settings menu" container.
+     */
     public static final ContainerID CONTAINER_SETTINGS_MENU 
         = new ContainerID("Settings");
+    /**
+     * Main application window main toolbar container.
+     */
     public static final ContainerID CONTAINER_MAIN_TOOL_BAR 
         = new ContainerID("MainToolBar");
+    /**
+     * Chat window toolbar container.
+     */
     public static final ContainerID CONTAINER_CHAT_TOOL_BAR 
         = new ContainerID("ChatToolBar");
-    public static final ContainerID CONTAINER_CHAT_NEW_TOOL_BAR 
-        = new ContainerID("NewChatToolBar");
-    public static final ContainerID CONTAINER_RIGHT_BUTTON_MENU 
+    /**
+     * Main application window "right button menu" over a contact container.
+     */
+    public static final ContainerID CONTAINER_CONTACT_RIGHT_BUTTON_MENU
         = new ContainerID("RightButtonMenu");
-    public static final ContainerID CONTAINER_CONFIGURATION_MENU 
-        = new ContainerID("ConfigurationMenu");
+        
+    /**
+     * Chat window "menu bar" container.
+     */
     public static final ContainerID CONTAINER_CHAT_MENU_BAR 
         = new ContainerID("ChatMenuBar");
+    /**
+     * Chat window "file menu" container.
+     */
     public static final ContainerID CONTAINER_CHAT_FILE_MENU 
         = new ContainerID("ChatFileMenu");
+    /**
+     * Chat window "edit menu" container.
+     */
     public static final ContainerID CONTAINER_CHAT_EDIT_MENU 
         = new ContainerID("ChatEditMenu");
+    /**
+     * Chat window "settings menu" container.
+     */
     public static final ContainerID CONTAINER_CHAT_SETTINGS_MENU 
         = new ContainerID("ChatSettingsMenu");
+    /**
+     * Chat window "help menu" container.
+     */
     public static final ContainerID CONTAINER_CHAT_HELP_MENU 
         = new ContainerID("ChatHelpMenu");
         
     /*
      * Constraints
      */
+    /**
+     * Indicates the most left/top edge of a container.
+     */
     public static final String START = "Start";
+    /**
+     * Indicates the most right/bottom edge of a container.
+     */
     public static final String END = "End";
+    /**
+     * Indicates the top edge of a container.
+     */
     public static final String TOP = "Top";
+    /**
+     * Indicates the bottom edge of a container.
+     */
     public static final String BOTTOM = "Bottom";
+    /**
+     * Indicates the left edge of a container.
+     */
     public static final String LEFT = "Left";
+    /**
+     * Indicates the right edge of a container.
+     */
     public static final String RIGHT = "Right";
   
     /*
@@ -227,6 +281,20 @@ public interface UIService
      * <code>false</code> otherwise.
      */
     public boolean isDialogExported(DialogID dialogID);
+    
+    /**
+     * Returns the <tt>AccountRegistrationWizardContainer</tt> for the current
+     * UIService implementation. The <tt>AccountRegistrationWizardContainer</tt>
+     * is meant to be implemented by the UI service implementation in order to
+     * allow other modules to add to the GUI <tt>AccountRegistrationWizard</tt>
+     * s. Each of these wizards is made for a given protocol and should provide
+     * a sequence of user interface forms through which the user could
+     * registrate a new account.
+     * 
+     * @return Returns the <tt>AccountRegistrationWizardContainer</tt> for the
+     * current UIService implementation.
+     */
+    public AccountRegistrationWizardContainer getAccountRegWizardContainer();
     
     /**
      * Adds the specified UI component to the container given by ContainerID. 
