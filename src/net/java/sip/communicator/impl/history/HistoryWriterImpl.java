@@ -26,6 +26,7 @@ import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
 public class HistoryWriterImpl implements HistoryWriter {
 
     public static final int MAX_RECORDS_PER_FILE = 150;
+    private static final String CDATA_SUFFIX = "_CDATA";
 
     private Object docCreateLock = new Object();
 
@@ -63,6 +64,17 @@ public class HistoryWriterImpl implements HistoryWriter {
         this.addRecord(structPropertyNames, propertyValues, timestamp);
     }
 
+    /**
+     * Adds new record to the current history document
+     * when the record property name ends with _CDATA this is removed from the
+     * property name and a CDATA text node is created to store the text value
+     *
+     * @param propertyNames String[]
+     * @param propertyValues String[]
+     * @param date Date
+     * @throws InvalidParameterException
+     * @throws IOException
+     */
     private void addRecord(String[] propertyNames, String[] propertyValues,
             Date date) throws InvalidParameterException, IOException {
         // Synchronized to assure that two concurent threads can insert records
@@ -81,15 +93,37 @@ public class HistoryWriterImpl implements HistoryWriter {
                 elem.setAttribute("timestamp", Long.toString(date.getTime()));
 
                 for (int i = 0; i < propertyNames.length; i++) {
-                    if (propertyValues[i] != null) {
-                        Element propertyElement = this.currentDoc
-                                .createElement(propertyNames[i]);
+                    String propertyName = propertyNames[i];
 
-                        Text value = this.currentDoc
+                    if(propertyName.endsWith(CDATA_SUFFIX))
+                    {
+                        if (propertyValues[i] != null)
+                        {
+                            propertyName = propertyName.replaceFirst(CDATA_SUFFIX, "");
+
+                            Element propertyElement = this.currentDoc
+                                .createElement(propertyName);
+
+                            Text value = this.currentDoc
+                                .createCDATASection(propertyValues[i]);
+                            propertyElement.appendChild(value);
+
+                            elem.appendChild(propertyElement);
+                        }
+                    }
+                    else
+                    {
+                        if (propertyValues[i] != null)
+                        {
+                            Element propertyElement = this.currentDoc
+                                .createElement(propertyName);
+
+                            Text value = this.currentDoc
                                 .createTextNode(propertyValues[i]);
-                        propertyElement.appendChild(value);
+                            propertyElement.appendChild(value);
 
-                        elem.appendChild(propertyElement);
+                            elem.appendChild(propertyElement);
+                        }
                     }
                 }
 
@@ -107,7 +141,7 @@ public class HistoryWriterImpl implements HistoryWriter {
     /**
      * If no file is currently loaded loads the last opened file. If it does not
      * exists or if the current file was set - create a new file.
-     * 
+     *
      * @param date
      */
     private void createNewDoc(Date date, boolean loadLastFile) {
