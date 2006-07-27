@@ -11,14 +11,28 @@ import java.awt.Component;
 
 import javax.swing.SwingUtilities;
 /**
+ * The <tt>StringUtils</tt> class is used through this ui implementation for
+ * some special operations with strings.
+ * 
  * @author Yana Stamcheva
  */
 public class StringUtils {
 
+    /**
+     * Replaces some chars that are special in a regular expression.
+     * @param text The initial text.
+     * @return the formatted text
+     */
     public static String replaceSpecialRegExpChars(String text) {
         return text.replaceAll("([.()^&$*|])", "\\\\$1");
     }
 
+    /**
+     * Returns the width in pixels of a text.
+     * @param c the component where the text is contained
+     * @param text the text to measure
+     * @return the width in pixels of a text.
+     */
     public static int getStringWidth(Component c, String text) {
         return SwingUtilities.computeStringWidth(c
                 .getFontMetrics(Constants.FONT), text);

@@ -34,7 +34,7 @@ import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.util.Logger;
 
 /**
- * An implementation of the <tt>UIService</tt> that would give access to 
+ * An implementation of the <tt>UIService</tt> that gives access to 
  * other bundles to this particular swing ui implementation.
  * 
  * @author Yana Stamcheva
@@ -80,10 +80,14 @@ public class UIServiceImpl implements UIService {
     }
     
     /**
-     * Implements addComponent in UIService interface.
+     * Implements addComponent in UIService interface. Stores a plugin component
+     * and fires a PluginComponentEvent to inform all interested listeners
+     * that a plugin component has been added.
      * 
-     * @param containerID 
-     * @param component
+     * @param containerID The <tt>ContainerID</tt> of the plugable container.
+     * @param component The component to add.
+     * 
+     * @see UIService#addComponent(ContainerID, Object)
      */
     public void addComponent(ContainerID containerID, Object component)
             throws ClassCastException, IllegalArgumentException {
@@ -110,7 +114,9 @@ public class UIServiceImpl implements UIService {
     }
 
     /**
-     * Implements getSupportedContainers in UIService interface.
+     * Implements <code>UISercie.getSupportedContainers</code>. Returns the
+     * list of supported containers by this implementation .
+     * 
      * @see UIService#getSupportedContainers()
      */
     public Iterator getSupportedContainers() {
@@ -135,7 +141,10 @@ public class UIServiceImpl implements UIService {
     }
 
     /**
-     * For now this method only invokes addComponent(containerID, component).
+     * Implements <code>UIService.addComponent(ContainerID, String, Object)
+     * </code>. For now this method only invokes addComponent(containerID,
+     * component).
+     * @see UIService#addComponent(ContainerID, String, Object)
      */
     public void addComponent(ContainerID containerID, String constraint,
             Object component) throws ClassCastException,
@@ -145,6 +154,7 @@ public class UIServiceImpl implements UIService {
 
     /**
      * Not yet implemented.
+     * @see UIService#getConstraintsForContainer(ContainerID)
      */
     public Iterator getConstraintsForContainer(ContainerID containerID) {
         return null;
@@ -197,6 +207,7 @@ public class UIServiceImpl implements UIService {
      * Checks if the main application window is visible.
      * @return <code>true</code> if main application window is visible, 
      * <code>false</code> otherwise
+     * @see UIService#isVisible()
      */
     public boolean isVisible() {
         return this.mainFrame.isVisible();
@@ -206,6 +217,7 @@ public class UIServiceImpl implements UIService {
      * Implements <code>setVisible</code> in the UIService interface.
      * Shows or hides the main application window depending on the parameter
      * <code>visible</code>.
+     * @see UIService#setVisible(boolean)
      */
     public void setVisible(boolean visible) {
         this.mainFrame.setVisible(visible);        
@@ -214,6 +226,7 @@ public class UIServiceImpl implements UIService {
     /**
      * Implements <code>minimize</code> in the UIService interface.
      * Minimizes the main application window.
+     * @see UIService#minimize()
      */
     public void minimize() {
         this.mainFrame.setExtendedState(JFrame.ICONIFIED);
@@ -222,6 +235,7 @@ public class UIServiceImpl implements UIService {
     /**
      * Implements <code>maximize</code> in the UIService interface.
      * Maximizes the main application window.
+     * @see UIService#maximize()
      */
     public void maximize() {
         this.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);        
@@ -230,6 +244,7 @@ public class UIServiceImpl implements UIService {
     /**
      * Implements <code>restore</code> in the UIService interface.
      * Restores the main application window.
+     * @see UIService#restore()
      */
     public void restore() {
         this.mainFrame.setExtendedState(JFrame.NORMAL);        
@@ -238,6 +253,7 @@ public class UIServiceImpl implements UIService {
     /**
      * Implements <code>resize</code> in the UIService interface.
      * Resizes the main application window.
+     * @see UIService#resize(int, int)
      */
     public void resize(int width, int height) {
         this.mainFrame.setSize(width, height);
@@ -246,6 +262,7 @@ public class UIServiceImpl implements UIService {
     /**
      * Implements <code>move</code> in the UIService interface.
      * Moves the main application window to the point with coordinates - x, y.
+     * @see UIService#move(int, int)
      */
     public void move(int x, int y) {
         this.mainFrame.setLocation(x, y);
@@ -255,6 +272,7 @@ public class UIServiceImpl implements UIService {
      * Implements <code>getExportedDialogs</code> in the UIService interface.
      * Returns an iterator over a set of all dialogs exported by this
      * implementation.
+     * @see UIService#getExportedDialogs()
      */
     public Iterator getExportedDialogs() {
         return Collections.unmodifiableMap(exportedDialogs)
@@ -265,6 +283,7 @@ public class UIServiceImpl implements UIService {
      * Implements <code>getApplicationDialog</code> in the UIService interface.
      * Returns the <tt>Dialog</tt> corresponding to the given
      * <tt>DialogID</tt>.
+     * @see UIService#getApplicationDialog(DialogID)
      */
     public ExportedDialog getApplicationDialog(DialogID dialogID) {
         if (exportedDialogs.contains(dialogID)) {
@@ -277,13 +296,17 @@ public class UIServiceImpl implements UIService {
      * Implements <code>getPopupDialog</code> in the UIService interface.
      * Returns a <tt>PopupDialog</tt> that could be used to show simple
      * messages, warnings, errors, etc.
+     * @see UIService#getPopupDialog()
      */
     public PopupDialog getPopupDialog() {
         return this.popupDialog;
     }
 
     /**
-     * Implements <code>getChatDialog</code> in the UIService interface.
+     * Implements <code>getChatDialog</code> in the UIService interface. If
+     * a chat dialog for the given contact exists already returns it,
+     * otherwise creates a new one.
+     * @see UIService#getChatDialog(Contact)
      */
     public ExportedDialog getChatDialog(Contact contact) {
         
@@ -294,7 +317,7 @@ public class UIServiceImpl implements UIService {
             = contactList.getTabbedChatWindow().getContactChatsTable();
         
         if (contactChats.get(metaContact.getMetaUID()) != null) {
-            return (ExportedDialog)contactChats.get(metaContact.getMetaUID());
+            return (ExportedDialog) contactChats.get(metaContact.getMetaUID());
         }
         else {            
             return contactList.getTabbedChatWindow().createChat(
@@ -302,14 +325,28 @@ public class UIServiceImpl implements UIService {
         }
     }
 
+    /**
+     * Checks if there's an exported dialog for the given <tt>DialogID</tt>.
+     * @see UIService#isDialogExported(DialogID)
+     */
     public boolean isDialogExported(DialogID dialogID) {
         return exportedDialogs.contains(dialogID);
     }
 
+    /**
+     * Checks if the plugable container with the given ContainerID is supported
+     * by this implementation. 
+     * @see UIService#isContainerSupported(ContainerID)
+     */
     public boolean isContainerSupported(ContainerID containderID) {
         return supportedContainers.contains(containderID);
     }
 
+    /**
+     * Returns the current implementation of the
+     * <tt>AccountRegistrationWizardContainer</tt>.
+     * @see UIService#getAccountRegWizardContainer()
+     */
     public AccountRegistrationWizardContainer getAccountRegWizardContainer() {
         return this.wizardContainer;
     }
