@@ -1,5 +1,3 @@
-
-
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
@@ -11,6 +9,7 @@ package net.java.sip.communicator.impl.msghistory;
 import java.io.*;
 import java.util.*;
 
+import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.history.*;
@@ -24,13 +23,15 @@ import net.java.sip.communicator.util.*;
  * @author Alexander Pelov
  * @author Damian Minkov
  */
-public class MessageHistoryServiceImpl implements MessageHistoryService,
-        MessageListener {
-
+public class MessageHistoryServiceImpl
+    implements  MessageHistoryService,
+                MessageListener,
+                ServiceListener
+{
     /**
      * The logger for this class.
      */
-    private static Logger log = Logger
+    private static Logger logger = Logger
             .getLogger(MessageHistoryServiceImpl.class);
 
     private static HistoryRecordStructure recordStructure =
@@ -38,6 +39,11 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
             new String[] { "dir", "msg_CDATA", "msgTyp", "enc", "uid", "sub" });
 
     private static final String SEARCH_FIELD = "msg";
+
+    /**
+     * The BundleContext that we got from the OSGI bus.
+     */
+    private BundleContext bundleContext = null;
 
     private ConfigurationService configurationService = null;
 
@@ -76,7 +82,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
                 }
             } catch (IOException e)
             {
-                log.error("Could not read history", e);
+                logger.error("Could not read history", e);
             }
         }
 
@@ -104,7 +110,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
                 }
             } catch (IOException e)
             {
-                log.error("Could not read history", e);
+                logger.error("Could not read history", e);
             }
         }
 
@@ -132,7 +138,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
                 }
             } catch (IOException e)
             {
-                log.error("Could not read history", e);
+                logger.error("Could not read history", e);
             }
         }
 
@@ -163,7 +169,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
                 }
             } catch (IOException e)
             {
-                log.error("Could not read history", e);
+                logger.error("Could not read history", e);
             }
         }
 
@@ -192,7 +198,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
                 }
             } catch (IOException e)
             {
-                log.error("Could not read history", e);
+                logger.error("Could not read history", e);
             }
         }
 
@@ -221,7 +227,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
                 }
             } catch (IOException e)
             {
-                log.error("Could not read history", e);
+                logger.error("Could not read history", e);
             }
         }
 
@@ -255,7 +261,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
                 }
             } catch (IOException e)
             {
-                log.error("Could not read history", e);
+                logger.error("Could not read history", e);
             }
         }
 
@@ -289,6 +295,53 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
         return retVal;
     }
 
+    /**
+     * starts the service. Check the current registerd protocol providers
+     * which supports BasicIM and adds message listener to them
+     *
+     * @param bc BundleContext
+     */
+    public void start(BundleContext bc)
+    {
+        logger.debug("Starting the meta contact list implementation.");
+        this.bundleContext = bc;
+
+        // start listening for newly register or removed protocol providers
+        bc.addServiceListener(this);
+
+        ServiceReference[] protocolProviderRefs = null;
+        try
+        {
+            protocolProviderRefs = bc.getServiceReferences(
+                ProtocolProviderService.class.getName(),
+                null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            // this shouldn't happen since we're providing no parameter string
+            // but let's log just in case.
+            logger.error(
+                "Error while retrieving service refs", ex);
+            return;
+        }
+
+        // in case we found any
+        if (protocolProviderRefs != null)
+        {
+            logger.debug("Found "
+                         + protocolProviderRefs.length
+                         + " already installed providers.");
+            for (int i = 0; i < protocolProviderRefs.length; i++)
+            {
+                ProtocolProviderService provider = (ProtocolProviderService) bc
+                    .getService(protocolProviderRefs[i]);
+
+                this.handleProviderAdded(provider);
+            }
+        }
+    }
+
+
     // //////////////////////////////////////////////////////////////////////////
     public void messageReceived(MessageReceivedEvent evt) {
         this.writeMessage("in", null, evt.getSourceContact(), evt
@@ -313,7 +366,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
                     message.getEncoding(), message.getMessageUID(),
                     message.getSubject() }, timestamp);
         } catch (IOException e) {
-            log.error("Could not add message to history", e);
+            logger.error("Could not add message to history", e);
         }
     }
 
@@ -327,7 +380,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
                     .get(key);
             basicIntantMessaging.addMessageListener(this);
 
-            log.debug("New protocol provider service implementing the "
+            logger.debug("New protocol provider service implementing the "
                     + "OperationSetBasicInstantMessaging registered: "
                     + protocolProvider.getProtocolName()
                     + ". Listening for messages.");
@@ -343,7 +396,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
                     .get(key);
             basicIntantMessaging.removeMessageListener(this);
 
-            log.debug("Protocol provider service: "
+            logger.debug("Protocol provider service: "
                     + protocolProvider.getProtocolName() + " unregistered.");
         }
     }
@@ -351,27 +404,27 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
     /**
      * Set the configuration service.
      *
-     * @param configurationService
+     * @param configurationService ConfigurationService
      */
     public void setConfigurationService(
             ConfigurationService configurationService) {
         synchronized (this.syncRoot_Config) {
             this.configurationService = configurationService;
-            log.debug("New configuration service registered.");
+            logger.debug("New configuration service registered.");
         }
     }
 
     /**
      * Remove a configuration service.
      *
-     * @param configurationService
+     * @param configurationService ConfigurationService
      */
     public void unsetConfigurationService(
             ConfigurationService configurationService) {
         synchronized (this.syncRoot_Config) {
             if (this.configurationService == configurationService) {
                 this.configurationService = null;
-                log.debug("Configuration service unregistered.");
+                logger.debug("Configuration service unregistered.");
             }
         }
     }
@@ -379,7 +432,7 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
     /**
      * Set the configuration service.
      *
-     * @param historyService
+     * @param historyService HistoryService
      * @throws IOException
      * @throws IllegalArgumentException
      */
@@ -388,22 +441,70 @@ public class MessageHistoryServiceImpl implements MessageHistoryService,
         synchronized (this.syncRoot_HistoryService) {
             this.historyService = historyService;
 
-            log.debug("New history service registered.");
+            logger.debug("New history service registered.");
         }
     }
 
     /**
      * Remove a configuration service.
      *
-     * @param historyService
+     * @param historyService HistoryService
      */
     public void unsetHistoryService(HistoryService historyService) {
         synchronized (this.syncRoot_HistoryService) {
             if (this.historyService == historyService) {
                 this.historyService = null;
 
-                log.debug("History service unregistered.");
+                logger.debug("History service unregistered.");
             }
+        }
+    }
+
+    /**
+     * When new protocol provider is registered we check
+     * does it supports BasicIM and if so add a listener to it
+     *
+     * @param serviceEvent ServiceEvent
+     */
+    public void serviceChanged(ServiceEvent serviceEvent)
+    {
+        Object sService = bundleContext.getService(serviceEvent.getServiceReference());
+
+        logger.trace("Received a service event for: " + sService.getClass().getName());
+
+        // we don't care if the source service is not a protocol provider
+        if (! (sService instanceof ProtocolProviderService))
+        {
+            return;
+        }
+
+        logger.debug("Service is a protocol provider.");
+        if (serviceEvent.getType() == ServiceEvent.REGISTERED)
+        {
+            logger.debug("Handling registration of a new Protocol Provider.");
+
+            this.handleProviderAdded((ProtocolProviderService)sService);
+        }
+    }
+
+    private void handleProviderAdded(
+        ProtocolProviderService provider)
+    {
+        logger.debug("Adding protocol provider " + provider.getProtocolName());
+
+        // check whether the provider has a basic im operation set
+        OperationSetBasicInstantMessaging opSetIm
+            = (OperationSetBasicInstantMessaging) provider
+            .getSupportedOperationSets().get(
+                OperationSetBasicInstantMessaging.class.getName());
+
+        if (opSetIm != null)
+        {
+            opSetIm.addMessageListener(this);
+        }
+        else
+        {
+            logger.debug("Service did not have a im op. set.");
         }
     }
 

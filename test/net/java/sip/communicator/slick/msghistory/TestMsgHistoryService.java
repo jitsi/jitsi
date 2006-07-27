@@ -1,4 +1,3 @@
-
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
@@ -11,9 +10,11 @@ import java.util.*;
 
 import org.osgi.framework.*;
 import junit.framework.*;
+import net.java.sip.communicator.impl.protocol.mock.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -31,95 +32,191 @@ public class TestMsgHistoryService
 {
     private static final Logger logger = Logger.getLogger(TestMsgHistoryService.class);
 
-    private ServiceReference metaCLref = null;
-    private MetaContactListService metaClService = null;
+    static final String TEST_CONTACT_NAME = "Mincho_Penchev";
 
-    private MetaContact testMetaContact = null;
+    /**
+     * The provider that we use to make a dummy server-stored contactlist
+     * used for testing. The mockProvider is instantiated and registered
+     * by the metacontactlist slick activator.
+     */
+    public static MockProvider mockProvider = null;
+    /**
+     * The persistent presence operation set of the default mock provider.
+     */
+    public static MockPersistentPresenceOperationSet mockPresOpSet = null;
+    public static MockBasicInstantMessaging mockBImOpSet = null;
 
-    Message[] messagesToSend = null;
+    private static ServiceReference msgHistoryServiceRef = null;
+    public static MessageHistoryService msgHistoryService = null;
 
+    private static MockContact testContact = null;
 
-    public TestMsgHistoryService(String name) throws Exception
+    private static ServiceReference metaCLref = null;
+    private static MetaContactListService metaClService = null;
+
+    private static MetaContact testMetaContact = null;
+
+    /**
+     * A reference to the registration of the first mock provider.
+     */
+    public static ServiceRegistration mockPrServiceRegistration = null;
+
+    private static Message[] messagesToSend = null;
+
+    private static Date controlDate1 = null;
+    private static Date controlDate2 = null;
+
+    public TestMsgHistoryService(String name)
     {
         super(name);
     }
 
+    public static Test suite()
+    {
+        TestSuite suite = new TestSuite();
+        suite.addTest(
+            new TestMsgHistoryService("setupContact"));
+        suite.addTest(
+            new TestMsgHistoryService("writeRecords"));
+        suite.addTest(
+            new TestMsgHistoryService("readRecords"));
+
+        return suite;
+    }
+
     protected void setUp() throws Exception
     {
-        metaCLref = MsgHistoryServiceLick.bc.getServiceReference(
-            MetaContactListService.class.getName());
-
-        metaClService = (MetaContactListService)MsgHistoryServiceLick.bc.getService(metaCLref);
-
-        testMetaContact =
-            metaClService.getRoot().
-                    getMetaContact(
-                        MsgHistoryServiceLick.mockProvider,
-                        MsgHistoryServiceLick.TEST_CONTACT_NAME);
-
-        messagesToSend = new Message[]
-            {
-                MsgHistoryServiceLick.mockBImOpSet.createMessage("test message word1"),
-                MsgHistoryServiceLick.mockBImOpSet.createMessage("test message word2"),
-                MsgHistoryServiceLick.mockBImOpSet.createMessage("test message word3"),
-                MsgHistoryServiceLick.mockBImOpSet.createMessage("test message word4"),
-                MsgHistoryServiceLick.mockBImOpSet.createMessage("test message word5")
-            };
     }
 
     protected void tearDown() throws Exception
     {
-        BundleContext context = MsgHistoryServiceLick.bc;
+    }
 
-        context.ungetService(this.metaCLref);
+    public void setupContact()
+    {
+        mockProvider = new MockProvider("MessageHistoryMockUser");
 
-        this.metaClService = null;
-        this.metaCLref = null;
+        //store thre presence op set of the new provider into the fixture
+        Map supportedOperationSets =
+            mockProvider.getSupportedOperationSets();
+
+        //get the operation set presence here.
+        mockPresOpSet =
+            (MockPersistentPresenceOperationSet) supportedOperationSets.get(
+                OperationSetPersistentPresence.class.getName());
+
+        mockBImOpSet =
+            (MockBasicInstantMessaging) supportedOperationSets.get(
+                OperationSetBasicInstantMessaging.class.getName());
+
+        msgHistoryServiceRef =
+            MsgHistoryServiceLick.bc.
+            getServiceReference(MessageHistoryService.class.getName());
+
+        msgHistoryService =
+            (MessageHistoryService)MsgHistoryServiceLick.bc.
+                getService(msgHistoryServiceRef);
+
+        // fill in a contact to comunicate with
+        MockContactGroup root =
+            (MockContactGroup)mockPresOpSet.getServerStoredContactListRoot();
+
+        testContact = new MockContact(TEST_CONTACT_NAME, mockProvider);
+        root.addContact(testContact);
+
+        metaCLref = MsgHistoryServiceLick.bc.getServiceReference(
+            MetaContactListService.class.getName());
+
+        metaClService =
+            (MetaContactListService)MsgHistoryServiceLick.bc.getService(metaCLref);
+
+       System.setProperty(MetaContactListService.PROVIDER_MASK_PROPERTY, "1");
+
+       Hashtable mockProvProperties = new Hashtable();
+       mockProvProperties.put(ProtocolProviderFactory.
+                              PROTOCOL_PROPERTY_NAME, mockProvider.getProtocolName());
+       mockProvProperties.put(MetaContactListService.PROVIDER_MASK_PROPERTY,
+                              "1");
+
+       mockPrServiceRegistration =
+           MsgHistoryServiceLick.bc.registerService(
+               ProtocolProviderService.class.getName(),
+               mockProvider,
+               mockProvProperties);
+       logger.debug("Registered a mock protocol provider! ");
+
+       testMetaContact = metaClService.getRoot().
+            getMetaContact(mockProvider, TEST_CONTACT_NAME);
+
+        messagesToSend = new Message[]
+            {
+                mockBImOpSet.createMessage("test message word1"),
+                mockBImOpSet.createMessage("test message word2"),
+                mockBImOpSet.createMessage("test message word3"),
+                mockBImOpSet.createMessage("test message word4"),
+                mockBImOpSet.createMessage("test message word5")
+            };
     }
 
     /**
-     * First send the messages then tests all read methods (finders)
+     *  First send the messages
      */
-    public void testReadRecords()
+    public void writeRecords()
     {
-        // First deliver message, so they are stored by the message history service
-        MsgHistoryServiceLick.mockBImOpSet.deliverMessage(
-            MsgHistoryServiceLick.TEST_CONTACT_NAME, messagesToSend[0]);
+        logger.info("write records ");
 
-        Date controlDate1 = new Date();
+        assertNotNull("No metacontact", testMetaContact);
+
+        // First deliver message, so they are stored by the message history service
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME, messagesToSend[0]);
+
+        this.controlDate1 = new Date();
 
         Object lock = new Object();
-        synchronized(lock){
+        synchronized (lock)
+        {
             // wait a moment
-            try{lock.wait(200);}
-            catch (InterruptedException ex){}
+            try
+            {
+                lock.wait(200);
+            }
+            catch (InterruptedException ex)
+            {
+            }
         }
 
-        MsgHistoryServiceLick.mockBImOpSet.deliverMessage(
-            MsgHistoryServiceLick.TEST_CONTACT_NAME, messagesToSend[1]);
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME, messagesToSend[1]);
 
-        MsgHistoryServiceLick.mockBImOpSet.deliverMessage(
-            MsgHistoryServiceLick.TEST_CONTACT_NAME, messagesToSend[2]);
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME, messagesToSend[2]);
 
-        Date controlDate2 = new Date();
-        synchronized(lock){
+        this.controlDate2 = new Date();
+        synchronized (lock)
+        {
             // wait a moment
-            try{lock.wait(200);}
-            catch (InterruptedException ex){}
+            try
+            {
+                lock.wait(200);
+            }
+            catch (InterruptedException ex)
+            {
+            }
         }
 
-        MsgHistoryServiceLick.mockBImOpSet.deliverMessage(
-            MsgHistoryServiceLick.TEST_CONTACT_NAME, messagesToSend[3]);
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME, messagesToSend[3]);
 
-        MsgHistoryServiceLick.mockBImOpSet.deliverMessage(
-            MsgHistoryServiceLick.TEST_CONTACT_NAME, messagesToSend[4]);
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME, messagesToSend[4]);
+    }
 
-
+    /**
+     * tests all read methods (finders)
+     */
+    public void readRecords()
+    {
+//        try{
         /**
          * This matches all written messages, they are minimum 5
          */
-        QueryResultSet rs = MsgHistoryServiceLick.msgHistoryService.findByKeyword(
-                testMetaContact, "test");
+        QueryResultSet rs = msgHistoryService.findByKeyword(testMetaContact, "test");
 
         assertTrue("Nothing found findByKeyword ", rs.hasNext());
 
@@ -127,13 +224,11 @@ public class TestMsgHistoryService
 
         assertTrue("Messages too few - findByKeyword", msgs.size() >= 5);
 
-
         /**
          * This must match also many messages, as tests are run many times
          * but the minimum is 3
          */
-        rs = MsgHistoryServiceLick.msgHistoryService.findByEndDate(
-                testMetaContact, controlDate2);
+        rs = msgHistoryService.findByEndDate(testMetaContact, controlDate2);
 
         assertTrue("Nothing found findByEndDate", rs.hasNext());
 
@@ -144,8 +239,9 @@ public class TestMsgHistoryService
         /**
          * This must find also many messages but atleast one
          */
-        rs = MsgHistoryServiceLick.msgHistoryService.findByKeywords(
-                testMetaContact, new String[]{"test", "word2"});
+        rs = msgHistoryService.findByKeywords(
+            testMetaContact,
+            new String[]{"test", "word2"});
 
         assertTrue("Nothing found findByKeywords", rs.hasNext());
         msgs = getMessages(rs);
@@ -154,62 +250,74 @@ public class TestMsgHistoryService
         /**
          * Nothing to be found
          */
-        rs = MsgHistoryServiceLick.msgHistoryService.findByKeywords(
-                testMetaContact, new String[]{"test1", "word2"});
+        rs = msgHistoryService.findByKeywords(
+            testMetaContact,
+            new String[]{"test1", "word2"});
 
         assertFalse("Something found findByKeywords", rs.hasNext());
 
         /**
          * must find 2 messages
          */
-        rs = MsgHistoryServiceLick.msgHistoryService.findByPeriod(
-                testMetaContact, controlDate1, controlDate2);
+        rs = msgHistoryService.findByPeriod(
+            testMetaContact, controlDate1, controlDate2);
 
         assertTrue("Nothing found findByPeriod", rs.hasNext());
 
         msgs = getMessages(rs);
         assertEquals("Messages must be 2", msgs.size(), 2);
 
-        assertTrue("Message no found", msgs.contains(messagesToSend[1].getContent()));
-        assertTrue("Message no found", msgs.contains(messagesToSend[2].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[1].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[2].getContent()));
 
         /**
          * must find 1 record
          */
-        rs = MsgHistoryServiceLick.msgHistoryService.findByPeriod(
-                testMetaContact, controlDate1, controlDate2, new String[]{"word2"});
+        rs = msgHistoryService.findByPeriod(
+            testMetaContact, controlDate1, controlDate2, new String[]{"word2"});
 
         assertTrue("Nothing found findByPeriod", rs.hasNext());
 
         msgs = getMessages(rs);
 
         assertEquals("Messages must be 1", msgs.size(), 1);
-        assertTrue("Message no found", msgs.contains(messagesToSend[1].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[1].getContent()));
 
         /**
          * must find 2 records
          */
-        rs = MsgHistoryServiceLick.msgHistoryService.findByStartDate(
-                testMetaContact, controlDate2);
+        rs = msgHistoryService.findByStartDate(testMetaContact, controlDate2);
 
         assertTrue("Nothing found findByStartDate", rs.hasNext());
         msgs = getMessages(rs);
         assertEquals("Messages must be 2", msgs.size(), 2);
-        assertTrue("Message no found", msgs.contains(messagesToSend[3].getContent()));
-        assertTrue("Message no found", msgs.contains(messagesToSend[4].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[3].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[4].getContent()));
 
         /**
          * Must return exactly the last 3 messages
          */
-        rs = MsgHistoryServiceLick.msgHistoryService.findLast(
-                testMetaContact, 3);
+        rs = msgHistoryService.findLast(testMetaContact, 3);
 
         assertTrue("Nothing found 8", rs.hasNext());
         msgs = getMessages(rs);
         assertEquals("Messages must be 3", msgs.size(), 3);
-        assertTrue("Message no found", msgs.contains(messagesToSend[2].getContent()));
-        assertTrue("Message no found", msgs.contains(messagesToSend[3].getContent()));
-        assertTrue("Message no found", msgs.contains(messagesToSend[4].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[2].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[3].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[4].getContent()));
+//    }
+//            catch (Exception ex)
+//            {logger.error("damencho", ex);
+//            }
+
     }
 
     private Vector getMessages(QueryResultSet rs)
@@ -245,6 +353,5 @@ public class TestMsgHistoryService
 
             logger.info("----------------------");
         }
-
     }
 }
