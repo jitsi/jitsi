@@ -181,7 +181,8 @@ public class ChatWritePanel extends JScrollPane implements
                 redo();
             }
         }
-        else if (chatPanel.getChatWindow().isTypingNotificationEnabled()) {
+        else if (chatPanel.getChatWindow().isTypingNotificationEnabled()
+                && e.getKeyCode() != KeyEvent.VK_ESCAPE) {
             if (typingState != OperationSetTypingNotifications.STATE_TYPING) {
                 stoppedTypingTimer.setDelay(2 * 1000);
                 typingState = OperationSetTypingNotifications.STATE_TYPING;
