@@ -236,10 +236,12 @@ public class AccountRegFirstPage extends JPanel
         Iterator i = wizard.getPages();
         boolean firstPage = true;
         
+        Object identifier = null;
+        
         while(i.hasNext()) {
             WizardPage page = (WizardPage)i.next();
             
-            Object identifier = page.getIdentifier();
+            identifier = page.getIdentifier();
             
             if(firstPage) {
                 firstPage = false;
@@ -249,6 +251,9 @@ public class AccountRegFirstPage extends JPanel
             
             this.wizardContainer.registerWizardPage(identifier, page);
         }
+        
+        this.wizardContainer.getSummaryPage()
+            .setPreviousPageIdentifier(identifier);
     }
 
     public void pageBack() {

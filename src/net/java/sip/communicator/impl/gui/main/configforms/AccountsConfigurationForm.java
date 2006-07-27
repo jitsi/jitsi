@@ -33,10 +33,12 @@ import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
+ * The <tt>AccountsConfigurationForm</tt> is the form where the user
+ * could create, modify or delete an account.
+ * 
  * @author Yana Stamcheva
  */
 public class AccountsConfigurationForm extends JPanel 
@@ -60,6 +62,11 @@ public class AccountsConfigurationForm extends JPanel
     
     private MainFrame mainFrame;
     
+    /**
+     * Creates an instance of <tt>AccountsConfigurationForm</tt>.
+     * 
+     * @param mainFrame the main application window
+     */
     public AccountsConfigurationForm(MainFrame mainFrame) {
         super(new BorderLayout());
     
@@ -94,6 +101,7 @@ public class AccountsConfigurationForm extends JPanel
      */
     private void tableInit() {
         
+        accountsTable.setRowHeight(22);
         accountsTable.setSelectionMode(
                 ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         
@@ -128,19 +136,36 @@ public class AccountsConfigurationForm extends JPanel
         this.tablePane.getViewport().add(accountsTable);
     }
     
+    /**
+     * Returns the title of this configuration form.
+     * @return the title of this configuration form.
+     */
     public String getTitle() {
         return Messages.getString("accounts");
     }
 
+    /**
+     * Returns the icon of this configuration form.
+     * @return the icon of this configuration form.
+     */
     public Icon getIcon() {
         return new ImageIcon(ImageLoader
                 .getImage(ImageLoader.QUICK_MENU_ADD_ICON));
     }
 
+    /**
+     * Returns the form of this configuration form.
+     * @return the form of this configuration form.
+     */
     public Component getForm() {
         return this;
     }
 
+    /**
+     * Handles the <tt>ActionEvent</tt> triggered when user clicks on
+     * on the buttons. Shows the account registration wizard when user
+     * clicks on "New".
+     */
     public void actionPerformed(ActionEvent e) {
         JButton sourceButton = (JButton)e.getSource();
         

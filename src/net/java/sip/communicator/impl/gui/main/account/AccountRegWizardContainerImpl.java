@@ -19,6 +19,7 @@ import net.java.sip.communicator.service.gui.event.AccountRegistrationListener;
 import net.java.sip.communicator.util.Logger;
 
 /**
+ * The implementation of the <tt>AccountRegistrationWizardContainer</tt>.
  * 
  * @author Yana Stamcheva
  */
@@ -92,7 +93,8 @@ public class AccountRegWizardContainerImpl extends Wizard
      *
      * @param l the listener to add
      */
-    public void addAccountRegistrationListener(AccountRegistrationListener l) {
+    public void addAccountRegistrationListener(
+            AccountRegistrationListener l) {
         synchronized (accountRegListeners)
         {
             this.accountRegListeners.add(l);
@@ -104,7 +106,8 @@ public class AccountRegWizardContainerImpl extends Wizard
      *
      * @param l the listener to remove
      */
-    public void removeAccountRegistrationListener(AccountRegistrationListener l) {
+    public void removeAccountRegistrationListener(
+            AccountRegistrationListener l) {
         synchronized (accountRegListeners)
         {
             this.accountRegListeners.remove(l);
@@ -156,5 +159,9 @@ public class AccountRegWizardContainerImpl extends Wizard
 
     public AccountRegFirstPage getFirstPage() {
         return firstPage;
+    }
+    
+    public AccountRegSummaryPage getSummaryPage() {
+        return summaryPage;
     }
 }
