@@ -39,10 +39,8 @@ import org.w3c.dom.Text;
 /**
  * Writes a DOM tree to a given Writer.
  *
- * <p>Utility class used by {@link net.java.sip.communicator.util.xml.XMLUtils
- * XMLUtils}
- * and the {@see net.java.sip.communicator.slick.runner.SipCommunicatorSlickRunner
- * SipCommunicatorSlickRunner}.
+ * <p>Utility class used by net.java.sip.communicator.util.xml.XMLUtils
+ * and the net.java.sip.communicator.slick.runner.SipCommunicatorSlickRunner.
  * </p>
  *
  */
@@ -124,7 +122,9 @@ public class DOMElementWriter {
 
             case Node.TEXT_NODE:
                 //if this is a new line don't print it as we print our own.
-                if(child.getNodeValue() != null && child.getNodeValue().indexOf(lSep) == -1)
+                if(child.getNodeValue() != null
+                   && (   child.getNodeValue().indexOf(lSep) == -1
+                       || child.getNodeValue().trim().length() != 0))
                     out.write(encode(child.getNodeValue()));
                 break;
 
