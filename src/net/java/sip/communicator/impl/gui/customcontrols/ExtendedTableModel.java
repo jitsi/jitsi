@@ -8,20 +8,21 @@ package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.util.Vector;
 
-import javax.swing.SwingUtilities;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 /**
+ * The <tt>ExtendedTableModel</tt> is a <tt>DefaultTableModel</tt> with one
+ * method in addition that allow to obtain the row index from a value.
  * 
  * @author Yana Stamcheva
  */
-public class NotEditableTableModel extends DefaultTableModel {
-    /**
-     * 
-     */
+public class ExtendedTableModel extends DefaultTableModel {
     
+    /**
+     * Returns the index of the row, in which the given value is contained.
+     * @param value the value to search for
+     * @return the index of the row, in which the given value is contained.
+     */
     public int rowIndexOf(Object value) {
         Vector dataVector = this.getDataVector();
         

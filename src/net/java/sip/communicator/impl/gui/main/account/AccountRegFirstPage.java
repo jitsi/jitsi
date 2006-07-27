@@ -23,8 +23,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
 
+import net.java.sip.communicator.impl.gui.customcontrols.ExtendedTableModel;
 import net.java.sip.communicator.impl.gui.customcontrols.LabelTableCellRenderer;
-import net.java.sip.communicator.impl.gui.customcontrols.NotEditableTableModel;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.AccountRegistrationWizard;
@@ -46,7 +46,7 @@ public class AccountRegFirstPage extends JPanel
         
     private String nextPageIdentifier;
 
-    private NotEditableTableModel tableModel;
+    private ExtendedTableModel tableModel;
     
     private JTable accountRegsTable = new JTable();
     
@@ -61,7 +61,7 @@ public class AccountRegFirstPage extends JPanel
         
         this.wizardContainer = container;
         
-        this.tableModel = new NotEditableTableModel();
+        this.tableModel = new ExtendedTableModel();
         
         this.setPreferredSize(new Dimension(500, 200));
         

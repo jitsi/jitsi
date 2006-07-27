@@ -26,8 +26,8 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
 import net.java.sip.communicator.impl.gui.GuiActivator;
+import net.java.sip.communicator.impl.gui.customcontrols.ExtendedTableModel;
 import net.java.sip.communicator.impl.gui.customcontrols.LabelTableCellRenderer;
-import net.java.sip.communicator.impl.gui.customcontrols.NotEditableTableModel;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
@@ -58,7 +58,7 @@ public class AccountsConfigurationForm extends JPanel
     
     private JButton removeButton = new JButton(Messages.getString("remove"));
     
-    private NotEditableTableModel tableModel = new NotEditableTableModel();
+    private ExtendedTableModel tableModel = new ExtendedTableModel();
     
     private MainFrame mainFrame;
     
