@@ -473,8 +473,7 @@ public class TestOperationSetServerStoredInfo
 
         logger.trace("Proceeding to Testing values!");
         // make the tests here
-        Hashtable userInfo = fixture.testerAgent.getUserInfo(fixture.
-            ourAccountID);
+        Hashtable userInfo = fixture.testerAgent.getUserInfo(fixture.ourUserID);
 
         assertEquals("The LastName we set is not set or not read properly"
                      , newLastName
