@@ -271,7 +271,7 @@ public class TestOperationSetPresence
             operationSetPresence.getPresenceStatus());
 
         IcqStatusEnum actualStatus = fixture.testerAgent.getBuddyStatus(
-                                    fixture.icqAccountID.getAccountUserID());
+                                    fixture.icqAccountID.getUserID());
         assertEquals("The underlying implementation did not switch to the "
                      +"requested presence status.",
                      newStatus,
@@ -1220,15 +1220,15 @@ public class TestOperationSetPresence
         fixture.testerAgent.getAuthCmdFactory().isRequestAccepted = false;
 
         // be sure buddy is not already in the list
-        fixture.testerAgent.deleteBuddy(fixture.ourAccountID);
-        fixture.testerAgent.addBuddy(fixture.ourAccountID);
+        fixture.testerAgent.deleteBuddy(fixture.ourUserID);
+        fixture.testerAgent.addBuddy(fixture.ourUserID);
 
         // wait agent to receive error and to request us for our authorization
         authEventCollector.waitForAuthRequest(25000);
 
         // check have we received authorization request?
         assertTrue("Error adding buddy not recieved or the buddy(" +
-                       fixture.ourAccountID +
+                       fixture.ourUserID +
                        ") doesn't require authorization 1",
                        fixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived);
 
@@ -1269,7 +1269,7 @@ public class TestOperationSetPresence
 
         // delete us from his list
         // be sure buddy is not already in the list
-        fixture.testerAgent.deleteBuddy(fixture.ourAccountID);
+        fixture.testerAgent.deleteBuddy(fixture.ourUserID);
 
         // set second response isAccepted and responseString
         // the second test is the same as first, but this time we accept
@@ -1285,14 +1285,14 @@ public class TestOperationSetPresence
         fixture.testerAgent.getAuthCmdFactory().isRequestAccepted = false;
 
         // add us to his list again
-        fixture.testerAgent.addBuddy(fixture.ourAccountID);
+        fixture.testerAgent.addBuddy(fixture.ourUserID);
 
         // wait agent to receive error and to request us for our authorization
         authEventCollector.waitForAuthRequest(25000);
 
         // check have we received authorization request?
         assertTrue("Error adding buddy not recieved or the buddy(" +
-                              fixture.ourAccountID +
+                              fixture.ourUserID +
                               ") doesn't require authorization 2",
                               fixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived);
 
