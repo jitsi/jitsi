@@ -68,7 +68,7 @@ public class TestAccountInstallation extends TestCase
     public void testRegisterWrongUsername()
     {
         ServiceReference[] serRefs = null;
-        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME
+        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL
                             + "="+ProtocolNames.ICQ+")";
         try{
             serRefs = IcqSlickFixture.bc.getServiceReferences(
@@ -92,16 +92,16 @@ public class TestAccountInstallation extends TestCase
         String passwd = System.getProperty( IcqProtocolProviderSlick
                                             .TESTED_IMPL_PWD_PROP_NAME, null );
         String uin = System.getProperty( IcqProtocolProviderSlick
-                                         .TESTED_IMPL_ACCOUNT_ID_PROP_NAME, null);
+                                         .TESTED_IMPL_USER_ID_PROP_NAME, null);
         // make this uin an invalid one
         uin = uin + "1234";
 
 
         Hashtable icqAccountProperties = new Hashtable();
-        icqAccountProperties.put(AccountProperties.PASSWORD, passwd);
+        icqAccountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
 
         AccountID icqAccountID = icqProviderFactory.installAccount(
-            IcqSlickFixture.bc, uin, icqAccountProperties);
+            uin, icqAccountProperties);
 
         //find the protocol provider service
         ServiceReference[] icqProviderRefs = null;
@@ -111,14 +111,15 @@ public class TestAccountInstallation extends TestCase
                 = IcqSlickFixture.bc.getServiceReferences(
                     ProtocolProviderService.class.getName(),
                     "(&"
-                    + "(" + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME + "=" +
+                    + "(" + ProtocolProviderFactory.PROTOCOL + "=" +
                     ProtocolNames.ICQ + ")"
-                    + "(" + ProtocolProviderFactory.ACCOUNT_ID_PROPERTY_NAME + "="
+                    + "(" + ProtocolProviderFactory.USER_ID + "="
                     + uin + ")"
                     + ")");
         }
-        catch(InvalidSyntaxException ex1)
+        catch(InvalidSyntaxException ex)
         {
+            logger.debug("Our filter seems to be messed up.", ex);
         }
 
         //make sure we found a service
@@ -189,7 +190,7 @@ public class TestAccountInstallation extends TestCase
     public void testRegisterWrongPassword()
     {
         ServiceReference[] serRefs = null;
-        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME
+        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL
                             + "="+ProtocolNames.ICQ+")";
         try{
             serRefs = IcqSlickFixture.bc.getServiceReferences(
@@ -213,15 +214,15 @@ public class TestAccountInstallation extends TestCase
         String passwd = System.getProperty( IcqProtocolProviderSlick
                                             .TESTED_IMPL_PWD_PROP_NAME, null );
         String uin = System.getProperty( IcqProtocolProviderSlick
-                                         .TESTED_IMPL_ACCOUNT_ID_PROP_NAME, null);
+                                         .TESTED_IMPL_USER_ID_PROP_NAME, null);
 
         passwd += "1234";
 
         Hashtable icqAccountProperties = new Hashtable();
-        icqAccountProperties.put(AccountProperties.PASSWORD, passwd);
+        icqAccountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
 
         AccountID icqAccountID = icqProviderFactory.installAccount(
-            IcqSlickFixture.bc, uin, icqAccountProperties);
+            uin, icqAccountProperties);
 
         //find the protocol provider service
         ServiceReference[] icqProviderRefs = null;
@@ -231,10 +232,10 @@ public class TestAccountInstallation extends TestCase
                 = IcqSlickFixture.bc.getServiceReferences(
                     ProtocolProviderService.class.getName(),
                     "(&"
-                    + "(" + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME + "=" +
+                    + "(" + ProtocolProviderFactory.PROTOCOL + "=" +
                     ProtocolNames.ICQ + ")"
-                    + "(" + ProtocolProviderFactory.ACCOUNT_ID_PROPERTY_NAME + "="
-                    + icqAccountID.getAccountUserID() + ")"
+                    + "(" + ProtocolProviderFactory.USER_ID + "="
+                    + icqAccountID.getUserID() + ")"
                     + ")");
         }
         catch(InvalidSyntaxException ex1)
@@ -305,7 +306,7 @@ public class TestAccountInstallation extends TestCase
     {
         // first obtain a reference to the provider factory
         ServiceReference[] serRefs = null;
-        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME
+        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL
                             + "="+ProtocolNames.ICQ+")";
         try{
             serRefs = IcqSlickFixture.bc.getServiceReferences(
@@ -335,10 +336,10 @@ public class TestAccountInstallation extends TestCase
         String passwd = System.getProperty( IcqProtocolProviderSlick
                                             .TESTED_IMPL_PWD_PROP_NAME, null );
         String uin = System.getProperty( IcqProtocolProviderSlick
-                                         .TESTED_IMPL_ACCOUNT_ID_PROP_NAME, null);
+                                         .TESTED_IMPL_USER_ID_PROP_NAME, null);
 
         assertNotNull(
-            "In the " + IcqProtocolProviderSlick.TESTED_IMPL_ACCOUNT_ID_PROP_NAME
+            "In the " + IcqProtocolProviderSlick.TESTED_IMPL_USER_ID_PROP_NAME
             +" system property, you need to provide a valid icq UIN for the "
             +" slick to use when signing on icq. It's passwd must be set in "
 
@@ -352,21 +353,12 @@ public class TestAccountInstallation extends TestCase
 
 
         Hashtable icqAccountProperties = new Hashtable();
-        icqAccountProperties.put(AccountProperties.PASSWORD, passwd);
-
-        //try to install an account with a null bundle context
-        try{
-            icqProviderFactory.installAccount( null, uin, icqAccountProperties);
-            fail("installing an account with a null BundleContext must result "
-                 +"in a NullPointerException");
-        }catch(NullPointerException exc){
-            //that's what had to happen
-        }
+        icqAccountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
 
         //try to install an account with a null account id
         try{
             icqProviderFactory.installAccount(
-                IcqSlickFixture.bc, null, icqAccountProperties);
+                null, icqAccountProperties);
             fail("installing an account with a null account id must result "
                  +"in a NullPointerException");
         }catch(NullPointerException exc){
@@ -375,13 +367,13 @@ public class TestAccountInstallation extends TestCase
 
         //now really install the account
         IcqSlickFixture.icqAccountID = icqProviderFactory.installAccount(
-            IcqSlickFixture.bc, uin, icqAccountProperties);
+            uin, icqAccountProperties);
 
         //try to install the account one more time and verify that an excepion
         //is thrown.
         try{
             IcqSlickFixture.icqAccountID = icqProviderFactory.installAccount(
-                IcqSlickFixture.bc, uin, icqAccountProperties);
+                uin, icqAccountProperties);
             fail("An IllegalStateException must be thrown when trying to "+
                  "install a duplicate account");
 
@@ -400,9 +392,9 @@ public class TestAccountInstallation extends TestCase
         //been properly registered with the osgi framework.
 
         osgiFilter =
-            "(&("+ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME +"="+ProtocolNames.ICQ+")"
-             +"(" + ProtocolProviderFactory.ACCOUNT_ID_PROPERTY_NAME
-             + "=" + IcqSlickFixture.icqAccountID.getAccountUserID() + "))";
+            "(&("+ProtocolProviderFactory.PROTOCOL +"="+ProtocolNames.ICQ+")"
+             +"(" + ProtocolProviderFactory.USER_ID
+             + "=" + IcqSlickFixture.icqAccountID.getUserID() + "))";
 
         try
         {
@@ -428,6 +420,10 @@ public class TestAccountInstallation extends TestCase
                   ,icqProtocolProvider instanceof ProtocolProviderService);
     }
 
+    /**
+     * A blocking registration listener that would allow us to wait until
+     * registration is completed.
+     */
     public class RegistrationFailedEventCollector
         implements RegistrationStateChangeListener
     {
@@ -436,6 +432,11 @@ public class TestAccountInstallation extends TestCase
         public int failedCode;
         public String failedReason = null;
 
+        /**
+         * Notifies the registration lock once a new
+         * RegistrationStateChangeEvent is received.
+         * @param evt the RegistrationStateChangeEvent that we'll have to store.
+         */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
             collectedNewStates.add(evt.getNewState());
