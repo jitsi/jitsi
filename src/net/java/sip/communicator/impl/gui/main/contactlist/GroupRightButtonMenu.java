@@ -65,7 +65,7 @@ public class GroupRightButtonMenu extends JPopupMenu
             String protocolName = pps.getProtocolName();
             
             JMenuItem menuItem = new JMenuItem(pps.getAccountID()
-                    .getAccountUserID(),
+                    .getUserID(),
                     new ImageIcon(Constants.getProtocolIcon(protocolName)));
             
             menuItem.setName(protocolName);
