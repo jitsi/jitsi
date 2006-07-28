@@ -78,9 +78,7 @@ public class UIServiceImpl implements UIService {
         this.popupDialog = new PopupDialogImpl(mainFrame);
         this.wizardContainer = new AccountRegWizardContainerImpl();
         
-        this.configurationFrame = new ConfigurationDialogImpl(mainFrame); 
-        this.exportedDialogs.put(UIService.DIALOG_CONFIGURATION, 
-                configurationFrame);
+        this.configurationFrame = new ConfigurationDialogImpl(mainFrame);
     }
     
     /**
