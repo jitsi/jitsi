@@ -7,13 +7,9 @@
 
 package net.java.sip.communicator.plugin.icqaccregwizz;
 
-import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
-import javax.imageio.ImageIO;
 
 import net.java.sip.communicator.util.Logger;
 /**

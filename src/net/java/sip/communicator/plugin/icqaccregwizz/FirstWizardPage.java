@@ -26,6 +26,12 @@ import javax.swing.event.DocumentListener;
 import net.java.sip.communicator.service.gui.WizardContainer;
 import net.java.sip.communicator.service.gui.WizardPage;
 
+/**
+ * The <tt>FirstWizardPage</tt> is the page, where user could enter the uin
+ * and the password of the account.
+ * 
+ * @author Yana Stamcheva
+ */
 public class FirstWizardPage extends JPanel
     implements WizardPage, DocumentListener {
 
@@ -65,6 +71,13 @@ public class FirstWizardPage extends JPanel
     
     private WizardContainer wizardContainer;
     
+    /**
+     * Creates an instance of <tt>FirstWizardPage</tt>.
+     * @param registration the <tt>IcqAccountRegistration</tt>, where
+     * all data through the wizard are stored
+     * @param wizardContainer the wizardContainer, where this page will
+     * be added
+     */
     public FirstWizardPage(IcqAccountRegistration registration,
             WizardContainer wizardContainer) {
         
@@ -81,8 +94,12 @@ public class FirstWizardPage extends JPanel
         this.init();
     }
     
+    /**
+     * Initializes all panels, buttons, etc.
+     */
     private void init() {
         this.uinField.getDocument().addDocumentListener(this);
+        this.rememberPassBox.setSelected(true);
         
         labelsPanel.add(uinLabel);
         labelsPanel.add(passLabel);
@@ -115,41 +132,59 @@ public class FirstWizardPage extends JPanel
         this.add(mainPanel, BorderLayout.NORTH);
     }
     
+    /**
+     * Implements the <code>WizardPage.getIdentifier</code> to return
+     * this page identifier.
+     */
     public Object getIdentifier() {
         return FIRST_PAGE_IDENTIFIER;
     }
 
+    /**
+     * Implements the <code>WizardPage.getNextPageIdentifier</code> to return
+     * the next page identifier - the summary page.
+     */
     public Object getNextPageIdentifier() {
         return WizardPage.SUMMARY_PAGE_IDENTIFIER;
     }
 
+    /**
+     * Implements the <code>WizardPage.getBackPageIdentifier</code> to return
+     * the next back identifier - the default page.
+     */
     public Object getBackPageIdentifier() {
         return WizardPage.DEFAULT_PAGE_IDENTIFIER;
     }
 
+    /**
+     * Implements the <code>WizardPage.getWizardForm</code> to return
+     * this panel.
+     */
     public Object getWizardForm() {
         return this;
     }
 
-    public void pageHiding() {
-    }
-
-    public void pageShown() {
-    }
-
+    /**
+     * Before this page is displayed enables or disables the "Next" wizard
+     * button according to whether the UIN field is empty.
+     */
     public void pageShowing() {
         this.setNextButtonAccordingToUIN();
     }
 
+    /**
+     * Saves the user input when the "Next" wizard buttons is clicked.
+     */
     public void pageNext() {
         registration.setUin(uinField.getText());
-        registration.setPassword(passField.getPassword().toString());
+        registration.setPassword(new String(passField.getPassword()));
         registration.setRememberPassword(rememberPassBox.isSelected());
     }
-
-    public void pageBack() {
-    }
-
+  
+    /**
+     * Enables or disables the "Next" wizard button according to whether the
+     * UIN field is empty.
+     */
     private void setNextButtonAccordingToUIN() {
         if (uinField.getText() == null || uinField.getText().equals("")) {
             wizardContainer.setNextFinishButtonEnabled(false);
@@ -159,14 +194,33 @@ public class FirstWizardPage extends JPanel
         }
     }
 
+    /**
+     * Handles the <tt>DocumentEvent</tt> triggered when user types in the
+     * UIN field. Enables or disables the "Next" wizard button according to
+     * whether the UIN field is empty.
+     */
     public void insertUpdate(DocumentEvent e) {
         this.setNextButtonAccordingToUIN();
     }
 
+    /**
+     * Handles the <tt>DocumentEvent</tt> triggered when user deletes letters
+     * from the UIN field. Enables or disables the "Next" wizard button
+     * according to whether the UIN field is empty.
+     */
     public void removeUpdate(DocumentEvent e) {
         this.setNextButtonAccordingToUIN();
     }
 
     public void changedUpdate(DocumentEvent e) {
+    }
+    
+    public void pageHiding() {
+    }
+
+    public void pageShown() {
+    }
+    
+    public void pageBack() {
     }
 }
