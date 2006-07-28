@@ -17,6 +17,7 @@ import javax.swing.JScrollPane;
 
 import net.java.sip.communicator.service.gui.AccountRegistrationWizard;
 import net.java.sip.communicator.service.gui.WizardPage;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
  * The <tt>AccountRegSummaryPage</tt> is the last page of the account
@@ -118,7 +119,7 @@ public class AccountRegSummaryPage extends JScrollPane
      */
     public void pageShowing() {
         AccountRegistrationWizard wizard
-            = this.wizardContainer.getFirstPage().getCurrentWizard();
+            = this.wizardContainer.getCurrentWizard();
         
         this.keysPanel.removeAll();
         this.valuesPanel.removeAll();
@@ -132,7 +133,20 @@ public class AccountRegSummaryPage extends JScrollPane
      * here the wizard finish method.
      */
     public void pageNext() {
-        this.wizardContainer.getFirstPage().getCurrentWizard().finish();
+        AccountRegistrationWizard wizard = this.wizardContainer
+            .getCurrentWizard();
+        
+        ProtocolProviderService protocolProvider 
+            = wizard.finish();
+        
+        this.wizardContainer.addAccountWizard(protocolProvider, wizard);
+        
+        this.wizardContainer.unregisterWizardPage(
+                WizardPage.DEFAULT_PAGE_IDENTIFIER);
+        this.wizardContainer.unregisterWizardPage(
+                WizardPage.SUMMARY_PAGE_IDENTIFIER);
+        this.wizardContainer.unregisterAll();
+        this.wizardContainer.removeWizzardIcon();
     }
 
     public void pageBack() {
@@ -151,5 +165,4 @@ public class AccountRegSummaryPage extends JScrollPane
     public void setPreviousPageIdentifier(Object previousPageIdentifier) {
         this.previousPageIdentifier = previousPageIdentifier;
     }
-
 }

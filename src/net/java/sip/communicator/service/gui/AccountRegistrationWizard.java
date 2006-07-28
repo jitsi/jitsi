@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.gui;
 
 import java.util.Iterator;
 
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+
 /**
  * The <tt>AccountRegistrationWizard</tt> is meant to provide a wizard which
  * will guide the user through a protocol account registration. Each
@@ -51,6 +53,16 @@ public interface AccountRegistrationWizard {
      * @return a short description of the protocol.
      */
     public String getProtocolDescription();
+
+    /**
+     * Loads all data concerning the given <tt>ProtocolProviderService</tt>.
+     * This method is meant to be used when a modification in an already
+     * created account is needed.
+     * 
+     * @param protocolProvider The <tt>ProtocolProviderService</tt> to
+     * load data from.
+     */
+    public void loadAccount(ProtocolProviderService protocolProvider);
     
     /**
      * Returns the set of <tt>AccountRegistrationWizardPage</tt>-s for this
@@ -74,5 +86,5 @@ public interface AccountRegistrationWizard {
      * Defines the operations that will be executed when the user clicks on
      * the wizard "Finish" button.
      */
-    public void finish();
+    public ProtocolProviderService finish();
 }

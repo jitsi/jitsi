@@ -7,6 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.main.login;
 
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -20,6 +21,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.SIPCommMsgTextArea;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.StatusPanel;
+import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
@@ -121,43 +123,66 @@ public class LoginManager
         Set set = GuiActivator.getProtocolProviderFactories().entrySet();
         Iterator iter = set.iterator();
 
+        boolean hasRegisteredAccounts = false;
+        
         while (iter.hasNext()) {
             Map.Entry entry = (Map.Entry) iter.next();
 
             ProtocolProviderFactory providerFactory
                 = (ProtocolProviderFactory) entry.getValue();
-            String protocolName = (String) entry.getKey();
-
+            
             ArrayList accountsList
                 = providerFactory.getRegisteredAccounts();
+            
+            AccountID accountID;
+            ServiceReference serRef;
+            ProtocolProviderService protocolProvider;
 
-            if (accountsList.size() > 0) {
-                AccountID accountID;
-                ServiceReference serRef;
-                ProtocolProviderService protocolProvider;
+            for (int i = 0; i < accountsList.size(); i ++) {
+                hasRegisteredAccounts = true;
+                
+                accountID = (AccountID) accountsList.get(i);
 
-                for (int i = 0; i < accountsList.size(); i ++) {
-                    accountID = (AccountID) accountsList.get(i);
+                serRef = providerFactory
+                        .getProviderForAccount(accountID);
 
-                    serRef = providerFactory
-                            .getProviderForAccount(accountID);
-
-                    protocolProvider
-                        = (ProtocolProviderService) GuiActivator.bundleContext
-                            .getService(serRef);
-                    
-                    this.mainFrame.addAccount(protocolProvider);
-                    this.login(protocolProvider);
-                }
+                protocolProvider
+                    = (ProtocolProviderService) GuiActivator.bundleContext
+                        .getService(serRef);
+                
+                this.mainFrame.addAccount(protocolProvider);
+                this.login(protocolProvider);
             }
-            else {
-                showLoginWindow(parent, protocolName, providerFactory);
-            }
-            //TEST SUPPORT FOR MORE ACCOUNTS!!!!!
-            //showLoginWindow(parent, protocolName, providerFactory);
+        }
+        
+        if(!hasRegisteredAccounts) {
+            this.showAccountRegistrationWizard();
         }
     }
 
+    /**
+     * Shows the wizard, which allows to register a new account.
+     */
+    private void showAccountRegistrationWizard() {
+        AccountRegWizardContainerImpl wizard
+            = (AccountRegWizardContainerImpl)GuiActivator.getUIService()
+                .getAccountRegWizardContainer();
+    
+        wizard.setTitle(
+            Messages.getString("accountRegistrationWizard"));
+    
+        wizard.setLocation(
+            Toolkit.getDefaultToolkit().getScreenSize().width/2
+                - 250,
+            Toolkit.getDefaultToolkit().getScreenSize().height/2
+                - 100
+        );
+        
+        wizard.newAccount();
+    
+        wizard.showModalDialog();
+    }
+    
     /**
      * Shows the login window for the given protocol and providerFactory.
      * @param parent The parent MainFrame window.
@@ -167,7 +192,7 @@ public class LoginManager
     private void showLoginWindow(MainFrame parent,
                                 String protocolName,
                                 ProtocolProviderFactory accoundManager) {
-
+        
         LoginWindow loginWindow = new LoginWindow(parent, protocolName,
                 accoundManager);
         loginWindow.setLoginManager(this);

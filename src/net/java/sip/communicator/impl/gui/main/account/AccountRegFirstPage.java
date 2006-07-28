@@ -8,8 +8,10 @@ package net.java.sip.communicator.impl.gui.main.account;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -18,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -51,13 +54,14 @@ public class AccountRegFirstPage extends JPanel
     private JTable accountRegsTable = new JTable();
     
     private JScrollPane tableScrollPane = new JScrollPane();
-        
+    
     private AccountRegWizardContainerImpl wizardContainer;
     
-    private AccountRegistrationWizard currentWizard;
+    private JTextArea messageTextArea = new JTextArea(
+                Messages.getString("selectAccountRegistration"));
     
     public AccountRegFirstPage(AccountRegWizardContainerImpl container) {
-        super(new BorderLayout());    
+        super(new BorderLayout(10, 10));    
         
         this.wizardContainer = container;
         
@@ -73,6 +77,12 @@ public class AccountRegFirstPage extends JPanel
         
         this.tableInit();
                 
+        this.messageTextArea.setLineWrap(true);
+        this.messageTextArea.setWrapStyleWord(true);
+        this.messageTextArea.setFont(
+                Constants.FONT.deriveFont(Font.BOLD, 16f));
+        
+        this.add(messageTextArea, BorderLayout.NORTH);
         this.add(tableScrollPane, BorderLayout.CENTER);        
     }
     
@@ -221,7 +231,7 @@ public class AccountRegFirstPage extends JPanel
             = (AccountRegistrationWizard)tableModel
                 .getValueAt(accountRegsTable.getSelectedRow(), 0);
         
-        this.currentWizard = wizard;
+        this.wizardContainer.setCurrentWizard(wizard);
         
         Iterator i = wizard.getPages();
         boolean firstPage = true;
@@ -256,12 +266,18 @@ public class AccountRegFirstPage extends JPanel
 
     public void pageBack() {
     }
-
+    
     /**
-     * Returns the currently choosen <tt>AccountRegistrationWizard</tt>.
-     * @return the currently choosen <tt>AccountRegistrationWizard</tt>.
+     * Returns a list of all registered Account Registration Wizards.
+     * @return a list of all registered Account Registration Wizards
      */
-    public AccountRegistrationWizard getCurrentWizard() {
-        return currentWizard;
+    public Iterator getWizardsList() {
+        ArrayList wizardsList = new ArrayList();
+        
+        for(int i = 0; i < tableModel.getRowCount(); i ++) {
+            wizardsList.add(tableModel.getValueAt(i, 0));
+        }
+        
+        return wizardsList.iterator();
     }
 }

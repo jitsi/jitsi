@@ -10,9 +10,14 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import org.osgi.framework.ServiceReference;
+
 import net.java.sip.communicator.service.gui.AccountRegistrationWizard;
 import net.java.sip.communicator.service.gui.WizardContainer;
+import net.java.sip.communicator.service.protocol.AccountID;
+import net.java.sip.communicator.service.protocol.AccountProperties;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
  * The <tt>IcqAccountRegistrationWizard</tt> is an implementation of the
@@ -25,20 +30,18 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
 
     private FirstWizardPage firstWizardPage;
 
-    private ArrayList pages = new ArrayList();
-
     private IcqAccountRegistration registration
         = new IcqAccountRegistration();
 
+    private WizardContainer wizardContainer;
+    
     /**
      * Creates an instance of <tt>IcqAccountRegistrationWizard</tt>.
      * @param wizardContainer the wizard container, where this wizard
      * is added
      */
     public IcqAccountRegistrationWizard(WizardContainer wizardContainer) {
-        firstWizardPage = new FirstWizardPage(registration, wizardContainer);
-
-        pages.add(firstWizardPage);
+        this.wizardContainer = wizardContainer;
     }
 
     /**
@@ -69,6 +72,11 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
      * Returns the set of pages contained in this wizard.
      */
     public Iterator getPages() {
+        ArrayList pages = new ArrayList();
+        firstWizardPage = new FirstWizardPage(registration, wizardContainer);
+        
+        pages.add(firstWizardPage);
+        
         return pages.iterator();
     }
 
@@ -88,11 +96,13 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
     /**
      * Installs the account created through this wizard.
      */
-    public void finish() {
-        ProtocolProviderFactory factory
-            = IcqAccRegWizzActivator.getIcqProtocolProviderFactory();
 
-        this.installAccount(factory,
+    public ProtocolProviderService finish() {
+        firstWizardPage = null;
+        ProtocolProviderFactory factory 
+            = IcqAccRegWizzActivator.getIcqProtocolProviderFactory();
+      
+        return this.installAccount(factory, 
                 registration.getUin(), registration.getPassword());
     }
 
@@ -102,8 +112,10 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
      * the account
      * @param user the user identifier
      * @param passwd the password
+     * @return the <tt>ProtocolProviderService</tt> for the new account.
      */
-    public void installAccount( ProtocolProviderFactory providerFactory,
+    public ProtocolProviderService installAccount(
+            ProtocolProviderFactory providerFactory,
             String user,
             String passwd) {
 
@@ -112,8 +124,22 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
         if(registration.isRememberPassword()) {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
+       
+        AccountID accountID = providerFactory.installAccount(
+                    user, accountProperties);
+        
 
-        providerFactory.installAccount(
-                user, accountProperties);
+        ServiceReference serRef = providerFactory
+            .getProviderForAccount(accountID);
+
+        ProtocolProviderService protocolProvider
+            = (ProtocolProviderService) IcqAccRegWizzActivator.bundleContext
+                .getService(serRef);        
+            
+        return protocolProvider;
+    }
+    
+    public void loadAccount(ProtocolProviderService protocolProvider) {
+        System.out.println("LOAD  ACCOUNT!!!!!!!!!!!!!!!!!!");
     }
 }

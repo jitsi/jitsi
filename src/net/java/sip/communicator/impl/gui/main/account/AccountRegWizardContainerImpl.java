@@ -6,16 +6,22 @@
  */
 package net.java.sip.communicator.impl.gui.main.account;
 
-import java.util.ArrayList;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
+
+import javax.imageio.ImageIO;
 
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.Wizard;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.service.gui.AccountRegistrationWizard;
 import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
+import net.java.sip.communicator.service.gui.WizardPage;
 import net.java.sip.communicator.service.gui.event.AccountRegistrationEvent;
 import net.java.sip.communicator.service.gui.event.AccountRegistrationListener;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.util.Logger;
 
 /**
@@ -29,11 +35,13 @@ public class AccountRegWizardContainerImpl extends Wizard
     private static final Logger logger = Logger
         .getLogger(AccountRegWizardContainerImpl.class);
     
-    private ArrayList accountRegsList = new ArrayList();
-    
     private AccountRegFirstPage firstPage;
     
     private AccountRegSummaryPage summaryPage;
+    
+    private Hashtable accountWizards = new Hashtable();
+    
+    private AccountRegistrationWizard currentWizard;
     
     /**
      * Listeners interested in events dispatched upon modifications
@@ -50,12 +58,6 @@ public class AccountRegWizardContainerImpl extends Wizard
         this.summaryPage = new AccountRegSummaryPage(this);
         
         this.addAccountRegistrationListener(firstPage);
-        
-        this.registerWizardPage(firstPage.getIdentifier(), firstPage);
-                
-        this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
-        
-        this.setCurrentPage(firstPage.getIdentifier());        
     }
             
     /**
@@ -65,9 +67,7 @@ public class AccountRegWizardContainerImpl extends Wizard
      * @param wizard the <tt>AccountRegistrationWizard</tt> to add
      */
     public void addAccountRegistrationWizard(
-            AccountRegistrationWizard wizard) {
-    
-        accountRegsList.add(wizard);
+            AccountRegistrationWizard wizard) {    
         
         this.fireAccountRegistrationEvent(wizard,
                 AccountRegistrationEvent.REGISTRATION_ADDED);        
@@ -81,8 +81,6 @@ public class AccountRegWizardContainerImpl extends Wizard
      */
     public void removeAccountRegistrationWizard(
             AccountRegistrationWizard wizard) {
-        
-        accountRegsList.remove(wizard);
         
         this.fireAccountRegistrationEvent(wizard,
                 AccountRegistrationEvent.REGISTRATION_REMOVED);
@@ -157,11 +155,91 @@ public class AccountRegWizardContainerImpl extends Wizard
         }
     }
 
+    /**
+     * Returns the first wizard page.
+     * @return the first wizard page
+     */
     public AccountRegFirstPage getFirstPage() {
         return firstPage;
     }
     
+    /**
+     * Returns the summary wizard page.
+     * @return the summary wizard page
+     */
     public AccountRegSummaryPage getSummaryPage() {
         return summaryPage;
+    }
+    
+    public void newAccount() {
+        this.registerWizardPage(firstPage.getIdentifier(), firstPage);
+                
+        this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
+        
+        this.setCurrentPage(firstPage.getIdentifier());        
+    }
+    
+    /**
+     * 
+     * @param protocolProvider
+     */
+    public void modifyAccount(ProtocolProviderService protocolProvider) {
+        this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
+        
+        AccountRegistrationWizard wizard = (AccountRegistrationWizard)
+            this.accountWizards.get(protocolProvider);
+        
+        this.setCurrentWizard(wizard);
+        
+        wizard.loadAccount(protocolProvider);
+        
+        Iterator i = wizard.getPages();
+        
+        Object identifier = null;
+        boolean firstPage = true;
+        
+        while(i.hasNext()) {
+            WizardPage page = (WizardPage)i.next();
+            
+            identifier = page.getIdentifier();
+            
+            this.registerWizardPage(identifier, page);
+            
+            if(firstPage) {
+                this.setCurrentPage(identifier);
+                firstPage = false;
+            }
+        }
+        
+        this.getSummaryPage()
+            .setPreviousPageIdentifier(identifier);
+        
+        try {
+            this.setWizzardIcon(
+                ImageIO.read(new ByteArrayInputStream(wizard.getIcon())));
+        }
+        catch (IOException e1) {         
+            e1.printStackTrace();
+        }
+    }
+
+    /**
+     * Adds the (protocol provider, wizard) pair. 
+     * 
+     * @param protocolProvider
+     * @param wizard
+     */
+    public void addAccountWizard(
+            ProtocolProviderService protocolProvider,
+            AccountRegistrationWizard wizard) {
+        this.accountWizards.put(protocolProvider, wizard);
+    }
+
+    public AccountRegistrationWizard getCurrentWizard() {
+        return currentWizard;
+    }
+
+    public void setCurrentWizard(AccountRegistrationWizard currentWizard) {
+        this.currentWizard = currentWizard;
     }
 }

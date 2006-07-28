@@ -8,16 +8,16 @@
 package net.java.sip.communicator.impl.gui.main.configforms;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListSelectionModel;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -26,9 +26,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumnModel;
-
-import org.osgi.framework.ServiceEvent;
-import org.osgi.framework.ServiceListener;
 
 import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.customcontrols.ExtendedTableModel;
@@ -39,7 +36,13 @@ import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainer
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.gui.ConfigurationForm;
+import net.java.sip.communicator.service.protocol.AccountID;
+import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 
 /**
  * The <tt>AccountsConfigurationForm</tt> is the form where the user
@@ -113,8 +116,9 @@ public class AccountsConfigurationForm extends JPanel
 
         accountsTable.setRowHeight(22);
         accountsTable.setSelectionMode(
-                ListSelectionModel.SINGLE_SELECTION);
-        accountsTable.setSelectionModel(new DefaultListSelectionModel());
+
+        ListSelectionModel.SINGLE_SELECTION);    
+
         accountsTable.setShowHorizontalLines(false);
         accountsTable.setShowVerticalLines(false);
         accountsTable.setModel(tableModel);
@@ -129,10 +133,55 @@ public class AccountsConfigurationForm extends JPanel
             .setCellRenderer(new LabelTableCellRenderer());
         columnModel.getColumn(1)
             .setCellRenderer(new LabelTableCellRenderer());
-
+        
+        this.initializeAccountsTable();
+        
         this.tablePane.getViewport().add(accountsTable);
     }
 
+    /**
+     * From all protocol provider factories obtains all already registered
+     * accounts and adds them to the table.
+     */
+    private void initializeAccountsTable() {
+        Set set = GuiActivator.getProtocolProviderFactories().entrySet();
+        Iterator iter = set.iterator();
+
+        while (iter.hasNext()) {
+            Map.Entry entry = (Map.Entry) iter.next();
+
+            ProtocolProviderFactory providerFactory
+                = (ProtocolProviderFactory) entry.getValue();
+            
+            ArrayList accountsList
+                = providerFactory.getRegisteredAccounts();
+            
+            AccountID accountID;
+            ServiceReference serRef;
+            ProtocolProviderService protocolProvider;
+
+            for (int i = 0; i < accountsList.size(); i ++) {
+                accountID = (AccountID) accountsList.get(i);
+
+                serRef = providerFactory
+                        .getProviderForAccount(accountID);
+
+                protocolProvider
+                    = (ProtocolProviderService) GuiActivator.bundleContext
+                        .getService(serRef);
+                
+                String pName = protocolProvider.getProtocolName();
+                JLabel protocolLabel = new JLabel();
+                protocolLabel.setText(pName);
+                protocolLabel.setIcon(
+                        new ImageIcon(Constants.getProtocolIcon(pName)));
+
+                tableModel.addRow(new Object[]{protocolProvider, protocolLabel,
+                        accountID.getUserID()});
+            }
+        }
+    }
+    
     /**
      * Returns the title of this configuration form.
      * @return the title of this configuration form.
@@ -180,13 +229,35 @@ public class AccountsConfigurationForm extends JPanel
                 Toolkit.getDefaultToolkit().getScreenSize().height/2
                     - 100
             );
+            
+            wizard.newAccount();
 
             wizard.showModalDialog();
         }
         else if (sourceButton.equals(modifyButton)) {
+            AccountRegWizardContainerImpl wizard
+                = (AccountRegWizardContainerImpl)GuiActivator.getUIService()
+                    .getAccountRegWizardContainer();
+            
+            wizard.setTitle(
+                Messages.getString("accountRegistrationWizard"));
+           
+            wizard.setLocation(
+                Toolkit.getDefaultToolkit().getScreenSize().width/2 
+                    - 250,
+                Toolkit.getDefaultToolkit().getScreenSize().height/2 
+                    - 100
+            );
+            
+            ProtocolProviderService protocolProvider
+                = (ProtocolProviderService)tableModel.getValueAt(
+                    accountsTable.getSelectedRow(), 0);
+            
+            wizard.modifyAccount(protocolProvider);
+            wizard.showModalDialog();
 
         }
-        else {
+        else if(sourceButton.equals(modifyButton)){
 
         }
     }
