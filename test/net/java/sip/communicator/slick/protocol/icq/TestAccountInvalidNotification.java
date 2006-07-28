@@ -28,7 +28,7 @@ public class TestAccountInvalidNotification extends TestCase
      */
     private Object registrationLock = new Object();
 
-    AccountManager icqAccountManager  = null;
+    ProtocolProviderFactory icqProviderFactory  = null;
 
     public TestAccountInvalidNotification(String name)
     {
@@ -50,9 +50,11 @@ public class TestAccountInvalidNotification extends TestCase
      * It is not meaningful to define a test suite. Each of the
      * pseudo-tests reports a different setup failure, so the
      * appropriate test should be added individually.
-     *
+     * <p>
      * As a safety measure, we add an empty test suite which
      * will generate a "no tests found" failure.
+     *
+     * @return an empty test suite.
      */
     public static Test suite()
     {
