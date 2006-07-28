@@ -14,7 +14,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommDefaultTheme;
 import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommLookAndFeel;
-import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
+import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationDialogImpl;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.configuration.ConfigurationService;
 import net.java.sip.communicator.util.Logger;

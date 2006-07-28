@@ -31,6 +31,8 @@ import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeE
 import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeListener;
 import net.java.sip.communicator.util.Logger;
 
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
 /**
@@ -47,13 +49,22 @@ import org.osgi.framework.ServiceReference;
  * 
  * @author Yana Stamcheva
  */
-public class LoginManager implements RegistrationStateChangeListener {
+public class LoginManager 
+    implements  ServiceListener, 
+                RegistrationStateChangeListener {
 
     private Logger logger = Logger.getLogger(LoginManager.class.getName());
     
     private Hashtable loginWindows = new Hashtable();
 
     private MainFrame mainFrame;
+    
+    public LoginManager(MainFrame mainFrame) {
+        
+        this.mainFrame = mainFrame;
+        this.mainFrame.setLoginManager(this);
+        GuiActivator.bundleContext.addServiceListener(this);
+    }
        
     /**
      * In the given <tt>ProtocolProviderFactory</tt> creates an account 
@@ -64,39 +75,40 @@ public class LoginManager implements RegistrationStateChangeListener {
      * @param user The user identifier for this account.
      * @param passwd The password for this account.
      * 
-     * @return The <tt>AccountID</tt> of the newly created account.
+     * @return The <tt>ProtocolProviderService</tt> of the newly created
+     * account.
      */
-    public AccountID installAccount( ProtocolProviderFactory providerFactory,
-                                String user,
-                                String passwd) {
+    public ProtocolProviderService installAccount(
+                ProtocolProviderFactory providerFactory,
+                String user,
+                String passwd) {
 
         Hashtable accountProperties = new Hashtable();
         accountProperties.put(AccountProperties.PASSWORD, passwd);
         
-        return providerFactory.installAccount(
-                    GuiActivator.bundleContext, user,
-                    accountProperties);
-    }
-    
-    /**
-     * Registers the appropriate protocol provider for the given account.
-     *
-     * @param providerFactory the ProtocolProviderFactory where the account
-     * should be installed
-     * @param accountID the account to register
-     */
-    public void login(  ProtocolProviderFactory providerFactory,
-                        AccountID accountID) {
+        AccountID accountID = providerFactory.installAccount(
+                GuiActivator.bundleContext, user,
+                accountProperties);
         
         ServiceReference serRef = providerFactory
                 .getProviderForAccount(accountID);
-
+        
         ProtocolProviderService protocolProvider
             = (ProtocolProviderService) GuiActivator.bundleContext
-                .getService(serRef);
+                .getService(serRef);        
 
-        this.mainFrame.addAccount(protocolProvider);
-
+        return protocolProvider;
+    }
+    
+    /**
+     * Registers the given protocol provider.
+     *
+     * @param protocolProvider the ProtocolProviderService to register.
+     */
+    public void login(ProtocolProviderService protocolProvider) {
+                
+        this.mainFrame.activateAccount(protocolProvider);
+        
         protocolProvider.addRegistrationStateChangeListener(this);
 
         protocolProvider.register(new MySecurityAuthority());
@@ -121,11 +133,22 @@ public class LoginManager implements RegistrationStateChangeListener {
             ArrayList accountsList
                 = providerFactory.getRegisteredAccounts();
             
-            if(accountsList.size() > 0) {
-                for(int i = 0; i < accountsList.size(); i ++) {
-                    AccountID accountID = (AccountID)accountsList.get(i);
+            if (accountsList.size() > 0) {
+                AccountID accountID;
+                ServiceReference serRef;
+                ProtocolProviderService protocolProvider;
+                
+                for (int i = 0; i < accountsList.size(); i ++) {
+                    accountID = (AccountID) accountsList.get(i);
                     
-                    this.login(providerFactory, accountID);
+                    serRef = providerFactory
+                            .getProviderForAccount(accountID);
+                    
+                    protocolProvider
+                        = (ProtocolProviderService) GuiActivator.bundleContext
+                            .getService(serRef);
+            
+                    this.login(protocolProvider);
                 }
             }
             else {
@@ -301,5 +324,52 @@ public class LoginManager implements RegistrationStateChangeListener {
      */
     public void setMainFrame(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+    }
+    
+    /**
+     * Implements the <tt>ServiceListener</tt> method. Verifies whether the
+     * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
+     * corresponding UI controls.
+     *
+     * @param event The <tt>ServiceEvent</tt> object.
+     */
+    public void serviceChanged(ServiceEvent event) {
+        Object service = GuiActivator.bundleContext
+            .getService(event.getServiceReference());
+        
+        // we don't care if the source service is not a protocol provider
+        if (! (service instanceof ProtocolProviderService)) {
+            return;
+        }
+
+        if (event.getType() == ServiceEvent.REGISTERED)
+        {            
+            this.handleProviderAdded( (ProtocolProviderService) service);
+        }
+        else if (event.getType() == ServiceEvent.UNREGISTERING)
+        {
+            this.handleProviderRemoved( (ProtocolProviderService) service);
+        }
+    }
+    
+    /**
+     * Adds all UI components (status selector box, etc) related to the given
+     * protocol provider.
+     * 
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>
+     */
+    private void handleProviderAdded(
+            ProtocolProviderService protocolProvider) {
+        this.mainFrame.addAccount(protocolProvider);
+        this.login(protocolProvider);
+    }
+    
+    /**
+     * Removes all UI components related to the given protocol provider.  
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>
+     */
+    private void handleProviderRemoved(
+            ProtocolProviderService protocolProvider) {
+        this.mainFrame.removeAccount(protocolProvider);
     }
 }

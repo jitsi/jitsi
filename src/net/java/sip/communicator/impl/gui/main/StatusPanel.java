@@ -53,11 +53,10 @@ public class StatusPanel extends JPanel {
      * 
      * @param protocolProvider The protocol provider.
      */
-    public void activateAccount(ProtocolProviderService protocolProvider) {
-
+    public void addAccount(ProtocolProviderService protocolProvider) {
         Map protocolStatusMap = Constants
-                .getProtocolStatusIcons(protocolProvider.getProtocolName());
-
+            .getProtocolStatusIcons(protocolProvider.getProtocolName());
+        
         StatusSelectorBox protocolStatusCombo = new StatusSelectorBox(
                 this.mainFrame, protocolProvider, protocolStatusMap,
                 (Image) protocolStatusMap.get(Constants.OFFLINE_STATUS));
@@ -70,6 +69,23 @@ public class StatusPanel extends JPanel {
         this.getParent().validate();
     }
 
+    /**
+     * Removes the selector box, containing all protocol statuses, from 
+     * the StatusPanel and refreshes the panel.
+     * 
+     * @param accountID The identifier of the account to remove.
+     */
+    public void removeAccount(AccountID accountID) {
+        
+        StatusSelectorBox protocolStatusCombo = (StatusSelectorBox)
+            this.protocolStatusCombos.get(accountID);
+
+        this.protocolStatusCombos.remove(accountID);
+        this.remove(protocolStatusCombo);
+
+        this.getParent().validate();
+    }
+    
     /**
      * Sets the selected status.
      * 
@@ -135,7 +151,7 @@ public class StatusPanel extends JPanel {
      * @return True if the protcol has already its StatusSelectorBox in the 
      * StatusPanel, False otherwise.
      */
-    public boolean isAccountActivated(AccountID accountID) {
+    public boolean containsAccount(AccountID accountID) {
         if (protocolStatusCombos.containsKey(accountID))
             return true;
         else

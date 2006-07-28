@@ -38,6 +38,7 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 /**
  * The <tt>LoginWindow</tt> is the window where the user should type his
  * user identifier and password to login.
@@ -207,12 +208,10 @@ public class LoginWindow extends JDialog implements ActionListener {
 
             this.dispose();
 
-            AccountID accountID = this.loginManager.installAccount(
+            ProtocolProviderService pps = this.loginManager.installAccount(
                     providerFactory, 
                     uinComboBox.getSelectedItem().toString(), 
                     new String(passwdField.getPassword()));
-            
-            this.loginManager.login(providerFactory, accountID);
             
         } else {
             this.dispose();

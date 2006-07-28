@@ -26,6 +26,7 @@ import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.contactlist.CListKeySearchListener;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
+import net.java.sip.communicator.impl.gui.main.login.LoginManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.configuration.ConfigurationService;
@@ -93,6 +94,8 @@ public class MainFrame extends JFrame {
     private ArrayList accounts = new ArrayList();
 
     private Hashtable waitToBeDeliveredMsgs = new Hashtable();
+    
+    private LoginManager loginManager;
 
     /**
      * Creates an instance of <tt>MainFrame</tt>.
@@ -319,20 +322,42 @@ public class MainFrame extends JFrame {
     }
 
     /**
-     * Adds an account.
+     * Adds an account to the application.
      * 
      * @param protocolProvider The protocol provider of the account.
      */
     public void addAccount(ProtocolProviderService protocolProvider) {
         AccountID accountID = protocolProvider.getAccountID();
 
-        if (!getStatusPanel().isAccountActivated(accountID)) {
+        if (!getStatusPanel().containsAccount(accountID)) {
             this.accounts.add(protocolProvider);
-            this.getStatusPanel().activateAccount(protocolProvider);
+            this.getStatusPanel().addAccount(protocolProvider);
         }
-        this.getStatusPanel().startConnecting(protocolProvider);
     }
 
+    /**
+     * Adds an account to the application.
+     * 
+     * @param protocolProvider The protocol provider of the account.
+     */
+    public void removeAccount(ProtocolProviderService protocolProvider) {
+        AccountID accountID = protocolProvider.getAccountID();
+
+        if (getStatusPanel().containsAccount(accountID)) {
+            this.accounts.remove(protocolProvider);
+            this.getStatusPanel().removeAccount(accountID);
+        }        
+    }
+    
+    /**
+     * Activates an account. Here we start the connecting process.
+     * 
+     * @param protocolProvider The protocol provider of this account.
+     */
+    public void activateAccount(ProtocolProviderService protocolProvider) {
+        this.getStatusPanel().startConnecting(protocolProvider);
+    }
+    
     /**
      * Returns the account user id for the given protocol provider.
      * @return The account user id for the given protocol provider.
@@ -562,5 +587,21 @@ public class MainFrame extends JFrame {
         if(x != null && y != null)
             this.setLocation(new Integer(x).intValue(), 
                     new Integer(y).intValue());
+    }
+
+    /**
+     * Returns the class that manages user login.
+     * @return the class that manages user login.
+     */
+    public LoginManager getLoginManager() {
+        return loginManager;
+    }
+
+    /**
+     * Sets the class that manages user login.
+     * @param loginManager The user login manager.
+     */
+    public void setLoginManager(LoginManager loginManager) {
+        this.loginManager = loginManager;
     }
 }
