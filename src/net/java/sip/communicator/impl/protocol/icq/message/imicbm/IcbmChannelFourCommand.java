@@ -95,7 +95,12 @@ public class IcbmChannelFourCommand
 
         int textlen = LEBinaryTools.getUShort(messageData, 6) - 1;
         ByteBlock field = messageData.subBlock(8, textlen);
-        reason = OscarTools.getString(field, "US-ASCII");
+
+
+        // 0 is the charset code for ASCII in joastim
+        // the encoding params will check for special system set encodings
+        ImEncodingParams encoding = new ImEncodingParams(0);
+        reason = ImEncodedString.readImEncodedString(encoding, field);
     }
 
     protected void writeChannelData(OutputStream out) throws IOException
