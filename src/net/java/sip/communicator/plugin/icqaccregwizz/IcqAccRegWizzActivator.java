@@ -26,43 +26,43 @@ import org.osgi.framework.ServiceReference;
 public class IcqAccRegWizzActivator implements BundleActivator {
 
     public static BundleContext bundleContext;
-    
+
     private static Logger logger = Logger.getLogger(
             IcqAccRegWizzActivator.class.getName());
-    
+
     /**
      * Starts this bundle.
      */
     public void start(BundleContext bc) throws Exception {
-    
+
         bundleContext = bc;
-        
+
         ServiceReference uiServiceRef = bundleContext
             .getServiceReference(UIService.class.getName());
-    
-        UIService uiService 
+
+        UIService uiService
             = (UIService) bundleContext.getService(uiServiceRef);
-        
+
         AccountRegistrationWizardContainer wizardContainer
             = uiService.getAccountRegWizardContainer();
-        
+
         IcqAccountRegistrationWizard icqWizard
             = new IcqAccountRegistrationWizard(wizardContainer);
-        
+
         wizardContainer.addAccountRegistrationWizard(icqWizard);
     }
 
     public void stop(BundleContext bundleContext) throws Exception {
     }
-    
+
     public static ProtocolProviderFactory getIcqProtocolProviderFactory() {
-        
+
         ServiceReference[] serRefs = null;
-        
+
         String osgiFilter = "("
-            + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME
+            + ProtocolProviderFactory.PROTOCOL
             + "="+ProtocolNames.ICQ+")";
-        
+
         try {
             serRefs = bundleContext.getServiceReferences(
                 ProtocolProviderFactory.class.getName(), osgiFilter);

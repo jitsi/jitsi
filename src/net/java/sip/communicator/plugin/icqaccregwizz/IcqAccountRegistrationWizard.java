@@ -12,25 +12,24 @@ import java.util.Iterator;
 
 import net.java.sip.communicator.service.gui.AccountRegistrationWizard;
 import net.java.sip.communicator.service.gui.WizardContainer;
-import net.java.sip.communicator.service.protocol.AccountProperties;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 
 /**
  * The <tt>IcqAccountRegistrationWizard</tt> is an implementation of the
  * <tt>AccountRegistrationWizard</tt> for the ICQ protocol. It should allow
- * the user to create and configure a new ICQ account. 
- * 
+ * the user to create and configure a new ICQ account.
+ *
  * @author Yana Stamcheva
  */
 public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
 
     private FirstWizardPage firstWizardPage;
-    
+
     private ArrayList pages = new ArrayList();
-    
+
     private IcqAccountRegistration registration
         = new IcqAccountRegistration();
-    
+
     /**
      * Creates an instance of <tt>IcqAccountRegistrationWizard</tt>.
      * @param wizardContainer the wizard container, where this wizard
@@ -38,10 +37,10 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
      */
     public IcqAccountRegistrationWizard(WizardContainer wizardContainer) {
         firstWizardPage = new FirstWizardPage(registration, wizardContainer);
-        
-        pages.add(firstWizardPage);        
+
+        pages.add(firstWizardPage);
     }
-    
+
     /**
      * Implements the <code>AccountRegistrationWizard.getIcon</code> method.
      * Returns the icon to be used for this wizard.
@@ -78,11 +77,11 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
      */
     public Iterator getSummary() {
         Hashtable summaryTable = new Hashtable();
-        
+
         summaryTable.put("UIN", registration.getUin());
-        summaryTable.put("Remember password", 
+        summaryTable.put("Remember password",
                 new Boolean(registration.isRememberPassword()));
-        
+
         return summaryTable.entrySet().iterator();
     }
 
@@ -90,13 +89,13 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
      * Installs the account created through this wizard.
      */
     public void finish() {
-        ProtocolProviderFactory factory 
+        ProtocolProviderFactory factory
             = IcqAccRegWizzActivator.getIcqProtocolProviderFactory();
-        
-        this.installAccount(factory, 
+
+        this.installAccount(factory,
                 registration.getUin(), registration.getPassword());
     }
-    
+
     /**
      * Creates an account for the given user and password.
      * @param providerFactory the ProtocolProviderFactory which will create
@@ -109,13 +108,12 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
             String passwd) {
 
         Hashtable accountProperties = new Hashtable();
-        
+
         if(registration.isRememberPassword()) {
-            accountProperties.put(AccountProperties.PASSWORD, passwd);
+            accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
-        
+
         providerFactory.installAccount(
-                IcqAccRegWizzActivator.bundleContext, user,
-                    accountProperties);
+                user, accountProperties);
     }
 }
