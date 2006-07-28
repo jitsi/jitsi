@@ -17,7 +17,7 @@ import net.java.sip.communicator.impl.configuration.xml.*;
  * @author Emil Ivov
  */
 public class PropertyVetoException
-    extends Exception
+    extends RuntimeException
 {
     /**
      * A PropertyChangeEvent describing the vetoed change.
