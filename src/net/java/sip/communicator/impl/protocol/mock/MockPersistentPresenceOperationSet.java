@@ -701,7 +701,7 @@ public class MockPersistentPresenceOperationSet
      * @param persistentData a String returned Contact's getPersistentData()
      * method during a previous run and that has been persistently stored
      * locally.
-     * @param parentProtoGroup the group where the unresolved contact is
+     * @param parent the group where the unresolved contact is
      * supposed to belong to.
      *
      * @return the unresolved <tt>Contact</tt> created from the specified
