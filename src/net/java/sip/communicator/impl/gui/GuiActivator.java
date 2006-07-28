@@ -26,11 +26,11 @@ import org.osgi.framework.ServiceReference;
 
 /**
  * The GUI Activator class.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class GuiActivator implements BundleActivator {
-    
+
     private static Logger logger = Logger.getLogger(GuiActivator.class.getName());
 
     private static UIService uiService = null;
@@ -40,11 +40,11 @@ public class GuiActivator implements BundleActivator {
     private LoginManager loginManager;
 
     public static BundleContext bundleContext;
-    
+
     private static ConfigurationService configService;
-    
+
     private static Map providerFactoriesMap = new Hashtable();
-    
+
     /**
      * Called when this bundle is started.
      *
@@ -53,21 +53,21 @@ public class GuiActivator implements BundleActivator {
     public void start(BundleContext bundleContext) throws Exception {
 
         GuiActivator.bundleContext = bundleContext;
-        
+
         MainFrame mainFrame = communicatorMain.getMainFrame();
-        
+
         this.loginManager = new LoginManager(mainFrame);
 
         try {
             ServiceReference clistReference = bundleContext
                 .getServiceReference(MetaContactListService.class.getName());
 
-            MetaContactListService contactListService 
+            MetaContactListService contactListService
                 = (MetaContactListService) bundleContext
                     .getService(clistReference);
 
             mainFrame.setContactList(contactListService);
-            
+
             logger.logEntry();
 
             //Create the ui service
@@ -83,7 +83,7 @@ public class GuiActivator implements BundleActivator {
             /*
              * TO BE UNCOMMENTED when the welcome window is removed.
              * this.uiService.setVisible(true);
-             * SwingUtilities.invokeLater(new RunLogin()); 
+             * SwingUtilities.invokeLater(new RunLogin());
              */
 
             WelcomeWindow welcomeWindow = new WelcomeWindow(communicatorMain,
@@ -118,7 +118,7 @@ public class GuiActivator implements BundleActivator {
             loginManager.runLogin(communicatorMain.getMainFrame());
         }
     }
-    
+
     public static ConfigurationService getConfigurationService() {
         if(configService == null) {
             ServiceReference configReference = bundleContext
@@ -127,12 +127,12 @@ public class GuiActivator implements BundleActivator {
             configService = (ConfigurationService) bundleContext
                 .getService(configReference);
         }
-        
+
         return configService;
     }
-    
+
     public static Map getProtocolProviderFactories() {
-  
+
         ServiceReference[] serRefs = null;
         try {
             //get all registered provider factories
@@ -144,19 +144,19 @@ public class GuiActivator implements BundleActivator {
         }
 
         for (int i = 0; i < serRefs.length; i++) {
-            
+
             ProtocolProviderFactory providerFactory
                 = (ProtocolProviderFactory) bundleContext
                     .getService(serRefs[i]);
 
             providerFactoriesMap.put(serRefs[i].getProperty(
-                    ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME),
+                    ProtocolProviderFactory.PROTOCOL),
                     providerFactory);
         }
-        
+
         return providerFactoriesMap;
     }
-    
+
     public static UIService getUIService() {
         return uiService;
     }
