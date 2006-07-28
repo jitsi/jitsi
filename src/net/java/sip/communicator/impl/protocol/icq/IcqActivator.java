@@ -14,7 +14,11 @@ import net.java.sip.communicator.service.configuration.*;
 public class IcqActivator
     implements BundleActivator
 {
-    ServiceRegistration icqAccManRegistration = null;
+    private        ServiceRegistration  icqPpFactoryServReg   = null;
+    private static BundleContext        bundleContext         = null;
+    private static ConfigurationService configurationService  = null;
+
+    private static ProtocolProviderFactoryIcqImpl icqProviderFactory = null;
 
     /**
      * Called when this bundle is started so the Framework can perform the
@@ -28,25 +32,62 @@ public class IcqActivator
      */
     public void start(BundleContext context) throws Exception
     {
+        this.bundleContext = context;
         Hashtable hashtable = new Hashtable();
-        hashtable.put(ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME, ProtocolNames.ICQ);
+        hashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.ICQ);
 
-        ProtocolProviderFactoryIcqImpl icqProviderFactory =
-                                        new ProtocolProviderFactoryIcqImpl();
-
-        ServiceReference confReference
-            = context.getServiceReference(ConfigurationService.class.getName());
-        ConfigurationService configurationService
-            = (ConfigurationService)context.getService(confReference);
+        icqProviderFactory = new ProtocolProviderFactoryIcqImpl();
 
         //load all icq providers
-        icqProviderFactory.loadStoredAccounts(context, configurationService);
+        icqProviderFactory.loadStoredAccounts();
 
         //reg the icq account man.
-        icqAccManRegistration =  context.registerService(
+        icqPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),
                     icqProviderFactory,
                     hashtable);
+    }
+
+    /**
+     * Returns a reference to a ConfigurationService implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     *
+     * @return ConfigurationService a currently valid implementation of the
+     * configuration service.
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if(configurationService == null)
+        {
+            ServiceReference confReference
+                = bundleContext.getServiceReference(
+                    ConfigurationService.class.getName());
+            configurationService
+                = (ConfigurationService) bundleContext.getService(confReference);
+        }
+        return configurationService;
+    }
+
+    /**
+     * Returns a reference to the bundle context that we were started with.
+     * @return a reference to the BundleContext instance that we were started
+     * witn.
+     */
+    public static BundleContext getBundleContext()
+    {
+        return bundleContext;
+    }
+
+    /**
+     * Retrurns a reference to the protocol provider factory that we have
+     * registered.
+     * @return a reference to the <tt>ProtocolProviderFactoryIcqImpl</tt>
+     * instance that we have registered from this package.
+     */
+    static ProtocolProviderFactoryIcqImpl getProtocolProviderFactory()
+    {
+        return icqProviderFactory;
     }
 
     /**
@@ -61,6 +102,7 @@ public class IcqActivator
      */
     public void stop(BundleContext context) throws Exception
     {
-        icqAccManRegistration.unregister();
+        icqProviderFactory.stop();
+        icqPpFactoryServReg.unregister();
     }
 }
