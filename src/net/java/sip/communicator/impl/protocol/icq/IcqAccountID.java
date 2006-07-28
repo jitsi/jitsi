@@ -12,8 +12,13 @@ import net.java.sip.communicator.service.protocol.*;
 public class IcqAccountID
     extends AccountID
 {
-    IcqAccountID(String accountID, Map accountProperties )
+    /**
+     * Creates an icq account id from the specified uin and account properties.
+     * @param uin the uin identifying this account
+     * @param accountProperties any other properties necessary for the account.
+     */
+    IcqAccountID(String uin, Map accountProperties )
     {
-        super(accountID, accountProperties, ProtocolNames.ICQ, "icq.com");
+        super(uin, accountProperties, ProtocolNames.ICQ, "icq.com");
     }
 }
