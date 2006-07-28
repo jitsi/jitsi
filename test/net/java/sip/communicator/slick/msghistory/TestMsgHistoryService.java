@@ -134,8 +134,8 @@ public class TestMsgHistoryService
        System.setProperty(MetaContactListService.PROVIDER_MASK_PROPERTY, "1");
 
        Hashtable mockProvProperties = new Hashtable();
-       mockProvProperties.put(ProtocolProviderFactory.
-                              PROTOCOL_PROPERTY_NAME, mockProvider.getProtocolName());
+       mockProvProperties.put(ProtocolProviderFactory.PROTOCOL
+                              , mockProvider.getProtocolName());
        mockProvProperties.put(MetaContactListService.PROVIDER_MASK_PROPERTY,
                               "1");
 
