@@ -44,12 +44,19 @@ public class IcqSlickFixture extends TestCase
      * and initialise the ss contact list before the tested implementation has
      * actually done so.
      */
-    public static Hashtable preInstalledBuddyList = null;
+    public static Hashtable preInstalledBuddyList  = null;
 
-    public ServiceReference        icqServiceRef = null;
-    public ProtocolProviderService provider      = null;
-    public ProtocolProviderFactory          accManager    = null;
-    public String                  ourAccountID  = null;
+    public ServiceReference        icqServiceRef   = null;
+    public ProtocolProviderService provider        = null;
+    public ProtocolProviderFactory providerFactory = null;
+    public String                  ourUserID       = null;
+
+    /**
+     * A reference to the provider containing the tested pp implementation. This
+     * reference is set during the accoung uninstallation testing and used during
+     * the account uninstallation persistence testing.
+     */
+    public static Bundle           providerBundle  = null;
 
     public static OfflineMsgCollector offlineMsgCollector = null;
 
@@ -57,7 +64,7 @@ public class IcqSlickFixture extends TestCase
     {
         // first obtain a reference to the provider factory
         ServiceReference[] serRefs = null;
-        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME
+        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL
                             + "="+ProtocolNames.ICQ+")";
         try{
             serRefs = IcqSlickFixture.bc.getServiceReferences(
@@ -73,12 +80,12 @@ public class IcqSlickFixture extends TestCase
             serRefs != null || serRefs.length >  0);
 
         //Keep the reference for later usage.
-        accManager = (ProtocolProviderFactory)
+        providerFactory = (ProtocolProviderFactory)
             IcqSlickFixture.bc.getService(serRefs[0]);
 
-        ourAccountID =
+        ourUserID =
             System.getProperty(
-                IcqProtocolProviderSlick.TESTED_IMPL_ACCOUNT_ID_PROP_NAME);
+                IcqProtocolProviderSlick.TESTED_IMPL_USER_ID_PROP_NAME);
 
 
         //find the protocol provider service
@@ -86,15 +93,15 @@ public class IcqSlickFixture extends TestCase
             = bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(&"
-                +"("+ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME+"="+ProtocolNames.ICQ+")"
-                +"("+ProtocolProviderFactory.ACCOUNT_ID_PROPERTY_NAME+"="
-                + ourAccountID +")"
+                +"("+ProtocolProviderFactory.PROTOCOL+"="+ProtocolNames.ICQ+")"
+                +"("+ProtocolProviderFactory.USER_ID+"="
+                + ourUserID +")"
                 +")");
 
         //make sure we found a service
-        assertNotNull("No Protocol Provider was found for ICQ UIN:"+ ourAccountID,
+        assertNotNull("No Protocol Provider was found for ICQ UIN:"+ ourUserID,
                      icqProviderRefs);
-        assertTrue("No Protocol Provider was found for ICQ UIN:"+ ourAccountID,
+        assertTrue("No Protocol Provider was found for ICQ UIN:"+ ourUserID,
                      icqProviderRefs.length > 0);
 
         //save the service for other tests to use.
@@ -106,6 +113,42 @@ public class IcqSlickFixture extends TestCase
     {
         bc.ungetService(icqServiceRef);
     }
+
+    /**
+     * Returns the bundle that has registered the protocol provider service
+     * implementation that we're currently testing. The method would go through
+     * all bundles currently installed in the framework and return the first
+     * one that exports the same protocol provider instance as the one we test
+     * in this slick.
+     * @param provider the provider whose bundle we're looking for.
+     * @return the Bundle that has registered the protocol provider service
+     * we're testing in the slick.
+     */
+    public static Bundle findProtocolProviderBundle(
+        ProtocolProviderService provider)
+    {
+        Bundle[] bundles = IcqSlickFixture.bc.getBundles();
+
+        for (int i = 0; i < bundles.length; i++)
+        {
+            ServiceReference[] registeredServices
+                = bundles[i].getRegisteredServices();
+
+            if (registeredServices == null)
+                continue;
+
+            for (int j = 0; j < registeredServices.length; j++)
+            {
+                Object service
+                    = IcqSlickFixture.bc.getService(registeredServices[j]);
+                if (service == provider)
+                    return bundles[i];
+            }
+        }
+
+        return null;
+    }
+
 
     //used in Offline Message receive test
     //this MessageReceiver is created in IcqProtocolProviderSlick
