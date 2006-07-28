@@ -127,6 +127,7 @@ public class SIPCommDefaultTheme
             "FormattedTextField.border", textFieldBorder,
 
             "Table.gridColor", LIGHT_BLUE_GRAY,
+            "Table.background", getDesktopColor(),
 
             "ToggleButton.gradient", buttonGradient,
 
