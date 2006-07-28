@@ -138,11 +138,11 @@ public class TestMetaContactListPersistence extends TestCase
 
         //remove existing mock providers.
         fixture.replacementMockPr = new MockProvider(
-            fixture.mockProvider.getAccountID().getAccountUserID());
+            fixture.mockProvider.getAccountID().getUserID());
         fixture.replacementMockP1 = new MockProvider(
-            fixture.mockP1.getAccountID().getAccountUserID());
+            fixture.mockP1.getAccountID().getUserID());
         fixture.replacementMockP2 = new MockProvider(
-            fixture.mockP2.getAccountID().getAccountUserID());
+            fixture.mockP2.getAccountID().getUserID());
 
         //reinstall only one of the existing mock providers
         //we will reinstall the other mock providers later. our purpose is to
