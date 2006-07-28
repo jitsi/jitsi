@@ -287,6 +287,7 @@ public class MetaContactListServiceImpl
         addContactToEventIgnoreList(contactID, provider);
 
         opSetPersPresence.addSubsciptionListener(evtRetriever);
+        opSetPersPresence.addServerStoredGroupChangeListener(evtRetriever);
 
         try
         {
@@ -323,7 +324,7 @@ public class MetaContactListServiceImpl
 
         //now finally - add the contact to the meta contact
         ( (MetaContactImpl) metaContact).addProtoContact(
-            evtRetriever.evt.getSourceContact());
+            evtRetriever.sourceContact);
 
         //only fire an event here if the calling method wants us to. in case
         //this is the creation of a new contact and not only addition of a
@@ -331,7 +332,7 @@ public class MetaContactListServiceImpl
         //do the eventing.
         if(fireEvent)
         {
-            this.fireProtoContactEvent(evtRetriever.evt.getSourceContact(),
+            this.fireProtoContactEvent(evtRetriever.sourceContact,
                                        ProtoContactEvent.PROTO_CONTACT_ADDED,
                                        null,
                                        metaContact);
@@ -2368,10 +2369,33 @@ public class MetaContactListServiceImpl
      * is delivered confirming the creation of a particular contact.
      */
     private class BlockingSubscriptionEventRetriever
-        implements SubscriptionListener
+        implements SubscriptionListener,
+                   ServerStoredGroupListener
     {
-        private String subscriptionAddress = null;
-        public SubscriptionEvent evt = null;
+        private String      subscriptionAddress = null;
+        public  Contact     sourceContact = null;
+        public  EventObject evt = null;
+
+        /**
+         * Events delivered through this method are ignored
+         * @param evt param ignored
+         */
+        public void groupResolved(ServerStoredGroupEvent evt)
+        {}
+
+        /**
+         * Events delivered through this method are ignored
+         * @param evt param ignored
+         */
+        public void groupRemoved(ServerStoredGroupEvent evt)
+        {}
+
+        /**
+         * Events delivered through this method are ignored
+         * @param evt param ignored
+         */
+        public void groupNameChanged(ServerStoredGroupEvent evt)
+        {}
 
         /**
          * Creates an instance of the retriever that will wait for events
@@ -2382,6 +2406,28 @@ public class MetaContactListServiceImpl
         BlockingSubscriptionEventRetriever(String subscriptionAddress)
         {
             this.subscriptionAddress = subscriptionAddress;
+        }
+
+        /**
+         * Called whnever an indication is received that a new server stored group
+         * is created.
+         * @param evt a ServerStoredGroupEvent containing a reference to the
+         * newly created group.
+         */
+        public void groupCreated(ServerStoredGroupEvent evt)
+        {
+            synchronized (this)
+            {
+                Contact contact
+                    = evt.getSourceGroup().getContact(subscriptionAddress);
+                if ( sourceContact != null)
+                {
+                    this.evt = evt;
+                    this.sourceContact = contact;
+                    this.notifyAll();
+                }
+            }
+
         }
 
         /**
@@ -2398,6 +2444,7 @@ public class MetaContactListServiceImpl
                     .equals(subscriptionAddress))
                 {
                     this.evt = evt;
+                    this.sourceContact = evt.getSourceContact();
                     this.notifyAll();
                 }
             }
