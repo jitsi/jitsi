@@ -524,7 +524,8 @@ public class ConfigurationServiceImpl
 
 
             //write the file.
-            XMLConfUtils.writeXML(propertiesDocument, getConfigurationFile());
+            XMLUtils.indentedWriteXML(
+                propertiesDocument, new FileWriter( getConfigurationFile()));
         }
         finally
         {
@@ -628,8 +629,6 @@ public class ConfigurationServiceImpl
                 {
                     //update the corresponding node
                     Object value = properties.get(newPropBuff.toString());
-                    if (newPropBuff.toString().indexOf("SYSTEM_PROPERTY")!= -1)
-                        System.out.println("aaaa");
 
                     if(value == null)
                     {
