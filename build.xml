@@ -397,8 +397,9 @@
            <arg value="htmlreport"/>
         </java>
         <echo message="Done."/>
-        <echo/><echo/><echo/>
+        <echo/><echo/>
         <echo message="Test results available in ./test-reports/html/index.html "/>
+        <echo/>
 
         <!-- Check whether testing went alright and fail if not.-->
         <condition property="testing.failed">
@@ -718,8 +719,6 @@ javax.swing.event, javax.swing.border"/>
         <!--internal-target- Creates a bundle containing the sip implementation of the protocol provider package -->
         <jar compress="false" destfile="${bundles.dest}/protocol-sip.jar"
             manifest="src/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
-                prefix="net/java/sip/communicator/service/protocol"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/sip"
                 prefix="net/java/sip/communicator/impl/protocol/sip"/>
         </jar>
