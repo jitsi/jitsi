@@ -56,7 +56,7 @@ public class ProtocolProviderServiceIcqImpl
      * Listener that catches all incoming and outgoing chat events generated
      * by joscar.
      */
-    private AimIcbmListener aimIcbmListener = null;
+    private AimIcbmListener aimIcbmListener = new AimIcbmListener();
 
     /**
      * indicates whether or not the provider is initialized and ready for use.
@@ -163,7 +163,42 @@ public class ProtocolProviderServiceIcqImpl
      */
     public void register(SecurityAuthority authority)
     {
-        aimConnection.connect();
+        synchronized(initializationLock)
+        {
+            String accountPrefix
+                = IcqActivator.getProtocolProviderFactory()
+                    .findAccountPrefix(getAccountID());
+
+            //verify whether a password has already been stored for this account
+            String password = IcqActivator.getConfigurationService().getString(
+                accountPrefix
+                + "."
+                + ProtocolProviderFactory.PASSWORD);
+
+            //decode
+            if( password != null )
+            {
+                password = new String(Base64.decode(password));
+            }
+            else
+            {
+                //authority.getNewPasswor();
+            }
+
+            //init the necessary objects
+            session = new DefaultAppSession();
+            aimSession = session.openAimSession(
+                new Screenname(getAccountID().getUserID()));
+            aimConnection = aimSession.openConnection(
+                new AimConnectionProperties(
+                    new Screenname(getAccountID().getUserID())
+                    , password));
+
+            aimConnStateListener = new AimConnStateListener();
+            aimConnection.addStateListener(aimConnStateListener);
+
+            aimConnection.connect();
+        }
     }
 
     /**
@@ -231,20 +266,6 @@ public class ProtocolProviderServiceIcqImpl
         synchronized(initializationLock)
         {
             this.accountID = accountID;
-            //extract the necessary properties and validate them
-            String password =
-                (String)initializationProperties.get(AccountProperties.PASSWORD);
-
-            //init the necessary objects
-            session = new DefaultAppSession();
-            aimSession = session.openAimSession(new Screenname(screenname));
-            aimConnection = aimSession.openConnection(
-                new AimConnectionProperties(new Screenname(screenname),
-                                            password));
-
-            aimConnStateListener = new AimConnStateListener();
-            aimConnection.addStateListener(aimConnStateListener);
-            aimIcbmListener = new AimIcbmListener();
 
             //initialize the presence operationset
             OperationSetPersistentPresence persistentPresence =
