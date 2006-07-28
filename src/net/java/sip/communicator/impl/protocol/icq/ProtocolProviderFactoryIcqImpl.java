@@ -10,23 +10,34 @@ import java.util.*;
 
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.configuration.*;
 
 /**
  * The ICQ implementation of the ProtocolProviderFactory.
  * @author Emil Ivov
  */
 public class ProtocolProviderFactoryIcqImpl
-    implements ProtocolProviderFactory
+    extends ProtocolProviderFactory
 {
+    /**
+     * The table that we store our accounts in.
+     */
     private Hashtable registeredAccounts = new Hashtable();
 
+    /**
+     * The package name that we use to store properties in the configuration
+     * service.
+     */
+    private String implementationPackageName = null;
 
     /**
      * Creates an instance of the ProtocolProviderFactoryIcqImpl.
      */
     protected ProtocolProviderFactoryIcqImpl()
     {
+        implementationPackageName
+            = ProtocolProviderFactoryIcqImpl.class.getName().substring(0
+                , ProtocolProviderFactoryIcqImpl.class.getName()
+                    .lastIndexOf("."));
 
     }
     /**
@@ -60,21 +71,44 @@ public class ProtocolProviderFactoryIcqImpl
     }
 
     /**
-     * Initializaed and creates an account corresponding to the specified
+     * Initializes and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
-     * <tt>context</tt> BundleContext parameter.
+     * <tt>context</tt> BundleContext parameter. This method has a persistent
+     * effect. Once created the resulting account will remain installed until
+     * removed through the uninstall account method.
      *
-     * @param context the BundleContext parameter where the newly created
-     *   ProtocolProviderService would have to be registered.
      * @param userIDStr the user identifier for the new account
      * @param accountProperties a set of protocol (or implementation)
      *   specific properties defining the new account.
      * @return the AccountID of the newly created account
      */
-    public AccountID installAccount( BundleContext context,
-                                     String userIDStr,
+    public AccountID installAccount( String userIDStr,
                                      Map accountProperties)
     {
+        AccountID accountID = loadAccount(userIDStr, accountProperties);
+        this.storeAccount(
+            IcqActivator.getBundleContext()
+            , accountID
+            , implementationPackageName);
+
+        return accountID;
+    }
+
+    /**
+     * Initializes and creates an account corresponding to the specified
+     * accountProperties and registers the resulting ProtocolProvider in the
+     * <tt>context</tt> BundleContext parameter.
+     *
+     * @param userIDStr the user identifier for the new account
+     * @param accountProperties a set of protocol (or implementation)
+     *   specific properties defining the new account.
+     * @return the AccountID of the newly created account
+     */
+    public AccountID loadAccount( String userIDStr,
+                                  Map accountProperties)
+    {
+        BundleContext context
+            = IcqActivator.getBundleContext();
         if(context == null)
             throw new NullPointerException("The specified BundleContext was null");
 
@@ -91,11 +125,12 @@ public class ProtocolProviderFactoryIcqImpl
             throw new IllegalStateException(
                 "An account for id " + userIDStr + " was already installed!");
 
+        //get a reference to the configuration service and register whatever
+        //properties we have in it.
+
         Hashtable properties = new Hashtable();
-        properties.put(
-            ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME, ProtocolNames.ICQ);
-        properties.put(
-            ProtocolProviderFactory.ACCOUNT_ID_PROPERTY_NAME, userIDStr);
+        properties.put(PROTOCOL, ProtocolNames.ICQ);
+        properties.put(USER_ID, userIDStr);
 
         ProtocolProviderServiceIcqImpl icqProtocolProvider
             = new ProtocolProviderServiceIcqImpl();
@@ -110,6 +145,7 @@ public class ProtocolProviderFactoryIcqImpl
         registeredAccounts.put(accountID, registration);
         return accountID;
     }
+
 
     /**
      * Removes the specified account from the list of accounts that this
@@ -134,24 +170,60 @@ public class ProtocolProviderFactoryIcqImpl
         //kill the service
         registration.unregister();
 
-        return true;
-
+        return removeStoredAccount(
+            IcqActivator.getBundleContext()
+            , accountID
+            , implementationPackageName);
     }
 
     /**
-     * Loads all previously installed accounts that were stored in the
-     * configuration service. The method is only loading accounts the first
-     * time it gets called.
-     *
-     * @param context the context where icq protocol providers shouold be
-     *        registered
-     * @param configurationService ConfigurationService
+     * Loads (and hence installs) all accounts previously stored in the
+     * configuration service.
      */
-    void loadStoredAccounts(BundleContext context,
-                            ConfigurationService configurationService)
+    public void loadStoredAccounts()
     {
-        /** @todo implement loadStoredAccounts() */
-        //make sure we haven't already done so.
-        //load all accounts stored in the configuration service
+        super.loadStoredAccounts(
+            IcqActivator.getBundleContext()
+            , implementationPackageName);
+    }
+
+    /**
+     * Prepares the factory for bundle shutdown.
+     */
+    public void stop()
+    {
+        Enumeration registrations = this.registeredAccounts.elements();
+
+        while(registrations.hasMoreElements())
+        {
+            ServiceRegistration reg
+                = ((ServiceRegistration)registrations.nextElement());
+
+            reg.unregister();
+
+
+        }
+
+        Enumeration idEnum = registeredAccounts.keys();
+
+        while(idEnum.hasMoreElements())
+        {
+            registeredAccounts.remove(idEnum.nextElement());
+        }
+    }
+
+    /**
+     * Returns the configuraiton service property name prefix that we use to
+     * store properties concerning the account with the specified id.
+     * @param accountID the AccountID whose property name prefix we're looking
+     * for.
+     * @return the prefix  of the configuration service property name that
+     * we're using when storing properties for the specified account.
+     */
+    public String findAccountPrefix(AccountID accountID)
+    {
+        return super.findAccountPrefix(IcqActivator.getBundleContext()
+                                       , accountID
+                                       , implementationPackageName);
     }
 }
