@@ -120,7 +120,7 @@ public class TestOperationSetTypingNotifications
         opSetTypingNotifs.addTypingNotificationsListener(evtCollector);
 
         fixture.testerAgent.sendTypingNotification(
-            fixture.ourAccountID, TypingState.TYPING);
+            fixture.ourUserID, TypingState.TYPING);
 
         evtCollector.waitForEvent(10000);
 
