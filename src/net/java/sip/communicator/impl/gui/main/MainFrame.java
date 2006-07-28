@@ -302,7 +302,7 @@ public class MainFrame extends JFrame {
             ProtocolProviderService pps 
                 = (ProtocolProviderService)protocolProviders.get(i);
             
-            if (pps.getAccountID().getAccountUserID().equals(accountName)) {
+            if (pps.getAccountID().getUserID().equals(accountName)) {
                return pps; 
             }
         }
@@ -363,7 +363,7 @@ public class MainFrame extends JFrame {
      * @return The account user id for the given protocol provider.
      */
     public String getAccount(ProtocolProviderService protocolProvider) {
-        return protocolProvider.getAccountID().getAccountUserID();
+        return protocolProvider.getAccountID().getUserID();
     }
 
     /**

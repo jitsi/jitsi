@@ -83,7 +83,7 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
         this.mainFrame = mainFrame;
         this.protocolProvider = protocolProvider;
 
-        this.setToolTipText(protocolProvider.getAccountID().getAccountUserID());
+        this.setToolTipText(protocolProvider.getAccountID().getUserID());
         
         this.init();
     }

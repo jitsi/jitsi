@@ -171,7 +171,7 @@ public class AuthCmdFactory
                 aimConnection.getInfoService().sendSnac(
                     new AuthReplyCmd(
                         String.valueOf(icqProvider.getAccountID().
-                                       getAccountUserID()),
+                                       getUserID()),
                         authResponse.getReason(),
                         true));
             }
@@ -181,7 +181,7 @@ public class AuthCmdFactory
                 aimConnection.getInfoService().sendSnac(
                     new AuthReplyCmd(
                         String.valueOf(icqProvider.getAccountID().
-                                       getAccountUserID()),
+                                       getUserID()),
                         authResponse.getReason(),
                         false));
             }

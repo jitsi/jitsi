@@ -675,7 +675,7 @@ public class MclStorageManager
 
         protoContactElement.setAttribute(
             ACCOUNT_ID_ATTR_NAME
-            , protoContact.getProtocolProvider().getAccountID().getAccountUID());
+            , protoContact.getProtocolProvider().getAccountID().getAccountUniqueID());
 
         protoContactElement.setAttribute(
             PARENT_PROTO_GROUP_UID_ATTR_NAME
@@ -708,7 +708,7 @@ public class MclStorageManager
 
         protoGroupElement.setAttribute(
             ACCOUNT_ID_ATTR_NAME
-            , protoGroup.getProtocolProvider().getAccountID().getAccountUID());
+            , protoGroup.getProtocolProvider().getAccountID().getAccountUniqueID());
 
         protoGroupElement.setAttribute(
             PARENT_PROTO_GROUP_UID_ATTR_NAME

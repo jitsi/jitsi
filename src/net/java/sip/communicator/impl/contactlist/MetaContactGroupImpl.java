@@ -408,7 +408,7 @@ public class MetaContactGroupImpl
             ContactGroup group = (ContactGroup)encapsulatedGroups.next();
 
             if(group.getProtocolProvider().getAccountID()
-               .getAccountUID().equals(accountID))
+               .getAccountUniqueID().equals(accountID))
             {
                 protoGroups.add(group);
             }

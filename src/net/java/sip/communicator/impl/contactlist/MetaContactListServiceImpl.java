@@ -1250,7 +1250,7 @@ public class MetaContactListServiceImpl
                 .getName());
 
         this.currentlyInstalledProviders.put(
-                           provider.getAccountID().getAccountUID(), provider);
+                           provider.getAccountID().getAccountUniqueID(), provider);
 
         //If we have a persistent presence op set - then retrieve its contat
         //list and merge it with the local one.
@@ -1261,12 +1261,12 @@ public class MetaContactListServiceImpl
             try
             {
                 storageManager.extractContactsForAccount(
-                    provider.getAccountID().getAccountUID());
+                    provider.getAccountID().getAccountUniqueID());
             }
             catch (XMLException exc)
             {
                 logger.error("Failed to load contacts for account "
-                             + provider.getAccountID().getAccountUID(), exc);
+                             + provider.getAccountID().getAccountUniqueID(), exc);
             }
 
             synchronizeOpSetWithLocalContactList(opSetPersPresence);
