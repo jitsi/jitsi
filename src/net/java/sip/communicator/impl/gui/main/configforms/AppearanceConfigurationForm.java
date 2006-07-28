@@ -8,17 +8,15 @@
 package net.java.sip.communicator.impl.gui.main.configforms;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.service.gui.ConfigurationForm;
 
 /**
  * @author Yana Stamcheva
@@ -46,12 +44,11 @@ public class AppearanceConfigurationForm extends JPanel
         return Messages.getString("appearance");
     }
 
-    public Icon getIcon() {
-        return new ImageIcon(ImageLoader
-                .getImage(ImageLoader.QUICK_MENU_SEARCH_ICON));
+    public byte[] getIcon() {
+        return ImageLoader.getImageInBytes(ImageLoader.QUICK_MENU_SEARCH_ICON);
     }
 
-    public Component getForm() {
+    public Object getForm() {
         return this;
     }
 }

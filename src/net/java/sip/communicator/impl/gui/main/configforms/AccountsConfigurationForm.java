@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -24,6 +25,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.TableColumnModel;
+
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
 
 import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.customcontrols.ExtendedTableModel;
@@ -33,6 +38,7 @@ import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.service.gui.ConfigurationForm;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
@@ -42,7 +48,9 @@ import net.java.sip.communicator.service.protocol.ProtocolProviderService;
  * @author Yana Stamcheva
  */
 public class AccountsConfigurationForm extends JPanel 
-    implements ConfigurationForm, ActionListener {
+    implements  ConfigurationForm, 
+                ActionListener, 
+                ServiceListener {
 
     private JScrollPane tablePane = new JScrollPane();
     
@@ -71,6 +79,8 @@ public class AccountsConfigurationForm extends JPanel
         super(new BorderLayout());
     
         this.mainFrame = mainFrame;
+        
+        GuiActivator.bundleContext.addServiceListener(this);
         
         this.tableInit();
         
@@ -103,34 +113,21 @@ public class AccountsConfigurationForm extends JPanel
         
         accountsTable.setRowHeight(22);
         accountsTable.setSelectionMode(
-                ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        
-        tableModel.addColumn(Messages.getString("protocol"));
-        tableModel.addColumn(Messages.getString("account"));
-                
-        Iterator i = mainFrame.getProtocolProviders();
-        
-        while(i.hasNext()) {
-            ProtocolProviderService pps 
-                = (ProtocolProviderService)i.next();
-            
-            String pName = pps.getProtocolName();
-            JLabel protocolLabel = new JLabel();
-            protocolLabel.setText(pName);
-            protocolLabel.setIcon(
-                    new ImageIcon(Constants.getProtocolIcon(pName)));
-            
-            tableModel.addRow(new Object[]{protocolLabel,
-                    pps.getAccountID().getAccountUserID()});
-        }
-        
+                ListSelectionModel.SINGLE_SELECTION);
+        accountsTable.setSelectionModel(new DefaultListSelectionModel());    
         accountsTable.setShowHorizontalLines(false);
         accountsTable.setShowVerticalLines(false);
         accountsTable.setModel(tableModel);
         
-        accountsTable.getColumnModel().getColumn(0)
+        tableModel.addColumn("id");
+        tableModel.addColumn(Messages.getString("protocol"));
+        tableModel.addColumn(Messages.getString("account"));
+                
+        TableColumnModel columnModel = accountsTable.getColumnModel(); 
+        columnModel.removeColumn(columnModel.getColumn(0));
+        columnModel.getColumn(0)
             .setCellRenderer(new LabelTableCellRenderer());
-        accountsTable.getColumnModel().getColumn(1)
+        columnModel.getColumn(1)
             .setCellRenderer(new LabelTableCellRenderer());
         
         this.tablePane.getViewport().add(accountsTable);
@@ -148,16 +145,16 @@ public class AccountsConfigurationForm extends JPanel
      * Returns the icon of this configuration form.
      * @return the icon of this configuration form.
      */
-    public Icon getIcon() {
-        return new ImageIcon(ImageLoader
-                .getImage(ImageLoader.QUICK_MENU_ADD_ICON));
+    public byte[] getIcon() {
+        return ImageLoader.getImageInBytes(
+                ImageLoader.QUICK_MENU_ADD_ICON);        
     }
 
     /**
      * Returns the form of this configuration form.
      * @return the form of this configuration form.
      */
-    public Component getForm() {
+    public Object getForm() {
         return this;
     }
 
@@ -191,6 +188,41 @@ public class AccountsConfigurationForm extends JPanel
         }
         else {
             
+        }
+    }
+
+    /**
+     * Implements the <tt>ServiceListener</tt> method. Verifies whether the
+     * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
+     * corresponding UI controls.
+     *
+     * @param event The <tt>ServiceEvent</tt> object.
+     */
+    public void serviceChanged(ServiceEvent event) {
+        Object service = GuiActivator.bundleContext
+            .getService(event.getServiceReference());
+        
+        // we don't care if the source service is not a protocol provider
+        if (! (service instanceof ProtocolProviderService)) {
+            return;
+        }
+
+        ProtocolProviderService pps = (ProtocolProviderService) service;
+        
+        if (event.getType() == ServiceEvent.REGISTERED)
+        {
+            String pName = pps.getProtocolName();
+            JLabel protocolLabel = new JLabel();
+            protocolLabel.setText(pName);
+            protocolLabel.setIcon(
+                    new ImageIcon(Constants.getProtocolIcon(pName)));
+            
+            tableModel.addRow(new Object[]{pps, protocolLabel,
+                    pps.getAccountID().getAccountUserID()});
+        }
+        else if (event.getType() == ServiceEvent.UNREGISTERING)
+        {
+            tableModel.removeRow(tableModel.rowIndexOf(pps));
         }
     }
 }

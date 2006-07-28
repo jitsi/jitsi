@@ -49,7 +49,6 @@ public class GuiActivator implements BundleActivator {
      * Called when this bundle is started.
      *
      * @param context The execution context of the bundle being started.
-     * @throws Exception If
      */
     public void start(BundleContext bundleContext) throws Exception {
 
@@ -57,9 +56,7 @@ public class GuiActivator implements BundleActivator {
         
         MainFrame mainFrame = communicatorMain.getMainFrame();
         
-        this.loginManager = new LoginManager();
-        
-        this.loginManager.setMainFrame(mainFrame);
+        this.loginManager = new LoginManager(mainFrame);
 
         try {
             ServiceReference clistReference = bundleContext

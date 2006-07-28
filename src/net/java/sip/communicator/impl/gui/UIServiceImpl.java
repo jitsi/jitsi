@@ -19,10 +19,11 @@ import javax.swing.JFrame;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
-import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
+import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationDialogImpl;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
+import net.java.sip.communicator.service.gui.ConfigurationDialog;
 import net.java.sip.communicator.service.gui.ContainerID;
 import net.java.sip.communicator.service.gui.DialogID;
 import net.java.sip.communicator.service.gui.ExportedDialog;
@@ -63,6 +64,8 @@ public class UIServiceImpl implements UIService {
     private MainFrame mainFrame;
     
     private ContactListPanel contactList;
+    
+    private ConfigurationDialogImpl configurationFrame;
 
     /**
      * Creates an instance of <tt>UIServiceImpl</tt>.
@@ -75,8 +78,9 @@ public class UIServiceImpl implements UIService {
         this.popupDialog = new PopupDialogImpl(mainFrame);
         this.wizardContainer = new AccountRegWizardContainerImpl();
         
+        this.configurationFrame = new ConfigurationDialogImpl(mainFrame); 
         this.exportedDialogs.put(UIService.DIALOG_CONFIGURATION, 
-                new ConfigurationFrame(mainFrame));
+                configurationFrame);
     }
     
     /**
@@ -326,6 +330,7 @@ public class UIServiceImpl implements UIService {
     }
 
     /**
+     * Implements the <code>UIService.isDialogExported</code> method.
      * Checks if there's an exported dialog for the given <tt>DialogID</tt>.
      * @see UIService#isDialogExported(DialogID)
      */
@@ -334,6 +339,7 @@ public class UIServiceImpl implements UIService {
     }
 
     /**
+     * Implements the <code>UIService.isContainerSupported</code> method.
      * Checks if the plugable container with the given ContainerID is supported
      * by this implementation. 
      * @see UIService#isContainerSupported(ContainerID)
@@ -343,11 +349,22 @@ public class UIServiceImpl implements UIService {
     }
 
     /**
-     * Returns the current implementation of the
+     * Implements the <code>UIService.getAccountRegWizardContainer</code>
+     * method. Returns the current implementation of the
      * <tt>AccountRegistrationWizardContainer</tt>.
      * @see UIService#getAccountRegWizardContainer()
      */
     public AccountRegistrationWizardContainer getAccountRegWizardContainer() {
         return this.wizardContainer;
+    }
+   
+    /**
+     * Implements the <code>UIService.getConfigurationDialog</code>.
+     * Returns the current implementation of the <tt>ConfigurationDialog</tt>
+     * interface.
+     * @see UIService#getConfigurationDialog()
+     */
+    public ConfigurationDialog getConfigurationDialog() {
+        return this.configurationFrame;
     }
 }
