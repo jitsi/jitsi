@@ -56,4 +56,5 @@ class VolatileBuddy
     public BuddyList getBuddyList(){return null;}
     public boolean isActive(){return false;}
     public void removeBuddyListener(BuddyListener listener){}
+    public boolean isAwaitingAuthorization(){return false;}
 }
