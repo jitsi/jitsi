@@ -30,8 +30,8 @@ import net.java.sip.communicator.service.protocol.Contact;
  * getPopupDialog method and then one of the showXXX methods, which corresponds
  * best to the required dialog. 
  * <p>
- * Certain application dialogs within the GUI, like "Configuration" or 
- * "AddContact" dialogs, could be also shown from outside the ui. To make one of
+ * Certain application dialogs within the GUI, like "AddContact" for example,
+ * could be also shown from outside the ui. To make one of
  * these dialogs showable, the <tt>UIService</tt> implementation should attach
  * to it a <tt>DialogID</tt> and export it. A dialog then could be shown, by
  * invoking <code>getApplicationDialog(DialogID)</code> and then 
@@ -147,18 +147,7 @@ public interface UIService
   
     /*
      * DialogID-s
-     */
-    public static final DialogID DIALOG_CONFIGURATION
-        = new DialogID("MainConfigurationDialog");
-    
-    public static final DialogID DIALOG_CONFIGURATION1
-        = new DialogID("Configuration1Dialog");
-    
-    public static final DialogID DIALOG_CONFIGURATION2
-        = new DialogID("Configuration2Dialog");
-    
-    public static final DialogID DIALOG_CONFIGURATION3
-        = new DialogID("Configuration3Dialog");
+     */    
     
     public static final DialogID DIALOG_ADD_CONTACT
         = new DialogID("AddContactDialog"); 
@@ -220,10 +209,10 @@ public interface UIService
         
     /**
      * Returns a common application dialog given by DialogID. This 
-     * could be per example a "Configuration" dialog, "Add contact" dialog
-     * or any other dialog within the application, which could be simply shown
-     * without need of additional arguments. The <tt>dialogID</tt> SHOULD be
-     * one of the DIALOG_XXX obtained by the getExportedDialogs method.
+     * could be for example an "Add contact" dialog or any other dialog within
+     * the application, which could be simply shown without need of additional
+     * arguments. The <tt>dialogID</tt> SHOULD be one of the DIALOG_XXX obtained
+     * by the getExportedDialogs method.
      *  
      * @param dialogID One of the DIALOG_XXX DialogID-s.
      * @throws IllegalArgumentException if the specified <tt>dialogID</tt>
@@ -274,9 +263,9 @@ public interface UIService
      * using the <code>showApplicationDialog</code> method. Each 
      * DialogID in the set is one of the DIALOG_XXX constants.
      * The method is meant to be used by bundles that would like to show common
-     * dialogs like "Configuration" or "Add contact" dialog. Before showing any
-     * dialog they should use this method to obtain all possible dialogs, which
-     * could be shown for the current ui implementation.  
+     * dialogs like "Add contact" dialog. Before showing any dialog they should
+     * use this method to obtain all possible dialogs, which could be shown for
+     * the current ui implementation.  
      *       
      * @return Iterator An iterator to a set containing containerID-s 
      * representing all containers supported by the current UI implementation.
