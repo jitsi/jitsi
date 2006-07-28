@@ -22,7 +22,6 @@ import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.StatusPanel;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.AccountID;
-import net.java.sip.communicator.service.protocol.AccountProperties;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.RegistrationState;
@@ -40,41 +39,41 @@ import org.osgi.framework.ServiceReference;
  * <tt>ProtocolProviderFactory</tt>, we make the account installation and we
  * handle all events related to the registration state.
  * <p>
- * The <tt>LoginManager</tt> is the one that opens one or more 
+ * The <tt>LoginManager</tt> is the one that opens one or more
  * <tt>LoginWindow</tt>s for each <tt>ProtocolProviderFactory</tt>. The
  * <tt>LoginWindow</tt> is where user could enter an identifier and password.
  * <p>
  * Note that the behaviour of this class will be changed when the Configuration
  * Service is ready.
- * 
+ *
  * @author Yana Stamcheva
  */
-public class LoginManager 
-    implements  ServiceListener, 
+public class LoginManager
+    implements  ServiceListener,
                 RegistrationStateChangeListener {
 
     private Logger logger = Logger.getLogger(LoginManager.class.getName());
-    
+
     private Hashtable loginWindows = new Hashtable();
 
     private MainFrame mainFrame;
-    
+
     public LoginManager(MainFrame mainFrame) {
-        
+
         this.mainFrame = mainFrame;
         this.mainFrame.setLoginManager(this);
         GuiActivator.bundleContext.addServiceListener(this);
     }
-       
+
     /**
-     * In the given <tt>ProtocolProviderFactory</tt> creates an account 
+     * In the given <tt>ProtocolProviderFactory</tt> creates an account
      * for the given user and password.
-     * 
+     *
      * @param providerFactory The <tt>ProtocolProviderFactory</tt> where the
      * new account is created.
      * @param user The user identifier for this account.
      * @param passwd The password for this account.
-     * 
+     *
      * @return The <tt>ProtocolProviderService</tt> of the newly created
      * account.
      */
@@ -84,31 +83,30 @@ public class LoginManager
                 String passwd) {
 
         Hashtable accountProperties = new Hashtable();
-        accountProperties.put(AccountProperties.PASSWORD, passwd);
-        
+        accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
+
         AccountID accountID = providerFactory.installAccount(
-                GuiActivator.bundleContext, user,
-                accountProperties);
-        
+                user, accountProperties);
+
         ServiceReference serRef = providerFactory
                 .getProviderForAccount(accountID);
-        
+
         ProtocolProviderService protocolProvider
             = (ProtocolProviderService) GuiActivator.bundleContext
-                .getService(serRef);        
+                .getService(serRef);
 
         return protocolProvider;
     }
-    
+
     /**
      * Registers the given protocol provider.
      *
      * @param protocolProvider the ProtocolProviderService to register.
      */
     public void login(ProtocolProviderService protocolProvider) {
-                
+
         this.mainFrame.activateAccount(protocolProvider);
-        
+
         protocolProvider.addRegistrationStateChangeListener(this);
 
         protocolProvider.register(new MySecurityAuthority());
@@ -132,22 +130,22 @@ public class LoginManager
 
             ArrayList accountsList
                 = providerFactory.getRegisteredAccounts();
-            
+
             if (accountsList.size() > 0) {
                 AccountID accountID;
                 ServiceReference serRef;
                 ProtocolProviderService protocolProvider;
-                
+
                 for (int i = 0; i < accountsList.size(); i ++) {
                     accountID = (AccountID) accountsList.get(i);
-                    
+
                     serRef = providerFactory
                             .getProviderForAccount(accountID);
-                    
+
                     protocolProvider
                         = (ProtocolProviderService) GuiActivator.bundleContext
                             .getService(serRef);
-            
+
                     this.login(protocolProvider);
                 }
             }
@@ -193,9 +191,9 @@ public class LoginManager
         ProtocolProviderService protocolProvider = evt.getProvider();
 
         if (evt.getNewState().equals(RegistrationState.REGISTERED)) {
-            
+
             this.mainFrame.addProtocolProvider(protocolProvider);
-            
+
         } else if (evt.getNewState().equals(
                 RegistrationState.AUTHENTICATION_FAILED)) {
 
@@ -211,7 +209,7 @@ public class LoginManager
                 SIPCommMsgTextArea msgText
                     = new SIPCommMsgTextArea(Messages.getString(
                         "reconnectionLimitExceeded", protocolProvider
-                        .getAccountID().getAccountUserID()));
+                        .getAccountID().getUserID()));
 
                 JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
@@ -232,9 +230,9 @@ public class LoginManager
 
                 JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
-            }            
+            }
             logger.error(evt.getReason());
-            
+
             ((LoginWindow) this.loginWindows.get(protocolProvider
                     .getProtocolName())).showWindow();
         }
@@ -254,7 +252,7 @@ public class LoginManager
 
             JOptionPane.showMessageDialog(null, msgText, Messages
                     .getString("error"), JOptionPane.ERROR_MESSAGE);
-            
+
             logger.error(evt.getReason());
         }
         else if (evt.getNewState().equals(RegistrationState.EXPIRED)) {
@@ -266,7 +264,7 @@ public class LoginManager
             JOptionPane.showMessageDialog(null, msgText,
                     Messages.getString("error"),
                     JOptionPane.ERROR_MESSAGE);
-            
+
             logger.error(evt.getReason());
         }
         else if (evt.getNewState().equals(RegistrationState.UNREGISTERED)) {
@@ -276,7 +274,7 @@ public class LoginManager
                 SIPCommMsgTextArea msgText
                     = new SIPCommMsgTextArea(Messages.getString(
                         "multipleLogins", protocolProvider.getAccountID()
-                        .getAccountUserID()));
+                        .getUserID()));
 
                 JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
@@ -300,7 +298,7 @@ public class LoginManager
             }
 
             logger.error(evt.getReason());
-            
+
             this.mainFrame.getStatusPanel().stopConnecting(
                     evt.getProvider());
 
@@ -325,7 +323,7 @@ public class LoginManager
     public void setMainFrame(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
     }
-    
+
     /**
      * Implements the <tt>ServiceListener</tt> method. Verifies whether the
      * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
@@ -336,14 +334,14 @@ public class LoginManager
     public void serviceChanged(ServiceEvent event) {
         Object service = GuiActivator.bundleContext
             .getService(event.getServiceReference());
-        
+
         // we don't care if the source service is not a protocol provider
         if (! (service instanceof ProtocolProviderService)) {
             return;
         }
 
         if (event.getType() == ServiceEvent.REGISTERED)
-        {            
+        {
             this.handleProviderAdded( (ProtocolProviderService) service);
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
@@ -351,11 +349,11 @@ public class LoginManager
             this.handleProviderRemoved( (ProtocolProviderService) service);
         }
     }
-    
+
     /**
      * Adds all UI components (status selector box, etc) related to the given
      * protocol provider.
-     * 
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      */
     private void handleProviderAdded(
@@ -363,9 +361,9 @@ public class LoginManager
         this.mainFrame.addAccount(protocolProvider);
         this.login(protocolProvider);
     }
-    
+
     /**
-     * Removes all UI components related to the given protocol provider.  
+     * Removes all UI components related to the given protocol provider.
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      */
     private void handleProviderRemoved(
