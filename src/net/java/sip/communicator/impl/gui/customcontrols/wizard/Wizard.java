@@ -94,7 +94,7 @@ public class Wizard extends WindowAdapter
         
     private BufferedImage wizardIcon;
     
-    private JLabel wizardIconLabel = new JLabel();
+    private JLabel wizardIconLabel;
     
     private JPanel wizardIconPanel
         = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -503,8 +503,6 @@ public class Wizard extends WindowAdapter
         
         buttonPanel.add(buttonBox, java.awt.BorderLayout.EAST);
         
-        wizardIconPanel.add(wizardIconLabel);
-        
         wizardDialog.getContentPane().add(
                 buttonPanel, java.awt.BorderLayout.SOUTH);
         wizardDialog.getContentPane().add(
@@ -542,14 +540,21 @@ public class Wizard extends WindowAdapter
     }
 
     public void setWizzardIcon(BufferedImage wizardIcon) {
+        wizardIconLabel = new JLabel();
         wizardIconLabel.setBorder(BorderFactory
                 .createCompoundBorder(
                         BorderFactory.createEmptyBorder(20, 20, 20, 20),
                         BorderFactory.createTitledBorder("")));
         
         this.wizardIconLabel.setIcon(new ImageIcon(wizardIcon));
+        this.wizardIconPanel.add(wizardIconLabel);
     }
 
+    public void removeWizzardIcon() {
+        if(wizardIconLabel != null)
+            this.wizardIconPanel.remove(wizardIconLabel);
+    }
+    
     public void setReturnCode(int returnCode) {
         this.returnCode = returnCode;
     }   

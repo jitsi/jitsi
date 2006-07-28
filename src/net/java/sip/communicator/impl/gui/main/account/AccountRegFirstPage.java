@@ -195,6 +195,8 @@ public class AccountRegFirstPage extends JPanel
             this.wizardContainer.setNextFinishButtonEnabled(false);
         
         this.wizardContainer.unregisterAll();
+        
+        this.wizardContainer.removeWizzardIcon();
     }    
     
     /**
@@ -205,18 +207,6 @@ public class AccountRegFirstPage extends JPanel
     public void valueChanged(ListSelectionEvent e) {
         if(!wizardContainer.isNextFinishButtonEnabled())
             this.wizardContainer.setNextFinishButtonEnabled(true);
-        
-        AccountRegistrationWizard wizard
-            = (AccountRegistrationWizard)tableModel
-                .getValueAt(accountRegsTable.getSelectedRow(), 0);
-        
-        try {
-            this.wizardContainer.setWizzardIcon(
-                ImageIO.read(new ByteArrayInputStream(wizard.getIcon())));
-        }
-        catch (IOException e1) {         
-            e1.printStackTrace();
-        }
     }
 
     /**
@@ -254,6 +244,14 @@ public class AccountRegFirstPage extends JPanel
         
         this.wizardContainer.getSummaryPage()
             .setPreviousPageIdentifier(identifier);
+        
+        try {
+            this.wizardContainer.setWizzardIcon(
+                ImageIO.read(new ByteArrayInputStream(wizard.getIcon())));
+        }
+        catch (IOException e1) {         
+            e1.printStackTrace();
+        }
     }
 
     public void pageBack() {
