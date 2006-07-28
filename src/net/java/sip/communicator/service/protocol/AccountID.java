@@ -85,7 +85,7 @@ public abstract class AccountID
      *
      * @return A String identyfying the user inside this particular service.
      */
-    public String getAccountUserID()
+    public String getUserID()
     {
         return userID;
     }
@@ -96,7 +96,7 @@ public abstract class AccountID
      * be unique for differing accounts.
      * @return String
      */
-    public String getAccountUID()
+    public String getAccountUniqueID()
     {
         return accountUID;
     }
@@ -148,5 +148,15 @@ public abstract class AccountID
         return true;
     }
 
+    /**
+     * Returns a string representation of this account id (same as calling
+     * getAccountUniqueID()).
+     *
+     * @return  a string representation of this account id.
+     */
+    public String toString()
+    {
+        return getAccountUniqueID();
+    }
 
 }
