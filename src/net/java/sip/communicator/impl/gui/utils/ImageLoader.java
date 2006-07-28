@@ -20,6 +20,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
+import net.java.sip.communicator.plugin.icqaccregwizz.Resources;
+import net.java.sip.communicator.plugin.icqaccregwizz.Resources.ImageID;
 import net.java.sip.communicator.util.Logger;
 
 /**
@@ -939,6 +941,26 @@ public class ImageLoader {
         return image;
     }
 
+    /**
+     * Loads an image from a given image identifier.
+     * @param imageID The identifier of the image.
+     * @return The image for the given identifier.
+     */
+    public static byte[] getImageInBytes(ImageID imageID) {
+        byte[] image = new byte[100000];
+
+        String path = Images.getString(imageID.getId());
+        try {
+            Images.class.getClassLoader()
+                    .getResourceAsStream(path).read(image);
+
+        } catch (IOException e) {
+            log.error("Failed to load image:" + path, e);
+        }
+        
+        return image;
+    }
+    
     /**
      * Loads an animated gif image.
      * @param imageID The image identifier.
