@@ -11,15 +11,23 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- *
+ * A SIP extension of the account ID property.
  * @author Emil Ivov
  */
 public class SipAccountID
     extends AccountID
 {
-    protected SipAccountID(String userID, Map accountProperties,
-                           String protocolName, String serviceName)
+
+    /**
+     * Creates a SIP account id from the specified ide and account properties.
+     *
+     * @param userID the user id part of the SIP uri identifying this contact.
+     * @param accountProperties any other properties necessary for the account.
+     */
+    protected SipAccountID(String userID,
+                           Map    accountProperties,
+                           String serviceName)
     {
-        super(userID, accountProperties, protocolName, serviceName);
+        super(userID, accountProperties, ProtocolNames.SIP, serviceName);
     }
 }
