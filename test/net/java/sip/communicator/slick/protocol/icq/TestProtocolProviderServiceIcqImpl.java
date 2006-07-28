@@ -152,7 +152,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
         assertTrue(
             "The tested ICQ implementation on-line status was OFFLINE",
             !IcqStatusEnum.OFFLINE.equals(
-                fixture.testerAgent.getBuddyStatus(fixture.ourAccountID))
+                fixture.testerAgent.getBuddyStatus(fixture.ourUserID))
         );
 
         //make sure that the registration process trigerred the corresponding
@@ -176,7 +176,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
     public void testIsRegistered()
     {
         if (!IcqStatusEnum.OFFLINE.equals(
-                fixture.testerAgent.getBuddyStatus(fixture.ourAccountID)))
+                fixture.testerAgent.getBuddyStatus(fixture.ourUserID)))
             assertTrue(
                    "provider.isRegistered() returned false while registered"
                    ,fixture.provider.isRegistered());
@@ -195,7 +195,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
     public void testGetRegistrationState()
     {
         if (!IcqStatusEnum.OFFLINE.equals(
-                fixture.testerAgent.getBuddyStatus(fixture.ourAccountID)))
+                fixture.testerAgent.getBuddyStatus(fixture.ourUserID)))
             assertEquals(
                 "a provider was not in a REGISTERED state while registered."
                     ,RegistrationState.REGISTERED
