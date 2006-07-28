@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.slick.slickless;
 
 import org.osgi.framework.*;
@@ -5,6 +11,7 @@ import junit.framework.*;
 import java.util.*;
 import net.java.sip.communicator.slick.slickless.util.xml.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.slick.slickless.util.*;
 
 
 /**
@@ -34,6 +41,7 @@ public class SlicklessTests
         properties.put("service.pid", getName());
 
         addTestSuite(TestXMLUtils.class);
+        addTestSuite(TestBase64.class);
         bundleContext.registerService(getClass().getName(), this, properties);
 
         logger.debug("Successfully registered " + getClass().getName());
