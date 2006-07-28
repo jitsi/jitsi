@@ -4,7 +4,6 @@ import junit.framework.*;
 import org.osgi.framework.*;
 import net.java.sip.communicator.util.*;
 import java.util.*;
-import java.text.*;
 
 /**
  * @author Emil Ivov
@@ -19,7 +18,7 @@ public class IcqProtocolProviderSlick
      * The name of the system property that contains the id of the account
      * that will be used when signing the icq protocol provider on icq.
      */
-    public static final String TESTED_IMPL_ACCOUNT_ID_PROP_NAME =
+    public static final String TESTED_IMPL_USER_ID_PROP_NAME =
         "accounts.icq.TESTED_IMPL_ACCOUNT_ID";
 
     /**
@@ -33,7 +32,7 @@ public class IcqProtocolProviderSlick
      * The name of the system property that contains the id of the account
      * that will be used by the SLICK itself when signing on icq
      */
-    public static final String TESTING_IMPL_ACCOUNT_ID_PROP_NAME =
+    public static final String TESTING_IMPL_USER_ID_PROP_NAME =
         "accounts.icq.TESTING_IMPL_ACCOUNT_ID";
 
     /**
@@ -67,7 +66,7 @@ public class IcqProtocolProviderSlick
 
         // identify our testing agent on icq - it MUST be defined.
         String icqTestAgentName = System.getProperty(
-                TESTING_IMPL_ACCOUNT_ID_PROP_NAME, null);
+                TESTING_IMPL_USER_ID_PROP_NAME, null);
 
         // we can only set up the real icq test suites when the
         // accounts.properties file defines the two test accounts
@@ -100,7 +99,7 @@ public class IcqProtocolProviderSlick
                         new IcqSlickFixture.OfflineMsgCollector();
                 IcqSlickFixture.offlineMsgCollector.setMessageText(offlineMsgBody);
                 IcqSlickFixture.testerAgent.sendOfflineMessage(
-                    System.getProperty(TESTED_IMPL_ACCOUNT_ID_PROP_NAME, null),
+                    System.getProperty(TESTED_IMPL_USER_ID_PROP_NAME, null),
                     offlineMsgBody
                 );
 
@@ -122,9 +121,14 @@ public class IcqProtocolProviderSlick
 
                 addTest(TestOperationSetServerStoredInfo.suite());
 
-                //This must remain last since it tests account uninstallation and
-                //the accounts we use for testing won't be available after that.
+                //This must remain after all other tests using the accounts
+                //are done since it tests account uninstallation and the
+                //accounts we use for testing won't be available after that.
                 addTest(TestAccountUninstallation.suite());
+
+                //This must remain last since it counts on the fact that
+                //account uninstallation has already been executed and that.
+                addTestSuite(TestAccountUninstallationPersistence.class);
             }
             else {
                 // accounts.properties file exists - but register failed
@@ -221,7 +225,7 @@ public class IcqProtocolProviderSlick
 
 
         IcqTesterAgent cListInitTesterAgent = new IcqTesterAgent(
-                System.getProperty(TESTED_IMPL_ACCOUNT_ID_PROP_NAME, null)
+                System.getProperty(TESTED_IMPL_USER_ID_PROP_NAME, null)
             );
         cListInitTesterAgent.register(
                 System.getProperty(TESTED_IMPL_PWD_PROP_NAME, null)
