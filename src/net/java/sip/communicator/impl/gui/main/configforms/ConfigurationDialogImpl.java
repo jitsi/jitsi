@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.configforms;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -25,6 +26,7 @@ import javax.swing.JScrollPane;
 
 import net.java.sip.communicator.impl.gui.customcontrols.SIPCommList;
 import net.java.sip.communicator.impl.gui.customcontrols.TitlePanel;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.ConfigurationDialog;
@@ -60,6 +62,8 @@ public class ConfigurationDialogImpl extends JFrame
         
         this.mainFrame = mainFrame;
 
+        this.setTitle(Messages.getString("configurations"));
+        
         this.getContentPane().setLayout(new BorderLayout());
 
         this.addDefaultForms();
@@ -69,6 +73,13 @@ public class ConfigurationDialogImpl extends JFrame
         this.getContentPane().add(centerPanel, BorderLayout.CENTER);
 
         this.getContentPane().add(configList, BorderLayout.WEST);
+        
+        this.setLocation(
+                Toolkit.getDefaultToolkit().getScreenSize().width/2 
+                    - this.getWidth()/2,
+                Toolkit.getDefaultToolkit().getScreenSize().height/2 
+                    - this.getHeight()/2
+                );
     }
 
     /**
