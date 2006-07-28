@@ -134,7 +134,7 @@ public class TestOperationSetBasicInstantMessaging
         //msg from the tester agent.
         opSetBasicIM.addMessageListener(evtCollector);
 
-        fixture.testerAgent.sendMessage(fixture.ourAccountID, body);
+        fixture.testerAgent.sendMessage(fixture.ourUserID, body);
 
         evtCollector.waitForEvent(10000);
 
@@ -181,7 +181,7 @@ public class TestOperationSetBasicInstantMessaging
         //register a listener in the tester agent
         JoustSimMessageEventCollector jsEvtCollector
             = new JoustSimMessageEventCollector();
-        fixture.testerAgent.addConversationListener( fixture.ourAccountID
+        fixture.testerAgent.addConversationListener( fixture.ourUserID
                                                      , jsEvtCollector);
 
         Contact testerAgentContact
@@ -192,7 +192,7 @@ public class TestOperationSetBasicInstantMessaging
         imEvtCollector.waitForEvent(10000);
         jsEvtCollector.waitForEvent(10000);
 
-        fixture.testerAgent.removeConversationListener( fixture.ourAccountID
+        fixture.testerAgent.removeConversationListener( fixture.ourUserID
                                                         , jsEvtCollector);
         opSetBasicIM.removeMessageListener(imEvtCollector);
 
