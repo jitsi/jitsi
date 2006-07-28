@@ -17,6 +17,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
 
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
@@ -26,8 +27,8 @@ import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
  * Custom <tt>TableCellRenderer</tt> that renders
- * <tt>ProtocolProviderService</tt> objects and <tt>MetaContactGroup</tt>
- * objects.
+ * <tt>ProtocolProviderService</tt> objects, <tt>MetaContactGroup</tt>
+ * objects and JLabels.
  * 
  * @author Yana Stamcheva
  */
@@ -66,6 +67,8 @@ public class LabelTableCellRenderer extends JPanel
         
         if(isSelected)
             this.setBackground(Constants.SELECTED_END_COLOR);
+        else
+            this.setBackground(UIManager.getColor("Table.background"));
         
         return this;
     }
