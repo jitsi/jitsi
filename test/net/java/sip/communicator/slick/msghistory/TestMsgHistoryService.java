@@ -80,6 +80,8 @@ public class TestMsgHistoryService
             new TestMsgHistoryService("writeRecords"));
         suite.addTest(
             new TestMsgHistoryService("readRecords"));
+        suite.addTest(
+            new TestMsgHistoryService("testPurgeLocalContactListCopy"));
 
         return suite;
     }
@@ -94,7 +96,7 @@ public class TestMsgHistoryService
 
     public void setupContact()
     {
-/*
+
         mockProvider = new MockProvider("MessageHistoryMockUser");
 
         //store thre presence op set of the new provider into the fixture
@@ -157,7 +159,7 @@ public class TestMsgHistoryService
                 mockBImOpSet.createMessage("test message word4"),
                 mockBImOpSet.createMessage("test message word5")
             };
-*/
+
     }
 
     /**
@@ -165,7 +167,7 @@ public class TestMsgHistoryService
      */
     public void writeRecords()
     {
-/*
+
         logger.info("write records ");
 
         assertNotNull("No metacontact", testMetaContact);
@@ -208,7 +210,7 @@ public class TestMsgHistoryService
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME, messagesToSend[3]);
 
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME, messagesToSend[4]);
-*/
+
     }
 
     /**
@@ -216,107 +218,116 @@ public class TestMsgHistoryService
      */
     public void readRecords()
     {
-//        /**
-//         * This matches all written messages, they are minimum 5
-//         */
-//        QueryResultSet rs = msgHistoryService.findByKeyword(testMetaContact, "test");
-//
-//        assertTrue("Nothing found findByKeyword ", rs.hasNext());
-//
-//        Vector msgs = getMessages(rs);
-//
-//        assertTrue("Messages too few - findByKeyword", msgs.size() >= 5);
-//
-//        /**
-//         * This must match also many messages, as tests are run many times
-//         * but the minimum is 3
-//         */
-//        rs = msgHistoryService.findByEndDate(testMetaContact, controlDate2);
-//
-//        assertTrue("Nothing found findByEndDate", rs.hasNext());
-//
-//        msgs = getMessages(rs);
-//
-//        assertTrue("Messages too few - findByEndDate", msgs.size() >= 3);
-//
-//        /**
-//         * This must find also many messages but atleast one
-//         */
-//        rs = msgHistoryService.findByKeywords(
-//            testMetaContact,
-//            new String[]{"test", "word2"});
-//
-//        assertTrue("Nothing found findByKeywords", rs.hasNext());
-//        msgs = getMessages(rs);
-//        assertTrue("Messages too few - findByKeywords", msgs.size() >= 1);
-//
-//        /**
-//         * Nothing to be found
-//         */
-//        rs = msgHistoryService.findByKeywords(
-//            testMetaContact,
-//            new String[]{"test1", "word2"});
-//
-//        assertFalse("Something found findByKeywords", rs.hasNext());
-//
-//        /**
-//         * must find 2 messages
-//         */
-//        rs = msgHistoryService.findByPeriod(
-//            testMetaContact, controlDate1, controlDate2);
-//
-//        assertTrue("Nothing found findByPeriod", rs.hasNext());
-//
-//        msgs = getMessages(rs);
-//        assertEquals("Messages must be 2", msgs.size(), 2);
-//
-//        assertTrue("Message no found",
-//                   msgs.contains(messagesToSend[1].getContent()));
-//        assertTrue("Message no found",
-//                   msgs.contains(messagesToSend[2].getContent()));
-//
-//        /**
-//         * must find 1 record
-//         */
-//        rs = msgHistoryService.findByPeriod(
-//            testMetaContact, controlDate1, controlDate2, new String[]{"word2"});
-//
-//        assertTrue("Nothing found findByPeriod", rs.hasNext());
-//
-//        msgs = getMessages(rs);
-//
-//        assertEquals("Messages must be 1", msgs.size(), 1);
-//        assertTrue("Message no found",
-//                   msgs.contains(messagesToSend[1].getContent()));
-//
-//        /**
-//         * must find 2 records
-//         */
-//        rs = msgHistoryService.findByStartDate(testMetaContact, controlDate2);
-//
-//        assertTrue("Nothing found findByStartDate", rs.hasNext());
-//        msgs = getMessages(rs);
-//        assertEquals("Messages must be 2", msgs.size(), 2);
-//        assertTrue("Message no found",
-//                   msgs.contains(messagesToSend[3].getContent()));
-//        assertTrue("Message no found",
-//                   msgs.contains(messagesToSend[4].getContent()));
-//
-//        /**
-//         * Must return exactly the last 3 messages
-//         */
-//        rs = msgHistoryService.findLast(testMetaContact, 3);
-//
-//        assertTrue("Nothing found 8", rs.hasNext());
-//        msgs = getMessages(rs);
-//        assertEquals("Messages must be 3", msgs.size(), 3);
-//        assertTrue("Message no found",
-//                   msgs.contains(messagesToSend[2].getContent()));
-//        assertTrue("Message no found",
-//                   msgs.contains(messagesToSend[3].getContent()));
-//        assertTrue("Message no found",
-//                   msgs.contains(messagesToSend[4].getContent()));
+        /**
+         * This matches all written messages, they are minimum 5
+         */
+        QueryResultSet rs = msgHistoryService.findByKeyword(testMetaContact, "test");
 
+        assertTrue("Nothing found findByKeyword ", rs.hasNext());
+
+        Vector msgs = getMessages(rs);
+
+        assertTrue("Messages too few - findByKeyword", msgs.size() >= 5);
+
+        /**
+         * This must match also many messages, as tests are run many times
+         * but the minimum is 3
+         */
+        rs = msgHistoryService.findByEndDate(testMetaContact, controlDate2);
+
+        assertTrue("Nothing found findByEndDate", rs.hasNext());
+
+        msgs = getMessages(rs);
+
+        assertTrue("Messages too few - findByEndDate", msgs.size() >= 3);
+
+        /**
+         * This must find also many messages but atleast one
+         */
+        rs = msgHistoryService.findByKeywords(
+            testMetaContact,
+            new String[]{"test", "word2"});
+
+        assertTrue("Nothing found findByKeywords", rs.hasNext());
+        msgs = getMessages(rs);
+        assertTrue("Messages too few - findByKeywords", msgs.size() >= 1);
+
+        /**
+         * Nothing to be found
+         */
+        rs = msgHistoryService.findByKeywords(
+            testMetaContact,
+            new String[]{"test1", "word2"});
+
+        assertFalse("Something found findByKeywords", rs.hasNext());
+
+        /**
+         * must find 2 messages
+         */
+        rs = msgHistoryService.findByPeriod(
+            testMetaContact, controlDate1, controlDate2);
+
+        assertTrue("Nothing found findByPeriod", rs.hasNext());
+
+        msgs = getMessages(rs);
+        assertEquals("Messages must be 2", msgs.size(), 2);
+
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[1].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[2].getContent()));
+
+        /**
+         * must find 1 record
+         */
+        rs = msgHistoryService.findByPeriod(
+            testMetaContact, controlDate1, controlDate2, new String[]{"word2"});
+
+        assertTrue("Nothing found findByPeriod", rs.hasNext());
+
+        msgs = getMessages(rs);
+
+        assertEquals("Messages must be 1", msgs.size(), 1);
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[1].getContent()));
+
+        /**
+         * must find 2 records
+         */
+        rs = msgHistoryService.findByStartDate(testMetaContact, controlDate2);
+
+        assertTrue("Nothing found findByStartDate", rs.hasNext());
+        msgs = getMessages(rs);
+        assertEquals("Messages must be 2", msgs.size(), 2);
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[3].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[4].getContent()));
+
+        /**
+         * Must return exactly the last 3 messages
+         */
+        rs = msgHistoryService.findLast(testMetaContact, 3);
+
+        assertTrue("Nothing found 8", rs.hasNext());
+        msgs = getMessages(rs);
+        assertEquals("Messages must be 3", msgs.size(), 3);
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[2].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[3].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[4].getContent()));
+
+    }
+
+    /**
+     * Removes the locally stored contact list copy. The purpose of this is to
+     * leave the local list empty for a next round of testing.
+     */
+    public void testPurgeLocalContactListCopy()
+    {
+        metaClService.purgeLocallyStoredContactListCopy();
     }
 
     private Vector getMessages(QueryResultSet rs)
