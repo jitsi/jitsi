@@ -246,15 +246,27 @@ public interface UIService
     public PopupDialog getPopupDialog();
          
     /**
-     * Returns the <code>ExportedDialog</code> corresponding to the component
+     * Returns the <tt>ExportedDialog</tt> corresponding to the component
      * representing the chat for the given contact. Meant to be used from other
      * bundles to allow them to check the visibility of a chat, hide it or show
      * it.
      * @param contact
-     * @return The <code>ExportedDialog</code> corresponding to the component
+     * @return The <tt>ExportedDialog</tt> corresponding to the component
      * representing the chat for the given contact.
      */
     public ExportedDialog getChatDialog(Contact contact);
+    
+    /**
+     * Returns the <tt>ConfigurationDialog</tt> implementation for this
+     * UIService implementation. The <tt>ConfigurationDialog</tt> is a
+     * contianer contianing <tt>ConfigurationForm</tt>s. It is meant to be
+     * implemented by the UIService implementation to provide a mechanism
+     * for adding and removing configuration forms in the GUI. 
+     * 
+     * @return the <tt>ConfigurationDialog</tt> implementation for this
+     * UIService implementation
+     */
+    public ConfigurationDialog getConfigurationDialog();
     
     /**
      * Returns an iterator over a set of dialogID-s. Each DialogID points to
