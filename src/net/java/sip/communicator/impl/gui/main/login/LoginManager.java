@@ -145,7 +145,8 @@ public class LoginManager
                     protocolProvider
                         = (ProtocolProviderService) GuiActivator.bundleContext
                             .getService(serRef);
-
+                    
+                    this.mainFrame.addAccount(protocolProvider);
                     this.login(protocolProvider);
                 }
             }
@@ -357,7 +358,7 @@ public class LoginManager
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      */
     private void handleProviderAdded(
-            ProtocolProviderService protocolProvider) {
+            ProtocolProviderService protocolProvider) {        
         this.mainFrame.addAccount(protocolProvider);
         this.login(protocolProvider);
     }
