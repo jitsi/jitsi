@@ -110,7 +110,8 @@ public class ServerStoredDetails
          * their DetailDisplayName and Value
          *
          * @param obj Object expected GenericDetail otherwise return false
-         * @return boolean whether this is equals obj
+         * @return <tt>true</tt> if this object has the same display name and
+         * value as <tt>obj</tt> and false otherwise
          */
         public boolean equals(Object obj)
         {
@@ -120,16 +121,16 @@ public class ServerStoredDetails
             GenericDetail other = (GenericDetail)obj;
 
 
-            if(this.detailDisplayName != null &&    // equals DisplayName
-               other.getDetailDisplayName() != null &&
-               this.detailDisplayName.equals(other.getDetailDisplayName()) &&
+            if(this.detailDisplayName != null // equals DisplayName
+               && other.getDetailDisplayName() != null
+               && this.detailDisplayName.equals(other.getDetailDisplayName()) &&
 
-               ((this.value != null &&              // equals not null values
-               other.getDetailValue() != null &&
-               this.value.equals(other.getDetailValue()))
+               ((this.value != null // equals not null values
+               && other.getDetailValue() != null
+               && this.value.equals(other.getDetailValue()))
                ||
-               (this.value == null &&               // or both values are null
-               other.getDetailValue() == null)))
+               (this.value == null // or both values are null
+                && other.getDetailValue() == null)))
                 return true;
             else
                 return false;
@@ -687,6 +688,25 @@ public class ServerStoredDetails
         public java.math.BigDecimal getNumber()
         {
             return (java.math.BigDecimal)getDetailValue();
+        }
+    }
+
+//---------------------------- Numbers -----------------------------------------
+    /**
+     * A generic detail that should be used (extended) when representing any
+     * boolean values.
+     */
+    public static class BooleanDetail
+        extends GenericDetail
+    {
+        public BooleanDetail(String detailName, boolean value)
+        {
+            super(detailName, new Boolean(value));
+        }
+
+        public boolean getBoolean()
+        {
+            return ((Boolean)getDetailValue()).booleanValue();
         }
     }
 }
