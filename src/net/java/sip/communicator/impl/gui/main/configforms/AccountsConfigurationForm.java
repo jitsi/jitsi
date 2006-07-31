@@ -21,6 +21,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -35,11 +36,15 @@ import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.plugin.icqaccregwizz.IcqAccRegWizzActivator;
 import net.java.sip.communicator.service.gui.ConfigurationForm;
 import net.java.sip.communicator.service.protocol.AccountID;
+import net.java.sip.communicator.service.protocol.ProtocolNames;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.util.Logger;
 
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
@@ -55,6 +60,9 @@ public class AccountsConfigurationForm extends JPanel
                 ActionListener,
                 ServiceListener {
 
+    private Logger logger = Logger.getLogger(
+            AccountsConfigurationForm.class.getName());
+    
     private JScrollPane tablePane = new JScrollPane();
 
     private JTable accountsTable = new JTable();
@@ -235,30 +243,52 @@ public class AccountsConfigurationForm extends JPanel
             wizard.showModalDialog();
         }
         else if (sourceButton.equals(modifyButton)) {
-            AccountRegWizardContainerImpl wizard
-                = (AccountRegWizardContainerImpl)GuiActivator.getUIService()
-                    .getAccountRegWizardContainer();
             
-            wizard.setTitle(
-                Messages.getString("accountRegistrationWizard"));
-           
-            wizard.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2 
-                    - 250,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2 
-                    - 100
-            );
-            
-            ProtocolProviderService protocolProvider
-                = (ProtocolProviderService)tableModel.getValueAt(
-                    accountsTable.getSelectedRow(), 0);
-            
-            wizard.modifyAccount(protocolProvider);
-            wizard.showModalDialog();
-
+            if(accountsTable.getSelectedRow() != -1) {
+                AccountRegWizardContainerImpl wizard
+                    = (AccountRegWizardContainerImpl)GuiActivator.getUIService()
+                        .getAccountRegWizardContainer();
+                
+                wizard.setTitle(
+                    Messages.getString("accountRegistrationWizard"));
+               
+                wizard.setLocation(
+                    Toolkit.getDefaultToolkit().getScreenSize().width/2 
+                        - 250,
+                    Toolkit.getDefaultToolkit().getScreenSize().height/2 
+                        - 100
+                );
+                
+                ProtocolProviderService protocolProvider
+                    = (ProtocolProviderService)tableModel.getValueAt(
+                        accountsTable.getSelectedRow(), 0);
+                
+                wizard.modifyAccount(protocolProvider);
+                wizard.showModalDialog();
+            }
         }
-        else if(sourceButton.equals(modifyButton)){
-
+        else if(sourceButton.equals(removeButton)){
+            
+            if(accountsTable.getSelectedRow() != -1) {
+                ProtocolProviderService protocolProvider
+                    = (ProtocolProviderService)tableModel.getValueAt(
+                        accountsTable.getSelectedRow(), 0);
+                
+                ProtocolProviderFactory providerFactory 
+                    = GuiActivator.getProtocolProviderFactory(protocolProvider);
+                
+                if(providerFactory != null) {
+                    int result = JOptionPane.showConfirmDialog(this,
+                            Messages.getString("removeAccountMessage"),
+                            Messages.getString("removeAccount"),
+                            JOptionPane.YES_NO_CANCEL_OPTION);
+                    
+                    if(result == JOptionPane.YES_OPTION) {
+                        providerFactory.uninstallAccount(
+                            protocolProvider.getAccountID());
+                    }
+                }
+            }
         }
     }
 
