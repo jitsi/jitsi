@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-import org.osgi.framework.ServiceReference;
-
+import net.java.sip.communicator.service.configuration.ConfigurationService;
 import net.java.sip.communicator.service.gui.AccountRegistrationWizard;
 import net.java.sip.communicator.service.gui.WizardContainer;
 import net.java.sip.communicator.service.protocol.AccountID;
-import net.java.sip.communicator.service.protocol.AccountProperties;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+
+import org.osgi.framework.ServiceReference;
 
 /**
  * The <tt>IcqAccountRegistrationWizard</tt> is an implementation of the
@@ -34,6 +34,13 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
         = new IcqAccountRegistration();
 
     private WizardContainer wizardContainer;
+    
+    ConfigurationService configService 
+        = IcqAccRegWizzActivator.getConfigurationService();
+    
+    private ProtocolProviderService protocolProvider;
+    
+    private String propertiesPackage = "net.java.sip.communicator.plugin.icqaccregwizz";
     
     /**
      * Creates an instance of <tt>IcqAccountRegistrationWizard</tt>.
@@ -124,22 +131,46 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
         if(registration.isRememberPassword()) {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
-       
+        
+        if(protocolProvider != null) {
+            providerFactory.uninstallAccount(protocolProvider.getAccountID());
+            this.protocolProvider = null;
+        }
+        
         AccountID accountID = providerFactory.installAccount(
                     user, accountProperties);
         
-
+        configService.setProperty(
+                propertiesPackage + ".REMEMBER_PASSWORD",
+                new Boolean(registration.isRememberPassword())
+                );
+        
         ServiceReference serRef = providerFactory
             .getProviderForAccount(accountID);
 
         ProtocolProviderService protocolProvider
             = (ProtocolProviderService) IcqAccRegWizzActivator.bundleContext
                 .getService(serRef);        
-            
+        
         return protocolProvider;
     }
     
+    /**
+     * Fills the UIN and Password fields in this panel with the data comming
+     * from the given protocolProvider.
+     * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
+     * data from.
+     */
     public void loadAccount(ProtocolProviderService protocolProvider) {
-        System.out.println("LOAD  ACCOUNT!!!!!!!!!!!!!!!!!!");
+        
+        this.protocolProvider = protocolProvider;
+        
+        boolean rememberPassword 
+            = new Boolean(configService
+                    .getString(propertiesPackage + ".REMEMBER_PASSWORD"))
+                        .booleanValue();
+        
+        this.firstWizardPage.loadAccount(
+                protocolProvider, rememberPassword);
     }
 }

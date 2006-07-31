@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.plugin.icqaccregwizz;
 
+import net.java.sip.communicator.service.configuration.ConfigurationService;
 import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
 import net.java.sip.communicator.service.gui.UIService;
 import net.java.sip.communicator.service.protocol.ProtocolNames;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
-import net.java.sip.communicator.slick.protocol.icq.IcqSlickFixture;
 import net.java.sip.communicator.util.Logger;
 
 import org.osgi.framework.BundleActivator;
@@ -30,6 +30,8 @@ public class IcqAccRegWizzActivator implements BundleActivator {
     private static Logger logger = Logger.getLogger(
             IcqAccRegWizzActivator.class.getName());
 
+    private static ConfigurationService configService;
+    
     /**
      * Starts this bundle.
      */
@@ -55,6 +57,10 @@ public class IcqAccRegWizzActivator implements BundleActivator {
     public void stop(BundleContext bundleContext) throws Exception {
     }
 
+    /**
+     * Returns the <tt>ProtocolProviderFactory</tt> for the ICQ protocol.
+     * @return the <tt>ProtocolProviderFactory</tt> for the ICQ protocol
+     */
     public static ProtocolProviderFactory getIcqProtocolProviderFactory() {
 
         ServiceReference[] serRefs = null;
@@ -72,5 +78,21 @@ public class IcqAccRegWizzActivator implements BundleActivator {
         }
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
+    }
+    
+    /**
+     * Returns the <tt>ConfigurationService</tt>.
+     * @return the <tt>ConfigurationService</tt>
+     */
+    public static ConfigurationService getConfigurationService() {
+        if(configService == null) {
+            ServiceReference configReference = bundleContext
+                .getServiceReference(ConfigurationService.class.getName());
+
+            configService = (ConfigurationService) bundleContext
+                .getService(configReference);
+        }
+
+        return configService;
     }
 }

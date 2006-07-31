@@ -141,10 +141,16 @@ public class AccountRegSummaryPage extends JScrollPane
         
         this.wizardContainer.addAccountWizard(protocolProvider, wizard);
         
-        this.wizardContainer.unregisterWizardPage(
-                WizardPage.DEFAULT_PAGE_IDENTIFIER);
-        this.wizardContainer.unregisterWizardPage(
-                WizardPage.SUMMARY_PAGE_IDENTIFIER);
+        if(wizardContainer.containsPage(WizardPage.DEFAULT_PAGE_IDENTIFIER)) {
+            this.wizardContainer.unregisterWizardPage(
+                    WizardPage.DEFAULT_PAGE_IDENTIFIER);
+        }
+        
+        if(wizardContainer.containsPage(WizardPage.SUMMARY_PAGE_IDENTIFIER)) {
+            this.wizardContainer.unregisterWizardPage(
+                    WizardPage.SUMMARY_PAGE_IDENTIFIER);
+        }
+        
         this.wizardContainer.unregisterAll();
         this.wizardContainer.removeWizzardIcon();
     }

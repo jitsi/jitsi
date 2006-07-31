@@ -25,6 +25,9 @@ import javax.swing.event.DocumentListener;
 
 import net.java.sip.communicator.service.gui.WizardContainer;
 import net.java.sip.communicator.service.gui.WizardPage;
+import net.java.sip.communicator.service.protocol.AccountID;
+import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the uin
@@ -222,5 +225,23 @@ public class FirstWizardPage extends JPanel
     }
     
     public void pageBack() {
+    }
+    
+    /**
+     * Fills the UIN and Password fields in this panel with the data comming
+     * from the given protocolProvider.
+     * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
+     * data from.
+     */
+    public void loadAccount(ProtocolProviderService protocolProvider, 
+            boolean rememberPassword) {
+        AccountID accountID = protocolProvider.getAccountID();
+        String password = (String)accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.PASSWORD);
+        
+        this.uinField.setText(accountID.getUserID());
+        this.passField.setText(password);
+        
+        this.rememberPassBox.setSelected(rememberPassword);
     }
 }

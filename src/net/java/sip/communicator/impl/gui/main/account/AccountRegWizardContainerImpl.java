@@ -8,14 +8,16 @@ package net.java.sip.communicator.impl.gui.main.account;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
 
+import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.Wizard;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
+import net.java.sip.communicator.service.configuration.ConfigurationService;
 import net.java.sip.communicator.service.gui.AccountRegistrationWizard;
 import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
 import net.java.sip.communicator.service.gui.WizardPage;
@@ -38,11 +40,11 @@ public class AccountRegWizardContainerImpl extends Wizard
     private AccountRegFirstPage firstPage;
     
     private AccountRegSummaryPage summaryPage;
-    
-    private Hashtable accountWizards = new Hashtable();
-    
+        
     private AccountRegistrationWizard currentWizard;
     
+    ConfigurationService configService
+            = GuiActivator.getConfigurationService();
     /**
      * Listeners interested in events dispatched upon modifications
      * in the account registrations list.
@@ -171,6 +173,9 @@ public class AccountRegWizardContainerImpl extends Wizard
         return summaryPage;
     }
     
+    /**
+     * Opens a wizard for creating a new account.
+     */
     public void newAccount() {
         this.registerWizardPage(firstPage.getIdentifier(), firstPage);
                 
@@ -180,18 +185,41 @@ public class AccountRegWizardContainerImpl extends Wizard
     }
     
     /**
+     * Opens the corresponding wizard to modify an existing account given by
+     * the <tt>protocolProvider</tt> parameter.
      * 
-     * @param protocolProvider
+     * @param protocolProvider The <tt>ProtocolProviderService</tt> for the
+     * account to modify.
      */
     public void modifyAccount(ProtocolProviderService protocolProvider) {
+        
+        String wizardClassName = null;
+        
+        String prefix = "net.java.sip.communicator.impl.ui";
+        
+        List accounts = this.configService
+                .getPropertyNamesByPrefix(prefix, true);
+        
+        Iterator accountsIter = accounts.iterator();
+        
+        while(accountsIter.hasNext()) {
+            String accountRootPropName = (String) accountsIter.next();
+            
+            String accountUID = configService.getString(accountRootPropName);
+            
+            if(accountUID.equals(protocolProvider
+                    .getAccountID().getAccountUniqueID())) {
+                
+                wizardClassName = configService.getString(
+                        accountRootPropName + ".WIZARD");
+            }
+        }
+        AccountRegistrationWizard wizard
+            = getWizardFromClassName(wizardClassName);
+        
         this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
         
-        AccountRegistrationWizard wizard = (AccountRegistrationWizard)
-            this.accountWizards.get(protocolProvider);
-        
         this.setCurrentWizard(wizard);
-        
-        wizard.loadAccount(protocolProvider);
         
         Iterator i = wizard.getPages();
         
@@ -211,6 +239,8 @@ public class AccountRegWizardContainerImpl extends Wizard
             }
         }
         
+        wizard.loadAccount(protocolProvider);
+        
         this.getSummaryPage()
             .setPreviousPageIdentifier(identifier);
         
@@ -224,22 +254,72 @@ public class AccountRegWizardContainerImpl extends Wizard
     }
 
     /**
-     * Adds the (protocol provider, wizard) pair. 
+     * Saves the (protocol provider, wizard) pair in through the
+     * <tt>ConfigurationService</tt>. 
      * 
-     * @param protocolProvider
-     * @param wizard
+     * @param protocolProvider the protocol provider to save
+     * @param wizard the wizard to save
      */
     public void addAccountWizard(
             ProtocolProviderService protocolProvider,
             AccountRegistrationWizard wizard) {
-        this.accountWizards.put(protocolProvider, wizard);
+        
+        String accNodeName
+            = "acc" + Long.toString(System.currentTimeMillis());
+        
+        String wizardClassName = wizard.getClass()
+            .getName().replace('.', '_');
+        
+        String accountPackage = "net.java.sip.communicator.impl.ui."
+                                + accNodeName;
+        
+        configService.setProperty(accountPackage, 
+                protocolProvider.getAccountID().getAccountUniqueID());
+        
+        configService.setProperty(accountPackage+".WIZARD",
+                wizardClassName);
     }
 
+    /**
+     * Returns the currently used <tt>AccountRegistrationWizard</tt>.
+     * @return the currently used <tt>AccountRegistrationWizard</tt>
+     */
     public AccountRegistrationWizard getCurrentWizard() {
         return currentWizard;
     }
 
+    /**
+     * Sets the currently used <tt>AccountRegistrationWizard</tt>.
+     * @param currentWizard the <tt>AccountRegistrationWizard</tt> to set
+     * as current one
+     */
     public void setCurrentWizard(AccountRegistrationWizard currentWizard) {
         this.currentWizard = currentWizard;
+    }
+    
+    /**
+     * Returns the <tt>AccountRegistrationWizard</tt> corresponding to the
+     * given class name.
+     * @param wizardClassName the class name of the searched wizard
+     * @return the <tt>AccountRegistrationWizard</tt> corresponding to the
+     * given class name
+     */
+    private AccountRegistrationWizard getWizardFromClassName(
+            String wizardClassName) {
+                
+        Iterator i = this.firstPage.getWizardsList();
+        
+        while(i.hasNext()) {
+            AccountRegistrationWizard wizard
+                = (AccountRegistrationWizard)i.next();
+            
+            String wizardClassName1 = wizard.getClass()
+                .getName().replace('.', '_');
+            
+            if(wizardClassName1.equals(wizardClassName)) {
+                return wizard;
+            }
+        }
+        return null;
     }
 }
