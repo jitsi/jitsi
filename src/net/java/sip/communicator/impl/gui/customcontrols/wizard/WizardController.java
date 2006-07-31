@@ -56,6 +56,19 @@ public class WizardController implements ActionListener {
      * has pressed the "Cancel" button.
      */
     private void cancelButtonPressed() {
+        if(wizard.containsPage(WizardPage.DEFAULT_PAGE_IDENTIFIER)) {
+            wizard.unregisterWizardPage(
+                    WizardPage.DEFAULT_PAGE_IDENTIFIER);
+        }
+        
+        if(wizard.containsPage(WizardPage.SUMMARY_PAGE_IDENTIFIER)) {
+            wizard.unregisterWizardPage(
+                    WizardPage.SUMMARY_PAGE_IDENTIFIER);
+        }
+        
+        this.wizard.unregisterAll();
+        this.wizard.removeWizzardIcon();
+        
         wizard.close(Wizard.CANCEL_RETURN_CODE);
     }
 
@@ -115,15 +128,20 @@ public class WizardController implements ActionListener {
         
         model.setBackButtonText(Wizard.BACK_TEXT);
         
-        if (page.getBackPageIdentifier() != null)
+        if (page.getBackPageIdentifier() != null) {
             model.setBackButtonEnabled(Boolean.TRUE);
-        else
+        }
+        else {
             model.setBackButtonEnabled(Boolean.FALSE);
-  
-        if (page.getNextPageIdentifier() != null)
+        }
+        
+        if (page.getNextPageIdentifier() != null) {
             model.setNextFinishButtonEnabled(Boolean.TRUE);
-        else
+            
+        }
+        else {
             model.setNextFinishButtonEnabled(Boolean.FALSE);
+        }
         
         if (page.getNextPageIdentifier()
                 .equals(WizardPage.FINISH_PAGE_IDENTIFIER)) {
@@ -134,6 +152,4 @@ public class WizardController implements ActionListener {
         }
         
     }
-    
-    
 }

@@ -276,8 +276,8 @@ public class Wizard extends WindowAdapter
                 (Component)wizardModel.getWizardPage(id).getWizardForm());
         
         wizardModel.unregisterPage(id);
-    }  
-    
+    }
+        
     /**
      * Removes from the wizard all <tt>WizardPage</tt>s except the default one.
      */
@@ -300,6 +300,18 @@ public class Wizard extends WindowAdapter
         }
     }
     
+    /**
+     * Checks whether a page with the given id exists in the wizard.
+     * @param id the identifier of the searched page
+     * @return TRUE if the page with the given id exists in the wizard,
+     * FALSE otherwise. 
+     */
+    public boolean containsPage(Object id) {
+        if(wizardModel.getWizardPage(id) != null)
+            return true;
+        else
+            return false;
+    }
     /**
      * Displays the panel identified by the object passed in. This is the same
      * Object-based identified used when registering the panel.
@@ -477,6 +489,8 @@ public class Wizard extends WindowAdapter
         backButton = new JButton();
         nextButton = new JButton();
         cancelButton = new JButton();
+        
+        this.getDialog().getRootPane().setDefaultButton(nextButton);
         
         backButton.setActionCommand(BACK_BUTTON_ACTION_COMMAND);
         nextButton.setActionCommand(NEXT_BUTTON_ACTION_COMMAND);
