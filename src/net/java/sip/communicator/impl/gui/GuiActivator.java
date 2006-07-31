@@ -17,6 +17,7 @@ import net.java.sip.communicator.service.configuration.ConfigurationService;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.gui.UIService;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.util.Logger;
 
 import org.osgi.framework.BundleActivator;
@@ -67,7 +68,7 @@ public class GuiActivator implements BundleActivator {
                     .getService(clistReference);
 
             mainFrame.setContactList(contactListService);
-
+            
             logger.logEntry();
 
             //Create the ui service
@@ -85,11 +86,11 @@ public class GuiActivator implements BundleActivator {
              * this.uiService.setVisible(true);
              * SwingUtilities.invokeLater(new RunLogin());
              */
-
             WelcomeWindow welcomeWindow = new WelcomeWindow(communicatorMain,
                     loginManager, bundleContext);
-
+            
             welcomeWindow.showWindow();
+            
         } finally {
             logger.logExit();
         }
@@ -157,6 +158,33 @@ public class GuiActivator implements BundleActivator {
         return providerFactoriesMap;
     }
 
+    /**
+     * Returns a <tt>ProtocolProviderFactory</tt> for a given protocol
+     * provider.
+     * @return a <tt>ProtocolProviderFactory</tt> for a given protocol
+     * provider
+     */
+    public static ProtocolProviderFactory getProtocolProviderFactory(
+            ProtocolProviderService protocolProvider) {
+
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + ProtocolProviderFactory.PROTOCOL
+            + "="+protocolProvider.getProtocolName()+")";
+
+        try {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                ProtocolProviderFactory.class.getName(), osgiFilter);
+        }
+        catch (InvalidSyntaxException ex){
+            logger.error("GuiActivator : " + ex);
+        }
+
+        return (ProtocolProviderFactory) GuiActivator
+            .bundleContext.getService(serRefs[0]);
+    }
+    
     public static UIService getUIService() {
         return uiService;
     }
