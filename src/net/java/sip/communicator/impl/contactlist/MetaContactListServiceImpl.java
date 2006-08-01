@@ -2420,7 +2420,7 @@ public class MetaContactListServiceImpl
             {
                 Contact contact
                     = evt.getSourceGroup().getContact(subscriptionAddress);
-                if ( sourceContact != null)
+                if ( contact != null)
                 {
                     this.evt = evt;
                     this.sourceContact = contact;
