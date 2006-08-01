@@ -125,7 +125,9 @@ public class SelectGroupPanel extends JPanel {
     }
     
     public void addCheckBoxCellListener(CellEditorListener l) {
-        groupsTable.getCellEditor(0, 0).addCellEditorListener(l);
+        if(groupsTable.getModel().getRowCount() != 0) {
+            groupsTable.getCellEditor(0, 0).addCellEditorListener(l);
+        }
     }
     
     /**

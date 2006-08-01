@@ -44,8 +44,6 @@ public class ContactList extends JList
 
     private MetaContact currentlySelectedContact;
     
-    private ArrayList groupsList = new ArrayList();
-    
     /**
      * Creates an instance of the <tt>ContactList</tt>.
      *
@@ -151,8 +149,6 @@ public class ContactList extends JList
         //this.ensureIndexIsVisible(0);
         
         this.revalidate();
-        
-        this.groupsList.add(sourceGroup);
     }
 
     /**
@@ -270,8 +266,8 @@ public class ContactList extends JList
      * Returns the list of all groups. 
      * @return The list of all groups.
      */
-    public Iterator getAllGroups() {
-        return groupsList.iterator();
+    public Iterator getAllGroups() {        
+        return contactList.getRoot().getSubgroups();
     }
     
     /**
@@ -280,9 +276,10 @@ public class ContactList extends JList
      * @param metaUID An identifier of a group.
      * @return The Meta Contact Group corresponding to the given MetaUID.
      */
-    public MetaContactGroup getGroupByID(String metaUID) {               
-        for(int i = 0; i < groupsList.size(); i ++) {
-            MetaContactGroup group = (MetaContactGroup)groupsList.get(i);
+    public MetaContactGroup getGroupByID(String metaUID) {
+        Iterator i = contactList.getRoot().getSubgroups();
+        while(i.hasNext()){
+            MetaContactGroup group = (MetaContactGroup)i.next();
             
             if(group.getMetaUID().equals(metaUID)) {
                 return group;
