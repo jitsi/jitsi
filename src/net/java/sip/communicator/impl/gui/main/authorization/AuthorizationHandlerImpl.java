@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main;
+package net.java.sip.communicator.impl.gui.main.authorization;
 
 import javax.swing.JDialog;
 
@@ -40,8 +40,27 @@ public class AuthorizationHandlerImpl extends JDialog
      */
     public AuthorizationResponse processAuthorisationRequest(
             AuthorizationRequest req, Contact sourceContact) {
-        // TODO Implement this method.
-        return null;
+        
+        AuthorizationResponse response = null;
+        
+        AuthorizationRequestedDialog dialog 
+            = new AuthorizationRequestedDialog(sourceContact, req);
+        
+        int result = dialog.showDialog();
+        
+        if(result == AuthorizationRequestedDialog.ACCEPT_CODE) {
+            response = new AuthorizationResponse(AuthorizationResponse.ACCEPT,
+                    dialog.getResponseReason());
+        }
+        else if(result == AuthorizationRequestedDialog.REJECT_CODE) {
+            response = new AuthorizationResponse(AuthorizationResponse.REJECT,
+                    dialog.getResponseReason());
+        }
+        else if(result == AuthorizationRequestedDialog.IGNORE_CODE) {
+            response = new AuthorizationResponse(AuthorizationResponse.IGNORE,
+                    dialog.getResponseReason());
+        }        
+        return response;
     }
 
     /**
@@ -55,8 +74,8 @@ public class AuthorizationHandlerImpl extends JDialog
         
         AuthorizationRequest request = new AuthorizationRequest();
         
-        RequestAuthorisationDialog dialog 
-            = new RequestAuthorisationDialog(contact, request);
+        RequestAuthorizationDialog dialog 
+            = new RequestAuthorizationDialog(contact, request);
         
         dialog.setVisible(true);
         
@@ -72,8 +91,11 @@ public class AuthorizationHandlerImpl extends JDialog
      */
     public void processAuthorizationResponse(AuthorizationResponse response,
             Contact sourceContact) {
-        // TODO Auto-generated method stub
-
+               
+        AuthorizationResponseDialog dialog 
+            = new AuthorizationResponseDialog(sourceContact, response);
+        
+        dialog.setVisible(true);
     }
 
 }

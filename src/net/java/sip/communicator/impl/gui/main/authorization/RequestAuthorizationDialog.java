@@ -4,11 +4,13 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main;
+package net.java.sip.communicator.impl.gui.main.authorization;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -19,8 +21,10 @@ import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 import net.java.sip.communicator.impl.gui.i18n.Messages;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.AuthorizationRequest;
 import net.java.sip.communicator.service.protocol.Contact;
 /**
@@ -29,10 +33,10 @@ import net.java.sip.communicator.service.protocol.Contact;
  * 
  * @author Yana Stamcheva
  */
-public class RequestAuthorisationDialog extends JDialog
+public class RequestAuthorizationDialog extends JDialog
     implements ActionListener {
 
-    private JLabel infoLabel = new JLabel();
+    private JTextArea infoTextArea = new JTextArea();
     
     private JEditorPane requestPane = new JEditorPane();
     
@@ -44,7 +48,7 @@ public class RequestAuthorisationDialog extends JDialog
     
     private JScrollPane requestScrollPane = new JScrollPane();
     
-    private JPanel mainPanel = new JPanel(new BorderLayout());
+    private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
     
     private AuthorizationRequest request;
     
@@ -54,7 +58,7 @@ public class RequestAuthorisationDialog extends JDialog
      * @param contact The <tt>Contact</tt>, which requires authorisation.
      * @param request The <tt>AuthorizationRequest</tt> that will be sent.
      */
-    public RequestAuthorisationDialog(Contact contact,
+    public RequestAuthorizationDialog(Contact contact,
             AuthorizationRequest request) {
         
         this.setModal(true);
@@ -65,25 +69,42 @@ public class RequestAuthorisationDialog extends JDialog
         
         this.request = request;
         
-        infoLabel.setText(Messages.getString("requestAuthorizationInfo", 
+        infoTextArea.setText(Messages.getString("requestAuthorizationInfo", 
                 contact.getDisplayName()));
         
         this.requestPane.setBorder(BorderFactory
-                .createTitledBorder(Messages.getString("requestAuthReason")));
+                .createTitledBorder(Messages.getString("requestAuthReasonEnter")));
         
         this.requestScrollPane.getViewport().add(requestPane);
+        
+        this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
+        this.infoTextArea.setLineWrap(true);
+        this.infoTextArea.setWrapStyleWord(true);
         
         this.requestButton.setName("request");
         this.cancelButton.setName("cancel");
         
+        this.requestButton.addActionListener(this);
+        this.cancelButton.addActionListener(this);
+        
         this.buttonsPanel.add(requestButton);
         this.buttonsPanel.add(cancelButton);
         
-        this.mainPanel.add(infoLabel, BorderLayout.NORTH);
+        this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        this.mainPanel.add(infoTextArea, BorderLayout.NORTH);
         this.mainPanel.add(requestScrollPane, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
         this.getContentPane().add(mainPanel);
+        
+        this.setSize(new Dimension(400, 300));
+        
+        this.setLocation(
+                Toolkit.getDefaultToolkit().getScreenSize().width/2
+                    - this.getWidth()/2,
+                Toolkit.getDefaultToolkit().getScreenSize().height/2
+                    - this.getHeight()/2
+                );
     }
 
     /**
@@ -100,5 +121,6 @@ public class RequestAuthorisationDialog extends JDialog
         else if(name.equals("cancel")) {
             request = null;
         }
+        this.dispose();
     }
 }

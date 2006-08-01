@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 
 import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
+import net.java.sip.communicator.impl.gui.main.authorization.AuthorizationHandlerImpl;
 import net.java.sip.communicator.impl.gui.main.contactlist.CListKeySearchListener;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
