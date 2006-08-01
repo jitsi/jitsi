@@ -121,6 +121,7 @@ public class FirstWizardPage extends JPanel
         
         this.buttonPanel.add(registerButton);
         
+        this.registerArea.setEditable(false);
         this.registerArea.setLineWrap(true);
         this.registerArea.setWrapStyleWord(true);
         
