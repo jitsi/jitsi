@@ -464,7 +464,7 @@ public class ServerStoredContactListIcqImpl
 
         //Check whether a volatile group already exists and if not create
         //one
-        ContactGroupIcqImpl theVolatileGroup = findContactGroup((Group)null);
+        ContactGroupIcqImpl theVolatileGroup = getNonPersistentGroup();
 
         //if the parent group is null then add necessary create the group
         if (theVolatileGroup == null)
@@ -653,6 +653,11 @@ public class ServerStoredContactListIcqImpl
         buddyList.addRetroactiveLayoutListener(buddyListListener);
     }
 
+    /**
+     * Returns the first persistent group
+     *
+     * @return ContactGroupIcqImpl
+     */
     private ContactGroupIcqImpl getFirstPersistentGroup()
     {
         for (int i = 0; i < getRootGroup().countSubgroups(); i++)
@@ -666,6 +671,26 @@ public class ServerStoredContactListIcqImpl
 
         return null;
     }
+
+    /**
+     * Returns the volatile group
+     *
+     * @return ContactGroupIcqImpl
+     */
+    private ContactGroupIcqImpl getNonPersistentGroup()
+    {
+        for (int i = 0; i < getRootGroup().countSubgroups(); i++)
+        {
+            ContactGroupIcqImpl gr =
+                (ContactGroupIcqImpl)getRootGroup().getGroup(i);
+
+            if(!gr.isPersistent())
+                return gr;
+        }
+
+        return null;
+    }
+
 
     /**
      * when there is no alias for contact we must retreive its nickname from server
