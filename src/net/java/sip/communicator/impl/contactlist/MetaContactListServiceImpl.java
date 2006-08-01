@@ -1832,7 +1832,7 @@ public class MetaContactListServiceImpl
             fireMetaContactGroupEvent(
                 newMetaGroup
                 , evt.getSourceProvider()
-                , null
+                , evt.getSourceGroup()
                 , MetaContactGroupEvent.META_CONTACT_GROUP_ADDED);
         }
 
