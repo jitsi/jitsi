@@ -27,7 +27,6 @@ import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.RegistrationState;
-import net.java.sip.communicator.service.protocol.SecurityAuthority;
 import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeEvent;
 import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeListener;
 import net.java.sip.communicator.util.Logger;
@@ -35,7 +34,6 @@ import net.java.sip.communicator.util.Logger;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
-import net.java.sip.communicator.service.protocol.UserCredentials;
 
 /**
  * The <tt>LoginManager</tt> manages the login operation. Here we obtain the
@@ -112,7 +110,10 @@ public class LoginManager
 
         protocolProvider.addRegistrationStateChangeListener(this);
 
-        protocolProvider.register(new MySecurityAuthority());
+        SecurityAuthorityImpl secAuth
+            = new SecurityAuthorityImpl(mainFrame, protocolProvider);
+        
+        protocolProvider.register(secAuth);
     }
 
     /**
@@ -184,42 +185,6 @@ public class LoginManager
         wizard.showModalDialog();
     }
 
-    /**
-     * Shows the login window for the given protocol and providerFactory.
-     * @param parent The parent MainFrame window.
-     * @param protocolName The protocolName.
-     * @param accoundManager The ProtocolProviderFactory to use.
-     */
-    private void showLoginWindow(MainFrame parent,
-                                String protocolName,
-                                ProtocolProviderFactory accoundManager) {
-
-        LoginWindow loginWindow = new LoginWindow(parent, protocolName,
-                accoundManager);
-        loginWindow.setLoginManager(this);
-
-        this.loginWindows.put(protocolName, loginWindow);
-
-        loginWindow.showWindow();
-    }
-
-    private class MySecurityAuthority implements SecurityAuthority {
-        /**
-         * Returns a Credentials object associated with the specified realm.
-         * <p>
-         * @param realm The realm that the credentials are needed for.
-         * @param defaultValues the values to propose the user by default
-         * @return The credentials associated with the specified realm or null if
-         * none could be obtained.
-         */
-        public UserCredentials obtainCredentials(String realm,
-                                                 UserCredentials defaultValues)
-        {
-            /** @todo implement */
-            return null;
-        }
-
-    }
 
     /**
      * The method is called by a ProtocolProvider implementation whenever
@@ -274,7 +239,7 @@ public class LoginManager
             }
             logger.error(evt.getReason());
 
-            ((LoginWindow) this.loginWindows.get(protocolProvider
+            ((AuthenticationWindow) this.loginWindows.get(protocolProvider
                     .getProtocolName())).showWindow();
         }
         else if (evt.getNewState()

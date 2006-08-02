@@ -9,11 +9,13 @@ package net.java.sip.communicator.impl.gui.main.login;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,12 +25,12 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 
 import net.java.sip.communicator.impl.gui.i18n.Messages;
@@ -36,26 +38,27 @@ import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.service.protocol.AccountID;
-import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.service.protocol.UserCredentials;
 /**
  * The <tt>LoginWindow</tt> is the window where the user should type his
  * user identifier and password to login.
  * 
  * @author Yana Stamcheva
  */
-public class LoginWindow extends JDialog implements ActionListener {
+public class AuthenticationWindow extends JDialog implements ActionListener {
+
+    private JTextArea realmTextArea = new JTextArea();
 
     private JLabel uinLabel = new JLabel(Messages.getString("uin"));
 
     private JLabel passwdLabel = new JLabel(Messages.getString("passwd"));
 
-    private JComboBox uinComboBox;
+    private JLabel uinValueLabel;
 
     private JPasswordField passwdField = new JPasswordField(15);
 
-    private JButton loginButton = new JButton(Messages.getString("login"));
+    private JButton loginButton = new JButton(Messages.getString("ok"));
 
     private JButton cancelButton = new JButton(Messages.getString("cancel"));
 
@@ -63,34 +66,43 @@ public class LoginWindow extends JDialog implements ActionListener {
 
     private JPanel textFieldsPanel = new JPanel(new GridLayout(0, 1, 8, 8));
 
-    private JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+    private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
 
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private LoginWindowBackground backgroundPanel = new LoginWindowBackground();
-
-    private ProtocolProviderFactory providerFactory;
-
-    private LoginManager loginManager;
-
+    private LoginWindowBackground backgroundPanel;
+    
+    private UserCredentials userCredentials;
+    
+    private String realm;
+    
     /**
      * Creates an instance of the <tt>LoginWindow</tt>.
      * @param mainFrame The parent <tt>MainFrame</tt> window.
      * @param protocolName The name of the protocol.
      * @param providerFactory The provider factory.
      */
-    public LoginWindow(MainFrame mainFrame, String protocolName,
-            ProtocolProviderFactory providerFactory) {
+    public AuthenticationWindow(MainFrame mainFrame,
+                ProtocolProviderService protocolProvider,
+                String realm,
+                UserCredentials userCredentials) {
+        
         super(mainFrame);
-
-        this.providerFactory = providerFactory;
-
+        
+        this.userCredentials = userCredentials;
+        
+        this.realm = realm;
+        
         this.setModal(true);
 
+        backgroundPanel = new LoginWindowBackground(
+                Constants.getProtocolBigIcon(
+                        protocolProvider.getProtocolName()));
+        
         this.backgroundPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
         this.backgroundPanel.setBorder(
-                BorderFactory.createEmptyBorder(60, 5, 5, 5));
+                BorderFactory.createEmptyBorder(45, 5, 5, 5));
 
         this.getContentPane().setLayout(new BorderLayout());
 
@@ -106,7 +118,7 @@ public class LoginWindow extends JDialog implements ActionListener {
 
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        this.setTitle(Messages.getString("loginWindowTitle", protocolName));
+        this.setTitle(Messages.getString("authenticationWindowTitle"));
 
         this.enableKeyActions();
     }
@@ -115,28 +127,36 @@ public class LoginWindow extends JDialog implements ActionListener {
      * Constructs the <tt>LoginWindow</tt>.
      */
     private void init() {
-
+        
+        this.uinValueLabel = new JLabel(userCredentials.getUserName());
+        if(userCredentials.getPassword() != null) {
+            this.passwdField.setText(userCredentials.getPassword().toString());
+        }
+        
+        this.realmTextArea.setLineWrap(true);
+        this.realmTextArea.setWrapStyleWord(true);
+        this.realmTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
+        this.realmTextArea.setText(
+                Messages.getString("securityAuthorityRealm", this.realm));
+                
         this.uinLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
         this.passwdLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
-
-        this.uinComboBox = new JComboBox();
-
-        this.uinComboBox.setEditable(true);
-
+        
         this.labelsPanel.add(uinLabel);
         this.labelsPanel.add(passwdLabel);
 
-        this.textFieldsPanel.add(uinComboBox);
+        this.textFieldsPanel.add(uinValueLabel);
         this.textFieldsPanel.add(passwdField);
 
         this.buttonsPanel.add(loginButton);
         this.buttonsPanel.add(cancelButton);
 
+        this.mainPanel.add(realmTextArea, BorderLayout.NORTH);
         this.mainPanel.add(labelsPanel, BorderLayout.WEST);
         this.mainPanel.add(textFieldsPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
-        this.backgroundPanel.add(mainPanel, BorderLayout.CENTER);
+        this.backgroundPanel.add(mainPanel, BorderLayout.CENTER);        
 
         this.loginButton.setName("login");
         this.cancelButton.setName("cancel");
@@ -158,8 +178,7 @@ public class LoginWindow extends JDialog implements ActionListener {
     private void setTransparent(boolean transparent) {
         this.mainPanel.setOpaque(!transparent);
         this.labelsPanel.setOpaque(!transparent);
-        this.textFieldsPanel.setOpaque(!transparent);
-        this.uinComboBox.setOpaque(!transparent);
+        this.textFieldsPanel.setOpaque(!transparent);        
         this.buttonsPanel.setOpaque(!transparent);
     }
 
@@ -167,10 +186,9 @@ public class LoginWindow extends JDialog implements ActionListener {
      * Specifies the window location and shows it.
      */
     public void showWindow() {
-        if (!this.isVisible()) {
-            this.setWindowLocation();
-            this.setVisible(true);
-        }
+        
+        this.setWindowLocation();
+        this.setVisible(true);
     }
 
     /**
@@ -187,14 +205,6 @@ public class LoginWindow extends JDialog implements ActionListener {
     }
 
     /**
-     * Returns the provider factory for this login window.
-     * @return The provider factory for this login window.
-     */
-    public ProtocolProviderFactory getProviderFactory() {
-        return providerFactory;
-    }
-
-    /**
      * Handles the <tt>ActionEvent</tt> triggered when one of the buttons is
      * clicked. When "Login" button is choosen installs a new account from
      * the user input and logs in. 
@@ -204,34 +214,11 @@ public class LoginWindow extends JDialog implements ActionListener {
         JButton button = (JButton) e.getSource();
         String buttonName = button.getName();
 
-        if (buttonName.equals("login")) {
-
-            this.dispose();
-
-            ProtocolProviderService pps = this.loginManager.installAccount(
-                    providerFactory, 
-                    uinComboBox.getSelectedItem().toString(), 
-                    new String(passwdField.getPassword()));
-            
+        if (buttonName.equals("ok")) {
+            userCredentials.setPassword(passwdField.getPassword());
         } else {
             this.dispose();
         }
-    }
-
-    /**
-     * Returns the <tt>LoginManager</tt> for this login window.
-     * @return The <tt>LoginManager</tt> for this login window.
-     */
-    public LoginManager getLoginManager() {
-        return loginManager;
-    }
-
-    /**
-     * Sets the <tt>LoginManager</tt> for this login window.
-     * @param loginManager The related LoginManager.
-     */
-    public void setLoginManager(LoginManager loginManager) {
-        this.loginManager = loginManager;
     }
 
     /**
@@ -240,6 +227,11 @@ public class LoginWindow extends JDialog implements ActionListener {
      * image for this window. 
      */
     private class LoginWindowBackground extends JPanel {
+        private Image bgImage;
+        public LoginWindowBackground(Image bgImage) {
+            this.bgImage = bgImage;
+        }
+        
         protected void paintComponent(Graphics g) {
 
             super.paintComponent(g);
@@ -248,12 +240,12 @@ public class LoginWindow extends JDialog implements ActionListener {
 
             Graphics2D g2 = (Graphics2D) g;
 
-            g2.drawImage(ImageLoader.getImage(ImageLoader.LOGIN_WINDOW_LOGO),
+            g2.drawImage(bgImage, 40,
+                (this.getHeight()/2 - bgImage.getHeight(null)/2), null);
+            
+            g2.drawImage(ImageLoader.getImage(
+                    ImageLoader.AUTH_WINDOW_BACKGROUND),
                     0, 0, null);
-
-            g2.setColor(new Color(255, 255, 255, 100));
-
-            g2.fillRect(0, 0, getWidth(), getHeight());
         }
     }
 
@@ -265,7 +257,7 @@ public class LoginWindow extends JDialog implements ActionListener {
 
         AbstractAction act = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                LoginWindow.this.setVisible(false);
+                AuthenticationWindow.this.setVisible(false);
             }
         };
 
