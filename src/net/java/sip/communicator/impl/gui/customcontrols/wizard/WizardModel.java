@@ -97,7 +97,6 @@ public class WizardModel {
      * Default constructor.
      */    
     public WizardModel() {
-        
         panelHashmap = new HashMap();
         
         buttonTextHashmap = new HashMap();
@@ -140,7 +139,7 @@ public class WizardModel {
      * @param id The identifier of the page.
      * @return the <tt>WizardPage</tt> corresponding to the given identifier.
      */
-    WizardPage getWizardPage(Object id) {
+    WizardPage getWizardPage(Object id) {        
         return (WizardPage)panelHashmap.get(id);
     }
     
@@ -153,7 +152,7 @@ public class WizardModel {
      * @param id Object-based panel identifier
      * @return boolean indicating success or failure
      */    
-     boolean setCurrentPanel(Object id) {         
+     boolean setCurrentPanel(Object id) {
         //  First, get the hashtable reference to the panel that should
         //  be displayed.
         

@@ -56,20 +56,10 @@ public class WizardController implements ActionListener {
      * has pressed the "Cancel" button.
      */
     private void cancelButtonPressed() {
-        if(wizard.containsPage(WizardPage.DEFAULT_PAGE_IDENTIFIER)) {
-            wizard.unregisterWizardPage(
-                    WizardPage.DEFAULT_PAGE_IDENTIFIER);
-        }
-        
-        if(wizard.containsPage(WizardPage.SUMMARY_PAGE_IDENTIFIER)) {
-            wizard.unregisterWizardPage(
-                    WizardPage.SUMMARY_PAGE_IDENTIFIER);
-        }
-        
-        this.wizard.unregisterAll();
-        this.wizard.removeWizzardIcon();
         
         wizard.close(Wizard.CANCEL_RETURN_CODE);
+        
+        
     }
 
     /**

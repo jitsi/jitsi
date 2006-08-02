@@ -7,12 +7,14 @@
 package net.java.sip.communicator.impl.gui.main.account;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -204,7 +206,8 @@ public class AccountRegFirstPage extends JPanel
         else
             this.wizardContainer.setNextFinishButtonEnabled(false);
         
-        this.wizardContainer.unregisterAll();
+        if(wizardContainer.getCurrentWizard() != null)
+            this.wizardContainer.unregisterWizardPages();
         
         this.wizardContainer.removeWizzardIcon();
     }    

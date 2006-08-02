@@ -277,28 +277,6 @@ public class Wizard extends WindowAdapter
         
         wizardModel.unregisterPage(id);
     }
-        
-    /**
-     * Removes from the wizard all <tt>WizardPage</tt>s except the default one.
-     */
-    public void unregisterAll() {
-        
-        Iterator i = wizardModel.getAllPages();
-        
-        while(i.hasNext()) {
-            Map.Entry  entry = (Map.Entry)i.next();
-            
-            Object id = entry.getKey();
-            
-            if (!id.equals(DEFAULT_PAGE_IDENTIFIER)
-                    && !id.equals(SUMMARY_PAGE_IDENTIFIER)) {
-                cardPanel.remove(
-                    (Component)((WizardPage)entry.getValue()).getWizardForm());
-                
-                wizardModel.unregisterPage(id);                
-            }
-        }
-    }
     
     /**
      * Checks whether a page with the given id exists in the wizard.
@@ -450,6 +428,17 @@ public class Wizard extends WindowAdapter
             = wizardModel.getCurrentWizardPage();
         if (oldPanelDescriptor != null)
             oldPanelDescriptor.pageHiding();
+        
+        if(this.containsPage(WizardPage.DEFAULT_PAGE_IDENTIFIER)) {
+            this.unregisterWizardPage(
+                    WizardPage.DEFAULT_PAGE_IDENTIFIER);
+        }
+        
+        if(this.containsPage(WizardPage.SUMMARY_PAGE_IDENTIFIER)) {
+            this.unregisterWizardPage(
+                    WizardPage.SUMMARY_PAGE_IDENTIFIER);
+        }
+        this.removeWizzardIcon();
         
         returnCode = code;
         wizardDialog.dispose();

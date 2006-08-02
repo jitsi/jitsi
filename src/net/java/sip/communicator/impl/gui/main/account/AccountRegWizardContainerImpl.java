@@ -322,4 +322,21 @@ public class AccountRegWizardContainerImpl extends Wizard
         }
         return null;
     }
+    
+    /**
+     * Unregisters all pages added by the current wizard.
+     */
+    public void unregisterWizardPages() {
+        Iterator i = this.getCurrentWizard().getPages();
+        
+        Object identifier = null;
+        
+        while(i.hasNext()) {
+            WizardPage page = (WizardPage)i.next();
+            
+            identifier = page.getIdentifier();
+            
+            this.unregisterWizardPage(identifier);
+        }
+    }
 }

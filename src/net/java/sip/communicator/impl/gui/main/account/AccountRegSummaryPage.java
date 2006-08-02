@@ -151,7 +151,7 @@ public class AccountRegSummaryPage extends JScrollPane
                     WizardPage.SUMMARY_PAGE_IDENTIFIER);
         }
         
-        this.wizardContainer.unregisterAll();
+        this.wizardContainer.unregisterWizardPages();
         this.wizardContainer.removeWizzardIcon();
     }
 
