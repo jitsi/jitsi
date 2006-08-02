@@ -33,7 +33,7 @@ public class AuthorizationResponseDialog extends JDialog
     
     private JTextArea infoTextArea = new JTextArea();
     
-    private JEditorPane responsePane = new JEditorPane();
+    private JTextArea responseArea = new JTextArea();
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         
@@ -70,13 +70,14 @@ public class AuthorizationResponseDialog extends JDialog
                     contact.getDisplayName()));
         }
         
-        this.responsePane.setBorder(BorderFactory
+        this.responseArea.setBorder(BorderFactory
             .createTitledBorder(Messages.getString("authorizationResponse")));
         
-        this.responsePane.setText(response.getReason());
-        this.responsePane.setEditable(false);
+        this.responseArea.setText(response.getReason());
+        this.responseArea.setLineWrap(true);
+        this.responseArea.setWrapStyleWord(true);
         
-        this.requestScrollPane.getViewport().add(responsePane);
+        this.requestScrollPane.getViewport().add(responseArea);
         
         this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         this.infoTextArea.setLineWrap(true);
@@ -95,7 +96,7 @@ public class AuthorizationResponseDialog extends JDialog
         
         this.getContentPane().add(mainPanel);
         
-        this.setSize(new Dimension(400, 300));
+        this.setSize(new Dimension(400, 200));
         
         this.setLocation(
                 Toolkit.getDefaultToolkit().getScreenSize().width/2
