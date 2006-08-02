@@ -35,6 +35,7 @@ import net.java.sip.communicator.util.Logger;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import net.java.sip.communicator.service.protocol.UserCredentials;
 
 /**
  * The <tt>LoginManager</tt> manages the login operation. Here we obtain the
@@ -124,23 +125,23 @@ public class LoginManager
         Iterator iter = set.iterator();
 
         boolean hasRegisteredAccounts = false;
-        
+
         while (iter.hasNext()) {
             Map.Entry entry = (Map.Entry) iter.next();
 
             ProtocolProviderFactory providerFactory
                 = (ProtocolProviderFactory) entry.getValue();
-            
+
             ArrayList accountsList
                 = providerFactory.getRegisteredAccounts();
-            
+
             AccountID accountID;
             ServiceReference serRef;
             ProtocolProviderService protocolProvider;
 
             for (int i = 0; i < accountsList.size(); i ++) {
                 hasRegisteredAccounts = true;
-                
+
                 accountID = (AccountID) accountsList.get(i);
 
                 serRef = providerFactory
@@ -149,12 +150,12 @@ public class LoginManager
                 protocolProvider
                     = (ProtocolProviderService) GuiActivator.bundleContext
                         .getService(serRef);
-                
+
                 this.mainFrame.addAccount(protocolProvider);
                 this.login(protocolProvider);
             }
         }
-        
+
         if(!hasRegisteredAccounts) {
             this.showAccountRegistrationWizard();
         }
@@ -167,22 +168,22 @@ public class LoginManager
         AccountRegWizardContainerImpl wizard
             = (AccountRegWizardContainerImpl)GuiActivator.getUIService()
                 .getAccountRegWizardContainer();
-    
+
         wizard.setTitle(
             Messages.getString("accountRegistrationWizard"));
-    
+
         wizard.setLocation(
             Toolkit.getDefaultToolkit().getScreenSize().width/2
                 - 250,
             Toolkit.getDefaultToolkit().getScreenSize().height/2
                 - 100
         );
-        
+
         wizard.newAccount();
-    
+
         wizard.showModalDialog();
     }
-    
+
     /**
      * Shows the login window for the given protocol and providerFactory.
      * @param parent The parent MainFrame window.
@@ -192,7 +193,7 @@ public class LoginManager
     private void showLoginWindow(MainFrame parent,
                                 String protocolName,
                                 ProtocolProviderFactory accoundManager) {
-        
+
         LoginWindow loginWindow = new LoginWindow(parent, protocolName,
                 accoundManager);
         loginWindow.setLoginManager(this);
@@ -203,6 +204,20 @@ public class LoginManager
     }
 
     private class MySecurityAuthority implements SecurityAuthority {
+        /**
+         * Returns a Credentials object associated with the specified realm.
+         * <p>
+         * @param realm The realm that the credentials are needed for.
+         * @param defaultValues the values to propose the user by default
+         * @return The credentials associated with the specified realm or null if
+         * none could be obtained.
+         */
+        public UserCredentials obtainCredentials(String realm,
+                                                 UserCredentials defaultValues)
+        {
+            /** @todo implement */
+            return null;
+        }
 
     }
 
@@ -383,7 +398,7 @@ public class LoginManager
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      */
     private void handleProviderAdded(
-            ProtocolProviderService protocolProvider) {        
+            ProtocolProviderService protocolProvider) {
         this.mainFrame.addAccount(protocolProvider);
         this.login(protocolProvider);
     }
