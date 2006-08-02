@@ -123,6 +123,7 @@ public class SelectAccountPanel extends JPanel {
                     pps, protocolLabel});
         }
         
+        accountsTable.setRowHeight(22);
         accountsTable.setModel(tableModel);
         
         accountsTable.getColumnModel().getColumn(0).sizeWidthToFit();
@@ -135,7 +136,9 @@ public class SelectAccountPanel extends JPanel {
     }
     
     public void addCheckBoxCellListener(CellEditorListener l) {
-        accountsTable.getCellEditor(0, 0).addCellEditorListener(l);
+        if(accountsTable.getModel().getRowCount() != 0) {
+            accountsTable.getCellEditor(0, 0).addCellEditorListener(l);
+        }
     }
     
     /**

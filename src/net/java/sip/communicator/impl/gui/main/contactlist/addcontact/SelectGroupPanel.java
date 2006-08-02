@@ -117,6 +117,7 @@ public class SelectGroupPanel extends JPanel {
         
         groupsTable.setModel(tableModel);
         
+        groupsTable.setRowHeight(22);
         groupsTable.getColumnModel().getColumn(0).sizeWidthToFit();
         groupsTable.getColumnModel().getColumn(1)
             .setCellRenderer(new LabelTableCellRenderer());
