@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.account;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.Iterator;
 import java.util.Map;
@@ -16,6 +17,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import net.java.sip.communicator.impl.gui.i18n.Messages;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.AccountRegistrationWizard;
 import net.java.sip.communicator.service.gui.WizardPage;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
@@ -43,6 +46,9 @@ public class AccountRegSummaryPage extends JScrollPane
     
     private Object previousPageIdentifier;
     
+    private JLabel pageTitleLabel 
+        = new JLabel(Messages.getString("summary"), 
+                JLabel.CENTER);
     /**
      * Creates an <tt>AccountRegSummaryPage</tt>.
      * 
@@ -56,6 +62,8 @@ public class AccountRegSummaryPage extends JScrollPane
         
         this.wizardContainer = wizardContainer;
         
+        this.pageTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
+        this.mainPanel.add(pageTitleLabel, BorderLayout.NORTH);
         this.mainPanel.add(keysPanel, BorderLayout.WEST);
         this.mainPanel.add(valuesPanel, BorderLayout.CENTER);
         

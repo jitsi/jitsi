@@ -10,6 +10,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,8 +61,14 @@ public class AccountRegFirstPage extends JPanel
     
     private AccountRegWizardContainerImpl wizardContainer;
     
+    private JPanel textPanel = new JPanel(new GridLayout(0, 1, 5, 5));
+    
     private JTextArea messageTextArea = new JTextArea(
                 Messages.getString("selectAccountRegistration"));
+    
+    private JLabel pageTitleLabel 
+        = new JLabel(Messages.getString("selectAccountRegWizardTitle"), 
+                JLabel.CENTER);
     
     public AccountRegFirstPage(AccountRegWizardContainerImpl container) {
         super(new BorderLayout(10, 10));    
@@ -70,7 +77,7 @@ public class AccountRegFirstPage extends JPanel
         
         this.tableModel = new ExtendedTableModel();
         
-        this.setPreferredSize(new Dimension(500, 200));
+        this.setPreferredSize(new Dimension(400, 200));
         
         this.accountRegsTable.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION);
@@ -79,13 +86,16 @@ public class AccountRegFirstPage extends JPanel
             .addListSelectionListener(this);
         
         this.tableInit();
-                
+        
         this.messageTextArea.setLineWrap(true);
         this.messageTextArea.setWrapStyleWord(true);
-        this.messageTextArea.setFont(
-                Constants.FONT.deriveFont(Font.BOLD, 16f));
+                
+        this.pageTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
         
-        this.add(messageTextArea, BorderLayout.NORTH);
+        this.textPanel.add(pageTitleLabel);
+        this.textPanel.add(messageTextArea);
+        
+        this.add(textPanel, BorderLayout.NORTH);
         this.add(tableScrollPane, BorderLayout.CENTER);
         
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));

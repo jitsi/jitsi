@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.account;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -89,7 +90,11 @@ public class NoAccountFoundPage extends JPanel
         Graphics2D g2 = (Graphics2D) g;
        
         g2.drawImage(ImageLoader.getImage(
-                ImageLoader.AUTH_WINDOW_BACKGROUND),
+                ImageLoader.LOGIN_WINDOW_LOGO),
                 0, 0, this.getWidth(), this.getHeight(), null);
+        
+        g2.setColor(new Color(255, 255, 255, 200));
+
+        g2.fillRect(0, 0, getWidth(), getHeight());
     }
 }
