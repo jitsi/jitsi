@@ -136,6 +136,7 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
         this.realmTextArea.setLineWrap(true);
         this.realmTextArea.setWrapStyleWord(true);
         this.realmTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
+        this.realmTextArea.setEditable(false);
         this.realmTextArea.setText(
                 Messages.getString("securityAuthorityRealm", this.realm));
                 
