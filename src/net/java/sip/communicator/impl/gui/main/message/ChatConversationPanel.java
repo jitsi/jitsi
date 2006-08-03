@@ -333,9 +333,9 @@ public class ChatConversationPanel extends JScrollPane implements
 
             String matchGroup = m.group().trim();
 
-            String replacement = "<IMG SRC='"
+            String replacement = "</PLAINTEXT><IMG SRC='"
                     + ImageLoader.getSmiley(matchGroup).getImagePath()
-                    + "' ALT='" + matchGroup + "'></IMG>";
+                    + "' ALT='" + matchGroup + "'></IMG><PLAINTEXT>";
 
             m.appendReplacement(msgBuffer, replacement);
         }
