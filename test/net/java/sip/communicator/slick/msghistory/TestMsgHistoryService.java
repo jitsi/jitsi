@@ -96,6 +96,8 @@ public class TestMsgHistoryService
 
     public void setupContact()
     {
+        // changes the history service target derictory
+        System.setProperty("HistoryServiceDirectory", "test-msghistory");
 
         mockProvider = new MockProvider("MessageHistoryMockUser");
 
@@ -159,7 +161,6 @@ public class TestMsgHistoryService
                 mockBImOpSet.createMessage("test message word4"),
                 mockBImOpSet.createMessage("test message word5")
             };
-
     }
 
     /**
