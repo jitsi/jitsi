@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.account;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -37,6 +36,9 @@ public class NoAccountFoundPage extends JPanel
     private JTextArea messageArea
         = new JTextArea(Messages.getString("noAccountFound"));
         
+    /**
+     * Creates an instance of <tt>NoAccountFoundPage</tt>.
+     */
     public NoAccountFoundPage() {
         super(new BorderLayout());
         
@@ -50,18 +52,35 @@ public class NoAccountFoundPage extends JPanel
         this.setBorder(BorderFactory.createEmptyBorder(55, 10, 10, 10));
     }
     
+    /**
+     * Implements the <tt>WizardPage.getIdentifier</tt> method.
+     * Returns the identifier of this page.
+     */
     public Object getIdentifier() {
         return NO_ACCOUNT_FOUND_PAGE;
     }
 
+    /**
+     * Implements the <tt>WizardPage.getNextPageIdentifier</tt> method.
+     * Returns the identifier of the default wizard page.
+     */
     public Object getNextPageIdentifier() {
         return WizardPage.DEFAULT_PAGE_IDENTIFIER;
     }
 
+    /**
+     * Implements the <tt>WizardPage.getBackPageIdentifier</tt> method.
+     * Returns null to identify that this is the first wizard page and
+     * this way to disable the "Back" wizard button.
+     */
     public Object getBackPageIdentifier() {
         return null;
     }
 
+    /**
+     * Implements the <tt>WizardPage.getWizardForm</tt> method.
+     * Returns this panel.
+     */
     public Object getWizardForm() {
         return this;
     }
@@ -81,6 +100,9 @@ public class NoAccountFoundPage extends JPanel
     public void pageBack() {
     }
     
+    /**
+     * Repaints the background of this panel.
+     */
     protected void paintComponent(Graphics g) {
 
         super.paintComponent(g);

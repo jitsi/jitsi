@@ -29,9 +29,7 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
  * the main toolbar in the <tt>ChatWindow</tt>. It contains only
  * <tt>ChatToolbarButton</tt>s, which have a specific background icon and
  * rollover behaviour to differentiates them from normal buttons.
- * 
- * @see net.java.sip.communicator.impl.gui.main.customcontrols.ChatToolbarButton
- * 
+ *  
  * @author Yana Stamcheva
  */
 public class MainToolBar extends SIPCommToolBar implements ActionListener {

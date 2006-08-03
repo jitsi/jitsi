@@ -264,7 +264,7 @@ public class ConfigurationDialogImpl extends JFrame
 
     /**
      * Implements <code>ExportedDialog.moveDialog</code> method.
-     * @see net.java.sip.communicator.service.gui.ExportedDialog#moveDialog()
+     * @see net.java.sip.communicator.service.gui.ExportedDialog#moveDialog(int, int)
      */
     public void moveDialog(int x, int y) {
         this.setLocation(x, y);

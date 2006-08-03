@@ -78,9 +78,10 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
     
     /**
      * Creates an instance of the <tt>LoginWindow</tt>.
-     * @param mainFrame The parent <tt>MainFrame</tt> window.
-     * @param protocolName The name of the protocol.
-     * @param providerFactory The provider factory.
+     * @param mainFrame the parent <tt>MainFrame</tt> window.
+     * @param protocolProvider the protocol provider.
+     * @param realm the realm
+     * @param userCredentials the user credentials
      */
     public AuthenticationWindow(MainFrame mainFrame,
                 ProtocolProviderService protocolProvider,

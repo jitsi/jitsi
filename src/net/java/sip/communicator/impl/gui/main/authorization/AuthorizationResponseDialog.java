@@ -47,7 +47,8 @@ public class AuthorizationResponseDialog extends JDialog
      * Constructs the <tt>RequestAuthorisationDialog</tt>.
      * 
      * @param contact The <tt>Contact</tt>, which requires authorisation.
-     * @param request The <tt>AuthorizationRequest</tt> that will be sent.
+     * @param response The <tt>AuthorizationResponse</tt> that has been
+     * received.
      */
     public AuthorizationResponseDialog(Contact contact,
             AuthorizationResponse response) {

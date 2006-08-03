@@ -49,7 +49,7 @@ public class GuiActivator implements BundleActivator {
     /**
      * Called when this bundle is started.
      *
-     * @param context The execution context of the bundle being started.
+     * @param bundleContext The execution context of the bundle being started.
      */
     public void start(BundleContext bundleContext) throws Exception {
 
@@ -100,7 +100,7 @@ public class GuiActivator implements BundleActivator {
      * Called when this bundle is stopped so the Framework can perform the
      * bundle-specific activities necessary to stop the bundle.
      *
-     * @param context The execution context of the bundle being stopped.
+     * @param bundleContext The execution context of the bundle being stopped.
      * @throws Exception If this method throws an exception, the bundle is
      *   still marked as stopped, and the Framework will remove the bundle's
      *   listeners, unregister all services registered by the bundle, and

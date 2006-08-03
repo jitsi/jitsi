@@ -23,9 +23,7 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
  * etc. It contains only <tt>MsgToolbarButton</tt>s, which have a specific
  * background icon and rollover behaviour to differentiates them from normal
  * buttons.
- * 
- * @see net.java.sip.communicator.impl.gui.main.customcontrols.MsgToolbarButton
- * 
+ *  
  * @author Yana Stamcheva
  */
 public class EditTextToolBar extends SIPCommToolBar {

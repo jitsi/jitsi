@@ -241,14 +241,12 @@ public class Wizard extends WindowAdapter
     }
     
     /**
-     * Add a Component as a panel for the wizard dialog by registering its
-     * WizardPanelDescriptor object. Each panel is identified by a unique
-     * Object-based identifier (often a String), which can be used by the
-     * setCurrentPanel() method to display the panel at runtime.
+     * Adds the given WizardPage in this wizard. Each WizardPage is identified
+     * by a unique Object-based identifier (often a String), which can be used
+     * by the setCurrentPanel() method to display the panel at runtime.
      * @param id An Object-based identifier used to identify the
-     * WizardPanelDescriptor object.
-     * @param panel The WizardPanelDescriptor object which contains helpful
-     * information about the panel.
+     * WizardPage object
+     * @param page The WizardPage object to register in this wizard
      */    
     public void registerWizardPage(Object id, WizardPage page) {
         
