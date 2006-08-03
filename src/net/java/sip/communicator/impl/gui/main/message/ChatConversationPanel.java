@@ -290,7 +290,7 @@ public class ChatConversationPanel extends JScrollPane implements
      */
     private String processNewLines(String message) {
 
-        return message.replaceAll("\n", "<BR>");
+        return message.replaceAll("\n", "</PLAINTEXT><BR><PLAINTEXT>");
     }
 
     /**
