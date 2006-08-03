@@ -65,8 +65,14 @@ public class HistoryServiceImpl implements HistoryService {
         Vector vect = new Vector();
         File histDir = null;
         try {
-            histDir = this.fileAccessService
+            String userSetDataDirectory = System.getProperty("HistoryServiceDirectory");
+            if(userSetDataDirectory != null)
+                histDir = this.fileAccessService
+                    .getPrivatePersistentDirectory(userSetDataDirectory);
+            else
+                histDir = this.fileAccessService
                     .getPrivatePersistentDirectory(DATA_DIRECTORY);
+
             findDatFiles(vect, histDir);
         } catch (Exception e) {
             log.error("Error opening directory", e);
@@ -166,7 +172,12 @@ public class HistoryServiceImpl implements HistoryService {
     private File createHistoryDirectories(HistoryID id) throws IOException {
         String[] idComponents = id.getID();
         String[] dirs = new String[idComponents.length + 1];
-        dirs[0] = DATA_DIRECTORY;
+
+        String userSetDataDirectory = System.getProperty("HistoryServiceDirectory");
+        if(userSetDataDirectory != null)
+            dirs[0] = userSetDataDirectory;
+        else
+            dirs[0] = DATA_DIRECTORY;
         System.arraycopy(idComponents, 0, dirs, 1, dirs.length - 1);
 
         File directory = null;
