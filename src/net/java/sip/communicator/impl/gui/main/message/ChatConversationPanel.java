@@ -223,9 +223,9 @@ public class ChatConversationPanel extends JScrollPane implements
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
                 + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
-                + "<DIV>"
+                + "<DIV><PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
-                + "</DIV>";
+                + "</PLAINTEXT></DIV>";
 
         Element root = this.document.getDefaultRootElement();
 
@@ -269,11 +269,11 @@ public class ChatConversationPanel extends JScrollPane implements
             String replacement;
 
             if (matchGroup.startsWith("www")) {
-                replacement = "<A href=\"" + "http://" + matchGroup + "\">"
-                        + matchGroup + "</A>";
+                replacement = "</PLAINTEXT><A href=\"" + "http://" + matchGroup + "\">"
+                        + matchGroup + "</A><PLAINTEXT>";
             } else {
-                replacement = "<A href=\"" + matchGroup + "\">" + matchGroup
-                        + "</A>";
+                replacement = "</PLAINTEXT><A href=\"" + matchGroup + "\">" + matchGroup
+                        + "</A><PLAINTEXT>";
             }
             m.appendReplacement(msgBuffer, replacement);
         }
