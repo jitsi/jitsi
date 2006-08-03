@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -85,7 +86,9 @@ public class AccountRegFirstPage extends JPanel
                 Constants.FONT.deriveFont(Font.BOLD, 16f));
         
         this.add(messageTextArea, BorderLayout.NORTH);
-        this.add(tableScrollPane, BorderLayout.CENTER);        
+        this.add(tableScrollPane, BorderLayout.CENTER);
+        
+        this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     }
     
     /**

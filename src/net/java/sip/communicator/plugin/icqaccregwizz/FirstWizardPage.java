@@ -95,6 +95,8 @@ public class FirstWizardPage extends JPanel
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         
         this.init();
+        
+        this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     }
     
     /**

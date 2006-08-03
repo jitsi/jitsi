@@ -11,6 +11,7 @@ import java.awt.GridLayout;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -61,6 +62,8 @@ public class AccountRegSummaryPage extends JScrollPane
         this.wrapPanel.add(mainPanel, BorderLayout.NORTH);
         
         this.getViewport().add(wrapPanel);
+        
+        this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     }
     
     /**

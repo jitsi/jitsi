@@ -177,11 +177,18 @@ public class AccountRegWizardContainerImpl extends Wizard
      * Opens a wizard for creating a new account.
      */
     public void newAccount() {
+        this.newAccount(firstPage.getIdentifier());        
+    }
+    
+    /**
+     * Opens a wizard for creating a new account.
+     */
+    public void newAccount(Object currentPageIdentifier) {
         this.registerWizardPage(firstPage.getIdentifier(), firstPage);
                 
         this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
         
-        this.setCurrentPage(firstPage.getIdentifier());        
+        this.setCurrentPage(currentPageIdentifier);        
     }
     
     /**

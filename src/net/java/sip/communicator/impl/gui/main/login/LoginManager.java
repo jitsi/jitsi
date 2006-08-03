@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.StatusPanel;
 import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
+import net.java.sip.communicator.impl.gui.main.account.NoAccountFoundPage;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
@@ -170,6 +171,11 @@ public class LoginManager
             = (AccountRegWizardContainerImpl)GuiActivator.getUIService()
                 .getAccountRegWizardContainer();
 
+        NoAccountFoundPage noAccountFoundPage = new NoAccountFoundPage();
+        
+        wizard.registerWizardPage(noAccountFoundPage.getIdentifier(),
+                noAccountFoundPage);
+        
         wizard.setTitle(
             Messages.getString("accountRegistrationWizard"));
 
@@ -180,7 +186,7 @@ public class LoginManager
                 - 100
         );
 
-        wizard.newAccount();
+        wizard.newAccount(noAccountFoundPage.getIdentifier());
 
         wizard.showModalDialog();
     }

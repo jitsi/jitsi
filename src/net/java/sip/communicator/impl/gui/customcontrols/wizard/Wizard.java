@@ -470,7 +470,6 @@ public class Wizard extends WindowAdapter
         Box buttonBox = new Box(BoxLayout.X_AXIS);
 
         cardPanel = new JPanel();
-        cardPanel.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));       
 
         cardLayout = new CardLayout(); 
         cardPanel.setLayout(cardLayout);
