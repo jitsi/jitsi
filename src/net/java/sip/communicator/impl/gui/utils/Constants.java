@@ -374,7 +374,7 @@ public class Constants {
     }
     
     /**
-     * Gets the protocol logo icon.
+     * Gets the protocol logo icon in size 16x16.
      * @param protocolName The protocol name.
      * @return the protocol logo image.
      */
@@ -406,6 +406,44 @@ public class Constants {
         } else if (protocolName.equals(Constants.SKYPE)) {
 
             protocolIcon = ImageLoader.getImage(ImageLoader.SKYPE_LOGO);
+        }
+
+        return protocolIcon;
+    }
+    
+    /**
+     * Gets the protocol logo icon in size 32x32.
+     * @param protocolName The protocol name.
+     * @return the protocol logo image.
+     */
+    public static Image getProtocolBigIcon(String protocolName) {
+
+        Image protocolIcon = null;
+
+        if (protocolName.equals(Constants.SIP)) {
+
+            protocolIcon = ImageLoader.getImage(ImageLoader.SIP_ONLINE_ICON);
+        } else if (protocolName.equals(Constants.ICQ)) {
+
+            protocolIcon = ImageLoader.getImage(ImageLoader.ICQ_32x32);
+        } else if (protocolName.equals(Constants.MSN)) {
+
+            protocolIcon = ImageLoader.getImage(ImageLoader.MSN_32x32);
+        } else if (protocolName.equals(Constants.AIM)) {
+
+            protocolIcon = ImageLoader.getImage(ImageLoader.AIM_32x32);
+
+        } else if (protocolName.equals(Constants.YAHOO)) {
+
+            protocolIcon = ImageLoader.getImage(ImageLoader.YAHOO_32x32);
+
+        } else if (protocolName.equals(Constants.JABBER)) {
+
+            protocolIcon = ImageLoader.getImage(ImageLoader.JABBER_32x32);
+
+        } else if (protocolName.equals(Constants.SKYPE)) {
+
+            protocolIcon = ImageLoader.getImage(ImageLoader.SKYPE_32x32);
         }
 
         return protocolIcon;

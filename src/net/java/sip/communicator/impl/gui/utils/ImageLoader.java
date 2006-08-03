@@ -638,12 +638,23 @@ public class ImageLoader {
      */
     public static final ImageID LOGIN_WINDOW_LOGO = new ImageID(
             "LOGIN_WINDOW_LOGO");
-
+    
+    /**
+     * The background image of the <tt>AuthenticationWindow</tt>.
+     */
+    public static final ImageID AUTH_WINDOW_BACKGROUND = new ImageID(
+            "AUTH_WINDOW_BACKGROUND");
+    
     /*
      * =========================================================================
      * --------------------- PROTOCOLS STATUS ICONS ---------------------------
      * ========================================================================
      */
+    /**
+     * The ICQ logo 32x32 icon.
+     */
+    public static final ImageID ICQ_32x32 = new ImageID("ICQ_32x32");
+    
     /**
      * The ICQ logo 16x16 icon.
      */
@@ -694,25 +705,51 @@ public class ImageLoader {
             "ICQ_INVISIBLE_ICON");
 
     /**
+     * The MSN logo 32x32 icon.
+     */
+    public static final ImageID MSN_32x32 = new ImageID("MSN_32x32");
+    
+    /**
      * The MSN logo 16x16 icon.
      */
     public static final ImageID MSN_LOGO = new ImageID("MSN_LOGO");
 
+    /**
+     * The AIM logo 32x32 icon.
+     */
+    public static final ImageID AIM_32x32 = new ImageID("AIM_32x32");
+    
+    
     /**
      * The AIM logo 16x16 icon.
      */
     public static final ImageID AIM_LOGO = new ImageID("AIM_LOGO");
 
     /**
+     * The Yahoo logo 32x32 icon.
+     */
+    public static final ImageID YAHOO_32x32 = new ImageID("YAHOO_32x32");
+    
+    /**
      * The Yahoo logo 16x16 icon.
      */
     public static final ImageID YAHOO_LOGO = new ImageID("YAHOO_LOGO");
 
     /**
+     * The Jabber logo 32x32 icon.
+     */
+    public static final ImageID JABBER_32x32 = new ImageID("JABBER_32x32");
+    
+    /**
      * The Jabber logo 16x16 icon.
      */
     public static final ImageID JABBER_LOGO = new ImageID("JABBER_LOGO");
 
+    /**
+     * The Skype logo 32x32 icon.
+     */
+    public static final ImageID SKYPE_32x32 = new ImageID("SKYPE_32x32");
+    
     /**
      * The Skype logo 16x16 icon.
      */
