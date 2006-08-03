@@ -16,6 +16,7 @@ import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
 import net.kano.joscar.snaccmd.ssi.*;
 import net.kano.joustsim.oscar.*;
+import net.kano.joustsim.oscar.oscar.service.ssi.*;
 
 /**
  * Extending the normal messages factory as its not handling the channel 4
@@ -83,7 +84,6 @@ public class AuthCmdFactory
                 if (result ==
                     SsiDataModResponse.RESULT_ICQ_AUTH_REQUIRED)
                 {
-
                     // authorisation required for user
                     SsiItem buddyItem = (SsiItem) items.get(i);
 
@@ -94,7 +94,11 @@ public class AuthCmdFactory
                         operationSetPresence.findContactByID(uinToAskForAuth);
 
                     if(srcContact == null)
-                        srcContact = operationSetPresence.createVolatileContact(uinToAskForAuth);
+                        srcContact =
+                            operationSetPresence.createUnresolvedContact(
+                                uinToAskForAuth,
+                                null,
+                                getGroupByID(buddyItem.getParentId()));
 
                     AuthorizationRequest authRequest =
                         authorizationHandler.createAuthorizationRequest(
@@ -217,5 +221,15 @@ public class AuthCmdFactory
         }
 
         return messageCommand;
+    }
+
+    private ContactGroup getGroupByID(int id)
+    {
+        String groupName = SSIItemInfo.getGroupName(aimConnection, id);
+
+        if(groupName == null) return null;
+
+        return operationSetPresence.
+            getServerStoredContactListRoot().getGroup(groupName);
     }
 }
