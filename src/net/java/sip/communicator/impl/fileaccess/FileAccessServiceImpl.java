@@ -15,7 +15,7 @@ import net.java.sip.communicator.util.Logger;
 
 /**
  * Default FileAccessService implementation.
- * 
+ *
  * @author Alexander Pelov
  */
 public class FileAccessServiceImpl implements FileAccessService {
@@ -43,14 +43,14 @@ public class FileAccessServiceImpl implements FileAccessService {
 
     /**
      * An synchronization object.
-     * 
+     *
      * A lock should be obtained whenever the configuration service is accessed.
      */
     private Object syncRoot = new Object();
 
     /**
      * Set the configuration service.
-     * 
+     *
      * @param configurationService
      */
     public void setConfigurationService(
@@ -63,7 +63,7 @@ public class FileAccessServiceImpl implements FileAccessService {
 
     /**
      * Remove a configuration service.
-     * 
+     *
      * @param configurationService
      */
     public void unsetConfigurationService(
@@ -189,6 +189,9 @@ public class FileAccessServiceImpl implements FileAccessService {
                     .getString(FileAccessService.CONFPROPERTYKEY_USER_HOME);
             sipSubdir = this.configurationService
                     .getString(FileAccessService.CONFPROPERTYKEY_SIPCOMM_DIRECTORY);
+            if(sipSubdir == null)
+                sipSubdir = System.getProperty(
+                    FileAccessService.CONFPROPERTYKEY_SIPCOMM_DIRECTORY);
         }
 
         if (userhome == null) {
@@ -216,10 +219,10 @@ public class FileAccessServiceImpl implements FileAccessService {
     /**
      * Checks if a file exists and if it is writable or readable. If not -
      * checks if the user has a write privileges to the containing directory.
-     * 
+     *
      * If those conditions are met it returns a File in the directory with a
      * fileName. If not - returns null.
-     * 
+     *
      * @param homedir
      * @param fileName
      * @return Returns null if the file does not exist and cannot be created.
