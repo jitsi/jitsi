@@ -10,6 +10,10 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import javax.sip.*;
+import javax.sip.message.*;
+import javax.sip.header.*;
+import javax.sip.address.*;
 
 /**
  * A SIP implementation of the Protocol Provider Service.
@@ -18,6 +22,58 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class ProtocolProviderServiceSipImpl
   implements ProtocolProviderService
 {
+    /**
+     * The identifier of the account that this provider represents.
+     */
+    private AccountID accountID = null;
+
+    /**
+     * We use this to lock access to initialization.
+     */
+    private Object initializationLock = new Object();
+
+    /**
+     * indicates whether or not the provider is initialized and ready for use.
+     */
+    private boolean isInitialized = false;
+
+    /**
+     * The SipFactory instance used to create the SipStack and the Address
+     * Message and Header Factories.
+     */
+    private SipFactory sipFactory;
+
+    /**
+     * The AddressFactory used to create URLs ans Address objects.
+     */
+    private AddressFactory addressFactory;
+
+    /**
+     * The HeaderFactory used to create SIP message headers.
+     */
+    private HeaderFactory headerFactory;
+
+    /**
+     * The Message Factory used to create SIP messages.
+     */
+    private MessageFactory messageFactory;
+
+    /**
+     * The sipStack instance that handles SIP communications.
+     */
+    private SipStack sipStack;
+
+    /**
+     * The default (and currently the only) SIP listening point of the
+     * application.
+     */
+    private ListeningPoint listeningPoint;
+
+    /**
+     * The JAIN SIP SipProvider instance.
+     */
+    public SipProvider sipProvider;
+
 
     /**
      * Registers the specified listener with this provider so that it would
@@ -28,7 +84,7 @@ public class ProtocolProviderServiceSipImpl
     public void addRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
     {
-
+        /** @todo implement addRegistrationStateChangeListener() */
     }
 
     /**
@@ -37,6 +93,7 @@ public class ProtocolProviderServiceSipImpl
      */
     public void unregister()
     {
+        /** @todo implement unregister() */
     }
 
     /**
@@ -46,7 +103,7 @@ public class ProtocolProviderServiceSipImpl
      */
     public AccountID getAccountID()
     {
-
+        /** @todo implement getAccountID() */
         return null;
     }
 
@@ -57,6 +114,7 @@ public class ProtocolProviderServiceSipImpl
      */
     public RegistrationState getRegistrationState()
     {
+        /** @todo implement getRegistrationState() */
         return null;
     }
 
@@ -71,7 +129,7 @@ public class ProtocolProviderServiceSipImpl
      */
     public String getProtocolName()
     {
-
+        /** @todo implement getProtocolName() */
         return "";
     }
 
@@ -81,7 +139,7 @@ public class ProtocolProviderServiceSipImpl
      */
     public boolean isRegistered()
     {
-
+        /** @todo implement isRegistered() */
         return false;
     }
 
@@ -92,6 +150,7 @@ public class ProtocolProviderServiceSipImpl
     public void removeRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
     {
+        /** @todo implement removeRegistrationStateChangeListener() */
     }
 
     /**
@@ -108,6 +167,7 @@ public class ProtocolProviderServiceSipImpl
      */
     public Map getSupportedOperationSets()
     {
+        /** @todo implement getSupportedOperationSets() */
         return null;
     }
 
@@ -123,6 +183,29 @@ public class ProtocolProviderServiceSipImpl
      */
     public void register(SecurityAuthority authority)
     {
+        /** @todo implement register() */
+    }
+
+    /**
+     * Initializes the service implementation, and puts it in a state where it
+     * could interoperate with other services.
+     *
+     * @param sipAddress the account id/uin/screenname of the account that we're
+     * about to create
+     * @param accountID the identifier of the account that this protocol
+     * provider represents.
+     *
+     * @see net.java.sip.communicator.service.protocol.AccountID
+     */
+    protected void initialize(String    sipAddress,
+                              AccountID accountID)
+    {
+        synchronized (initializationLock)
+        {
+            this.accountID = accountID;
+
+            isInitialized = true;
+        }
     }
 
     /**
