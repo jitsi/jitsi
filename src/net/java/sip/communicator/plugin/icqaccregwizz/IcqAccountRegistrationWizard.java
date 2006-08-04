@@ -103,7 +103,6 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
     /**
      * Installs the account created through this wizard.
      */
-
     public ProtocolProviderService finish() {
         firstWizardPage = null;
         ProtocolProviderFactory factory 
