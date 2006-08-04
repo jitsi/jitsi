@@ -23,7 +23,7 @@ import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.Wizard;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationDialogImpl;
+import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactWizardPage1;
@@ -35,7 +35,7 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.contactlist.MetaContactListException;
-import net.java.sip.communicator.service.gui.ConfigurationDialog;
+import net.java.sip.communicator.service.gui.ConfigurationManager;
 import net.java.sip.communicator.service.gui.event.PluginComponentEvent;
 import net.java.sip.communicator.service.gui.event.PluginComponentListener;
 import net.java.sip.communicator.service.protocol.Contact;
@@ -69,7 +69,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
     private JButton addButton = new JButton(new ImageIcon(ImageLoader
             .getImage(ImageLoader.QUICK_MENU_ADD_ICON)));
 
-    private ConfigurationDialog configDialog;
+    private ConfigurationManager configDialog;
     
     private MainFrame mainFrame;
 
@@ -197,7 +197,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
         } 
         else if (buttonName.equals("config")) {
 
-            configDialog = GuiActivator.getUIService().getConfigurationDialog();
+            configDialog = GuiActivator.getUIService().getConfigurationManager();
             
             configDialog.showDialog();
         } 

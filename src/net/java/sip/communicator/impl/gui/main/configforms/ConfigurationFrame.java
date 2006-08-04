@@ -29,16 +29,16 @@ import net.java.sip.communicator.impl.gui.customcontrols.TitlePanel;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.service.gui.ConfigurationDialog;
+import net.java.sip.communicator.service.gui.ConfigurationManager;
 import net.java.sip.communicator.service.gui.ConfigurationForm;
 
 /**
- * The implementation of the <tt>ConfigurationDialog</tt> interface.
+ * The implementation of the <tt>ConfigurationManager</tt> interface.
  * 
  * @author Yana Stamcheva
  */
-public class ConfigurationDialogImpl extends JFrame
-    implements  ConfigurationDialog, 
+public class ConfigurationFrame extends JFrame
+    implements  ConfigurationManager, 
                 MouseListener {
 
     private Vector configContainer = new Vector();
@@ -54,11 +54,11 @@ public class ConfigurationDialogImpl extends JFrame
     private MainFrame mainFrame;
 
     /**
-     * Creates an instance of <tt>ConfigurationDialogImpl</tt>.
+     * Creates an instance of <tt>ConfigurationManagerImpl</tt>.
      * 
      * @param mainFrame The main application window.
      */
-    public ConfigurationDialogImpl(MainFrame mainFrame) {
+    public ConfigurationFrame(MainFrame mainFrame) {
         
         this.mainFrame = mainFrame;
 
@@ -94,11 +94,11 @@ public class ConfigurationDialogImpl extends JFrame
     }
 
     /**
-     * Implements the <code>ConfigurationDialog.addConfigurationForm</code>
+     * Implements the <code>ConfigurationManager.addConfigurationForm</code>
      * method. Checks if the form contained in the <tt>ConfigurationForm</tt>
      * is an instance of java.awt.Component and if so adds the form in this
      * dialog, otherwise throws a ClassCastException.
-     * @see ConfigurationDialog#addConfigurationForm(ConfigurationForm)
+     * @see ConfigurationManager#addConfigurationForm(ConfigurationForm)
      */
     public void addConfigurationForm(ConfigurationForm configForm) {
 
@@ -131,10 +131,10 @@ public class ConfigurationDialogImpl extends JFrame
     }
 
     /**
-     * Implements <code>ConfigurationDialog.removeConfigurationForm</code>
+     * Implements <code>ConfigurationManager.removeConfigurationForm</code>
      * method. Removes the given <tt>ConfigurationForm</tt> from this
      * dialog.
-     * @see ConfigurationDialog#removeConfigurationForm(ConfigurationForm)
+     * @see ConfigurationManager#removeConfigurationForm(ConfigurationForm)
      */
     public void removeConfigurationForm(ConfigurationForm configForm) {
 

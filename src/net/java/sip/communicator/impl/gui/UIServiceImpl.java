@@ -19,11 +19,11 @@ import javax.swing.JFrame;
 
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
-import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationDialogImpl;
+import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
-import net.java.sip.communicator.service.gui.ConfigurationDialog;
+import net.java.sip.communicator.service.gui.ConfigurationManager;
 import net.java.sip.communicator.service.gui.ContainerID;
 import net.java.sip.communicator.service.gui.DialogID;
 import net.java.sip.communicator.service.gui.ExportedDialog;
@@ -65,7 +65,7 @@ public class UIServiceImpl implements UIService {
     
     private ContactListPanel contactList;
     
-    private ConfigurationDialogImpl configurationFrame;
+    private ConfigurationFrame configurationFrame;
 
     /**
      * Creates an instance of <tt>UIServiceImpl</tt>.
@@ -78,7 +78,7 @@ public class UIServiceImpl implements UIService {
         this.popupDialog = new PopupDialogImpl(mainFrame);
         this.wizardContainer = new AccountRegWizardContainerImpl();
         
-        this.configurationFrame = new ConfigurationDialogImpl(mainFrame);
+        this.configurationFrame = new ConfigurationFrame(mainFrame);
     }
     
     /**
@@ -357,12 +357,12 @@ public class UIServiceImpl implements UIService {
     }
    
     /**
-     * Implements the <code>UIService.getConfigurationDialog</code>.
-     * Returns the current implementation of the <tt>ConfigurationDialog</tt>
+     * Implements the <code>UIService.getConfigurationManager</code>.
+     * Returns the current implementation of the <tt>ConfigurationManager</tt>
      * interface.
      * @see UIService#getConfigurationDialog()
      */
-    public ConfigurationDialog getConfigurationDialog() {
+    public ConfigurationManager getConfigurationManager() {
         return this.configurationFrame;
     }
 }

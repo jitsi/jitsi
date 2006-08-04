@@ -246,16 +246,16 @@ public interface UIService
     public ExportedDialog getChatDialog(Contact contact);
     
     /**
-     * Returns the <tt>ConfigurationDialog</tt> implementation for this
-     * UIService implementation. The <tt>ConfigurationDialog</tt> is a
+     * Returns the <tt>ConfigurationManager</tt> implementation for this
+     * UIService implementation. The <tt>ConfigurationManager</tt> is a
      * contianer contianing <tt>ConfigurationForm</tt>s. It is meant to be
      * implemented by the UIService implementation to provide a mechanism
      * for adding and removing configuration forms in the GUI. 
      * 
-     * @return the <tt>ConfigurationDialog</tt> implementation for this
+     * @return the <tt>ConfigurationManager</tt> implementation for this
      * UIService implementation
      */
-    public ConfigurationDialog getConfigurationDialog();
+    public ConfigurationManager getConfigurationManager();
     
     /**
      * Returns an iterator over a set of dialogID-s. Each DialogID points to
