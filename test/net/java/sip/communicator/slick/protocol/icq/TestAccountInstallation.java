@@ -141,7 +141,7 @@ public class TestAccountInstallation extends TestCase
 
         provider.addRegistrationStateChangeListener(regFailedEvtCollector);
 
-        provider.register(null);
+        provider.register(new SecurityAuthorityImpl(passwd.toCharArray()));
 
         //give it enough time to register. We won't really have to wait all this
         //time since the registration event collector would notify us the moment
@@ -261,7 +261,7 @@ public class TestAccountInstallation extends TestCase
 
         provider.addRegistrationStateChangeListener(regFailedEvtCollector);
 
-        provider.register(null);
+        provider.register(new SecurityAuthorityImpl(passwd.toCharArray()));
 
         //give it enough time to register. We won't really have to wait all this
         //time since the registration event collector would notify us the moment
@@ -454,5 +454,46 @@ public class TestAccountInstallation extends TestCase
                 }
             }
         }
+    }
+
+    /**
+     * A very simple straight forward implementation of a security authority
+     * that would always return the same password (the one specified upon
+     * construction) when asked for credentials.
+     */
+    public class SecurityAuthorityImpl implements SecurityAuthority
+    {
+        /**
+         * The password to return when asked for credentials
+         */
+        private char[] passwd = null;
+
+        /**
+         * Creates an instance of this class that would always return "passwd"
+         * when asked for credentials.
+         *
+         * @param passwd the password that this class should return when
+         * asked for credentials.
+         */
+        public SecurityAuthorityImpl(char[] passwd)
+        {
+            this.passwd = passwd;
+        }
+
+        /**
+         * Returns a Credentials object associated with the specified realm.
+         * <p>
+         * @param realm The realm that the credentials are needed for.
+         * @param defaultValues the values to propose the user by default
+         * @return The credentials associated with the specified realm or null if
+         * none could be obtained.
+         */
+        public UserCredentials obtainCredentials(String realm,
+                                                 UserCredentials defaultValues)
+        {
+            defaultValues.setPassword(passwd);
+            return defaultValues;
+        }
+
     }
 }

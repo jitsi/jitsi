@@ -274,4 +274,40 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
         }
 
     }
+
+    /**
+     * A very simple straightforward implementation of a security authority
+     * that would authentify our tested implementation if necessary, by
+     * retrieving its password through the system properties.
+     */
+    public class SecurityAuthorityImpl implements SecurityAuthority
+    {
+
+        /**
+         * Creates an instance of this class that would would authentify our
+         * tested implementation if necessary, by retrieving its password
+         * through the system properties.
+         */
+        public SecurityAuthorityImpl()
+        {}
+
+        /**
+         * Returns a Credentials object containing the password for our
+         * tested implementation.
+         * <p>
+         * @param realm The realm that the credentials are needed for.
+         * @param defaultValues the values to propose the user by default
+         * @return The credentials associated with the specified realm or null if
+         * none could be obtained.
+         */
+        public UserCredentials obtainCredentials(String realm,
+                                                 UserCredentials defaultValues)
+        {
+            String passwd = System.getProperty( IcqProtocolProviderSlick
+                                            .TESTED_IMPL_PWD_PROP_NAME, null );
+            defaultValues.setPassword(passwd.toCharArray());
+            return defaultValues;
+        }
+    }
+
 }
