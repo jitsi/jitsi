@@ -62,6 +62,10 @@ public class ProtocolProviderServiceIcqImpl
      * indicates whether or not the provider is initialized and ready for use.
      */
     private boolean isInitialized = false;
+
+    /**
+     * We use this to lock access to initialization.
+     */
     private Object initializationLock = new Object();
 
     /**
@@ -163,6 +167,11 @@ public class ProtocolProviderServiceIcqImpl
      */
     public void register(SecurityAuthority authority)
     {
+        if(authority == null)
+            throw new IllegalArgumentException(
+                "The register method needs a valid non-null authority impl "
+                + " in order to be able and retrieve passwords.");
+
         synchronized(initializationLock)
         {
             String accountPrefix
@@ -182,7 +191,25 @@ public class ProtocolProviderServiceIcqImpl
             }
             else
             {
-                //authority.getNewPasswor();
+                //create a default credentials object
+                UserCredentials credentials = new UserCredentials();
+                credentials.setUserName(this.getAccountID().getUserID());
+
+                //request a password from the user
+                credentials = authority.obtainCredentials(ProtocolNames.ICQ
+                                                          , credentials);
+                //extract the password the user passed us.
+                password = new String(credentials.getPassword());
+
+                if (credentials.isPasswordPersistent())
+                {
+                    //verify whether a password has already been stored for this account
+                    IcqActivator.getConfigurationService().setProperty(
+                        accountPrefix + "."
+                        + ProtocolProviderFactory.PASSWORD
+                        , new String(Base64.encode(password.getBytes())) );
+
+                }
             }
 
             //init the necessary objects
@@ -252,15 +279,12 @@ public class ProtocolProviderServiceIcqImpl
      *
      * @param screenname the account id/uin/screenname of the account that we're
      * about to create
-     * @param initializationProperties all properties needed fo initializing the
-     * account.
      * @param accountID the identifier of the account that this protocol
      * provider represents.
      *
      * @see net.java.sip.communicator.service.protocol.AccountID
      */
     protected void initialize(String screenname,
-                              Map initializationProperties,
                               AccountID accountID)
     {
         synchronized(initializationLock)
@@ -471,7 +495,7 @@ public class ProtocolProviderServiceIcqImpl
     {
         RegistrationStateChangeEvent event =
             new RegistrationStateChangeEvent(
-                            this, newState, newState, reasonCode, reason);
+                            this, oldState, newState, reasonCode, reason);
 
         logger.debug("Dispatching " + event + " to "
                      + registrationListeners.size()+ " listeners.");
@@ -525,7 +549,8 @@ public class ProtocolProviderServiceIcqImpl
 
                 conn.getInfoService().
                     getOscarConnection().getSnacProcessor().
-                        getFlapProcessor().addPacketListener(new ConnectionClosedListener(conn));
+                        getFlapProcessor().addPacketListener(
+                            new ConnectionClosedListener(conn));
             }
             else if (newState == State.DISCONNECTED)
             {
@@ -535,10 +560,15 @@ public class ProtocolProviderServiceIcqImpl
                 Service service = aimConnection.getBosService();
                 if(service != null)
                 {
-                    int discconectCode = service.getOscarConnection().getLastCloseCode();
-                    reasonCode = ConnectionClosedListener.convertCodeToRegistrationStateChangeEvent(discconectCode);
-                    reasonStr = ConnectionClosedListener.convertCodeToStringReason(discconectCode);
-                    logger.debug("The aim Connection was disconnected! with reason : " + reasonStr);
+                    int discconectCode = service.getOscarConnection()
+                        .getLastCloseCode();
+                    reasonCode = ConnectionClosedListener
+                        .convertCodeToRegistrationStateChangeEvent(
+                            discconectCode);
+                    reasonStr = ConnectionClosedListener
+                        .convertCodeToStringReason(discconectCode);
+                    logger.debug("The aim Connection was disconnected! with reason : "
+                                 + reasonStr);
                 }
                 else
                     logger.debug("The aim Connection was disconnected!");
@@ -546,8 +576,12 @@ public class ProtocolProviderServiceIcqImpl
             else
                 if(newState == State.FAILED)
                 {
-                    logger.debug("The aim Connection failed! " + event.getNewStateInfo());
+                    logger.debug("The aim Connection failed! "
+                                 + event.getNewStateInfo());
                 }
+
+            //as a side note - if this was an AuthenticationFailed error
+            //set the stored password to null so that we don't use it any more.
 
             //now tell all interested parties about what happened.
             fireRegistrationStateChanged(oldState, event.getOldStateInfo()

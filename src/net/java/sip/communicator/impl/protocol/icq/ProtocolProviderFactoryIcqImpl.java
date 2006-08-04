@@ -85,11 +85,29 @@ public class ProtocolProviderFactoryIcqImpl
     public AccountID installAccount( String userIDStr,
                                      Map accountProperties)
     {
-        AccountID accountID = loadAccount(userIDStr, accountProperties);
+        BundleContext context
+            = IcqActivator.getBundleContext();
+        if (context == null)
+            throw new NullPointerException("The specified BundleContext was null");
+
+        if (userIDStr == null)
+            throw new NullPointerException("The specified AccountID was null");
+
+        if (accountProperties == null)
+            throw new NullPointerException("The specified property map was null");
+
+        AccountID accountID = new IcqAccountID(userIDStr, accountProperties);
+
+        //first store the account and only then load it as the load generates
+        //an osgi event, the osgi event triggers (trhgough the UI) a call to
+        //the register() method and it needs to acces the configuration service
+        //and check for a password.
         this.storeAccount(
             IcqActivator.getBundleContext()
             , accountID
             , implementationPackageName);
+
+        accountID = loadAccount(userIDStr, accountProperties);
 
         return accountID;
     }
@@ -112,12 +130,6 @@ public class ProtocolProviderFactoryIcqImpl
         if(context == null)
             throw new NullPointerException("The specified BundleContext was null");
 
-        if(userIDStr == null)
-            throw new NullPointerException("The specified AccountID was null");
-
-        if(accountProperties == null)
-            throw new NullPointerException("The specified property map was null");
-
         AccountID accountID = new IcqAccountID(userIDStr, accountProperties);
 
         //make sure we haven't seen this account id before.
@@ -135,7 +147,7 @@ public class ProtocolProviderFactoryIcqImpl
         ProtocolProviderServiceIcqImpl icqProtocolProvider
             = new ProtocolProviderServiceIcqImpl();
 
-        icqProtocolProvider.initialize(userIDStr, accountProperties, accountID);
+        icqProtocolProvider.initialize(userIDStr, accountID);
 
         ServiceRegistration registration
             = context.registerService( ProtocolProviderService.class.getName(),
