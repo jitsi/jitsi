@@ -91,11 +91,37 @@ public class ProtocolProviderFactorySipImpl
     public AccountID installAccount( String userIDStr,
                                  Map accountProperties)
     {
-        AccountID accountID = loadAccount(userIDStr, accountProperties);
+        BundleContext context
+            = SipActivator.getBundleContext();
+        if (context == null)
+            throw new NullPointerException("The specified BundleContext was null");
+
+        if (userIDStr == null)
+            throw new NullPointerException("The specified AccountID was null");
+
+        if (accountProperties == null)
+            throw new NullPointerException("The specified property map was null");
+
+        String serverAddress = (String)accountProperties.get(SERVER_ADDRESS);
+
+        if(serverAddress == null)
+            throw new NullPointerException(
+                        serverAddress
+                        + " is not a valid ServerAddress");
+
+        AccountID accountID =
+            new SipAccountID(userIDStr, accountProperties, serverAddress);
+
+        //first store the account and only then load it as the load generates
+        //an osgi event, the osgi event triggers (trhgough the UI) a call to
+        //the register() method and it needs to acces the configuration service
+        //and check for a password.
         this.storeAccount(
             SipActivator.getBundleContext()
             , accountID
             , implementationPackageName);
+
+        accountID = loadAccount(userIDStr, accountProperties);
 
         return accountID;
     }
@@ -124,8 +150,15 @@ public class ProtocolProviderFactorySipImpl
         if(accountProperties == null)
             throw new NullPointerException("The specified property map was null");
 
-        AccountID accountID = null;
-        //new SipAccountID(userIDStr, accountProperties);
+        String serverAddress = (String)accountProperties.get(SERVER_ADDRESS);
+
+        if(serverAddress == null)
+            throw new NullPointerException(
+                        serverAddress
+                        + " is not a valid ServerAddress");
+
+        AccountID accountID =
+            new SipAccountID(userIDStr, accountProperties, serverAddress);
 
         //make sure we haven't seen this account id before.
         if( registeredAccounts.containsKey(accountID) )
@@ -142,7 +175,7 @@ public class ProtocolProviderFactorySipImpl
         ProtocolProviderServiceSipImpl sipProtocolProvider
             = new ProtocolProviderServiceSipImpl();
 
-//        sipProtocolProvider.initialize(userIDStr, accountProperties, accountID);
+        sipProtocolProvider.initialize(userIDStr, accountID);
 
         ServiceRegistration registration
             = context.registerService( ProtocolProviderService.class.getName(),
