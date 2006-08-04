@@ -29,12 +29,14 @@ public interface FileAccessService {
      * The key of the configuration property containing the user home dir - if
      * it is not defined the system property is used
      */
-    public static final String CONFPROPERTYKEY_USER_HOME = "net.java.sip.communicator.fileaccess.USER_HOME";
+    public static final String CONFPROPERTYKEY_USER_HOME
+        = "net.java.sip.communicator.fileaccess.USER_HOME";
 
     /**
      * The subdirectory of USER_HOME in which all user files will be stored
      */
-    public static final String CONFPROPERTYKEY_SIPCOMM_DIRECTORY = "net.java.sip.communicator.fileaccess.SIP_COMMUNICATOR_HOME";
+    public static final String CONFPROPERTYKEY_SIPCOMM_DIRECTORY
+        = "net.java.sip.communicator.fileaccess.SIP_COMMUNICATOR_HOME";
 
     /**
      * The default subdirectory
