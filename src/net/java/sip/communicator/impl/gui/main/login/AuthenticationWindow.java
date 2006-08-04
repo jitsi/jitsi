@@ -72,7 +72,7 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
     
     private JCheckBox rememberPassCheckBox
-        = new JCheckBox(Messages.getString(rememberPassword));
+        = new JCheckBox(Messages.getString("rememberPassword"));
 
     private LoginWindowBackground backgroundPanel;
     
