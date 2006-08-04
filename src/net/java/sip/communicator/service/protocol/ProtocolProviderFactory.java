@@ -37,7 +37,8 @@ public abstract class ProtocolProviderFactory
 
     /**
      * The name of a property which represents the AccountID of a
-     * ProtocolProvider.
+     * ProtocolProvider and that, together with a password is used to login
+     * on the protocol network..
      */
     public static final String USER_ID = "USER_ID";
 
@@ -45,6 +46,32 @@ public abstract class ProtocolProviderFactory
      * The name of the property under which we store protocol AccountID-s.
      */
     public static final String ACCOUNT_UID = "ACCOUNT_UID";
+
+    /**
+     * The name of the property under which we store protocol the address of
+     * a protocol centric entity (any protocol server).
+     */
+    public static final String SERVER_ADDRESS = "SERVER_ADDRESS";
+
+    /**
+     * The name of the property under which we store the number of the port
+     * where the server stored against the SERVER_ADDRESS property is expecting
+     * connections to be made via this protocol.
+     */
+    public static final String SERVER_PORT = "SERVER_PORT";
+
+    /**
+     * The name of the property under which we store protocol the address of
+     * a protocol proxy.
+     */
+    public static final String PROXY_ADDRESS = "PROXY_ADDRESS";
+
+    /**
+     * The name of the property under which we store the number of the port
+     * where the proxy stored against the PROXY_ADDRESS property is expecting
+     * connections to be made via this protocol.
+     */
+    public static final String PROXY_PORT = "PROXY_PORT";
 
     /**
      * Initializaed and creates an account corresponding to the specified
@@ -95,9 +122,10 @@ public abstract class ProtocolProviderFactory
     /**
      * Removes the specified account from the list of accounts that this
      * provider factory is handling. If the specified accountID is unknown to the
-     * ProtocolProviderFactory, the call has no effect and false is returned. This method
-     * is persistent in nature and once called the account corresponding to the
-     * specified ID will not be loaded during future runs of the project.
+     * ProtocolProviderFactory, the call has no effect and false is returned.
+     * This method is persistent in nature and once called the account
+     * corresponding to the specified ID will not be loaded during future runs
+     * of the project.
      *
      * @param accountID the ID of the account to remove.
      * @return true if an account with the specified ID existed and was removed
@@ -172,6 +200,20 @@ public abstract class ProtocolProviderFactory
 
     }
 
+
+    protected void storePassword(AccountID accountID,
+                                 String    password)
+    {
+        /** @todo implement storePassword() */
+    }
+
+    protected String loadPassword(AccountID accountID)
+    {
+        /** @todo implement loadPassword() */
+        return null;
+    }
+
+
     /**
      * Restores all accounts stored for the package corresponding to
      * sourceFactory and and installs everyone of them through the install
@@ -242,7 +284,7 @@ public abstract class ProtocolProviderFactory
      * @param userIDStr the user identifier for the new account
      * @param accountProperties a set of protocol (or implementation)
      *   specific properties defining the new account.
-     * @return the AccountID of the newly created account
+     * @return the AccountID of the newly loaded account
      */
     protected abstract AccountID loadAccount(String userIDStr,
                                             Map accountProperties);
