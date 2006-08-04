@@ -25,6 +25,7 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -69,6 +70,9 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
 
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    
+    private JCheckBox rememberPassCheckBox
+        = new JCheckBox(Messages.getString(rememberPassword));
 
     private LoginWindowBackground backgroundPanel;
     
@@ -149,6 +153,7 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
 
         this.textFieldsPanel.add(uinValueLabel);
         this.textFieldsPanel.add(passwdField);
+        this.textFieldsPanel.add(rememberPassCheckBox);
 
         this.buttonsPanel.add(loginButton);
         this.buttonsPanel.add(cancelButton);
@@ -217,7 +222,10 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
         String buttonName = button.getName();
 
         if (buttonName.equals("ok")) {
-            userCredentials.setPassword(passwdField.getPassword());
+            userCredentials.setPassword(
+                    passwdField.getPassword());
+            userCredentials.setPasswordPersistent(
+                    rememberPassCheckBox.isSelected());
         } else {
             this.dispose();
         }
