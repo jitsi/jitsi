@@ -100,7 +100,7 @@ public class AccountManagerIcqImpl
         ProtocolProviderServiceIcqImpl icqProtocolProvider
             = new ProtocolProviderServiceIcqImpl();
 
-        icqProtocolProvider.initialize(userIDStr, accountProperties, accountID);
+        icqProtocolProvider.initialize(userIDStr, accountID);
 
         ServiceRegistration registration
             = context.registerService( ProtocolProviderService.class.getName(),
