@@ -65,10 +65,10 @@ public interface AccountRegistrationWizard {
     public void loadAccount(ProtocolProviderService protocolProvider);
     
     /**
-     * Returns the set of <tt>AccountRegistrationWizardPage</tt>-s for this
+     * Returns the set of <tt>WizardPage</tt>-s for this
      * wizard. 
      * 
-     * @return the set of <tt>AccountRegistrationWizardPage</tt>-s for this
+     * @return the set of <tt>WizardPage</tt>-s for this
      * wizard. 
      */
     public Iterator getPages();
