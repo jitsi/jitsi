@@ -99,24 +99,4 @@ public class NoAccountFoundPage extends JPanel
 
     public void pageBack() {
     }
-    
-    /**
-     * Repaints the background of this panel.
-     */
-    protected void paintComponent(Graphics g) {
-
-        super.paintComponent(g);
-
-        AntialiasingManager.activateAntialiasing(g);
-
-        Graphics2D g2 = (Graphics2D) g;
-       
-        g2.drawImage(ImageLoader.getImage(
-                ImageLoader.LOGIN_WINDOW_LOGO),
-                0, 0, this.getWidth(), this.getHeight(), null);
-        
-        g2.setColor(new Color(255, 255, 255, 200));
-
-        g2.fillRect(0, 0, getWidth(), getHeight());
-    }
 }
