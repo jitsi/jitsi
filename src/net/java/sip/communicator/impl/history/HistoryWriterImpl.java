@@ -105,7 +105,7 @@ public class HistoryWriterImpl implements HistoryWriter {
                                 .createElement(propertyName);
 
                             Text value = this.currentDoc
-                                .createCDATASection(propertyValues[i]);
+                                .createCDATASection(propertyValues[i].replaceAll("\0", " "));
                             propertyElement.appendChild(value);
 
                             elem.appendChild(propertyElement);
@@ -119,7 +119,7 @@ public class HistoryWriterImpl implements HistoryWriter {
                                 .createElement(propertyName);
 
                             Text value = this.currentDoc
-                                .createTextNode(propertyValues[i]);
+                                .createTextNode(propertyValues[i].replaceAll("\0", " "));
                             propertyElement.appendChild(value);
 
                             elem.appendChild(propertyElement);
