@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.main.history;
+package net.java.sip.communicator.impl.gui.main.message.history;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,9 +46,12 @@ public class HistoryMenu extends JMenu implements ActionListener {
 
         this.emptyMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
-
+        
         this.add(emptyMenuItem);
         this.add(closeMenuItem);
+        
+        //disable meni items that are not yet implemented
+        this.emptyMenuItem.setEnabled(false);
     }
 
     /**

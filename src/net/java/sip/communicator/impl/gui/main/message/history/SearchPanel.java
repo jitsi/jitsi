@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.main.history;
+package net.java.sip.communicator.impl.gui.main.message.history;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -97,14 +97,17 @@ public class SearchPanel extends JPanel implements ActionListener {
     private JPanel searchButtonPanel = new JPanel(new FlowLayout(
             FlowLayout.CENTER));
 
+    private HistoryWindow historyWindow;
+    
     // private JPanel extendedSearchPanel = new JPanel(new BorderLayout());
 
     /**
      * Creates an instance of the <tt>SearchPanel</tt>.
      */
-    public SearchPanel() {
-        super();
+    public SearchPanel(HistoryWindow historyWindow) {
 
+        this.historyWindow = historyWindow;
+        
         this.setBorder(BorderFactory.createTitledBorder(Messages
                 .getString("search"))); //$NON-NLS-1$
 
@@ -142,10 +145,12 @@ public class SearchPanel extends JPanel implements ActionListener {
 
         this.dateCenteredPanel.add(datePanel);
 
-        this.searchButton.setName("search");
+        this.searchButton.setName("search");        
         // this.extendedSearchButton.setName("extendedSearch");
         // this.extendedSearchOpenedButton.setName("extendedSearchOpened");
 
+        this.searchButton.addActionListener(this);
+        
         this.searchButtonPanel.add(searchButton);
 
         // this.extendedSearchPanel.add(extendedSearchButton,
@@ -171,7 +176,7 @@ public class SearchPanel extends JPanel implements ActionListener {
         String buttonName = button.getName();
 
         if (buttonName.equalsIgnoreCase("search")) {
-            //TODO: Implement the search.
+            historyWindow.showHistoryByKeyword(searchTextField.getText());
         }
         /*
          * else if(buttonName.equalsIgnoreCase("extendedSearch")){
