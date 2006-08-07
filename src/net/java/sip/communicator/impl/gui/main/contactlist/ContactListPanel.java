@@ -699,7 +699,7 @@ public class ContactListPanel extends JScrollPane
                 ChatWindow msgWindow = (ChatWindow) contactMsgWindows
                         .get(metaContact);
                 msgWindow.getChatPanel(metaContact)
-                    .setChatStatusMessage(notificationMsg);
+                    .setStatusMessage(notificationMsg);
             }
         } else if (tabbedChatWindow != null) {
             Hashtable contactTabsTable 
@@ -708,7 +708,7 @@ public class ContactListPanel extends JScrollPane
             if (contactTabsTable.get(metaContact.getMetaUID()) != null) {
 
                 tabbedChatWindow.getChatPanel(metaContact)
-                    .setChatStatusMessage(notificationMsg);
+                    .setStatusMessage(notificationMsg);
             }
         }
     }

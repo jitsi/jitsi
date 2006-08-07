@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.message.menu;
 
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -14,6 +15,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import net.java.sip.communicator.impl.gui.i18n.Messages;
+import net.java.sip.communicator.impl.gui.main.message.ChatConversationPanel;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 
@@ -27,7 +29,7 @@ import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 public class ChatRightButtonMenu extends JPopupMenu
     implements ActionListener {
 
-    private ChatWindow parentWindow;
+    private ChatConversationPanel chatConvPanel;
     
     private JMenuItem copyMenuItem = new JMenuItem(Messages.getString("copy"),
             new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
@@ -47,10 +49,10 @@ public class ChatRightButtonMenu extends JPopupMenu
      *  
      * @param parentWindow The window owner of this popup menu.
      */
-    public ChatRightButtonMenu(ChatWindow parentWindow) {
+    public ChatRightButtonMenu(ChatConversationPanel chatConvPanel) {
         super();
 
-        this.parentWindow = parentWindow;
+        this.chatConvPanel = chatConvPanel;
         
         this.init();
     }
@@ -94,17 +96,17 @@ public class ChatRightButtonMenu extends JPopupMenu
         String itemText = menuItem.getName();
 
         if (itemText.equalsIgnoreCase("copy")) {
-            this.parentWindow.getCurrentChatPanel().copyConversation();
+            this.chatConvPanel.copyConversation();
             
         } else if (itemText.equalsIgnoreCase("save")) {
 
         } else if (itemText.equalsIgnoreCase("print")) {
 
         } else if (itemText.equalsIgnoreCase("close")) {
-
-            this.parentWindow.setVisible(false);
-            this.parentWindow.dispose();
-
+            
+            Window window = this.chatConvPanel.getChatContainer().getWindow();
+            window.setVisible(false);
+            window.dispose();
         }
     }
 }

@@ -18,7 +18,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.ChatToolbarButton;
 import net.java.sip.communicator.impl.gui.customcontrols.SIPCommButton;
 import net.java.sip.communicator.impl.gui.customcontrols.SIPCommToolBar;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
+import net.java.sip.communicator.impl.gui.main.message.history.HistoryWindow;
 import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
 import net.java.sip.communicator.impl.gui.main.message.SmiliesSelectorBox;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -217,10 +217,9 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
 
         } else if (buttonText.equalsIgnoreCase("history")) {
 
-            HistoryWindow history = new HistoryWindow();
+            HistoryWindow history = new HistoryWindow(messageWindow.getMainFrame(),
+                    messageWindow.getCurrentChatPanel().getMetaContact());
 
-            history.setContacts(messageWindow.getCurrentChatPanel()
-                    .getChatContacts());
             history.setVisible(true);
 
         } else if (buttonText.equalsIgnoreCase("font")) {

@@ -25,7 +25,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.MessageDialog;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactDialog;
-import net.java.sip.communicator.impl.gui.main.history.HistoryWindow;
+import net.java.sip.communicator.impl.gui.main.message.history.HistoryWindow;
 import net.java.sip.communicator.impl.gui.utils.BrowserLauncher;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
@@ -225,8 +225,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         this.userInfoItem.addActionListener(this);
 
         // Disable all menu items that do nothing.
-        this.sendFileItem.setEnabled(false);
-        this.viewHistoryItem.setEnabled(false);                
+        this.sendFileItem.setEnabled(false);                        
     }
 
     /**
@@ -280,9 +279,9 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         } 
         else if (itemName.equalsIgnoreCase("viewHistory")) {
 
-            HistoryWindow history = new HistoryWindow();
-
-            history.setContact(this.contactItem);
+            HistoryWindow history = new HistoryWindow(
+                    this.mainFrame, this.contactItem);
+            
             history.setVisible(true);
         } 
         else if (itemName.equalsIgnoreCase("userInfo")) {
