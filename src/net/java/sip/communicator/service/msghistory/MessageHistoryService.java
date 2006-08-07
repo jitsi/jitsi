@@ -17,18 +17,18 @@ import net.java.sip.communicator.service.history.*;
  */
 public interface MessageHistoryService
 {
-    QueryResultSet findByStartDate(MetaContact contact, Date startDate)
+    Collection findByStartDate(MetaContact contact, Date startDate)
         throws RuntimeException;
-    QueryResultSet findByEndDate(MetaContact contact, Date endDate)
+    Collection findByEndDate(MetaContact contact, Date endDate)
         throws RuntimeException;
-    QueryResultSet findByPeriod(MetaContact contact, Date startDate, Date endDate)
+    Collection findByPeriod(MetaContact contact, Date startDate, Date endDate)
         throws RuntimeException;
-    QueryResultSet findByPeriod(MetaContact contact, Date startDate, Date endDate, String[] keywords)
+    Collection findByPeriod(MetaContact contact, Date startDate, Date endDate, String[] keywords)
         throws UnsupportedOperationException;
-    QueryResultSet findByKeyword(MetaContact contact, String keyword)
+    Collection findByKeyword(MetaContact contact, String keyword)
         throws RuntimeException;
-    QueryResultSet findByKeywords(MetaContact contact, String[] keywords)
+    Collection findByKeywords(MetaContact contact, String[] keywords)
         throws RuntimeException;
-    QueryResultSet findLast(MetaContact contact, int count)
+    Collection findLast(MetaContact contact, int count)
         throws RuntimeException;
 }

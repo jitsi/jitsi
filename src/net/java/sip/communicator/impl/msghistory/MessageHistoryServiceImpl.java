@@ -61,10 +61,10 @@ public class MessageHistoryServiceImpl
         return historyService;
     }
 
-    public QueryResultSet findByStartDate(MetaContact contact, Date startDate)
+    public Collection findByStartDate(MetaContact contact, Date startDate)
         throws RuntimeException
     {
-        Vector result = new Vector();
+        LinkedList result = new LinkedList();
 
         Iterator iter = contact.getContacts();
         while (iter.hasNext())
@@ -78,7 +78,8 @@ public class MessageHistoryServiceImpl
                 Iterator recs = history.getReader().findByStartDate(startDate);
                 while (recs.hasNext())
                 {
-                    result.add(recs.next());
+                    HistoryRecord hr = (HistoryRecord)recs.next();
+                    result.add(convertHistoryRecordToMessageEvent(hr, item));
                 }
             } catch (IOException e)
             {
@@ -86,13 +87,13 @@ public class MessageHistoryServiceImpl
             }
         }
 
-        return new DefaultQueryResultSet(result);
+        return result;
     }
 
-    public QueryResultSet findByEndDate(MetaContact contact, Date endDate)
+    public Collection findByEndDate(MetaContact contact, Date endDate)
         throws RuntimeException
     {
-        Vector result = new Vector();
+        LinkedList result = new LinkedList();
 
         Iterator iter = contact.getContacts();
         while (iter.hasNext())
@@ -106,7 +107,7 @@ public class MessageHistoryServiceImpl
                 Iterator recs = history.getReader().findByEndDate(endDate);
                 while (recs.hasNext())
                 {
-                    result.add(recs.next());
+                    result.add(convertHistoryRecordToMessageEvent((HistoryRecord)recs.next(), item));
                 }
             } catch (IOException e)
             {
@@ -114,13 +115,13 @@ public class MessageHistoryServiceImpl
             }
         }
 
-        return new DefaultQueryResultSet(result);
+        return result;
     }
 
-    public QueryResultSet findByPeriod(MetaContact contact, Date startDate, Date endDate)
+    public Collection findByPeriod(MetaContact contact, Date startDate, Date endDate)
         throws RuntimeException
     {
-        Vector result = new Vector();
+        LinkedList result = new LinkedList();
 
         Iterator iter = contact.getContacts();
         while (iter.hasNext())
@@ -134,7 +135,11 @@ public class MessageHistoryServiceImpl
                 Iterator recs = history.getReader().findByPeriod(startDate, endDate);
                 while (recs.hasNext())
                 {
-                    result.add(recs.next());
+                    result.add(
+                        convertHistoryRecordToMessageEvent(
+                            (HistoryRecord)recs.next(),
+                            item));
+
                 }
             } catch (IOException e)
             {
@@ -142,15 +147,15 @@ public class MessageHistoryServiceImpl
             }
         }
 
-        return new DefaultQueryResultSet(result);
+        return result;
     }
 
-    public QueryResultSet findByPeriod(MetaContact contact,
+    public Collection findByPeriod(MetaContact contact,
                                        Date startDate, Date endDate,
                                        String[] keywords)
         throws UnsupportedOperationException
     {
-        Vector result = new Vector();
+        LinkedList result = new LinkedList();
 
         Iterator iter = contact.getContacts();
         while (iter.hasNext())
@@ -165,7 +170,10 @@ public class MessageHistoryServiceImpl
                     findByPeriod(startDate, endDate, keywords, SEARCH_FIELD);
                 while (recs.hasNext())
                 {
-                    result.add(recs.next());
+                    result.add(
+                        convertHistoryRecordToMessageEvent(
+                            (HistoryRecord)recs.next(),
+                            item));
                 }
             } catch (IOException e)
             {
@@ -173,13 +181,13 @@ public class MessageHistoryServiceImpl
             }
         }
 
-        return new DefaultQueryResultSet(result);
+        return result;
     }
 
-    public QueryResultSet findByKeyword(MetaContact contact, String keyword)
+    public Collection findByKeyword(MetaContact contact, String keyword)
         throws RuntimeException
     {
-        Vector result = new Vector();
+        LinkedList result = new LinkedList();
 
         Iterator iter = contact.getContacts();
         while (iter.hasNext())
@@ -194,7 +202,11 @@ public class MessageHistoryServiceImpl
                     findByKeyword(keyword, SEARCH_FIELD);
                 while (recs.hasNext())
                 {
-                    result.add(recs.next());
+                    result.add(
+                        convertHistoryRecordToMessageEvent(
+                            (HistoryRecord)recs.next(),
+                            item));
+
                 }
             } catch (IOException e)
             {
@@ -202,13 +214,13 @@ public class MessageHistoryServiceImpl
             }
         }
 
-        return new DefaultQueryResultSet(result);
+        return result;
     }
 
-    public QueryResultSet findByKeywords(MetaContact contact, String[] keywords)
+    public Collection findByKeywords(MetaContact contact, String[] keywords)
         throws RuntimeException
     {
-        Vector result = new Vector();
+        LinkedList result = new LinkedList();
 
         Iterator iter = contact.getContacts();
         while (iter.hasNext())
@@ -223,7 +235,11 @@ public class MessageHistoryServiceImpl
                     findByKeywords(keywords, SEARCH_FIELD);
                 while (recs.hasNext())
                 {
-                    result.add(recs.next());
+                    result.add(
+                        convertHistoryRecordToMessageEvent(
+                            (HistoryRecord)recs.next(),
+                            item));
+
                 }
             } catch (IOException e)
             {
@@ -231,13 +247,13 @@ public class MessageHistoryServiceImpl
             }
         }
 
-        return new DefaultQueryResultSet(result);
+        return result;
     }
 
-    public QueryResultSet findLast(MetaContact contact, int count)
+    public Collection findLast(MetaContact contact, int count)
         throws RuntimeException
     {
-        List result = new ArrayList();
+        List result = new LinkedList();
 
         // too stupid but there is no such metod in the history service
         // to be implemented
@@ -257,7 +273,11 @@ public class MessageHistoryServiceImpl
                 Iterator recs = history.getReader().findByStartDate(startDate);
                 while (recs.hasNext())
                 {
-                    result.add(recs.next());
+                    result.add(
+                        convertHistoryRecordToMessageEvent(
+                            (HistoryRecord)recs.next(),
+                            item));
+
                 }
             } catch (IOException e)
             {
@@ -270,7 +290,7 @@ public class MessageHistoryServiceImpl
             result = result.subList(result.size() - count, result.size());
         }
 
-        return new DefaultQueryResultSet(new Vector(result));
+        return new LinkedList(result);
     }
 
     private History getHistory(Contact localContact, Contact remoteContact)
@@ -293,6 +313,23 @@ public class MessageHistoryServiceImpl
         }
 
         return retVal;
+    }
+
+    private Object convertHistoryRecordToMessageEvent(HistoryRecord hr, Contact contact)
+    {
+        MessageImpl msg = new MessageImpl(hr);
+        if(msg.isOutgoing)
+        {
+            return new MessageDeliveredEvent(
+                    new MessageImpl(hr),
+                    contact,
+                    hr.getTimestamp());
+        }
+        else
+            return new MessageReceivedEvent(
+                        new MessageImpl(hr),
+                        contact,
+                        hr.getTimestamp());
     }
 
     /**
@@ -505,6 +542,100 @@ public class MessageHistoryServiceImpl
         else
         {
             logger.debug("Service did not have a im op. set.");
+        }
+    }
+
+    /**
+     * Simple message implementation.
+     */
+    private class MessageImpl
+        implements Message
+    {
+        private String textContent = null;
+        private String contentType = null;
+        private String contentEncoding = null;
+        private String messageUID = null;
+        private String subject = null;
+
+        private boolean isOutgoing = false;
+
+        MessageImpl(HistoryRecord hr)
+        {
+            // History structure
+            // 0 - dir
+            // 1 - msg_CDATA
+            // 2 - msgTyp
+            // 3 - enc
+            // 4- uid
+            // 5 - sub
+
+            for (int i = 0; i < hr.getPropertyNames().length; i++)
+            {
+                String propName = hr.getPropertyNames()[i];
+                if(propName.equals("msg") || propName.equals("msg_CDATA"))
+                    textContent = hr.getPropertyValues()[i];
+                else if(propName.equals("msgTyp"))
+                    contentType = hr.getPropertyValues()[i];
+                else if(propName.equals("enc"))
+                    contentEncoding = hr.getPropertyValues()[i];
+                else if(propName.equals("uid"))
+                    messageUID = hr.getPropertyValues()[i];
+                else if(propName.equals("sub"))
+                    subject = hr.getPropertyValues()[i];
+                else if(propName.equals("dir"))
+                    if(hr.getPropertyValues()[i].equals("in"))
+                        isOutgoing = false;
+                    else if(hr.getPropertyValues()[i].equals("out"))
+                        isOutgoing = true;
+            }
+        }
+
+        public MessageImpl(String content,
+                              String contentType,
+                              String contentEncoding,
+                              String subject,
+                              String messageUID)
+        {
+            this.textContent = content;
+            this.contentType = contentType;
+            this.contentEncoding = contentEncoding;
+            this.subject = subject;
+            this.messageUID = messageUID;
+        }
+
+        public String getContent()
+        {
+            return textContent;
+        }
+
+        public String getContentType()
+        {
+            return contentType;
+        }
+
+        public String getEncoding()
+        {
+            return contentEncoding;
+        }
+
+        public String getMessageUID()
+        {
+            return messageUID;
+        }
+
+        public byte[] getRawData()
+        {
+            return getContent().getBytes();
+        }
+
+        public int getSize()
+        {
+            return getContent().length();
+        }
+
+        public String getSubject()
+        {
+            return subject;
         }
     }
 

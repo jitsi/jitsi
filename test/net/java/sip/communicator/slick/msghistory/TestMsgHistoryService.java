@@ -17,6 +17,7 @@ import net.java.sip.communicator.service.history.records.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Tests message history.
@@ -222,9 +223,9 @@ public class TestMsgHistoryService
         /**
          * This matches all written messages, they are minimum 5
          */
-        QueryResultSet rs = msgHistoryService.findByKeyword(testMetaContact, "test");
+        Collection rs = msgHistoryService.findByKeyword(testMetaContact, "test");
 
-        assertTrue("Nothing found findByKeyword ", rs.hasNext());
+        assertTrue("Nothing found findByKeyword ", !rs.isEmpty());
 
         Vector msgs = getMessages(rs);
 
@@ -236,7 +237,7 @@ public class TestMsgHistoryService
          */
         rs = msgHistoryService.findByEndDate(testMetaContact, controlDate2);
 
-        assertTrue("Nothing found findByEndDate", rs.hasNext());
+        assertTrue("Nothing found findByEndDate", !rs.isEmpty());
 
         msgs = getMessages(rs);
 
@@ -249,7 +250,7 @@ public class TestMsgHistoryService
             testMetaContact,
             new String[]{"test", "word2"});
 
-        assertTrue("Nothing found findByKeywords", rs.hasNext());
+        assertTrue("Nothing found findByKeywords", !rs.isEmpty());
         msgs = getMessages(rs);
         assertTrue("Messages too few - findByKeywords", msgs.size() >= 1);
 
@@ -260,7 +261,7 @@ public class TestMsgHistoryService
             testMetaContact,
             new String[]{"test1", "word2"});
 
-        assertFalse("Something found findByKeywords", rs.hasNext());
+        assertFalse("Something found findByKeywords", !rs.isEmpty());
 
         /**
          * must find 2 messages
@@ -268,9 +269,10 @@ public class TestMsgHistoryService
         rs = msgHistoryService.findByPeriod(
             testMetaContact, controlDate1, controlDate2);
 
-        assertTrue("Nothing found findByPeriod", rs.hasNext());
+        assertTrue("Nothing found findByPeriod", !rs.isEmpty());
 
         msgs = getMessages(rs);
+
         assertEquals("Messages must be 2", msgs.size(), 2);
 
         assertTrue("Message no found",
@@ -284,7 +286,7 @@ public class TestMsgHistoryService
         rs = msgHistoryService.findByPeriod(
             testMetaContact, controlDate1, controlDate2, new String[]{"word2"});
 
-        assertTrue("Nothing found findByPeriod", rs.hasNext());
+        assertTrue("Nothing found findByPeriod", !rs.isEmpty());
 
         msgs = getMessages(rs);
 
@@ -297,7 +299,7 @@ public class TestMsgHistoryService
          */
         rs = msgHistoryService.findByStartDate(testMetaContact, controlDate2);
 
-        assertTrue("Nothing found findByStartDate", rs.hasNext());
+        assertTrue("Nothing found findByStartDate", !rs.isEmpty());
         msgs = getMessages(rs);
         assertEquals("Messages must be 2", msgs.size(), 2);
         assertTrue("Message no found",
@@ -310,7 +312,7 @@ public class TestMsgHistoryService
          */
         rs = msgHistoryService.findLast(testMetaContact, 3);
 
-        assertTrue("Nothing found 8", rs.hasNext());
+        assertTrue("Nothing found 8", !rs.isEmpty());
         msgs = getMessages(rs);
         assertEquals("Messages must be 3", msgs.size(), 3);
         assertTrue("Message no found",
@@ -331,24 +333,23 @@ public class TestMsgHistoryService
         metaClService.purgeLocallyStoredContactListCopy();
     }
 
-    private Vector getMessages(QueryResultSet rs)
+    private Vector getMessages(Collection rs)
     {
         Vector result = new Vector();
-        while (rs.hasNext())
+        Iterator iter = rs.iterator();
+        while (iter.hasNext())
         {
-            HistoryRecord hr = (HistoryRecord)rs.next();
-            for (int i = 0; i < hr.getPropertyNames().length; i++)
-            {
-                if(hr.getPropertyNames()[i].equals("msg"))
-                {
-                    result.add(hr.getPropertyValues()[i]);
-                    break;
-                }
-            }
+            Object item = (Object) iter.next();
+            if(item instanceof MessageDeliveredEvent)
+                result.add(((MessageDeliveredEvent)item).getSourceMessage().getContent());
+            else
+                if(item instanceof MessageReceivedEvent)
+                    result.add(((MessageReceivedEvent)item).getSourceMessage().getContent());
         }
 
         return result;
     }
+
 
     private void dumpResult(QueryResultSet rs)
     {
