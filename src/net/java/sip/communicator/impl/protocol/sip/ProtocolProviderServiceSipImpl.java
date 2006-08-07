@@ -103,8 +103,7 @@ public class ProtocolProviderServiceSipImpl
      */
     public AccountID getAccountID()
     {
-        /** @todo implement getAccountID() */
-        return null;
+        return accountID;
     }
 
     /**
