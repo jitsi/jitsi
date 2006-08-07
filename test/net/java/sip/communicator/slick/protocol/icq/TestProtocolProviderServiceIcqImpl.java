@@ -104,7 +104,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
         //they were properly dispatched.
         fixture.provider.addRegistrationStateChangeListener(regEvtCollector);
 
-        fixture.provider.register(null);
+        fixture.provider.register(new SecurityAuthorityImpl());
 
         //give it enough time to register. We won't really have to wait all this
         //time since the registration event collector would notify us the moment
