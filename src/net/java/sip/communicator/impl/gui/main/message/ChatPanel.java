@@ -11,6 +11,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.IOException;
@@ -51,7 +52,7 @@ import net.java.sip.communicator.util.Logger;
  * @author Yana Stamcheva
  */
 public class ChatPanel extends JPanel
-    implements ExportedDialog {
+    implements ExportedDialog, ChatConversationContainer {
 
     private static final Logger logger = Logger
         .getLogger(ChatPanel.class.getName());
@@ -69,8 +70,6 @@ public class ChatPanel extends JPanel
 
     private ChatSendPanel sendPanel;
 
-    private Vector chatContacts = new Vector();
-
     private ChatWindow chatWindow;
 
     private OperationSetBasicInstantMessaging imOperationSet;
@@ -78,6 +77,8 @@ public class ChatPanel extends JPanel
     private OperationSetTypingNotifications tnOperationSet;
 
     private Contact protocolContact;
+    
+    private MetaContact metaContact;
     
     private boolean isVisible = false;
     
@@ -89,12 +90,16 @@ public class ChatPanel extends JPanel
      * @param protocolContact The subContact which is selected ins
      * the chat.
      */
-    public ChatPanel(ChatWindow chatWindow, Contact protocolContact) {
+    public ChatPanel(   ChatWindow chatWindow,
+                        MetaContact metaContact,
+                        Contact protocolContact) {
 
         super(new BorderLayout());
 
         this.chatWindow = chatWindow;
+        this.metaContact = metaContact;
         this.protocolContact = protocolContact;
+        
         this.imOperationSet = this.chatWindow.getMainFrame().getProtocolIM(
                 protocolContact.getProtocolProvider());
         this.tnOperationSet = this.chatWindow.getMainFrame()
@@ -115,6 +120,8 @@ public class ChatPanel extends JPanel
 
         this.init();
 
+        this.setChatMetaContact(metaContact, protocolContact.getPresenceStatus());
+        
         addComponentListener(new TabSelectionFocusGainListener());
     }
 
@@ -140,13 +147,13 @@ public class ChatPanel extends JPanel
      * @param contactItem The MetaContact to add.
      * @param status The current presence status of the contact.
      */
-    public void addContactToChat(MetaContact contactItem, 
+    private void setChatMetaContact(MetaContact metaContact, 
                                 PresenceStatus status) {
-        this.chatContacts.add(contactItem);
+        this.metaContact = metaContact;
 
-        this.chatConferencePanel.addContactToChat(contactItem, status);
+        this.chatConferencePanel.setChatMetaContact(metaContact, status);
 
-        this.sendPanel.addProtocolContacts(contactItem);
+        this.sendPanel.addProtocolContacts(metaContact);
 
         this.sendPanel.setSelectedProtocolContact(this.protocolContact);
     }
@@ -156,42 +163,13 @@ public class ChatPanel extends JPanel
      * 
      * @param contactItem The <tt>MetaContact</tt> to add.
      */
-    public void addContactToChat(MetaContact contactItem) {
+    private void setChatMetaContact(MetaContact metaContact) {
 
-        this.chatContacts.add(contactItem);
+        this.metaContact = metaContact;
 
-        this.chatConferencePanel.addContactToChat(contactItem);
+        this.chatConferencePanel.setChatMetaContact(metaContact);
 
-        this.sendPanel.addProtocolContacts(contactItem);
-    }
-
-    /**
-     * Removes a <tt>MetaContact</tt> from the chat.
-     * 
-     * @param contactItem The <tt>MetaContact</tt> to remove.
-     */
-    public void removeContactFromChat(MetaContact contactItem) {
-        this.chatContacts.remove(contactItem);
-    }
-
-    /**
-     * Returns a list of contacts corresponding to this chat.
-     * 
-     * @return A Vector containing all MetaContact-s 
-     * for the chat.
-     */
-    public Vector getChatContacts() {
-        return chatContacts;
-    }
-
-    /**
-     * Sets all contacts for this chat. This is in the 
-     * case when we creates a conference chat.
-     * 
-     * @param chatContacts A Vector of MetaContact-s.
-     */
-    public void setChatContacts(Vector chatContacts) {
-        this.chatContacts = chatContacts;
+        this.sendPanel.addProtocolContacts(metaContact);
     }
 
     /**
@@ -204,34 +182,13 @@ public class ChatPanel extends JPanel
     }
 
     /**
-     * Returns the panel that contains the "write" editor 
-     * pane of this chat.
-     * 
-     * @return The ChatWritePanel.
-     */
-    /*
-    public ChatWritePanel getWriteMessagePanel() {
-        return writeMessagePanel;
-    }
-*/
-    /**
-     * Returns the panel that contains the conversation.
-     * 
-     * @return The ChatConversationPanel.
-     */
-    /*
-    public ChatConversationPanel getConversationPanel() {
-        return conversationPanel;
-    }
-    */
-    /**
      * Returns the default contact for the chat. The case of conference 
      * is not yet implemented and for now it returns the first contact.
      * 
      * @return The default contact for the chat.
      */
-    public MetaContact getDefaultContact() {
-        return (MetaContact) this.getChatContacts().get(0);
+    public MetaContact getMetaContact() {
+        return this.metaContact;
     }
 
     /**
@@ -245,6 +202,17 @@ public class ChatPanel extends JPanel
         return chatWindow;
     }
 
+    /**
+     * Returns the chat window, where this chat panel
+     * is located.
+     * 
+     * @return ChatWindow The chat window, where this 
+     * chat panel is located.
+     */
+    public Window getWindow() {
+        return chatWindow;
+    }
+    
     /**
      * Returns the instant messaging operation set for 
      * this chat panel.
@@ -318,7 +286,7 @@ public class ChatPanel extends JPanel
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             getChatWindow().setTitle(
-                                    getDefaultContact().getDisplayName());
+                                    getMetaContact().getDisplayName());
 
                             chatWindow.setCurrentChatPanel(ChatPanel.this);
 
@@ -390,8 +358,8 @@ public class ChatPanel extends JPanel
      * window. Used to show typing notification messages, links' hrefs, etc.
      * @param statusMessage The message text to be displayed. 
      */
-    public void setChatStatusMessage(String statusMessage){
-        this.sendPanel.setChatStatusMessage(statusMessage);
+    public void setStatusMessage(String statusMessage){
+        this.sendPanel.setStatusMessage(statusMessage);
     }
     
     /**
@@ -463,15 +431,6 @@ public class ChatPanel extends JPanel
         if (editorPane.getSelectedText() == null) {
             editorPane = this.writeMessagePanel.getEditorPane();
         }
-        editorPane.copy();
-    }
-    
-    /**
-     * Copies the selected conversation panel content to the clipboard.
-     */
-    public void copyConversation(){
-        JEditorPane editorPane = this.conversationPanel.getChatEditorPane();
-
         editorPane.copy();
     }
     
@@ -557,7 +516,7 @@ public class ChatPanel extends JPanel
      * panel.
      */
     public PresenceStatus getPresenceStatus() {
-        return getDefaultContact().getDefaultContact().getPresenceStatus();
+        return getMetaContact().getDefaultContact().getPresenceStatus();
     }
 
     /**
@@ -581,7 +540,7 @@ public class ChatPanel extends JPanel
             if(!contactChats.containsValue(this))
                 this.chatWindow.addChatTab(this);
             else
-                this.chatWindow.setSelectedContactTab(getDefaultContact());
+                this.chatWindow.setSelectedContactTab(getMetaContact());
         }
         else {
             if(!contactChats.containsValue(this))

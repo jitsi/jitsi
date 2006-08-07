@@ -174,7 +174,7 @@ public class ChatSendPanel extends JPanel implements ActionListener {
      * window. Used to show typing notification messages, links' hrefs, etc.
      * @param statusMessage The message text to be displayed. 
      */
-    public void setChatStatusMessage(String statusMessage) {
+    public void setStatusMessage(String statusMessage) {
         int stringWidth = StringUtils
             .getStringWidth(statusLabel, statusMessage);
         

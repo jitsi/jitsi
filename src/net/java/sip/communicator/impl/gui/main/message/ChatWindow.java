@@ -228,10 +228,9 @@ public class ChatWindow extends JFrame {
     public ChatPanel createChat(MetaContact contact,
             PresenceStatus status, Contact protocolContact) {
 
-        ChatPanel chatPanel = new ChatPanel(this, protocolContact);
+        ChatPanel chatPanel = new ChatPanel(
+                this, contact, protocolContact);
         
-        chatPanel.addContactToChat(contact, status);
-
         this.contactChats.put(contact.getMetaUID(), chatPanel);
         
 //      this.sendPanel.addProtocols(contactItem.getProtocolList());
@@ -251,7 +250,7 @@ public class ChatWindow extends JFrame {
         
         this.getContentPane().add(this.currentChatPanel, BorderLayout.CENTER);
         
-        this.windowTitle += chatPanel.getDefaultContact()
+        this.windowTitle += chatPanel.getMetaContact()
             .getDisplayName() + " ";
 
         this.setTitle(this.windowTitle);
@@ -267,7 +266,7 @@ public class ChatWindow extends JFrame {
     public void addChatTab(ChatPanel chatPanel) {
         chatPanel.setChatVisible(true);
         
-        String contactName = chatPanel.getDefaultContact().getDisplayName();
+        String contactName = chatPanel.getMetaContact().getDisplayName();
         PresenceStatus status = chatPanel.getPresenceStatus();
         
         if (chatTabbedPane == null) {
@@ -304,7 +303,7 @@ public class ChatWindow extends JFrame {
                 PresenceStatus currentContactStatus = firstChatPanel
                         .getPresenceStatus();
                 //Add first two tabs to the tabbed pane.
-                chatTabbedPane.addTab(firstChatPanel.getDefaultContact()
+                chatTabbedPane.addTab(firstChatPanel.getMetaContact()
                         .getDisplayName(), new ImageIcon(Constants
                         .getStatusIcon(currentContactStatus)), firstChatPanel);
                 
@@ -344,7 +343,7 @@ public class ChatWindow extends JFrame {
                     .get(contact.getMetaUID()));
 
             this.chatTabbedPane.setSelectedComponent(chatPanel);            
-            this.setTitle(chatPanel.getDefaultContact().getDisplayName());
+            this.setTitle(chatPanel.getMetaContact().getDisplayName());
             this.setCurrentChatPanel(chatPanel);            
             chatPanel.requestFocusInWriteArea();
         }
@@ -360,7 +359,7 @@ public class ChatWindow extends JFrame {
 
         this.setCurrentChatPanel(chatPanel);
         this.chatTabbedPane.setSelectedIndex(index);
-        this.setTitle(chatPanel.getDefaultContact().getDisplayName());
+        this.setTitle(chatPanel.getMetaContact().getDisplayName());
         this.setVisible(true);
         chatPanel.requestFocusInWriteArea();
     }
@@ -378,7 +377,7 @@ public class ChatWindow extends JFrame {
 
         if (title != null) {
             if (chatTabbedPane.getTabCount() > 1) {
-                this.contactChats.remove(closeChat.getDefaultContact()
+                this.contactChats.remove(closeChat.getMetaContact()
                         .getMetaUID());
             }
 
@@ -419,7 +418,7 @@ public class ChatWindow extends JFrame {
      */
     public void removeChatTab(ChatPanel chatPanel) {
         this.chatTabbedPane.remove(chatPanel);
-        this.contactChats.remove(chatPanel.getDefaultContact().getMetaUID());
+        this.contactChats.remove(chatPanel.getMetaContact().getMetaUID());
         this.validate();
     }
     

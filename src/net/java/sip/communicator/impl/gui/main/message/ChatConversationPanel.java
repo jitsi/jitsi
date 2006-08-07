@@ -75,7 +75,7 @@ public class ChatConversationPanel extends JScrollPane implements
 
     private HTMLDocument document;
 
-    private ChatPanel chatPanel;
+    private ChatConversationContainer chatContainer;
     
     private ChatRightButtonMenu rightButtonMenu;
     
@@ -105,14 +105,14 @@ public class ChatConversationPanel extends JScrollPane implements
      * Creates an instance of <tt>ChatConversationPanel</tt>.
      * @param chatPanel The parent <tt>ChatPanel</tt>.
      */
-    public ChatConversationPanel(ChatPanel chatPanel) {
+    public ChatConversationPanel(ChatConversationContainer chatContainer) {
 
         super();
 
-        this.chatPanel = chatPanel;
+        this.chatContainer = chatContainer;
 
         this.rightButtonMenu 
-            = new ChatRightButtonMenu(chatPanel.getChatWindow());
+            = new ChatRightButtonMenu(this);
         
         this.document = (HTMLDocument) editorKit.createDefaultDocument();
 
@@ -127,7 +127,7 @@ public class ChatConversationPanel extends JScrollPane implements
 
         Constants.loadSimpleStyle(document.getStyleSheet());
 
-        this.initEditor();
+        //this.initEditor();
 
         this.chatEditorPane.addHyperlinkListener(this);
         this.chatEditorPane.addMouseListener(this);
@@ -375,7 +375,7 @@ public class ChatConversationPanel extends JScrollPane implements
         } else if (e.getEventType() == HyperlinkEvent.EventType.ENTERED) {
             String href = e.getDescription();
             
-            this.chatPanel.setChatStatusMessage(href);
+            this.chatContainer.setStatusMessage(href);
             
             this.currentHref = href;
             /*
@@ -396,7 +396,7 @@ public class ChatConversationPanel extends JScrollPane implements
             
         } else if (e.getEventType() == HyperlinkEvent.EventType.EXITED) {
             
-            this.chatPanel.setChatStatusMessage("");
+            this.chatContainer.setStatusMessage("");
             this.currentHref = "";
             /*
              * Tooltip on hyperlinks - JDK1.5+
@@ -494,5 +494,18 @@ public class ChatConversationPanel extends JScrollPane implements
 
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
         
+    }
+
+    public ChatConversationContainer getChatContainer() {
+        return chatContainer;
+    }
+    
+    /**
+     * Copies the selected conversation panel content to the clipboard.
+     */
+    public void copyConversation(){
+        JEditorPane editorPane = this.getChatEditorPane();
+
+        editorPane.copy();
     }
 }

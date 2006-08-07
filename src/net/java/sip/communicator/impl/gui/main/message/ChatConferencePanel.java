@@ -85,7 +85,7 @@ public class ChatConferencePanel extends JPanel {
      * Adds a <tt>MetaContact</tt> to the chat.
      * @param contactItem The <tt>MetaContact</tt> to be added.
      */
-    public void addContactToChat(MetaContact contactItem) {
+    public void setChatMetaContact(MetaContact contactItem) {
 
         this.chatContactPanel = new ChatContactPanel(contactItem);
 
@@ -98,7 +98,7 @@ public class ChatConferencePanel extends JPanel {
      * @param contactItem The <tt>MetaContact</tt> to be added.
      * @param status The <tt>PresenceStatus</tt> of the contact.
      */
-    public void addContactToChat(MetaContact contactItem, 
+    public void setChatMetaContact(MetaContact contactItem, 
                                 PresenceStatus status) {
 
         chatContactPanel = new ChatContactPanel(contactItem, status);
