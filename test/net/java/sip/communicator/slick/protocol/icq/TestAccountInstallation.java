@@ -36,8 +36,8 @@ public class TestAccountInstallation extends TestCase
 
     protected void setUp() throws Exception
     {
-        super.setUp();
 
+        super.setUp();
     }
 
     protected void tearDown() throws Exception
