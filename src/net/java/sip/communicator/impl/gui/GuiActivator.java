@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.main.login.LoginManager;
 import net.java.sip.communicator.service.configuration.ConfigurationService;
 import net.java.sip.communicator.service.contactlist.MetaContactListService;
 import net.java.sip.communicator.service.gui.UIService;
+import net.java.sip.communicator.service.msghistory.MessageHistoryService;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.util.Logger;
@@ -43,6 +44,8 @@ public class GuiActivator implements BundleActivator {
     public static BundleContext bundleContext;
 
     private static ConfigurationService configService;
+    
+    private static MessageHistoryService msgHistoryService;
 
     private static Map providerFactoriesMap = new Hashtable();
 
@@ -120,6 +123,12 @@ public class GuiActivator implements BundleActivator {
         }
     }
 
+    /**
+     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>ConfigurationService</tt> obtained from the bundle
+     * context
+     */
     public static ConfigurationService getConfigurationService() {
         if(configService == null) {
             ServiceReference configReference = bundleContext
@@ -132,6 +141,12 @@ public class GuiActivator implements BundleActivator {
         return configService;
     }
 
+    /**
+     * Returns all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
+     * context.
+     * @return all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
+     * context
+     */
     public static Map getProtocolProviderFactories() {
 
         ServiceReference[] serRefs = null;
@@ -185,6 +200,28 @@ public class GuiActivator implements BundleActivator {
             .bundleContext.getService(serRefs[0]);
     }
     
+    /**
+     * Returns the <tt>MessageHistoryService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>MessageHistoryService</tt> obtained from the bundle
+     * context
+     */
+    public static MessageHistoryService getMsgHistoryService() {
+        if (msgHistoryService == null) {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(MessageHistoryService.class.getName());
+
+            msgHistoryService = (MessageHistoryService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return msgHistoryService;
+    }
+    
+    /**
+     * Returns the current implementation of the <tt>UIService</tt>.
+     * @return the current implementation of the <tt>UIService</tt>
+     */
     public static UIService getUIService() {
         return uiService;
     }
