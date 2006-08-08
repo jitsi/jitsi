@@ -5,7 +5,6 @@ Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 Import-Package: org.ungoverned.gravity.servicebinder,
  org.osgi.framework,
- net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.fileaccess,
  net.java.sip.communicator.service.history,
  net.java.sip.communicator.service.msghistory,
