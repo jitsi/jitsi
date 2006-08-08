@@ -5,10 +5,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/Stun4J.jar"/>
 	<classpathentry kind="lib" path="lib/jaxen-1.1-beta-8.jar"/>
-	<classpathentry kind="lib" path="lib/JainSipApi1.1.jar"/>
-	<classpathentry kind="lib" path="lib/nist-sdp-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/nist-sip-1.2.jar"/>
 	<classpathentry sourcepath="/opt/oscar/src.jar" kind="lib" path="lib/oscar.jar"/>
+	<classpathentry kind="lib" path="lib/sip-sdp.jar"/>
 	<classpathentry kind="lib" path="lib/osgi.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib/moduleloader.jar"/>
@@ -17,7 +15,6 @@
 	<classpathentry kind="lib" path="lib/jmf-lin/jmf.jar"/>
 	<classpathentry kind="lib" path="lib/jmf-sol/jmf.jar"/>
 	<classpathentry kind="lib" path="lib/jmf-win/jmf.jar"/>
-	<classpathentry kind="lib" path="lib/architectureviewer1.1.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk14-130.jar"/>
 	<classpathentry kind="lib" path="lib/joscar-0.9.4-cvs-bin.jar"/>
 	<classpathentry kind="lib" path="lib/oscar-aim.jar"/>
