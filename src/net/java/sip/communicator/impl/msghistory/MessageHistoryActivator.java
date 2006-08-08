@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.msghistory;
 
 import org.osgi.framework.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.util.*;
@@ -36,12 +35,6 @@ public class MessageHistoryActivator
         try{
 
             logger.logEntry();
-            // get the config service
-            ServiceReference refConfig = bundleContext.getServiceReference(
-                ConfigurationService.class.getName());
-
-            ConfigurationService configurationService = (ConfigurationService)
-                bundleContext.getService(refConfig);
 
             ServiceReference refHistory = bundleContext.getServiceReference(
                 HistoryService.class.getName());
@@ -53,7 +46,6 @@ public class MessageHistoryActivator
             msgHistoryService =
                 new MessageHistoryServiceImpl();
             // set the configuration and history service
-            msgHistoryService.setConfigurationService(configurationService);
             msgHistoryService.setHistoryService(historyService);
 
             msgHistoryService.start(bundleContext);
