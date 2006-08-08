@@ -1,0 +1,7 @@
+Bundle-Activator: net.java.sip.communicator.slick.protocol.sip.SipProtocolProviderServiceLick
+Bundle-Name: SIP Communicator SIP Protocol Provider SLICK
+Bundle-Description: A bundle that contains all tests for the SIP implementation of the Protocol Provider Service.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: net.java.sip.communicator.util,
+ net.java.sip.communicator.service.protocol
