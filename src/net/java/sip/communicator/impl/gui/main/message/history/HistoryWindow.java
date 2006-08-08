@@ -8,19 +8,20 @@
 package net.java.sip.communicator.impl.gui.main.message.history;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
@@ -30,11 +31,7 @@ import net.java.sip.communicator.impl.gui.main.message.ChatConversationPanel;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.history.QueryResultSet;
-import net.java.sip.communicator.service.history.records.HistoryRecord;
 import net.java.sip.communicator.service.msghistory.MessageHistoryService;
-import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.service.protocol.event.MessageDeliveredEvent;
 import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
@@ -47,14 +44,16 @@ import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
  * @author Yana Stamcheva
  */
 public class HistoryWindow extends JFrame
-    implements ChatConversationContainer {
+    implements ChatConversationContainer, ActionListener {
 
     private JPanel historyPane = new JPanel(new BorderLayout());
 
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
 
-    private NavigationPanel navigationPanel = new NavigationPanel();
-
+    private JPanel refreshPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    
+    private JButton refreshButton = new JButton(Messages.getString("refresh"));
+    
     private SearchPanel searchPanel;
 
     private JMenuBar historyMenuBar = new JMenuBar();
@@ -65,15 +64,21 @@ public class HistoryWindow extends JFrame
     
     private DatesPanel datesPanel;
 
-    private Vector contacts;
-
     private MetaContact metaContact;
-
-    private String title = Messages.getString("history") + " - ";
 
     private MessageHistoryService msgHistory = GuiActivator.getMsgHistoryService();
     
     private MainFrame mainFrame;
+    
+    private static String KEYWORD_SEARCH = "KeywordSearch";
+    
+    private static String PERIOD_SEARCH = "PeriodSearch";
+    
+    private String lastExecutedSearch;
+    
+    private Date searchStartDate;
+    
+    private String searchKeyword;
     
     /**
      * Creates an instance of the <tt>HistoryWindow</tt>.
@@ -149,6 +154,10 @@ public class HistoryWindow extends JFrame
      */
     private void initPanels() {
         
+        this.refreshButton.addActionListener(this);
+        
+        this.refreshPanel.add(refreshButton);
+        
         this.historyMenuBar.add(historyMenu);
 
         this.northPanel.add(historyMenuBar, BorderLayout.NORTH);
@@ -161,7 +170,7 @@ public class HistoryWindow extends JFrame
 
         this.mainPanel.add(historyPane, BorderLayout.CENTER);
 
-        //this.mainPanel.add(navigationPanel, BorderLayout.SOUTH);
+        this.mainPanel.add(refreshPanel, BorderLayout.SOUTH);
         
         this.mainPanel.add(datesPanel, BorderLayout.WEST);
 
@@ -179,6 +188,10 @@ public class HistoryWindow extends JFrame
                 this.metaContact, startDate, endDate);
         
         showHistory(msgList);
+        
+        this.lastExecutedSearch = PERIOD_SEARCH;
+        
+        this.searchStartDate = startDate;
     }
     
     /**
@@ -191,6 +204,9 @@ public class HistoryWindow extends JFrame
                 this.metaContact, keyword);
         
         showHistory(msgList);
+        
+        this.lastExecutedSearch = KEYWORD_SEARCH;
+        this.searchKeyword = keyword;
     }
     
     /**
@@ -249,5 +265,20 @@ public class HistoryWindow extends JFrame
      */
     public Window getWindow() {
         return this;
+    }
+
+    /**
+     * Handles the <tt>ActionEvent</tt> triggered when user clicks on the
+     * refresh button. Executes ones more the last search.
+     */
+    public void actionPerformed(ActionEvent e) {
+        
+        if(lastExecutedSearch.equals(KEYWORD_SEARCH)) {
+            showHistoryByKeyword(searchKeyword);
+        }
+        else if(lastExecutedSearch.equals(PERIOD_SEARCH)) {
+            showHistoryByPeriod(searchStartDate,
+                    new Date(System.currentTimeMillis()));
+        }
     }
 }
