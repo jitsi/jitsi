@@ -29,17 +29,28 @@ public class TestAccountInstallation extends TestCase
 
     ProtocolProviderFactory icqProviderFactory  = null;
 
+    /**
+     * Creates the test with the specified method name.
+     * @param name the name of the method to execute.
+     */
     public TestAccountInstallation(String name)
     {
         super(name);
     }
 
+    /**
+     * JUnit setup method.
+     * @throws Exception in case anything goes wrong.
+     */
     protected void setUp() throws Exception
     {
-
         super.setUp();
     }
 
+    /**
+     * JUnit teardown method.
+     * @throws Exception in case anything goes wrong.
+     */
     protected void tearDown() throws Exception
     {
         super.tearDown();
