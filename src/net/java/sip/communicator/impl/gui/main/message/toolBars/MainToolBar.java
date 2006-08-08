@@ -159,8 +159,7 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
         this.printButton.setEnabled(false);
         this.previousButton.setEnabled(false);
         this.nextButton.setEnabled(false);
-        this.sendFileButton.setEnabled(false);
-        this.historyButton.setEnabled(false);
+        this.sendFileButton.setEnabled(false);        
         this.fontButton.setEnabled(false);
     }
 
@@ -216,7 +215,7 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
         } else if (buttonText.equalsIgnoreCase("sendFile")) {
 
         } else if (buttonText.equalsIgnoreCase("history")) {
-
+            
             HistoryWindow history = new HistoryWindow(messageWindow.getMainFrame(),
                     messageWindow.getCurrentChatPanel().getMetaContact());
 

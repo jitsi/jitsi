@@ -15,8 +15,10 @@ import java.awt.Window;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -30,14 +32,19 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
 
+import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.customcontrols.SIPCommSelectorBox;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.gui.ExportedDialog;
+import net.java.sip.communicator.service.msghistory.MessageHistoryService;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
 import net.java.sip.communicator.service.protocol.PresenceStatus;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.service.protocol.event.MessageDeliveredEvent;
+import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
 import net.java.sip.communicator.util.Logger;
 
 /**
@@ -120,6 +127,8 @@ public class ChatPanel extends JPanel
 
         this.init();
 
+        this.initChat();
+        
         this.setChatMetaContact(metaContact, protocolContact.getPresenceStatus());
         
         addComponentListener(new TabSelectionFocusGainListener());
@@ -141,6 +150,45 @@ public class ChatPanel extends JPanel
         this.add(sendPanel, BorderLayout.SOUTH);
     }
 
+    private void initChat() {
+        MessageHistoryService msgHistory = GuiActivator.getMsgHistoryService();
+        
+        Collection c = msgHistory.findLast(
+                this.metaContact, Constants.CHAT_HISTORY_SIZE);
+        
+        if(c.size() > 0) {
+            
+            Iterator i = c.iterator();
+            
+            while (i.hasNext()) {
+                
+                Object o = i.next();
+                
+                if(o instanceof MessageDeliveredEvent) {
+                    
+                    MessageDeliveredEvent evt = (MessageDeliveredEvent)o;
+                    
+                    ProtocolProviderService protocolProvider = evt
+                        .getDestinationContact().getProtocolProvider();
+                    
+                    conversationPanel.processMessage(
+                            this.chatWindow.getMainFrame()
+                                .getAccount(protocolProvider),
+                            evt.getTimestamp(), Constants.OUTGOING_MESSAGE,
+                            evt.getSourceMessage().getContent());
+                }
+                else if(o instanceof MessageReceivedEvent) {
+                    MessageReceivedEvent evt = (MessageReceivedEvent)o;
+                                    
+                    conversationPanel.processMessage(
+                            evt.getSourceContact().getDisplayName(),
+                            evt.getTimestamp(), Constants.INCOMING_MESSAGE,
+                            evt.getSourceMessage().getContent());
+                }
+            }
+        }
+    }
+    
     /**
      * Adds a new <tt>MetaContact</tt> to this chat panel.
      * 

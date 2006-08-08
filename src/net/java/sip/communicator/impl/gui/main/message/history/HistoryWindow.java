@@ -8,6 +8,7 @@
 package net.java.sip.communicator.impl.gui.main.message.history;
 
 import java.awt.BorderLayout;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.util.Collection;
 import java.util.Date;
@@ -85,7 +86,8 @@ public class HistoryWindow extends JFrame
         this.mainFrame = mainFrame;
         this.metaContact = metaContact;
         
-        this.setTitle(metaContact.getDisplayName());
+        this.setTitle(Messages.getString(
+                "historyContact", metaContact.getDisplayName()));
         
         this.datesPanel = new DatesPanel(this);
         this.historyMenu = new HistoryMenu(this);
@@ -95,10 +97,17 @@ public class HistoryWindow extends JFrame
                 Constants.HISTORY_WINDOW_HEIGHT);
 
         this.setIconImage(ImageLoader.getImage(ImageLoader.SIP_LOGO));
+        
+        this.initPanels();
 
         this.initData();
         
-        this.initPanels();
+        this.setLocation(
+                Toolkit.getDefaultToolkit().getScreenSize().width/2 
+                    - this.getWidth()/2,
+                Toolkit.getDefaultToolkit().getScreenSize().height/2 
+                    - this.getHeight()/2
+                );
     }
 
     /**
@@ -106,14 +115,14 @@ public class HistoryWindow extends JFrame
      * with the given contact is availabled.
      */
     private void initData() {
-        Collection msgList = this.msgHistory.findByEndDate(
+        Collection c = this.msgHistory.findByEndDate(
                 this.metaContact, new Date(System.currentTimeMillis()));
         
-        Iterator i = msgList.iterator();
-                
+        Object[] msgArray = c.toArray();        
         Date date = null;
-        while (i.hasNext()) {
-            Object o = i.next();
+        
+        for (int i = 0; i < msgArray.length; i ++) {           
+            Object o = msgArray[i];
             
             if (o instanceof MessageDeliveredEvent) {
                 MessageDeliveredEvent evt = (MessageDeliveredEvent)o; 
@@ -129,6 +138,10 @@ public class HistoryWindow extends JFrame
                 datesPanel.addDate(date);
             }
         }
+        
+        //Initializes the conversation panel with the data of the first
+        //conversation.
+        this.datesPanel.setSelected(0);
     }
     
     /**

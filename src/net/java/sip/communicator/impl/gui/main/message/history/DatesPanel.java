@@ -178,5 +178,13 @@ public class DatesPanel extends JScrollPane
         this.historyWindow.showHistoryByPeriod(
                 stringToDate(dateString),
                 nextDate);
-    } 
+    }
+    
+    /**
+     * Selects the cell at the given index.
+     * @param index the index of the cell to select
+     */
+    public void setSelected(int index) {
+        this.datesList.setSelectedIndex(index);
+    }
 }
