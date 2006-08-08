@@ -337,7 +337,8 @@ public class ChatConversationPanel extends JScrollPane implements
                     + ImageLoader.getSmiley(matchGroup).getImagePath()
                     + "' ALT='" + matchGroup + "'></IMG><PLAINTEXT>";
 
-            m.appendReplacement(msgBuffer, replacement);
+            m.appendReplacement(msgBuffer, 
+                    StringUtils.replaceSpecialRegExpChars(replacement));
         }
         m.appendTail(msgBuffer);
 

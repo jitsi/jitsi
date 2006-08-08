@@ -891,7 +891,7 @@ public class ImageLoader {
                 "$-)", "$)" }));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY2, new String[] {
-                "8-)", "8)" }));
+                "B-)", "B)" }));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY3, new String[] {
                 ":-*", ":*" }));
