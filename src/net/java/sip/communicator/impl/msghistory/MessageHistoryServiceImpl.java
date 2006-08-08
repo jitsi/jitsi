@@ -10,7 +10,6 @@ import java.io.*;
 import java.util.*;
 
 import org.osgi.framework.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
@@ -20,6 +19,10 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
+ * The Message History Service stores messages exchanged through the various protocols
+ * Logs messages for all protocol providers that support basic instant messaging
+ * (i.e. those that implement OperationSetBasicInstantMessaging).
+ *
  * @author Alexander Pelov
  * @author Damian Minkov
  */
@@ -38,6 +41,7 @@ public class MessageHistoryServiceImpl
         new HistoryRecordStructure(
             new String[] { "dir", "msg_CDATA", "msgTyp", "enc", "uid", "sub" });
 
+    // the field used to search by keywords
     private static final String SEARCH_FIELD = "msg";
 
     /**
@@ -45,22 +49,25 @@ public class MessageHistoryServiceImpl
      */
     private BundleContext bundleContext = null;
 
-    private ConfigurationService configurationService = null;
-
     private HistoryService historyService = null;
 
     private Object syncRoot_Config = new Object();
 
     private Object syncRoot_HistoryService = new Object();
 
-    public ConfigurationService getConfigurationService() {
-        return configurationService;
-    }
-
     public HistoryService getHistoryService() {
         return historyService;
     }
 
+    /**
+     * Returns all the messages exchanged by all the contacts
+     * in the supplied metacontact after the given date
+     *
+     * @param contact MetaContact
+     * @param startDate Date the start date of the conversations
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
     public Collection findByStartDate(MetaContact contact, Date startDate)
         throws RuntimeException
     {
@@ -90,6 +97,15 @@ public class MessageHistoryServiceImpl
         return result;
     }
 
+    /**
+     * Returns all the messages exchanged by all the contacts
+     * in the supplied metacontact before the given date
+     *
+     * @param contact MetaContact
+     * @param endDate Date the end date of the conversations
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
     public Collection findByEndDate(MetaContact contact, Date endDate)
         throws RuntimeException
     {
@@ -118,6 +134,16 @@ public class MessageHistoryServiceImpl
         return result;
     }
 
+    /**
+     * Returns all the messages exchanged by all the contacts
+     * in the supplied metacontact between the given dates
+     *
+     * @param contact MetaContact
+     * @param startDate Date the start date of the conversations
+     * @param endDate Date the end date of the conversations
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
     public Collection findByPeriod(MetaContact contact, Date startDate, Date endDate)
         throws RuntimeException
     {
@@ -150,10 +176,22 @@ public class MessageHistoryServiceImpl
         return result;
     }
 
+    /**
+     * Returns all the messages exchanged by all the contacts
+     * in the supplied metacontact between the given dates and having the given
+     * keywords
+     *
+     * @param contact MetaContact
+     * @param startDate Date the start date of the conversations
+     * @param endDate Date the end date of the conversations
+     * @param keywords array of keywords
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
     public Collection findByPeriod(MetaContact contact,
                                        Date startDate, Date endDate,
                                        String[] keywords)
-        throws UnsupportedOperationException
+        throws RuntimeException
     {
         LinkedList result = new LinkedList();
 
@@ -184,6 +222,15 @@ public class MessageHistoryServiceImpl
         return result;
     }
 
+    /**
+     * Returns all the messages exchanged by all the contacts
+     * in the supplied metacontact having the given keyword
+     *
+     * @param contact MetaContact
+     * @param keyword keyword
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
     public Collection findByKeyword(MetaContact contact, String keyword)
         throws RuntimeException
     {
@@ -217,6 +264,15 @@ public class MessageHistoryServiceImpl
         return result;
     }
 
+    /**
+     * Returns all the messages exchanged by all the contacts
+     * in the supplied metacontact having the given keywords
+     *
+     * @param contact MetaContact
+     * @param keywords keyword
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
     public Collection findByKeywords(MetaContact contact, String[] keywords)
         throws RuntimeException
     {
@@ -250,6 +306,15 @@ public class MessageHistoryServiceImpl
         return result;
     }
 
+    /**
+     * Returns the supplied number of recent messages exchanged by all the contacts
+     * in the supplied metacontact
+     *
+     * @param contact MetaContact
+     * @param count messages count
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
     public Collection findLast(MetaContact contact, int count)
         throws RuntimeException
     {
@@ -293,6 +358,15 @@ public class MessageHistoryServiceImpl
         return new LinkedList(result);
     }
 
+    /**
+     * Returns the history by specified local and remote contact
+     * if one of them is null the default is used
+     *
+     * @param localContact Contact
+     * @param remoteContact Contact
+     * @return History
+     * @throws IOException
+     */
     private History getHistory(Contact localContact, Contact remoteContact)
             throws IOException {
         History retVal = null;
@@ -315,6 +389,14 @@ public class MessageHistoryServiceImpl
         return retVal;
     }
 
+    /**
+     * Used to convert HistoryRecord in MessageDeliveredEvent or MessageReceivedEvent
+     * which are returned by the finder methods
+     *
+     * @param hr HistoryRecord
+     * @param contact Contact
+     * @return Object
+     */
     private Object convertHistoryRecordToMessageEvent(HistoryRecord hr, Contact contact)
     {
         MessageImpl msg = new MessageImpl(hr);
@@ -380,6 +462,8 @@ public class MessageHistoryServiceImpl
 
 
     // //////////////////////////////////////////////////////////////////////////
+    // MessageListener implementation methods
+
     public void messageReceived(MessageReceivedEvent evt) {
         this.writeMessage("in", null, evt.getSourceContact(), evt
                 .getSourceMessage(), evt.getTimestamp());
@@ -406,65 +490,7 @@ public class MessageHistoryServiceImpl
             logger.error("Could not add message to history", e);
         }
     }
-
     // //////////////////////////////////////////////////////////////////////////
-    public void addProtocolProvider(ProtocolProviderService protocolProvider) {
-        Map operationSets = protocolProvider.getSupportedOperationSets();
-
-        String key = OperationSetBasicInstantMessaging.class.getName();
-        if (operationSets.containsKey(key)) {
-            OperationSetBasicInstantMessaging basicIntantMessaging = (OperationSetBasicInstantMessaging) operationSets
-                    .get(key);
-            basicIntantMessaging.addMessageListener(this);
-
-            logger.debug("New protocol provider service implementing the "
-                    + "OperationSetBasicInstantMessaging registered: "
-                    + protocolProvider.getProtocolName()
-                    + ". Listening for messages.");
-        }
-    }
-
-    public void removeProtocolProvider(ProtocolProviderService protocolProvider) {
-        Map operationSets = protocolProvider.getSupportedOperationSets();
-
-        String key = OperationSetBasicInstantMessaging.class.getName();
-        if (operationSets.containsKey(key)) {
-            OperationSetBasicInstantMessaging basicIntantMessaging = (OperationSetBasicInstantMessaging) operationSets
-                    .get(key);
-            basicIntantMessaging.removeMessageListener(this);
-
-            logger.debug("Protocol provider service: "
-                    + protocolProvider.getProtocolName() + " unregistered.");
-        }
-    }
-
-    /**
-     * Set the configuration service.
-     *
-     * @param configurationService ConfigurationService
-     */
-    public void setConfigurationService(
-            ConfigurationService configurationService) {
-        synchronized (this.syncRoot_Config) {
-            this.configurationService = configurationService;
-            logger.debug("New configuration service registered.");
-        }
-    }
-
-    /**
-     * Remove a configuration service.
-     *
-     * @param configurationService ConfigurationService
-     */
-    public void unsetConfigurationService(
-            ConfigurationService configurationService) {
-        synchronized (this.syncRoot_Config) {
-            if (this.configurationService == configurationService) {
-                this.configurationService = null;
-                logger.debug("Configuration service unregistered.");
-            }
-        }
-    }
 
     /**
      * Set the configuration service.
@@ -522,10 +548,21 @@ public class MessageHistoryServiceImpl
 
             this.handleProviderAdded((ProtocolProviderService)sService);
         }
+        else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
+        {
+            this.handleProviderRemoved( (ProtocolProviderService) sService);
+        }
+
     }
 
-    private void handleProviderAdded(
-        ProtocolProviderService provider)
+    /**
+     * Used to attach the Message History Service to existing or
+     * just registered protocol provider. Checks if the provider has implementation
+     * of OperationSetBasicInstantMessaging
+     *
+     * @param provider ProtocolProviderService
+     */
+    private void handleProviderAdded(ProtocolProviderService provider)
     {
         logger.debug("Adding protocol provider " + provider.getProtocolName());
 
@@ -541,7 +578,26 @@ public class MessageHistoryServiceImpl
         }
         else
         {
-            logger.debug("Service did not have a im op. set.");
+            logger.trace("Service did not have a im op. set.");
+        }
+    }
+
+    /**
+     * Removes the specified provider from the list of currently known providers
+     * and ignores all the messages exchanged by it
+     *
+     * @param provider the ProtocolProviderService that has been unregistered.
+     */
+    private void handleProviderRemoved(ProtocolProviderService provider)
+    {
+        OperationSetBasicInstantMessaging opSetIm
+            = (OperationSetBasicInstantMessaging) provider
+            .getSupportedOperationSets().get(
+                OperationSetBasicInstantMessaging.class.getName());
+
+        if (opSetIm != null)
+        {
+            opSetIm.removeMessageListener(this);
         }
     }
 
@@ -588,19 +644,6 @@ public class MessageHistoryServiceImpl
                     else if(hr.getPropertyValues()[i].equals("out"))
                         isOutgoing = true;
             }
-        }
-
-        public MessageImpl(String content,
-                              String contentType,
-                              String contentEncoding,
-                              String subject,
-                              String messageUID)
-        {
-            this.textContent = content;
-            this.contentType = contentType;
-            this.contentEncoding = contentEncoding;
-            this.subject = subject;
-            this.messageUID = messageUID;
         }
 
         public String getContent()
