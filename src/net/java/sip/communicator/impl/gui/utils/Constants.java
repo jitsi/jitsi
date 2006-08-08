@@ -79,6 +79,11 @@ public class Constants {
      * The incoming message type.
      */
     public static final String INCOMING_MESSAGE = "IncomingMessage";
+    
+    /**
+     * The system message type.
+     */
+    public static final String SYSTEM_MESSAGE = "SystemMessage";
 
     /*
      * ===================================================================

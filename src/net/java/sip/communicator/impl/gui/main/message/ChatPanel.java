@@ -34,6 +34,7 @@ import javax.swing.text.html.HTMLDocument;
 
 import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.customcontrols.SIPCommSelectorBox;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.gui.ExportedDialog;
@@ -227,6 +228,12 @@ public class ChatPanel extends JPanel
      */
     public void updateContactStatus(PresenceStatus status) {
         this.chatConferencePanel.updateContactStatus(status);
+        this.conversationPanel.processMessage(
+                this.metaContact.getDisplayName(),
+                new Date(System.currentTimeMillis()),
+                Constants.SYSTEM_MESSAGE,
+                Messages.getString("statusChangedChatMessage",
+                        status.getStatusName()));
     }
 
     /**

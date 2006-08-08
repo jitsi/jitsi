@@ -204,8 +204,8 @@ public class ChatConversationPanel extends JScrollPane implements
     public void processMessage(String contactName, Date date,
             String messageType, String message) {
 
-        String chatString;
-        String endHeaderTag;
+        String chatString = "";
+        String endHeaderTag = "";
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -214,19 +214,29 @@ public class ChatConversationPanel extends JScrollPane implements
             this.lastIncomingMsgTimestamp = new Date();
             chatString = "<h2>";
             endHeaderTag = "</h2>";
-        } else {
+        }
+        else if (messageType.equals(Constants.OUTGOING_MESSAGE)){
             chatString = "<h3>";
             endHeaderTag = "</h3>";
         }
+        else if (messageType.equals(Constants.SYSTEM_MESSAGE)) {
+            chatString = "<h4>";
+            endHeaderTag = "</h4>";
+        }
 
-        chatString += contactName + " at "
+        if (messageType.equals(Constants.SYSTEM_MESSAGE)) {
+            chatString += contactName + " " + message + endHeaderTag;
+        }
+        else {
+            chatString += contactName + " at "
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
                 + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
                 + "<DIV><PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
                 + "</PLAINTEXT></DIV>";
-
+        }
+        
         Element root = this.document.getDefaultRootElement();
 
         try {
@@ -241,6 +251,7 @@ public class ChatConversationPanel extends JScrollPane implements
         this.setCarretToEnd();
     }
 
+        
     /**
      * Formats all links in the given message.
      * 
