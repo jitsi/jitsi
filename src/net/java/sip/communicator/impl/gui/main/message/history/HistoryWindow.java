@@ -132,7 +132,7 @@ public class HistoryWindow extends JFrame
             if (o instanceof MessageDeliveredEvent) {
                 MessageDeliveredEvent evt = (MessageDeliveredEvent)o; 
          
-                date = evt.getTimestamp();
+                date = evt.getTimestamp(); 
             }
             else if (o instanceof MessageReceivedEvent) {
                 MessageReceivedEvent evt = (MessageReceivedEvent)o;
@@ -144,9 +144,9 @@ public class HistoryWindow extends JFrame
             }
         }
         
-        //Initializes the conversation panel with the data of the first
-        //conversation.
-        this.datesPanel.setSelected(0);
+        //Initializes the conversation panel with the data of the last
+        //conversation.        
+        this.datesPanel.setSelected(datesPanel.getModel().getSize() - 1);
     }
     
     /**
@@ -183,7 +183,6 @@ public class HistoryWindow extends JFrame
      * @param endDate the end date of the period
      */
     public void showHistoryByPeriod(Date startDate, Date endDate) {
-        
         Collection msgList = this.msgHistory.findByPeriod(
                 this.metaContact, startDate, endDate);
         

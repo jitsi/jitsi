@@ -15,6 +15,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -186,5 +187,9 @@ public class DatesPanel extends JScrollPane
      */
     public void setSelected(int index) {
         this.datesList.setSelectedIndex(index);
+    }
+    
+    public ListModel getModel() {
+        return this.datesList.getModel();
     }
 }
