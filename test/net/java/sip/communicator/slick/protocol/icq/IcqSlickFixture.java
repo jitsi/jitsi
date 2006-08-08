@@ -1,13 +1,16 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.slick.protocol.icq;
 
 import net.java.sip.communicator.service.protocol.*;
 import org.osgi.framework.*;
 import junit.framework.*;
 import java.util.*;
-import net.java.sip.communicator.service.protocol.event.MessageListener;
-import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
-import net.java.sip.communicator.service.protocol.event.MessageDeliveredEvent;
-import net.java.sip.communicator.service.protocol.event.MessageDeliveryFailedEvent;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Provides utility code, such as locating and obtaining references towards
@@ -52,7 +55,7 @@ public class IcqSlickFixture extends TestCase
     public String                  ourUserID       = null;
 
     /**
-     * A reference to the provider containing the tested pp implementation. This
+     * A reference to the bundle containing the tested pp implementation. This
      * reference is set during the accoung uninstallation testing and used during
      * the account uninstallation persistence testing.
      */
