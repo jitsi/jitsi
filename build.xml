@@ -723,6 +723,15 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/impl/protocol/sip"/>
         </jar>
     </target>
+    <target name="bundle-sip-slick">
+        <!--internal-target- Creates a bundle containing the all tests for the
+            sip implementation of the protocol provider package -->
+        <jar compress="false" destfile="${bundles.dest}/protocol-sip-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/protocol/sip/sip.provider.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/sip"
+                prefix="net/java/sip/communicator/slick/protocol/sip"/>
+        </jar>
+    </target>
 
     <!-- BUNDLE-PROTOCOL -->
     <target name="bundle-protocol">
@@ -804,7 +813,7 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-	<!-- BUNDLE-PLUGIN-ICQACCREGWIZZ -->
+    <!-- BUNDLE-PLUGIN-ICQACCREGWIZZ -->
     <target name="bundle-plugin-icqaccregwizz">
         <!-- Creates a bundle for the pligon Icq Account Registration Wizard."-->
         <jar compress="false" destfile="${bundles.dest}/icqaccregwizz.jar"
