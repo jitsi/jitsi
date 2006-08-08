@@ -50,10 +50,10 @@ public class IcqProtocolProviderSlick
         = "accounts.icq.CONTACT_LIST";
 
     /**
-     * Start the Configuration Sevice Implementation Compatibility Kit.
+     * Start the ICQ Sevice Leveraging Implementation Compatibility Kit.
      *
      * @param bundleContext BundleContext
-     * @throws Exception
+     * @throws Exception if anything goes wrong.
      */
     public void start(BundleContext bundleContext) throws Exception
     {
