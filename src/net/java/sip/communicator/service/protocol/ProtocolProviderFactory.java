@@ -74,6 +74,13 @@ public abstract class ProtocolProviderFactory
     public static final String PROXY_PORT = "PROXY_PORT";
 
     /**
+     * The name of the property under which we store the user preference for a
+     * transport protocol to use (i.e. tcp or udp).
+     */
+    public static final String PREFERRED_TRANSPORT = "PREFERRED_TRANSPORT";
+
+
+    /**
      * Initializaed and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
      * <tt>context</tt> BundleContext parameter. Note that account
