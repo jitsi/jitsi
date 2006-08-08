@@ -98,6 +98,11 @@ public class ProtocolProviderFactoryIcqImpl
 
         AccountID accountID = new IcqAccountID(userIDStr, accountProperties);
 
+        //make sure we haven't seen this account id before.
+        if( registeredAccounts.containsKey(accountID) )
+            throw new IllegalStateException(
+                "An account for id " + userIDStr + " was already installed!");
+
         //first store the account and only then load it as the load generates
         //an osgi event, the osgi event triggers (trhgough the UI) a call to
         //the register() method and it needs to acces the configuration service
@@ -131,11 +136,6 @@ public class ProtocolProviderFactoryIcqImpl
             throw new NullPointerException("The specified BundleContext was null");
 
         AccountID accountID = new IcqAccountID(userIDStr, accountProperties);
-
-        //make sure we haven't seen this account id before.
-        if( registeredAccounts.containsKey(accountID) )
-            throw new IllegalStateException(
-                "An account for id " + userIDStr + " was already installed!");
 
         //get a reference to the configuration service and register whatever
         //properties we have in it.
