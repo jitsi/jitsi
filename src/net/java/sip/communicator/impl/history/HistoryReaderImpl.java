@@ -6,27 +6,15 @@
  */
 package net.java.sip.communicator.impl.history;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
-import net.java.sip.communicator.service.history.BidirectionalIterator;
-import net.java.sip.communicator.service.history.HistoryReader;
-import net.java.sip.communicator.service.history.QueryResultSet;
-import net.java.sip.communicator.service.history.DefaultQueryResultSet;
-import net.java.sip.communicator.service.history.records.HistoryRecord;
-
-import org.jaxen.JaxenException;
-import org.jaxen.Navigator;
-import org.jaxen.XPath;
-import org.jaxen.dom.DocumentNavigator;
-import org.jaxen.saxpath.SAXPathException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import net.java.sip.communicator.util.Logger;
+import org.jaxen.*;
+import org.jaxen.dom.*;
+import org.jaxen.saxpath.*;
+import org.w3c.dom.*;
+import net.java.sip.communicator.service.history.*;
+import net.java.sip.communicator.service.history.records.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * @author Alexander Pelov
@@ -98,7 +86,7 @@ public class HistoryReaderImpl implements HistoryReader {
     }
 
     private QueryResultSet findByXpath(String xpathExpression) {
-        Vector vect = new Vector();
+        TreeSet result = new TreeSet(new HistoryRecordComparator());
 
         Iterator filelist = this.historyImpl.getFileList();
 
@@ -156,11 +144,29 @@ public class HistoryReaderImpl implements HistoryReader {
                 HistoryRecord record = new HistoryRecord(propertyNames,
                         propertyValues, timestamp);
 
-                vect.add(record);
+                result.add(record);
             }
         }
 
-        return new DefaultQueryResultSet(vect);
+        return new OrderedQueryResultSet(result);
+    }
 
+    /**
+     * Used to compare HistoryRecords
+     * ant to be ordered in TreeSet
+     */
+    private class HistoryRecordComparator
+        implements Comparator
+    {
+        public int compare(Object o1, Object o2)
+        {
+            if(o1 instanceof HistoryRecord && o2 instanceof HistoryRecord)
+            {
+                return ((HistoryRecord)o1).getTimestamp().
+                    compareTo(((HistoryRecord)o2).getTimestamp());
+            }
+            else
+                return 0;
+        }
     }
 }
