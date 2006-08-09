@@ -244,32 +244,24 @@ public class ProtocolProviderServiceSipImpl
             sipFactory.setPathName("gov.nist");
             Properties properties = new Properties();
 
-            //set the transport
-//            String transport
-//                = (String)accountID.getAccountProperties()
-//                    .get(PROTOCOL_TRANSPORT);
-//            if(transport == null || transport.trim().length() == 0)
-//            {
-//                transport = ListeningPoint.UDP;
-//            }
-
-            //no need to check whether specified transport is valid.
-            //the stack will do that for us.
-
             //set the proxy
             String proxyAddress
                 = (String)accountID.getAccountProperties()
                     .get(ProtocolProviderFactory.PROXY_ADDRESS);
 
 //            if (proxyAddress != null && proxyAddress.trim().length() > 0)
-
-//            String proxyPort
-//                = accountID.getAccountProperties()
-//                        .get(ProtocolProviderFactory.PROXY_PORT);
-
-//            String proxyPort
-//            properties.setProperty("javax.sip.OUTBOUND_PROXY", peerHostPort + "/"
-//                                   + transport);
+//            {
+//                String proxyPortStr
+//                    = accountID.getAccountProperties()
+//                    .get(ProtocolProviderFactory.PROXY_PORT);
+//
+//                int proxyPortStr
+//
+//            //
+//                String proxyPort
+//                    properties.setProperty("javax.sip.OUTBOUND_PROXY", peerHostPort + "/"
+//                                           + transport);
+//            }
             // If you want to use UDP then uncomment this.
             properties.setProperty("javax.sip.STACK_NAME", "SIP Communicator:"
                 + getAccountID().getAccountUniqueID());
@@ -290,6 +282,7 @@ public class ProtocolProviderServiceSipImpl
             try
             {
                 // Create SipStack object
+                gov.nist.javax.sip.SipStackImpl astack = null;
                 sipStack = sipFactory.createSipStack(properties);
                 logger.debug("Created stack: " + sipStack);
             }
