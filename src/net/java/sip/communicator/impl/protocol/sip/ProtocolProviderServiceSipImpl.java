@@ -251,6 +251,7 @@ public class ProtocolProviderServiceSipImpl
 
 //            if (proxyAddress != null && proxyAddress.trim().length() > 0)
 //            {
+//
 //                String proxyPortStr
 //                    = accountID.getAccountProperties()
 //                    .get(ProtocolProviderFactory.PROXY_PORT);
