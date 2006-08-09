@@ -333,7 +333,7 @@ public class MessageHistoryServiceImpl
             {
                 History history = this.getHistory(null, item);
 
-                Iterator recs = history.getReader().findByStartDate(startDate);
+                Iterator recs = history.getReader().findByPeriod(startDate, new Date());
                 while (recs.hasNext())
                 {
                     result.add(
