@@ -214,23 +214,7 @@ public class ChatConversationPanel extends JScrollPane implements
             this.lastIncomingMsgTimestamp = new Date();
             chatString = "<h2>";
             endHeaderTag = "</h2>";
-        }
-        else if (messageType.equals(Constants.OUTGOING_MESSAGE)){
-            chatString = "<h3>";
-            endHeaderTag = "</h3>";
-        }
-        else if (messageType.equals(Constants.SYSTEM_MESSAGE)) {
-            chatString = "<h4>";
-            endHeaderTag = "</h4>";
-        }
-
-        if (messageType.equals(Constants.SYSTEM_MESSAGE)) {
-            chatString += processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
-            + processTime(calendar.get(Calendar.MINUTE)) + ":"
-            + processTime(calendar.get(Calendar.SECOND)) + " "
-            + contactName + " " + message + endHeaderTag;
-        }
-        else {
+            
             chatString += contactName + " at "
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
@@ -238,6 +222,27 @@ public class ChatConversationPanel extends JScrollPane implements
                 + "<DIV><PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
                 + "</PLAINTEXT></DIV>";
+        }
+        else if (messageType.equals(Constants.OUTGOING_MESSAGE)){
+            chatString = "<h3>";
+            endHeaderTag = "</h3>";
+            
+            chatString += Messages.getString("me") + " at "
+                + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
+                + processTime(calendar.get(Calendar.MINUTE)) + ":"
+                + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
+                + "<DIV><PLAINTEXT>"
+                + processSmilies(processNewLines(processLinks(message)))
+                + "</PLAINTEXT></DIV>";
+        }
+        else if (messageType.equals(Constants.SYSTEM_MESSAGE)) {
+            chatString = "<h4>";
+            endHeaderTag = "</h4>";
+            
+            chatString += processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
+            + processTime(calendar.get(Calendar.MINUTE)) + ":"
+            + processTime(calendar.get(Calendar.SECOND)) + " "
+            + contactName + " " + message + endHeaderTag;
         }
         
         Element root = this.document.getDefaultRootElement();

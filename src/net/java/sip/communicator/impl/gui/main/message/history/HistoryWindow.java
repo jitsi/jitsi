@@ -8,20 +8,29 @@
 package net.java.sip.communicator.impl.gui.main.message.history;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.html.HTMLDocument;
 
 import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
@@ -46,7 +55,7 @@ import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
 public class HistoryWindow extends JFrame
     implements ChatConversationContainer, ActionListener {
 
-    private JPanel historyPane = new JPanel(new BorderLayout());
+    private JPanel historyPanel = new JPanel(new BorderLayout());
 
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
 
@@ -73,6 +82,8 @@ public class HistoryWindow extends JFrame
     private static String KEYWORD_SEARCH = "KeywordSearch";
     
     private static String PERIOD_SEARCH = "PeriodSearch";
+    
+    private Hashtable dateHistoryTable = new Hashtable();
     
     private String lastExecutedSearch;
     
@@ -168,7 +179,7 @@ public class HistoryWindow extends JFrame
         
         this.mainPanel.add(northPanel, BorderLayout.NORTH);
 
-        this.mainPanel.add(historyPane, BorderLayout.CENTER);
+        this.mainPanel.add(historyPanel, BorderLayout.CENTER);
 
         this.mainPanel.add(refreshPanel, BorderLayout.SOUTH);
         
@@ -183,16 +194,38 @@ public class HistoryWindow extends JFrame
      * @param endDate the end date of the period
      */
     public void showHistoryByPeriod(Date startDate, Date endDate) {
-        Collection msgList = this.msgHistory.findByPeriod(
-                this.metaContact, startDate, endDate);
         
-        showHistory(msgList);
-        
-        this.lastExecutedSearch = PERIOD_SEARCH;
-        
-        this.searchStartDate = startDate;
+        if(searchStartDate == null || !searchStartDate.equals(startDate)) {
+            
+            ChatConversationPanel convPanel = null;
+            
+            this.historyPanel.removeAll();
+            
+            if(dateHistoryTable.containsKey(startDate)) {
+                convPanel = (ChatConversationPanel)dateHistoryTable.get(startDate);
+                
+                this.historyPanel.add(convPanel);
+            }
+            else {
+                Collection msgList = this.msgHistory.findByPeriod(
+                        this.metaContact, startDate, endDate);
+               
+                convPanel = new ChatConversationPanel(this);
+                
+                this.historyPanel.add(convPanel);
+                
+                this.createHistory(convPanel, msgList);
+                this.dateHistoryTable.put(startDate, convPanel);   
+            }
+            this.historyPanel.revalidate();
+            this.historyPanel.repaint();
+            
+            this.lastExecutedSearch = PERIOD_SEARCH;
+            
+            this.searchStartDate = startDate;
+        }
     }
-    
+            
     /**
      * Shows a history for a given keyword.
      * @param keyword the keyword to search
@@ -202,7 +235,13 @@ public class HistoryWindow extends JFrame
         Collection msgList = this.msgHistory.findByKeyword(
                 this.metaContact, keyword);
         
-        showHistory(msgList);
+        this.historyPanel.removeAll();
+        
+        ChatConversationPanel convPanel = new ChatConversationPanel(this);
+        createHistory(convPanel,msgList);
+        
+        this.historyPanel.add(convPanel, BorderLayout.CENTER);
+        this.historyPanel.revalidate();
         
         this.lastExecutedSearch = KEYWORD_SEARCH;
         this.searchKeyword = keyword;
@@ -212,16 +251,12 @@ public class HistoryWindow extends JFrame
      * Shows the history given by the collection into a ChatConversationPanel.
      * @param historyRecords a collection of history records
      */
-    private void showHistory(Collection historyRecords) {
-        this.historyPane.removeAll();
-        
+    private void createHistory(ChatConversationPanel chatConvPanel, Collection historyRecords) {
+                    
         if(historyRecords.size() > 0) {
             
             Iterator i = historyRecords.iterator();
-            
-            ChatConversationPanel chatConvPanel
-                = new ChatConversationPanel(this);
-            
+                        
             while (i.hasNext()) {
                 
                 Object o = i.next();
@@ -246,10 +281,8 @@ public class HistoryWindow extends JFrame
                             evt.getTimestamp(), Constants.INCOMING_MESSAGE,
                             evt.getSourceMessage().getContent());
                 }
-            }            
-            this.historyPane.add(chatConvPanel, BorderLayout.CENTER);
+            }
         }
-        this.historyPane.revalidate();
     }
 
     /**
