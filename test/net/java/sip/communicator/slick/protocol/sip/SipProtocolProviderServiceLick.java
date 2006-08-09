@@ -42,9 +42,16 @@ public class SipProtocolProviderServiceLick
      */
     public void start(BundleContext context)
     {
-        setName("SIPProtocolProviderServiceLick");
+        setName("SipProtocolProviderServiceLick");
+
         Hashtable properties = new Hashtable();
         properties.put("service.pid", getName());
+
+        SipSlickFixture.bc = context;
+
+        addTestSuite(TestAccountInstallation.class);
+
+        context.registerService(getClass().getName(), this, properties);
     }
 
     /**
