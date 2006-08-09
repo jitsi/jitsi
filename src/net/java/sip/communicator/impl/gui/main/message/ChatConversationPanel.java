@@ -225,7 +225,10 @@ public class ChatConversationPanel extends JScrollPane implements
         }
 
         if (messageType.equals(Constants.SYSTEM_MESSAGE)) {
-            chatString += contactName + " " + message + endHeaderTag;
+            chatString += processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
+            + processTime(calendar.get(Calendar.MINUTE)) + ":"
+            + processTime(calendar.get(Calendar.SECOND)) + " "
+            + contactName + " " + message + endHeaderTag;
         }
         else {
             chatString += contactName + " at "
