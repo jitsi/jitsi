@@ -122,10 +122,10 @@ public class ProtocolProviderFactorySipImpl
         //an osgi event, the osgi event triggers (trhgough the UI) a call to
         //the register() method and it needs to acces the configuration service
         //and check for a password.
-        this.storeAccount(
-            SipActivator.getBundleContext()
-            , accountID
-            , implementationPackageName);
+//        this.storeAccount(
+//            SipActivator.getBundleContext()
+//            , accountID
+//            , implementationPackageName);
 
         accountID = loadAccount(userIDStr, accountProperties);
 
