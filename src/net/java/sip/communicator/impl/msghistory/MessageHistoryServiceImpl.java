@@ -39,7 +39,7 @@ public class MessageHistoryServiceImpl
 
     private static HistoryRecordStructure recordStructure =
         new HistoryRecordStructure(
-            new String[] { "dir", "msg_CDATA", "msgTyp", "enc", "uid", "sub" });
+            new String[] { "dir", "msg_CDATA", "msgTyp", "enc", "uid", "sub", "receivedTimestamp" });
 
     // the field used to search by keywords
     private static final String SEARCH_FIELD = "msg";
@@ -50,8 +50,6 @@ public class MessageHistoryServiceImpl
     private BundleContext bundleContext = null;
 
     private HistoryService historyService = null;
-
-    private Object syncRoot_Config = new Object();
 
     private Object syncRoot_HistoryService = new Object();
 
@@ -355,7 +353,7 @@ public class MessageHistoryServiceImpl
             result = result.subList(result.size() - count, result.size());
         }
 
-        return new LinkedList(result);
+        return result;
     }
 
     /**
@@ -400,18 +398,28 @@ public class MessageHistoryServiceImpl
     private Object convertHistoryRecordToMessageEvent(HistoryRecord hr, Contact contact)
     {
         MessageImpl msg = new MessageImpl(hr);
+        Date timestamp = null;
+
+        // if there is value for date of receiving the message
+        // this is the event timestamp (this is the date that had came from protocol)
+        // the HistoryRecord timestamp is the timestamp when the record was written
+        if(msg.getMessageReceivedDate() != null)
+            timestamp = msg.getMessageReceivedDate();
+        else
+            timestamp = hr.getTimestamp();
+
         if(msg.isOutgoing)
         {
             return new MessageDeliveredEvent(
-                    new MessageImpl(hr),
+                    msg,
                     contact,
-                    hr.getTimestamp());
+                    timestamp);
         }
         else
             return new MessageReceivedEvent(
-                        new MessageImpl(hr),
+                        msg,
                         contact,
-                        hr.getTimestamp());
+                        timestamp);
     }
 
     /**
@@ -477,15 +485,25 @@ public class MessageHistoryServiceImpl
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt) {
     }
 
+    /**
+     *
+     * @param direction String
+     * @param source Contact
+     * @param destination Contact
+     * @param message Message
+     * @param messageTimestamp Date this is the timestamp when was message received
+     *                          that came from the protocol provider
+     */
     private void writeMessage(String direction, Contact source,
-            Contact destination, Message message, Date timestamp) {
+            Contact destination, Message message, Date messageTimestamp) {
         try {
             History history = this.getHistory(source, destination);
             HistoryWriter historyWriter = history.getWriter();
             historyWriter.addRecord(new String[] { direction,
                     message.getContent(), message.getContentType(),
                     message.getEncoding(), message.getMessageUID(),
-                    message.getSubject() }, timestamp);
+                    message.getSubject(), String.valueOf(messageTimestamp.getTime()) },
+                    new Date()); // this date is when the history record is written
         } catch (IOException e) {
             logger.error("Could not add message to history", e);
         }
@@ -615,6 +633,8 @@ public class MessageHistoryServiceImpl
 
         private boolean isOutgoing = false;
 
+        private Date messageReceivedDate = null;
+
         MessageImpl(HistoryRecord hr)
         {
             // History structure
@@ -624,6 +644,7 @@ public class MessageHistoryServiceImpl
             // 3 - enc
             // 4- uid
             // 5 - sub
+            // 6 - receivedTimestamp
 
             for (int i = 0; i < hr.getPropertyNames().length; i++)
             {
@@ -643,6 +664,9 @@ public class MessageHistoryServiceImpl
                         isOutgoing = false;
                     else if(hr.getPropertyValues()[i].equals("out"))
                         isOutgoing = true;
+                else if(propName.equals("receivedTimestamp"))
+                    messageReceivedDate = new Date(
+                            Long.parseLong(hr.getPropertyValues()[i]));
             }
         }
 
@@ -679,6 +703,11 @@ public class MessageHistoryServiceImpl
         public String getSubject()
         {
             return subject;
+        }
+
+        public Date getMessageReceivedDate()
+        {
+            return messageReceivedDate;
         }
     }
 
