@@ -24,6 +24,8 @@ import net.java.sip.communicator.util.*;
  */
 public abstract class ProtocolProviderFactory
 {
+    private static final Logger logger =
+        Logger.getLogger(ProtocolProviderFactory.class);
     /**
      * Then name of a property which represenstots a password.
      */
@@ -244,12 +246,17 @@ public abstract class ProtocolProviderFactory
         List storedAccounts = configurationService.getPropertyNamesByPrefix(
             sourcePackageName, true);
 
+        logger.debug("Discovered "
+                     + storedAccounts.size()
+                     + " stored accounts");
+
         //load all accounts stored in the configuration service
         Iterator storedAccountsIter = storedAccounts.iterator();
 
         while (storedAccountsIter.hasNext())
         {
             String accountRootPropName = (String) storedAccountsIter.next();
+            logger.debug("Loading account " + accountRootPropName);
             Map accountProperties = new Hashtable();
 
             //unregister the account in the configuration service.
