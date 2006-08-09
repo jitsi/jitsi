@@ -11,7 +11,7 @@ import org.osgi.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * Contains fields and methods used by most or all tests in the icq slick.
+ * Contains fields and methods used by most or all tests in the SIP slick.
  */
 public class SipSlickFixture
     extends TestCase
@@ -111,7 +111,7 @@ public class SipSlickFixture
             = bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(&"
-                +"("+ProtocolProviderFactory.PROTOCOL+"="+ProtocolNames.ICQ+")"
+                +"("+ProtocolProviderFactory.PROTOCOL+"="+ProtocolNames.SIP+")"
                 +"("+ProtocolProviderFactory.USER_ID+"="
                 + userID1 +")"
                 +")");
@@ -127,7 +127,7 @@ public class SipSlickFixture
         = bc.getServiceReferences(
             ProtocolProviderService.class.getName(),
             "(&"
-            +"("+ProtocolProviderFactory.PROTOCOL+"="+ProtocolNames.ICQ+")"
+            +"("+ProtocolProviderFactory.PROTOCOL+"="+ProtocolNames.SIP+")"
             +"("+ProtocolProviderFactory.USER_ID+"="
             + userID2 +")"
             +")");
