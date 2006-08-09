@@ -19,6 +19,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -36,6 +37,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.customcontrols.SIPCommMsgTextArea;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
@@ -80,7 +82,7 @@ public class ContactListPanel extends JScrollPane
     private ChatWindow tabbedChatWindow;
 
     private TypingTimer typingTimer = new TypingTimer();
-
+    
     /**
      * Creates the contactlist scroll panel defining the parent frame.
      *
@@ -312,7 +314,7 @@ public class ContactListPanel extends JScrollPane
         private MetaContact contactItem;
 
         private Contact protocolContact;
-
+        
         public RunMessageWindow(MetaContact contactItem) {
             this.contactItem = contactItem;
             this.protocolContact = contactItem.getDefaultContact();
@@ -354,6 +356,8 @@ public class ContactListPanel extends JScrollPane
                     ChatPanel chatPanel = msgWindow.createChat(
                             this.contactItem, contactStatus, protocolContact);
                     
+                    chatPanel.loadHistory();
+                    
                     msgWindow.addChat(chatPanel);
                     
                     msgWindow.pack();
@@ -387,6 +391,8 @@ public class ContactListPanel extends JScrollPane
                     ChatPanel chatPanel = tabbedChatWindow.createChat(
                             this.contactItem, contactStatus, protocolContact);
 
+                    chatPanel.loadHistory();
+                    
                     tabbedChatWindow.addChatTab(chatPanel);
                     
                     if (tabbedChatWindow.getTabCount() > 1) {
@@ -505,7 +511,9 @@ public class ContactListPanel extends JScrollPane
 
                 ChatPanel chatPanel = msgWindow.createChat(metaContact,
                         contactStatus, protocolContact);
-
+                
+                chatPanel.loadHistory(evt.getTimestamp());
+                
                 msgWindow.getCurrentChatPanel().processMessage(
                         protocolContact.getDisplayName(),
                         date, Constants.INCOMING_MESSAGE,
@@ -520,6 +528,8 @@ public class ContactListPanel extends JScrollPane
                     msgWindow.pack();
     
                     msgWindow.setVisible(true);
+                    
+                    chatPanel.setCaretToEnd();
                 }
             }
         }
@@ -547,6 +557,8 @@ public class ContactListPanel extends JScrollPane
                 chatPanel = tabbedChatWindow.createChat(metaContact,
                         contactStatus, protocolContact);
                 
+                chatPanel.loadHistory(evt.getTimestamp());
+                
                 chatPanel.processMessage(
                         protocolContact.getDisplayName(),
                         date, Constants.INCOMING_MESSAGE,
@@ -556,7 +568,9 @@ public class ContactListPanel extends JScrollPane
                     tabbedChatWindow.addChatTab(chatPanel);
                     
                     tabbedChatWindow.setVisible(true);
-
+                    
+                    chatPanel.setCaretToEnd();
+                    
                     tabbedChatWindow.getCurrentChatPanel()
                         .requestFocusInWriteArea();
                     
@@ -849,5 +863,5 @@ public class ContactListPanel extends JScrollPane
                 return false;
             }
         }
-    }    
+    }
 }

@@ -90,6 +90,8 @@ public class ChatPanel extends JPanel
     
     private boolean isVisible = false;
     
+    MessageHistoryService msgHistory
+        = GuiActivator.getMsgHistoryService();
     
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
@@ -128,8 +130,6 @@ public class ChatPanel extends JPanel
 
         this.init();
 
-        this.initChat();
-        
         this.setChatMetaContact(metaContact, protocolContact.getPresenceStatus());
         
         addComponentListener(new TabSelectionFocusGainListener());
@@ -151,15 +151,24 @@ public class ChatPanel extends JPanel
         this.add(sendPanel, BorderLayout.SOUTH);
     }
 
-    private void initChat() {
-        MessageHistoryService msgHistory = GuiActivator.getMsgHistoryService();
-        
-        Collection c = msgHistory.findLast(
+    /**
+     * 
+     */
+    public void loadHistory() {
+        this.loadHistory(new Date(0));
+    }
+    
+    /**
+     * 
+     * @param lastMsgTimestamp
+     */
+    public void loadHistory(Date lastMsgTimestamp) {        
+        Collection historyList = msgHistory.findLast(
                 this.metaContact, Constants.CHAT_HISTORY_SIZE);
-        
-        if(c.size() > 0) {
+    
+        if(historyList.size() > 0) {
             
-            Iterator i = c.iterator();
+            Iterator i = historyList.iterator();
             
             while (i.hasNext()) {
                 
@@ -180,11 +189,13 @@ public class ChatPanel extends JPanel
                 }
                 else if(o instanceof MessageReceivedEvent) {
                     MessageReceivedEvent evt = (MessageReceivedEvent)o;
-                                    
-                    conversationPanel.processMessage(
+                    
+                    if(!evt.getTimestamp().equals(lastMsgTimestamp)) {
+                        conversationPanel.processMessage(
                             evt.getSourceContact().getDisplayName(),
                             evt.getTimestamp(), Constants.INCOMING_MESSAGE,
                             evt.getSourceMessage().getContent());
+                    }
                 }
             }
         }
