@@ -54,7 +54,7 @@ public class SipActivator
                     ProtocolProviderFactory.class.getName(),
                     sipProviderFactory,
                     hashtable);
-
+        logger.debug("SIP Protocol Provider Factory ... [REGISTERED]");
     }
 
     /**
