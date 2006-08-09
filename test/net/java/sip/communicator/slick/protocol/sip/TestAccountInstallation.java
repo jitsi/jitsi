@@ -10,7 +10,6 @@ import junit.framework.*;
 import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.slick.protocol.icq.*;
 import java.util.*;
 
 public class TestAccountInstallation
@@ -65,8 +64,8 @@ public class TestAccountInstallation
         }
 
         assertTrue(
-            "Failed to find an provider factory service for protocol SIP",
-            serRefs != null || serRefs.length >  0);
+            "Failed to find a provider factory service for protocol SIP",
+            serRefs != null && serRefs.length >  0);
 
         //Keep the reference for later usage.
         ProtocolProviderFactory sipProviderFactory = (ProtocolProviderFactory)
@@ -123,7 +122,7 @@ public class TestAccountInstallation
         assertTrue(
             "The newly installed account was not in the acc man's "
             +"registered accounts!",
-            sipProviderFactory.getRegisteredAccounts().size() == 1);
+            sipProviderFactory.getRegisteredAccounts().size() == 2);
 
         //Verify protocol providers corresponding to the new account have
         //been properly registered with the osgi framework.
@@ -137,7 +136,7 @@ public class TestAccountInstallation
 
         try
         {
-            serRefs = IcqSlickFixture.bc.getServiceReferences(
+            serRefs = SipSlickFixture.bc.getServiceReferences(
                     ProtocolProviderService.class.getName(),
                     osgiFilter);
         }
@@ -152,7 +151,7 @@ public class TestAccountInstallation
                 , serRefs != null && serRefs.length > 0);
 
         Object icqProtocolProvider
-            = IcqSlickFixture.bc.getService(serRefs[0]);
+            = SipSlickFixture.bc.getService(serRefs[0]);
 
         assertTrue("The installed protocol provider does not implement "
                   + "the protocol provider service."
