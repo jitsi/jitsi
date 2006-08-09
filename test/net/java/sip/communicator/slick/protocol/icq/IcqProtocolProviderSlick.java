@@ -50,6 +50,13 @@ public class IcqProtocolProviderSlick
         = "accounts.icq.CONTACT_LIST";
 
     /**
+     * The name of the property that indicates whether the user would like to
+     * only run the offline tests.
+     */
+    public static final String DISABLE_ONLINE_TESTS_PROPERTY_NAME
+        = "accounts.icq.DISABLE_ONLINE_TESTING";
+
+    /**
      * Start the ICQ Sevice Leveraging Implementation Compatibility Kit.
      *
      * @param bundleContext BundleContext
@@ -64,13 +71,20 @@ public class IcqProtocolProviderSlick
         //store the bundle cache reference for usage by other others
         IcqSlickFixture.bc = bundleContext;
 
+        // verify whether the user wants to avoid online testing
+        String offlineMode = System.getProperty(
+            DISABLE_ONLINE_TESTS_PROPERTY_NAME, null);
+
+        if (offlineMode != null && offlineMode.equalsIgnoreCase("true"))
+            IcqSlickFixture.onlineTestingDisabled = true;
+
         // identify our testing agent on icq - it MUST be defined.
         String icqTestAgentName = System.getProperty(
                 TESTING_IMPL_USER_ID_PROP_NAME, null);
 
         // we can only set up the real icq test suites when the
         // accounts.properties file defines the two test accounts
-        if (icqTestAgentName != null) {
+        if ( icqTestAgentName != null ) {
             //it is defined, so register our testing agent on icq.
             IcqSlickFixture.testerAgent =
                     new IcqTesterAgent(icqTestAgentName);
@@ -82,26 +96,30 @@ public class IcqProtocolProviderSlick
 
             // .. and try to register the icq test agent (online)
             if (IcqSlickFixture.testerAgent.register(icqTestAgentPwd)) {
-                IcqSlickFixture.testerAgent.setAuthorizationRequired();
 
-                //initialize the tested account's contact list so that
-                //it could be ready when testing starts.
-                initializeTestedContactList();
+                if(!IcqSlickFixture.onlineTestingDisabled)
+                {
+                    IcqSlickFixture.testerAgent.setAuthorizationRequired();
 
+                    //initialize the tested account's contact list so that
+                    //it could be ready when testing starts.
+                    initializeTestedContactList();
 
-                //As Tested account is not registered here we send him a message.
-                //Message will be delivered offline. receive test is in
-                // TestOperationSetBasicInstantMessaging.testReceiveOfflineMessages()
-                String offlineMsgBody =
+                    //As Tested account is not registered here we send him a
+                    //message. Message will be delivered offline. receive test
+                    //is in TestOperationSetBasicInstantMessaging
+                    //                           .testReceiveOfflineMessages()
+                    String offlineMsgBody =
                         "This is a Test Message. "
-                        +"Supposed to be delivered as offline message!";
-                IcqSlickFixture.offlineMsgCollector =
+                        + "Supposed to be delivered as offline message!";
+                    IcqSlickFixture.offlineMsgCollector =
                         new IcqSlickFixture.OfflineMsgCollector();
-                IcqSlickFixture.offlineMsgCollector.setMessageText(offlineMsgBody);
-                IcqSlickFixture.testerAgent.sendOfflineMessage(
-                    System.getProperty(TESTED_IMPL_USER_ID_PROP_NAME, null),
-                    offlineMsgBody
-                );
+                    IcqSlickFixture.offlineMsgCollector.setMessageText(
+                                                                offlineMsgBody);
+                    IcqSlickFixture.testerAgent.sendOfflineMessage(
+                        System.getProperty(TESTED_IMPL_USER_ID_PROP_NAME, null),
+                        offlineMsgBody);
+                }
 
                 //First test account installation so that the service that has
                 //been installed by it gets tested by the rest of the tests.
@@ -113,13 +131,17 @@ public class IcqProtocolProviderSlick
 
                 addTest(TestOperationSetPresence.suite());
 
-                addTest(TestOperationSetPersistentPresence.suite());
+                //the following should only be run when we want online testing.
+                if(!IcqSlickFixture.onlineTestingDisabled)
+                {
+                    addTest(TestOperationSetPersistentPresence.suite());
 
-                addTest(TestOperationSetBasicInstantMessaging.suite());
+                    addTest(TestOperationSetBasicInstantMessaging.suite());
 
-                addTest(TestOperationSetTypingNotifications.suite());
+                    addTest(TestOperationSetTypingNotifications.suite());
 
-                addTest(TestOperationSetServerStoredInfo.suite());
+                    addTest(TestOperationSetServerStoredInfo.suite());
+                }
 
                 //This must remain after all other tests using the accounts
                 //are done since it tests account uninstallation and the
@@ -141,8 +163,8 @@ public class IcqProtocolProviderSlick
             // accounts.properties file probably missing - it defines the
             // two test accounts required for most unit tests
             // so install a single test to fail in a meaningful way
-            addTest(
-                new TestAccountInvalidNotification("failIcqTesterAgentMissing"));
+                addTest( new TestAccountInvalidNotification(
+                                                "failIcqTesterAgentMissing"));
 
         }
 
@@ -220,10 +242,13 @@ public class IcqProtocolProviderSlick
             uinInThisGroup.add(uin);
         }
 
+        //we don't need to continue if online testing is disabled since
+        //the following won't be of any use.
+        if(IcqSlickFixture.onlineTestingDisabled)
+            return;
+
         //Create a tester agent that would connect with the tested impl account
         //and initialize the contact list according to what we just parsed.
-
-
         IcqTesterAgent cListInitTesterAgent = new IcqTesterAgent(
                 System.getProperty(TESTED_IMPL_USER_ID_PROP_NAME, null)
             );

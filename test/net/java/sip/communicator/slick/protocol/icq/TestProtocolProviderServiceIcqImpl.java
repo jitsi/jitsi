@@ -49,17 +49,29 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
     public RegistrationEventCollector regEvtCollector
         = new RegistrationEventCollector();
 
+    /**
+     * Creates a test encapsulator for the method with the specified name.
+     * @param name the name of the method this test should run.
+     */
     public TestProtocolProviderServiceIcqImpl(String name)
     {
         super(name);
     }
 
+    /**
+     * Initializes the fixture.
+     * @throws Exception if super.setUp() throws one.
+     */
     protected void setUp() throws Exception
     {
         super.setUp();
         fixture.setUp();
     }
 
+    /**
+     * Tears the fixture down.
+     * @throws Exception if fixture.tearDown() fails.
+     */
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -77,15 +89,18 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
     public static Test suite()
     {
         TestSuite suite = new TestSuite();
-        suite.addTest(
-            new TestProtocolProviderServiceIcqImpl("testRegister"));
-        suite.addTest(
-            new TestProtocolProviderServiceIcqImpl("testIsRegistered"));
-        suite.addTest(
-            new TestProtocolProviderServiceIcqImpl("testGetRegistrationState"));
-        suite.addTest(
-            new TestProtocolProviderServiceIcqImpl("testOperationSetTypes"));
 
+        if(!IcqSlickFixture.onlineTestingDisabled)
+        {
+            suite.addTest(
+                new TestProtocolProviderServiceIcqImpl("testRegister"));
+            suite.addTest(
+                new TestProtocolProviderServiceIcqImpl("testIsRegistered"));
+            suite.addTest(
+                new TestProtocolProviderServiceIcqImpl("testGetRegistrationState"));
+            suite.addTest(
+                new TestProtocolProviderServiceIcqImpl("testOperationSetTypes"));
+        }
         return suite;
     }
 

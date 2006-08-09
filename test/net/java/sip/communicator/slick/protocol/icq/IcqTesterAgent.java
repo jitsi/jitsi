@@ -104,7 +104,8 @@ public class IcqTesterAgent
      */
     public boolean register(String password)
     {
-        if(registered)
+        if(registered
+            || IcqSlickFixture.onlineTestingDisabled)
             return true;
 
         DefaultAppSession session = new DefaultAppSession();

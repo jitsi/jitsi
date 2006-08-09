@@ -92,6 +92,18 @@ public class TestOperationSetPresence
      */
     public static Test suite()
     {
+        //return an (almost) empty suite if we're running in offline mode.
+        if(IcqSlickFixture.onlineTestingDisabled)
+        {
+            TestSuite suite = new TestSuite();
+            //the only test around here that we could run without net
+            //connectivity
+            suite.addTest(
+                new TestOperationSetPresence(
+                        "testSupportedStatusSetForCompleteness"));
+            return suite;
+        }
+
         TestSuite suite = new TestSuite(TestOperationSetPresence.class);
 
         //the following 2 need to be run in the specified order.

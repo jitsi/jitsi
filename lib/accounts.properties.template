@@ -28,8 +28,68 @@ accounts.icq.TESTING_IMPL_PWD=
 # for the tested account implementation. The value of the CONTACT_LIST property
 # must be a space separated string containing elements each of which is in the
 # format: GroupName.UIN
-#
-#
+
+
 # VERY IMPORTANT!!! All other users in this contact list will be removed and
 # the contacts and contact groups enumerated beneath will be added instead
 accounts.icq.CONTACT_LIST=
+
+# list of icq accounts to notify during testing (optional)
+# accounts.reporting.ICQ_REPORT_LIST=
+
+# if for some reasone you want not to run online icq tests (e.g. because they
+# take an awful lot to complete). set this property to true (optional)
+# accounts.icq.DISABLE_ONLINE_TESTING
+
+#
+# SIP PROPERTIES
+#
+
+# ACCOUNT 1
+# The user id needed to log onto the server specified in the SERVER_ADDRESS
+# property.
+accounts.sip.account1.USER_ID=
+
+# The password (in plain text) needed to log the user specified in USER_ID
+# on the server specified in SERVER_ADDRESS.
+accounts.sip.account1.PASSWORD=
+
+# The address of the server that this account belongs to (Use '[', ']' for IPv6)
+accounts.sip.account1.SERVER_ADDRESS=
+
+# A port numer to use when connecting to the proxy specified in SERVER_ADDRESS
+# (Optional)
+accounts.sip.account1.SERVER_PORT=
+
+# The address of the SIP Proxy to use with this account(Use '[', ']' for IPv6)
+# (Optional)
+accounts.sip.account1.PROXY_ADDRESS=
+
+# A port numer to use when connecting to the proxy specified in PROXY_ADDRESS
+# (Optional)
+accounts.sip.account1.PROXY_PORT=
+
+
+# ACCOUNT 2
+# The user id needed to log onto the server specified in the SERVER_ADDRESS
+# property.
+accounts.sip.account2.USER_ID=
+
+# The password (in plain text) needed to log the user specified in USER_ID
+# on the server specified in SERVER_ADDRESS.
+accounts.sip.account2.PASSWORD=
+
+# The address of the server that this account belongs to (Use '[', ']' for IPv6)
+accounts.sip.account2.SERVER_ADDRESS=
+
+# A port numer to use when connecting to the proxy specified in SERVER_ADDRESS
+# (Optional)
+accounts.sip.account2.SERVER_PORT=
+
+# The address of the SIP Proxy to use with this account(Use '[', ']' for IPv6)
+# (Optional)
+accounts.sip.account2.PROXY_ADDRESS=
+
+# A port numer to use when connecting to the proxy specified in PROXY_ADDRESS
+# (Optional)
+accounts.sip.account2.PROXY_PORT=

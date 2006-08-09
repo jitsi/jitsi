@@ -64,6 +64,8 @@ public class TestAccountUninstallation
     public static Test suite()
     {
         TestSuite suite = new TestSuite();
+
+        if(! IcqSlickFixture.onlineTestingDisabled)
         suite.addTest(
             new TestAccountUninstallation("testMultipleLogins"));
         suite.addTest(

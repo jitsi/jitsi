@@ -63,6 +63,12 @@ public class IcqSlickFixture extends TestCase
 
     public static OfflineMsgCollector offlineMsgCollector = null;
 
+    /**
+     * Indicates whether the user has requested for onlline tests not to be run.
+     * (e.g. due to lack of network connectivity or ... time constraints ;)).
+     */
+    public static boolean onlineTestingDisabled = false;
+
     public void setUp() throws Exception
     {
         // first obtain a reference to the provider factory
@@ -79,7 +85,7 @@ public class IcqSlickFixture extends TestCase
         }
 
         assertTrue(
-            "Failed to find an provider factory service for protocol ICQ",
+            "Failed to find a provider factory service for protocol ICQ",
             serRefs != null || serRefs.length >  0);
 
         //Keep the reference for later usage.
