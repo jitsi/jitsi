@@ -256,7 +256,7 @@ public class ChatConversationPanel extends JScrollPane implements
             + processTime(calendar.get(Calendar.SECOND)) + " "
             + contactName + " " + message + endHeaderTag;
         }
-        else if (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)) {
+        /*else if (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)) {
             chatString = "<h2>";
             endHeaderTag = "</h2>";
             
@@ -264,9 +264,9 @@ public class ChatConversationPanel extends JScrollPane implements
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
                 + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
-                + "<h5>" + "<PLAINTEXT>"
+                + "<dev>" + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
-                + "</PLAINTEXT>" + "</h5>";
+                + "</PLAINTEXT>" + "</dev>";
         }
         else if (messageType.equals(Constants.HISTORY_OUTGOING_MESSAGE)) {
             chatString = "<h3>";
@@ -276,10 +276,10 @@ public class ChatConversationPanel extends JScrollPane implements
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
                 + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
-                + "<h5>" + "<PLAINTEXT>"
+                + "<dev>" + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
-                + "</PLAINTEXT>" + "</h5>";
-        }
+                + "</PLAINTEXT>" + "</dev>";
+        }*/
         
         Element root = this.document.getDefaultRootElement();
 
