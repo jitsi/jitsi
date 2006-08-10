@@ -34,7 +34,7 @@ class VolatileBuddy
      */
     public String getAlias()
     {
-        return screenname.getFormatted();
+        return null;
     }
 
     /**
