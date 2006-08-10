@@ -203,37 +203,49 @@ public class ChatConversationPanel extends JScrollPane implements
      */
     public void processMessage(String contactName, Date date,
             String messageType, String message) {
-
+        
         String chatString = "";
         String endHeaderTag = "";
-
+        String timeString = "";
+        
+        Calendar calendar1 = Calendar.getInstance();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
+        if((calendar.get(Calendar.DAY_OF_MONTH)
+                < calendar1.get(Calendar.DAY_OF_MONTH))
+            && (calendar.get(Calendar.MONTH)
+                <= calendar1.get(Calendar.MONTH))
+            && (calendar.get(Calendar.YEAR)
+                <= calendar1.get(Calendar.YEAR))) {            
+            timeString = this.processTime(calendar.get(Calendar.DAY_OF_MONTH)) + "/"
+                        + this.processTime(calendar.get(Calendar.MONTH) + 1) + " ";            
+        }
+        
         if (messageType.equals(Constants.INCOMING_MESSAGE)) {
             this.lastIncomingMsgTimestamp = new Date();
             chatString = "<h2>";
             endHeaderTag = "</h2>";
             
-            chatString += contactName + " at "
+            chatString += timeString + contactName + " at "
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
                 + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
-                + "<DIV><PLAINTEXT>"
+                + "<DIV>" + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
-                + "</PLAINTEXT></DIV>";
+                + "</PLAINTEXT>" + "</DIV>";
         }
         else if (messageType.equals(Constants.OUTGOING_MESSAGE)){
             chatString = "<h3>";
             endHeaderTag = "</h3>";
             
-            chatString += Messages.getString("me") + " at "
+            chatString += timeString + Messages.getString("me") + " at "
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
                 + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
-                + "<DIV><PLAINTEXT>"
+                + "<DIV>" + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
-                + "</PLAINTEXT></DIV>";
+                + "</PLAINTEXT>" + "</DIV>";
         }
         else if (messageType.equals(Constants.SYSTEM_MESSAGE)) {
             chatString = "<h4>";
@@ -243,6 +255,30 @@ public class ChatConversationPanel extends JScrollPane implements
             + processTime(calendar.get(Calendar.MINUTE)) + ":"
             + processTime(calendar.get(Calendar.SECOND)) + " "
             + contactName + " " + message + endHeaderTag;
+        }
+        else if (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)) {
+            chatString = "<h2>";
+            endHeaderTag = "</h2>";
+            
+            chatString += timeString + contactName + " at "
+                + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
+                + processTime(calendar.get(Calendar.MINUTE)) + ":"
+                + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
+                + "<h5>" + "<PLAINTEXT>"
+                + processSmilies(processNewLines(processLinks(message)))
+                + "</PLAINTEXT>" + "</h5>";
+        }
+        else if (messageType.equals(Constants.HISTORY_OUTGOING_MESSAGE)) {
+            chatString = "<h3>";
+            endHeaderTag = "</h3>";
+            
+            chatString += timeString + Messages.getString("me") + " at "
+                + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
+                + processTime(calendar.get(Calendar.MINUTE)) + ":"
+                + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
+                + "<h5>" + "<PLAINTEXT>"
+                + processSmilies(processNewLines(processLinks(message)))
+                + "</PLAINTEXT>" + "</h5>";
         }
         
         Element root = this.document.getDefaultRootElement();

@@ -85,6 +85,16 @@ public class Constants {
      */
     public static final String SYSTEM_MESSAGE = "SystemMessage";
 
+    /**
+     * The history incoming message type.
+     */
+    public static final String HISTORY_INCOMING_MESSAGE = "HistoryIncomingMessage";
+    
+    /**
+     * The history outgoing message type.
+     */
+    public static final String HISTORY_OUTGOING_MESSAGE = "HistoryOutgoingMessage";
+    
     /*
      * ===================================================================
      * ------------------------ SIZE CONSTANTS ---------------------------
