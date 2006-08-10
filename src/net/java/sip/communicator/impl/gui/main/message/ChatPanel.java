@@ -184,16 +184,16 @@ public class ChatPanel extends JPanel
                     conversationPanel.processMessage(
                             this.chatWindow.getMainFrame()
                                 .getAccount(protocolProvider),
-                            evt.getTimestamp(), Constants.OUTGOING_MESSAGE,
+                            evt.getTimestamp(), Constants.HISTORY_OUTGOING_MESSAGE,
                             evt.getSourceMessage().getContent());
                 }
                 else if(o instanceof MessageReceivedEvent) {
                     MessageReceivedEvent evt = (MessageReceivedEvent)o;
                     
-                    if(evt.getTimestamp().compareTo(lastMsgTimestamp) < 0) {
+                    if(evt.getTimestamp().compareTo(lastMsgTimestamp) != 0) {
                         conversationPanel.processMessage(
                             evt.getSourceContact().getDisplayName(),
-                            evt.getTimestamp(), Constants.INCOMING_MESSAGE,
+                            evt.getTimestamp(), Constants.HISTORY_INCOMING_MESSAGE,
                             evt.getSourceMessage().getContent());
                     }
                 }
