@@ -190,7 +190,7 @@ public class ChatPanel extends JPanel
                 else if(o instanceof MessageReceivedEvent) {
                     MessageReceivedEvent evt = (MessageReceivedEvent)o;
                     
-                    if(!evt.getTimestamp().equals(lastMsgTimestamp)) {
+                    if(evt.getTimestamp().compareTo(lastMsgTimestamp) < 0) {
                         conversationPanel.processMessage(
                             evt.getSourceContact().getDisplayName(),
                             evt.getTimestamp(), Constants.INCOMING_MESSAGE,
