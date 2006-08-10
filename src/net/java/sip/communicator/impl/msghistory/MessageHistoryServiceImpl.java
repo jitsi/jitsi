@@ -37,9 +37,11 @@ public class MessageHistoryServiceImpl
     private static Logger logger = Logger
             .getLogger(MessageHistoryServiceImpl.class);
 
+    private static String[] STRUCTURE_NAMES =
+        new String[] { "dir", "msg_CDATA", "msgTyp", "enc", "uid", "sub", "receivedTimestamp" };
+
     private static HistoryRecordStructure recordStructure =
-        new HistoryRecordStructure(
-            new String[] { "dir", "msg_CDATA", "msgTyp", "enc", "uid", "sub", "receivedTimestamp" });
+        new HistoryRecordStructure(STRUCTURE_NAMES);
 
     // the field used to search by keywords
     private static final String SEARCH_FIELD = "msg";
@@ -649,24 +651,29 @@ public class MessageHistoryServiceImpl
             for (int i = 0; i < hr.getPropertyNames().length; i++)
             {
                 String propName = hr.getPropertyNames()[i];
-                if(propName.equals("msg") || propName.equals("msg_CDATA"))
+
+                if(propName.equals("msg") || propName.equals(STRUCTURE_NAMES[1]))
                     textContent = hr.getPropertyValues()[i];
-                else if(propName.equals("msgTyp"))
+                else if(propName.equals(STRUCTURE_NAMES[2]))
                     contentType = hr.getPropertyValues()[i];
-                else if(propName.equals("enc"))
+                else if(propName.equals(STRUCTURE_NAMES[3]))
                     contentEncoding = hr.getPropertyValues()[i];
-                else if(propName.equals("uid"))
+                else if(propName.equals(STRUCTURE_NAMES[4]))
                     messageUID = hr.getPropertyValues()[i];
-                else if(propName.equals("sub"))
+                else if(propName.equals(STRUCTURE_NAMES[5]))
                     subject = hr.getPropertyValues()[i];
-                else if(propName.equals("dir"))
-                    if(hr.getPropertyValues()[i].equals("in"))
+                else if(propName.equals(STRUCTURE_NAMES[0]))
+                {
+                    if (hr.getPropertyValues()[i].equals("in"))
                         isOutgoing = false;
-                    else if(hr.getPropertyValues()[i].equals("out"))
+                    else if (hr.getPropertyValues()[i].equals("out"))
                         isOutgoing = true;
-                else if(propName.equals("receivedTimestamp"))
+                }
+                else if(propName.equals(STRUCTURE_NAMES[6]))
+                {
                     messageReceivedDate = new Date(
-                            Long.parseLong(hr.getPropertyValues()[i]));
+                        Long.parseLong(hr.getPropertyValues()[i]));
+                }
             }
         }
 
