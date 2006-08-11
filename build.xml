@@ -44,7 +44,8 @@
     <!-- windows  -->
     <condition property="jmf.home" value="${lib}/jmf-win">
         <os family="windows"/>
-    </condition>
+	</condition>
+
     <condition property="is.running.windows" value="${os.name}">
         <os family="windows"/>
     </condition>
