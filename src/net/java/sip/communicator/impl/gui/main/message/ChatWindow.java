@@ -81,6 +81,8 @@ public class ChatWindow extends JFrame {
 
         this.mainFrame = mainFrame;
 
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        
         this.setSize(550, 450);
 
         this.setIconImage(ImageLoader.getImage(ImageLoader.SIP_LOGO));
