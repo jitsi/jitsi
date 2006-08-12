@@ -9,5 +9,5 @@ nbproject
 bak
 project.libs.library
 sip-communicator.bin
-shootistdebug.txt
-shootistlog.txt
+release
+log
