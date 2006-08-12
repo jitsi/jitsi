@@ -1,0 +1,40 @@
+<shortcuts>
+		<!--skipIfNotSupported/-->
+		 <programGroup defaultName="SIPCommunicator" location="applications"/>
+		 <shortcut
+			name="SIP Communicator"
+			target="$INSTALL_PATH\run.sh"
+			workingDirectory="$INSTALL_PATH"
+			description="This starts SIP Communicator Application"
+			iconFile="$INSTALL_PATH\sc-logo.png"
+			iconIndex="0"
+			initialState="noShow"
+			programGroup="yes"
+			desktop="yes"
+			applications="no"
+			startMenu="yes"
+			startup="no"
+            type="Application"
+            encoding="UTF-8"
+            >
+
+			<createForPack name="run" />
+  </shortcut>
+    <shortcut
+		name="Uninstall SIP Communicator"
+		target="$INSTALL_PATH\uninstall.sh"
+		workingDirectory="$INSTALL_PATH"
+		description="This uninstalls SIP Communicator"
+		iconFile="$INSTALL_PATH\sc-logo.png"
+		iconIndex="0"
+		initialState="noShow"
+		programGroup="yes"
+		desktop="yes"
+		applications="no"
+		startMenu="yes"
+		startup="no"
+        type="Application"
+        encoding="UTF-8">
+		<createForPack name="run" />
+  	</shortcut>
+</shortcuts>

@@ -1,0 +1,34 @@
+<shortcuts>
+		<!--skipIfNotSupported/-->
+	<programGroup defaultName="SIPCommunicator" location="applications"/>
+	<shortcut
+		name="SIP Communicator"
+		target="$INSTALL_PATH\run.bat"
+		workingDirectory="$INSTALL_PATH"
+		description="This starts SIP Communicator Application"
+		iconFile="$INSTALL_PATH\sc-logo.ico"
+		iconIndex="0"
+		initialState="noShow"
+		programGroup="yes"
+		desktop="yes"
+		applications="no"
+		startMenu="no"
+		startup="no">
+		<createForPack name="run" />
+  	</shortcut>
+	<shortcut
+		name="Uninstall SIP Communicator"
+		target="$INSTALL_PATH\uninstall.bat"
+		workingDirectory="$INSTALL_PATH"
+		description="This uninstalls SIP Communicator"
+		iconFile="$INSTALL_PATH\sc-logo.ico"
+		iconIndex="0"
+		initialState="noShow"
+		programGroup="yes"
+		desktop="no"
+		applications="no"
+		startMenu="no"
+		startup="no">
+		<createForPack name="run" />
+  	</shortcut>
+</shortcuts>
