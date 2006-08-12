@@ -20,7 +20,6 @@
     <property name="test.reports.dir" value="test-reports"/>
     <property name="test.html.reports.dir" value="${test.reports.dir}/html"/>
     <property name="release" value="release"/>
-    <property name="release.src" value="${release}/install"/>
     <property name="inst.resrc" value="resources/install"/>
 
     <!-- Put here the release directory -->
@@ -95,9 +94,9 @@
             <include name="**/*.jar"/>
         </fileset>
     </path>
-    
+
     <!-- Import installation build xml -->
-    <import file="${release.src}/build.xml"/>
+    <import file="${inst.resrc}/build.xml"/>
 
   <!-- default Ant target does nothing except print helpful options -->
   <!-- Ant-external target will appear in -projecthelp output       -->

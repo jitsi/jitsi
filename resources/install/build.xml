@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<!--
+   Installation procedure.
+   The install scripts are in directory install. The files are separate 
+   in subdirectories according the distribution - generic,linux and windows.
+
+    1. For building any of the distributions you must fill in the 
+    path to the installation of IzPack. For instalation referer to http://www.izforge.com/izpack/
+    And uncomment the taskdef of izpack
+
+    2.  For building linux distribution you must fill in linux.jre.path variable
+    This is path to directory where a jre is extracted. 
+    The jre is then included in the distrubution binary file
+
+    3.  For building windows installation you must fill in windows.jre.file variable
+    This is the path to a installation file of a jre (online or offline one).
+    7zip software must be installed referer to http://www.7-zip.org/ for installation.
+
+    4. When changing the application version things you must do:
+    - generic 
+        - there is app-version variable in the izpack installer xml
+    - linux
+        - there is app-version variable in the izpack installer xml
+    - windows
+        - there is app-version variable in the izpack installer xml
+        - you must change the installer jar name in the launcher.ini file
+-->
+<project name="sip-communicator-installer" basedir="." default="ant-usage">
+
+    <!-- Fill in the path where IzPack is installed -->
+    <!--property name="izpack.dir" value="${lib}/izpack"/>
+    <taskdef name="izpack" classpath="${izpack.dir}/lib/compiler.jar" classname="com.izforge.izpack.ant.IzPackTask"/-->
+    <property name="izpack.dir" value="/opt/izpack"/>
+    <taskdef name="izpack" classpath="${izpack.dir}/lib/compiler.jar" classname="com.izforge.izpack.ant.IzPackTask"/>
+
+    <!-- Fill in path to directory where a jre in extracted -->
+    <!--property name="linux.jre.path" value="/opt/j2re1.4.2_12"/-->
+    <property name="linux.jre.path" value="/projects/SIP-Communicator-Installer/j2re1.4.2_12"/>
+
+    <!-- Fill in the path to a installation file of a jre -->
+    <!--property name="windows.jre.file" value="/opt/jre-install/j2re-1_4_2_12-windows-i586-p-iftw.exe"/-->
+    <property name="windows.jre.file" value="/projects/SIP-Communicator-Installer/windows/jre/j2re-1_4_2_12-windows-i586-p-iftw.exe"/>
+
+    <!-- Put here the Windows release directory -->
+    <property name="windows.app.dir" value="${release}/windows"/>
+    <!-- Put here the Windows Application version -->
+    <property name="windows.app.ver" value="1.0.rc1"/>
+    <!-- Put here the Linux release directory -->
+    <property name="linux.app.dir" value="${release}/linux"/>
+    <!-- Put here the Linux Application version -->
+    <property name="linux.app.ver" value="1.0.rc1"/>
+    <!-- Put here the Generic release directory -->
+    <property name="generic.app.dir" value="${release}/generic"/>
+    <!-- Put here the Generic Application version -->
+    <property name="generic.app.ver" value="1.0.rc1"/>
+
+    <!-- change the 7zip executable corresponding the OS
+         7-zip is used to create windows self-extract installer binary
+         In order to work 7-zip must be installed and tobe in the path
+         For Debian linux use : apt-get install p7zip
+         For other go to : http://www.7-zip.org/
+    -->
+    <condition property="7zip.executable" value="7z">
+        <os family="windows"/>
+    </condition>
+    <condition property="7zip.executable" value="7zr">
+        <equals arg1="${os.name}" arg2="linux" casesensitive="false" trim="true"/>
+    </condition>
+
+    <!-- default Ant target does nothing except print helpful options -->
+    <target name="ant-usage"
+            description="simply execute 'ant' to discover the most useful targets.">
+        <echo message="Useful ant commands for the SIP Communicator Build Installer..." />
+        <echo message="'ant build-installation-generic' for building generic installator jar" />
+        <echo message="'ant build-installation-linux' for building linux instalation file" />
+        <echo message="'ant build-installation-windows' for building windows instalation file" />
+    </target>
+
+    <target name="clean-install-generic">
+        <delete dir="${generic.app.dir}"/>
+        <mkdir dir="${generic.app.dir}"/>
+    </target>
+
+    <target name="build-installation-generic" depends="clean-install-generic">
+        <izpack
+               input="${inst.resrc}/generic/installer-generic.xml"
+               output="${generic.app.dir}/SC-install-generic-${generic.app.ver}.jar"
+               installerType="standard"
+               basedir="."
+               izPackDir="${izpack.dir}/"/>
+    </target>
+
+    <target name="clean-install-linux">
+        <delete dir="${linux.app.dir}"/>
+        <mkdir dir="${linux.app.dir}"/>
+        <mkdir dir="${linux.app.dir}/tmp"/>
+    </target>
+
+    <target name="build-installation-linux" depends="clean-install-linux">
+        <copy todir="${linux.app.dir}/tmp">
+            <fileset dir="${inst.resrc}/linux">
+                <include name="setup.sh"/>
+            </fileset>
+	</copy>
+        <!-- copy the jre -->
+        <copy todir="${linux.app.dir}/tmp/jre">
+            <fileset dir="${linux.jre.path}">
+                <include name="**/*"/>
+            </fileset>
+	</copy>
+        <!-- create izpack installer jar file -->
+        <izpack input="${inst.resrc}/linux/installer-linux.xml"
+                output="${linux.app.dir}/tmp/SC-install-linux-${linux.app.ver}.jar"
+                installerType="standard"
+                basedir="."
+                izPackDir="${izpack.dir}/"/>
+
+        <!-- Create self extract linux binary-->
+        <tar tarfile="${linux.app.dir}/tmp/install.tar" basedir="${linux.app.dir}/tmp"/>
+        <gzip zipfile="${linux.app.dir}/tmp/install.tar.gz" src="${linux.app.dir}/tmp/install.tar"/>
+        <concat destfile="${linux.app.dir}/setup-sip-communicator-${linux.app.ver}.bin" binary="true">
+            <fileset dir="${inst.resrc}/linux/">
+                <include name="sfx-header"/>
+            </fileset>
+            <fileset dir="${linux.app.dir}/tmp">
+                <include name="install.tar.gz"/>
+            </fileset>
+        </concat>
+        <chmod file="${linux.app.dir}/setup-sip-communicator-${linux.app.ver}.bin" perm="+x"/>
+
+        <!-- Delete the temp directory-->
+        <delete dir="${linux.app.dir}/tmp"/>
+
+    </target>
+
+    <target name="clean-install-windows">
+        <delete dir="${windows.app.dir}"/>
+        <mkdir dir="${windows.app.dir}"/>
+        <mkdir dir="${windows.app.dir}/tmp"/>
+        <mkdir dir="${windows.app.dir}/tmp/jre"/>
+    </target>
+
+    <target name="build-installation-windows" depends="clean-install-windows">
+        <copy todir="${windows.app.dir}/tmp">
+            <fileset dir="${inst.resrc}/windows">
+                <include name="launcher.ini"/>
+                <include name="setup-sip-communicator.exe"/>
+            </fileset>
+	</copy>
+        <!-- copy the windows jre file -->
+        <copy file="${windows.jre.file}" tofile="${windows.app.dir}/tmp/jre/jre-windows.exe"/>
+
+        <izpack
+               input="${inst.resrc}/windows/installer-windows.xml"
+               output="${windows.app.dir}/tmp/SC-install-windows-${windows.app.ver}.jar"
+               installerType="standard"
+               basedir="."
+	       izPackDir="${izpack.dir}/"/>
+
+        <exec dir="${windows.app.dir}/tmp" executable="${7zip.executable}" failifexecutionfails="false">
+            <arg line="a -y data.7z *"/>
+        </exec>	
+
+        <concat destfile="${windows.app.dir}/setup-sip-communicator-${windows.app.ver}.exe" binary="true">
+            <fileset dir="${inst.resrc}/windows">
+                <include name="7zS.sfx"/>
+            </fileset>
+            <fileset dir="${inst.resrc}/windows">
+                <include name="7zip.conf"/>
+            </fileset>
+            <fileset dir="${windows.app.dir}/tmp">
+                <include name="data.7z"/>
+            </fileset>
+  	</concat>
+
+        <!-- Delete the temp directory-->
+        <delete dir="${windows.app.dir}/tmp"/>
+    </target>
+
+</project>

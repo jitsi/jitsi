@@ -1,0 +1,122 @@
+<installation version="1.0">
+	<info>
+		<appname>SIPCommunicator</appname>
+		<appversion>1.0.draft</appversion>
+		<authors>
+			<author name="SIP Communicator" email="sc@sip-communicator.org" />
+		</authors>
+		<url>http://sip-communicator.org/</url>
+		<javaversion>1.4</javaversion>
+		<uninstaller/>
+	</info>
+	<variables>
+		<variable name="app-version" value="1.0.draft"/>
+		<variable name="released-on" value="01/08/2006"/>
+	</variables>
+
+	<guiprefs height="600" resizable="yes" width="800"/>
+
+	<locale>
+		<langpack iso3="eng"/>
+	</locale>
+	<resources>
+            <res id="InfoPanel.info" src="resources/install/doc/readme.txt" parse="yes"/>
+            <res id="LicencePanel.licence" src="resources/install/doc/License.txt"/>
+            <res src="resources/install/windows/windows_shortcut_specification.xml" id="shortcutSpec.xml"/>\
+            <res src="resources/install/linux/linux_shortcut_specification.xml" id="Unix_shortcutSpec.xml"/>
+	</resources>
+
+	<native type="izpack" name="ShellLink.dll"/>
+
+	<panels>
+		<panel classname="HelloPanel"/>
+		<panel classname="LicencePanel"/>
+		<panel classname="TargetPanel"/>
+		<panel classname="InstallPanel"/>
+		<panel classname="ShortcutPanel"/>
+		<panel classname="FinishPanel"/>
+
+	</panels>
+
+	<packs>
+		
+		<!-- The lib files -->
+		<pack name="lib" required="yes">
+			<description>Include all libraries</description>
+
+			<fileset  targetdir="$INSTALL_PATH/lib" dir="lib">
+				<include name="**/*.jar"/>
+                                
+                                <exclude name="junit*.jar"/>
+                                <exclude name="**/jmf*/**"/>
+				<exclude name="native"/>
+                                <exclude name="izpack"/>
+			</fileset>
+
+			<file targetdir="$INSTALL_PATH/lib" src="lib/oscar.client.run.properties"/>
+			<file targetdir="$INSTALL_PATH/lib" src="lib/logging.properties"/>
+		</pack>
+
+		<pack name="util" required="yes">
+			<description>SIP Communicator util</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/util.jar"/>
+		</pack>
+		<pack name="configuration" required="yes">
+			<description>SIP Communicator bundle configuration</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/configuration.jar"/>
+		</pack>
+		<pack name="file-access" required="yes">
+			<description>SIP Communicator bundle File Access</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/fileaccess.jar"/>
+		</pack>
+		<pack name="protocol" required="yes">
+			<description>SIP Communicator bundle Protocol</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/protocol.jar"/>
+		</pack>
+		<pack name="media" required="yes">
+			<description>SIP Communicator bundle Media</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/media.jar"/>
+		</pack>
+		<pack name="protocol-icq" required="yes">
+			<description>SIP Communicator bundle Protocol ICQ</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/protocol-icq.jar"/>
+		</pack>
+		<pack name="netaddress" required="yes">
+			<description>SIP Communicator bundle Network Address</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/netaddr.jar"/>
+		</pack>
+		<pack name="metacontact-list" required="yes">
+			<description>SIP Communicator bundle MetaContact List</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/meta-cl.jar"/>
+		</pack>
+		<pack name="history" required="yes">
+			<description>SIP Communicator bundle History</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/history.jar"/>
+		</pack>
+		<pack name="msg-history" required="yes">
+			<description>SIP Communicator bundle Message History</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/msghistory.jar"/>
+		</pack>
+		<pack name="swing-ui" required="yes">
+			<description>SIP Communicator bundle Swing UI</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/swing-ui.jar"/>
+		</pack>
+		<pack name="icqaccregwizz" required="yes">
+			<description>SIP Communicator bundle ICQ Account Registrattion Wizzard</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/icqaccregwizz.jar"/>
+		</pack>
+
+		<!-- The executable files -->
+		<pack name="run" required="yes">
+			<description>Exceutable</description>
+
+                        <file targetdir="$INSTALL_PATH" src="resources/install/linux/run.sh" os="linux"/>
+                        <file targetdir="$INSTALL_PATH" src="resources/install/linux/sc-logo.png" os="linux"/>
+                        <file targetdir="$INSTALL_PATH" src="resources/install/windows/run.bat" os="windows"/>
+                        <file targetdir="$INSTALL_PATH" src="resources/install/windows/sc-logo.ico" os="windows"/>
+			<executable targetfile="$INSTALL_PATH/run.sh" stage="never" os="linux"/>
+			<executable targetfile="$INSTALL_PATH/run.bat" stage="never" os="windows"/>
+		</pack>
+	</packs>
+
+</installation>
