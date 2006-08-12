@@ -30,16 +30,12 @@
     <!-- Fill in the path where IzPack is installed -->
     <!--property name="izpack.dir" value="${lib}/izpack"/>
     <taskdef name="izpack" classpath="${izpack.dir}/lib/compiler.jar" classname="com.izforge.izpack.ant.IzPackTask"/-->
-    <property name="izpack.dir" value="/opt/izpack"/>
-    <taskdef name="izpack" classpath="${izpack.dir}/lib/compiler.jar" classname="com.izforge.izpack.ant.IzPackTask"/>
 
     <!-- Fill in path to directory where a jre in extracted -->
     <!--property name="linux.jre.path" value="/opt/j2re1.4.2_12"/-->
-    <property name="linux.jre.path" value="/projects/SIP-Communicator-Installer/j2re1.4.2_12"/>
 
     <!-- Fill in the path to a installation file of a jre -->
     <!--property name="windows.jre.file" value="/opt/jre-install/j2re-1_4_2_12-windows-i586-p-iftw.exe"/-->
-    <property name="windows.jre.file" value="/projects/SIP-Communicator-Installer/windows/jre/j2re-1_4_2_12-windows-i586-p-iftw.exe"/>
 
     <!-- Put here the Windows release directory -->
     <property name="windows.app.dir" value="${release}/windows"/>
