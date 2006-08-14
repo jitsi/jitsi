@@ -7,11 +7,13 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
-import edu.stanford.ejalbert.BrowserLauncherRunner;
-import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
-import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-import net.java.sip.communicator.impl.gui.i18n.Messages;
+import javax.swing.JOptionPane;
+
+import edu.stanford.ejalbert.BrowserLauncherRunner;
+import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
 
 /**
  * Launches a browser, depending on the operation system and the browsers
@@ -24,27 +26,41 @@ public class BrowserLauncher {
     //private static final String errMsg 
       //  = Messages.getString("launchBrowserError");
 
+    private static edu.stanford.ejalbert.BrowserLauncher launcher;
     /**
      * Launches a browser for the given url, depending on the operation system
      * and the browsers available.
      * 
      * @param url The url to open in the browser.
      */
-    public static void openURL(String url) {
-        
-        edu.stanford.ejalbert.BrowserLauncher launcher;
+    public static void openURL(String urlString) {
+            
         try {
             launcher = new edu.stanford.ejalbert.BrowserLauncher(null);
             
-            BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, url, null);
+            if (urlString == null || urlString.trim().length() == 0) {
+                throw new MalformedURLException("You must specify a url.");
+            }
+            new URL(urlString); // may throw MalformedURLException
+            BrowserLauncherErrorHandler errorHandler
+                = new TestAppErrorHandler();
+            
+            String targetBrowser = launcher.getBrowserList().get(0).toString();
+            
+            BrowserLauncherRunner runner = new BrowserLauncherRunner(
+                    launcher,
+                    targetBrowser,
+                    urlString,
+                    errorHandler);
             Thread launcherThread = new Thread(runner);
-            launcherThread.start();            
+            launcherThread.start();
         }
-        catch (BrowserLaunchingInitializingException e) {
-            e.printStackTrace();
-        }
-        catch (UnsupportedOperatingSystemException e) {
-            e.printStackTrace();
+        catch (Exception ex) {
+            // show message to user
+            JOptionPane.showMessageDialog(null,
+                                          ex.getMessage(),
+                                          "Error Message",
+                                          JOptionPane.ERROR_MESSAGE);
         }
         
         /*
@@ -79,5 +95,17 @@ public class BrowserLauncher {
                     + e.getLocalizedMessage());
         }
         */
+    }
+    
+    private static class TestAppErrorHandler
+        implements BrowserLauncherErrorHandler {
+        
+        public void handleException(Exception ex) {
+            // show message to user
+            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(),
+                                          ex.getMessage(),
+                                          "Error Message",
+                                          JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
