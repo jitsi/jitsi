@@ -21,7 +21,7 @@
     <property name="test.html.reports.dir" value="${test.reports.dir}/html"/>
     <property name="release" value="release"/>
     <property name="inst.resrc" value="resources/install"/>
-
+	
     <!-- Put here the release directory -->
     <property name="macosx.app.dir" value="${release}/macosx"/>
     <!-- Put here the Application name -->
@@ -448,6 +448,9 @@
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
                 value="lib/logging.properties"/>
+        	
+        	<sysproperty key="java.library.path"
+        	                value="${lib}/native/x86"/>
         </java>
 
     </target>
@@ -795,6 +798,8 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/gui"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
+            <zipfileset src="${lib}/BrowserLauncher2-10rc4.jar"
+                prefix=""/>        	
         </jar>
     </target>
 
@@ -830,4 +835,16 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+
+	<!-- BUNDLE-PLUGIN-SYSTRAY -->
+    <!--target name="bundle-plugin-systray">
+        <jar compress="false" destfile="${bundles.dest}/systray.jar"
+            manifest="src/net/java/sip/communicator/plugin/systray/systray.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/systray"
+                prefix="net/java/sip/communicator/plugin/systray"/>
+        	<zipfileset src="${lib}/jdic/jdic.jar" prefix=""/>
+        	<zipfileset dir="${lib}/jdic" prefix=""/>
+        	<zipfileset src="${lib}/jdic/linux/jdic_stub.jar" prefix=""/>
+        </jar>
+    </target-->
 </project>

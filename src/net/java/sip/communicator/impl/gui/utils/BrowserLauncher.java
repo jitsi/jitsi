@@ -6,13 +6,10 @@
  */
 
 package net.java.sip.communicator.impl.gui.utils;
-/*
- * The content of this file was based on code borrowed from 
- * http://www.centerkey.com/.
- */
-import java.lang.reflect.Method;
 
-import javax.swing.JOptionPane;
+import edu.stanford.ejalbert.BrowserLauncherRunner;
+import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
+import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
 
 import net.java.sip.communicator.impl.gui.i18n.Messages;
 
@@ -24,8 +21,8 @@ import net.java.sip.communicator.impl.gui.i18n.Messages;
  */
 public class BrowserLauncher {
 
-    private static final String errMsg 
-        = Messages.getString("launchBrowserError");
+    //private static final String errMsg 
+      //  = Messages.getString("launchBrowserError");
 
     /**
      * Launches a browser for the given url, depending on the operation system
@@ -34,6 +31,23 @@ public class BrowserLauncher {
      * @param url The url to open in the browser.
      */
     public static void openURL(String url) {
+        
+        edu.stanford.ejalbert.BrowserLauncher launcher;
+        try {
+            launcher = new edu.stanford.ejalbert.BrowserLauncher(null);
+            
+            BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, url, null);
+            Thread launcherThread = new Thread(runner);
+            launcherThread.start();            
+        }
+        catch (BrowserLaunchingInitializingException e) {
+            e.printStackTrace();
+        }
+        catch (UnsupportedOperatingSystemException e) {
+            e.printStackTrace();
+        }
+        
+        /*
         String osName = System.getProperty("os.name");
         try {
             if (osName.startsWith("Mac OS")) {
@@ -64,6 +78,6 @@ public class BrowserLauncher {
             JOptionPane.showMessageDialog(null, errMsg + ":\n"
                     + e.getLocalizedMessage());
         }
+        */
     }
-
 }
