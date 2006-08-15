@@ -495,7 +495,8 @@ public class MainFrame extends JFrame {
 
                 model.updateContactStatus(metaContact, evt.getNewStatus());
 
-                clistPanel.updateChatContactStatus(metaContact);
+                if(!evt.getOldStatus().equals(evt.getNewStatus()))
+                    clistPanel.updateChatContactStatus(metaContact);
             }
         }
     }
