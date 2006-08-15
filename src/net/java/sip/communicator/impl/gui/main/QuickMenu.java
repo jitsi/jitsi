@@ -30,7 +30,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContact
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactWizardPage2;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactWizardPage3;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.NewContact;
-import net.java.sip.communicator.impl.gui.utils.BrowserLauncher;
+import net.java.sip.communicator.impl.gui.utils.CrossPlatformBrowserLauncher;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
@@ -250,7 +250,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
                 OperationSetWebContactInfo wContactInfo 
                     = mainFrame.getWebContactInfo(defaultProvider);
                 
-                BrowserLauncher.openURL(
+                CrossPlatformBrowserLauncher.openURL(
                         wContactInfo.getWebContactInfo(defaultContact)
                             .toString());
             }

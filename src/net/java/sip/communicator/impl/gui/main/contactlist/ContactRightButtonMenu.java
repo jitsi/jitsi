@@ -26,14 +26,15 @@ import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactDialog;
 import net.java.sip.communicator.impl.gui.main.message.history.HistoryWindow;
-import net.java.sip.communicator.impl.gui.utils.BrowserLauncher;
 import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.CrossPlatformBrowserLauncher;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.contactlist.MetaContactGroup;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.OperationSetWebContactInfo;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import edu.stanford.ejalbert.BrowserLauncher;
 
 /**
  * The ContactRightButtonMenu is the menu, opened when user clicks with the
@@ -293,7 +294,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
             OperationSetWebContactInfo wContactInfo 
                 = mainFrame.getWebContactInfo(defaultProvider);
             
-            BrowserLauncher.openURL(
+            CrossPlatformBrowserLauncher.openURL(
                     wContactInfo.getWebContactInfo(defaultContact)
                         .toString());
         }

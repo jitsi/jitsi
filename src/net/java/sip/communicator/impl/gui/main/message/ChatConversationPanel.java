@@ -46,7 +46,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import net.java.sip.communicator.impl.gui.i18n.Messages;
 import net.java.sip.communicator.impl.gui.main.message.menu.ChatRightButtonMenu;
 import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.utils.BrowserLauncher;
+import net.java.sip.communicator.impl.gui.utils.CrossPlatformBrowserLauncher;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.impl.gui.utils.ImageLoader;
 import net.java.sip.communicator.impl.gui.utils.SIPCommHTMLEditorKit;
@@ -157,7 +157,7 @@ public class ChatConversationPanel extends JScrollPane implements
         });
         openLinkItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {                
-                BrowserLauncher.openURL(currentHref);
+                CrossPlatformBrowserLauncher.openURL(currentHref);
             }
         });
         /*
@@ -427,7 +427,7 @@ public class ChatConversationPanel extends JScrollPane implements
     public void hyperlinkUpdate(HyperlinkEvent e) {
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
             URL url = e.getURL();
-            BrowserLauncher.openURL(url.toString());
+            CrossPlatformBrowserLauncher.openURL(url.toString());
         } else if (e.getEventType() == HyperlinkEvent.EventType.ENTERED) {
             String href = e.getDescription();
             

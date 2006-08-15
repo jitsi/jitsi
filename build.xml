@@ -798,8 +798,6 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/gui"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
-            <zipfileset src="${lib}/BrowserLauncher2-10rc4.jar"
-                prefix=""/>        	
         </jar>
     </target>
 
