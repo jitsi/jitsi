@@ -121,6 +121,10 @@ public class ChatWindow extends JFrame {
                 KeyEvent.CTRL_DOWN_MASK), "copy");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,
                 KeyEvent.SHIFT_DOWN_MASK), "paste");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C,
+                KeyEvent.META_MASK), "copy");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_V,
+                KeyEvent.META_MASK), "paste");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,
                 KeyEvent.CTRL_DOWN_MASK), "sendMessage");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_S,
