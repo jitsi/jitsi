@@ -139,11 +139,11 @@ public class SearchPanel extends JPanel implements ActionListener {
         // this.extendedSearchButton.setName("extendedSearch");
         // this.extendedSearchOpenedButton.setName("extendedSearchOpened");
 
-        this.getRootPane().setDefaultButton(searchButton);
         this.searchButton.addActionListener(this);
         
         this.searchButtonPanel.add(searchButton);
 
+        this.historyWindow.getRootPane().setDefaultButton(searchButton);
         // this.extendedSearchPanel.add(extendedSearchButton,
         // BorderLayout.CENTER);
 
