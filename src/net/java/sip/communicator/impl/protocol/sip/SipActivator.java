@@ -6,11 +6,13 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import org.osgi.framework.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.configuration.*;
 import java.util.*;
+
+import org.osgi.framework.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Activates the SIP package
@@ -24,6 +26,8 @@ public class SipActivator
     private        ServiceRegistration  sipPpFactoryServReg   = null;
     private static BundleContext        bundleContext         = null;
     private static ConfigurationService configurationService  = null;
+    private static NetworkAddressManagerService networkAddressManagerService
+                                                                        = null;
 
     private static ProtocolProviderFactorySipImpl sipProviderFactory = null;
 
@@ -62,8 +66,7 @@ public class SipActivator
      * registered in the bundle context or null if no such implementation was
      * found.
      *
-     * @return ConfigurationService a currently valid implementation of the
-     * configuration service.
+     * @return a currently valid implementation of the ConfigurationService.
      */
     public static ConfigurationService getConfigurationService()
     {
@@ -77,6 +80,28 @@ public class SipActivator
         }
         return configurationService;
     }
+
+    /**
+     * Returns a reference to a NetworkAddressManagerService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a currently valid implementation of the
+     * NetworkAddressManagerService .
+     */
+    public static NetworkAddressManagerService getNetworkAddressManagerService()
+    {
+        if(networkAddressManagerService == null)
+        {
+            ServiceReference confReference
+                = bundleContext.getServiceReference(
+                    NetworkAddressManagerService.class.getName());
+            networkAddressManagerService = (NetworkAddressManagerService)
+                bundleContext.getService(confReference);
+        }
+        return networkAddressManagerService;
+    }
+
 
     /**
      * Returns a reference to the bundle context that we were started with.
@@ -111,6 +136,7 @@ public class SipActivator
      */
     public void stop(BundleContext context) throws Exception
     {
-        logger.debug("Stopped.");
+        sipProviderFactory.stop();
+        sipPpFactoryServReg.unregister();
     }
 }
