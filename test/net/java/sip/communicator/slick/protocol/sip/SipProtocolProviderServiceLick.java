@@ -6,9 +6,10 @@
  */
 package net.java.sip.communicator.slick.protocol.sip;
 
+import java.util.*;
+
 import org.osgi.framework.*;
 import junit.framework.*;
-import java.util.*;
 
 /**
  * SIP specific testing for a SIP Protocol Provider Service implementation.
@@ -49,7 +50,10 @@ public class SipProtocolProviderServiceLick
 
         SipSlickFixture.bc = context;
 
-        addTestSuite(TestAccountInstallation.class);
+//        addTestSuite(TestAccountInstallation.class);
+//        addTestSuite(TestProtocolProviderServiceSipImpl.class);
+//        addTest(TestAccountUninstallation.suite());
+        addTestSuite(TestAccountUninstallationPersistence.class);
 
         context.registerService(getClass().getName(), this, properties);
     }
@@ -61,5 +65,6 @@ public class SipProtocolProviderServiceLick
      */
     public void stop(BundleContext context)
     {
+
     }
 }
