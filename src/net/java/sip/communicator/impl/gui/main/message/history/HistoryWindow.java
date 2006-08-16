@@ -388,7 +388,7 @@ public class HistoryWindow extends JFrame
                     new Integer(height).intValue());
         }
         else {
-            this.setPreferredSize(new Dimension(
+            this.setSize(new Dimension(
                     Constants.HISTORY_WINDOW_WIDTH,
                     Constants.HISTORY_WINDOW_HEIGHT));
         }
