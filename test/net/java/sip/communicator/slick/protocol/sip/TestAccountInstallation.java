@@ -6,11 +6,12 @@
  */
 package net.java.sip.communicator.slick.protocol.sip;
 
-import junit.framework.*;
-import net.java.sip.communicator.util.*;
-import org.osgi.framework.*;
-import net.java.sip.communicator.service.protocol.*;
 import java.util.*;
+
+import org.osgi.framework.*;
+import junit.framework.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 public class TestAccountInstallation
     extends TestCase
@@ -58,7 +59,8 @@ public class TestAccountInstallation
             serRefs = SipSlickFixture.bc.getServiceReferences(
                     ProtocolProviderFactory.class.getName(), osgiFilter);
         }
-        catch (InvalidSyntaxException ex){
+        catch (InvalidSyntaxException ex)
+        {
             //this really shouldhn't occur as the filter expression is static.
             fail(osgiFilter + " is not a valid osgi filter");
         }
@@ -90,7 +92,8 @@ public class TestAccountInstallation
                 null, sipAccount1Properties);
             fail("installing an account with a null account id must result "
                  +"in a NullPointerException");
-        }catch(NullPointerException exc){
+        }catch(NullPointerException exc)
+        {
             //that's what had to happen
         }
 
