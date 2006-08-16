@@ -6,8 +6,7 @@
  */
 package net.java.sip.communicator.service.netaddr;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.*;
 
 /**
  * The NetworkAddressManagerService takes care of problems such as
@@ -16,45 +15,49 @@ import java.net.InetSocketAddress;
 public interface NetworkAddressManagerService
 {
     /**
-     * Returns an InetAddress instance representing the local host or null if no
-     * IP address for the host could be found
-     * @return an InetAddress instance representing the local host or null if no
-     * IP address for the host could be found
-     */
-    public InetAddress getLocalHost();
-
-    /**
-     * Returns a localhostAddress. The method uses the following algorithm to
-     * choose among multiple addresses:
-     * if stun is enabled - queries STUN server and saves returned address
-     * Scans addresses for all network interfaces<br>
-     *       if an address that matches the one returned by the STUN server is found - it is returned<br>
-     *       else<br>
-     *       if a non link local (starting with 172.16-31, 10, or 192.168) address is found it is returned<br>
-     *       else<br>
-     *       if a link local address is found it is returned<br>
-     *       else<br>
-     *       if the any address is accepted - it is returned<br>
-     *       else<br>
-     *       returns the InetAddress.getLocalHost()<br>
-     *       if the InetAddress.getLocalHost() fails returns<br>
-     *       the "any" local address - 0.0.0.0<br>
+     * Returns an InetAddress instance that represents the localhost, and that
+     * a socket can bind upon or distribute to peers as a contact address.
+     * <p>
+     * This method tries to make for the ambiguity in the implementation of the
+     * InetAddress.getLocalHost() method.
+     * (see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4665037).
+     * <p>
+     * To put it briefly, the issue is about choosing a local source
+     * address to bind to or to distribute to peers. It is possible and even
+     * quite probable to expect that a machine may dispose with multiple
+     * addresses and each of them may be valid for a specific destination.
+     * Example cases include:
+     * <p>
+     * 1) A dual stack IPv6/IPv4 box. <br>
+     * 2) A double NIC box with a leg on the Internet and another one in a
+     * private LAN <br>
+     * 3) In the presence of a virtual interface over a VPN or a MobileIP(v6)
+     * tunnel.
+     * <p>
+     * In all such cases a source local address needs to be chosen according to
+     * the intended destination and after consulting the local routing table.
+     * <p>
+     * @param intendedDestination the address of the destination that we'd like
+     * to access through the local address that we are requesting.
      *
-     * @param anyAddressIsAccepted is 0.0.0.0 accepted as a return value.
-     * @return the address that was detected the address of the localhost.
+     * @return an InetAddress instance representing the local host, and that
+     * a socket can bind upon or distribute to peers as a contact address.
      */
-    public InetAddress getLocalHost(boolean anyAddressIsAccepted);
+    public InetAddress getLocalHost(InetAddress intendedDestination);
 
     /**
      * Tries to obtain a mapped/public address for the specified port. If the
      * STUN lib fails, tries to retrieve localhost, if that fails too, returns
      * null.
      *
+     * @param indendedDestination the destination that we'd like to use this
+     * address with.
      * @param port the port whose mapping we are interested in.
      * @return a public address corresponding to the specified port or null if
      * all attempts to retrieve such an address have failed.
      */
-    public InetSocketAddress getPublicAddressFor(int port);
+    public InetSocketAddress getPublicAddressFor(InetAddress indendedDestination,
+                                                 int port);
 
     /**
       * Initializes the network address manager service implementation and
