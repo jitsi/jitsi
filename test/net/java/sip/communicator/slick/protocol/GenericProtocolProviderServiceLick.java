@@ -6,8 +6,8 @@
  */
 package net.java.sip.communicator.slick.protocol;
 
-import junit.framework.*;
 import org.osgi.framework.*;
+import junit.framework.*;
 import net.java.sip.communicator.util.*;
 
 /**
