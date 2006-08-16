@@ -6,8 +6,8 @@
  */
 package net.java.sip.communicator.slick.protocol.sip;
 
-import junit.framework.*;
 import org.osgi.framework.*;
+import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -154,5 +154,41 @@ public class SipSlickFixture
         bc.ungetService(provider1ServiceRef);
         bc.ungetService(provider2ServiceRef);
     }
+
+    /**
+     * Returns the bundle that has registered the protocol provider service
+     * implementation that we're currently testing. The method would go through
+     * all bundles currently installed in the framework and return the first
+     * one that exports the same protocol provider instance as the one we test
+     * in this slick.
+     * @param provider the provider whose bundle we're looking for.
+     * @return the Bundle that has registered the protocol provider service
+     * we're testing in the slick.
+     */
+    public static Bundle findProtocolProviderBundle(
+        ProtocolProviderService provider)
+    {
+        Bundle[] bundles = bc.getBundles();
+
+        for (int i = 0; i < bundles.length; i++)
+        {
+            ServiceReference[] registeredServices
+                = bundles[i].getRegisteredServices();
+
+            if (registeredServices == null)
+                continue;
+
+            for (int j = 0; j < registeredServices.length; j++)
+            {
+                Object service
+                    = bc.getService(registeredServices[j]);
+                if (service == provider)
+                    return bundles[i];
+            }
+        }
+
+        return null;
+    }
+
 
 }
