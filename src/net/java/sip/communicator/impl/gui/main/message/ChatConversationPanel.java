@@ -53,10 +53,12 @@ public class ChatConversationPanel extends JScrollPane implements
     private String currentHref;
     
     private JMenuItem copyLinkItem 
-        = new JMenuItem(Messages.getString("copyLink"));
+        = new JMenuItem(Messages.getString("copyLink"),
+                new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
     
     private JMenuItem openLinkItem 
-        = new JMenuItem(Messages.getString("openInBrowser"));
+        = new JMenuItem(Messages.getString("openInBrowser"),
+                new ImageIcon(ImageLoader.getImage(ImageLoader.BROWSER_ICON)));
     
     private JSeparator copyLinkSeparator = new JSeparator();
     /*
@@ -528,6 +530,13 @@ public class ChatConversationPanel extends JScrollPane implements
                 }
             }
             
+            if(chatEditorPane.getSelectedText() != null) {
+                rightButtonMenu.enableCopy();
+            }
+            else {
+                rightButtonMenu.disableCopy();
+            }
+            
             Point p = e.getPoint();
             SwingUtilities.convertPointToScreen(p, e.getComponent());
             
@@ -561,8 +570,6 @@ public class ChatConversationPanel extends JScrollPane implements
      * Copies the selected conversation panel content to the clipboard.
      */
     public void copyConversation(){
-        JEditorPane editorPane = this.getChatEditorPane();
-
-        editorPane.copy();
-    }
+        this.chatEditorPane.copy();
+    }    
 }

@@ -7,22 +7,16 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
+import java.awt.*;
+import java.awt.image.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
+import javax.imageio.*;
+import javax.imageio.stream.*;
 
-import net.java.sip.communicator.plugin.icqaccregwizz.Resources;
-import net.java.sip.communicator.plugin.icqaccregwizz.Resources.ImageID;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 /**
  * Stores and loads images used throughout this ui implementation.
@@ -360,9 +354,15 @@ public class ImageLoader {
      * The image used for decoration of the "Rename contact" window.
      */
     public static final ImageID RENAME_DIALOG_ICON 
-        = new ImageID("RENAME_DIALOG_ICON");
+        = new ImageID("RENAME_DIALOG_ICON");    
     
-
+    /**
+     * The image used for decoration of the "Open in browser" item in 
+     * the right button click menu in chat window.
+     */
+    public static final ImageID BROWSER_ICON
+        = new ImageID("BROWSER_ICON");
+    
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
     /**

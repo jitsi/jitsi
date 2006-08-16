@@ -82,10 +82,24 @@ public class ChatRightButtonMenu extends JPopupMenu
         this.saveMenuItem.addActionListener(this);
         this.printMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
-
+        
         // Disable all menu items that do nothing.
         this.saveMenuItem.setEnabled(false);
         this.printMenuItem.setEnabled(false);
+    }
+    
+    /**
+     * Disables the copy item.
+     */
+    public void disableCopy() {
+        this.copyMenuItem.setEnabled(false);
+    }
+    
+    /**
+     * Enables the copy item.
+     */
+    public void enableCopy() {
+        this.copyMenuItem.setEnabled(true);
     }
     
     /**
