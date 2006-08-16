@@ -18,10 +18,12 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.message.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>HistoryWindow</tt> is the window, where user could view or search
@@ -33,6 +35,21 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class HistoryWindow extends JFrame
     implements ChatConversationContainer, ActionListener {
 
+    private static final Logger logger = Logger
+        .getLogger(HistoryWindow.class.getName());
+    
+    private static final String HISTORY_WINDOW_WIDTH_PROPERTY
+        = "net.java.sip.communicator.impl.ui.historyWindowWidth";
+    
+    private static final String HISTORY_WINDOW_HEIGHT_PROPERTY
+        = "net.java.sip.communicator.impl.ui.historyWindowHeight";
+
+    private static final String HISTORY_WINDOW_X_PROPERTY
+        = "net.java.sip.communicator.impl.ui.historyWindowX";
+    
+    private static final String HISTORY_WINDOW_Y_PROPERTY
+        = "net.java.sip.communicator.impl.ui.historyWindowY";
+    
     private JPanel historyPanel = new JPanel(new BorderLayout());
 
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
@@ -87,21 +104,15 @@ public class HistoryWindow extends JFrame
         this.historyMenu = new HistoryMenu(this);
         this.searchPanel = new SearchPanel(this);
         
-        this.setSize(Constants.HISTORY_WINDOW_WIDTH,
-                Constants.HISTORY_WINDOW_HEIGHT);
-
+        this.setSizeAndLocation();
+        
         this.setIconImage(ImageLoader.getImage(ImageLoader.SIP_LOGO));
         
         this.initPanels();
 
         this.initData();
         
-        this.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2 
-                    - this.getWidth()/2,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2 
-                    - this.getHeight()/2
-                );
+        this.addWindowListener(new HistoryWindowAdapter());
     }
     
     /**
@@ -320,5 +331,86 @@ public class HistoryWindow extends JFrame
             showHistoryByPeriod(searchStartDate,
                     new Date(System.currentTimeMillis()));
         }
+    }
+    
+    /**
+     * Before closing the history window saves the current size and position
+     * through the <tt>ConfigurationService</tt>.
+     */
+    public class HistoryWindowAdapter extends WindowAdapter {
+       
+        public void windowClosing(WindowEvent e) {
+            ConfigurationService configService
+                = GuiActivator.getConfigurationService();
+            
+            try {
+                configService.setProperty(
+                    HISTORY_WINDOW_WIDTH_PROPERTY,
+                    new Integer(getWidth()));
+                
+                configService.setProperty(
+                    HISTORY_WINDOW_HEIGHT_PROPERTY,
+                    new Integer(getHeight()));
+                
+                configService.setProperty(
+                    HISTORY_WINDOW_X_PROPERTY,
+                    new Integer(getX()));
+                
+                configService.setProperty(
+                    HISTORY_WINDOW_Y_PROPERTY,
+                    new Integer(getY()));
+            }
+            catch (PropertyVetoException e1) {
+                logger.error("The proposed property change "
+                        + "represents an unacceptable value");
+            }
+        }
+    }
+    
+    /**
+     * Sets the window size and position.
+     */
+    public void setSizeAndLocation() {
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+        
+        String width = configService.getString(HISTORY_WINDOW_WIDTH_PROPERTY);
+        
+        String height = configService.getString(HISTORY_WINDOW_HEIGHT_PROPERTY);
+        
+        String x = configService.getString(HISTORY_WINDOW_X_PROPERTY);
+        
+        String y = configService.getString(HISTORY_WINDOW_Y_PROPERTY);
+        
+       
+        if(width != null && height != null) {
+            this.setSize(new Integer(width).intValue(), 
+                    new Integer(height).intValue());
+        }
+        else {
+            this.setPreferredSize(new Dimension(
+                    Constants.HISTORY_WINDOW_WIDTH,
+                    Constants.HISTORY_WINDOW_HEIGHT));
+        }
+        
+        if(x != null && y != null) {
+            this.setLocation(new Integer(x).intValue(), 
+                    new Integer(y).intValue());
+        }
+        else {
+            this.setCenterLocation();
+        }
+    }
+    
+    /**
+     * Positions this window in the center of the screen.
+     */
+    private void setCenterLocation(){
+        this.setLocation(
+                Toolkit.getDefaultToolkit().getScreenSize().width/2 
+                    - this.getWidth()/2,
+                Toolkit.getDefaultToolkit().getScreenSize().height/2 
+                    - this.getHeight()/2
+                );
     }
 }

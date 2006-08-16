@@ -58,6 +58,19 @@ public class ChatWindow extends JFrame {
 
     private Logger logger = Logger.getLogger(ChatWindow.class.getName());
     
+    private static final String CHAT_WINDOW_WIDTH_PROPERTY
+        = "net.java.sip.communicator.impl.ui.chatWindowWidth";
+    
+    private static final String CHAT_WINDOW_HEIGHT_PROPERTY
+        = "net.java.sip.communicator.impl.ui.chatWindowHeight";
+    
+    private static final String CHAT_WINDOW_X_PROPERTY
+        = "net.java.sip.communicator.impl.ui.chatWindowX";
+    
+    private static final String CHAT_WINDOW_Y_PROPERTY
+        = "net.java.sip.communicator.impl.ui.chatWindowY";
+
+
     private ChatPanel currentChatPanel;
 
     private MenusPanel menusPanel;
@@ -644,20 +657,20 @@ public class ChatWindow extends JFrame {
             
             try {
                 configService.setProperty(
-                    "net.java.sip.communicator.impl.ui.chatWindowWidth",
+                    CHAT_WINDOW_WIDTH_PROPERTY,
                     new Integer(getWidth()));
                 
                 configService.setProperty(
-                    "net.java.sip.communicator.impl.ui.chatWindowHeight",
+                    CHAT_WINDOW_HEIGHT_PROPERTY,
                     new Integer(getHeight()));
                 
                 configService.setProperty(
-                        "net.java.sip.communicator.impl.ui.chatWindowX",
-                        new Integer(getX()));
+                    CHAT_WINDOW_X_PROPERTY,
+                    new Integer(getX()));
                 
                 configService.setProperty(
-                        "net.java.sip.communicator.impl.ui.chatWindowY",
-                        new Integer(getY()));
+                    CHAT_WINDOW_Y_PROPERTY,
+                    new Integer(getY()));
             }
             catch (PropertyVetoException e1) {
                 logger.error("The proposed property change "
@@ -675,17 +688,13 @@ public class ChatWindow extends JFrame {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
         
-        String width = configService.getString(
-                "net.java.sip.communicator.impl.ui.chatWindowWidth");
+        String width = configService.getString(CHAT_WINDOW_WIDTH_PROPERTY);
         
-        String height = configService.getString(
-                "net.java.sip.communicator.impl.ui.chatWindowHeight");
+        String height = configService.getString(CHAT_WINDOW_HEIGHT_PROPERTY);
         
-        String x = configService.getString(
-            "net.java.sip.communicator.impl.ui.chatWindowX");
+        String x = configService.getString(CHAT_WINDOW_X_PROPERTY);
         
-        String y = configService.getString(
-            "net.java.sip.communicator.impl.ui.chatWindowY");
+        String y = configService.getString(CHAT_WINDOW_Y_PROPERTY);
         
        
         if(width != null && height != null)
