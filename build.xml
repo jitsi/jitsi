@@ -20,8 +20,10 @@
     <property name="test.reports.dir" value="test-reports"/>
     <property name="test.html.reports.dir" value="${test.reports.dir}/html"/>
     <property name="release" value="release"/>
+    <property name="log" value="log"/>
+    <property name="release.src" value="${release}/install"/>
     <property name="inst.resrc" value="resources/install"/>
-	
+
     <!-- Put here the release directory -->
     <property name="macosx.app.dir" value="${release}/macosx"/>
     <!-- Put here the Application name -->
@@ -44,7 +46,7 @@
     <!-- windows  -->
     <condition property="jmf.home" value="${lib}/jmf-win">
         <os family="windows"/>
-	</condition>
+    </condition>
 
     <condition property="is.running.windows" value="${os.name}">
         <os family="windows"/>
@@ -134,6 +136,7 @@
             <fileset dir="${native.libs}"/>
             <fileset dir="${java.doc}"/>
             <fileset dir="${release}"/>
+            <fileset dir="${log}"/>
         </delete>
     </target>
 
@@ -217,6 +220,7 @@
         <mkdir dir="${test.reports.dir}"/>
         <mkdir dir="${test.reports.dir}/html"/>
         <mkdir dir="${release}"/>
+        <mkdir dir="${log}"/>
 
         <!-- set the jmf.performancepack.extracted property so that we know
              whether we'll have to extract jmf native libs -->
@@ -448,9 +452,9 @@
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
                 value="lib/logging.properties"/>
-        	
-        	<sysproperty key="java.library.path"
-        	                value="${lib}/native/x86"/>
+
+            <sysproperty key="java.library.path"
+                            value="${lib}/native/x86"/>
         </java>
 
     </target>
@@ -834,15 +838,15 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
 
-	<!-- BUNDLE-PLUGIN-SYSTRAY -->
+    <!-- BUNDLE-PLUGIN-SYSTRAY -->
     <!--target name="bundle-plugin-systray">
         <jar compress="false" destfile="${bundles.dest}/systray.jar"
             manifest="src/net/java/sip/communicator/plugin/systray/systray.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/systray"
                 prefix="net/java/sip/communicator/plugin/systray"/>
-        	<zipfileset src="${lib}/jdic/jdic.jar" prefix=""/>
-        	<zipfileset dir="${lib}/jdic" prefix=""/>
-        	<zipfileset src="${lib}/jdic/linux/jdic_stub.jar" prefix=""/>
+            <zipfileset src="${lib}/jdic/jdic.jar" prefix=""/>
+            <zipfileset dir="${lib}/jdic" prefix=""/>
+            <zipfileset src="${lib}/jdic/linux/jdic_stub.jar" prefix=""/>
         </jar>
     </target-->
 </project>
