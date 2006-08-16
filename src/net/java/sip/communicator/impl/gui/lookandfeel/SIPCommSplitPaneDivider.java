@@ -6,25 +6,14 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Insets;
-import java.awt.LayoutManager;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
+import java.awt.*;
+import java.awt.image.*;
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.plaf.basic.*;
+import javax.swing.plaf.metal.*;
 
-import javax.swing.JButton;
-import javax.swing.JSplitPane;
-import javax.swing.border.Border;
-import javax.swing.plaf.basic.BasicSplitPaneDivider;
-import javax.swing.plaf.basic.BasicSplitPaneUI;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * Divider used by SIPCommSplitPaneUI.

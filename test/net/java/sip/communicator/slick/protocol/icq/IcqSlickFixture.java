@@ -6,10 +6,11 @@
  */
 package net.java.sip.communicator.slick.protocol.icq;
 
-import net.java.sip.communicator.service.protocol.*;
+import java.util.*;
+
 import org.osgi.framework.*;
 import junit.framework.*;
-import java.util.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
@@ -136,7 +137,7 @@ public class IcqSlickFixture extends TestCase
     public static Bundle findProtocolProviderBundle(
         ProtocolProviderService provider)
     {
-        Bundle[] bundles = IcqSlickFixture.bc.getBundles();
+        Bundle[] bundles = bc.getBundles();
 
         for (int i = 0; i < bundles.length; i++)
         {
@@ -149,7 +150,7 @@ public class IcqSlickFixture extends TestCase
             for (int j = 0; j < registeredServices.length; j++)
             {
                 Object service
-                    = IcqSlickFixture.bc.getService(registeredServices[j]);
+                    = bc.getService(registeredServices[j]);
                 if (service == provider)
                     return bundles[i];
             }

@@ -7,27 +7,19 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
-import javax.swing.ImageIcon;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
+import javax.swing.*;
 import javax.swing.Timer;
 
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommMsgTextArea;
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommSelectorBox;
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.service.protocol.OperationFailedException;
-import net.java.sip.communicator.service.protocol.OperationSetPresence;
-import net.java.sip.communicator.service.protocol.PresenceStatus;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
-import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.icqconstants.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>StatusSelectorBox</tt> is a <tt>SIPCommSelectorBox</tt> that contains

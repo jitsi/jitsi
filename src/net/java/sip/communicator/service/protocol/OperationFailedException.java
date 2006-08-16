@@ -37,6 +37,11 @@ public class OperationFailedException
     public static final int PROVIDER_NOT_REGISTERED = 3;
 
     /**
+     * Set when for implementation specific reasons.
+     */
+    public static final int INTERNAL_ERROR = 4;
+
+    /**
      * The error code of the exception
      */
     private int errorCode = GENERAL_ERROR;

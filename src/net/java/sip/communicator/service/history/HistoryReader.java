@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.history;
 
-import java.util.Date;
+import java.util.*;
 
 /**
  * @author Alexander Pelov

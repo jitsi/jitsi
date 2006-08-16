@@ -7,8 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.i18n;
 
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.util.*;
 /**
  * The Messages class manages the access to the internationalization
  * properties files.

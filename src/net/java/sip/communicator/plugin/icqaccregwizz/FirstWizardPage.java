@@ -6,28 +6,12 @@
  */
 package net.java.sip.communicator.plugin.icqaccregwizz;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-
-import net.java.sip.communicator.service.gui.WizardContainer;
-import net.java.sip.communicator.service.gui.WizardPage;
-import net.java.sip.communicator.service.protocol.AccountID;
-import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the uin

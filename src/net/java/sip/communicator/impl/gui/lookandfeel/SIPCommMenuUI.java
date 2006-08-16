@@ -6,13 +6,12 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import java.awt.Graphics;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.plaf.*;
+import javax.swing.plaf.basic.*;
 
-import javax.swing.JComponent;
-import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicMenuUI;
-
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The SIPCommMenuUI implementation.

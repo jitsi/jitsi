@@ -7,16 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.main.message.menu;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import javax.swing.*;
 
-import javax.swing.ImageIcon;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.message.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 /**
  * The <tt>EditMenu</tt> is the menu in the chat window menu bar, which contains
  * cut, copy and paste.

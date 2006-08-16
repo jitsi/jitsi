@@ -10,15 +10,11 @@
  */
 package net.java.sip.communicator.impl.media.configuration;
 
+import java.util.*;
 import javax.media.*;
-import javax.media.protocol.*;
-import javax.media.format.AudioFormat;
+import javax.media.format.*;
 
-import net.java.sip.communicator.util.Logger;
-
-import java.util.Vector;
-import java.util.Enumeration;
-import com.sun.media.protocol.dsound.DirectSoundStream;
+import net.java.sip.communicator.util.*;
 
 public class DirectSoundAuto {
     

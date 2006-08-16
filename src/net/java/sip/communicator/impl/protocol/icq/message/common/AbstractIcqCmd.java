@@ -35,18 +35,11 @@
 
 package net.java.sip.communicator.impl.protocol.icq.message.common;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 
-import net.kano.joscar.ByteBlock;
-import net.kano.joscar.DefensiveTools;
-import net.kano.joscar.LiveWritable;
-import net.kano.joscar.flapcmd.SnacCommand;
-import net.kano.joscar.flapcmd.SnacPacket;
-import net.kano.joscar.tlv.TlvChain;
-import net.kano.joscar.tlv.TlvTools;
-import net.kano.joscar.tlv.Tlv;
+import net.kano.joscar.*;
+import net.kano.joscar.flapcmd.*;
+import net.kano.joscar.tlv.*;
 
 /**
  * A base class for the two ICQ commands provided in this

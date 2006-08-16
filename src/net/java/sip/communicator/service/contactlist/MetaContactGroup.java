@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.contactlist;
 
 import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**

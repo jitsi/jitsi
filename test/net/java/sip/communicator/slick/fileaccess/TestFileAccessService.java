@@ -1,16 +1,11 @@
 package net.java.sip.communicator.slick.fileaccess;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Random;
+import java.io.*;
+import java.util.*;
 
-import junit.framework.TestCase;
-import net.java.sip.communicator.service.fileaccess.FileAccessService;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
+import junit.framework.*;
+import net.java.sip.communicator.service.fileaccess.*;
 
 public class TestFileAccessService extends TestCase {
 
@@ -46,7 +41,8 @@ public class TestFileAccessService extends TestCase {
      */
     private static final String fileName = "fileaccessservice.tst";
 
-    public TestFileAccessService(String name) {
+    public TestFileAccessService(String name)
+    {
         super(name);
         BundleContext context = FileAccessServiceLick.bc;
         ServiceReference ref = context
@@ -58,7 +54,8 @@ public class TestFileAccessService extends TestCase {
      * Test method for
      * 'net.java.sip.communicator.service.fileaccess.FileAccessServiceImpl.getTemporaryFile()'
      */
-    public void testCreateReadWriteTemporaryFile() {
+    public void testCreateReadWriteTemporaryFile()
+    {
         try {
             File tempFile = this.fileAccessService.getTemporaryFile();
 
@@ -66,7 +63,8 @@ public class TestFileAccessService extends TestCase {
             assertEquals(tempFile.length(), 0);
 
             writeReadFile(tempFile);
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             fail("Error while opening the temp file: " + e.getMessage());
         }
     }
@@ -75,10 +73,13 @@ public class TestFileAccessService extends TestCase {
      * Test method for
      * 'net.java.sip.communicator.service.fileaccess.FileAccessServiceImpl.getTemporaryFile()'
      */
-    public void testCreateTemporaryDirectory() throws Exception {
+    public void testCreateTemporaryDirectory()
+        throws Exception
+    {
         try {
             this.fileAccessService.getTemporaryDirectory();
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             fail("Error creating the temp directory: " + e.getMessage());
         }
     }
@@ -87,16 +88,20 @@ public class TestFileAccessService extends TestCase {
      * Test method for
      * 'net.java.sip.communicator.service.fileaccess.FileAccessServiceImpl.getTemporaryFile()'
      */
-    public void testCreateReadWriteFileInTemporaryDirectory() throws Exception {
+    public void testCreateReadWriteFileInTemporaryDirectory()
+        throws Exception
+    {
         int testFiles = 10;
         File[] files = new File[testFiles];
         byte[][] randomData = new byte[testFiles][];
 
-        for (int i = 0; i < testFiles; i++) {
+        for (int i = 0; i < testFiles; i++)
+        {
             File tempDir = null;
             try {
                 tempDir = this.fileAccessService.getTemporaryDirectory();
-            } catch (IOException e) {
+            } catch (IOException e)
+            {
                 fail("Error creating the temp directory: " + e.getMessage());
             }
 
@@ -110,7 +115,8 @@ public class TestFileAccessService extends TestCase {
 
         // Read all files afterwards to ensure that temp directories
         // are different
-        for (int i = 0; i < testFiles; i++) {
+        for (int i = 0; i < testFiles; i++)
+        {
             this.readFile(files[i], randomData[i]);
         }
     }
@@ -118,11 +124,13 @@ public class TestFileAccessService extends TestCase {
     /*
      * Tests if it is possible to create a persistent directory.
      */
-    public void testCreatePersistentDirectory() throws Exception {
+    public void testCreatePersistentDirectory()
+        throws Exception {
         try {
             this.fileAccessService.getPrivatePersistentDirectory(dirName);
             this.fileAccessService.getPrivatePersistentDirectory(dirNames);
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             fail("Error creating the temp directory: " + e.getMessage());
         }
     }
@@ -131,17 +139,21 @@ public class TestFileAccessService extends TestCase {
      * Tests if it is possible to create a persistent directory and a create
      * file and write and read data to this file.
      */
-    public void testCreateReadWriteFileInPersistentDirectory() throws Exception {
+    public void testCreateReadWriteFileInPersistentDirectory()
+        throws Exception
+    {
         File privateDir = null;
         try {
             privateDir = this.fileAccessService
                     .getPrivatePersistentDirectory(dirName);
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             fail("Error creating the private directory: " + e.getMessage());
         }
 
         File file = new File(privateDir, fileName);
-        if (file.exists()) {
+        if (file.exists())
+        {
             assertTrue("Persistent file exists. Delete attempt failed. "
                     + "Have you ran the tests with other user? "
                     + "Is the file locked?" + file.getAbsolutePath(), file
@@ -161,17 +173,20 @@ public class TestFileAccessService extends TestCase {
     /*
      * Tests if it is possible for a file to be created if it does not exist
      */
-    public void testCreatePersistentFile() {
+    public void testCreatePersistentFile()
+    {
         try {
             File file = this.fileAccessService
                     .getPrivatePersistentFile(fileName);
 
-            if (!file.exists()) {
+            if (!file.exists())
+            {
                 // Assert that we CAN create the file if it does not exist
                 assertTrue(file.createNewFile());
             }
 
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             fail(e.getMessage());
         }
     }
@@ -181,34 +196,40 @@ public class TestFileAccessService extends TestCase {
      * possible for the supplied file to be deleted. It is used in conjunction
      * with the other tests
      */
-    public void testDeletePersistentFile() {
+    public void testDeletePersistentFile()
+    {
         try {
             File file = this.fileAccessService
                     .getPrivatePersistentFile(fileName);
 
-            if (file.exists()) {
+            if (file.exists())
+            {
                 file.delete();
             }
 
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
         }
     }
 
     /*
      * Tests if it is possible for a file to be created if it does not exist
      */
-    public void testCreateReadWritePersistentFile() {
+    public void testCreateReadWritePersistentFile()
+    {
 
         try {
             File file = this.fileAccessService
                     .getPrivatePersistentFile(fileName);
 
-            if (!file.exists()) {
+            if (!file.exists())
+            {
                 assertTrue(file.createNewFile());
             }
 
             writeReadFile(file);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             fail(e.getMessage());
         }
     }
@@ -216,13 +237,15 @@ public class TestFileAccessService extends TestCase {
     /*
      * Tests if it data actually persists between calls
      */
-    public void testPersistentFilePersistency() {
+    public void testPersistentFilePersistency()
+    {
 
         try {
             File file = this.fileAccessService
                     .getPrivatePersistentFile(fileName);
 
-            if (!file.exists()) {
+            if (!file.exists())
+            {
                 assertTrue(file.createNewFile());
             }
 
@@ -236,24 +259,28 @@ public class TestFileAccessService extends TestCase {
 
             // and with the same size
             assertEquals(file.length(), newFile.length());
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             fail(e.getMessage());
         }
     }
 
-    private void writeReadFile(File file) {
+    private void writeReadFile(File file)
+    {
         byte[] randomData = generateRandomData();
         writeFile(file, randomData);
         readFile(file, randomData);
     }
 
-    private byte[] generateRandomData() {
+    private byte[] generateRandomData()
+    {
         int rndInt = TestFileAccessService.randomData
                 .nextInt(Integer.MAX_VALUE);
         return Integer.toHexString(rndInt).getBytes();
     }
 
-    private void writeFile(File file, byte[] randomData) {
+    private void writeFile(File file, byte[] randomData)
+    {
         assertTrue(file.canWrite());
 
         FileOutputStream output = null;
@@ -263,17 +290,20 @@ public class TestFileAccessService extends TestCase {
             output.write(testData);
             output.write(randomData);
             output.flush();
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             fail("Could not write to file: " + e.getMessage());
         } finally {
             try {
                 output.close();
-            } catch (IOException e) {
+            } catch (IOException e)
+            {
             }
         }
     }
 
-    private void readFile(File file, byte[] randomData) {
+    private void readFile(File file, byte[] randomData)
+    {
         assertTrue(file.canRead());
 
         FileInputStream input = null;
@@ -282,22 +312,26 @@ public class TestFileAccessService extends TestCase {
         try {
             input = new FileInputStream(file);
             input.read(readBuff);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             fail("Could not read from file: " + e.getMessage());
         } finally {
             try {
                 input.close();
-            } catch (IOException e) {
+            } catch (IOException e)
+            {
             }
         }
 
         // Check if testData was correctly written
-        for (int i = 0; i < testData.length; i++) {
+        for (int i = 0; i < testData.length; i++)
+        {
             assertEquals(readBuff[i], testData[i]);
         }
 
         // Check if randomData was correctly written
-        for (int i = 0; i < randomData.length; i++) {
+        for (int i = 0; i < randomData.length; i++)
+        {
             assertEquals(readBuff[testData.length + i], randomData[i]);
         }
     }

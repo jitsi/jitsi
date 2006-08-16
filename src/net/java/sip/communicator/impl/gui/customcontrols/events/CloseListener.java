@@ -11,8 +11,9 @@ package net.java.sip.communicator.impl.gui.customcontrols.events;
  * davidou@mageos.com Intern, SETLabs, Infosys Technologies Ltd. May 2004 - Jul
  * 2004 Ecole des Mines de Nantes, France
  */
-import java.awt.event.MouseEvent;
-import java.util.EventListener;
+import java.util.*;
+
+import java.awt.event.*;
 /**
  * @author Yana Stamcheva
  */

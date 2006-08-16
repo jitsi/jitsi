@@ -6,11 +6,12 @@
  */
 package net.java.sip.communicator.slick.contactlist;
 
-import junit.framework.*;
-import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.impl.protocol.mock.*;
-import net.java.sip.communicator.service.protocol.*;
 import java.util.*;
+
+import junit.framework.*;
+import net.java.sip.communicator.impl.protocol.mock.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Tests methods and behaviour of MetaContactGroup implementations.

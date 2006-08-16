@@ -6,12 +6,13 @@
  */
 package net.java.sip.communicator.impl.protocol.icq;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import java.util.*;
 import net.java.sip.communicator.util.*;
+import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
-import net.kano.joustsim.Screenname;
 
 /**
  * Maps SIP Communicator typing notifications to those going and coming from
@@ -229,8 +230,6 @@ public class OperationSetTypingNotificationsIcqImpl
                          + " to: " + evt.getNewState());
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                System.out.println("adding a Bos Service Listener");
-
                 icqProvider.getAimConnection().getIcbmService()
                     .addIcbmListener(joustSimIcbmListener);
 
@@ -263,7 +262,7 @@ public class OperationSetTypingNotificationsIcqImpl
         public void buddyInfoUpdated(IcbmService service, Screenname buddy,
                                      IcbmBuddyInfo info)
         {
-            System.out.println("buddyInfoUpdated for:"+buddy+" info: " +info);
+            logger.debug("buddyInfoUpdated for:"+buddy+" info: " +info);
         }
 
     }

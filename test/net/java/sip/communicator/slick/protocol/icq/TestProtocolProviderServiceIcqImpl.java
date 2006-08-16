@@ -6,12 +6,13 @@
  */
 package net.java.sip.communicator.slick.protocol.icq;
 
+import java.util.*;
+
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import java.util.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Test icq/aim specific behaviour for OSCAR (AIM/ICQ) implementations of the
@@ -111,8 +112,11 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
      *
      * The method also verifies that a registration event is fired upond
      * succesful registration and collected by our event collector.
+     *
+     * @throws OperationFailedException if provider.register() fails.
      */
     public void testRegister()
+        throws OperationFailedException
     {
         //add an event collector that will collect all events during the
         //registration and allows us to later inspect them and make sure
@@ -281,9 +285,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
             {
                 logger.debug("We're registered and will notify those who wait");
                 synchronized(registrationLock){
-                    logger.debug(".");
                     registrationLock.notifyAll();
-                    logger.debug(".");
                 }
             }
         }

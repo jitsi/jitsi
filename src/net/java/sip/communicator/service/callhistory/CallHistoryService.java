@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.callhistory;
 
-import net.java.sip.communicator.service.history.HistoryReader;
+import net.java.sip.communicator.service.history.*;
 
 /**
  * @author Alexander Pelov

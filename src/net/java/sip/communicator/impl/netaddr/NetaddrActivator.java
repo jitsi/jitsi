@@ -7,7 +7,7 @@
 package net.java.sip.communicator.impl.netaddr;
 
 import org.osgi.framework.*;
-import net.java.sip.communicator.service.configuration.ConfigurationService;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.util.*;
 
@@ -16,7 +16,6 @@ import net.java.sip.communicator.util.*;
  * Network address manager
  *
  * @author Emil Ivov
- * @author Pierre Floury
  */
 public class NetaddrActivator
     implements BundleActivator
@@ -24,7 +23,10 @@ public class NetaddrActivator
     private static Logger logger =
         Logger.getLogger(NetworkAddressManagerServiceImpl.class);
 
+    private static BundleContext        bundleContext         = null;
+
     private NetworkAddressManagerServiceImpl networkAMS = null;
+    private static ConfigurationService configurationService = null;
 
     /**
      * Creates a NetworkAddressManager, starts it, and registers it as a
@@ -38,16 +40,13 @@ public class NetaddrActivator
         try{
 
             logger.logEntry();
-            // get the config service
-            ServiceReference refConfig = bundleContext.getServiceReference(
-                ConfigurationService.class.getName());
-
-            ConfigurationService configurationService = (ConfigurationService)
-                bundleContext.getService(refConfig);
+            
+            //keep a reference to the bundle context for later usage.
+            this.bundleContext = bundleContext;
 
             //Create and start the network address manager.
             networkAMS =
-                new NetworkAddressManagerServiceImpl(configurationService);
+                new NetworkAddressManagerServiceImpl();
 
             // give references to the NetworkAddressManager implementation
             networkAMS.start();
@@ -64,9 +63,29 @@ public class NetaddrActivator
             logger.logExit();
         }
     }
+    
+    /**
+     * Returns a reference to a ConfigurationService implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     *
+     * @return a currently valid implementation of the ConfigurationService.
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if (configurationService == null)
+        {
+            ServiceReference confReference
+                = bundleContext.getServiceReference(
+                    ConfigurationService.class.getName());
+            configurationService
+                = (ConfigurationService) bundleContext.getService(confReference);
+        }
+        return configurationService;
+    }
 
     /**
-     * Stops the Networ Address Manager bundle
+     * Stops the Network Address Manager bundle
      *
      * @param bundleContext  the OSGI bundle context
      *

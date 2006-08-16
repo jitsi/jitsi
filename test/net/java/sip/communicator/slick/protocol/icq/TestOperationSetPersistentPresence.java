@@ -130,7 +130,8 @@ public class TestOperationSetPersistentPresence
         //and remove the name of every contact and group that we find there from
         //the expected contct list hashtable.
         Iterator groups = rootGroup.subgroups();
-        while (groups.hasNext() ){
+        while (groups.hasNext() )
+        {
             ContactGroup group = (ContactGroup)groups.next();
 
             List expectedContactsInGroup
@@ -426,14 +427,16 @@ public class TestOperationSetPersistentPresence
          */
         public void waitForEvent(long waitFor)
         {
-            synchronized(this){
+            synchronized(this)
+            {
                 if(collectedEvents.size() > 0)
                     return;
 
                 try{
                     wait(waitFor);
                 }
-                catch (InterruptedException ex){
+                catch (InterruptedException ex)
+                {
                     logger.debug(
                         "Interrupted while waiting for a subscription evt", ex);
                 }
@@ -524,8 +527,10 @@ public class TestOperationSetPersistentPresence
         {
             logger.trace("Waiting for a persistent subscription event");
 
-            synchronized(this){
-                if(collectedEvents.size() > 0){
+            synchronized(this)
+            {
+                if(collectedEvents.size() > 0)
+                {
                     logger.trace("SubEvt already received. " + collectedEvents);
                     return;
                 }
@@ -537,7 +542,8 @@ public class TestOperationSetPersistentPresence
                     else
                         logger.trace("No SubEvt received for "+waitFor+"ms.");
                 }
-                catch (InterruptedException ex){
+                catch (InterruptedException ex)
+                {
                     logger.debug(
                         "Interrupted while waiting for a subscription evt", ex);
                 }

@@ -6,12 +6,10 @@
  */
 package net.java.sip.communicator.slick.media;
 
-import junit.framework.*;
 import org.osgi.framework.*;
-
+import junit.framework.*;
 import net.java.sip.communicator.service.media.*;
-import net.java.sip.communicator.service.media.event.MediaEvent;
-import net.java.sip.communicator.service.media.event.MediaListener;
+import net.java.sip.communicator.service.media.event.*;
 
 /**
  * Tests basic MediaService behaviour.
@@ -36,12 +34,14 @@ public class TestMediaService extends TestCase
      */
     private MediaListener mediaListener = new MediaListener()
     {
-        public void receivedMediaStream(MediaEvent evt) {
+        public void receivedMediaStream(MediaEvent evt)
+        {
             // TODO Auto-generated method stub
             mediaEvent = evt;
         }
 
-        public void mediaServiceStatusChanged() {
+        public void mediaServiceStatusChanged()
+        {
             // TODO Auto-generated method stub
         }
     };

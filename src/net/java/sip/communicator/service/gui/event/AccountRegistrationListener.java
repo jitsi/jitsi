@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.gui.event;
 
-import java.util.EventListener;
+import java.util.*;
 
 /**
  * Listens for all events caused by adding or removing of an

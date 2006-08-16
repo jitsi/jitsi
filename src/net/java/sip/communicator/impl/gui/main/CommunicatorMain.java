@@ -7,17 +7,11 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
-import javax.swing.JOptionPane;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.GuiActivator;
-import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommDefaultTheme;
-import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommLookAndFeel;
-import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.service.configuration.ConfigurationService;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Starts the GUI application using the SIPCommLookAndFeel with the

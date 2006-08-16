@@ -6,10 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.login;
 
-import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
-import net.java.sip.communicator.service.protocol.SecurityAuthority;
-import net.java.sip.communicator.service.protocol.UserCredentials;
+import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>SecurityAuthorityImpl</tt> is an implementation of the

@@ -7,29 +7,20 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
-import java.applet.Applet;
-import java.applet.AudioClip;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Hashtable;
+import java.applet.*;
+import java.io.*;
+import java.util.*;
 import java.util.Map;
 
-import javax.swing.text.html.StyleSheet;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
+import javax.swing.text.html.*;
 
-import net.java.sip.communicator.impl.gui.main.CommunicatorMain;
-import net.java.sip.communicator.service.protocol.PresenceStatus;
-import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.icqconstants.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * All look and feel related constants are stored here.

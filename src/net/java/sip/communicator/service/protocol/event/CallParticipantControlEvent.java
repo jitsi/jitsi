@@ -7,7 +7,6 @@
 
 package net.java.sip.communicator.service.protocol.event;
 
-import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -56,7 +55,8 @@ public class CallParticipantControlEvent
      * request or null if not.
      * @return null or a tranfer URI.
      */
-    public String getTargetURI(){
+    public String getTargetURI()
+    {
         return targetURI;
     }
 }

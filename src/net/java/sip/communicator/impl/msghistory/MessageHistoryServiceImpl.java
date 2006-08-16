@@ -55,7 +55,8 @@ public class MessageHistoryServiceImpl
 
     private Object syncRoot_HistoryService = new Object();
 
-    public HistoryService getHistoryService() {
+    public HistoryService getHistoryService()
+    {
         return historyService;
     }
 
@@ -379,7 +380,8 @@ public class MessageHistoryServiceImpl
         HistoryID historyId = HistoryID.createFromID(new String[] { "messages",
                 localId, remoteId });
 
-        if (this.historyService.isHistoryExisting(historyId)) {
+        if (this.historyService.isHistoryExisting(historyId))
+        {
             retVal = this.historyService.getHistory(historyId);
         } else {
             retVal = this.historyService.createHistory(historyId,
@@ -474,17 +476,20 @@ public class MessageHistoryServiceImpl
     // //////////////////////////////////////////////////////////////////////////
     // MessageListener implementation methods
 
-    public void messageReceived(MessageReceivedEvent evt) {
+    public void messageReceived(MessageReceivedEvent evt)
+    {
         this.writeMessage("in", null, evt.getSourceContact(), evt
                 .getSourceMessage(), evt.getTimestamp());
     }
 
-    public void messageDelivered(MessageDeliveredEvent evt) {
+    public void messageDelivered(MessageDeliveredEvent evt)
+    {
         this.writeMessage("out", null, evt.getDestinationContact(), evt
                 .getSourceMessage(), evt.getTimestamp());
     }
 
-    public void messageDeliveryFailed(MessageDeliveryFailedEvent evt) {
+    public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
+    {
     }
 
     /**
@@ -497,7 +502,8 @@ public class MessageHistoryServiceImpl
      *                          that came from the protocol provider
      */
     private void writeMessage(String direction, Contact source,
-            Contact destination, Message message, Date messageTimestamp) {
+            Contact destination, Message message, Date messageTimestamp)
+    {
         try {
             History history = this.getHistory(source, destination);
             HistoryWriter historyWriter = history.getWriter();
@@ -506,7 +512,8 @@ public class MessageHistoryServiceImpl
                     message.getEncoding(), message.getMessageUID(),
                     message.getSubject(), String.valueOf(messageTimestamp.getTime()) },
                     new Date()); // this date is when the history record is written
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             logger.error("Could not add message to history", e);
         }
     }
@@ -521,7 +528,8 @@ public class MessageHistoryServiceImpl
      */
     public void setHistoryService(HistoryService historyService)
             throws IllegalArgumentException, IOException {
-        synchronized (this.syncRoot_HistoryService) {
+        synchronized (this.syncRoot_HistoryService)
+        {
             this.historyService = historyService;
 
             logger.debug("New history service registered.");
@@ -533,9 +541,12 @@ public class MessageHistoryServiceImpl
      *
      * @param historyService HistoryService
      */
-    public void unsetHistoryService(HistoryService historyService) {
-        synchronized (this.syncRoot_HistoryService) {
-            if (this.historyService == historyService) {
+    public void unsetHistoryService(HistoryService historyService)
+    {
+        synchronized (this.syncRoot_HistoryService)
+        {
+            if (this.historyService == historyService)
+            {
                 this.historyService = null;
 
                 logger.debug("History service unregistered.");

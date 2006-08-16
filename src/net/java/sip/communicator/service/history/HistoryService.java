@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.service.history;
 
-import java.io.IOException;
-import java.util.Iterator;
+import java.io.*;
+import java.util.*;
 
-import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
+import net.java.sip.communicator.service.history.records.*;
 
 /**
  * This service provides the functionality to store history records. The records

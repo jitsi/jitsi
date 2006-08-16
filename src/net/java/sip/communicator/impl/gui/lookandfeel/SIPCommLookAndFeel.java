@@ -6,14 +6,11 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.UIDefaults;
-import javax.swing.plaf.IconUIResource;
-import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.*;
+import javax.swing.plaf.*;
+import javax.swing.plaf.metal.*;
 
-import net.java.sip.communicator.impl.gui.utils.LightGrayFilter;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The default SIP-Communicator look&feel.

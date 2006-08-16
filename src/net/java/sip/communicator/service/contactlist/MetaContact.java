@@ -7,8 +7,9 @@
 package net.java.sip.communicator.service.contactlist;
 
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
-import java.util.Iterator;
 
 /**
  * A MetaContact is an abstraction used for merging mutltiple Contacts (most

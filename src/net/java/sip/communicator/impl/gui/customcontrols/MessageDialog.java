@@ -7,23 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>MessageDialog</tt> is a <tt>JDialog</tt> that contains a question

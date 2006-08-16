@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.service.configuration;
 
-import net.java.sip.communicator.service.configuration.event.*;
 import java.io.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.util.xml.*;
 
 /**

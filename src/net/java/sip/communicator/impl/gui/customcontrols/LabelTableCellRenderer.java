@@ -6,24 +6,13 @@
  */
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.table.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.UIManager;
-import javax.swing.table.TableCellRenderer;
-
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Custom <tt>TableCellRenderer</tt> that renders

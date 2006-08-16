@@ -7,17 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
+import java.awt.*;
+import java.awt.image.*;
+import javax.swing.*;
 
-import javax.swing.Box;
-import javax.swing.JSeparator;
-import javax.swing.JToolBar;
-
-import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommToolBarSeparatorUI;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The SIPCommToolBar is a <tt>JToolBar</tt>, which has its own drag icon

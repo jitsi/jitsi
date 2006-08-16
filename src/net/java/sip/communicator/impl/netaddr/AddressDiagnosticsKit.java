@@ -1,11 +1,11 @@
 package net.java.sip.communicator.impl.netaddr;
 
-import net.java.sip.communicator.util.*;
 import java.net.*;
+
+import net.java.sip.communicator.util.*;
 import net.java.stun4j.*;
-import net.java.stun4j.stack.*;
-import net.java.stun4j.message.*;
 import net.java.stun4j.attribute.*;
+import net.java.stun4j.message.*;
 
 /**
  * Runs a separate thread of diagnostics for a given network address. The

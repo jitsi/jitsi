@@ -7,16 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.main.configforms;
 
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.*;
+import javax.swing.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.service.gui.ConfigurationForm;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * @author Yana Stamcheva

@@ -1069,8 +1069,6 @@ public class ServerStoredContactListIcqImpl
             /** @todo implement screennameChanged() */
             logger.debug("/** @todo implement screennameChanged() */=");
             logger.debug("buddy="+buddy);
-            System.out.println("oldScreenname=" + oldScreenname);
-            System.out.println("newScreenname=" + newScreenname);
         }
 
         /**
@@ -1085,9 +1083,6 @@ public class ServerStoredContactListIcqImpl
         {
             /** @todo implement alertActionChanged() */
             logger.debug("/** @todo implement alertActionChanged() */=");
-            System.out.println("buddy=" + buddy);
-            System.out.println("oldAlertAction=" + oldAlertAction);
-            System.out.println("newAlertAction=" + newAlertAction);
         }
 
         /**
@@ -1102,9 +1097,6 @@ public class ServerStoredContactListIcqImpl
         {
             /** @todo implement alertSoundChanged() */
             logger.debug("/** @todo implement alertSoundChanged() */");
-            System.out.println("buddy=" + buddy);
-            System.out.println("oldAlertSound=" + oldAlertSound);
-            System.out.println("newAlertSound=" + newAlertSound);
         }
 
         /**
@@ -1119,9 +1111,6 @@ public class ServerStoredContactListIcqImpl
         {
             /** @todo implement alertTimeChanged() */
             logger.debug("/** @todo implement alertTimeChanged() */");
-            System.out.println("buddy=" + buddy);
-            System.out.println("oldAlertEvent=" + oldAlertEvent);
-            System.out.println("newAlertEvent=" + newAlertEvent);
         }
 
         /**
@@ -1135,9 +1124,6 @@ public class ServerStoredContactListIcqImpl
         {
             /** @todo implement aliasChanged() */
             logger.debug("/** @todo implement aliasChanged() */");
-            System.out.println("buddy=" + buddy);
-            System.out.println("oldAlias=" + oldAlias);
-            System.out.println("newAlias=" + newAlias);
         }
 
         /**
@@ -1152,9 +1138,6 @@ public class ServerStoredContactListIcqImpl
         {
             /** @todo implement buddyCommentChanged() */
             logger.debug("/** @todo implement buddyCommentChanged() */");
-            System.out.println("buddy=" + buddy);
-            System.out.println("oldComment=" + oldComment);
-            System.out.println("newComment=" + newComment);
         }
 
     }

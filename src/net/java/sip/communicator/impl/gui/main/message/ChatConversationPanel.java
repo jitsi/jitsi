@@ -7,14 +7,14 @@
 
 package net.java.sip.communicator.impl.gui.main.message;
 
-import java.awt.*;
-import java.awt.datatransfer.*;
-import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.regex.*;
 
+import java.awt.*;
+import java.awt.datatransfer.*;
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
@@ -31,7 +31,7 @@ import net.java.sip.communicator.util.*;
  * is applied to the document to provide the look&feel. All smilies and link
  * strings are processed and finally replaced by corresponding images and html
  * links.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatConversationPanel extends JScrollPane implements
@@ -47,31 +47,31 @@ public class ChatConversationPanel extends JScrollPane implements
     private HTMLDocument document;
 
     private ChatConversationContainer chatContainer;
-    
+
     private ChatRightButtonMenu rightButtonMenu;
-    
+
     private String currentHref;
-    
-    private JMenuItem copyLinkItem 
+
+    private JMenuItem copyLinkItem
         = new JMenuItem(Messages.getString("copyLink"),
                 new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
-    
-    private JMenuItem openLinkItem 
+
+    private JMenuItem openLinkItem
         = new JMenuItem(Messages.getString("openInBrowser"),
                 new ImageIcon(ImageLoader.getImage(ImageLoader.BROWSER_ICON)));
-    
+
     private JSeparator copyLinkSeparator = new JSeparator();
     /*
      * Tooltip on hyperlinks - JDK 1.5+
-     * 
+     *
      * private JPopupMenu linkPopup = new JPopupMenu();
-     * 
+     *
      * private JTextArea hrefItem = new JTextArea();
-     * 
+     *
      * private final int hrefPopupMaxWidth = 300;
      * private final int hrefPopupInitialHeight = 20;
      */
-    
+
     private Date lastIncomingMsgTimestamp = new Date(0);
 
     /**
@@ -84,9 +84,9 @@ public class ChatConversationPanel extends JScrollPane implements
 
         this.chatContainer = chatContainer;
 
-        this.rightButtonMenu 
+        this.rightButtonMenu
             = new ChatRightButtonMenu(this);
-        
+
         this.document = (HTMLDocument) editorKit.createDefaultDocument();
 
         this.chatEditorPane.setContentType("text/html");
@@ -115,27 +115,27 @@ public class ChatConversationPanel extends JScrollPane implements
 
         this.setHorizontalScrollBarPolicy(
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        
+
         ToolTipManager.sharedInstance().registerComponent(chatEditorPane);
 
         copyLinkItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                StringSelection stringSelection 
+                StringSelection stringSelection
                     = new StringSelection(currentHref);
-                Clipboard clipboard 
+                Clipboard clipboard
                     = Toolkit.getDefaultToolkit().getSystemClipboard();
-                clipboard.setContents(stringSelection, 
+                clipboard.setContents(stringSelection,
                             ChatConversationPanel.this);
             }
         });
         openLinkItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {                
+            public void actionPerformed(ActionEvent e) {
                 CrossPlatformBrowserLauncher.openURL(currentHref);
             }
         });
         /*
          * Tooltip on hyperlinks - JDK 1.5+
-         * 
+         *
          * this.hrefItem.setLineWrap(true);
          * this.linkPopup.add(hrefItem);
          * this.hrefItem.setSize(new Dimension(hrefPopupMaxWidth,
@@ -167,21 +167,21 @@ public class ChatConversationPanel extends JScrollPane implements
 
     /**
      * Processes the message given by the parameters.
-     * 
+     *
      * @param contactName The name of the contact sending the message.
      * @param date The time at which the message is sent or received.
-     * @param messageType The type of the message. One of OUTGOING_MESSAGE 
-     * or INCOMING_MESSAGE. 
+     * @param messageType The type of the message. One of OUTGOING_MESSAGE
+     * or INCOMING_MESSAGE.
      * @param message The message text.
      * @return the formatted message
      */
     public String processMessage(String contactName, Date date,
             String messageType, String message) {
-        
+
         String chatString = "";
         String endHeaderTag = "";
         String timeString = "";
-        
+
         Calendar calendar1 = Calendar.getInstance();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -191,16 +191,16 @@ public class ChatConversationPanel extends JScrollPane implements
             && (calendar.get(Calendar.MONTH)
                 <= calendar1.get(Calendar.MONTH))
             && (calendar.get(Calendar.YEAR)
-                <= calendar1.get(Calendar.YEAR))) {            
+                <= calendar1.get(Calendar.YEAR))) {
             timeString = this.processTime(calendar.get(Calendar.DAY_OF_MONTH)) + "/"
-                        + this.processTime(calendar.get(Calendar.MONTH) + 1) + " ";            
+                        + this.processTime(calendar.get(Calendar.MONTH) + 1) + " ";
         }
-        
+
         if (messageType.equals(Constants.INCOMING_MESSAGE)) {
             this.lastIncomingMsgTimestamp = new Date();
             chatString = "<h2>";
             endHeaderTag = "</h2>";
-            
+
             chatString += timeString + contactName + " at "
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
@@ -212,7 +212,7 @@ public class ChatConversationPanel extends JScrollPane implements
         else if (messageType.equals(Constants.OUTGOING_MESSAGE)){
             chatString = "<h3>";
             endHeaderTag = "</h3>";
-            
+
             chatString += timeString + Messages.getString("me") + " at "
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
@@ -224,7 +224,7 @@ public class ChatConversationPanel extends JScrollPane implements
         else if (messageType.equals(Constants.SYSTEM_MESSAGE)) {
             chatString = "<h4>";
             endHeaderTag = "</h4>";
-            
+
             chatString += processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
             + processTime(calendar.get(Calendar.MINUTE)) + ":"
             + processTime(calendar.get(Calendar.SECOND)) + " "
@@ -233,7 +233,7 @@ public class ChatConversationPanel extends JScrollPane implements
         else if (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)) {
             chatString = "<h2>";
             endHeaderTag = "</h2>";
-            
+
             chatString += timeString + contactName + " at "
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
@@ -245,7 +245,7 @@ public class ChatConversationPanel extends JScrollPane implements
         else if (messageType.equals(Constants.HISTORY_OUTGOING_MESSAGE)) {
             chatString = "<h3>";
             endHeaderTag = "</h3>";
-            
+
             chatString += timeString + Messages.getString("me") + " at "
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
@@ -254,7 +254,7 @@ public class ChatConversationPanel extends JScrollPane implements
                 + processSmilies(processNewLines(processLinks(message)))
                 + "</PLAINTEXT>" + "</DIV>";
         }
-        
+
         Element root = this.document.getDefaultRootElement();
 
         try {
@@ -267,41 +267,41 @@ public class ChatConversationPanel extends JScrollPane implements
         }
         //Scroll to the last inserted text in the document.
         this.setCarretToEnd();
-        
+
         return chatString;
     }
-    
+
     /**
      * Processes the message given by the parameters.
-     * 
+     *
      * @param contactName The name of the contact sending the message.
      * @param date The time at which the message is sent or received.
-     * @param messageType The type of the message. One of OUTGOING_MESSAGE 
-     * or INCOMING_MESSAGE. 
+     * @param messageType The type of the message. One of OUTGOING_MESSAGE
+     * or INCOMING_MESSAGE.
      * @param message The message text.
      */
     public String processMessage(String contactName, Date date,
             String messageType, String message, String keyword) {
-     
+
         String formattedMessage = message;
 
         if(keyword != null) {
             formattedMessage = processKeyWords(message, keyword);
         }
-        return this.processMessage(contactName, date, 
+        return this.processMessage(contactName, date,
                     messageType, formattedMessage);
     }
-    
+
     private String processKeyWords(String message, String keyword) {
-        
+
         return message.replaceAll(keyword,
                 "</PLAINTEXT><B>"
                 + keyword + "</B><PLAINTEXT>");
     }
-    
+
     /**
      * Formats all links in the given message.
-     * 
+     *
      * @param message The source message string.
      * @return The message string with properly formatted links.
      */
@@ -342,7 +342,7 @@ public class ChatConversationPanel extends JScrollPane implements
 
     /**
      * Formats message new lines.
-     * 
+     *
      * @param message The source message string.
      * @return The message string with properly formatted new lines.
      */
@@ -353,7 +353,7 @@ public class ChatConversationPanel extends JScrollPane implements
 
     /**
      * Formats message smilies.
-     * 
+     *
      * @param message The source message string.
      * @return The message string with properly formated smilies.
      */
@@ -395,7 +395,7 @@ public class ChatConversationPanel extends JScrollPane implements
                     + ImageLoader.getSmiley(matchGroup).getImagePath()
                     + "' ALT='" + matchGroup + "'></IMG><PLAINTEXT>";
 
-            m.appendReplacement(msgBuffer, 
+            m.appendReplacement(msgBuffer,
                     StringUtils.replaceSpecialRegExpChars(replacement));
         }
         m.appendTail(msgBuffer);
@@ -405,7 +405,7 @@ public class ChatConversationPanel extends JScrollPane implements
 
     /**
      * Formats a time string.
-     * 
+     *
      * @param time The time parameter could be hours, minutes or seconds.
      * @return The formatted minutes string.
      */
@@ -433,13 +433,13 @@ public class ChatConversationPanel extends JScrollPane implements
             CrossPlatformBrowserLauncher.openURL(url.toString());
         } else if (e.getEventType() == HyperlinkEvent.EventType.ENTERED) {
             String href = e.getDescription();
-            
+
             this.chatContainer.setStatusMessage(href);
-            
+
             this.currentHref = href;
             /*
              * Tooltip on hyperlinks - JDK1.5+
-             * 
+             *
              * int stringWidth = StringUtils.getStringWidth(hrefItem, href);
              *
              * hrefItem.setText(href);
@@ -450,11 +450,11 @@ public class ChatConversationPanel extends JScrollPane implements
              *       hrefItem.setSize(hrefPopupMaxWidth, hrefItem.getHeight());
              *
              * linkPopup.setLocation(MouseInfo.getPointerInfo().getLocation());
-             * linkPopup.setVisible(true); 
-             */    
-            
+             * linkPopup.setVisible(true);
+             */
+
         } else if (e.getEventType() == HyperlinkEvent.EventType.EXITED) {
-            
+
             this.chatContainer.setStatusMessage("");
             this.currentHref = "";
             /*
@@ -494,7 +494,7 @@ public class ChatConversationPanel extends JScrollPane implements
 
     /**
      * Returns the time of the last received message.
-     * 
+     *
      * @return The time of the last received message.
      */
     public Date getLastIncomingMsgTimestamp() {
@@ -507,16 +507,16 @@ public class ChatConversationPanel extends JScrollPane implements
     public void setCarretToEnd() {
         this.chatEditorPane.setCaretPosition(this.document.getLength());
     }
-    
+
     /**
      * When a right button click is performed in the editor pane, a
      * popup menu is opened.
-     * 
+     *
      * @param e The MouseEvent.
      */
     public void mouseClicked(MouseEvent e) {
         if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
-            
+
             if (currentHref != null) {
                 if (currentHref != "") {
                     rightButtonMenu.insert(openLinkItem, 0);
@@ -529,17 +529,17 @@ public class ChatConversationPanel extends JScrollPane implements
                     rightButtonMenu.remove(copyLinkSeparator);
                 }
             }
-            
+
             if(chatEditorPane.getSelectedText() != null) {
                 rightButtonMenu.enableCopy();
             }
             else {
                 rightButtonMenu.disableCopy();
             }
-            
+
             Point p = e.getPoint();
             SwingUtilities.convertPointToScreen(p, e.getComponent());
-            
+
             rightButtonMenu.setInvoker(chatEditorPane);
             rightButtonMenu.setLocation(p.x, p.y);
             rightButtonMenu.setVisible(true);
@@ -559,17 +559,17 @@ public class ChatConversationPanel extends JScrollPane implements
     }
 
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
-        
+
     }
 
     public ChatConversationContainer getChatContainer() {
         return chatContainer;
     }
-    
+
     /**
      * Copies the selected conversation panel content to the clipboard.
      */
     public void copyConversation(){
         this.chatEditorPane.copy();
-    }    
+    }
 }

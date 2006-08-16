@@ -7,13 +7,11 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
-import java.util.Iterator;
+import java.util.*;
 
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
+import javax.swing.event.*;
 
-import net.java.sip.communicator.service.gui.WizardContainer;
-import net.java.sip.communicator.service.gui.WizardPage;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * The <tt>AddContactWizardPage2</tt> is the second page of the "Add Contact"

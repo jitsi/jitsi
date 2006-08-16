@@ -6,20 +6,10 @@
  */
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
+import javax.swing.*;
 
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.ListCellRenderer;
-
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * 

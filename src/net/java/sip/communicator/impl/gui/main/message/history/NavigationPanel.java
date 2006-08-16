@@ -7,12 +7,10 @@
 
 package net.java.sip.communicator.impl.gui.main.message.history;
 
-import java.awt.FlowLayout;
+import java.awt.*;
+import javax.swing.*;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-
-import net.java.sip.communicator.impl.gui.i18n.Messages;
+import net.java.sip.communicator.impl.gui.i18n.*;
 /**
  * The <tt>NavigationPanel</tt> is the panel where user could navigate through
  * the message history.

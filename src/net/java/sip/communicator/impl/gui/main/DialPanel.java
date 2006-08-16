@@ -7,20 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommButton;
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>DialPanel</tt> is the panel that contains the buttons to

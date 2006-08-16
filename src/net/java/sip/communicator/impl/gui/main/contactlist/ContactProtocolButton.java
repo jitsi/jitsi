@@ -1,9 +1,9 @@
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.awt.Image;
+import java.awt.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommButton;
-import net.java.sip.communicator.service.protocol.Contact;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The ContactProtocolButton is a button behind a "meta contact" in the

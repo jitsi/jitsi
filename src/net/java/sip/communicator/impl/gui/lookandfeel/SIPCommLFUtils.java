@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import java.awt.Graphics;
+import java.awt.*;
 
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * 

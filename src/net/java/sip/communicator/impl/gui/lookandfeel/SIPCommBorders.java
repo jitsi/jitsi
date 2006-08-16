@@ -6,16 +6,12 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Insets;
-
-import javax.swing.border.AbstractBorder;
-import javax.swing.border.Border;
-import javax.swing.plaf.BorderUIResource;
+import java.awt.*;
+import javax.swing.border.*;
+import javax.swing.plaf.*;
 import javax.swing.plaf.UIResource;
-import javax.swing.plaf.basic.BasicBorders;
-import javax.swing.text.JTextComponent;
+import javax.swing.plaf.basic.*;
+import javax.swing.text.*;
 
 /**
  * SIPCommBorders is where all component borders used in the SIPComm L&F

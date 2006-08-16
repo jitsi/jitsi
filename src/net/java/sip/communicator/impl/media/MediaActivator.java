@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.media;
 
-import org.ungoverned.gravity.servicebinder.GenericActivator;
+import org.ungoverned.gravity.servicebinder.*;
 
 /**
  * Invoke "Service Binder" to parse the service XML and register

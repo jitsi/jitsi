@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.contactlist.event;
 
-import java.util.EventListener;
+import java.util.*;
 
 /**
  * A MetaContactListListener can be registered with a MetaContactListService

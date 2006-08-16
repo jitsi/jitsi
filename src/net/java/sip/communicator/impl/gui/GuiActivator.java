@@ -6,25 +6,17 @@
  */
 package net.java.sip.communicator.impl.gui;
 
-import java.util.Hashtable;
-import java.util.Map;
+import java.util.*;
 
-import net.java.sip.communicator.impl.gui.main.CommunicatorMain;
-import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.impl.gui.main.WelcomeWindow;
-import net.java.sip.communicator.impl.gui.main.login.LoginManager;
-import net.java.sip.communicator.service.configuration.ConfigurationService;
-import net.java.sip.communicator.service.contactlist.MetaContactListService;
-import net.java.sip.communicator.service.gui.UIService;
-import net.java.sip.communicator.service.msghistory.MessageHistoryService;
-import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
-import net.java.sip.communicator.util.Logger;
-
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
+import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.login.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.msghistory.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The GUI Activator class.

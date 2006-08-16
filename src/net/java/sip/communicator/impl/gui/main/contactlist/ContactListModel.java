@@ -7,19 +7,13 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 
-import javax.swing.AbstractListModel;
-import javax.swing.ImageIcon;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
-import net.java.sip.communicator.service.contactlist.MetaContactListService;
-import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.service.protocol.PresenceStatus;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The list model of the ContactList. This class use as a data model the

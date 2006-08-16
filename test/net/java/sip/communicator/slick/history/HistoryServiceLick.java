@@ -6,18 +6,16 @@
  */
 package net.java.sip.communicator.slick.history;
 
-import java.util.Hashtable;
+import java.util.*;
 
-import junit.framework.TestSuite;
-import net.java.sip.communicator.util.Logger;
-
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import org.osgi.framework.*;
+import junit.framework.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * This class launches the bundle of which test the history bundle. this bundle
  * is a set of (j)unit tests. It should be launched by the cruisecontrol module.
- * 
+ *
  * @author Alexander Pelov
  */
 public class HistoryServiceLick extends TestSuite implements BundleActivator {
@@ -27,12 +25,14 @@ public class HistoryServiceLick extends TestSuite implements BundleActivator {
 
     /**
      * Start the History Sevice Implementation Compatibility Kit.
-     * 
+     *
      * @param bundleContext
      *            BundleContext
      * @throws Exception
      */
-    public void start(BundleContext bundleContext) throws Exception {
+    public void start(BundleContext bundleContext)
+        throws Exception
+    {
         HistoryServiceLick.bc = bundleContext;
 
         setName("HistoryServiceLick");
@@ -47,12 +47,14 @@ public class HistoryServiceLick extends TestSuite implements BundleActivator {
 
     /**
      * stop
-     * 
+     *
      * @param bundlecontext
      *            BundleContext
      * @throws Exception
      */
-    public void stop(BundleContext bundlecontext) throws Exception {
+    public void stop(BundleContext bundlecontext)
+        throws Exception
+    {
     }
 
 }

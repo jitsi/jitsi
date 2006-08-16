@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.service.protocol.event;
 
-import java.beans.PropertyChangeEvent;
-import net.java.sip.communicator.service.protocol.RegistrationState;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import java.beans.*;
+
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Instances of this class represent a  change in the status of the provider
@@ -70,10 +70,23 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
     public static final int REASON_RECONNECTION_RATE_LIMIT_EXCEEDED = 5;
 
     /**
+     * Indicates that an internal application error has occurred and it resulted
+     * in the state transition indicated by this event.
+     */
+    public static final int REASON_INTERNAL_ERROR = 6;
+
+    /**
+     * Indicates that event change has occurred because the user requested it.
+     */
+    public static final int REASON_USER_REQUEST = 7;
+
+
+    /**
      * The reason code returned by the server in order to explain the state
      * transition.
      */
     private int reasonCode = REASON_NOT_SPECIFIED;
+
 
     /**
      * A (non localized) String containing information further explaining the

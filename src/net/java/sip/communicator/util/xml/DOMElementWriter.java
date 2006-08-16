@@ -25,16 +25,9 @@ package net.java.sip.communicator.util.xml;
  *
  */
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
+import java.io.*;
+
+import org.w3c.dom.*;
 
 /**
  * Writes a DOM tree to a given Writer.

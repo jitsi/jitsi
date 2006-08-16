@@ -6,12 +6,13 @@
  */
 package net.java.sip.communicator.slick.protocol.icq;
 
+import java.util.*;
+
+import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import java.util.*;
-import org.osgi.framework.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 /**
  * Tests basic provider factory functionalitites
@@ -76,11 +77,15 @@ public class TestAccountInstallation extends TestCase
 
     /**
      * We try to register with wrong uin which must fire event with status
-     * AUTHENTICATION_FAILED. As the uin is new (not existing and not registered)
+     * AUTHENTICATION_FAILED. As the uin is new (not existing and not
+     * registered)
      * we first install this account, then try to register and wait for the
      * supposed event. After all we unregister this account
+     *
+     * @throws OperationFailedException if register () fails for a provider.
      */
     public void testRegisterWrongUsername()
+        throws OperationFailedException
     {
         ServiceReference[] serRefs = null;
         String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL
@@ -89,7 +94,8 @@ public class TestAccountInstallation extends TestCase
             serRefs = IcqSlickFixture.bc.getServiceReferences(
                     ProtocolProviderFactory.class.getName(), osgiFilter);
         }
-        catch (InvalidSyntaxException ex){
+        catch (InvalidSyntaxException ex)
+        {
             //this really shouldhn't occur as the filter expression is static.
             fail(osgiFilter + " is not a valid osgi filter");
         }
@@ -162,13 +168,15 @@ public class TestAccountInstallation extends TestCase
         //time since the registration event collector would notify us the moment
         //we get signed on.
         try{
-            synchronized(registrationLock){
+            synchronized(registrationLock)
+            {
                 logger.debug("Waiting for registration to complete ...");
                 registrationLock.wait(40000);
                 logger.debug("Registration was completed or we lost patience.");
             }
         }
-        catch (InterruptedException ex){
+        catch (InterruptedException ex)
+        {
             logger.debug("Interrupted while waiting for registration", ex);
         }
         catch(Throwable t)
@@ -177,13 +185,14 @@ public class TestAccountInstallation extends TestCase
         }
 
         assertTrue(
-                    "No registration event notifying of registration has failed. "
-                    +"All events were: " + regFailedEvtCollector.collectedNewStates
-                    ,regFailedEvtCollector.collectedNewStates
-                        .contains(RegistrationState.AUTHENTICATION_FAILED));
+                "No registration event notifying of registration has failed. "
+                +"All events were: " + regFailedEvtCollector.collectedNewStates
+                ,regFailedEvtCollector.collectedNewStates
+                    .contains(RegistrationState.AUTHENTICATION_FAILED));
 
         assertEquals(
-            "Registration status must be auth failed as we are logging in with wrong uin",
+            "Registration status must be auth failed as we are logging in "
+            +"with wrong uin",
             regFailedEvtCollector.failedCode,
                 RegistrationStateChangeEvent.REASON_NON_EXISTING_USER_ID);
 
@@ -199,10 +208,14 @@ public class TestAccountInstallation extends TestCase
     /**
      * Will try to register with wrong password and wait for triggered event
      * with status AUTHENTICATION_FAILED.
-     * We get the already installed account. Change the password and try to register
-     * After all tests we must return the original password so we don't break the other tests
+     * We get the already installed account. Change the password and try to
+     * register. After all tests we must return the original password so we
+     * don't break the other tests
+     *
+     * @throws OperationFailedException if register fails for a provider.
      */
     public void testRegisterWrongPassword()
+        throws OperationFailedException
     {
         ServiceReference[] serRefs = null;
         String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL
@@ -211,7 +224,8 @@ public class TestAccountInstallation extends TestCase
             serRefs = IcqSlickFixture.bc.getServiceReferences(
                     ProtocolProviderFactory.class.getName(), osgiFilter);
         }
-        catch (InvalidSyntaxException ex){
+        catch (InvalidSyntaxException ex)
+        {
             //this really shouldhn't occur as the filter expression is static.
             fail(osgiFilter + " is not a valid osgi filter");
         }
@@ -282,13 +296,15 @@ public class TestAccountInstallation extends TestCase
         //time since the registration event collector would notify us the moment
         //we get signed on.
         try{
-            synchronized(registrationLock){
+            synchronized(registrationLock)
+            {
                 logger.debug("Waiting for registration to complete ...");
                 registrationLock.wait(40000);
                 logger.debug("Registration was completed or we lost patience.");
             }
         }
-        catch (InterruptedException ex){
+        catch (InterruptedException ex)
+        {
             logger.debug("Interrupted while waiting for registration", ex);
         }
         catch(Throwable t)
@@ -327,7 +343,8 @@ public class TestAccountInstallation extends TestCase
             serRefs = IcqSlickFixture.bc.getServiceReferences(
                     ProtocolProviderFactory.class.getName(), osgiFilter);
         }
-        catch (InvalidSyntaxException ex){
+        catch (InvalidSyntaxException ex)
+        {
             //this really shouldhn't occur as the filter expression is static.
             fail(osgiFilter + " is not a valid osgi filter");
         }
@@ -376,7 +393,8 @@ public class TestAccountInstallation extends TestCase
                 null, icqAccountProperties);
             fail("installing an account with a null account id must result "
                  +"in a NullPointerException");
-        }catch(NullPointerException exc){
+        }catch(NullPointerException exc)
+        {
             //that's what had to happen
         }
 
@@ -462,7 +480,8 @@ public class TestAccountInstallation extends TestCase
                 failedReason = evt.getReason();
 
                 logger.debug("Our registration failed - " + failedCode + " = " + failedReason);
-                synchronized(registrationLock){
+                synchronized(registrationLock)
+                {
                     logger.debug(".");
                     registrationLock.notifyAll();
                     logger.debug(".");

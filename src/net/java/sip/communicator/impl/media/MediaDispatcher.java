@@ -8,10 +8,7 @@ package net.java.sip.communicator.impl.media;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.configuration.ChangeEventDispatcher;
-import net.java.sip.communicator.service.configuration.event.VetoableChangeListener;
 import net.java.sip.communicator.service.media.event.*;
-import net.java.sip.communicator.service.media.*;
 
 /**
  * This is a utility class that can be used by objects that support constrained

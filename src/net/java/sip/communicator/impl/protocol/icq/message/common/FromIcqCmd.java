@@ -35,11 +35,10 @@
 
 package net.java.sip.communicator.impl.protocol.icq.message.common;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 
-import net.kano.joscar.LiveWritable;
-import net.kano.joscar.flapcmd.SnacPacket;
+import net.kano.joscar.*;
+import net.kano.joscar.flapcmd.*;
 
 /**
  * A SNAC command to receiven an ICQ command from the server.

@@ -6,22 +6,15 @@
  */
 package net.java.sip.communicator.impl.gui.main.account;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import java.awt.*;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.service.gui.AccountRegistrationWizard;
-import net.java.sip.communicator.service.gui.WizardPage;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>AccountRegSummaryPage</tt> is the last page of the account

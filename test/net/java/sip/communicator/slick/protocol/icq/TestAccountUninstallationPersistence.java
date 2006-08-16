@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.slick.protocol.icq;
 
-import junit.framework.*;
 import org.osgi.framework.*;
-import net.java.sip.communicator.service.protocol.*;
+import junit.framework.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Contains tests verifying persistence of account uninstallation. In other

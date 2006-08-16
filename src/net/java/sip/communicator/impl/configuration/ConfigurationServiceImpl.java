@@ -17,6 +17,7 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
+import net.java.sip.communicator.util.xml.XMLUtils;
 
 /**
  * A straight forward implementation of the ConfigurationService using an xml

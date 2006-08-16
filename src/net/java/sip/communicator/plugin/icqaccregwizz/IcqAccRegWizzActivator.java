@@ -6,17 +6,11 @@
  */
 package net.java.sip.communicator.plugin.icqaccregwizz;
 
-import net.java.sip.communicator.service.configuration.ConfigurationService;
-import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
-import net.java.sip.communicator.service.gui.UIService;
-import net.java.sip.communicator.service.protocol.ProtocolNames;
-import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
-import net.java.sip.communicator.util.Logger;
-
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Registers the <tt>IcqAccountRegistrationWizard</tt> in the UI Service.

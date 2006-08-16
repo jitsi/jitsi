@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * The Account Info Operation set is a means of accessing and modifying detailed

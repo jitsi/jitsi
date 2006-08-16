@@ -7,19 +7,11 @@
 
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import java.awt.AWTException;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.Window;
-import java.awt.image.BufferedImage;
+import java.awt.*;
+import java.awt.image.*;
+import javax.swing.*;
 
-import javax.swing.JComponent;
-
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>TransparentBackground</tt> is a <tt>JComponent</tt>, which is

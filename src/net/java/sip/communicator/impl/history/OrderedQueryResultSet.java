@@ -52,7 +52,8 @@ public class OrderedQueryResultSet
     {
         this.currentPos++;
 
-        if (this.currentPos >= this.records.size()) {
+        if (this.currentPos >= this.records.size())
+        {
             throw new NoSuchElementException();
         }
 
@@ -80,7 +81,8 @@ public class OrderedQueryResultSet
     {
         this.currentPos--;
 
-        if (this.currentPos < 0) {
+        if (this.currentPos < 0)
+        {
             throw new NoSuchElementException();
         }
 

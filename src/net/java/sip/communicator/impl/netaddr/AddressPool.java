@@ -1,11 +1,9 @@
 package net.java.sip.communicator.impl.netaddr;
 
-import java.net.NetworkInterface;
-import java.net.InetAddress;
-import java.util.Enumeration;
-import net.java.sip.communicator.util.*;
 import java.net.*;
 import java.util.*;
+
+import net.java.sip.communicator.util.*;
 
 /**
  * The class scans all local interfaces discovering all addresses, and starts

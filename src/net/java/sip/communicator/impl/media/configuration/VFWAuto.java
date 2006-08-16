@@ -10,14 +10,8 @@
  */
 package net.java.sip.communicator.impl.media.configuration;
 
-import java.util.Enumeration;
-import java.util.Vector;
-
-import javax.media.CaptureDeviceInfo;
-import javax.media.CaptureDeviceManager;
-
-import com.sun.media.vfw.*;
-import com.sun.media.util.WindowUtil;
+import java.util.*;
+import javax.media.*;
 
 public class VFWAuto {
 

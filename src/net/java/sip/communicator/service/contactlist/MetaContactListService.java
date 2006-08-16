@@ -6,8 +6,8 @@
  */
 package net.java.sip.communicator.service.contactlist;
 
+import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.contactlist.event.MetaContactListListener;
 
 /**
  * The <tt>MetaContactListService</tt> handles the global project contact

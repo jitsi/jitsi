@@ -7,14 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.customcontrols.wizard;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.beans.*;
+import java.util.*;
 
-import javax.swing.Icon;
+import javax.swing.*;
 
-import net.java.sip.communicator.service.gui.WizardPage;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * The model for the Wizard component, which tracks the text, icons, and

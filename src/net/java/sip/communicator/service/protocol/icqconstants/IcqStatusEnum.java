@@ -1,7 +1,8 @@
 package net.java.sip.communicator.service.protocol.icqconstants;
 
-import net.java.sip.communicator.service.protocol.*;
 import java.util.*;
+
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * An enumeration containing all status instances that MUST be supported by

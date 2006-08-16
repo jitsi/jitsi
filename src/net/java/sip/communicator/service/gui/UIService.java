@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.service.gui;
 
-import java.util.Iterator;
+import java.util.*;
 
-import net.java.sip.communicator.service.protocol.Contact;
+import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>UIService</tt> offers generic access to the graphical user interface
  * for all modules that would like to interact with the user.

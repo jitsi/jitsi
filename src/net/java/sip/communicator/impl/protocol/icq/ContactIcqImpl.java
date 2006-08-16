@@ -1,10 +1,10 @@
 package net.java.sip.communicator.impl.protocol.icq;
 
-import net.java.sip.communicator.service.protocol.*;
-import net.kano.joscar.snaccmd.*;
-import net.kano.joustsim.oscar.oscar.service.ssi.*;
-import net.java.sip.communicator.service.protocol.icqconstants.*;
 import java.util.*;
+
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.icqconstants.*;
+import net.kano.joustsim.oscar.oscar.service.ssi.*;
 
 /**
  * The ICQ implementation of the service.protocol.Contact interface.

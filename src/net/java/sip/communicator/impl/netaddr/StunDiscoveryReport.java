@@ -1,6 +1,6 @@
 package net.java.sip.communicator.impl.netaddr;
 
-import net.java.stun4j.StunAddress;
+import net.java.stun4j.*;
 
 /**
  * The class is used to deliver results from a STUN Discovery Process. It

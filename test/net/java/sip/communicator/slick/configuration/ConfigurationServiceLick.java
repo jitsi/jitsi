@@ -1,9 +1,10 @@
 package net.java.sip.communicator.slick.configuration;
 
+import java.util.*;
+
 import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.configuration.*;
-import java.util.*;
 import net.java.sip.communicator.util.*;
 
 

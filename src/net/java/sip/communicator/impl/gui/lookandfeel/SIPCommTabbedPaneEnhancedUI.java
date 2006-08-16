@@ -12,23 +12,14 @@ package net.java.sip.communicator.impl.gui.lookandfeel;
  * 2004 Ecole des Mines de Nantes, France
  */
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
+import java.awt.*;
+import java.awt.image.*;
+import javax.swing.*;
+import javax.swing.plaf.*;
+import javax.swing.plaf.basic.*;
+import javax.swing.text.*;
 
-import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
-import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicGraphicsUtils;
-import javax.swing.text.View;
-
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * This UI displays a different interface, which is independent from the look

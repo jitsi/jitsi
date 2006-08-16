@@ -7,49 +7,26 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
+import java.beans.*;
+import java.util.*;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.GuiActivator;
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.authorization.AuthorizationHandlerImpl;
-import net.java.sip.communicator.impl.gui.main.contactlist.CListKeySearchListener;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
-import net.java.sip.communicator.impl.gui.main.login.LoginManager;
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.service.configuration.ConfigurationService;
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.authorization.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.login.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.PropertyVetoException;
-import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
-import net.java.sip.communicator.service.contactlist.MetaContactListService;
-import net.java.sip.communicator.service.protocol.AccountID;
-import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.service.protocol.OperationFailedException;
-import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
-import net.java.sip.communicator.service.protocol.OperationSetPersistentPresence;
-import net.java.sip.communicator.service.protocol.OperationSetPresence;
-import net.java.sip.communicator.service.protocol.OperationSetTypingNotifications;
-import net.java.sip.communicator.service.protocol.OperationSetWebContactInfo;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
-import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusChangeEvent;
-import net.java.sip.communicator.service.protocol.event.ContactPresenceStatusListener;
-import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusChangeEvent;
-import net.java.sip.communicator.service.protocol.event.ProviderPresenceStatusListener;
-import net.java.sip.communicator.service.protocol.icqconstants.IcqStatusEnum;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.icqconstants.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The main application window. This class is the core of this ui

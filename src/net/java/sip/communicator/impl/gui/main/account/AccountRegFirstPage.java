@@ -6,38 +6,20 @@
  */
 package net.java.sip.communicator.impl.gui.main.account;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
+import javax.imageio.*;
 
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableColumnModel;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.table.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.ExtendedTableModel;
-import net.java.sip.communicator.impl.gui.customcontrols.LabelTableCellRenderer;
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.service.gui.AccountRegistrationWizard;
-import net.java.sip.communicator.service.gui.WizardPage;
-import net.java.sip.communicator.service.gui.event.AccountRegistrationEvent;
-import net.java.sip.communicator.service.gui.event.AccountRegistrationListener;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 
 /**
  * The <tt>AccountRegFirstPage</tt> is the first page of the account

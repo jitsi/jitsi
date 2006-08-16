@@ -8,18 +8,19 @@ package net.java.sip.communicator.impl.protocol.icq;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.icq.message.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.kano.joustsim.oscar.*;
-import net.kano.joustsim.*;
-import net.kano.joustsim.oscar.oscar.service.icbm.*;
 import net.java.sip.communicator.util.*;
-import net.kano.joustsim.oscar.oscar.loginstatus.*;
-import net.java.sip.communicator.impl.protocol.icq.message.*;
 import net.kano.joscar.flap.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snaccmd.auth.*;
+import net.kano.joustsim.*;
+import net.kano.joustsim.oscar.*;
+import net.kano.joustsim.oscar.State;
+import net.kano.joustsim.oscar.oscar.loginstatus.*;
 import net.kano.joustsim.oscar.oscar.service.*;
+import net.kano.joustsim.oscar.oscar.service.icbm.*;
 
 /**
  * An implementation of the protocol provider service over the AIM/ICQ protocol
@@ -615,7 +616,7 @@ public class ProtocolProviderServiceIcqImpl
 
         public void newConversation(IcbmService service, Conversation conv)
         {
-            System.out.println("Received a new conversation event");
+            logger.debug("Received a new conversation event");
             conv.addConversationListener(new AimConversationListener());
         }
 

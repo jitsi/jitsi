@@ -6,16 +6,16 @@
  */
 package net.java.sip.communicator.slick.protocol.icq;
 
+import java.net.*;
 import java.util.*;
 
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.kano.joustsim.oscar.oscar.service.icbm.*;
-import net.kano.joustsim.*;
-import java.net.*;
 import net.java.sip.communicator.service.protocol.Message;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
+import net.kano.joustsim.*;
+import net.kano.joustsim.oscar.oscar.service.icbm.*;
 
 /**
  * Performs testing of the basic instant messaging operation set. Tests include
@@ -352,7 +352,8 @@ public class TestOperationSetBasicInstantMessaging
          */
         public void waitForEvent(long waitFor)
         {
-            synchronized(this){
+            synchronized(this)
+            {
 
                 if(collectedEvents.size() > 0)
                     return;
@@ -360,7 +361,8 @@ public class TestOperationSetBasicInstantMessaging
                 try{
                     wait(waitFor);
                 }
-                catch (InterruptedException ex){
+                catch (InterruptedException ex)
+                {
                     logger.debug(
                         "Interrupted while waiting for a message evt", ex);
                 }

@@ -7,18 +7,13 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
-import java.awt.FlowLayout;
-import java.awt.Image;
-import java.util.Hashtable;
-import java.util.Map;
+import java.util.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
+import java.awt.*;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.service.protocol.AccountID;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>StatusPanel</tt> is the place where the user can see and change

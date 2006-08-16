@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.impl.contactlist;
 
-import org.osgi.framework.*;
 import java.util.*;
+
+import org.osgi.framework.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.util.*;
 

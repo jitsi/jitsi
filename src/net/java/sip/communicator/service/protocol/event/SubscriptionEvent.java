@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.protocol.event;
 
 import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -125,7 +126,8 @@ public class SubscriptionEvent
      * SUBSCRIPTION_CREATED, SUBSCRIPTION_FAILED and etc.)
      * @return one of the SUBSCRIPTION_XXX int fields of this class.
      */
-    public int getEventID(){
+    public int getEventID()
+    {
         return eventID;
     }
 }

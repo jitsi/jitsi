@@ -1,10 +1,9 @@
 package net.java.sip.communicator.impl.protocol.mock;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import java.util.Vector;
-import java.util.Date;
-import java.util.*;
 
 public class MockBasicInstantMessaging
     implements OperationSetBasicInstantMessaging

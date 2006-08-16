@@ -16,8 +16,8 @@ import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Tests message history.

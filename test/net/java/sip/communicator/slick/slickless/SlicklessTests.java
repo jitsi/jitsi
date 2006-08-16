@@ -6,12 +6,13 @@
  */
 package net.java.sip.communicator.slick.slickless;
 
+import java.util.*;
+
 import org.osgi.framework.*;
 import junit.framework.*;
-import java.util.*;
+import net.java.sip.communicator.slick.slickless.util.*;
 import net.java.sip.communicator.slick.slickless.util.xml.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.slick.slickless.util.*;
 
 
 /**

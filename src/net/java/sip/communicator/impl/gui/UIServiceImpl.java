@@ -6,33 +6,21 @@
  */
 package net.java.sip.communicator.impl.gui;
 
-import java.awt.Component;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
 
-import javax.swing.JFrame;
+import java.awt.*;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
-import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
-import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
-import net.java.sip.communicator.service.gui.ConfigurationManager;
-import net.java.sip.communicator.service.gui.ContainerID;
-import net.java.sip.communicator.service.gui.DialogID;
-import net.java.sip.communicator.service.gui.ExportedDialog;
-import net.java.sip.communicator.service.gui.PopupDialog;
-import net.java.sip.communicator.service.gui.UIService;
-import net.java.sip.communicator.service.gui.event.PluginComponentEvent;
-import net.java.sip.communicator.service.gui.event.PluginComponentListener;
-import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.account.*;
+import net.java.sip.communicator.impl.gui.main.configforms.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of the <tt>UIService</tt> that gives access to 

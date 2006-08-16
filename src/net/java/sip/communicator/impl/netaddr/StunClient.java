@@ -1,12 +1,10 @@
 package net.java.sip.communicator.impl.netaddr;
 
-import java.net.*;
-
+import net.java.sip.communicator.util.*;
 import net.java.stun4j.*;
 import net.java.stun4j.attribute.*;
 import net.java.stun4j.message.*;
 import net.java.stun4j.stack.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * <p>
@@ -196,11 +194,7 @@ public class StunClient
         changeRequest.setChangePortFlag(false);
         StunMessageEvent evt =
             requestSender.sendRequestAndWaitForResponse(request, serverAddress);
-        if (evt != null)
-            System.out.println("TEST I res=" + evt.getRemoteAddress().toString()
-                               + " - " + evt.getRemoteAddress().getHostName());
-        else
-            System.out.println("NO RESPONSE received to TEST I.");
+
         return evt;
     }
 
@@ -225,11 +219,6 @@ public class StunClient
 
         StunMessageEvent evt =
             requestSender.sendRequestAndWaitForResponse(request, serverAddress);
-        if (evt != null)
-            System.out.println("Test II res=" + evt.getRemoteAddress().toString()
-                               + " - " + evt.getRemoteAddress().getHostName());
-        else
-            System.out.println("NO RESPONSE received to Test II.");
 
         return evt;
     }
@@ -254,12 +243,6 @@ public class StunClient
 
         StunMessageEvent evt =
             requestSender.sendRequestAndWaitForResponse(request, serverAddress);
-        if (evt != null)
-            System.out.println("Test III res=" +
-                               evt.getRemoteAddress().toString()
-                               + " - " + evt.getRemoteAddress().getHostName());
-        else
-            System.out.println("NO RESPONSE received to Test III.");
 
         return evt;
     }

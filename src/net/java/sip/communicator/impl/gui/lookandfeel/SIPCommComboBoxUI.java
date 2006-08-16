@@ -6,19 +6,12 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.plaf.*;
+import javax.swing.plaf.metal.*;
 
-import javax.swing.ComboBoxEditor;
-import javax.swing.JComponent;
-import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.metal.MetalComboBoxEditor;
-import javax.swing.plaf.metal.MetalComboBoxUI;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * SIPCommComboBoxUI implementation.

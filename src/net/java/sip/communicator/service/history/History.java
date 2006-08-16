@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.history;
 
-import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
+import net.java.sip.communicator.service.history.records.*;
 
 /**
  * @author Alexander Pelov

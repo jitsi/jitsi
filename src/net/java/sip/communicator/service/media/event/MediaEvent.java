@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.media.event;
 
-import net.java.sip.communicator.service.protocol.CallParticipant;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * 

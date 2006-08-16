@@ -7,9 +7,8 @@
 package net.java.sip.communicator.slick.contactlist;
 
 import junit.framework.*;
-import net.java.sip.communicator.service.protocol.*;
-import org.osgi.framework.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The tests in this suite add more mock provider instances to the osgi bus and

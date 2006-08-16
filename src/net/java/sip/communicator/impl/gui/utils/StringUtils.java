@@ -7,9 +7,8 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
-import java.awt.Component;
-
-import javax.swing.SwingUtilities;
+import java.awt.*;
+import javax.swing.*;
 /**
  * The <tt>StringUtils</tt> class is used through this ui implementation for
  * some special operations with strings.

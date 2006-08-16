@@ -1,9 +1,10 @@
 package net.java.sip.communicator.slick.runner;
 
-import junit.framework.*;
-import org.osgi.framework.*;
-import java.util.StringTokenizer;
 import java.io.*;
+import java.util.*;
+
+import org.osgi.framework.*;
+import junit.framework.*;
 import net.java.sip.communicator.util.*;
 
 /**

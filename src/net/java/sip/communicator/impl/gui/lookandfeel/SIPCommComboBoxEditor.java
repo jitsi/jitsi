@@ -6,22 +6,12 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.Shape;
-import java.awt.geom.GeneralPath;
+import java.awt.*;
+import java.awt.geom.*;
+import javax.swing.border.*;
+import javax.swing.plaf.metal.*;
 
-import javax.swing.JTextField;
-import javax.swing.border.AbstractBorder;
-import javax.swing.plaf.basic.BasicComboBoxEditor;
-import javax.swing.plaf.metal.MetalComboBoxEditor;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.text.JTextComponent;
-
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The default editor for SIPCommunicator editable combo boxes.

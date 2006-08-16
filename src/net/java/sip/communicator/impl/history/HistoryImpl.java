@@ -6,24 +6,16 @@
  */
 package net.java.sip.communicator.impl.history;
 
-import java.io.File;
-import java.io.IOException;
-import java.security.InvalidParameterException;
-import java.util.Iterator;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.io.*;
+import java.security.*;
+import java.util.*;
+import javax.xml.parsers.*;
 
-import javax.xml.parsers.DocumentBuilder;
-
-import net.java.sip.communicator.service.history.History;
-import net.java.sip.communicator.service.history.HistoryID;
-import net.java.sip.communicator.service.history.HistoryReader;
-import net.java.sip.communicator.service.history.HistoryWriter;
-import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
-import net.java.sip.communicator.util.Logger;
+import org.w3c.dom.*;
+import net.java.sip.communicator.service.history.*;
+import net.java.sip.communicator.service.history.records.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.XMLUtils;
-
-import org.w3c.dom.Document;
 
 /**
  * @author Alexander Pelov
@@ -50,7 +42,8 @@ public class HistoryImpl implements History {
 
     protected HistoryImpl(HistoryID id, File directory,
             HistoryRecordStructure historyRecordStructure,
-            HistoryServiceImpl historyServiceImpl) {
+            HistoryServiceImpl historyServiceImpl)
+    {
         try {
             log.logEntry();
 
@@ -74,47 +67,59 @@ public class HistoryImpl implements History {
         }
     }
 
-    public HistoryID getID() {
+    public HistoryID getID()
+    {
         return this.id;
     }
 
-    public HistoryRecordStructure getHistoryRecordsStructure() {
+    public HistoryRecordStructure getHistoryRecordsStructure()
+    {
         return this.historyRecordStructure;
     }
 
-    public HistoryReader getReader() {
-        if (this.reader == null) {
+    public HistoryReader getReader()
+    {
+        if (this.reader == null)
+        {
             this.reader = new HistoryReaderImpl(this);
         }
 
         return this.reader;
     }
 
-    public HistoryWriter getWriter() {
-        if (this.writer == null) {
+    public HistoryWriter getWriter()
+    {
+        if (this.writer == null)
+        {
             this.writer = new HistoryWriterImpl(this);
         }
 
         return this.writer;
     }
 
-    protected HistoryServiceImpl getHistoryServiceImpl() {
+    protected HistoryServiceImpl getHistoryServiceImpl()
+    {
         return this.historyServiceImpl;
     }
 
-    private void reloadDocumentList() {
-        synchronized (this.historyDocuments) {
+    private void reloadDocumentList()
+    {
+        synchronized (this.historyDocuments)
+        {
             this.historyDocuments.clear();
 
             File[] files = this.directory.listFiles();
             // TODO: Assert: Assert.assertNonNull(files, "The list of files
             // should be non-null.");
 
-            for (int i = 0; i < files.length; i++) {
-                if (!files[i].isDirectory()) {
+            for (int i = 0; i < files.length; i++)
+            {
+                if (!files[i].isDirectory())
+                {
                     String filename = files[i].getName();
 
-                    if (filename.endsWith(SUPPORTED_FILETYPE)) {
+                    if (filename.endsWith(SUPPORTED_FILETYPE))
+                    {
                         this.historyDocuments.put(filename, files[i]);
                     }
                 }
@@ -122,11 +127,14 @@ public class HistoryImpl implements History {
         }
     }
 
-    protected Document createDocument(String filename) {
+    protected Document createDocument(String filename)
+    {
         Document retVal = null;
 
-        synchronized (this.historyDocuments) {
-            if (this.historyDocuments.containsKey(filename)) {
+        synchronized (this.historyDocuments)
+        {
+            if (this.historyDocuments.containsKey(filename))
+            {
                 retVal = getDocumentForFile(filename);
             } else {
                 retVal = this.historyServiceImpl.getDocumentBuilder()
@@ -144,24 +152,29 @@ public class HistoryImpl implements History {
             IOException {
         File file = new File(this.directory, filename);
 
-        synchronized (this.historyDocuments) {
-            if (!this.historyDocuments.containsKey(filename)) {
+        synchronized (this.historyDocuments)
+        {
+            if (!this.historyDocuments.containsKey(filename))
+            {
                 throw new InvalidParameterException("The requested "
                         + "filename does not exist in the document list.");
             }
 
             Object obj = this.historyDocuments.get(filename);
-            if (obj instanceof Document) {
+            if (obj instanceof Document)
+            {
                 Document doc = (Document) obj;
 
-                synchronized (doc) {
+                synchronized (doc)
+                {
                     XMLUtils.writeXML(doc, file);
                 }
             }
         }
     }
 
-    protected Iterator getFileList() {
+    protected Iterator getFileList()
+    {
         return this.historyDocuments.keySet().iterator();
     }
 
@@ -169,17 +182,21 @@ public class HistoryImpl implements History {
             throws InvalidParameterException, RuntimeException {
         Document retVal = null;
 
-        synchronized (this.historyDocuments) {
-            if (!this.historyDocuments.containsKey(filename)) {
+        synchronized (this.historyDocuments)
+        {
+            if (!this.historyDocuments.containsKey(filename))
+            {
                 throw new InvalidParameterException("The requested "
                         + "filename does not exist in the document list.");
             }
 
             Object obj = this.historyDocuments.get(filename);
-            if (obj instanceof Document) {
+            if (obj instanceof Document)
+            {
                 // Document already loaded. Use it directly
                 retVal = (Document) obj;
-            } else if (obj instanceof File) {
+            } else if (obj instanceof File)
+            {
                 File file = (File) obj;
 
                 DocumentBuilder builder = this.historyServiceImpl
@@ -187,7 +204,8 @@ public class HistoryImpl implements History {
 
                 try {
                     retVal = builder.parse(file);
-                } catch (Exception e) {
+                } catch (Exception e)
+                {
                     throw new RuntimeException("Error occured while "
                             + "parsing XML document.", e);
                 }

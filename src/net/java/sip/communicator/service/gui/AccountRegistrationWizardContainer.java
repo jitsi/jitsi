@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.gui;
 
-import net.java.sip.communicator.service.gui.event.AccountRegistrationListener;
+import net.java.sip.communicator.service.gui.event.*;
 
 /**
  * The <tt>AccountRegistrationWizardContainer</tt> is meant to be implemented

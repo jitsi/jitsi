@@ -7,43 +7,17 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.Toolkit;
-import java.awt.image.ImageObserver;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Dictionary;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import javax.imageio.*;
 
-import javax.imageio.ImageIO;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JEditorPane;
-import javax.swing.event.DocumentEvent;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.Element;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.Position;
-import javax.swing.text.StyledDocument;
-import javax.swing.text.View;
-import javax.swing.text.ViewFactory;
-import javax.swing.text.html.HTML;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.ImageView;
-import javax.swing.text.html.StyleSheet;
+import java.awt.*;
+import java.awt.image.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.text.*;
+import javax.swing.text.html.*;
 
 /*
  * The content of this file was based on code borrowed from Rob Kenworthy,
@@ -52,10 +26,10 @@ import javax.swing.text.html.StyleSheet;
 /**
  * The <tt>SIPCommImageView</tt> is an <tt>ImageView</tt> which allows to
  * specify a related path when describing an image within an html document.
- * 
+ *
  * @author Yana Stamcheva
  */
-public class SIPCommImageView extends ImageView 
+public class SIPCommImageView extends ImageView
     implements ImageObserver {
 
     public static final String TOP = "top";
@@ -67,7 +41,7 @@ public class SIPCommImageView extends ImageView
 
     /**
      * Creates a new view that represents an IMG element.
-     * 
+     *
      * @param elem the element to create a view for.
      */
     public SIPCommImageView(Element elem) {
@@ -83,7 +57,7 @@ public class SIPCommImageView extends ImageView
 
     /**
      * Initializes this view.
-     * 
+     *
      * @param elem the element.
      */
     private void initialize(Element elem) {
@@ -168,7 +142,7 @@ public class SIPCommImageView extends ImageView
                             width, this);
                 else
                     Toolkit.getDefaultToolkit().prepareImage(fImage, -1, -1,
-                            this);            
+                            this);
         } finally {
 
             synchronized (this) {
@@ -184,7 +158,7 @@ public class SIPCommImageView extends ImageView
         }
     }
 
-    
+
     /**
      * Determines if path is in the form of an URL.
      * @return TRUE if the source is URL, FALSE otherwise.
@@ -218,7 +192,6 @@ public class SIPCommImageView extends ImageView
                 return;
 
             Thread.sleep(10);
-            // System.out.println("rise and shine...");
         }
     }
 
@@ -231,7 +204,7 @@ public class SIPCommImageView extends ImageView
         return attr;
     }
 
-    /** 
+    /**
      * Checks if the image is within a link.
      */
     boolean isLink() {
@@ -358,9 +331,8 @@ public class SIPCommImageView extends ImageView
     /**
      * The attributes may have changed.
      */
-    public void changedUpdate(DocumentEvent e, Shape a, ViewFactory f) {
-        if (DEBUG)
-            System.out.println("ImageView: changedUpdate begin...");
+    public void changedUpdate(DocumentEvent e, Shape a, ViewFactory f)
+    {
         super.changedUpdate(e, a, f);
         float align = getVerticalAlignment();
 
@@ -371,19 +343,15 @@ public class SIPCommImageView extends ImageView
 
         boolean hChanged = fHeight != height;
         boolean wChanged = fWidth != width;
-        if (hChanged || wChanged || getVerticalAlignment() != align) {
-            if (DEBUG)
-                System.out.println("ImageView: calling preferenceChanged");
+        if (hChanged || wChanged || getVerticalAlignment() != align)
+        {
             getParent().preferenceChanged(this, hChanged, wChanged);
         }
-        if (DEBUG)
-            System.out.println("ImageView: changedUpdate end; valign="
-                    + getVerticalAlignment());
     }
 
     /**
      * Paints the image.
-     * 
+     *
      * @param g the rendering surface to use
      * @param a the allocated region to render into
      * @see View#paint
@@ -397,7 +365,7 @@ public class SIPCommImageView extends ImageView
         int width = fWidth;
         int height = fHeight;
         int sel = getSelectionState();
-        
+
         // If no pixels yet, draw gray outline and icon:
         if (!hasPixels(this)) {
             g.setColor(Color.lightGray);
@@ -466,7 +434,7 @@ public class SIPCommImageView extends ImageView
     /**
      * Determines whether the image is selected, and if it's the only thing
      * selected.
-     * 
+     *
      * @return 0 if not selected, 1 if selected, 2 if exclusively selected.
      *         "Exclusive" selection is only returned when editable.
      */
@@ -549,10 +517,6 @@ public class SIPCommImageView extends ImageView
         }
         if (changed != 0) {
             // May need to resize myself, asynchronously:
-            if (DEBUG)
-                System.out.println("ImageView: resized to " + fWidth + "x"
-                        + fHeight);
-
             Document doc = getDocument();
             try {
                 if (doc instanceof AbstractDocument) {
@@ -580,7 +544,7 @@ public class SIPCommImageView extends ImageView
 
     /*
      * Static properties for incremental drawing. Swiped from Component.java
-     * 
+     *
      * @see #imageUpdate
      */
     private static boolean sIsInc = true;
@@ -591,7 +555,7 @@ public class SIPCommImageView extends ImageView
 
     /**
      * Determines the preferred span for this view along an axis.
-     * 
+     *
      * @param axis
      *            may be either X_AXIS or Y_AXIS
      * @return the span the view would like to be rendered into. Typically the
@@ -600,7 +564,6 @@ public class SIPCommImageView extends ImageView
      *         the view.
      */
     public float getPreferredSpan(int axis) {
-        // if(DEBUG)System.out.println("ImageView: getPreferredSpan");
         int extra = 2 * (getBorder() + getSpace(axis));
         switch (axis) {
         case View.X_AXIS:
@@ -616,7 +579,7 @@ public class SIPCommImageView extends ImageView
      * Determines the desired alignment for this view along an axis. This is
      * implemented to give the alignment to the bottom of the icon along the y
      * axis, and the default along the x axis.
-     * 
+     *
      * @param axis
      *            may be either X_AXIS or Y_AXIS
      * @return the desired alignment. This should be a value between 0.0 and 1.0
@@ -636,7 +599,7 @@ public class SIPCommImageView extends ImageView
     /**
      * Provides a mapping from the document model coordinate space to the
      * coordinate space of the view mapped to it.
-     * 
+     *
      * @param pos
      *            the position to convert
      * @param a
@@ -665,7 +628,7 @@ public class SIPCommImageView extends ImageView
     /**
      * Provides a mapping from the view coordinate space to the logical
      * coordinate space of the model.
-     * 
+     *
      * @param x
      *            the X coordinate
      * @param y
@@ -688,7 +651,7 @@ public class SIPCommImageView extends ImageView
 
     /**
      * Set the size of the view. (Ignored.)
-     * 
+     *
      * @param width
      *            the width
      * @param height
@@ -778,11 +741,9 @@ public class SIPCommImageView extends ImageView
 
     private static Icon sPendingImageIcon, sMissingImageIcon;
 
-    private static final String PENDING_IMAGE_SRC 
+    private static final String PENDING_IMAGE_SRC
         = "icons/image-delayed.gif", // both stolen from HotJava
             MISSING_IMAGE_SRC = "icons/image-failed.gif";
-
-    private static final boolean DEBUG = false;
 
     //$ move this someplace public
     static final String IMAGE_CACHE_PROPERTY = "imageCache";

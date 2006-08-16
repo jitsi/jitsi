@@ -7,12 +7,8 @@
 
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-
-import javax.swing.BoxLayout;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import java.awt.*;
+import javax.swing.*;
 
 /**
  * Creates a custom list for the needs of the configuration window.

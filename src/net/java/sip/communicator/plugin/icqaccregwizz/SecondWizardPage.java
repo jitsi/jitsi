@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.plugin.icqaccregwizz;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 
-import net.java.sip.communicator.service.gui.WizardPage;
+import net.java.sip.communicator.service.gui.*;
 
 public class SecondWizardPage extends JPanel 
     implements WizardPage {

@@ -7,18 +7,13 @@
 
 package net.java.sip.communicator.impl.gui.main.message;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.*;
+import javax.swing.*;
 
-import javax.swing.BoxLayout;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommButton;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.protocol.PresenceStatus;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>ChatConferencePanel</tt> is the panel added on the right of the

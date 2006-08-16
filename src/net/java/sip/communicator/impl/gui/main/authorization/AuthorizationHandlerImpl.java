@@ -6,12 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui.main.authorization;
 
-import javax.swing.JDialog;
+import javax.swing.*;
 
-import net.java.sip.communicator.service.protocol.AuthorizationHandler;
-import net.java.sip.communicator.service.protocol.AuthorizationRequest;
-import net.java.sip.communicator.service.protocol.AuthorizationResponse;
-import net.java.sip.communicator.service.protocol.Contact;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>AuthorizationHandlerImpl</tt> is an implementation of the

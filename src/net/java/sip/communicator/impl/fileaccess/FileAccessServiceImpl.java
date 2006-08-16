@@ -6,12 +6,11 @@
  */
 package net.java.sip.communicator.impl.fileaccess;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
-import net.java.sip.communicator.service.configuration.ConfigurationService;
-import net.java.sip.communicator.service.fileaccess.FileAccessService;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.fileaccess.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Default FileAccessService implementation.

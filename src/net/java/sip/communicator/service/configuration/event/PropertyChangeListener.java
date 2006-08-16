@@ -6,9 +6,7 @@
  */
 package net.java.sip.communicator.service.configuration.event;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.util.xml.*;
-import net.java.sip.communicator.impl.configuration.xml.*;
+
 
 /**
  * A "ConfigurationChange" event gets fired whenever a configuration property

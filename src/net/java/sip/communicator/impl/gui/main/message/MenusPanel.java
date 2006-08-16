@@ -7,14 +7,11 @@
 
 package net.java.sip.communicator.impl.gui.main.message;
 
-import java.awt.GridLayout;
+import java.awt.*;
+import javax.swing.*;
 
-import javax.swing.JPanel;
-import javax.swing.JToolBar;
-
-import net.java.sip.communicator.impl.gui.main.message.menu.MessageWindowMenuBar;
-import net.java.sip.communicator.impl.gui.main.message.toolBars.EditTextToolBar;
-import net.java.sip.communicator.impl.gui.main.message.toolBars.MainToolBar;
+import net.java.sip.communicator.impl.gui.main.message.menu.*;
+import net.java.sip.communicator.impl.gui.main.message.toolBars.*;
 /**
  * The <tt>MenusPanel</tt> is the panel, containing all toolbars in the chat
  * window.

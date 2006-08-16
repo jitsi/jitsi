@@ -7,20 +7,20 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
-import java.awt.*;
-import java.awt.image.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-
 import javax.imageio.*;
 import javax.imageio.stream.*;
+
+import java.awt.*;
+import java.awt.image.*;
 
 import net.java.sip.communicator.util.*;
 
 /**
  * Stores and loads images used throughout this ui implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ImageLoader {
@@ -33,7 +33,7 @@ public class ImageLoader {
     private static Hashtable loadedImages = new Hashtable();
 
     /*------------------------------------------------------------------------
-     * =========================LOOK AND FEEL IMAGES========================== 
+     * =========================LOOK AND FEEL IMAGES==========================
      * -----------------------------------------------------------------------
      */
     /**
@@ -44,45 +44,45 @@ public class ImageLoader {
     /**
      * The rollover image of a button.
      */
-    public static final ImageID BUTTON_ROLLOVER 
+    public static final ImageID BUTTON_ROLLOVER
         = new ImageID("BUTTON_ROLLOVER");
 
     /**
      * The image used for a horizontal split.
      */
-    public static final ImageID SPLITPANE_HORIZONTAL 
+    public static final ImageID SPLITPANE_HORIZONTAL
         = new ImageID("SPLITPANE_HORIZONTAL");
 
     /**
      * The image used for a vertical split.
      */
-    public static final ImageID SPLITPANE_VERTICAL 
+    public static final ImageID SPLITPANE_VERTICAL
         = new ImageID("SPLITPANE_VERTICAL");
 
     /**
-     * The image used for the "thumb" of a vertical scrollbar. 
+     * The image used for the "thumb" of a vertical scrollbar.
      */
     public static final ImageID SCROLLBAR_THUMB_VERTICAL
         = new ImageID("SCROLLBAR_VERTICAL");
 
     /**
-     * The image used for the "thumb" of a horizontal scrollbar. 
+     * The image used for the "thumb" of a horizontal scrollbar.
      */
     public static final ImageID SCROLLBAR_THUMB_HORIZONTAL
         = new ImageID("SCROLLBAR_HORIZONTAL");
 
     /**
-     * The image used for the "thumb handle" of a horizontal scrollbar. 
+     * The image used for the "thumb handle" of a horizontal scrollbar.
      */
     public static final ImageID SCROLLBAR_THUMB_HANDLE_HORIZONTAL
         = new ImageID("SCROLLBAR_THUMB_HORIZONTAL");
 
     /**
-     * The image used for the "thumb handle" of a vertical scrollbar. 
+     * The image used for the "thumb handle" of a vertical scrollbar.
      */
-    public static final ImageID SCROLLBAR_THUMB_HANDLE_VERTICAL 
+    public static final ImageID SCROLLBAR_THUMB_HANDLE_VERTICAL
         = new ImageID("SCROLLBAR_THUMB_VERTICAL");
-    
+
     /**
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
      * of a tab.
@@ -93,25 +93,25 @@ public class ImageLoader {
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
      * of a selected tab.
      */
-    public static final ImageID SELECTED_TAB_BG 
+    public static final ImageID SELECTED_TAB_BG
         = new ImageID("SELECTED_TAB_BG");
 
     /**
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
      * of a closable tab.
      */
-    public static final ImageID CLOSABLE_TAB_BG 
+    public static final ImageID CLOSABLE_TAB_BG
         = new ImageID("CLOSABLE_TAB_BG");
 
     /**
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
      * of a closable selected tab.
      */
-    public static final ImageID SELECTED_CLOSABLE_TAB_BG 
+    public static final ImageID SELECTED_CLOSABLE_TAB_BG
         = new ImageID("SELECTED_CLOSABLE_TAB_BG");
 
     /**
-     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint a close 
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint a close
      * button on a tab.
      */
     public static final ImageID CLOSE_TAB_ICON = new ImageID("CLOSE_TAB_ICON");
@@ -120,14 +120,14 @@ public class ImageLoader {
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint a rollover
      * close button on a tab.
      */
-    public static final ImageID CLOSE_TAB_SELECTED_ICON 
+    public static final ImageID CLOSE_TAB_SELECTED_ICON
         = new ImageID("CLOSE_TAB_SELECTED_ICON");
 
     /////////////////////// OptionPane icons /////////////////////////////
 
     /**
      * The icon used in the <tt>SIPCommLookAndFeel</tt> to paint the icon
-     * of an option pane warning message. 
+     * of an option pane warning message.
      */
     public static final ImageID WARNING_ICON = new ImageID("WARNING_ICON");
 
@@ -138,122 +138,122 @@ public class ImageLoader {
     /**
      * An empty 16x16 icon used for alignment.
      */
-    public static final ImageID EMPTY_16x16_ICON 
+    public static final ImageID EMPTY_16x16_ICON
         = new ImageID("EMPTY_16x16_ICON");
 
     /**
      * The icon on the "Add contact" button in the <tt>QuickMenu</tt>.
      */
-    public static final ImageID QUICK_MENU_ADD_ICON 
+    public static final ImageID QUICK_MENU_ADD_ICON
         = new ImageID("QUICK_MENU_ADD_ICON");
 
     /**
      * The icon on the "Configure" button in the <tt>QuickMenu</tt>.
      */
-    public static final ImageID QUICK_MENU_CONFIGURE_ICON 
+    public static final ImageID QUICK_MENU_CONFIGURE_ICON
         = new ImageID("QUICK_MENU_CONFIGURE_ICON");
 
     /**
      * The icon on the "Hide/Show offline contacts" button in the
      * <tt>QuickMenu</tt> and in the <tt>AppearanceConfigurationForm</tt>.
      */
-    public static final ImageID QUICK_MENU_SEARCH_ICON 
+    public static final ImageID QUICK_MENU_SEARCH_ICON
         = new ImageID("QUICK_MENU_SEARCH_ICON");
 
     /**
      * The icon on the "Info" button in the <tt>QuickMenu</tt>.
      */
-    public static final ImageID QUICK_MENU_INFO_ICON 
+    public static final ImageID QUICK_MENU_INFO_ICON
         = new ImageID("QUICK_MENU_INFO_ICON");
 
     /**
      * The background image of a <tt>QuickMenu</tt> button.
      */
-    public static final ImageID QUICK_MENU_BUTTON_BG 
+    public static final ImageID QUICK_MENU_BUTTON_BG
         = new ImageID("QUICK_MENU_BUTTON_BG");
 
     /**
      * The background rollover image of a <tt>QuickMenu</tt> button.
      */
-    public static final ImageID QUICK_MENU_BUTTON_ROLLOVER_BG 
+    public static final ImageID QUICK_MENU_BUTTON_ROLLOVER_BG
         = new ImageID("QUICK_MENU_BUTTON_ROLLOVER_BG");
 
     /**
      * The call button image.
      */
-    public static final ImageID CALL_BUTTON_BG 
+    public static final ImageID CALL_BUTTON_BG
         = new ImageID("CALL_BUTTON_BG");
 
     /**
      * The hangup button image.
      */
-    public static final ImageID HANGUP_BUTTON_BG 
+    public static final ImageID HANGUP_BUTTON_BG
         = new ImageID("HANGUP_BUTTON_BG");
 
     /**
      * The call button mouse over image.
      */
-    public static final ImageID CALL_ROLLOVER_BUTTON_BG 
+    public static final ImageID CALL_ROLLOVER_BUTTON_BG
         = new ImageID("CALL_ROLLOVER_BUTTON_BG");
 
     /**
      * The hangup button mouse over image.
      */
-    public static final ImageID HANGUP_ROLLOVER_BUTTON_BG 
+    public static final ImageID HANGUP_ROLLOVER_BUTTON_BG
         = new ImageID("HANGUP_ROLLOVER_BUTTON_BG");
 
     /**
      * The background image for the <tt>StatusSelectorBox</tt>.
      */
-    public static final ImageID STATUS_SELECTOR_BOX 
+    public static final ImageID STATUS_SELECTOR_BOX
         = new ImageID("STATUS_SELECTOR_BOX");
-    
+
     /**
      * A dial button icon.
      */
-    public static final ImageID ONE_DIAL_BUTTON 
+    public static final ImageID ONE_DIAL_BUTTON
         = new ImageID("ONE_DIAL_BUTTON");
 
     /**
      * A dial button icon.
      */
-    public static final ImageID TWO_DIAL_BUTTON 
+    public static final ImageID TWO_DIAL_BUTTON
         = new ImageID("TWO_DIAL_BUTTON");
 
     /**
      * A dial button icon.
      */
-    public static final ImageID THREE_DIAL_BUTTON 
+    public static final ImageID THREE_DIAL_BUTTON
         = new ImageID("THREE_DIAL_BUTTON");
 
     /**
      * A dial button icon.
      */
-    public static final ImageID FOUR_DIAL_BUTTON 
+    public static final ImageID FOUR_DIAL_BUTTON
         = new ImageID("FOUR_DIAL_BUTTON");
 
     /**
      * A dial button icon.
      */
-    public static final ImageID FIVE_DIAL_BUTTON 
+    public static final ImageID FIVE_DIAL_BUTTON
         = new ImageID("FIVE_DIAL_BUTTON");
 
     /**
      * A dial button icon.
      */
-    public static final ImageID SIX_DIAL_BUTTON 
+    public static final ImageID SIX_DIAL_BUTTON
         = new ImageID("SIX_DIAL_BUTTON");
 
     /**
      * A dial button icon.
      */
-    public static final ImageID SEVEN_DIAL_BUTTON 
+    public static final ImageID SEVEN_DIAL_BUTTON
         = new ImageID("SEVEN_DIAL_BUTTON");
 
     /**
      * A dial button icon.
      */
-    public static final ImageID EIGHT_DIAL_BUTTON 
+    public static final ImageID EIGHT_DIAL_BUTTON
         = new ImageID("EIGHT_DIAL_BUTTON");
 
     /**
@@ -265,7 +265,7 @@ public class ImageLoader {
     /**
      * A dial button icon.
      */
-    public static final ImageID STAR_DIAL_BUTTON 
+    public static final ImageID STAR_DIAL_BUTTON
         = new ImageID("STAR_DIAL_BUTTON");
 
     /**
@@ -277,38 +277,38 @@ public class ImageLoader {
     /**
      * A dial button icon.
      */
-    public static final ImageID DIEZ_DIAL_BUTTON 
+    public static final ImageID DIEZ_DIAL_BUTTON
         = new ImageID("DIEZ_DIAL_BUTTON");
 
     /**
      * The image used, when a contact has no photo specified.
      */
-    public static final ImageID DEFAULT_USER_PHOTO 
+    public static final ImageID DEFAULT_USER_PHOTO
         = new ImageID("DEFAULT_USER_PHOTO");
 
     /**
      * The image used in the chat window, when a contact has no photo
      * specified.
      */
-    public static final ImageID DEFAULT_CHAT_USER_PHOTO 
+    public static final ImageID DEFAULT_CHAT_USER_PHOTO
         = new ImageID("DEFAULT_CHAT_USER_PHOTO");
 
     /**
      * The minimize button icon in the <tt>CallPanel</tt>.
      */
-    public static final ImageID CALL_PANEL_MINIMIZE_BUTTON 
+    public static final ImageID CALL_PANEL_MINIMIZE_BUTTON
         = new ImageID("CALL_PANEL_MINIMIZE_BUTTON");
 
     /**
      * The restore button icon in the <tt>CallPanel</tt>.
      */
-    public static final ImageID CALL_PANEL_RESTORE_BUTTON 
+    public static final ImageID CALL_PANEL_RESTORE_BUTTON
         = new ImageID("CALL_PANEL_RESTORE_BUTTON");
 
     /**
      * The minimize rollover button icon in the <tt>CallPanel</tt>.
      */
-    public static final ImageID CALL_PANEL_MINIMIZE_ROLLOVER_BUTTON 
+    public static final ImageID CALL_PANEL_MINIMIZE_ROLLOVER_BUTTON
         = new ImageID("CALL_PANEL_MINIMIZE_ROLLOVER_BUTTON");
 
     /**
@@ -321,7 +321,7 @@ public class ImageLoader {
      * The background image of the "Add contact to chat" button in the
      * chat window.
      */
-    public static final ImageID ADD_TO_CHAT_BUTTON 
+    public static final ImageID ADD_TO_CHAT_BUTTON
         = new ImageID("ADD_TO_CHAT_BUTTON");
 
     /**
@@ -341,28 +341,28 @@ public class ImageLoader {
     /**
      * The image used as a separator in all toolbars.
      */
-    public static final ImageID TOOLBAR_DIVIDER 
+    public static final ImageID TOOLBAR_DIVIDER
         = new ImageID("TOOLBAR_DIVIDER");
-    
+
     /**
      * The image used for decoration of the "Add contact" window.
      */
-    public static final ImageID ADD_CONTACT_WIZARD_ICON 
+    public static final ImageID ADD_CONTACT_WIZARD_ICON
         = new ImageID("ADD_CONTACT_WIZARD_ICON");
-    
+
     /**
      * The image used for decoration of the "Rename contact" window.
      */
-    public static final ImageID RENAME_DIALOG_ICON 
-        = new ImageID("RENAME_DIALOG_ICON");    
-    
+    public static final ImageID RENAME_DIALOG_ICON
+        = new ImageID("RENAME_DIALOG_ICON");
+
     /**
-     * The image used for decoration of the "Open in browser" item in 
+     * The image used for decoration of the "Open in browser" item in
      * the right button click menu in chat window.
      */
     public static final ImageID BROWSER_ICON
         = new ImageID("BROWSER_ICON");
-    
+
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
     /**
@@ -418,7 +418,7 @@ public class ImageLoader {
      * "Italic" button image in the <tt>EditTextToolBar</tt> in the
      * <tt>ChatWindow</tt>.
      */
-    public static final ImageID TEXT_ITALIC_BUTTON 
+    public static final ImageID TEXT_ITALIC_BUTTON
         = new ImageID("TEXT_ITALIC_BUTTON");
 
     /**
@@ -448,7 +448,7 @@ public class ImageLoader {
      */
     public static final ImageID TEXT_UNDERLINED_ROLLOVER_BUTTON
         = new ImageID("TEXT_UNDERLINED_ROLLOVER_BUTTON");
-    
+
     // ///////////////////////// Main Toolbar icons ////////////////////////////
 
     /**
@@ -568,7 +568,7 @@ public class ImageLoader {
      */
     public static final ImageID CHAT_SEND_FILE_ROLLOVER_BUTTON
         = new ImageID("CHAT_SEND_FILE_ROLLOVER_BUTTON");
- 
+
 
     ////////////////////////////// 16x16 icons ////////////////////////////////
     /**
@@ -576,7 +576,7 @@ public class ImageLoader {
      */
     public static final ImageID SEND_MESSAGE_16x16_ICON
         = new ImageID("SEND_MESSAGE_16x16_ICON");
-    
+
     /**
      * Delete 16x16 image.
      */
@@ -604,7 +604,7 @@ public class ImageLoader {
     /**
      * Info 16x16 image.
      */
-    public static final ImageID INFO_16x16_ICON 
+    public static final ImageID INFO_16x16_ICON
         = new ImageID("INFO_16x16_ICON");
 
     /**
@@ -620,7 +620,7 @@ public class ImageLoader {
         = new ImageID("RENAME_16x16_ICON");
 
     ///////////////////////////////////////////////////////////////////////////
-    
+
     /**
      * Contact list cell "more info" button.
      */
@@ -638,13 +638,13 @@ public class ImageLoader {
      */
     public static final ImageID LOGIN_WINDOW_LOGO = new ImageID(
             "LOGIN_WINDOW_LOGO");
-    
+
     /**
      * The background image of the <tt>AuthenticationWindow</tt>.
      */
     public static final ImageID AUTH_WINDOW_BACKGROUND = new ImageID(
             "AUTH_WINDOW_BACKGROUND");
-    
+
     /*
      * =========================================================================
      * --------------------- PROTOCOLS STATUS ICONS ---------------------------
@@ -654,7 +654,7 @@ public class ImageLoader {
      * The ICQ logo 32x32 icon.
      */
     public static final ImageID ICQ_32x32 = new ImageID("ICQ_32x32");
-    
+
     /**
      * The ICQ logo 16x16 icon.
      */
@@ -708,7 +708,7 @@ public class ImageLoader {
      * The MSN logo 32x32 icon.
      */
     public static final ImageID MSN_32x32 = new ImageID("MSN_32x32");
-    
+
     /**
      * The MSN logo 16x16 icon.
      */
@@ -718,8 +718,8 @@ public class ImageLoader {
      * The AIM logo 32x32 icon.
      */
     public static final ImageID AIM_32x32 = new ImageID("AIM_32x32");
-    
-    
+
+
     /**
      * The AIM logo 16x16 icon.
      */
@@ -729,7 +729,7 @@ public class ImageLoader {
      * The Yahoo logo 32x32 icon.
      */
     public static final ImageID YAHOO_32x32 = new ImageID("YAHOO_32x32");
-    
+
     /**
      * The Yahoo logo 16x16 icon.
      */
@@ -739,7 +739,7 @@ public class ImageLoader {
      * The Jabber logo 32x32 icon.
      */
     public static final ImageID JABBER_32x32 = new ImageID("JABBER_32x32");
-    
+
     /**
      * The Jabber logo 16x16 icon.
      */
@@ -749,7 +749,7 @@ public class ImageLoader {
      * The Skype logo 32x32 icon.
      */
     public static final ImageID SKYPE_32x32 = new ImageID("SKYPE_32x32");
-    
+
     /**
      * The Skype logo 16x16 icon.
      */
@@ -763,7 +763,7 @@ public class ImageLoader {
     /**
      * The SIP online 16x16 icon.
      */
-    public static final ImageID SIP_ONLINE_ICON 
+    public static final ImageID SIP_ONLINE_ICON
         = new ImageID("SIP_ONLINE_ICON");
 
     /**
@@ -880,7 +880,7 @@ public class ImageLoader {
 
     /**
      * Load default smilies pack.
-     * 
+     *
      * @return the ArrayList of all smilies.
      */
     public static ArrayList getDefaultSmiliesPack() {
@@ -994,10 +994,10 @@ public class ImageLoader {
         } catch (IOException e) {
             log.error("Failed to load image:" + path, e);
         }
-        
+
         return image;
     }
-    
+
     /**
      * Loads an animated gif image.
      * @param imageID The image identifier.
@@ -1058,7 +1058,7 @@ public class ImageLoader {
 
     /**
      * Returns the path string of an already loaded image, otherwise null.
-     * 
+     *
      * @param image
      *            The image wich path to return.
      * @return The path string of an already loaded image, otherwise null.

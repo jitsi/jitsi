@@ -7,19 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.main.configforms;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.event.MouseListener;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.JLabel;
-
-import net.java.sip.communicator.impl.gui.customcontrols.ListCellPanel;
-import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * @author Yana Stamcheva

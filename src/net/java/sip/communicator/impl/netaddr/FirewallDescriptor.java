@@ -1,6 +1,7 @@
 package net.java.sip.communicator.impl.netaddr;
 
 import java.net.*;
+
 import net.java.sip.communicator.util.*;
 
 /**

@@ -4,13 +4,13 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.icq.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.AuthorizationResponse.*;
+import net.java.sip.communicator.util.*;
 import net.kano.joscar.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
 import net.kano.joscar.snaccmd.ssi.*;
 import net.kano.joustsim.oscar.*;
-import net.java.sip.communicator.service.protocol.AuthorizationResponse.AuthorizationResponseCode;
-import net.java.sip.communicator.util.Logger;
 
 /**
  * @author Damian Minkov

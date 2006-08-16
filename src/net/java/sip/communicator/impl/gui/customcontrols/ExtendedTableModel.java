@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import java.util.Vector;
+import java.util.*;
 
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.*;
 
 /**
  * The <tt>ExtendedTableModel</tt> is a <tt>DefaultTableModel</tt> with one

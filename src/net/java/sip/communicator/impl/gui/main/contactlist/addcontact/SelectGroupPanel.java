@@ -6,28 +6,17 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.util.Iterator;
+import java.util.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.event.CellEditorListener;
-import javax.swing.table.TableModel;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.table.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.BooleanToCheckTableModel;
-import net.java.sip.communicator.impl.gui.customcontrols.LabelTableCellRenderer;
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommMsgTextArea;
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
 
 /**
  * The <tt>SelectGroupPanel</tt> is where the user should select the group,

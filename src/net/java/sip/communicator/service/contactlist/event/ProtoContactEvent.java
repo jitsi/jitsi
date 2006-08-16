@@ -6,9 +6,10 @@
  */
 package net.java.sip.communicator.service.contactlist.event;
 
+import java.beans.*;
+
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-import java.beans.*;
 
 /**
  * Event delivered upon addition, removal or change of a protocol specific

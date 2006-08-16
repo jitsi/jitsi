@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import javax.swing.JTextArea;
+import javax.swing.*;
 
 /**
  * The <tt>SIPCommMsgTextArea</tt> is a text area defined specially for warning

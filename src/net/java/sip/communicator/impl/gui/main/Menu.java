@@ -7,10 +7,9 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.Messages;
+import net.java.sip.communicator.impl.gui.i18n.*;
 
 /**
  * The main menu.

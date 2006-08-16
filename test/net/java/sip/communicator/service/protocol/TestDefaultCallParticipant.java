@@ -7,8 +7,6 @@
 package net.java.sip.communicator.service.protocol;
 
 import junit.framework.*;
-import net.java.sip.communicator.service.gui.event.*;
-import java.util.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 

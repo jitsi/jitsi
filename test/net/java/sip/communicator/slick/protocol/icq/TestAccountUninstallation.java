@@ -6,12 +6,11 @@
  */
 package net.java.sip.communicator.slick.protocol.icq;
 
+import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import org.osgi.framework.*;
-import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeListener;
-import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeEvent;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Tests whether accaounts are uninstalled properly. It is important that
@@ -49,18 +48,32 @@ public class TestAccountUninstallation
         super(name);
     }
 
+    /**
+     * JUnit setup method.
+     * @throws Exception in case anything goes wrong.
+     */
     protected void setUp() throws Exception
     {
         super.setUp();
         fixture.setUp();
     }
 
+    /**
+     * JUnit teardown method.
+     * @throws Exception in case anything goes wrong.
+     */
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
         super.tearDown();
     }
 
+    /**
+     * Returns a suite containing tests in this class in the order that we'd
+     * like them executed.
+     * @return a Test suite containing tests in this class in the order that
+     * we'd like them executed.
+     */
     public static Test suite()
     {
         TestSuite suite = new TestSuite();
@@ -268,18 +281,18 @@ public class TestAccountUninstallation
      */
     public void testUninstallAccount()
     {
-        assertFalse("No installed accounts found",
-                    fixture.providerFactory.getRegisteredAccounts().isEmpty());
+        assertFalse("No installed accounts found"
+                    ,fixture.providerFactory.getRegisteredAccounts().isEmpty());
 
         assertNotNull(
             "Found no provider corresponding to account ID "
-            + fixture.icqAccountID,
-            fixture.providerFactory.getProviderForAccount(fixture.icqAccountID));
+            + fixture.icqAccountID
+            ,fixture.providerFactory.getProviderForAccount(fixture.icqAccountID));
 
         assertTrue(
             "Failed to remove a provider corresponding to acc id "
-            + fixture.icqAccountID,
-            fixture.providerFactory.uninstallAccount(fixture.icqAccountID));
+            + fixture.icqAccountID
+            , fixture.providerFactory.uninstallAccount(fixture.icqAccountID));
 
         ServiceReference[] icqProviderRefs = null;
         try
@@ -308,8 +321,8 @@ public class TestAccountUninstallation
         //provider.
         assertTrue(
           "The ICQ provider factory kept a reference to the provider we just "
-          +"uninstalled (accID="+fixture.icqAccountID+")",
-          fixture.providerFactory.getRegisteredAccounts().isEmpty()
+          +"uninstalled (accID="+fixture.icqAccountID+")"
+          , fixture.providerFactory.getRegisteredAccounts().isEmpty()
           && fixture.providerFactory.getProviderForAccount(fixture.icqAccountID)
               == null);
     }
@@ -345,7 +358,8 @@ public class TestAccountUninstallation
                 stateRecieved = evt.getNewState();
                 eventReason = evt.getReasonCode();
 
-                synchronized(registrationLock){
+                synchronized(registrationLock)
+                {
                     logger.debug(".");
                     registrationLock.notifyAll();
                     logger.debug(".");

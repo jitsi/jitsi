@@ -1,12 +1,11 @@
 package net.java.sip.communicator.slick.contactlist;
 
-import java.util.Hashtable;
+import java.util.*;
 
 import org.osgi.framework.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.impl.protocol.mock.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-import java.util.*;
 
 /**
  * Fields, commonly used by the MetaContactListSlick.
@@ -194,7 +193,8 @@ public class MclSlickFixture
         else
         {
             int emptyMetaGroups = 0;
-            for(int i = 0; i < actualGroup.countSubgroups(); i++){
+            for(int i = 0; i < actualGroup.countSubgroups(); i++)
+            {
                 if(actualGroup.getMetaContactSubgroup(i).countContactGroups() == 0)
                     emptyMetaGroups ++;
             }
@@ -209,7 +209,8 @@ public class MclSlickFixture
         //go over the subgroups and check that they've been all added to the
         //meta contact list.
         Iterator expectedSubgroups = expectedGroup.subgroups();
-        while (expectedSubgroups.hasNext() ){
+        while (expectedSubgroups.hasNext() )
+        {
             MockContactGroup expectedSubGroup
                 = (MockContactGroup)expectedSubgroups.next();
 

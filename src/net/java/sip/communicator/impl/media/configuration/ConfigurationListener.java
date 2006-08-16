@@ -6,8 +6,7 @@
  */
 package net.java.sip.communicator.impl.media.configuration;
 
-import net.java.sip.communicator.service.configuration.event.PropertyChangeEvent;
-import net.java.sip.communicator.service.configuration.event.PropertyChangeListener;
+import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.util.*;
 
 

@@ -1,16 +1,15 @@
 package net.java.sip.communicator.slick.netaddr;
 
-import junit.framework.*;
-import net.java.sip.communicator.service.netaddr.*;
-import net.java.sip.communicator.service.configuration.*;
-import org.osgi.framework.*;
 import java.net.*;
-import java.net.NetworkInterface;
 import java.util.*;
+
+import org.osgi.framework.*;
+import junit.framework.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.util.*;
-import net.java.stun4j.StunAddress;
-import net.java.stun4j.client.SimpleAddressDetector;
-import net.java.stun4j.StunAddress;
+import net.java.stun4j.*;
+import net.java.stun4j.client.*;
 
 /**
  * Tests basic Network Address Manager Service behaviour.
@@ -48,7 +47,8 @@ public class TestNetworkAddressManagerService extends TestCase {
      *
      * @param name the name of the test
      */
-    public TestNetworkAddressManagerService(String name) {
+    public TestNetworkAddressManagerService(String name)
+    {
         super(name);
 
     }
@@ -60,7 +60,9 @@ public class TestNetworkAddressManagerService extends TestCase {
      *
      * @throws Exception if anything goes wrong.
      */
-    protected void setUp() throws Exception {
+    protected void setUp()
+        throws Exception
+    {
         super.setUp();
         BundleContext context = NetworkAddressManagerServiceLick.bc;
         // get the configuration service
@@ -80,7 +82,9 @@ public class TestNetworkAddressManagerService extends TestCase {
      *
      * @throws Exception if anything goes wrong.
      */
-    protected void tearDown() throws Exception {
+    protected void tearDown()
+        throws Exception
+    {
         super.tearDown();
     }
 
@@ -89,19 +93,23 @@ public class TestNetworkAddressManagerService extends TestCase {
     {
         try {
             Enumeration intfs = NetworkInterface.getNetworkInterfaces();
-            while (intfs.hasMoreElements()) {
+            while (intfs.hasMoreElements())
+            {
                 NetworkInterface intf = (NetworkInterface) intfs.nextElement();
                 Enumeration addrs = intf.getInetAddresses();
-                while (addrs.hasMoreElements()) {
+                while (addrs.hasMoreElements())
+                {
                     try {
                         InetAddress addr = (InetAddress) addrs.nextElement();
                         if(addr.equals(address))
                             return true;
-                    } catch (Exception e) {
+                    } catch (Exception e)
+                    {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             e.printStackTrace();
         }
         return false;

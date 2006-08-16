@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.gui.event;
 
-import java.util.EventObject;
+import java.util.*;
 
 public class ContainerEvent
     extends EventObject{
@@ -27,22 +27,24 @@ public class ContainerEvent
 
     /**
      * Creates a new ContainerEvent according to the specified parameters.
-     * @param source The containerID of the container that is added to supported 
+     * @param source The containerID of the container that is added to supported
      * containers.
      * @param eventID one of the CONTAINER_XXX static fields indicating the
      * nature of the event.
      */
-    public ContainerEvent(Object source, int eventID) {
+    public ContainerEvent(Object source, int eventID)
+    {
         super(source);
         this.eventID = eventID;
     }
-    
+
     /**
-     * Returns an event id specifying whether the type of this event 
+     * Returns an event id specifying whether the type of this event
      * (CONTAINER_ADDED or CONTAINER_REMOVED)
      * @return one of the CONTAINER_XXX int fields of this class.
      */
-    public int getEventID(){
+    public int getEventID()
+    {
         return eventID;
     }
 }

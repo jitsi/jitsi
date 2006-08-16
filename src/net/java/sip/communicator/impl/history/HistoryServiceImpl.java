@@ -6,25 +6,15 @@
  */
 package net.java.sip.communicator.impl.history;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
+import javax.xml.parsers.*;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import net.java.sip.communicator.service.configuration.ConfigurationService;
-import net.java.sip.communicator.service.fileaccess.FileAccessService;
-import net.java.sip.communicator.service.history.History;
-import net.java.sip.communicator.service.history.HistoryID;
-import net.java.sip.communicator.service.history.HistoryService;
-import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.fileaccess.*;
+import net.java.sip.communicator.service.history.*;
+import net.java.sip.communicator.service.history.records.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * @author Alexander Pelov
@@ -56,12 +46,15 @@ public class HistoryServiceImpl implements HistoryService {
 
     private DocumentBuilder builder;
 
-    public HistoryServiceImpl() throws Exception {
+    public HistoryServiceImpl()
+        throws Exception
+    {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         this.builder = factory.newDocumentBuilder();
     }
 
-    public Iterator getExistingIDs() {
+    public Iterator getExistingIDs()
+    {
         Vector vect = new Vector();
         File histDir = null;
         try {
@@ -74,24 +67,31 @@ public class HistoryServiceImpl implements HistoryService {
                     .getPrivatePersistentDirectory(DATA_DIRECTORY);
 
             findDatFiles(vect, histDir);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             log.error("Error opening directory", e);
         }
 
         DBStructSerializer structParse = new DBStructSerializer(this);
         int size = vect.size();
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++)
+        {
             File f = (File) vect.get(i);
 
-            synchronized (this.loadedFiles) {
-                if (!this.loadedFiles.contains(f)) {
-                    synchronized (this.histories) {
+            synchronized (this.loadedFiles)
+            {
+                if (!this.loadedFiles.contains(f))
+                {
+                    synchronized (this.histories)
+                    {
                         try {
                             History hist = structParse.loadHistory(f);
-                            if (!this.histories.containsKey(hist.getID())) {
+                            if (!this.histories.containsKey(hist.getID()))
+                            {
                                 this.histories.put(hist.getID(), hist);
                             }
-                        } catch (Exception e) {
+                        } catch (Exception e)
+                        {
                             log.error("Could not load history from file: "
                                     + f.getAbsolutePath(), e);
                         }
@@ -100,20 +100,26 @@ public class HistoryServiceImpl implements HistoryService {
             }
         }
 
-        synchronized (this.histories) {
+        synchronized (this.histories)
+        {
             return this.histories.keySet().iterator();
         }
     }
 
-    public boolean isHistoryExisting(HistoryID id) {
+    public boolean isHistoryExisting(HistoryID id)
+    {
         return this.histories.containsKey(id);
     }
 
-    public History getHistory(HistoryID id) throws IllegalArgumentException {
+    public History getHistory(HistoryID id)
+        throws IllegalArgumentException
+    {
         History retVal = null;
 
-        synchronized (this.histories) {
-            if (histories.containsKey(id)) {
+        synchronized (this.histories)
+        {
+            if (histories.containsKey(id))
+            {
                 retVal = (History) histories.get(id);
             } else {
                 throw new IllegalArgumentException(
@@ -129,8 +135,10 @@ public class HistoryServiceImpl implements HistoryService {
             throws IllegalArgumentException, IOException {
         History retVal = null;
 
-        synchronized (this.histories) {
-            if (this.histories.containsKey(id)) {
+        synchronized (this.histories)
+        {
+            if (this.histories.containsKey(id))
+            {
                 throw new IllegalArgumentException(
                         "There is already a history with the specified ID.");
             } else {
@@ -150,26 +158,34 @@ public class HistoryServiceImpl implements HistoryService {
         return retVal;
     }
 
-    protected FileAccessService getFileAccessService() {
+    protected FileAccessService getFileAccessService()
+    {
         return this.fileAccessService;
     }
 
-    protected DocumentBuilder getDocumentBuilder() {
+    protected DocumentBuilder getDocumentBuilder()
+    {
         return builder;
     }
 
-    private void findDatFiles(Vector vect, File directory) {
+    private void findDatFiles(Vector vect, File directory)
+    {
         File[] files = directory.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            if (files[i].isDirectory()) {
+        for (int i = 0; i < files.length; i++)
+        {
+            if (files[i].isDirectory())
+            {
                 findDatFiles(vect, files[i]);
-            } else if (DATA_FILE.equalsIgnoreCase(files[i].getName())) {
+            } else if (DATA_FILE.equalsIgnoreCase(files[i].getName()))
+            {
                 vect.add(files[i]);
             }
         }
     }
 
-    private File createHistoryDirectories(HistoryID id) throws IOException {
+    private File createHistoryDirectories(HistoryID id)
+        throws IOException
+    {
         String[] idComponents = id.getID();
         String[] dirs = new String[idComponents.length + 1];
 
@@ -184,13 +200,15 @@ public class HistoryServiceImpl implements HistoryService {
         try {
             directory = this.fileAccessService
                     .getPrivatePersistentDirectory(dirs);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw (IOException) new IOException(
                     "Could not create history due to file system error")
                     .initCause(e);
         }
 
-        if (!directory.exists() && !directory.mkdirs()) {
+        if (!directory.exists() && !directory.mkdirs())
+        {
             throw new IOException(
                     "Could not create requested history service files:"
                             + directory.getAbsolutePath());
@@ -206,8 +224,10 @@ public class HistoryServiceImpl implements HistoryService {
      * @param configurationService
      */
     public void setConfigurationService(
-            ConfigurationService configurationService) {
-        synchronized (this.syncRoot_Config) {
+            ConfigurationService configurationService)
+    {
+        synchronized (this.syncRoot_Config)
+        {
             this.configurationService = configurationService;
             log.debug("New configuration service registered.");
         }
@@ -219,9 +239,12 @@ public class HistoryServiceImpl implements HistoryService {
      * @param configurationService
      */
     public void unsetConfigurationService(
-            ConfigurationService configurationService) {
-        synchronized (this.syncRoot_Config) {
-            if (this.configurationService == configurationService) {
+            ConfigurationService configurationService)
+    {
+        synchronized (this.syncRoot_Config)
+        {
+            if (this.configurationService == configurationService)
+            {
                 this.configurationService = null;
                 log.debug("Configuration service unregistered.");
             }
@@ -233,8 +256,10 @@ public class HistoryServiceImpl implements HistoryService {
      *
      * @param fileAccessService
      */
-    public void setFileAccessService(FileAccessService fileAccessService) {
-        synchronized (this.syncRoot_FileAccess) {
+    public void setFileAccessService(FileAccessService fileAccessService)
+    {
+        synchronized (this.syncRoot_FileAccess)
+        {
             this.fileAccessService = fileAccessService;
             log.debug("New file access service registered.");
         }
@@ -245,9 +270,12 @@ public class HistoryServiceImpl implements HistoryService {
      *
      * @param fileAccessService
      */
-    public void unsetFileAccessService(FileAccessService fileAccessService) {
-        synchronized (this.syncRoot_FileAccess) {
-            if (this.fileAccessService == fileAccessService) {
+    public void unsetFileAccessService(FileAccessService fileAccessService)
+    {
+        synchronized (this.syncRoot_FileAccess)
+        {
+            if (this.fileAccessService == fileAccessService)
+            {
                 this.fileAccessService = null;
                 log.debug("File access service unregistered.");
             }

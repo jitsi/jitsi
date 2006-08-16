@@ -7,34 +7,21 @@
 
 package net.java.sip.communicator.impl.gui.main.login;
 
-import java.awt.Toolkit;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import javax.swing.JOptionPane;
+import java.awt.*;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.GuiActivator;
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommMsgTextArea;
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.impl.gui.main.StatusPanel;
-import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
-import net.java.sip.communicator.impl.gui.main.account.NoAccountFoundPage;
+import org.osgi.framework.*;
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.service.protocol.AccountID;
-import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
-import net.java.sip.communicator.service.protocol.RegistrationState;
-import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeEvent;
-import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeListener;
-import net.java.sip.communicator.util.Logger;
-
-import org.osgi.framework.ServiceEvent;
-import org.osgi.framework.ServiceListener;
-import org.osgi.framework.ServiceReference;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>LoginManager</tt> manages the login operation. Here we obtain the
@@ -113,8 +100,16 @@ public class LoginManager
 
         SecurityAuthorityImpl secAuth
             = new SecurityAuthorityImpl(mainFrame, protocolProvider);
-        
-        protocolProvider.register(secAuth);
+
+        try
+        {
+            protocolProvider.register( secAuth );
+        }
+        catch (OperationFailedException ex)
+        {
+            logger.fatal("Unhandled exeption", ex);
+            /** @todo  handle exception*/
+        }
     }
 
     /**
@@ -172,10 +167,10 @@ public class LoginManager
                 .getAccountRegWizardContainer();
 
         NoAccountFoundPage noAccountFoundPage = new NoAccountFoundPage();
-        
+
         wizard.registerWizardPage(noAccountFoundPage.getIdentifier(),
                 noAccountFoundPage);
-        
+
         wizard.setTitle(
             Messages.getString("accountRegistrationWizard"));
 

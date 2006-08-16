@@ -1,11 +1,12 @@
 package net.java.sip.communicator.slick.contactlist;
 
-import junit.framework.*;
+import java.util.*;
+
 import org.osgi.framework.*;
+import junit.framework.*;
 import net.java.sip.communicator.impl.protocol.mock.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-import java.util.*;
 
 /**
  * Tests in this class verify whether storing and reloading the meta contact

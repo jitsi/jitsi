@@ -1,6 +1,4 @@
 package net.java.sip.communicator.slick.runner;
-import junit.textui.TestRunner;
-
 import junit.framework.*;
 import junit.runner.*;
 import net.java.sip.communicator.util.*;
@@ -29,14 +27,16 @@ public class ScTestRunner extends BaseTestRunner {
     /**
      * Constructs a TestRunner using the given ResultPrinter all the output
      */
-    public ScTestRunner(XmlFormatter printer) {
+    public ScTestRunner(XmlFormatter printer)
+    {
         this.testPrinter = printer;
     }
 
     /**
      * Runs a suite extracted from a TestCase subclass.
      */
-    static public void run(Class testClass, XmlFormatter fmtr) {
+    static public void run(Class testClass, XmlFormatter fmtr)
+    {
         run(new TestSuite(testClass), fmtr);
     }
 
@@ -50,7 +50,8 @@ public class ScTestRunner extends BaseTestRunner {
      * }
      * </pre>
      */
-    static public TestResult run(Test test, XmlFormatter printer) {
+    static public TestResult run(Test test, XmlFormatter printer)
+    {
         ScTestRunner runner= new ScTestRunner(printer);
         return runner.doRun(test);
     }
@@ -59,19 +60,23 @@ public class ScTestRunner extends BaseTestRunner {
      * Always use the StandardTestSuiteLoader. Overridden from
      * BaseTestRunner.
      */
-    public TestSuiteLoader getLoader() {
+    public TestSuiteLoader getLoader()
+    {
         return new StandardTestSuiteLoader();
     }
 
-    public void testFailed(int status, Test test, Throwable t) {
+    public void testFailed(int status, Test test, Throwable t)
+    {
         logger.debug("test " + test.toString() + " failed.");
     }
 
-    public void testStarted(String testName) {
+    public void testStarted(String testName)
+    {
         logger.debug("started testName"+testName);
     }
 
-    public void testEnded(String testName) {
+    public void testEnded(String testName)
+    {
         logger.debug("ended testName"+testName);
 
     }
@@ -79,15 +84,18 @@ public class ScTestRunner extends BaseTestRunner {
     /**
      * Creates the TestResult to be used for the test run.
      */
-    protected TestResult createTestResult() {
+    protected TestResult createTestResult()
+    {
         return new TestResult();
     }
 
-    public TestResult doRun(Test test) {
+    public TestResult doRun(Test test)
+    {
         return doRun(test, false);
     }
 
-    public TestResult doRun(Test suite, boolean wait) {
+    public TestResult doRun(Test suite, boolean wait)
+    {
         TestResult result= new TestResult();
         result.addListener(testPrinter);
         testPrinter.startTestSuite(suite, System.getProperties());
@@ -101,13 +109,15 @@ public class ScTestRunner extends BaseTestRunner {
         return result;
     }
 
-    protected void pause(boolean wait) {
+    protected void pause(boolean wait)
+    {
         if (!wait) return;
 //        testPrinter.printWaitPrompt();
         try {
             System.in.read();
         }
-        catch(Exception e) {
+        catch(Exception e)
+        {
         }
     }
 
@@ -115,11 +125,14 @@ public class ScTestRunner extends BaseTestRunner {
      * Starts a test run. Analyzes the command line arguments
      * and runs the given test suite.
      */
-    protected TestResult start(String args[]) throws Exception {
+    protected TestResult start(String args[])
+        throws Exception
+    {
         String testCase= "";
         boolean wait= false;
 
-        for (int i= 0; i < args.length; i++) {
+        for (int i= 0; i < args.length; i++)
+        {
             if (args[i].equals("-wait"))
                 wait= true;
             else if (args[i].equals("-c"))
@@ -137,12 +150,14 @@ public class ScTestRunner extends BaseTestRunner {
             Test suite= getTest(testCase);
             return doRun(suite, wait);
         }
-        catch(Exception e) {
+        catch(Exception e)
+        {
             throw new Exception("Could not create and run test suite: "+e);
         }
     }
 
-    protected void runFailed(String message) {
+    protected void runFailed(String message)
+    {
         System.err.println(message);
         System.exit(junit.textui.TestRunner.FAILURE_EXIT);
     }

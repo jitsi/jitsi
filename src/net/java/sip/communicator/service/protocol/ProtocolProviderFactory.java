@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
+
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
@@ -45,6 +46,12 @@ public abstract class ProtocolProviderFactory
     public static final String USER_ID = "USER_ID";
 
     /**
+     * The name that should be displayed to others when we are calling or
+     * writing them.
+     */
+    public static final String DISPLAY_NAME = "DISPLAY_NAME";
+
+    /**
      * The name of the property under which we store protocol AccountID-s.
      */
     public static final String ACCOUNT_UID = "ACCOUNT_UID";
@@ -63,6 +70,12 @@ public abstract class ProtocolProviderFactory
     public static final String SERVER_PORT = "SERVER_PORT";
 
     /**
+     * The name of the property under which we store the name of the transport
+     * protocol that needs to be used to access the server.
+     */
+    public static final String SERVER_TRANSPORT = "SERVER_TRANSPORT";
+
+    /**
      * The name of the property under which we store protocol the address of
      * a protocol proxy.
      */
@@ -74,6 +87,13 @@ public abstract class ProtocolProviderFactory
      * connections to be made via this protocol.
      */
     public static final String PROXY_PORT = "PROXY_PORT";
+
+    /**
+     * The name of the property under which we store the name of the transport
+     * protocol that needs to be used to access the proxy.
+     */
+    public static final String PROXY_TRANSPORT = "PROXY_TRANSPORT";
+
 
     /**
      * The name of the property under which we store the user preference for a
@@ -192,34 +212,114 @@ public abstract class ProtocolProviderFactory
             + "." + ACCOUNT_UID // propname
             , accountID.getAccountUniqueID()); // value
 
-        configurationService.setProperty(
-            sourcePackageName //prefix
-            + "." + accNodeName // a uniew node name for the account id
-            + "." + USER_ID // propname
-            , accountID.getUserID()); // value
+        //store the rest of the properties
+        Iterator accountPropKeys
+            = accountID.getAccountProperties().keySet().iterator();
 
-        String password = (String) accountProperties.get(PASSWORD);
+        while (accountPropKeys.hasNext())
+        {
+            String propKey =
+                (String)accountPropKeys.next();
+            String propValue =
+                (String)accountID.getAccountProperties().get(propKey);
 
-        if (password != null)
+            //if this is a password - encode it.
+            if(propKey.equals(PASSWORD))
+                propValue = new String(Base64.encode(propValue.getBytes()));
+
             configurationService.setProperty(
                 sourcePackageName //prefix
                 + "." + accNodeName // a uniew node name for the account id
-                + "." + PASSWORD // propname
-                , new String(Base64.encode(password.getBytes()))); // value
+                + "." + propKey // propname
+                , propValue); // value
+
+        }
 
     }
 
-
-    protected void storePassword(AccountID accountID,
-                                 String    password)
+    /**
+     * Saves the password for the specified account after scrambling it a bit
+     * sot that it is not visible from first sight (Method remains highly
+     * insecure).
+     *
+     * @param bundleContext a currently valid bundle context.
+     * @param sourcePackageName the name of the java package that the calling
+     * protocol provider implementation belongs to.
+     * @param accountID the AccountID for the account whose password we're
+     * storing.
+     * @param password the password itself.
+     *
+     * @throws java.lang.IllegalArgumentException if no account corresponding
+     * to <tt>accountID</tt> has been previously stored.
+     */
+    protected void storePassword(BundleContext bundleContext,
+                                 String       sourcePackageName,
+                                 AccountID    accountID,
+                                 String       password)
+        throws IllegalArgumentException
     {
-        /** @todo implement storePassword() */
+        String accountPrefix = findAccountPrefix(
+            bundleContext, accountID, sourcePackageName);
+
+        if (accountPrefix == null)
+            throw new IllegalArgumentException(
+                "No previous records found for account ID: "
+                + accountID.getAccountUniqueID());
+
+        //obscure the password
+        String mangledPassword
+            = new String(Base64.encode(password.getBytes()));
+
+        //get a reference to the config service and store it.
+        ServiceReference confReference
+            = bundleContext.getServiceReference(
+                ConfigurationService.class.getName());
+        ConfigurationService configurationService
+            = (ConfigurationService) bundleContext.getService(confReference);
+
+       configurationService.setProperty(
+                accountPrefix + "." + PASSWORD, mangledPassword);
     }
 
-    protected String loadPassword(AccountID accountID)
+    /**
+     * Returns the password last saved for the specified account.
+     *
+     * @param bundleContext a currently valid bundle context.
+     * @param sourcePackageName the name of the java package that the calling
+     * protocol provider implementation belongs to.
+     * @param accountID the AccountID for the account whose password we're
+     * looking for..
+     *
+     * @return a String containing the password for the specified accountID.
+     *
+     * @throws java.lang.IllegalArgumentException if no account corresponding
+     * to <tt>accountID</tt> has been previously stored.
+     */
+    protected String loadPassword(BundleContext bundleContext,
+                                  String        sourcePackageName,
+                                  AccountID     accountID)
     {
-        /** @todo implement loadPassword() */
-        return null;
+        String accountPrefix = findAccountPrefix(
+            bundleContext, accountID, sourcePackageName);
+
+        if (accountPrefix == null)
+            throw new IllegalArgumentException(
+                "No previous records found for account ID: "
+                + accountID.getAccountUniqueID());
+
+        //get a reference to the config service and store it.
+        ServiceReference confReference
+            = bundleContext.getServiceReference(
+                ConfigurationService.class.getName());
+        ConfigurationService configurationService
+            = (ConfigurationService) bundleContext.getService(confReference);
+
+        //obscure the password
+         String mangledPassword
+             =  configurationService.getString(
+                    accountPrefix + "." + PASSWORD);
+
+        return new String(Base64.decode(mangledPassword));
     }
 
 
@@ -257,34 +357,33 @@ public abstract class ProtocolProviderFactory
         {
             String accountRootPropName = (String) storedAccountsIter.next();
             logger.debug("Loading account " + accountRootPropName);
+
+            //get all properties that we've stored for this account and load
+            //them into the accountProperties table.
+
+            List storedAccPropNames = configurationService.getPropertyNamesByPrefix(
+                accountRootPropName, true);
+
+            Iterator propNamesIter = storedAccPropNames.iterator();
             Map accountProperties = new Hashtable();
-
-            //unregister the account in the configuration service.
-            //all the properties must have been registered in the following
-            //hierarchy:
-            //net.java.sip.communicator.impl.protocol.PROTO_NAME.ACC_ID.PROP_NAME
-            String accountUID = configurationService.getString(
-                accountRootPropName //node id
-                + "." + ACCOUNT_UID); // propname
-
-            accountProperties.put(ACCOUNT_UID, accountUID);
-
-            String userID = configurationService.getString(
-                accountRootPropName //node id
-                + "." + USER_ID); // propname
-
-            String password = configurationService.getString(
-                accountRootPropName //node id
-                + "." + PASSWORD);
-
-            //decode
-            if (password != null)
+            while(propNamesIter.hasNext())
             {
-                password = new String(Base64.decode(password));
-                accountProperties.put(PASSWORD, password);
-            }
+                String fullPropertyName = (String)propNamesIter.next();
+                String storedPropertyValue
+                    = configurationService.getString(fullPropertyName);
 
-            loadAccount(userID, accountProperties);
+                //strip the package prefix off the property name.
+                String propertyName = fullPropertyName.substring(
+                    fullPropertyName.lastIndexOf('.')+1);
+
+                //if this is a password - decode it first
+                if(propertyName.equals(PASSWORD))
+                    storedPropertyValue = new String(
+                        Base64.decode(storedPropertyValue));
+
+                accountProperties.put(propertyName, storedPropertyValue);
+            }
+            loadAccount(accountProperties);
         }
     }
 
@@ -295,13 +394,11 @@ public abstract class ProtocolProviderFactory
      * effect. Once created the resulting account will remain installed until
      * removed through the uninstall account method.
      *
-     * @param userIDStr the user identifier for the new account
      * @param accountProperties a set of protocol (or implementation)
      *   specific properties defining the new account.
      * @return the AccountID of the newly loaded account
      */
-    protected abstract AccountID loadAccount(String userIDStr,
-                                            Map accountProperties);
+    protected abstract AccountID loadAccount(Map accountProperties);
 
 
     /**

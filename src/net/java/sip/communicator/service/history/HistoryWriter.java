@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.service.history;
 
-import java.io.IOException;
-import java.util.Date;
+import java.io.*;
+import java.util.*;
 
-import net.java.sip.communicator.service.history.records.HistoryRecord;
+import net.java.sip.communicator.service.history.records.*;
 
 /**
  * @author Alexander Pelov

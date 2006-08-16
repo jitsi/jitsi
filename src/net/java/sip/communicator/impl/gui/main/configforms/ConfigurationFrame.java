@@ -7,30 +7,19 @@
 
 package net.java.sip.communicator.impl.gui.main.configforms;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Toolkit;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
+import javax.imageio.*;
 
-import javax.imageio.ImageIO;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommList;
-import net.java.sip.communicator.impl.gui.customcontrols.TitlePanel;
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.service.gui.ConfigurationManager;
-import net.java.sip.communicator.service.gui.ConfigurationForm;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * The implementation of the <tt>ConfigurationManager</tt> interface.

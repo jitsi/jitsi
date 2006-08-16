@@ -25,26 +25,13 @@
 
 package net.java.sip.communicator.slick.runner;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Properties;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Text;
-import java.io.StringWriter;
-import java.io.PrintWriter;
+import java.io.*;
+import java.util.*;
+import javax.xml.parsers.*;
+
+import org.w3c.dom.*;
 import junit.framework.*;
 import junit.textui.*;
-import java.io.*;
 import net.java.sip.communicator.util.xml.*;
 
 
@@ -90,27 +77,32 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
      */
     private OutputStream out;
 
-    public XmlFormatter(PrintStream out) {
+    public XmlFormatter(PrintStream out)
+    {
         super(out);
         setOutput(out);
     }
 
-    public void setOutput(OutputStream out) {
+    public void setOutput(OutputStream out)
+    {
         this.out = out;
     }
 
-    public void setSystemOutput(String out) {
+    public void setSystemOutput(String out)
+    {
         formatOutput(SYSTEM_OUT, out);
     }
 
-    public void setSystemError(String out) {
+    public void setSystemError(String out)
+    {
         formatOutput(SYSTEM_ERR, out);
     }
 
     /**
      * The whole testsuite started.
      */
-    public void startTestSuite(Test suite, Properties props) {
+    public void startTestSuite(Test suite, Properties props)
+    {
         doc = getDocumentBuilder().newDocument();
         rootElement = doc.createElement(TESTSUITE);
         rootElement.setAttribute(ATTR_NAME, suite.toString());
@@ -119,9 +111,11 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
         Element propsElement = doc.createElement(PROPERTIES);
         rootElement.appendChild(propsElement);
 
-        if (props != null) {
+        if (props != null)
+        {
             Enumeration e = props.propertyNames();
-            while (e.hasMoreElements()) {
+            while (e.hasMoreElements())
+            {
                 String name = (String) e.nextElement();
                 Element propElement = doc.createElement(PROPERTY);
                 propElement.setAttribute(ATTR_NAME, name);
@@ -145,21 +139,26 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
         rootElement.setAttribute(ATTR_ERRORS, "" + err_count);
         rootElement.setAttribute(ATTR_TIME, "" + (time / 1000.0));
         rootElement.setAttribute(ATTR_PACKAGE, "SIP Communicator SLICK suites");
-        if (out != null) {
+        if (out != null)
+        {
             Writer wri = null;
             try {
                 wri = new BufferedWriter(new OutputStreamWriter(out, "UTF8"));
                 wri.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
                 (new DOMElementWriter()).write(rootElement, wri, 0, "  ");
                 wri.flush();
-            } catch (IOException exc) {
+            } catch (IOException exc)
+            {
                 throw new RuntimeException("Unable to write log file", exc);
             } finally {
-                if (out != System.out && out != System.err) {
-                    if (wri != null) {
+                if (out != System.out && out != System.err)
+                {
+                    if (wri != null)
+                    {
                         try {
                             wri.close();
-                        } catch (IOException e) {
+                        } catch (IOException e)
+                        {
                             // ignore
                         }
                     }
@@ -173,7 +172,8 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
      *
      * <p>A new Test is started.
      */
-    public void startTest(Test test){
+    public void startTest(Test test)
+    {
         testStarts.put(test, new Long(System.currentTimeMillis()));
     }
 
@@ -182,16 +182,19 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
      *
      * <p>A Test is finished.
      */
-    public void endTest(Test test) {
+    public void endTest(Test test)
+    {
         // Fix for bug #5637 - if a junit.extensions.TestSetup is
         // used and throws an exception during setUp then startTest
         // would never have been called
-        if (!testStarts.containsKey(test)) {
+        if (!testStarts.containsKey(test))
+        {
             startTest(test);
         }
 
         Element currentTest = null;
-        if (!failedTests.containsKey(test)) {
+        if (!failedTests.containsKey(test))
+        {
             currentTest = doc.createElement(TESTCASE);
             if(test instanceof TestCase)
             {
@@ -224,7 +227,8 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
      *
      * <p>A Test failed.
      */
-    public void addFailure(Test test, Throwable t) {
+    public void addFailure(Test test, Throwable t)
+    {
         formatError(FAILURE, test, t);
     }
 
@@ -233,7 +237,8 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
      *
      * <p>A Test failed.
      */
-    public void addFailure(Test test, AssertionFailedError t) {
+    public void addFailure(Test test, AssertionFailedError t)
+    {
         addFailure(test, (Throwable) t);
     }
 
@@ -242,19 +247,23 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
      *
      * <p>An error occurred while running the test.
      */
-    public void addError(Test test, Throwable t) {
+    public void addError(Test test, Throwable t)
+    {
         formatError(ERROR, test, t);
     }
 
-    private void formatError(String type, Test test, Throwable t) {
-        if (test != null) {
+    private void formatError(String type, Test test, Throwable t)
+    {
+        if (test != null)
+        {
             endTest(test);
             failedTests.put(test, test);
         }
 
         Element nested = doc.createElement(type);
         Element currentTest = null;
-        if (test != null) {
+        if (test != null)
+        {
             currentTest = (Element) testElements.get(test);
         } else {
             currentTest = rootElement;
@@ -263,7 +272,8 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
         currentTest.appendChild(nested);
 
         String message = t.getMessage();
-        if (message != null && message.length() > 0) {
+        if (message != null && message.length() > 0)
+        {
             nested.setAttribute(ATTR_MESSAGE, t.getMessage());
         }
         nested.setAttribute(ATTR_TYPE, t.getClass().getName());
@@ -278,7 +288,8 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
      * @param t the exception to get the stacktrace from.
      * @return the stacktrace from the given exception.
      */
-    public static String getStackTrace(Throwable t) {
+    public static String getStackTrace(Throwable t)
+    {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw, true);
         t.printStackTrace(pw);
@@ -287,7 +298,8 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
         return sw.toString();
     }
 
-    private void formatOutput(String type, String output) {
+    private void formatOutput(String type, String output)
+    {
         Element nested = doc.createElement(type);
         rootElement.appendChild(nested);
         nested.appendChild(doc.createCDATASection(output));

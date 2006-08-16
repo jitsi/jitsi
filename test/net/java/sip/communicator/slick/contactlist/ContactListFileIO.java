@@ -1,6 +1,6 @@
 package net.java.sip.communicator.slick.contactlist;
 
-import net.java.sip.communicator.service.protocol.*;
+
 
 /**
  * The class contains a contact list file string as well as fields referencing

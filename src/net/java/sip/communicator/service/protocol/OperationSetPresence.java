@@ -6,7 +6,8 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import java.util.Iterator;
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**

@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.service.gui;
 
-import java.util.Iterator;
+import java.util.*;
 
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>AccountRegistrationWizard</tt> is meant to provide a wizard which

@@ -7,9 +7,9 @@
 
 package net.java.sip.communicator.impl.gui.main.message;
 
-import java.util.ArrayList;
+import java.util.*;
 
-import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * Should be used to limit the number of messages shown in the chat conversation

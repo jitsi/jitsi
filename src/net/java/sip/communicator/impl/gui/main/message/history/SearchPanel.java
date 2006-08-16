@@ -9,16 +9,16 @@ package net.java.sip.communicator.impl.gui.main.message.history;
 
 import java.awt.*;
 import java.awt.event.*;
-
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+
 /**
  * The <tt>SearchPanel</tt> is the panel, where user could make a search in
  * the message history. The search could be made by specifying a date
  * or an hour, or searching by a keyword.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SearchPanel extends JPanel implements ActionListener {
@@ -27,7 +27,7 @@ public class SearchPanel extends JPanel implements ActionListener {
             new ImageIcon(ImageLoader
                     .getImage(ImageLoader.QUICK_MENU_SEARCH_ICON)));
 
-    private JLabel searchLabel 
+    private JLabel searchLabel
         = new JLabel(Messages.getString("search") + ": ");
 
     private JTextField searchTextField = new JTextField(20);
@@ -43,12 +43,12 @@ public class SearchPanel extends JPanel implements ActionListener {
 
     private ButtonGroup radiosGroup = new ButtonGroup();
 
-    private JLabel dateLabel 
+    private JLabel dateLabel
         = new JLabel(Messages.getString("date") + ": "); //$NON-NLS-1$
 
     private JTextField dateTextField = new JTextField(10);
 
-    private JLabel hourLabel 
+    private JLabel hourLabel
         = new JLabel(Messages.getString("hour") + ": "); //$NON-NLS-1$
 
     private JTextField hourTextField = new JTextField(10);
@@ -62,7 +62,7 @@ public class SearchPanel extends JPanel implements ActionListener {
      * private SIPCommButton extendedSearchButton = new SIPCommButton
      * (Messages.getString("extendedCriteria"), //$NON-NLS-1$
      * Constants.RIGHT_ARROW_ICON, Constants.RIGHT_ARROW_ROLLOVER_ICON);
-     * 
+     *
      * private SIPCommButton extendedSearchOpenedButton = new SIPCommButton
      * (Messages.getString("extendedCriteria"), //$NON-NLS-1$
      * Constants.BOTTOM_ARROW_ICON, Constants.BOTTOM_ARROW_ROLLOVER_ICON);
@@ -88,7 +88,7 @@ public class SearchPanel extends JPanel implements ActionListener {
             FlowLayout.CENTER));
 
     private HistoryWindow historyWindow;
-    
+
     // private JPanel extendedSearchPanel = new JPanel(new BorderLayout());
 
     /**
@@ -97,7 +97,7 @@ public class SearchPanel extends JPanel implements ActionListener {
     public SearchPanel(HistoryWindow historyWindow) {
 
         this.historyWindow = historyWindow;
-        
+
         this.setBorder(BorderFactory.createTitledBorder(Messages
                 .getString("search"))); //$NON-NLS-1$
 
@@ -135,12 +135,12 @@ public class SearchPanel extends JPanel implements ActionListener {
 
         this.dateCenteredPanel.add(datePanel);
 
-        this.searchButton.setName("search");        
+        this.searchButton.setName("search");
         // this.extendedSearchButton.setName("extendedSearch");
         // this.extendedSearchOpenedButton.setName("extendedSearchOpened");
 
         this.searchButton.addActionListener(this);
-        
+
         this.searchButtonPanel.add(searchButton);
 
         this.historyWindow.getRootPane().setDefaultButton(searchButton);
@@ -154,7 +154,7 @@ public class SearchPanel extends JPanel implements ActionListener {
 
         // this.extendedSearchButton.addActionListener(this);
         // this.extendedSearchOpenedButton.addActionListener(this);
-        
+
         this.enableDefaultSearchSettings();
     }
 
@@ -171,19 +171,19 @@ public class SearchPanel extends JPanel implements ActionListener {
         }
         /*
          * else if(buttonName.equalsIgnoreCase("extendedSearch")){
-         * 
+         *
          * this.extendedSearchPanel.removeAll();
          * this.extendedSearchPanel.add(extendedSearchOpenedButton,
          * BorderLayout.NORTH); this.extendedSearchPanel.add(dateCenteredPanel,
          * BorderLayout.CENTER);
-         * 
+         *
          * this.getParent().validate(); } else
          * if(buttonName.equalsIgnoreCase("extendedSearchOpened")){
-         * 
+         *
          * this.extendedSearchPanel.removeAll();
          * this.extendedSearchPanel.add(extendedSearchButton,
          * BorderLayout.CENTER);
-         * 
+         *
          * this.getParent().validate(); }
          */
     }

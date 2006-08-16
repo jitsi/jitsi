@@ -109,6 +109,14 @@ public class RegistrationState
     public static final RegistrationState EXPIRED =
         new RegistrationState(_EXPIRED);
 
+    public static final String _UNREGISTERING = "Unregistering";
+
+    /**
+     * The Protocol Provider is being unregistered. Most probably due to a
+     * user request.
+     */
+    public static final RegistrationState UNREGISTERING =
+        new RegistrationState(_UNREGISTERING);
 
     public static final String _UNREGISTERED = "Unregistered";
     /**
@@ -117,7 +125,6 @@ public class RegistrationState
      */
     public static final RegistrationState UNREGISTERED =
         new RegistrationState(_UNREGISTERED);
-
 
     private String statusString = _INIT;
 
@@ -150,7 +157,8 @@ public class RegistrationState
      * @param obj the object to compare this provider state with.
      * @return true if the specified object represents the same state as this one.
      */
-    public boolean equals(Object obj){
+    public boolean equals(Object obj)
+    {
         return obj instanceof RegistrationState
                && obj != null
                && statusString.equals(((RegistrationState)obj).statusString);

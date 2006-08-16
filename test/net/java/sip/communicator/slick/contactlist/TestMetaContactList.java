@@ -6,18 +6,14 @@
  */
 package net.java.sip.communicator.slick.contactlist;
 
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import junit.framework.*;
-import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.impl.protocol.mock.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
-import java.util.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Test meta contact list functionality such as filling in the contact list from

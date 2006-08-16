@@ -7,19 +7,18 @@
 package net.java.sip.communicator.impl.media;
 
 
-import javax.media.Player;
-import javax.sdp.SdpFactory;
-import javax.swing.JPanel;
+import javax.media.*;
+import javax.sdp.*;
 
-import com.sun.media.protocol.DataSource;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.media.configuration.MediaConfiguration;
-import net.java.sip.communicator.service.configuration.ConfigurationService;
-import net.java.sip.communicator.service.media.MediaService;
+import net.java.sip.communicator.impl.media.configuration.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.media.*;
+import net.java.sip.communicator.service.media.event.*;
 import net.java.sip.communicator.service.media.event.MediaEvent;
-import net.java.sip.communicator.service.media.event.MediaListener;
-import net.java.sip.communicator.service.protocol.CallParticipant;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 
 

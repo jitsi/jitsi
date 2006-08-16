@@ -1,9 +1,10 @@
 package net.java.sip.communicator.slick.protocol.icq;
 
-import junit.framework.*;
-import org.osgi.framework.*;
-import net.java.sip.communicator.util.*;
 import java.util.*;
+
+import org.osgi.framework.*;
+import junit.framework.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * @author Emil Ivov
@@ -84,7 +85,8 @@ public class IcqProtocolProviderSlick
 
         // we can only set up the real icq test suites when the
         // accounts.properties file defines the two test accounts
-        if ( icqTestAgentName != null ) {
+        if ( icqTestAgentName != null )
+        {
             //it is defined, so register our testing agent on icq.
             IcqSlickFixture.testerAgent =
                     new IcqTesterAgent(icqTestAgentName);
@@ -95,7 +97,8 @@ public class IcqProtocolProviderSlick
                     TESTING_IMPL_PWD_PROP_NAME, null);
 
             // .. and try to register the icq test agent (online)
-            if (IcqSlickFixture.testerAgent.register(icqTestAgentPwd)) {
+            if (IcqSlickFixture.testerAgent.register(icqTestAgentPwd))
+            {
 
                 if(!IcqSlickFixture.onlineTestingDisabled)
                 {
@@ -217,7 +220,8 @@ public class IcqProtocolProviderSlick
             String groupUinToken = tokenizer.nextToken();
             int dotIndex = groupUinToken.indexOf(".");
 
-            if ( dotIndex == -1 ){
+            if ( dotIndex == -1 )
+            {
                 throw new IllegalArgumentException(groupUinToken
                     + " is not a valid Group.UIN token");
             }
@@ -226,7 +230,8 @@ public class IcqProtocolProviderSlick
             String uin = groupUinToken.substring(dotIndex + 1);
 
             if(    groupName.trim().length() < 1
-                || uin.trim().length() < 4 ){
+                || uin.trim().length() < 4 )
+            {
                 throw new IllegalArgumentException(
                     groupName + " or " + uin +
                     " are not a valid group name or ICQ UIN.");
@@ -234,7 +239,8 @@ public class IcqProtocolProviderSlick
 
             //check if we've already seen this group and if not - add it
             List uinInThisGroup = (List)contactListToCreate.get(groupName);
-            if (uinInThisGroup == null){
+            if (uinInThisGroup == null)
+            {
                 uinInThisGroup = new ArrayList();
                 contactListToCreate.put(groupName, uinInThisGroup);
             }

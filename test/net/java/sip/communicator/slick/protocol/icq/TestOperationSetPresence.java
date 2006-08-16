@@ -725,7 +725,8 @@ public class TestOperationSetPresence
             "Failed to find an existing subscription for the tester agent"
             , icqTesterAgentContact);
 
-        synchronized(subEvtCollector){
+        synchronized(subEvtCollector)
+        {
             operationSetPresence.unsubscribe(icqTesterAgentContact);
             subEvtCollector.waitForEvent(10000);
             //don't want any more events
@@ -759,7 +760,8 @@ public class TestOperationSetPresence
 
         //in case we are by any chance already in a FREE_FOR_CHAT status, we'll
         //be changing to something else
-        if(testerAgentOldStatus.equals(testerAgentNewStatus)){
+        if(testerAgentOldStatus.equals(testerAgentNewStatus))
+        {
             testerAgentNewStatus = IcqStatusEnum.DO_NOT_DISTURB;
             testerAgentNewStatusLong = FullUserInfo.ICQSTATUS_DND;
         }
@@ -771,7 +773,8 @@ public class TestOperationSetPresence
         operationSetPresence.addContactPresenceStatusListener(
             contactPresEvtCollector);
 
-        synchronized (contactPresEvtCollector){
+        synchronized (contactPresEvtCollector)
+        {
             if (!fixture.testerAgent.enterStatus(testerAgentNewStatusLong))
             {
                 throw new RuntimeException(
@@ -830,7 +833,8 @@ public class TestOperationSetPresence
         public void waitForPresEvent(long waitFor)
         {
             logger.trace("Waiting for a change in provider status.");
-            synchronized(this){
+            synchronized(this)
+            {
                 if(collectedPresEvents.size() > 0){
                     logger.trace("Change already received. " + collectedPresEvents);
                     return;
@@ -860,7 +864,8 @@ public class TestOperationSetPresence
         public void waitForStatMsgEvent(long waitFor)
         {
             logger.trace("Waiting for a provider status message event.");
-            synchronized(this){
+            synchronized(this)
+            {
                 if(collectedStatMsgEvents.size() > 0){
                     logger.trace("Stat msg. evt already received. "
                                  + collectedStatMsgEvents);
@@ -900,14 +905,16 @@ public class TestOperationSetPresence
          */
         public void waitForEvent(long waitFor)
         {
-            synchronized(this){
+            synchronized(this)
+            {
                 if(collectedEvents.size() > 0)
                     return;
 
                 try{
                     wait(waitFor);
                 }
-                catch (InterruptedException ex){
+                catch (InterruptedException ex)
+                {
                     logger.debug(
                         "Interrupted while waiting for a subscription evt", ex);
                 }
@@ -1034,14 +1041,16 @@ public class TestOperationSetPresence
          */
         public void waitForEvent(long waitFor)
         {
-            synchronized(this){
+            synchronized(this)
+            {
                 if(collectedEvents.size() > 0)
                     return;
 
                 try{
                     wait(waitFor);
                 }
-                catch (InterruptedException ex){
+                catch (InterruptedException ex)
+                {
                     logger.debug(
                         "Interrupted while waiting for a subscription evt", ex);
                 }
@@ -1166,12 +1175,14 @@ public class TestOperationSetPresence
 
         public void waitForAuthResponse(long waitFor)
         {
-            synchronized(this){
+            synchronized(this)
+            {
                 if(isAuthorizationResponseReceived) return;
                 try{
                     wait(waitFor);
                 }
-                catch (InterruptedException ex){
+                catch (InterruptedException ex)
+                {
                     logger.debug(
                         "Interrupted while waiting for a subscription evt", ex);
                 }
@@ -1180,12 +1191,14 @@ public class TestOperationSetPresence
 
         public void waitForAuthRequest(long waitFor)
         {
-            synchronized(this){
+            synchronized(this)
+            {
                 if(isAuthorizationRequestReceived) return;
                 try{
                     wait(waitFor);
                 }
-                catch (InterruptedException ex){
+                catch (InterruptedException ex)
+                {
                     logger.debug(
                         "Interrupted while waiting for a subscription evt", ex);
                 }
@@ -1201,11 +1214,13 @@ public class TestOperationSetPresence
     {
         public void waitForUnsubscribre(long waitFor)
         {
-            synchronized(this){
+            synchronized(this)
+            {
                 try{
                     wait(waitFor);
                 }
-                catch (InterruptedException ex){
+                catch (InterruptedException ex)
+                {
                     logger.debug(
                         "Interrupted while waiting for a subscription evt", ex);
                 }
@@ -1280,7 +1295,8 @@ public class TestOperationSetPresence
 
         // wait agent to receive our response
         Object lock = new Object();
-        synchronized(lock){
+        synchronized(lock)
+        {
             try{
                 lock.wait(5000);
             }
@@ -1342,7 +1358,8 @@ public class TestOperationSetPresence
                     authEventCollector.authorizationRequestReason
         );
         // wait agent to receive our response
-        synchronized(lock){
+        synchronized(lock)
+        {
             try{
                 lock.wait(5000);
             }

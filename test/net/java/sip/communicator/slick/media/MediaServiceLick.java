@@ -6,15 +6,12 @@
  */
 package net.java.sip.communicator.slick.media;
 
-import java.util.Hashtable;
+import java.util.*;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import net.java.sip.communicator.service.media.MediaService;
-import net.java.sip.communicator.util.Logger;
-
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import org.osgi.framework.*;
+import junit.framework.*;
+import net.java.sip.communicator.service.media.*;
+import net.java.sip.communicator.util.*;
 
 
 /**

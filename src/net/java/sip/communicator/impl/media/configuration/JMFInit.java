@@ -10,18 +10,13 @@
  */
 package net.java.sip.communicator.impl.media.configuration;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
+import javax.media.*;
+import javax.media.format.*;
 
-import javax.media.Format;
-import javax.media.PlugInManager;
-import javax.media.Renderer;
-import javax.media.format.AudioFormat;
-
-import net.java.sip.communicator.util.Logger;
-
-import com.sun.media.ExclusiveUse;
+import com.sun.media.*;
+import net.java.sip.communicator.util.*;
 
 
 public class JMFInit

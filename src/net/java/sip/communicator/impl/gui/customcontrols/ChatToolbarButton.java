@@ -7,9 +7,9 @@
 
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import java.awt.Image;
+import java.awt.*;
 
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>MsgToolbarButton</tt> is a <tt>SIPCommButton</tt> that has

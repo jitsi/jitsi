@@ -6,8 +6,7 @@
  */
 package net.java.sip.communicator.service.fileaccess;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * A service used to provide the basic functionality required to access the

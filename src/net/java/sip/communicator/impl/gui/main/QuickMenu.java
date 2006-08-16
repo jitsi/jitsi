@@ -7,52 +7,35 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.GuiActivator;
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommToolBar;
-import net.java.sip.communicator.impl.gui.customcontrols.wizard.Wizard;
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactList;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactListModel;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactWizardPage1;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactWizardPage2;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.AddContactWizardPage3;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.NewContact;
-import net.java.sip.communicator.impl.gui.utils.CrossPlatformBrowserLauncher;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
-import net.java.sip.communicator.service.contactlist.MetaContactListException;
-import net.java.sip.communicator.service.gui.ConfigurationManager;
-import net.java.sip.communicator.service.gui.event.PluginComponentEvent;
-import net.java.sip.communicator.service.gui.event.PluginComponentListener;
-import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.service.protocol.OperationSetWebContactInfo;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>QuickMenu</tt> is the toolbar on the top of the main
- * application window. It provides quick access to the "User info" window, the 
+ * application window. It provides quick access to the "User info" window, the
  * "Configuration" window, the "Add contact" window and the "Hide/Open offline
  * contacts" window.
  * <p>
  * Note that this class implements the <tt>PluginComponentListener</tt>. This
  * means that this toolbar is a plugable container and could contain plugin
  * components.
- * 
- * @author Yana Stamcheva 
+ *
+ * @author Yana Stamcheva
  */
 public class QuickMenu extends SIPCommToolBar implements ActionListener,
         PluginComponentListener {
@@ -70,7 +53,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
             .getImage(ImageLoader.QUICK_MENU_ADD_ICON)));
 
     private ConfigurationManager configDialog;
-    
+
     private MainFrame mainFrame;
 
     /**
@@ -84,7 +67,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
         this.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
         this.setFloatable(false);
-        
+
         this.infoButton.setPreferredSize(new Dimension(28, 28));
         this.configureButton.setPreferredSize(new Dimension(28, 28));
         this.searchButton.setPreferredSize(new Dimension(28, 28));
@@ -117,7 +100,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
         this.configureButton.addActionListener(this);
         this.searchButton.addActionListener(this);
         this.infoButton.addActionListener(this);
-                
+
     }
 
     /**
@@ -132,49 +115,49 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
 
             Wizard wizard = new Wizard();
             wizard.getDialog().setTitle(Messages.getString("addContactWizard"));
-           
+
             NewContact newContact = new NewContact();
-            
-            AddContactWizardPage1 page1 
-                = new AddContactWizardPage1(wizard, newContact, 
+
+            AddContactWizardPage1 page1
+                = new AddContactWizardPage1(wizard, newContact,
                         mainFrame.getProtocolProviders());
-            
+
             wizard.registerWizardPage(AddContactWizardPage1.IDENTIFIER, page1);
 
-            AddContactWizardPage2 page2 
+            AddContactWizardPage2 page2
                 = new AddContactWizardPage2(wizard, newContact,
                         mainFrame.getAllGroups());
-            
+
             wizard.registerWizardPage(AddContactWizardPage2.IDENTIFIER, page2);
-            
-            AddContactWizardPage3 page3 
+
+            AddContactWizardPage3 page3
                 = new AddContactWizardPage3(newContact);
-            
+
             wizard.registerWizardPage(AddContactWizardPage3.IDENTIFIER, page3);
-            
+
             wizard.setCurrentPage(AddContactWizardPage1.IDENTIFIER);
-            
+
             wizard.getDialog().setLocation(
-                    Toolkit.getDefaultToolkit().getScreenSize().width/2 
+                    Toolkit.getDefaultToolkit().getScreenSize().width/2
                         - 250,
-                    Toolkit.getDefaultToolkit().getScreenSize().height/2 
+                    Toolkit.getDefaultToolkit().getScreenSize().height/2
                         - 100
                     );
-                        
+
             int returnCode = wizard.showModalDialog();
-            
+
             if(returnCode == 0) {
                 ArrayList ppList = newContact.getProtocolProviders();
                 ArrayList groupList = newContact.getGroups();
-                
+
                 for(int i = 0; i < ppList.size(); i ++) {
-                    ProtocolProviderService pps 
+                    ProtocolProviderService pps
                         = (ProtocolProviderService)ppList.get(i);
-                    
+
                     for(int j = 0; j < groupList.size(); j++) {
                         MetaContactGroup group
                             = (MetaContactGroup)groupList.get(j);
-                        
+
                         try {
                             mainFrame.getContactList()
                                 .createMetaContact(
@@ -193,35 +176,35 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
             }
             else if(returnCode == 1) {
                 wizard.getDialog().dispose();
-            }            
-        } 
+            }
+        }
         else if (buttonName.equals("config")) {
 
             configDialog = GuiActivator.getUIService().getConfigurationManager();
-            
+
             configDialog.showDialog();
-        } 
+        }
         else if (buttonName.equals("search")) {
 
             ContactList contactList = mainFrame.getTabbedPane()
                 .getContactListPanel().getContactList();
-            
-            ContactListModel listModel 
+
+            ContactListModel listModel
                 = (ContactListModel) contactList.getModel();
 
             if (listModel.showOffline()) {
-                listModel.setShowOffline(false);                
+                listModel.setShowOffline(false);
                 listModel.removeOfflineContacts();
-            } 
+            }
             else {
-                
+
                 int currentlySelectedIndex = contactList.getSelectedIndex();
-                Object selectedObject 
+                Object selectedObject
                     = listModel.getElementAt(currentlySelectedIndex);
 
                 listModel.setShowOffline(true);
                 listModel.addOfflineContacts();
-                
+
                 if (selectedObject != null) {
                     if (selectedObject instanceof MetaContact) {
                         contactList.setSelectedIndex(
@@ -234,22 +217,22 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
                     }
                 }
             }
-        } 
+        }
         else if (buttonName.equals("info")) {
-            MetaContact selectedMetaContact = 
+            MetaContact selectedMetaContact =
                 (MetaContact) mainFrame.getTabbedPane().getContactListPanel()
                     .getContactList().getSelectedValue();
-            
+
             if(selectedMetaContact != null) {
                 Contact defaultContact = selectedMetaContact
                     .getDefaultContact();
-                
+
                 ProtocolProviderService defaultProvider
                     = defaultContact.getProtocolProvider();
-                
-                OperationSetWebContactInfo wContactInfo 
+
+                OperationSetWebContactInfo wContactInfo
                     = mainFrame.getWebContactInfo(defaultProvider);
-                
+
                 CrossPlatformBrowserLauncher.openURL(
                         wContactInfo.getWebContactInfo(defaultContact)
                             .toString());

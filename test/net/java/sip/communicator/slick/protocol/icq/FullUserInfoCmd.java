@@ -3,11 +3,11 @@ package net.java.sip.communicator.slick.protocol.icq;
 import java.io.*;
 import java.util.*;
 
+import net.java.sip.communicator.util.*;
 import net.kano.joscar.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
 import net.kano.joscar.tlv.*;
-import net.java.sip.communicator.util.Logger;
 
 /**
  * Command for retreiving user info and setting user info,

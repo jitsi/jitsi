@@ -6,21 +6,15 @@
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
-import java.awt.Dimension;
-import java.awt.Insets;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import javax.swing.SwingUtilities;
-import javax.swing.UIDefaults;
-import javax.swing.plaf.ColorUIResource;
-import javax.swing.plaf.DimensionUIResource;
-import javax.swing.plaf.FontUIResource;
-import javax.swing.plaf.metal.DefaultMetalTheme;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.plaf.*;
+import javax.swing.plaf.metal.*;
 
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * SipCommunicator default theme.

@@ -6,22 +6,12 @@
  */
 package net.java.sip.communicator.slick.history;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Random;
+import java.util.*;
 
-import junit.framework.TestCase;
-import net.java.sip.communicator.service.history.History;
-import net.java.sip.communicator.service.history.HistoryID;
-import net.java.sip.communicator.service.history.HistoryReader;
-import net.java.sip.communicator.service.history.HistoryService;
-import net.java.sip.communicator.service.history.HistoryWriter;
-import net.java.sip.communicator.service.history.QueryResultSet;
-import net.java.sip.communicator.service.history.records.HistoryRecord;
-import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
+import junit.framework.*;
+import net.java.sip.communicator.service.history.*;
+import net.java.sip.communicator.service.history.records.*;
 
 public class TestHistoryService extends TestCase {
 
@@ -39,11 +29,15 @@ public class TestHistoryService extends TestCase {
 
     private Random random = new Random();
 
-    public TestHistoryService(String name) throws Exception {
+    public TestHistoryService(String name)
+        throws Exception
+    {
         super(name);
     }
 
-    protected void setUp() throws Exception {
+    protected void setUp()
+        throws Exception
+    {
         BundleContext context = HistoryServiceLick.bc;
 
         historyServiceRef = context.getServiceReference(HistoryService.class
@@ -54,7 +48,8 @@ public class TestHistoryService extends TestCase {
         HistoryID testID = HistoryID.createFromRawID(new String[] { "test",
                 "alltests" });
 
-        if (!this.historyService.isHistoryExisting(testID)) {
+        if (!this.historyService.isHistoryExisting(testID))
+        {
             this.history = this.historyService.createHistory(testID,
                     recordStructure);
         } else {
@@ -62,7 +57,9 @@ public class TestHistoryService extends TestCase {
         }
     }
 
-    protected void tearDown() throws Exception {
+    protected void tearDown()
+        throws Exception
+    {
         BundleContext context = HistoryServiceLick.bc;
 
         context.ungetService(this.historyServiceRef);
@@ -72,15 +69,18 @@ public class TestHistoryService extends TestCase {
         this.historyServiceRef = null;
     }
 
-    public void testCreateDB() {
+    public void testCreateDB()
+    {
         ArrayList al = new ArrayList();
 
         Iterator i = this.historyService.getExistingIDs();
-        while (i.hasNext()) {
+        while (i.hasNext())
+        {
             HistoryID id = (HistoryID) i.next();
             String[] components = id.getID();
 
-            if (components.length == 2 && "test".equals(components[0])) {
+            if (components.length == 2 && "test".equals(components[0]))
+            {
                 al.add(components[1]);
             }
         }
@@ -88,10 +88,13 @@ public class TestHistoryService extends TestCase {
         int count = al.size();
         boolean unique = false;
         String lastComp = null;
-        while (!unique) {
+        while (!unique)
+        {
             lastComp = Integer.toHexString(random.nextInt());
-            for (int j = 0; j < count; j++) {
-                if (lastComp.equals(al.get(j))) {
+            for (int j = 0; j < count; j++)
+            {
+                if (lastComp.equals(al.get(j)))
+                {
                     continue;
                 }
             }
@@ -103,33 +106,39 @@ public class TestHistoryService extends TestCase {
 
         try {
             this.historyService.createHistory(id, recordStructure);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             fail("Could not create database with id " + id + " with error " + e);
         }
     }
 
-    public void testWriteRecords() {
+    public void testWriteRecords()
+    {
         HistoryWriter writer = this.history.getWriter();
 
         try {
-            for (int i = 0; i < 202; i++) {
+            for (int i = 0; i < 202; i++)
+            {
                 writer.addRecord(new String[] { "" + random.nextInt(),
                                  "name" + i,
                                  i % 2 == 0 ? "m" : "f" });
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             fail("Could not write records. Reason: " + e);
         }
     }
 
-    public void testReadRecords() {
+    public void testReadRecords()
+    {
         HistoryReader reader = this.history.getReader();
 
         QueryResultSet result = reader.findByKeyword("name2", "name");
 
         assertTrue("Nothing found", result.hasNext());
 
-        while (result.hasNext()) {
+        while (result.hasNext())
+        {
             HistoryRecord record = result.nextRecord();
 
             String[] vals = record.getPropertyValues();
@@ -139,7 +148,8 @@ public class TestHistoryService extends TestCase {
 
                 assertEquals(3, vals.length);
                 assertEquals(n % 2 == 0 ? "m" : "f", vals[2]);
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 fail("Bad data! Expected nameXXXX, where XXXX is "
                         + "an integer, but found: " + vals[0]);
             }

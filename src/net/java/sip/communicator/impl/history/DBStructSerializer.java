@@ -6,23 +6,16 @@
  */
 package net.java.sip.communicator.impl.history;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.ArrayList;
+import java.io.*;
+import java.text.*;
+import java.util.*;
+import javax.xml.parsers.*;
 
-import javax.xml.parsers.DocumentBuilder;
-
-import net.java.sip.communicator.service.history.History;
-import net.java.sip.communicator.service.history.HistoryID;
-import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
+import org.w3c.dom.*;
+import org.xml.sax.*;
+import net.java.sip.communicator.service.history.*;
+import net.java.sip.communicator.service.history.records.*;
 import net.java.sip.communicator.util.xml.XMLUtils;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  *
@@ -32,7 +25,8 @@ public class DBStructSerializer {
 
     private HistoryServiceImpl historyService;
 
-    public DBStructSerializer(HistoryServiceImpl historyService) {
+    public DBStructSerializer(HistoryServiceImpl historyService)
+    {
         this.historyService = historyService;
     }
 
@@ -56,12 +50,14 @@ public class DBStructSerializer {
         XMLUtils.writeXML(doc, dbDatFile);
     }
 
-    private Element createIDTag(Document doc, HistoryID historyID) {
+    private Element createIDTag(Document doc, HistoryID historyID)
+    {
         Element idroot = doc.createElement("id");
         Element current = idroot;
 
         String[] idelements = historyID.getID();
-        for (int i = 0; i < idelements.length; i++) {
+        for (int i = 0; i < idelements.length; i++)
+        {
             Element idnode = doc.createElement("component");
             idnode.setAttribute("value", idelements[i]);
 
@@ -73,11 +69,13 @@ public class DBStructSerializer {
     }
 
     private Element createStructureTag(Document doc,
-            HistoryRecordStructure recordStructure) {
+            HistoryRecordStructure recordStructure)
+    {
         Element structure = doc.createElement("structure");
         String[] propertyNames = recordStructure.getPropertyNames();
         int count = recordStructure.getPropertyCount();
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
             Element property = doc.createElement("property");
             property.setAttribute("name", propertyNames[i]);
             structure.appendChild(property);
@@ -132,7 +130,8 @@ public class DBStructSerializer {
     private HistoryRecordStructure loadStructure(Node root)
             throws ParseException {
         Element structNode = findElement(root, "structure");
-        if (structNode == null) {
+        if (structNode == null)
+        {
             throw new ParseException("There is no structure tag defined!", 0);
         }
 
@@ -141,14 +140,17 @@ public class DBStructSerializer {
 
         ArrayList propertyNames = new ArrayList(count);
 
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
             Node node = nodes.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE
-                    && "property".equals(node.getNodeName())) {
+                    && "property".equals(node.getNodeName()))
+            {
                 Element parameter = (Element) node;
                 String paramName = parameter.getAttribute("name");
 
-                if (paramName == null) {
+                if (paramName == null)
+                {
                     continue;
                 }
 
@@ -162,7 +164,8 @@ public class DBStructSerializer {
         return new HistoryRecordStructure(names);
     }
 
-    private HistoryID loadID(Node parent) throws ParseException {
+    private HistoryID loadID(Node parent) throws ParseException
+    {
         Element idnode = findElement(parent, "id");
         ArrayList al = loadID(new ArrayList(), idnode);
 
@@ -175,9 +178,11 @@ public class DBStructSerializer {
     private ArrayList loadID(ArrayList loadedIDs, Node parent)
             throws ParseException {
         Element node = findElement(parent, "component");
-        if (node != null) {
+        if (node != null)
+        {
             String idValue = node.getAttribute("value");
-            if (idValue != null) {
+            if (idValue != null)
+            {
                 loadedIDs.add(idValue);
             } else {
                 throw new ParseException(
@@ -198,15 +203,18 @@ public class DBStructSerializer {
      * first with the name matching the given one. If no node is found, null is
      * returned.
      */
-    private Element findElement(Node parent, String name) {
+    private Element findElement(Node parent, String name)
+    {
         Element retVal = null;
         NodeList nodes = parent.getChildNodes();
         int count = nodes.getLength();
 
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
             Node node = nodes.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE
-                    && name.equals(node.getNodeName())) {
+                    && name.equals(node.getNodeName()))
+            {
                 retVal = (Element) node;
                 break;
             }

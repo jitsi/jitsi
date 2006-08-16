@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.gui.event;
 
-import java.util.EventObject;
+import java.util.*;
 
 /**
  * The <tt>AccountRegistrationEvent</tt> indicates that an

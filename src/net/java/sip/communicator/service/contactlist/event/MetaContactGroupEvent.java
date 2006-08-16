@@ -6,10 +6,9 @@
  */
 package net.java.sip.communicator.service.contactlist.event;
 
-import java.util.EventObject;
+import java.util.*;
 
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -145,7 +144,8 @@ public class MetaContactGroupEvent
      * METACONTACT_GROUP_ADDED, METACONTACT_GROUP_REMOVED and etc.)
      * @return one of the METACONTACT_GROUP_XXX int fields of this class.
      */
-    public int getEventID(){
+    public int getEventID()
+    {
         return eventID;
     }
 }

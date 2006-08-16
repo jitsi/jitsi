@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.service.protocol.event;
 
-import java.beans.PropertyChangeEvent;
-import net.java.sip.communicator.service.protocol.PresenceStatus;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import java.beans.*;
+
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Instances of this class represent a  change in the status of the provider

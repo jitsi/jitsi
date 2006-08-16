@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.event.CallListener;
+import net.java.sip.communicator.service.protocol.event.*;
 
 
 

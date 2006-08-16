@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.message;
 
-import java.awt.Window;
+import java.awt.*;
 
 public interface ChatConversationContainer {
 

@@ -1,17 +1,16 @@
 package net.java.sip.communicator.slick.fileaccess;
 
-import org.osgi.framework.*;
-import junit.framework.*;
-import net.java.sip.communicator.service.fileaccess.FileAccessService;
-
 import java.util.*;
 
+import org.osgi.framework.*;
+import junit.framework.*;
+import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.util.*;
 
 /**
  * This class launches the bundle which tests the fileaccess bundle. This bundle
  * is a set of (j)unit tests. It should be launched by the cruisecontrol module.
- * 
+ *
  * @author Alexander Pelov
  */
 public class FileAccessServiceLick extends TestSuite implements BundleActivator {
@@ -26,12 +25,14 @@ public class FileAccessServiceLick extends TestSuite implements BundleActivator 
 
     /**
      * Start the File Access Sevice Implementation Compatibility Kit.
-     * 
+     *
      * @param bundleContext
      *            BundleContext
      * @throws Exception
      */
-    public void start(BundleContext bundleContext) throws Exception {
+    public void start(BundleContext bundleContext)
+        throws Exception
+    {
         FileAccessServiceLick.bc = bundleContext;
         setName("FileAccessServiceLick");
         Hashtable properties = new Hashtable();
@@ -45,12 +46,14 @@ public class FileAccessServiceLick extends TestSuite implements BundleActivator 
 
     /**
      * stop
-     * 
+     *
      * @param bundlecontext
      *            BundleContext
      * @throws Exception
      */
-    public void stop(BundleContext bundlecontext) throws Exception {
+    public void stop(BundleContext bundlecontext)
+        throws Exception
+    {
     }
 
 }

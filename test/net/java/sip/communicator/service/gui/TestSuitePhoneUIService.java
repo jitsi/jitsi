@@ -7,7 +7,6 @@
 package net.java.sip.communicator.service.gui;
 
 import junit.framework.*;
-import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Runs all PhoneUIService unit tests.

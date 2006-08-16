@@ -1,9 +1,10 @@
 package net.java.sip.communicator.impl.protocol.icq;
 
+import java.util.*;
+
 import org.osgi.framework.*;
-import net.java.sip.communicator.service.protocol.*;
-import java.util.Hashtable;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Loads the  ICQ provider factory and registers it with  service in the OSGI

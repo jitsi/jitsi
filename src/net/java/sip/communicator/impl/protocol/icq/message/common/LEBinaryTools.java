@@ -35,9 +35,9 @@
 
 package net.java.sip.communicator.impl.protocol.icq.message.common;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import net.kano.joscar.ByteBlock;
+import java.io.*;
+
+import net.kano.joscar.*;
 
 /**
  * Provides a set of methods for converting binary data sent over an OSCAR

@@ -7,16 +7,13 @@
 
 package net.java.sip.communicator.impl.gui.main.message;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.*;
 
-import javax.swing.JButton;
+import java.awt.event.*;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.BoxPopupMenu;
-import net.java.sip.communicator.impl.gui.customcontrols.ChatToolbarButton;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.impl.gui.utils.Smiley;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>SmiliesSelectorBox</tt> is the component where user could choose

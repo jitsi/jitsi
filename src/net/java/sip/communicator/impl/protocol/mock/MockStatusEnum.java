@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.mock;
 
-import net.java.sip.communicator.service.protocol.*;
 import java.util.*;
+
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * An implementation of <tt>PresenceStatus</tt> that allows third parties

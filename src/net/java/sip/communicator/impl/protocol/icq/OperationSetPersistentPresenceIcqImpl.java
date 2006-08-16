@@ -6,27 +6,26 @@
  */
 package net.java.sip.communicator.impl.protocol.icq;
 
+import java.beans.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
-import net.kano.joscar.snaccmd.loc.*;
-import net.kano.joustsim.*;
-import net.kano.joscar.snac.*;
-import net.kano.joscar.flapcmd.*;
-import net.kano.joscar.snaccmd.*;
-
-import net.kano.joustsim.oscar.oscar.service.bos.*;
-import net.kano.joscar.snaccmd.conn.*;
-import net.kano.joustsim.oscar.*;
-import net.java.sip.communicator.service.protocol.icqconstants.*;
-import net.kano.joscar.snaccmd.error.*;
-import net.kano.joustsim.oscar.oscar.service.ssi.*;
-import net.kano.joustsim.oscar.oscar.service.buddy.*;
-import java.beans.PropertyChangeEvent;
 import net.java.sip.communicator.impl.protocol.icq.message.auth.*;
 import net.java.sip.communicator.impl.protocol.icq.message.imicbm.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.icqconstants.*;
+import net.java.sip.communicator.util.*;
+import net.kano.joscar.flapcmd.*;
+import net.kano.joscar.snac.*;
+import net.kano.joscar.snaccmd.*;
+import net.kano.joscar.snaccmd.conn.*;
+import net.kano.joscar.snaccmd.error.*;
+import net.kano.joscar.snaccmd.loc.*;
+import net.kano.joustsim.*;
+import net.kano.joustsim.oscar.*;
+import net.kano.joustsim.oscar.oscar.service.bos.*;
+import net.kano.joustsim.oscar.oscar.service.buddy.*;
+import net.kano.joustsim.oscar.oscar.service.ssi.*;
 
 /**
  * The ICQ implementation of a Persistent Presence Operation set. This class
@@ -1204,7 +1203,7 @@ public class OperationSetPersistentPresenceIcqImpl
                          + " to: " + evt.getNewState());
             if(evt.getNewState() == RegistrationState.REGISTERED)
             {
-                System.out.println("adding a Bos Service Listener");
+                logger.debug("adding a Bos Service Listener");
                 icqProvider.getAimConnection().getBosService()
                     .addMainBosServiceListener(joustSimBosListener);
 

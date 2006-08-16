@@ -7,11 +7,10 @@
 
 package net.java.sip.communicator.plugin.icqaccregwizz;
 
-import java.io.IOException;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.io.*;
+import java.util.*;
 
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 /**
  * The Messages class manages the access to the internationalization
  * properties files.

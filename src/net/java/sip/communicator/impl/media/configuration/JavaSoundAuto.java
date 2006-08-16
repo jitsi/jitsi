@@ -10,13 +10,10 @@
  */
 package net.java.sip.communicator.impl.media.configuration;
 
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.*;
+import javax.media.*;
 
-import javax.media.CaptureDeviceInfo;
-import javax.media.CaptureDeviceManager;
-
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 public class JavaSoundAuto {
     

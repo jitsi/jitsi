@@ -205,7 +205,8 @@ public class IcqTesterAgent
 
             Iterator contactsToAddToThisGroup
                 = ( (List) listContents.get(groupName)).iterator();
-            while (contactsToAddToThisGroup.hasNext()){
+            while (contactsToAddToThisGroup.hasNext())
+            {
                 String screenname = (String) contactsToAddToThisGroup.next();
 
                 //remove all buddies captured by the event collector so far

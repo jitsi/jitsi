@@ -93,6 +93,8 @@ public class ProtocolProviderFactoryIcqImpl
         if (userIDStr == null)
             throw new NullPointerException("The specified AccountID was null");
 
+        accountProperties.put(USER_ID, userIDStr);
+
         if (accountProperties == null)
             throw new NullPointerException("The specified property map was null");
 
@@ -112,7 +114,7 @@ public class ProtocolProviderFactoryIcqImpl
             , accountID
             , implementationPackageName);
 
-        accountID = loadAccount(userIDStr, accountProperties);
+        accountID = loadAccount(accountProperties);
 
         return accountID;
     }
@@ -122,18 +124,18 @@ public class ProtocolProviderFactoryIcqImpl
      * accountProperties and registers the resulting ProtocolProvider in the
      * <tt>context</tt> BundleContext parameter.
      *
-     * @param userIDStr the user identifier for the new account
      * @param accountProperties a set of protocol (or implementation)
      *   specific properties defining the new account.
      * @return the AccountID of the newly created account
      */
-    public AccountID loadAccount( String userIDStr,
-                                  Map accountProperties)
+    public AccountID loadAccount( Map accountProperties)
     {
         BundleContext context
             = IcqActivator.getBundleContext();
         if(context == null)
             throw new NullPointerException("The specified BundleContext was null");
+
+        String userIDStr = (String)accountProperties.get(USER_ID);
 
         AccountID accountID = new IcqAccountID(userIDStr, accountProperties);
 

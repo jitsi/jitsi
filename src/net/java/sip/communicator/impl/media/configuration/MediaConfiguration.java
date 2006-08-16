@@ -7,15 +7,10 @@
 package net.java.sip.communicator.impl.media.configuration;
 
 import java.util.*;
+import javax.media.*;
+import javax.media.format.*;
 
-import javax.media.CaptureDeviceInfo;
-import javax.media.CaptureDeviceManager;
-import javax.media.format.AudioFormat;
-import javax.media.format.VideoFormat;
-import javax.media.protocol.CaptureDevice;
-import javax.media.protocol.DataSource;
-
-import net.java.sip.communicator.service.configuration.ConfigurationService;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
 

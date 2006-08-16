@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.icq.message.auth;
 
 import java.io.*;
 
-import net.java.sip.communicator.impl.protocol.icq.message.common.*;
 import net.kano.joscar.*;
 import net.kano.joscar.flapcmd.*;
 

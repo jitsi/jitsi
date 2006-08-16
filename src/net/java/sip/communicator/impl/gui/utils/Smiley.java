@@ -7,7 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
-import net.java.sip.communicator.impl.gui.utils.ImageLoader.ImageID;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader.*;
 
 /**
  * The <tt>Smily</tt> is used to store a smily.

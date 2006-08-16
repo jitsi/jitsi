@@ -7,15 +7,11 @@
 
 package net.java.sip.communicator.impl.gui.main.message.toolBars;
 
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.*;
+import javax.swing.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
-
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommButton;
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommToolBar;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>EditTextToolBar</tt> is a <tt>JToolBar</tt> which contains buttons

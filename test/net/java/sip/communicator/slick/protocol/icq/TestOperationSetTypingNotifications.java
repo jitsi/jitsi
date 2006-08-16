@@ -6,13 +6,14 @@
  */
 package net.java.sip.communicator.slick.protocol.icq;
 
-import junit.framework.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.protocol.*;
 import java.util.*;
-import net.kano.joustsim.oscar.oscar.service.icbm.*;
+
+import junit.framework.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 import net.kano.joustsim.*;
+import net.kano.joustsim.oscar.oscar.service.icbm.*;
 
 /**
  * Tests functionality of the typing notifications operation set. All we do here

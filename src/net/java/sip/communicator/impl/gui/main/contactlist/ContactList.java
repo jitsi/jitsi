@@ -7,25 +7,15 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.awt.Cursor;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JList;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.text.Position;
-import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
-import net.java.sip.communicator.service.contactlist.MetaContactListService;
-import net.java.sip.communicator.service.contactlist.event.MetaContactEvent;
-import net.java.sip.communicator.service.contactlist.event.MetaContactGroupEvent;
-import net.java.sip.communicator.service.contactlist.event.MetaContactListListener;
-import net.java.sip.communicator.service.contactlist.event.MetaContactMovedEvent;
-import net.java.sip.communicator.service.contactlist.event.MetaContactRenamedEvent;
-import net.java.sip.communicator.service.contactlist.event.ProtoContactEvent;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.text.*;
+
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactlist.event.*;
 
 /**
  * The <tt>ContactList</tt> is a JList that represents the contact list. A

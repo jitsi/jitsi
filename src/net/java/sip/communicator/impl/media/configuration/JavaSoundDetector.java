@@ -10,9 +10,7 @@
  */
 package net.java.sip.communicator.impl.media.configuration;
 
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.TargetDataLine;
+import javax.sound.sampled.*;
 
 
 public class JavaSoundDetector {

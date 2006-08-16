@@ -6,10 +6,9 @@
  */
 package net.java.sip.communicator.service.contactlist.event;
 
-import java.util.EventObject;
+import java.util.*;
 
-import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
+import net.java.sip.communicator.service.contactlist.*;
 
 /**
  * Parent class for meta contact events indicating addition and removal of
@@ -99,7 +98,8 @@ public class MetaContactEvent
      * METACONTACT_ADDED, METACONTACT_REMOVED and etc.)
      * @return one of the METACONTACT_XXX int fields of this class.
      */
-    public int getEventID(){
+    public int getEventID()
+    {
         return eventID;
     }
 }

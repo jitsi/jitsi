@@ -10,22 +10,13 @@
  */
 package net.java.sip.communicator.impl.media.configuration;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.io.File;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
+import javax.media.*;
+import javax.media.format.*;
+import javax.media.protocol.*;
 
-import javax.media.CaptureDeviceInfo;
-import javax.media.CaptureDeviceManager;
-import javax.media.Format;
-import javax.media.Manager;
-import javax.media.MediaLocator;
-import javax.media.format.RGBFormat;
-import javax.media.format.VideoFormat;
-import javax.media.format.YUVFormat;
-import javax.media.protocol.CaptureDevice;
+import java.awt.*;
 
 import com.sun.media.protocol.sunvideoplus.*;
 

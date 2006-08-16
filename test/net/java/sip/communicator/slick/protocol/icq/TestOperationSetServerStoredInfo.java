@@ -137,7 +137,8 @@ public class TestOperationSetServerStoredInfo
         fixture.testerAgent.setUserInfoLastName(lastName);
 
         // give the server time to change things
-        synchronized(lock){
+        synchronized(lock)
+        {
             try{
                 lock.wait(3000);}
             catch (InterruptedException ex){}
@@ -148,7 +149,8 @@ public class TestOperationSetServerStoredInfo
         fixture.testerAgent.setUserInfoPhoneNumber(phoneNumber);
 
         // give the server time to change things
-        synchronized(lock){
+        synchronized(lock)
+        {
             try{
                 lock.wait(3000);}
             catch (InterruptedException ex){}
@@ -163,7 +165,8 @@ public class TestOperationSetServerStoredInfo
         fixture.testerAgent.setUserInfoLanguage(lang1, lang2, lang3);
 
         // give the server time to change things
-        synchronized(lock){
+        synchronized(lock)
+        {
             try{
                 lock.wait(3000);}
             catch (InterruptedException ex){}
@@ -177,7 +180,8 @@ public class TestOperationSetServerStoredInfo
         fixture.testerAgent.setUserInfoHomeCountry(countryCode);
 
         // give the server time to change things
-        synchronized(lock){
+        synchronized(lock)
+        {
             try{
                 lock.wait(4000);}
             catch (InterruptedException ex){}
@@ -341,7 +345,8 @@ public class TestOperationSetServerStoredInfo
             }
 
             // give time to server to change things
-            synchronized (lock){
+            synchronized (lock)
+            {
                 try{
                     lock.wait(3000);}
                 catch (InterruptedException ex)
@@ -365,7 +370,8 @@ public class TestOperationSetServerStoredInfo
             }
 
             // give time to server to change things
-            synchronized (lock){
+            synchronized (lock)
+            {
                 try{
                     lock.wait(3000);}
                 catch (InterruptedException ex)
@@ -389,7 +395,8 @@ public class TestOperationSetServerStoredInfo
             }
 
             // give time to server to change things
-            synchronized (lock){
+            synchronized (lock)
+            {
                 try{
                     lock.wait(3000);}
                 catch (InterruptedException ex)
@@ -411,7 +418,8 @@ public class TestOperationSetServerStoredInfo
                         spokenLanguages[newLang]));
 
                 // give time to server to change things, as we change the languages one by one
-                synchronized (lock){
+                synchronized (lock)
+                {
                     try{
                         lock.wait(3000);}
                     catch (InterruptedException ex)
@@ -429,7 +437,8 @@ public class TestOperationSetServerStoredInfo
                         spokenLanguages[newLang]));
 
                 // give time to server to change things
-                synchronized (lock){
+                synchronized (lock)
+                {
                     try{
                         lock.wait(3000);
                     }
@@ -612,7 +621,8 @@ public class TestOperationSetServerStoredInfo
                 assertTrue("Error removing language!",
                            opSetServerStoredAccountInfo.removeDetail(
                                (ServerStoredDetails.SpokenLanguageDetail)iter.next()));
-                synchronized (lock){
+                synchronized (lock)
+                {
                 try{
                     lock.wait(3000);
                 }

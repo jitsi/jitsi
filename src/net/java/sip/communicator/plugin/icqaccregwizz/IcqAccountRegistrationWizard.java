@@ -6,18 +6,12 @@
  */
 package net.java.sip.communicator.plugin.icqaccregwizz;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
+import java.util.*;
 
-import net.java.sip.communicator.service.configuration.ConfigurationService;
-import net.java.sip.communicator.service.gui.AccountRegistrationWizard;
-import net.java.sip.communicator.service.gui.WizardContainer;
-import net.java.sip.communicator.service.protocol.AccountID;
-import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
-
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>IcqAccountRegistrationWizard</tt> is an implementation of the

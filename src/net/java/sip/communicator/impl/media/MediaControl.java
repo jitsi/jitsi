@@ -6,18 +6,12 @@
  */
 package net.java.sip.communicator.impl.media;
 
-import java.io.IOException;
+import java.io.*;
+import javax.media.*;
+import javax.media.protocol.*;
 
-import javax.media.CaptureDeviceInfo;
-import javax.media.IncompatibleSourceException;
-import javax.media.Manager;
-import javax.media.MediaLocator;
-import javax.media.NoDataSourceException;
-import javax.media.protocol.CaptureDevice;
-import javax.media.protocol.DataSource;
-
-import net.java.sip.communicator.impl.media.configuration.MediaConfiguration;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.impl.media.configuration.*;
+import net.java.sip.communicator.util.*;
 
 
 /**
@@ -28,24 +22,24 @@ import net.java.sip.communicator.util.Logger;
 public class MediaControl
 {
     private Logger logger = Logger.getLogger(MediaConfiguration.class);
-    
+
     /**
      * Our configuration helper.
      */
     private MediaConfiguration mediaConfiguration = null;
-    
+
     /**
      * Capture devices
      */
     private CaptureDevice audioCaptureDevice = null;
     private CaptureDevice videoCaptureDevice = null;
     private DataSource avDataSource = null;
-    
-    public MediaControl(MediaConfiguration mediaConfiguration) 
+
+    public MediaControl(MediaConfiguration mediaConfiguration)
     {
         this.mediaConfiguration = mediaConfiguration;
     }
-    
+
     protected void openCaptureDevices()
     {
         // Init Capture devices
@@ -53,21 +47,21 @@ public class MediaControl
         DataSource videoDataSource = null;
         CaptureDeviceInfo audioDeviceInfo = null;
         CaptureDeviceInfo videoDeviceInfo = null;
-        
+
         // audio device
         audioDeviceInfo = mediaConfiguration.getAudioCaptureDevice();
         if (audioDeviceInfo != null) {
             audioDataSource = createDataSource(audioDeviceInfo.getLocator());
             audioCaptureDevice = (CaptureDevice) audioDataSource;
         }
-        
+
         // video device
         videoDeviceInfo = mediaConfiguration.getVideoCaptureDevice();
         if (videoDeviceInfo != null) {
             videoDataSource = createDataSource(videoDeviceInfo.getLocator());
             videoCaptureDevice = (CaptureDevice) videoDataSource;
         }
-                
+
         // Create the av data source
         if (audioDataSource != null && videoDataSource != null) {
             DataSource[] allDS = new DataSource[] {
@@ -78,9 +72,12 @@ public class MediaControl
                 avDataSource = Manager.createMergingDataSource(allDS);
             }
             catch (IncompatibleSourceException exc) {
-                System.out.println(
+                logger.fatal(
                         "Failed to create a media data source!"
-                        + "Media transmission won't be enabled!");
+                        + "Media transmission won't be enabled!", exc);
+                throw new InternalError("Failed to create a media data source!"
+                        + "Media transmission won't be enabled!"
+                        + exc.getMessage());
             }
         }
         else {
@@ -91,10 +88,10 @@ public class MediaControl
                 avDataSource = videoDataSource;
             }
         }
-        
+
         // avDataSource may be null
     }
-    
+
     protected void closeCaptureDevices()
     {
         try {
@@ -104,11 +101,11 @@ public class MediaControl
             e.printStackTrace();
         }
     }
-    
+
     protected DataSource getDataSource() {
         return avDataSource;
     }
-    
+
     protected DataSource createDataSource(MediaLocator locator)
     {
         try {
@@ -131,14 +128,14 @@ public class MediaControl
             return null;
         }
     }
-    
+
     protected void startCapture(CaptureDevice captureDevice)
     {
-        
+
     }
-    
+
     protected void stopCapture(CaptureDevice captureDevice)
     {
-        
+
     }
 }

@@ -6,33 +6,21 @@
  */
 package net.java.sip.communicator.impl.protocol.icq;
 
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.impl.protocol.icq.message.common.*;
-import net.java.sip.communicator.impl.protocol.icq.message.offline.*;
-import net.java.sip.communicator.impl.protocol.icq.message.imicbm.*;
 import java.util.*;
-import net.kano.joustsim.*;
-import net.kano.joscar.snac.*;
-import net.kano.joscar.snaccmd.icbm.*;
-import net.kano.joscar.snaccmd.error.*;
-import net.kano.joscar.flapcmd.*;
-import net.java.sip.communicator.util.*;
 
-//the package net.kano.joustsim.oscar.oscar.service.icbm contains a Message
-//class which conflicts with net.java.sip.communicator.service.protocol.Message
-//and therefore the following imports must remain explicit.
-import net.kano.joustsim.oscar.oscar.service.icbm.IcbmListener;
-import net.kano.joustsim.oscar.oscar.service.icbm.IcbmService;
-import net.kano.joustsim.oscar.oscar.service.icbm.Conversation;
-import net.kano.joustsim.oscar.oscar.service.icbm.IcbmBuddyInfo;
-import net.kano.joustsim.oscar.oscar.service.icbm.SimpleMessage;
-import net.kano.joustsim.oscar.oscar.service.icbm.MessageInfo;
-import net.kano.joustsim.oscar.oscar.service.icbm.ConversationEventInfo;
-import net.kano.joustsim.oscar.oscar.service.icbm.ImConversation;
-import net.kano.joustsim.oscar.oscar.service.icbm.TypingInfo;
-import net.kano.joustsim.oscar.oscar.service.icbm.MissedImInfo;
-import net.kano.joustsim.oscar.oscar.service.icbm.ImConversationListener;
+import net.java.sip.communicator.impl.protocol.icq.message.common.*;
+import net.java.sip.communicator.impl.protocol.icq.message.imicbm.*;
+import net.java.sip.communicator.impl.protocol.icq.message.offline.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.Message;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
+import net.kano.joscar.flapcmd.*;
+import net.kano.joscar.snac.*;
+import net.kano.joscar.snaccmd.error.*;
+import net.kano.joscar.snaccmd.icbm.*;
+import net.kano.joustsim.*;
+import net.kano.joustsim.oscar.oscar.service.icbm.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation
@@ -375,7 +363,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                          + " to: " + evt.getNewState());
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                System.out.println("adding a Bos Service Listener");
+                logger.debug("adding a Bos Service Listener");
                 icqProvider.getAimConnection().getIcbmService()
                     .addIcbmListener(joustSimIcbmListener);
 
@@ -449,7 +437,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
         public void buddyInfoUpdated(IcbmService service, Screenname buddy,
                                      IcbmBuddyInfo info)
         {
-            System.out.println("buddy info pudated for " + buddy
+            logger.debug("buddy info pudated for " + buddy
                                 + " new info is: " + info);
         }
 
@@ -505,35 +493,20 @@ public class OperationSetBasicInstantMessagingIcqImpl
 
         public void sentOtherEvent(Conversation conversation,
                                    ConversationEventInfo event)
-        {
-            /**@todo implement sentOtherEvent() */
-            System.out.println("@todo implement sentOtherEvent()");
-        }
+        {}
 
         public void canSendMessageChanged(Conversation c, boolean canSend)
-        {
-            /**@todo implement canSendMessageChanged() */
-            System.out.println("@todo implement canSendMessageChanged()");
-        }
+        {}
 
         public void conversationClosed(Conversation c)
-        {
-            /**@todo implement conversationClosed() */
-            System.out.println("@todo implement conversationClosed()");
-        }
+        {}
 
         public void conversationOpened(Conversation c)
-        {
-            /**@todo implement conversationOpened() */
-            System.out.println("@todo implement conversationOpened()");
-        }
+        {}
 
         public void gotOtherEvent(Conversation conversation,
                                   ConversationEventInfo event)
-        {
-            /**@todo implement gotOtherEvent() */
-            System.out.println("@todo implement gotOtherEvent()");
-        }
+        {}
 
         public void sentMessage(Conversation c, MessageInfo minfo)
         {
@@ -544,13 +517,11 @@ public class OperationSetBasicInstantMessagingIcqImpl
              *
              * we'll deal with that some other day.
              */
-            System.out.println("@todo implement sentMessage()");
         }
 
         public void missedMessages(ImConversation conv, MissedImInfo info)
         {
             /**@todo implement missedMessages() */
-            System.out.println("@todo implement missedMessages()");
         }
 
         public void gotTypingState(Conversation conversation,

@@ -6,19 +6,13 @@
  */
 package net.java.sip.communicator.impl.history;
 
-import java.io.IOException;
-import java.security.InvalidParameterException;
-import java.util.Date;
-import java.util.Iterator;
+import java.io.*;
+import java.security.*;
+import java.util.*;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.Text;
-
-import net.java.sip.communicator.service.history.HistoryWriter;
-import net.java.sip.communicator.service.history.records.HistoryRecord;
-import net.java.sip.communicator.service.history.records.HistoryRecordStructure;
+import org.w3c.dom.*;
+import net.java.sip.communicator.service.history.*;
+import net.java.sip.communicator.service.history.records.*;
 
 /**
  * @author Alexander Pelov
@@ -42,7 +36,8 @@ public class HistoryWriterImpl implements HistoryWriter {
 
     private int currentDocElements = -1;
 
-    protected HistoryWriterImpl(HistoryImpl historyImpl) {
+    protected HistoryWriterImpl(HistoryImpl historyImpl)
+    {
         this.historyImpl = historyImpl;
 
         HistoryRecordStructure struct = this.historyImpl
@@ -50,12 +45,16 @@ public class HistoryWriterImpl implements HistoryWriter {
         this.structPropertyNames = struct.getPropertyNames();
     }
 
-    public void addRecord(HistoryRecord record) throws IOException {
+    public void addRecord(HistoryRecord record)
+        throws IOException
+    {
         this.addRecord(record.getPropertyNames(), record.getPropertyValues(),
                 record.getTimestamp());
     }
 
-    public void addRecord(String[] propertyValues) throws IOException {
+    public void addRecord(String[] propertyValues)
+        throws IOException
+    {
         this.addRecord(structPropertyNames, propertyValues, new Date());
     }
 
@@ -75,24 +74,32 @@ public class HistoryWriterImpl implements HistoryWriter {
      * @throws InvalidParameterException
      * @throws IOException
      */
-    private void addRecord(String[] propertyNames, String[] propertyValues,
-            Date date) throws InvalidParameterException, IOException {
+    private void addRecord(String[] propertyNames,
+                           String[] propertyValues,
+                           Date date)
+        throws InvalidParameterException, IOException
+    {
         // Synchronized to assure that two concurent threads can insert records
         // safely.
-        synchronized (this.docCreateLock) {
+        synchronized (this.docCreateLock)
+        {
             if (this.currentDoc == null
-                    || this.currentDocElements > MAX_RECORDS_PER_FILE) {
+                    || this.currentDocElements > MAX_RECORDS_PER_FILE)
+            {
                 this.createNewDoc(date, this.currentDoc == null);
             }
         }
 
-        synchronized (this.currentDoc) {
+        synchronized (this.currentDoc)
+        {
             Node root = this.currentDoc.getFirstChild();
-            synchronized (root) {
+            synchronized (root)
+            {
                 Element elem = this.currentDoc.createElement("record");
                 elem.setAttribute("timestamp", Long.toString(date.getTime()));
 
-                for (int i = 0; i < propertyNames.length; i++) {
+                for (int i = 0; i < propertyNames.length; i++)
+                {
                     String propertyName = propertyNames[i];
 
                     if(propertyName.endsWith(CDATA_SUFFIX))
@@ -133,7 +140,8 @@ public class HistoryWriterImpl implements HistoryWriter {
         }
 
         // write changes
-        synchronized (this.docWriteLock) {
+        synchronized (this.docWriteLock)
+        {
             this.historyImpl.writeFile(this.currentFile);
         }
     }
@@ -144,27 +152,33 @@ public class HistoryWriterImpl implements HistoryWriter {
      *
      * @param date
      */
-    private void createNewDoc(Date date, boolean loadLastFile) {
+    private void createNewDoc(Date date, boolean loadLastFile)
+    {
         boolean loaded = false;
 
-        if (loadLastFile) {
+        if (loadLastFile)
+        {
             Iterator files = historyImpl.getFileList();
 
             String file = null;
-            while (files.hasNext()) {
+            while (files.hasNext())
+            {
                 file = (String) files.next();
             }
 
-            if (file != null) {
+            if (file != null)
+            {
                 this.currentDoc = this.historyImpl.getDocumentForFile(file);
                 this.currentFile = file;
                 loaded = true;
             }
         }
 
-        if (!loaded) {
+        if (!loaded)
+        {
             this.currentFile = Long.toString(date.getTime());
-            while (this.currentFile.length() < 8) {
+            while (this.currentFile.length() < 8)
+            {
                 this.currentFile = "0" + this.currentFile;
             }
             this.currentFile += ".xml";

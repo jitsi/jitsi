@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.event.TypingNotificationsListener;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * The operation set allows user bundles (e.g. the user interface) to send

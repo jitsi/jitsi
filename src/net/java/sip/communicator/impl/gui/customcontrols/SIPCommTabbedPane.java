@@ -11,32 +11,21 @@ package net.java.sip.communicator.impl.gui.customcontrols;
  * SETLabs, Infosys Technologies Ltd. May 2004 - Jul 2004 Ecole des Mines de
  * Nantes, France
  */
-import java.awt.Window;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
-import java.util.EventListener;
+import java.util.*;
 
-import javax.swing.Icon;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.events.CloseListener;
-import net.java.sip.communicator.impl.gui.customcontrols.events.DoubleClickListener;
-import net.java.sip.communicator.impl.gui.customcontrols.events.MaxListener;
-import net.java.sip.communicator.impl.gui.customcontrols.events.PopupOutsideListener;
-import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommTabbedPaneEnhancedUI;
-import net.java.sip.communicator.impl.gui.lookandfeel.SIPCommTabbedPaneUI;
+import net.java.sip.communicator.impl.gui.customcontrols.events.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 
 /**
  * A JTabbedPane with some added UI functionalities. A close and max/detach
  * icons are added to every tab, typically to let the user close or detach the
  * tab by clicking on these icons.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommTabbedPane extends JTabbedPane {
@@ -46,7 +35,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
     /**
      * Creates the <code>CloseAndMaxTabbedPane</code> with an enhanced UI if
      * <code>enhancedUI</code> parameter is set to <code>true</code>.
-     * 
+     *
      * @param enhancedUI
      *            whether the tabbedPane should use an enhanced UI
      */
@@ -91,14 +80,14 @@ public class SIPCommTabbedPane extends JTabbedPane {
 
     /**
      * Override JTabbedPane method. Does nothing.
-     * @param tabPlacement The tab placement. 
+     * @param tabPlacement The tab placement.
      */
     public void setTabPlacement(int tabPlacement) {
     }
 
     /**
      * Sets whether the tabbedPane should have a close icon or not.
-     * 
+     *
      * @param b whether the tabbedPane should have a close icon or not
      */
     public void setCloseIcon(boolean b) {
@@ -108,7 +97,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
 
     /**
      * Sets whether the tabbedPane should have a max/detach icon or not.
-     * 
+     *
      * @param b whether the tabbedPane should have a max/detach icon or not
      */
     public void setMaxIcon(boolean b) {
@@ -119,7 +108,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
     /**
      * Detaches the <code>index</code> tab in a seperate frame. When the frame
      * is closed, the tab is automatically reinserted into the tabbedPane.
-     * 
+     *
      * @param index index of the tabbedPane to be detached
      */
     public void detachTab(int index) {
@@ -173,7 +162,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
             public void windowLostFocus(WindowEvent e) {
                 end = System.currentTimeMillis();
                 long elapsed = end - start;
-                // System.out.println(elapsed);
+
                 if (elapsed < 100)
                     frame.toFront();
 
@@ -202,7 +191,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
 
     /**
      * Adds a <code>CloseListener</code> to the tabbedPane.
-     * 
+     *
      * @param l the <code>CloseListener</code> to add
      * @see #fireCloseTabEvent
      * @see #removeCloseListener
@@ -213,7 +202,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
 
     /**
      * Adds a <code>MaxListener</code> to the tabbedPane.
-     * 
+     *
      * @param l the <code>MaxListener</code> to add
      * @see #fireMaxTabEvent
      * @see #removeMaxListener
@@ -224,7 +213,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
 
     /**
      * Adds a <code>DoubleClickListener</code> to the tabbedPane.
-     * 
+     *
      * @param l the <code>DoubleClickListener</code> to add
      * @see #fireDoubleClickTabEvent
      * @see #removeDoubleClickListener
@@ -235,7 +224,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
 
     /**
      * Adds a <code>PopupOutsideListener</code> to the tabbedPane.
-     * 
+     *
      * @param l the <code>PopupOutsideListener</code> to add
      * @see #firePopupOutsideTabEvent
      * @see #removePopupOutsideListener
@@ -246,7 +235,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
 
     /**
      * Removes a <code>CloseListener</code> from this tabbedPane.
-     * 
+     *
      * @param l the <code>CloseListener</code> to remove
      * @see #fireCloseTabEvent
      * @see #addCloseListener
@@ -257,7 +246,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
 
     /**
      * Removes a <code>MaxListener</code> from this tabbedPane.
-     * 
+     *
      * @param l the <code>MaxListener</code> to remove
      * @see #fireMaxTabEvent
      * @see #addMaxListener
@@ -268,7 +257,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
 
     /**
      * Removes a <code>DoubleClickListener</code> from this tabbedPane.
-     * 
+     *
      * @param l
      *            the <code>DoubleClickListener</code> to remove
      * @see #fireDoubleClickTabEvent
@@ -280,7 +269,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
 
     /**
      * Removes a <code>PopupOutsideListener</code> from this tabbedPane.
-     * 
+     *
      * @param l
      *            the <code>PopupOutsideListener</code> to remove
      * @see #firePopupOutsideTabEvent
@@ -298,12 +287,12 @@ public class SIPCommTabbedPane extends JTabbedPane {
      * the UI. This method method is called each time a <code>MouseEvent</code>
      * is received from the UI when the user clicks on the close icon of the tab
      * which index is <code>overTabIndex</code>.
-     * 
+     *
      * @param e
      *            the <code>MouseEvent</code> to be sent
      * @param overTabIndex
      *            the index of a tab, usually the tab over which the mouse is
-     * 
+     *
      * @see #addCloseListener
      */
     public void fireCloseTabEvent(MouseEvent e, int overTabIndex) {
@@ -322,12 +311,12 @@ public class SIPCommTabbedPane extends JTabbedPane {
      * the UI. This method method is called each time a <code>MouseEvent</code>
      * is received from the UI when the user clicks on the max icon of the tab
      * which index is <code>overTabIndex</code>.
-     * 
+     *
      * @param e
      *            the <code>MouseEvent</code> to be sent
      * @param overTabIndex
      *            the index of a tab, usually the tab over which the mouse is
-     * 
+     *
      * @see #addMaxListener
      */
     public void fireMaxTabEvent(MouseEvent e, int overTabIndex) {
@@ -346,18 +335,18 @@ public class SIPCommTabbedPane extends JTabbedPane {
      * the UI. This method method is called each time a <code>MouseEvent</code>
      * is received from the UI when the user double-clicks on the tab which
      * index is <code>overTabIndex</code>.
-     * 
+     *
      * @param e
      *            the <code>MouseEvent</code> to be sent
      * @param overTabIndex
      *            the index of a tab, usually the tab over which the mouse is
-     * 
+     *
      * @see #addDoubleClickListener
      */
     public void fireDoubleClickTabEvent(MouseEvent e, int overTabIndex) {
         this.overTabIndex = overTabIndex;
 
-        EventListener[] dClickListeners 
+        EventListener[] dClickListeners
             = getListeners(DoubleClickListener.class);
         for (int i = 0; i < dClickListeners.length; i++) {
             ((DoubleClickListener) dClickListeners[i]).doubleClickOperation(e);
@@ -370,16 +359,16 @@ public class SIPCommTabbedPane extends JTabbedPane {
      * <code>overTabIndex</code> to -1. This method method is called each time
      * a <code>MouseEvent</code> is received from the UI when the user
      * right-clicks on the inactive part of a tabbedPane.
-     * 
+     *
      * @param e
      *            the <code>MouseEvent</code> to be sent
-     * 
-     * @see #addPopupOutsideListener 
+     *
+     * @see #addPopupOutsideListener
      */
     public void firePopupOutsideTabEvent(MouseEvent e) {
         this.overTabIndex = -1;
 
-        EventListener[] popupListeners 
+        EventListener[] popupListeners
             = getListeners(PopupOutsideListener.class);
         for (int i = 0; i < popupListeners.length; i++) {
             ((PopupOutsideListener) popupListeners[i]).popupOutsideOperation(e);
@@ -387,7 +376,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
     }
 
     /**
-     * Overrides setSelectedIndex in JTabbedPane in order to remove the 
+     * Overrides setSelectedIndex in JTabbedPane in order to remove the
      * hightlight if the tab which is selected.
      * @param tabIndex The index of the tab to be selected.
      */
@@ -401,7 +390,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
 
     /**
      * Highlights the tab with the given index.
-     * 
+     *
      * @param tabIndex The tab index.
      */
     public void highlightTab(int tabIndex) {

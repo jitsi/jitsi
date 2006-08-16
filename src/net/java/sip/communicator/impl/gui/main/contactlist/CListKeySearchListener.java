@@ -7,13 +7,10 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
+import javax.swing.text.*;
 
-import javax.swing.text.Position;
-
-import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
+import net.java.sip.communicator.service.contactlist.*;
 
 /**
  * The main goal of the <tt>CListKeySearchListener</tt> is to listen for key

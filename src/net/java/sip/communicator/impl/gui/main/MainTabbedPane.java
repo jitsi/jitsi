@@ -7,11 +7,11 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommTabbedPane;
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 
 /** 
  * The <tt>MainTabbedPane</tt> is a <tt>SIPCommTabbedPane</tt> that contains

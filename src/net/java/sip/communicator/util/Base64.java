@@ -30,9 +30,7 @@
  */
 package net.java.sip.communicator.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 
 
 public class Base64

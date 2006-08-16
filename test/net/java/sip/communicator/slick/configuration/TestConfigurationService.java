@@ -6,14 +6,12 @@
  */
 package net.java.sip.communicator.slick.configuration;
 
-import junit.framework.*;
-import net.java.sip.communicator.service.configuration.event.*;
-import net.java.sip.communicator.service.configuration.*;
-import org.osgi.framework.*;
-import net.java.sip.communicator.impl.configuration.xml.*;
-import net.java.sip.communicator.util.xml.*;
-import net.java.sip.communicator.slick.slickless.*;
 import java.util.*;
+
+import org.osgi.framework.*;
+import junit.framework.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.configuration.event.*;
 
 /**
  * Tests basic ConfiguratioService behaviour.

@@ -7,8 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * Manages the access to the properties file containing all image paths.

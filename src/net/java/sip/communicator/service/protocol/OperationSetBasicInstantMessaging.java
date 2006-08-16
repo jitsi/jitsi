@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.event.MessageListener;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Provides basic functionality for sending and receiving InstantMessages.

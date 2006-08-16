@@ -7,21 +7,15 @@
 
 package net.java.sip.communicator.impl.gui.main.message.toolBars;
 
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
-import javax.swing.BorderFactory;
-
-import net.java.sip.communicator.impl.gui.customcontrols.ChatToolbarButton;
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommButton;
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommToolBar;
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.message.history.HistoryWindow;
-import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
-import net.java.sip.communicator.impl.gui.main.message.SmiliesSelectorBox;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.message.*;
+import net.java.sip.communicator.impl.gui.main.message.history.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>MainToolBar</tt> is a <tt>JToolBar</tt> which contains buttons for

@@ -7,10 +7,10 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
-import java.util.ArrayList;
+import java.util.*;
 
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>NewContact</tt> is meant to be used from the "Add Contact" wizard

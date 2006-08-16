@@ -7,16 +7,10 @@
 
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.*;
+import javax.swing.*;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.impl.gui.utils.LightGrayFilter;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>SIPCommButton</tt> is a very flexible <tt>JButton</tt> that allows

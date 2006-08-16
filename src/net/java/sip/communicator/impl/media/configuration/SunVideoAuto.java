@@ -10,18 +10,15 @@
  */
 package net.java.sip.communicator.impl.media.configuration;
 
-import javax.media.*;
-import javax.media.Format;
-import javax.media.format.VideoFormat;
-import javax.media.format.RGBFormat;
-
-import net.java.sip.communicator.util.Logger;
-
+import java.io.*;
 import java.util.*;
+import javax.media.*;
+import javax.media.format.*;
+
 import java.awt.*;
-import java.awt.event.*;
-import java.io.File;
+
 import com.sun.media.protocol.sunvideo.*;
+import net.java.sip.communicator.util.*;
 
 public class SunVideoAuto {
     

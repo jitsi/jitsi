@@ -6,18 +6,13 @@
  */
 package net.java.sip.communicator.impl.gui.main.message.menu;
 
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
-import javax.swing.ImageIcon;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.message.ChatConversationPanel;
-import net.java.sip.communicator.impl.gui.main.message.ChatWindow;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.message.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
  * The <tt>ChatRightButtonMenu</tt> appears when the user makes a right button

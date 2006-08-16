@@ -6,12 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui.utils;
 
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.image.FilteredImageSource;
-import java.awt.image.ImageProducer;
-
-import javax.swing.GrayFilter;
+import java.awt.*;
+import java.awt.image.*;
+import javax.swing.*;
 
 /**
  * An image filter that "disables" an image by turning

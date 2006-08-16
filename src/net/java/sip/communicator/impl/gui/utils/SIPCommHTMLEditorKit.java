@@ -7,20 +7,10 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
-import javax.swing.SizeRequirements;
-import javax.swing.text.Document;
-import javax.swing.text.Element;
-import javax.swing.text.LabelView;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.View;
-import javax.swing.text.ViewFactory;
-import javax.swing.text.html.HTML;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.ImageView;
-import javax.swing.text.html.InlineView;
+import javax.swing.*;
+import javax.swing.text.*;
+import javax.swing.text.html.*;
 import javax.swing.text.html.ParagraphView;
-import javax.swing.text.html.StyleSheet;
 
 /**
  * The <tt>SIPCommHTMLEditorKit</tt> is an <tt>HTMLEditorKit</tt> which uses

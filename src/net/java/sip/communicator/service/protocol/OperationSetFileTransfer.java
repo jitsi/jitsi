@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.event.FileListener;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * The File Transfer Operation Set provides an interface towards those functions

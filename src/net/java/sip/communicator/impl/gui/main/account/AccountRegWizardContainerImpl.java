@@ -6,25 +6,18 @@
  */
 package net.java.sip.communicator.impl.gui.main.account;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
+import javax.imageio.*;
 
-import javax.imageio.ImageIO;
-
-import net.java.sip.communicator.impl.gui.GuiActivator;
-import net.java.sip.communicator.impl.gui.customcontrols.wizard.Wizard;
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.service.configuration.ConfigurationService;
-import net.java.sip.communicator.service.gui.AccountRegistrationWizard;
-import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
-import net.java.sip.communicator.service.gui.WizardPage;
-import net.java.sip.communicator.service.gui.event.AccountRegistrationEvent;
-import net.java.sip.communicator.service.gui.event.AccountRegistrationListener;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The implementation of the <tt>AccountRegistrationWizardContainer</tt>.

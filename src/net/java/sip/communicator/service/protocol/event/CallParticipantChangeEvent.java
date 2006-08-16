@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol.event;
 
-import net.java.sip.communicator.service.protocol.CallParticipant;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * CallParticipantChangeEvent-s are triggerred whenever a change occurs in a

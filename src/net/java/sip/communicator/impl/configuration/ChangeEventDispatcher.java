@@ -6,11 +6,10 @@
  */
 package net.java.sip.communicator.impl.configuration;
 
-import net.java.sip.communicator.service.configuration.event.*;
 import java.util.*;
+
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.util.xml.*;
-import net.java.sip.communicator.impl.configuration.xml.*;
+import net.java.sip.communicator.service.configuration.event.*;
 
 /**
  * This is a utility class that can be used by objects that support constrained

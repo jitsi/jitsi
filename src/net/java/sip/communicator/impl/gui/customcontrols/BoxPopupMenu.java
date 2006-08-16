@@ -7,11 +7,8 @@
 
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.awt.Point;
-
-import javax.swing.JPopupMenu;
+import java.awt.*;
+import javax.swing.*;
 
 /**
  * The <tt>BoxPopupMenu</tt> is a <tt>JPopupMenu</tt>, which orders its

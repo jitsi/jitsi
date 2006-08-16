@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.impl.gui;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.service.gui.PopupDialog;
+import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * Implements <code>PopupDialog</code> interface. 

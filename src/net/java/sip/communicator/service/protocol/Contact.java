@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import java.util.*;
+
 
 /**
  * This class represents the notion of a Contact or Buddy, that is widely used

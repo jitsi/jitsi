@@ -8,11 +8,7 @@ package net.java.sip.communicator.slick.protocol.icq;
 
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import java.util.*;
-import org.osgi.framework.*;
-import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeListener;
-import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeEvent;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 /**
  * Phoney tests to signal specific problems with the

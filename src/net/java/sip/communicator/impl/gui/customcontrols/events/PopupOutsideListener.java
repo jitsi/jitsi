@@ -12,8 +12,9 @@ package net.java.sip.communicator.impl.gui.customcontrols.events;
  * Nantes, France
  */
 
-import java.awt.event.MouseEvent;
-import java.util.EventListener;
+import java.util.*;
+
+import java.awt.event.*;
 /**
  * @author Yana Stamcheva
  */

@@ -7,18 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.awt.BorderLayout;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-
-import net.java.sip.communicator.impl.gui.customcontrols.TransparentBackground;
-import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.service.contactlist.*;
 
 /**
  * The <tt>ContactInfoPanel</tt> is a popup dialog containing the contact

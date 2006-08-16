@@ -6,13 +6,12 @@
  */
 package net.java.sip.communicator.slick.slickless.util.xml;
 
-import junit.framework.*;
-import org.w3c.dom.*;
 import java.io.*;
+import javax.xml.parsers.*;
 import javax.xml.transform.stream.*;
-import javax.xml.parsers.DocumentBuilder;
-import java.util.Hashtable;
-import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.*;
+import junit.framework.*;
 import net.java.sip.communicator.util.xml.*;
 
 

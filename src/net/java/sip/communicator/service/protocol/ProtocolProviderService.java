@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.event.*;
 import java.util.*;
+
+import net.java.sip.communicator.service.protocol.event.*;
 
 
 /**
@@ -35,6 +36,14 @@ import java.util.*;
 public interface ProtocolProviderService
 {
     /**
+     * The name of the property containing the number of binds that a Protocol
+     * Provider Service Implementation should execute in case a port is already
+     * bound to (each retry would be on a new random port).
+     */
+    public static final String BIND_RETRIES_PROPERTY_NAME
+        = "net.java.sip.communicator.service.protocol.BIND_RETRIES";
+
+    /**
      * Starts the registration process. Connection details such as
      * registration server, user name/number are provided through the
      * configuration service through implementation specific properties.
@@ -42,15 +51,22 @@ public interface ProtocolProviderService
      * @param authority the security authority that will be used for resolving
      *        any security challenges that may be returned during the
      *        registration or at any moment while wer're registered.
-     *
+     * @throws OperationFailedException with the corresponding code it the
+     * registration fails for some reason (e.g. a networking error or an
+     * implementation problem).
      */
-    public void register(SecurityAuthority authority);
+    public void register(SecurityAuthority authority)
+        throws OperationFailedException;
 
     /**
      * Ends the registration of this protocol provider with the current
      * registration service.
+     * @throws OperationFailedException with the corresponding code it the
+     * registration fails for some reason (e.g. a networking error or an
+     * implementation problem).
      */
-    public void unregister();
+    public void unregister()
+        throws OperationFailedException;
 
     /**
      * Indicates whether or not this provider is registered

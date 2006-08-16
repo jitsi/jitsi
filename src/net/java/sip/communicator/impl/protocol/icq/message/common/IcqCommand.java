@@ -35,11 +35,10 @@
 
 package net.java.sip.communicator.impl.protocol.icq.message.common;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 
-import net.kano.joscar.DefensiveTools;
-import net.kano.joscar.snaccmd.conn.SnacFamilyInfo;
+import net.kano.joscar.*;
+import net.kano.joscar.snaccmd.conn.*;
 
 /**
  * A base class for commands in the "old ICQ" <code>0x15</code> SNAC

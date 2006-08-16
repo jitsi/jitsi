@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.*;
 
 /**
  * Custom table model, that allows represent a boolean value with a check

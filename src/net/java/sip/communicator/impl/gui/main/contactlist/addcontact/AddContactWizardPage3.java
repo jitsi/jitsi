@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
-import net.java.sip.communicator.service.gui.WizardPage;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * The <tt>AddContactWizardPage3</tt> is the last page of the "Add Contact"

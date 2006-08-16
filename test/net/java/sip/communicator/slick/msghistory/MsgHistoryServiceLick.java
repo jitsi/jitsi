@@ -28,7 +28,9 @@ public class MsgHistoryServiceLick extends TestSuite implements BundleActivator 
      *            BundleContext
      * @throws Exception
      */
-    public void start(BundleContext bundleContext) throws Exception {
+    public void start(BundleContext bundleContext)
+        throws Exception
+    {
         MsgHistoryServiceLick.bc = bundleContext;
 
         setName("MsgHistoryServiceLick");
@@ -47,6 +49,8 @@ public class MsgHistoryServiceLick extends TestSuite implements BundleActivator 
      * @param bundlecontext BundleContext
      * @throws Exception
      */
-    public void stop(BundleContext bundlecontext) throws Exception {
+    public void stop(BundleContext bundlecontext)
+        throws Exception
+    {
     }
 }

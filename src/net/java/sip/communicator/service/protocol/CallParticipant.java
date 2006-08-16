@@ -7,9 +7,8 @@
 package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
-import net.java.sip.communicator.service.protocol.event.CallParticipantListener;
 
-import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * The CallParticipant is an interface that represents participants in a call.

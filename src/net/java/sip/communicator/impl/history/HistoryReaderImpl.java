@@ -24,7 +24,8 @@ public class HistoryReaderImpl implements HistoryReader {
 
     private HistoryImpl historyImpl;
 
-    protected HistoryReaderImpl(HistoryImpl historyImpl) {
+    protected HistoryReaderImpl(HistoryImpl historyImpl)
+    {
         this.historyImpl = historyImpl;
     }
 
@@ -35,7 +36,9 @@ public class HistoryReaderImpl implements HistoryReader {
         return this.findByXpath(expr);
     }
 
-    public QueryResultSet findByEndDate(Date endDate) throws RuntimeException {
+    public QueryResultSet findByEndDate(Date endDate)
+        throws RuntimeException
+    {
         String expr = "/history/record[@timestamp<" + endDate.getTime() + "]";
 
         return this.findByXpath(expr);
@@ -49,7 +52,9 @@ public class HistoryReaderImpl implements HistoryReader {
         return this.findByXpath(expr);
     }
 
-    public QueryResultSet findByKeyword(String keyword, String field) throws RuntimeException {
+    public QueryResultSet findByKeyword(String keyword, String field)
+        throws RuntimeException
+    {
         return findByKeywords(new String[] { keyword }, field);
     }
 
@@ -57,7 +62,8 @@ public class HistoryReaderImpl implements HistoryReader {
             throws RuntimeException {
 
         String expr = "/history/record";
-        for (int i = 0; i < keywords.length; i++) {
+        for (int i = 0; i < keywords.length; i++)
+        {
             expr += "[contains(" + field + "/text(),'" + keywords[i] + "')]";
         }
 
@@ -65,27 +71,32 @@ public class HistoryReaderImpl implements HistoryReader {
     }
 
     public QueryResultSet findByPeriod(Date startDate, Date endDate,
-            String[] keywords, String field) throws UnsupportedOperationException {
+            String[] keywords, String field) throws UnsupportedOperationException
+    {
         String expr = "/history/record[@timestamp>" + startDate.getTime() + "]"
                 + "[@timestamp<" + endDate.getTime() + "]";
-        for (int i = 0; i < keywords.length; i++) {
+        for (int i = 0; i < keywords.length; i++)
+        {
             expr += "[contains(" + field + "/text(),'" + keywords[i] + "')]";
         }
 
         return this.findByXpath(expr);
     }
 
-    public BidirectionalIterator bidirectionalIterator() {
+    public BidirectionalIterator bidirectionalIterator()
+    {
         String expr = "/history/record";
 
         return this.findByXpath(expr);
     }
 
-    public Iterator iterator() {
+    public Iterator iterator()
+    {
         return this.bidirectionalIterator();
     }
 
-    private QueryResultSet findByXpath(String xpathExpression) {
+    private QueryResultSet findByXpath(String xpathExpression)
+    {
         TreeSet result = new TreeSet(new HistoryRecordComparator());
 
         Iterator filelist = this.historyImpl.getFileList();
@@ -93,13 +104,16 @@ public class HistoryReaderImpl implements HistoryReader {
         Navigator navigator = DocumentNavigator.getInstance();
         XPath xpath;
 
-        try {
+        try
+        {
             xpath = navigator.parseXPath(xpathExpression);
-        } catch (SAXPathException e) {
+        } catch (SAXPathException e)
+        {
             throw new RuntimeException(e);
         }
 
-        while (filelist.hasNext()) {
+        while (filelist.hasNext())
+        {
             String filename = (String) filelist.next();
 
             Document doc = this.historyImpl.getDocumentForFile(filename);
@@ -107,12 +121,15 @@ public class HistoryReaderImpl implements HistoryReader {
             List nodes;
             try {
                 nodes = xpath.selectNodes(doc);
-            } catch (JaxenException e) {
+            }
+            catch (JaxenException e)
+            {
                 throw new RuntimeException(e);
             }
 
             Iterator i = nodes.iterator();
-            while (i.hasNext()) {
+            while (i.hasNext())
+            {
                 Node node = (Node) i.next();
 
                 NodeList propertyNodes = node.getChildNodes();
@@ -124,9 +141,11 @@ public class HistoryReaderImpl implements HistoryReader {
                 ArrayList nameVals = new ArrayList();
 
                 int len = propertyNodes.getLength();
-                for (int j = 0; j < len; j++) {
+                for (int j = 0; j < len; j++)
+                {
                     Node propertyNode = propertyNodes.item(j);
-                    if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
+                    if (propertyNode.getNodeType() == Node.ELEMENT_NODE)
+                    {
                         nameVals.add(propertyNode.getNodeName());
                         // Get nested TEXT node's value
                         nameVals.add(propertyNode.getFirstChild()
@@ -136,7 +155,8 @@ public class HistoryReaderImpl implements HistoryReader {
 
                 String[] propertyNames = new String[nameVals.size() / 2];
                 String[] propertyValues = new String[propertyNames.length];
-                for (int j = 0; j < propertyNames.length; j++) {
+                for (int j = 0; j < propertyNames.length; j++)
+                {
                     propertyNames[j] = (String) nameVals.get(j * 2);
                     propertyValues[j] = (String) nameVals.get(j * 2 + 1);
                 }
