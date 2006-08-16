@@ -99,6 +99,8 @@ public class ProtocolProviderFactorySipImpl
         if (userIDStr == null)
             throw new NullPointerException("The specified AccountID was null");
 
+        accountProperties.put(USER_ID, userIDStr);
+
         if (accountProperties == null)
             throw new NullPointerException("The specified property map was null");
 
@@ -122,12 +124,12 @@ public class ProtocolProviderFactorySipImpl
         //an osgi event, the osgi event triggers (trhgough the UI) a call to
         //the register() method and it needs to acces the configuration service
         //and check for a password.
-//        this.storeAccount(
-//            SipActivator.getBundleContext()
-//            , accountID
-//            , implementationPackageName);
+        this.storeAccount(
+            SipActivator.getBundleContext()
+            , accountID
+            , implementationPackageName);
 
-        accountID = loadAccount(userIDStr, accountProperties);
+        accountID = loadAccount(accountProperties);
 
         return accountID;
     }
@@ -138,20 +140,21 @@ public class ProtocolProviderFactorySipImpl
      * accountProperties and registers the resulting ProtocolProvider in the
      * <tt>context</tt> BundleContext parameter.
      *
-     * @param userIDStr the user identifier for the new account
      * @param accountProperties a set of protocol (or implementation)
      *   specific properties defining the new account.
      * @return the AccountID of the newly created account
      */
-    protected AccountID loadAccount(String userIDStr, Map accountProperties)
+    protected AccountID loadAccount(Map accountProperties)
     {
         BundleContext context
             = SipActivator.getBundleContext();
         if(context == null)
             throw new NullPointerException("The specified BundleContext was null");
 
+        String userIDStr = (String)accountProperties.get(USER_ID);
         if(userIDStr == null)
-            throw new NullPointerException("The specified AccountID was null");
+            throw new NullPointerException(
+                "The account properties contained no user id.");
 
         if(accountProperties == null)
             throw new NullPointerException("The specified property map was null");
@@ -176,7 +179,15 @@ public class ProtocolProviderFactorySipImpl
         ProtocolProviderServiceSipImpl sipProtocolProvider
             = new ProtocolProviderServiceSipImpl();
 
-        sipProtocolProvider.initialize(userIDStr, accountID);
+        try
+        {
+            sipProtocolProvider.initialize(userIDStr, accountID);
+        }
+        catch (OperationFailedException ex)
+        {
+            throw new IllegalArgumentException("Failed to initialize account"
+                , ex);
+        }
 
         ServiceRegistration registration
             = context.registerService( ProtocolProviderService.class.getName(),
@@ -201,14 +212,57 @@ public class ProtocolProviderFactorySipImpl
 
     /**
      * Removes the specified account from the list of accounts that this
-     * provider factory is handling.
+     * provider factory is handling. If the specified accountID is unknown to
+     * the ProtocolProviderFactory, the call has no effect and false is returned.
+     * This method is persistent in nature and once called the account
+     * corresponding to the specified ID will not be loaded during future runs
+     * of the project.
      *
      * @param accountID the ID of the account to remove.
-     * @return true if an account with the specified ID existed and was
-     *   removed and false otherwise.
+     * @return true if an account with the specified ID existed and was removed
+     * and false otherwise.
      */
     public boolean uninstallAccount(AccountID accountID)
     {
-        return false;
+        ServiceRegistration registration
+            = (ServiceRegistration) registeredAccounts.remove(accountID);
+
+        if (registration == null)
+            return false;
+
+        //kill the service
+        registration.unregister();
+
+        return removeStoredAccount(
+            SipActivator.getBundleContext()
+            , accountID
+            , implementationPackageName);
     }
+
+    /**
+     * Prepares the factory for bundle shutdown.
+     */
+    public void stop()
+    {
+        Enumeration registrations = this.registeredAccounts.elements();
+
+        while(registrations.hasMoreElements())
+        {
+            ServiceRegistration reg
+                = ((ServiceRegistration)registrations.nextElement());
+
+            reg.unregister();
+
+
+        }
+
+        Enumeration idEnum = registeredAccounts.keys();
+
+        while(idEnum.hasMoreElements())
+        {
+            registeredAccounts.remove(idEnum.nextElement());
+        }
+    }
+
+
 }
