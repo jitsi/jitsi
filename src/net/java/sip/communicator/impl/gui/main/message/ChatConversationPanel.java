@@ -7,52 +7,23 @@
 
 package net.java.sip.communicator.impl.gui.main.message;
 
-import java.awt.BasicStroke;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.ClipboardOwner;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.awt.*;
+import java.awt.datatransfer.*;
+import java.awt.event.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.regex.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JEditorPane;
-import javax.swing.JMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.SwingUtilities;
-import javax.swing.ToolTipManager;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Element;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.text.*;
+import javax.swing.text.html.*;
 
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.message.menu.ChatRightButtonMenu;
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.utils.CrossPlatformBrowserLauncher;
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
-import net.java.sip.communicator.impl.gui.utils.SIPCommHTMLEditorKit;
-import net.java.sip.communicator.impl.gui.utils.Smiley;
-import net.java.sip.communicator.impl.gui.utils.StringUtils;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.message.menu.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ChatConversationPanel</tt> is the panel, where all sent and received
@@ -200,8 +171,9 @@ public class ChatConversationPanel extends JScrollPane implements
      * @param messageType The type of the message. One of OUTGOING_MESSAGE 
      * or INCOMING_MESSAGE. 
      * @param message The message text.
+     * @return the formatted message
      */
-    public void processMessage(String contactName, Date date,
+    public String processMessage(String contactName, Date date,
             String messageType, String message) {
         
         String chatString = "";
@@ -264,7 +236,7 @@ public class ChatConversationPanel extends JScrollPane implements
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
                 + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
-                + "<DIV style=\"color:#A7A7A7;\">" + "<PLAINTEXT>"
+                + "<DIV style=\"color:#B9B9B9;\">" + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
                 + "</PLAINTEXT>" + "</DIV>";
         }
@@ -276,7 +248,7 @@ public class ChatConversationPanel extends JScrollPane implements
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
                 + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
-                + "<DIV style=\"color:#A7A7A7;\">" + "<PLAINTEXT>"
+                + "<DIV style=\"color:#B9B9B9;\">" + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
                 + "</PLAINTEXT>" + "</DIV>";
         }
@@ -293,16 +265,45 @@ public class ChatConversationPanel extends JScrollPane implements
         }
         //Scroll to the last inserted text in the document.
         this.setCarretToEnd();
-    }
-
         
+        return chatString;
+    }
+    
+    /**
+     * Processes the message given by the parameters.
+     * 
+     * @param contactName The name of the contact sending the message.
+     * @param date The time at which the message is sent or received.
+     * @param messageType The type of the message. One of OUTGOING_MESSAGE 
+     * or INCOMING_MESSAGE. 
+     * @param message The message text.
+     */
+    public String processMessage(String contactName, Date date,
+            String messageType, String message, String keyword) {
+     
+        String formattedMessage = message;
+
+        if(keyword != null) {
+            formattedMessage = processKeyWords(message, keyword);
+        }
+        return this.processMessage(contactName, date, 
+                    messageType, formattedMessage);
+    }
+    
+    private String processKeyWords(String message, String keyword) {
+        
+        return message.replaceAll(keyword,
+                "</PLAINTEXT><B>"
+                + keyword + "</B><PLAINTEXT>");
+    }
+    
     /**
      * Formats all links in the given message.
      * 
      * @param message The source message string.
      * @return The message string with properly formatted links.
      */
-    public static String processLinks(String message) {
+    private String processLinks(String message) {
 
         String wwwURL = "(\\bwww\\.\\S+\\.\\S+/*[?#]*(\\w+[&=;?]\\w+)*\\b)";
         String protocolURL = "(\\b\\w+://\\S+/*[?#]*(\\w+[&=;?]\\w+)*\\b)";

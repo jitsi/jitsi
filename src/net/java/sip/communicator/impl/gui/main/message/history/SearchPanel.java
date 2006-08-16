@@ -7,23 +7,13 @@
 
 package net.java.sip.communicator.impl.gui.main.message.history;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 /**
  * The <tt>SearchPanel</tt> is the panel, where user could make a search in
  * the message history. The search could be made by specifying a date
@@ -149,6 +139,7 @@ public class SearchPanel extends JPanel implements ActionListener {
         // this.extendedSearchButton.setName("extendedSearch");
         // this.extendedSearchOpenedButton.setName("extendedSearchOpened");
 
+        this.getRootPane().setDefaultButton(searchButton);
         this.searchButton.addActionListener(this);
         
         this.searchButtonPanel.add(searchButton);
@@ -163,7 +154,7 @@ public class SearchPanel extends JPanel implements ActionListener {
 
         // this.extendedSearchButton.addActionListener(this);
         // this.extendedSearchOpenedButton.addActionListener(this);
-
+        
         this.enableDefaultSearchSettings();
     }
 

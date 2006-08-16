@@ -6,25 +6,16 @@
  */
 package net.java.sip.communicator.impl.gui.main.message.history;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.util.Calendar;
-import java.util.Date;
+import java.awt.*;
+import java.util.*;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.*;
+import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.gui.GuiActivator;
-import net.java.sip.communicator.impl.gui.customcontrols.ExtListCellRenderer;
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.service.msghistory.MessageHistoryService;
-
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.msghistory.*;
 /**
  * The <tt>DatesPanel</tt> contains the list of history dates for a contact.
  * 
@@ -71,7 +62,41 @@ public class DatesPanel extends JScrollPane
         
         this.datesList.addListSelectionListener(this);
     }
+        
+    /**
+     * Returns the number of dates contained in this dates panel.
+     * @return the number of dates contained in this dates panel
+     */
+    public int getDatesNumber() {
+        return listModel.size();
+    }
     
+    /**
+     * Returns the date at the given index.
+     * @param index the index of the date in the list model
+     * @return the date at the given index
+     */
+    public Date getDate(int index) {
+        return stringToDate((String)listModel.get(index));
+    }
+    
+    /**
+     * Returns the next date in the list.
+     * @param date the date from which to start
+     * @return the next date in the list
+     */
+    public Date getNextDate(Date date) {
+        Date nextDate;
+        int dateIndex = listModel.indexOf(dateToString(date));
+        
+        if(dateIndex < listModel.getSize() - 1) {
+            nextDate = getDate(dateIndex + 1);
+        }
+        else {
+            nextDate = new Date(System.currentTimeMillis()); 
+        }
+        return nextDate;
+    }
     /**
      * Adds the given date to the list of dates.
      * @param date the date to add
@@ -90,6 +115,13 @@ public class DatesPanel extends JScrollPane
         String dateString = this.dateToString(date);
         
         listModel.removeElement(dateString);
+    }
+    
+    /**
+     * Removes all dates contained in this dates panel.
+     */
+    public void removeAllDates() {
+        listModel.removeAllElements();
     }
     
     /**
@@ -126,7 +158,10 @@ public class DatesPanel extends JScrollPane
      * Transforms the given string into date, which contains only
      * day, month and year.
      * @param dateString the string to transform into date
-     * @return the <tt>Date</tt>, obtained from the given string
+     * @return the <tt>Date</tt>, obtained from the given
+        this.historyPanel.revalidate();
+        this.historyPanel.repaint();
+         string
      */
     public Date stringToDate(String dateString) {
         
@@ -165,20 +200,22 @@ public class DatesPanel extends JScrollPane
     public void valueChanged(ListSelectionEvent e) {       
         int selectedIndex = this.datesList.getSelectedIndex();
         
-        String dateString = (String)this.listModel.get(selectedIndex);
-        
-        Date nextDate;
-        if(selectedIndex < listModel.getSize() - 1) {
-            nextDate = stringToDate(
-                    (String)this.listModel.get(selectedIndex + 1));
+        if(selectedIndex != -1) {
+            String dateString = (String)this.listModel.get(selectedIndex);
+            
+            Date nextDate;
+            if(selectedIndex < listModel.getSize() - 1) {
+                nextDate = stringToDate(
+                        (String)this.listModel.get(selectedIndex + 1));
+            }
+            else {
+                nextDate = new Date(System.currentTimeMillis()); 
+            }
+            
+            this.historyWindow.showHistoryByPeriod(
+                    stringToDate(dateString),
+                    nextDate);
         }
-        else {
-            nextDate = new Date(System.currentTimeMillis()); 
-        }
-        
-        this.historyWindow.showHistoryByPeriod(
-                stringToDate(dateString),
-                nextDate);
     }
     
     /**
