@@ -26,6 +26,8 @@
 
     <!-- Put here the release directory -->
     <property name="macosx.app.dir" value="${release}/macosx"/>
+    <!-- Put here the resource directory -->
+    <property name="macosx.resrc.dir" value="${inst.resrc}/macosx"/>
     <!-- Put here the Application name -->
     <property name="macosx.app.name" value="SIP Communicator"/>
     <!-- Put here the Application version -->
@@ -257,8 +259,10 @@
       <taskdef name="jarbundler"
                classname="net.sourceforge.jarbundler.JarBundler"/>
 
+       <mkdir dir="${macosx.app.dir}"/>
+
       <property name="macosx.stubfile"
-                value="${macosx.app.dir}/utils/JavaApplicationStub"/>
+                value="${macosx.resrc.dir}/JavaApplicationStub"/>
       <condition property="macosx.stubfile"
                  value="/System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub">
         <equals arg1="${os.name}"
@@ -277,7 +281,7 @@
                   shortname="SIP Communicator"
                   signature="sipc"
                   mainclass="org.ungoverned.oscar.Main"
-                  icon="${macosx.app.dir}/utils/sipcom.icns"
+                  icon="src/net/java/sip/communicator/impl/gui/resources/common/logo/sc_logo_128x128.icns"
                   jvmversion="1.4+"
                   version="${macosx.app.ver}"
                   build="draft"
