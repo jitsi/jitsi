@@ -21,6 +21,7 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.message.menu.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
@@ -88,7 +89,7 @@ public class ChatConversationPanel extends JScrollPane implements
             = new ChatRightButtonMenu(this);
 
         this.document = (HTMLDocument) editorKit.createDefaultDocument();
-
+        
         this.chatEditorPane.setContentType("text/html");
 
         this.chatEditorPane.setEditable(false);
@@ -100,12 +101,8 @@ public class ChatConversationPanel extends JScrollPane implements
 
         Constants.loadSimpleStyle(document.getStyleSheet());
 
-        //this.initEditor();
-
         this.chatEditorPane.addHyperlinkListener(this);
         this.chatEditorPane.addMouseListener(this);
-
-        this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         this.setWheelScrollingEnabled(true);
 
@@ -116,6 +113,10 @@ public class ChatConversationPanel extends JScrollPane implements
         this.setHorizontalScrollBarPolicy(
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
+        this.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(3, 3, 3, 3),
+                SIPCommBorders.getBoldRoundBorder()));
+        
         ToolTipManager.sharedInstance().registerComponent(chatEditorPane);
 
         copyLinkItem.addActionListener(new ActionListener() {
@@ -238,7 +239,7 @@ public class ChatConversationPanel extends JScrollPane implements
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
                 + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
-                + "<DIV style=\"color:#B9B9B9;\">" + "<PLAINTEXT>"
+                + "<DIV style=\"color:#707070;\">" + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
                 + "</PLAINTEXT>" + "</DIV>";
         }
@@ -250,7 +251,7 @@ public class ChatConversationPanel extends JScrollPane implements
                 + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
                 + processTime(calendar.get(Calendar.MINUTE)) + ":"
                 + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
-                + "<DIV style=\"color:#B9B9B9;\">" + "<PLAINTEXT>"
+                + "<DIV style=\"color:#707070;\">" + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
                 + "</PLAINTEXT>" + "</DIV>";
         }
@@ -463,27 +464,7 @@ public class ChatConversationPanel extends JScrollPane implements
              */
         }
     }
-
-    /**
-     * Overrides the javax.swing.JComponent.paint()
-     * in order to provide a new round border for the panel.
-     * @param g The Graphics object.
-     */
-    public void paint(Graphics g) {
-
-        AntialiasingManager.activateAntialiasing(g);
-
-        super.paint(g);
-
-        Graphics2D g2 = (Graphics2D) g;
-
-        g2.setColor(Constants.BLUE_GRAY_BORDER_COLOR);
-        g2.setStroke(new BasicStroke(1.5f));
-
-        g2.drawRoundRect(3, 3, this.getWidth() - 7, this.getHeight() - 5, 8, 8);
-
-    }
-
+    
     /**
      * Returns the editor of this conversation panel.
      * @return The editor of this conversation panel.

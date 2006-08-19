@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.message;
 
 import java.io.*;
 import java.util.*;
-import java.util.Iterator;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -20,6 +19,7 @@ import javax.swing.text.html.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -107,7 +107,7 @@ public class ChatPanel extends JPanel
         this.chatConferencePanel.setMinimumSize(new Dimension(120, 100));
         this.writeMessagePanel.setPreferredSize(new Dimension(400, 100));
         this.writeMessagePanel.setMinimumSize(new Dimension(400, 100));
-
+        
         this.init();
 
         this.setChatMetaContact(metaContact, protocolContact.getPresenceStatus());

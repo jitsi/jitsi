@@ -14,6 +14,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.msghistory.*;
 /**
@@ -53,6 +54,10 @@ public class DatesPanel extends JScrollPane
         this.datesList.setCellRenderer(renderer);
 
         this.datesList.setFont(Constants.FONT.deriveFont(Font.BOLD));
+        
+        this.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(3, 3, 3, 0),
+                SIPCommBorders.getBoldRoundBorder()));
 
         this.datesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 

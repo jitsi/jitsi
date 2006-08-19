@@ -14,6 +14,7 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.message.menu.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -60,8 +61,6 @@ public class ChatWritePanel extends JScrollPane implements
         this.rightButtonMenu 
             = new WritePanelRightButtonMenu(chatPanel.getChatWindow());
 
-        this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
         this.setHorizontalScrollBarPolicy(
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -74,28 +73,13 @@ public class ChatWritePanel extends JScrollPane implements
 
         this.getViewport().add(editorPane, BorderLayout.CENTER);
 
+        this.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(3, 3, 3, 3),
+                SIPCommBorders.getBoldRoundBorder()));
+        
         this.getVerticalScrollBar().setUnitIncrement(30);
 
         this.typingTimer.setRepeats(true);
-    }
-
-    /**
-     * Overrides the <code>javax.swing.JComponent.paint()</code> in order
-     * to privide a round border.
-     * @param g The Graphics object.
-     */
-    public void paint(Graphics g) {
-
-        AntialiasingManager.activateAntialiasing(g);
-
-        super.paint(g);
-
-        Graphics2D g2 = (Graphics2D) g;
-
-        g2.setColor(Constants.BLUE_GRAY_BORDER_COLOR);
-        g2.setStroke(new BasicStroke(1.5f));
-
-        g2.drawRoundRect(3, 3, this.getWidth() - 4, this.getHeight() - 4, 8, 8);
     }
 
     /**

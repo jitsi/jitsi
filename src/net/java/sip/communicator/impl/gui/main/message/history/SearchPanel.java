@@ -30,8 +30,9 @@ public class SearchPanel extends JPanel implements ActionListener {
     private JLabel searchLabel
         = new JLabel(Messages.getString("search") + ": ");
 
-    private JTextField searchTextField = new JTextField(20);
+    private JTextField searchTextField = new JTextField();
 
+    /*
     private JRadioButton todayMessagesRadio = new JRadioButton(Messages
             .getString("today"));
 
@@ -57,24 +58,19 @@ public class SearchPanel extends JPanel implements ActionListener {
             Messages.getString("last") + ": "); //$NON-NLS-1$
 
     private JTextField lastNMessagesTextField = new JTextField(10);
+    
+    private SIPCommButton extendedSearchButton = new SIPCommButton
+        (Messages.getString("extendedCriteria"), //$NON-NLS-1$
+        Constants.RIGHT_ARROW_ICON, Constants.RIGHT_ARROW_ROLLOVER_ICON);
+    
+    private SIPCommButton extendedSearchOpenedButton = new SIPCommButton
+        (Messages.getString("extendedCriteria"), //$NON-NLS-1$
+        Constants.BOTTOM_ARROW_ICON, Constants.BOTTOM_ARROW_ROLLOVER_ICON);
 
-    /*
-     * private SIPCommButton extendedSearchButton = new SIPCommButton
-     * (Messages.getString("extendedCriteria"), //$NON-NLS-1$
-     * Constants.RIGHT_ARROW_ICON, Constants.RIGHT_ARROW_ROLLOVER_ICON);
-     *
-     * private SIPCommButton extendedSearchOpenedButton = new SIPCommButton
-     * (Messages.getString("extendedCriteria"), //$NON-NLS-1$
-     * Constants.BOTTOM_ARROW_ICON, Constants.BOTTOM_ARROW_ROLLOVER_ICON);
-     */
-
-    // ////////////////////// Panels //////////////////////////////
     private JPanel datePanel = new JPanel(new GridLayout(0, 2, 10, 0));
 
     private JPanel dateCenteredPanel = new JPanel(new FlowLayout(
             FlowLayout.CENTER));
-
-    private JPanel searchPanel = new JPanel(new BorderLayout());
 
     private JPanel detailsPanel = new JPanel(new BorderLayout());
 
@@ -83,7 +79,10 @@ public class SearchPanel extends JPanel implements ActionListener {
     private JPanel detailsFieldsPanel = new JPanel(new GridLayout(0, 1, 5, 5));
 
     private JPanel checksPanel = new JPanel(new GridLayout(0, 1));
+    */
 
+    private JPanel searchPanel = new JPanel(new BorderLayout());
+    
     private JPanel searchButtonPanel = new JPanel(new FlowLayout(
             FlowLayout.CENTER));
 
@@ -95,12 +94,14 @@ public class SearchPanel extends JPanel implements ActionListener {
      * Creates an instance of the <tt>SearchPanel</tt>.
      */
     public SearchPanel(HistoryWindow historyWindow) {
+        
+        super(new BorderLayout());
 
         this.historyWindow = historyWindow;
 
         this.setBorder(BorderFactory.createTitledBorder(Messages
                 .getString("search"))); //$NON-NLS-1$
-
+        
         this.init();
     }
 
@@ -111,6 +112,7 @@ public class SearchPanel extends JPanel implements ActionListener {
         this.searchPanel.add(searchLabel, BorderLayout.WEST);
         this.searchPanel.add(searchTextField, BorderLayout.CENTER);
 
+        /*
         this.detailsLabelsPanel.add(dateLabel);
         this.detailsLabelsPanel.add(hourLabel);
         this.detailsLabelsPanel.add(lastNMessagesLabel);
@@ -134,7 +136,8 @@ public class SearchPanel extends JPanel implements ActionListener {
         this.datePanel.add(detailsPanel);
 
         this.dateCenteredPanel.add(datePanel);
-
+        */
+        
         this.searchButton.setName("search");
         // this.extendedSearchButton.setName("extendedSearch");
         // this.extendedSearchOpenedButton.setName("extendedSearchOpened");
@@ -148,14 +151,14 @@ public class SearchPanel extends JPanel implements ActionListener {
         // BorderLayout.CENTER);
 
         this.add(searchPanel, BorderLayout.CENTER);
-        this.add(searchButtonPanel, BorderLayout.EAST);
+        this.add(searchButtonPanel, BorderLayout.SOUTH);
 
         // this.add(extendedSearchPanel, BorderLayout.SOUTH);
 
         // this.extendedSearchButton.addActionListener(this);
         // this.extendedSearchOpenedButton.addActionListener(this);
 
-        this.enableDefaultSearchSettings();
+        //this.enableDefaultSearchSettings();
     }
 
     /**
@@ -191,7 +194,9 @@ public class SearchPanel extends JPanel implements ActionListener {
     /**
      * Enables the settings for a default search.
      */
+    /*
     private void enableDefaultSearchSettings() {
         this.allMessagesRadio.setSelected(true);
     }
+    */
 }
