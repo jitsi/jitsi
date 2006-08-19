@@ -61,6 +61,8 @@ public class WelcomeWindow extends JDialog
         this.communicator = c;
         this.loginManager = loginManager;
 
+        this.exitButton.setMnemonic('X');
+        
         this.getRootPane().setDefaultButton(continueButton);
         
         this.continueButton.addActionListener(this);
@@ -94,14 +96,11 @@ public class WelcomeWindow extends JDialog
         });
         
         getRootPane().getActionMap().put("close", new CloseAction());
-        getRootPane().getActionMap().put("exit", new ExitAction());
-        
+                
         InputMap imap = this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, 
-                KeyEvent.ALT_DOWN_MASK), "exit");
     }
 
     /**
