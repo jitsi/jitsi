@@ -76,7 +76,7 @@ public class SIPCommDefaultTheme
             "Menu.opaque", Boolean.FALSE,
 
             "InternalFrame.activeTitleGradient", buttonGradient,
-
+            
             "OptionPane.warningIcon",
                 new ImageIcon(ImageLoader.getImage(ImageLoader.WARNING_ICON)),
 
@@ -92,7 +92,7 @@ public class SIPCommDefaultTheme
             "SplitPane.oneTouchButtonsOpaque", Boolean.FALSE,
             "SplitPane.dividerFocusColor", LIGHT_BLUE_GRAY,
             "SplitPane.dividerSize", new Integer(5),
-
+            
             "ScrollBar.width", new Integer(12),
             "ScrollBar.horizontalThumbIcon",
                 ImageLoader.getImage(
@@ -109,7 +109,7 @@ public class SIPCommDefaultTheme
             "ScrollBar.trackHighlight", GRAY,
             "ScrollBar.highlight", LIGHT_GRAY,
             "ScrollBar.darkShadow", GRAY,
-
+            
             "TabbedPane.borderHightlightColor", LIGHT_BLUE,
             "TabbedPane.contentBorderInsets", new Insets(2, 2, 3, 3),
             "TabbedPane.selected", LIGHT_GRAY,
@@ -133,7 +133,7 @@ public class SIPCommDefaultTheme
             "ToolTip.backgroundInactive", LIGHT_GRAY,
             "ToolTip.hideAccelerator", Boolean.FALSE,
             
-            "TitledBorder.border", SIPCommBorders.getRoundBorder()
+            "TitledBorder.border", SIPCommBorders.getBoldRoundBorder()
         };
         table.putDefaults(defaults);
     }

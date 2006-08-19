@@ -62,7 +62,45 @@ public class SIPCommBorders {
         }
         return roundBorder;
     }
+    
+    /**
+     * The BoldRoundBorder is common border which is used throughout the 
+     * SIPComm L&F.
+     */
+    public static class BoldRoundBorder extends AbstractBorder
+        implements UIResource{
 
+        private static final Insets insets = new Insets(2, 2, 2, 2);
+
+        public void paintBorder(Component c, Graphics g, int x, int y,
+              int w, int h) {
+            
+            SIPCommLFUtils.drawBoldRoundBorder(g, x, y, w, h, 8, 8);
+        }
+        public Insets getBorderInsets(Component c)       {
+            return insets;
+        }
+        public Insets getBorderInsets(Component c, Insets newInsets) {
+            newInsets.top = insets.top;
+            newInsets.left = insets.left;
+            newInsets.bottom = insets.bottom;
+            newInsets.right = insets.right;
+            
+            return newInsets;
+        }       
+    }
+    
+    private static Border boldRoundBorder;
+    
+    public static Border getBoldRoundBorder() {
+        if (boldRoundBorder == null 
+            || !(boldRoundBorder instanceof SIPCommBorders.BoldRoundBorder)) {
+            boldRoundBorder =  new BorderUIResource.CompoundBorderUIResource(
+                    new SIPCommBorders.BoldRoundBorder(),
+                    new BasicBorders.MarginBorder());
+        }
+        return boldRoundBorder;
+    }
     
     private static Border textFieldBorder;
 
