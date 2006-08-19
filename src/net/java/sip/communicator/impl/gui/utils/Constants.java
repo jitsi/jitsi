@@ -222,7 +222,7 @@ public class Constants {
     /**
      * The size of the font used in this ui implementation.
      */
-    public static final String FONT_SIZE = "10";
+    public static final String FONT_SIZE = "12";
 
     /**
      * The default <tt>Font</tt> object used through this ui implementation.
