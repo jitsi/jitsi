@@ -15,7 +15,7 @@ import net.java.sip.communicator.util.*;
  * The <tt>WelcomeWindow</tt> is the window shown at the very beginning,
  * when the application is run and indicates that the current version is
  * not a final release and may not work as expected.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class WelcomeWindow extends JDialog
@@ -31,7 +31,7 @@ public class WelcomeWindow extends JDialog
 
     private WindowBackground windowBackground = new WindowBackground();
 
-    private JButton continueButton 
+    private JButton continueButton
         = new JButton(Messages.getString("continue"));
 
     private JButton exitButton = new JButton(Messages.getString("exit"));
@@ -56,15 +56,16 @@ public class WelcomeWindow extends JDialog
     public WelcomeWindow(CommunicatorMain c,
             LoginManager loginManager, BundleContext context) {
         super(c.getMainFrame(), Messages.getString("warning"));
-        
+
         this.bc = context;
         this.communicator = c;
         this.loginManager = loginManager;
 
         this.exitButton.setMnemonic('X');
-        
+        this.continueButton.setMnemonic('C');
+
         this.getRootPane().setDefaultButton(continueButton);
-        
+
         this.continueButton.addActionListener(this);
         this.exitButton.addActionListener(this);
 
@@ -84,9 +85,9 @@ public class WelcomeWindow extends JDialog
 
         this.windowBackground.setBorder(BorderFactory.createEmptyBorder(5, 10,
                 5, 5));
-        
+
         this.setDefaultCloseOperation(JDialog.EXIT_ON_CLOSE);
-        
+
         this.addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e) {
                 dispose();
@@ -94,9 +95,9 @@ public class WelcomeWindow extends JDialog
                 SwingUtilities.invokeLater(new RunLogin());
             }
         });
-        
+
         getRootPane().getActionMap().put("close", new CloseAction());
-                
+
         InputMap imap = this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
@@ -106,7 +107,7 @@ public class WelcomeWindow extends JDialog
     /**
      * Sets a transparent background to some components, because of the
      * background image of this window.
-     * 
+     *
      * @param transparent <code>true</code> to make components transparent,
      * <code>false</code> otherwise.
      */
@@ -145,7 +146,7 @@ public class WelcomeWindow extends JDialog
      */
     private class WindowBackground extends JPanel {
 
-        private Image bgImage 
+        private Image bgImage
             = ImageLoader.getImage(ImageLoader.LOGIN_WINDOW_LOGO);
 
         public WindowBackground() {
@@ -177,7 +178,7 @@ public class WelcomeWindow extends JDialog
             this.dispose();
             this.communicator.showCommunicator(true);
             SwingUtilities.invokeLater(new RunLogin());
-        } else {            
+        } else {
             try {
                 this.bc.getBundle(0).stop();
             } catch (BundleException ex) {
@@ -196,7 +197,7 @@ public class WelcomeWindow extends JDialog
             loginManager.runLogin(communicator.getMainFrame());
         }
     }
-    
+
     /**
      * The <tt>CloseAction</tt> is an <tt>AbstractAction</tt> that
      * closes this <tt>WelcomeWindow</tt> and shows the main application
@@ -209,7 +210,7 @@ public class WelcomeWindow extends JDialog
             SwingUtilities.invokeLater(new RunLogin());
         }
     };
-    
+
     /**
      * The <tt>ExitAction</tt> is an <tt>AbstractAction</tt> that
      * exits the application.
