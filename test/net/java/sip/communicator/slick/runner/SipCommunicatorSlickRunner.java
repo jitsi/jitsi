@@ -125,7 +125,8 @@ public class SipCommunicatorSlickRunner
 
             for (int i = 0; i < ids.length; i++)
             {
-                logger.debug("Retrieving test suite: " + ids[i]);
+                logger.info("=========== Running tests in : " + ids[i]
+                          + " ===========");
 
                 TestSuite slick = getTestSuite(bc, ids[i]);
 
