@@ -22,9 +22,13 @@ import net.java.sip.communicator.util.*;
  * Contains all functionality that has anything to do with registering and
  * maintaining registrations with a SIP Registrar.
  *
+ * @todo make sure that every time we change our state to unregistered we put
+ * the proper state code.
+ *
  * @author Emil Ivov
  */
 public class SipRegistrarConnection
+        implements SipListener
 {
     private static final Logger logger =
         Logger.getLogger(SipRegistrarConnection.class);
@@ -134,7 +138,7 @@ public class SipRegistrarConnection
         try
         {
             fromHeader = sipProvider.getHeaderFactory().createFromHeader(
-                sipProvider.ourSipAddress, ProtocolProviderServiceSipImpl
+                sipProvider.getOurSipAddress(), ProtocolProviderServiceSipImpl
                 .generateLocalTag());
         }
         catch (ParseException ex)
@@ -154,7 +158,7 @@ public class SipRegistrarConnection
 
         //Call ID Header
         CallIdHeader callIdHeader
-            = sipProvider.getJainSipProvider().getNewCallId();
+            = this.getRegistrarJainSipProvider().getNewCallId();
 
         //CSeq Header
         CSeqHeader cSeqHeader = null;
@@ -198,7 +202,7 @@ public class SipRegistrarConnection
         try
         {
             toHeader = sipProvider.getHeaderFactory().createToHeader(
-                sipProvider.ourSipAddress, null);
+                sipProvider.getOurSipAddress(), null);
         }
         catch (ParseException ex)
         {
@@ -218,7 +222,7 @@ public class SipRegistrarConnection
         }
         //Via Headers
          ArrayList viaHeaders = sipProvider.getLocalViaHeaders(
-                registrarAddress, sipProvider.getUdpListeningPoint());
+                registrarAddress, getRegistrarListeningPoint());
 
         //MaxForwardsHeader
         MaxForwardsHeader maxForwardsHeader = sipProvider.
@@ -286,14 +290,15 @@ public class SipRegistrarConnection
         //Contact Header (should contain IP)
         ContactHeader contactHeader
             = sipProvider.getRegistrationContactHeader(
-                registrarAddress, sipProvider.getUdpListeningPoint());
+                registrarAddress, getRegistrarListeningPoint());
 
         request.addHeader(contactHeader);
         //Transaction
         ClientTransaction regTrans = null;
         try
         {
-            regTrans = sipProvider.getJainSipProvider().getNewClientTransaction(
+            sipProvider.getJainSipStack().getSipProviders();
+            regTrans = getRegistrarJainSipProvider().getNewClientTransaction(
                 request);
         }
         catch (TransactionUnavailableException ex)
@@ -427,8 +432,7 @@ public class SipRegistrarConnection
                 (CSeqHeader) unregisterRequest.getHeader(CSeqHeader.NAME);
             //[issue 1] - increment registration cseq number
             //reported by - Roberto Tealdi <roby.tea@tin.it>
-            cSeqHeader.setSequenceNumber(getNextCSeqValue());
-
+            cSeqHeader.setSeqNumber(getNextCSeqValue());
         }
         catch (InvalidArgumentException ex)
         {
@@ -448,7 +452,7 @@ public class SipRegistrarConnection
         try
         {
             unregisterTransaction =
-                sipProvider.getJainSipProvider().getNewClientTransaction(
+                this.getRegistrarJainSipProvider().getNewClientTransaction(
                     unregisterRequest);
         }
         catch (TransactionUnavailableException ex)
@@ -648,4 +652,190 @@ public class SipRegistrarConnection
     {
         return registrarAddress;
     }
+
+    /**
+     * Returns the listening point that should be used for communiction with our
+     * current registrar.
+     *
+     * @return the listening point that should be used for communiction with our
+     * current registrar.
+     */
+    private ListeningPoint getRegistrarListeningPoint()
+    {
+        return sipProvider.getListeningPoint(registrarURI.getTransportParam());
+    }
+
+    /**
+     * Returns the JAIN SIP provider that should be used for communication with
+     * our current registrar.
+     *
+     * @return the JAIN SIP provider that should be used for communication with
+     * our current registrar.
+     */
+    private SipProvider getRegistrarJainSipProvider()
+    {
+        return sipProvider.getJainSipProvider(registrarURI.getTransportParam());
+    }
+
+    /**
+     * Analyzes the incoming <tt>responseEvent</tt> and then forwards it to the
+     * proper event handler.
+     *
+     * @param responseEvent the responseEvent that we received
+     * ProtocolProviderService.
+     */
+    public void processResponse(ResponseEvent responseEvent)
+    {
+        ClientTransaction clientTransaction = responseEvent
+            .getClientTransaction();
+
+        Response response = responseEvent.getResponse();
+        Dialog dialog = clientTransaction.getDialog();
+        String method = ( (CSeqHeader) response.getHeader(CSeqHeader.NAME)).
+                                                                getMethod();
+
+        Response responseClone = (Response) response.clone();
+
+        //OK
+        if (response.getStatusCode() == Response.OK) {
+            processOK(clientTransaction, response);
+        }
+        //NOT_IMPLEMENTED
+        else if (response.getStatusCode() == Response.OK) {
+            processNotImplemented(clientTransaction, response);
+        }
+        //Trying
+        else if (response.getStatusCode() == Response.TRYING) {
+            //do nothing
+        }
+        //401 UNAUTHORIZED
+        else if (response.getStatusCode() == Response.UNAUTHORIZED
+                 || response.getStatusCode()
+                                == Response.PROXY_AUTHENTICATION_REQUIRED)
+        {
+            processAuthenticationChallenge(clientTransaction, response);
+        }
+
+        //ignore everything else.
+    }
+
+    /**
+     * Attempts to re-ogenerate the corresponding request with the proper
+     * credentials and terminates the call if it fails.
+     *
+     * @param clientTransaction the corresponding transaction
+     * @param response the challenge
+     */
+    private void processAuthenticationChallenge(
+                        ClientTransaction clientTransaction,
+                        Response response)
+    {
+        try
+        {
+            Request register = clientTransaction.getRequest();
+
+            ClientTransaction retryTran
+                = sipProvider.getSipSecurityManager().handleChallenge(
+                    response
+                    , clientTransaction
+                    , getRegistrarJainSipProvider());
+
+            //Dialog dialog = clientTransaction.getDialog();
+
+
+            retryTran.sendRequest();
+            return;
+        }
+//        catch (SipSecurityException exc)
+//        {
+//            //tell the others we couldn't register
+//            sipManCallback.
+//                fireUnregistered(
+//                    ( (FromHeader) clientTransaction.getRequest().getHeader(
+//                        FromHeader.
+//                        NAME)).
+//                    getAddress().toString());
+//            sipManCallback.fireCommunicationsError(
+//                new CommunicationsException("Authorization failed!", exc));
+//        }
+        catch (Exception exc)
+        {
+//            //tell the others we couldn't register
+//            sipManCallback.
+//                fireUnregistered(
+//                    ( (FromHeader) clientTransaction.getRequest().getHeader(
+//                        FromHeader.
+//                        NAME)).
+//                    getAddress().toString());
+//            sipManCallback.fireCommunicationsError(
+//                new CommunicationsException("Failed to resend a request "
+//                                            + "after a security challenge!",
+//                                            exc)
+//                );
+        }
+    }
+
+    /**
+     * Process an asynchronously reported DialogTerminatedEvent.
+     * When a dialog transitions to the Terminated state, the stack
+     * keeps no further records of the dialog. This notification can be used by
+     * applications to clean up any auxiliary data that is being maintained
+     * for the given dialog.
+     *
+     * @param dialogTerminatedEvent -- an event that indicates that the
+     *       dialog has transitioned into the terminated state.
+     * @since v1.2
+     */
+    public void processDialogTerminated(DialogTerminatedEvent
+                                        dialogTerminatedEvent)
+    {
+    }
+
+    /**
+     * Processes a Request received on a SipProvider upon which this SipListener
+     * is registered.
+     * <p>
+     * @param requestEvent requestEvent fired from the SipProvider to the
+     * SipListener representing a Request received from the network.
+     */
+    public void processRequest(RequestEvent requestEvent)
+    {
+        /** @todo send not implemented */
+    }
+
+    /**
+     * Processes a retransmit or expiration Timeout of an underlying
+     * {@link Transaction}handled by this SipListener.
+     *
+     * @param timeoutEvent the timeoutEvent received indicating either the
+     * message retransmit or transaction timed out.
+     */
+    public void processTimeout(TimeoutEvent timeoutEvent)
+    {
+    }
+
+    /**
+     * Process an asynchronously reported TransactionTerminatedEvent.
+     * When a transaction transitions to the Terminated state, the stack
+     * keeps no further records of the transaction.
+     *
+     * @param transactionTerminatedEvent an event that indicates that the
+     * transaction has transitioned into the terminated state.
+     */
+    public void processTransactionTerminated(TransactionTerminatedEvent
+                                             transactionTerminatedEvent)
+    {
+    }
+
+    /**
+     * Process an asynchronously reported IO Exception.
+     *
+     * @since v1.2
+     * @param exceptionEvent The Exception event that is reported to the
+     * application.
+     */
+    public void processIOException(IOExceptionEvent exceptionEvent)
+    {
+    }
+
 }
