@@ -54,8 +54,11 @@ public class ConfigurationServiceImpl
      * The name of the system property that stores the name of the configuration
      * file.
      */
-    private static final String FILE_NAME_PROPERTY =
-        "net.java.sip.communicator.CONFIGURATION_FILE_NAME";
+    private static final String FILE_NAME_PROPERTY
+        = "net.java.sip.communicator.CONFIGURATION_FILE_NAME";
+
+    private static final String SYS_PROPS_FILE_NAME_PROPERTY
+        = "net.java.sip.communicator.SYS_PROPS_FILE_NAME";
 
     /**
      * A reference to the currently used configuration file.
@@ -358,6 +361,7 @@ public class ConfigurationServiceImpl
     {
         try
         {
+            preloadSystemPropertyFiles();
             reloadConfiguration();
         }
         catch (XMLException ex)
@@ -969,6 +973,59 @@ public class ConfigurationServiceImpl
         {
             configurationFile.delete();
             configurationFile = null;
+        }
+    }
+
+    /**
+     * The method scans the contents of the SYS_PROPS_FILE_NAME_PROPERTY where
+     * it expects to find a comma separated list of names of files that should
+     * be loaded as system properties. The method then parses these files and
+     * loads their contents as system properties. All such files have to be in
+     * a location that's in the classpath.
+     */
+    public void preloadSystemPropertyFiles()
+    {
+        String propertyFilesListStr
+            = System.getProperty( SYS_PROPS_FILE_NAME_PROPERTY );
+
+        if(propertyFilesListStr == null || propertyFilesListStr.trim().length() == 0)
+            return;
+
+        StringTokenizer tokenizer
+            = new StringTokenizer(propertyFilesListStr, ";,", false);
+
+        while( tokenizer.hasMoreTokens())
+        {
+            String fileName = tokenizer.nextToken();
+            try
+            {
+                fileName = fileName.trim();
+
+                Properties fileProps = new Properties();
+
+                fileProps.load(getClass().getClassLoader()
+                               .getSystemResourceAsStream(fileName));
+
+                //now set all of this file's properties as system properties
+                Enumeration pNames = fileProps.propertyNames();
+
+                while(pNames.hasMoreElements())
+                {
+                    String pName = (String)pNames.nextElement();
+                    System.setProperty(pName, fileProps.getProperty(pName));
+                }
+            }
+            catch (Exception ex)
+            {
+                //this is an insignifficant method that should never affect
+                //the rest of the application so we'll afford ourselves to
+                //kind of silence all possible exceptions (which would most
+                //often be IOExceptions). We will however log them in case
+                //anyone would be interested.
+                logger.error("Failed to load property file: "
+                    + fileName
+                    , ex);
+            }
         }
     }
 
