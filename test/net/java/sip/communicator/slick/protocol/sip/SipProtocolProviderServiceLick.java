@@ -50,9 +50,9 @@ public class SipProtocolProviderServiceLick
 
         SipSlickFixture.bc = context;
 
-//        addTestSuite(TestAccountInstallation.class);
-//        addTestSuite(TestProtocolProviderServiceSipImpl.class);
-//        addTest(TestAccountUninstallation.suite());
+        addTestSuite(TestAccountInstallation.class);
+        addTestSuite(TestProtocolProviderServiceSipImpl.class);
+        addTest(TestAccountUninstallation.suite());
         addTestSuite(TestAccountUninstallationPersistence.class);
 
         context.registerService(getClass().getName(), this, properties);
