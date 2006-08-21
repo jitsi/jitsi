@@ -92,6 +92,7 @@
 
     <path id="project.class.path">
         <pathelement location="${dest}"/>
+        <pathelement location="${lib}"/>
 
         <!-- Include all JAR files found in lib and any of its subdirectories. -->
         <fileset dir="${lib}">
