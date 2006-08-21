@@ -1,23 +1,25 @@
 <?xml version="1.0"?>
 <!--
    Installation procedure.
-   The install scripts are in directory install. The files are separate 
-   in subdirectories according the distribution - generic,linux and windows.
+   The install scripts are located inside the resources/install directory . The
+   files are separated in subdirectories according to distribution - generic,
+   linux, windows, macosx.
 
-    1. For building any of the distributions you must fill in the 
-    path to the installation of IzPack. For instalation referer to http://www.izforge.com/izpack/
-    And uncomment the taskdef of izpack
+    1. For building any of the distributions you must fill in the
+    path to the installation of IzPack. For instructions on how to install
+    izPack please referer to http://www.izforge.com/izpack/. And uncomment the
+    taskdef of izpack in this file.
 
-    2.  For building linux distribution you must fill in linux.jre.path variable
-    This is path to directory where a jre is extracted. 
-    The jre is then included in the distrubution binary file
+    2. When building the linux installation package you must set the
+    linux.jre.path variable to point to a location containing an extracted jre
+    so that it could be bundled inside the installation package.
 
-    3.  For building windows installation you must fill in windows.jre.file variable
-    This is the path to a installation file of a jre (online or offline one).
+    3. When building the windows installation package you must set the
+    windows.jre.file variable. This is the path to an installation file of a jre (online or offline one).
     7zip software must be installed referer to http://www.7-zip.org/ for installation.
 
     4. When changing the application version things you must do:
-    - generic 
+    - generic
         - there is app-version variable in the izpack installer xml
     - linux
         - there is app-version variable in the izpack installer xml
@@ -97,13 +99,13 @@
             <fileset dir="${inst.resrc}/linux">
                 <include name="setup.sh"/>
             </fileset>
-	</copy>
+    </copy>
         <!-- copy the jre -->
         <copy todir="${linux.app.dir}/tmp/jre">
             <fileset dir="${linux.jre.path}">
                 <include name="**/*"/>
             </fileset>
-	</copy>
+    </copy>
         <!-- create izpack installer jar file -->
         <izpack input="${inst.resrc}/linux/installer-linux.xml"
                 output="${linux.app.dir}/tmp/SC-install-linux-${linux.app.ver}.jar"
@@ -142,7 +144,7 @@
                 <include name="launcher.ini"/>
                 <include name="setup-sip-communicator.exe"/>
             </fileset>
-	</copy>
+    </copy>
         <!-- copy the windows jre file -->
         <copy file="${windows.jre.file}" tofile="${windows.app.dir}/tmp/jre/jre-windows.exe"/>
 
@@ -151,11 +153,11 @@
                output="${windows.app.dir}/tmp/SC-install-windows-${windows.app.ver}.jar"
                installerType="standard"
                basedir="."
-	       izPackDir="${izpack.dir}/"/>
+           izPackDir="${izpack.dir}/"/>
 
         <exec dir="${windows.app.dir}/tmp" executable="${7zip.executable}" failifexecutionfails="false">
             <arg line="a -y data.7z *"/>
-        </exec>	
+        </exec>
 
         <concat destfile="${windows.app.dir}/setup-sip-communicator-${windows.app.ver}.exe" binary="true">
             <fileset dir="${inst.resrc}/windows">
@@ -167,7 +169,7 @@
             <fileset dir="${windows.app.dir}/tmp">
                 <include name="data.7z"/>
             </fileset>
-  	</concat>
+      </concat>
 
         <!-- Delete the temp directory-->
         <delete dir="${windows.app.dir}/tmp"/>
