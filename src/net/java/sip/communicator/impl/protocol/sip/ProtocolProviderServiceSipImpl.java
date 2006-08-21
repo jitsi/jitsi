@@ -17,6 +17,11 @@ import javax.sip.message.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import gov.nist.javax.sip.*;
+import gov.nist.javax.sip.header.*;
+import gov.nist.javax.sip.address.*;
+import gov.nist.javax.sip.message.*;
+import net.java.sip.communicator.impl.protocol.sip.security.*;
 
 /**
  * A SIP implementation of the Protocol Provider Service.
@@ -87,9 +92,37 @@ public class ProtocolProviderServiceSipImpl
     private ListeningPoint udpListeningPoint = null;
 
     /**
-     * The JAIN SIP SipProvider instance.
+     * The default listening point that we use for TCP communication..
      */
-    private SipProvider jainSipProvider;
+    private ListeningPoint tcpListeningPoint = null;
+
+    /**
+     * The default listening point that we use for TLS communication..
+     */
+    private ListeningPoint tlsListeningPoint = null;
+
+
+    /**
+     * The default JAIN SIP provider that we use for UDP communication...
+     */
+    private SipProvider udpJainSipProvider = null;
+
+    /**
+     * The default JAIN SIP provider that we use for TCP communication...
+     */
+    private SipProvider tcpJainSipProvider = null;
+
+    /**
+     * The default JAIN SIP provider that we use for TLS communication...
+     */
+    private SipProvider tlsJainSipProvider = null;
+
+    /**
+     * A table mapping SIP methods to method processors (every processor must
+     * implement the SipListener interface). Whenever a new message arrives we
+     * extract its method and hand it to the processor instance registered
+     */
+    private Hashtable methodProcessors = new Hashtable();
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
@@ -196,17 +229,23 @@ public class ProtocolProviderServiceSipImpl
      * The sip address that we're currently behind (the one that corresponds to
      * our account id).
      */
-    Address ourSipAddress = null;
+    private Address ourSipAddress = null;
 
     /**
      * The name that we want to send others when calling or chatting with them.
      */
-    String ourDisplayName = null;
+    private String ourDisplayName = null;
 
     /**
      * Our current connection with the registrar.
      */
     private SipRegistrarConnection sipRegistrarConnection = null;
+
+    /**
+     * The SipSecurityManager instance that would be taking care of our
+     * authentications.
+     */
+    private SipSecurityManager sipSecurityManager = null;
 
     /**
      * Registers the specified listener with this provider so that it would
@@ -347,17 +386,12 @@ public class ProtocolProviderServiceSipImpl
         if (isRegistered())
             return;
 
-        sipRegistrarConnection.register();
-//
-//        //at this point we are sure we have a sip: prefix in the uri
-//        // we construct our pres: uri by replacing that prefix.
-//        String presenceUri = "pres"
-//            + publicAddress.substring(publicAddress.indexOf(':'));
-//
-//        presenceStatusManager.setPresenceEntityUriString(presenceUri);
-//        presenceStatusManager.addContactUri(publicAddress,
-//                                            PresenceStatusManager.DEFAULT_CONTACT_PRIORITY);
+        //init the security manager before doing the actual registration to
+        //avoid being asked for credentials before being ready to provide them
+        sipSecurityManager.setSecurityAuthority(authority);
 
+        //connecto to the Registrar.
+        sipRegistrarConnection.register();
     }
 
     /**
@@ -375,6 +409,7 @@ public class ProtocolProviderServiceSipImpl
             return;
 
         sipRegistrarConnection.unregister();
+        sipSecurityManager.setSecurityAuthority(null);
     }
 
 
@@ -427,7 +462,7 @@ public class ProtocolProviderServiceSipImpl
             try
             {
                 // Create SipStack object
-                jainSipStack = sipFactory.createSipStack(properties);
+                jainSipStack = new SipStackImpl(properties);
                 logger.debug("Created stack: " + jainSipStack);
             }
             catch (PeerUnavailableException e)
@@ -469,20 +504,12 @@ public class ProtocolProviderServiceSipImpl
 
             initListeningPoints(preferredSipPort);
 
-            try
-            {
-                headerFactory = sipFactory.createHeaderFactory();
-                addressFactory = sipFactory.createAddressFactory();
-                messageFactory = sipFactory.createMessageFactory();
-            }
-            catch (PeerUnavailableException ex)
-            {
-                logger.fatal("Failed to ininit SIP factories", ex);
-                throw new OperationFailedException(
-                    "Failed to init SIP factories"
-                    , OperationFailedException.INTERNAL_ERROR
-                    , ex);
-            }
+            //create SIP factories.
+            headerFactory = new HeaderFactoryImpl();
+            addressFactory = new AddressFactoryImpl();
+            messageFactory = new MessageFactoryImpl();
+
+            //create a connection with the registrar
             initRegistrarConnection(accountID);
 
             //create our own address.
@@ -493,7 +520,7 @@ public class ProtocolProviderServiceSipImpl
                 .get(ProtocolProviderFactory.DISPLAY_NAME);
 
             String registrarAddressStr = sipRegistrarConnection
-                .getRegistrarAddress().getHostAddress();
+                .getRegistrarAddress().getHostName();
 
             SipURI ourSipURI = null;
             try
@@ -516,6 +543,13 @@ public class ProtocolProviderServiceSipImpl
                     + " and registrar " + registrarAddressStr);
 
             }
+
+            //init the map of method specific processors
+            this.methodProcessors.put(Request.REGISTER, sipRegistrarConnection);
+
+            //init the security manager
+            this.sipSecurityManager = new SipSecurityManager();
+            sipSecurityManager.setHeaderFactory(headerFactory);
 
             isInitialized = true;
         }
@@ -561,62 +595,43 @@ public class ProtocolProviderServiceSipImpl
                 }
             }
 
-            int currentlyTriedPort = preferredPortNumber;
 
-            //we'll first try to bind to the port specified by the user. if
-            //this fails we'll try again times (bindRetries times in all) until
-            //we find a free local port.
-            for (int i = 0; i < bindRetries; i++)
-            {
-                try
-                {
-                    udpListeningPoint = jainSipStack.createListeningPoint(
-                        NetworkUtils.IN_ADDR_ANY
-                        , currentlyTriedPort
-                        , ListeningPoint.UDP);
-                }
-                catch (InvalidArgumentException exc)
-                {
-                    if (!exc.getMessage().contains(
-                        "Address already in use"))
-                    {
-                        logger.fatal("An exception occurred while "
-                                     + "trying to create a listening point.", exc);
-                        throw new OperationFailedException(
-                            "An error occurred while creating listening points. "
-                            , OperationFailedException.NETWORK_FAILURE
-                            , exc
-                            );
-                    }
-                    //port seems to be taken. try another one.
-                    logger.debug("Port " + currentlyTriedPort
-                                 + " seems in use.");
-                    currentlyTriedPort
-                        = NetworkUtils.getRandomPortNumber();
-                    logger.debug("Retrying bind on port "
-                                 + currentlyTriedPort);
-                }
-            }
+            udpListeningPoint = createListeningPoint(preferredPortNumber
+                                                     , ListeningPoint.UDP
+                                                     , bindRetries);
+            tcpListeningPoint = createListeningPoint(preferredPortNumber
+                                                     , ListeningPoint.TCP
+                                                     , bindRetries);
+
+            tlsListeningPoint = createListeningPoint(ListeningPoint.PORT_5061
+                                                     , ListeningPoint.TLS
+                                                     , bindRetries);
+
+
 
             try
             {
-                jainSipProvider
+                udpJainSipProvider
                     = jainSipStack.createSipProvider(udpListeningPoint);
-                jainSipProvider.addSipListener(this);
+                udpJainSipProvider.addSipListener(this);
+                tcpJainSipProvider
+                    = jainSipStack.createSipProvider(tcpListeningPoint);
+                tcpJainSipProvider.addSipListener(this);
+                tlsJainSipProvider
+                    = jainSipStack.createSipProvider(tlsListeningPoint);
+                tlsJainSipProvider.addSipListener(this);
             }
             catch (ObjectInUseException ex)
             {
-                logger.fatal("Failed to create a listening point", ex);
+                logger.fatal("Failed to create a SIP Provider", ex);
                 throw new OperationFailedException(
-                    "An error occurred while creating SIP Provider for "
-                    +"listening point " + udpListeningPoint.toString()
+                    "An error occurred while creating SIP Provider for"
                     , OperationFailedException.INTERNAL_ERROR
                     , ex);
             }
 
-            logger.debug("Created listening point and SIP provider for "
-                         + " address:[" + udpListeningPoint.getIPAddress() + "]:"
-                         + udpListeningPoint.getPort());
+            logger.debug("Created listening points and SIP provider for account"
+                         + "  " + getAccountID().toString());
         }
         catch (TransportNotSupportedException ex)
         {
@@ -637,6 +652,145 @@ public class ProtocolProviderServiceSipImpl
         }
 
         logger.trace("Done creating listening points.");
+    }
+
+    /**
+     * Creates a listening point for the specified <tt>transport</tt> first
+     * trying to bind on the <tt>preferredPortNumber</tt>. If the
+     * preferredPortNumber is already used by another program or another
+     * listening point, we will be retrying the operation (<tt>bindRetries</tt>
+     * times in all.)
+     *
+     * @param preferredPortNumber the port number that we should first try to
+     * bind to.
+     * @param transport the transport (UDP/TCP/TLS) of the listening point that
+     * we will be creating
+     * @param bindRetries the number of times that we should try to bind on
+     * different random ports before giving up.
+     * @return the newly creaed <tt>ListeningPoint</tt> instance or
+     * <tt>null</tt> if we didn't manage to create a listening point in bind
+     * retries.
+     *
+     * @throws OperationFailedException with code NETWORK_ERROR if we faile
+     * to bind on a local port while and code INTERNAL_ERROR if a jain-sip
+     * operation fails for some reason.
+     * @throws TransportNotSupportedException if <tt>transport</tt> is not
+     * a valid SIP transport (i.e. not one of UDP/TCP/TLS).
+     */
+    private ListeningPoint createListeningPoint(int preferredPortNumber,
+                                                String transport,
+                                                int bindRetries)
+        throws OperationFailedException, TransportNotSupportedException
+    {
+        int currentlyTriedPort = preferredPortNumber;
+
+        ListeningPoint listeningPoint = null;
+
+        //we'll first try to bind to the port specified by the user. if
+        //this fails we'll try again times (bindRetries times in all) until
+        //we find a free local port.
+        for (int i = 0; i < bindRetries; i++)
+        {
+            try
+            {
+                //make sure that the we don't already have some other
+                //listening point on this port (possibly initialized from a
+                //different account)
+                if (listeningPointAlreadyBound(currentlyTriedPort
+                                           , transport))
+                {
+                    logger.debug("The following listeing point alredy existed "
+                             + "port: " + currentlyTriedPort + " trans: "
+                             + transport);
+                    throw new InvalidArgumentException("Address already in use");
+                }
+
+                listeningPoint = jainSipStack.createListeningPoint(
+                    NetworkUtils.IN_ADDR_ANY
+                    , currentlyTriedPort
+                    , transport);
+                //we succeeded - break so that we don't try to bind again
+                logger.debug("Created LP " + listeningPoint.getIPAddress()
+                    + ":" + listeningPoint.getPort() + "/"
+                    + listeningPoint.getTransport());
+                try
+                {
+                    listeningPoint.setSentBy("0.0.0.0");
+                }
+                catch (ParseException ex)
+                {
+                }
+                return listeningPoint;
+            }
+            catch (InvalidArgumentException exc)
+            {
+                if (exc.getMessage().indexOf("Address already in use")== -1)
+                {
+                    logger.fatal("An exception occurred while "
+                                 + "trying to create a listening point."
+                                 , exc);
+                    throw new OperationFailedException(
+                        "An error occurred while creating listening points. "
+                        , OperationFailedException.NETWORK_FAILURE
+                        , exc
+                        );
+                }
+            }
+            //port seems to be taken. try another one.
+            logger.debug("Port " + currentlyTriedPort + " seems in use "
+                         +"for transport ." + transport);
+            currentlyTriedPort = NetworkUtils.getRandomPortNumber();
+            logger.debug("Retrying bind on port " + currentlyTriedPort);
+
+        }
+
+        logger.error("Failed to create a listening point for tranport "
+                     + transport);
+        return null;
+    }
+
+    /**
+     * Verifies whether a listening point for the specified port and transport
+     * already exists. We need this method because we can only have one single
+     * stack per JVM and it is possible for some other account to have already
+     * created a listening point for a port that we're trying to bind on. Yet
+     * that would be undesirable as we would not like to receive any of the SIP
+     * messages meannt for the other account.
+     *
+     * @param port the port number that we're interested in.
+     * @param transport the transport of the listening point we're looking for.
+     *
+     * @return true if a ListeningPoint already exists for the specified port
+     * and tranport and false otherwise.
+     */
+    private boolean listeningPointAlreadyBound(int     port,
+                                               String  transport)
+    {
+        if(jainSipStack == null)
+            return false;
+
+        //What really matters is not the transport of the listening point but
+        //whether it is UDP or TCP (i.e. TLS listening points have to be
+        //considered as TCP).
+        boolean searchTransportIsUDP = transport.equals(ListeningPoint.UDP);
+
+        Iterator existingListeningPoints = jainSipStack.getListeningPoints();
+
+        while(existingListeningPoints.hasNext())
+        {
+            ListeningPoint lp = (ListeningPoint)existingListeningPoints.next();
+
+            if(lp.getPort() == port)
+            {
+                boolean lpIsUDP = lp.getTransport().equalsIgnoreCase(
+                                                        ListeningPoint.UDP);
+
+                if(lpIsUDP == searchTransportIsUDP)
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -661,14 +815,28 @@ public class ProtocolProviderServiceSipImpl
      * SipListener is registered.
      * <p>
      *
-     * @param responseEvent -
-     *            the responseEvent fired from the SipProvider to the
-     *            SipListener representing a Response received from the network.
+     * @param responseEvent the responseEvent fired from the SipProvider to the
+     * SipListener representing a Response received from the network.
      */
     public void processResponse(ResponseEvent responseEvent)
     {
-        /**@todo implement processResponse() */
-        logger.debug("@todo implement processResponse()");
+        logger.debug("received response=" + responseEvent);
+        ClientTransaction clientTransaction = responseEvent.
+                getClientTransaction();
+        if (clientTransaction == null) {
+            logger.debug("ignoring a transactionless response");
+            return;
+        }
+
+        Response response = responseEvent.getResponse();
+        String method = ( (CSeqHeader) response.getHeader(CSeqHeader.NAME)).
+                getMethod();
+
+        //find the object that is supposed to take care of responses with the
+        //corresponding method
+        SipListener processor = (SipListener)methodProcessors.get(method);
+
+        processor.processResponse(responseEvent);
     }
 
     /**
@@ -752,7 +920,9 @@ public class ProtocolProviderServiceSipImpl
 
         try
         {
-            jainSipProvider.removeListeningPoint(udpListeningPoint);
+            udpJainSipProvider.removeListeningPoint(udpListeningPoint);
+            tcpJainSipProvider.removeListeningPoint(tcpListeningPoint);
+            tlsJainSipProvider.removeListeningPoint(tlsListeningPoint);
         }
         catch (ObjectInUseException ex)
         {
@@ -760,11 +930,16 @@ public class ProtocolProviderServiceSipImpl
         }
 
         udpListeningPoint = null;
-        jainSipProvider = null;
+        tcpListeningPoint = null;
+        tlsListeningPoint = null;
+        udpJainSipProvider = null;
+        tcpJainSipProvider = null;
+        tlsJainSipProvider = null;
         headerFactory = null;
         messageFactory = null;
         addressFactory = null;
         sipFactory = null;
+        sipSecurityManager = null;
 
         this.jainSipStack.stop();
 
@@ -991,23 +1166,58 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
-     * Returns he default listening point that we use for UDP communication.
+     * Returns the default listening point that we use for communication over
+     * <tt>transport</tt>.
      *
-     * @return the default listening point that we use for UDP communication.
+     * @param transport the transport that the returned listening point needs
+     * to support.
+     *
+     * @return the default listening point that we use for communication over
+     * <tt>transport</tt> or null if no such transport is supported.
      */
-    public ListeningPoint getUdpListeningPoint()
+    public ListeningPoint getListeningPoint(String transport)
     {
-        return udpListeningPoint;
+        if(transport.equalsIgnoreCase(ListeningPoint.UDP))
+            return udpListeningPoint;
+        else if(transport.equalsIgnoreCase(ListeningPoint.TCP))
+            return tcpListeningPoint;
+        else if(transport.equalsIgnoreCase(ListeningPoint.TLS))
+            return tlsListeningPoint;
+
+        return null;
     }
 
     /**
-     * The JAIN SIP SipProvider instance.
+     * Returns the default jain sip provider that we use for communication over
+     * <tt>transport</tt>.
      *
-     * @return the JAIN SIP SipProvider instance.
+     * @param transport the transport that the returned provider needs
+     * to support.
+     *
+     * @return the default jain sip provider that we use for communication over
+     * <tt>transport</tt> or null if no such transport is supported.
      */
-    public SipProvider getJainSipProvider()
+    public SipProvider getJainSipProvider(String transport)
     {
-        return jainSipProvider;
+        if(transport.equalsIgnoreCase(ListeningPoint.UDP))
+            return udpJainSipProvider;
+        else if(transport.equalsIgnoreCase(ListeningPoint.TCP))
+            return tcpJainSipProvider;
+        else if(transport.equalsIgnoreCase(ListeningPoint.TLS))
+            return tlsJainSipProvider;
+
+        return null;
+    }
+
+    /**
+     * Reurns the currently valid sip security manager that everyone should
+     * use to authenticate SIP Requests.
+     * @return the currently valid instace of a SipSecurityManager that everyone
+     * sould use to authenticate SIP Requests.
+     */
+    public SipSecurityManager getSipSecurityManager()
+    {
+        return sipSecurityManager;
     }
 
     /**
@@ -1032,10 +1242,13 @@ public class ProtocolProviderServiceSipImpl
         }
         catch (UnknownHostException ex)
         {
+            logger.error(registrarAddressStr
+                + " appears to be an either invalid or inaccessible address: "
+                , ex);
             throw new IllegalArgumentException(
                 registrarAddressStr
-                + " appears to be an either invalid or inaccessible address"
-                , ex);
+                + " appears to be an either invalid or inaccessible address: "
+                + ex.getMessage());
         }
 
         //init registrar port
@@ -1068,7 +1281,7 @@ public class ProtocolProviderServiceSipImpl
         String registrarTransport = (String) accountID.getAccountProperties()
             .get(ProtocolProviderFactory.SERVER_TRANSPORT);
 
-        if(registrarPortStr != null && registrarPortStr.length() > 0)
+        if(registrarTransport != null && registrarTransport.length() > 0)
         {
             if( ! registrarTransport.equals(ListeningPoint.UDP)
                 || !registrarTransport.equals(ListeningPoint.TCP)
@@ -1116,11 +1329,24 @@ public class ProtocolProviderServiceSipImpl
         catch (ParseException ex)
         {
             //this really shouldn't happen as we're using InetAddress-es
-            throw new IllegalArgumentException(
-                "Failed to create a registrar connection with "
+            logger.error("Failed to create a registrar connection with "
                 +registrarAddress.getHostAddress()
                 , ex);
+            throw new IllegalArgumentException(
+                "Failed to create a registrar connection with "
+                + registrarAddress.getHostAddress() + ": "
+                + ex.getMessage());
         }
+    }
+
+    /**
+     * Returns the SIP Address (Display Name <user@server.net>) that this
+     * account is created for.
+     * @return Address
+     */
+    public Address getOurSipAddress()
+    {
+        return ourSipAddress;
     }
 
     /**
@@ -1151,10 +1377,13 @@ public class ProtocolProviderServiceSipImpl
         }
         catch (UnknownHostException ex)
         {
-            throw new IllegalArgumentException(
-                proxyAddressStr
+            logger.error(proxyAddressStr
                 + " appears to be an either invalid or inaccessible address"
                 , ex);
+            throw new IllegalArgumentException(
+                proxyAddressStr
+                + " appears to be an either invalid or inaccessible address "
+                + ex.getMessage());
         }
 
         //init proxy port
@@ -1189,7 +1418,7 @@ public class ProtocolProviderServiceSipImpl
         String proxyTransport = (String) accountID.getAccountProperties()
             .get(ProtocolProviderFactory.PROXY_TRANSPORT);
 
-        if (proxyPortStr != null && proxyPortStr.length() > 0)
+        if (proxyTransport != null && proxyTransport.length() > 0)
         {
             if (!proxyTransport.equals(ListeningPoint.UDP)
                 || !proxyTransport.equals(ListeningPoint.TCP)
