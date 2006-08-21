@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A SIP implementation of the protocol provider factory interface.
@@ -13,6 +14,9 @@ import net.java.sip.communicator.service.protocol.*;
 public class ProtocolProviderFactorySipImpl
     extends ProtocolProviderFactory
 {
+    private static final Logger logger =
+        Logger.getLogger(ProtocolProviderFactorySipImpl.class);
+
     /**
      * The table that we store our accounts in.
      */
@@ -55,8 +59,6 @@ public class ProtocolProviderFactorySipImpl
                     : registration.getReference();
     }
 
-
-
     /**
      * Returns a copy of the list containing all accounts currently
      * registered in this protocol provider.
@@ -68,7 +70,6 @@ public class ProtocolProviderFactorySipImpl
     {
         return new ArrayList(registeredAccounts.keySet());
     }
-
 
     /**
      * Initializaed and creates an account corresponding to the specified
@@ -185,8 +186,9 @@ public class ProtocolProviderFactorySipImpl
         }
         catch (OperationFailedException ex)
         {
+            logger.error("Failed to initialize account", ex);
             throw new IllegalArgumentException("Failed to initialize account"
-                , ex);
+                + ex.getMessage());
         }
 
         ServiceRegistration registration
