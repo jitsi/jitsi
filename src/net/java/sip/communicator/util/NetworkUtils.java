@@ -7,6 +7,7 @@
 package net.java.sip.communicator.util;
 
 import java.net.*;
+import java.util.*;
 
 /**
  * Utility methods and fields to use when working with network addresses.
@@ -24,6 +25,11 @@ public class NetworkUtils
      * The maximum int value that could correspond to a port nubmer.
      */
     public static final int    MAX_PORT_NUMBER = 65535;
+
+    /**
+     * The random port number generator that we use in getRandomPortNumer()
+     */
+    private static Random portNumberGenerator = new Random();
 
     /**
      * Determines whether the address is the result of windows auto configuration.
@@ -69,11 +75,11 @@ public class NetworkUtils
     /**
      * Returns a random local port number that user applications could bind to.
      * (i.e. above 1024).
-     * @return a random int located between 1024 and 65 000.
+     * @return a random int located between 1024 and 65 535.
      */
     public static int getRandomPortNumber()
     {
-        return (int) ((MAX_PORT_NUMBER-1024) * Math.random()) + 1024;
+        return portNumberGenerator.nextInt(MAX_PORT_NUMBER-1024) + 1024;
     }
 
     /**
