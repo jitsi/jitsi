@@ -122,28 +122,6 @@ public class TestProtocolProviderServiceSipImpl
             logger.debug("We got thrown out while waiting for registration", t);
         }
 
-        // Here is registered the listener which will receive the first message
-        // This message is supposed to be offline message and as one is tested
-        // in TestOperationSetBasicInstantMessaging.testReceiveOfflineMessages()
-        Map supportedOperationSets =
-            fixture.provider1.getSupportedOperationSets();
-
-        //give time for the AIM server to notify everyone of our arrival
-        //simply waitinf is really not a reliable way of doing things but I
-        //can't think of anything better
-        Object lock = new Object();
-        synchronized(lock)
-        {
-            try
-            {
-                logger.debug("Giving the aim server time to notify for "
-                             +"our arrival!");
-                lock.wait(5000);
-            }
-            catch (Exception ex)
-            {}
-        }
-
         //make sure that the registration process trigerred the corresponding
         //events.
         assertTrue(
