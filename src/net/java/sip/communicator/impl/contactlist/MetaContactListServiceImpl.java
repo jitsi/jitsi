@@ -1283,7 +1283,8 @@ public class MetaContactListServiceImpl
         //status change. NOTE that we MUST NOT add the presence listener before
         //extracting the locally stored contact list or  otherwise we'll get
         //events for all contacts that we have already extracted
-        opSetPersPresence.addContactPresenceStatusListener(this);
+        if(opSetPersPresence != null)
+            opSetPersPresence.addContactPresenceStatusListener(this);
     }
 
     /**
