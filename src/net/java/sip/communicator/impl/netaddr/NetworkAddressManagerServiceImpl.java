@@ -438,11 +438,12 @@ public class NetworkAddressManagerServiceImpl
             try
             {
                 localHostFinderSocket = new DatagramSocket(currentlyTriedPort);
+                //we succeeded - break so that we don't try to bind again
+                break;
             }
             catch (SocketException exc)
             {
-                if (!exc.getMessage().contains(
-                    "Address already in use"))
+                if (exc.getMessage().indexOf("Address already in use") == -1)
                 {
                     logger.fatal("An exception occurred while trying to create"
                                  + "a local host discovery socket.", exc);
