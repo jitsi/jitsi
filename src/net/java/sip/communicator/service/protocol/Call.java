@@ -21,18 +21,37 @@ import net.java.sip.communicator.service.protocol.event.*;
  */
 public abstract class Call
 {
+    /**
+     * An identifier uniquely representing the call.
+     */
     private String callID = null;
+
+    /**
+     * The <tt>CallParticipant</tt> that started this call.
+     */
     private CallParticipant callCreator = null;
+
+    /**
+     * A list containing all <tt>CallParticipant</tt>s of this call.
+     */
     private Vector callParticipants = new Vector();
+
+    /**
+     * A list of all listeners currently registered for
+     * <tt>CallChangeEvent</tt>s
+     */
     private Vector callListeners = new Vector();
 
     /**
      * Creates a new call with the specified id.
+     *
      * @param callID the id of the call to create.
+     * @param callCreator the call participant that created the call.
      */
     protected Call(String callID, CallParticipant callCreator)
     {
         this.callID = callID;
+        this.callCreator = callCreator;
     }
 
     /**
@@ -67,6 +86,16 @@ public abstract class Call
     }
 
     /**
+     * Returns a hash code value for this call.
+     *
+     * @return  a hash code value for this call.
+     */
+    public int hashCode()
+    {
+        return getCallID().hashCode();
+    }
+
+    /**
      * Returns the call participant that created the call.
      * @return a CallParticipant instance containing the call participant that
      * created the call.
@@ -92,6 +121,16 @@ public abstract class Call
      */
     public void addCallChangeListener(CallChangeListener listener)
     {
+        this.callListeners.add(listener);
+    }
 
+    /**
+     * Removes <tt>listener</tt> to this call so that it won't receive further
+     * <tt>CallChangeEvent</tt>s.
+     * @param listener the listener to register
+     */
+    public void removeCallChangeListener(CallChangeListener listener)
+    {
+        this.callListeners.remove(listener);
     }
 }
