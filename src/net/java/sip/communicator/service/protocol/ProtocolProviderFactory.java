@@ -176,15 +176,12 @@ public abstract class ProtocolProviderFactory
      * @param bundleContext a currently valid bundle context.
      * @param accountID the AccountID corresponding to the account that we would
      * like to store.
-     * @param sourcePackageName the name of the package to register the account
-     * into (typically the java package containing the implementation calling
-     * this method).
      */
     protected void storeAccount(BundleContext bundleContext,
-                                AccountID accountID,
-                                String sourcePackageName)
+                                AccountID accountID)
     {
-        Map accountProperties = accountID.getAccountProperties();
+        String sourcePackageName = getFactoryImplPackageName();
+
         //create a unique node name fo the properties node that will contain
         //this account's properties.
         String accNodeName
@@ -235,6 +232,9 @@ public abstract class ProtocolProviderFactory
 
         }
 
+        logger.debug("Stored account for id " + accountID.getAccountUniqueID()
+                     + " for package " + getFactoryImplPackageName());
+
     }
 
     /**
@@ -243,8 +243,6 @@ public abstract class ProtocolProviderFactory
      * insecure).
      *
      * @param bundleContext a currently valid bundle context.
-     * @param sourcePackageName the name of the java package that the calling
-     * protocol provider implementation belongs to.
      * @param accountID the AccountID for the account whose password we're
      * storing.
      * @param password the password itself.
@@ -253,18 +251,18 @@ public abstract class ProtocolProviderFactory
      * to <tt>accountID</tt> has been previously stored.
      */
     protected void storePassword(BundleContext bundleContext,
-                                 String       sourcePackageName,
                                  AccountID    accountID,
                                  String       password)
         throws IllegalArgumentException
     {
         String accountPrefix = findAccountPrefix(
-            bundleContext, accountID, sourcePackageName);
+            bundleContext, accountID);
 
         if (accountPrefix == null)
             throw new IllegalArgumentException(
                 "No previous records found for account ID: "
-                + accountID.getAccountUniqueID());
+                + accountID.getAccountUniqueID()
+                + " in package" + getFactoryImplPackageName());
 
         //obscure the password
         String mangledPassword
@@ -285,8 +283,6 @@ public abstract class ProtocolProviderFactory
      * Returns the password last saved for the specified account.
      *
      * @param bundleContext a currently valid bundle context.
-     * @param sourcePackageName the name of the java package that the calling
-     * protocol provider implementation belongs to.
      * @param accountID the AccountID for the account whose password we're
      * looking for..
      *
@@ -296,11 +292,10 @@ public abstract class ProtocolProviderFactory
      * to <tt>accountID</tt> has been previously stored.
      */
     protected String loadPassword(BundleContext bundleContext,
-                                  String        sourcePackageName,
                                   AccountID     accountID)
     {
         String accountPrefix = findAccountPrefix(
-            bundleContext, accountID, sourcePackageName);
+            bundleContext, accountID);
 
         if (accountPrefix == null)
             throw new IllegalArgumentException(
@@ -329,13 +324,11 @@ public abstract class ProtocolProviderFactory
      * account method.
      * <p>
      * @param bundleContext a currently valid bundle context.
-     * @param sourcePackageName the name of the package to register the account
-     * into (typically the java package containing the implementation calling
-     * this method).
      */
-    protected void loadStoredAccounts(BundleContext bundleContext,
-                                      String        sourcePackageName)
+    protected void loadStoredAccounts(BundleContext bundleContext)
     {
+        String sourcePackageName = getFactoryImplPackageName();
+
         ServiceReference confReference
             = bundleContext.getServiceReference(
                 ConfigurationService.class.getName());
@@ -407,16 +400,14 @@ public abstract class ProtocolProviderFactory
      * <p>
      * @param bundleContext a currently valid bundle context.
      * @param accountID the AccountID of the account to remove.
-     * @param sourcePackageName the name of the package to register the account
-     * into (typically the java package containing the implementation calling
-     * this method).
      * <p>
      * @return true if an account has been removed and false otherwise.
      */
     protected boolean removeStoredAccount(BundleContext bundleContext,
-                                          AccountID     accountID,
-                                          String        sourcePackageName)
+                                          AccountID     accountID)
     {
+        String sourcePackageName = getFactoryImplPackageName();
+
         ServiceReference confReference
             = bundleContext.getServiceReference(
                 ConfigurationService.class.getName());
@@ -476,15 +467,15 @@ public abstract class ProtocolProviderFactory
      * @param bundleContext a currently valid bundle context.
      * @param accountID the AccountID of the account whose properties we're
      * looking for.
-     * @param sourcePackageName the name of the account source package
      * @return a String indicating the ConfigurationService property name
      * prefix under which all account properties are stored or null if no
      * account corresponding to the specified id was found.
      */
     protected String findAccountPrefix(BundleContext bundleContext,
-                                       AccountID     accountID,
-                                       String        sourcePackageName)
+                                       AccountID     accountID)
     {
+        String sourcePackageName = getFactoryImplPackageName();
+
         ServiceReference confReference
             = bundleContext.getServiceReference(
                 ConfigurationService.class.getName());
@@ -518,4 +509,17 @@ public abstract class ProtocolProviderFactory
         return null;
     }
 
+    /**
+     * Returns the name of the package that we're currently running in (i.e.
+     * the name of the package containing the proto factory that extends us).
+     *
+     * @return a String containing the package name of the concrete factory
+     * class that extends us.
+     */
+    private String getFactoryImplPackageName()
+    {
+        String className = getClass().getName();
+
+        return className.substring(className.lastIndexOf('.'));
+    }
 }
