@@ -6,7 +6,10 @@
  */
 package net.java.sip.communicator.slick.protocol.sip;
 
+import org.osgi.framework.*;
 import junit.framework.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Contains tests verifying persistence of account uninstallation. In other
@@ -36,10 +39,9 @@ public class TestAccountUninstallationPersistence
      * @throws java.lang.Exception if something goes wrong while manipulating
      * the bundles.
      */
-    public void testAccountUninstallationPersistency()
+    public void testAccountUninstallationPersistence()
         throws Exception
     {
-/*
         Bundle providerBundle = SipSlickFixture.providerBundle;
 
         providerBundle.stop();
@@ -77,7 +79,7 @@ public class TestAccountUninstallationPersistence
         }
         catch (InvalidSyntaxException ex)
         {
-            fail("We apparently got our filter wrong");
+            fail("We apparently got our filter wrong " + ex.getMessage());
         }
 
         //make sure we didn't retrieve a service
@@ -94,6 +96,5 @@ public class TestAccountUninstallationPersistence
             = (ConfigurationService) SipSlickFixture.bc.getService(confReference);
 
         configurationService.purgeStoredConfiguration();
-*/
     }
 }
