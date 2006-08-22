@@ -87,8 +87,6 @@ public class TestProtocolProviderServiceSipImpl
     public void testRegister()
         throws OperationFailedException
     {
-        if(true)
-            return;
         //add an event collector that will collect all events during the
         //registration and allow us to later inspect them and make sure
         //they were properly dispatched.
@@ -117,9 +115,9 @@ public class TestProtocolProviderServiceSipImpl
         catch (InterruptedException ex){
             logger.debug("Interrupted while waiting for registration", ex);
         }
-        catch(Throwable t)
+        catch(Throwable th)
         {
-            logger.debug("We got thrown out while waiting for registration", t);
+            logger.debug("We got thrown out while waiting for registration", th);
         }
 
         //make sure that the registration process trigerred the corresponding
