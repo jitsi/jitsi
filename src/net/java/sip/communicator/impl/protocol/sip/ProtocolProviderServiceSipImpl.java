@@ -310,7 +310,9 @@ public class ProtocolProviderServiceSipImpl
     public RegistrationState getRegistrationState()
     {
         if(this.sipRegistrarConnection == null )
+        {
             return RegistrationState.UNREGISTERED;
+        }
         return sipRegistrarConnection.getRegistrationState();
     }
 
@@ -335,7 +337,9 @@ public class ProtocolProviderServiceSipImpl
     public boolean isRegistered()
     {
         if(this.sipRegistrarConnection == null )
+        {
             return false;
+        }
         return sipRegistrarConnection.getRegistrationState()
             .equals(RegistrationState.REGISTERED);
     }
@@ -375,6 +379,7 @@ public class ProtocolProviderServiceSipImpl
      * @param authority the security authority that will be used for resolving
      *        any security challenges that may be returned during the
      *        registration or at any moment while wer're registered.
+     *
      * @throws OperationFailedException with the corresponding code it the
      * registration fails for some reason (e.g. a networking error or an
      * implementation problem).
@@ -383,9 +388,17 @@ public class ProtocolProviderServiceSipImpl
     public void register(SecurityAuthority authority)
         throws OperationFailedException
     {
-        if (isRegistered())
-            return;
+        if(!isInitialized)
+        {
+            throw new OperationFailedException(
+                "Provided must be initialized before being able to register."
+                , OperationFailedException.GENERAL_ERROR);
+        }
 
+        if (isRegistered())
+        {
+            return;
+        }
         //init the security manager before doing the actual registration to
         //avoid being asked for credentials before being ready to provide them
         sipSecurityManager.setSecurityAuthority(authority);
@@ -406,7 +419,9 @@ public class ProtocolProviderServiceSipImpl
         throws OperationFailedException
     {
         if(!isRegistered())
+        {
             return;
+        }
 
         sipRegistrarConnection.unregister();
         sipSecurityManager.setSecurityAuthority(null);
@@ -465,15 +480,15 @@ public class ProtocolProviderServiceSipImpl
                 jainSipStack = new SipStackImpl(properties);
                 logger.debug("Created stack: " + jainSipStack);
             }
-            catch (PeerUnavailableException e)
+            catch (PeerUnavailableException exc)
             {
                 // could not find
                 // gov.nist.jain.protocol.ip.sip.SipStackImpl
                 // in the classpath
-                logger.fatal("Failed to initialize SIP Stack.", e);
+                logger.fatal("Failed to initialize SIP Stack.", exc);
                 throw new OperationFailedException("Failed to create sip stack"
                     , OperationFailedException.INTERNAL_ERROR
-                    , e);
+                    , exc);
             }
 
             //init proxy port
@@ -497,9 +512,11 @@ public class ProtocolProviderServiceSipImpl
                 }
 
                 if (preferredSipPort > NetworkUtils.MAX_PORT_NUMBER)
+                {
                     logger.error(preferredSipPort + " is larger than "
-                        + NetworkUtils.MAX_PORT_NUMBER + " and does not "
-                        + "therefore represent a valid port nubmer.");
+                                 + NetworkUtils.MAX_PORT_NUMBER + " and does not "
+                                 + "therefore represent a valid port nubmer.");
+                }
             }
 
             initListeningPoints(preferredSipPort);
@@ -548,7 +565,7 @@ public class ProtocolProviderServiceSipImpl
             this.methodProcessors.put(Request.REGISTER, sipRegistrarConnection);
 
             //init the security manager
-            this.sipSecurityManager = new SipSecurityManager();
+            this.sipSecurityManager = new SipSecurityManager(accountID);
             sipSecurityManager.setHeaderFactory(headerFactory);
 
             isInitialized = true;
@@ -767,7 +784,9 @@ public class ProtocolProviderServiceSipImpl
                                                String  transport)
     {
         if(jainSipStack == null)
+        {
             return false;
+        }
 
         //What really matters is not the transport of the listening point but
         //whether it is UDP or TCP (i.e. TLS listening points have to be
@@ -786,7 +805,9 @@ public class ProtocolProviderServiceSipImpl
                                                         ListeningPoint.UDP);
 
                 if(lpIsUDP == searchTransportIsUDP)
+                {
                     return true;
+                }
             }
         }
 
@@ -820,17 +841,17 @@ public class ProtocolProviderServiceSipImpl
      */
     public void processResponse(ResponseEvent responseEvent)
     {
-        logger.debug("received response=" + responseEvent);
-        ClientTransaction clientTransaction = responseEvent.
-                getClientTransaction();
+        logger.debug("received response=" + responseEvent.getResponse());
+        ClientTransaction clientTransaction = responseEvent
+            .getClientTransaction();
         if (clientTransaction == null) {
             logger.debug("ignoring a transactionless response");
             return;
         }
 
         Response response = responseEvent.getResponse();
-        String method = ( (CSeqHeader) response.getHeader(CSeqHeader.NAME)).
-                getMethod();
+        String method = ( (CSeqHeader) response.getHeader(CSeqHeader.NAME))
+            .getMethod();
 
         //find the object that is supposed to take care of responses with the
         //corresponding method
@@ -916,7 +937,25 @@ public class ProtocolProviderServiceSipImpl
     public void shutdown()
     {
         if(!isInitialized)
+        {
             return;
+        }
+
+        if(isRegistered())
+        {
+            try
+            {
+                unregister();
+            }
+            catch (OperationFailedException ex)
+            {
+                //we're shutting down so we need to silence the exception here
+                logger.error(
+                    "Failed to properly unregister before shutting down. "
+                    + getAccountID()
+                    , ex);
+            }
+        }
 
         try
         {
@@ -927,6 +966,17 @@ public class ProtocolProviderServiceSipImpl
         catch (ObjectInUseException ex)
         {
             logger.info("An exception occurred while ", ex);
+        }
+
+        try
+        {
+            this.jainSipStack.stop();
+        }
+        catch (Exception ex)
+        {
+            //catch anything the stack can throw at us here so that we could
+            //peacefully finish our shutdown.
+            logger.error("Failed to properly stop the stack!", ex);
         }
 
         udpListeningPoint = null;
@@ -941,7 +991,7 @@ public class ProtocolProviderServiceSipImpl
         sipFactory = null;
         sipSecurityManager = null;
 
-        this.jainSipStack.stop();
+        methodProcessors.clear();
 
         isInitialized = false;
     }
@@ -1096,7 +1146,7 @@ public class ProtocolProviderServiceSipImpl
                 .getNetworkAddressManagerService()
                     .getLocalHost(registrarAddress);
 
-            SipURI contactURI = (SipURI) addressFactory.createSipURI(
+            SipURI contactURI = addressFactory.createSipURI(
                 ((SipURI)ourSipAddress.getURI()).getUser()
                 , localAddress.getHostAddress());
 
@@ -1178,12 +1228,17 @@ public class ProtocolProviderServiceSipImpl
     public ListeningPoint getListeningPoint(String transport)
     {
         if(transport.equalsIgnoreCase(ListeningPoint.UDP))
+        {
             return udpListeningPoint;
+        }
         else if(transport.equalsIgnoreCase(ListeningPoint.TCP))
+        {
             return tcpListeningPoint;
+        }
         else if(transport.equalsIgnoreCase(ListeningPoint.TLS))
+        {
             return tlsListeningPoint;
-
+        }
         return null;
     }
 
@@ -1200,12 +1255,17 @@ public class ProtocolProviderServiceSipImpl
     public SipProvider getJainSipProvider(String transport)
     {
         if(transport.equalsIgnoreCase(ListeningPoint.UDP))
+        {
             return udpJainSipProvider;
+        }
         else if(transport.equalsIgnoreCase(ListeningPoint.TCP))
+        {
             return tcpJainSipProvider;
+        }
         else if(transport.equalsIgnoreCase(ListeningPoint.TLS))
+        {
             return tlsJainSipProvider;
-
+        }
         return null;
     }
 
@@ -1272,9 +1332,11 @@ public class ProtocolProviderServiceSipImpl
             }
 
             if ( registrarPort > NetworkUtils.MAX_PORT_NUMBER)
+            {
                 throw new IllegalArgumentException(registrarPort
                     + " is larger than " + NetworkUtils.MAX_PORT_NUMBER
                     + " and does not therefore represent a valid port nubmer.");
+            }
         }
 
         //registrar transport
@@ -1286,9 +1348,11 @@ public class ProtocolProviderServiceSipImpl
             if( ! registrarTransport.equals(ListeningPoint.UDP)
                 || !registrarTransport.equals(ListeningPoint.TCP)
                 || !registrarTransport.equals(ListeningPoint.TLS))
-            throw new IllegalArgumentException(registrarTransport
-                + " is not a valid transport protocol. Transport must be left "
-                + "blanc or set to TCP, UDP or TLS.");
+            {
+                throw new IllegalArgumentException(registrarTransport
+                    + " is not a valid transport protocol. Transport must be "
+                    +"left blanc or set to TCP, UDP or TLS.");
+            }
         }
         else
         {
@@ -1369,7 +1433,9 @@ public class ProtocolProviderServiceSipImpl
 
         //return if no proxy is specified.
         if(proxyAddressStr == null || proxyAddressStr.length() == 0)
+        {
             return;
+        }
 
         try
         {
@@ -1407,11 +1473,13 @@ public class ProtocolProviderServiceSipImpl
             }
 
             if (proxyPort > NetworkUtils.MAX_PORT_NUMBER)
+            {
                 throw new IllegalArgumentException(proxyPort
                     + " is larger than " +
                     NetworkUtils.MAX_PORT_NUMBER
                     +
                     " and does not therefore represent a valid port nubmer.");
+            }
         }
 
         //proxy transport
@@ -1423,9 +1491,11 @@ public class ProtocolProviderServiceSipImpl
             if (!proxyTransport.equals(ListeningPoint.UDP)
                 || !proxyTransport.equals(ListeningPoint.TCP)
                 || !proxyTransport.equals(ListeningPoint.TLS))
+            {
                 throw new IllegalArgumentException(proxyTransport
                     + " is not a valid transport protocol. Transport must be "
                     + "left blanc or set to TCP, UDP or TLS.");
+            }
         }
         else
         {
@@ -1446,7 +1516,7 @@ public class ProtocolProviderServiceSipImpl
         proxyStringBuffer.append(proxyTransport);
 
         //done parsing. iInit properties.
-        jainSipProperties.put(this.JSPNAME_OUTBOUND_PROXY
+        jainSipProperties.put(JSPNAME_OUTBOUND_PROXY
                               , proxyStringBuffer.toString());
 
     }
