@@ -119,7 +119,7 @@ public class SipActivator
      * @return a reference to the <tt>ProtocolProviderFactorySipImpl</tt>
      * instance that we have registered from this package.
      */
-    static ProtocolProviderFactorySipImpl getProtocolProviderFactory()
+    public static ProtocolProviderFactorySipImpl getProtocolProviderFactory()
     {
         return sipProviderFactory;
     }
