@@ -79,7 +79,7 @@ public class TestAccountUninstallationPersistence
         }
         catch (InvalidSyntaxException ex)
         {
-            fail("We apparently got our filter wrong");
+            fail("We apparently got our filter wrong " + ex.getMessage());
         }
 
         //make sure we didn't retrieve a service

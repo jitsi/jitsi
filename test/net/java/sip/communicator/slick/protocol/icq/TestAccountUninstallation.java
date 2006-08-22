@@ -187,7 +187,7 @@ public class TestAccountUninstallation
         }
         catch (InvalidSyntaxException ex)
         {
-            fail("We apparently got our filter wrong");
+            fail("We apparently got our filter wrong: " + ex.getMessage());
         }
 
         //make sure we didn't see a service
@@ -236,7 +236,7 @@ public class TestAccountUninstallation
         }
         catch (InvalidSyntaxException ex)
         {
-            fail("We apparently got our filter wrong");
+            fail("We apparently got our filter wrong: " + ex.getMessage());
         }
 
         //make sure we didn't see a service
@@ -254,7 +254,7 @@ public class TestAccountUninstallation
         }
         catch (InvalidSyntaxException ex)
         {
-            fail("We apparently got our filter wrong");
+            fail("We apparently got our filter wrong: " + ex.getMessage());
         }
 
         //we're the ones who've reinstalled the factory so it's our
@@ -308,7 +308,7 @@ public class TestAccountUninstallation
         }
         catch (InvalidSyntaxException ex)
         {
-            fail("We apparently got our filter wrong");
+            fail("We apparently got our filter wrong: " + ex.getMessage());
         }
 
         //make sure we didn't see a service
