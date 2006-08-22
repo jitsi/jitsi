@@ -147,9 +147,9 @@ public class SipRegistrarConnection
             logger.error(
                 "Failed to generate a from header for our register request."
                 , ex);
-            setRegistrationState(RegistrationState.CONNECTION_FAILED,
-                RegistrationStateChangeEvent.REASON_INTERNAL_ERROR,
-                ex.getMessage());
+            setRegistrationState(RegistrationState.CONNECTION_FAILED
+                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
+                , ex.getMessage());
             throw new OperationFailedException(
                 "Failed to generate a from header for our register request."
                 , OperationFailedException.INTERNAL_ERROR
@@ -172,10 +172,9 @@ public class SipRegistrarConnection
         {
             //Should never happen
             logger.error("Corrupt Sip Stack", ex);
-            setRegistrationState(RegistrationState.CONNECTION_FAILED,
-                                 RegistrationStateChangeEvent.
-                                 REASON_INTERNAL_ERROR,
-                                 ex.getMessage());
+            setRegistrationState(RegistrationState.CONNECTION_FAILED
+                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
+                , ex.getMessage());
 
             throw new OperationFailedException(
                 "Failed to generate a from header for our register request."
@@ -187,10 +186,9 @@ public class SipRegistrarConnection
         {
             //Should never happen
             logger.error("The application is corrupt", ex);
-            setRegistrationState(RegistrationState.CONNECTION_FAILED,
-                                 RegistrationStateChangeEvent.
-                                 REASON_INTERNAL_ERROR,
-                                 ex.getMessage());
+            setRegistrationState(RegistrationState.CONNECTION_FAILED
+                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
+                , ex.getMessage());
             throw new OperationFailedException(
                 "Failed to generate a from header for our register request."
                 , OperationFailedException.INTERNAL_ERROR
@@ -210,10 +208,9 @@ public class SipRegistrarConnection
                           + fromHeader.getAddress(),
                           ex);
             //throw was missing - reported by Eero Vaarnas
-            setRegistrationState(RegistrationState.CONNECTION_FAILED,
-                                 RegistrationStateChangeEvent.
-                                 REASON_INTERNAL_ERROR,
-                                 ex.getMessage());
+            setRegistrationState(RegistrationState.CONNECTION_FAILED
+                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
+                , ex.getMessage());
             throw new OperationFailedException(
                 "Could not create a To header for address:"
                 + fromHeader.getAddress()
@@ -244,10 +241,9 @@ public class SipRegistrarConnection
         catch (ParseException ex)
         {
             logger.error("Could not create the register request!", ex);
-            setRegistrationState(RegistrationState.CONNECTION_FAILED,
-                                 RegistrationStateChangeEvent.
-                                 REASON_INTERNAL_ERROR,
-                                 ex.getMessage());
+            setRegistrationState(RegistrationState.CONNECTION_FAILED
+                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
+                , ex.getMessage());
             throw new OperationFailedException(
                 "Could not create the register request!"
                 , OperationFailedException.INTERNAL_ERROR
@@ -274,10 +270,9 @@ public class SipRegistrarConnection
                     "Invalid registrations expiration parameter - "
                     + registrationsExpiration,
                     ex);
-                setRegistrationState(RegistrationState.CONNECTION_FAILED,
-                                 RegistrationStateChangeEvent.
-                                 REASON_INTERNAL_ERROR,
-                                 ex.getMessage());
+                setRegistrationState(RegistrationState.CONNECTION_FAILED
+                    , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
+                    , ex.getMessage());
                 throw new OperationFailedException(
                     "Invalid registrations expiration parameter - "
                     + registrationsExpiration
@@ -306,10 +301,9 @@ public class SipRegistrarConnection
             logger.error("Could not create a register transaction!\n"
                           + "Check that the Registrar address is correct!"
                           , ex);
-            setRegistrationState(RegistrationState.CONNECTION_FAILED,
-                                 RegistrationStateChangeEvent.
-                                 REASON_INTERNAL_ERROR,
-                                 ex.getMessage());
+            setRegistrationState(RegistrationState.CONNECTION_FAILED
+                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
+                , ex.getMessage());
             throw new OperationFailedException(
                 "Could not create a register transaction!\n"
                 + "Check that the Registrar address is correct!"
@@ -325,10 +319,9 @@ public class SipRegistrarConnection
         catch (Exception ex)
         {
             logger.error("Could not send out the register request!", ex);
-            setRegistrationState(RegistrationState.CONNECTION_FAILED,
-                                 RegistrationStateChangeEvent.
-                                 REASON_INTERNAL_ERROR,
-                                 ex.getMessage());
+            setRegistrationState(RegistrationState.CONNECTION_FAILED
+                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
+                , ex.getMessage());
             throw new OperationFailedException(
                 "Could not send out the register request!"
                 , OperationFailedException.NETWORK_FAILURE
@@ -416,10 +409,9 @@ public class SipRegistrarConnection
         if (this.registerRequest == null)
         {
             logger.error("Couldn't find the initial register request");
-            setRegistrationState(RegistrationState.CONNECTION_FAILED,
-                                 RegistrationStateChangeEvent.
-                                 REASON_INTERNAL_ERROR,
-                                 "Could not find the initial regiest request.");
+            setRegistrationState(RegistrationState.CONNECTION_FAILED
+                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
+                , "Could not find the initial regiest request.");
             throw new OperationFailedException(
                 "Could not find the initial register request."
                 , OperationFailedException.INTERNAL_ERROR);
@@ -438,10 +430,10 @@ public class SipRegistrarConnection
         {
             logger.error("Unable to set Expires Header", ex);
             //Shouldn't happen
-            setRegistrationState(RegistrationState.CONNECTION_FAILED,
-                                 RegistrationStateChangeEvent.
-                                 REASON_INTERNAL_ERROR,
-                                 "Unable to set Expires Header");
+            setRegistrationState(
+                RegistrationState.CONNECTION_FAILED
+                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
+                , "Unable to set Expires Header");
             throw new OperationFailedException(
                 "Unable to set Expires Header"
                 , OperationFailedException.INTERNAL_ERROR
@@ -458,10 +450,10 @@ public class SipRegistrarConnection
         catch (TransactionUnavailableException ex)
         {
             logger.error("Unable to create a unregister transaction", ex);
-            setRegistrationState(RegistrationState.CONNECTION_FAILED,
-                                 RegistrationStateChangeEvent.
-                                 REASON_INTERNAL_ERROR,
-                                 "Unable to create a unregister transaction");
+            setRegistrationState(
+                RegistrationState.CONNECTION_FAILED
+                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
+                , "Unable to create a unregister transaction");
             throw new OperationFailedException(
                 "Unable to create a unregister transaction"
                 , OperationFailedException.INTERNAL_ERROR
@@ -480,10 +472,10 @@ public class SipRegistrarConnection
         catch (SipException ex)
         {
             logger.error("Failed to send unregister request", ex);
-            setRegistrationState(RegistrationState.CONNECTION_FAILED,
-                                 RegistrationStateChangeEvent.
-                                 REASON_INTERNAL_ERROR,
-                                 "Unable to create a unregister transaction");
+            setRegistrationState(
+                  RegistrationState.CONNECTION_FAILED
+                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
+                , "Unable to create a unregister transaction");
             throw new OperationFailedException(
                 "Failed to send unregister request"
                 , OperationFailedException.INTERNAL_ERROR
@@ -732,7 +724,7 @@ public class SipRegistrarConnection
     {
         try
         {
-            Request register = clientTransaction.getRequest();
+            logger.debug("Authenticating a Register request.");
 
             ClientTransaction retryTran
                 = sipProvider.getSipSecurityManager().handleChallenge(
@@ -740,38 +732,19 @@ public class SipRegistrarConnection
                     , clientTransaction
                     , getRegistrarJainSipProvider());
 
-            //Dialog dialog = clientTransaction.getDialog();
-
-
             retryTran.sendRequest();
             return;
         }
-//        catch (SipSecurityException exc)
-//        {
-//            //tell the others we couldn't register
-//            sipManCallback.
-//                fireUnregistered(
-//                    ( (FromHeader) clientTransaction.getRequest().getHeader(
-//                        FromHeader.
-//                        NAME)).
-//                    getAddress().toString());
-//            sipManCallback.fireCommunicationsError(
-//                new CommunicationsException("Authorization failed!", exc));
-//        }
         catch (Exception exc)
         {
-//            //tell the others we couldn't register
-//            sipManCallback.
-//                fireUnregistered(
-//                    ( (FromHeader) clientTransaction.getRequest().getHeader(
-//                        FromHeader.
-//                        NAME)).
-//                    getAddress().toString());
-//            sipManCallback.fireCommunicationsError(
-//                new CommunicationsException("Failed to resend a request "
-//                                            + "after a security challenge!",
-//                                            exc)
-//                );
+            logger.error("We failed to authenticate a Register request.", exc);
+
+            //tell the others we couldn't register
+            this.setRegistrationState(
+                    RegistrationState.AUTHENTICATION_FAILED
+                    , RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED
+                    , "We failed to authenticate with the server."
+                );
         }
     }
 
