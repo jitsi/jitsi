@@ -59,6 +59,19 @@ public class UserCredentials
     }
 
     /**
+     * Returns a String containing the password associated with this set of
+     * credentials.
+     *
+     * @return a String containing the password associated with this set of
+     * credentials.
+     */
+    public String getPasswordAsString()
+    {
+        return new String(password);
+    }
+
+
+    /**
      * Specifies whether or not the password associated with this credentials
      * object is to be sored persistently (insecure!) or not.
      * <p>
