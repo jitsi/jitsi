@@ -23,20 +23,10 @@ public class ProtocolProviderFactorySipImpl
     private Hashtable registeredAccounts = new Hashtable();
 
     /**
-     * The package name that we use to store properties in the configuration
-     * service.
-     */
-    private String implementationPackageName = null;
-
-    /**
      * Constructs a new instance of the ProtocolProviderFactorySipImpl.
      */
     public ProtocolProviderFactorySipImpl()
     {
-        implementationPackageName
-            = ProtocolProviderFactorySipImpl.class.getName().substring(0
-                , ProtocolProviderFactorySipImpl.class.getName()
-                .lastIndexOf("."));
     }
 
     /**
@@ -127,8 +117,7 @@ public class ProtocolProviderFactorySipImpl
         //and check for a password.
         this.storeAccount(
             SipActivator.getBundleContext()
-            , accountID
-            , implementationPackageName);
+            , accountID);
 
         accountID = loadAccount(accountProperties);
 
@@ -206,9 +195,7 @@ public class ProtocolProviderFactorySipImpl
      */
     public void loadStoredAccounts()
     {
-        super.loadStoredAccounts(
-            SipActivator.getBundleContext()
-            , implementationPackageName);
+        super.loadStoredAccounts( SipActivator.getBundleContext());
     }
 
 
@@ -237,8 +224,7 @@ public class ProtocolProviderFactorySipImpl
 
         return removeStoredAccount(
             SipActivator.getBundleContext()
-            , accountID
-            , implementationPackageName);
+            , accountID);
     }
 
     /**
@@ -253,9 +239,13 @@ public class ProtocolProviderFactorySipImpl
             ServiceRegistration reg
                 = ((ServiceRegistration)registrations.nextElement());
 
+            ProtocolProviderServiceSipImpl provider
+                = (ProtocolProviderServiceSipImpl) SipActivator.getBundleContext().getService(reg.getReference());
+
+            //do a last attempt to kill the provider
+            provider.shutdown();
+
             reg.unregister();
-
-
         }
 
         Enumeration idEnum = registeredAccounts.keys();
@@ -266,5 +256,42 @@ public class ProtocolProviderFactorySipImpl
         }
     }
 
+    /**
+     * Saves the password for the specified account after scrambling it a bit
+     * so that it is not visible from first sight (Method remains highly
+     * insecure).
+     *
+     * @param accountID the AccountID for the account whose password we're
+     * storing.
+     * @param passwd the password itself.
+     *
+     * @throws java.lang.IllegalArgumentException if no account corresponding
+     * to <tt>accountID</tt> has been previously stored.
+     */
+    public void storePassword(AccountID accountID, String passwd)
+        throws IllegalArgumentException
+    {
+        super.storePassword(SipActivator.getBundleContext()
+                            , accountID
+                            , passwd);
+    }
+
+    /**
+     * Returns the password last saved for the specified account.
+     *
+     * @param accountID the AccountID for the account whose password we're
+     * looking for..
+     *
+     * @return a String containing the password for the specified accountID.
+     *
+     * @throws java.lang.IllegalArgumentException if no account corresponding
+     * to <tt>accountID</tt> has been previously stored.
+     */
+    public String loadPassword(AccountID accountID)
+        throws IllegalArgumentException
+    {
+        return super.loadPassword(SipActivator.getBundleContext()
+                                  , accountID );
+    }
 
 }
