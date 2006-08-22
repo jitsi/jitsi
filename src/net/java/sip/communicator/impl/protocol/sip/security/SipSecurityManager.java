@@ -6,18 +6,15 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.security;
 
-import javax.sip.*;
-import javax.sip.message.*;
-import javax.sip.address.*;
-import javax.sip.header.*;
-
-import java.util.*;
-
 import java.text.*;
+import java.util.*;
 import javax.sip.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.protocol.*;
+import javax.sip.header.*;
+import javax.sip.message.*;
+
 import net.java.sip.communicator.impl.protocol.sip.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The class handles authentication challenges, caches user credentials and
@@ -33,17 +30,37 @@ public class SipSecurityManager
     private static final Logger logger
         = Logger.getLogger(SipSecurityManager.class);
 
+    /**
+     * The SecurityAuthority instance that we could use to obtain new passwords
+     * for the user.
+     */
     private SecurityAuthority securityAuthority = null;
+
+    /**
+     * An instance of the header factory that we have to use to create our
+     * authentication headers.
+     */
     private HeaderFactory headerFactory = null;
 
     /**
      * Credentials cached so far.
      */
-    CredentialsCache cachedCredentials = new CredentialsCache();
+    private CredentialsCache cachedCredentials = new CredentialsCache();
 
-    public SipSecurityManager()
+    /**
+     * The ID of the account that this security manager instance is serving.
+     */
+    private AccountID accountID = null;
+
+    /**
+     * Default constructor for the security manager.
+     *
+     * @param accountID the id of the account that this security manager is
+     * going to serve.
+     */
+    public SipSecurityManager(AccountID accountID)
     {
-
+        this.accountID = accountID;
     }
 
     /**
@@ -99,21 +116,33 @@ public class SipSecurityManager
 
         Request reoriginatedRequest = (Request) challengedRequest.clone();
 
+        //remove the branch id so that we could use the request in a new
+        //transaction
+        removeBranchID(reoriginatedRequest);
+
         ListIterator authHeaders = null;
 
         if (challenge == null || reoriginatedRequest == null)
+        {
             throw new NullPointerException(
                 "A null argument was passed to handle challenge.");
+        }
 
         if (challenge.getStatusCode() == Response.UNAUTHORIZED)
+        {
             authHeaders = challenge.getHeaders(WWWAuthenticateHeader.NAME);
-        else if (challenge.getStatusCode() ==
-                 Response.PROXY_AUTHENTICATION_REQUIRED)
+        }
+        else if (challenge.getStatusCode()
+                 == Response.PROXY_AUTHENTICATION_REQUIRED)
+        {
             authHeaders = challenge.getHeaders(ProxyAuthenticateHeader.NAME);
+        }
 
         if (authHeaders == null)
+        {
             throw new NullPointerException(
                 "Could not find WWWAuthenticate or ProxyAuthenticate headers");
+        }
 
         //Remove all authorization headers from the request (we'll re-add them
         //from cache)
@@ -137,30 +166,62 @@ public class SipSecurityManager
             authHeader = (WWWAuthenticateHeader) authHeaders.next();
             String realm = authHeader.getRealm();
 
-            //Check whether we have cached credentials for authHeader's realm
-            //make sure that if such credentials exist they get removed. The
-            //challenge means that there's something wrong with them.
-            CredentialsCacheEntry ccEntry =
-                (CredentialsCacheEntry) cachedCredentials.remove(realm);
-
-            //Try to guess user name and facilitate user
-            UserCredentials defaultCredentials = new UserCredentials();
-            FromHeader from =
-                (FromHeader) reoriginatedRequest.getHeader(FromHeader.NAME);
-            URI uri = from.getAddress().getURI();
-            if (uri.isSipURI())
-            {
-                String user = ( (SipURI) uri).getUser();
-                defaultCredentials.setUserName(
-                    user == null
-                    ? null //PropertiesDepot.getProperty("net.java.sip.communicator.sip.USER_NAME")
-                    : user);
-            }
+            //Check whether we have cached credentials for authHeader's realm.
+            //We remove them with the intention to re-add them at the end of the
+            //method. If we fail to get to the end then it's best for the cache
+            //entry to remain outside since it might have caused the problem
+            CredentialsCacheEntry ccEntry = cachedCredentials.remove(realm);
 
             boolean ccEntryHasSeenTran = false;
 
             if (ccEntry != null)
-                ccEntryHasSeenTran = ccEntry.processResponse(branchID);
+                ccEntryHasSeenTran = ccEntry.popBranchID(branchID);
+
+            String storedPassword = SipActivator.getProtocolProviderFactory()
+                .loadPassword(accountID);
+
+            if(ccEntry == null)
+            {
+                //we haven't yet authentified this realm since we were started.
+                if(storedPassword != null)
+                {
+                    //use the stored password to authenticate
+                    ccEntry = createCcEntryWithStoredPassword(storedPassword);
+                }
+                else
+                {
+                    //obtain new credentials
+                    logger.trace("We don't seem to have a good pass! Get one.");
+
+                    ccEntry = createCcEntryWithNewCredentials(realm);
+                }
+            }
+            else
+            {
+                //we have already authentified against this realm since we were
+                //started. this authentication is either for a different request
+                //or the previous authentication used a wrong pass.
+
+                if (ccEntryHasSeenTran)
+                {
+                    //this is the transaction that created the cc entry. if we
+                    //need to authenticate the same transaction then the
+                    //credentials we supplied the first time we wrong.
+                    //remove password and ask user again.
+                    SipActivator.getProtocolProviderFactory().storePassword(
+                        accountID, null);
+
+                    ccEntry = createCcEntryWithNewCredentials(realm);
+                }
+                else
+                {
+                    //we have a cache entry and it has not seen this transaction
+                    //lets use it again.
+                    //(this "else" is here for readability only)
+                    logger.trace( "We seem to have a pass in the cache. "
+                                  +"Let's try with it.");
+                }
+            }
 
             //get a new pass
             if (ccEntry == null // we don't have credentials for the specified
@@ -170,46 +231,27 @@ public class SipSecurityManager
                                                   // just a request to reencode
             {
 
-                logger.debug(
-                    "We don't seem to have a good pass! Get one.");
-                if (ccEntry == null)
-                    ccEntry = new CredentialsCacheEntry();
-
-                ccEntry.userCredentials =
-                    getSecurityAuthority().obtainCredentials(
-                        realm,
-                        defaultCredentials);
-
-                //put the returned user name in the properties file
-                //so that it appears as a default one next time user is prompted for pass
-//                        PropertiesDepot.setProperty("net.java.sip.communicator.sip.USER_NAME",
-//                                                    ccEntry.userCredentials.getUserName()) ;
-//                        PropertiesDepot.storeProperties();
-            }
-            //encode and send what we have
-            else if (ccEntry != null
-                     && (!ccEntryHasSeenTran || authHeader.isStale()))
-            {
-                logger.debug(
-                    "We seem to have a pass in the cache. Let's try with it.");
             }
 
             //if user canceled or sth else went wrong
             if (ccEntry.userCredentials == null)
+            {
                 throw new OperationFailedException(
                     "Unable to authenticate with realm " + realm
                     , OperationFailedException.GENERAL_ERROR);
+            }
 
             AuthorizationHeader authorization =
                 this.getAuthorization(
                     reoriginatedRequest.getMethod(),
                     reoriginatedRequest.getRequestURI().toString(),
-                    reoriginatedRequest.getContent() == null ? "" :
+                    ( reoriginatedRequest.getContent() == null )? "" :
                     reoriginatedRequest.getContent().toString(),
                     authHeader,
                     ccEntry.userCredentials);
 
-            ccEntry.processRequest(retryTran.getBranchId());
+
+            ccEntry.pushBranchID(retryTran.getBranchId());
             cachedCredentials.cacheEntry(realm, ccEntry);
 
             logger.debug("Created authorization header: " +
@@ -312,9 +354,14 @@ public class SipSecurityManager
             authorization.setParameter("uri", uri);
             authorization.setResponse(response);
             if (authHeader.getAlgorithm() != null)
+            {
                 authorization.setAlgorithm(authHeader.getAlgorithm());
+            }
+
             if (authHeader.getOpaque() != null)
+            {
                 authorization.setOpaque(authHeader.getOpaque());
+            }
 
             authorization.setResponse(response);
         }
@@ -340,4 +387,85 @@ public class SipSecurityManager
 
         this.cachedCredentials.cacheEntry(realm, ccEntry);
     }
+
+    /**
+     * Removes all via headers from <tt>request</tt> and replaces them with a
+     * new one, equal to the one that was top most.
+     *
+     * @param request the Request whose branchID we'd like to remove.
+     *
+     * @throws ParseException in case the host port or transport in the original
+     * request were malformed
+     * @throws InvalidArgumentException if the port in the original via header
+     * was invalid.
+     */
+    private void removeBranchID(Request request)
+        throws ParseException, InvalidArgumentException
+    {
+        ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
+
+        request.removeHeader(ViaHeader.NAME);
+
+        ViaHeader newViaHeader = headerFactory.createViaHeader(
+                                        viaHeader.getHost()
+                                        , viaHeader.getPort()
+                                        , viaHeader.getTransport()
+                                        , null);
+
+        request.setHeader(newViaHeader);
+    }
+
+    /**
+     * Obtains user credentials from the security suthority for the speicified
+     * <tt>realm</tt> and creates a new CredentialsCacheEntry with them.
+     *
+     * @param realm the realm that we'd like to obtain a
+     * <tt>CredentialsCacheEntry</tt> for.
+     *
+     * @return a newly created <tt>CredentialsCacheEntry</tt> corresponding to
+     * the specified <tt>realm</tt>.
+     */
+    private CredentialsCacheEntry createCcEntryWithNewCredentials(String realm)
+    {
+        CredentialsCacheEntry ccEntry = new CredentialsCacheEntry();
+
+        UserCredentials defaultCredentials = new UserCredentials();
+        defaultCredentials.setUserName(accountID.getUserID());
+
+        ccEntry.userCredentials =
+            getSecurityAuthority().obtainCredentials(
+                realm,
+                defaultCredentials);
+
+        //store the password if the user wants us to
+        if(ccEntry.userCredentials.isPasswordPersistent())
+            SipActivator.getProtocolProviderFactory().storePassword(
+                accountID
+                , ccEntry.userCredentials.getPasswordAsString());
+
+        return ccEntry;
+    }
+
+    /**
+     * Creaes a new credentials cache entry using <tt>password</tt>.
+     *
+     * @param password the password that we'd like to use in our the credentials
+     * associated with the new <tt>CredentialsCacheEntry</tt>.
+     *
+     * @return a newly created <tt>CredentialsCacheEntry</tt> using
+     * <tt>password</tt>.
+     */
+    private CredentialsCacheEntry createCcEntryWithStoredPassword(
+                                                                String password)
+    {
+        CredentialsCacheEntry ccEntry = new CredentialsCacheEntry();
+
+        ccEntry.userCredentials = new UserCredentials();
+        ccEntry.userCredentials.setUserName(accountID.getUserID());
+
+        ccEntry.userCredentials.setPassword(password.toCharArray());
+
+        return ccEntry;
+    }
+
 }
