@@ -17,10 +17,10 @@ import net.java.sip.communicator.service.protocol.*;
  */
 class CredentialsCacheEntry
 {
-    //The header that was used last time
-    //AuthorizationHeader authorization = null;
-
-    UserCredentials userCredentials = null;
+    /**
+     * The user credentials associated with this cache entry.
+     */
+    public UserCredentials userCredentials = null;
 
     /**
      * The transactionHistory list contains transactions where the entry
@@ -31,10 +31,14 @@ class CredentialsCacheEntry
     private Vector transactionHistory = new Vector();
 
     /**
-     * Adds the specified branch id to the transaction history list.
-     * @param requestBranchID the id to add to the list of uncofirmed transactions.
+     * Adds the specified branch id to the transaction history list so that we
+     * know that we've seen it and don't try to authenticate with the same
+     * credentials if we get an unauthorized response for it.
+     *
+     * @param requestBranchID the id to add to the list of uncofirmed
+     * transactions.
      */
-    void processRequest(String requestBranchID)
+    void pushBranchID(String requestBranchID)
     {
         transactionHistory.add(requestBranchID);
     }
@@ -42,12 +46,14 @@ class CredentialsCacheEntry
     /**
      * Determines whether these credentials have been used for the specified
      * transaction. If yes - the transaction is removed and true is returned.
-     * Otherwise we return false.
+     * Otherwise we return false. We remove the transaction simply because
+     * there is no point in keeping it. We can't get an unauthorized response
+     * more than once in the same transaction.
      *
      * @param responseBranchID the branchi id of the response to process.
      * @return true if this entry hase been used for the transaction.
      */
-    boolean processResponse(String responseBranchID)
+    boolean popBranchID(String responseBranchID)
     {
         return transactionHistory.remove(responseBranchID);
     }
