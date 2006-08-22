@@ -7,8 +7,7 @@
 package net.java.sip.communicator.service.protocol;
 
 import net.java.sip.communicator.service.protocol.event.*;
-
-
+import java.util.*;
 
 /**
  * An Operation Set defining all basic telephony operations such as conducting
@@ -35,9 +34,9 @@ public interface OperationSetBasicTelephony
      */
     public void removeCallListener(CallListener listener);
 
-
     /**
      * Create a new call and invite the specified CallParticipant to it.
+     *
      * @param uri the address of the callee that we should invite to a new
      * call.
      * @return CallParticipant the CallParticipant that will represented by the
@@ -47,6 +46,19 @@ public interface OperationSetBasicTelephony
      * of the corresponding method.
      */
     public Call createCall(String uri);
+
+    /**
+     * Create a new call and invite the specified CallParticipant to it.
+     *
+     * @param callee the address of the callee that we should invite to a new
+     * call.
+     * @return CallParticipant the CallParticipant that will represented by the
+     * specified uri. All following state change events will be delivered
+     * through that call participant. The Call that this participant is a member
+     * of could be retrieved from the CallParticipatn instance with the use
+     * of the corresponding method.
+     */
+    public Call createCall(Contact callee);
 
     /**
      * Indicates a user request to answer an incoming call from the specified
@@ -82,6 +94,5 @@ public interface OperationSetBasicTelephony
      * Returns an iterator over all currently active calls.
      * @return Iterator
      */
-    public java.util.Iterator getActiveCalls();
-
+    public Iterator getActiveCalls();
 }
