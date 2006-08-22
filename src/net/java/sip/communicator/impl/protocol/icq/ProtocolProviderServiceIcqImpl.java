@@ -180,10 +180,8 @@ public class ProtocolProviderServiceIcqImpl
                     .findAccountPrefix(getAccountID());
 
             //verify whether a password has already been stored for this account
-            String password = IcqActivator.getConfigurationService().getString(
-                accountPrefix
-                + "."
-                + ProtocolProviderFactory.PASSWORD);
+            String password = IcqActivator.getProtocolProviderFactory()
+                .loadPassword(getAccountID());
 
             //decode
             if( password != null )
@@ -204,12 +202,8 @@ public class ProtocolProviderServiceIcqImpl
 
                 if (credentials.isPasswordPersistent())
                 {
-                    //verify whether a password has already been stored for this account
-                    IcqActivator.getConfigurationService().setProperty(
-                        accountPrefix + "."
-                        + ProtocolProviderFactory.PASSWORD
-                        , new String(Base64.encode(password.getBytes())) );
-
+                    IcqActivator.getProtocolProviderFactory()
+                        .storePassword(getAccountID(), password);
                 }
             }
 
@@ -635,7 +629,7 @@ public class ProtocolProviderServiceIcqImpl
         }
 
         // This may be called without ever calling conversationOpened
-        public void conversationClosed(Conversation c)
+        public void conversationClosed(Conversation co)
         {
             logger.debug("conversation closed");
         }
@@ -656,25 +650,25 @@ public class ProtocolProviderServiceIcqImpl
             }
         }
 
-        public void canSendMessageChanged(Conversation c, boolean canSend)
+        public void canSendMessageChanged(Conversation con, boolean canSend)
         {
             logger.debug("can send message event");
         }
 
         // This may never be called
-        public void conversationOpened(Conversation c)
+        public void conversationOpened(Conversation con)
         {
             logger.debug("conversation opened event");
         }
 
         // This may be called after conversationClosed is called
-        public void sentMessage(Conversation c, MessageInfo minfo)
+        public void sentMessage(Conversation con, MessageInfo minfo)
         {
             logger.debug("sent message event");
         }
 
         // This may be called after conversationClosed is called.
-        public void gotMessage(Conversation c, MessageInfo minfo)
+        public void gotMessage(Conversation con, MessageInfo minfo)
         {
             logger.debug("got message event" + minfo.getMessage().getMessageBody());
         }
@@ -693,7 +687,7 @@ public class ProtocolProviderServiceIcqImpl
     public static class ConnectionClosedListener
         implements FlapPacketListener
     {
-        AimConnection aimConnection = null;
+        private AimConnection aimConnection = null;
 
         private final static int REASON_MULTIPLE_LOGINS = 0x0001;
         private final static int REASON_BAD_PASSWORD_A = 0x0004;
@@ -721,9 +715,9 @@ public class ProtocolProviderServiceIcqImpl
         }
 
 
-        public void handleFlapPacket(FlapPacketEvent e)
+        public void handleFlapPacket(FlapPacketEvent evt)
         {
-            FlapCommand flapCommand = e.getFlapCommand();
+            FlapCommand flapCommand = evt.getFlapCommand();
             if (flapCommand instanceof CloseFlapCmd)
             {
                 CloseFlapCmd closeCmd = (CloseFlapCmd)flapCommand;

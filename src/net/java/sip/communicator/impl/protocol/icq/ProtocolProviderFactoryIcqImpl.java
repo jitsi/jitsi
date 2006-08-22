@@ -24,21 +24,10 @@ public class ProtocolProviderFactoryIcqImpl
     private Hashtable registeredAccounts = new Hashtable();
 
     /**
-     * The package name that we use to store properties in the configuration
-     * service.
-     */
-    private String implementationPackageName = null;
-
-    /**
      * Creates an instance of the ProtocolProviderFactoryIcqImpl.
      */
     protected ProtocolProviderFactoryIcqImpl()
     {
-        implementationPackageName
-            = ProtocolProviderFactoryIcqImpl.class.getName().substring(0
-                , ProtocolProviderFactoryIcqImpl.class.getName()
-                    .lastIndexOf("."));
-
     }
     /**
      * Returns a copy of the list containing all accounts currently
@@ -111,8 +100,7 @@ public class ProtocolProviderFactoryIcqImpl
         //and check for a password.
         this.storeAccount(
             IcqActivator.getBundleContext()
-            , accountID
-            , implementationPackageName);
+            , accountID);
 
         accountID = loadAccount(accountProperties);
 
@@ -186,8 +174,7 @@ public class ProtocolProviderFactoryIcqImpl
 
         return removeStoredAccount(
             IcqActivator.getBundleContext()
-            , accountID
-            , implementationPackageName);
+            , accountID);
     }
 
     /**
@@ -196,9 +183,7 @@ public class ProtocolProviderFactoryIcqImpl
      */
     public void loadStoredAccounts()
     {
-        super.loadStoredAccounts(
-            IcqActivator.getBundleContext()
-            , implementationPackageName);
+        super.loadStoredAccounts( IcqActivator.getBundleContext());
     }
 
     /**
@@ -237,7 +222,45 @@ public class ProtocolProviderFactoryIcqImpl
     public String findAccountPrefix(AccountID accountID)
     {
         return super.findAccountPrefix(IcqActivator.getBundleContext()
-                                       , accountID
-                                       , implementationPackageName);
+                                       , accountID);
     }
+
+    /**
+     * Saves the password for the specified account after scrambling it a bit
+     * so that it is not visible from first sight (Method remains highly
+     * insecure).
+     *
+     * @param accountID the AccountID for the account whose password we're
+     * storing.
+     * @param passwd the password itself.
+     *
+     * @throws java.lang.IllegalArgumentException if no account corresponding
+     * to <tt>accountID</tt> has been previously stored.
+     */
+    public void storePassword(AccountID accountID, String passwd)
+        throws IllegalArgumentException
+    {
+        super.storePassword(IcqActivator.getBundleContext()
+                            , accountID
+                            , passwd);
+    }
+
+    /**
+     * Returns the password last saved for the specified account.
+     *
+     * @param accountID the AccountID for the account whose password we're
+     * looking for..
+     *
+     * @return a String containing the password for the specified accountID.
+     *
+     * @throws java.lang.IllegalArgumentException if no account corresponding
+     * to <tt>accountID</tt> has been previously stored.
+     */
+    public String loadPassword(AccountID accountID)
+        throws IllegalArgumentException
+    {
+        return super.loadPassword(IcqActivator.getBundleContext()
+                                  , accountID );
+    }
+
 }
