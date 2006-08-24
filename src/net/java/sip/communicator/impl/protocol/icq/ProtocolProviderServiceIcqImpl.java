@@ -184,11 +184,7 @@ public class ProtocolProviderServiceIcqImpl
                 .loadPassword(getAccountID());
 
             //decode
-            if( password != null )
-            {
-                password = new String(Base64.decode(password));
-            }
-            else
+            if( password == null )
             {
                 //create a default credentials object
                 UserCredentials credentials = new UserCredentials();
@@ -272,8 +268,8 @@ public class ProtocolProviderServiceIcqImpl
      * properties in this Map be mapped to property names as specified by
      * <tt>AccountProperties</tt>.
      *
-     * @param screenname the account id/uin/screenname of the account that we're
-     * about to create
+     * @param screenname the account id/uin/screenname of the account that
+     * we're about to create
      * @param accountID the identifier of the account that this protocol
      * provider represents.
      *
@@ -400,14 +396,15 @@ public class ProtocolProviderServiceIcqImpl
      *
      * @param listener the listener to register.
      */
-    public void addRegistrationStateChangeListener(RegistrationStateChangeListener listener)
+    public void addRegistrationStateChangeListener(
+        RegistrationStateChangeListener listener)
     {
         registrationListeners.add(listener);
     }
 
     /**
-     * Returns the AccountID that uniquely identifies the account represented by
-     * this instance of the ProtocolProviderService.
+     * Returns the AccountID that uniquely identifies the account represented
+     * by this instance of the ProtocolProviderService.
      * @return the id of the account represented by this provider.
      */
     public AccountID getAccountID()
@@ -451,17 +448,20 @@ public class ProtocolProviderServiceIcqImpl
         if(newJoustSimStateInfo instanceof LoginFailureStateInfo)
         {
             LoginFailureInfo loginFailure =
-                ((LoginFailureStateInfo)newJoustSimStateInfo).getLoginFailureInfo();
+                ((LoginFailureStateInfo)newJoustSimStateInfo)
+                    .getLoginFailureInfo();
 
             if(loginFailure instanceof AuthFailureInfo)
             {
                 AuthFailureInfo afi = (AuthFailureInfo)loginFailure;
                 logger.debug("AuthFailureInfo code : " +
                              afi.getErrorCode());
-                int code =  ConnectionClosedListener.convertAuthCodeToReasonCode(afi);
+                int code =  ConnectionClosedListener
+                    .convertAuthCodeToReasonCode(afi);
                 reasonCode = ConnectionClosedListener.
                     convertCodeToRegistrationStateChangeEvent(code);
-                reason = ConnectionClosedListener.convertCodeToStringReason(code);
+                reason = ConnectionClosedListener
+                    .convertCodeToStringReason(code);
             }
         }
 
@@ -478,8 +478,8 @@ public class ProtocolProviderServiceIcqImpl
      * occurred
      * @param newState the state that the provider is currently in.
      * @param reasonCode a value corresponding to one of the REASON_XXX fields
-     * of the RegistrationStateChangeEvent class, indicating the reason for this
-     * state transition.
+     * of the RegistrationStateChangeEvent class, indicating the reason for
+     * this state transition.
      * @param reason a String further explaining the reason code or null if
      * no such explanation is necessary.
      */
@@ -505,7 +505,14 @@ public class ProtocolProviderServiceIcqImpl
         logger.trace("Done.");
     }
 
-    InfoRetreiver getInfoRetreiver()
+    /**
+     * Returns the info retriever that we've initialized for the current
+     * session.
+     *
+     * @return the info retriever that we've initialized for the current
+     * session.
+     */
+    protected InfoRetreiver getInfoRetreiver()
     {
         return infoRetreiver;
     }
@@ -562,8 +569,9 @@ public class ProtocolProviderServiceIcqImpl
                             discconectCode);
                     reasonStr = ConnectionClosedListener
                         .convertCodeToStringReason(discconectCode);
-                    logger.debug("The aim Connection was disconnected! with reason : "
-                                 + reasonStr);
+                    logger.debug(
+                        "The aim Connection was disconnected! with reason : "
+                        + reasonStr);
                 }
                 else
                     logger.debug("The aim Connection was disconnected!");
@@ -577,6 +585,12 @@ public class ProtocolProviderServiceIcqImpl
 
             //as a side note - if this was an AuthenticationFailed error
             //set the stored password to null so that we don't use it any more.
+            if(reasonCode == RegistrationStateChangeEvent
+                .REASON_AUTHENTICATION_FAILED)
+            {
+                IcqActivator.getProtocolProviderFactory().storePassword(
+                    getAccountID(), null);
+            }
 
             //now tell all interested parties about what happened.
             fireRegistrationStateChanged(oldState, event.getOldStateInfo()
@@ -598,7 +612,8 @@ public class ProtocolProviderServiceIcqImpl
 
     /**
      * Returns the <tt>AimConnection</tt>opened by this provider
-     * @return a reference to the <tt>AimConnection</tt> last opened by this provider.
+     * @return a reference to the <tt>AimConnection</tt> last opened by this
+     * provider.
      */
     protected AimConnection getAimConnection()
     {
@@ -641,7 +656,8 @@ public class ProtocolProviderServiceIcqImpl
             if(event instanceof TypingInfo)
             {
                 TypingInfo ti = (TypingInfo)event;
-                logger.debug("got typing info and state is: " + ti.getTypingState());
+                logger.debug("got typing info and state is: "
+                             + ti.getTypingState());
             }
             else if (event instanceof MessageInfo)
             {
@@ -670,7 +686,8 @@ public class ProtocolProviderServiceIcqImpl
         // This may be called after conversationClosed is called.
         public void gotMessage(Conversation con, MessageInfo minfo)
         {
-            logger.debug("got message event" + minfo.getMessage().getMessageBody());
+            logger.debug("got message event"
+                         + minfo.getMessage().getMessageBody());
         }
 
     }
@@ -700,14 +717,22 @@ public class ProtocolProviderServiceIcqImpl
         private final static int REASON_CONNECTION_TOO_FAST = 0x001D;
         private final static int REASON_TRY_AGAIN = 0x001E;
 
-        private final static String REASON_STRING_MULTIPLE_LOGINS = "multiple logins (on same UIN)";
-        private final static String REASON_STRING_BAD_PASSWORD = "bad password";
-        private final static String REASON_STRING_NON_EXISTING_ICQ_UIN = "non-existant UIN";
-        private final static String REASON_STRING_MANY_CLIENTS_FROM_SAME_IP = "too many clients from same IP";
-        private final static String REASON_STRING_CONNECTION_RATE_EXCEEDED = "Rate exceeded. The server temporarily bans you.";
-        private final static String REASON_STRING_CONNECTION_TOO_FAST = "You are reconnecting too fast";
-        private final static String REASON_STRING_TRY_AGAIN = "Can't register on ICQ network, try again soon.";
-        private final static String REASON_STRING_NOT_SPECIFIED = "Not Specified";
+        private final static String REASON_STRING_MULTIPLE_LOGINS
+            = "multiple logins (on same UIN)";
+        private final static String REASON_STRING_BAD_PASSWORD
+            = "bad password";
+        private final static String REASON_STRING_NON_EXISTING_ICQ_UIN
+            = "non-existant UIN";
+        private final static String REASON_STRING_MANY_CLIENTS_FROM_SAME_IP
+            = "too many clients from same IP";
+        private final static String REASON_STRING_CONNECTION_RATE_EXCEEDED
+            = "Rate exceeded. The server temporarily bans you.";
+        private final static String REASON_STRING_CONNECTION_TOO_FAST
+            = "You are reconnecting too fast";
+        private final static String REASON_STRING_TRY_AGAIN
+            = "Can't register on ICQ network, try again soon.";
+        private final static String REASON_STRING_NOT_SPECIFIED
+            = "Not Specified";
 
         ConnectionClosedListener(AimConnection aimConnection)
         {
@@ -721,7 +746,8 @@ public class ProtocolProviderServiceIcqImpl
             if (flapCommand instanceof CloseFlapCmd)
             {
                 CloseFlapCmd closeCmd = (CloseFlapCmd)flapCommand;
-                logger.trace("received close command with code : " + closeCmd.getCode());
+                logger.trace("received close command with code : "
+                             + closeCmd.getCode());
 
                 aimConnection.disconnect();
             }
@@ -740,27 +766,38 @@ public class ProtocolProviderServiceIcqImpl
             switch(reasonCode)
             {
                 case REASON_MULTIPLE_LOGINS :
-                    return RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS;
+                    return RegistrationStateChangeEvent
+                        .REASON_MULTIPLE_LOGINS;
                 case REASON_BAD_PASSWORD_A :
-                    return RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED;
+                    return RegistrationStateChangeEvent
+                        .REASON_AUTHENTICATION_FAILED;
                 case REASON_BAD_PASSWORD_B :
-                    return RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED;
+                    return RegistrationStateChangeEvent
+                        .REASON_AUTHENTICATION_FAILED;
                 case REASON_NON_EXISTING_ICQ_UIN_A :
-                    return RegistrationStateChangeEvent.REASON_NON_EXISTING_USER_ID;
+                    return RegistrationStateChangeEvent
+                        .REASON_NON_EXISTING_USER_ID;
                 case REASON_NON_EXISTING_ICQ_UIN_B :
-                    return RegistrationStateChangeEvent.REASON_NON_EXISTING_USER_ID;
+                    return RegistrationStateChangeEvent
+                        .REASON_NON_EXISTING_USER_ID;
                 case REASON_MANY_CLIENTS_FROM_SAME_IP_A :
-                    return RegistrationStateChangeEvent.REASON_CLIENT_LIMIT_REACHED_FOR_IP;
+                    return RegistrationStateChangeEvent
+                        .REASON_CLIENT_LIMIT_REACHED_FOR_IP;
                 case REASON_MANY_CLIENTS_FROM_SAME_IP_B :
-                    return RegistrationStateChangeEvent.REASON_CLIENT_LIMIT_REACHED_FOR_IP;
+                    return RegistrationStateChangeEvent
+                        .REASON_CLIENT_LIMIT_REACHED_FOR_IP;
                 case REASON_CONNECTION_RATE_EXCEEDED :
-                    return RegistrationStateChangeEvent.REASON_RECONNECTION_RATE_LIMIT_EXCEEDED;
+                    return RegistrationStateChangeEvent
+                        .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED;
                 case REASON_CONNECTION_TOO_FAST :
-                    return RegistrationStateChangeEvent.REASON_RECONNECTION_RATE_LIMIT_EXCEEDED;
+                    return RegistrationStateChangeEvent
+                        .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED;
                 case REASON_TRY_AGAIN :
-                    return RegistrationStateChangeEvent.REASON_RECONNECTION_RATE_LIMIT_EXCEEDED;
+                    return RegistrationStateChangeEvent
+                        .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED;
                 default :
-                    return RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+                    return RegistrationStateChangeEvent
+                        .REASON_NOT_SPECIFIED;
             }
         }
 
@@ -819,13 +856,19 @@ public class ProtocolProviderServiceIcqImpl
                     return REASON_BAD_PASSWORD_A;
                 case AuthResponse.ERROR_CONNECTING_TOO_MUCH_A :
                     return REASON_CONNECTION_RATE_EXCEEDED;
-                case AuthResponse.ERROR_CONNECTING_TOO_MUCH_B : return REASON_CONNECTION_RATE_EXCEEDED;
-                case AuthResponse.ERROR_INVALID_SN_OR_PASS_A : return REASON_NON_EXISTING_ICQ_UIN_A;
-                case AuthResponse.ERROR_INVALID_SN_OR_PASS_B : return REASON_NON_EXISTING_ICQ_UIN_B;
+                case AuthResponse.ERROR_CONNECTING_TOO_MUCH_B :
+                    return REASON_CONNECTION_RATE_EXCEEDED;
+                case AuthResponse.ERROR_INVALID_SN_OR_PASS_A :
+                    return REASON_NON_EXISTING_ICQ_UIN_A;
+                case AuthResponse.ERROR_INVALID_SN_OR_PASS_B :
+                    return REASON_NON_EXISTING_ICQ_UIN_B;
                 // 16 is also used for blocked from same IP
-                case 16 : return REASON_MANY_CLIENTS_FROM_SAME_IP_A;
-                case AuthResponse.ERROR_SIGNON_BLOCKED : return REASON_MANY_CLIENTS_FROM_SAME_IP_B;
-                default : return RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+                case 16 :
+                    return REASON_MANY_CLIENTS_FROM_SAME_IP_A;
+                case AuthResponse.ERROR_SIGNON_BLOCKED :
+                    return REASON_MANY_CLIENTS_FROM_SAME_IP_B;
+                default :
+                    return RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
             }
         }
     }
