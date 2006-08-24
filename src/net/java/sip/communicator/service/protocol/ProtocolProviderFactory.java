@@ -520,6 +520,6 @@ public abstract class ProtocolProviderFactory
     {
         String className = getClass().getName();
 
-        return className.substring(className.lastIndexOf('.'));
+        return className.substring(0, className.lastIndexOf('.'));
     }
 }
