@@ -46,6 +46,8 @@ public class HistoryServiceImpl implements HistoryService {
 
     private DocumentBuilder builder;
 
+    private boolean cacheEnabled = false;
+
     public HistoryServiceImpl()
         throws Exception
     {
@@ -230,6 +232,13 @@ public class HistoryServiceImpl implements HistoryService {
         {
             this.configurationService = configurationService;
             log.debug("New configuration service registered.");
+
+            // store some config for further use
+            Object isCacheEnabledObj =
+                this.configurationService.getProperty(HistoryService.CACHE_ENABLED_PROPERTY);
+
+            if(isCacheEnabledObj != null && isCacheEnabledObj.equals(HistoryService.CACHE_ENABLED))
+                cacheEnabled = true;
         }
     }
 
@@ -280,6 +289,15 @@ public class HistoryServiceImpl implements HistoryService {
                 log.debug("File access service unregistered.");
             }
         }
+    }
+
+    /**
+     * Returns whether caching of readed documents is enabled or desibled.
+     * @return boolean
+     */
+    protected boolean isCacheEnabled()
+    {
+        return cacheEnabled;
     }
 
 }
