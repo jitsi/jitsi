@@ -161,6 +161,7 @@ public class HistoryImpl implements History {
             }
 
             Object obj = this.historyDocuments.get(filename);
+
             if (obj instanceof Document)
             {
                 Document doc = (Document) obj;
@@ -169,6 +170,26 @@ public class HistoryImpl implements History {
                 {
                     XMLUtils.writeXML(doc, file);
                 }
+            }
+        }
+    }
+
+    protected void writeFile(String filename, Document doc)
+        throws InvalidParameterException, IOException
+    {
+        File file = new File(this.directory, filename);
+
+        synchronized (this.historyDocuments)
+        {
+            if (!this.historyDocuments.containsKey(filename))
+            {
+                throw new InvalidParameterException("The requested "
+                        + "filename does not exist in the document list.");
+            }
+
+            synchronized (doc)
+            {
+                XMLUtils.writeXML(doc, file);
             }
         }
     }
@@ -210,8 +231,9 @@ public class HistoryImpl implements History {
                             + "parsing XML document.", e);
                 }
 
-                // Cache the loaded document for reuse
-                this.historyDocuments.put(filename, retVal);
+                // Cache the loaded document for reuse if configured
+                if(historyServiceImpl.isCacheEnabled())
+                    this.historyDocuments.put(filename, retVal);
             } else {
                 // TODO: Assert: Assert.fail("Internal error - the data type " +
                 // "should be either Document or File.");
