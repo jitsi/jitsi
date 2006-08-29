@@ -14,24 +14,34 @@ import net.java.sip.communicator.service.history.records.*;
 /**
  * This service provides the functionality to store history records. The records
  * are called <tt>HistoryRecord</tt>s and are grouped by ID.
- * 
+ *
  * The ID may be used to set hierarchical structure. In a typical usage one may
  * set the first string to be the userID, and the second - the service name.
- * 
+ *
  * @author Alexander Pelov
  */
 public interface HistoryService {
 
     /**
+     * Property and values used to be set in configuration
+     * Used in implementation to cache every opened history document
+     * or not to cache them and to access them on every read
+     */
+    public static String CACHE_ENABLED_PROPERTY =
+        "net.java.sip.communicator.service.history.CACHE_ENABLED";
+    public static String CACHE_ENABLED = "true";
+    public static String CACHE_DISABLED = "false";
+
+    /**
      * Returns the IDs of all existing histories.
-     * 
+     *
      * @return An iterator to a list of IDs.
      */
     Iterator getExistingIDs();
 
     /**
      * Returns the history associated with this ID.
-     * 
+     *
      * @param id
      *            The ID of the history.
      * @return Returns the history with this ID.
@@ -42,7 +52,7 @@ public interface HistoryService {
 
     /**
      * Tests if a history with the given ID exists.
-     * 
+     *
      * @param id
      *            The ID to test.
      * @return True if a history with this ID exists. False otherwise.
@@ -51,7 +61,7 @@ public interface HistoryService {
 
     /**
      * Creates a new history for this ID.
-     * 
+     *
      * @param id
      *            The ID of the history to be created.
      * @param recordStructure
