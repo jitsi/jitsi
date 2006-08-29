@@ -142,7 +142,10 @@ public class HistoryWriterImpl implements HistoryWriter {
         // write changes
         synchronized (this.docWriteLock)
         {
-            this.historyImpl.writeFile(this.currentFile);
+            if(historyImpl.getHistoryServiceImpl().isCacheEnabled())
+                this.historyImpl.writeFile(this.currentFile);
+            else
+                this.historyImpl.writeFile(this.currentFile, this.currentDoc);
         }
     }
 
@@ -150,7 +153,8 @@ public class HistoryWriterImpl implements HistoryWriter {
      * If no file is currently loaded loads the last opened file. If it does not
      * exists or if the current file was set - create a new file.
      *
-     * @param date
+     * @param date Date
+     * @param loadLastFile boolean
      */
     private void createNewDoc(Date date, boolean loadLastFile)
     {
@@ -177,10 +181,10 @@ public class HistoryWriterImpl implements HistoryWriter {
         if (!loaded)
         {
             this.currentFile = Long.toString(date.getTime());
-            while (this.currentFile.length() < 8)
-            {
-                this.currentFile = "0" + this.currentFile;
-            }
+//            while (this.currentFile.length() < 8)
+//            {
+//                this.currentFile = "0" + this.currentFile;
+//            }
             this.currentFile += ".xml";
 
             this.currentDoc = this.historyImpl.createDocument(this.currentFile);
