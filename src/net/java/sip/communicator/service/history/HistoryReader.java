@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.history;
 
 import java.util.*;
+import net.java.sip.communicator.service.history.event.*;
 
 /**
  * @author Alexander Pelov
@@ -91,5 +92,17 @@ public interface HistoryReader {
     QueryResultSet findByPeriod(Date startDate, Date endDate,
                                 String[] keywords, String field)
             throws UnsupportedOperationException;
+
+    /**
+     *
+     * @param listener HistorySearchProgressListener
+     */
+    void addSearchProgressListener(HistorySearchProgressListener listener);
+
+    /**
+     *
+     * @param listener HistorySearchProgressListener
+     */
+    void removeSearchProgressListener(HistorySearchProgressListener listener);
 
 }
