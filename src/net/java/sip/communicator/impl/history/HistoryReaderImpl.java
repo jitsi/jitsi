@@ -15,14 +15,17 @@ import org.w3c.dom.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.history.event.*;
 
 /**
  * @author Alexander Pelov
+ * @author Damian Minkov
  */
 public class HistoryReaderImpl implements HistoryReader {
     private static Logger logger = Logger.getLogger(HistoryReaderImpl.class);
 
     private HistoryImpl historyImpl;
+    private Vector progressListeners = new Vector();
 
     protected HistoryReaderImpl(HistoryImpl historyImpl)
     {
@@ -33,7 +36,7 @@ public class HistoryReaderImpl implements HistoryReader {
             throws RuntimeException {
         String expr = "/history/record[@timestamp>" + startDate.getTime() + "]";
 
-        return this.findByXpath(expr);
+        return this.findByXpath(expr, startDate, null, new ProgressEvent(this, startDate, null));
     }
 
     public QueryResultSet findByEndDate(Date endDate)
@@ -41,7 +44,8 @@ public class HistoryReaderImpl implements HistoryReader {
     {
         String expr = "/history/record[@timestamp<" + endDate.getTime() + "]";
 
-        return this.findByXpath(expr);
+        return this.findByXpath(expr, null, endDate,
+                                new ProgressEvent(this, null, endDate, null, null));
     }
 
     public QueryResultSet findByPeriod(Date startDate, Date endDate)
@@ -49,7 +53,8 @@ public class HistoryReaderImpl implements HistoryReader {
         String expr = "/history/record[@timestamp>" + startDate.getTime() + "]"
                 + "[@timestamp<" + endDate.getTime() + "]";
 
-        return this.findByXpath(expr);
+        return this.findByXpath(expr, startDate, endDate,
+                                new ProgressEvent(this, startDate, endDate, null, null));
     }
 
     public QueryResultSet findByKeyword(String keyword, String field)
@@ -67,7 +72,7 @@ public class HistoryReaderImpl implements HistoryReader {
             expr += "[contains(" + field + "/text(),'" + keywords[i] + "')]";
         }
 
-        return this.findByXpath(expr);
+        return this.findByXpath(expr, null, null, new ProgressEvent(this, null, null, null, keywords));
     }
 
     public QueryResultSet findByPeriod(Date startDate, Date endDate,
@@ -80,14 +85,15 @@ public class HistoryReaderImpl implements HistoryReader {
             expr += "[contains(" + field + "/text(),'" + keywords[i] + "')]";
         }
 
-        return this.findByXpath(expr);
+        return this.findByXpath(expr, startDate, endDate,
+            new ProgressEvent(this, startDate, endDate, null, keywords));
     }
 
     public BidirectionalIterator bidirectionalIterator()
     {
         String expr = "/history/record";
 
-        return this.findByXpath(expr);
+        return this.findByXpath(expr, null, null, new ProgressEvent(this, null, null, null, null));
     }
 
     public Iterator iterator()
@@ -95,11 +101,25 @@ public class HistoryReaderImpl implements HistoryReader {
         return this.bidirectionalIterator();
     }
 
-    private QueryResultSet findByXpath(String xpathExpression)
+
+    private QueryResultSet findByXpath(String xpathExpression,
+                                       Date startDate, Date endDate,
+                                       ProgressEvent progressEvent)
     {
         TreeSet result = new TreeSet(new HistoryRecordComparator());
 
-        Iterator filelist = this.historyImpl.getFileList();
+        Vector filelist =
+            filterFilesByDate(this.historyImpl.getFileList(), startDate, endDate);
+
+        int currentProgress = HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE;
+        int fileProgressStep = HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE;
+
+        if(filelist.size() != 0)
+            fileProgressStep =
+                HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE / filelist.size();
+
+        // start progress - minimum value
+        fireProgressStateChanged(progressEvent, HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE);
 
         Navigator navigator = DocumentNavigator.getInstance();
         XPath xpath;
@@ -112,9 +132,10 @@ public class HistoryReaderImpl implements HistoryReader {
             throw new RuntimeException(e);
         }
 
-        while (filelist.hasNext())
+        Iterator fileIterator = filelist.iterator();
+        while (fileIterator.hasNext())
         {
-            String filename = (String) filelist.next();
+            String filename = (String) fileIterator.next();
 
             Document doc = this.historyImpl.getDocumentForFile(filename);
 
@@ -126,6 +147,11 @@ public class HistoryReaderImpl implements HistoryReader {
             {
                 throw new RuntimeException(e);
             }
+
+            int nodesProgressStep = fileProgressStep;
+
+            if(nodes.size() != 0)
+                nodesProgressStep = fileProgressStep / nodes.size();
 
             Iterator i = nodes.iterator();
             while (i.hasNext())
@@ -165,10 +191,129 @@ public class HistoryReaderImpl implements HistoryReader {
                         propertyValues, timestamp);
 
                 result.add(record);
+
+                currentProgress += nodesProgressStep;
+                fireProgressStateChanged(progressEvent, currentProgress);
             }
         }
 
+        // end progress - maximum value
+        fireProgressStateChanged(progressEvent, HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
+
         return new OrderedQueryResultSet(result);
+    }
+
+    /**
+     * Used to limit the files if any starting or ending date exist
+     * So only few files to be searched.
+     *
+     * Start or end date must not be equals to null
+     *
+     * @param filelist Iterator
+     * @param startDate Date
+     * @param endDate Date
+     * @return Iterator
+     */
+    private Vector filterFilesByDate(Iterator filelist, Date startDate, Date endDate)
+    {
+        if(startDate == null && endDate == null)
+        {
+            // no filtering needed then just return the same list
+            Vector result = new Vector();
+            while (filelist.hasNext())
+            {
+                result.add(filelist.next());
+            }
+            return result;
+        }
+        // first convert all files to long
+        TreeSet files = new TreeSet();
+        while (filelist.hasNext())
+        {
+            String filename = (String)filelist.next();
+
+            files.add(
+                new Long(filename.substring(0, filename.length() - 4)));
+        }
+
+        Vector resultAsLong = new Vector();
+
+        // if there is no startDate limit only to end date
+        if(startDate == null)
+        {
+            Long endLong = new Long(endDate.getTime());
+            files.add(endLong);
+
+            resultAsLong.addAll(files.subSet(files.first(), endLong));
+            resultAsLong.remove(endLong);
+        }
+        else if(endDate == null)
+        {
+            // end date is null get all the inclusive the one record before the startdate
+            Long startLong = new Long(startDate.getTime());
+            files.add(startLong);
+            resultAsLong.addAll(files.subSet(startLong, files.last()));
+
+            resultAsLong.add(files.last());
+
+            // here we must get and the element before startLong
+            resultAsLong.add(files.subSet(files.first(), startLong).last());
+
+            resultAsLong.remove(startLong);
+        }
+        else
+        {
+            // if both are present we must return all the elements between
+            // the two dates and the one before the start date
+            Long startLong = new Long(startDate.getTime());
+            Long endLong = new Long(endDate.getTime());
+            files.add(startLong);
+            files.add(endLong);
+
+            resultAsLong.addAll(files.subSet(startLong, endLong));
+
+            // here we must get and the element before startLong
+            SortedSet theFirstToStart = files.subSet(files.first(), startLong);
+            if(!theFirstToStart.isEmpty())
+                resultAsLong.add(theFirstToStart.last());
+
+            resultAsLong.remove(startLong);
+            resultAsLong.remove(endLong);
+        }
+
+        Vector result = new Vector();
+
+        Iterator iter = resultAsLong.iterator();
+        while (iter.hasNext())
+        {
+            Long item = (Long) iter.next();
+            result.add(item.toString() + ".xml");
+        }
+
+        return result;
+    }
+
+    private void fireProgressStateChanged(ProgressEvent event, int progress)
+    {
+        event.setProgress(progress);
+        Iterator iter = progressListeners.iterator();
+        while (iter.hasNext())
+        {
+            HistorySearchProgressListener item = (HistorySearchProgressListener) iter.next();
+            item.progressChanged(event);
+        }
+    }
+
+    public void addSearchProgressListener(HistorySearchProgressListener
+                                          listener)
+    {
+        progressListeners.add(listener);
+    }
+
+    public void removeSearchProgressListener(HistorySearchProgressListener
+                                             listener)
+    {
+        progressListeners.remove(listener);
     }
 
     /**
