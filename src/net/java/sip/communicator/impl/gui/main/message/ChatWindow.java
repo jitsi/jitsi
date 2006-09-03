@@ -90,21 +90,16 @@ public class ChatWindow extends JFrame {
         
         this.init();
         
-        getRootPane().getActionMap()
-                .put("close", new CloseAction());
-        getRootPane().getActionMap()
-                .put("changeTabForword", new ForwordTabAction());
-        getRootPane().getActionMap()
-                .put("changeTabBackword", new BackwordTabAction());
-        getRootPane().getActionMap()
-                .put("sendMessage", new SendMessageAction());
-        getRootPane().getActionMap()
-                .put("openSmilies", new OpenSmileyAction());
-        getRootPane().getActionMap()
-                .put("changeProtocol", new ChangeProtocolAction());
+        ActionMap amap = this.getRootPane().getActionMap();
         
-        getRootPane().getActionMap().put("copy", new CopyAction());
-        getRootPane().getActionMap().put("paste", new PasteAction());
+        amap.put("close", new CloseAction());
+        amap.put("changeTabForword", new ForwordTabAction());
+        amap.put("changeTabBackword", new BackwordTabAction());
+        amap.put("sendMessage", new SendMessageAction());
+        amap.put("openSmilies", new OpenSmileyAction());
+        amap.put("changeProtocol", new ChangeProtocolAction());        
+        amap.put("copy", new CopyAction());
+        amap.put("paste", new PasteAction());
         
         InputMap imap = this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
@@ -121,7 +116,7 @@ public class ChatWindow extends JFrame {
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C,
                 KeyEvent.META_MASK), "copy");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_V,
-                KeyEvent.META_MASK), "paste");
+                KeyEvent.META_MASK), "paste");        
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,
                 KeyEvent.CTRL_DOWN_MASK), "sendMessage");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_S,
