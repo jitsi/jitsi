@@ -76,11 +76,13 @@ public class ContactListCellRenderer extends JPanel
         ContactList contactList = (ContactList) list;
         ContactListModel listModel = (ContactListModel) contactList.getModel();
 
+        String toolTipText = "<html>";
+        
         if (value instanceof MetaContact) {
 
             MetaContact contactItem = (MetaContact) value;
 
-            String toolTipText = "<html>" + contactItem.getDisplayName();
+            toolTipText += contactItem.getDisplayName();
 
             this.nameLabel.setText(contactItem.getDisplayName());
 
@@ -130,14 +132,13 @@ public class ContactListCellRenderer extends JPanel
             }
             this.add(buttonsPanel, BorderLayout.EAST);
 
-            toolTipText += "</html>";
-            this.setToolTipText(toolTipText);
-
             this.isLeaf = true;
         } else if (value instanceof MetaContactGroup) {
 
             MetaContactGroup groupItem = (MetaContactGroup) value;
 
+            toolTipText += groupItem.getGroupName();
+            
             this.nameLabel.setText(groupItem.getGroupName() 
                     + "  ( " + groupItem.countChildContacts() + " )");
 
@@ -157,6 +158,9 @@ public class ContactListCellRenderer extends JPanel
             this.isLeaf = false;
         }
 
+        toolTipText += "</html>";
+        this.setToolTipText(toolTipText);
+        
         this.isSelected = isSelected;
 
         return this;
