@@ -138,7 +138,10 @@ public class SIPCommButtonUI extends MetalButtonUI {
      * Overriden to do nothing.
      */
     protected void paintButtonPressed(Graphics g, AbstractButton b){
+        if ( b.isContentAreaFilled() ) {
+            Dimension size = b.getSize();
+            g.setColor(getSelectColor());
+            g.fillRoundRect(0, 0, size.width, size.height, 5, 5);
+        }
     }
-    
-    
 }
