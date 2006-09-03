@@ -67,6 +67,7 @@ public class AddContactWizardPage3 implements WizardPage {
     }
 
     public void pageShown() {
+        this.addContactPanel.requestFocusInField();
     }
 
     public void pageShowing() {

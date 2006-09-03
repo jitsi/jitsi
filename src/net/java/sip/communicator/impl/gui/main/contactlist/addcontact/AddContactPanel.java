@@ -76,4 +76,8 @@ public class AddContactPanel extends JPanel {
     public String getUIN(){
         return textField.getText();
     }
+    
+    public void requestFocusInField() {
+        this.textField.requestFocus();
+    }
 }
