@@ -27,11 +27,6 @@ public class TestProtocolProviderServiceSipImpl
     private SipSlickFixture fixture = new SipSlickFixture();
 
     /**
-     * The lock that we wait on until registration is finalized.
-     */
-    private Object registrationLock = new Object();
-
-    /**
      * An event adapter that would collec registation state change events
      */
     public RegistrationEventCollector regEvtCollector1
@@ -105,20 +100,9 @@ public class TestProtocolProviderServiceSipImpl
         //give it enough time to register. We won't really have to wait all this
         //time since the registration event collector would notify us the moment
         //we get signed on.
-        try{
-            synchronized(registrationLock){
-                logger.debug("Waiting for registration to complete ...");
-                registrationLock.wait(40000);
-                logger.debug("Registration was completed or we lost patience.");
-            }
-        }
-        catch (InterruptedException ex){
-            logger.debug("Interrupted while waiting for registration", ex);
-        }
-        catch(Throwable th)
-        {
-            logger.debug("We got thrown out while waiting for registration", th);
-        }
+        logger.debug("Waiting for registration to complete ...");
+        regEvtCollector1.waitForEvent(40000);
+        regEvtCollector2.waitForEvent(40000);
 
         //make sure that the registration process trigerred the corresponding
         //events.
@@ -132,8 +116,23 @@ public class TestProtocolProviderServiceSipImpl
             ,regEvtCollector1.collectedNewStates
                 .contains(RegistrationState.REGISTERED));
 
+        //now the same for provider 2
+        assertTrue(
+            "No events were dispatched during the registration process "
+            +"of provider2."
+            ,regEvtCollector2.collectedNewStates.size() > 0);
+
+        assertTrue(
+            "No registration event notifying of registration was dispatched. "
+            +"All events were: " + regEvtCollector2.collectedNewStates
+            ,regEvtCollector2.collectedNewStates
+                .contains(RegistrationState.REGISTERED));
+
+
         fixture.provider1
             .removeRegistrationStateChangeListener(regEvtCollector1);
+        fixture.provider2
+            .removeRegistrationStateChangeListener(regEvtCollector2);
     }
 
 
@@ -165,8 +164,8 @@ public class TestProtocolProviderServiceSipImpl
 
     /**
      * A class that would plugin as a registration listener to a protocol
-     * provider and simply record all events that it sees and notify the
-     * registrationLock if it sees an event that notifies us of a completed
+     * provider and simply record all events that it sees and notifyAll()
+     *  if it sees an event that notifies us of a completed
      * registration.
      */
     public class RegistrationEventCollector
@@ -178,8 +177,7 @@ public class TestProtocolProviderServiceSipImpl
          * The method would simply register all received events so that they
          * could be available for later inspection by the unit tests. In the
          * case where a registraiton event notifying us of a completed
-         * registration is seen, the method would call notifyAll() on the
-         * registrationLock.
+         * registration is seen, the method would call notifyAll().
          *
          * @param evt ProviderStatusChangeEvent the event describing the status
          * change.
@@ -193,12 +191,56 @@ public class TestProtocolProviderServiceSipImpl
             if (evt.getNewState().equals(RegistrationState.REGISTERED))
             {
                 logger.debug("We're registered and will notify those who wait");
-                synchronized (registrationLock)
+                synchronized (this)
                 {
-                    registrationLock.notifyAll();
+                    notifyAll();
                 }
             }
         }
+
+        /**
+         * Blocks until an event notifying us of the awaited state change is
+         * received or until waitFor miliseconds pass (whichever happens first).
+         *
+         * @param waitFor the number of miliseconds that we should be waiting
+         * for an event before simply bailing out.
+         */
+        public void waitForEvent(long waitFor)
+        {
+            logger.trace("Waiting for a RegistrationStateChangeEvent");
+
+            synchronized (this)
+            {
+                if (collectedNewStates.contains(RegistrationState.REGISTERED))
+                {
+                    logger.trace("Event already received. "
+                                 + collectedNewStates);
+                    return;
+                }
+
+                try
+                {
+                    wait(waitFor);
+
+                    if (collectedNewStates.size() > 0)
+                        logger.trace(
+                            "Received a RegistrationStateChangeEvent.");
+                    else
+                        logger.trace(
+                            "No RegistrationStateChangeEvent received for "
+                            + waitFor + "ms.");
+
+                }
+                catch (InterruptedException ex)
+                {
+                    logger.debug(
+                        "Interrupted while waiting for a "
+                        +"RegistrationStateChangeEvent"
+                        , ex);
+                }
+            }
+        }
+
 
     }
 
