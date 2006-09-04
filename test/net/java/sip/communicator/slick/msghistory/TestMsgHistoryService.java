@@ -232,6 +232,21 @@ public class TestMsgHistoryService
         assertTrue("Messages too few - findByKeyword", msgs.size() >= 5);
 
         /**
+         * Will test case sernsitive and insensitive search
+         */
+        rs = msgHistoryService.findByKeyword(testMetaContact, "Test", false);
+
+        assertTrue("Nothing found findByKeyword caseINsensitive search", !rs.isEmpty());
+
+        msgs = getMessages(rs);
+
+        assertTrue("Messages too few - findByKeyword", msgs.size() >= 5);
+
+        rs = msgHistoryService.findByKeyword(testMetaContact, "Test", true);
+
+        assertFalse("Something found by findByKeyword casesensitive search", !rs.isEmpty());
+
+        /**
          * This must match also many messages, as tests are run many times
          * but the minimum is 3
          */
