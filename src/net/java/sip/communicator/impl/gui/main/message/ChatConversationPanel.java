@@ -153,8 +153,8 @@ public class ChatConversationPanel extends JScrollPane implements
 
         Calendar calendar = Calendar.getInstance();
         String chatHeader = "<h1>"
-                + this.processTime(calendar.get(Calendar.DAY_OF_MONTH)) + "/"
-                + this.processTime(calendar.get(Calendar.MONTH) + 1) + "/"
+                + this.processMonth(calendar.get(Calendar.MONTH) + 1) + " " 
+                + this.processTime(calendar.get(Calendar.DAY_OF_MONTH)) + ", "                
                 + this.processTime(calendar.get(Calendar.YEAR)) + " " + "</h1>";
 
         try {
@@ -193,8 +193,9 @@ public class ChatConversationPanel extends JScrollPane implements
                 <= calendar1.get(Calendar.MONTH))
             && (calendar.get(Calendar.YEAR)
                 <= calendar1.get(Calendar.YEAR))) {
-            timeString = this.processTime(calendar.get(Calendar.DAY_OF_MONTH)) + "/"
-                        + this.processTime(calendar.get(Calendar.MONTH) + 1) + " ";
+            timeString = this.processMonth(calendar.get(Calendar.MONTH) + 1)
+                + " " + this.processTime(calendar.get(Calendar.DAY_OF_MONTH))
+                + " ";
         }
 
         if (messageType.equals(Constants.INCOMING_MESSAGE)) {
@@ -405,7 +406,7 @@ public class ChatConversationPanel extends JScrollPane implements
     }
 
     /**
-     * Formats a time string.
+     * Adds a 0 in the beginning of one digit numbers.
      *
      * @param time The time parameter could be hours, minutes or seconds.
      * @return The formatted minutes string.
@@ -422,6 +423,41 @@ public class ChatConversationPanel extends JScrollPane implements
 
         return resultString;
     }
+    
+    /**
+     * Replaces the month with its abbreviation.
+     * @param month Value from 1 to 12, which indicates the month.
+     * @return the corresponding month abbreviation
+     */
+    private String processMonth(int month) {
+        String monthString = "";
+        if(month == 1)
+            monthString = Messages.getString("january");
+        else if(month == 2)
+            monthString = Messages.getString("february");
+        else if(month == 3)
+            monthString = Messages.getString("march");
+        else if(month == 4)
+            monthString = Messages.getString("april");
+        else if(month == 5)
+            monthString = Messages.getString("may");
+        else if(month == 6)
+            monthString = Messages.getString("june");
+        else if(month == 7)
+            monthString = Messages.getString("july");
+        else if(month == 8)
+            monthString = Messages.getString("august");
+        else if(month == 9)
+            monthString = Messages.getString("september");
+        else if(month == 10)
+            monthString = Messages.getString("october");
+        else if(month == 11)
+            monthString = Messages.getString("november");
+        else if(month == 12)
+            monthString = Messages.getString("december");
+        
+        return monthString;
+    }   
 
     /**
      * Opens a link in the default browser when clicked and
