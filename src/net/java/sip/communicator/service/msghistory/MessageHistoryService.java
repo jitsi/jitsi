@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.msghistory;
 import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.msghistory.event.*;
 
 /**
  * The Message History Service stores messages exchanged through the various protocols
@@ -72,6 +73,23 @@ public interface MessageHistoryService
 
     /**
      * Returns all the messages exchanged by all the contacts
+     * in the supplied metacontact between the given dates and having the given
+     * keywords
+     *
+     * @param contact MetaContact
+     * @param startDate Date the start date of the conversations
+     * @param endDate Date the end date of the conversations
+     * @param keywords array of keywords
+     * @param caseSensitive is keywords search case sensitive
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    Collection findByPeriod(MetaContact contact, Date startDate, Date endDate,
+                            String[] keywords, boolean caseSensitive)
+        throws RuntimeException;
+
+    /**
+     * Returns all the messages exchanged by all the contacts
      * in the supplied metacontact having the given keyword
      *
      * @param contact MetaContact
@@ -80,6 +98,19 @@ public interface MessageHistoryService
      * @throws RuntimeException
      */
     Collection findByKeyword(MetaContact contact, String keyword)
+        throws RuntimeException;
+
+    /**
+     * Returns all the messages exchanged by all the contacts
+     * in the supplied metacontact having the given keyword
+     *
+     * @param contact MetaContact
+     * @param keyword keyword
+     * @param caseSensitive is keywords search case sensitive
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    Collection findByKeyword(MetaContact contact, String keyword, boolean caseSensitive)
         throws RuntimeException;
 
     /**
@@ -95,6 +126,19 @@ public interface MessageHistoryService
         throws RuntimeException;
 
     /**
+     * Returns all the messages exchanged by all the contacts
+     * in the supplied metacontact having the given keywords
+     *
+     * @param contact MetaContact
+     * @param keywords keyword
+     * @param caseSensitive is keywords search case sensitive
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    Collection findByKeywords(MetaContact contact, String[] keywords, boolean caseSensitive)
+        throws RuntimeException;
+
+    /**
      * Returns the supplied number of recent messages exchanged by all the contacts
      * in the supplied metacontact
      *
@@ -105,4 +149,19 @@ public interface MessageHistoryService
      */
     Collection findLast(MetaContact contact, int count)
         throws RuntimeException;
+
+    /**
+     * Adding progress listener for monitoring progress of search process
+     *
+     * @param listener HistorySearchProgressListener
+     */
+   void addSearchProgressListener(MessageHistorySearchProgressListener listener);
+
+   /**
+    * Removing progress listener
+    *
+    * @param listener HistorySearchProgressListener
+    */
+   void removeSearchProgressListener(MessageHistorySearchProgressListener listener);
+
 }
