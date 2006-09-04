@@ -34,19 +34,9 @@ public class ProgressEvent
     private Date endDate = null;
 
     /**
-     * The keyword in the search condition.
-     */
-    private String keyword = null;
-
-    /**
      * The keywords in the search condition.
      */
     private String[] keywords = null;
-
-    /**
-     * The number of last messages in the search condition.
-     */
-    private int last = -1;
 
     /**
      * The current progress that we will pass.
@@ -59,14 +49,13 @@ public class ProgressEvent
      * @param source Object The source firing this event
      * @param startDate Date The start date in the search condition.
      * @param endDate Date The end date in the search condition.
-     * @param keyword String The keyword in the search condition.
      * @param keywords String[] The keywords in the search condition.
      * @param last int The number of last messages in the search condition.
      * @param progress int The current progress that we will pass.
      */
     public ProgressEvent(Object source,
                          Date startDate, Date endDate,
-                         String keyword, String[] keywords,
+                         String[] keywords,
                          int last,
                          int progress)
     {
@@ -74,9 +63,7 @@ public class ProgressEvent
 
         this.startDate = startDate;
         this.endDate = endDate;
-        this.keyword = keyword;
         this.keywords = keywords;
-        this.last = last;
         this.progress = progress;
     }
 
@@ -86,14 +73,13 @@ public class ProgressEvent
      * @param source Object The source firing this event
      * @param startDate Date The start date in the search condition.
      * @param endDate Date The end date in the search condition.
-     * @param keyword String The keyword in the search condition.
      * @param keywords String[] The keywords in the search condition.
      */
     public ProgressEvent(Object source,
                          Date startDate, Date endDate,
-                         String keyword, String[] keywords)
+                         String[] keywords)
     {
-        this(source, startDate, endDate, keyword, keywords, -1, 0);
+        this(source, startDate, endDate, keywords, -1, 0);
     }
 
     /**
@@ -105,7 +91,7 @@ public class ProgressEvent
      */
     public ProgressEvent(Object source, Date startDate, Date endDate)
     {
-        this(source, startDate, endDate, null, null, -1, 0);
+        this(source, startDate, endDate, null, -1, 0);
     }
 
     /**
@@ -127,30 +113,12 @@ public class ProgressEvent
     }
 
     /**
-     * The keyword in the search condition.
-     * @return String keyword for searching
-     */
-    public String getKeyword()
-    {
-        return keyword;
-    }
-
-    /**
      * The keywords in the search condition.
      * @return String[] array of keywords fo searching
      */
     public String[] getKeywords()
     {
         return keywords;
-    }
-
-    /**
-     * The number of last messages in the search condition.
-     * @return int number of last messages
-     */
-    public int getLast()
-    {
-        return last;
     }
 
     /**
