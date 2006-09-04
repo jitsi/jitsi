@@ -8,9 +8,6 @@ package net.java.sip.communicator.impl.history;
 
 import java.util.*;
 
-import org.jaxen.*;
-import org.jaxen.dom.*;
-import org.jaxen.saxpath.*;
 import org.w3c.dom.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
@@ -21,139 +18,171 @@ import net.java.sip.communicator.service.history.event.*;
  * @author Alexander Pelov
  * @author Damian Minkov
  */
-public class HistoryReaderImpl implements HistoryReader {
+public class HistoryReaderImpl
+    implements HistoryReader
+{
     private static Logger logger = Logger.getLogger(HistoryReaderImpl.class);
 
     private HistoryImpl historyImpl;
     private Vector progressListeners = new Vector();
+
+    // regexp used for index of case(in)sensitive impl
+    private static String REGEXP_END = ".*$";
+    private static String REGEXP_SENSITIVE_START = "^.*";
+    private static String REGEXP_INSENSITIVE_START = "^(?i).*";
 
     protected HistoryReaderImpl(HistoryImpl historyImpl)
     {
         this.historyImpl = historyImpl;
     }
 
+    /**
+     * Searches the history for all records with timestamp after
+     * <tt>startDate</tt>.
+     *
+     * @param startDate the date after all records will be returned
+     * @return the found records
+     * @throws RuntimeException
+     *             Thrown if an exception occurs during the execution of the
+     *             query, such as internal IO error.
+     */
     public QueryResultSet findByStartDate(Date startDate)
-            throws RuntimeException {
-        String expr = "/history/record[@timestamp>" + startDate.getTime() + "]";
-
-        return this.findByXpath(expr, startDate, null, new ProgressEvent(this, startDate, null));
+            throws RuntimeException
+    {
+        return find(startDate, null, null, null, false);
     }
 
+    /**
+     * Searches the history for all records with timestamp before
+     * <tt>endDate</tt>.
+     *
+     * @param endDate the date before which all records will be returned
+     * @return the found records
+     * @throws RuntimeException
+     *             Thrown if an exception occurs during the execution of the
+     *             query, such as internal IO error.
+     */
     public QueryResultSet findByEndDate(Date endDate)
         throws RuntimeException
     {
-        String expr = "/history/record[@timestamp<" + endDate.getTime() + "]";
-
-        return this.findByXpath(expr, null, endDate,
-                                new ProgressEvent(this, null, endDate, null, null));
+        return find(null, endDate, null, null, false);
     }
 
+    /**
+     * Searches the history for all records with timestamp between
+     * <tt>startDate</tt> and <tt>endDate</tt>.
+     *
+     * @param startDate start of the interval in which we search
+     * @param endDate end of the interval in which we search
+     * @return the found records
+     * @throws RuntimeException
+     *             Thrown if an exception occurs during the execution of the
+     *             query, such as internal IO error.
+     */
     public QueryResultSet findByPeriod(Date startDate, Date endDate)
-            throws RuntimeException {
-        String expr = "/history/record[@timestamp>" + startDate.getTime() + "]"
-                + "[@timestamp<" + endDate.getTime() + "]";
-
-        return this.findByXpath(expr, startDate, endDate,
-                                new ProgressEvent(this, startDate, endDate, null, null));
+            throws RuntimeException
+    {
+        return find(startDate, endDate, null, null, false);
     }
 
+    /**
+     * Searches the history for all records containing the <tt>keyword</tt>.
+     *
+     * @param keyword the keyword to search for
+     * @param field the field where to look for the keyword
+     * @return the found records
+     * @throws RuntimeException
+     *             Thrown if an exception occurs during the execution of the
+     *             query, such as internal IO error.
+     */
     public QueryResultSet findByKeyword(String keyword, String field)
         throws RuntimeException
     {
         return findByKeywords(new String[] { keyword }, field);
     }
 
+    /**
+     * Searches the history for all records containing all <tt>keywords</tt>.
+     *
+     * @param keywords array of keywords we search for
+     * @param field the field where to look for the keyword
+     * @return the found records
+     * @throws RuntimeException
+     *             Thrown if an exception occurs during the execution of the
+     *             query, such as internal IO error.
+     */
     public QueryResultSet findByKeywords(String[] keywords, String field)
-            throws RuntimeException {
-
-        String expr = "/history/record";
-        for (int i = 0; i < keywords.length; i++)
-        {
-            expr += "[contains(" + field + "/text(),'" + keywords[i] + "')]";
-        }
-
-        return this.findByXpath(expr, null, null, new ProgressEvent(this, null, null, null, keywords));
+            throws RuntimeException
+    {
+            return find(null, null, keywords, field, false);
     }
 
+    /**
+     * Searches for all history records containing all <tt>keywords</tt>,
+     * with timestamp between <tt>startDate</tt> and <tt>endDate</tt>.
+     *
+     * @param startDate start of the interval in which we search
+     * @param endDate end of the interval in which we search
+     * @param keywords array of keywords we search for
+     * @param field the field where to look for the keyword
+     * @return the found records
+     * @throws UnsupportedOperationException
+     *             Thrown if an exception occurs during the execution of the
+     *             query, such as internal IO error.
+     */
     public QueryResultSet findByPeriod(Date startDate, Date endDate,
             String[] keywords, String field) throws UnsupportedOperationException
     {
-        String expr = "/history/record[@timestamp>" + startDate.getTime() + "]"
-                + "[@timestamp<" + endDate.getTime() + "]";
-        for (int i = 0; i < keywords.length; i++)
-        {
-            expr += "[contains(" + field + "/text(),'" + keywords[i] + "')]";
-        }
-
-        return this.findByXpath(expr, startDate, endDate,
-            new ProgressEvent(this, startDate, endDate, null, keywords));
+        return find(startDate, endDate, keywords, field, false);
     }
 
-    public BidirectionalIterator bidirectionalIterator()
+    /**
+     * Returns the last <tt>count</tt> messages.
+     * No progress firing as this method is supposed to be used
+     * in message windows and is supposed to be as quick as it can.
+     *
+     * @param count int
+     * @return QueryResultSet
+     * @throws RuntimeException
+     */
+    public QueryResultSet findLast(int count) throws RuntimeException
     {
-        String expr = "/history/record";
-
-        return this.findByXpath(expr, null, null, new ProgressEvent(this, null, null, null, null));
-    }
-
-    public Iterator iterator()
-    {
-        return this.bidirectionalIterator();
-    }
-
-
-    private QueryResultSet findByXpath(String xpathExpression,
-                                       Date startDate, Date endDate,
-                                       ProgressEvent progressEvent)
-    {
-        TreeSet result = new TreeSet(new HistoryRecordComparator());
-
+        // the files are supposed to be ordered from oldest to newest
         Vector filelist =
-            filterFilesByDate(this.historyImpl.getFileList(), startDate, endDate);
+            filterFilesByDate(this.historyImpl.getFileList(), null, null);
 
-        int currentProgress = HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE;
-        int fileProgressStep = HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE;
+        TreeSet result = new TreeSet(new HistoryRecordComparator());
+        int leftCount = count;
+        int currentFile = filelist.size() - 1;
 
-        if(filelist.size() != 0)
-            fileProgressStep =
-                HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE / filelist.size();
-
-        // start progress - minimum value
-        fireProgressStateChanged(progressEvent, HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE);
-
-        Navigator navigator = DocumentNavigator.getInstance();
-        XPath xpath;
-
-        try
+        while(leftCount > 0 && currentFile >= 0)
         {
-            xpath = navigator.parseXPath(xpathExpression);
-        } catch (SAXPathException e)
-        {
-            throw new RuntimeException(e);
-        }
+            Document doc = this.historyImpl.
+                getDocumentForFile( (String) filelist.get(currentFile));
 
-        Iterator fileIterator = filelist.iterator();
-        while (fileIterator.hasNext())
-        {
-            String filename = (String) fileIterator.next();
-
-            Document doc = this.historyImpl.getDocumentForFile(filename);
-
-            List nodes;
-            try {
-                nodes = xpath.selectNodes(doc);
-            }
-            catch (JaxenException e)
+            // will get nodes and construct a List of nodes
+            // so we can easyly get sublist of it
+            List nodes = new ArrayList();
+            NodeList nodesList = doc.getElementsByTagName("record");
+            for (int i = 0; i < nodesList.getLength(); i++)
             {
-                throw new RuntimeException(e);
+                nodes.add(nodesList.item(i));
             }
 
-            int nodesProgressStep = fileProgressStep;
+            List lNodes = null;
 
-            if(nodes.size() != 0)
-                nodesProgressStep = fileProgressStep / nodes.size();
+            if (nodes.size() > leftCount)
+            {
+                lNodes = nodes.subList(nodes.size() - leftCount , nodes.size());
+                leftCount = 0;
+            }
+            else
+            {
+                lNodes = nodes;
+                leftCount -= nodes.size();
+            }
 
-            Iterator i = nodes.iterator();
+            Iterator i = lNodes.iterator();
             while (i.hasNext())
             {
                 Node node = (Node) i.next();
@@ -161,7 +190,7 @@ public class HistoryReaderImpl implements HistoryReader {
                 NodeList propertyNodes = node.getChildNodes();
 
                 String ts = node.getAttributes().getNamedItem("timestamp")
-                        .getNodeValue();
+                    .getNodeValue();
                 Date timestamp = new Date(Long.parseLong(ts));
 
                 ArrayList nameVals = new ArrayList();
@@ -175,7 +204,7 @@ public class HistoryReaderImpl implements HistoryReader {
                         nameVals.add(propertyNode.getNodeName());
                         // Get nested TEXT node's value
                         nameVals.add(propertyNode.getFirstChild()
-                                .getNodeValue());
+                                     .getNodeValue());
                     }
                 }
 
@@ -188,9 +217,134 @@ public class HistoryReaderImpl implements HistoryReader {
                 }
 
                 HistoryRecord record = new HistoryRecord(propertyNames,
-                        propertyValues, timestamp);
+                    propertyValues, timestamp);
 
                 result.add(record);
+            }
+
+            currentFile--;
+        }
+
+        return new OrderedQueryResultSet(result);
+    }
+
+    /**
+     * Searches the history for all records containing the <tt>keyword</tt>.
+     *
+     * @param keyword the keyword to search for
+     * @param field the field where to look for the keyword
+     * @param caseSensitive is keywords search case sensitive
+     * @return the found records
+     * @throws RuntimeException
+     *             Thrown if an exception occurs during the execution of the
+     *             query, such as internal IO error.
+     */
+    public QueryResultSet findByKeyword(String keyword, String field,
+                                        boolean caseSensitive)
+        throws RuntimeException
+    {
+        return findByKeywords(new String[] { keyword }, field, caseSensitive);
+    }
+
+    /**
+     * Searches the history for all records containing all <tt>keywords</tt>.
+     *
+     * @param keywords array of keywords we search for
+     * @param field the field where to look for the keyword
+     * @param caseSensitive is keywords search case sensitive
+     * @return the found records
+     * @throws RuntimeException
+     *             Thrown if an exception occurs during the execution of the
+     *             query, such as internal IO error.
+     */
+    public QueryResultSet findByKeywords(String[] keywords, String field,
+                                         boolean caseSensitive)
+        throws RuntimeException
+    {
+        return find(null, null, keywords, field, caseSensitive);
+    }
+
+    /**
+     * Searches for all history records containing all <tt>keywords</tt>,
+     * with timestamp between <tt>startDate</tt> and <tt>endDate</tt>.
+     *
+     * @param startDate start of the interval in which we search
+     * @param endDate end of the interval in which we search
+     * @param keywords array of keywords we search for
+     * @param field the field where to look for the keyword
+     * @param caseSensitive is keywords search case sensitive
+     * @return the found records
+     * @throws UnsupportedOperationException
+     *             Thrown if an exception occurs during the execution of the
+     *             query, such as internal IO error.
+     */
+    public QueryResultSet findByPeriod(Date startDate, Date endDate,
+                                       String[] keywords, String field,
+                                       boolean caseSensitive)
+        throws UnsupportedOperationException
+    {
+        return find(startDate, endDate, keywords, field, caseSensitive);
+    }
+
+    private QueryResultSet find(
+        Date startDate, Date endDate,
+        String[] keywords, String field, boolean caseSensitive)
+    {
+        TreeSet result = new TreeSet(new HistoryRecordComparator());
+
+        Vector filelist =
+            filterFilesByDate(this.historyImpl.getFileList(), startDate, endDate);
+
+        ProgressEvent progressEvent =
+            new ProgressEvent(this, startDate, endDate, keywords);
+
+        int currentProgress = HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE;
+        int fileProgressStep = HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE;
+
+        if(filelist.size() != 0)
+            fileProgressStep =
+                HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE / filelist.size();
+
+        // start progress - minimum value
+        fireProgressStateChanged(progressEvent, HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE);
+
+        Iterator fileIterator = filelist.iterator();
+        while (fileIterator.hasNext())
+        {
+            String filename = (String) fileIterator.next();
+
+            Document doc = this.historyImpl.getDocumentForFile(filename);
+
+            NodeList nodes = doc.getElementsByTagName("record");
+
+            int nodesProgressStep = fileProgressStep;
+
+            if(nodes.getLength() != 0)
+                nodesProgressStep = fileProgressStep / nodes.getLength();
+
+            Node node;
+            for (int i = 0; i < nodes.getLength(); i++)
+            {
+                node = nodes.item(i);
+
+                String ts = node.getAttributes().getNamedItem("timestamp")
+                        .getNodeValue();
+
+                Date timestamp = new Date(Long.parseLong(ts));
+
+                if(isInPeriod(timestamp, startDate, endDate))
+                {
+                    NodeList propertyNodes = node.getChildNodes();
+
+                    HistoryRecord record =
+                        filterByKeyword(propertyNodes, timestamp,
+                                        keywords, field, caseSensitive);
+
+                    if(record != null)
+                    {
+                        result.add(record);
+                    }
+                }
 
                 currentProgress += nodesProgressStep;
                 fireProgressStateChanged(progressEvent, currentProgress);
@@ -198,9 +352,126 @@ public class HistoryReaderImpl implements HistoryReader {
         }
 
         // end progress - maximum value
-        fireProgressStateChanged(progressEvent, HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
+        fireProgressStateChanged(progressEvent,
+                                 HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
 
         return new OrderedQueryResultSet(result);
+    }
+
+    /**
+     * Evaluetes does <tt>timestamp</tt> is in the given time period.
+     *
+     * @param timestamp Date
+     * @param startDate Date the start of the period
+     * @param endDate Date the end of the period
+     * @return boolean
+     */
+    private boolean isInPeriod(Date timestamp, Date startDate, Date endDate)
+    {
+        if(startDate == null)
+        {
+            if(endDate == null)
+                return true;
+            else
+                return timestamp.before(endDate);
+        }
+        else
+        {
+            if(endDate == null)
+                return timestamp.after(startDate);
+            else
+                return timestamp.after(startDate) && timestamp.before(endDate);
+        }
+    }
+
+    /**
+     * If there is keyword restriction and doesn't match the conditions
+     * return null. Otherwise return the HistoryRecord corresponding the
+     * given nodes.
+     *
+     * @param propertyNodes NodeList
+     * @param timestamp Date
+     * @param keywords String[]
+     * @param field String
+     * @param caseSensitive boolean
+     * @return HistoryRecord
+     */
+    private HistoryRecord filterByKeyword(NodeList propertyNodes,
+                                          Date timestamp,
+                                          String[] keywords,
+                                          String field,
+                                          boolean caseSensitive)
+    {
+        ArrayList nameVals = new ArrayList();
+        int len = propertyNodes.getLength();
+        for (int j = 0; j < len; j++)
+        {
+            Node propertyNode = propertyNodes.item(j);
+            if (propertyNode.getNodeType() == Node.ELEMENT_NODE)
+            {
+                String nodeName = propertyNode.getNodeName();
+                // Get nested TEXT node's value
+                String nodeValue =
+                    propertyNode.getFirstChild().getNodeValue();
+
+                if(field != null && field.equals(nodeName)
+                   && !matchKeyword(nodeValue, keywords, caseSensitive))
+                {
+                    return null; // doesn't match the given keyword(s)
+                                // so return nothing
+                }
+
+                nameVals.add(nodeName);
+                // Get nested TEXT node's value
+                nameVals.add(propertyNode.getFirstChild().getNodeValue());
+
+            }
+        }
+
+        String[] propertyNames = new String[nameVals.size() / 2];
+        String[] propertyValues = new String[propertyNames.length];
+        for (int j = 0; j < propertyNames.length; j++)
+        {
+            propertyNames[j] = (String) nameVals.get(j * 2);
+            propertyValues[j] = (String) nameVals.get(j * 2 + 1);
+        }
+
+        return new HistoryRecord(propertyNames, propertyValues, timestamp);
+    }
+
+    /**
+     * Check if a value is in the given keyword(s)
+     * If no keyword(s) given must return true
+     *
+     * @param value String
+     * @param keywords String[]
+     * @param caseSensitive boolean
+     * @return boolean
+     */
+    private boolean matchKeyword(String value, String[] keywords,
+                                 boolean caseSensitive)
+    {
+        if(keywords != null)
+        {
+            String regexpStart = null;
+            if(caseSensitive)
+                regexpStart = REGEXP_SENSITIVE_START;
+            else
+                regexpStart = REGEXP_INSENSITIVE_START;
+
+            for (int i = 0; i < keywords.length; i++)
+            {
+                if(!value.matches(regexpStart + keywords[i] + REGEXP_END))
+                    return false;
+            }
+
+            // all keywords match return true
+            return true;
+        }
+
+        // if no keyword or keywords given
+        // we must not filter this record so will return true
+        return true;
     }
 
     /**
@@ -304,12 +575,22 @@ public class HistoryReaderImpl implements HistoryReader {
         }
     }
 
+    /**
+     * Adding progress listener for monitoring progress of search process
+     *
+     * @param listener HistorySearchProgressListener
+     */
     public void addSearchProgressListener(HistorySearchProgressListener
                                           listener)
     {
         progressListeners.add(listener);
     }
 
+    /**
+     * Removing progress listener
+     *
+     * @param listener HistorySearchProgressListener
+     */
     public void removeSearchProgressListener(HistorySearchProgressListener
                                              listener)
     {
