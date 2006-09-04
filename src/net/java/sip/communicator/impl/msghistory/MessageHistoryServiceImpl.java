@@ -12,11 +12,13 @@ import java.util.*;
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.history.*;
+import net.java.sip.communicator.service.history.event.*;
 import net.java.sip.communicator.service.history.records.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.msghistory.event.MessageHistorySearchProgressListener;
 
 /**
  * The Message History Service stores messages exchanged through the various protocols
@@ -55,6 +57,8 @@ public class MessageHistoryServiceImpl
 
     private Object syncRoot_HistoryService = new Object();
 
+    private Hashtable progressListeners = new Hashtable();
+
     public HistoryService getHistoryService()
     {
         return historyService;
@@ -82,8 +86,10 @@ public class MessageHistoryServiceImpl
             try
             {
                 History history = this.getHistory(null, item);
-
-                Iterator recs = history.getReader().findByStartDate(startDate);
+                HistoryReader reader = history.getReader();
+                addHistorySearchProgressListeners(reader);
+                Iterator recs = reader.findByStartDate(startDate);
+                removeHistorySearchProgressListeners(reader);
                 while (recs.hasNext())
                 {
                     HistoryRecord hr = (HistoryRecord)recs.next();
@@ -121,7 +127,10 @@ public class MessageHistoryServiceImpl
             {
                 History history = this.getHistory(null, item);
 
-                Iterator recs = history.getReader().findByEndDate(endDate);
+                HistoryReader reader = history.getReader();
+                addHistorySearchProgressListeners(reader);
+                Iterator recs = reader.findByEndDate(endDate);
+                removeHistorySearchProgressListeners(reader);
                 while (recs.hasNext())
                 {
                     result.add(convertHistoryRecordToMessageEvent((HistoryRecord)recs.next(), item));
@@ -159,7 +168,10 @@ public class MessageHistoryServiceImpl
             {
                 History history = this.getHistory(null, item);
 
-                Iterator recs = history.getReader().findByPeriod(startDate, endDate);
+                HistoryReader reader = history.getReader();
+                addHistorySearchProgressListeners(reader);
+                Iterator recs = reader.findByPeriod(startDate, endDate);
+                removeHistorySearchProgressListeners(reader);
                 while (recs.hasNext())
                 {
                     result.add(
@@ -194,33 +206,8 @@ public class MessageHistoryServiceImpl
                                        String[] keywords)
         throws RuntimeException
     {
-        LinkedList result = new LinkedList();
+        return findByPeriod(contact, startDate, endDate, keywords, false);
 
-        Iterator iter = contact.getContacts();
-        while (iter.hasNext())
-        {
-            Contact item = (Contact) iter.next();
-
-            try
-            {
-                History history = this.getHistory(null, item);
-
-                Iterator recs = history.getReader().
-                    findByPeriod(startDate, endDate, keywords, SEARCH_FIELD);
-                while (recs.hasNext())
-                {
-                    result.add(
-                        convertHistoryRecordToMessageEvent(
-                            (HistoryRecord)recs.next(),
-                            item));
-                }
-            } catch (IOException e)
-            {
-                logger.error("Could not read history", e);
-            }
-        }
-
-        return result;
     }
 
     /**
@@ -235,34 +222,7 @@ public class MessageHistoryServiceImpl
     public Collection findByKeyword(MetaContact contact, String keyword)
         throws RuntimeException
     {
-        LinkedList result = new LinkedList();
-
-        Iterator iter = contact.getContacts();
-        while (iter.hasNext())
-        {
-            Contact item = (Contact) iter.next();
-
-            try
-            {
-                History history = this.getHistory(null, item);
-
-                Iterator recs = history.getReader().
-                    findByKeyword(keyword, SEARCH_FIELD);
-                while (recs.hasNext())
-                {
-                    result.add(
-                        convertHistoryRecordToMessageEvent(
-                            (HistoryRecord)recs.next(),
-                            item));
-
-                }
-            } catch (IOException e)
-            {
-                logger.error("Could not read history", e);
-            }
-        }
-
-        return result;
+        return findByKeyword(contact, keyword, false);
     }
 
     /**
@@ -277,34 +237,7 @@ public class MessageHistoryServiceImpl
     public Collection findByKeywords(MetaContact contact, String[] keywords)
         throws RuntimeException
     {
-        LinkedList result = new LinkedList();
-
-        Iterator iter = contact.getContacts();
-        while (iter.hasNext())
-        {
-            Contact item = (Contact) iter.next();
-
-            try
-            {
-                History history = this.getHistory(null, item);
-
-                Iterator recs = history.getReader().
-                    findByKeywords(keywords, SEARCH_FIELD);
-                while (recs.hasNext())
-                {
-                    result.add(
-                        convertHistoryRecordToMessageEvent(
-                            (HistoryRecord)recs.next(),
-                            item));
-
-                }
-            } catch (IOException e)
-            {
-                logger.error("Could not read history", e);
-            }
-        }
-
-        return result;
+        return findByKeywords(contact, keywords, false);
     }
 
     /**
@@ -321,12 +254,6 @@ public class MessageHistoryServiceImpl
     {
         List result = new LinkedList();
 
-        // too stupid but there is no such metod in the history service
-        // to be implemented
-        Calendar c = Calendar.getInstance();
-        c.set(Calendar.YEAR, c.get(Calendar.YEAR) - 10);
-        Date startDate = c.getTime();
-
         Iterator iter = contact.getContacts();
         while (iter.hasNext())
         {
@@ -336,7 +263,8 @@ public class MessageHistoryServiceImpl
             {
                 History history = this.getHistory(null, item);
 
-                Iterator recs = history.getReader().findByPeriod(startDate, new Date());
+                HistoryReader reader = history.getReader();
+                Iterator recs = reader.findLast(count);
                 while (recs.hasNext())
                 {
                     result.add(
@@ -349,11 +277,6 @@ public class MessageHistoryServiceImpl
             {
                 logger.error("Could not read history", e);
             }
-        }
-
-        if(result.size() > count)
-        {
-            result = result.subList(result.size() - count, result.size());
         }
 
         return result;
@@ -629,6 +552,230 @@ public class MessageHistoryServiceImpl
         if (opSetIm != null)
         {
             opSetIm.removeMessageListener(this);
+        }
+    }
+
+    /**
+     * Adding progress listener for monitoring progress of search process
+     *
+     * @param listener HistorySearchProgressListener
+     */
+    public void addSearchProgressListener(MessageHistorySearchProgressListener
+                                          listener)
+    {
+        HistorySearchProgressListener wrapperListener =
+            new SearchProgressWrapper(listener);
+        progressListeners.put(listener, wrapperListener);
+    }
+
+    /**
+     * Removing progress listener
+     *
+     * @param listener HistorySearchProgressListener
+     */
+    public void removeSearchProgressListener(
+        MessageHistorySearchProgressListener listener)
+    {
+        progressListeners.remove(listener);
+    }
+
+    /**
+     * Add the registered MessageHistorySearchProgressListeners
+     * to the given HistoryReader
+     *
+     * @param reader HistoryReader
+     */
+    private void addHistorySearchProgressListeners(HistoryReader reader)
+    {
+        Iterator iter = progressListeners.values().iterator();
+        while (iter.hasNext())
+        {
+            HistorySearchProgressListener l =
+                (HistorySearchProgressListener) iter.next();
+            reader.addSearchProgressListener(l);
+        }
+    }
+
+    /**
+     * Removes the registered MessageHistorySearchProgressListeners
+     * from the given HistoryReader
+     *
+     * @param reader HistoryReader
+     */
+    private void removeHistorySearchProgressListeners(HistoryReader reader)
+    {
+        Iterator iter = progressListeners.values().iterator();
+        while (iter.hasNext())
+        {
+            HistorySearchProgressListener l =
+                (HistorySearchProgressListener) iter.next();
+            reader.removeSearchProgressListener(l);
+        }
+    }
+
+    /**
+     * Returns all the messages exchanged by all the contacts
+     * in the supplied metacontact between the given dates and having the given
+     * keywords
+     *
+     * @param contact MetaContact
+     * @param startDate Date the start date of the conversations
+     * @param endDate Date the end date of the conversations
+     * @param keywords array of keywords
+     * @param caseSensitive is keywords search case sensitive
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByPeriod(MetaContact contact, Date startDate,
+                                   Date endDate, String[] keywords,
+                                   boolean caseSensitive)
+        throws RuntimeException
+    {
+        LinkedList result = new LinkedList();
+
+         Iterator iter = contact.getContacts();
+         while (iter.hasNext())
+         {
+             Contact item = (Contact) iter.next();
+
+             try
+             {
+                 History history = this.getHistory(null, item);
+
+                 HistoryReader reader = history.getReader();
+                 addHistorySearchProgressListeners(reader);
+                 Iterator recs =
+                     reader.findByPeriod(startDate, endDate, keywords,
+                                         SEARCH_FIELD, caseSensitive);
+                 removeHistorySearchProgressListeners(reader);
+                 while (recs.hasNext())
+                 {
+                     result.add(
+                         convertHistoryRecordToMessageEvent(
+                             (HistoryRecord)recs.next(),
+                             item));
+                 }
+             } catch (IOException e)
+             {
+                 logger.error("Could not read history", e);
+             }
+         }
+
+         return result;
+    }
+
+    /**
+     * Returns all the messages exchanged by all the contacts
+     * in the supplied metacontact having the given keyword
+     *
+     * @param contact MetaContact
+     * @param keyword keyword
+     * @param caseSensitive is keywords search case sensitive
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByKeyword(MetaContact contact, String keyword,
+                                    boolean caseSensitive)
+        throws RuntimeException
+    {
+        LinkedList result = new LinkedList();
+
+        Iterator iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = (Contact) iter.next();
+
+            try
+            {
+                History history = this.getHistory(null, item);
+
+                HistoryReader reader = history.getReader();
+                addHistorySearchProgressListeners(reader);
+                Iterator recs =
+                    reader.findByKeyword(keyword, SEARCH_FIELD, caseSensitive);
+                removeHistorySearchProgressListeners(reader);
+                while (recs.hasNext())
+                {
+                    result.add(
+                        convertHistoryRecordToMessageEvent(
+                            (HistoryRecord)recs.next(),
+                            item));
+
+                }
+            } catch (IOException e)
+            {
+                logger.error("Could not read history", e);
+            }
+        }
+
+        return result;
+
+    }
+
+    /**
+     * Returns all the messages exchanged by all the contacts
+     * in the supplied metacontact having the given keywords
+     *
+     * @param contact MetaContact
+     * @param keywords keyword
+     * @param caseSensitive is keywords search case sensitive
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByKeywords(MetaContact contact, String[] keywords,
+                                     boolean caseSensitive)
+        throws RuntimeException
+    {
+        LinkedList result = new LinkedList();
+
+        Iterator iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = (Contact) iter.next();
+
+            try
+            {
+                History history = this.getHistory(null, item);
+
+                HistoryReader reader = history.getReader();
+                addHistorySearchProgressListeners(reader);
+                Iterator recs =
+                    reader.findByKeywords(keywords, SEARCH_FIELD, caseSensitive);
+                removeHistorySearchProgressListeners(reader);
+                while (recs.hasNext())
+                {
+                    result.add(
+                        convertHistoryRecordToMessageEvent(
+                            (HistoryRecord)recs.next(),
+                            item));
+
+                }
+            } catch (IOException e)
+            {
+                logger.error("Could not read history", e);
+            }
+        }
+
+        return result;
+    }
+
+    private class SearchProgressWrapper
+        implements HistorySearchProgressListener
+    {
+        private MessageHistorySearchProgressListener listener = null;
+
+        SearchProgressWrapper(MessageHistorySearchProgressListener listener)
+        {
+            this.listener = listener;
+        }
+
+        public void progressChanged(ProgressEvent evt)
+        {
+            listener.progressChanged(
+                new net.java.sip.communicator.service.msghistory.event.
+                    ProgressEvent(MessageHistoryServiceImpl.this,
+                    evt,
+                    evt.getProgress()));
         }
     }
 
