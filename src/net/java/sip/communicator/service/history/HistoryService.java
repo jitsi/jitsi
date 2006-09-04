@@ -74,4 +74,13 @@ public interface HistoryService {
      */
     History createHistory(HistoryID id, HistoryRecordStructure recordStructure)
             throws IllegalArgumentException, IOException;
+
+    /**
+     * Permamently removes local stored History
+     *
+     * @param id HistoryID
+     * @throws IOException
+     *             Thrown if the history could not be removed due to a IO error.
+     */
+    public void purgeLocallyStoredHistory(HistoryID id) throws IOException;
 }

@@ -30,9 +30,20 @@ public class TestHistoryService extends TestCase {
     private Random random = new Random();
 
     public TestHistoryService(String name)
-        throws Exception
     {
         super(name);
+    }
+
+    public static Test suite()
+    {
+        TestSuite suite = new TestSuite();
+
+        suite.addTest(new TestHistoryService("testCreateDB"));
+        suite.addTest(new TestHistoryService("testWriteRecords"));
+        suite.addTest(new TestHistoryService("testReadRecords"));
+        suite.addTest(new TestHistoryService("testPurgeLocallyStoredHistory"));
+
+        return suite;
     }
 
     protected void setUp()
@@ -110,6 +121,17 @@ public class TestHistoryService extends TestCase {
         {
             fail("Could not create database with id " + id + " with error " + e);
         }
+
+        try
+        {
+            // after creating, remove it - do not leave content
+            this.historyService.purgeLocallyStoredHistory(id);
+        }
+        catch (Exception ex)
+        {
+            fail("Cannot delete local history with id " + this.history.getID()
+                 + " : " + ex.getMessage());
+        }
     }
 
     public void testWriteRecords()
@@ -153,6 +175,19 @@ public class TestHistoryService extends TestCase {
                 fail("Bad data! Expected nameXXXX, where XXXX is "
                         + "an integer, but found: " + vals[0]);
             }
+        }
+    }
+
+    public void testPurgeLocallyStoredHistory()
+    {
+        try
+        {
+            this.historyService.purgeLocallyStoredHistory(this.history.getID());
+        }
+        catch (Exception ex)
+        {
+            fail("Cannot delete local history with id " + this.history.getID()
+                 + " : " + ex.getMessage());
         }
     }
 }

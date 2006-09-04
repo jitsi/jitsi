@@ -18,6 +18,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * @author Alexander Pelov
+ * @author Damian Minkov
  */
 public class HistoryServiceImpl implements HistoryService {
 
@@ -223,7 +224,7 @@ public class HistoryServiceImpl implements HistoryService {
     /**
      * Set the configuration service.
      *
-     * @param configurationService
+     * @param configurationService ConfigurationService
      */
     public void setConfigurationService(
             ConfigurationService configurationService)
@@ -245,7 +246,7 @@ public class HistoryServiceImpl implements HistoryService {
     /**
      * Remove a configuration service.
      *
-     * @param configurationService
+     * @param configurationService ConfigurationService
      */
     public void unsetConfigurationService(
             ConfigurationService configurationService)
@@ -263,7 +264,7 @@ public class HistoryServiceImpl implements HistoryService {
     /**
      * Set the file access service.
      *
-     * @param fileAccessService
+     * @param fileAccessService FileAccessService
      */
     public void setFileAccessService(FileAccessService fileAccessService)
     {
@@ -277,7 +278,7 @@ public class HistoryServiceImpl implements HistoryService {
     /**
      * Remove the file access service.
      *
-     * @param fileAccessService
+     * @param fileAccessService FileAccessService
      */
     public void unsetFileAccessService(FileAccessService fileAccessService)
     {
@@ -300,4 +301,44 @@ public class HistoryServiceImpl implements HistoryService {
         return cacheEnabled;
     }
 
+    /**
+     * Permamently removes local stored History
+     *
+     * @param id HistoryID
+     * @throws IOException
+     */
+    public void purgeLocallyStoredHistory(HistoryID id)
+        throws IOException
+    {
+        // get the history direcoty coresponding the given id
+        File dir = this.createHistoryDirectories(id);
+        log.trace("Removing history directory " + dir);
+        deleteDirAndContent(dir);
+    }
+
+    /**
+     * Deletes given directory and its content
+     *
+     * @param dir File
+     * @throws IOException
+     */
+    private void deleteDirAndContent(File dir)
+        throws IOException
+    {
+        if(!dir.isDirectory())
+            return;
+
+        File[] content = dir.listFiles();
+
+        File tmp;
+        for (int i = 0; i < content.length; i++)
+        {
+            tmp = content[i];
+            if(tmp.isDirectory())
+                deleteDirAndContent(tmp);
+            else
+                tmp.delete();
+        }
+        dir.delete();
+    }
 }

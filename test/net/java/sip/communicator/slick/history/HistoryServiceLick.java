@@ -39,7 +39,7 @@ public class HistoryServiceLick extends TestSuite implements BundleActivator {
         Hashtable properties = new Hashtable();
         properties.put("service.pid", getName());
 
-        addTestSuite(TestHistoryService.class);
+        addTest(TestHistoryService.suite());
         bundleContext.registerService(getClass().getName(), this, properties);
 
         logger.debug("Successfully registered " + getClass().getName());
