@@ -294,11 +294,37 @@ public class ChatConversationPanel extends JScrollPane implements
                     messageType, formattedMessage);
     }
 
+    /**
+     * Highlights keywords searched in the history.
+     * @param message the source message
+     * @param keyword the searched keyword
+     * @return the formatted message
+     */
     private String processKeyWords(String message, String keyword) {
 
-        return message.replaceAll(keyword,
-                "</PLAINTEXT><B>"
-                + keyword + "</B><PLAINTEXT>");
+        Pattern p = Pattern.compile(keyword, Pattern.CASE_INSENSITIVE);
+
+        Matcher m = p.matcher(message);
+
+        StringBuffer msgBuffer = new StringBuffer();
+
+        boolean matchSuccessfull = false;
+
+        while (m.find()) {
+            if (!matchSuccessfull)
+                matchSuccessfull = true;
+
+            String matchGroup = m.group().trim();
+
+            String replacement = "</PLAINTEXT><B>" + matchGroup
+                                + "</B><PLAINTEXT>";
+
+            m.appendReplacement(msgBuffer,
+                    StringUtils.replaceSpecialRegExpChars(replacement));
+        }
+        m.appendTail(msgBuffer);
+
+        return msgBuffer.toString();
     }
 
     /**
