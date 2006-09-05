@@ -50,13 +50,11 @@ public class ProgressEvent
      * @param startDate Date The start date in the search condition.
      * @param endDate Date The end date in the search condition.
      * @param keywords String[] The keywords in the search condition.
-     * @param last int The number of last messages in the search condition.
      * @param progress int The current progress that we will pass.
      */
     public ProgressEvent(Object source,
                          Date startDate, Date endDate,
                          String[] keywords,
-                         int last,
                          int progress)
     {
         super(source);
@@ -79,7 +77,7 @@ public class ProgressEvent
                          Date startDate, Date endDate,
                          String[] keywords)
     {
-        this(source, startDate, endDate, keywords, -1, 0);
+        this(source, startDate, endDate, keywords, 0);
     }
 
     /**
@@ -91,7 +89,7 @@ public class ProgressEvent
      */
     public ProgressEvent(Object source, Date startDate, Date endDate)
     {
-        this(source, startDate, endDate, null, -1, 0);
+        this(source, startDate, endDate, null, 0);
     }
 
     /**

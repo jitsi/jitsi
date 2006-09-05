@@ -331,7 +331,14 @@ public class MessageHistoryServiceImpl
         // this is the event timestamp (this is the date that had came from protocol)
         // the HistoryRecord timestamp is the timestamp when the record was written
         if(msg.getMessageReceivedDate() != null)
-            timestamp = msg.getMessageReceivedDate();
+        {
+            if(msg.getMessageReceivedDate().after(hr.getTimestamp()) &&
+                (msg.getMessageReceivedDate().getTime() -
+                 hr.getTimestamp().getTime()) > 86400000) // 24*60*60*1000
+                timestamp = hr.getTimestamp();
+            else
+                timestamp = msg.getMessageReceivedDate();
+        }
         else
             timestamp = hr.getTimestamp();
 

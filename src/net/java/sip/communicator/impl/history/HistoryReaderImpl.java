@@ -295,9 +295,6 @@ public class HistoryReaderImpl
         Vector filelist =
             filterFilesByDate(this.historyImpl.getFileList(), startDate, endDate);
 
-        ProgressEvent progressEvent =
-            new ProgressEvent(this, startDate, endDate, keywords);
-
         int currentProgress = HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE;
         int fileProgressStep = HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE;
 
@@ -306,7 +303,8 @@ public class HistoryReaderImpl
                 HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE / filelist.size();
 
         // start progress - minimum value
-        fireProgressStateChanged(progressEvent, HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE);
+        fireProgressStateChanged(startDate, endDate,
+            keywords, HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE);
 
         Iterator fileIterator = filelist.iterator();
         while (fileIterator.hasNext())
@@ -347,13 +345,14 @@ public class HistoryReaderImpl
                 }
 
                 currentProgress += nodesProgressStep;
-                fireProgressStateChanged(progressEvent, currentProgress);
+                fireProgressStateChanged(
+                    startDate, endDate, keywords, currentProgress);
             }
         }
 
         // end progress - maximum value
-        fireProgressStateChanged(progressEvent,
-                                 HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
+        fireProgressStateChanged(startDate, endDate, keywords,
+            HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
 
         return new OrderedQueryResultSet(result);
     }
@@ -485,7 +484,8 @@ public class HistoryReaderImpl
      * @param endDate Date
      * @return Iterator
      */
-    private Vector filterFilesByDate(Iterator filelist, Date startDate, Date endDate)
+    private Vector filterFilesByDate(
+        Iterator filelist, Date startDate, Date endDate)
     {
         if(startDate == null && endDate == null)
         {
@@ -564,13 +564,17 @@ public class HistoryReaderImpl
         return result;
     }
 
-    private void fireProgressStateChanged(ProgressEvent event, int progress)
+    private void fireProgressStateChanged(Date startDate, Date endDate,
+                         String[] keywords, int progress)
     {
-        event.setProgress(progress);
+        ProgressEvent event =
+            new ProgressEvent(this, startDate, endDate, keywords, progress);
+
         Iterator iter = progressListeners.iterator();
         while (iter.hasNext())
         {
-            HistorySearchProgressListener item = (HistorySearchProgressListener) iter.next();
+            HistorySearchProgressListener item =
+                (HistorySearchProgressListener) iter.next();
             item.progressChanged(event);
         }
     }
