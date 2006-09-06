@@ -8,10 +8,10 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.service.contactlist.*;
 
 /**
@@ -100,5 +100,13 @@ public class RenameContactDialog extends JDialog
         else {
             this.dispose();
         }
+    }
+    
+    /**
+     * Requests the focus in the text field contained in this
+     * dialog.
+     */
+    public void requestFocusInFiled() {
+        this.renameContactPanel.requestFocusInField();
     }
 }

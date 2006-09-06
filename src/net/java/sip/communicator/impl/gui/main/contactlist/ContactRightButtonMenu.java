@@ -263,6 +263,8 @@ public class ContactRightButtonMenu extends JPopupMenu implements
                     );
 
             dialog.setVisible(true);
+            
+            dialog.requestFocusInFiled();
         }
         else if (itemName.equalsIgnoreCase("viewHistory")) {
 
