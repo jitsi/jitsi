@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
+package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import javax.swing.*;
@@ -75,5 +75,12 @@ public class RenameContactPanel extends JPanel {
      */
     public String getNewName(){
         return textField.getText();
+    }
+    
+    /**
+     * Requests the focus in the text field.
+     */
+    public void requestFocusInField() {
+        this.textField.requestFocus();
     }
 }
