@@ -10,6 +10,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.util.*;
 
 import java.awt.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -56,7 +57,7 @@ public class ContactListCellRenderer extends JPanel
         this.setOpaque(true);
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
+        
         this.nameLabel.setIconTextGap(2);
         
         this.nameLabel.setPreferredSize(new Dimension(10, 17));
@@ -179,8 +180,14 @@ public class ContactListCellRenderer extends JPanel
 
         if (!this.isLeaf) {
 
-            g2.setColor(Constants.MOVER_START_COLOR);
-            g2.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 7, 7);
+            GradientPaint p = new GradientPaint(0, 0,
+                    Constants.SELECTED_END_COLOR,
+                    this.getWidth(),
+                    this.getHeight(),
+                    Constants.MOVER_END_COLOR);
+
+            g2.setPaint(p);            
+            g2.fillRoundRect(0, 1, this.getWidth(), this.getHeight() - 1, 7, 7);
         }
 
         if (this.isSelected) {
