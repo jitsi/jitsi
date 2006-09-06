@@ -19,6 +19,7 @@ Import-Package: org.ungoverned.gravity.servicebinder,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.xml,
 Export-Package: net.java.sip.communicator.service.history,
+ net.java.sip.communicator.service.history.event,
  net.java.sip.communicator.impl.history,
  net.java.sip.communicator.service.history.records,
 Metadata-Location: /net/java/sip/communicator/impl/history/history.metadata.xml

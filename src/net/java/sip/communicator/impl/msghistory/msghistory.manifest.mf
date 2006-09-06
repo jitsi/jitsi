@@ -7,6 +7,7 @@ Import-Package: org.ungoverned.gravity.servicebinder,
  org.osgi.framework,
  net.java.sip.communicator.service.fileaccess,
  net.java.sip.communicator.service.history,
+ net.java.sip.communicator.service.history.event,
  net.java.sip.communicator.service.msghistory,
  net.java.sip.communicator.service.contactlist,
  net.java.sip.communicator.service.history.records,
@@ -14,5 +15,6 @@ Import-Package: org.ungoverned.gravity.servicebinder,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.icqconstants,
  net.java.sip.communicator.service.protocol.event,
-Export-Package: net.java.sip.communicator.service.msghistory
+Export-Package: net.java.sip.communicator.service.msghistory,
+ net.java.sip.communicator.service.msghistory.event
 Metadata-Location: /net/java/sip/communicator/impl/msghistory/msghistory.metadata.xml
