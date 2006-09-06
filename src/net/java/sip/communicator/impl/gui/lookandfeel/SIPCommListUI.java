@@ -30,6 +30,6 @@ public class SIPCommListUI extends BasicListUI {
 
     public void paint(Graphics g, JComponent c) {
         AntialiasingManager.activateAntialiasing(g);
-        super.paint(g, c);        
+        super.paint(g, c);
     }
 }
