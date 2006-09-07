@@ -192,15 +192,17 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
             ContactListModel listModel
                 = (ContactListModel) contactList.getModel();
 
-            if (listModel.showOffline()) {
+            if (listModel.showOffline()) {                
                 listModel.setShowOffline(false);
                 listModel.removeOfflineContacts();
             }
             else {
-
+                Object selectedObject = null;
                 int currentlySelectedIndex = contactList.getSelectedIndex();
-                Object selectedObject
-                    = listModel.getElementAt(currentlySelectedIndex);
+                if(currentlySelectedIndex != -1) {
+                    selectedObject
+                        = listModel.getElementAt(currentlySelectedIndex);
+                }
 
                 listModel.setShowOffline(true);
                 listModel.addOfflineContacts();
@@ -216,7 +218,7 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
                                     (MetaContactGroup) selectedObject));
                     }
                 }
-            }
+            }            
         }
         else if (buttonName.equals("info")) {
             MetaContact selectedMetaContact =
