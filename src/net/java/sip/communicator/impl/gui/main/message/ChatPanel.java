@@ -70,6 +70,8 @@ public class ChatPanel extends JPanel
     
     private boolean isVisible = false;
     
+    private Date lastMsgTimestamp;
+    
     MessageHistoryService msgHistory
         = GuiActivator.getMsgHistoryService();
     
@@ -142,9 +144,10 @@ public class ChatPanel extends JPanel
      * 
      * @param lastMsgTimestamp
      */
-    public void loadHistory(Date lastMsgTimestamp) {        
+    public void loadHistory(Date timestamp) {
+        this.lastMsgTimestamp = timestamp;
         Collection historyList = msgHistory.findLast(
-                this.metaContact, Constants.CHAT_HISTORY_SIZE);
+                metaContact, Constants.CHAT_HISTORY_SIZE);
     
         if(historyList.size() > 0) {
             
@@ -162,7 +165,7 @@ public class ChatPanel extends JPanel
                         .getDestinationContact().getProtocolProvider();
                     
                     conversationPanel.processMessage(
-                            this.chatWindow.getMainFrame()
+                            chatWindow.getMainFrame()
                                 .getAccount(protocolProvider),
                             evt.getTimestamp(), Constants.HISTORY_OUTGOING_MESSAGE,
                             evt.getSourceMessage().getContent());
