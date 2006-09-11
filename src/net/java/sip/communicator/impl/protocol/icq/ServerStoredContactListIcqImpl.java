@@ -1189,6 +1189,7 @@ public class ServerStoredContactListIcqImpl
         {
             try
             {
+                Collection copyContactsForUpdate = null;
                 while (true)
                 {
                     synchronized(contactsForUpdate){
@@ -1196,28 +1197,28 @@ public class ServerStoredContactListIcqImpl
                         if(contactsForUpdate.isEmpty())
                             contactsForUpdate.wait();
 
-                        Iterator iter = contactsForUpdate.iterator();
-                        while (iter.hasNext())
-                        {
-                            ContactIcqImpl contact = (ContactIcqImpl) iter.next();
-
-                            String oldNickname = contact.getDisplayName();
-
-                            String nickName = getParentProvider().
-                                getInfoRetreiver().getNickName(contact.getUIN());
-
-                            if(nickName != null)
-                            {
-                                contact.setNickname(nickName);
-                                parentOperationSet.fireContactPropertyChangeEvent(
-                                    ContactPropertyChangeEvent.
-                                    PROPERTY_DISPLAY_NAME, contact,
-                                    oldNickname, nickName);
-                            }
-                        }
-
-                        // clear the contacts they are retreived
+                        copyContactsForUpdate = new Vector(contactsForUpdate);
                         contactsForUpdate.clear();
+                    }
+
+                    Iterator iter = copyContactsForUpdate.iterator();
+                    while (iter.hasNext())
+                    {
+                        ContactIcqImpl contact = (ContactIcqImpl) iter.next();
+
+                        String oldNickname = contact.getDisplayName();
+
+                        String nickName = getParentProvider().
+                            getInfoRetreiver().getNickName(contact.getUIN());
+
+                        if(nickName != null)
+                        {
+                            contact.setNickname(nickName);
+                            parentOperationSet.fireContactPropertyChangeEvent(
+                                ContactPropertyChangeEvent.
+                                PROPERTY_DISPLAY_NAME, contact,
+                                oldNickname, nickName);
+                        }
                     }
                 }
             }
