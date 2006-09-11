@@ -87,20 +87,15 @@ public class HistoryWindow
     private Date searchStartDate;
 
     private String searchKeyword;
-    
-    private Date currentStartDate;
-    
-    private Date currentEndDate;
-
-    private String currentKeyword;
-    
+        
     /**
      * Creates an instance of the <tt>HistoryWindow</tt>.
      * @param mainFrame the main application window
      * @param metaContact the <tt>MetaContact</tt> for which to display
      * a history
      */
-    public HistoryWindow(MainFrame mainFrame, MetaContact metaContact) {
+    public HistoryWindow(MainFrame mainFrame, MetaContact metaContact)
+    {
 
         this.progressBar = new JProgressBar(
             MessageHistorySearchProgressListener.PROGRESS_MINIMUM_VALUE,
@@ -145,7 +140,8 @@ public class HistoryWindow
     /**
      * Constructs the window, by adding all components and panels.
      */
-    private void initPanels() {        
+    private void initPanels()
+    {
         this.historyMenuBar.add(historyMenu);
 
         this.northPanel.add(historyMenuBar, BorderLayout.NORTH);
@@ -169,37 +165,9 @@ public class HistoryWindow
      * Initializes the history with a list of all dates, for which a history
      * with the given contact is availabled.
      */
-    private void initData() {
-        SwingUtilities.invokeLater(new Thread () {
-           public void run() {
-               Collection msgList = msgHistory.findByEndDate(
-                   metaContact, new Date(System.currentTimeMillis()));
-               
-               Object[] msgArray = msgList.toArray();
-               Date date = null;
-
-               for (int i = 0; i < msgArray.length; i ++) {
-                   Object o = msgArray[i];
-          
-                   if (o instanceof MessageDeliveredEvent) {
-                       MessageDeliveredEvent evt = (MessageDeliveredEvent)o;
-          
-                       date = evt.getTimestamp();
-                   }
-                   else if (o instanceof MessageReceivedEvent) {
-                       MessageReceivedEvent evt = (MessageReceivedEvent)o;
-                       date = evt.getTimestamp();
-                   }
-          
-                   if(!datesPanel.containsDate(date)) {
-                       datesPanel.addDate(date);
-                   }
-               }
-               //Initializes the conversation panel with the data of the last
-               //conversation.
-               datesPanel.setSelected(datesPanel.getModel().getSize() - 1);
-           } 
-        });                  
+    private void initData()
+    {        
+        new DatesLoader().start();
     }
 
     /**
@@ -207,10 +175,8 @@ public class HistoryWindow
      * @param startDate the start date of the period
      * @param endDate the end date of the period
      */
-    public void showHistoryByPeriod(Date startDate, Date endDate) {
-
-        this.currentStartDate = startDate;
-        this.currentEndDate = endDate;
+    public void showHistoryByPeriod(Date startDate, Date endDate)
+    {
         
         if(dateHistoryTable.containsKey(startDate)) {
             ChatConversationPanel convPanel
@@ -224,25 +190,9 @@ public class HistoryWindow
             historyPanel.repaint();
         }
         else {
-            SwingUtilities.invokeLater(new Thread() {
-               public void run() {
-                   Collection msgList = msgHistory.findByPeriod(
-                       metaContact, currentStartDate, currentEndDate);
+            historyPanel.removeAll();
             
-                   historyPanel.removeAll();
-                   
-                   ChatConversationPanel convPanel
-                       = new ChatConversationPanel(HistoryWindow.this);
-
-                   historyPanel.add(convPanel);
-
-                   createHistory(convPanel, msgList, null);
-                   dateHistoryTable.put(currentStartDate, convPanel);
-                   
-                   historyPanel.revalidate();
-                   historyPanel.repaint();
-               } 
-            });                         
+            new MessagesLoader(startDate, endDate).start();                         
         }
         this.lastExecutedSearch = PERIOD_SEARCH;
         this.searchStartDate = startDate;
@@ -252,61 +202,13 @@ public class HistoryWindow
      * Shows a history for a given keyword.
      * @param keyword the keyword to search
      */
-    public void showHistoryByKeyword(String keyword) {
-        this.currentKeyword = keyword;
+    public void showHistoryByKeyword(String keyword)
+    {
         
-        SwingUtilities.invokeLater(new Thread () {
-            public void run() {
-                Collection msgList = msgHistory.findByKeyword(
-                        metaContact, currentKeyword);
-                
-                Object[] msgArray = msgList.toArray();
-                Date date = null;
-                ChatConversationPanel convPanel = null;
+        historyPanel.removeAll();
+        datesPanel.removeAllDates();
 
-                datesPanel.removeAllDates();
-                for (int i = 0; i < msgArray.length; i ++) {
-                    Object o = msgArray[i];
-
-                    if (o instanceof MessageDeliveredEvent) {
-                        MessageDeliveredEvent evt = (MessageDeliveredEvent)o;
-                        date = evt.getTimestamp();
-                    }
-                    else if (o instanceof MessageReceivedEvent) {
-                        MessageReceivedEvent evt = (MessageReceivedEvent)o;
-                        date = evt.getTimestamp();
-                    }
-
-                    if(!datesPanel.containsDate(date)) {
-                        datesPanel.addDate(date);
-                    }
-                }
-                
-                datesPanel.revalidate();
-                datesPanel.repaint();
-                
-                for(int i = 0; i < datesPanel.getDatesNumber(); i ++) {
-                    Date initDate = datesPanel.getDate(i);
-
-                    msgList = msgHistory.findByPeriod(
-                            metaContact, initDate,
-                            datesPanel.getNextDate(initDate));
-
-                    if(dateHistoryTable.contains(initDate)) {
-                        dateHistoryTable.remove(initDate);
-                    }
-
-                    convPanel = new ChatConversationPanel(HistoryWindow.this);
-
-                    createHistory(convPanel, msgList, currentKeyword);
-                    dateHistoryTable.put(initDate, convPanel);
-                }
-                datesPanel.setSelected(datesPanel.getDatesNumber() - 1);
-                
-                lastExecutedSearch = KEYWORD_SEARCH;
-                searchKeyword = currentKeyword;
-            }
-        });
+        new KeywordDatesLoader(keyword).start();
     }
 
     /**
@@ -314,7 +216,8 @@ public class HistoryWindow
      * @param historyRecords a collection of history records
      */
     private void createHistory(ChatConversationPanel chatConvPanel,
-            Collection historyRecords, String keyword) {
+            Collection historyRecords, String keyword)
+    {
 
         if(historyRecords.size() > 0) {
 
@@ -351,14 +254,16 @@ public class HistoryWindow
     /**
      * Implements <tt>ChatConversationContainer.setStatusMessage</tt> method.
      */
-    public void setStatusMessage(String message) {
+    public void setStatusMessage(String message)
+    {
         //TODO : setStatusMessage(String message)
     }
 
     /**
      * Implements <tt>ChatConversationContainer.getWindow</tt> method.
      */
-    public Window getWindow() {
+    public Window getWindow()
+    {
         return this;
     }
 
@@ -366,8 +271,8 @@ public class HistoryWindow
      * Handles the <tt>ActionEvent</tt> triggered when user clicks on the
      * refresh button. Executes ones more the last search.
      */
-    public void actionPerformed(ActionEvent e) {
-
+    public void actionPerformed(ActionEvent e)
+    {
         if(lastExecutedSearch.equals(KEYWORD_SEARCH)) {            
             showHistoryByKeyword(searchKeyword);
         }
@@ -381,8 +286,8 @@ public class HistoryWindow
      * Before closing the history window saves the current size and position
      * through the <tt>ConfigurationService</tt>.
      */
-    public class HistoryWindowAdapter extends WindowAdapter {
-
+    public class HistoryWindowAdapter extends WindowAdapter
+    {
         public void windowClosing(WindowEvent e) {
             ConfigurationService configService
                 = GuiActivator.getConfigurationService();
@@ -414,7 +319,8 @@ public class HistoryWindow
     /**
      * Sets the window size and position.
      */
-    public void setSizeAndLocation() {
+    public void setSizeAndLocation()
+    {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
 
@@ -449,7 +355,8 @@ public class HistoryWindow
     /**
      * Positions this window in the center of the screen.
      */
-    private void setCenterLocation(){
+    private void setCenterLocation()
+    {
         this.setLocation(
                 Toolkit.getDefaultToolkit().getScreenSize().width/2
                     - this.getWidth()/2,
@@ -458,7 +365,8 @@ public class HistoryWindow
                 );
     }
     
-    public void progressChanged(ProgressEvent evt) {
+    public void progressChanged(ProgressEvent evt)
+    {
         this.progressBar.setValue(evt.getProgress());
     }
     
@@ -466,7 +374,8 @@ public class HistoryWindow
      * The <tt>CloseAction</tt> is an <tt>AbstractAction</tt> that closes the
      * current history window.
      */
-    private class CloseAction extends AbstractAction {
+    private class CloseAction extends AbstractAction
+    {
         public void actionPerformed(ActionEvent e) {
             dispose();
         }
@@ -489,4 +398,205 @@ public class HistoryWindow
         }
     }
     */
+    
+    private class DatesLoader extends Thread
+    {
+        private Vector dateVector = new Vector(); 
+        
+        public void run() {
+            Collection msgList = msgHistory.findByEndDate(
+                metaContact, new Date(System.currentTimeMillis()));
+            
+            Object[] msgArray = msgList.toArray();
+            Date date = null;
+
+            for (int i = 0; i < msgArray.length; i ++) {
+                Object o = msgArray[i];
+       
+                if (o instanceof MessageDeliveredEvent) {
+                    MessageDeliveredEvent evt = (MessageDeliveredEvent)o;
+       
+                    date = evt.getTimestamp();
+                }
+                else if (o instanceof MessageReceivedEvent) {
+                    MessageReceivedEvent evt = (MessageReceivedEvent)o;
+                    date = evt.getTimestamp();
+                }
+                       
+                boolean containsDate = false;
+                long milisecondsPerDay = 24*60*60*1000;
+                for(int j = 0; !containsDate && j < dateVector.size(); j ++) {
+                    Date date1 = (Date)dateVector.get(j);
+                    
+                    containsDate = Math.floor(date1.getTime()/milisecondsPerDay)
+                        == Math.floor(date.getTime()/milisecondsPerDay);
+                }
+
+                if(!containsDate) {
+                    dateVector.add(new Date(date.getTime()
+                            - date.getTime()%milisecondsPerDay));
+                }
+            }
+            
+            Runnable updateDatesPanel = new Runnable() {
+                public void run() {
+                    for(int i = 0; i < dateVector.size(); i++) {
+                        Date date = (Date)dateVector.get(i);
+                        datesPanel.addDate(date);
+                    }
+                    //Initializes the conversation panel with the data of the
+                    //last conversation.
+                    datesPanel.setSelected(datesPanel.getModel().getSize() - 1);
+                }
+            };
+            SwingUtilities.invokeLater(updateDatesPanel);            
+        } 
+     }
+    
+    private class MessagesLoader extends Thread
+    {
+        private Collection msgList;
+        private Date startDate;
+        private Date endDate;
+        public MessagesLoader (Date startDate, Date endDate)
+        {
+            this.startDate = startDate;
+            this.endDate = endDate;
+        }
+        
+        public void run()
+        {
+             msgList = msgHistory.findByPeriod(
+                    metaContact, startDate, endDate);
+         
+            Runnable updateMessagesPanel = new Runnable() {
+                public void run() {
+                    ChatConversationPanel convPanel
+                        = new ChatConversationPanel(HistoryWindow.this);
+    
+                    historyPanel.add(convPanel);
+    
+                    createHistory(convPanel, msgList, null);
+                    dateHistoryTable.put(startDate, convPanel);
+                    
+                    historyPanel.revalidate();
+                    historyPanel.repaint();
+                }
+            };
+            SwingUtilities.invokeLater(updateMessagesPanel);
+        }
+    }
+    
+    
+    private class KeywordDatesLoader extends Thread {
+        private Vector dateVector = new Vector();
+        private Collection msgList;
+        private String keyword;
+        
+        public KeywordDatesLoader(String keyword)
+        {
+            this.keyword = keyword;
+        }
+        
+        public void run()
+        {
+            msgList = msgHistory.findByKeyword(
+                    metaContact, keyword);
+            
+            Object[] msgArray = msgList.toArray();
+            Date date = null;
+                        
+            for (int i = 0; i < msgArray.length; i ++) {
+                Object o = msgArray[i];
+
+                if (o instanceof MessageDeliveredEvent) {
+                    MessageDeliveredEvent evt = (MessageDeliveredEvent)o;
+                    date = evt.getTimestamp();
+                }
+                else if (o instanceof MessageReceivedEvent) {
+                    MessageReceivedEvent evt = (MessageReceivedEvent)o;
+                    date = evt.getTimestamp();
+                }
+
+                boolean containsDate = false;
+                long milisecondsPerDay = 24*60*60*1000;
+                for(int j = 0; !containsDate && j < dateVector.size(); j ++) {
+                    Date date1 = (Date)dateVector.get(j);
+                    
+                    containsDate = Math.floor(date1.getTime()/milisecondsPerDay)
+                        == Math.floor(date.getTime()/milisecondsPerDay);
+                }
+
+                if(!containsDate) {
+                    dateVector.add(new Date(date.getTime()
+                            - date.getTime()%milisecondsPerDay));
+                }                
+            }
+            
+            Runnable updateDatesPanel = new Runnable() {
+                public void run() {
+                    for(int i = 0; i < dateVector.size(); i++) {
+                        Date date = (Date)dateVector.get(i);
+                        
+                        datesPanel.addDate(date);
+                        
+                        datesPanel.revalidate();
+                        datesPanel.repaint();
+                    }
+                }
+            };
+            SwingUtilities.invokeLater(updateDatesPanel);
+            
+            for(int i = 0; i < dateVector.size(); i ++) {
+                Date initDate = (Date)dateVector.get(i);
+                
+                msgList = msgHistory.findByPeriod(
+                        metaContact, initDate,
+                        i < (dateVector.size()-1)?(Date)dateVector.get(i+1)
+                                :new Date(System.currentTimeMillis()));
+                
+                SwingUtilities.invokeLater(
+                        new KeywordMessageLoader(i, msgList, keyword));
+            }
+            
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run()
+                {
+                    datesPanel.setSelected(datesPanel.getDatesNumber() - 1);                       
+                }
+            });
+            
+            lastExecutedSearch = KEYWORD_SEARCH;
+            searchKeyword = keyword;
+        }       
+    }
+    
+    private class KeywordMessageLoader implements Runnable
+    {
+        private Date initDate;
+        private Collection msgList;
+        private String keyword;
+        
+        public KeywordMessageLoader(int initDateIndex,
+                Collection msgList, String keyword)
+        {
+            this.initDate = datesPanel.getDate(initDateIndex);
+            this.msgList = msgList;
+            this.keyword = keyword;
+        }
+        
+        public void run()
+        {   
+            
+            if(dateHistoryTable.contains(initDate)) {
+                dateHistoryTable.remove(initDate);
+            }
+            
+            ChatConversationPanel convPanel
+                = new ChatConversationPanel(HistoryWindow.this);
+            
+            createHistory(convPanel, msgList, keyword);
+            dateHistoryTable.put(initDate, convPanel);
+        }
+    }
 }

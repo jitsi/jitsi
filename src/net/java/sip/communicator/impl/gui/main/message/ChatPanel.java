@@ -137,50 +137,110 @@ public class ChatPanel extends JPanel
      * 
      */
     public void loadHistory() {
-        this.loadHistory(new Date(0));
+        this.loadHistory(null, new Date(0), null, null);
     }
     
     /**
      * 
      * @param lastMsgTimestamp
      */
-    public void loadHistory(Date timestamp) {
-        this.lastMsgTimestamp = timestamp;
-        Collection historyList = msgHistory.findLast(
-                metaContact, Constants.CHAT_HISTORY_SIZE);
-    
-        if(historyList.size() > 0) {
-            
-            Iterator i = historyList.iterator();
-            
-            while (i.hasNext()) {
+    public void loadHistory(String contactName, Date date,
+            String messageType, String message) {
+        this.lastMsgTimestamp = date;
+        
+        new LoadHistory(contactName, date, messageType, message).start();        
+    }
+
+    private class LoadHistory extends Thread
+    {
+        private String contactName;
+        private Date date;
+        private String messageType;
+        private String message;
+        
+        public LoadHistory(String contactName, Date date,
+                String messageType, String message)
+        {
+            this.contactName = contactName;
+            this.date = date;
+            this.messageType = messageType;
+            this.message = message;
+        }
+        
+        public void run()
+        {
+            Collection historyList = msgHistory.findLast(
+                    metaContact, Constants.CHAT_HISTORY_SIZE);
+        
+            if(historyList.size() > 0) {
                 
-                Object o = i.next();
+                Iterator i = historyList.iterator();
                 
-                if(o instanceof MessageDeliveredEvent) {
+                while (i.hasNext()) {
                     
-                    MessageDeliveredEvent evt = (MessageDeliveredEvent)o;
+                    Object o = i.next();
                     
-                    ProtocolProviderService protocolProvider = evt
-                        .getDestinationContact().getProtocolProvider();
-                    
-                    conversationPanel.processMessage(
-                            chatWindow.getMainFrame()
-                                .getAccount(protocolProvider),
-                            evt.getTimestamp(), Constants.HISTORY_OUTGOING_MESSAGE,
-                            evt.getSourceMessage().getContent());
-                }
-                else if(o instanceof MessageReceivedEvent) {
-                    MessageReceivedEvent evt = (MessageReceivedEvent)o;
-                    
-                    if(evt.getTimestamp().compareTo(lastMsgTimestamp) != 0) {
-                        conversationPanel.processMessage(
-                            evt.getSourceContact().getDisplayName(),
-                            evt.getTimestamp(), Constants.HISTORY_INCOMING_MESSAGE,
-                            evt.getSourceMessage().getContent());
+                    if(o instanceof MessageDeliveredEvent) {                            
+                        MessageDeliveredEvent evt
+                            = (MessageDeliveredEvent)o;
+                        
+                        ProtocolProviderService protocolProvider = evt
+                            .getDestinationContact().getProtocolProvider();
+                        
+                        SwingUtilities.invokeLater(
+                                new ProcessHistoryMessage(
+                                    chatWindow.getMainFrame()
+                                        .getAccount(protocolProvider),
+                                    evt.getTimestamp(),
+                                    Constants.HISTORY_OUTGOING_MESSAGE,
+                                    evt.getSourceMessage().getContent()));
+                    }
+                    else if(o instanceof MessageReceivedEvent) {
+                        MessageReceivedEvent evt = (MessageReceivedEvent)o;
+                        
+                        if(evt.getTimestamp()
+                                .compareTo(lastMsgTimestamp) != 0) {
+                            SwingUtilities.invokeLater(
+                                new ProcessHistoryMessage(
+                                    evt.getSourceContact().getDisplayName(),
+                                    evt.getTimestamp(), 
+                                    Constants.HISTORY_INCOMING_MESSAGE,
+                                    evt.getSourceMessage().getContent()));
+                        }
                     }
                 }
             }
+            
+            if(message != null) {
+                SwingUtilities.invokeLater(
+                    new ProcessHistoryMessage(
+                    contactName,
+                    date, messageType,
+                    message));
+            }
+        }
+    }
+    
+    private class ProcessHistoryMessage implements Runnable
+    {
+        private String contactName;
+        private Date date;
+        private String messageType;
+        private String message;
+        
+        public ProcessHistoryMessage(String contactName,
+                Date date, String messageType, String message)
+        {
+            this.contactName = contactName;
+            this.date = date;
+            this.messageType = messageType;
+            this.message = message;
+        }
+        
+        public void run()
+        {
+            conversationPanel.processMessage(contactName,
+                        date, messageType, message);
         }
     }
     

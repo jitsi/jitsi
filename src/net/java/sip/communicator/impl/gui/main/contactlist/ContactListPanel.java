@@ -476,12 +476,11 @@ public class ContactListPanel extends JScrollPane
                 ChatPanel chatPanel = msgWindow.createChat(metaContact,
                         contactStatus, protocolContact);
                 
-                chatPanel.loadHistory(evt.getTimestamp());
-                
-                msgWindow.getCurrentChatPanel().processMessage(
+                chatPanel.loadHistory(
                         protocolContact.getDisplayName(),
                         date, Constants.INCOMING_MESSAGE,
                         message.getContent());
+                
                 /*
                  * If there's no chat window for the contact
                  * create it and show it.
@@ -521,13 +520,15 @@ public class ContactListPanel extends JScrollPane
                 chatPanel = tabbedChatWindow.createChat(metaContact,
                         contactStatus, protocolContact);
                 
-                chatPanel.loadHistory(evt.getTimestamp());
-                
+                chatPanel.loadHistory(protocolContact.getDisplayName(),
+                        date, Constants.INCOMING_MESSAGE,
+                        message.getContent());
+                /*
                 chatPanel.processMessage(
                         protocolContact.getDisplayName(),
                         date, Constants.INCOMING_MESSAGE,
                         message.getContent());
-                
+                */
                 if (Constants.AUTO_POPUP_NEW_MESSAGE) {
                     tabbedChatWindow.addChatTab(chatPanel);
                     

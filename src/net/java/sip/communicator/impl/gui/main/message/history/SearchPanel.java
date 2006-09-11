@@ -170,6 +170,7 @@ public class SearchPanel extends JPanel implements ActionListener {
         String buttonName = button.getName();
 
         if (buttonName.equalsIgnoreCase("search")) {
+            
             historyWindow.showHistoryByKeyword(searchTextField.getText());
         }
         /*

@@ -49,6 +49,7 @@ public class DatesPanel extends JScrollPane
 
         this.historyWindow = historyWindow;
 
+        this.setPreferredSize(new Dimension(100, 100));
         this.datesList.setModel(listModel);
 
         this.datesList.setCellRenderer(renderer);
