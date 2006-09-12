@@ -208,6 +208,7 @@ public class HistoryWindow
         
         historyPanel.removeAll();
         datesPanel.removeAllDates();
+        datesPanel.setLastSelectedIndex(-1);
 
         new KeywordDatesLoader(keyword).start();
     }

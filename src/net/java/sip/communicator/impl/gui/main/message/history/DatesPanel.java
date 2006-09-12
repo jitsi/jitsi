@@ -38,7 +38,9 @@ public class DatesPanel extends JScrollPane
     private MessageHistoryService msgHistory = GuiActivator.getMsgHistoryService();
 
     private HistoryWindow historyWindow;
-
+    
+    private int lastSelectedIndex = -1;
+    
     /**
      * Creates an instance of <tt>DatesPanel</tt>.
      *
@@ -205,8 +207,9 @@ public class DatesPanel extends JScrollPane
      */
     public void valueChanged(ListSelectionEvent e) {
         int selectedIndex = this.datesList.getSelectedIndex();
-
-        if(selectedIndex != -1) {
+        
+        if(selectedIndex != -1 && lastSelectedIndex != selectedIndex) {
+            this.setLastSelectedIndex(selectedIndex);
             String dateString = (String)this.listModel.get(selectedIndex);
 
             Date nextDate;
@@ -234,5 +237,15 @@ public class DatesPanel extends JScrollPane
 
     public ListModel getModel() {
         return this.datesList.getModel();
+    }
+
+    public int getLastSelectedIndex()
+    {
+        return lastSelectedIndex;
+    }
+
+    public void setLastSelectedIndex(int lastSelectedIndex)
+    {
+        this.lastSelectedIndex = lastSelectedIndex;
     }
 }
