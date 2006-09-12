@@ -12,6 +12,7 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -82,6 +83,8 @@ public class HistoryWindow
 
     private Hashtable dateHistoryTable = new Hashtable();
 
+    private JLabel readyLabel = new JLabel(Messages.getString("ready"));
+    
     private String lastExecutedSearch;
 
     private Date searchStartDate;
@@ -153,8 +156,6 @@ public class HistoryWindow
         this.mainPanel.add(northPanel, BorderLayout.NORTH);
 
         this.mainPanel.add(historyPanel, BorderLayout.CENTER);
-
-        this.mainPanel.add(progressBar, BorderLayout.SOUTH);
 
         this.mainPanel.add(datesPanel, BorderLayout.WEST);
 
@@ -365,9 +366,45 @@ public class HistoryWindow
                 );
     }
     
+    /**
+     * 
+     */
     public void progressChanged(ProgressEvent evt)
-    {
+    {          
+        if(progressBar.getPercentComplete() == 0) {
+            this.mainPanel.remove(readyLabel);
+            this.mainPanel.add(progressBar, BorderLayout.SOUTH);
+            this.mainPanel.revalidate();
+            this.mainPanel.repaint();
+        }
+
         this.progressBar.setValue(evt.getProgress());
+        
+        if(progressBar.getPercentComplete() == 1.0) {
+            new ProgressBarTimer().start();
+        }
+    }
+    
+    /**
+     * Waits 2 seconds and removes the progress bar from the main panel.
+     */
+    private class ProgressBarTimer extends Timer {
+        public ProgressBarTimer() {
+            //Set delay
+            super(2 * 1000, null);
+
+            this.addActionListener(new TimerActionListener());
+        }
+
+        private class TimerActionListener implements ActionListener {
+            public void actionPerformed(ActionEvent e) {
+                mainPanel.remove(progressBar);
+                mainPanel.add(readyLabel, BorderLayout.SOUTH);
+                mainPanel.revalidate();
+                mainPanel.repaint();
+                progressBar.setValue(0);
+            }
+        }
     }
     
     /**
@@ -399,6 +436,9 @@ public class HistoryWindow
     }
     */
     
+    /**
+     * Loads history dates.
+     */
     private class DatesLoader extends Thread
     {
         private Vector dateVector = new Vector(); 
@@ -453,6 +493,9 @@ public class HistoryWindow
         } 
      }
     
+    /**
+     * Loads history messages in the right panel.
+     */
     private class MessagesLoader extends Thread
     {
         private Collection msgList;
@@ -487,7 +530,9 @@ public class HistoryWindow
         }
     }
     
-    
+    /**
+     * Loads dates found for keyword.
+     */
     private class KeywordDatesLoader extends Thread {
         private Vector dateVector = new Vector();
         private Collection msgList;
@@ -571,6 +616,9 @@ public class HistoryWindow
         }       
     }
     
+    /**
+     * Loads history messages found by keyword.
+     */
     private class KeywordMessageLoader implements Runnable
     {
         private Date initDate;
@@ -586,8 +634,7 @@ public class HistoryWindow
         }
         
         public void run()
-        {   
-            
+        {
             if(dateHistoryTable.contains(initDate)) {
                 dateHistoryTable.remove(initDate);
             }
