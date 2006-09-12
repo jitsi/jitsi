@@ -31,6 +31,8 @@ public class SearchPanel extends JPanel implements ActionListener {
         = new JLabel(Messages.getString("search") + ": ");
 
     private JTextField searchTextField = new JTextField();
+    
+    private JPanel textFieldPanel = new JPanel(new BorderLayout());
 
     /*
     private JRadioButton todayMessagesRadio = new JRadioButton(Messages
@@ -80,12 +82,7 @@ public class SearchPanel extends JPanel implements ActionListener {
 
     private JPanel checksPanel = new JPanel(new GridLayout(0, 1));
     */
-
-    private JPanel searchPanel = new JPanel(new BorderLayout());
     
-    private JPanel searchButtonPanel = new JPanel(new FlowLayout(
-            FlowLayout.CENTER));
-
     private HistoryWindow historyWindow;
 
     // private JPanel extendedSearchPanel = new JPanel(new BorderLayout());
@@ -102,6 +99,8 @@ public class SearchPanel extends JPanel implements ActionListener {
         this.setBorder(BorderFactory.createTitledBorder(Messages
                 .getString("search"))); //$NON-NLS-1$
         
+        this.textFieldPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        
         this.init();
     }
 
@@ -109,8 +108,10 @@ public class SearchPanel extends JPanel implements ActionListener {
      * Constructs the <tt>SearchPanel</tt>.
      */
     public void init() {
-        this.searchPanel.add(searchLabel, BorderLayout.WEST);
-        this.searchPanel.add(searchTextField, BorderLayout.CENTER);
+        this.textFieldPanel.add(searchTextField);
+        
+        this.add(searchLabel, BorderLayout.WEST);
+        this.add(textFieldPanel, BorderLayout.CENTER);
 
         /*
         this.detailsLabelsPanel.add(dateLabel);
@@ -144,14 +145,10 @@ public class SearchPanel extends JPanel implements ActionListener {
 
         this.searchButton.addActionListener(this);
 
-        this.searchButtonPanel.add(searchButton);
-
         this.historyWindow.getRootPane().setDefaultButton(searchButton);
         // this.extendedSearchPanel.add(extendedSearchButton,
         // BorderLayout.CENTER);
-
-        this.add(searchPanel, BorderLayout.CENTER);
-        this.add(searchButtonPanel, BorderLayout.SOUTH);
+        this.add(searchButton, BorderLayout.EAST);
 
         // this.add(extendedSearchPanel, BorderLayout.SOUTH);
 
