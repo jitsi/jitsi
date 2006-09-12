@@ -46,7 +46,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByStartDate(Date startDate)
+    public synchronized QueryResultSet findByStartDate(Date startDate)
             throws RuntimeException
     {
         return find(startDate, null, null, null, false);
@@ -62,7 +62,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByEndDate(Date endDate)
+    public synchronized QueryResultSet findByEndDate(Date endDate)
         throws RuntimeException
     {
         return find(null, endDate, null, null, false);
@@ -79,7 +79,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByPeriod(Date startDate, Date endDate)
+    public synchronized QueryResultSet findByPeriod(Date startDate, Date endDate)
             throws RuntimeException
     {
         return find(startDate, endDate, null, null, false);
@@ -95,7 +95,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByKeyword(String keyword, String field)
+    public synchronized QueryResultSet findByKeyword(String keyword, String field)
         throws RuntimeException
     {
         return findByKeywords(new String[] { keyword }, field);
@@ -111,7 +111,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByKeywords(String[] keywords, String field)
+    public synchronized QueryResultSet findByKeywords(String[] keywords, String field)
             throws RuntimeException
     {
             return find(null, null, keywords, field, false);
@@ -130,7 +130,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByPeriod(Date startDate, Date endDate,
+    public synchronized QueryResultSet findByPeriod(Date startDate, Date endDate,
             String[] keywords, String field) throws UnsupportedOperationException
     {
         return find(startDate, endDate, keywords, field, false);
@@ -145,7 +145,7 @@ public class HistoryReaderImpl
      * @return QueryResultSet
      * @throws RuntimeException
      */
-    public QueryResultSet findLast(int count) throws RuntimeException
+    public synchronized QueryResultSet findLast(int count) throws RuntimeException
     {
         // the files are supposed to be ordered from oldest to newest
         Vector filelist =
@@ -239,7 +239,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByKeyword(String keyword, String field,
+    public synchronized QueryResultSet findByKeyword(String keyword, String field,
                                         boolean caseSensitive)
         throws RuntimeException
     {
@@ -257,7 +257,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByKeywords(String[] keywords, String field,
+    public synchronized QueryResultSet findByKeywords(String[] keywords, String field,
                                          boolean caseSensitive)
         throws RuntimeException
     {
@@ -278,7 +278,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByPeriod(Date startDate, Date endDate,
+    public synchronized QueryResultSet findByPeriod(Date startDate, Date endDate,
                                        String[] keywords, String field,
                                        boolean caseSensitive)
         throws UnsupportedOperationException
@@ -295,8 +295,8 @@ public class HistoryReaderImpl
         Vector filelist =
             filterFilesByDate(this.historyImpl.getFileList(), startDate, endDate);
 
-        int currentProgress = HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE;
-        int fileProgressStep = HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE;
+        double currentProgress = HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE;
+        double fileProgressStep = HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE;
 
         if(filelist.size() != 0)
             fileProgressStep =
@@ -315,7 +315,7 @@ public class HistoryReaderImpl
 
             NodeList nodes = doc.getElementsByTagName("record");
 
-            int nodesProgressStep = fileProgressStep;
+            double nodesProgressStep = fileProgressStep;
 
             if(nodes.getLength() != 0)
                 nodesProgressStep = fileProgressStep / nodes.getLength();
@@ -346,7 +346,7 @@ public class HistoryReaderImpl
 
                 currentProgress += nodesProgressStep;
                 fireProgressStateChanged(
-                    startDate, endDate, keywords, currentProgress);
+                    startDate, endDate, keywords, (int)currentProgress);
             }
         }
 
