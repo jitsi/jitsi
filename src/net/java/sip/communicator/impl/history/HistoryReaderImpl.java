@@ -350,9 +350,13 @@ public class HistoryReaderImpl
             }
         }
 
-        // end progress - maximum value
-        fireProgressStateChanged(startDate, endDate, keywords,
-            HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
+//      if maximum value is not reached fire an event
+        if((int)currentProgress < HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE)
+        {
+            fireProgressStateChanged(startDate, endDate, keywords,
+                                     HistorySearchProgressListener.
+                                     PROGRESS_MAXIMUM_VALUE);
+        }
 
         return new OrderedQueryResultSet(result);
     }
