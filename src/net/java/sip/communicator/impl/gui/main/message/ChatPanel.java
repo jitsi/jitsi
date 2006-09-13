@@ -39,8 +39,11 @@ import net.java.sip.communicator.util.*;
  * 
  * @author Yana Stamcheva
  */
-public class ChatPanel extends JPanel
-    implements ExportedDialog, ChatConversationContainer {
+public class ChatPanel
+    extends JPanel
+    implements  ExportedDialog,
+                ChatConversationContainer
+{
 
     private static final Logger logger = Logger
         .getLogger(ChatPanel.class.getName());
@@ -69,8 +72,6 @@ public class ChatPanel extends JPanel
     private MetaContact metaContact;
     
     private boolean isVisible = false;
-    
-    private Date lastMsgTimestamp;
     
     MessageHistoryService msgHistory
         = GuiActivator.getMsgHistoryService();
@@ -134,114 +135,87 @@ public class ChatPanel extends JPanel
     }
 
     /**
-     * 
+     * Loads history in another thread.
      */
     public void loadHistory() {
-        this.loadHistory(null, new Date(0), null, null);
+        new Thread() {
+            public void run() {
+                Collection historyList = msgHistory.findLast(
+                        metaContact, Constants.CHAT_HISTORY_SIZE);
+                
+                if(historyList.size() > 0) {
+                    class ProcessHistory implements Runnable {
+                        Collection historyList;
+                        ProcessHistory(Collection historyList)
+                        {
+                            this.historyList = historyList;
+                        }
+                        public void run()
+                        {
+                            processHistory(historyList, null);
+                        }
+                    }
+                    SwingUtilities.invokeLater(new ProcessHistory(historyList));
+                }
+            }
+        }.start();
     }
     
     /**
-     * 
-     * @param lastMsgTimestamp
+     * Loads history messages ignoring the message given by the
+     * escapedMessageID.
+     * @param escapedMessageID The id of the message that should be ignored.
      */
-    public void loadHistory(String contactName, Date date,
-            String messageType, String message) {
-        this.lastMsgTimestamp = date;
+    public void loadHistory(String escapedMessageID) {
+        Collection historyList = msgHistory.findLast(
+                metaContact, Constants.CHAT_HISTORY_SIZE);
         
-        new LoadHistory(contactName, date, messageType, message).start();        
+        processHistory(historyList, escapedMessageID);
     }
-
-    private class LoadHistory extends Thread
+        
+    /**
+     * Process history messages.
+     * 
+     * @param historyList The collection of messages coming from history.
+     * @param escapedMessageID The incoming message needed to be ignored if
+     * contained in history.
+     */
+    private void processHistory(Collection historyList,
+            String escapedMessageID)
     {
-        private String contactName;
-        private Date date;
-        private String messageType;
-        private String message;
-        
-        public LoadHistory(String contactName, Date date,
-                String messageType, String message)
-        {
-            this.contactName = contactName;
-            this.date = date;
-            this.messageType = messageType;
-            this.message = message;
-        }
-        
-        public void run()
-        {
-            Collection historyList = msgHistory.findLast(
-                    metaContact, Constants.CHAT_HISTORY_SIZE);
-        
-            if(historyList.size() > 0) {
+        Iterator i = historyList.iterator();
+        String historyString = "";
+        while (i.hasNext()) {
+            Object o = i.next();
+            
+            if(o instanceof MessageDeliveredEvent) {                            
+                MessageDeliveredEvent evt
+                    = (MessageDeliveredEvent)o;
                 
-                Iterator i = historyList.iterator();
+                ProtocolProviderService protocolProvider = evt
+                    .getDestinationContact().getProtocolProvider();
                 
-                while (i.hasNext()) {
-                    
-                    Object o = i.next();
-                    
-                    if(o instanceof MessageDeliveredEvent) {                            
-                        MessageDeliveredEvent evt
-                            = (MessageDeliveredEvent)o;
-                        
-                        ProtocolProviderService protocolProvider = evt
-                            .getDestinationContact().getProtocolProvider();
-                        
-                        SwingUtilities.invokeLater(
-                                new ProcessHistoryMessage(
-                                    chatWindow.getMainFrame()
-                                        .getAccount(protocolProvider),
-                                    evt.getTimestamp(),
-                                    Constants.HISTORY_OUTGOING_MESSAGE,
-                                    evt.getSourceMessage().getContent()));
-                    }
-                    else if(o instanceof MessageReceivedEvent) {
-                        MessageReceivedEvent evt = (MessageReceivedEvent)o;
-                        
-                        if(evt.getTimestamp()
-                                .compareTo(lastMsgTimestamp) != 0) {
-                            SwingUtilities.invokeLater(
-                                new ProcessHistoryMessage(
-                                    evt.getSourceContact().getDisplayName(),
-                                    evt.getTimestamp(), 
-                                    Constants.HISTORY_INCOMING_MESSAGE,
-                                    evt.getSourceMessage().getContent()));
-                        }
-                    }
+                historyString += processHistoryMessage(
+                            chatWindow.getMainFrame()
+                                .getAccount(protocolProvider),
+                            evt.getTimestamp(),
+                            Constants.HISTORY_OUTGOING_MESSAGE,
+                            evt.getSourceMessage().getContent());
+            }
+            else if(o instanceof MessageReceivedEvent) {
+                MessageReceivedEvent evt = (MessageReceivedEvent)o;
+                
+                if(!evt.getSourceMessage().getMessageUID()
+                        .equals(escapedMessageID)) {
+                historyString += processHistoryMessage(
+                            evt.getSourceContact().getDisplayName(),
+                            evt.getTimestamp(), 
+                            Constants.HISTORY_INCOMING_MESSAGE,
+                            evt.getSourceMessage().getContent());
                 }
             }
-            
-            if(message != null) {
-                SwingUtilities.invokeLater(
-                    new ProcessHistoryMessage(
-                    contactName,
-                    date, messageType,
-                    message));
-            }
         }
-    }
-    
-    private class ProcessHistoryMessage implements Runnable
-    {
-        private String contactName;
-        private Date date;
-        private String messageType;
-        private String message;
-        
-        public ProcessHistoryMessage(String contactName,
-                Date date, String messageType, String message)
-        {
-            this.contactName = contactName;
-            this.date = date;
-            this.messageType = messageType;
-            this.message = message;
-        }
-        
-        public void run()
-        {
-            conversationPanel.processMessage(contactName,
-                        date, messageType, message);
-        }
+        conversationPanel.insertMessageAfterStart(historyString);
     }
     
     /**
@@ -429,7 +403,8 @@ public class ChatPanel extends JPanel
     
     /**
      * Passes the message to the contained <code>ChatConversationPanel</code>
-     * for processing.
+     * for processing and appends it at the end of the conversationPanel
+     * document.
      * 
      * @param contactName The name of the contact sending the message.
      * @param date The time at which the message is sent or received.
@@ -439,8 +414,28 @@ public class ChatPanel extends JPanel
      */
     public void processMessage(String contactName, Date date,
             String messageType, String message){
-        this.conversationPanel.processMessage(contactName, date, 
-                                            messageType, message);
+        String processedMessage
+            = this.conversationPanel.processMessage(contactName, date, 
+                                            messageType, message);        
+        this.conversationPanel.appendMessageToEnd(processedMessage);
+    }
+    
+    /**
+     * Passes the message to the contained <code>ChatConversationPanel</code>
+     * for processing.
+     * 
+     * @param contactName The name of the contact sending the message.
+     * @param date The time at which the message is sent or received.
+     * @param messageType The type of the message. One of OUTGOING_MESSAGE 
+     * or INCOMING_MESSAGE. 
+     * @param message The message text.
+     */
+    public String processHistoryMessage(String contactName, Date date,
+            String messageType, String message){
+        String processedMessage
+            = this.conversationPanel.processMessage(contactName, date, 
+                                            messageType, message);        
+        return processedMessage;
     }
     
     /**
