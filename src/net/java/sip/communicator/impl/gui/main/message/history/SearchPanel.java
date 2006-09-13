@@ -10,6 +10,7 @@ package net.java.sip.communicator.impl.gui.main.message.history;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -21,7 +22,11 @@ import net.java.sip.communicator.impl.gui.utils.*;
  *
  * @author Yana Stamcheva
  */
-public class SearchPanel extends JPanel implements ActionListener {
+public class SearchPanel
+    extends JPanel
+    implements  ActionListener,
+                DocumentListener
+{
 
     private JButton searchButton = new JButton(Messages.getString("search"),
             new ImageIcon(ImageLoader
@@ -110,6 +115,8 @@ public class SearchPanel extends JPanel implements ActionListener {
     public void init() {
         this.textFieldPanel.add(searchTextField);
         
+        this.searchTextField.getDocument().addDocumentListener(this);
+        
         this.add(searchLabel, BorderLayout.WEST);
         this.add(textFieldPanel, BorderLayout.CENTER);
 
@@ -187,6 +194,26 @@ public class SearchPanel extends JPanel implements ActionListener {
          *
          * this.getParent().validate(); }
          */
+    }
+
+    public void insertUpdate(DocumentEvent e)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void removeUpdate(DocumentEvent e)
+    {
+        if (searchTextField.getText() == null
+                || searchTextField.getText().equals("")) {
+            historyWindow.showHistoryByKeyword("");
+        }
+    }
+
+    public void changedUpdate(DocumentEvent e)
+    {
+        // TODO Auto-generated method stub
+        
     }
 
     /**
