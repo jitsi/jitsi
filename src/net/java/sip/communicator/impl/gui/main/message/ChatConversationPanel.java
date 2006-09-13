@@ -35,8 +35,12 @@ import net.java.sip.communicator.util.*;
  *
  * @author Yana Stamcheva
  */
-public class ChatConversationPanel extends JScrollPane implements
-        HyperlinkListener, MouseListener, ClipboardOwner {
+public class ChatConversationPanel
+    extends JScrollPane
+    implements  HyperlinkListener,
+                MouseListener, 
+                ClipboardOwner
+{
 
     private static final Logger LOGGER = Logger
             .getLogger(ChatConversationPanel.class.getName());
@@ -79,8 +83,8 @@ public class ChatConversationPanel extends JScrollPane implements
      * Creates an instance of <tt>ChatConversationPanel</tt>.
      * @param chatPanel The parent <tt>ChatPanel</tt>.
      */
-    public ChatConversationPanel(ChatConversationContainer chatContainer) {
-
+    public ChatConversationPanel(ChatConversationContainer chatContainer)
+    {
         super();
 
         this.chatContainer = chatContainer;
@@ -148,7 +152,8 @@ public class ChatConversationPanel extends JScrollPane implements
      * Initializes the editor by adding a header containing the
      * date.
      */
-    private void initEditor() {
+    private void initEditor()
+    {
         Element root = this.document.getDefaultRootElement();
 
         Calendar calendar = Calendar.getInstance();
@@ -177,8 +182,8 @@ public class ChatConversationPanel extends JScrollPane implements
      * @return the formatted message
      */
     public String processMessage(String contactName, Date date,
-            String messageType, String message) {
-
+            String messageType, String message)
+    {
         String chatString = "";
         String endHeaderTag = "";
         String timeString = "";
@@ -256,7 +261,16 @@ public class ChatConversationPanel extends JScrollPane implements
                 + processSmilies(processNewLines(processLinks(message)))
                 + "</PLAINTEXT>" + "</DIV>";
         }
+        return chatString;
+    }
 
+    /**
+     * Appends the given string at the end of the contained in this panel
+     * document.
+     * @param chatString the string to append
+     */
+    public void appendMessageToEnd(String chatString)
+    {
         Element root = this.document.getDefaultRootElement();
 
         try {
@@ -269,10 +283,29 @@ public class ChatConversationPanel extends JScrollPane implements
         }
         //Scroll to the last inserted text in the document.
         this.setCarretToEnd();
-
-        return chatString;
     }
+    
+    /**
+     * Inserts the given string at the beginning of the contained in this panel
+     * document.
+     * @param chatString the string to insert
+     */
+    public void insertMessageAfterStart(String chatString)
+    {
+        Element root = this.document.getDefaultRootElement();
 
+        try {
+            this.document.insertBeforeStart(root
+                    .getElement(0), chatString);
+        } catch (BadLocationException e) {
+            LOGGER.error("Insert in the HTMLDocument failed.", e);
+        } catch (IOException e) {
+            LOGGER.error("Insert in the HTMLDocument failed.", e);
+        }
+        //Scroll to the last inserted text in the document.
+        this.setCarretToEnd();
+    }
+    
     /**
      * Processes the message given by the parameters.
      *
@@ -283,12 +316,12 @@ public class ChatConversationPanel extends JScrollPane implements
      * @param message The message text.
      */
     public String processMessage(String contactName, Date date,
-            String messageType, String message, String keyword) {
-
+            String messageType, String message, String keyword)
+    {
         String formattedMessage = message;
 
-        if(keyword != null) {
-            formattedMessage = processKeyWords(message, keyword);
+        if(keyword != null && keyword != "") {
+            formattedMessage = processKeyword(message, keyword);
         }
         return this.processMessage(contactName, date,
                     messageType, formattedMessage);
@@ -300,8 +333,8 @@ public class ChatConversationPanel extends JScrollPane implements
      * @param keyword the searched keyword
      * @return the formatted message
      */
-    private String processKeyWords(String message, String keyword) {
-
+    private String processKeyword(String message, String keyword)
+    {
         Pattern p = Pattern.compile(keyword, Pattern.CASE_INSENSITIVE);
 
         Matcher m = p.matcher(message);
@@ -333,8 +366,8 @@ public class ChatConversationPanel extends JScrollPane implements
      * @param message The source message string.
      * @return The message string with properly formatted links.
      */
-    private String processLinks(String message) {
-
+    private String processLinks(String message)
+    {
         String wwwURL = "(\\bwww\\.\\S+\\.\\S+/*[?#]*(\\w+[&=;?]\\w+)*\\b)";
         String protocolURL = "(\\b\\w+://\\S+/*[?#]*(\\w+[&=;?]\\w+)*\\b)";
         String url = "(" + wwwURL + "|" + protocolURL + ")";
@@ -374,8 +407,8 @@ public class ChatConversationPanel extends JScrollPane implements
      * @param message The source message string.
      * @return The message string with properly formatted new lines.
      */
-    private String processNewLines(String message) {
-
+    private String processNewLines(String message)
+    {
         return message.replaceAll("\n", "</PLAINTEXT><BR><PLAINTEXT>");
     }
 
@@ -385,8 +418,8 @@ public class ChatConversationPanel extends JScrollPane implements
      * @param message The source message string.
      * @return The message string with properly formated smilies.
      */
-    private String processSmilies(String message) {
-
+    private String processSmilies(String message)
+    {
         ArrayList smiliesList = ImageLoader.getDefaultSmiliesPack();
 
         String regexp = "";
@@ -437,8 +470,8 @@ public class ChatConversationPanel extends JScrollPane implements
      * @param time The time parameter could be hours, minutes or seconds.
      * @return The formatted minutes string.
      */
-    private String processTime(int time) {
-
+    private String processTime(int time)
+    {
         String timeString = new Integer(time).toString();
 
         String resultString = "";
@@ -455,7 +488,8 @@ public class ChatConversationPanel extends JScrollPane implements
      * @param month Value from 1 to 12, which indicates the month.
      * @return the corresponding month abbreviation
      */
-    private String processMonth(int month) {
+    private String processMonth(int month)
+    {
         String monthString = "";
         if(month == 1)
             monthString = Messages.getString("january");
@@ -490,7 +524,8 @@ public class ChatConversationPanel extends JScrollPane implements
      * shows link url in a popup on mouseover.
      * @param e The HyperlinkEvent.
      */
-    public void hyperlinkUpdate(HyperlinkEvent e) {
+    public void hyperlinkUpdate(HyperlinkEvent e)
+    {
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
             URL url = e.getURL();
             CrossPlatformBrowserLauncher.openURL(url.toString());
@@ -531,7 +566,8 @@ public class ChatConversationPanel extends JScrollPane implements
      * Returns the editor of this conversation panel.
      * @return The editor of this conversation panel.
      */
-    public JEditorPane getChatEditorPane() {
+    public JEditorPane getChatEditorPane()
+    {
         return chatEditorPane;
     }
 
@@ -540,15 +576,20 @@ public class ChatConversationPanel extends JScrollPane implements
      *
      * @return The time of the last received message.
      */
-    public Date getLastIncomingMsgTimestamp() {
+    public Date getLastIncomingMsgTimestamp()
+    {
         return lastIncomingMsgTimestamp;
     }
 
     /**
      * Moves the caret to the end of the editor pane.
      */
-    public void setCarretToEnd() {
-        this.chatEditorPane.setCaretPosition(this.document.getLength());
+    public void setCarretToEnd()
+    {
+        if(this.chatEditorPane.getDocument().getLength()
+                == this.document.getLength()) {
+            this.chatEditorPane.setCaretPosition(this.document.getLength());
+        }
     }
 
     /**
@@ -557,7 +598,8 @@ public class ChatConversationPanel extends JScrollPane implements
      *
      * @param e The MouseEvent.
      */
-    public void mouseClicked(MouseEvent e) {
+    public void mouseClicked(MouseEvent e)
+    {
         if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
 
             if (currentHref != null) {
@@ -589,30 +631,78 @@ public class ChatConversationPanel extends JScrollPane implements
         }
     }
 
-    public void mousePressed(MouseEvent e) {
+    public void mousePressed(MouseEvent e)
+    {
     }
 
-    public void mouseReleased(MouseEvent e) {
+    public void mouseReleased(MouseEvent e)
+    {
     }
 
-    public void mouseEntered(MouseEvent e) {
+    public void mouseEntered(MouseEvent e)
+    {
     }
 
-    public void mouseExited(MouseEvent e) {
+    public void mouseExited(MouseEvent e)
+    {
     }
 
-    public void lostOwnership(Clipboard clipboard, Transferable contents) {
-
+    public void lostOwnership(Clipboard clipboard, Transferable contents)
+    {
     }
 
-    public ChatConversationContainer getChatContainer() {
+    /**
+     * Returns the chat container.
+     * @return the chat container
+     */
+    public ChatConversationContainer getChatContainer()
+    {
         return chatContainer;
     }
 
     /**
      * Copies the selected conversation panel content to the clipboard.
      */
-    public void copyConversation(){
+    public void copyConversation()
+    {
         this.chatEditorPane.copy();
+    }
+    
+    /**
+     * Creates new document and all the messages that will be processed in the
+     * future will be appended in it.
+     */
+    public void clear()
+    {
+        this.document = (HTMLDocument) editorKit.createDefaultDocument();
+        Constants.loadSimpleStyle(document.getStyleSheet());
+    }
+    
+    /**
+     * Sets the given document to the editor pane in this panel.
+     * @param doc the document to set
+     */
+    public void setContent(HTMLDocument doc)
+    {
+        this.document = doc;        
+        this.chatEditorPane.setDocument(doc);
+    }
+    
+    /**
+     * Sets the default document contained in this panel, created on init or 
+     * when clear is invoked.
+     */
+    public void setDefaultContent()
+    {
+        this.chatEditorPane.setDocument(document);
+    }
+    
+    /**
+     * Returns the document contained in this panel.
+     * @return the document contained in this panel
+     */
+    public HTMLDocument getContent()
+    {
+        return (HTMLDocument)this.chatEditorPane.getDocument();
     }
 }
