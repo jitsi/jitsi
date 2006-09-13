@@ -6,14 +6,13 @@
  */
 package net.java.sip.communicator.impl.gui.main.message.history;
 
+import java.awt.*;
 import java.util.*;
 
-import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.msghistory.*;
@@ -22,16 +21,16 @@ import net.java.sip.communicator.service.msghistory.*;
  *
  * @author Yana Stamcheva
  */
-public class DatesPanel extends JScrollPane
-    implements ListSelectionListener {
+public class DatesPanel
+    extends JScrollPane
+    implements ListSelectionListener
+{
 
     private  JList datesList = new JList();
 
     private DefaultListModel listModel = new DefaultListModel();
 
-    private ExtListCellRenderer renderer = new ExtListCellRenderer();
-
-    private Calendar calendar = Calendar.getInstance();
+    private DatesListRenderer renderer = new DatesListRenderer();
 
     private JPanel listPanel = new JPanel(new BorderLayout());
 
@@ -47,8 +46,8 @@ public class DatesPanel extends JScrollPane
      * @param historyWindow the parent <tt>HistoryWindow</tt>, where
      * this panel is contained.
      */
-    public DatesPanel(HistoryWindow historyWindow) {
-
+    public DatesPanel(HistoryWindow historyWindow)
+    {
         this.historyWindow = historyWindow;
 
         this.setPreferredSize(new Dimension(100, 100));
@@ -75,7 +74,8 @@ public class DatesPanel extends JScrollPane
      * Returns the number of dates contained in this dates panel.
      * @return the number of dates contained in this dates panel
      */
-    public int getDatesNumber() {
+    public int getDatesNumber()
+    {
         return listModel.size();
     }
 
@@ -84,8 +84,9 @@ public class DatesPanel extends JScrollPane
      * @param index the index of the date in the list model
      * @return the date at the given index
      */
-    public Date getDate(int index) {
-        return stringToDate((String)listModel.get(index));
+    public Date getDate(int index)
+    {
+        return (Date)listModel.get(index);
     }
 
     /**
@@ -93,9 +94,10 @@ public class DatesPanel extends JScrollPane
      * @param date the date from which to start
      * @return the next date in the list
      */
-    public Date getNextDate(Date date) {
+    public Date getNextDate(Date date)
+    {
         Date nextDate;
-        int dateIndex = listModel.indexOf(dateToString(date));
+        int dateIndex = listModel.indexOf(date);
 
         if(dateIndex < listModel.getSize() - 1) {
             nextDate = getDate(dateIndex + 1);
@@ -105,30 +107,38 @@ public class DatesPanel extends JScrollPane
         }
         return nextDate;
     }
+    
     /**
      * Adds the given date to the list of dates.
      * @param date the date to add
      */
-    public void addDate(Date date) {
-        String dateString = this.dateToString(date);
-
-        listModel.addElement(dateString);
+    public void addDate(Date date)
+    {
+        int listSize = listModel.size();
+        boolean dateAdded = false;
+        if(listSize > 0) {
+            for(int i = 0; i < listSize; i ++) {
+                Date dateFromList = (Date)listModel.get(i);
+                if(dateFromList.after(date)) {
+                    listModel.add(i, date);
+                    dateAdded = true;
+                    break;
+                }
+            }
+            if(!dateAdded) {
+                listModel.addElement(date);
+            }
+        }
+        else {
+            listModel.addElement(date);
+        }
     }
 
     /**
-     * Removes the given date from the list of dates
-     * @param date the date to remove
-     */
-    public void removeDate(Date date) {
-        String dateString = this.dateToString(date);
-
-        listModel.removeElement(dateString);
-    }
-
-    /**
-     * Removes all dates contained in this dates panel.
-     */
-    public void removeAllDates() {
+     * Removes all dates contained in this list.
+     */    
+    public void removeAllDates()
+    {
         listModel.removeAllElements();
     }
 
@@ -139,91 +149,26 @@ public class DatesPanel extends JScrollPane
      * @return TRUE if the given date is contained in the list
      * of history dates, FALSE otherwise
      */
-    public boolean containsDate(Date date) {
-        String dateString = this.dateToString(date);
-        if(listModel.contains(dateString)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    public boolean containsDate(Date date)
+    {
+        return listModel.contains(date);
     }
-
-    /**
-     * Transforms the given date into a string, which contains only
-     * day, month and year.
-     * @param date the date to transform into string
-     * @return the string, obtained from the given date
-     */
-    public String dateToString(Date date) {
-        calendar.setTime(date);
-        return this.processTime(calendar.get(Calendar.DAY_OF_MONTH)) + "/"
-        + this.processTime(calendar.get(Calendar.MONTH) + 1) + "/"
-        + this.processTime(calendar.get(Calendar.YEAR));
-    }
-
-    /**
-     * Transforms the given string into date, which contains only
-     * day, month and year.
-     * @param dateString the string to transform into date
-     * @return the <tt>Date</tt>, obtained from the given
-        this.historyPanel.revalidate();
-        this.historyPanel.repaint();
-         string
-     */
-    public Date stringToDate(String dateString) {
-
-        int day = new Integer(dateString.substring(0, 2)).intValue();
-        int month = new Integer(dateString.substring(3, 5)).intValue() - 1;
-        int year = new Integer(dateString.substring(6)).intValue();
-
-        calendar.set(year, month, day, 0, 0, 0);
-
-        return calendar.getTime();
-    }
-
-    /**
-     * Formats a time string.
-     *
-     * @param time The time parameter could be hours, minutes or seconds.
-     * @return The formatted minutes string.
-     */
-    private String processTime(int time) {
-
-        String timeString = new Integer(time).toString();
-
-        String resultString = "";
-        if (timeString.length() < 2)
-            resultString = resultString.concat("0").concat(timeString);
-        else
-            resultString = timeString;
-
-        return resultString;
-    }
-
+    
     /**
      * Implements the <tt>ListSelectionListener.valueChanged</tt>.
      * Shows all history records for the selected date.
      */
-    public void valueChanged(ListSelectionEvent e) {
+    public void valueChanged(ListSelectionEvent e)
+    {   
         int selectedIndex = this.datesList.getSelectedIndex();
         
         if(selectedIndex != -1 && lastSelectedIndex != selectedIndex) {
             this.setLastSelectedIndex(selectedIndex);
-            String dateString = (String)this.listModel.get(selectedIndex);
-
-            Date nextDate;
-            if(selectedIndex < listModel.getSize() - 1) {
-                nextDate = stringToDate(
-                        (String)this.listModel.get(selectedIndex + 1));
-            }
-            else {
-                nextDate = new Date(System.currentTimeMillis());
-            }
+            Date date = (Date)this.listModel.get(selectedIndex);
 
             this.historyWindow.showHistoryByPeriod(
-                    stringToDate(dateString),
-                    nextDate);
+                    date,
+                    historyWindow.getNextDateFromHistory(date));
         }
     }
 
@@ -231,19 +176,33 @@ public class DatesPanel extends JScrollPane
      * Selects the cell at the given index.
      * @param index the index of the cell to select
      */
-    public void setSelected(int index) {
+    public void setSelected(int index)
+    {
         this.datesList.setSelectedIndex(index);
     }
 
-    public ListModel getModel() {
+    /**
+     * Returns the model of the contained list.
+     * @return the model of the contained list
+     */
+    public ListModel getModel()
+    {
         return this.datesList.getModel();
     }
 
+    /**
+     * Returns the index that was last selected.
+     * @return the index that was last selected
+     */
     public int getLastSelectedIndex()
     {
         return lastSelectedIndex;
     }
 
+    /**
+     * Sets the last selected index.
+     * @param lastSelectedIndex the last selected index
+     */
     public void setLastSelectedIndex(int lastSelectedIndex)
     {
         this.lastSelectedIndex = lastSelectedIndex;
