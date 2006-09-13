@@ -232,6 +232,22 @@ public class ConfigurationFrame extends JFrame
      * @see net.java.sip.communicator.service.gui.ExportedDialog#showDialog()
      */
     public void showDialog() {
+        ConfigurationForm configForm 
+            = (ConfigurationForm) this.configContainer.get(0);
+        
+        this.formScrollPane.getViewport().removeAll();
+
+        this.formScrollPane.getViewport()
+            .add((Component)configForm.getForm());
+
+        this.titlePanel.removeAll();
+
+        this.titlePanel.setTitleText(configForm.getTitle());
+
+        this.centerPanel.remove(titlePanel);
+
+        this.centerPanel.add(titlePanel, BorderLayout.NORTH);
+        
         this.setVisible(true);
     }
 
