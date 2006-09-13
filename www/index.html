@@ -1,45 +1,128 @@
 <html>
 <head>
-<title>Project Home Page</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<META NAME="Keywords" CONTENT="java,sip,voip,ip phone,sip phone,softphone,sip softphone,ip telephony,digital phone,digital voice,pc to phone,webphone,internet phone,internet telephony,sipcommunicator,wi-fi,wireless,internet telephone,net phone,web phone,software phone,xten,x-pro,x-lite,vocable,voice-over ip,emil ivov,communicator">
+
+
 </head>
 
-<body bgcolor="#FFFFFF" text="#000000">
-<h1>Default project home page </h1>
-<p>Congratulations on your new java.net project! </p>
-<p>This page is the home page for your new project. This content is appearing 
-  because you have selected the option <b>Use project index.html</b>. To edit 
-  the information displayed on this page, just use CVS to check out your project's 
-  CVS repository and edit index.html in directory www. You can get more information 
-  on how to set-up your local CVS client, click on <b>Version Control</b> on the 
-  left nav bar. </p>
-<p>If you don't want to use CVS to manage your home page, click on the <b>Edit 
-  project</b> link on this page and unclick the option <b>Use project index.html</b>. 
-  Your project home page contents will be generated from the <b>Edit project</b> 
-  field <b>Description</b>. Edit the text on that field to change your home page 
-  contents. Click on <b>Submit changes</b> to save your edits. </p>
-<p>If you are looking for <a href="https://java-net.dev.java.net/ProjectPages.html#templates">sample 
-  home page templates</a>, check out the <a href="https://java-net.dev.java.net/ProjectPages.html">java.net 
-  Project Starter Kit</a>. Copy either of the templates into your project's html 
-  to get started on your project's home page. </p>
-<p>You can find lots of helpful information in the Starter Kit to get your project 
-  started. Some of the things you will find in there include:</p>
-<ul>
-  <li>Hints on how to <a href="https://java-net.dev.java.net/ProjectPages.html#pages">set-up 
-    your project's</a> home page</li>
-  <li>Ideas on how to <a href="https://java-net.dev.java.net/ProjectPages.html#publicity">publicize 
-    your project</a> including RSS feeds</li>
-  <li>Hints on <a href="https://java-net.dev.java.net/pagedesign.html">project 
-    page HTML</a></li>
-  <li>Setting up project <a href="https://java-net.dev.java.net/ProjectPages.html#wiki">wiki 
-    pages</a></li>
-  <li>And places to go if <a href="https://java-net.dev.java.net/ProjectPages.html#feedback">you 
-    have questions</a>.</li>
-</ul>
-<p>Remember that you will attract more new members and your project team will 
-  work more effectively if you, as the project owner, supply sufficient information 
-  about your project for visitors to your project space. Good luck with your new 
-  project! </p>
+<body>
+ <style>
+        .app H3 {
+            clear: none;
+        }
+        .axial {
+            display: none;
+        }
+        #apphead {
+            display: none;
+        }
+    </style>
+    <script>
+// kill "description" h3 bar
+ld = document.getElementById("longdescription");
+for( n=ld.firstChild; n!=null; n=n.nextSibling ) {
+    if(n.nodeType==1 && n.innerHTML=="Description" ) {
+      n.parentNode.removeChild(n);
+      break;
+    }
+}
+</script>
+
+<table border="0" cellpadding="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber2">
+  <tr>
+    <td width="10%" valign="middle">
+    <p align="center">
+            <a href="http://sip-communicator.org"><img border="0" src="images/sip-communicator.logo.png" alt="sip-communicator.org"></a>
+            SIP Communicator <br /><small>Open Source  VoIP &amp; IM</small>
+    </p>
+<br>
+    </td>
+    <td width="90%">
+    <p><strong>SIP Communicator - the Java VoIP and Instant Messaging client.</strong></p>
+    <p align="justify">
+    SIP Communicator 1.0 is an application that allows you (or rather would soon
+    allow you ;) ) to do audio/video conversations over the Internet through the
+    SIP protocol, as well as chat with your friends using some of the most
+    popular instant messaging protocols such as SIP/SIMPLE, Jabber, AIM/ICQ,
+    MSN, Yahoo, IRC and others.
+    </p>
+    <p align="justify">
+    The SIP Communicator is completely <a href="http://www.opensource.org/">Open Source</a> /
+    <a href="http://www.gnu.org/philosophy/free-sw.html">Free Software</a>, and is
+    freely available under the terms of the
+    <a href="http://www.gnu.org/licenses/lgpl.html">GNU Lesser General Public License</a>.
+    </p>
+
+    <p align="justify">
+    <strong>
+    Note that right now the SIP Communicator is still a work in progress </strong>
+    and as such is currently unusable by end users. If you are a developer and would
+    like to help up you may consult the
+    <a href="http://clarinet.u-strasbg.fr/sip-communicator/index.php/Development/Roadmap">Project Roadmap</a>
+    and join discussion on the
+    <a href="http://clarinet.u-strasbg.fr/sip-communicator/index.php/Development/MailingLists#dev">dev</a>
+    mailing list in order to pick up tasks that you think you can handle. In
+    case you are just an eager user and would like to get notified once the
+    release is available, then you might want to subscribe to
+    <a href="http://sip-communicator.org/index.php/Development/MailingLists#announce">announce</a> mailing list
+    (very very low traffic).
+    </p>
+    <table border="0" cellpadding="2" cellspacing="2" width="98%"
+  style="background-color: white">
+    <tr><td style="background-color: lightgray">
+    <p align="justify">
+    RESOURCES: The SIP Communicator
+    <a href="http://sip-communicator.org/index.php/Documentation/FAQ">FAQ</a>
+    can usually answer most questions. You can also ask on the
+    <a href="http://sip-communicator.org/index.php/Development/MailingLists#users">users</a>
+    mailing list, or at the
+    <a href="http://clarinet.u-strasbg.fr/sip-communicator/index.php/Development/MailingLists#irc">irc channel</a>
+    #sip-communicator at irc.freenode.net. (Note that the mailing lists are moderated, so
+    there may be a delay before your post shows up.)
+    </p>
+    </tr></td>
+    </table>
+
+    <p align="justify">
+  <strong>For those looking for SIP Communicator's previous versions, please
+   read the following note.</strong>
+    </p>
+    <p align="justify">
+  <strong>Note:</strong> This site, as well as
+  <a href="http://sip-communicator.org">sip-communicator.org</a> are both dedicated to the development
+  of SIP Communicator version 1.0. Releases made before it, (we call them Pre 1.0
+  for lack of versioning) could be considered alpha have represented more of an
+  experimental application rather than a fully featured communications client.
+  We are all currently focusing on the development of SIP Communicator 1.0 and
+  will be unable to maintain or provide any support on Pre 1.0 code. If for some
+  reason however you are looking for the "old" SIP Communicator, you could find
+  its source and binaries here.
+</p>
+
+<p>
+<strong>
+Thanks for your patience and continuing support!
+<br>
+<a href="https://sip-communicator.org/wiki/index.php/Development/TeamAndContributors">
+The SIP Communicator team</a></strong></p>
+
+<p>&nbsp;</p>
+    </td>
+  </tr>
+</table>
+<p><a href="http://www-r2.u-strasbg.fr/english/index_en.php">Network Research Team</a><br>
+<a href="http://www-ulp.u-strasbg.fr/?langue=1">Louis Pasteur University - Strasbourg, France</a><br>
+</p>
+
+
 </body>
+
 </html>
+
+
+
+
+
+
+
 
