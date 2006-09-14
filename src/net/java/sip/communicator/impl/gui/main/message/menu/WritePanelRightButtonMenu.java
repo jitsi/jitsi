@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.message.menu;
 
 import java.awt.event.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -81,6 +82,18 @@ public class WritePanelRightButtonMenu extends JPopupMenu
                 Messages.getString("mnemonic.paste").charAt(0));
         this.closeMenuItem.setMnemonic(
                 Messages.getString("mnemonic.close").charAt(0));
+        
+        this.cutMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_X,
+                KeyEvent.CTRL_MASK));
+        
+        this.copyMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_C,
+                KeyEvent.CTRL_MASK));
+        
+        this.pasteMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_P,
+                KeyEvent.CTRL_MASK));
     }
     
     /**

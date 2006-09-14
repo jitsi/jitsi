@@ -104,37 +104,48 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
         this.add(fontButton);
 
         this.saveButton.setName("save");
-        this.saveButton.setToolTipText(Messages.getString("save"));
+        this.saveButton.setToolTipText(
+                Messages.getString("save") + " Ctrl-S");
 
         this.printButton.setName("print");
-        this.printButton.setToolTipText(Messages.getString("print"));
+        this.printButton.setToolTipText(
+                Messages.getString("print"));
 
         this.cutButton.setName("cut");
-        this.cutButton.setToolTipText(Messages.getString("cut"));
+        this.cutButton.setToolTipText(
+                Messages.getString("cut")  + " Ctrl-X");
 
         this.copyButton.setName("copy");
-        this.copyButton.setToolTipText(Messages.getString("copy"));
+        this.copyButton.setToolTipText(
+                Messages.getString("copy")  + " Ctrl-C");
 
         this.pasteButton.setName("paste");
-        this.pasteButton.setToolTipText(Messages.getString("paste"));
+        this.pasteButton.setToolTipText(
+                Messages.getString("paste")  + " Ctrl-P");
 
         this.smileyButton.setName("smiley");
-        this.smileyButton.setToolTipText(Messages.getString("insertSmiley"));
+        this.smileyButton.setToolTipText(
+                Messages.getString("insertSmiley") + " Ctrl-M");
 
         this.previousButton.setName("previous");
-        this.previousButton.setToolTipText(Messages.getString("previous"));
+        this.previousButton.setToolTipText(
+                Messages.getString("previous"));
 
         this.nextButton.setName("next");
-        this.nextButton.setToolTipText(Messages.getString("next"));
+        this.nextButton.setToolTipText(
+                Messages.getString("next"));
 
         this.sendFileButton.setName("sendFile");
-        this.sendFileButton.setToolTipText(Messages.getString("sendFile"));
+        this.sendFileButton.setToolTipText(
+                Messages.getString("sendFile"));
 
-        this.historyButton.setName("history");
-        this.historyButton.setToolTipText(Messages.getString("history"));
+        this.historyButton.setName("history");        
+        this.historyButton.setToolTipText(
+                Messages.getString("history")  + " Ctrl-H");
 
         this.fontButton.setName("font");
-        this.fontButton.setToolTipText(Messages.getString("font"));
+        this.fontButton.setToolTipText(
+                Messages.getString("font"));
 
         this.saveButton.addActionListener(this);
         this.printButton.addActionListener(this);
@@ -226,5 +237,13 @@ public class MainToolBar extends SIPCommToolBar implements ActionListener {
      */
     public ChatToolbarButton getSmileyButton() {
         return smileyButton;
+    }
+    
+    /**
+     * Returns the button used to show the history window.
+     * @return the button used to show the history window.
+     */
+    public ChatToolbarButton getHistoryButton() {
+        return historyButton;
     }
 }

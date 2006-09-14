@@ -100,6 +100,7 @@ public class ChatWindow extends JFrame {
         amap.put("changeProtocol", new ChangeProtocolAction());        
         amap.put("copy", new CopyAction());
         amap.put("paste", new PasteAction());
+        amap.put("openHistory", new OpenHistoryAction());
         
         InputMap imap = this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
@@ -123,6 +124,8 @@ public class ChatWindow extends JFrame {
                 KeyEvent.CTRL_DOWN_MASK), "openSmilies");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P,
                 KeyEvent.CTRL_DOWN_MASK), "changeProtocol");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_H,
+                KeyEvent.CTRL_DOWN_MASK), "openHistory");
         
         this.addWindowListener(new ChatWindowAdapter());       
     }
@@ -584,6 +587,17 @@ public class ChatWindow extends JFrame {
     private class OpenSmileyAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
             menusPanel.getMainToolBar().getSmileyButton().doClick();
+        } 
+    }
+    
+    /**
+     * The <tt>OpenHistoryAction</tt> is an <tt>AbstractAction</tt> that
+     * opens the history window for the currently selected contact.
+     */
+    private class OpenHistoryAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("EHOOOOOOOOO IDE LI TUUUUUUUUUK");
+            menusPanel.getMainToolBar().getHistoryButton().doClick();
         } 
     }
     

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.message.menu;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -86,6 +87,18 @@ public class ChatRightButtonMenu extends JPopupMenu
                 Messages.getString("mnemonic.print").charAt(0));
         this.closeMenuItem.setMnemonic(
                 Messages.getString("mnemonic.close").charAt(0));
+        
+        this.copyMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_C,
+                KeyEvent.CTRL_MASK));
+        
+        this.saveMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                KeyEvent.CTRL_MASK));
+        
+        this.printMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_R,
+                KeyEvent.CTRL_MASK));
         
         // Disable all menu items that do nothing.
         this.saveMenuItem.setEnabled(false);
