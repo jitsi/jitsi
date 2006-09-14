@@ -172,7 +172,7 @@ public class ChatWindow extends JFrame {
      * when there are non-sent messages or a message is received
      * in last 2 seconds.
      */
-    private void close() {
+    private void close(boolean immediately) {
         if (!getCurrentChatPanel().isWriteAreaEmpty()) {
             SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
                     Messages.getString("nonEmptyChatWindowClose"));
@@ -182,7 +182,7 @@ public class ChatWindow extends JFrame {
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
             if (answer == JOptionPane.OK_OPTION) {
-                closeChat();
+                closeChat(immediately);
             }
         } else if (System.currentTimeMillis()
                 - getCurrentChatPanel().getLastIncomingMsgTimestamp()
@@ -196,10 +196,10 @@ public class ChatWindow extends JFrame {
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
             if (answer == JOptionPane.OK_OPTION) {
-                closeChat();
+                closeChat(immediately);
             }
         } else {
-            closeChat();
+            closeChat(immediately);
         }
     }
 
@@ -207,10 +207,11 @@ public class ChatWindow extends JFrame {
      * Closes the selected chat tab or the window if there
      * are no tabs.
      */
-    private void closeChat() {
-        if (chatTabbedPane.getTabCount() > 1) {
+    private void closeChat(boolean immediately) {
+        if (!immediately && chatTabbedPane.getTabCount() > 1) {
             removeContactTab(chatTabbedPane.getSelectedIndex());
         } else {
+            saveSizeAndLocation();
             ChatWindow.this.dispose();
             mainFrame.getTabbedPane().getContactListPanel()
                     .setTabbedChatWindow(null);
@@ -410,7 +411,7 @@ public class ChatWindow extends JFrame {
      * @param chatPanel The <tt>ChatPanel</tt> to remove.
      */
     public void removeChat(ChatPanel chatPanel) {
-        this.close();
+        this.close(true);
     }
 
     /**
@@ -507,7 +508,7 @@ public class ChatWindow extends JFrame {
      */
     private class CloseAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
-            close();
+            close(false);
         }
     };
 
@@ -645,32 +646,40 @@ public class ChatWindow extends JFrame {
         }
        
         public void windowClosing(WindowEvent e) {
-            ConfigurationService configService
-                = GuiActivator.getConfigurationService();
             
-            try {
-                configService.setProperty(
-                    CHAT_WINDOW_WIDTH_PROPERTY,
-                    new Integer(getWidth()));
-                
-                configService.setProperty(
-                    CHAT_WINDOW_HEIGHT_PROPERTY,
-                    new Integer(getHeight()));
-                
-                configService.setProperty(
-                    CHAT_WINDOW_X_PROPERTY,
-                    new Integer(getX()));
-                
-                configService.setProperty(
-                    CHAT_WINDOW_Y_PROPERTY,
-                    new Integer(getY()));
-            }
-            catch (PropertyVetoException e1) {
-                logger.error("The proposed property change "
-                        + "represents an unacceptable value");
-            }
+            saveSizeAndLocation();
+            close(true);
+        }
+    }
+    
+    /**
+     * Saves the current chat window size and position using the
+     * ConfigurationService.
+     */
+    public void saveSizeAndLocation() {
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+        
+        try {
+            configService.setProperty(
+                CHAT_WINDOW_WIDTH_PROPERTY,
+                new Integer(getWidth()));
             
-            close();
+            configService.setProperty(
+                CHAT_WINDOW_HEIGHT_PROPERTY,
+                new Integer(getHeight()));
+            
+            configService.setProperty(
+                CHAT_WINDOW_X_PROPERTY,
+                new Integer(getX()));
+            
+            configService.setProperty(
+                CHAT_WINDOW_Y_PROPERTY,
+                new Integer(getY()));
+        }
+        catch (PropertyVetoException e1) {
+            logger.error("The proposed property change "
+                    + "represents an unacceptable value");
         }
     }
     
