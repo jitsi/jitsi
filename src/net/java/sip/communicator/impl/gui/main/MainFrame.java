@@ -37,8 +37,9 @@ import net.java.sip.communicator.util.*;
  *  
  * @author Yana Stamcheva
  */
-public class MainFrame extends JFrame {
-
+public class MainFrame
+    extends JFrame
+{
     private Logger logger = Logger.getLogger(MainFrame.class.getName());
 
     private JPanel contactListPanel = new JPanel(new BorderLayout());
@@ -78,7 +79,8 @@ public class MainFrame extends JFrame {
     /**
      * Creates an instance of <tt>MainFrame</tt>.
      */
-    public MainFrame() {
+    public MainFrame()
+    {
         callPanel = new CallPanel(this);
         tabbedPane = new MainTabbedPane(this);
         quickMenu = new QuickMenu(this);
@@ -99,7 +101,8 @@ public class MainFrame extends JFrame {
     /**
      * Initiates the content of this frame.
      */
-    private void init() {
+    private void init()
+    {
         this.menusPanel.add(menu, BorderLayout.NORTH);
         this.menusPanel.add(quickMenu, BorderLayout.CENTER);
 
@@ -114,8 +117,8 @@ public class MainFrame extends JFrame {
     /**
      * Sets frame size and position.
      */
-    private void setInitialBounds() {
-
+    private void setInitialBounds()
+    {
         this.setSize(200, 450);
         this.contactListPanel.setPreferredSize(new Dimension(180, 400));
         this.contactListPanel.setMinimumSize(new Dimension(80, 200));
@@ -129,7 +132,8 @@ public class MainFrame extends JFrame {
      * 
      * @return <tt>MetaContactListService</tt> The current meta contact list.
      */
-    public MetaContactListService getContactList() {
+    public MetaContactListService getContactList()
+    {
         return this.contactList;
     }
 
@@ -139,18 +143,24 @@ public class MainFrame extends JFrame {
      * @param contactList The <tt>MetaContactListService</tt> containing 
      * the contact list data.
      */
-    public void setContactList(MetaContactListService contactList) {
-
+    public void setContactList(MetaContactListService contactList)
+    {
         this.contactList = contactList;
 
         ContactListPanel clistPanel = this.tabbedPane.getContactListPanel();
 
         clistPanel.initList(contactList);
 
+        CListKeySearchListener keyListener
+            = new CListKeySearchListener(clistPanel.getContactList());
+        
         //add a key listener to the tabbed pane, when the contactlist is 
         //initialized
-        this.tabbedPane.addKeyListener(new CListKeySearchListener(clistPanel
-                .getContactList()));
+        this.tabbedPane.addKeyListener(keyListener);
+        
+        clistPanel.addKeyListener(keyListener);
+        
+        clistPanel.getContactList().addKeyListener(keyListener);
     }
 
     
@@ -163,7 +173,8 @@ public class MainFrame extends JFrame {
      * protocol provider.
      */
     public Map getSupportedOperationSets(
-            ProtocolProviderService protocolProvider) {
+            ProtocolProviderService protocolProvider)
+    {
         return (Map) this.protocolSupportedOperationSets.get(protocolProvider);
     }
 
@@ -173,8 +184,8 @@ public class MainFrame extends JFrame {
      * @param protocolProvider The protocol provider.
      */
     public void addProtocolSupportedOperationSets(
-            ProtocolProviderService protocolProvider) {
-
+            ProtocolProviderService protocolProvider)
+    {
         Map supportedOperationSets
             = protocolProvider.getSupportedOperationSets();
         
@@ -276,7 +287,8 @@ public class MainFrame extends JFrame {
      * 
      * @return a set of all protocol providers.
      */
-    public Iterator getProtocolProviders() {
+    public Iterator getProtocolProviders()
+    {
         return this.protocolProviders.iterator();
     }
 
@@ -288,8 +300,8 @@ public class MainFrame extends JFrame {
      * @return The protocol provider associated to the given account.
      */
     public ProtocolProviderService getProtocolProviderForAccount(
-            String accountName) {
-        
+            String accountName)
+    {   
         for(int i = 0; i < protocolProviders.size(); i ++) {
             ProtocolProviderService pps 
                 = (ProtocolProviderService)protocolProviders.get(i);
@@ -306,8 +318,8 @@ public class MainFrame extends JFrame {
      * Adds a protocol provider.
      * @param protocolProvider The protocol provider to add.
      */
-    public void addProtocolProvider(ProtocolProviderService protocolProvider) {
-
+    public void addProtocolProvider(ProtocolProviderService protocolProvider)
+    {
         this.protocolProviders.add(protocolProvider);
         
         this.addProtocolSupportedOperationSets(protocolProvider);
@@ -318,7 +330,8 @@ public class MainFrame extends JFrame {
      * 
      * @param protocolProvider The protocol provider of the account.
      */
-    public void addAccount(ProtocolProviderService protocolProvider) {
+    public void addAccount(ProtocolProviderService protocolProvider)
+    {
         AccountID accountID = protocolProvider.getAccountID();
 
         if (!getStatusPanel().containsAccount(accountID)) {
@@ -332,7 +345,8 @@ public class MainFrame extends JFrame {
      * 
      * @param protocolProvider The protocol provider of the account.
      */
-    public void removeAccount(ProtocolProviderService protocolProvider) {
+    public void removeAccount(ProtocolProviderService protocolProvider)
+    {
         AccountID accountID = protocolProvider.getAccountID();
 
         if (getStatusPanel().containsAccount(accountID)) {
@@ -346,7 +360,8 @@ public class MainFrame extends JFrame {
      * 
      * @param protocolProvider The protocol provider of this account.
      */
-    public void activateAccount(ProtocolProviderService protocolProvider) {
+    public void activateAccount(ProtocolProviderService protocolProvider)
+    {
         this.getStatusPanel().startConnecting(protocolProvider);
     }
     
@@ -354,7 +369,8 @@ public class MainFrame extends JFrame {
      * Returns the account user id for the given protocol provider.
      * @return The account user id for the given protocol provider.
      */
-    public String getAccount(ProtocolProviderService protocolProvider) {
+    public String getAccount(ProtocolProviderService protocolProvider)
+    {
         return protocolProvider.getAccountID().getUserID();
     }
 
@@ -366,7 +382,8 @@ public class MainFrame extends JFrame {
      * @return the presence operation set for the given protocol provider.
      */
     public OperationSetPresence getProtocolPresence(
-            ProtocolProviderService protocolProvider) {
+            ProtocolProviderService protocolProvider)
+    {
         return (OperationSetPresence) this.protocolPresenceSets
                 .get(protocolProvider);
     }
@@ -381,7 +398,8 @@ public class MainFrame extends JFrame {
      * protocol provider.
      */
     public OperationSetBasicInstantMessaging getProtocolIM(
-            ProtocolProviderService protocolProvider) {
+            ProtocolProviderService protocolProvider)
+    {
         return (OperationSetBasicInstantMessaging) this.imOperationSets
                 .get(protocolProvider);
     }
@@ -396,7 +414,8 @@ public class MainFrame extends JFrame {
      * protocol provider.
      */
     public OperationSetTypingNotifications getTypingNotifications(
-            ProtocolProviderService protocolProvider) {
+            ProtocolProviderService protocolProvider)
+    {
         return (OperationSetTypingNotifications) this.tnOperationSets
                 .get(protocolProvider);
     }
@@ -411,7 +430,8 @@ public class MainFrame extends JFrame {
      * set for the given protocol provider.
      */
     public OperationSetWebContactInfo getWebContactInfo(
-            ProtocolProviderService protocolProvider) {
+            ProtocolProviderService protocolProvider)
+    {
         return (OperationSetWebContactInfo) this.webContactInfoOperationSets
                 .get(protocolProvider);
     }
@@ -421,7 +441,8 @@ public class MainFrame extends JFrame {
      * @return MainTabbedPane The main tabbed pane containing the 
      * contactlist, call list etc.
      */
-    public MainTabbedPane getTabbedPane() {
+    public MainTabbedPane getTabbedPane()
+    {
         return tabbedPane;
     }
 
@@ -429,7 +450,8 @@ public class MainFrame extends JFrame {
      * Returns the call panel.
      * @return CallPanel The call panel.
      */
-    public CallPanel getCallPanel() {
+    public CallPanel getCallPanel()
+    {
         return callPanel;
     }
 
@@ -437,7 +459,8 @@ public class MainFrame extends JFrame {
      * Returns the quick menu, placed above the main tabbed pane.
      * @return QuickMenu The quick menu, placed above the main tabbed pane.
      */
-    public QuickMenu getQuickMenu() {
+    public QuickMenu getQuickMenu()
+    {
         return quickMenu;
     }
 
@@ -445,7 +468,8 @@ public class MainFrame extends JFrame {
      * Returns the status panel.
      * @return StatusPanel The status panel.
      */
-    public StatusPanel getStatusPanel() {
+    public StatusPanel getStatusPanel()
+    {
         return statusPanel;
     }
 
@@ -454,8 +478,8 @@ public class MainFrame extends JFrame {
      * to refresh tha contact list, when a status is changed.
      */
     private class ContactPresenceStatusAdapter implements
-            ContactPresenceStatusListener {
-
+            ContactPresenceStatusListener 
+    {
         public void contactPresenceStatusChanged(
                 ContactPresenceStatusChangeEvent evt) {
 
@@ -484,8 +508,8 @@ public class MainFrame extends JFrame {
      * changed.
      */
     private class ProviderPresenceStatusAdapter implements
-            ProviderPresenceStatusListener {
-
+            ProviderPresenceStatusListener
+    {
         public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt) {
 
         }
@@ -495,7 +519,8 @@ public class MainFrame extends JFrame {
         }
     }
 
-    public Hashtable getWaitToBeDeliveredMsgs() {
+    public Hashtable getWaitToBeDeliveredMsgs()
+    {
         return waitToBeDeliveredMsgs;
     }
     
@@ -503,7 +528,8 @@ public class MainFrame extends JFrame {
      * Returns the list of all groups. 
      * @return The list of all groups.
      */
-    public Iterator getAllGroups() {
+    public Iterator getAllGroups()
+    {
         return getTabbedPane().getContactListPanel()
             .getContactList().getAllGroups();
     }
@@ -514,7 +540,8 @@ public class MainFrame extends JFrame {
      * @param metaUID An identifier of a group.
      * @return The Meta Contact Group corresponding to the given MetaUID.
      */
-    public MetaContactGroup getGroupByID(String metaUID) {
+    public MetaContactGroup getGroupByID(String metaUID)
+    {
         return getTabbedPane().getContactListPanel()
             .getContactList().getGroupByID(metaUID);
     }
@@ -523,8 +550,8 @@ public class MainFrame extends JFrame {
      * Before closing the application window saves the current size and position
      * through the <tt>ConfigurationService</tt>.
      */
-    public class MainFrameWindowAdapter extends WindowAdapter {
-
+    public class MainFrameWindowAdapter extends WindowAdapter
+    {
         public void windowClosing(WindowEvent e) {
             ConfigurationService configService
                 = GuiActivator.getConfigurationService();
@@ -545,6 +572,10 @@ public class MainFrame extends JFrame {
                 configService.setProperty(
                         "net.java.sip.communicator.impl.ui.mainWindowY",
                         new Integer(getY()));
+                
+                configService.setProperty(
+                        "net.java.sip.communicator.impl.ui.showCallPanel",
+                        new Boolean(callPanel.isShown()));
             }
             catch (PropertyVetoException e1) {
                 logger.error("The proposed property change "
@@ -572,6 +603,8 @@ public class MainFrame extends JFrame {
         String y = configService.getString(
             "net.java.sip.communicator.impl.ui.mainWindowY");
         
+        String isShown = configService.getString(
+                "net.java.sip.communicator.impl.ui.showCallPanel");
        
         if(width != null && height != null)
             this.setSize(new Integer(width).intValue(), 
@@ -580,6 +613,13 @@ public class MainFrame extends JFrame {
         if(x != null && y != null)
             this.setLocation(new Integer(x).intValue(), 
                     new Integer(y).intValue());
+        
+        if(isShown != null && isShown != "") {
+            callPanel.setShown(new Boolean(isShown).booleanValue());
+        }
+        else {
+            callPanel.setShown(true);
+        }
     }
 
     /**

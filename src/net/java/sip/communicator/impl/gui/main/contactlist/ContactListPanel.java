@@ -81,7 +81,7 @@ public class ContactListPanel extends JScrollPane
         this.treePanel.setBackground(Color.WHITE);
         this.contactList.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         
-        this.addKeyListener(new CListKeySearchListener(this.contactList));
+        //this.addKeyListener(new CListKeySearchListener(this.contactList));
 
         this.getRootPane().getActionMap().put("runChat",
                 new RunMessageWindowAction());

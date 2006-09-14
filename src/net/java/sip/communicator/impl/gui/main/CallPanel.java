@@ -21,7 +21,10 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 
-public class CallPanel extends JPanel implements ActionListener {
+public class CallPanel 
+    extends JPanel
+    implements ActionListener
+{
 
     private JComboBox phoneNumberCombo = new JComboBox();
 
@@ -50,13 +53,15 @@ public class CallPanel extends JPanel implements ActionListener {
             FlowLayout.RIGHT));
 
     private MainFrame parentWindow;
+    
+    private boolean isShown;
 
     /**
      * Creates an instance of <tt>CallPanel</tt>.
      * @param parentWindow The main application window.
      */
-    public CallPanel(MainFrame parentWindow) {
-
+    public CallPanel(MainFrame parentWindow)
+    {
         super(new BorderLayout());
 
         this.parentWindow = parentWindow;
@@ -72,8 +77,8 @@ public class CallPanel extends JPanel implements ActionListener {
     /**
      * Initializes and constructs this panel.
      */
-    private void init() {
-
+    private void init()
+    {
         this.phoneNumberCombo.setEditable(true);
 
         this.comboPanel.add(phoneNumberCombo, BorderLayout.CENTER);
@@ -92,10 +97,6 @@ public class CallPanel extends JPanel implements ActionListener {
         this.buttonsPanel.add(callButton);
         this.buttonsPanel.add(hangupButton);
 
-        // this.add(buttonsPanel, BorderLayout.CENTER);
-
-        this.minimizeButtonPanel.add(restoreButton);
-
         this.add(minimizeButtonPanel, BorderLayout.SOUTH);
 
         // Disable all unused buttons.
@@ -107,7 +108,8 @@ public class CallPanel extends JPanel implements ActionListener {
      * Returns the combo box, where user enters the phone number to call to.
      * @return the combo box, where user enters the phone number to call to.
      */
-    public JComboBox getPhoneNumberCombo() {
+    public JComboBox getPhoneNumberCombo()
+    {
         return phoneNumberCombo;
     }
 
@@ -115,7 +117,8 @@ public class CallPanel extends JPanel implements ActionListener {
      * Handles the <tt>ActionEvent</tt> generated when user presses one of the
      * buttons in this panel.
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JButton button = (JButton) e.getSource();
         String buttonName = button.getName();
 
@@ -123,26 +126,62 @@ public class CallPanel extends JPanel implements ActionListener {
             CallReceivePanel cr = new CallReceivePanel(this.parentWindow);
 
             cr.setVisible(true);
-        } else if (buttonName.equalsIgnoreCase("hangup")) {
+        }
+        else if (buttonName.equalsIgnoreCase("hangup")) {
 
-        } else if (buttonName.equalsIgnoreCase("minimize")) {
+        }
+        else if (buttonName.equalsIgnoreCase("minimize")) {
 
             this.remove(comboPanel);
             this.remove(buttonsPanel);
 
             this.minimizeButtonPanel.removeAll();
             this.minimizeButtonPanel.add(restoreButton);
-
+            this.isShown = false;
+            
+            this.parentWindow.getTabbedPane().getContactListPanel()
+                .getContactList().requestFocus();
+            
             this.parentWindow.validate();
-        } else if (buttonName.equalsIgnoreCase("restore")) {
+        }
+        else if (buttonName.equalsIgnoreCase("restore")) {
 
             this.add(comboPanel, BorderLayout.NORTH);
             this.add(buttonsPanel, BorderLayout.CENTER);
 
             this.minimizeButtonPanel.removeAll();
             this.minimizeButtonPanel.add(minimizeButton);
-
+            this.isShown = true;
+            
             this.parentWindow.validate();
+        }
+    }
+    
+    /**
+     * Returns TRUE if this panel is visible, FALSE otherwise.
+     * @return TRUE if this panel is visible, FALSE otherwise
+     */
+    public boolean isShown()
+    {
+        return this.isShown;
+    }
+    
+    /**
+     * When TRUE shows this panel, when FALSE hides it.
+     * @param isShown
+     */
+    public void setShown(boolean isShown)
+    {
+        this.isShown = isShown;
+        
+        if(isShown) {
+            this.add(comboPanel, BorderLayout.NORTH);
+            this.add(buttonsPanel, BorderLayout.CENTER);
+        
+            this.minimizeButtonPanel.add(minimizeButton);
+        }
+        else {
+            this.minimizeButtonPanel.add(restoreButton);
         }
     }
 }

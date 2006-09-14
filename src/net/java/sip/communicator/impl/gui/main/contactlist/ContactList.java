@@ -56,8 +56,6 @@ public class ContactList extends JList
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        this.addKeyListener(new CListKeySearchListener(this));
-
         this.contactList.addMetaContactListListener(this);
 
         this.addListSelectionListener(new ListSelectionListener() {
