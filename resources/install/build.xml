@@ -15,8 +15,9 @@
     so that it could be bundled inside the installation package.
 
     3. When building the windows installation package you must set the
-    windows.jre.file variable. This is the path to an installation file of a jre (online or offline one).
-    7zip software must be installed referer to http://www.7-zip.org/ for installation.
+    windows.jre.file variable. This is the path to an installation file of a
+    jre (online or offline one). The 7zip software package
+    (http://www.7-zip.org) must also be installed.
 
     4. When changing the application version things you must do:
     - generic
@@ -30,27 +31,29 @@
 <project name="sip-communicator-installer" basedir="." default="ant-usage">
 
     <!-- Fill in the path where IzPack is installed -->
-    <!--property name="izpack.dir" value="${lib}/izpack"/>
-    <taskdef name="izpack" classpath="${izpack.dir}/lib/compiler.jar" classname="com.izforge.izpack.ant.IzPackTask"/-->
+    <!--property name="izpack.dir" value="/path/to/IzPack"/-->
+    <!--taskdef name="izpack" classpath="${izpack.dir}/lib/compiler.jar"
+                           classname="com.izforge.izpack.ant.IzPackTask"/-->
 
     <!-- Fill in path to directory where a jre in extracted -->
-    <!--property name="linux.jre.path" value="/opt/j2re1.4.2_12"/-->
+    <!--property name="linux.jre.path" value="/opt/j2se/j2re1.4.2_12"/-->
 
     <!-- Fill in the path to a installation file of a jre -->
-    <!--property name="windows.jre.file" value="/opt/jre-install/j2re-1_4_2_12-windows-i586-p-iftw.exe"/-->
+    <!--property name="windows.jre.file"
+              value="/opt/j2se/j2re-1_4_2_12-windows-i586-p-iftw.exe"/-->
 
     <!-- Put here the Windows release directory -->
     <property name="windows.app.dir" value="${release}/windows"/>
     <!-- Put here the Windows Application version -->
-    <property name="windows.app.ver" value="1.0.rc1"/>
+    <property name="windows.app.ver" value="1.0.alpha1"/>
     <!-- Put here the Linux release directory -->
     <property name="linux.app.dir" value="${release}/linux"/>
     <!-- Put here the Linux Application version -->
-    <property name="linux.app.ver" value="1.0.rc1"/>
+    <property name="linux.app.ver" value="1.0.alpha1"/>
     <!-- Put here the Generic release directory -->
     <property name="generic.app.dir" value="${release}/generic"/>
     <!-- Put here the Generic Application version -->
-    <property name="generic.app.ver" value="1.0.rc1"/>
+    <property name="generic.app.ver" value="1.0.alpha1"/>
 
     <!-- change the 7zip executable corresponding the OS
          7-zip is used to create windows self-extract installer binary
@@ -62,7 +65,8 @@
         <os family="windows"/>
     </condition>
     <condition property="7zip.executable" value="7zr">
-        <equals arg1="${os.name}" arg2="linux" casesensitive="false" trim="true"/>
+        <equals arg1="${os.name}" arg2="linux"
+                casesensitive="false" trim="true"/>
     </condition>
 
     <!-- default Ant target does nothing except print helpful options -->
@@ -82,7 +86,7 @@
     <target name="build-installation-generic" depends="clean-install-generic">
         <izpack
                input="${inst.resrc}/generic/installer-generic.xml"
-               output="${generic.app.dir}/SC-install-generic-${generic.app.ver}.jar"
+               output="${generic.app.dir}/sip-communicator-${generic.app.ver}.jar"
                installerType="standard"
                basedir="."
                izPackDir="${izpack.dir}/"/>
@@ -108,15 +112,18 @@
     </copy>
         <!-- create izpack installer jar file -->
         <izpack input="${inst.resrc}/linux/installer-linux.xml"
-                output="${linux.app.dir}/tmp/SC-install-linux-${linux.app.ver}.jar"
+                output="${linux.app.dir}/tmp/sip-communicator-linux-${linux.app.ver}.jar"
                 installerType="standard"
                 basedir="."
                 izPackDir="${izpack.dir}/"/>
 
         <!-- Create self extract linux binary-->
-        <tar tarfile="${linux.app.dir}/tmp/install.tar" basedir="${linux.app.dir}/tmp"/>
-        <gzip zipfile="${linux.app.dir}/tmp/install.tar.gz" src="${linux.app.dir}/tmp/install.tar"/>
-        <concat destfile="${linux.app.dir}/setup-sip-communicator-${linux.app.ver}.bin" binary="true">
+        <tar tarfile="${linux.app.dir}/tmp/install.tar"
+             basedir="${linux.app.dir}/tmp"/>
+        <gzip zipfile="${linux.app.dir}/tmp/install.tar.gz"
+              src="${linux.app.dir}/tmp/install.tar"/>
+        <concat destfile="${linux.app.dir}/setup-sip-communicator-${linux.app.ver}.bin"
+                binary="true">
             <fileset dir="${inst.resrc}/linux/">
                 <include name="sfx-header"/>
             </fileset>
@@ -150,19 +157,20 @@
 
         <izpack
                input="${inst.resrc}/windows/installer-windows.xml"
-               output="${windows.app.dir}/tmp/SC-install-windows-${windows.app.ver}.jar"
+               output="${windows.app.dir}/tmp/sip-communicator-windows-${windows.app.ver}.jar"
                installerType="standard"
                basedir="."
-           izPackDir="${izpack.dir}/"/>
+               izPackDir="${izpack.dir}/"/>
 
-        <zip destfile="${windows.app.dir}/setup-sip-communicator-${windows.app.ver}.zip"
+        <zip destfile="${windows.app.dir}/sip-communicator-${windows.app.ver}.zip"
                 basedir="${windows.app.dir}/tmp"/>
 
         <!--exec dir="${windows.app.dir}/tmp" executable="${7zip.executable}" failifexecutionfails="false">
             <arg line="a -y data.7z *"/>
         </exec>
 
-        <concat destfile="${windows.app.dir}/setup-sip-communicator-${windows.app.ver}.exe" binary="true">
+        <concat destfile="${windows.app.dir}/setup-sip-communicator-${windows.app.ver}.exe"
+                binary="true">
             <fileset dir="${inst.resrc}/windows">
                 <include name="7zS.sfx"/>
             </fileset>
