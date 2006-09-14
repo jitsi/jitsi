@@ -59,7 +59,7 @@ public class AccountRegFirstPage extends JPanel
         
         this.tableModel = new ExtendedTableModel();
         
-        this.setPreferredSize(new Dimension(400, 200));
+        this.setPreferredSize(new Dimension(450, 250));
         
         this.accountRegsTable.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION);
