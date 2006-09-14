@@ -155,7 +155,8 @@ public class ContactListPanel extends JScrollPane
     public void mousePressed(MouseEvent e) {
         // Select the contact under the right button click.
         if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
-                || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+                || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+                || (e.isControlDown() && !e.isMetaDown())) {
             this.contactList.setSelectedIndex(contactList.locationToIndex(e
                     .getPoint()));
         }
@@ -175,12 +176,12 @@ public class ContactListPanel extends JScrollPane
         int translatedX = e.getX() - selectedCellPoint.x;
 
         int translatedY = e.getY() - selectedCellPoint.y;
-
         
         if(selectedValue instanceof MetaContactGroup) {
             MetaContactGroup group = (MetaContactGroup) selectedValue;
             
-            if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+            if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+                    || (e.isControlDown() && !e.isMetaDown())) {
                 
                 GroupRightButtonMenu popupMenu
                     = new GroupRightButtonMenu(mainFrame, group);
@@ -207,12 +208,10 @@ public class ContactListPanel extends JScrollPane
             Component component = renderer.getComponentAt(translatedX,
                     translatedY);
             if (component instanceof JLabel) {
-                //Left click on the contact label opens Chat window
-                if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
-                    SwingUtilities.invokeLater(new RunMessageWindow(contact));
-                } 
-                //Right click on the contact label opens Popup menu
-                else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+                //Right click and Ctrl+LeftClick on the contact label opens
+                //Popup menu
+                if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+                        || (e.isControlDown() && !e.isMetaDown())) {
                     
                     ContactRightButtonMenu popupMenu
                         = new ContactRightButtonMenu(mainFrame, contact);
@@ -226,6 +225,10 @@ public class ContactListPanel extends JScrollPane
                             selectedCellPoint.y + renderer.getHeight());
 
                     popupMenu.setVisible(true);
+                }
+                //Left click on the contact label opens Chat window
+                else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
+                    SwingUtilities.invokeLater(new RunMessageWindow(contact));
                 }
             } 
             else if (component instanceof JButton) {                
@@ -251,7 +254,6 @@ public class ContactListPanel extends JScrollPane
                     }
                 }
             }
-
         }
     }
 

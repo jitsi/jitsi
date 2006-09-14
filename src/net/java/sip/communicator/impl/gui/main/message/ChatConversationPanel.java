@@ -15,6 +15,7 @@ import java.util.regex.*;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
@@ -600,37 +601,46 @@ public class ChatConversationPanel
      */
     public void mouseClicked(MouseEvent e)
     {
-        if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+        Point p = e.getPoint();
+        SwingUtilities.convertPointToScreen(p, e.getComponent());
 
-            if (currentHref != null) {
-                if (currentHref != "") {
-                    rightButtonMenu.insert(openLinkItem, 0);
-                    rightButtonMenu.insert(copyLinkItem, 1);
-                    rightButtonMenu.insert(copyLinkSeparator, 2);
-                }
-                else {
-                    rightButtonMenu.remove(openLinkItem);
-                    rightButtonMenu.remove(copyLinkItem);
-                    rightButtonMenu.remove(copyLinkSeparator);
-                }
-            }
-
-            if(chatEditorPane.getSelectedText() != null) {
-                rightButtonMenu.enableCopy();
-            }
-            else {
-                rightButtonMenu.disableCopy();
-            }
-
-            Point p = e.getPoint();
-            SwingUtilities.convertPointToScreen(p, e.getComponent());
-
-            rightButtonMenu.setInvoker(chatEditorPane);
-            rightButtonMenu.setLocation(p.x, p.y);
-            rightButtonMenu.setVisible(true);
+        if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+                || (e.isControlDown() && !e.isMetaDown())) {
+            openContextMenu(p);
         }
     }
 
+    /**
+     * Opens this panel context menu at the given point.
+     * @param p the point where to position the left-top cornet of the
+     * context menu
+     */
+    private void openContextMenu(Point p)
+    {
+        if (currentHref != null) {
+            if (currentHref != "") {
+                rightButtonMenu.insert(openLinkItem, 0);
+                rightButtonMenu.insert(copyLinkItem, 1);
+                rightButtonMenu.insert(copyLinkSeparator, 2);
+            }
+            else {
+                rightButtonMenu.remove(openLinkItem);
+                rightButtonMenu.remove(copyLinkItem);
+                rightButtonMenu.remove(copyLinkSeparator);
+            }
+        }
+
+        if(chatEditorPane.getSelectedText() != null) {
+            rightButtonMenu.enableCopy();
+        }
+        else {
+            rightButtonMenu.disableCopy();
+        }
+        rightButtonMenu.setInvoker(chatEditorPane);
+        rightButtonMenu.setLocation(p.x, p.y);
+        rightButtonMenu.setVisible(true);
+    }
+    
     public void mousePressed(MouseEvent e)
     {
     }

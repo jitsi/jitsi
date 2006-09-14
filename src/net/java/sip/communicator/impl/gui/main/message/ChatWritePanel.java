@@ -215,7 +215,8 @@ public class ChatWritePanel extends JScrollPane implements
      * right mouse button on the editor area.
      */
     public void mouseClicked(MouseEvent e) {
-        if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {            
+        if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+                || (e.isControlDown() && !e.isMetaDown())) {            
             Point p = e.getPoint();
             SwingUtilities.convertPointToScreen(p, e.getComponent());
             
