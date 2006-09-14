@@ -526,11 +526,8 @@ public class ChatConversationPanel
      * @param e The HyperlinkEvent.
      */
     public void hyperlinkUpdate(HyperlinkEvent e)
-    {
-        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-            URL url = e.getURL();
-            CrossPlatformBrowserLauncher.openURL(url.toString());
-        } else if (e.getEventType() == HyperlinkEvent.EventType.ENTERED) {
+    {   
+        if (e.getEventType() == HyperlinkEvent.EventType.ENTERED) {
             String href = e.getDescription();
 
             this.chatContainer.setStatusMessage(href);
@@ -608,6 +605,9 @@ public class ChatConversationPanel
                 || (e.isControlDown() && !e.isMetaDown())) {
             openContextMenu(p);
         }
+        else if((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {            
+            CrossPlatformBrowserLauncher.openURL(currentHref);
+        }
     }
 
     /**
@@ -616,18 +616,16 @@ public class ChatConversationPanel
      * context menu
      */
     private void openContextMenu(Point p)
-    {
-        if (currentHref != null) {
-            if (currentHref != "") {
-                rightButtonMenu.insert(openLinkItem, 0);
-                rightButtonMenu.insert(copyLinkItem, 1);
-                rightButtonMenu.insert(copyLinkSeparator, 2);
-            }
-            else {
-                rightButtonMenu.remove(openLinkItem);
-                rightButtonMenu.remove(copyLinkItem);
-                rightButtonMenu.remove(copyLinkSeparator);
-            }
+    {   
+        if (currentHref != null && currentHref != "") {
+            rightButtonMenu.insert(openLinkItem, 0);
+            rightButtonMenu.insert(copyLinkItem, 1);
+            rightButtonMenu.insert(copyLinkSeparator, 2);
+        }
+        else {
+            rightButtonMenu.remove(openLinkItem);
+            rightButtonMenu.remove(copyLinkItem);
+            rightButtonMenu.remove(copyLinkSeparator);
         }
 
         if(chatEditorPane.getSelectedText() != null) {
