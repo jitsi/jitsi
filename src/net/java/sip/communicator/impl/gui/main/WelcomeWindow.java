@@ -60,9 +60,11 @@ public class WelcomeWindow extends JDialog
         this.bc = context;
         this.communicator = c;
         this.loginManager = loginManager;
-
-        this.exitButton.setMnemonic('X');
-        this.continueButton.setMnemonic('C');
+        
+        this.exitButton.setMnemonic(
+                Messages.getString("mnemonic.exit").charAt(0));
+        this.continueButton.setMnemonic(
+                Messages.getString("mnemonic.continue").charAt(0));
 
         this.getRootPane().setDefaultButton(continueButton);
 

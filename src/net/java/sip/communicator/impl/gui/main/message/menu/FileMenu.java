@@ -42,7 +42,7 @@ public class FileMenu extends JMenu
     public FileMenu(ChatWindow parentWindow) {
 
         super(Messages.getString("file"));
-
+        
         this.parentWindow = parentWindow;
 
         this.add(saveMenuItem);
@@ -60,6 +60,11 @@ public class FileMenu extends JMenu
         this.printMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
 
+        this.setMnemonic(Messages.getString("file").charAt(0));
+        this.saveMenuItem.setMnemonic(Messages.getString("save").charAt(0));
+        this.printMenuItem.setMnemonic(Messages.getString("print").charAt(0));
+        this.closeMenuItem.setMnemonic(Messages.getString("close").charAt(0));
+        
         // Disable all menu items that do nothing.
         this.saveMenuItem.setEnabled(false);
         this.printMenuItem.setEnabled(false);

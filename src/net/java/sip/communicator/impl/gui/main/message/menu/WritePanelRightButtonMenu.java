@@ -72,6 +72,15 @@ public class WritePanelRightButtonMenu extends JPopupMenu
         this.cutMenuItem.addActionListener(this);
         this.pasteMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
+        
+        this.copyMenuItem.setMnemonic(
+                Messages.getString("mnemonic.copy").charAt(0));
+        this.cutMenuItem.setMnemonic(
+                Messages.getString("mnemonic.cut").charAt(0));
+        this.pasteMenuItem.setMnemonic(
+                Messages.getString("mnemonic.paste").charAt(0));
+        this.closeMenuItem.setMnemonic(
+                Messages.getString("mnemonic.close").charAt(0));
     }
     
     /**

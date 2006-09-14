@@ -64,6 +64,8 @@ public class ChatSendPanel extends JPanel implements ActionListener {
 
         this.sendButton.addActionListener(this);
         this.sendButton.setToolTipText(Messages.getString("sendMessage"));
+        this.sendButton.setMnemonic(
+                Messages.getString("mnemonic.sendMessage").charAt(0));
     }
 
     /**

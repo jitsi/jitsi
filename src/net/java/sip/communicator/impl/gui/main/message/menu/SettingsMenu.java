@@ -35,6 +35,10 @@ public class SettingsMenu extends JMenu
         
         this.chatWindow = chatWindow;
         
+        this.setMnemonic(Messages.getString("mnemonic.chatSettings").charAt(0));
+        this.typingNotificationsItem.setMnemonic(
+                Messages.getString("mnemonic.typingNotifications").charAt(0));
+        
         this.init();
     }
     

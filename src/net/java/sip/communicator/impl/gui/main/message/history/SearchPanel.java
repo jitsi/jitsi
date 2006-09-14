@@ -147,6 +147,9 @@ public class SearchPanel
         */
         
         this.searchButton.setName("search");
+        this.searchButton.setMnemonic(
+                Messages.getString("mnemonic.search").charAt(0));
+        
         // this.extendedSearchButton.setName("extendedSearch");
         // this.extendedSearchOpenedButton.setName("extendedSearchOpened");
 

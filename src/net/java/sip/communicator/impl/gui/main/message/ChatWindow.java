@@ -119,10 +119,10 @@ public class ChatWindow extends JFrame {
                 KeyEvent.META_MASK), "paste");        
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,
                 KeyEvent.CTRL_DOWN_MASK), "sendMessage");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-                KeyEvent.ALT_DOWN_MASK), "openSmilies");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_M,
+                KeyEvent.CTRL_DOWN_MASK), "openSmilies");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P,
-                KeyEvent.ALT_DOWN_MASK), "changeProtocol");
+                KeyEvent.CTRL_DOWN_MASK), "changeProtocol");
         
         this.addWindowListener(new ChatWindowAdapter());       
     }

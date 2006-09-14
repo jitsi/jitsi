@@ -463,6 +463,13 @@ public class Wizard extends WindowAdapter
         nextButton.addActionListener(wizardController);
         cancelButton.addActionListener(wizardController);
         
+        backButton.setMnemonic(
+                Messages.getString("mnemonic.back").charAt(0));
+        nextButton.setMnemonic(
+                Messages.getString("mnemonic.next").charAt(0));
+        cancelButton.setMnemonic(
+                Messages.getString("mnemonic.cancel").charAt(0));
+        
         //  Create the buttons with a separator above them, then place them
         //  on the east side of the panel with a small amount of space between
         //  the back and the next button, and a larger amount of space between

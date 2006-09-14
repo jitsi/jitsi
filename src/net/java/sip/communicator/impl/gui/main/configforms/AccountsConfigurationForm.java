@@ -86,6 +86,13 @@ public class AccountsConfigurationForm extends JPanel
         this.modifyButton.addActionListener(this);
         this.removeButton.addActionListener(this);
 
+        this.newButton.setMnemonic(
+                Messages.getString("mnemonic.newAccount").charAt(0));
+        this.modifyButton.setMnemonic(
+                Messages.getString("mnemonic.modifyAccount").charAt(0));
+        this.removeButton.setMnemonic(
+                Messages.getString("mnemonic.removeAccount").charAt(0));
+        
         this.buttonsPanel.add(newButton);
         this.buttonsPanel.add(modifyButton);
         this.buttonsPanel.add(removeButton);

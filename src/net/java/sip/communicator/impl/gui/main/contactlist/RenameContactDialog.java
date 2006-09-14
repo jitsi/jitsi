@@ -67,6 +67,11 @@ public class RenameContactDialog extends JDialog
         this.renameButton.setName("rename");
         this.cancelButton.setName("cancel");
         
+        this.renameButton.setMnemonic(
+                Messages.getString("mnemonic.renameContactButton").charAt(0));
+        this.cancelButton.setMnemonic(
+                Messages.getString("mnemonic.cancel").charAt(0));
+        
         this.renameButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
         

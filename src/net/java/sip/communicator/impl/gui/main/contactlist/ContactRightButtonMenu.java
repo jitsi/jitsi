@@ -80,6 +80,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         this.setLocation(getLocation());
 
         this.init();
+        this.initMnemonics();
     }
 
     /**
@@ -213,6 +214,25 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
         // Disable all menu items that do nothing.
         this.sendFileItem.setEnabled(false);
+    }
+    
+    private void initMnemonics() {
+        this.sendMessageItem.setMnemonic(
+                Messages.getString("mnemonic.sendMessage").charAt(0));
+        this.sendFileItem.setMnemonic(
+                Messages.getString("mnemonic.sendFile").charAt(0));
+        this.moveToMenu.setMnemonic(
+                Messages.getString("mnemonic.moveTo").charAt(0));
+        this.addSubcontactMenu.setMnemonic(
+                Messages.getString("mnemonic.addSubcontact").charAt(0));
+        this.removeContactMenu.setMnemonic(
+                Messages.getString("mnemonic.removeContact").charAt(0));
+        this.renameContactItem.setMnemonic(
+                Messages.getString("mnemonic.renameContact").charAt(0));
+        this.viewHistoryItem.setMnemonic(
+                Messages.getString("mnemonic.viewHistory").charAt(0));
+        this.userInfoItem.setMnemonic(
+                Messages.getString("mnemonic.userInfo").charAt(0));
     }
 
     /**

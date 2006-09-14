@@ -78,6 +78,15 @@ public class ChatRightButtonMenu extends JPopupMenu
         this.printMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
         
+        this.copyMenuItem.setMnemonic(
+                Messages.getString("mnemonic.copy").charAt(0));
+        this.saveMenuItem.setMnemonic(
+                Messages.getString("mnemonic.save").charAt(0));
+        this.printMenuItem.setMnemonic(
+                Messages.getString("mnemonic.print").charAt(0));
+        this.closeMenuItem.setMnemonic(
+                Messages.getString("mnemonic.close").charAt(0));
+        
         // Disable all menu items that do nothing.
         this.saveMenuItem.setEnabled(false);
         this.printMenuItem.setEnabled(false);
