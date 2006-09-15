@@ -477,23 +477,29 @@ public class Constants {
                     ImageLoader.ICQ_CONNECTING);
         }
         else if (protocolName.equals(Constants.MSN)) {
-            return null;
+            return ImageLoader.getAnimatedImage(
+                    ImageLoader.ICQ_CONNECTING);
         }
         else if (protocolName.equals(Constants.AIM)) {
-            return null;
+            return ImageLoader.getAnimatedImage(
+                    ImageLoader.ICQ_CONNECTING);
         }
         else if (protocolName.equals(Constants.YAHOO)) {
-            return null;
+            return ImageLoader.getAnimatedImage(
+                    ImageLoader.ICQ_CONNECTING);
         }
         else if (protocolName.equals(Constants.JABBER)) {
-            return null;
+            return ImageLoader.getAnimatedImage(
+                    ImageLoader.ICQ_CONNECTING);
         }
         else if (protocolName.equals(Constants.SKYPE)) {
-            return null;
+            return ImageLoader.getAnimatedImage(
+                    ImageLoader.ICQ_CONNECTING);
         }
-        
-        return ImageLoader.getAnimatedImage(
-                ImageLoader.ICQ_CONNECTING);
+        else {
+            return ImageLoader.getAnimatedImage(
+                    ImageLoader.ICQ_CONNECTING);
+        }
     }
     
     /**
