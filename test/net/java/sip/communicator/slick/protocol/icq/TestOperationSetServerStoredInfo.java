@@ -348,7 +348,7 @@ public class TestOperationSetServerStoredInfo
             synchronized (lock)
             {
                 try{
-                    lock.wait(3000);}
+                    lock.wait(4000);}
                 catch (InterruptedException ex)
                 {}
             }
@@ -373,7 +373,7 @@ public class TestOperationSetServerStoredInfo
             synchronized (lock)
             {
                 try{
-                    lock.wait(3000);}
+                    lock.wait(4000);}
                 catch (InterruptedException ex)
                 {}
             }
@@ -398,7 +398,7 @@ public class TestOperationSetServerStoredInfo
             synchronized (lock)
             {
                 try{
-                    lock.wait(3000);}
+                    lock.wait(4000);}
                 catch (InterruptedException ex)
                 {}
             }
@@ -421,7 +421,7 @@ public class TestOperationSetServerStoredInfo
                 synchronized (lock)
                 {
                     try{
-                        lock.wait(3000);}
+                        lock.wait(4000);}
                     catch (InterruptedException ex)
                     {}
                 }
@@ -440,7 +440,7 @@ public class TestOperationSetServerStoredInfo
                 synchronized (lock)
                 {
                     try{
-                        lock.wait(3000);
+                        lock.wait(4000);
                     }
                     catch (InterruptedException ex)
                     {}
@@ -452,7 +452,7 @@ public class TestOperationSetServerStoredInfo
             {
                 try
                 {
-                    lock.wait(4000);
+                    lock.wait(5000);
                 }
                 catch (InterruptedException ex)
                 {}
