@@ -22,7 +22,6 @@ public class Logger
         this.loggerDelegate = logger;
     }
 
-
     /**
      * Find or create a logger for the specified class.  If a logger has
      * already been created for that class it is returned.  Otherwise
