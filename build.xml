@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created by Emil Ivov on Jul 6, 2005 8:30:22 PM-->
 
-<project basedir="." default="ant-usage" name="sip-communicator-1.0">
+<project default="ant-usage" name="sip-communicator-1.0">
 
+    <dirname property="basedir" file="${ant.file}"/>
     <property environment="system"/>
     <property name="jdk.home" value="/usr/java/java"/>
-    <property name="dest" value="classes"/>
-    <property name="bundles.dest" value="sc-bundles"/>
-    <property name="doc" value="doc"/>
+    <property name="dest" value="${basedir}/classes"/>
+    <property name="bundles.dest" value="${basedir}/sc-bundles"/>
+    <property name="doc" value="${basedir}/doc"/>
     <property name="java.doc" value="${doc}/api"/>
-    <property name="lib" value="lib"/>
-    <property name="native.libs" value="lib/native"/>
-    <property name="src" value="src"/>
-    <property name="src2" value="test"/>
+    <property name="lib" value="${basedir}/lib"/>
+    <property name="native.libs" value="${lib}/native"/>
+    <property name="src" value="${basedir}/src"/>
+    <property name="src2" value="${basedir}/test"/>
     <property name="testsrc" value="${src2}"/>
     <property name="home" value="${system.HOME}"/>
-    <property name="bin" value="sip-communicator.bin"/>
-    <property name="utest.bin" value="sip-communicator.utest.bin"/>
-    <property name="test.reports.dir" value="test-reports"/>
+    <property name="bin" value="${basedir}/sip-communicator.bin"/>
+    <property name="utest.bin" value="${basedir}/sip-communicator.utest.bin"/>
+    <property name="test.reports.dir" value="${basedir}/test-reports"/>
     <property name="test.html.reports.dir" value="${test.reports.dir}/html"/>
-    <property name="release" value="release"/>
-    <property name="log" value="log"/>
+    <property name="release" value="${basedir}/release"/>
+    <property name="log" value="${basedir}/log"/>
     <property name="release.src" value="${release}/install"/>
-    <property name="inst.resrc" value="resources/install"/>
+    <property name="inst.resrc" value="${basedir}/resources/install"/>
 
     <!-- Put here the release directory -->
     <property name="macosx.app.dir" value="${release}/macosx"/>
@@ -34,7 +35,7 @@
     <property name="macosx.app.ver" value="1.0.rc1"/>
 
     <!-- load properties needed for running the automated tests (e.g. test.list)-->
-    <property file="lib/testing.properties"/>
+    <property file="${basedir}/lib/testing.properties"/>
 
     <!-- The following file contains a list of protocol account initialization
          properties, such as SIP server addresses and usernames, ICQ uin-s and
@@ -43,7 +44,7 @@
          login problems and cause testing to fail. You could create the file
          yourself using the lib/account.properties.template and setting all
          fields as indicated. -->
-    <property file="lib/accounts.properties"/>
+    <property file="${basedir}/lib/accounts.properties"/>
 
     <!-- windows  -->
     <condition property="jmf.home" value="${lib}/jmf-win">
