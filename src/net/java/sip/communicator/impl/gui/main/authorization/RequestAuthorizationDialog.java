@@ -19,9 +19,14 @@ import net.java.sip.communicator.service.protocol.*;
  * 
  * @author Yana Stamcheva
  */
-public class RequestAuthorizationDialog extends JDialog
-    implements ActionListener {
-
+public class RequestAuthorizationDialog
+    extends JDialog
+    implements ActionListener
+{
+    public static final int OK_RETURN_CODE = 1;
+    
+    public static final int CANCEL_RETURN_CODE = 0;
+    
     private JTextArea infoTextArea = new JTextArea();
     
     private JEditorPane requestPane = new JEditorPane();
@@ -38,6 +43,8 @@ public class RequestAuthorizationDialog extends JDialog
     
     private AuthorizationRequest request;
     
+    private int returnCode;
+    
     /**
      * Constructs the <tt>RequestAuthorisationDialog</tt>.
      * 
@@ -45,8 +52,8 @@ public class RequestAuthorizationDialog extends JDialog
      * @param request The <tt>AuthorizationRequest</tt> that will be sent.
      */
     public RequestAuthorizationDialog(Contact contact,
-            AuthorizationRequest request) {
-        
+            AuthorizationRequest request)
+    {   
         this.setModal(true);
         
         this.setTitle(Messages.getString("requestAuthorization"));
@@ -94,19 +101,41 @@ public class RequestAuthorizationDialog extends JDialog
     }
 
     /**
+     * Shows this modal dialog and returns the result of the user choice.
+     * @return if the "Request" button was pressed returns OK_RETURN_CODE,
+     * otherwise CANCEL_RETURN_CODE is returned
+     */
+    public int showDialog()
+    {
+        this.setVisible(true);
+        
+        return returnCode;
+    }
+    
+    /**
      * Handles the <tt>ActionEvent</tt> triggered when one user clicks
      * on one of the buttons.
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JButton button = (JButton)e.getSource();
         String name = button.getName();
         
         if(name.equals("request")) {
-            request.setReason(requestPane.getText());
+            returnCode = OK_RETURN_CODE;
         }
         else if(name.equals("cancel")) {
-            request = null;
+            returnCode = CANCEL_RETURN_CODE;
         }
         this.dispose();
     }
+    
+    /**
+     * The text entered as a resuest reason.
+     * @return the text entered as a resuest reason
+     */
+    public String getRequestReason()
+    {
+        return requestPane.getText();
+    }   
 }

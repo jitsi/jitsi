@@ -21,7 +21,7 @@ import net.java.sip.communicator.service.protocol.*;
  * 
  * @author Yana Stamcheva
  */
-public class AuthorizationHandlerImpl extends JDialog 
+public class AuthorizationHandlerImpl
     implements AuthorizationHandler {
 
     public AuthorizationHandlerImpl() {
@@ -37,7 +37,7 @@ public class AuthorizationHandlerImpl extends JDialog
      */
     public AuthorizationResponse processAuthorisationRequest(
             AuthorizationRequest req, Contact sourceContact) {
-        
+        System.out.println("PROCESS AUTHORIZATION REQUEST!!!!!!!");
         AuthorizationResponse response = null;
         
         AuthorizationRequestedDialog dialog 
@@ -73,9 +73,15 @@ public class AuthorizationHandlerImpl extends JDialog
         
         RequestAuthorizationDialog dialog 
             = new RequestAuthorizationDialog(contact, request);
+
+        int returnCode = dialog.showDialog();
         
-        dialog.setVisible(true);
-        
+        if(returnCode == RequestAuthorizationDialog.OK_RETURN_CODE) {
+            request.setReason(dialog.getRequestReason());
+        }
+        else {
+            request = null;
+        }
         return request;
     }
 
@@ -87,12 +93,12 @@ public class AuthorizationHandlerImpl extends JDialog
      * request that we have previously sent.
      */
     public void processAuthorizationResponse(AuthorizationResponse response,
-            Contact sourceContact) {
-               
+            Contact sourceContact)
+    {
+        System.out.println("PROCESS AUTHORIZATION RESPONSE!!!!!!!");
         AuthorizationResponseDialog dialog 
             = new AuthorizationResponseDialog(sourceContact, response);
         
         dialog.setVisible(true);
     }
-
 }
