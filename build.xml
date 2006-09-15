@@ -58,6 +58,7 @@
     <condition property="jmf.home" value="${lib}/jmf-lin">
         <equals arg1="${os.name}" arg2="linux" casesensitive="false" trim="true"/>
     </condition>
+
     <condition property="is.running.linux" value="${os.name}">
         <equals arg1="${os.name}" arg2="linux" casesensitive="false" trim="true"/>
     </condition>
