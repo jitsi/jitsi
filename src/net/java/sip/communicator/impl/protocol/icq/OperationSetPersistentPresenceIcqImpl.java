@@ -559,6 +559,16 @@ public class OperationSetPersistentPresenceIcqImpl
               "The specified contact was not found on the local "
               +"contact/subscription list: " + contact);
 
+        if(!contactIcqImpl.isPersistent())
+        {
+            contactGroup.removeContact(contactIcqImpl);
+            fireSubscriptionEvent(SubscriptionEvent.SUBSCRIPTION_REMOVED,
+                                  contactIcqImpl,
+                                  contactGroup);
+
+            return;
+        }
+
         MutableGroup joustSimContactGroup = contactGroup.getJoustSimSourceGroup();
 
         joustSimContactGroup.deleteBuddy(contactIcqImpl.getJoustSimBuddy());
