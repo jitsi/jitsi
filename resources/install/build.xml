@@ -30,17 +30,16 @@
 -->
 <project name="sip-communicator-installer" basedir="." default="ant-usage">
 
-    <!-- Fill in the path where IzPack is installed -->
-    <!--property name="izpack.dir" value="/path/to/IzPack"/-->
-    <!--taskdef name="izpack" classpath="${izpack.dir}/lib/compiler.jar"
-                           classname="com.izforge.izpack.ant.IzPackTask"/-->
+    <!-- Load installer properties -->
+    <!-- USERS NEED TO UPDATE THIS FILE -->
+    <property file="${inst.resrc}/installers.properties"/>
 
-    <!-- Fill in path to directory where a jre in extracted -->
-    <!--property name="linux.jre.path" value="/opt/j2se/j2re1.4.2_12"/-->
-
-    <!-- Fill in the path to a installation file of a jre -->
-    <!--property name="windows.jre.file"
-              value="/opt/j2se/j2re-1_4_2_12-windows-i586-p-iftw.exe"/-->
+    <!-- define the izpack task in a separate target so that we don't get an
+         error when izpack properties are not set-->
+    <target name="define-izpack-task">
+        <taskdef name="izpack" classpath="${izpack.dir}/lib/compiler.jar"
+                               classname="com.izforge.izpack.ant.IzPackTask"/>
+    </target>
 
     <!-- Put here the Windows release directory -->
     <property name="windows.app.dir" value="${release}/windows"/>
@@ -83,13 +82,14 @@
         <mkdir dir="${generic.app.dir}"/>
     </target>
 
-    <target name="build-installation-generic" depends="clean-install-generic">
+    <target name="build-installation-generic"
+            depends="clean-install-generic,define-izpack-task">
         <izpack
                input="${inst.resrc}/generic/installer-generic.xml"
                output="${generic.app.dir}/sip-communicator-${generic.app.ver}.jar"
                installerType="standard"
-               basedir="."
-               izPackDir="${izpack.dir}/"/>
+               izPackDir="${izpack.dir}/"
+               basedir="${basedir}"/>
     </target>
 
     <target name="clean-install-linux">
@@ -98,7 +98,8 @@
         <mkdir dir="${linux.app.dir}/tmp"/>
     </target>
 
-    <target name="build-installation-linux" depends="clean-install-linux">
+    <target name="build-installation-linux"
+            depends="clean-install-linux,define-izpack-task">
         <copy todir="${linux.app.dir}/tmp">
             <fileset dir="${inst.resrc}/linux">
                 <include name="setup.sh"/>
@@ -112,9 +113,9 @@
     </copy>
         <!-- create izpack installer jar file -->
         <izpack input="${inst.resrc}/linux/installer-linux.xml"
-                output="${linux.app.dir}/tmp/sip-communicator-linux-${linux.app.ver}.jar"
+                output="${linux.app.dir}/tmp/sip-communicator-${linux.app.ver}-linux.jar"
                 installerType="standard"
-                basedir="."
+                basedir="${basedir}"
                 izPackDir="${izpack.dir}/"/>
 
         <!-- Create self extract linux binary-->
@@ -122,7 +123,7 @@
              basedir="${linux.app.dir}/tmp"/>
         <gzip zipfile="${linux.app.dir}/tmp/install.tar.gz"
               src="${linux.app.dir}/tmp/install.tar"/>
-        <concat destfile="${linux.app.dir}/setup-sip-communicator-${linux.app.ver}.bin"
+        <concat destfile="${linux.app.dir}/sip-communicator-${linux.app.ver}-linux.bin"
                 binary="true">
             <fileset dir="${inst.resrc}/linux/">
                 <include name="sfx-header"/>
@@ -131,7 +132,7 @@
                 <include name="install.tar.gz"/>
             </fileset>
         </concat>
-        <chmod file="${linux.app.dir}/setup-sip-communicator-${linux.app.ver}.bin" perm="+x"/>
+        <chmod file="${linux.app.dir}/sip-communicator-${linux.app.ver}-linux.bin" perm="+x"/>
 
         <!-- Delete the temp directory-->
         <delete dir="${linux.app.dir}/tmp"/>
@@ -145,7 +146,8 @@
         <mkdir dir="${windows.app.dir}/tmp/jre"/>
     </target>
 
-    <target name="build-installation-windows" depends="clean-install-windows">
+    <target name="build-installation-windows"
+            depends="clean-install-windows,define-izpack-task">
         <copy todir="${windows.app.dir}/tmp">
             <fileset dir="${inst.resrc}/windows">
                 <include name="launcher.ini"/>
@@ -153,13 +155,14 @@
             </fileset>
     </copy>
         <!-- copy the windows jre file -->
-        <copy file="${windows.jre.file}" tofile="${windows.app.dir}/tmp/jre/jre-windows.exe"/>
+        <copy file="${windows.jre.file}"
+              tofile="${windows.app.dir}/tmp/jre/jre-windows.exe"/>
 
         <izpack
                input="${inst.resrc}/windows/installer-windows.xml"
-               output="${windows.app.dir}/tmp/sip-communicator-windows-${windows.app.ver}.jar"
+               output="${windows.app.dir}/tmp/sip-communicator-${windows.app.ver}-windows.jar"
                installerType="standard"
-               basedir="."
+               basedir="${basedir}"
                izPackDir="${izpack.dir}/"/>
 
         <zip destfile="${windows.app.dir}/sip-communicator-${windows.app.ver}.zip"
