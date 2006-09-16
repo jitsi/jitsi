@@ -52,6 +52,10 @@ public class PresenceStatus
      */
     public static final int MAX_STATUS_VALUE = 100;
 
+    /**
+     * An image that graphically represents the status.
+     */
+    protected byte[] statusIcon = null;
 
     /**
      * Represents the connectivity status on a scale from
@@ -77,13 +81,27 @@ public class PresenceStatus
 
     /**
      * Creates an instance of this class using the specified parameters.
+     *
      * @param status the status variable representing the new instance
      * @param statusName the name of this PresenceStatus
      */
     protected PresenceStatus(int status, String statusName)
     {
+        this(status, statusName, null);
+    }
+    /**
+     * Creates an instance of this class using the specified parameters.
+     *
+     * @param status the status variable representing the new instance
+     * @param statusName the name of this PresenceStatus
+     * @param statusIcon an image that graphically represents the status or null
+     * if no such image is available.
+     */
+    protected PresenceStatus(int status, String statusName, byte[] statusIcon)
+    {
         this.status = status;
         this.statusName = statusName;
+        this.statusIcon = statusIcon;
     }
 
 
@@ -190,7 +208,7 @@ public class PresenceStatus
         PresenceStatus status = (PresenceStatus)obj;
 
         if (status.getStatus() != getStatus()
-            || status.getStatusName() != statusName)
+            || !status.getStatusName().equals(statusName))
             return false;
 
         return true;
@@ -210,4 +228,14 @@ public class PresenceStatus
         return getStatusName().hashCode();
     }
 
+    /**
+     * Returns an image that graphically represents the status.
+     *
+     * @return a byte array containing the image that graphically represents
+     * the status or null if no such image is available.
+     */
+    public byte[] getStatusIcon()
+    {
+        return statusIcon;
+    }
 }
