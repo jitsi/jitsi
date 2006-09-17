@@ -165,7 +165,7 @@
                basedir="${basedir}"
                izPackDir="${izpack.dir}/"/>
 
-        <zip destfile="${windows.app.dir}/sip-communicator-${windows.app.ver}.zip"
+        <zip destfile="${windows.app.dir}/sip-communicator-${windows.app.ver}-windows.zip"
                 basedir="${windows.app.dir}/tmp"/>
 
         <!--exec dir="${windows.app.dir}/tmp" executable="${7zip.executable}" failifexecutionfails="false">
