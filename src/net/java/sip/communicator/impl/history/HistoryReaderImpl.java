@@ -574,12 +574,15 @@ public class HistoryReaderImpl
         ProgressEvent event =
             new ProgressEvent(this, startDate, endDate, keywords, progress);
 
-        Iterator iter = progressListeners.iterator();
-        while (iter.hasNext())
+        synchronized(progressListeners)
         {
-            HistorySearchProgressListener item =
-                (HistorySearchProgressListener) iter.next();
-            item.progressChanged(event);
+            Iterator iter = progressListeners.iterator();
+            while (iter.hasNext())
+            {
+                HistorySearchProgressListener item =
+                    (HistorySearchProgressListener) iter.next();
+                item.progressChanged(event);
+            }
         }
     }
 
@@ -591,7 +594,9 @@ public class HistoryReaderImpl
     public void addSearchProgressListener(HistorySearchProgressListener
                                           listener)
     {
-        progressListeners.add(listener);
+        synchronized(progressListeners){
+            progressListeners.add(listener);
+        }
     }
 
     /**
@@ -602,7 +607,9 @@ public class HistoryReaderImpl
     public void removeSearchProgressListener(HistorySearchProgressListener
                                              listener)
     {
-        progressListeners.remove(listener);
+        synchronized(progressListeners){
+            progressListeners.remove(listener);
+        }
     }
 
     /**

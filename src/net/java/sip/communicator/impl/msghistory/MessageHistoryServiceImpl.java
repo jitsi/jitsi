@@ -570,9 +570,11 @@ public class MessageHistoryServiceImpl
     public void addSearchProgressListener(MessageHistorySearchProgressListener
                                           listener)
     {
-        HistorySearchProgressListener wrapperListener =
-            new SearchProgressWrapper(listener);
-        progressListeners.put(listener, wrapperListener);
+        synchronized(progressListeners){
+            HistorySearchProgressListener wrapperListener =
+                new SearchProgressWrapper(listener);
+            progressListeners.put(listener, wrapperListener);
+        }
     }
 
     /**
@@ -583,7 +585,9 @@ public class MessageHistoryServiceImpl
     public void removeSearchProgressListener(
         MessageHistorySearchProgressListener listener)
     {
-        progressListeners.remove(listener);
+        synchronized(progressListeners){
+            progressListeners.remove(listener);
+        }
     }
 
     /**
@@ -594,12 +598,15 @@ public class MessageHistoryServiceImpl
      */
     private void addHistorySearchProgressListeners(HistoryReader reader)
     {
-        Iterator iter = progressListeners.values().iterator();
-        while (iter.hasNext())
+        synchronized(progressListeners)
         {
-            HistorySearchProgressListener l =
-                (HistorySearchProgressListener) iter.next();
-            reader.addSearchProgressListener(l);
+            Iterator iter = progressListeners.values().iterator();
+            while (iter.hasNext())
+            {
+                HistorySearchProgressListener l =
+                    (HistorySearchProgressListener) iter.next();
+                reader.addSearchProgressListener(l);
+            }
         }
     }
 
@@ -611,12 +618,15 @@ public class MessageHistoryServiceImpl
      */
     private void removeHistorySearchProgressListeners(HistoryReader reader)
     {
-        Iterator iter = progressListeners.values().iterator();
-        while (iter.hasNext())
+        synchronized(progressListeners)
         {
-            HistorySearchProgressListener l =
-                (HistorySearchProgressListener) iter.next();
-            reader.removeSearchProgressListener(l);
+            Iterator iter = progressListeners.values().iterator();
+            while (iter.hasNext())
+            {
+                HistorySearchProgressListener l =
+                    (HistorySearchProgressListener) iter.next();
+                reader.removeSearchProgressListener(l);
+            }
         }
     }
 
