@@ -1,6 +1,6 @@
 <installation version="1.0">
 	<info>
-		<appname>SIPCommunicator</appname>
+		<appname>sip-communicator</appname>
 		<appversion>1.0.draft</appversion>
 		<authors>
 			<author name="SIP Communicator" email="sc@sip-communicator.org" />
@@ -38,14 +38,14 @@
 	</panels>
 
 	<packs>
-		
+
 		<!-- The lib files -->
 		<pack name="lib" required="yes">
 			<description>Include all libraries</description>
 
 			<fileset  targetdir="$INSTALL_PATH/lib" dir="lib">
 				<include name="**/*.jar"/>
-                                
+
                                 <exclude name="junit*.jar"/>
                                 <exclude name="**/jmf*/**"/>
                                 <exclude name="native"/>
