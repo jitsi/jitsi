@@ -761,6 +761,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/service/protocol/protocol.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
                 prefix="net/java/sip/communicator/service/protocol"/>
+            <zipfileset dir="${basedir}/resources/images"
+                prefix="resources/images"/>
         </jar>
     </target>
 
@@ -843,17 +845,4 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/icqaccregwizz"/>
         </jar>
     </target>
-
-
-    <!-- BUNDLE-PLUGIN-SYSTRAY -->
-    <!--target name="bundle-plugin-systray">
-        <jar compress="false" destfile="${bundles.dest}/systray.jar"
-            manifest="src/net/java/sip/communicator/plugin/systray/systray.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/systray"
-                prefix="net/java/sip/communicator/plugin/systray"/>
-            <zipfileset src="${lib}/jdic/jdic.jar" prefix=""/>
-            <zipfileset dir="${lib}/jdic" prefix=""/>
-            <zipfileset src="${lib}/jdic/linux/jdic_stub.jar" prefix=""/>
-        </jar>
-    </target-->
 </project>
