@@ -12,6 +12,7 @@ import java.net.*;
 import java.util.*;
 import javax.imageio.*;
 import javax.imageio.stream.*;
+import javax.swing.*;
 
 import java.awt.*;
 import java.awt.image.*;
@@ -964,6 +965,7 @@ public class ImageLoader {
             image = (BufferedImage) loadedImages.get(imageID);
         } else {
             String path = Images.getString(imageID.getId());
+            
             try {
                 image = ImageIO.read(ImageLoader.class.getClassLoader()
                         .getResource(path));
@@ -997,6 +999,24 @@ public class ImageLoader {
 
         return image;
     }
+    
+    /**
+     * Loads an image from a given bytes array.
+     * @param imageBytes The bytes array to load the image from.
+     * @return The image for the given bytes array.
+     */
+    public static Image getBytesInImage(byte[] imageBytes) {
+        
+        Image image = null;
+        try {
+            image = ImageIO.read(
+                    new ByteArrayInputStream(imageBytes));
+        }
+        catch (IOException e) {
+            log.error("Failed to convert bytes to image", e);
+        }
+        return image;
+    }
 
     /**
      * Loads an animated gif image.
@@ -1004,7 +1024,7 @@ public class ImageLoader {
      * @return A BufferedImage array containing the animated image.
      */
     public static BufferedImage[] getAnimatedImage(ImageID imageID) {
-
+        
         String path = Images.getString(imageID.getId());
 
         URL url = ImageLoader.class.getClassLoader().getResource(path);
@@ -1037,7 +1057,6 @@ public class ImageLoader {
         } finally {
             log.logExit();
         }
-
         return images;
     }
 
