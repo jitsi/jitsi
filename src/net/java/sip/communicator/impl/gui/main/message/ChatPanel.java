@@ -7,11 +7,11 @@
 
 package net.java.sip.communicator.impl.gui.main.message;
 
+import java.awt.*;
+import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
@@ -19,7 +19,6 @@ import javax.swing.text.html.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -254,14 +253,15 @@ public class ChatPanel
      * 
      * @param status The presence status of the contact.
      */
-    public void updateContactStatus(PresenceStatus status) {
+    public void updateContactStatus(PresenceStatus status) {        
         this.chatConferencePanel.updateContactStatus(status);
-        this.conversationPanel.processMessage(
+        String message = this.conversationPanel.processMessage(
                 this.metaContact.getDisplayName(),
                 new Date(System.currentTimeMillis()),
                 Constants.SYSTEM_MESSAGE,
                 Messages.getString("statusChangedChatMessage",
                         status.getStatusName()));
+        this.conversationPanel.appendMessageToEnd(message);
     }
 
     /**
