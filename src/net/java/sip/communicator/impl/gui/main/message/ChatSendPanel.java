@@ -215,7 +215,8 @@ public class ChatSendPanel extends JPanel implements ActionListener {
                     chatPanel.setImOperationSet(im);
                     chatPanel.setProtocolContact(protocolContact);
 
-                    contactSelectorBox.setSelected(menuItem);
+                    contactSelectorBox.setSelected(
+                            menuItem.getText(), menuItem.getIcon());
                 }
             }
         }

@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main;
 
 import java.beans.*;
 import java.util.*;
+import java.util.List;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -208,30 +209,11 @@ public class MainFrame
             }
             
             this.protocolPresenceSets.put(protocolProvider, presence);
+            
             presence.addProviderPresenceStatusListener(
                         new ProviderPresenceStatusAdapter());
             presence.addContactPresenceStatusListener(
-                        new ContactPresenceStatusAdapter());
-
-            presence.setAuthorizationHandler(
-                    new AuthorizationHandlerImpl());
-            
-            try {
-                presence.publishPresenceStatus(IcqStatusEnum.ONLINE, "");
-            } catch (OperationFailedException e) {
-                logger.error("Publish presence status failed.", e);
-            }
-
-            this.getStatusPanel().stopConnecting(
-                    protocolProvider);
-
-            this.statusPanel.setSelectedStatus(
-                    protocolProvider, Constants.ONLINE_STATUS);
-
-            //request the focus int the contact list panel, which
-            //permits to search in the contact list
-            this.tabbedPane.getContactListPanel().getContactList()
-                    .requestFocus();
+                        new ContactPresenceStatusAdapter());        
         }
         
         String imOpSetClassName = OperationSetBasicInstantMessaging
@@ -323,6 +305,8 @@ public class MainFrame
         this.protocolProviders.add(protocolProvider);
         
         this.addProtocolSupportedOperationSets(protocolProvider);
+        
+        this.addAccount(protocolProvider);
     }
 
     /**
@@ -336,7 +320,13 @@ public class MainFrame
 
         if (!getStatusPanel().containsAccount(accountID)) {
             this.accounts.add(protocolProvider);
+            
             this.getStatusPanel().addAccount(protocolProvider);
+            
+            //request the focus int the contact list panel, which
+            //permits to search in the contact list
+            this.tabbedPane.getContactListPanel().getContactList()
+                    .requestFocus();
         }
     }
 
@@ -576,6 +566,8 @@ public class MainFrame
                 configService.setProperty(
                         "net.java.sip.communicator.impl.ui.showCallPanel",
                         new Boolean(callPanel.isShown()));
+                
+                saveStatusInformation();
             }
             catch (PropertyVetoException e1) {
                 logger.error("The proposed property change "
@@ -592,10 +584,10 @@ public class MainFrame
             = GuiActivator.getConfigurationService();
         
         String width = configService.getString(
-                "net.java.sip.communicator.impl.ui.mainWindowWidth");
+            "net.java.sip.communicator.impl.ui.mainWindowWidth");
         
         String height = configService.getString(
-                "net.java.sip.communicator.impl.ui.mainWindowHeight");
+            "net.java.sip.communicator.impl.ui.mainWindowHeight");
         
         String x = configService.getString(
             "net.java.sip.communicator.impl.ui.mainWindowX");
@@ -604,8 +596,8 @@ public class MainFrame
             "net.java.sip.communicator.impl.ui.mainWindowY");
         
         String isShown = configService.getString(
-                "net.java.sip.communicator.impl.ui.showCallPanel");
-       
+            "net.java.sip.communicator.impl.ui.showCallPanel");
+        
         if(width != null && height != null)
             this.setSize(new Integer(width).intValue(), 
                     new Integer(height).intValue());
@@ -636,5 +628,67 @@ public class MainFrame
      */
     public void setLoginManager(LoginManager loginManager) {
         this.loginManager = loginManager;
+    }
+    
+    /**
+     * Saves the last status for all accounts. This information is used
+     * on loging. Each time user logs in he's logged with the same status
+     * as he was the last time before closing the application.
+     */
+    public void saveStatusInformation ()
+    {
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+        
+        Iterator pproviders = getProtocolProviders();
+        
+        while(pproviders.hasNext()) {
+            ProtocolProviderService pps
+                = (ProtocolProviderService) pproviders.next();
+
+            String prefix = "net.java.sip.communicator.impl.ui";
+            
+            List accounts = configService
+                    .getPropertyNamesByPrefix(prefix, true);
+            
+            boolean savedAccount = false;
+            Iterator accountsIter = accounts.iterator();
+            
+            while(accountsIter.hasNext()) {
+                String accountRootPropName 
+                    = (String) accountsIter.next();
+                
+                String accountUID 
+                    = configService.getString(accountRootPropName);
+                
+                if(accountUID.equals(pps
+                        .getAccountID().getAccountUniqueID())) {
+                    
+                    configService.setProperty(
+                            accountRootPropName + ".lastAccountStatus",
+                            getProtocolPresence(pps)
+                            .getPresenceStatus().getStatusName());
+                    
+                    savedAccount = true;
+                }
+            }
+            
+            if(!savedAccount) {
+                String accNodeName
+                    = "acc" + Long.toString(System.currentTimeMillis());
+                
+                String accountPackage
+                    = "net.java.sip.communicator.impl.ui."
+                            + accNodeName;
+                
+                configService.setProperty(accountPackage, 
+                        pps.getAccountID().getAccountUniqueID());
+                
+                configService.setProperty(
+                        accountPackage+".lastAccountStatus",
+                        getProtocolPresence(pps)
+                        .getPresenceStatus().getStatusName());
+            }
+        }
     }
 }

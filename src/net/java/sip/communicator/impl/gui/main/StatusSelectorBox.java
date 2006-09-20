@@ -17,6 +17,7 @@ import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
 import net.java.sip.communicator.util.*;
@@ -40,22 +41,14 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
 
     private ProtocolProviderService protocolProvider;
 
-    private Map itemsMap;
+    private Iterator statusIterator;
 
-    /**
-     * Creates an instance of <tt>StatusSelectorBox</tt>.
-     * 
-     * @param mainFrame The main application window.
-     * @param protocolProvider The protocol provider.
-     */
-    public StatusSelectorBox(MainFrame mainFrame,
-            ProtocolProviderService protocolProvider) {
-        super();
-
-        this.mainFrame = mainFrame;
-        this.protocolProvider = protocolProvider;
-    }
-
+    private PresenceStatus offlineStatus;
+    
+    private PresenceStatus onlineStatus;
+    
+    private PresenceStatus lastSelectedStatus;
+    
     /**
      * Creates an instance of <tt>StatusSelectorBox</tt> and initializes
      * the selector box with data.
@@ -66,32 +59,34 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
      * @param selectedItem The initially selected item.
      */
     public StatusSelectorBox(MainFrame mainFrame,
-            ProtocolProviderService protocolProvider,
-            Map itemsMap,
-            Image selectedItem) {
-        super(selectedItem);
-
-        this.itemsMap = itemsMap;
+            ProtocolProviderService protocolProvider) {
+        
         this.mainFrame = mainFrame;
         this.protocolProvider = protocolProvider;
 
+        this.statusIterator = this.mainFrame
+            .getProtocolPresence(protocolProvider).getSupportedStatusSet();
+        
         this.setToolTipText(protocolProvider.getAccountID().getUserID());
         
-        this.init();
-    }
+        while(statusIterator.hasNext()) {
+            PresenceStatus status = (PresenceStatus) statusIterator.next();
+            int connectivity = status.getStatus();
 
-    /**
-     * Constructs the list of choices of the selector box.
-     */
-    public void init() {
-        Iterator iter = itemsMap.entrySet().iterator();
-
-        while (iter.hasNext()) {
-            Map.Entry entry = (Map.Entry) iter.next();
-
-            this.addItem(((IcqStatusEnum) entry.getKey()).getStatusName(),
-                    new ImageIcon((Image) entry.getValue()),
-                    new ItemActionListener());
+            if(connectivity < 1) {
+                this.offlineStatus = status;
+            }
+            else if((onlineStatus != null 
+                            && (onlineStatus.getStatus() < connectivity)) 
+                    || (onlineStatus == null 
+                            && (connectivity > 50 && connectivity < 80))) {
+                this.onlineStatus = status;
+            }
+            
+            this.addItem(status.getStatusName(), 
+                new ImageIcon(
+                    ImageLoader.getBytesInImage(status.getStatusIcon())),
+                new ItemActionListener());
         }
     }
 
@@ -104,89 +99,94 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
             if (e.getSource() instanceof JMenuItem) {
 
                 JMenuItem menuItem = (JMenuItem) e.getSource();
+                
+                OperationSetPresence presence = mainFrame
+                        .getProtocolPresence(protocolProvider);
 
-                if(!protocolProvider.isRegistered()) {
-                    mainFrame.getLoginManager().login(protocolProvider);
-                }
-                else {
-                    OperationSetPresence presence = mainFrame
-                            .getProtocolPresence(protocolProvider);
-    
-                    Iterator statusSet = presence.getSupportedStatusSet();
-    
-                    while (statusSet.hasNext()) {
-    
-                        PresenceStatus status = ((PresenceStatus) statusSet.next());
-    
-                        if (status.getStatusName().equals(menuItem.getText())
-                                && !presence.getPresenceStatus().equals(status)) {
-    
-                            try {
-                                if (status.equals(IcqStatusEnum.ONLINE)) {
-    
-                                    presence.publishPresenceStatus(status, "");
-                                    
-                                } else if (status.equals(IcqStatusEnum.OFFLINE)) {
+                Iterator statusSet = presence.getSupportedStatusSet();
+
+                while (statusSet.hasNext()) {
+
+                    PresenceStatus status = ((PresenceStatus) statusSet.next());
+
+                    if (status.getStatusName().equals(menuItem.getText())
+                            && !presence.getPresenceStatus().equals(status)) {
+
+                        try {
+                            if(protocolProvider.isRegistered()) {
+                                if (status.isOnline()) {
+                                    presence.publishPresenceStatus(
+                                            status, "");
+                                }
+                                else {
+                                    mainFrame.getLoginManager()
+                                        .setManuallyDisconnected(true);
                                     protocolProvider.unregister();
-                                } else {
-    
-                                    presence.publishPresenceStatus(status, "");
                                 }
-                            } catch (IllegalArgumentException e1) {
-    
-                                logger.error("Error - changing status", e1);
-    
-                            } catch (IllegalStateException e1) {
-    
-                                logger.error("Error - changing status", e1);
-    
-                            } catch (OperationFailedException e1) {
-    
-                                if (e1.getErrorCode() 
-                                    == OperationFailedException.GENERAL_ERROR) {
-                                    SIPCommMsgTextArea msgText 
-                                    = new SIPCommMsgTextArea(Messages
-                                        .getString("statusChangeGeneralError"));
-                                    
-                                    JOptionPane.showMessageDialog(null, msgText,
-                                            Messages.getString("generalError"),
-                                            JOptionPane.ERROR_MESSAGE);
-                                }
-                                else if (e1.getErrorCode() 
-                                        == OperationFailedException
-                                            .NETWORK_FAILURE) {
-                                    SIPCommMsgTextArea msgText 
-                                        = new SIPCommMsgTextArea(
-                                            Messages.getString(
-                                                "statusChangeNetworkFailure"));
-                                    
-                                    JOptionPane.showMessageDialog(
-                                        null,
-                                        msgText,
-                                        Messages.getString("networkFailure"),
-                                        JOptionPane.ERROR_MESSAGE);
-                                } 
-                                else if (e1.getErrorCode()
-                                        == OperationFailedException
-                                            .PROVIDER_NOT_REGISTERED) {
-                                    SIPCommMsgTextArea msgText 
-                                        = new SIPCommMsgTextArea(
-                                            Messages.getString(
-                                                "statusChangeNetworkFailure"));
-                                    
-                                    JOptionPane.showMessageDialog(
-                                        null,
-                                        msgText,
-                                        Messages.getString("networkFailure"),
-                                        JOptionPane.ERROR_MESSAGE);
-                                }
-                                logger.error("Error - changing status", e1);
+                                setSelected(menuItem.getText(), 
+                                        menuItem.getIcon());
                             }
-                            break;
+                            else {
+                                lastSelectedStatus = status; 
+                                mainFrame.getLoginManager()
+                                    .login(protocolProvider);
+                            }
                         }
+                        catch (IllegalArgumentException e1) {
+
+                            logger.error("Error - changing status", e1);
+
+                        }
+                        catch (IllegalStateException e1) {
+
+                            logger.error("Error - changing status", e1);
+
+                        }
+                        catch (OperationFailedException e1) {
+
+                            if (e1.getErrorCode() 
+                                == OperationFailedException.GENERAL_ERROR) {
+                                SIPCommMsgTextArea msgText 
+                                = new SIPCommMsgTextArea(Messages
+                                    .getString("statusChangeGeneralError"));
+                                
+                                JOptionPane.showMessageDialog(null, msgText,
+                                        Messages.getString("generalError"),
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                            else if (e1.getErrorCode() 
+                                    == OperationFailedException
+                                        .NETWORK_FAILURE) {
+                                SIPCommMsgTextArea msgText 
+                                    = new SIPCommMsgTextArea(
+                                        Messages.getString(
+                                            "statusChangeNetworkFailure"));
+                                
+                                JOptionPane.showMessageDialog(
+                                    null,
+                                    msgText,
+                                    Messages.getString("networkFailure"),
+                                    JOptionPane.ERROR_MESSAGE);
+                            } 
+                            else if (e1.getErrorCode()
+                                    == OperationFailedException
+                                        .PROVIDER_NOT_REGISTERED) {
+                                SIPCommMsgTextArea msgText 
+                                    = new SIPCommMsgTextArea(
+                                        Messages.getString(
+                                            "statusChangeNetworkFailure"));
+                                
+                                JOptionPane.showMessageDialog(
+                                    null,
+                                    msgText,
+                                    Messages.getString("networkFailure"),
+                                    JOptionPane.ERROR_MESSAGE);
+                            }
+                            logger.error("Error - changing status", e1);
+                        }
+                        break;
                     }
                 }
-                setSelected(menuItem);
             }
         }
     }
@@ -210,9 +210,68 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
     /**
      * Stops the timer that manages the connecting animated icon.
      */
-    public void stopConnecting() {
-
+    public void updateStatus(PresenceStatus status) {
+        
+        OperationSetPresence presence = mainFrame
+            .getProtocolPresence(protocolProvider);
+        
         this.connecting.stop();
+        
+        this.setSelectedStatus(status);
+        
+        if(protocolProvider.isRegistered()) {
+            try {
+                presence.publishPresenceStatus(
+                        status, "");
+            }
+            catch (IllegalArgumentException e1) {
+                logger.error("Error - changing status", e1);
+            }
+            catch (IllegalStateException e1) {
+                logger.error("Error - changing status", e1);
+            }
+            catch (OperationFailedException e1) {
+                if (e1.getErrorCode() 
+                    == OperationFailedException.GENERAL_ERROR) {
+                    SIPCommMsgTextArea msgText 
+                    = new SIPCommMsgTextArea(Messages
+                        .getString("statusChangeGeneralError"));
+                    
+                    JOptionPane.showMessageDialog(null, msgText,
+                            Messages.getString("generalError"),
+                            JOptionPane.ERROR_MESSAGE);
+                }
+                else if (e1.getErrorCode() 
+                        == OperationFailedException
+                            .NETWORK_FAILURE) {
+                    SIPCommMsgTextArea msgText 
+                        = new SIPCommMsgTextArea(
+                            Messages.getString(
+                                "statusChangeNetworkFailure"));
+                    
+                    JOptionPane.showMessageDialog(
+                        null,
+                        msgText,
+                        Messages.getString("networkFailure"),
+                        JOptionPane.ERROR_MESSAGE);
+                } 
+                else if (e1.getErrorCode()
+                        == OperationFailedException
+                            .PROVIDER_NOT_REGISTERED) {
+                    SIPCommMsgTextArea msgText 
+                        = new SIPCommMsgTextArea(
+                            Messages.getString(
+                                "statusChangeNetworkFailure"));
+                    
+                    JOptionPane.showMessageDialog(
+                        null,
+                        msgText,
+                        Messages.getString("networkFailure"),
+                        JOptionPane.ERROR_MESSAGE);
+                }
+                logger.error("Error - changing status", e1);
+            }
+        }
     }
 
     /**
@@ -240,5 +299,39 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
             }
 
         }
+    }
+
+    /**
+     * Selects the given status in the status menu.
+     * @param status the status to select
+     */
+    public void setSelectedStatus(PresenceStatus status)
+    {
+        this.setSelected(status.getStatusName(),
+                new ImageIcon(
+                    ImageLoader.getBytesInImage(status.getStatusIcon())));
+    }
+
+    /**
+     * Returns the Offline status in this selector box.
+     * @return the Offline status in this selector box
+     */
+    public PresenceStatus getOfflineStatus()
+    {
+        return offlineStatus;
+    }
+
+    /**
+     * Returns the Online status in this selector box.
+     * @return the Online status in this selector box
+     */
+    public PresenceStatus getOnlineStatus()
+    {
+        return onlineStatus;
+    }
+
+    public PresenceStatus getLastSelectedStatus()
+    {
+        return lastSelectedStatus;
     }
 }

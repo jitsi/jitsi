@@ -8,11 +8,14 @@
 package net.java.sip.communicator.impl.gui.main;
 
 import java.util.*;
+import java.util.List;
 
 import java.awt.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -48,12 +51,9 @@ public class StatusPanel extends JPanel {
      * @param protocolProvider The protocol provider.
      */
     public void addAccount(ProtocolProviderService protocolProvider) {
-        Map protocolStatusMap = Constants
-            .getProtocolStatusIcons(protocolProvider.getProtocolName());
         
         StatusSelectorBox protocolStatusCombo = new StatusSelectorBox(
-                this.mainFrame, protocolProvider, protocolStatusMap,
-                (Image) protocolStatusMap.get(Constants.OFFLINE_STATUS));
+                this.mainFrame, protocolProvider);
         
         this.protocolStatusCombos.put(protocolProvider.getAccountID(),
                 protocolStatusCombo);
@@ -87,17 +87,13 @@ public class StatusPanel extends JPanel {
      * @param status The newly selected status.
      */
     public void setSelectedStatus(ProtocolProviderService protocolProvider,
-                                    Object status) {
-
-        Map protocolStatusMap = Constants.getProtocolStatusIcons(
-                protocolProvider.getProtocolName());
-
+                                    PresenceStatus status) {
+        
         StatusSelectorBox selectorBox 
             = (StatusSelectorBox) protocolStatusCombos.get(
                     protocolProvider.getAccountID());
 
-        selectorBox
-                .setIcon(new ImageIcon((Image) protocolStatusMap.get(status)));
+        selectorBox.setSelectedStatus(status);
 
         selectorBox.repaint();
     }
@@ -121,19 +117,80 @@ public class StatusPanel extends JPanel {
     }
 
     /**
-     * Removes the protocol animated icon, which indicates that the connecting 
-     * process is finished.
-     * 
-     * @param protocolProvider The ProtocolProvider.
+     * Updates the status for this protocol provider.
+     *  
+     * @param protocolProvider The ProtocolProvider, which presence status to
+     * update.
      */
-    public void stopConnecting(ProtocolProviderService protocolProvider) {
+    public void updateStatus(ProtocolProviderService protocolProvider) {
 
         StatusSelectorBox selectorBox 
             = (StatusSelectorBox) protocolStatusCombos
                 .get(protocolProvider.getAccountID());
 
-        selectorBox.stopConnecting();
-
+        if(!protocolProvider.isRegistered())
+            selectorBox.updateStatus(selectorBox.getOfflineStatus());
+        else {            
+            if(selectorBox.getLastSelectedStatus() != null) {
+                selectorBox.updateStatus(selectorBox.getLastSelectedStatus());
+            }
+            else {
+                ConfigurationService configService
+                    = GuiActivator.getConfigurationService();
+            
+                Iterator pproviders = mainFrame.getProtocolProviders();
+                
+                //For each protocol provider find the last contact status
+                //saved in the configuration.
+                while(pproviders.hasNext()) {
+                    ProtocolProviderService pps
+                        = (ProtocolProviderService) pproviders.next();
+                    
+                    String lastStatus = null;
+                    
+                    Iterator i = mainFrame.getProtocolPresence(pps)
+                        .getSupportedStatusSet();
+                    
+                    String prefix = "net.java.sip.communicator.impl.ui";
+                    
+                    List accounts = configService
+                            .getPropertyNamesByPrefix(prefix, true);
+                    
+                    Iterator accountsIter = accounts.iterator();
+                    
+                    while(accountsIter.hasNext()) {
+                        String accountRootPropName 
+                            = (String) accountsIter.next();
+                        
+                        String accountUID 
+                            = configService.getString(accountRootPropName);
+                        
+                        if(accountUID.equals(protocolProvider
+                                .getAccountID().getAccountUniqueID())) {
+                            lastStatus = configService.getString(
+                                    accountRootPropName + ".lastAccountStatus");
+                            
+                            if(lastStatus != null)
+                                break;
+                        }
+                    }
+                    
+                    if(lastStatus == null) {                
+                        selectorBox.updateStatus(selectorBox.getOnlineStatus());
+                    }
+                    else {
+                        PresenceStatus status;
+                        while(i.hasNext()) {
+                            status = (PresenceStatus)i.next();
+                            if(status.getStatusName().equals(lastStatus)) {
+                                selectorBox.updateStatus(status);
+                                break;
+                            } 
+                        }
+                    }
+                }
+            }
+        }
         selectorBox.repaint();
     }
 
