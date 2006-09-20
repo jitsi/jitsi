@@ -104,13 +104,10 @@ public class ContactListCellRenderer extends JPanel
             int buttonsPanelWidth = 0;
             while (i.hasNext()) {
                 Contact protocolContact = (Contact) i.next();
-
-                String protocolName = protocolContact.getProtocolProvider()
-                        .getProtocolName();
-
-                Image protocolStatusIcon = (Image) Constants
-                        .getProtocolStatusIcons(protocolName).get(
-                                protocolContact.getPresenceStatus());
+                
+                Image protocolStatusIcon
+                    = ImageLoader.getBytesInImage(
+                            protocolContact.getPresenceStatus().getStatusIcon());
 
                 ContactProtocolButton contactProtocolButton 
                     = new ContactProtocolButton(protocolStatusIcon, 

@@ -229,75 +229,7 @@ public class Constants {
      */
     public static final Font FONT = new Font(Constants.FONT_NAME, Font.PLAIN,
             new Integer(Constants.FONT_SIZE).intValue());
-
-    /*
-     * ======================================================================
-     * ------------------------ STATUS LABELS --------------------------------
-     * ======================================================================
-     */
-    /**
-     * The "online" presence status.
-     */
-    public static final IcqStatusEnum ONLINE_STATUS = IcqStatusEnum.ONLINE;
-
-    /**
-     * The "offline" presence status.
-     */
-    public static final IcqStatusEnum OFFLINE_STATUS = IcqStatusEnum.OFFLINE;
-
-    /**
-     * The "occupied" presence status.
-     */
-    public static final IcqStatusEnum OCCUPIED_STATUS = IcqStatusEnum.OCCUPIED;
-
-    /**
-     * The "chat" presence status.
-     */
-    public static final IcqStatusEnum CHAT_STATUS = IcqStatusEnum.FREE_FOR_CHAT;
-
-    /**
-     * The "away" presence status.
-     */
-    public static final IcqStatusEnum AWAY_STATUS = IcqStatusEnum.AWAY;
-
-    /**
-     * The "not available" presence status.
-     */
-    public static final IcqStatusEnum NA_STATUS = IcqStatusEnum.NOT_AVAILABLE;
-
-    /**
-     * The "invisible" presence status.
-     */
-    public static final IcqStatusEnum INVISIBLE_STATUS = IcqStatusEnum.INVISIBLE;
-
-    /**
-     * The "do not disturb" presence status.
-     */
-    public static final IcqStatusEnum DND_STATUS = IcqStatusEnum.DO_NOT_DISTURB;
-
-    /**
-     * A set of all statuses and corresponging icons.
-     */
-    private static final Hashtable mainStatusSet = new Hashtable();
-    static {
-        mainStatusSet.put(Constants.ONLINE_STATUS, ImageLoader
-                .getImage(ImageLoader.USER_ONLINE_ICON));
-        mainStatusSet.put(Constants.OCCUPIED_STATUS, ImageLoader
-                .getImage(ImageLoader.USER_OCCUPIED_ICON));
-        mainStatusSet.put(Constants.NA_STATUS, ImageLoader
-                .getImage(ImageLoader.USER_NA_ICON));
-        mainStatusSet.put(Constants.DND_STATUS, ImageLoader
-                .getImage(ImageLoader.USER_DND_ICON));
-        mainStatusSet.put(Constants.CHAT_STATUS, ImageLoader
-                .getImage(ImageLoader.USER_FFC_ICON));
-        mainStatusSet.put(Constants.AWAY_STATUS, ImageLoader
-                .getImage(ImageLoader.USER_AWAY_ICON));
-        mainStatusSet.put(Constants.OFFLINE_STATUS, ImageLoader
-                .getImage(ImageLoader.USER_OFFLINE_ICON));
-        mainStatusSet.put(Constants.INVISIBLE_STATUS, ImageLoader
-                .getImage(ImageLoader.USER_ONLINE_ICON));
-    }
-
+    
     /*
      * ======================================================================
      * ------------------------ PROTOCOL NAMES -------------------------------
@@ -501,120 +433,6 @@ public class Constants {
                     ImageLoader.ICQ_CONNECTING);
         }
     }
-    
-    /**
-     * Returns a set of <tt>Status</tt> objects for a given protocol. Each
-     * <tt>Status</tt> contains a status icon and a status text. 
-     * 
-     * @param protocolName The name of the protocol.
-     * @return a set of <tt>Status</tt> objects for a given protocol. Each
-     * <tt>Status</tt> contains a status icon and a status text.
-     */
-    public static Map getProtocolStatusIcons(String protocolName) {
-        Map protocolStatusList = new Hashtable();
-
-        if (protocolName.equals(Constants.SIP)) {
-
-            protocolStatusList.put(ONLINE_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_ONLINE_ICON));
-
-            protocolStatusList.put(CHAT_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_CHAT_ICON));
-
-            protocolStatusList.put(AWAY_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_AWAY_ICON));
-
-            protocolStatusList.put(OCCUPIED_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_OCCUPIED_ICON));
-
-            protocolStatusList.put(NA_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_NA_ICON));
-
-            protocolStatusList.put(DND_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_DND_ICON));
-
-            protocolStatusList.put(OFFLINE_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_OFFLINE_ICON));
-
-            protocolStatusList.put(INVISIBLE_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_INVISIBLE_ICON));
-
-        } else if (protocolName.equals(Constants.ICQ)) {
-
-            protocolStatusList.put(ONLINE_STATUS, ImageLoader
-                    .getImage(ImageLoader.ICQ_LOGO));
-
-            protocolStatusList.put(CHAT_STATUS, ImageLoader
-                    .getImage(ImageLoader.ICQ_FF_CHAT_ICON));
-
-            protocolStatusList.put(AWAY_STATUS, ImageLoader
-                    .getImage(ImageLoader.ICQ_AWAY_ICON));
-
-            protocolStatusList.put(NA_STATUS, ImageLoader
-                    .getImage(ImageLoader.ICQ_NA_ICON));
-
-            protocolStatusList.put(DND_STATUS, ImageLoader
-                    .getImage(ImageLoader.ICQ_DND_ICON));
-
-            protocolStatusList.put(OCCUPIED_STATUS, ImageLoader
-                    .getImage(ImageLoader.ICQ_OCCUPIED_ICON));
-
-            protocolStatusList.put(OFFLINE_STATUS, ImageLoader
-                    .getImage(ImageLoader.ICQ_OFFLINE_ICON));
-
-            protocolStatusList.put(INVISIBLE_STATUS, ImageLoader
-                    .getImage(ImageLoader.ICQ_INVISIBLE_ICON));
-
-        } else if (protocolName.equals(Constants.MSN)) {
-
-            protocolStatusList.put(ONLINE_STATUS, ImageLoader
-                    .getImage(ImageLoader.MSN_LOGO));
-
-        } else if (protocolName.equals(Constants.AIM)) {
-
-            protocolStatusList.put(ONLINE_STATUS, ImageLoader
-                    .getImage(ImageLoader.AIM_LOGO));
-
-        } else if (protocolName.equals(Constants.YAHOO)) {
-
-            protocolStatusList.put(ONLINE_STATUS, ImageLoader
-                    .getImage(ImageLoader.YAHOO_LOGO));
-
-        } else if (protocolName.equals(Constants.JABBER)) {
-
-            protocolStatusList.put(ONLINE_STATUS, ImageLoader
-                    .getImage(ImageLoader.JABBER_LOGO));
- 
-            protocolStatusList.put(CHAT_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_CHAT_ICON));
-
-            protocolStatusList.put(AWAY_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_AWAY_ICON));
-
-            protocolStatusList.put(OCCUPIED_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_OCCUPIED_ICON));
-
-            protocolStatusList.put(NA_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_NA_ICON));
-
-            protocolStatusList.put(DND_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_DND_ICON));
-
-            protocolStatusList.put(OFFLINE_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_OFFLINE_ICON));
-
-            protocolStatusList.put(INVISIBLE_STATUS, ImageLoader
-                    .getImage(ImageLoader.SIP_INVISIBLE_ICON));
-
-
-        } else if (protocolName.equals(Constants.SKYPE)) {
-
-            protocolStatusList.put(ONLINE_STATUS, ImageLoader
-                    .getImage(ImageLoader.SKYPE_LOGO));
-        }
-
-        return protocolStatusList;
-    }
 
     /**
      * Returns the image corresponding to the given presence status.
@@ -622,7 +440,28 @@ public class Constants {
      * @return the image corresponding to the given presence status.
      */
     public static BufferedImage getStatusIcon(PresenceStatus status) {
-        return (BufferedImage) mainStatusSet.get(status);
+        int connectivity = status.getStatus();
+        
+        if(connectivity < 20) {
+            return ImageLoader
+                .getImage(ImageLoader.USER_OFFLINE_ICON);
+        }
+        else if(connectivity > 20 && connectivity < 50) {
+            return ImageLoader
+            .getImage(ImageLoader.USER_AWAY_ICON);
+        }
+        else if(connectivity > 50 && connectivity < 80) {
+            return ImageLoader
+                .getImage(ImageLoader.USER_ONLINE_ICON);
+        }
+        else if(connectivity > 80 && connectivity < 100) {
+            return ImageLoader
+                .getImage(ImageLoader.USER_FFC_ICON);
+        }
+        else {
+            return ImageLoader
+            .getImage(ImageLoader.USER_OFFLINE_ICON);
+        }
     }
 
     /**
