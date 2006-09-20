@@ -159,19 +159,22 @@ public class ContactListModel extends AbstractListModel {
      * from all subcontact  statuses.
      */
     public PresenceStatus getMetaContactStatus(MetaContact metaContact) {
-
-        PresenceStatus defaultStatus = Constants.OFFLINE_STATUS;
-
+        PresenceStatus status = null;
         Iterator i = metaContact.getContacts();
         while (i.hasNext()) {
             Contact protoContact = (Contact) i.next();
             PresenceStatus contactStatus = protoContact.getPresenceStatus();
 
-            defaultStatus 
-                = (contactStatus.compareTo(defaultStatus) > 0)
-                    ? contactStatus : defaultStatus;
+            if(status == null) {
+                status = contactStatus;
+            }
+            else {
+                status
+                    = (contactStatus.compareTo(status) > 0)
+                    ? contactStatus : status;
+            }
         }
-        return defaultStatus;
+        return status;
     }
 
     /**
