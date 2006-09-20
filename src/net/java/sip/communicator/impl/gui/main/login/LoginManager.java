@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
+import net.java.sip.communicator.impl.gui.main.authorization.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -47,6 +48,8 @@ public class LoginManager
 
     private MainFrame mainFrame;
 
+    private boolean manuallyDisconnected = false;
+    
     public LoginManager(MainFrame mainFrame) {
 
         this.mainFrame = mainFrame;
@@ -93,10 +96,8 @@ public class LoginManager
      * @param protocolProvider the ProtocolProviderService to register.
      */
     public void login(ProtocolProviderService protocolProvider) {
-
+        
         this.mainFrame.activateAccount(protocolProvider);
-
-        protocolProvider.addRegistrationStateChangeListener(this);
 
         SecurityAuthorityImpl secAuth
             = new SecurityAuthorityImpl(mainFrame, protocolProvider);
@@ -147,8 +148,11 @@ public class LoginManager
                 protocolProvider
                     = (ProtocolProviderService) GuiActivator.bundleContext
                         .getService(serRef);
-
-                this.mainFrame.addAccount(protocolProvider);
+                
+                protocolProvider.addRegistrationStateChangeListener(this);
+                
+                this.mainFrame.addProtocolProvider(protocolProvider);
+                
                 this.login(protocolProvider);
             }
         }
@@ -196,21 +200,20 @@ public class LoginManager
      */
     public void registrationStateChanged(RegistrationStateChangeEvent evt) {
         ProtocolProviderService protocolProvider = evt.getProvider();
-
+        
         if (evt.getNewState().equals(RegistrationState.REGISTERED)) {
-
-            this.mainFrame.addProtocolProvider(protocolProvider);
-
+            
+            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
+            
+            mainFrame.getProtocolPresence(protocolProvider)
+                .setAuthorizationHandler(
+                    new AuthorizationHandlerImpl());
+            
         } else if (evt.getNewState().equals(
                 RegistrationState.AUTHENTICATION_FAILED)) {
 
-            StatusPanel statusPanel = this.mainFrame.getStatusPanel();
-
-            statusPanel.stopConnecting(protocolProvider);
-
-            statusPanel.setSelectedStatus(protocolProvider,
-                    Constants.OFFLINE_STATUS);
-
+            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
+            
             if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED) {
                 SIPCommMsgTextArea msgText
@@ -246,13 +249,8 @@ public class LoginManager
         else if (evt.getNewState()
                 .equals(RegistrationState.CONNECTION_FAILED)) {
 
-            this.mainFrame.getStatusPanel().stopConnecting(
-                    evt.getProvider());
-
-            this.mainFrame.getStatusPanel().setSelectedStatus(
-                    evt.getProvider(),
-                    Constants.OFFLINE_STATUS);
-
+            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
+            
             SIPCommMsgTextArea msgText
                 = new SIPCommMsgTextArea(
                         Messages.getString("connectionFailedMessage"));
@@ -263,6 +261,8 @@ public class LoginManager
             logger.error(evt.getReason());
         }
         else if (evt.getNewState().equals(RegistrationState.EXPIRED)) {
+            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
+            
             SIPCommMsgTextArea msgText
                 = new SIPCommMsgTextArea(Messages.getString(
                         "connectionExpiredMessage", protocolProvider
@@ -276,42 +276,38 @@ public class LoginManager
         }
         else if (evt.getNewState().equals(RegistrationState.UNREGISTERED)) {
 
-            if (evt.getReasonCode() == RegistrationStateChangeEvent
-                    .REASON_MULTIPLE_LOGINS) {
-                SIPCommMsgTextArea msgText
-                    = new SIPCommMsgTextArea(Messages.getString(
-                        "multipleLogins", protocolProvider.getAccountID()
-                        .getUserID()));
-
-                JOptionPane.showMessageDialog(null, msgText, Messages
-                        .getString("error"), JOptionPane.ERROR_MESSAGE);
-            } else if (evt.getReasonCode() == RegistrationStateChangeEvent
-                    .REASON_CLIENT_LIMIT_REACHED_FOR_IP) {
-                SIPCommMsgTextArea msgText
-                    = new SIPCommMsgTextArea(Messages
-                            .getString("limitReachedForIp", protocolProvider
-                                    .getProtocolName()));
-
-                JOptionPane.showMessageDialog(null, msgText, Messages
-                        .getString("error"), JOptionPane.ERROR_MESSAGE);
-            } else {
-                SIPCommMsgTextArea msgText
-                    = new SIPCommMsgTextArea(Messages.getString(
-                            "unregisteredMessage", protocolProvider
-                            .getProtocolName()));
-
-                JOptionPane.showMessageDialog(null, msgText, Messages
-                        .getString("error"), JOptionPane.ERROR_MESSAGE);
+            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
+            
+            if(!manuallyDisconnected) {
+                if (evt.getReasonCode() == RegistrationStateChangeEvent
+                        .REASON_MULTIPLE_LOGINS) {
+                    SIPCommMsgTextArea msgText
+                        = new SIPCommMsgTextArea(Messages.getString(
+                            "multipleLogins", protocolProvider.getAccountID()
+                            .getUserID()));
+    
+                    JOptionPane.showMessageDialog(null, msgText, Messages
+                            .getString("error"), JOptionPane.ERROR_MESSAGE);
+                } else if (evt.getReasonCode() == RegistrationStateChangeEvent
+                        .REASON_CLIENT_LIMIT_REACHED_FOR_IP) {
+                    SIPCommMsgTextArea msgText
+                        = new SIPCommMsgTextArea(Messages
+                                .getString("limitReachedForIp", protocolProvider
+                                        .getProtocolName()));
+    
+                    JOptionPane.showMessageDialog(null, msgText, Messages
+                            .getString("error"), JOptionPane.ERROR_MESSAGE);
+                } else {
+                    SIPCommMsgTextArea msgText
+                        = new SIPCommMsgTextArea(Messages.getString(
+                                "unregisteredMessage", protocolProvider
+                                .getProtocolName()));
+    
+                    JOptionPane.showMessageDialog(null, msgText, Messages
+                            .getString("error"), JOptionPane.ERROR_MESSAGE);
+                }
+                logger.error(evt.getReason());
             }
-
-            logger.error(evt.getReason());
-
-            this.mainFrame.getStatusPanel().stopConnecting(
-                    evt.getProvider());
-
-            this.mainFrame.getStatusPanel().setSelectedStatus(
-                    evt.getProvider(),
-                    Constants.OFFLINE_STATUS);
         }
     }
 
@@ -341,7 +337,7 @@ public class LoginManager
     public void serviceChanged(ServiceEvent event) {
         Object service = GuiActivator.bundleContext
             .getService(event.getServiceReference());
-
+        
         // we don't care if the source service is not a protocol provider
         if (! (service instanceof ProtocolProviderService)) {
             return;
@@ -365,7 +361,8 @@ public class LoginManager
      */
     private void handleProviderAdded(
             ProtocolProviderService protocolProvider) {
-        this.mainFrame.addAccount(protocolProvider);
+        protocolProvider.addRegistrationStateChangeListener(this);
+        this.mainFrame.addProtocolProvider(protocolProvider);
         this.login(protocolProvider);
     }
 
@@ -374,7 +371,17 @@ public class LoginManager
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      */
     private void handleProviderRemoved(
-            ProtocolProviderService protocolProvider) {
+            ProtocolProviderService protocolProvider) {        
         this.mainFrame.removeAccount(protocolProvider);
+    }
+
+    public boolean isManuallyDisconnected()
+    {
+        return manuallyDisconnected;
+    }
+
+    public void setManuallyDisconnected(boolean manuallyDisconnected)
+    {
+        this.manuallyDisconnected = manuallyDisconnected;
     }
 }
