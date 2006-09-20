@@ -240,6 +240,53 @@ public class MetaContactListServiceImpl
                                             String contactID,
                                             boolean fireEvent)
         throws MetaContactListException
+    {   
+        //find the parent group in the corresponding protocol.
+        MetaContactGroup parentMetaGroup
+            = findParentMetaContactGroup(metaContact);
+
+        if (parentMetaGroup == null)
+        {
+            throw new MetaContactListException(
+                "orphan Contact: " + metaContact
+                , null
+                , MetaContactListException.CODE_NETWORK_ERROR);
+        }
+        
+        addNewContactToMetaContact(provider, parentMetaGroup, metaContact,
+                contactID, fireEvent);
+    }
+
+    /**
+     * First makes the specified protocol provider create the contact as
+     * indicated by <tt>contactID</tt>, and then associates it to the
+     * _existing_ <tt>metaContact</tt> given as an argument.
+     *
+     * @param provider
+     *            the ProtocolProviderService that should create the contact
+     *            indicated by <tt>contactID</tt>.
+     * @param parentMetaGroup
+     *            the meta contact group which is the parent group of the newly
+     *            created contact
+     * @param metaContact
+     *            the meta contact where that the newly created contact should
+     *            be associated to.
+     * @param contactID
+     *            the identifier of the contact that the specified provider
+     * @param fireEvent
+     *            specifies whether or not an even is to be faire at
+     * the end of the method.Used when this method is called upon creation of a
+     * new meta contact and not only a new contact.
+     * @throws MetaContactListException
+     *             with an appropriate code if the operation fails for some
+     *             reason.
+     */
+    private void addNewContactToMetaContact( ProtocolProviderService provider,
+                                            MetaContactGroup parentMetaGroup,
+                                            MetaContact metaContact,
+                                            String contactID,
+                                            boolean fireEvent)
+        throws MetaContactListException
     {
         OperationSetPersistentPresence opSetPersPresence
             = (OperationSetPersistentPresence) provider
@@ -253,26 +300,14 @@ public class MetaContactListServiceImpl
 
         if (! (metaContact instanceof MetaContactImpl))
         {
-            throw new IllegalArgumentException(metaContact
-                                               +
-                                               " is not an instance of MetaContactImpl");
+            throw new IllegalArgumentException(
+                    metaContact
+                    + " is not an instance of MetaContactImpl");
         }
-
-        //find the parent group in the corresponding protocol.
-        MetaContactGroup parentMetaGroup
-            = findParentMetaContactGroup(metaContact);
-
-        if (parentMetaGroup == null)
-        {
-            throw new MetaContactListException(
-                "orphan Contact: " + metaContact
-                , null
-                , MetaContactListException.CODE_NETWORK_ERROR);
-        }
-
+        
         ContactGroup parentProtoGroup
             = resolveProtoPath(provider, (MetaContactGroupImpl) parentMetaGroup);
-
+        
         if (parentProtoGroup == null)
         {
             throw new MetaContactListException(
@@ -337,6 +372,8 @@ public class MetaContactListServiceImpl
                                        null,
                                        metaContact);
         }
+        ((MetaContactGroupImpl) parentMetaGroup).addMetaContact(
+                (MetaContactImpl)metaContact);
     }
 
     /**
@@ -354,7 +391,7 @@ public class MetaContactListServiceImpl
      */
     private ContactGroup resolveProtoPath(ProtocolProviderService protoProvider,
                                           MetaContactGroupImpl metaGroup)
-    {
+    {   
         Iterator contactGroupsForProv = metaGroup
             .getContactGroupsForProvider(protoProvider);
 
@@ -374,11 +411,12 @@ public class MetaContactListServiceImpl
 
         ContactGroup parentProtoGroup
             = resolveProtoPath(protoProvider, parentMetaGroup);
-
+        
         OperationSetPersistentPresence opSetPersPresence
             = (OperationSetPersistentPresence) protoProvider
             .getSupportedOperationSets().get(OperationSetPersistentPresence
                                              .class.getName());
+
         //if persistent presence is not supported - just bail
         //we should have verified this earlier anyway
         if (opSetPersPresence == null)
@@ -561,12 +599,9 @@ public class MetaContactListServiceImpl
 
         MetaContactImpl newMetaContact = new MetaContactImpl();
 
-        ( (MetaContactGroupImpl) metaContactGroup).addMetaContact(
-            newMetaContact);
-
-        this.addNewContactToMetaContact(provider, newMetaContact, contactID,
-              false);//don't fire a PROTO_CONT_ADDED event we'll fire our
-                     //own event here.
+        this.addNewContactToMetaContact(provider, metaContactGroup, newMetaContact,
+                contactID, false);  //don't fire a PROTO_CONT_ADDED event we'll
+                                    //fire our own event here.
 
         fireMetaContactEvent(  newMetaContact
                              , findParentMetaContactGroup(newMetaContact)
@@ -631,7 +666,7 @@ public class MetaContactListServiceImpl
         fireMetaContactGroupEvent(group, null, null
             , MetaContactGroupEvent.META_CONTACT_GROUP_RENAMED);
     }
-
+    
     /**
      * Returns the root <tt>MetaContactGroup</tt> in this contact list.
      *
