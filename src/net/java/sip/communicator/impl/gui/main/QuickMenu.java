@@ -24,6 +24,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>QuickMenu</tt> is the toolbar on the top of the main
@@ -40,6 +41,8 @@ import net.java.sip.communicator.service.protocol.*;
 public class QuickMenu extends SIPCommToolBar implements ActionListener,
         PluginComponentListener {
 
+    private Logger logger = Logger.getLogger(QuickMenu.class.getName());
+    
     private JButton infoButton = new JButton(new ImageIcon(ImageLoader
             .getImage(ImageLoader.QUICK_MENU_INFO_ICON)));
 
@@ -158,19 +161,38 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
                         MetaContactGroup group
                             = (MetaContactGroup)groupList.get(j);
 
-                        try {
-                            mainFrame.getContactList()
-                                .createMetaContact(
-                                    pps, group, newContact.getUin());
+                        
+                        class CreateContact extends Thread {
+                            ProtocolProviderService pps;
+                            MetaContactGroup group;
+                            NewContact newContact;
+                            CreateContact(ProtocolProviderService pps,
+                                    MetaContactGroup group,
+                                    NewContact newContact) {
+                                this.pps = pps;
+                                this.group = group;
+                                this.newContact = newContact;
+                            }
+                            public void run() {
+                                try {
+                                    mainFrame.getContactList()
+                                        .createMetaContact(
+                                        pps, group, newContact.getUin());
+                                }
+                                catch (MetaContactListException ex) {
+                                    logger.error(ex);
+                                    
+                                    JOptionPane.showMessageDialog(mainFrame,
+                                        Messages.getString(
+                                                "addContactError",
+                                                newContact.getUin()),
+                                        Messages.getString(
+                                                "addContactErrorTitle"),
+                                        JOptionPane.WARNING_MESSAGE);
+                                }
+                            }
                         }
-                        catch (MetaContactListException ex) {
-                            JOptionPane.showMessageDialog(mainFrame,
-                                Messages.getString(
-                                        "addContactError", newContact.getUin()),
-                                Messages.getString(
-                                        "addContactErrorTitle"),
-                                JOptionPane.WARNING_MESSAGE);
-                        }
+                        new CreateContact(pps, group, newContact).start();
                     }
                 }
             }
