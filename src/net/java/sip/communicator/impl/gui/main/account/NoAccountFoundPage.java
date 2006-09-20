@@ -37,7 +37,8 @@ public class NoAccountFoundPage extends JPanel
         this.messageArea.setWrapStyleWord(true);
         this.messageArea.setEditable(false);
         this.messageArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 14f));
-                
+        this.messageArea.setOpaque(false);
+        
         this.add(messageArea, BorderLayout.CENTER);
         
         this.setBorder(BorderFactory.createEmptyBorder(55, 10, 10, 10));

@@ -71,7 +71,8 @@ public class AccountRegFirstPage extends JPanel
         
         this.messageTextArea.setLineWrap(true);
         this.messageTextArea.setWrapStyleWord(true);
-                
+        this.messageTextArea.setOpaque(false);
+        
         this.pageTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
         
         this.textPanel.add(pageTitleLabel);
