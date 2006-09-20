@@ -37,7 +37,6 @@ public class AuthorizationHandlerImpl
      */
     public AuthorizationResponse processAuthorisationRequest(
             AuthorizationRequest req, Contact sourceContact) {
-        System.out.println("PROCESS AUTHORIZATION REQUEST!!!!!!!");
         AuthorizationResponse response = null;
         
         AuthorizationRequestedDialog dialog 
@@ -95,7 +94,6 @@ public class AuthorizationHandlerImpl
     public void processAuthorizationResponse(AuthorizationResponse response,
             Contact sourceContact)
     {
-        System.out.println("PROCESS AUTHORIZATION RESPONSE!!!!!!!");
         AuthorizationResponseDialog dialog 
             = new AuthorizationResponseDialog(sourceContact, response);
         
