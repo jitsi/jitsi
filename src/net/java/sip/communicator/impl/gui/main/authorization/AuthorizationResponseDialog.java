@@ -9,8 +9,10 @@ package net.java.sip.communicator.impl.gui.main.authorization;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -25,9 +27,15 @@ public class AuthorizationResponseDialog extends JDialog
         
     private JButton okButton = new JButton(Messages.getString("ok"));
     
-    private JScrollPane requestScrollPane = new JScrollPane();
+    private JScrollPane responseScrollPane = new JScrollPane();
     
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+    
+    private JPanel northPanel = new JPanel(new GridLayout(0, 1));
+    
+    private JLabel titleLabel = new JLabel();
+    
+    private String title = Messages.getString("authorizationResponse");
         
     /**
      * Constructs the <tt>RequestAuthorisationDialog</tt>.
@@ -41,44 +49,58 @@ public class AuthorizationResponseDialog extends JDialog
         
         this.setModal(true);
         
-        this.setTitle(Messages.getString("authorizationResponse"));
-    
-        this.mainPanel.setPreferredSize(new Dimension(300, 200));
+        this.setTitle(title);
+        
+        titleLabel.setHorizontalAlignment(JLabel.CENTER);
+        titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
+        titleLabel.setText(title);
+        
+        this.mainPanel.setPreferredSize(new Dimension(350, 150));
                 
         AuthorizationResponse.AuthorizationResponseCode responseCode
             = response.getResponseCode();
         
         if(responseCode.equals(AuthorizationResponse.ACCEPT)) {
-            infoTextArea.setText(Messages.getString("authAccepted", 
-                contact.getDisplayName()));
+            infoTextArea.setText(contact.getDisplayName() + " "
+                    + Messages.getString("authAccepted"));
         }
         else if(responseCode.equals(AuthorizationResponse.REJECT)) {
-            infoTextArea.setText(Messages.getString("authRejected", 
-                    contact.getDisplayName()));
+            infoTextArea.setText(contact.getDisplayName() + " "
+                    + Messages.getString("authRejected"));
         }
         
-        this.responseArea.setBorder(BorderFactory
-            .createTitledBorder(Messages.getString("authorizationResponse")));
+        this.responseScrollPane.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(3, 3, 3, 3),
+                SIPCommBorders.getBoldRoundBorder()));
         
         this.responseArea.setText(response.getReason());
         this.responseArea.setLineWrap(true);
         this.responseArea.setWrapStyleWord(true);
+        this.responseArea.setEditable(false);
+        this.responseArea.setOpaque(false);
         
-        this.requestScrollPane.getViewport().add(responseArea);
+        this.responseScrollPane.getViewport().add(responseArea);
         
         this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         this.infoTextArea.setLineWrap(true);
         this.infoTextArea.setWrapStyleWord(true);
-                
+        this.infoTextArea.setEditable(false);
+        this.infoTextArea.setOpaque(false);
+        
+        this.northPanel.add(titleLabel);
+        this.northPanel.add(infoTextArea);
+        
+        this.okButton.requestFocus();
         this.okButton.setName("ok");
-                
+        this.getRootPane().setDefaultButton(okButton);
+        
         this.okButton.addActionListener(this);
         
         this.buttonsPanel.add(okButton);
-                
+        
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        this.mainPanel.add(infoTextArea, BorderLayout.NORTH);
-        this.mainPanel.add(requestScrollPane, BorderLayout.CENTER);
+        this.mainPanel.add(northPanel, BorderLayout.NORTH);
+        this.mainPanel.add(responseScrollPane, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
         this.getContentPane().add(mainPanel);

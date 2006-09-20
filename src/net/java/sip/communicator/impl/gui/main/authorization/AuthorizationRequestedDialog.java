@@ -11,6 +11,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -37,6 +38,10 @@ public class AuthorizationRequestedDialog extends JDialog
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
+    private JPanel northPanel = new JPanel(new GridLayout(0, 1));
+    
+    private JLabel titleLabel = new JLabel();
+    
     private JButton acceptButton 
         = new JButton(Messages.getString("accept"));
     
@@ -54,6 +59,8 @@ public class AuthorizationRequestedDialog extends JDialog
     private JSplitPane reasonsSplitPane
         = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
     
+    private String title = Messages.getString("authorizationRequested");
+    
     private int result;
     
     /**
@@ -67,30 +74,41 @@ public class AuthorizationRequestedDialog extends JDialog
         
         this.setModal(true);
         
-        this.setTitle(Messages.getString("authorizationRequested"));
-                    
+        this.setTitle(title);
+
+        titleLabel.setHorizontalAlignment(JLabel.CENTER);
+        titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
+        titleLabel.setText(title);
+        
         infoTextArea.setText(Messages.getString("authorizationRequestedInfo", 
                 contact.getDisplayName()));
+        this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
+        this.infoTextArea.setLineWrap(true);
+        this.infoTextArea.setWrapStyleWord(true);
+        this.infoTextArea.setOpaque(false);
         
-        this.requestPane.setBorder(BorderFactory
-                .createTitledBorder(Messages.getString("requestAuthReason")));
+        this.northPanel.add(titleLabel);
+        this.northPanel.add(infoTextArea);
+        
+        this.requestScrollPane.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(3, 3, 3, 3),
+                SIPCommBorders.getBoldRoundBorder()));
+        
         this.requestPane.setEditable(false);
+        this.requestPane.setOpaque(false);
         this.requestPane.setText(request.getReason());
                 
         this.requestScrollPane.getViewport().add(requestPane);
         
-        this.responsePane.setBorder(BorderFactory
-            .createTitledBorder(Messages.getString("responseAuthReasonEnter")));
-                
+        this.responseScrollPane.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(3, 3, 3, 3),
+                SIPCommBorders.getBoldRoundBorder()));
+        
         this.responseScrollPane.getViewport().add(responsePane);
         
         this.reasonsSplitPane.setDividerLocation(170);
         this.reasonsSplitPane.add(requestScrollPane);
         this.reasonsSplitPane.add(responseScrollPane);
-        
-        this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
-        this.infoTextArea.setLineWrap(true);
-        this.infoTextArea.setWrapStyleWord(true);
         
         this.acceptButton.setName("accept");
         this.rejectButton.setName("reject");
@@ -101,12 +119,19 @@ public class AuthorizationRequestedDialog extends JDialog
         this.rejectButton.addActionListener(this);
         this.ignoreButton.addActionListener(this);
                 
+        this.acceptButton.setMnemonic(
+                Messages.getString("mnemonic.acceptButton").charAt(0));
+        this.rejectButton.setMnemonic(
+                Messages.getString("mnemonic.rejectButton").charAt(0));
+        this.ignoreButton.setMnemonic(
+                Messages.getString("mnemonic.ignoreButton").charAt(0));
+        
         this.buttonsPanel.add(acceptButton);
         this.buttonsPanel.add(rejectButton);
         this.buttonsPanel.add(ignoreButton);
         
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        this.mainPanel.add(infoTextArea, BorderLayout.NORTH);
+        this.mainPanel.add(northPanel, BorderLayout.NORTH);
         this.mainPanel.add(reasonsSplitPane, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
