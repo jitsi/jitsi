@@ -1,0 +1,15 @@
+Bundle-Activator: net.java.sip.communicator.slick.protocol.jabber.JabberProtocolProviderServiceLick
+Bundle-Name: Jabber Protocol Provider Service Leveraging Implementation Compatibility Kit
+Bundle-Description: A Service Leveraging Implementation Compatibility Kit for the Jabber implementation of the ProtocolProvider Service
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.configuration.event,
+ junit.framework,
+ org.osgi.framework,
+ javax.net.ssl,
+ javax.xml.parsers,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.jabberconstants,
+ net.java.sip.communicator.service.protocol.event
