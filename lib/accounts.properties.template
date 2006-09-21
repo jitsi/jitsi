@@ -93,3 +93,23 @@ accounts.sip.account2.PROXY_ADDRESS=
 # A port numer to use when connecting to the proxy specified in PROXY_ADDRESS
 # (Optional)
 accounts.sip.account2.PROXY_PORT=
+
+
+#
+#   Jabber Properties
+#
+
+# The address of the first tested account
+accounts.jabber.account1.USER_ID=
+# The password of the first tested account
+accounts.jabber.account1.PASSWORD=
+# The address of the second tested account
+accounts.jabber.account2.USER_ID=
+# The password of the second tested account
+accounts.jabber.account2.PASSWORD=
+# The contact list that will be created and will be tested is it created OK.
+# The value of the CONTACT_LIST property
+# must be a space separated string containing elements each of which is in the
+# format: GroupName.ADDRESS
+accounts.jabber.CONTACT_LIST=test-group.damencho@gmail.com test-group.damenchodev2@gmail.com
+accounts.reporting.JABBER_REPORT_LIST=damencho@gmail.com
