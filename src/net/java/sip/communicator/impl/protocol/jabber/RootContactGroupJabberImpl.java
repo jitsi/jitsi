@@ -84,24 +84,12 @@ public class RootContactGroupJabberImpl
     }
 
     /**
-     * Adds the specified group at the specified position in the list of sub
-     * groups.
-     *
-     * @param index the position at which the specified group should be added.
-     * @param group the ContactGroup to add
-     */
-    void addSubGroup(int index, ContactGroupJabberImpl group)
-    {
-        subGroups.add(index, group);
-    }
-
-    /**
      * Adds the specified group to the end of the list of sub groups.
      * @param group the group to add.
      */
     void addSubGroup(ContactGroupJabberImpl group)
     {
-        addSubGroup(countContacts() + countSubgroups(), group);
+        subGroups.add(group);
     }
 
     /**
