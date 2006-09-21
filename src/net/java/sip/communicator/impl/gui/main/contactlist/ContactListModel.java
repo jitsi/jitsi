@@ -204,20 +204,14 @@ public class ContactListModel extends AbstractListModel {
                     .findParentMetaContactGroup(contact);
 
             if (parentGroup != null && !this.isGroupClosed(parentGroup)) {
+
                 currentIndex += this.indexOf(parentGroup);
 
-                for (int i = 0; i < parentGroup.countSubgroups(); i++) {
-                    MetaContactGroup subGroup = parentGroup
-                            .getMetaContactSubgroup(i);
-
-                    currentIndex += countSubgroupContacts(subGroup);
-                }
-              
                 currentIndex += parentGroup.indexOf(contact) + 1;
 
                 index = currentIndex;
             }
-        }        
+        }
         return index;
     }
 
@@ -235,17 +229,19 @@ public class ContactListModel extends AbstractListModel {
                 .findParentMetaContactGroup(group);
 
         if (parentGroup != null && !this.isGroupClosed(parentGroup)) {
+          
             currentIndex += this.indexOf(parentGroup);
-            
+          
+            currentIndex += countChildContacts(parentGroup);
+          
             currentIndex += parentGroup.indexOf(group) + 1;
             
             for (int i = 0; i < parentGroup.indexOf(group); i++) {
                 MetaContactGroup subGroup = parentGroup
                         .getMetaContactSubgroup(i);
-
+                
                 currentIndex += countSubgroupContacts(subGroup);
-            }
-
+            }            
             index = currentIndex;
         }
         return index;
@@ -260,7 +256,7 @@ public class ContactListModel extends AbstractListModel {
      * @return The number of all children of the given MetaContactGroup
      */
     private int countSubgroupContacts(MetaContactGroup parentGroup) {
-
+ 
         int count = 0;
 
         if (parentGroup != null && !this.isGroupClosed(parentGroup)) {
@@ -283,7 +279,34 @@ public class ContactListModel extends AbstractListModel {
 
                 count += countSubgroupContacts(subgroup);
             }
-        }        
+        }
+        return count;
+    }
+    
+    /**
+     * Returns the number of all child contacts of the given
+     * MetaContactGroup.
+     * 
+     * @param parentGroup The parent MetaContactGroup.
+     * @return The number of all children of the given MetaContactGroup
+     */
+    private int countChildContacts(MetaContactGroup parentGroup) {
+ 
+        int count = 0;
+
+        if (parentGroup != null && !this.isGroupClosed(parentGroup)) {
+            if (showOffline) {
+                count = parentGroup.countChildContacts();
+            }
+            else {                
+                Iterator i = parentGroup.getChildContacts();
+                while (i.hasNext()) {
+                    MetaContact contact = (MetaContact) i.next();
+                    if (!offlineContacts.contains(contact))
+                        count++;
+                }
+            }
+        }
         return count;
     }
 
@@ -295,18 +318,15 @@ public class ContactListModel extends AbstractListModel {
      * @return The element at the given index, if it finds it, otherwise null.
      */
     private Object getElementAt(MetaContactGroup group, int searchedIndex) {
-
         Object element = null;
 
         if (!this.isGroupClosed(group)) {
             Iterator contacts = group.getChildContacts();
 
             while (contacts.hasNext()) {
-                MetaContact contact = (MetaContact) contacts.next();
-
+                MetaContact contact = (MetaContact) contacts.next();                
                 if (!offlineContacts.contains(contact)
-                        && this.indexOf(contact) == searchedIndex) {
-
+                        && this.indexOf(contact) == searchedIndex) {                    
                     element = contact;
                     break;
                 }
@@ -318,12 +338,13 @@ public class ContactListModel extends AbstractListModel {
                 while (subgroups.hasNext()) {
                     MetaContactGroup subgroup = (MetaContactGroup) subgroups
                             .next();
-
+                    
                     if (this.indexOf(subgroup) != searchedIndex) {
                         element = getElementAt(subgroup, searchedIndex);
-                        if (element != null)
+                        if (element != null) {
                             break;
-                    } else {                        
+                        }
+                    } else {
                         element = subgroup;
                         break;
                     }
