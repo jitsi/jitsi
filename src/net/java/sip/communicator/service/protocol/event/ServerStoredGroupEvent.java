@@ -39,6 +39,12 @@ public class ServerStoredGroupEvent
      */
     public static final int GROUP_RESOLVED_EVENT = 4;
 
+    /**
+     * Indicates that we have failed to create a group.
+     */
+    public static final int GROUP_CREATION_FAILED_EVENT = 5;
+
+
     private int eventID = -1;
     private ProtocolProviderService sourceProvider = null;
     private OperationSetPersistentPresence parentOperationSet = null;
