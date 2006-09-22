@@ -240,7 +240,7 @@ public class MetaContactListServiceImpl
                                             String contactID,
                                             boolean fireEvent)
         throws MetaContactListException
-    {   
+    {
         //find the parent group in the corresponding protocol.
         MetaContactGroup parentMetaGroup
             = findParentMetaContactGroup(metaContact);
@@ -252,7 +252,7 @@ public class MetaContactListServiceImpl
                 , null
                 , MetaContactListException.CODE_NETWORK_ERROR);
         }
-        
+
         addNewContactToMetaContact(provider, parentMetaGroup, metaContact,
                 contactID, fireEvent);
     }
@@ -304,10 +304,10 @@ public class MetaContactListServiceImpl
                     metaContact
                     + " is not an instance of MetaContactImpl");
         }
-        
+
         ContactGroup parentProtoGroup
             = resolveProtoPath(provider, (MetaContactGroupImpl) parentMetaGroup);
-        
+
         if (parentProtoGroup == null)
         {
             throw new MetaContactListException(
@@ -391,7 +391,7 @@ public class MetaContactListServiceImpl
      */
     private ContactGroup resolveProtoPath(ProtocolProviderService protoProvider,
                                           MetaContactGroupImpl metaGroup)
-    {   
+    {
         Iterator contactGroupsForProv = metaGroup
             .getContactGroupsForProvider(protoProvider);
 
@@ -411,7 +411,7 @@ public class MetaContactListServiceImpl
 
         ContactGroup parentProtoGroup
             = resolveProtoPath(protoProvider, parentMetaGroup);
-        
+
         OperationSetPersistentPresence opSetPersPresence
             = (OperationSetPersistentPresence) protoProvider
             .getSupportedOperationSets().get(OperationSetPersistentPresence
@@ -666,7 +666,7 @@ public class MetaContactListServiceImpl
         fireMetaContactGroupEvent(group, null, null
             , MetaContactGroupEvent.META_CONTACT_GROUP_RENAMED);
     }
-    
+
     /**
      * Returns the root <tt>MetaContactGroup</tt> in this contact list.
      *
@@ -2139,7 +2139,16 @@ public class MetaContactListServiceImpl
         String metaContactGroupUID,
         String displayName)
     {
-        MetaContactGroupImpl newMetaGroup
+        //first check if the group exists already.
+        MetaContactGroupImpl newMetaGroup = ((MetaContactGroupImpl)parentGroup)
+            .getMetaContactSubgroupByUID(metaContactGroupUID);
+
+        //if the group exists then we have already loaded it for another
+        //account and we should reuse the same instance.
+        if(newMetaGroup != null)
+            return newMetaGroup;
+
+        newMetaGroup
             = new MetaContactGroupImpl(displayName, metaContactGroupUID);
 
         ((MetaContactGroupImpl)parentGroup).addSubgroup(newMetaGroup);
