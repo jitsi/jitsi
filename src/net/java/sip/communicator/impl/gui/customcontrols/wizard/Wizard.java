@@ -246,11 +246,13 @@ public class Wizard extends WindowAdapter
      * @param id The identifer of the wizard page.
      */    
     public void unregisterWizardPage(Object id) {
-        
-        cardPanel.remove(
+        WizardPage wizardPage = wizardModel.getWizardPage(id);
+        if(wizardPage != null) {
+            cardPanel.remove(
                 (Component)wizardModel.getWizardPage(id).getWizardForm());
         
-        wizardModel.unregisterPage(id);
+            wizardModel.unregisterPage(id);
+        }
     }
     
     /**
