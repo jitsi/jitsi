@@ -624,6 +624,30 @@ public class MetaContactGroupImpl
     }
 
     /**
+     * Returns the <tt>MetaContactGroup</tt> with the specified groupUID.
+     *
+     * @param groupUID the uid of the group to return.
+     * @return the <tt>MetaContactGroup</tt> with the specified uid or null
+     *   if no such group exists.
+     */
+    public MetaContactGroupImpl getMetaContactSubgroupByUID(String groupUID)
+    {
+        Iterator groupsIter = getSubgroups();
+
+        while(groupsIter.hasNext())
+        {
+            MetaContactGroupImpl mcGroup
+                = (MetaContactGroupImpl)groupsIter.next();
+
+            if(mcGroup.getGroupName().equals(groupUID))
+                return mcGroup;
+        }
+
+        return null;
+    }
+
+
+    /**
      * Returns true if and only if <tt>contact</tt> is a direct child of this
      * group.
      * @param contact the <tt>MetaContact</tt> whose relation to this group
