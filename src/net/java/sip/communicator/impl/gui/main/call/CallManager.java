@@ -4,14 +4,19 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main;
+package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>CallPanel</tt> is the panel that contains the "Call" and "Hangup"
@@ -21,7 +26,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 
-public class CallPanel 
+public class CallManager 
     extends JPanel
     implements ActionListener
 {
@@ -52,7 +57,9 @@ public class CallPanel
     private JPanel minimizeButtonPanel = new JPanel(new FlowLayout(
             FlowLayout.RIGHT));
 
-    private MainFrame parentWindow;
+    private MainFrame mainFrame;
+    
+    private Hashtable activeCalls = new Hashtable(); 
     
     private boolean isShown;
 
@@ -60,11 +67,11 @@ public class CallPanel
      * Creates an instance of <tt>CallPanel</tt>.
      * @param parentWindow The main application window.
      */
-    public CallPanel(MainFrame parentWindow)
+    public CallManager(MainFrame mainFrame)
     {
         super(new BorderLayout());
 
-        this.parentWindow = parentWindow;
+        this.mainFrame = mainFrame;
 
         this.buttonsPanel
                 .setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
@@ -97,11 +104,7 @@ public class CallPanel
         this.buttonsPanel.add(callButton);
         this.buttonsPanel.add(hangupButton);
 
-        this.add(minimizeButtonPanel, BorderLayout.SOUTH);
-
-        // Disable all unused buttons.
-        this.callButton.setEnabled(false);
-        this.hangupButton.setEnabled(false);
+        this.add(minimizeButtonPanel, BorderLayout.SOUTH);        
     }
 
     /**
@@ -123,12 +126,48 @@ public class CallPanel
         String buttonName = button.getName();
 
         if (buttonName.equalsIgnoreCase("call")) {
-            CallReceivePanel cr = new CallReceivePanel(this.parentWindow);
-
-            cr.setVisible(true);
+            OperationSetBasicTelephony telephony;
+            
+            Object o = mainFrame.getContactListPanel()
+                .getContactList().getSelectedValue();
+            
+            if(o != null && o instanceof MetaContact) {
+                MetaContact metaContact
+                    = (MetaContact)o;
+                
+                Contact contact
+                    = getTelephonyContact(metaContact);
+                
+                if(contact != null) {
+                    telephony
+                        = mainFrame.getTelephony(contact.getProtocolProvider());
+                
+                    Call createdCall = telephony.createCall(contact);
+                    CallPanel callPanel = new CallPanel(createdCall);
+                    mainFrame.addCallPanel(callPanel);
+                    
+                    activeCalls.put(createdCall, callPanel);
+                }
+                else {
+                    //Message to user which says "This contact could not be called!"
+                }
+            }
+            else if(phoneNumberCombo.getSelectedItem() != null) {
+                ProtocolProviderService pps
+                    = getDefaultTelephonyProvider();
+                
+                if(pps != null) {
+                    telephony = mainFrame.getTelephony(pps);
+                    telephony.createCall(
+                            phoneNumberCombo.getSelectedItem().toString());
+                }
+            }
+            else {
+                //Message to user which says "You must select a contact to call or enter a phone number"
+            }
         }
         else if (buttonName.equalsIgnoreCase("hangup")) {
-
+            
         }
         else if (buttonName.equalsIgnoreCase("minimize")) {
 
@@ -139,10 +178,10 @@ public class CallPanel
             this.minimizeButtonPanel.add(restoreButton);
             this.isShown = false;
             
-            this.parentWindow.getTabbedPane().getContactListPanel()
+            this.mainFrame.getContactListPanel()
                 .getContactList().requestFocus();
             
-            this.parentWindow.validate();
+            this.mainFrame.validate();
         }
         else if (buttonName.equalsIgnoreCase("restore")) {
 
@@ -153,7 +192,7 @@ public class CallPanel
             this.minimizeButtonPanel.add(minimizeButton);
             this.isShown = true;
             
-            this.parentWindow.validate();
+            this.mainFrame.validate();
         }
     }
     
@@ -183,5 +222,55 @@ public class CallPanel
         else {
             this.minimizeButtonPanel.add(restoreButton);
         }
+    }
+    
+    /**
+     * For the given MetaContact returns the protocol contact that supports
+     * a basic telephony operation.
+     * @param metaContact the MetaContac we are trying to call
+     * @return returns the protocol contact that supports a basic telephony
+     * operation
+     */
+    private Contact getTelephonyContact(
+            MetaContact metaContact)
+    {
+        String telephonySet
+            = OperationSetBasicTelephony.class.getName();
+        
+        Iterator i = metaContact.getContacts();
+        while(i.hasNext()) {
+            Contact contact = (Contact)i.next();
+            
+            if(contact.getProtocolProvider()
+                .getSupportedOperationSets()
+                    .containsKey(telephonySet)) {
+                
+                return contact;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * From all registered protocol providers returns the first one that
+     * supports basic telephony.
+     * @return the first protocol provider from all the registered providers
+     * that supports basic telephony
+     */
+    private ProtocolProviderService getDefaultTelephonyProvider() {
+        String telephonySet
+            = OperationSetBasicTelephony.class.getName();
+        
+        Iterator i = mainFrame.getProtocolProviders();
+        while(i.hasNext()) {
+            ProtocolProviderService pps
+                = (ProtocolProviderService) i.next();
+            
+            if(pps.getSupportedOperationSets()
+                    .containsKey(telephonySet)) {
+                return pps;
+            }
+        }
+        return null;
     }
 }

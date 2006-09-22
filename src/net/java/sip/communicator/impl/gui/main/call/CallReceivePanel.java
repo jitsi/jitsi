@@ -5,12 +5,13 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.main;
+package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
