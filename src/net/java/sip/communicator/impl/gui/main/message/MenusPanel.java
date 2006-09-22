@@ -10,7 +10,7 @@ package net.java.sip.communicator.impl.gui.main.message;
 import java.awt.*;
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.main.message.menu.*;
+import net.java.sip.communicator.impl.gui.main.message.menus.*;
 import net.java.sip.communicator.impl.gui.main.message.toolBars.*;
 /**
  * The <tt>MenusPanel</tt> is the panel, containing all toolbars in the chat

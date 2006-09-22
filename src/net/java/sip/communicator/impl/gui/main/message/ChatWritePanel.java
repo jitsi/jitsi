@@ -15,7 +15,7 @@ import javax.swing.text.*;
 import javax.swing.undo.*;
 
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
-import net.java.sip.communicator.impl.gui.main.message.menu.*;
+import net.java.sip.communicator.impl.gui.main.message.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;

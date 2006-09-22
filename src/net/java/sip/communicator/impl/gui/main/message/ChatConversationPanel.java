@@ -23,7 +23,7 @@ import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
-import net.java.sip.communicator.impl.gui.main.message.menu.*;
+import net.java.sip.communicator.impl.gui.main.message.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
 

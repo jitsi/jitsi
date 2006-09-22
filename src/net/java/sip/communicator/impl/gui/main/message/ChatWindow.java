@@ -213,7 +213,7 @@ public class ChatWindow extends JFrame {
         } else {
             saveSizeAndLocation();
             ChatWindow.this.dispose();
-            mainFrame.getTabbedPane().getContactListPanel()
+            mainFrame.getContactListPanel()
                     .setTabbedChatWindow(null);
         }
     }
@@ -306,11 +306,11 @@ public class ChatWindow extends JFrame {
                         .getPresenceStatus();
                 //Add first two tabs to the tabbed pane.
                 chatTabbedPane.addTab(firstChatPanel.getMetaContact()
-                        .getDisplayName(), new ImageIcon(Constants
+                    .getDisplayName(), new ImageIcon(Constants
                         .getStatusIcon(currentContactStatus)), firstChatPanel);
                 
                 chatTabbedPane.addTab(contactName, new ImageIcon(
-                        Constants.getStatusIcon(status)), chatPanel);
+                    Constants.getStatusIcon(status)), chatPanel);
                 
                 // Workaround for the following problem:
                 // The scrollbar in the conversation area moves up when the
