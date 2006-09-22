@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.main.message.menu;
+package net.java.sip.communicator.impl.gui.main.message.menus;
 
 import java.awt.event.*;
 
@@ -62,9 +62,12 @@ public class FileMenu extends JMenu
         this.closeMenuItem.addActionListener(this);
 
         this.setMnemonic(Messages.getString("file").charAt(0));
-        this.saveMenuItem.setMnemonic(Messages.getString("save").charAt(0));
-        this.printMenuItem.setMnemonic(Messages.getString("print").charAt(0));
-        this.closeMenuItem.setMnemonic(Messages.getString("close").charAt(0));
+        this.saveMenuItem.setMnemonic(
+                Messages.getString("mnemonic.save").charAt(0));
+        this.printMenuItem.setMnemonic(
+                Messages.getString("mnemonic.print").charAt(0));
+        this.closeMenuItem.setMnemonic(
+                Messages.getString("mnemonic.close").charAt(0));
         
         this.saveMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_S,

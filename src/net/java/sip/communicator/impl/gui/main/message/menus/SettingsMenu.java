@@ -1,4 +1,4 @@
-package net.java.sip.communicator.impl.gui.main.message.menu;
+package net.java.sip.communicator.impl.gui.main.message.menus;
 
 import java.awt.event.*;
 import javax.swing.*;

@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.message.menu;
+package net.java.sip.communicator.impl.gui.main.message.menus;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -86,7 +86,7 @@ public class ChatRightButtonMenu extends JPopupMenu
         this.printMenuItem.setMnemonic(
                 Messages.getString("mnemonic.print").charAt(0));
         this.closeMenuItem.setMnemonic(
-                Messages.getString("mnemonic.close").charAt(0));
+                Messages.getString("mnemonic.rightMenuClose").charAt(0));
         
         this.copyMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_C,

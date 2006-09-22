@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.main.message.menu;
+package net.java.sip.communicator.impl.gui.main.message.menus;
 
 import javax.swing.*;
 

@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.message.menu;
+package net.java.sip.communicator.impl.gui.main.message.menus;
 
 import java.awt.event.*;
 
@@ -81,7 +81,7 @@ public class WritePanelRightButtonMenu extends JPopupMenu
         this.pasteMenuItem.setMnemonic(
                 Messages.getString("mnemonic.paste").charAt(0));
         this.closeMenuItem.setMnemonic(
-                Messages.getString("mnemonic.close").charAt(0));
+                Messages.getString("mnemonic.rightMenuClose").charAt(0));
         
         this.cutMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_X,
