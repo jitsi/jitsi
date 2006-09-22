@@ -38,7 +38,7 @@ public class StatusPanel extends JPanel {
 
         this.mainFrame = mainFrame;
 
-        this.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
         this.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
                 Constants.MOVER_START_COLOR));
