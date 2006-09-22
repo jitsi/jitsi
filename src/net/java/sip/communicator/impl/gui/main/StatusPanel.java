@@ -126,7 +126,7 @@ public class StatusPanel extends JPanel {
                 Iterator i = mainFrame.getProtocolPresence(protocolProvider)
                     .getSupportedStatusSet();
                 
-                String prefix = "net.java.sip.communicator.impl.ui";
+                String prefix = "net.java.sip.communicator.impl.ui.accounts";
                 
                 List accounts = configService
                         .getPropertyNamesByPrefix(prefix, true);
