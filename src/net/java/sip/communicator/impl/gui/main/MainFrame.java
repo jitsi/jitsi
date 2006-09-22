@@ -7,26 +7,26 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
+import java.awt.*;
+import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
 import java.util.List;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.authorization.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
+import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.PropertyVetoException;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.protocol.icqconstants.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -47,9 +47,9 @@ public class MainFrame
 
     private JPanel menusPanel = new JPanel(new BorderLayout());
 
-    private Menu menu = new Menu();
+    private MainMenu menu;
 
-    private CallPanel callPanel;
+    private CallManager callManager;
 
     private StatusPanel statusPanel;
 
@@ -61,6 +61,8 @@ public class MainFrame
 
     private Hashtable protocolPresenceSets = new Hashtable();
 
+    private Hashtable protocolTelephonySets = new Hashtable();
+    
     private ArrayList protocolProviders = new ArrayList();
 
     private Hashtable imOperationSets = new Hashtable();
@@ -81,12 +83,13 @@ public class MainFrame
      * Creates an instance of <tt>MainFrame</tt>.
      */
     public MainFrame()
-    {
-        callPanel = new CallPanel(this);
+    {        
+        callManager = new CallManager(this);
         tabbedPane = new MainTabbedPane(this);
         quickMenu = new QuickMenu(this);
         statusPanel = new StatusPanel(this);
-
+        menu = new MainMenu(this);
+        
         this.addWindowListener(new MainFrameWindowAdapter());
         
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -108,7 +111,7 @@ public class MainFrame
         this.menusPanel.add(quickMenu, BorderLayout.CENTER);
 
         this.contactListPanel.add(tabbedPane, BorderLayout.CENTER);
-        this.contactListPanel.add(callPanel, BorderLayout.SOUTH);
+        this.contactListPanel.add(callManager, BorderLayout.SOUTH);
 
         this.getContentPane().add(menusPanel, BorderLayout.NORTH);
         this.getContentPane().add(contactListPanel, BorderLayout.CENTER);
@@ -211,9 +214,9 @@ public class MainFrame
             this.protocolPresenceSets.put(protocolProvider, presence);
             
             presence.addProviderPresenceStatusListener(
-                        new ProviderPresenceStatusAdapter());
+                        new GUIProviderPresenceStatusListener());
             presence.addContactPresenceStatusListener(
-                        new ContactPresenceStatusAdapter());        
+                        new GUIContactPresenceStatusListener());        
         }
         
         String imOpSetClassName = OperationSetBasicInstantMessaging
@@ -229,8 +232,7 @@ public class MainFrame
             //Add to all instant messaging operation sets the Message 
             //listener implemented in the ContactListPanel, which handles 
             //all received messages.
-            im.addMessageListener(this.getTabbedPane()
-                    .getContactListPanel());
+            im.addMessageListener(this.getContactListPanel());
         }
         
         String tnOpSetClassName = OperationSetTypingNotifications
@@ -247,8 +249,7 @@ public class MainFrame
             //Add to all typing notification operation sets the Message 
             //listener implemented in the ContactListPanel, which handles 
             //all received messages.
-            tn.addTypingNotificationsListener(this.getTabbedPane()
-                    .getContactListPanel());
+            tn.addTypingNotificationsListener(this.getContactListPanel());
         }
         
         String wciOpSetClassName = OperationSetWebContactInfo.class.getName();
@@ -262,8 +263,21 @@ public class MainFrame
             this.webContactInfoOperationSets
                 .put(protocolProvider, wContactInfo);
         }
-    }
-
+        
+        String telOpSetClassName = OperationSetBasicTelephony.class.getName();
+        
+        if (supportedOperationSets.containsKey(telOpSetClassName)) {
+            
+            OperationSetBasicTelephony telephony
+                = (OperationSetBasicTelephony)
+                    supportedOperationSets.get(telOpSetClassName);
+            
+            telephony.addCallListener(new GUICallListener());
+            
+            this.protocolTelephonySets.put(protocolProvider, telephony);
+        }
+    }    
+    
     /**
      * Returns a set of all protocol providers.
      * 
@@ -427,22 +441,27 @@ public class MainFrame
     }
     
     /**
-     * Returns the main tabbed pane containing the contactlist, call list etc.
-     * @return MainTabbedPane The main tabbed pane containing the 
-     * contactlist, call list etc.
+     * Returns the telephony operation set for the given protocol provider.
+     * 
+     * @param protocolProvider The protocol provider for which the telephony 
+     * is searched.
+     * @return OperationSetBasicTelephony The telephony operation
+     * set for the given protocol provider.
      */
-    public MainTabbedPane getTabbedPane()
+    public OperationSetBasicTelephony getTelephony(
+            ProtocolProviderService protocolProvider)
     {
-        return tabbedPane;
+        return (OperationSetBasicTelephony) this.protocolTelephonySets
+                .get(protocolProvider);
     }
-
+    
     /**
-     * Returns the call panel.
-     * @return CallPanel The call panel.
+     * Returns the call manager.
+     * @return CallManager The call manager.
      */
-    public CallPanel getCallPanel()
+    public CallManager getCallManager()
     {
-        return callPanel;
+        return callManager;
     }
 
     /**
@@ -467,7 +486,7 @@ public class MainFrame
      * Listens for all contactPresenceStatusChanged events in order 
      * to refresh tha contact list, when a status is changed.
      */
-    private class ContactPresenceStatusAdapter implements
+    private class GUIContactPresenceStatusListener implements
             ContactPresenceStatusListener 
     {
         public void contactPresenceStatusChanged(
@@ -497,7 +516,7 @@ public class MainFrame
      * events in order to refresh the account status panel, when a status is
      * changed.
      */
-    private class ProviderPresenceStatusAdapter implements
+    private class GUIProviderPresenceStatusListener implements
             ProviderPresenceStatusListener
     {
         public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt) {
@@ -509,6 +528,19 @@ public class MainFrame
         }
     }
 
+    /**
+     * Listens for all CallReceivedEvents.
+     */
+    private class GUICallListener implements CallListener {
+        
+        public void incomingCallReceived(CallReceivedEvent event)
+        {
+            CallReceivePanel cr = new CallReceivePanel(MainFrame.this);
+
+            cr.setVisible(true);
+        }
+    }
+    
     public Hashtable getWaitToBeDeliveredMsgs()
     {
         return waitToBeDeliveredMsgs;
@@ -520,7 +552,7 @@ public class MainFrame
      */
     public Iterator getAllGroups()
     {
-        return getTabbedPane().getContactListPanel()
+        return getContactListPanel()
             .getContactList().getAllGroups();
     }
     
@@ -532,7 +564,7 @@ public class MainFrame
      */
     public MetaContactGroup getGroupByID(String metaUID)
     {
-        return getTabbedPane().getContactListPanel()
+        return getContactListPanel()
             .getContactList().getGroupByID(metaUID);
     }
     
@@ -565,7 +597,7 @@ public class MainFrame
                 
                 configService.setProperty(
                         "net.java.sip.communicator.impl.ui.showCallPanel",
-                        new Boolean(callPanel.isShown()));
+                        new Boolean(callManager.isShown()));
                 
                 saveStatusInformation();
             }
@@ -607,10 +639,10 @@ public class MainFrame
                     new Integer(y).intValue());
         
         if(isShown != null && isShown != "") {
-            callPanel.setShown(new Boolean(isShown).booleanValue());
+            callManager.setShown(new Boolean(isShown).booleanValue());
         }
         else {
-            callPanel.setShown(true);
+            callManager.setShown(true);
         }
     }
 
@@ -646,7 +678,7 @@ public class MainFrame
             ProtocolProviderService pps
                 = (ProtocolProviderService) pproviders.next();
 
-            String prefix = "net.java.sip.communicator.impl.ui";
+            String prefix = "net.java.sip.communicator.impl.ui.accounts";
             
             List accounts = configService
                     .getPropertyNamesByPrefix(prefix, true);
@@ -678,7 +710,7 @@ public class MainFrame
                     = "acc" + Long.toString(System.currentTimeMillis());
                 
                 String accountPackage
-                    = "net.java.sip.communicator.impl.ui."
+                    = "net.java.sip.communicator.impl.ui.accounts."
                             + accNodeName;
                 
                 configService.setProperty(accountPackage, 
@@ -690,5 +722,20 @@ public class MainFrame
                         .getPresenceStatus().getStatusName());
             }
         }
+    }
+    
+    /**
+     * Returns the panel containing the ContactList.
+     * @return ContactListPanel the panel containing the ContactList
+     */
+    public ContactListPanel getContactListPanel() {
+        return this.tabbedPane.getContactListPanel();
+    }
+
+    /**
+     * 
+     */
+    public void addCallPanel(CallPanel callPanel) {
+        this.tabbedPane.addTab(callPanel.getTitle(), callPanel);
     }
 }

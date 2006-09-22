@@ -39,7 +39,7 @@ public class MainTabbedPane extends SIPCommTabbedPane {
 
         contactListPanel = new ContactListPanel(parent);
 
-        dialPanel.setPhoneNumberCombo(parent.getCallPanel()
+        dialPanel.setPhoneNumberCombo(parent.getCallManager()
                 .getPhoneNumberCombo());
 
         this.addTab(Messages.getString("contacts"), contactListPanel);

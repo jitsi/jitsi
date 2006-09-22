@@ -263,8 +263,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
             dialog.setVisible(true);
         }
         else if (itemName.equalsIgnoreCase("sendMessage")) {
-            ContactListPanel clistPanel = mainFrame.getTabbedPane()
-                    .getContactListPanel();
+            ContactListPanel clistPanel = mainFrame.getContactListPanel();
             SwingUtilities.invokeLater(clistPanel.new RunMessageWindow(
                     contactItem));
         }
