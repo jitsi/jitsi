@@ -639,7 +639,7 @@ public class MetaContactGroupImpl
             MetaContactGroupImpl mcGroup
                 = (MetaContactGroupImpl)groupsIter.next();
 
-            if(mcGroup.getGroupName().equals(groupUID))
+            if(mcGroup.getMetaUID().equals(groupUID))
                 return mcGroup;
         }
 
