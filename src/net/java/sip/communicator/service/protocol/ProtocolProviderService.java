@@ -123,6 +123,17 @@ public interface ProtocolProviderService
     public Map getSupportedOperationSets();
 
     /**
+     * Returns the operation set corresponding to the specified class or null
+     * if this operation set is not supported by the provider implementation.
+     *
+     * @param opsetClass the <tt>Class</tt>  of the operation set that we're
+     * looking for.
+     * @return returns an OperationSet of the specified <tt>Class</tt> if the
+     * undelying implementation supports it or null otherwise.
+     */
+    public OperationSet getOperationSet(Class opsetClass);
+
+    /**
      * Makes the service implementation close all open sockets and release
      * any resources that it might have taken and prepare for shutdown/garbage
      * collection.
