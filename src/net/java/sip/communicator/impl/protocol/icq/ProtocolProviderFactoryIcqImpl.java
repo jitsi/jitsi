@@ -29,6 +29,7 @@ public class ProtocolProviderFactoryIcqImpl
     protected ProtocolProviderFactoryIcqImpl()
     {
     }
+
     /**
      * Returns a copy of the list containing all accounts currently
      * registered in this protocol provider.
