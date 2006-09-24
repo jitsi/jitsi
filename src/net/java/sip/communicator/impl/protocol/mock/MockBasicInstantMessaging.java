@@ -29,7 +29,8 @@ public class MockBasicInstantMessaging
      */
     public void addMessageListener(MessageListener listener)
     {
-        messageListeners.add(listener);
+        if(!messageListeners.contains(listener))
+            messageListeners.add(listener);
     }
 
     /**
@@ -107,14 +108,17 @@ public class MockBasicInstantMessaging
         Iterator iter = messageListeners.iterator();
         while (iter.hasNext())
         {
-            MessageListener l = (MessageListener)iter.next();
-            l.messageDelivered(msgDeliveredEvt);
+            MessageListener listener = (MessageListener)iter.next();
+            listener.messageDelivered(msgDeliveredEvt);
         }
     }
 
     /**
      * Methods for manipulating mock operation set as
      * deliver(receive) messageop
+     *
+     * @param to the address of the contact whom we are to deliver the message.
+     * @param msg the message that we are to deliver.
      */
     public void deliverMessage(String to, Message msg)
     {
@@ -126,8 +130,8 @@ public class MockBasicInstantMessaging
         Iterator iter = messageListeners.iterator();
         while (iter.hasNext())
         {
-            MessageListener l = (MessageListener)iter.next();
-            l.messageReceived(msgReceivedEvt);
+            MessageListener listener = (MessageListener)iter.next();
+            listener.messageReceived(msgReceivedEvt);
         }
     }
 

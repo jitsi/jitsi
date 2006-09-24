@@ -78,7 +78,8 @@ public class MockPersistentPresenceOperationSet
     public void addContactPresenceStatusListener(
                         ContactPresenceStatusListener listener)
     {
-        contactPresenceStatusListeners.add(listener);
+        if(!contactPresenceStatusListeners.contains(listener))
+            contactPresenceStatusListeners.add(listener);
     }
 
     /**
@@ -200,7 +201,8 @@ public class MockPersistentPresenceOperationSet
     public void addProviderPresenceStatusListener(
         ProviderPresenceStatusListener listener)
     {
-        this.providerPresenceStatusListeners.add(listener);
+        if(!providerPresenceStatusListeners.contains(listener))
+            this.providerPresenceStatusListeners.add(listener);
     }
 
     /**
@@ -213,7 +215,8 @@ public class MockPersistentPresenceOperationSet
     public void addServerStoredGroupChangeListener(ServerStoredGroupListener
                                                         listener)
     {
-        serverStoredGroupListeners.add(listener);
+        if(!serverStoredGroupListeners.contains(listener))
+            serverStoredGroupListeners.add(listener);
     }
 
     /**
@@ -223,7 +226,8 @@ public class MockPersistentPresenceOperationSet
      */
     public void addSubsciptionListener(SubscriptionListener listener)
     {
-        this.subscriptionListeners.add( listener );
+        if(!subscriptionListeners.contains(listener))
+            this.subscriptionListeners.add( listener );
     }
 
     /**
