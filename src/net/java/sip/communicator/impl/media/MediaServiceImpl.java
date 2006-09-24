@@ -30,29 +30,30 @@ import net.java.sip.communicator.util.*;
  * Before being able to use this service calles would have to make sure that
  * it is initialized (i.e. consult the isInitialized() method).
  *
+ * @author Emil Ivov
  * @author Martin Andre
  */
 public class MediaServiceImpl
     implements MediaService
 {
     private Logger logger = Logger.getLogger(MediaServiceImpl.class);
-    
+
     private SdpFactory sdpFactory;
     private boolean isInitialized = false;
-    
+
     private Player player = null;
     private JPanel videoPanel = null;
-    
+
     /**
      * Our event dispatcher.
      */
     private MediaDispatcher mediaDispatcher = new MediaDispatcher();
-    
+
     /**
      * Our configuration helper.
      */
     private MediaConfiguration mediaConfiguration = new MediaConfiguration();
-    
+
     /**
      * Our media control helper.
      */
@@ -63,7 +64,7 @@ public class MediaServiceImpl
      */
     public MediaServiceImpl() {
     }
-    
+
     /**
      * Set the configuration service.
      *
@@ -97,15 +98,15 @@ public class MediaServiceImpl
      */
     public String generateSdpOffer(CallParticipant callParticipant)
     {
-        try
-        {
-            logger.logEntry();
-        }
-        finally
-        {
-            logger.logExit();
-        }
-        return null;
+        String testSdp = "v=0\n"
+            + "o=emcho 0 0 IN IP4 192.168.100.101\n"
+            + "s=-\n"
+            + "c=IN IP4 192.168.100.101\n"
+            + "t=0 0\n"
+            + "m=audio 22224 RTP/AVP 0 3 4 5 6 8 15 18\n"
+            + "m=video 22222 RTP/AVP 26 34 31\n";
+
+        return testSdp;
     }
 
     /**
@@ -121,17 +122,9 @@ public class MediaServiceImpl
      * @param callParticipant the call participant meant to receive the offer
      * @return a String containing an SDP offer.
      */
-    public String generateSdpAnswer(CallParticipant callParticipant) 
+    public String generateSdpAnswer(CallParticipant callParticipant)
     {
-        try
-        {
-            logger.logEntry();
-        }
-        finally
-        {
-            logger.logExit();
-        }
-        return null;
+        return "";
     }
 
     /**
@@ -142,7 +135,7 @@ public class MediaServiceImpl
     public void addMediaListener(MediaListener listener) {
         mediaDispatcher.addMediaListener(listener);
     }
-    
+
     /**
      * Removes a listener that was listening for incoming media and changes
      * in the state of the media listener
@@ -159,13 +152,13 @@ public class MediaServiceImpl
     public void initialize() {
         //openCaptureDevices();
         //createPlayer();
-        
+
         videoPanel = new JPanel();
-        
+
         // Now alert mediaListeners
         MediaEvent mediaEvent = new MediaEvent(videoPanel);
         mediaDispatcher.fireReceivedMediaStream(mediaEvent);
-        
+
         isInitialized = true;
     }
 
@@ -176,7 +169,7 @@ public class MediaServiceImpl
     public boolean isInitialized() {
         return isInitialized;
     }
-    
+
     /**
      * Open capture devices specified by configuration service.
      */
