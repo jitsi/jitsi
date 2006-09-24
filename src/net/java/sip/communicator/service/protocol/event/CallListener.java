@@ -22,8 +22,27 @@ public interface CallListener extends EventListener
     /**
      * This method is called by a protocol provider whenever an incoming call
      * is received.
-     * @param event a CallReceivedEvent instance describing the new incoming
+     * @param event a CallEvent instance describing the new incoming
      * call
      */
-    public void incomingCallReceived(CallReceivedEvent event);
+    public void incomingCallReceived(CallEvent event);
+
+    /**
+     * This method is called by a protocol provider upon initiation of an
+     * outgoing call.
+     * <p>
+     * @param event a CalldEvent instance describing the new incoming call.
+     */
+    public void outgoingCallCreated(CallEvent event);
+
+    /**
+     * Indicates that all participants have left the source call and that it
+     * has been ended. The event may be considered redundant since there are
+     * already events issued upon termination of a single call participant but
+     * we've decided to keep it for listeners that are only intersted in call
+     * duration and don't want to follow other call details.
+     * @param event the <tt>CallEvent</tt> containing the source call.
+     */
+    public void callEnded(CallEvent event);
+
 }
