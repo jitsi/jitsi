@@ -25,7 +25,7 @@ import net.java.sip.communicator.impl.protocol.sip.security.*;
 
 /**
  * A SIP implementation of the Protocol Provider Service.
- * @todo replace internal errors with something that we've defined.
+ *
  * @author Emil Ivov
  */
 public class ProtocolProviderServiceSipImpl
@@ -167,7 +167,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * A random generator we use to generate tags.
      */
-    private static Random rand = new Random();
+    private static Random localTagGenerator = new Random();
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
@@ -211,6 +211,14 @@ public class ProtocolProviderServiceSipImpl
     private static final String NSPVALUE_CACHE_CLIENT_CONNECTIONS = "false";
 
     /**
+     * The name of the property under which the user may specify a transport
+     * to use for destinations whose prefererred transport is unknown.
+     */
+    private static final String DEFAULT_TRANSPORT
+        = "net.java.sip.communicator.impl.protocol.sip.DEFAULT_TRANSPORT";
+
+
+    /**
      * Default number of times that our requests can be forwarded.
      */
     private static final int  MAX_FORWARDS = 70;
@@ -223,7 +231,13 @@ public class ProtocolProviderServiceSipImpl
     /**
      * The contact header we use in non REGISTER requests.
      */
-    protected ContactHeader genericContactHeader = null;
+    private ContactHeader genericContactHeader = null;
+
+    /**
+     * The header that we use to identify ourselves.
+     */
+    private UserAgentHeader userAgentHeader = null;
+
 
     /**
      * The sip address that we're currently behind (the one that corresponds to
@@ -248,6 +262,18 @@ public class ProtocolProviderServiceSipImpl
     private SipSecurityManager sipSecurityManager = null;
 
     /**
+     * The address and port of an outbound proxy if we have one (remains null
+     * if we are not using a proxy).
+     */
+    private InetSocketAddress outboundProxySocketAddress = null;
+
+    /**
+     * The transport used by our outbound proxy (remains null
+     * if we are not using a proxy).
+     */
+    private String outboundProxyTransport = null;
+
+    /**
      * Registers the specified listener with this provider so that it would
      * receive notifications on changes of its state or other properties such
      * as its local address and display name.
@@ -256,7 +282,8 @@ public class ProtocolProviderServiceSipImpl
     public void addRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
     {
-        registrationListeners.add(listener);
+        if(!registrationListeners.contains(listener))
+                registrationListeners.add(listener);
     }
 
     /**
@@ -270,10 +297,10 @@ public class ProtocolProviderServiceSipImpl
      * @param reasonCode a code indicating the reason for the event.
      * @param reason a text explaining the reason for the event.
      */
-    void fireRegistrationStateChanged( RegistrationState oldState,
-                                       RegistrationState newState,
-                                       int               reasonCode,
-                                       String            reason )
+     public void fireRegistrationStateChanged( RegistrationState oldState,
+                                               RegistrationState newState,
+                                               int               reasonCode,
+                                               String            reason )
     {
         RegistrationStateChangeEvent event
             = new RegistrationStateChangeEvent(
@@ -370,6 +397,23 @@ public class ProtocolProviderServiceSipImpl
     {
         return supportedOperationSets;
     }
+
+    /**
+     * Returns the operation set corresponding to the specified class or null
+     * if this operation set is not supported by the provider implementation.
+     *
+     * @param opsetClass the <tt>Class</tt>  of the operation set that we're
+     * looking for.
+     * @return returns an OperationSet of the specified <tt>Class</tt> if the
+     * undelying implementation supports it or null otherwise.
+     */
+    public OperationSet getOperationSet(Class opsetClass)
+    {
+        return (OperationSet)getSupportedOperationSets()
+            .get(opsetClass.getName());
+    }
+
+
 
     /**
      * Starts the registration process. Connection details such as
@@ -529,6 +573,13 @@ public class ProtocolProviderServiceSipImpl
             //create a connection with the registrar
             initRegistrarConnection(accountID);
 
+            //init our call processor
+            OperationSetBasicTelephony opSetBasicTelephony
+                = new OperationSetBasicTelephonySipImpl(this);
+            this.supportedOperationSets.put(
+                OperationSetBasicTelephony.class.getName()
+                , opSetBasicTelephony);
+
             //create our own address.
             String ourUserID = (String)accountID.getAccountProperties()
                 .get(ProtocolProviderFactory.USER_ID);
@@ -560,9 +611,6 @@ public class ProtocolProviderServiceSipImpl
                     + " and registrar " + registrarAddressStr);
 
             }
-
-            //init the map of method specific processors
-            this.methodProcessors.put(Request.REGISTER, sipRegistrarConnection);
 
             //init the security manager
             this.sipSecurityManager = new SipSecurityManager(accountID);
@@ -876,8 +924,27 @@ public class ProtocolProviderServiceSipImpl
      */
     public void processTimeout(TimeoutEvent timeoutEvent)
     {
-        /**@todo implement processTimeout() */
-        logger.debug("@todo implement processTimeout()");
+        Transaction transaction;
+        if(timeoutEvent.isServerTransaction())
+            transaction = timeoutEvent.getServerTransaction();
+        else
+            transaction = timeoutEvent.getClientTransaction();
+
+        if (transaction == null) {
+            logger.debug("ignoring a transactionless timeout event");
+            return;
+        }
+
+        Request request = transaction.getRequest();
+        logger.debug("received timeout for req=" + request);
+
+
+        //find the object that is supposed to take care of responses with the
+        //corresponding method
+        SipListener processor
+            = (SipListener)methodProcessors.get(request.getMethod());
+
+        processor.processTimeout(timeoutEvent);
     }
 
     /**
@@ -894,8 +961,28 @@ public class ProtocolProviderServiceSipImpl
     public void processTransactionTerminated(TransactionTerminatedEvent
                                              transactionTerminatedEvent)
     {
-        /**@todo implement processTransactionTerminated() */
-        logger.debug("@todo implement processTransactionTerminated()");
+        Transaction transaction;
+        if(transactionTerminatedEvent.isServerTransaction())
+            transaction = transactionTerminatedEvent.getServerTransaction();
+        else
+            transaction = transactionTerminatedEvent.getClientTransaction();
+
+        if (transaction == null) {
+            logger.debug(
+                "ignoring a transactionless transaction terminated event");
+            return;
+        }
+
+        Request request = transaction.getRequest();
+        logger.debug("Transaction terminated for req=" + request);
+
+
+        //find the object that is supposed to take care of responses with the
+        //corresponding method
+        SipListener processor
+            = (SipListener)methodProcessors.get(request.getMethod());
+
+        processor.processTransactionTerminated(transactionTerminatedEvent);
     }
 
     /**
@@ -912,8 +999,8 @@ public class ProtocolProviderServiceSipImpl
     public void processDialogTerminated(DialogTerminatedEvent
                                         dialogTerminatedEvent)
     {
-        /**@todo implement processDialogTerminated() */
-        logger.debug("@todo implement processDialogTerminated()");
+        logger.debug("Dialog terminated for req="
+                     + dialogTerminatedEvent.getDialog());
     }
 
     /**
@@ -925,8 +1012,17 @@ public class ProtocolProviderServiceSipImpl
      */
     public void processRequest(RequestEvent requestEvent)
     {
-        /**@todo implement processRequest() */
-        logger.debug("@todo implement processRequest()");
+        logger.debug("received request=" + requestEvent.getRequest());
+
+        Request request = requestEvent.getRequest();
+
+        String method = request.getMethod();
+
+        //find the object that is supposed to take care of responses with the
+        //corresponding method
+        SipListener processor = (SipListener)methodProcessors.get(method);
+
+        processor.processRequest(requestEvent);
     }
 
     /**
@@ -1008,7 +1104,7 @@ public class ProtocolProviderServiceSipImpl
      */
     public static synchronized String generateLocalTag()
     {
-            return Integer.toHexString(rand.nextInt());
+            return Integer.toHexString(localTagGenerator.nextInt());
     }
 
     /**
@@ -1115,6 +1211,17 @@ public class ProtocolProviderServiceSipImpl
         {
                 genericContactHeader = headerFactory.createContactHeader(
                     ourSipAddress);
+                try
+                {
+                    genericContactHeader.getAddress()
+                        .setDisplayName(getOurDisplayName());
+                }
+                catch (ParseException ex)
+                {
+                    logger.error(
+                        "Failed to set a display name on a Contact header."
+                        , ex);
+                }
                 logger.debug("generated contactHeader:"
                              + genericContactHeader);
 
@@ -1380,7 +1487,7 @@ public class ProtocolProviderServiceSipImpl
             }
         }
 
-
+        //Initialize our connection with the registrar
         try
         {
             this.sipRegistrarConnection = new SipRegistrarConnection(
@@ -1431,11 +1538,6 @@ public class ProtocolProviderServiceSipImpl
 
         InetAddress proxyAddress = null;
 
-        //return if no proxy is specified.
-        if(proxyAddressStr == null || proxyAddressStr.length() == 0)
-        {
-            return;
-        }
 
         try
         {
@@ -1450,6 +1552,12 @@ public class ProtocolProviderServiceSipImpl
                 proxyAddressStr
                 + " appears to be an either invalid or inaccessible address "
                 + ex.getMessage());
+        }
+
+        //return if no proxy is specified.
+        if(proxyAddressStr == null || proxyAddressStr.length() == 0)
+        {
+            return;
         }
 
         //init proxy port
@@ -1502,7 +1610,8 @@ public class ProtocolProviderServiceSipImpl
             proxyTransport = ListeningPoint.UDP;
         }
 
-        StringBuffer proxyStringBuffer = new StringBuffer(proxyAddress.getHostAddress());
+        StringBuffer proxyStringBuffer
+            = new StringBuffer(proxyAddress.getHostAddress());
 
         if(proxyAddress instanceof Inet6Address)
         {
@@ -1515,9 +1624,186 @@ public class ProtocolProviderServiceSipImpl
         proxyStringBuffer.append('/');
         proxyStringBuffer.append(proxyTransport);
 
-        //done parsing. iInit properties.
+        //done parsing. init properties.
         jainSipProperties.put(JSPNAME_OUTBOUND_PROXY
                               , proxyStringBuffer.toString());
 
+        //store a reference to our sip proxy so that we can use it when
+        //constructing via and contact headers.
+        this.outboundProxySocketAddress
+            = new InetSocketAddress(proxyAddress, proxyPort);
+        this.outboundProxyTransport = proxyTransport;
     }
+
+    /**
+     * Registers <tt>methodProcessor</tt> in the <tt>methorProcessors</tt>
+     * table so that it would receives all messages in a transaction initiated
+     * by a <tt>method</tt> request. If any previous processors exist for the
+     * same method, they will be replaced by this one.
+     *
+     * @param method a String representing the SIP method that we're registering
+     * the processor for (e.g. INVITE, REGISTER, or SUBSCRIBE).
+     * @param methodProcessor a <tt>SipListener</tt> implementation that would
+     * handle all messages received within a <tt>method</tt> transaction.
+     */
+    public void registerMethodProcessor(String      method,
+                                        SipListener methodProcessor)
+    {
+        this.methodProcessors.put(method, methodProcessor);
+    }
+
+    /**
+     * Unregisters <tt>methodProcessor</tt> from the <tt>methorProcessors</tt>
+     * table so that it won't receive further messages in a transaction
+     * initiated by a <tt>method</tt> request.
+     *
+     * @param method the name of the method whose processor we'd like to
+     * unregister.
+     */
+    public void unregisterMethodProcessor(String      method)
+    {
+        this.methodProcessors.remove(method);
+    }
+
+    /**
+     * Returns the transport that we should use if we have no clear idea of our
+     * destination's preferred transport. The method would first check if
+     * we are running behind an outbound proxy and if so return its transport.
+     * If no outbound proxy is set, the method would check the contents of the
+     * DEFAULT_TRANSPORT property and return it if not null. Otherwise the
+     * method would return UDP;
+     *
+     * @return The first non null password of the following: a) the transport
+     * of our outbound proxy, b) the transport specified by the
+     * DEFAULT_TRANSPORT property, c) UDP.
+     */
+    public String getDefaultTransport()
+    {
+        if(outboundProxySocketAddress != null
+            && outboundProxyTransport != null)
+        {
+            return outboundProxyTransport;
+        }
+        else
+        {
+            String userSpecifiedDefaultTransport
+                = SipActivator.getConfigurationService()
+                    .getString(DEFAULT_TRANSPORT);
+
+            if(userSpecifiedDefaultTransport != null)
+            {
+                return userSpecifiedDefaultTransport;
+            }
+            else
+                return ListeningPoint.UDP;
+        }
+    }
+
+    /**
+     * Returns the provider that corresponds to the transport returned by
+     * getDefaultTransport(). Equivalent to calling
+     * getJainSipProvider(getDefaultTransport())
+     *
+     * @return the Jain SipProvider that corresponds to the transport returned
+     * by getDefaultTransport().
+     */
+    public SipProvider getDefaultJainSipProvider()
+    {
+        return getJainSipProvider(getDefaultTransport());
+    }
+
+    /**
+     * Returns the listening point that corresponds to the transport returned by
+     * getDefaultTransport(). Equivalent to calling
+     * getListeningPoint(getDefaultTransport())
+     *
+     * @return the Jain SipProvider that corresponds to the transport returned
+     * by getDefaultTransport().
+     */
+    public ListeningPoint getDefaultListeningPoint()
+    {
+        return getListeningPoint(getDefaultTransport());
+    }
+
+    /**
+     * Returns the display name string that the user has set as a display name
+     * for this account.
+     *
+     * @return the display name string that the user has set as a display name
+     * for this account.
+     */
+    public String getOurDisplayName()
+    {
+        return ourDisplayName;
+    }
+
+    /**
+     * Returns a User Agent header that could be used for signing our requests.
+     *
+     * @return a <tt>UserAgentHeader</tt> that could be used for signing our
+     * requests.
+     */
+    public UserAgentHeader getSipCommUserAgentHeader()
+    {
+        if(userAgentHeader == null)
+        {
+            try
+            {
+                List userAgentTokens = new LinkedList();
+                userAgentTokens.add("SIP Communicator");
+                userAgentTokens.add("1.0");
+                userAgentTokens.add("CVS:" + new Date().toString());
+                userAgentHeader
+                    = this.headerFactory.createUserAgentHeader(userAgentTokens);
+            }
+            catch (ParseException ex)
+            {
+                //shouldn't happen
+                return null;
+            }
+        }
+        return userAgentHeader;
+    }
+
+    /**
+     * Generates a ToTag and attaches it to the to header of <tt>response</tt>.
+     *
+     * @param response the response that is to get the ToTag.
+     * @param containingDialog the Dialog instance that is to extract a unique
+     * Tag value (containingDialog.hashCode())
+     */
+    public void attachToTag(Response response, Dialog containingDialog)
+    {
+        ToHeader to = (ToHeader) response.getHeader(ToHeader.NAME);
+        if (to == null) {
+            logger.debug("Strange ... no to tag in response:" + response);
+            return;
+        }
+
+        if(containingDialog.getLocalTag() != null)
+        {
+            logger.debug("We seem to already have a tag in this dialog. "
+                         +"Returning");
+            return;
+        }
+
+        try
+        {
+            if (to.getTag() == null || to.getTag().trim().length() == 0)
+            {
+
+                String toTag = generateLocalTag();
+
+                logger.debug("generated to tag: " + toTag);
+                to.setTag(toTag);
+            }
+        }
+        catch (ParseException ex)
+        {
+            //a parse exception here mean an internal error so we can only log
+            logger.error("Failed to attach a to tag to an outgoing response."
+                         , ex);
+        }
+    }
+
 }
