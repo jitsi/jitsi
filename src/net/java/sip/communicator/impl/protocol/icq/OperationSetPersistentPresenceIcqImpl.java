@@ -196,8 +196,10 @@ public class OperationSetPersistentPresenceIcqImpl
     public void addContactPresenceStatusListener(
         ContactPresenceStatusListener listener)
     {
-        synchronized(contactPresenceStatusListeners){
-            this.contactPresenceStatusListeners.add(listener);
+        synchronized(contactPresenceStatusListeners)
+        {
+            if(!contactPresenceStatusListeners.contains(listener))
+                this.contactPresenceStatusListeners.add(listener);
         }
     }
 
@@ -221,8 +223,10 @@ public class OperationSetPersistentPresenceIcqImpl
      */
     public void addSubsciptionListener(SubscriptionListener listener)
     {
-        synchronized(subscriptionListeners){
-            subscriptionListeners.add(listener);
+        synchronized(subscriptionListeners)
+        {
+            if(!subscriptionListeners.contains(listener))
+                subscriptionListeners.add(listener);
         }
     }
 
@@ -931,8 +935,10 @@ public class OperationSetPersistentPresenceIcqImpl
     public void addProviderPresenceStatusListener(
         ProviderPresenceStatusListener listener)
     {
-        synchronized(providerPresenceStatusListeners){
-            providerPresenceStatusListeners.add(listener);
+        synchronized(providerPresenceStatusListeners)
+        {
+            if(!providerPresenceStatusListeners.contains(listener))
+                providerPresenceStatusListeners.add(listener);
         }
     }
 

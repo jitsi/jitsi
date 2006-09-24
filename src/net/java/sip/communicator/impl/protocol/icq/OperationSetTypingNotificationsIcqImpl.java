@@ -77,15 +77,16 @@ public class OperationSetTypingNotificationsIcqImpl
      * Adds <tt>l</tt> to the list of listeners registered for receiving
      * <tt>TypingNotificationEvent</tt>s
      *
-     * @param l the <tt>TypingNotificationsListener</tt> listener that we'd
-     *   like to add
-     *   method
+     * @param listener the <tt>TypingNotificationsListener</tt> listener that
+     *  we'd like to add.
      */
-    public void addTypingNotificationsListener(TypingNotificationsListener l)
+    public void addTypingNotificationsListener(
+                                TypingNotificationsListener listener)
     {
         synchronized(typingNotificationsListeners)
         {
-            typingNotificationsListeners.add(l);
+            if(!typingNotificationsListeners.contains(listener))
+                typingNotificationsListeners.add(listener);
         }
     }
 
@@ -93,14 +94,15 @@ public class OperationSetTypingNotificationsIcqImpl
      * Removes <tt>l</tt> from the list of listeners registered for receiving
      * <tt>TypingNotificationEvent</tt>s
      *
-     * @param l the <tt>TypingNotificationsListener</tt> listener that we'd
-     *   like to remove
+     * @param listener the <tt>TypingNotificationsListener</tt> listener that
+     * we'd like to remove
      */
-    public void removeTypingNotificationsListener(TypingNotificationsListener l)
+    public void removeTypingNotificationsListener(
+        TypingNotificationsListener listener)
     {
         synchronized(typingNotificationsListeners)
         {
-            typingNotificationsListeners.remove(l);
+            typingNotificationsListeners.remove(listener);
         }
     }
 
@@ -297,15 +299,15 @@ public class OperationSetTypingNotificationsIcqImpl
         //basic instant messaging operation set.
         public void buddyInfoUpdated(IcbmService service, Screenname buddy,
                                      IcbmBuddyInfo info){}
-        public void conversationClosed(Conversation c){}
-        public void gotMessage(Conversation c, MessageInfo minfo){}
+        public void conversationClosed(Conversation conv){}
+        public void gotMessage(Conversation conv, MessageInfo minfo){}
         public void gotOtherEvent(Conversation conversation,
                                   ConversationEventInfo event){}
         public void sentOtherEvent(Conversation conversation,
                                    ConversationEventInfo event){}
-        public void canSendMessageChanged(Conversation c, boolean canSend){}
-        public void conversationOpened(Conversation c){}
+        public void canSendMessageChanged(Conversation conv, boolean canSend){}
+        public void conversationOpened(Conversation conv){}
         public void newConversation(IcbmService service, Conversation conv){}
-        public void sentMessage(Conversation c, MessageInfo minfo){}
+        public void sentMessage(Conversation conv, MessageInfo minfo){}
     }
 }

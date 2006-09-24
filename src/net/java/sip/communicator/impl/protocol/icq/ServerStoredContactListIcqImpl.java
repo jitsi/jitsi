@@ -138,24 +138,27 @@ public class ServerStoredContactListIcqImpl
     /**
      * Registers the specified group listener so that it would receive events
      * on group modification/creation/destruction.
-     * @param l the ServerStoredGroupListener to register for group events
+     * @param listener the ServerStoredGroupListener to register for group events
      */
-    void addGroupListener(ServerStoredGroupListener l)
+    void addGroupListener(ServerStoredGroupListener listener)
     {
-        synchronized(serverStoredGroupListeners){
-            this.serverStoredGroupListeners.add(l);
+        synchronized(serverStoredGroupListeners)
+        {
+            if(!serverStoredGroupListeners.contains(listener))
+                this.serverStoredGroupListeners.add(listener);
         }
     }
 
     /**
      * Removes the specified group listener so that it won't receive further
      * events on group modification/creation/destruction.
-     * @param l the ServerStoredGroupListener to unregister
+     * @param listener the ServerStoredGroupListener to unregister
      */
-    void removeGroupListener(ServerStoredGroupListener l)
+    void removeGroupListener(ServerStoredGroupListener listener)
     {
-        synchronized(serverStoredGroupListeners){
-            this.serverStoredGroupListeners.remove(l);
+        synchronized(serverStoredGroupListeners)
+        {
+            this.serverStoredGroupListeners.remove(listener);
         }
     }
 
