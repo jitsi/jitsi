@@ -20,7 +20,7 @@ import net.java.sip.communicator.service.protocol.*;
  * <p>
  * CALL_PARTICIPANT_ADDRESS_CHANGE - means that participant's address has changed.
  * <p>
- * CALL_PARTICIPANT_IMAGE_CHANGE - participant update photo.
+ * CALL_PARTICIPANT_IMAGE_CHANGE - participant updated photo.
  * <p>
  *
  * @author Emil Ivov
@@ -32,7 +32,7 @@ public class CallParticipantChangeEvent
      * An event type indicating that the corresponding event is caused by a
      * change of the CallParticipant's status.
      */
-    public static final String CALL_PARTICIPANT_STATUS_CHANGE =
+    public static final String CALL_PARTICIPANT_STATE_CHANGE =
                                                 "CallParticipantStatusChange";
 
     /**
@@ -57,6 +57,13 @@ public class CallParticipantChangeEvent
                                                    "CallParticipantImageChange";
 
     /**
+     * A reason string further explaining the event (may be null). The string
+     * would be mostly used for events issued upon a CallParticipantState
+     * transition that has led to a FAILED state.
+     */
+    private String reason = null;
+
+    /**
      * Creates a CallParticipantChangeEvent with the specified source, type,
      * oldValue and newValue.
      * @param source the participant that produced the event.
@@ -64,10 +71,32 @@ public class CallParticipantChangeEvent
      * @param oldValue the value of the changed property before the event occurred
      * @param newValue current value of the changed property.
      */
-    public CallParticipantChangeEvent(CallParticipant source, String type,
-                                      Object oldValue, Object newValue)
+    public CallParticipantChangeEvent(CallParticipant source,
+                                      String type,
+                                      Object oldValue,
+                                      Object newValue)
+    {
+        this(source, type, oldValue, newValue, null);
+    }
+
+    /**
+     * Creates a CallParticipantChangeEvent with the specified source, type,
+     * oldValue and newValue.
+     * @param source the participant that produced the event.
+     * @param type the type of the event (i.e. address change, state change etc.).
+     * @param oldValue the value of the changed property before the event occurred
+     * @param newValue current value of the changed property.
+     * @param reason a string containing a human readable explanation for the
+     * reason that triggerred this event (may be null).
+     */
+    public CallParticipantChangeEvent(CallParticipant source,
+                                      String type,
+                                      Object oldValue,
+                                      Object newValue,
+                                      String reason)
     {
         super(source, type, oldValue, newValue);
+        this.reason = reason;
     }
 
     /**
@@ -80,5 +109,44 @@ public class CallParticipantChangeEvent
     {
         return getPropertyName();
     }
+
+    /**
+     * Returns a String representation of this CallParticipantChangeEvent.
+     *
+     * @return  A a String representation of this CallParticipantChangeEvent.
+     */
+    public String toString()
+    {
+
+        return "CallParticipantChangeEvent: type="+getEventType()
+            + " oldV="+getOldValue()
+            + " newV="+getNewValue();
+    }
+
+    /**
+     * Returns the <tt>CallParticipant</tt> that this event is about.
+     *
+     * @return a reference to the <tt>CallParticipant</tt> that is the source
+     * of this event.
+     */
+    public CallParticipant getSourceCallParticipant()
+    {
+        return (CallParticipant)getSource();
+    }
+
+    /**
+     * Returns a reason string further explaining the event (may be null). The
+     * string would be mostly used for events issued upon a CallParticipantState
+     * transition that has led to a FAILED state.
+     *
+     * @return a reason string further explaining the event or null if no reason
+     * was set.
+     */
+    public String getReasonString()
+    {
+        return reason;
+    }
+
+
 }
 
