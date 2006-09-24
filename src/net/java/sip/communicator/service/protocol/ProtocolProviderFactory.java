@@ -287,9 +287,6 @@ public abstract class ProtocolProviderFactory
      * looking for..
      *
      * @return a String containing the password for the specified accountID.
-     *
-     * @throws java.lang.IllegalArgumentException if no account corresponding
-     * to <tt>accountID</tt> has been previously stored.
      */
     protected String loadPassword(BundleContext bundleContext,
                                   AccountID     accountID)
@@ -298,9 +295,7 @@ public abstract class ProtocolProviderFactory
             bundleContext, accountID);
 
         if (accountPrefix == null)
-            throw new IllegalArgumentException(
-                "No previous records found for account ID: "
-                + accountID.getAccountUniqueID());
+            return null;
 
         //get a reference to the config service and store it.
         ServiceReference confReference
