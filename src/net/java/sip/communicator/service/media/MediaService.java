@@ -75,6 +75,9 @@ public interface MediaService
     /**
      * Returns true if the media service implementation is initialized and ready
      * for use by other services, and false otherwise.
+     *
+     * @return true if the service implementation is initialized and ready for
+     * use and false otherwise.
      */
     public boolean isInitialized();
 
