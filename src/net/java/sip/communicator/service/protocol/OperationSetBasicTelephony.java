@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.protocol;
 
 import net.java.sip.communicator.service.protocol.event.*;
 import java.util.*;
+import java.text.*;
 
 /**
  * An Operation Set defining all basic telephony operations such as conducting
@@ -25,6 +26,7 @@ public interface OperationSetBasicTelephony
      * be notified when incoming calls are received. This method is called
      * by the implementation of the PhoneUI service.
      * @param listener the listener to register with this provider.
+     *
      */
     public void addCallListener(CallListener listener);
 
@@ -44,8 +46,14 @@ public interface OperationSetBasicTelephony
      * through that call participant. The Call that this participant is a member
      * of could be retrieved from the CallParticipatn instance with the use
      * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the call.
+     * @throws ParseException if <tt>callee</tt> is not a valid sip address
+     * string.
      */
-    public Call createCall(String uri);
+    public Call createCall(String uri)
+        throws OperationFailedException
+        , ParseException;
 
     /**
      * Create a new call and invite the specified CallParticipant to it.
@@ -57,23 +65,32 @@ public interface OperationSetBasicTelephony
      * through that call participant. The Call that this participant is a member
      * of could be retrieved from the CallParticipatn instance with the use
      * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the call.
      */
-    public Call createCall(Contact callee);
+    public Call createCall(Contact callee)
+        throws OperationFailedException;
 
     /**
      * Indicates a user request to answer an incoming call from the specified
      * CallParticipant.
      * @param participant the call participant that we'd like to anwer.
+     * @throws OperationFailedException with the corresponding code if we
+     * encounter an error while performing this operation.
      */
-    public void answerCallParticipant(CallParticipant participant);
+    public void answerCallParticipant(CallParticipant participant)
+        throws OperationFailedException;
 
     /**
      * Puts the specified CallParticipant "on hold". In other words incoming
      * media flows are not played and outgoing media flows are either muted or
      * stopped, without actually interrupting the session.
      * @param participant the participant that we'd like to put on hold.
+     * @throws OperationFailedException with the corresponding code if we
+     * encounter an error while performing this operation.
      */
-    public void putOnHold(CallParticipant participant);
+    public void putOnHold(CallParticipant participant)
+        throws OperationFailedException;
 
     /**
      * Resumes communication with a call participant previously put on hold. If
@@ -87,8 +104,11 @@ public interface OperationSetBasicTelephony
      * Indicates a user request to end a call with the specified call
      * particiapnt.
      * @param participant the participant that we'd like to hang up on.
+     * @throws OperationFailedException with the corresponding code if we
+     * encounter an error while performing this operation.
      */
-    public void hangupCallParticipant(CallParticipant participant);
+    public void hangupCallParticipant(CallParticipant participant)
+        throws OperationFailedException;
 
     /**
      * Returns an iterator over all currently active calls.
