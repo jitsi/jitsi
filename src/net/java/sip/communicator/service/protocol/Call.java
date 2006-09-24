@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 
 /**
@@ -21,20 +22,12 @@ import net.java.sip.communicator.service.protocol.event.*;
  */
 public abstract class Call
 {
+    private static final Logger logger
+        = Logger.getLogger(Call.class);
     /**
      * An identifier uniquely representing the call.
      */
     private String callID = null;
-
-    /**
-     * The <tt>CallParticipant</tt> that started this call.
-     */
-    private CallParticipant callCreator = null;
-
-    /**
-     * A list containing all <tt>CallParticipant</tt>s of this call.
-     */
-    private Vector callParticipants = new Vector();
 
     /**
      * A list of all listeners currently registered for
@@ -43,20 +36,27 @@ public abstract class Call
     private Vector callListeners = new Vector();
 
     /**
-     * Creates a new call with the specified id.
-     *
-     * @param callID the id of the call to create.
-     * @param callCreator the call participant that created the call.
+     * A reference to the ProtocolProviderService instance that created us.
      */
-    protected Call(String callID, CallParticipant callCreator)
+    private ProtocolProviderService protocolProvider = null;
+
+    /**
+     * Creates a new Call instance.
+     *
+     * @param sourceProvider the proto provider that created us.
+     */
+    protected Call(ProtocolProviderService sourceProvider)
     {
-        this.callID = callID;
-        this.callCreator = callCreator;
+        //create the uid
+        this.callID = String.valueOf( System.currentTimeMillis())
+                    + String.valueOf(super.hashCode());
+
+        this.protocolProvider = sourceProvider;
     }
 
     /**
      * Returns the id of the specified Call.
-     * @return String
+     * @return a String uniquely identifying the call.
      */
     public String getCallID()
     {
@@ -96,27 +96,22 @@ public abstract class Call
     }
 
     /**
-     * Returns the call participant that created the call.
-     * @return a CallParticipant instance containing the call participant that
-     * created the call.
-     */
-    public CallParticipant getCallCreator()
-    {
-        return callCreator;
-    }
-
-    /**
      * Returns an iterator over all call participants.
      * @return an Iterator over all participants currently involved in the call.
      */
-    public Iterator getCallParticipants()
-    {
-        return callParticipants.iterator();
-    }
+    public abstract Iterator getCallParticipants();
+
+    /**
+     * Returns the number of participants currently associated with this call.
+     * @return an <tt>int</tt> indicating the number of participants currently
+     * associated with this call.
+     */
+    public abstract int getCallParticipantsCount();
 
     /**
      * Adds a call change listener to this call so that it could receive events
      * on new call participants, theme changes and others.
+     *
      * @param listener the listener to register
      */
     public void addCallChangeListener(CallChangeListener listener)
@@ -133,4 +128,101 @@ public abstract class Call
     {
         this.callListeners.remove(listener);
     }
+
+    /**
+     * Returns a reference to the <tt>ProtocolProviderService</tt> instance
+     * that created this call.
+     * @return a reference to the <tt>ProtocolProviderService</tt> instance that
+     * created this call.
+     */
+    public ProtocolProviderService getProtocolProvider()
+    {
+        return this.protocolProvider;
+    }
+
+    /**
+     * Creates a <tt>CallParticipantEvent</tt> with
+     * <tt>sourceCallParticipant</tt> and <tt>eventID</tt> and dispatches it on
+     * all currently registered listeners.
+     *
+     * @param sourceCallParticipant the source <tt>CallParticipant</tt> for the
+     * newly created event.
+     * @param eventID the ID of the event to create (see CPE member ints)
+     */
+    protected void fireCallParticipantEvent(CallParticipant sourceCallParticipant,
+                                            int             eventID)
+    {
+        CallParticipantEvent cpEvent = new CallParticipantEvent(
+            sourceCallParticipant, this, eventID);
+
+        logger.debug("Dispatching a CallParticipant event to "
+                     + callListeners.size()
+                     +" listeners. event is: " + cpEvent.toString());
+
+        Iterator listeners = callListeners.iterator();
+
+        while(listeners.hasNext())
+        {
+            CallChangeListener listener = (CallChangeListener)listeners.next();
+
+            if(eventID == CallParticipantEvent.CALL_PARTICIPANT_ADDED)
+                listener.callParticipantAdded(cpEvent);
+            else if (eventID == CallParticipantEvent.CALL_PARTICIPANT_REMVOVED)
+                listener.callParticipantRemoved(cpEvent);
+
+        }
+    }
+
+    /**
+     * Returns a string textually representing this Call.
+     *
+     * @return  a string representation of the object.
+     */
+    public String toString()
+    {
+        return "Call: id=" + getCallID() + " participants="
+                           + getCallParticipantsCount();
+    }
+
+    /**
+     * Creates a <tt>CallChangeEvent</tt> with this class as
+     * <tt>sourceCall</tt>,  and the specified <tt>eventID</tt> and old and new
+     * values and  dispatches it on all currently registered listeners.
+     *
+     * @param type the type of the event to create (see CallChangeEvent member
+     * ints)
+     * @param oldValue the value of the call property that changed, before the
+     * event had occurred.
+     * @param newValue the value of the call property that changed, after the
+     * event has occurred.
+     */
+    protected void fireCallChangeEvent( String type,
+                                        Object oldValue,
+                                        Object newValue)
+    {
+        CallChangeEvent ccEvent = new CallChangeEvent(
+            this, type, oldValue, newValue);
+
+        logger.debug("Dispatching a CallParticipant event to "
+                     + callListeners.size()
+                     +" listeners. event is: " + ccEvent.toString());
+
+        Iterator listeners = callListeners.iterator();
+
+        while(listeners.hasNext())
+        {
+            CallChangeListener listener = (CallChangeListener)listeners.next();
+
+            if(type.equals(CallChangeEvent.CALL_STATE_CHANGE))
+                listener.callStateChanged(ccEvent);
+        }
+    }
+
+    /**
+     * Returns the state that this call is currently in.
+     *
+     * @return a reference to the <tt>CallState</tt> instance that the call is
+     * currently in.
+     */
+    public abstract CallState getCallState();
 }
