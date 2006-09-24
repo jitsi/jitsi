@@ -17,16 +17,17 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import java.text.*;
 
 /**
  * The <tt>CallPanel</tt> is the panel that contains the "Call" and "Hangup"
  * buttons, as well as the field, where user could enter the phone number or
  * the contact name of the person, to which he would like to call.
- * 
+ *
  * @author Yana Stamcheva
  */
 
-public class CallManager 
+public class CallManager
     extends JPanel
     implements ActionListener
 {
@@ -58,9 +59,9 @@ public class CallManager
             FlowLayout.RIGHT));
 
     private MainFrame mainFrame;
-    
-    private Hashtable activeCalls = new Hashtable(); 
-    
+
+    private Hashtable activeCalls = new Hashtable();
+
     private boolean isShown;
 
     /**
@@ -104,7 +105,7 @@ public class CallManager
         this.buttonsPanel.add(callButton);
         this.buttonsPanel.add(hangupButton);
 
-        this.add(minimizeButtonPanel, BorderLayout.SOUTH);        
+        this.add(minimizeButtonPanel, BorderLayout.SOUTH);
     }
 
     /**
@@ -127,25 +128,33 @@ public class CallManager
 
         if (buttonName.equalsIgnoreCase("call")) {
             OperationSetBasicTelephony telephony;
-            
+
             Object o = mainFrame.getContactListPanel()
                 .getContactList().getSelectedValue();
-            
+
             if(o != null && o instanceof MetaContact) {
                 MetaContact metaContact
                     = (MetaContact)o;
-                
+
                 Contact contact
                     = getTelephonyContact(metaContact);
-                
+
                 if(contact != null) {
                     telephony
                         = mainFrame.getTelephony(contact.getProtocolProvider());
-                
-                    Call createdCall = telephony.createCall(contact);
+
+                    Call createdCall = null;
+                    try
+                    {
+                        createdCall = telephony.createCall(contact);
+                    }
+                    catch (OperationFailedException ex1)
+                    {
+                        /** !!!!!!!!!!!! @todo implement !!!!!!!!!!!!!!!!!! */
+                    }
                     CallPanel callPanel = new CallPanel(createdCall);
                     mainFrame.addCallPanel(callPanel);
-                    
+
                     activeCalls.put(createdCall, callPanel);
                 }
                 else {
@@ -155,11 +164,22 @@ public class CallManager
             else if(phoneNumberCombo.getSelectedItem() != null) {
                 ProtocolProviderService pps
                     = getDefaultTelephonyProvider();
-                
+
                 if(pps != null) {
                     telephony = mainFrame.getTelephony(pps);
-                    telephony.createCall(
+                    try
+                    {
+                        telephony.createCall(
                             phoneNumberCombo.getSelectedItem().toString());
+                    }
+                    catch (ParseException ex)
+                    {
+                        /** !!!!!!!!!!!! @todo implement !!!!!!!!!!!!!!!!!! */
+                    }
+                    catch (OperationFailedException ex)
+                    {
+                        /** !!!!!!!!!!!! @todo implement !!!!!!!!!!!!!!!!!! */
+                    }
                 }
             }
             else {
@@ -167,7 +187,7 @@ public class CallManager
             }
         }
         else if (buttonName.equalsIgnoreCase("hangup")) {
-            
+
         }
         else if (buttonName.equalsIgnoreCase("minimize")) {
 
@@ -177,10 +197,10 @@ public class CallManager
             this.minimizeButtonPanel.removeAll();
             this.minimizeButtonPanel.add(restoreButton);
             this.isShown = false;
-            
+
             this.mainFrame.getContactListPanel()
                 .getContactList().requestFocus();
-            
+
             this.mainFrame.validate();
         }
         else if (buttonName.equalsIgnoreCase("restore")) {
@@ -191,11 +211,11 @@ public class CallManager
             this.minimizeButtonPanel.removeAll();
             this.minimizeButtonPanel.add(minimizeButton);
             this.isShown = true;
-            
+
             this.mainFrame.validate();
         }
     }
-    
+
     /**
      * Returns TRUE if this panel is visible, FALSE otherwise.
      * @return TRUE if this panel is visible, FALSE otherwise
@@ -204,7 +224,7 @@ public class CallManager
     {
         return this.isShown;
     }
-    
+
     /**
      * When TRUE shows this panel, when FALSE hides it.
      * @param isShown
@@ -212,18 +232,18 @@ public class CallManager
     public void setShown(boolean isShown)
     {
         this.isShown = isShown;
-        
+
         if(isShown) {
             this.add(comboPanel, BorderLayout.NORTH);
             this.add(buttonsPanel, BorderLayout.CENTER);
-        
+
             this.minimizeButtonPanel.add(minimizeButton);
         }
         else {
             this.minimizeButtonPanel.add(restoreButton);
         }
     }
-    
+
     /**
      * For the given MetaContact returns the protocol contact that supports
      * a basic telephony operation.
@@ -236,21 +256,21 @@ public class CallManager
     {
         String telephonySet
             = OperationSetBasicTelephony.class.getName();
-        
+
         Iterator i = metaContact.getContacts();
         while(i.hasNext()) {
             Contact contact = (Contact)i.next();
-            
+
             if(contact.getProtocolProvider()
                 .getSupportedOperationSets()
                     .containsKey(telephonySet)) {
-                
+
                 return contact;
             }
         }
         return null;
     }
-    
+
     /**
      * From all registered protocol providers returns the first one that
      * supports basic telephony.
@@ -260,12 +280,12 @@ public class CallManager
     private ProtocolProviderService getDefaultTelephonyProvider() {
         String telephonySet
             = OperationSetBasicTelephony.class.getName();
-        
+
         Iterator i = mainFrame.getProtocolProviders();
         while(i.hasNext()) {
             ProtocolProviderService pps
                 = (ProtocolProviderService) i.next();
-            
+
             if(pps.getSupportedOperationSets()
                     .containsKey(telephonySet)) {
                 return pps;

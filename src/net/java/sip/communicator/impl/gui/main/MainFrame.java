@@ -34,8 +34,8 @@ import net.java.sip.communicator.util.*;
  * implementation. It stores all available protocol providers and their
  * operation sets, as well as all registered accounts, the
  * <tt>MetaContactListService</tt> and all sent messages that aren't
- * delivered yet.  
- *  
+ * delivered yet.
+ *
  * @author Yana Stamcheva
  */
 public class MainFrame
@@ -62,13 +62,13 @@ public class MainFrame
     private Hashtable protocolPresenceSets = new Hashtable();
 
     private Hashtable protocolTelephonySets = new Hashtable();
-    
+
     private ArrayList protocolProviders = new ArrayList();
 
     private Hashtable imOperationSets = new Hashtable();
 
     private Hashtable tnOperationSets = new Hashtable();
-    
+
     private Hashtable webContactInfoOperationSets = new Hashtable();
 
     private MetaContactListService contactList;
@@ -76,22 +76,22 @@ public class MainFrame
     private ArrayList accounts = new ArrayList();
 
     private Hashtable waitToBeDeliveredMsgs = new Hashtable();
-    
+
     private LoginManager loginManager;
 
     /**
      * Creates an instance of <tt>MainFrame</tt>.
      */
     public MainFrame()
-    {        
+    {
         callManager = new CallManager(this);
         tabbedPane = new MainTabbedPane(this);
         quickMenu = new QuickMenu(this);
         statusPanel = new StatusPanel(this);
         menu = new MainMenu(this);
-        
+
         this.addWindowListener(new MainFrameWindowAdapter());
-        
+
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setInitialBounds();
 
@@ -133,7 +133,7 @@ public class MainFrame
 
     /**
      * Returns the <tt>MetaContactListService</tt>.
-     * 
+     *
      * @return <tt>MetaContactListService</tt> The current meta contact list.
      */
     public MetaContactListService getContactList()
@@ -143,8 +143,8 @@ public class MainFrame
 
     /**
      * Initializes the contact list panel.
-     * 
-     * @param contactList The <tt>MetaContactListService</tt> containing 
+     *
+     * @param contactList The <tt>MetaContactListService</tt> containing
      * the contact list data.
      */
     public void setContactList(MetaContactListService contactList)
@@ -157,23 +157,23 @@ public class MainFrame
 
         CListKeySearchListener keyListener
             = new CListKeySearchListener(clistPanel.getContactList());
-        
-        //add a key listener to the tabbed pane, when the contactlist is 
+
+        //add a key listener to the tabbed pane, when the contactlist is
         //initialized
         this.tabbedPane.addKeyListener(keyListener);
-        
+
         clistPanel.addKeyListener(keyListener);
-        
+
         clistPanel.getContactList().addKeyListener(keyListener);
     }
 
-    
+
     /**
-     * Returns a set of all operation sets supported by the given 
+     * Returns a set of all operation sets supported by the given
      * protocol provider.
-     * 
+     *
      * @param protocolProvider The protocol provider.
-     * @return a set of all operation sets supported by the given 
+     * @return a set of all operation sets supported by the given
      * protocol provider.
      */
     public Map getSupportedOperationSets(
@@ -184,7 +184,7 @@ public class MainFrame
 
     /**
      * Adds all protocol supported operation sets.
-     * 
+     *
      * @param protocolProvider The protocol provider.
      */
     public void addProtocolSupportedOperationSets(
@@ -192,17 +192,17 @@ public class MainFrame
     {
         Map supportedOperationSets
             = protocolProvider.getSupportedOperationSets();
-        
+
         this.protocolSupportedOperationSets.put(protocolProvider,
                 supportedOperationSets);
-                           
+
         String ppOpSetClassName = OperationSetPersistentPresence
                                     .class.getName();
         String pOpSetClassName = OperationSetPresence.class.getName();
-        
+
         if (supportedOperationSets.containsKey(ppOpSetClassName)
                 || supportedOperationSets.containsKey(pOpSetClassName)) {
-                
+
             OperationSetPresence presence = (OperationSetPresence)
                 supportedOperationSets.get(ppOpSetClassName);
 
@@ -210,77 +210,77 @@ public class MainFrame
                 presence = (OperationSetPresence)
                     supportedOperationSets.get(pOpSetClassName);
             }
-            
+
             this.protocolPresenceSets.put(protocolProvider, presence);
-            
+
             presence.addProviderPresenceStatusListener(
                         new GUIProviderPresenceStatusListener());
             presence.addContactPresenceStatusListener(
-                        new GUIContactPresenceStatusListener());        
+                        new GUIContactPresenceStatusListener());
         }
-        
+
         String imOpSetClassName = OperationSetBasicInstantMessaging
                                     .class.getName();
-        
+
         if (supportedOperationSets.containsKey(imOpSetClassName)) {
 
-            OperationSetBasicInstantMessaging im 
+            OperationSetBasicInstantMessaging im
                 = (OperationSetBasicInstantMessaging)
                     supportedOperationSets.get(imOpSetClassName);
 
             this.imOperationSets.put(protocolProvider, im);
-            //Add to all instant messaging operation sets the Message 
-            //listener implemented in the ContactListPanel, which handles 
+            //Add to all instant messaging operation sets the Message
+            //listener implemented in the ContactListPanel, which handles
             //all received messages.
             im.addMessageListener(this.getContactListPanel());
         }
-        
+
         String tnOpSetClassName = OperationSetTypingNotifications
                                     .class.getName();
-        
+
         if (supportedOperationSets.containsKey(tnOpSetClassName)) {
-            
-            OperationSetTypingNotifications tn 
+
+            OperationSetTypingNotifications tn
                 = (OperationSetTypingNotifications)
                     supportedOperationSets.get(tnOpSetClassName);
 
             this.tnOperationSets.put(protocolProvider, tn);
 
-            //Add to all typing notification operation sets the Message 
-            //listener implemented in the ContactListPanel, which handles 
+            //Add to all typing notification operation sets the Message
+            //listener implemented in the ContactListPanel, which handles
             //all received messages.
             tn.addTypingNotificationsListener(this.getContactListPanel());
         }
-        
+
         String wciOpSetClassName = OperationSetWebContactInfo.class.getName();
-        
+
         if (supportedOperationSets.containsKey(wciOpSetClassName)) {
-            
+
             OperationSetWebContactInfo wContactInfo
                 = (OperationSetWebContactInfo)
                     supportedOperationSets.get(wciOpSetClassName);
-            
+
             this.webContactInfoOperationSets
                 .put(protocolProvider, wContactInfo);
         }
-        
+
         String telOpSetClassName = OperationSetBasicTelephony.class.getName();
-        
+
         if (supportedOperationSets.containsKey(telOpSetClassName)) {
-            
+
             OperationSetBasicTelephony telephony
                 = (OperationSetBasicTelephony)
                     supportedOperationSets.get(telOpSetClassName);
-            
+
             telephony.addCallListener(new GUICallListener());
-            
+
             this.protocolTelephonySets.put(protocolProvider, telephony);
         }
-    }    
-    
+    }
+
     /**
      * Returns a set of all protocol providers.
-     * 
+     *
      * @return a set of all protocol providers.
      */
     public Iterator getProtocolProviders()
@@ -291,25 +291,25 @@ public class MainFrame
     /**
      * Returns the protocol provider associated to the account given
      * by the account user identifier.
-     * 
+     *
      * @param accountName The account user identifier.
      * @return The protocol provider associated to the given account.
      */
     public ProtocolProviderService getProtocolProviderForAccount(
             String accountName)
-    {   
+    {
         for(int i = 0; i < protocolProviders.size(); i ++) {
-            ProtocolProviderService pps 
+            ProtocolProviderService pps
                 = (ProtocolProviderService)protocolProviders.get(i);
-            
+
             if (pps.getAccountID().getUserID().equals(accountName)) {
-               return pps; 
+               return pps;
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Adds a protocol provider.
      * @param protocolProvider The protocol provider to add.
@@ -317,15 +317,15 @@ public class MainFrame
     public void addProtocolProvider(ProtocolProviderService protocolProvider)
     {
         this.protocolProviders.add(protocolProvider);
-        
+
         this.addProtocolSupportedOperationSets(protocolProvider);
-        
+
         this.addAccount(protocolProvider);
     }
 
     /**
      * Adds an account to the application.
-     * 
+     *
      * @param protocolProvider The protocol provider of the account.
      */
     public void addAccount(ProtocolProviderService protocolProvider)
@@ -334,9 +334,9 @@ public class MainFrame
 
         if (!getStatusPanel().containsAccount(accountID)) {
             this.accounts.add(protocolProvider);
-            
+
             this.getStatusPanel().addAccount(protocolProvider);
-            
+
             //request the focus int the contact list panel, which
             //permits to search in the contact list
             this.tabbedPane.getContactListPanel().getContactList()
@@ -346,7 +346,7 @@ public class MainFrame
 
     /**
      * Adds an account to the application.
-     * 
+     *
      * @param protocolProvider The protocol provider of the account.
      */
     public void removeAccount(ProtocolProviderService protocolProvider)
@@ -356,19 +356,19 @@ public class MainFrame
         if (getStatusPanel().containsAccount(accountID)) {
             this.accounts.remove(protocolProvider);
             this.getStatusPanel().removeAccount(accountID);
-        }        
+        }
     }
-    
+
     /**
      * Activates an account. Here we start the connecting process.
-     * 
+     *
      * @param protocolProvider The protocol provider of this account.
      */
     public void activateAccount(ProtocolProviderService protocolProvider)
     {
         this.getStatusPanel().startConnecting(protocolProvider);
     }
-    
+
     /**
      * Returns the account user id for the given protocol provider.
      * @return The account user id for the given protocol provider.
@@ -380,8 +380,8 @@ public class MainFrame
 
     /**
      * Returns the presence operation set for the given protocol provider.
-     * 
-     * @param protocolProvider The protocol provider for which the 
+     *
+     * @param protocolProvider The protocol provider for which the
      * presence operation set is searched.
      * @return the presence operation set for the given protocol provider.
      */
@@ -393,12 +393,12 @@ public class MainFrame
     }
 
     /**
-     * Returns the basic instant messaging(IM) operation set for the given 
+     * Returns the basic instant messaging(IM) operation set for the given
      * protocol provider.
-     * 
-     * @param protocolProvider The protocol provider for which the IM 
+     *
+     * @param protocolProvider The protocol provider for which the IM
      * is searched.
-     * @return OperationSetBasicInstantMessaging The IM for the given 
+     * @return OperationSetBasicInstantMessaging The IM for the given
      * protocol provider.
      */
     public OperationSetBasicInstantMessaging getProtocolIM(
@@ -409,12 +409,12 @@ public class MainFrame
     }
 
     /**
-     * Returns the typing notifications(TN) operation set for the given 
+     * Returns the typing notifications(TN) operation set for the given
      * protocol provider.
-     * 
-     * @param protocolProvider The protocol provider for which the TN 
+     *
+     * @param protocolProvider The protocol provider for which the TN
      * is searched.
-     * @return OperationSetTypingNotifications The TN for the given 
+     * @return OperationSetTypingNotifications The TN for the given
      * protocol provider.
      */
     public OperationSetTypingNotifications getTypingNotifications(
@@ -425,10 +425,10 @@ public class MainFrame
     }
 
     /**
-     * Returns the Web Contact Info operation set for the given 
+     * Returns the Web Contact Info operation set for the given
      * protocol provider.
-     * 
-     * @param protocolProvider The protocol provider for which the TN 
+     *
+     * @param protocolProvider The protocol provider for which the TN
      * is searched.
      * @return OperationSetWebContactInfo The Web Contact Info operation
      * set for the given protocol provider.
@@ -439,11 +439,11 @@ public class MainFrame
         return (OperationSetWebContactInfo) this.webContactInfoOperationSets
                 .get(protocolProvider);
     }
-    
+
     /**
      * Returns the telephony operation set for the given protocol provider.
-     * 
-     * @param protocolProvider The protocol provider for which the telephony 
+     *
+     * @param protocolProvider The protocol provider for which the telephony
      * is searched.
      * @return OperationSetBasicTelephony The telephony operation
      * set for the given protocol provider.
@@ -454,7 +454,7 @@ public class MainFrame
         return (OperationSetBasicTelephony) this.protocolTelephonySets
                 .get(protocolProvider);
     }
-    
+
     /**
      * Returns the call manager.
      * @return CallManager The call manager.
@@ -483,11 +483,11 @@ public class MainFrame
     }
 
     /**
-     * Listens for all contactPresenceStatusChanged events in order 
+     * Listens for all contactPresenceStatusChanged events in order
      * to refresh tha contact list, when a status is changed.
      */
     private class GUIContactPresenceStatusListener implements
-            ContactPresenceStatusListener 
+            ContactPresenceStatusListener
     {
         public void contactPresenceStatusChanged(
                 ContactPresenceStatusChangeEvent evt) {
@@ -532,22 +532,54 @@ public class MainFrame
      * Listens for all CallReceivedEvents.
      */
     private class GUICallListener implements CallListener {
-        
-        public void incomingCallReceived(CallReceivedEvent event)
-        {
-            CallReceivePanel cr = new CallReceivePanel(MainFrame.this);
 
-            cr.setVisible(true);
+        /**
+         * This method is called by a protocol provider whenever an incoming call
+         * is received.
+         * @param event a CallEvent instance describing the new incoming
+         * call
+         */
+        public void incomingCallReceived(CallEvent event)
+        {
+            /**@todo implement incomingCallReceived() */
+            System.out.println("@todo implement incomingCallReceived()");
         }
+
+        /**
+         * Indicates that all participants have left the source call and that it
+         * has been ended. The event may be considered redundant since there are
+         * already events issued upon termination of a single call participant but
+         * we've decided to keep it for listeners that are only intersted in call
+         * duration and don't want to follow other call details.
+         * @param event the <tt>CallEvent</tt> containing the source call.
+         */
+        public void callEnded(CallEvent event)
+        {
+            /**@todo implement incomingCallReceived() */
+            System.out.println("@todo implement incomingCallReceived()");
+        }
+
+        /**
+         * This method is called by a protocol provider upon initiation of an
+         * outgoing call.
+         * <p>
+         * @param event a CalldEvent instance describing the new incoming call.
+         */
+        public void outgoingCallCreated(CallEvent event)
+        {
+            /**@todo implement incomingCallReceived() */
+            System.out.println("@todo implement incomingCallReceived()");
+        }
+
     }
-    
+
     public Hashtable getWaitToBeDeliveredMsgs()
     {
         return waitToBeDeliveredMsgs;
     }
-    
+
     /**
-     * Returns the list of all groups. 
+     * Returns the list of all groups.
      * @return The list of all groups.
      */
     public Iterator getAllGroups()
@@ -555,10 +587,10 @@ public class MainFrame
         return getContactListPanel()
             .getContactList().getAllGroups();
     }
-    
+
     /**
      * Returns the Meta Contact Group corresponding to the given MetaUID.
-     * 
+     *
      * @param metaUID An identifier of a group.
      * @return The Meta Contact Group corresponding to the given MetaUID.
      */
@@ -567,7 +599,7 @@ public class MainFrame
         return getContactListPanel()
             .getContactList().getGroupByID(metaUID);
     }
-    
+
     /**
      * Before closing the application window saves the current size and position
      * through the <tt>ConfigurationService</tt>.
@@ -577,28 +609,28 @@ public class MainFrame
         public void windowClosing(WindowEvent e) {
             ConfigurationService configService
                 = GuiActivator.getConfigurationService();
-            
+
             try {
                 configService.setProperty(
                     "net.java.sip.communicator.impl.ui.mainWindowWidth",
                     new Integer(getWidth()));
-                
+
                 configService.setProperty(
                     "net.java.sip.communicator.impl.ui.mainWindowHeight",
                     new Integer(getHeight()));
-                
+
                 configService.setProperty(
                         "net.java.sip.communicator.impl.ui.mainWindowX",
                         new Integer(getX()));
-                
+
                 configService.setProperty(
                         "net.java.sip.communicator.impl.ui.mainWindowY",
                         new Integer(getY()));
-                
+
                 configService.setProperty(
                         "net.java.sip.communicator.impl.ui.showCallPanel",
                         new Boolean(callManager.isShown()));
-                
+
                 saveStatusInformation();
             }
             catch (PropertyVetoException e1) {
@@ -607,37 +639,37 @@ public class MainFrame
             }
         }
     }
-    
+
     /**
      * Sets the window size and position.
      */
     public void setSizeAndLocation() {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
-        
+
         String width = configService.getString(
             "net.java.sip.communicator.impl.ui.mainWindowWidth");
-        
+
         String height = configService.getString(
             "net.java.sip.communicator.impl.ui.mainWindowHeight");
-        
+
         String x = configService.getString(
             "net.java.sip.communicator.impl.ui.mainWindowX");
-        
+
         String y = configService.getString(
             "net.java.sip.communicator.impl.ui.mainWindowY");
-        
+
         String isShown = configService.getString(
             "net.java.sip.communicator.impl.ui.showCallPanel");
-        
+
         if(width != null && height != null)
-            this.setSize(new Integer(width).intValue(), 
+            this.setSize(new Integer(width).intValue(),
                     new Integer(height).intValue());
-        
+
         if(x != null && y != null)
-            this.setLocation(new Integer(x).intValue(), 
+            this.setLocation(new Integer(x).intValue(),
                     new Integer(y).intValue());
-        
+
         if(isShown != null && isShown != "") {
             callManager.setShown(new Boolean(isShown).booleanValue());
         }
@@ -661,7 +693,7 @@ public class MainFrame
     public void setLoginManager(LoginManager loginManager) {
         this.loginManager = loginManager;
     }
-    
+
     /**
      * Saves the last status for all accounts. This information is used
      * on loging. Each time user logs in he's logged with the same status
@@ -671,51 +703,51 @@ public class MainFrame
     {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
-        
+
         Iterator pproviders = getProtocolProviders();
-        
+
         while(pproviders.hasNext()) {
             ProtocolProviderService pps
                 = (ProtocolProviderService) pproviders.next();
 
             String prefix = "net.java.sip.communicator.impl.ui.accounts";
-            
+
             List accounts = configService
                     .getPropertyNamesByPrefix(prefix, true);
-            
+
             boolean savedAccount = false;
             Iterator accountsIter = accounts.iterator();
-            
+
             while(accountsIter.hasNext()) {
-                String accountRootPropName 
+                String accountRootPropName
                     = (String) accountsIter.next();
-                
-                String accountUID 
+
+                String accountUID
                     = configService.getString(accountRootPropName);
-                
+
                 if(accountUID.equals(pps
                         .getAccountID().getAccountUniqueID())) {
-                    
+
                     configService.setProperty(
                             accountRootPropName + ".lastAccountStatus",
                             getProtocolPresence(pps)
                             .getPresenceStatus().getStatusName());
-                    
+
                     savedAccount = true;
                 }
             }
-            
+
             if(!savedAccount) {
                 String accNodeName
                     = "acc" + Long.toString(System.currentTimeMillis());
-                
+
                 String accountPackage
                     = "net.java.sip.communicator.impl.ui.accounts."
                             + accNodeName;
-                
-                configService.setProperty(accountPackage, 
+
+                configService.setProperty(accountPackage,
                         pps.getAccountID().getAccountUniqueID());
-                
+
                 configService.setProperty(
                         accountPackage+".lastAccountStatus",
                         getProtocolPresence(pps)
@@ -723,7 +755,7 @@ public class MainFrame
             }
         }
     }
-    
+
     /**
      * Returns the panel containing the ContactList.
      * @return ContactListPanel the panel containing the ContactList
@@ -733,7 +765,7 @@ public class MainFrame
     }
 
     /**
-     * 
+     *
      */
     public void addCallPanel(CallPanel callPanel) {
         this.tabbedPane.addTab(callPanel.getTitle(), callPanel);
