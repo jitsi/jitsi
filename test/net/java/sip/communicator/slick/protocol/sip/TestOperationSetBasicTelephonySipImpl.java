@@ -199,9 +199,6 @@ public class TestOperationSetBasicTelephonySipImpl
                      +"right state."
                     , CallParticipantState.INCOMING_CALL
                     , participantAtP2.getState());
-
-
-
     }
 
     /**
