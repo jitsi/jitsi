@@ -68,15 +68,6 @@ public interface CallParticipant
     public CallParticipantState getState();
 
     /**
-     * Determines whether or not this is the participant that originated the
-     * call (as opposed to the one that was called).
-     *
-     * @return true if this is the participant that calls us and falls if
-     * otherwise.
-     */
-    public boolean isCaller();
-
-    /**
      * Allows the user interface to register a listener interested in changes
      * @param listener a listener instance to register with this participant.
      */
