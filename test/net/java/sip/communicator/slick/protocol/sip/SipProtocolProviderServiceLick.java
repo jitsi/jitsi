@@ -50,9 +50,23 @@ public class SipProtocolProviderServiceLick
 
         SipSlickFixture.bc = context;
 
+        //First test account installation so that the service that has
+        //been installed by it gets tested by the rest of the tests.
         addTestSuite(TestAccountInstallation.class);
+
+        //This must remain second as that's where the protocol would be
+        //made to login/authenticate/signon its service provider.
         addTestSuite(TestProtocolProviderServiceSipImpl.class);
+
+        addTestSuite(TestOperationSetBasicTelephonySipImpl.class);
+
+        //This must remain after all other tests using the accounts
+        //are done since it tests account uninstallation and the
+        //accounts we use for testing won't be available after that.
         addTest(TestAccountUninstallation.suite());
+
+        //This must remain last since it counts on the fact that
+        //account uninstallation has already been executed and that.
         addTestSuite(TestAccountUninstallationPersistence.class);
 
         context.registerService(getClass().getName(), this, properties);
