@@ -101,11 +101,11 @@ public class SipRegistrarConnection
      * @throws ParseException in case the specified registrar address is not a
      * valid reigstrar address.
      */
-    SipRegistrarConnection(InetAddress registrarAddress,
-                           int         registrarPort,
-                           String      registrationTransport,
-                           int         expirationTimeout,
-                           ProtocolProviderServiceSipImpl sipProviderCallback)
+    public SipRegistrarConnection(InetAddress registrarAddress,
+                                  int         registrarPort,
+                                  String      registrationTransport,
+                                  int         expirationTimeout,
+                                  ProtocolProviderServiceSipImpl sipProviderCallback)
         throws ParseException
     {
         this.sipProvider = sipProviderCallback;
@@ -118,6 +118,10 @@ public class SipRegistrarConnection
 
         registrarURI.setTransportParam(registrationTransport);
         this.registrationsExpiration = expirationTimeout;
+
+        //now let's register ourselves as processor for REGISTER related
+        //messages.
+        sipProviderCallback.registerMethodProcessor(Request.REGISTER, this);
     }
 
     /**
@@ -249,6 +253,13 @@ public class SipRegistrarConnection
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
         }
+
+        //User Agent
+        UserAgentHeader userAgentHeader
+            = sipProvider.getSipCommUserAgentHeader();
+        if(userAgentHeader != null)
+            request.addHeader(userAgentHeader);
+
         //Expires Header - try to generate it twice in case the default
         //expiration period is null
         ExpiresHeader expHeader = null;
@@ -688,6 +699,8 @@ public class SipRegistrarConnection
 
         Response responseClone = (Response) response.clone();
 
+        SipProvider sourceProvider = (SipProvider)responseEvent.getSource();
+
         //OK
         if (response.getStatusCode() == Response.OK) {
             processOK(clientTransaction, response);
@@ -705,9 +718,23 @@ public class SipRegistrarConnection
                  || response.getStatusCode()
                                 == Response.PROXY_AUTHENTICATION_REQUIRED)
         {
-            processAuthenticationChallenge(clientTransaction, response);
+            processAuthenticationChallenge(clientTransaction
+                                           , response
+                                           , sourceProvider);
         }
+        //errors
+        else if ( response.getStatusCode() / 100 == 4 )
+        {
+            logger.error("Received an error response.");
 
+            //tell the others we couldn't register
+            this.setRegistrationState(
+                RegistrationState.CONNECTION_FAILED
+                , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+                , "Received an error while trying to register. "
+                + "Server returned error:" + response.getReasonPhrase()
+            );
+        }
         //ignore everything else.
     }
 
@@ -717,10 +744,12 @@ public class SipRegistrarConnection
      *
      * @param clientTransaction the corresponding transaction
      * @param response the challenge
+     * @param jainSipProvider the provider that received the challende
      */
     private void processAuthenticationChallenge(
                         ClientTransaction clientTransaction,
-                        Response response)
+                        Response          response,
+                        SipProvider       jainSipProvider)
     {
         try
         {
@@ -730,7 +759,7 @@ public class SipRegistrarConnection
                 = sipProvider.getSipSecurityManager().handleChallenge(
                     response
                     , clientTransaction
-                    , getRegistrarJainSipProvider());
+                    , jainSipProvider);
 
             retryTran.sendRequest();
             return;
@@ -803,7 +832,6 @@ public class SipRegistrarConnection
     /**
      * Process an asynchronously reported IO Exception.
      *
-     * @since v1.2
      * @param exceptionEvent The Exception event that is reported to the
      * application.
      */
