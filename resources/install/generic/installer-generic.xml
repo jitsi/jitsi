@@ -1,7 +1,7 @@
 <installation version="1.0">
 	<info>
 		<appname>SIPCommunicator</appname>
-		<appversion>1.0.draft</appversion>
+		<appversion>1.0.cvs</appversion>
 		<authors>
 			<author name="SIP Communicator" email="sc@sip-communicator.org" />
 		</authors>
@@ -10,7 +10,7 @@
 		<uninstaller/>
 	</info>
 	<variables>
-		<variable name="app-version" value="1.0.draft"/>
+		<variable name="app-version" value="1.0.cvs"/>
 		<variable name="released-on" value="01/08/2006"/>
 	</variables>
 
