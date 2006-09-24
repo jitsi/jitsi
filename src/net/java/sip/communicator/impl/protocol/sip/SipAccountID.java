@@ -23,11 +23,29 @@ public class SipAccountID
      *
      * @param userID the user id part of the SIP uri identifying this contact.
      * @param accountProperties any other properties necessary for the account.
+     * @param sererName the name of the server that the user belongs to.
      */
     protected SipAccountID(String userID,
                            Map    accountProperties,
-                           String serviceName)
+                           String serverName)
     {
-        super(userID, accountProperties, ProtocolNames.SIP, serviceName);
+        super(userID, accountProperties, ProtocolNames.SIP, serverName);
     }
+
+    /**
+     * Returns a string that could be directly used (or easily converted to) an
+     * address that other users of the procotol can use to communicate with us.
+     * By default this string is set to userid@servicename. Protocol
+     * implementors should override it if they'd need it to respect a different
+     * syntax.
+     *
+     * @return a String in the form of userid@service that other protocol users
+     * should be able to parse into a meaningful address and use it to
+     * communicate with us.
+     */
+    public String getAccountAddress()
+    {
+        return "sip:" + getUserID() + "@" + getService();
+    }
+
 }
