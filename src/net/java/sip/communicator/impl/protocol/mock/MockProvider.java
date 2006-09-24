@@ -112,6 +112,21 @@ public class MockProvider
     }
 
     /**
+     * Returns the operation set corresponding to the specified class or null
+     * if this operation set is not supported by the provider implementation.
+     *
+     * @param opsetClass the <tt>Class</tt>  of the operation set that we're
+     * looking for.
+     * @return returns an OperationSet of the specified <tt>Class</tt> if the
+     * undelying implementation supports it or null otherwise.
+     */
+    public OperationSet getOperationSet(Class opsetClass)
+    {
+        return (OperationSet) getSupportedOperationSets()
+            .get(opsetClass.getName());
+    }
+
+    /**
      * Mock implementation of the corresponding ProtocolProviderService method.
      *
      * @return always true.
