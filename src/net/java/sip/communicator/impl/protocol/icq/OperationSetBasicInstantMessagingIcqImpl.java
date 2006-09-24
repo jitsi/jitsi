@@ -76,7 +76,18 @@ public class OperationSetBasicInstantMessagingIcqImpl
      * joscar and joustsim handle only channel one and two.
      * This is patch to handle and fourth one.
      */
-    private ChannelFourCmdFactory channelFourCmdFactory = new ChannelFourCmdFactory();
+    private ChannelFourCmdFactory channelFourCmdFactory
+        = new ChannelFourCmdFactory();
+
+    /**
+     * I do not why but we sometimes receive messages with a date in the future.
+     * I've decided to ignore such messages. I draw the line on
+     * currentTimeMillis() + ONE_DAY milliseconds. Anything with a date farther
+     * in the future is considered bogus and its date is replaced with current
+     * time millis.
+     */
+    private static final long ONE_DAY = 86400001;
+
 
     /**
      * Creates an instance of this operation set.
@@ -105,7 +116,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
     {
         synchronized(messageListeners)
         {
-            this.messageListeners.add(listener);
+            if(!messageListeners.contains(listener))
+                this.messageListeners.add(listener);
         }
     }
 
@@ -230,9 +242,9 @@ public class OperationSetBasicInstantMessagingIcqImpl
             this.requestID = requestID;
         }
 
-        public void handleResponse(SnacResponseEvent e)
+        public void handleResponse(SnacResponseEvent evt)
         {
-            SnacCommand snac = e.getSnacCommand();
+            SnacCommand snac = evt.getSnacCommand();
             logger.debug("Received a response to our offline message request: " +
                          snac);
 
@@ -254,11 +266,21 @@ public class OperationSetBasicInstantMessagingIcqImpl
                             .createVolatileContact(contactUIN);
                     }
 
+                    //some messages arrive far away in the future for some
+                    //reason that I currently don't know. Until we find it
+                    //(which may well be never) we are putting in an agly hack
+                    //ignoring messages with a date beyond tomorrow.
+                    long current = System.currentTimeMillis();
+                    long msgDate = offlineMsgCmd.getDate().getTime();
+
+                    if( (current + ONE_DAY) > msgDate )
+                        msgDate = current;
+
                     MessageReceivedEvent msgReceivedEvt
                         = new MessageReceivedEvent(
                             createMessage(offlineMsgCmd.getContents()),
                             sourceContact,
-                            offlineMsgCmd.getDate());
+                            new Date(msgDate));
                     logger.debug("fire msg received for : " +
                                  offlineMsgCmd.getContents());
                     fireMessageEvent(msgReceivedEvt);
@@ -392,19 +414,21 @@ public class OperationSetBasicInstantMessagingIcqImpl
         {
             for (int i = 0; i < messageListeners.size(); i++)
             {
-                MessageListener l = (MessageListener)messageListeners.get(i);
+                MessageListener listener
+                    = (MessageListener)messageListeners.get(i);
 
                 if (evt instanceof MessageDeliveredEvent )
                 {
-                    l.messageDelivered((MessageDeliveredEvent)evt);
+                    listener.messageDelivered((MessageDeliveredEvent)evt);
                 }
                 else if (evt instanceof MessageReceivedEvent)
                 {
-                    l.messageReceived((MessageReceivedEvent) evt);
+                    listener.messageReceived((MessageReceivedEvent) evt);
                 }
                 else if (evt instanceof MessageDeliveryFailedEvent)
                 {
-                    l.messageDeliveryFailed((MessageDeliveryFailedEvent) evt);
+                    listener.messageDeliveryFailed(
+                        (MessageDeliveryFailedEvent) evt);
                 }
             }
         }
@@ -484,9 +508,20 @@ public class OperationSetBasicInstantMessagingIcqImpl
 
             }
 
+            //some messages arrive far away in the future for some
+            //reason that I currently don't know. Until we find it
+            //(which may well be never) we are putting in an agly hack
+            //ignoring messages with a date beyond tomorrow.
+            long current = System.currentTimeMillis();
+            long msgDate = minfo.getTimestamp().getTime();
+
+            if ( (current + ONE_DAY) > msgDate)
+                msgDate = current;
+
+
             MessageReceivedEvent msgReceivedEvt
                 = new MessageReceivedEvent(
-                    newMessage, sourceContact , minfo.getTimestamp() );
+                    newMessage, sourceContact , new Date(msgDate) );
 
             fireMessageEvent(msgReceivedEvt);
         }
@@ -495,20 +530,20 @@ public class OperationSetBasicInstantMessagingIcqImpl
                                    ConversationEventInfo event)
         {}
 
-        public void canSendMessageChanged(Conversation c, boolean canSend)
+        public void canSendMessageChanged(Conversation conv, boolean canSend)
         {}
 
-        public void conversationClosed(Conversation c)
+        public void conversationClosed(Conversation conv)
         {}
 
-        public void conversationOpened(Conversation c)
+        public void conversationOpened(Conversation conv)
         {}
 
         public void gotOtherEvent(Conversation conversation,
                                   ConversationEventInfo event)
         {}
 
-        public void sentMessage(Conversation c, MessageInfo minfo)
+        public void sentMessage(Conversation conv, MessageInfo minfo)
         {
             /**@todo implement sentMessage() */
             /**
