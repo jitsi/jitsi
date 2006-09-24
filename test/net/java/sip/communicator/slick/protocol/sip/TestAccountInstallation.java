@@ -185,6 +185,19 @@ public class TestAccountInstallation
 
         table.put(ProtocolProviderFactory.USER_ID, userID);
 
+        String displayName = System.getProperty(
+            accountPrefix + ProtocolProviderFactory.DISPLAY_NAME, null);
+
+        assertNotNull(
+            "The system property named "
+            + accountPrefix + ProtocolProviderFactory.DISPLAY_NAME
+            + " has to contain a valid name string that could be used during "
+            + "SIP Communicator's tests."
+            , displayName);
+
+        table.put(ProtocolProviderFactory.DISPLAY_NAME, displayName);
+
+
         String passwd = System.getProperty(
             accountPrefix + ProtocolProviderFactory.PASSWORD, null );
 
