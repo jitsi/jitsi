@@ -50,6 +50,11 @@ public abstract class AccountID
     protected String accountUID = null;
 
     /**
+     * The name of the service that defines the context for this account.
+     */
+    protected String serviceName = null;
+
+    /**
      * Creates an account id for the specified provider userid and
      * accountProperties.
      * @param userID a String that uniquely identifies the user.
@@ -69,14 +74,9 @@ public abstract class AccountID
 
         this.userID = userID;
         this.accountProperties = new Hashtable(accountProperties);
+        this.serviceName = serviceName;
 
         //create a unique identifier string
-        //NOTE: the service name is most probably already present in the userID
-        //(e.g. in sip or jabber uris) but since this string is not meant to be
-        //seen by the user, it won't hurt adding it again. It could avoid
-        //duplicate IDs with protocols that are not meant to work accross
-        //servers (e.g. imagine some weird case where you have the same icq id
-        //with both the AIM server and some private ICQ server).
         this.accountUID = protocolName + ":" + userID + "@" + serviceName;
     }
 
@@ -123,7 +123,7 @@ public abstract class AccountID
      */
     public int hashCode()
     {
-        return accountUID == null? 0 : accountUID.hashCode();
+        return (accountUID == null)? 0 : accountUID.hashCode();
     }
 
     /**
@@ -159,4 +159,33 @@ public abstract class AccountID
         return getAccountUniqueID();
     }
 
+    /**
+     * Returns the name of the service that defines the context for this
+     * account. Often this name would be an sqdn or even an ipaddress but this
+     * would not always be the case (e.g. p2p providers may return a name that
+     * does not directly correspond to an IP address or host name).
+     * <p>
+     * @return the name of the service that defines the context for this
+     * account.
+     */
+    public String getService()
+    {
+        return this.serviceName;
+    }
+
+    /**
+     * Returns a string that could be directly used (or easily converted to) an
+     * address that other users of the procotol can use to communicate with us.
+     * By default this string is set to userid@servicename. Protocol
+     * implementors should override it if they'd need it to respect a different
+     * syntax.
+     *
+     * @return a String in the form of userid@service that other protocol users
+     * should be able to parse into a meaningful address and use it to
+     * communicate with us.
+     */
+    public String getAccountAddress()
+    {
+        return getUserID() + "@" + getService();
+    }
 }
