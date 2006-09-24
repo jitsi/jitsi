@@ -10,10 +10,50 @@ import java.util.*;
 
 
 /**
+ * Receives events notifying of changes that have occurred within a
+ * <tt>CallParticipant</tt>. Such changes may pertain to current call
+ * participant state, their display name, address, image and (possibly in the
+ * future) others.
+ *
  * @author Emil Ivov
  */
 public interface CallParticipantListener
     extends EventListener
 {
-    public void participantChange(CallParticipantChangeEvent evt);
+
+    /**
+     * Indicates that a change has occurred in the status of the source
+     * CallParticipant.
+     *
+     * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
+     * the source event as well as its previous and its new status.
+     */
+    public void participantStateChanged(CallParticipantChangeEvent evt);
+
+    /**
+     * Indicates that a change has occurred in the display name of the source
+     * CallParticipant.
+     *
+     * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
+     * the source event as well as its previous and its new display names.
+     */
+    public void participantDisplayNameChanged(CallParticipantChangeEvent evt);
+
+    /**
+     * Indicates that a change has occurred in the address of the source
+     * CallParticipant.
+     *
+     * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
+     * the source event as well as its previous and its new address.
+     */
+    public void participantAddressChanged(CallParticipantChangeEvent evt);
+
+    /**
+     * Indicates that a change has occurred in the image of the source
+     * CallParticipant.
+     *
+     * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
+     * the source event as well as its previous and its new image.
+     */
+    public void participantImageChanged(CallParticipantChangeEvent evt);
 }
