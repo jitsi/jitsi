@@ -164,7 +164,6 @@ public class ProtocolProviderServiceIcqImpl
      * @param authority the security authority that will be used for resolving
      *        any security challenges that may be returned during the
      *        registration or at any moment while wer're registered.
-     *
      */
     public void register(SecurityAuthority authority)
     {
@@ -175,10 +174,6 @@ public class ProtocolProviderServiceIcqImpl
 
         synchronized(initializationLock)
         {
-            String accountPrefix
-                = IcqActivator.getProtocolProviderFactory()
-                    .findAccountPrefix(getAccountID());
-
             //verify whether a password has already been stored for this account
             String password = IcqActivator.getProtocolProviderFactory()
                 .loadPassword(getAccountID());
@@ -260,6 +255,21 @@ public class ProtocolProviderServiceIcqImpl
     public Map getSupportedOperationSets()
     {
         return supportedOperationSets;
+    }
+
+    /**
+     * Returns the operation set corresponding to the specified class or null
+     * if this operation set is not supported by the provider implementation.
+     *
+     * @param opsetClass the <tt>Class</tt>  of the operation set that we're
+     * looking for.
+     * @return returns an OperationSet of the specified <tt>Class</tt> if the
+     * undelying implementation supports it or null otherwise.
+     */
+    public OperationSet getOperationSet(Class opsetClass)
+    {
+        return (OperationSet)getSupportedOperationSets()
+            .get(opsetClass.getName());
     }
 
     /**
@@ -399,7 +409,8 @@ public class ProtocolProviderServiceIcqImpl
     public void addRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
     {
-        registrationListeners.add(listener);
+        if(!registrationListeners.contains(listener))
+                registrationListeners.add(listener);
     }
 
     /**
