@@ -136,7 +136,6 @@
 
         <!-- Delete the temp directory-->
         <delete dir="${linux.app.dir}/tmp"/>
-
     </target>
 
     <target name="clean-install-windows">
