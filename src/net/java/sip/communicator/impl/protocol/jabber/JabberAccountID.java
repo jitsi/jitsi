@@ -1,3 +1,4 @@
+
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
@@ -19,6 +20,26 @@ public class JabberAccountID
      */
     JabberAccountID(String id, Map accountProperties )
     {
-        super(id, accountProperties, ProtocolNames.JABBER, "jabber.org");
+        super(id, accountProperties, ProtocolNames.JABBER,
+              getServiceName(accountProperties));
+    }
+
+    /**
+     * Returns the service name - the server we are logging to
+     * if it is null which is not supposed to be - we return for compatibility
+     * the string we used in the first release for creating AccountID
+     * (Using this string is wrong, but used for compatibility for now)
+     * @param accountProperties Map
+     * @return String
+     */
+    private static String getServiceName(Map accountProperties)
+    {
+        String serviceName =
+            (String)accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
+
+        if(serviceName != null)
+            return serviceName;
+        else
+            return "jabber.org";
     }
 }
