@@ -195,16 +195,16 @@ public class AccountRegWizardContainerImpl extends Wizard
         
         String wizardClassName = null;
         
-        String prefix = "net.java.sip.communicator.impl.ui";
-        
+        String prefix = "net.java.sip.communicator.impl.ui.accounts";
+                        
         List accounts = this.configService
                 .getPropertyNamesByPrefix(prefix, true);
         
         Iterator accountsIter = accounts.iterator();
         
-        while(accountsIter.hasNext()) {
+        while(accountsIter.hasNext()) {            
             String accountRootPropName = (String) accountsIter.next();
-            
+
             String accountUID = configService.getString(accountRootPropName);
             
             if(accountUID.equals(protocolProvider
@@ -270,7 +270,7 @@ public class AccountRegWizardContainerImpl extends Wizard
         String wizardClassName = wizard.getClass()
             .getName().replace('.', '_');
         
-        String accountPackage = "net.java.sip.communicator.impl.ui."
+        String accountPackage = "net.java.sip.communicator.impl.ui.accounts."
                                 + accNodeName;
         
         configService.setProperty(accountPackage, 
