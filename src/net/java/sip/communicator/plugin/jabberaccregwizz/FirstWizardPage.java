@@ -26,6 +26,9 @@ public class FirstWizardPage extends JPanel
 
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
+    private static final String GOOGLE_USER_SUFFIX = "gmail.com";
+    private static final String GOOGLE_CONNECT_SRV = "talk.google.com";
+
     private JPanel uinPassPanel = new JPanel(new BorderLayout(10, 10));
 
     private JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 10, 10));
@@ -201,17 +204,14 @@ public class FirstWizardPage extends JPanel
         registration.setUin(uinField.getText());
         registration.setPassword(new String(passField.getPassword()));
         registration.setRememberPassword(rememberPassBox.isSelected());
-        if(enableAdvOpButton.isSelected())
+
+        registration.setServerAddress(serverField.getText());
+        try
         {
-            registration.setOverrideDefOptions(true);
-            registration.setServerAddress(serverField.getText());
-            try
-            {
-                registration.setPort(Integer.parseInt(portField.getText()));
-            }
-            catch (NumberFormatException ex)
-            {}
+            registration.setPort(Integer.parseInt(portField.getText()));
         }
+        catch (NumberFormatException ex)
+        {}
     }
 
     /**
@@ -288,7 +288,13 @@ public class FirstWizardPage extends JPanel
             String uin = uinField.getText();
             int delimIndex = uin.indexOf("@");
             if (delimIndex != -1)
-                serverField.setText(uin.substring(delimIndex + 1));
+            {
+                String newServerAddr = uin.substring(delimIndex + 1);
+                if(newServerAddr.equals(GOOGLE_USER_SUFFIX))
+                    serverField.setText(GOOGLE_CONNECT_SRV);
+                else
+                    serverField.setText(newServerAddr);
+            }
         }
     }
 

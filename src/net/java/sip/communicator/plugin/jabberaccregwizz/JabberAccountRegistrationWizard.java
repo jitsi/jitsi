@@ -131,14 +131,11 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
 
-        if(registration.isOverrideDefOptions())
-        {
-            accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
+        accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
                                   registration.getServerAddress());
 
-            accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
+        accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
                                   String.valueOf(registration.getPort()));
-        }
 
         if(protocolProvider != null) {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());

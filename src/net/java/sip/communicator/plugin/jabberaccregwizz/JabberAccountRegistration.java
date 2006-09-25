@@ -20,8 +20,6 @@ public class JabberAccountRegistration {
 
     private boolean rememberPassword;
 
-    private boolean overrideDefOptions;
-
     private String serverAddress;
 
     private int port;
@@ -86,15 +84,6 @@ public class JabberAccountRegistration {
     }
 
     /**
-     * Whether server and port are pointed by the user
-     * @return boolean
-     */
-    public boolean isOverrideDefOptions()
-    {
-        return overrideDefOptions;
-    }
-
-    /**
      * Sets the UIN of the jabber registration account.
      * @param uin the UIN of the jabber registration account.
      */
@@ -118,14 +107,5 @@ public class JabberAccountRegistration {
     public void setPort(int port)
     {
         this.port = port;
-    }
-
-    /**
-     * Setting whether user has choosen advance options for server and port
-     * @param overrideDefOptions boolean
-     */
-    public void setOverrideDefOptions(boolean overrideDefOptions)
-    {
-        this.overrideDefOptions = overrideDefOptions;
     }
 }
