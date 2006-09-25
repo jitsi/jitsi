@@ -742,6 +742,12 @@ public class ImageLoader {
     public static final ImageID JABBER_32x32 = new ImageID("JABBER_32x32");
 
     /**
+     * The JABBER "connecting" 16x16 animated icon.
+     */
+    public static final ImageID JABBER_CONNECTING = new ImageID("JABBER_CONNECTING");
+
+
+    /**
      * The Jabber logo 16x16 icon.
      */
     public static final ImageID JABBER_LOGO = new ImageID("JABBER_LOGO");
@@ -965,7 +971,7 @@ public class ImageLoader {
             image = (BufferedImage) loadedImages.get(imageID);
         } else {
             String path = Images.getString(imageID.getId());
-            
+
             try {
                 image = ImageIO.read(ImageLoader.class.getClassLoader()
                         .getResource(path));
@@ -999,14 +1005,14 @@ public class ImageLoader {
 
         return image;
     }
-    
+
     /**
      * Loads an image from a given bytes array.
      * @param imageBytes The bytes array to load the image from.
      * @return The image for the given bytes array.
      */
     public static Image getBytesInImage(byte[] imageBytes) {
-        
+
         Image image = null;
         try {
             image = ImageIO.read(
@@ -1024,7 +1030,7 @@ public class ImageLoader {
      * @return A BufferedImage array containing the animated image.
      */
     public static BufferedImage[] getAnimatedImage(ImageID imageID) {
-        
+
         String path = Images.getString(imageID.getId());
 
         URL url = ImageLoader.class.getClassLoader().getResource(path);

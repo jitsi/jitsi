@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * All look and feel related constants are stored here.
- * 
+ *
  * @author Yana Stamcheva
  */
 
@@ -43,24 +43,24 @@ public class Constants {
      * a contact.
      */
     public static boolean REMOVE_CONTACT_ASK = true;
-    
+
     /**
      * Indicates whether the message automatic popup is enabled.
      */
     public static boolean AUTO_POPUP_NEW_MESSAGE = true;
-    
+
     /**
      * Indicates the number of messages to show in the chat area when a new
      * chat is opened.
      */
     public static int CHAT_HISTORY_SIZE = 10;
-    
+
     /*
      * ===================================================================
      * ------------------------ MESSAGE TYPES ---------------------------
      * ===================================================================
      */
-    
+
     /**
      * The outging message type.
      */
@@ -70,7 +70,7 @@ public class Constants {
      * The incoming message type.
      */
     public static final String INCOMING_MESSAGE = "IncomingMessage";
-    
+
     /**
      * The system message type.
      */
@@ -80,12 +80,12 @@ public class Constants {
      * The history incoming message type.
      */
     public static final String HISTORY_INCOMING_MESSAGE = "HistoryIncomingMessage";
-    
+
     /**
      * The history outgoing message type.
      */
     public static final String HISTORY_OUTGOING_MESSAGE = "HistoryOutgoingMessage";
-    
+
     /*
      * ===================================================================
      * ------------------------ SIZE CONSTANTS ---------------------------
@@ -101,7 +101,7 @@ public class Constants {
      * The minimum width of the main application window.
      */
     public static final int MAINFRAME_MIN_WIDTH = 80;
-    
+
     /**
      * The size of the gradient used for painting the selected background of
      * some components.
@@ -171,14 +171,14 @@ public class Constants {
         = new Color(209, 212, 225);
 
     /**
-     * The start color used to paint a gradient mouse over background of some 
+     * The start color used to paint a gradient mouse over background of some
      * components.
      */
     public static final Color MOVER_START_COLOR = new Color(230,
             230, 230);
-    
+
     /**
-     * The end color used to paint a gradient mouse over background of some 
+     * The end color used to paint a gradient mouse over background of some
      * components.
      */
     public static final Color MOVER_END_COLOR = new Color(255,
@@ -229,7 +229,7 @@ public class Constants {
      */
     public static final Font FONT = new Font(Constants.FONT_NAME, Font.PLAIN,
             new Integer(Constants.FONT_SIZE).intValue());
-    
+
     /*
      * ======================================================================
      * ------------------------ PROTOCOL NAMES -------------------------------
@@ -280,11 +280,11 @@ public class Constants {
      * window".
      */
     public static final boolean TABBED_CHAT_WINDOW = true;
-    
+
     /**
      * The default path, where chat window styles could be found.
      */
-    public static final String DEFAULT_STYLE_PATH  
+    public static final String DEFAULT_STYLE_PATH
         = "net/java/sip/communicator/impl/gui/resources/styles";
 
     /*
@@ -304,10 +304,10 @@ public class Constants {
         specialCharsList.add(new Integer(KeyEvent.VK_LEFT));
         specialCharsList.add(new Integer(KeyEvent.VK_RIGHT));
     };
-    
+
     /**
      * Checks if the given char is in the list of application special chars.
-     * 
+     *
      * @param charCode The char code.
      */
     public static boolean isSpecialChar(int charCode) {
@@ -316,7 +316,7 @@ public class Constants {
         else
             return false;
     }
-    
+
     /**
      * Gets the protocol logo icon in size 16x16.
      * @param protocolName The protocol name.
@@ -354,7 +354,7 @@ public class Constants {
 
         return protocolIcon;
     }
-    
+
     /**
      * Gets the protocol logo icon in size 32x32.
      * @param protocolName The protocol name.
@@ -400,7 +400,7 @@ public class Constants {
      * contains.
      */
     public static BufferedImage[] getProtocolAnimatedIcon(String protocolName) {
-        
+
         if (protocolName.equals(Constants.SIP)) {
             return null;
         }
@@ -422,7 +422,7 @@ public class Constants {
         }
         else if (protocolName.equals(Constants.JABBER)) {
             return ImageLoader.getAnimatedImage(
-                    ImageLoader.ICQ_CONNECTING);
+                    ImageLoader.JABBER_CONNECTING);
         }
         else if (protocolName.equals(Constants.SKYPE)) {
             return ImageLoader.getAnimatedImage(
@@ -436,12 +436,12 @@ public class Constants {
 
     /**
      * Returns the image corresponding to the given presence status.
-     * @param status The presence status. 
+     * @param status The presence status.
      * @return the image corresponding to the given presence status.
      */
     public static BufferedImage getStatusIcon(PresenceStatus status) {
         int connectivity = status.getStatus();
-        
+
         if(connectivity < 20) {
             return ImageLoader
                 .getImage(ImageLoader.USER_OFFLINE_ICON);
@@ -468,11 +468,11 @@ public class Constants {
      * Loads a chat window style.
      */
     public static void loadAdiumStyle(){
-        
+
         File is = new File(Constants.class.getClassLoader()
             .getResource(DEFAULT_STYLE_PATH + "/TotallyClear").toString());
     }
-    
+
     /**
      * Temporary method to load the css style used in the chat window.
      * @param style
