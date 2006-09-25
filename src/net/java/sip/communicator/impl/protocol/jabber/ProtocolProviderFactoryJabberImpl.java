@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import org.jivesoftware.smack.util.*;
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -83,10 +84,24 @@ public class ProtocolProviderFactoryJabberImpl
         if (userIDStr == null)
             throw new NullPointerException("The specified AccountID was null");
 
-        accountProperties.put(USER_ID, userIDStr);
-
         if (accountProperties == null)
             throw new NullPointerException("The specified property map was null");
+
+        accountProperties.put(USER_ID, userIDStr);
+
+        // if server address is null, we must extract it from userID
+        if(accountProperties.get(SERVER_ADDRESS) == null)
+        {
+            accountProperties.put(SERVER_ADDRESS,
+                                  StringUtils.parseServer(userIDStr));
+        }
+
+        // if server port is null, we will set default value
+        if(accountProperties.get(SERVER_PORT) == null)
+        {
+            accountProperties.put(SERVER_PORT,
+                                  "5222");
+        }
 
         AccountID accountID = new JabberAccountID(userIDStr, accountProperties);
 
