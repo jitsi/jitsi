@@ -28,6 +28,8 @@ public class JabberAccRegWizzActivator implements BundleActivator {
 
     /**
      * Starts this bundle.
+     * @param bc BundleContext
+     * @throws Exception
      */
     public void start(BundleContext bc) throws Exception {
 
@@ -42,10 +44,10 @@ public class JabberAccRegWizzActivator implements BundleActivator {
         AccountRegistrationWizardContainer wizardContainer
             = uiService.getAccountRegWizardContainer();
 
-        JabberAccountRegistrationWizard icqWizard
+        JabberAccountRegistrationWizard jabberWizard
             = new JabberAccountRegistrationWizard(wizardContainer);
 
-        wizardContainer.addAccountRegistrationWizard(icqWizard);
+        wizardContainer.addAccountRegistrationWizard(jabberWizard);
     }
 
     public void stop(BundleContext bundleContext) throws Exception {
@@ -55,7 +57,7 @@ public class JabberAccRegWizzActivator implements BundleActivator {
      * Returns the <tt>ProtocolProviderFactory</tt> for the Jabber protocol.
      * @return the <tt>ProtocolProviderFactory</tt> for the Jabber protocol
      */
-    public static ProtocolProviderFactory getIcqProtocolProviderFactory() {
+    public static ProtocolProviderFactory getJabberProtocolProviderFactory() {
 
         ServiceReference[] serRefs = null;
 
@@ -68,7 +70,7 @@ public class JabberAccRegWizzActivator implements BundleActivator {
                 ProtocolProviderFactory.class.getName(), osgiFilter);
         }
         catch (InvalidSyntaxException ex){
-            logger.error("IcqAccRegWizzActivator : " + ex);
+            logger.error("JabberAccRegWizzActivator : " + ex);
         }
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);

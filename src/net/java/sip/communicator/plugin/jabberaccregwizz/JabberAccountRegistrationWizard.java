@@ -14,9 +14,9 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The <tt>IcqAccountRegistrationWizard</tt> is an implementation of the
- * <tt>AccountRegistrationWizard</tt> for the ICQ protocol. It should allow
- * the user to create and configure a new ICQ account.
+ * The <tt>JabberAccountRegistrationWizard</tt> is an implementation of the
+ * <tt>AccountRegistrationWizard</tt> for the Jabber protocol. It should allow
+ * the user to create and configure a new Jabber account.
  *
  * @author Yana Stamcheva
  */
@@ -37,7 +37,7 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
     private String propertiesPackage = "net.java.sip.communicator.plugin.jabberaccregwizz";
 
     /**
-     * Creates an instance of <tt>IcqAccountRegistrationWizard</tt>.
+     * Creates an instance of <tt>JabberAccountRegistrationWizard</tt>.
      * @param wizardContainer the wizard container, where this wizard
      * is added
      */
@@ -48,6 +48,7 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
     /**
      * Implements the <code>AccountRegistrationWizard.getIcon</code> method.
      * Returns the icon to be used for this wizard.
+     * @return byte[]
      */
     public byte[] getIcon() {
         return Resources.getImage(Resources.JABBER_LOGO);
@@ -56,6 +57,7 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
     /**
      * Implements the <code>AccountRegistrationWizard.getProtocolName</code>
      * method. Returns the protocol name for this wizard.
+     * @return String
      */
     public String getProtocolName() {
         return Resources.getString("protocolName");
@@ -64,6 +66,7 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
     /**
      * Implements the <code>AccountRegistrationWizard.getProtocolDescription
      * </code> method. Returns the description of the protocol for this wizard.
+     * @return String
      */
     public String getProtocolDescription() {
         return Resources.getString("protocolDescription");
@@ -71,6 +74,7 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
 
     /**
      * Returns the set of pages contained in this wizard.
+     * @return Iterator
      */
     public Iterator getPages() {
         ArrayList pages = new ArrayList();
@@ -83,6 +87,7 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
 
     /**
      * Returns the set of data that user has entered through this wizard.
+     * @return Iterator
      */
     public Iterator getSummary() {
         Hashtable summaryTable = new Hashtable();
@@ -96,11 +101,12 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
 
     /**
      * Installs the account created through this wizard.
+     * @return ProtocolProviderService
      */
     public ProtocolProviderService finish() {
         firstWizardPage = null;
         ProtocolProviderFactory factory
-            = JabberAccRegWizzActivator.getIcqProtocolProviderFactory();
+            = JabberAccRegWizzActivator.getJabberProtocolProviderFactory();
 
         return this.installAccount(factory,
                 registration.getUin(), registration.getPassword());
@@ -109,7 +115,7 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
     /**
      * Creates an account for the given user and password.
      * @param providerFactory the ProtocolProviderFactory which will create
-     * the accounticq
+     * the account
      * @param user the user identifier
      * @param passwd the password
      * @return the <tt>ProtocolProviderService</tt> for the new account.
@@ -123,6 +129,15 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
 
         if(registration.isRememberPassword()) {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
+        }
+
+        if(registration.isOverrideDefOptions())
+        {
+            accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
+                                  registration.getServerAddress());
+
+            accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
+                                  String.valueOf(registration.getPort()));
         }
 
         if(protocolProvider != null) {

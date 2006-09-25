@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -18,6 +19,7 @@ import net.java.sip.communicator.service.protocol.*;
  * and the password of the account.
  *
  * @author Yana Stamcheva
+ * @author Damian Minkov
  */
 public class FirstWizardPage extends JPanel
     implements WizardPage, DocumentListener {
@@ -41,16 +43,20 @@ public class FirstWizardPage extends JPanel
     private JCheckBox rememberPassBox = new JCheckBox(
             Resources.getString("rememberPassword"));
 
-    private JPanel registerPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel advancedOpPanel = new JPanel(new BorderLayout(10, 10));
 
-    private JPanel buttonPanel = new JPanel(
-                new FlowLayout(FlowLayout.CENTER));
+    private JPanel labelsAdvOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
 
-    private JTextArea registerArea = new JTextArea(
-            Resources.getString("registerNewAccountText"));
+    private JPanel valuesAdvOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
 
-    private JButton registerButton = new JButton(
-            Resources.getString("registerNewAccount"));
+    private JCheckBox enableAdvOpButton = new JCheckBox(
+        Resources.getString("ovverideServerOps"), false);
+
+    private JLabel serverLabel = new JLabel(Resources.getString("server"));
+    private JTextField serverField = new JTextField();
+
+    private JLabel portLabel = new JLabel(Resources.getString("port"));
+    private JTextField portField = new JTextField("5222");
 
     private JPanel mainPanel = new JPanel();
 
@@ -105,19 +111,45 @@ public class FirstWizardPage extends JPanel
 
         mainPanel.add(uinPassPanel);
 
-        this.buttonPanel.add(registerButton);
+        serverField.setEditable(false);
+        portField.setEditable(false);
 
-        this.registerArea.setEditable(false);
-        this.registerArea.setLineWrap(true);
-        this.registerArea.setWrapStyleWord(true);
+        enableAdvOpButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent evt) {
+            // Perform action
+            JCheckBox cb = (JCheckBox)evt.getSource();
 
-        this.registerPanel.add(registerArea);
-        this.registerPanel.add(buttonPanel);
+            serverField.setEditable(cb.isSelected());
+            portField.setEditable(cb.isSelected());
+        }});
 
-        this.registerPanel.setBorder(BorderFactory
-                .createTitledBorder(Resources.getString("registerNewAccount")));
+        portField.getDocument().addDocumentListener(new DocumentListener(){
+            public void changedUpdate(DocumentEvent e){}
+            public void insertUpdate(DocumentEvent e)
+            {
+                setNextButtonAccordingToPort();
+            }
 
-        mainPanel.add(registerPanel);
+            public void removeUpdate(DocumentEvent e)
+            {
+                setNextButtonAccordingToPort();
+            }
+        });
+
+        labelsAdvOpPanel.add(serverLabel);
+        labelsAdvOpPanel.add(portLabel);
+
+        valuesAdvOpPanel.add(serverField);
+        valuesAdvOpPanel.add(portField);
+
+        advancedOpPanel.add(enableAdvOpButton, BorderLayout.NORTH);
+        advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
+        advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
+
+        advancedOpPanel.setBorder(BorderFactory
+                .createTitledBorder(Resources.getString("advancedOptions")));
+
+        mainPanel.add(advancedOpPanel);
 
         this.add(mainPanel, BorderLayout.NORTH);
     }
@@ -169,6 +201,17 @@ public class FirstWizardPage extends JPanel
         registration.setUin(uinField.getText());
         registration.setPassword(new String(passField.getPassword()));
         registration.setRememberPassword(rememberPassBox.isSelected());
+        if(enableAdvOpButton.isSelected())
+        {
+            registration.setOverrideDefOptions(true);
+            registration.setServerAddress(serverField.getText());
+            try
+            {
+                registration.setPort(Integer.parseInt(portField.getText()));
+            }
+            catch (NumberFormatException ex)
+            {}
+        }
     }
 
     /**
@@ -191,6 +234,7 @@ public class FirstWizardPage extends JPanel
      */
     public void insertUpdate(DocumentEvent e) {
         this.setNextButtonAccordingToUIN();
+        this.setServerFieldAccordingToUIN();
     }
 
     /**
@@ -200,6 +244,7 @@ public class FirstWizardPage extends JPanel
      */
     public void removeUpdate(DocumentEvent e) {
         this.setNextButtonAccordingToUIN();
+        this.setServerFieldAccordingToUIN();
     }
 
     public void changedUpdate(DocumentEvent e) {
@@ -230,5 +275,37 @@ public class FirstWizardPage extends JPanel
         this.passField.setText(password);
 
         this.rememberPassBox.setSelected(rememberPassword);
+    }
+
+    /**
+     * Parse the server part from the jabber id and set it to server
+     * as default value. If Advanced option is enabled Do nothing.
+     */
+    private void setServerFieldAccordingToUIN()
+    {
+        if(!enableAdvOpButton.isSelected())
+        {
+            String uin = uinField.getText();
+            int delimIndex = uin.indexOf("@");
+            if (delimIndex != -1)
+                serverField.setText(uin.substring(delimIndex + 1));
+        }
+    }
+
+    /**
+     * Disables Next Button if Port field value is incorrect
+     */
+    private void setNextButtonAccordingToPort()
+    {
+        try
+        {
+            String portValue = portField.getText();
+            new Integer(portField.getText());
+            wizardContainer.setNextFinishButtonEnabled(true);
+        }
+        catch (NumberFormatException ex)
+        {
+             wizardContainer.setNextFinishButtonEnabled(false);
+        }
     }
 }
