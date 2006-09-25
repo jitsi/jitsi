@@ -77,7 +77,8 @@ public class StatusPanel extends JPanel {
         this.protocolStatusCombos.remove(accountID);
         this.remove(protocolStatusCombo);
 
-        this.getParent().validate();
+        this.revalidate();
+        this.repaint();
     }
     
     /**
