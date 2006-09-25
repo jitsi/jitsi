@@ -1342,12 +1342,31 @@ public class MetaContactListServiceImpl
             = (OperationSetPersistentPresence)provider
                 .getOperationSet(OperationSetPersistentPresence.class);
 
+        //ignore if persistent presence is not supported.
+        if(persPresOpSet == null)
+            return;
+
         ContactGroup rootGroup
             = persPresOpSet.getServerStoredContactListRoot();
 
-        //remove the group
+        //iterate all sub groups and remove them one by one
+        //(we dont simply remove the root group because the mcl storage manager
+        //is stupid (i wrote it) and doesn't know root groups exist. that's why
+        //it needs to hear an event for every single group.)
+        Iterator subgroups = rootGroup.subgroups();
+
+        while(subgroups.hasNext())
+        {
+            ContactGroup group = (ContactGroup)subgroups.next();
+            //remove the group
+            this.removeContactGroupFromMetaContactGroup(
+                this.rootMetaGroup, group, provider);
+        }
+
+        //remove the root group
         this.removeContactGroupFromMetaContactGroup(
             this.rootMetaGroup, rootGroup, provider);
+
     }
 
     /**
