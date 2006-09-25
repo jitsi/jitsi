@@ -80,6 +80,11 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
      */
     public static final int REASON_USER_REQUEST = 7;
 
+    /**
+     * Indicates that the specified server was not found (i.e. the fqdn was not
+     * resolved or the ip address was not reachable).
+     */
+    public static final int REASON_SERVER_NOT_FOUND = 8;
 
     /**
      * The reason code returned by the server in order to explain the state
