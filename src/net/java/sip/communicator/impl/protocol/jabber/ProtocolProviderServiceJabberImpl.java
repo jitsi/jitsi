@@ -25,8 +25,6 @@ public class ProtocolProviderServiceJabberImpl
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderServiceJabberImpl.class);
 
-    public static int DEFAULT_SERVER_PORT = 5222;
-
     /**
      * The hashtable with the operation sets that we support locally.
      */
@@ -34,7 +32,8 @@ public class ProtocolProviderServiceJabberImpl
 
     private XMPPConnection connection = null;
 
-    private RegistrationState currentConnectionState = null;
+    private RegistrationState currentConnectionState =
+        RegistrationState.UNREGISTERED;
 
     /**
      * indicates whether or not the provider is initialized and ready for use.
@@ -106,6 +105,7 @@ public class ProtocolProviderServiceJabberImpl
                         credentials = authority.obtainCredentials(ProtocolNames.
                             JABBER
                             , credentials);
+
                         //extract the password the user passed us.
                         password = new String(credentials.getPassword());
 
@@ -116,25 +116,27 @@ public class ProtocolProviderServiceJabberImpl
                         }
                     }
 
-
                     //init the necessary objects
                     try
                     {
                         //XMPPConnection.DEBUG_ENABLED = true;
                         String userID =
                             StringUtils.parseName(getAccountID().getUserID());
-                        String server =
+                        String serviceName =
                             StringUtils.parseServer(getAccountID().getUserID());
 
-                        if(server.equals("gmail.com"))
-                        {
-                            connection = new GoogleTalkConnection();
-                        }
-                        else
-                            connection =
-                                new XMPPConnection(server,
-                                                   DEFAULT_SERVER_PORT,
-                                                   server);
+                        String serverAddress = (String)getAccountID().
+                            getAccountProperties().get(
+                                    ProtocolProviderFactory.SERVER_ADDRESS);
+
+                        String serverPort = (String)getAccountID().
+                            getAccountProperties().get(
+                                    ProtocolProviderFactory.SERVER_PORT);
+
+                        connection = new XMPPConnection(
+                                serverAddress,
+                                Integer.parseInt(serverPort),
+                                serviceName);
 
                         connection.addConnectionListener(
                             new JabberConnectionListener());
@@ -158,6 +160,9 @@ public class ProtocolProviderServiceJabberImpl
                     catch (XMPPException ex)
                     {
                         logger.error("Error registering", ex);
+                        fireRegistrationStateChanged(RegistrationState.UNREGISTERED,
+                            RegistrationState.CONNECTION_FAILED,
+                            RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
                     }
                 }
             }.start();
