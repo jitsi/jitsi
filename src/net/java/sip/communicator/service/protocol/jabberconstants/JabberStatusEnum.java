@@ -28,7 +28,7 @@ public class JabberStatusEnum
      * communicate.
      */
     public static final JabberStatusEnum FREE_FOR_CHAT
-        = new JabberStatusEnum(70, "Free For Chat",
+        = new JabberStatusEnum(85, "Free For Chat",
                 loadIcon("resources/images/jabber/jabber16x16-ffc.png"));
 
     /**
@@ -107,7 +107,7 @@ public class JabberStatusEnum
     {
         super(status, statusName, statusIcon);
     }
-    
+
     /**
      * Loads an image from a given image path.
      * @param imagePath The identifier of the image.
@@ -116,13 +116,13 @@ public class JabberStatusEnum
     public static byte[] loadIcon(String imagePath) {
         InputStream is = JabberStatusEnum.class.getClassLoader()
             .getResourceAsStream(imagePath);
-        
+
         byte[] icon = null;
         try {
             icon = new byte[is.available()];
             is.read(icon);
-        } catch (IOException e) {
-            logger.error("Failed to load icon: " + imagePath, e);
+        } catch (IOException exc) {
+            logger.error("Failed to load icon: " + imagePath, exc);
         }
         return icon;
     }
