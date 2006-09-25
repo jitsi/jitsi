@@ -179,13 +179,14 @@ public class MetaContactListServiceImpl
      * Adds a listener for <tt>MetaContactListChangeEvent</tt>s posted after
      * the tree changes.
      *
-     * @param l the listener to add
+     * @param listener the listener to add
      */
-    public void addMetaContactListListener(MetaContactListListener l)
+    public void addMetaContactListListener(MetaContactListListener listener)
     {
         synchronized (metaContactListListeners)
         {
-            this.metaContactListListeners.add(l);
+            if(!metaContactListListeners.contains(listener))
+                this.metaContactListListeners.add(listener);
         }
     }
 
@@ -918,15 +919,14 @@ public class MetaContactListServiceImpl
     /**
      * Removes a listener previously added with <tt>addContactListListener</tt>.
      *
-     * @param l
-     *            the listener to remove
+     * @param listener the listener to remove
      */
     public void removeMetaContactListListener(
-        MetaContactListListener l)
+        MetaContactListListener listener)
     {
         synchronized (metaContactListListeners)
         {
-            this.metaContactListListeners.remove(l);
+            this.metaContactListListeners.remove(listener);
         }
     }
 
@@ -1336,6 +1336,18 @@ public class MetaContactListServiceImpl
                      + provider.getProtocolName());
 
         this.currentlyInstalledProviders.remove(provider);
+
+        //get the root group for the provider so that we could remove it.
+        OperationSetPersistentPresence persPresOpSet
+            = (OperationSetPersistentPresence)provider
+                .getOperationSet(OperationSetPersistentPresence.class);
+
+        ContactGroup rootGroup
+            = persPresOpSet.getServerStoredContactListRoot();
+
+        //remove the group
+        this.removeContactGroupFromMetaContactGroup(
+            this.rootMetaGroup, rootGroup, provider);
     }
 
     /**
@@ -1963,15 +1975,15 @@ public class MetaContactListServiceImpl
 
             while (listeners.hasNext())
             {
-                MetaContactListListener l = (MetaContactListListener) listeners
-                    .next();
+                MetaContactListListener listener
+                    = (MetaContactListListener) listeners.next();
                 switch (evt.getEventID())
                 {
                     case MetaContactEvent.META_CONTACT_ADDED:
-                        l.metaContactAdded(evt);
+                        listener.metaContactAdded(evt);
                         break;
                     case MetaContactEvent.META_CONTACT_REMOVED:
-                        l.metaContactRemoved(evt);
+                        listener.metaContactRemoved(evt);
                         break;
                     default:
                         logger.error("Unknown event type " + evt.getEventID());
@@ -1999,15 +2011,15 @@ public class MetaContactListServiceImpl
 
             while (listeners.hasNext())
             {
-                MetaContactListListener l = (MetaContactListListener) listeners
-                    .next();
+                MetaContactListListener listener
+                    = (MetaContactListListener) listeners.next();
                 if (event instanceof MetaContactMovedEvent)
                 {
-                    l.metaContactMoved((MetaContactMovedEvent)event);
+                    listener.metaContactMoved((MetaContactMovedEvent)event);
                 }
                 else if (event instanceof MetaContactRenamedEvent)
                 {
-                    l.metaContactRenamed((MetaContactRenamedEvent)event);
+                    listener.metaContactRenamed((MetaContactRenamedEvent)event);
                 }
             }
         }
@@ -2033,15 +2045,15 @@ public class MetaContactListServiceImpl
 
             while (listeners.hasNext())
             {
-                MetaContactListListener l = (MetaContactListListener) listeners
-                    .next();
+                MetaContactListListener listener
+                    = (MetaContactListListener) listeners.next();
                 if (event instanceof MetaContactMovedEvent)
                 {
-                    l.metaContactMoved((MetaContactMovedEvent)event);
+                    listener.metaContactMoved((MetaContactMovedEvent)event);
                 }
                 else if (event instanceof MetaContactRenamedEvent)
                 {
-                    l.metaContactRenamed((MetaContactRenamedEvent)event);
+                    listener.metaContactRenamed((MetaContactRenamedEvent)event);
                 }
             }
         }
@@ -2080,21 +2092,21 @@ public class MetaContactListServiceImpl
 
             while (listeners.hasNext())
             {
-                MetaContactListListener l = (MetaContactListListener) listeners
-                    .next();
+                MetaContactListListener listener
+                    = (MetaContactListListener) listeners.next();
                 if (eventName.equals(ProtoContactEvent.PROTO_CONTACT_ADDED))
                 {
-                    l.protoContactAdded(event);
+                    listener.protoContactAdded(event);
                 }
                 else if (eventName.equals(ProtoContactEvent
                                             .PROTO_CONTACT_MOVED))
                 {
-                    l.protoContactMoved(event);
+                    listener.protoContactMoved(event);
                 }
                 else if (eventName.equals(ProtoContactEvent
                                             .PROTO_CONTACT_REMOVED))
                 {
-                    l.protoContactRemoved(event);
+                    listener.protoContactRemoved(event);
                 }
             }
         }
@@ -2193,7 +2205,7 @@ public class MetaContactListServiceImpl
 
         ContactGroup newProtoGroup = presenceOpSet.createUnresolvedContactGroup(
             contactGroupUID, persistentData,
-                parentProtoGroup == null
+                (parentProtoGroup == null)
                     ? presenceOpSet.getServerStoredContactListRoot()
                     : parentProtoGroup);
 
@@ -2202,7 +2214,6 @@ public class MetaContactListServiceImpl
         return newProtoGroup;
 
     }
-
 
     /**
      * The method is called from the storage manager whenever a new contact
@@ -2243,7 +2254,7 @@ public class MetaContactListServiceImpl
             Contact protoContact = presenceOpSet.createUnresolvedContact(
                 contactDescriptor.contactAddress,
                 contactDescriptor.persistentData,
-                contactDescriptor.parentProtoGroup == null
+                ( contactDescriptor.parentProtoGroup == null )
                     ? presenceOpSet.getServerStoredContactListRoot()
                     : contactDescriptor.parentProtoGroup);
 
@@ -2289,19 +2300,19 @@ public class MetaContactListServiceImpl
 
             while (listeners.hasNext())
             {
-                MetaContactListListener l = (MetaContactListListener) listeners
-                    .next();
+                MetaContactListListener listenet
+                    = (MetaContactListListener) listeners.next();
 
                 switch (eventID)
                 {
                     case MetaContactGroupEvent.META_CONTACT_GROUP_ADDED:
-                        l.metaContactGroupAdded(evt);
+                        listenet.metaContactGroupAdded(evt);
                         break;
                     case MetaContactGroupEvent.META_CONTACT_GROUP_REMOVED:
-                        l.metaContactGroupRemoved(evt);
+                        listenet.metaContactGroupRemoved(evt);
                         break;
                     case MetaContactGroupEvent.CHILD_CONTACTS_REORDERED:
-                        l.childContactsReordered(evt);
+                        listenet.childContactsReordered(evt);
                         break;
                     case MetaContactGroupEvent
                         .META_CONTACT_GROUP_RENAMED:
@@ -2311,7 +2322,7 @@ public class MetaContactListServiceImpl
                         .CONTACT_GROUP_REMOVED_FROM_META_GROUP:
                     case MetaContactGroupEvent
                         .CONTACT_GROUP_ADDED_TO_META_GROUP:
-                        l.metaContactGroupModified(evt);
+                        listenet.metaContactGroupModified(evt);
                         break;
                     default:
                         logger.error("Unknown event type (" + eventID
