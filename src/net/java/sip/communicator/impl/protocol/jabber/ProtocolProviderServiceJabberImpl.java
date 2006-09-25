@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.net.*;
 import java.util.*;
 
 import org.jivesoftware.smack.*;
@@ -160,9 +161,16 @@ public class ProtocolProviderServiceJabberImpl
                     catch (XMPPException ex)
                     {
                         logger.error("Error registering", ex);
+
+                        int reason =
+                            RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+
+                        if(ex.getWrappedThrowable() instanceof UnknownHostException)
+                            reason =
+                                RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
+
                         fireRegistrationStateChanged(RegistrationState.UNREGISTERED,
-                            RegistrationState.CONNECTION_FAILED,
-                            RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+                            RegistrationState.CONNECTION_FAILED, reason, null);
                     }
                 }
             }.start();
