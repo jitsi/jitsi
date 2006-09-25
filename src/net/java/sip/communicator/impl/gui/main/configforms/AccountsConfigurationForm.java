@@ -8,6 +8,7 @@
 package net.java.sip.communicator.impl.gui.main.configforms;
 
 import java.util.*;
+import java.util.List;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -22,6 +23,7 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -268,13 +270,42 @@ public class AccountsConfigurationForm extends JPanel
                             JOptionPane.YES_NO_CANCEL_OPTION);
                     
                     if(result == JOptionPane.YES_OPTION) {
+                        
+                        ConfigurationService configService
+                            = GuiActivator.getConfigurationService();
+                        
+                        String prefix = "net.java.sip.communicator.impl.ui.accounts";
+                        
+                        List accounts = configService
+                                .getPropertyNamesByPrefix(prefix, true);
+                        
+                        Iterator accountsIter = accounts.iterator();
+                        
+                        while(accountsIter.hasNext()) {
+                            
+                            String accountRootPropName 
+                                = (String) accountsIter.next();
+                            
+                            String accountUID 
+                                = configService.getString(accountRootPropName);
+                            
+                            if(accountUID.equals(protocolProvider
+                                    .getAccountID().getAccountUniqueID())) {
+                                
+                                configService.setProperty(
+                                    accountRootPropName,
+                                    null);
+                            }
+                        }
+                        
                         providerFactory.uninstallAccount(
-                            protocolProvider.getAccountID());
+                                protocolProvider.getAccountID());
                     }
                 }
             }
         }
     }
+    
 
     /**
      * Implements the <tt>ServiceListener</tt> method. Verifies whether the
