@@ -264,7 +264,28 @@ public class ChatConversationPanel
         }
         return chatString;
     }
+    
+    /**
+     * Processes the message given by the parameters.
+     *
+     * @param contactName The name of the contact sending the message.
+     * @param date The time at which the message is sent or received.
+     * @param messageType The type of the message. One of OUTGOING_MESSAGE
+     * or INCOMING_MESSAGE.
+     * @param message The message text.
+     */
+    public String processMessage(String contactName, Date date,
+            String messageType, String message, String keyword)
+    {
+        String formattedMessage = message;
 
+        if(keyword != null && keyword != "") {
+            formattedMessage = processKeyword(message, keyword);
+        }
+        return this.processMessage(contactName, date,
+                    messageType, formattedMessage);
+    }
+    
     /**
      * Appends the given string at the end of the contained in this panel
      * document.
@@ -307,26 +328,6 @@ public class ChatConversationPanel
         this.setCarretToEnd();
     }
     
-    /**
-     * Processes the message given by the parameters.
-     *
-     * @param contactName The name of the contact sending the message.
-     * @param date The time at which the message is sent or received.
-     * @param messageType The type of the message. One of OUTGOING_MESSAGE
-     * or INCOMING_MESSAGE.
-     * @param message The message text.
-     */
-    public String processMessage(String contactName, Date date,
-            String messageType, String message, String keyword)
-    {
-        String formattedMessage = message;
-
-        if(keyword != null && keyword != "") {
-            formattedMessage = processKeyword(message, keyword);
-        }
-        return this.processMessage(contactName, date,
-                    messageType, formattedMessage);
-    }
 
     /**
      * Highlights keywords searched in the history.
