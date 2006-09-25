@@ -265,16 +265,17 @@ public class FirstWizardPage extends JPanel
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
      * data from.
      */
-    public void loadAccount(ProtocolProviderService protocolProvider,
-            boolean rememberPassword) {
+    public void loadAccount(ProtocolProviderService protocolProvider) {
         AccountID accountID = protocolProvider.getAccountID();
         String password = (String)accountID.getAccountProperties()
             .get(ProtocolProviderFactory.PASSWORD);
-
+        
         this.uinField.setText(accountID.getUserID());
-        this.passField.setText(password);
 
-        this.rememberPassBox.setSelected(rememberPassword);
+        if(password != null) {
+            this.passField.setText(password);
+            this.rememberPassBox.setSelected(true);
+        }
     }
 
     /**

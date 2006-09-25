@@ -8,10 +8,10 @@ package net.java.sip.communicator.plugin.icqaccregwizz;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>IcqAccountRegistrationWizard</tt> is an implementation of the
@@ -29,12 +29,7 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
 
     private WizardContainer wizardContainer;
     
-    ConfigurationService configService 
-        = IcqAccRegWizzActivator.getConfigurationService();
-    
     private ProtocolProviderService protocolProvider;
-    
-    private String propertiesPackage = "net.java.sip.communicator.plugin.icqaccregwizz";
     
     /**
      * Creates an instance of <tt>IcqAccountRegistrationWizard</tt>.
@@ -132,12 +127,7 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
         
         AccountID accountID = providerFactory.installAccount(
                     user, accountProperties);
-        
-        configService.setProperty(
-                propertiesPackage + ".REMEMBER_PASSWORD",
-                new Boolean(registration.isRememberPassword())
-                );
-        
+                
         ServiceReference serRef = providerFactory
             .getProviderForAccount(accountID);
 
@@ -158,12 +148,6 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
         
         this.protocolProvider = protocolProvider;
         
-        boolean rememberPassword 
-            = new Boolean(configService
-                    .getString(propertiesPackage + ".REMEMBER_PASSWORD"))
-                        .booleanValue();
-        
-        this.firstWizardPage.loadAccount(
-                protocolProvider, rememberPassword);
+        this.firstWizardPage.loadAccount(protocolProvider);
     }
 }

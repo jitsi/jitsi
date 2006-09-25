@@ -29,9 +29,6 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
 
     private WizardContainer wizardContainer;
 
-    ConfigurationService configService
-        = JabberAccRegWizzActivator.getConfigurationService();
-
     private ProtocolProviderService protocolProvider;
 
     private String propertiesPackage = "net.java.sip.communicator.plugin.jabberaccregwizz";
@@ -145,11 +142,6 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
         AccountID accountID = providerFactory.installAccount(
                     user, accountProperties);
 
-        configService.setProperty(
-                propertiesPackage + ".REMEMBER_PASSWORD",
-                new Boolean(registration.isRememberPassword())
-                );
-
         ServiceReference serRef = providerFactory
             .getProviderForAccount(accountID);
 
@@ -170,12 +162,6 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
 
         this.protocolProvider = protocolProvider;
 
-        boolean rememberPassword
-            = new Boolean(configService
-                    .getString(propertiesPackage + ".REMEMBER_PASSWORD"))
-                        .booleanValue();
-
-        this.firstWizardPage.loadAccount(
-                protocolProvider, rememberPassword);
+        this.firstWizardPage.loadAccount(protocolProvider);
     }
 }

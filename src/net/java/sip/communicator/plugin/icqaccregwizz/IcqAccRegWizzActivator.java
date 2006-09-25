@@ -73,20 +73,4 @@ public class IcqAccRegWizzActivator implements BundleActivator {
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
     }
-    
-    /**
-     * Returns the <tt>ConfigurationService</tt>.
-     * @return the <tt>ConfigurationService</tt>
-     */
-    public static ConfigurationService getConfigurationService() {
-        if(configService == null) {
-            ServiceReference configReference = bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
-
-            configService = (ConfigurationService) bundleContext
-                .getService(configReference);
-        }
-
-        return configService;
-    }
 }
