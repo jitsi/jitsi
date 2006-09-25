@@ -6,24 +6,24 @@
     <dirname property="basedir" file="${ant.file}"/>
     <property environment="system"/>
     <property name="jdk.home" value="/usr/java/java"/>
-    <property name="dest" value="${basedir}/classes"/>
-    <property name="bundles.dest" value="${basedir}/sc-bundles"/>
-    <property name="doc" value="${basedir}/doc"/>
+    <property name="dest" value="classes"/>
+    <property name="bundles.dest" value="sc-bundles"/>
+    <property name="doc" value="doc"/>
     <property name="java.doc" value="${doc}/api"/>
-    <property name="lib" value="${basedir}/lib"/>
+    <property name="lib" value="lib"/>
     <property name="native.libs" value="${lib}/native"/>
-    <property name="src" value="${basedir}/src"/>
-    <property name="src2" value="${basedir}/test"/>
+    <property name="src" value="src"/>
+    <property name="src2" value="test"/>
     <property name="testsrc" value="${src2}"/>
     <property name="home" value="${system.HOME}"/>
-    <property name="bin" value="${basedir}/sip-communicator.bin"/>
-    <property name="utest.bin" value="${basedir}/sip-communicator.utest.bin"/>
-    <property name="test.reports.dir" value="${basedir}/test-reports"/>
+    <property name="bin" value="sip-communicator.bin"/>
+    <property name="utest.bin" value="sip-communicator.utest.bin"/>
+    <property name="test.reports.dir" value="test-reports"/>
     <property name="test.html.reports.dir" value="${test.reports.dir}/html"/>
-    <property name="release" value="${basedir}/release"/>
-    <property name="log" value="${basedir}/log"/>
+    <property name="release" value="release"/>
+    <property name="log" value="log"/>
     <property name="release.src" value="${release}/install"/>
-    <property name="inst.resrc" value="${basedir}/resources/install"/>
+    <property name="inst.resrc" value="resources/install"/>
 
     <!-- Put here the release directory -->
     <property name="macosx.app.dir" value="${release}/macosx"/>
@@ -44,7 +44,7 @@
          login problems and cause testing to fail. You could create the file
          yourself using the lib/account.properties.template and setting all
          fields as indicated. -->
-    <property file="${basedir}/lib/accounts.properties"/>
+    <property file="lib/accounts.properties"/>
 
     <!-- windows  -->
     <condition property="jmf.home" value="${lib}/jmf-win">
@@ -764,7 +764,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/service/protocol/protocol.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
                 prefix="net/java/sip/communicator/service/protocol"/>
-            <zipfileset dir="${basedir}/resources/images"
+            <zipfileset dir="resources/images"
                 prefix="resources/images"/>
         </jar>
     </target>
@@ -885,5 +885,4 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/jabberaccregwizz"/>
         </jar>
     </target>
-
 </project>

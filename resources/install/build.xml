@@ -32,7 +32,7 @@
 
     <!-- Load installer properties -->
     <!-- USERS NEED TO UPDATE THIS FILE -->
-    <property file="${inst.resrc}/installers.properties"/>
+    <property file="${basedir}/${inst.resrc}/installers.properties"/>
 
     <!-- define the izpack task in a separate target so that we don't get an
          error when izpack properties are not set-->
@@ -42,15 +42,15 @@
     </target>
 
     <!-- Put here the Windows release directory -->
-    <property name="windows.app.dir" value="${release}/windows"/>
+    <property name="windows.app.dir" value="${basedir}/${release}/windows"/>
     <!-- Put here the Windows Application version -->
     <property name="windows.app.ver" value="1.0.alpha1"/>
     <!-- Put here the Linux release directory -->
-    <property name="linux.app.dir" value="${release}/linux"/>
+    <property name="linux.app.dir" value="${basedir}/${release}/linux"/>
     <!-- Put here the Linux Application version -->
     <property name="linux.app.ver" value="1.0.alpha1"/>
     <!-- Put here the Generic release directory -->
-    <property name="generic.app.dir" value="${release}/generic"/>
+    <property name="generic.app.dir" value="${basedir}/${release}/generic"/>
     <!-- Put here the Generic Application version -->
     <property name="generic.app.ver" value="1.0.alpha1"/>
 
@@ -85,7 +85,7 @@
     <target name="build-installation-generic"
             depends="clean-install-generic,define-izpack-task">
         <izpack
-               input="${inst.resrc}/generic/installer-generic.xml"
+               input="${basedir}/${inst.resrc}/generic/installer-generic.xml"
                output="${generic.app.dir}/sip-communicator-${generic.app.ver}.jar"
                installerType="standard"
                izPackDir="${izpack.dir}/"
@@ -101,7 +101,7 @@
     <target name="build-installation-linux"
             depends="clean-install-linux,define-izpack-task">
         <copy todir="${linux.app.dir}/tmp">
-            <fileset dir="${inst.resrc}/linux">
+            <fileset dir="${basedir}/${inst.resrc}/linux">
                 <include name="setup.sh"/>
             </fileset>
     </copy>
@@ -112,7 +112,7 @@
             </fileset>
     </copy>
         <!-- create izpack installer jar file -->
-        <izpack input="${inst.resrc}/linux/installer-linux.xml"
+        <izpack input="${basedir}/${inst.resrc}/linux/installer-linux.xml"
                 output="${linux.app.dir}/tmp/sip-communicator-${linux.app.ver}-linux.jar"
                 installerType="standard"
                 basedir="${basedir}"
@@ -125,7 +125,7 @@
               src="${linux.app.dir}/tmp/install.tar"/>
         <concat destfile="${linux.app.dir}/sip-communicator-${linux.app.ver}-linux.bin"
                 binary="true">
-            <fileset dir="${inst.resrc}/linux/">
+            <fileset dir="${basedir}/${inst.resrc}/linux/">
                 <include name="sfx-header"/>
             </fileset>
             <fileset dir="${linux.app.dir}/tmp">
@@ -149,7 +149,7 @@
     <target name="build-installation-windows"
             depends="clean-install-windows,define-izpack-task">
         <copy todir="${windows.app.dir}/tmp">
-            <fileset dir="${inst.resrc}/windows">
+            <fileset dir="${basedir}/${inst.resrc}/windows">
                 <include name="launcher.ini"/>
                 <include name="setup-sip-communicator.exe"/>
             </fileset>
@@ -159,7 +159,7 @@
               tofile="${windows.app.dir}/tmp/jre/jre-windows.exe"/>
 
         <izpack
-               input="${inst.resrc}/windows/installer-windows.xml"
+               input="${basedir}/${inst.resrc}/windows/installer-windows.xml"
                output="${windows.app.dir}/tmp/sip-communicator-${windows.app.ver}-windows.jar"
                installerType="standard"
                basedir="${basedir}"
@@ -174,10 +174,10 @@
 
         <concat destfile="${windows.app.dir}/setup-sip-communicator-${windows.app.ver}.exe"
                 binary="true">
-            <fileset dir="${inst.resrc}/windows">
+            <fileset dir="${basedir}/${inst.resrc}/windows">
                 <include name="7zS.sfx"/>
             </fileset>
-            <fileset dir="${inst.resrc}/windows">
+            <fileset dir="${basedir}/${inst.resrc}/windows">
                 <include name="7zip.conf"/>
             </fileset>
             <fileset dir="${windows.app.dir}/tmp">
