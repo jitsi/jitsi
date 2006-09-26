@@ -34,7 +34,7 @@ public class ToolsMenu
     private Logger logger = Logger.getLogger(ToolsMenu.class.getName());
     
     private JMenuItem configMenuItem
-        = new JMenuItem(Messages.getString("configurations"));
+        = new JMenuItem(Messages.getString("settings"));
     
     private MainFrame parentWindow;
     
@@ -58,7 +58,7 @@ public class ToolsMenu
         
         this.setMnemonic(Messages.getString("mnemonic.tools").charAt(0));
         this.configMenuItem.setMnemonic(
-                Messages.getString("mnemonic.toolsMenuConfig").charAt(0));
+                Messages.getString("mnemonic.toolsMenuSettings").charAt(0));
     }
 
     /**

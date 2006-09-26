@@ -52,8 +52,8 @@ public class MainMenu
         toolsMenu.setMnemonic(Messages.getString("mnemonic.tools").charAt(0));
         toolsMenu.setToolTipText(Messages.getString("tools"));
 
-        viewMenu.setText(Messages.getString("settings"));
-        viewMenu.setMnemonic(Messages.getString("mnemonic.settings").charAt(0));
+        viewMenu.setText(Messages.getString("view"));
+        viewMenu.setMnemonic(Messages.getString("mnemonic.view").charAt(0));
         viewMenu.setToolTipText(Messages.getString("settings"));
 
         helpMenu.setText(Messages.getString("help"));
