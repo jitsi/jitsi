@@ -1,4 +1,3 @@
-
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
@@ -145,7 +144,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             msg.setBody(message.getContent());
 
             MessageEventManager.
-                addNotificationsRequests(msg, false, false, false, true);
+                addNotificationsRequests(msg, true, false, false, true);
 
             chat.sendMessage(msg);
 
@@ -263,6 +262,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
                              + fromUserID
                              + " the message "
                              + msg.getBody());
+            }
+
+            if(msg.getType() == org.jivesoftware.smack.packet.Message.Type.ERROR)
+            {
+                logger.info("Message error received from " + fromUserID);
+                return;
             }
 
             Message newMessage = createMessage(msg.getBody());
