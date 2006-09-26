@@ -63,6 +63,12 @@ public class ContactRightButtonMenu extends JPopupMenu implements
     private MetaContact contactItem;
 
     private MainFrame mainFrame;
+    
+    private String moveToPrefix = "moveTo:";
+    
+    private String removeContactPrefix = "removeContact:";
+    
+    private String addSubcontactPrefix = "addSubcontact:";
 
     /**
      * Creates an instance of ContactRightButtonMenu.
@@ -120,7 +126,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
                     .getUserID(),
                     new ImageIcon(Constants.getProtocolIcon(protocolName)));
 
-            menuItem.setName(protocolName);
+            menuItem.setName(addSubcontactPrefix + protocolName);
             menuItem.addActionListener(this);
 
             this.addSubcontactMenu.add(menuItem);
@@ -144,7 +150,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
             JMenuItem menuItem = new JMenuItem(group.getGroupName());
 
-            menuItem.setName(group.getMetaUID());
+            menuItem.setName(moveToPrefix + group.getMetaUID());
             menuItem.addActionListener(this);
 
             this.moveToMenu.add(menuItem);
@@ -169,7 +175,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
             JMenuItem contactItem = new JMenuItem(contact.getDisplayName());
 
-            contactItem.setName(contact.getAddress()
+            contactItem.setName(removeContactPrefix + contact.getAddress()
                     + contact.getProtocolProvider().getProtocolName());
 
             contactItem.addActionListener(this);
@@ -245,22 +251,25 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         String itemName = menuItem.getName();
         String itemText = menuItem.getText();
 
-        if (mainFrame.getProtocolProviderForAccount(itemText) != null) {
+        if (itemName.startsWith(addSubcontactPrefix)) {
+            
             ProtocolProviderService pps
                 = mainFrame.getProtocolProviderForAccount(itemText);
 
-            AddContactDialog dialog = new AddContactDialog(
-                    mainFrame.getContactList(),
-                    contactItem, pps);
-
-            dialog.setLocation(
-                    Toolkit.getDefaultToolkit().getScreenSize().width/2
-                        - 250,
-                    Toolkit.getDefaultToolkit().getScreenSize().height/2
-                        - 100
-                    );
-
-            dialog.setVisible(true);
+            if(pps != null) {
+                AddContactDialog dialog = new AddContactDialog(
+                        mainFrame.getContactList(),
+                        contactItem, pps);
+    
+                dialog.setLocation(
+                        Toolkit.getDefaultToolkit().getScreenSize().width/2
+                            - 250,
+                        Toolkit.getDefaultToolkit().getScreenSize().height/2
+                            - 100
+                        );
+    
+                dialog.setVisible(true);
+            }
         }
         else if (itemName.equalsIgnoreCase("sendMessage")) {
             ContactListPanel clistPanel = mainFrame.getContactListPanel();
@@ -305,35 +314,44 @@ public class ContactRightButtonMenu extends JPopupMenu implements
                     wContactInfo.getWebContactInfo(defaultContact)
                         .toString());
         }
-        else if (mainFrame.getGroupByID(itemName) != null) {
-            MetaContactGroup group = mainFrame.getGroupByID(itemName);
+        else if (itemName.startsWith(moveToPrefix)) {
+            
+            MetaContactGroup group
+                = mainFrame.getGroupByID(
+                        itemName.substring(moveToPrefix.length()));
 
-            mainFrame.getContactList().moveMetaContact(contactItem, group);
-        }
-        else if (getContactFromMetaContact(itemName) != null) {
-            Contact contact = getContactFromMetaContact(itemName);
-
-            if(Constants.REMOVE_CONTACT_ASK) {
-                String message = "<HTML>Are you sure you want to remove <B>"
-                    + this.contactItem.getDisplayName()
-                    + "</B><BR>from your contact list?</html>";
-
-                MessageDialog dialog = new MessageDialog(this.mainFrame,
-                        message, Messages.getString("remove"));
-
-                int returnCode = dialog.showDialog();
-
-                if (returnCode == MessageDialog.OK_RETURN_CODE) {
-                    this.mainFrame.getContactList().removeContact(contact);
-                }
-                else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
-                    this.mainFrame.getContactList().removeContact(contact);
-
-                    Constants.REMOVE_CONTACT_ASK = false;
-                }
+            if(group != null) {
+                mainFrame.getContactList().moveMetaContact(contactItem, group);
             }
-            else {
-                this.mainFrame.getContactList().removeContact(contact);
+        }
+        else if (itemName.startsWith("removeContact")) {
+            
+            Contact contact = getContactFromMetaContact(
+                    itemName.substring(removeContactPrefix.length()));
+
+            if(contact != null) {
+                if(Constants.REMOVE_CONTACT_ASK) {
+                    String message = "<HTML>Are you sure you want to remove <B>"
+                        + this.contactItem.getDisplayName()
+                        + "</B><BR>from your contact list?</html>";
+    
+                    MessageDialog dialog = new MessageDialog(this.mainFrame,
+                            message, Messages.getString("remove"));
+    
+                    int returnCode = dialog.showDialog();
+    
+                    if (returnCode == MessageDialog.OK_RETURN_CODE) {                        
+                        this.mainFrame.getContactList().removeContact(contact);
+                    }
+                    else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
+                        this.mainFrame.getContactList().removeContact(contact);
+    
+                        Constants.REMOVE_CONTACT_ASK = false;
+                    }
+                }
+                else {
+                    this.mainFrame.getContactList().removeContact(contact);
+                }
             }
         }
         else if (itemName.equals("allContacts")) {
@@ -344,9 +362,9 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
                 MessageDialog dialog = new MessageDialog(this.mainFrame,
                         message, Messages.getString("remove"));
-
+                
                 int returnCode = dialog.showDialog();
-
+                
                 if (returnCode == MessageDialog.OK_RETURN_CODE) {
                     this.mainFrame.getContactList()
                         .removeMetaContact(contactItem);
@@ -359,10 +377,10 @@ public class ContactRightButtonMenu extends JPopupMenu implements
                 }
             }
             else {
-                this.mainFrame.getContactList().removeMetaContact(contactItem);
+               this.mainFrame.getContactList().removeMetaContact(contactItem);
             }
         }
-    }
+    }   
 
     /**
      * Obtains the <tt>Contact</tt> corresponding to the given address
