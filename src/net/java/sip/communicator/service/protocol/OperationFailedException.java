@@ -37,9 +37,16 @@ public class OperationFailedException
     public static final int PROVIDER_NOT_REGISTERED = 3;
 
     /**
-     * Set when for implementation specific reasons.
+     * Set when an operation fails for implementation specific reasons.
      */
     public static final int INTERNAL_ERROR = 4;
+
+    /**
+     * Indicates that a user has tried to subscribe to a contact that already
+     * had an active subscription.
+     */
+    public static final int SUBSCRIPTION_ALREADY_EXISTS = 5;
+
 
     /**
      * The error code of the exception
