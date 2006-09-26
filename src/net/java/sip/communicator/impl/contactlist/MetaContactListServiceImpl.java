@@ -1832,8 +1832,18 @@ public class MetaContactListServiceImpl
                                              MetaContactGroupImpl parent,
                                              ContactGroup group)
         {
-            MetaContactGroupImpl newMetaGroup = new MetaContactGroupImpl(
-                group.getGroupName());
+            //if parent already contains a meta group with the same name, we'll
+            //reuse it as the container for the new contact group.
+            MetaContactGroupImpl newMetaGroup = (MetaContactGroupImpl)parent
+                .getMetaContactSubgroup(group.getGroupName());
+
+            //if there was no meta group with the specified name, create a new
+            //one
+            if(newMetaGroup == null)
+            {
+                newMetaGroup = new MetaContactGroupImpl(
+                    group.getGroupName());
+            }
 
             newMetaGroup.addProtoGroup(group);
             parent.addSubgroup(newMetaGroup);
