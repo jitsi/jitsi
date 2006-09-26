@@ -18,6 +18,9 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
 /**
  * The <tt>FileMenu</tt> is a menu in the main application menu bar that
@@ -35,6 +38,12 @@ public class FileMenu
     private JMenuItem newAccountMenuItem
         = new JMenuItem(Messages.getString("newAccount"));
     
+    private JMenuItem addContactItem
+        = new JMenuItem(Messages.getString("addContact"));
+    
+    private JMenuItem createGroupItem
+        = new JMenuItem(Messages.getString("createGroup"));
+
     private JMenuItem closeMenuItem
         = new JMenuItem(Messages.getString("close"));
 
@@ -51,20 +60,38 @@ public class FileMenu
         this.parentWindow = parentWindow;
 
         this.add(newAccountMenuItem);
+        
         this.addSeparator();
+        
+        this.add(addContactItem);
+        this.add(createGroupItem);
+        
+        this.addSeparator();
+        
         this.add(closeMenuItem);
+        
+        //this.addContactItem.setIcon(new ImageIcon(ImageLoader
+        //        .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
         
         this.newAccountMenuItem.setName("newAccount");
         this.closeMenuItem.setName("close");
+        this.addContactItem.setName("addContact");
+        this.createGroupItem.setName("createGroup");
         
         this.newAccountMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
+        this.addContactItem.addActionListener(this);
+        this.createGroupItem.addActionListener(this);
         
         this.setMnemonic(Messages.getString("file").charAt(0));
         this.closeMenuItem.setMnemonic(
                 Messages.getString("mnemonic.close").charAt(0));
         this.newAccountMenuItem.setMnemonic(
                 Messages.getString("mnemonic.newAccount").charAt(0));
+        this.addContactItem.setMnemonic(
+                Messages.getString("mnemonic.addContact").charAt(0));
+        this.createGroupItem.setMnemonic(
+                Messages.getString("mnemonic.createGroup").charAt(0));
     }
 
     /**
@@ -73,9 +100,9 @@ public class FileMenu
     public void actionPerformed(ActionEvent e) {
 
         JMenuItem menuItem = (JMenuItem) e.getSource();
-        String itemText = menuItem.getName();
+        String itemName = menuItem.getName();
 
-        if (itemText.equalsIgnoreCase("newAccount")) {
+        if (itemName.equals("newAccount")) {
             AccountRegWizardContainerImpl wizard
                 = (AccountRegWizardContainerImpl)GuiActivator.getUIService()
                     .getAccountRegWizardContainer();
@@ -94,7 +121,17 @@ public class FileMenu
     
             wizard.showModalDialog();
         }
-        else if (itemText.equalsIgnoreCase("close")) {
+        else if (itemName.equals("addContact")) {
+            AddContactWizard wizard = new AddContactWizard(parentWindow);
+            
+            wizard.showModalDialog();
+        }
+        else if (itemName.equals("createGroup")) {
+            CreateGroupDialog dialog = new CreateGroupDialog(parentWindow);
+            
+            dialog.setVisible(true);
+        }
+        else if (itemName.equals("close")) {
             try {
                 GuiActivator.bundleContext.getBundle(0).stop();
             } catch (BundleException ex) {
