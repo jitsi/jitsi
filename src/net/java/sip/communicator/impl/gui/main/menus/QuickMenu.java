@@ -39,8 +39,10 @@ import net.java.sip.communicator.util.*;
  *
  * @author Yana Stamcheva
  */
-public class QuickMenu extends SIPCommToolBar implements ActionListener,
-        PluginComponentListener {
+public class QuickMenu
+    extends SIPCommToolBar 
+    implements  ActionListener,
+                PluginComponentListener {
 
     private Logger logger = Logger.getLogger(QuickMenu.class.getName());
     
@@ -117,89 +119,9 @@ public class QuickMenu extends SIPCommToolBar implements ActionListener,
 
         if (buttonName.equals("add")) {
 
-            Wizard wizard = new Wizard();
-            wizard.getDialog().setTitle(Messages.getString("addContactWizard"));
-
-            NewContact newContact = new NewContact();
-
-            AddContactWizardPage1 page1
-                = new AddContactWizardPage1(wizard, newContact,
-                        mainFrame.getProtocolProviders());
-
-            wizard.registerWizardPage(AddContactWizardPage1.IDENTIFIER, page1);
-
-            AddContactWizardPage2 page2
-                = new AddContactWizardPage2(wizard, newContact,
-                        mainFrame.getAllGroups());
-
-            wizard.registerWizardPage(AddContactWizardPage2.IDENTIFIER, page2);
-
-            AddContactWizardPage3 page3
-                = new AddContactWizardPage3(newContact);
-
-            wizard.registerWizardPage(AddContactWizardPage3.IDENTIFIER, page3);
-
-            wizard.setCurrentPage(AddContactWizardPage1.IDENTIFIER);
-
-            wizard.getDialog().setLocation(
-                    Toolkit.getDefaultToolkit().getScreenSize().width/2
-                        - 250,
-                    Toolkit.getDefaultToolkit().getScreenSize().height/2
-                        - 100
-                    );
-
-            int returnCode = wizard.showModalDialog();
-
-            if(returnCode == 0) {
-                ArrayList ppList = newContact.getProtocolProviders();
-                ArrayList groupList = newContact.getGroups();
-
-                for(int i = 0; i < ppList.size(); i ++) {
-                    ProtocolProviderService pps
-                        = (ProtocolProviderService)ppList.get(i);
-
-                    for(int j = 0; j < groupList.size(); j++) {
-                        MetaContactGroup group
-                            = (MetaContactGroup)groupList.get(j);
-
-                        
-                        class CreateContact extends Thread {
-                            ProtocolProviderService pps;
-                            MetaContactGroup group;
-                            NewContact newContact;
-                            CreateContact(ProtocolProviderService pps,
-                                    MetaContactGroup group,
-                                    NewContact newContact) {
-                                this.pps = pps;
-                                this.group = group;
-                                this.newContact = newContact;
-                            }
-                            public void run() {
-                                try {
-                                    mainFrame.getContactList()
-                                        .createMetaContact(
-                                        pps, group, newContact.getUin());
-                                }
-                                catch (MetaContactListException ex) {
-                                    logger.error(ex);
-                                    
-                                    JOptionPane.showMessageDialog(mainFrame,
-                                        Messages.getString(
-                                                "addContactError",
-                                                newContact.getUin()),
-                                        Messages.getString(
-                                                "addContactErrorTitle"),
-                                        JOptionPane.WARNING_MESSAGE);
-                                }
-                            }
-                        }
-                        new CreateContact(pps, group, newContact).start();
-                    }
-                }
-            }
-            else if(returnCode == 1) {
-                wizard.getDialog().dispose();
-            }
+            AddContactWizard wizard = new AddContactWizard(mainFrame);
+            
+            wizard.showModalDialog();            
         }
         else if (buttonName.equals("config")) {
 
