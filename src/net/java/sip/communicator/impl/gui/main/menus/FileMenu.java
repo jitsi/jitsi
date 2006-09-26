@@ -39,10 +39,12 @@ public class FileMenu
         = new JMenuItem(Messages.getString("newAccount"));
     
     private JMenuItem addContactItem
-        = new JMenuItem(Messages.getString("addContact"));
+        = new JMenuItem(Messages.getString("addContact"), new ImageIcon(
+                ImageLoader.getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
     
     private JMenuItem createGroupItem
-        = new JMenuItem(Messages.getString("createGroup"));
+        = new JMenuItem(Messages.getString("createGroup"), new ImageIcon(
+                ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
 
     private JMenuItem closeMenuItem
         = new JMenuItem(Messages.getString("close"));

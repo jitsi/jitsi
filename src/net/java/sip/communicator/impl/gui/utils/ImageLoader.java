@@ -613,12 +613,24 @@ public class ImageLoader {
      */
     public static final ImageID ADD_CONTACT_16x16_ICON
         = new ImageID("ADD_CONTACT_16x16_ICON");
-
+    
+    /**
+     * Add contact 16x16 image.
+     */
+    public static final ImageID ADD_GROUP_16x16_ICON
+        = new ImageID("ADD_GROUP_16x16_ICON");
+    
     /**
      * Rename 16x16 image.
      */
     public static final ImageID RENAME_16x16_ICON
         = new ImageID("RENAME_16x16_ICON");
+    
+    /**
+     * Remove 16x16 image.
+     */
+    public static final ImageID REMOVE_16x16_ICON
+        = new ImageID("REMOVE_16x16_ICON");
 
     ///////////////////////////////////////////////////////////////////////////
 

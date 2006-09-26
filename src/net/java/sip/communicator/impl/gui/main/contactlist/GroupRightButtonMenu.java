@@ -33,7 +33,8 @@ public class GroupRightButtonMenu extends JPopupMenu
     private JMenu addContactMenu = new JMenu(Messages.getString("addContact"));
     
     private JMenuItem removeGroupItem = new JMenuItem(Messages
-            .getString("removeGroup"));
+            .getString("removeGroup"), new ImageIcon(ImageLoader
+                    .getImage(ImageLoader.DELETE_16x16_ICON)));
     
     private JMenuItem renameGroupItem = new JMenuItem(Messages
             .getString("renameGroup"), new ImageIcon(ImageLoader
