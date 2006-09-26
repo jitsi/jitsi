@@ -45,6 +45,12 @@ public class Constants {
     public static boolean REMOVE_CONTACT_ASK = true;
 
     /**
+     * Indicates whether to ask for confirmation when user tries to delete
+     * a contact.
+     */
+    public static boolean REMOVE_GROUP_ASK = true;
+
+    /**
      * Indicates whether the message automatic popup is enabled.
      */
     public static boolean AUTO_POPUP_NEW_MESSAGE = true;

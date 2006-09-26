@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
@@ -30,6 +31,14 @@ public class GroupRightButtonMenu extends JPopupMenu
     implements ActionListener {
 
     private JMenu addContactMenu = new JMenu(Messages.getString("addContact"));
+    
+    private JMenuItem removeGroupItem = new JMenuItem(Messages
+            .getString("removeGroup"));
+    
+    private JMenuItem renameGroupItem = new JMenuItem(Messages
+            .getString("renameGroup"), new ImageIcon(ImageLoader
+            .getImage(ImageLoader.RENAME_16x16_ICON)));
+
     
     private MetaContactGroup group;
     
@@ -68,6 +77,17 @@ public class GroupRightButtonMenu extends JPopupMenu
             
             this.addContactMenu.add(menuItem);
         }
+        
+        this.addSeparator();
+        
+        this.add(renameGroupItem);
+        this.add(removeGroupItem);
+        
+        this.renameGroupItem.setName("renameGroup");
+        this.removeGroupItem.setName("removeGroup");
+        
+        this.renameGroupItem.addActionListener(this);
+        this.removeGroupItem.addActionListener(this);
     }
     
     /**
@@ -79,8 +99,52 @@ public class GroupRightButtonMenu extends JPopupMenu
     public void actionPerformed(ActionEvent e) {
         JMenuItem item = (JMenuItem)e.getSource();
         String itemText = item.getText();
+        String itemName = item.getName();
         
-        if(mainFrame.getProtocolProviderForAccount(itemText) != null) {
+        if(itemName.equals("removeGroup")) {
+            if(group != null) {
+                if(Constants.REMOVE_CONTACT_ASK) {
+                    String message = "<HTML>Are you sure you want to remove <B>"
+                        + this.group.getGroupName()
+                        + "</B><BR>from your contact list?</html>";
+    
+                    MessageDialog dialog = new MessageDialog(this.mainFrame,
+                            message, Messages.getString("remove"));
+    
+                    int returnCode = dialog.showDialog();
+    
+                    if (returnCode == MessageDialog.OK_RETURN_CODE) {                        
+                        mainFrame.getContactList()
+                            .removeMetaContactGroup(group);
+                    }
+                    else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
+                        mainFrame.getContactList()
+                            .removeMetaContactGroup(group);
+    
+                        Constants.REMOVE_CONTACT_ASK = false;
+                    }
+                }
+                else {
+                    mainFrame.getContactList().removeMetaContactGroup(group);
+                }
+            }
+        }
+        else if(itemName.equals("renameGroup")) {
+            RenameGroupDialog dialog = new RenameGroupDialog(
+                    mainFrame.getContactList(), group);
+
+            dialog.setLocation(
+                    Toolkit.getDefaultToolkit().getScreenSize().width/2
+                        - 200,
+                    Toolkit.getDefaultToolkit().getScreenSize().height/2
+                        - 50
+                    );
+
+            dialog.setVisible(true);
+            
+            dialog.requestFocusInFiled();
+        }
+        else if(mainFrame.getProtocolProviderForAccount(itemText) != null) {
             ProtocolProviderService pps 
                 = mainFrame.getProtocolProviderForAccount(itemText);
             
