@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
+import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**
@@ -28,8 +29,8 @@ public class AddContactWizardPage3 implements WizardPage {
      * @param newContact An object that collects all user choices through the
      * wizard.
      */
-    public AddContactWizardPage3(NewContact newContact) {
-        this.addContactPanel = new AddContactPanel();
+    public AddContactWizardPage3(Wizard wizard, NewContact newContact) {
+        this.addContactPanel = new AddContactPanel(wizard);
         
         this.newContact = newContact;
     }

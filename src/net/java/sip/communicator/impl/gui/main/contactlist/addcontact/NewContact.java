@@ -24,7 +24,9 @@ public class NewContact {
     
     private ArrayList groups = new ArrayList();
     
-    private String uin = new String();
+    private String uin;
+    
+    private String newGroup;
     
     /**
      * Adds a protocol provider to the list of protocol providers, where this
@@ -82,5 +84,15 @@ public class NewContact {
      */
     public ArrayList getProtocolProviders() {
         return protocolProviders;
+    }
+
+    public String getNewGroup()
+    {
+        return newGroup;
+    }
+
+    public void setNewGroup(String newGroup)
+    {
+        this.newGroup = newGroup;
     }
 }

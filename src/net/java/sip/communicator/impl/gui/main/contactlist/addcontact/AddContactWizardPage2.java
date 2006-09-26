@@ -11,6 +11,7 @@ import java.util.*;
 
 import javax.swing.event.*;
 
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**
@@ -21,7 +22,9 @@ import net.java.sip.communicator.service.gui.*;
  * @author Yana Stamcheva
  */
 public class AddContactWizardPage2     
-        implements WizardPage, CellEditorListener {
+        implements  WizardPage,
+                    CellEditorListener
+{
 
     public static final String IDENTIFIER = "SELECT_GROUP_PANEL";
     
@@ -41,7 +44,7 @@ public class AddContactWizardPage2
                 
         this.wizard = wizard;
         
-        selectGroupPanel = new SelectGroupPanel(newContact, groupsList);
+        selectGroupPanel = new SelectGroupPanel(wizard, newContact, groupsList);
         
         selectGroupPanel.addCheckBoxCellListener(this);        
     }
@@ -113,6 +116,7 @@ public class AddContactWizardPage2
     }
 
     public void pageNext() {
+        this.selectGroupPanel.addNewContactGroups();
     }
 
     public void pageBack() {

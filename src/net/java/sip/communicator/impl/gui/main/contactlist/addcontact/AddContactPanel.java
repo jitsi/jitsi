@@ -9,10 +9,13 @@ package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.WizardContainer;
 
 /**
  * The <tt>AddContactPanel</tt> is the form for adding a contact. It's used
@@ -20,7 +23,10 @@ import net.java.sip.communicator.impl.gui.utils.*;
  *  
  * @author Yana Stamcheva
  */
-public class AddContactPanel extends JPanel {
+public class AddContactPanel
+    extends JPanel
+    implements DocumentListener
+{
 
     private JLabel uinLabel = new JLabel(Messages.getString("identifier"));
     
@@ -40,13 +46,27 @@ public class AddContactPanel extends JPanel {
     
     private JPanel rightPanel = new JPanel(new BorderLayout());
     
+    private WizardContainer parentWizard;
+    
     /**
      * Creates and initializes the <tt>AddContactPanel</tt>.
      */
-    public AddContactPanel() {
+    public AddContactPanel()
+    {
+        this(null);
+    }
+    
+    /**
+     * Creates and initializes the <tt>AddContactPanel</tt>.
+     * @param wizard The parent wizard, where this add contact panel is added
+     */
+    public AddContactPanel(WizardContainer wizard)
+    {
         super(new BorderLayout());
         
-        this.setPreferredSize(new Dimension(500, 200));
+        this.parentWizard = wizard;
+        
+        this.setPreferredSize(new Dimension(650, 300));
         
         this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
         
@@ -73,11 +93,38 @@ public class AddContactPanel extends JPanel {
      * Returns the string identifier entered by user.
      * @return the string identifier entered by user
      */
-    public String getUIN(){
+    public String getUIN()
+    {
         return textField.getText();
     }
     
     public void requestFocusInField() {
         this.textField.requestFocus();
+    }
+
+    public void changedUpdate(DocumentEvent e)
+    {   
+    }
+
+    public void insertUpdate(DocumentEvent e)
+    {
+        this.setNextFinishButtonAccordingToUIN();
+    }
+
+    public void removeUpdate(DocumentEvent e)
+    {
+        this.setNextFinishButtonAccordingToUIN();
+    }
+    
+    private void setNextFinishButtonAccordingToUIN()
+    {
+        if(parentWizard != null) {
+            if(textField.getText() != null && textField.getText() != ""){
+                parentWizard.setNextFinishButtonEnabled(true);
+            }
+            else {
+                parentWizard.setNextFinishButtonEnabled(false);
+            }
+        }
     }
 }

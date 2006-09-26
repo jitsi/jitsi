@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
+import java.awt.*;
 import java.util.*;
 
-import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * The <tt>SelectGroupPanel</tt> is where the user should select the group,
@@ -24,7 +25,10 @@ import net.java.sip.communicator.service.contactlist.*;
  * 
  * @author Yana Stamcheva
  */
-public class SelectGroupPanel extends JPanel {
+public class SelectGroupPanel
+    extends JPanel
+    implements  DocumentListener
+{
     
     private JTable groupsTable = new JTable();
         
@@ -39,14 +43,23 @@ public class SelectGroupPanel extends JPanel {
     
     private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
     
-    private JPanel rightPanel = new JPanel(new BorderLayout());
+    private JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
     
     private JScrollPane tablePane = new JScrollPane();
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
     
+    private JLabel createGroupLabel = new JLabel(
+            Messages.getString("createGroup") + ":");
+    
+    private JTextField createGroupField = new JTextField();
+    
+    private JPanel createGroupPanel = new JPanel(new BorderLayout());
+    
     private NewContact newContact;
+    
+    private WizardContainer parentWizard;
     
     private Iterator groupsList;
     
@@ -58,13 +71,15 @@ public class SelectGroupPanel extends JPanel {
      * @param groupsList The list of all <tt>MetaContactGroup</tt>s, from which
      * the user could select.
      */
-    public SelectGroupPanel(NewContact newContact, 
+    public SelectGroupPanel(WizardContainer wizard, NewContact newContact, 
             Iterator groupsList) {
-        super(new BorderLayout());
+        super(new BorderLayout(10, 10));
     
         this.setPreferredSize(new Dimension(500, 200));
         
         this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
+        
+        this.parentWizard = wizard;
         
         this.newContact = newContact;
         
@@ -79,12 +94,19 @@ public class SelectGroupPanel extends JPanel {
         
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);
+
+        this.createGroupPanel.add(createGroupLabel, BorderLayout.WEST);
+        this.createGroupPanel.add(createGroupField, BorderLayout.CENTER);
         
+        this.rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
         this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
         this.rightPanel.add(tablePane, BorderLayout.CENTER);
+        this.rightPanel.add(createGroupPanel, BorderLayout.SOUTH);
         
         this.add(iconLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
+        
+        this.createGroupField.getDocument().addDocumentListener(this);
     } 
     
     /**
@@ -125,7 +147,8 @@ public class SelectGroupPanel extends JPanel {
      * @return <code>true</code> if any of the check boxes is selected,
      * <code>false</code> otherwise.
      */
-    public boolean isCheckBoxSelected(){
+    public boolean isCheckBoxSelected()
+    {
         boolean isSelected = false;
         TableModel model = groupsTable.getModel();
         
@@ -136,10 +159,60 @@ public class SelectGroupPanel extends JPanel {
                 Boolean check = (Boolean)value;
                 if (check.booleanValue()) {
                     isSelected = check.booleanValue();
-                    newContact.addGroup((MetaContactGroup)model.getValueAt(i, 1));
+                    break;
                 }
             }
         }
         return isSelected;
+    }
+
+    /**
+     * Adds all selected from user contact groups in the new contact.
+     */
+    public void addNewContactGroups()
+    {
+        TableModel model = groupsTable.getModel();
+        
+        for (int i = 0; i < groupsTable.getRowCount(); i ++) {
+            Object value = model.getValueAt(i, 0);
+            
+            if (value instanceof Boolean) {
+                Boolean check = (Boolean)value;
+                if (check.booleanValue()) {             
+                    newContact.addGroup(
+                            (MetaContactGroup)model.getValueAt(i, 1));
+                }
+            }
+        }
+        
+        String newGroup = createGroupField.getText();
+        if(newGroup != null && newGroup != "") {
+            newContact.setNewGroup(newGroup);
+        }
+    }
+    
+    public void changedUpdate(DocumentEvent e)
+    {   
+    }
+
+    public void insertUpdate(DocumentEvent e)
+    {
+        this.setNextFinishButtonAccordingToUIN();
+    }
+
+    public void removeUpdate(DocumentEvent e)
+    {
+        this.setNextFinishButtonAccordingToUIN();
+    }
+    
+    private void setNextFinishButtonAccordingToUIN()
+    {
+        if(createGroupField.getText() != null
+                    || createGroupField.getText() != ""){
+            parentWizard.setNextFinishButtonEnabled(true);
+        }
+        else {
+            parentWizard.setNextFinishButtonEnabled(false);
+        }
     }
 }
