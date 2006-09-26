@@ -51,7 +51,12 @@ public class CreateGroupDialog extends JDialog
         this.mainFrame = mainFrame;
         this.clist = mainFrame.getContactList();
         
-        this.setLocationRelativeTo(mainFrame);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        
+        this.setSize(520, 250);
+        
+        this.setLocation((int)screenSize.getWidth()/2 - getWidth()/2,
+                (int)screenSize.getHeight()/2 - getHeight()/2);
                 
         this.init();
     }
@@ -61,8 +66,6 @@ public class CreateGroupDialog extends JDialog
      */
     private void init() {
         this.setTitle(Messages.getString("addGroup"));
-        
-        this.setSize(520, 250);
         
         this.setModal(true);
         
