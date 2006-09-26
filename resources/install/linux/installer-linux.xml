@@ -79,6 +79,10 @@
 			<description>SIP Communicator bundle Protocol ICQ</description>
 			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/protocol-icq.jar"/>
 		</pack>
+		<pack name="protocol-jabber" required="yes">
+			<description>SIP Communicator bundle Protocol Jabber</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/protocol-jabber.jar"/>
+		</pack>
 		<pack name="netaddress" required="yes">
 			<description>SIP Communicator bundle Network Address</description>
 			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/netaddr.jar"/>
@@ -102,6 +106,10 @@
 		<pack name="icqaccregwizz" required="yes">
 			<description>SIP Communicator bundle ICQ Account Registrattion Wizzard</description>
 			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/icqaccregwizz.jar"/>
+		</pack>
+        <pack name="jabberaccregwizz" required="yes">
+			<description>SIP Communicator bundle Jabber Account Registrattion Wizzard</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/jabberaccregwizz.jar"/>
 		</pack>
 
 		<!-- The executable files -->
