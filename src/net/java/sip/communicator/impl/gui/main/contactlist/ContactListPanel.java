@@ -75,14 +75,27 @@ public class ContactListPanel extends JScrollPane
         this.contactList = new ContactList(contactListService);
 
         this.contactList.addMouseListener(this);
+        this.treePanel.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                CommonRightButtonMenu popupMenu
+                    = new CommonRightButtonMenu(mainFrame);
+    
+                Point newPoint = e.getPoint();
+    
+                popupMenu.setInvoker(treePanel);
+    
+                popupMenu.setLocation(e.getX() + mainFrame.getX() + 5, 
+                        e.getY() + mainFrame.getY() + 105);
+    
+                popupMenu.setVisible(true);
+            }
+        });
         
         this.treePanel.add(contactList, BorderLayout.NORTH);
 
         this.treePanel.setBackground(Color.WHITE);
         this.contactList.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         
-        //this.addKeyListener(new CListKeySearchListener(this.contactList));
-
         this.getRootPane().getActionMap().put("runChat",
                 new RunMessageWindowAction());
         
@@ -237,7 +250,8 @@ public class ContactListPanel extends JScrollPane
                         contact));
             } 
             else if (component instanceof JPanel) {
-                if(component.getName().equals("buttonsPanel")){
+                if(component.getName() != null
+                        && component.getName().equals("buttonsPanel")){
                     JPanel panel = (JPanel) component;
     
                     int internalX = translatedX
