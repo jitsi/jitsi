@@ -440,27 +440,33 @@ public class Constants {
      * @return the image corresponding to the given presence status.
      */
     public static BufferedImage getStatusIcon(PresenceStatus status) {
-        int connectivity = status.getStatus();
-
-        if(connectivity < 20) {
-            return ImageLoader
-                .getImage(ImageLoader.USER_OFFLINE_ICON);
-        }
-        else if(connectivity > 20 && connectivity < 50) {
-            return ImageLoader
-            .getImage(ImageLoader.USER_AWAY_ICON);
-        }
-        else if(connectivity > 50 && connectivity < 80) {
-            return ImageLoader
-                .getImage(ImageLoader.USER_ONLINE_ICON);
-        }
-        else if(connectivity > 80 && connectivity < 100) {
-            return ImageLoader
-                .getImage(ImageLoader.USER_FFC_ICON);
+        if(status != null) {
+            int connectivity = status.getStatus();
+    
+            if(connectivity < 20) {
+                return ImageLoader
+                    .getImage(ImageLoader.USER_OFFLINE_ICON);
+            }
+            else if(connectivity > 20 && connectivity < 50) {
+                return ImageLoader
+                .getImage(ImageLoader.USER_AWAY_ICON);
+            }
+            else if(connectivity > 50 && connectivity < 80) {
+                return ImageLoader
+                    .getImage(ImageLoader.USER_ONLINE_ICON);
+            }
+            else if(connectivity > 80 && connectivity < 100) {
+                return ImageLoader
+                    .getImage(ImageLoader.USER_FFC_ICON);
+            }
+            else {
+                return ImageLoader
+                    .getImage(ImageLoader.USER_OFFLINE_ICON);
+            }
         }
         else {
             return ImageLoader
-            .getImage(ImageLoader.USER_OFFLINE_ICON);
+                .getImage(ImageLoader.USER_OFFLINE_ICON);
         }
     }
 
