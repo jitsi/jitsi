@@ -83,6 +83,7 @@ public class ContactList extends JList
      */
     public void metaContactRenamed(MetaContactRenamedEvent evt) {
         this.revalidate();
+        this.repaint();
     }
 
     /**
@@ -91,6 +92,7 @@ public class ContactList extends JList
      */
     public void protoContactAdded(ProtoContactEvent evt) {
         this.revalidate();
+        this.repaint();
     }
 
     /**
@@ -99,6 +101,7 @@ public class ContactList extends JList
      */
     public void protoContactRemoved(ProtoContactEvent evt) {
         this.revalidate();
+        this.repaint();
     }
 
     /**
@@ -107,6 +110,7 @@ public class ContactList extends JList
      */
     public void protoContactMoved(ProtoContactEvent evt) {
         this.revalidate();
+        this.repaint();
     }
 
     /**
@@ -115,6 +119,7 @@ public class ContactList extends JList
      */
     public void metaContactRemoved(MetaContactEvent evt) {
         this.revalidate();
+        this.repaint();
     }
 
     /**
@@ -123,6 +128,7 @@ public class ContactList extends JList
      */
     public void metaContactMoved(MetaContactMovedEvent evt) {
         this.revalidate();
+        this.repaint();
     }
 
     /**
@@ -137,6 +143,7 @@ public class ContactList extends JList
         //this.ensureIndexIsVisible(0);
         
         this.revalidate();
+        this.repaint();
     }
 
     /**
@@ -145,6 +152,7 @@ public class ContactList extends JList
      */
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
         this.revalidate();
+        this.repaint();
     }
 
     /**
@@ -153,6 +161,7 @@ public class ContactList extends JList
      */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
         this.revalidate();
+        this.repaint();
     }
 
     /**
