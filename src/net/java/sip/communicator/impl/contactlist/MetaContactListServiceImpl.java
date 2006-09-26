@@ -1843,10 +1843,13 @@ public class MetaContactListServiceImpl
             {
                 newMetaGroup = new MetaContactGroupImpl(
                     group.getGroupName());
+                newMetaGroup.addProtoGroup(group);
+                parent.addSubgroup(newMetaGroup);
             }
-
-            newMetaGroup.addProtoGroup(group);
-            parent.addSubgroup(newMetaGroup);
+            else
+            {
+                newMetaGroup.addProtoGroup(group);
+            }
 
             //check if there were any subgroups
             Iterator subgroups = group.subgroups();
