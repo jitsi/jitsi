@@ -350,7 +350,13 @@ public class ImageLoader {
      */
     public static final ImageID ADD_CONTACT_WIZARD_ICON
         = new ImageID("ADD_CONTACT_WIZARD_ICON");
-
+    
+    /**
+     * The image used for decoration of the "Add group" window.
+     */
+    public static final ImageID ADD_GROUP_ICON
+        = new ImageID("ADD_GROUP_ICON");
+    
     /**
      * The image used for decoration of the "Rename contact" window.
      */

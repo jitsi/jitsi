@@ -38,7 +38,7 @@ public class CreateGroupPanel
     private JLabel infoTitleLabel = new JLabel(Messages.getString("createGroup"));
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
+            .getImage(ImageLoader.ADD_GROUP_ICON)));
     
     private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
     
