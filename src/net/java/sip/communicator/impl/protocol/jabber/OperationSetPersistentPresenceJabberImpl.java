@@ -182,9 +182,11 @@ public class OperationSetPersistentPresenceJabberImpl
      *
      * @param parent the group where the new group should be created
      * @param groupName the name of the new group to create.
+     * @throws OperationFailedException if such group already exists
      */
     public void createServerStoredContactGroup(ContactGroup parent,
                                                String groupName)
+        throws OperationFailedException
     {
         assertConnected();
 

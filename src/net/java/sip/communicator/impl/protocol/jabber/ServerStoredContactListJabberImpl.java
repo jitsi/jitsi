@@ -341,7 +341,7 @@ public class ServerStoredContactListJabberImpl
 
         //if the contact is already in the contact list and is not volatile,
         //then only broadcast an event
-        final ContactJabberImpl existingContact = findContactById(id);
+        ContactJabberImpl existingContact = findContactById(id);
 
         if( existingContact != null
             && existingContact.isPersistent() )
@@ -467,8 +467,19 @@ public class ServerStoredContactListJabberImpl
      * @param groupName a String containing the name of the new group.
      */
     public void createGroup(String groupName)
+        throws OperationFailedException
     {
         logger.trace("Creating group: " + groupName);
+
+        ContactGroupJabberImpl existingGroup = findContactGroup(groupName);
+
+        if( existingGroup != null && existingGroup.isPersistent() )
+        {
+            logger.debug("ContactGroup " + groupName + " already exists.");
+            throw new OperationFailedException(
+                           "ContactGroup " + groupName + " already exists.",
+                OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
+        }
 
         RosterGroup newRosterGroup = roster.createGroup(groupName);
 
