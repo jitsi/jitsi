@@ -129,6 +129,7 @@
             source="1.4" target="1.4">
             <src path="${src}"/>
             <src path="${src2}"/>
+            <include name="**/*.java" />
         </javac>
     </target>
 
