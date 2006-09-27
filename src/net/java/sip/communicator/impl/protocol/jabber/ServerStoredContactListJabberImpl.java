@@ -850,11 +850,13 @@ public class ServerStoredContactListJabberImpl
                     if (groupImpl.countContacts() == 0)
                     {
                         rootGroup.removeSubGroup(groupImpl);
+
+                        fireContactRemoved(groupImpl, contact);
                         fireGroupEvent(groupImpl,
                                        ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
                     }
-
-                    fireContactRemoved(groupImpl, contact);
+                    else
+                        fireContactRemoved(groupImpl, contact);
                 }
                 else if(group instanceof RootContactGroupJabberImpl)
                 {
