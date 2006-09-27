@@ -3,7 +3,7 @@
     <type>org.netbeans.modules.ant.freeform</type>
     <configuration>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
-            <!-- Created by Brian Burch on April 25, 2006 
+            <!-- Created by Brian Burch on September 27, 2006 
                Do NOT use the Netbeans Project Properties customizer
                because this file is maintained manually! The master
                version is held in CVS, as /ide/nbproject/project.xml.
@@ -36,7 +36,7 @@
                     <target>javadoc</target>
                 </action>
                 <action name="run">
-		    <!-- run has NO dependents, but we have to protect
+                    <!-- run has NO dependents, but we have to protect
                          users from not picking up the latest changes
                          by doing an explicit incremental make.
                     -->
@@ -95,6 +95,10 @@
                     <ide-action name="run"/>
                     <ide-action name="test"/>
                     <ide-action name="rebuild"/>
+                    <action>
+                        <label>Safe clean/build of all targets</label>
+                        <target>rebuild</target>
+                    </action>
                 </context-menu>
             </view>
             <subprojects/>
@@ -102,12 +106,6 @@
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
             <compilation-unit>
                 <package-root>src</package-root>
-		<!-- define the classes and jars needed by the source
-                     browser and debugger to resolve all imports for
-                     the main classes (relative to project base dir).
-                     N.B. leading colon and no-white-space are required!
-  classpathentry sourcepath="/opt/oscar/src.jar" kind="lib" path="lib/oscar.jar"
-                    -->
                 <classpath mode="compile">
                     :lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/oscar.jar:lib/sip-sdp.jar:lib/osgi.jar:lib/junit.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/bcprov-jdk14-130.jar:lib/joscar-0.9.4-cvs-bin.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar
                 </classpath>
@@ -116,11 +114,6 @@
             <compilation-unit>
                 <package-root>test</package-root>
                 <unit-tests/>
-		<!-- define the classes and jars needed by the source
-                     browser and debugger to resolve all imports for
-                     the test classes (relative to project base dir).
-                     N.B. leading colon and no-white-space are required!
-                    -->
                 <classpath mode="compile">
                     :lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/oscar.jar:lib/sip-sdp.jar:lib/osgi.jar:lib/junit.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/bcprov-jdk14-130.jar:lib/joscar-0.9.4-cvs-bin.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar
                 </classpath>
