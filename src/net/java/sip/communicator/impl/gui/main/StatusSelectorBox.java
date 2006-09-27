@@ -55,8 +55,6 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
      * 
      * @param mainFrame The main application window.
      * @param protocolProvider The protocol provider.
-     * @param itemsMap The list from which to initialize the selector box.
-     * @param selectedItem The initially selected item.
      */
     public StatusSelectorBox(MainFrame mainFrame,
             ProtocolProviderService protocolProvider) {
