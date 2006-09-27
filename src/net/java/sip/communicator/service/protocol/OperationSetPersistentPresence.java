@@ -124,7 +124,8 @@ public interface OperationSetPersistentPresence
      * registered/signed on a public service.
      */
     public void createServerStoredContactGroup(
-            ContactGroup parent, String groupName);
+            ContactGroup parent, String groupName)
+        throws OperationFailedException;
 
     /**
      * Removes the specified group from the server stored contact list.
