@@ -30,10 +30,17 @@ public class MetaContactListException
     public static final int CODE_NETWORK_ERROR  = 2;
 
     /**
+     * Indicates that the exception was caused by the fact that we tried to
+     * add to our contact list a contact that was already in there.
+     */
+    public static final int CODE_CONTACT_ALREADY_EXISTS_ERROR  = 3;
+
+
+    /**
      * Indicates that the error which caused the exception was either unknown
      * or did not correspond to any of the other error codes
      */
-    public static final int CODE_UNKNOWN_ERROR  = 3;
+    public static final int CODE_UNKNOWN_ERROR  = 4;
 
     /**
      * An error code indicating the nature of this excepiton.

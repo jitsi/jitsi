@@ -333,6 +333,17 @@ public class MetaContactListServiceImpl
             //wait for a confirmation event
             evtRetriever.waitForEvent(CONTACT_LIST_MODIFICATION_TIMEOUT);
         }
+        catch(OperationFailedException ex)
+        {
+            if(ex.getErrorCode()
+               == OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS)
+            {
+                throw new MetaContactListException(
+                "failed to create contact" + contactID
+                , ex
+                , MetaContactListException.CODE_CONTACT_ALREADY_EXISTS_ERROR);
+            }
+        }
         catch (Exception ex)
         {
             throw new MetaContactListException(
