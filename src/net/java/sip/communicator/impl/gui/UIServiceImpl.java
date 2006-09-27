@@ -348,7 +348,7 @@ public class UIServiceImpl implements UIService {
      * Implements the <code>UIService.getConfigurationManager</code>.
      * Returns the current implementation of the <tt>ConfigurationManager</tt>
      * interface.
-     * @see UIService#getConfigurationDialog()
+     * @see UIService#getConfigurationManager()
      */
     public ConfigurationManager getConfigurationManager() {
         return this.configurationFrame;

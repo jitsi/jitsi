@@ -82,7 +82,7 @@ public class ChatConversationPanel
 
     /**
      * Creates an instance of <tt>ChatConversationPanel</tt>.
-     * @param chatPanel The parent <tt>ChatPanel</tt>.
+     * @param chatContainer The parent <tt>ChatConversationContainer</tt>.
      */
     public ChatConversationPanel(ChatConversationContainer chatContainer)
     {

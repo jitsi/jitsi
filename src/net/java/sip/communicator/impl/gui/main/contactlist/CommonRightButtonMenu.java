@@ -39,8 +39,7 @@ public class CommonRightButtonMenu extends JPopupMenu
     /**
      * Creates an instance of GroupRightButtonMenu.
      * 
-     * @param mainFrame The parent <tt>MainFrame</tt> window. 
-     * @param group The <tt>MetaContactGroup</tt> for which the menu is opened.
+     * @param mainFrame The parent <tt>MainFrame</tt> window.
      */
     public CommonRightButtonMenu(MainFrame mainFrame) {
     

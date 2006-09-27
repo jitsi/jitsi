@@ -34,7 +34,7 @@ public class CrossPlatformBrowserLauncher {
      * Launches a browser for the given url, depending on the operation system
      * and the browsers available.
      * 
-     * @param url The url to open in the browser.
+     * @param urlString The url to open in the browser.
      */
     public static void openURL(String urlString) {
         

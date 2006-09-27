@@ -54,7 +54,7 @@ public class AddContactDialog extends JDialog
      * Creates an instance of <tt>AddContactDialog</tt> that represents a dialog
      * that adds a new contact to an already existing meta contact.
      * 
-     * @param clist The <tt>MetaContactListService</tt>.
+     * @param mainFrame The <tt>MainFrame</tt> parent window.
      * @param metaContact The <tt>MetaContact</tt> that would contain the
      * newly created contact.
      * @param pps The <tt>ProtocolProviderService</tt>.
@@ -75,7 +75,7 @@ public class AddContactDialog extends JDialog
      * Creates an instance of <tt>AddContactDialog</tt> that represents a dialog
      * that adds a new meta contact to an already existing meta contact group.
      * 
-     * @param clist The <tt>MetaContactListService</tt>.
+     * @param mainFrame The <tt>MainFrame</tt> parent window.
      * @param group The <tt>MetaContactGroup</tt> that would contain the
      * newly created meta contact.
      * @param pps The <tt>ProtocolProviderService</tt>.

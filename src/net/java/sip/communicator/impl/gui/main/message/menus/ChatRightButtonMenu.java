@@ -43,7 +43,7 @@ public class ChatRightButtonMenu extends JPopupMenu
     /**
      * Creates an instance of <tt>ChatRightButtonMenu</tt>.
      *  
-     * @param parentWindow The window owner of this popup menu.
+     * @param chatConvPanel The conversation panel, where this menu will apear.
      */
     public ChatRightButtonMenu(ChatConversationPanel chatConvPanel) {
         super();
