@@ -31,7 +31,12 @@ public class AuthorizationResponseDialog extends JDialog
     
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
     
-    private JPanel northPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel northPanel = new JPanel(new BorderLayout());
+    
+    private JLabel iconLabel = new JLabel(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.AUTHORIZATION_ICON)));
+    
+    private JPanel titlePanel = new JPanel(new GridLayout(0, 1));
     
     private JLabel titleLabel = new JLabel();
     
@@ -87,8 +92,11 @@ public class AuthorizationResponseDialog extends JDialog
         this.infoTextArea.setEditable(false);
         this.infoTextArea.setOpaque(false);
         
-        this.northPanel.add(titleLabel);
-        this.northPanel.add(infoTextArea);
+        this.titlePanel.add(titleLabel);
+        this.titlePanel.add(infoTextArea);
+        
+        this.northPanel.add(iconLabel, BorderLayout.WEST);
+        this.northPanel.add(titlePanel, BorderLayout.CENTER);
         
         this.okButton.requestFocus();
         this.okButton.setName("ok");

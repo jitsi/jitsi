@@ -369,6 +369,14 @@ public class ImageLoader {
      */
     public static final ImageID BROWSER_ICON
         = new ImageID("BROWSER_ICON");
+    
+    /**
+     * The image used for decoration of all windows concerning the process of
+     * authorization.
+     */
+    public static final ImageID AUTHORIZATION_ICON
+        = new ImageID("AUTHORIZATION_ICON");
+    
 
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 

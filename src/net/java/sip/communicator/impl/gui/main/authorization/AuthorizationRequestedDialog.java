@@ -38,9 +38,14 @@ public class AuthorizationRequestedDialog extends JDialog
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
-    private JPanel northPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel northPanel = new JPanel(new BorderLayout());
+    
+    private JPanel titlePanel = new JPanel(new GridLayout(0, 1));
     
     private JLabel titleLabel = new JLabel();
+    
+    private JLabel iconLabel = new JLabel(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.AUTHORIZATION_ICON)));
     
     private JButton acceptButton 
         = new JButton(Messages.getString("accept"));
@@ -86,9 +91,13 @@ public class AuthorizationRequestedDialog extends JDialog
         this.infoTextArea.setLineWrap(true);
         this.infoTextArea.setWrapStyleWord(true);
         this.infoTextArea.setOpaque(false);
+        this.infoTextArea.setEditable(false);
         
-        this.northPanel.add(titleLabel);
-        this.northPanel.add(infoTextArea);
+        this.titlePanel.add(titleLabel);
+        this.titlePanel.add(infoTextArea);
+        
+        this.northPanel.add(iconLabel, BorderLayout.WEST);
+        this.northPanel.add(titlePanel, BorderLayout.CENTER);
         
         this.requestScrollPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(3, 3, 3, 3),
