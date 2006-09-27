@@ -559,16 +559,10 @@ public class MainFrame
             System.out.println("@todo implement incomingCallReceived()");
         }
 
-        /**
-         * This method is called by a protocol provider upon initiation of an
-         * outgoing call.
-         * <p>
-         * @param event a CalldEvent instance describing the new incoming call.
-         */
         public void outgoingCallCreated(CallEvent event)
         {
-            /**@todo implement incomingCallReceived() */
-            System.out.println("@todo implement incomingCallReceived()");
+            // TODO Auto-generated method stub
+            
         }
 
     }

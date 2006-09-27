@@ -13,14 +13,36 @@ import net.java.sip.communicator.service.protocol.*;
 public class CallPanel
     extends JPanel
 {
-    private String callTitle;
+    public static final String INCOMING_CALL = "IncomingCall";
     
-    public CallPanel(Call call) {
+    public static final String OUTGOING_CALL = "OutgoingCall";
+    
+    private Call call;
+    
+    public CallPanel(Call call, String callType)
+    {
+        this.call = call;
+        
+        if(callType.equals(INCOMING_CALL)) {
+            this.processIncomingCall();
+        }
+        else {
+            this.processOutgoingCall();
+        }
+    }
+    
+    private void processIncomingCall()
+    {
+        
+    }
+    
+    private void processOutgoingCall()
+    {
+        
     }
     
     public String getTitle()
     {        
         return null;
     }
-
 }

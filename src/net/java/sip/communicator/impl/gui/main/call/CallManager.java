@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.text.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -66,7 +67,7 @@ public class CallManager
 
     /**
      * Creates an instance of <tt>CallPanel</tt>.
-     * @param parentWindow The main application window.
+     * @param mainFrame The main application window.
      */
     public CallManager(MainFrame mainFrame)
     {
@@ -142,20 +143,21 @@ public class CallManager
                 if(contact != null) {
                     telephony
                         = mainFrame.getTelephony(contact.getProtocolProvider());
-
-                    Call createdCall = null;
-                    try
-                    {
+                
+                    Call createdCall;
+                    try {
                         createdCall = telephony.createCall(contact);
+                        
+                        CallPanel callPanel = new CallPanel(
+                                createdCall, CallPanel.OUTGOING_CALL);
+                        mainFrame.addCallPanel(callPanel);
+                        
+                        activeCalls.put(createdCall, callPanel);
                     }
-                    catch (OperationFailedException ex1)
-                    {
-                        /** !!!!!!!!!!!! @todo implement !!!!!!!!!!!!!!!!!! */
+                    catch (OperationFailedException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
                     }
-                    CallPanel callPanel = new CallPanel(createdCall);
-                    mainFrame.addCallPanel(callPanel);
-
-                    activeCalls.put(createdCall, callPanel);
                 }
                 else {
                     //Message to user which says "This contact could not be called!"
@@ -167,18 +169,25 @@ public class CallManager
 
                 if(pps != null) {
                     telephony = mainFrame.getTelephony(pps);
-                    try
-                    {
-                        telephony.createCall(
-                            phoneNumberCombo.getSelectedItem().toString());
+
+                    Call createdCall;
+                    try {
+                        createdCall = telephony.createCall(
+                                phoneNumberCombo.getSelectedItem().toString());
+                        
+                        CallPanel callPanel = new CallPanel(
+                                createdCall, CallPanel.OUTGOING_CALL);
+                        mainFrame.addCallPanel(callPanel);
+                        
+                        activeCalls.put(createdCall, callPanel);
                     }
-                    catch (ParseException ex)
-                    {
-                        /** !!!!!!!!!!!! @todo implement !!!!!!!!!!!!!!!!!! */
+                    catch (OperationFailedException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
                     }
-                    catch (OperationFailedException ex)
-                    {
-                        /** !!!!!!!!!!!! @todo implement !!!!!!!!!!!!!!!!!! */
+                    catch (ParseException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
                     }
                 }
             }
