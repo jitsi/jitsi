@@ -340,17 +340,17 @@ public class ContactRightButtonMenu extends JPopupMenu implements
     
                     int returnCode = dialog.showDialog();
     
-                    if (returnCode == MessageDialog.OK_RETURN_CODE) {                        
-                        this.mainFrame.getContactList().removeContact(contact);
+                    if (returnCode == MessageDialog.OK_RETURN_CODE) {
+                        new RemoveContactThread(contact).start();
                     }
                     else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
-                        this.mainFrame.getContactList().removeContact(contact);
+                        new RemoveContactThread(contact).start();
     
                         Constants.REMOVE_CONTACT_ASK = false;
                     }
                 }
                 else {
-                    this.mainFrame.getContactList().removeContact(contact);
+                    new RemoveContactThread(contact).start();
                 }
             }
         }
@@ -366,18 +366,31 @@ public class ContactRightButtonMenu extends JPopupMenu implements
                 int returnCode = dialog.showDialog();
                 
                 if (returnCode == MessageDialog.OK_RETURN_CODE) {
-                    this.mainFrame.getContactList()
-                        .removeMetaContact(contactItem);
+                    new Thread() {
+                        public void run() {
+                            mainFrame.getContactList()
+                                .removeMetaContact(contactItem);
+                        }
+                    }.start();
                 }
                 else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
-                    this.mainFrame.getContactList()
-                        .removeMetaContact(contactItem);
+                    new Thread() {
+                        public void run() {
+                            mainFrame.getContactList()
+                                .removeMetaContact(contactItem);
+                        }
+                    }.start();
 
                     Constants.REMOVE_CONTACT_ASK = false;
                 }
             }
             else {
-               this.mainFrame.getContactList().removeMetaContact(contactItem);
+                new Thread() {
+                    public void run() {
+                        mainFrame.getContactList()
+                            .removeMetaContact(contactItem);
+                    }
+                }.start();
             }
         }
     }   
@@ -404,5 +417,18 @@ public class ContactRightButtonMenu extends JPopupMenu implements
             }
         }
         return null;
+    }
+    
+    /**
+     * Removes a contact from a meta contact in a separate thread.
+     */
+    private class RemoveContactThread extends Thread {
+        private Contact contact;
+        public RemoveContactThread(Contact contact) {
+            this.contact = contact;
+        }
+        public void run() {
+            mainFrame.getContactList().removeContact(contact);
+        }
     }
 }
