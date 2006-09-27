@@ -85,7 +85,7 @@ public class AddContactWizard
         if(returnCode == 0) {
             
             if(newContact.getNewGroup() != null
-                    && newContact.getNewGroup() != "") {
+                    && !newContact.getNewGroup().equals("")) {                
                 new CreateGroup(mainFrame.getContactList(), 
                         newContact).start();
             }
@@ -134,14 +134,41 @@ public class AddContactWizard
             }
             catch (MetaContactListException ex) {
                 logger.error(ex);
+                int errorCode = ex.getErrorCode();
                 
-                JOptionPane.showMessageDialog(mainFrame,
-                    Messages.getString(
-                            "addContactError",
-                            newContact.getUin()),
-                    Messages.getString(
-                            "addContactErrorTitle"),
-                    JOptionPane.WARNING_MESSAGE);
+                if (errorCode
+                    == MetaContactListException.CODE_LOCAL_IO_ERROR) {
+                    
+                    JOptionPane.showMessageDialog(mainFrame,
+                        Messages.getString(
+                                "addContactError",
+                                newContact.getNewGroup()),
+                        Messages.getString(
+                                "addContactErrorTitle"),
+                        JOptionPane.WARNING_MESSAGE);
+                }
+                else if (errorCode
+                        == MetaContactListException.CODE_NETWORK_ERROR) {
+                    
+                    JOptionPane.showMessageDialog(mainFrame,
+                            Messages.getString(
+                                    "addContactError",
+                                    newContact.getNewGroup()),
+                            Messages.getString(
+                                    "addContactErrorTitle"),
+                            JOptionPane.WARNING_MESSAGE);
+                }
+                else if (errorCode
+                        == MetaContactListException.CODE_UNKNOWN_ERROR) {
+                    
+                    JOptionPane.showMessageDialog(mainFrame,
+                            Messages.getString(
+                                    "addContactError",
+                                    newContact.getNewGroup()),
+                            Messages.getString(
+                                    "addContactErrorTitle"),
+                            JOptionPane.WARNING_MESSAGE);
+                }
             }
         }
     }
@@ -165,14 +192,41 @@ public class AddContactWizard
             }
             catch (MetaContactListException ex) {
                 logger.error(ex);
+                int errorCode = ex.getErrorCode();
                 
-                JOptionPane.showMessageDialog(mainFrame,
-                    Messages.getString(
-                            "addGroupError",
-                            newContact.getNewGroup()),
-                    Messages.getString(
-                            "addGroupErrorTitle"),
-                    JOptionPane.WARNING_MESSAGE);
+                if (errorCode
+                    == MetaContactListException.CODE_LOCAL_IO_ERROR) {
+                    
+                    JOptionPane.showMessageDialog(mainFrame,
+                        Messages.getString(
+                                "addGroupLocalError",
+                                newContact.getNewGroup()),
+                        Messages.getString(
+                                "addGroupErrorTitle"),
+                        JOptionPane.WARNING_MESSAGE);
+                }
+                else if (errorCode
+                        == MetaContactListException.CODE_NETWORK_ERROR) {
+                    
+                    JOptionPane.showMessageDialog(mainFrame,
+                            Messages.getString(
+                                    "addGroupNetError",
+                                    newContact.getNewGroup()),
+                            Messages.getString(
+                                    "addGroupErrorTitle"),
+                            JOptionPane.WARNING_MESSAGE);
+                }
+                else if (errorCode
+                        == MetaContactListException.CODE_UNKNOWN_ERROR) {
+                    
+                    JOptionPane.showMessageDialog(mainFrame,
+                            Messages.getString(
+                                    "addGroupError",
+                                    newContact.getNewGroup()),
+                            Messages.getString(
+                                    "addGroupErrorTitle"),
+                            JOptionPane.WARNING_MESSAGE);
+                }
             }
         }
     }
