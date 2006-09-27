@@ -632,7 +632,8 @@ public class ServerStoredContactListIcqImpl
                             ContactGroupIcqImpl newParent)
     {
         List contactsToMove = new ArrayList();
-        contactsToMove.add(contact);
+
+        contactsToMove.add(contact.getJoustSimBuddy());
 
         buddyList.moveBuddies(contactsToMove,
                               newParent.getJoustSimSourceGroup());
@@ -1222,6 +1223,8 @@ public class ServerStoredContactListIcqImpl
                                 PROPERTY_DISPLAY_NAME, contact,
                                 oldNickname, nickName);
                         }
+                        else
+                            contact.setNickname(oldNickname);
                     }
                 }
             }
