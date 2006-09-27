@@ -11,8 +11,10 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>AddContactDialog</tt> is the dialog containing the form for adding
@@ -26,6 +28,8 @@ import net.java.sip.communicator.service.protocol.*;
 public class AddContactDialog extends JDialog
     implements ActionListener {
 
+    private Logger logger = Logger.getLogger(AddContactDialog.class.getName());
+    
     private AddContactPanel addContactPanel = new AddContactPanel();
     
     private JButton addButton = new JButton(Messages.getString("add"));
@@ -37,6 +41,8 @@ public class AddContactDialog extends JDialog
     private JPanel mainPanel = new JPanel(new BorderLayout());
     
     private MetaContactListService clist;
+    
+    private MainFrame mainFrame;
     
     private MetaContact metaContact;
     
@@ -53,11 +59,12 @@ public class AddContactDialog extends JDialog
      * newly created contact.
      * @param pps The <tt>ProtocolProviderService</tt>.
      */
-    public AddContactDialog(MetaContactListService clist,
+    public AddContactDialog(MainFrame mainFrame,
             MetaContact metaContact,
             ProtocolProviderService pps) {
         
-        this.clist = clist;
+        this.mainFrame = mainFrame;
+        this.clist = mainFrame.getContactList();
         this.metaContact = metaContact;
         this.pps = pps;
         
@@ -73,11 +80,12 @@ public class AddContactDialog extends JDialog
      * newly created meta contact.
      * @param pps The <tt>ProtocolProviderService</tt>.
      */
-    public AddContactDialog(MetaContactListService clist,
+    public AddContactDialog(MainFrame mainFrame,
             MetaContactGroup group,
             ProtocolProviderService pps) {
         
-        this.clist = clist;
+        this.mainFrame = mainFrame;
+        this.clist = mainFrame.getContactList();
         this.group = group;
         this.pps = pps;
         
@@ -116,13 +124,67 @@ public class AddContactDialog extends JDialog
         String name = button.getName();
         
         if (name.equals("add")) {
+            String uin = addContactPanel.getUIN();
+            
             if (metaContact != null) {
                 this.clist.addNewContactToMetaContact(pps, metaContact,
                     addContactPanel.getUIN());
             }
             else if (group != null) {
-                this.clist.createMetaContact(
-                        pps, group, addContactPanel.getUIN());
+                try {
+                    this.clist.createMetaContact(
+                        pps, group, uin);
+                }
+                catch (MetaContactListException ex) {
+                    logger.error(ex);
+                    ex.printStackTrace();
+                    int errorCode = ex.getErrorCode();
+                    
+                    if (errorCode
+                            == MetaContactListException
+                                .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
+                            
+                            JOptionPane.showMessageDialog(mainFrame,
+                                Messages.getString(
+                                        "addContactExistError",
+                                        uin),
+                                Messages.getString(
+                                        "addContactErrorTitle"),
+                                JOptionPane.WARNING_MESSAGE);
+                    }
+                    else if (errorCode
+                        == MetaContactListException.CODE_LOCAL_IO_ERROR) {
+                        
+                        JOptionPane.showMessageDialog(mainFrame,
+                            Messages.getString(
+                                    "addContactError",
+                                    uin),
+                            Messages.getString(
+                                    "addContactErrorTitle"),
+                            JOptionPane.WARNING_MESSAGE);
+                    }
+                    else if (errorCode
+                            == MetaContactListException.CODE_NETWORK_ERROR) {
+                        
+                        JOptionPane.showMessageDialog(mainFrame,
+                                Messages.getString(
+                                        "addContactError",
+                                        uin),
+                                Messages.getString(
+                                        "addContactErrorTitle"),
+                                JOptionPane.WARNING_MESSAGE);
+                    }
+                    else {
+                        
+                        JOptionPane.showMessageDialog(mainFrame,
+                                Messages.getString(
+                                        "addContactError",
+                                        uin),
+                                Messages.getString(
+                                        "addContactErrorTitle"),
+                                JOptionPane.WARNING_MESSAGE);
+                    }
+                }
             }
             this.dispose();
         }

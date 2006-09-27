@@ -134,15 +134,28 @@ public class AddContactWizard
             }
             catch (MetaContactListException ex) {
                 logger.error(ex);
-                int errorCode = ex.getErrorCode();
+                ex.printStackTrace();
+                int errorCode = ex.getErrorCode();                
                 
                 if (errorCode
+                        == MetaContactListException
+                            .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
+                        
+                        JOptionPane.showMessageDialog(mainFrame,
+                            Messages.getString(
+                                    "addContactExistError",
+                                    newContact.getUin()),
+                            Messages.getString(
+                                    "addContactErrorTitle"),
+                            JOptionPane.WARNING_MESSAGE);
+                }
+                else if (errorCode
                     == MetaContactListException.CODE_LOCAL_IO_ERROR) {
                     
                     JOptionPane.showMessageDialog(mainFrame,
                         Messages.getString(
                                 "addContactError",
-                                newContact.getNewGroup()),
+                                newContact.getUin()),
                         Messages.getString(
                                 "addContactErrorTitle"),
                         JOptionPane.WARNING_MESSAGE);
@@ -153,18 +166,17 @@ public class AddContactWizard
                     JOptionPane.showMessageDialog(mainFrame,
                             Messages.getString(
                                     "addContactError",
-                                    newContact.getNewGroup()),
+                                    newContact.getUin()),
                             Messages.getString(
                                     "addContactErrorTitle"),
                             JOptionPane.WARNING_MESSAGE);
                 }
-                else if (errorCode
-                        == MetaContactListException.CODE_UNKNOWN_ERROR) {
+                else {
                     
                     JOptionPane.showMessageDialog(mainFrame,
                             Messages.getString(
                                     "addContactError",
-                                    newContact.getNewGroup()),
+                                    newContact.getUin()),
                             Messages.getString(
                                     "addContactErrorTitle"),
                             JOptionPane.WARNING_MESSAGE);
@@ -186,21 +198,34 @@ public class AddContactWizard
             this.newContact = newContact;
         }
         public void run() {
+            String groupName = newContact.getNewGroup();
             try {
                 mcl.createMetaContactGroup(
-                    mcl.getRoot(), newContact.getNewGroup());
+                    mcl.getRoot(), groupName);
             }
             catch (MetaContactListException ex) {
                 logger.error(ex);
                 int errorCode = ex.getErrorCode();
                 
                 if (errorCode
+                        == MetaContactListException
+                            .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
+                        
+                        JOptionPane.showMessageDialog(mainFrame,
+                            Messages.getString(
+                                    "addGroupExistError",
+                                    groupName),
+                            Messages.getString(
+                                    "addGroupErrorTitle"),
+                            JOptionPane.WARNING_MESSAGE);
+                }
+                else if (errorCode
                     == MetaContactListException.CODE_LOCAL_IO_ERROR) {
                     
                     JOptionPane.showMessageDialog(mainFrame,
                         Messages.getString(
                                 "addGroupLocalError",
-                                newContact.getNewGroup()),
+                                groupName),
                         Messages.getString(
                                 "addGroupErrorTitle"),
                         JOptionPane.WARNING_MESSAGE);
@@ -211,18 +236,17 @@ public class AddContactWizard
                     JOptionPane.showMessageDialog(mainFrame,
                             Messages.getString(
                                     "addGroupNetError",
-                                    newContact.getNewGroup()),
+                                    groupName),
                             Messages.getString(
                                     "addGroupErrorTitle"),
                             JOptionPane.WARNING_MESSAGE);
                 }
-                else if (errorCode
-                        == MetaContactListException.CODE_UNKNOWN_ERROR) {
+                else {
                     
                     JOptionPane.showMessageDialog(mainFrame,
                             Messages.getString(
                                     "addGroupError",
-                                    newContact.getNewGroup()),
+                                    groupName),
                             Messages.getString(
                                     "addGroupErrorTitle"),
                             JOptionPane.WARNING_MESSAGE);
@@ -254,17 +278,18 @@ public class AddContactWizard
 
     public void metaContactGroupAdded(MetaContactGroupEvent evt)
     {
-        ArrayList ppList = newContact.getProtocolProviders();
-        
-        for(int i = 0; i < ppList.size(); i ++) {
-            ProtocolProviderService pps
-                = (ProtocolProviderService)ppList.get(i);
+        MetaContactGroup group
+            = (MetaContactGroup)evt.getSourceMetaContactGroup();
+    
+        if(group.getGroupName().equals(newContact.getNewGroup())) {
+            ArrayList ppList = newContact.getProtocolProviders();
             
-            MetaContactGroup group
-                = (MetaContactGroup)evt.getSourceMetaContactGroup();
-            
-            new CreateContact(pps, group, newContact).start();
-            
+            for(int i = 0; i < ppList.size(); i ++) {
+                ProtocolProviderService pps
+                    = (ProtocolProviderService)ppList.get(i);
+                
+                new CreateContact(pps, group, newContact).start();
+            }
         }
     }
 
