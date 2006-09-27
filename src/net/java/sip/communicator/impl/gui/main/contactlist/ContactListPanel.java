@@ -77,17 +77,18 @@ public class ContactListPanel extends JScrollPane
         this.contactList.addMouseListener(this);
         this.treePanel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                CommonRightButtonMenu popupMenu
-                    = new CommonRightButtonMenu(mainFrame);
-    
-                Point newPoint = e.getPoint();
-    
-                popupMenu.setInvoker(treePanel);
-    
-                popupMenu.setLocation(e.getX() + mainFrame.getX() + 5, 
-                        e.getY() + mainFrame.getY() + 105);
-    
-                popupMenu.setVisible(true);
+                
+                if((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+                    CommonRightButtonMenu popupMenu
+                        = new CommonRightButtonMenu(mainFrame);
+        
+                    popupMenu.setInvoker(treePanel);
+        
+                    popupMenu.setLocation(e.getX() + mainFrame.getX() + 5, 
+                            e.getY() + mainFrame.getY() + 105);
+        
+                    popupMenu.setVisible(true);
+                }
             }
         });
         
