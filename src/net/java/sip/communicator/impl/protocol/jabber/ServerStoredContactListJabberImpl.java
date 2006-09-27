@@ -171,6 +171,29 @@ public class ServerStoredContactListJabberImpl
     }
 
     /**
+     * Make the parent persistent presence operation set dispatch a subscription
+     * moved event.
+     * @param oldParentGroup the group where the source contact was located
+     * before being moved
+     * @param newParentGroup the group that the source contact is currently in.
+     * @param contact the contact that was added
+     */
+    private void fireContactMoved( ContactGroup oldParentGroup,
+                                   ContactGroupJabberImpl newParentGroup,
+                                   ContactJabberImpl contact)
+    {
+        //bail out if no one's listening
+        if(parentOperationSet == null){
+            logger.debug("No presence op. set available. Bailing out.");
+            return;
+        }
+
+        //dispatch
+        parentOperationSet.fireSubscriptionMovedEvent(
+            contact, oldParentGroup, newParentGroup);
+    }
+
+    /**
      * Retrns a reference to the provider that created us.
      * @return a reference to a ProtocolProviderServiceImpl instance.
      */
@@ -289,8 +312,6 @@ public class ServerStoredContactListJabberImpl
                 return rootGroup;
         }
 
-
-
         return null;
     }
 
@@ -298,8 +319,10 @@ public class ServerStoredContactListJabberImpl
      * Adds a new contact with the specified screenname to the list under a
      * default location.
      * @param id the id of the contact to add.
+     * @throws OperationFailedException
      */
     public void addContact(String id)
+        throws OperationFailedException
     {
         addContact(null, id);
     }
@@ -309,8 +332,10 @@ public class ServerStoredContactListJabberImpl
      * specified group.
      * @param id the id of the contact to add.
      * @param parent the group under which we want the new contact placed.
+     * @throws OperationFailedException if the contact already exist
      */
     public void addContact(ContactGroup parent, String id)
+        throws OperationFailedException
     {
         logger.trace("Adding contact " + id + " to parent=" + parent);
 
@@ -321,17 +346,10 @@ public class ServerStoredContactListJabberImpl
         if( existingContact != null
             && existingContact.isPersistent() )
         {
-            logger.debug("Contact " + id + " already exists. Gen. evt.");
-
-            //broadcast the event in a separate thread so that we don't
-            //block the calling thread.
-            new Thread(){
-                public void run(){
-                    fireContactAdded(existingContact.getParentContactGroup(),
-                                     existingContact);
-                }
-            }.start();
-            return;
+            logger.debug("Contact " + id + " already exists.");
+            throw new OperationFailedException(
+                "Contact " + id + " already exists.",
+                OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
         }
 
         try
@@ -536,8 +554,18 @@ public class ServerStoredContactListJabberImpl
 
         newParent.addContact(contact);
 
-        ((ContactGroupJabberImpl)contact.getParentContactGroup()).
-            removeContact(contact);
+        try
+        {
+            // will create the entry with the new group so it can be removed
+            // from other groups if any
+            roster.createEntry(contact.getSourceEntry().getUser(),
+                               contact.getDisplayName(),
+                               new String[]{newParent.getGroupName()});
+        }
+        catch (XMPPException ex)
+        {
+            logger.error("Cannot move contact! ", ex);
+        }
     }
 
     /**
@@ -609,10 +637,9 @@ public class ServerStoredContactListJabberImpl
                 fireGroupEvent(group
                                , ServerStoredGroupEvent.GROUP_RESOLVED_EVENT);
 
-                // if something to delete . delete it
+                /** @todo  if something to delete . delete it */
             }
         }
-
     }
 
     /**
@@ -731,8 +758,8 @@ public class ServerStoredContactListJabberImpl
             Iterator iter = addresses.iterator();
             while (iter.hasNext())
             {
-                String item = (String) iter.next();
-                RosterEntry entry = roster.getEntry(item);
+                String contactID = (String) iter.next();
+                RosterEntry entry = roster.getEntry(contactID);
 
                 Iterator iter1 = entry.getGroups();
                 while (iter1.hasNext())
@@ -760,7 +787,33 @@ public class ServerStoredContactListJabberImpl
                     }
                     else
                     {
-                        //
+                        // the group is found the contact may be moved from one group
+                        // to another
+                        ContactJabberImpl contact = findContactById(contactID);
+                        ContactGroup contactGroup =
+                            contact.getParentContactGroup();
+
+                        if(!gr.getName().equals(contactGroup.getGroupName()))
+                        {
+                            // the contact is moved to onether group
+                            // first remove it from the original one
+                            if(contactGroup instanceof ContactGroupJabberImpl)
+                                ((ContactGroupJabberImpl)contactGroup).
+                                    removeContact(contact);
+                            else if(contactGroup instanceof RootContactGroupJabberImpl)
+                                ((RootContactGroupJabberImpl)contactGroup).
+                                    removeContact(contact);
+
+                            // the add it to the new one
+                            ContactGroupJabberImpl newParentGroup =
+                                findContactGroup(gr.getName());
+
+                            newParentGroup.addContact(contact);
+
+                            fireContactMoved(contactGroup,
+                                             newParentGroup,
+                                             contact);
+                        }
                     }
                 }
             }

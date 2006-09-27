@@ -877,6 +877,39 @@ public class OperationSetPersistentPresenceJabberImpl
     }
 
     /**
+     * Notify all subscription listeners of the corresponding event.
+     *
+     * @param sourceContact the ContactJabberImpl instance that this event is
+     * pertaining to.
+     * @param oldParentGroup the group that was previously a parent of the
+     * source contact.
+     * @param newParentGroup the group under which the corresponding
+     * subscription is currently located.
+     */
+    void fireSubscriptionMovedEvent( ContactJabberImpl sourceContact,
+                                     ContactGroup oldParentGroup,
+                                     ContactGroup newParentGroup)
+    {
+        SubscriptionMovedEvent evt =
+            new SubscriptionMovedEvent(sourceContact, jabberProvider
+                                       , oldParentGroup, newParentGroup);
+
+        logger.debug("Dispatching a Subscription Event to"
+                     +subscriptionListeners.size() + " listeners. Evt="+evt);
+
+        synchronized(subscriptionListeners){
+            Iterator listeners = subscriptionListeners.iterator();
+
+            while (listeners.hasNext())
+            {
+                SubscriptionListener listener =
+                    (SubscriptionListener) listeners.next();
+                listener.subscriptionMoved(evt);
+            }
+        }
+    }
+
+    /**
      * Notify all contact presence listeners of the corresponding event change
      * @param contact the contact that changed its status
      * @param oldStatus the status that the specified contact had so far
