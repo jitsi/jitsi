@@ -478,7 +478,7 @@ public class ServerStoredContactListJabberImpl
             logger.debug("ContactGroup " + groupName + " already exists.");
             throw new OperationFailedException(
                            "ContactGroup " + groupName + " already exists.",
-                OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
+                OperationFailedException.CONTACT_GROUP_ALREADY_EXISTS);
         }
 
         RosterGroup newRosterGroup = roster.createGroup(groupName);
