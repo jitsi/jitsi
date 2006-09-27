@@ -150,7 +150,7 @@ public class GroupRightButtonMenu extends JPopupMenu
                 = mainFrame.getProtocolProviderForAccount(itemText);
             
             AddContactDialog dialog = new AddContactDialog(
-                    mainFrame.getContactList(), group, pps);
+                    mainFrame, group, pps);
             
             dialog.setLocation(
                     Toolkit.getDefaultToolkit().getScreenSize().width/2 

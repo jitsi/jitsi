@@ -258,7 +258,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
             if(pps != null) {
                 AddContactDialog dialog = new AddContactDialog(
-                        mainFrame.getContactList(),
+                        mainFrame,
                         contactItem, pps);
     
                 dialog.setLocation(
