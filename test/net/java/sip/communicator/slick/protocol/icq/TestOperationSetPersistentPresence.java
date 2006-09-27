@@ -293,8 +293,16 @@ public class TestOperationSetPersistentPresence
             .addServerStoredGroupChangeListener(groupChangeCollector);
 
         //create the group
-        opSetPersPresence.createServerStoredContactGroup(
-            opSetPersPresence.getServerStoredContactListRoot(), testGroupName);
+        try
+        {
+            opSetPersPresence.createServerStoredContactGroup(
+                opSetPersPresence.getServerStoredContactListRoot(),
+                testGroupName);
+        }
+        catch (OperationFailedException ex)
+        {
+            fail("Cannot create group " + ex.getMessage());
+        }
 
         groupChangeCollector.waitForEvent(10000);
 
@@ -317,7 +325,6 @@ public class TestOperationSetPersistentPresence
                       group);
 
         assertEquals("New group name", testGroupName, group.getGroupName());
-
     }
 
 
