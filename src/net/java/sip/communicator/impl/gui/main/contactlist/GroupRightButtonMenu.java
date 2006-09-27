@@ -114,19 +114,32 @@ public class GroupRightButtonMenu extends JPopupMenu
     
                     int returnCode = dialog.showDialog();
     
-                    if (returnCode == MessageDialog.OK_RETURN_CODE) {                        
-                        mainFrame.getContactList()
-                            .removeMetaContactGroup(group);
+                    if (returnCode == MessageDialog.OK_RETURN_CODE) {
+                        new Thread() {
+                            public void run() {
+                                mainFrame.getContactList()
+                                    .removeMetaContactGroup(group);
+                            }
+                        }.start();
                     }
                     else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
-                        mainFrame.getContactList()
-                            .removeMetaContactGroup(group);
+                        new Thread() {
+                            public void run() {
+                                mainFrame.getContactList()
+                                .removeMetaContactGroup(group);
+                            }
+                        }.start();
     
                         Constants.REMOVE_CONTACT_ASK = false;
                     }
                 }
                 else {
-                    mainFrame.getContactList().removeMetaContactGroup(group);
+                    new Thread() {
+                        public void run() {
+                            mainFrame.getContactList()
+                            .removeMetaContactGroup(group);
+                        }
+                    }.start();
                 }
             }
         }

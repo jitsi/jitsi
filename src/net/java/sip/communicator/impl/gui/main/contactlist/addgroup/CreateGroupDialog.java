@@ -110,59 +110,63 @@ public class CreateGroupDialog extends JDialog
         }
         
         public void run() {
-            try {
-                mcl.createMetaContactGroup(
-                    mcl.getRoot(), groupName);
-            }
-            catch (MetaContactListException ex) {
-                logger.error(ex);
-                int errorCode = ex.getErrorCode();
-                
-                if (errorCode
-                        == MetaContactListException
-                            .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
+            new Thread() {
+                public void run() {
+                    try {
+                        mcl.createMetaContactGroup(
+                            mcl.getRoot(), groupName);
+                    }
+                    catch (MetaContactListException ex) {
+                        logger.error(ex);
+                        int errorCode = ex.getErrorCode();
                         
-                        JOptionPane.showMessageDialog(mainFrame,
-                            Messages.getString(
-                                    "addGroupExistError",
-                                    groupName),
-                            Messages.getString(
-                                    "addGroupErrorTitle"),
-                            JOptionPane.WARNING_MESSAGE);
+                        if (errorCode
+                                == MetaContactListException
+                                    .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
+                                
+                                JOptionPane.showMessageDialog(mainFrame,
+                                    Messages.getString(
+                                            "addGroupExistError",
+                                            groupName),
+                                    Messages.getString(
+                                            "addGroupErrorTitle"),
+                                    JOptionPane.WARNING_MESSAGE);
+                        }
+                        else if (errorCode
+                            == MetaContactListException.CODE_LOCAL_IO_ERROR) {
+                            
+                            JOptionPane.showMessageDialog(mainFrame,
+                                Messages.getString(
+                                        "addGroupLocalError",
+                                        groupName),
+                                Messages.getString(
+                                        "addGroupErrorTitle"),
+                                JOptionPane.WARNING_MESSAGE);
+                        }
+                        else if (errorCode
+                                == MetaContactListException.CODE_NETWORK_ERROR) {
+                            
+                            JOptionPane.showMessageDialog(mainFrame,
+                                    Messages.getString(
+                                            "addGroupNetError",
+                                            groupName),
+                                    Messages.getString(
+                                            "addGroupErrorTitle"),
+                                    JOptionPane.WARNING_MESSAGE);
+                        }
+                        else {
+                            
+                            JOptionPane.showMessageDialog(mainFrame,
+                                    Messages.getString(
+                                            "addGroupError",
+                                            groupName),
+                                    Messages.getString(
+                                            "addGroupErrorTitle"),
+                                    JOptionPane.WARNING_MESSAGE);
+                        }
+                    }
                 }
-                else if (errorCode
-                    == MetaContactListException.CODE_LOCAL_IO_ERROR) {
-                    
-                    JOptionPane.showMessageDialog(mainFrame,
-                        Messages.getString(
-                                "addGroupLocalError",
-                                groupName),
-                        Messages.getString(
-                                "addGroupErrorTitle"),
-                        JOptionPane.WARNING_MESSAGE);
-                }
-                else if (errorCode
-                        == MetaContactListException.CODE_NETWORK_ERROR) {
-                    
-                    JOptionPane.showMessageDialog(mainFrame,
-                            Messages.getString(
-                                    "addGroupNetError",
-                                    groupName),
-                            Messages.getString(
-                                    "addGroupErrorTitle"),
-                            JOptionPane.WARNING_MESSAGE);
-                }
-                else {
-                    
-                    JOptionPane.showMessageDialog(mainFrame,
-                            Messages.getString(
-                                    "addGroupError",
-                                    groupName),
-                            Messages.getString(
-                                    "addGroupErrorTitle"),
-                            JOptionPane.WARNING_MESSAGE);
-                }
-            }
+            }.start();
         }
     }
 }

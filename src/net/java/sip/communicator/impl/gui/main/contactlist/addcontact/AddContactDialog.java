@@ -124,67 +124,72 @@ public class AddContactDialog extends JDialog
         String name = button.getName();
         
         if (name.equals("add")) {
-            String uin = addContactPanel.getUIN();
-            
             if (metaContact != null) {
                 this.clist.addNewContactToMetaContact(pps, metaContact,
                     addContactPanel.getUIN());
             }
             else if (group != null) {
-                try {
-                    this.clist.createMetaContact(
-                        pps, group, uin);
-                }
-                catch (MetaContactListException ex) {
-                    logger.error(ex);
-                    ex.printStackTrace();
-                    int errorCode = ex.getErrorCode();
-                    
-                    if (errorCode
-                            == MetaContactListException
-                                .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
+                new Thread() {
+                    public void run() {
+                        String uin = addContactPanel.getUIN();
+                        try {
+                            clist.createMetaContact(
+                                pps, group, uin);
+                        }
+                        catch (MetaContactListException ex) {
+                            logger.error(ex);
+                            ex.printStackTrace();
+                            int errorCode = ex.getErrorCode();
                             
-                            JOptionPane.showMessageDialog(mainFrame,
-                                Messages.getString(
-                                        "addContactExistError",
-                                        uin),
-                                Messages.getString(
-                                        "addContactErrorTitle"),
-                                JOptionPane.WARNING_MESSAGE);
+                            if (errorCode
+                                    == MetaContactListException
+                                        .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
+                                    
+                                JOptionPane.showMessageDialog(mainFrame,
+                                    Messages.getString(
+                                            "addContactExistError",
+                                            uin),
+                                    Messages.getString(
+                                            "addContactErrorTitle"),
+                                    JOptionPane.WARNING_MESSAGE);
+                            }
+                            else if (errorCode
+                                == MetaContactListException
+                                    .CODE_LOCAL_IO_ERROR) {
+                                
+                                JOptionPane.showMessageDialog(mainFrame,
+                                    Messages.getString(
+                                            "addContactError",
+                                            uin),
+                                    Messages.getString(
+                                            "addContactErrorTitle"),
+                                    JOptionPane.WARNING_MESSAGE);
+                            }
+                            else if (errorCode
+                                    == MetaContactListException
+                                        .CODE_NETWORK_ERROR) {
+                                
+                                JOptionPane.showMessageDialog(mainFrame,
+                                        Messages.getString(
+                                                "addContactError",
+                                                uin),
+                                        Messages.getString(
+                                                "addContactErrorTitle"),
+                                        JOptionPane.WARNING_MESSAGE);
+                            }
+                            else {
+                                
+                                JOptionPane.showMessageDialog(mainFrame,
+                                        Messages.getString(
+                                                "addContactError",
+                                                uin),
+                                        Messages.getString(
+                                                "addContactErrorTitle"),
+                                        JOptionPane.WARNING_MESSAGE);
+                            }
+                        }
                     }
-                    else if (errorCode
-                        == MetaContactListException.CODE_LOCAL_IO_ERROR) {
-                        
-                        JOptionPane.showMessageDialog(mainFrame,
-                            Messages.getString(
-                                    "addContactError",
-                                    uin),
-                            Messages.getString(
-                                    "addContactErrorTitle"),
-                            JOptionPane.WARNING_MESSAGE);
-                    }
-                    else if (errorCode
-                            == MetaContactListException.CODE_NETWORK_ERROR) {
-                        
-                        JOptionPane.showMessageDialog(mainFrame,
-                                Messages.getString(
-                                        "addContactError",
-                                        uin),
-                                Messages.getString(
-                                        "addContactErrorTitle"),
-                                JOptionPane.WARNING_MESSAGE);
-                    }
-                    else {
-                        
-                        JOptionPane.showMessageDialog(mainFrame,
-                                Messages.getString(
-                                        "addContactError",
-                                        uin),
-                                Messages.getString(
-                                        "addContactErrorTitle"),
-                                JOptionPane.WARNING_MESSAGE);
-                    }
-                }
+                }.start();
             }
             this.dispose();
         }
