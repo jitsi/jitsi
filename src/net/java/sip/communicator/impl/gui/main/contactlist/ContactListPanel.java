@@ -31,9 +31,9 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Yana Stamcheva
  */
 public class ContactListPanel extends JScrollPane
-    implements  MouseListener, 
-                MessageListener, 
-                TypingNotificationsListener {
+    implements  MessageListener, 
+                TypingNotificationsListener,
+                ContactListListener {
 
     private MainFrame mainFrame;
 
@@ -72,9 +72,9 @@ public class ContactListPanel extends JScrollPane
      */
     public void initList(MetaContactListService contactListService) {
         
-        this.contactList = new ContactList(contactListService);
-
-        this.contactList.addMouseListener(this);
+        this.contactList = new ContactList(mainFrame);        
+        
+        this.contactList.addContactListListener(this);
         this.treePanel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 
@@ -116,165 +116,24 @@ public class ContactListPanel extends JScrollPane
     }
 
     /**
-     * Closes or opens a group on a double click.
+     * Implements the ContactListListener.contactSelected method.
      */
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() > 1) {
-
-            int selectedIndex = this.contactList.locationToIndex(e.getPoint());
-
-            ContactListModel listModel = (ContactListModel) this.contactList
-                    .getModel();
-
-            Object element = listModel.getElementAt(selectedIndex);
-
-            if (element instanceof MetaContactGroup) {
-
-                MetaContactGroup group = (MetaContactGroup) element;
-
-                if (listModel.isGroupClosed(group)) {
-                    listModel.openGroup(group);
-                } else {
-                    listModel.closeGroup(group);
-                }
-            }
-        }
+    public void contactSelected(ContactListEvent evt)
+    {        
+        SwingUtilities.invokeLater(
+                new RunMessageWindow(evt.getSourceContact()));
     }
-
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    public void mouseExited(MouseEvent e) {
-    }
-
+    
     /**
-     * Manages a mouse press over the contact list. 
-     * 
-     * When the left mouse button is pressed on a contact cell different things
-     * may happen depending on the contained component under the mouse. If the
-     * mouse is pressed on the "contact name" the chat window is opened, 
-     * configured to use the default protocol contact for the selected
-     * MetaContact. If the mouse is pressed on one of the protocol icons, the
-     * chat window is opened, configured to use the protocol contact
-     * corresponding to the given icon.
-     * 
-     * When the right mouse button is pressed on a contact cell, the cell is
-     * selected and the <tt>ContactRightButtonMenu</tt> is opened.
-     * 
-     * When the right mouse button is pressed on a group cell, the cell is
-     * selected and the <tt>GroupRightButtonMenu</tt> is opened.
-     * 
-     * When the middle mouse button is pressed on a cell, the cell is selected.
+     * Implements the ContactListListener.protocolContactSelected method.
      */
-    public void mousePressed(MouseEvent e) {
-        // Select the contact under the right button click.
-        if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
-                || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-                || (e.isControlDown() && !e.isMetaDown())) {
-            this.contactList.setSelectedIndex(contactList.locationToIndex(e
-                    .getPoint()));
-        }
-        
-        int selectedIndex = this.contactList.getSelectedIndex();
-        Object selectedValue = this.contactList.getSelectedValue();
-
-        ContactListCellRenderer renderer 
-            = (ContactListCellRenderer) this.contactList
-                .getCellRenderer().getListCellRendererComponent(
-                        this.contactList, selectedValue, selectedIndex, true,
-                        true);
-
-        Point selectedCellPoint = this.contactList
-                .indexToLocation(selectedIndex);
-
-        int translatedX = e.getX() - selectedCellPoint.x;
-
-        int translatedY = e.getY() - selectedCellPoint.y;
-        
-        if(selectedValue instanceof MetaContactGroup) {
-            MetaContactGroup group = (MetaContactGroup) selectedValue;
-            
-            if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-                    || (e.isControlDown() && !e.isMetaDown())) {
-                
-                GroupRightButtonMenu popupMenu
-                    = new GroupRightButtonMenu(mainFrame, group);
-
-                SwingUtilities.convertPointToScreen(selectedCellPoint,
-                        renderer);
-
-                popupMenu.setInvoker(this.contactList);
-
-                popupMenu.setLocation(selectedCellPoint.x,
-                        selectedCellPoint.y + renderer.getHeight());
-
-                popupMenu.setVisible(true);
-            }
-        }
-        
-        // Open message window, right button menu or contact info when
-        // mouse is pressed. Distinguish on which component was pressed
-        // the mouse and make the appropriate work.
-        if (selectedValue instanceof MetaContact) {
-            MetaContact contact = (MetaContact) selectedValue;
-            
-            //get the component under the mouse
-            Component component = renderer.getComponentAt(translatedX,
-                    translatedY);
-            if (component instanceof JLabel) {
-                //Right click and Ctrl+LeftClick on the contact label opens
-                //Popup menu
-                if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-                        || (e.isControlDown() && !e.isMetaDown())) {
-                    
-                    ContactRightButtonMenu popupMenu
-                        = new ContactRightButtonMenu(mainFrame, contact);
-
-                    SwingUtilities.convertPointToScreen(selectedCellPoint,
-                            renderer);
-
-                    popupMenu.setInvoker(this.contactList);
-
-                    popupMenu.setLocation(selectedCellPoint.x,
-                            selectedCellPoint.y + renderer.getHeight());
-
-                    popupMenu.setVisible(true);
-                }
-                //Left click on the contact label opens Chat window
-                else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
-                    SwingUtilities.invokeLater(new RunMessageWindow(contact));
-                }
-            } 
-            else if (component instanceof JButton) {                
-                //Click on the info button opens the info popup panel
-                SwingUtilities.invokeLater(new RunInfoWindow(selectedCellPoint,
-                        contact));
-            } 
-            else if (component instanceof JPanel) {
-                if(component.getName() != null
-                        && component.getName().equals("buttonsPanel")){
-                    JPanel panel = (JPanel) component;
-    
-                    int internalX = translatedX
-                            - (renderer.getWidth() - panel.getWidth() - 2);
-                    int internalY = translatedY
-                            - (renderer.getHeight() - panel.getHeight());
-    
-                    Component c = panel.getComponentAt(4, 4);
-    
-                    if (c instanceof ContactProtocolButton) {
-    
-                        SwingUtilities.invokeLater(new RunMessageWindow(contact,
-                                ((ContactProtocolButton) c).getProtocolContact()));
-                    }
-                }
-            }
-        }
+    public void protocolContactSelected(ContactListEvent evt)
+    {       
+        SwingUtilities.invokeLater(
+                new RunMessageWindow(evt.getSourceContact(),
+                        evt.getSourceProtoContact()));        
     }
-
-    public void mouseReleased(MouseEvent e) {
-    }
-
+    
     /**
      * Runs the chat window for the specified contact. We examine different
      * cases here, depending on the chat window mode. 
@@ -406,41 +265,7 @@ public class ContactListPanel extends JScrollPane
             }
         }
     }
-
-    /**
-     * Runs the info window for the specified contact at the
-     * appropriate position.
-     *
-     * @author Yana Stamcheva
-     */
-    private class RunInfoWindow implements Runnable {
-
-        private MetaContact contactItem;
-
-        private Point p;
-
-        private RunInfoWindow(Point p, MetaContact contactItem) {
-
-            this.p = p;
-            this.contactItem = contactItem;
-        }
-
-        public void run() {
-
-            ContactInfoPanel contactInfoPanel = new ContactInfoPanel(mainFrame,
-                    contactItem);
-
-            SwingUtilities.convertPointToScreen(p, contactList);
-
-            // TODO: to calculate popup window posititon properly.
-            contactInfoPanel.setPopupLocation(p.x - 140, p.y - 15);
-
-            contactInfoPanel.setVisible(true);
-
-            contactInfoPanel.requestFocusInWindow();
-        }
-    }
-
+    
     /**
      * When a message is received determines whether to open a new chat
      * window or chat window tab, or to indicate that a message is received
@@ -845,5 +670,5 @@ public class ContactListPanel extends JScrollPane
                 return false;
             }
         }
-    }
+    }    
 }

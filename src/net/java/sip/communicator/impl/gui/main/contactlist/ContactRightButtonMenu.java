@@ -29,11 +29,17 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Yana Stamcheva
  */
-public class ContactRightButtonMenu extends JPopupMenu implements
-        ActionListener {
+public class ContactRightButtonMenu
+    extends JPopupMenu
+    implements  ActionListener,
+                ContactListListener
+{
 
     private JMenu moveToMenu = new JMenu(Messages.getString("moveToGroup"));
 
+    private JMenu moveSubcontactMenu
+        = new JMenu(Messages.getString("moveSubcontact"));
+    
     private JMenu addSubcontactMenu = new JMenu(Messages
             .getString("addSubcontact"));
 
@@ -69,6 +75,12 @@ public class ContactRightButtonMenu extends JPopupMenu implements
     private String removeContactPrefix = "removeContact:";
     
     private String addSubcontactPrefix = "addSubcontact:";
+    
+    private String moveSubcontactPrefix = "moveSubcontact:";
+    
+    private Contact contactToMove;
+    
+    private boolean moveAllContacts = false;
 
     /**
      * Creates an instance of ContactRightButtonMenu.
@@ -161,26 +173,37 @@ public class ContactRightButtonMenu extends JPopupMenu implements
 
         if (contactItem.getContactCount() > 1) {
            JMenuItem allItem = new JMenuItem(Messages.getString("allContacts"));
-
+           JMenuItem allItem1 = new JMenuItem(Messages.getString("allContacts"));
+           
            allItem.addActionListener(this);
-
-           allItem.setName("allContacts");
+           allItem1.addActionListener(this);
+           
+           allItem.setName(removeContactPrefix + "allContacts");
+           allItem1.setName(moveSubcontactPrefix + "allContacts");
+           
            this.removeContactMenu.add(allItem);
-
+           this.moveSubcontactMenu.add(allItem1);
            this.removeContactMenu.addSeparator();
+           this.moveSubcontactMenu.addSeparator();
         }
 
         while (contacts.hasNext()) {
             Contact contact = (Contact)contacts.next();
 
             JMenuItem contactItem = new JMenuItem(contact.getDisplayName());
+            JMenuItem contactItem1 = new JMenuItem(contact.getDisplayName());
 
             contactItem.setName(removeContactPrefix + contact.getAddress()
                     + contact.getProtocolProvider().getProtocolName());
 
+            contactItem1.setName(moveSubcontactPrefix + contact.getAddress()
+                    + contact.getProtocolProvider().getProtocolName());
+            
             contactItem.addActionListener(this);
-
+            contactItem1.addActionListener(this);
+            
             this.removeContactMenu.add(contactItem);
+            this.moveSubcontactMenu.add(contactItem1);
         }
 
         this.add(sendMessageItem);
@@ -189,6 +212,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
         this.addSeparator();
 
         this.add(moveToMenu);
+        this.add(moveSubcontactMenu);
 
         this.addSeparator();
 
@@ -324,7 +348,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
                 mainFrame.getContactList().moveMetaContact(contactItem, group);
             }
         }
-        else if (itemName.startsWith("removeContact")) {
+        else if (itemName.startsWith(removeContactPrefix)) {
             
             Contact contact = getContactFromMetaContact(
                     itemName.substring(removeContactPrefix.length()));
@@ -332,7 +356,7 @@ public class ContactRightButtonMenu extends JPopupMenu implements
             if(contact != null) {
                 if(Constants.REMOVE_CONTACT_ASK) {
                     String message = "<HTML>Are you sure you want to remove <B>"
-                        + this.contactItem.getDisplayName()
+                        + contact.getDisplayName()
                         + "</B><BR>from your contact list?</html>";
     
                     MessageDialog dialog = new MessageDialog(this.mainFrame,
@@ -353,44 +377,43 @@ public class ContactRightButtonMenu extends JPopupMenu implements
                     new RemoveContactThread(contact).start();
                 }
             }
-        }
-        else if (itemName.equals("allContacts")) {
-            if(Constants.REMOVE_CONTACT_ASK) {
-                String message = "<HTML>Are you sure you want to remove <B>"
-                    + this.contactItem.getDisplayName()
-                    + "</B><BR>from your contact list?</html>";
-
-                MessageDialog dialog = new MessageDialog(this.mainFrame,
-                        message, Messages.getString("remove"));
-                
-                int returnCode = dialog.showDialog();
-                
-                if (returnCode == MessageDialog.OK_RETURN_CODE) {
-                    new Thread() {
-                        public void run() {
-                            mainFrame.getContactList()
-                                .removeMetaContact(contactItem);
-                        }
-                    }.start();
+            else {
+                if(Constants.REMOVE_CONTACT_ASK) {
+                    String message = "<HTML>Are you sure you want to remove <B>"
+                        + Messages.getString("allContacts")
+                        + "</B><BR>from your contact list?</html>";
+    
+                    MessageDialog dialog = new MessageDialog(this.mainFrame,
+                            message, Messages.getString("remove"));
+    
+                    int returnCode = dialog.showDialog();
+    
+                    if (returnCode == MessageDialog.OK_RETURN_CODE) {
+                        new RemoveAllContactsThread().start();
+                    }
+                    else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
+                        new RemoveAllContactsThread().start();
+    
+                        Constants.REMOVE_CONTACT_ASK = false;
+                    }
                 }
-                else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
-                    new Thread() {
-                        public void run() {
-                            mainFrame.getContactList()
-                                .removeMetaContact(contactItem);
-                        }
-                    }.start();
-
-                    Constants.REMOVE_CONTACT_ASK = false;
+                else {
+                    new RemoveAllContactsThread().start();
                 }
             }
+        }
+        else if(itemName.startsWith(moveSubcontactPrefix)) {
+            Contact contact = getContactFromMetaContact(
+                    itemName.substring(moveSubcontactPrefix.length()));
+
+            mainFrame.getContactListPanel()
+                .getContactList().addExcContactListListener(this);
+            
+            if(contact != null) {
+                this.contactToMove = contact;                
+            }
             else {
-                new Thread() {
-                    public void run() {
-                        mainFrame.getContactList()
-                            .removeMetaContact(contactItem);
-                    }
-                }.start();
+                this.moveAllContacts = true;
             }
         }
     }   
@@ -403,7 +426,8 @@ public class ContactRightButtonMenu extends JPopupMenu implements
      * @return the <tt>Contact</tt> corresponding to the given address
      * identifier.
      */
-    private Contact getContactFromMetaContact(String itemID) {
+    private Contact getContactFromMetaContact(String itemID)
+    {
         Iterator i = contactItem.getContacts();
 
         while(i.hasNext()) {
@@ -422,13 +446,87 @@ public class ContactRightButtonMenu extends JPopupMenu implements
     /**
      * Removes a contact from a meta contact in a separate thread.
      */
-    private class RemoveContactThread extends Thread {
+    private class RemoveContactThread extends Thread
+    {
         private Contact contact;
         public RemoveContactThread(Contact contact) {
             this.contact = contact;
         }
         public void run() {
             mainFrame.getContactList().removeContact(contact);
+        }
+    }
+    
+    /**
+     * Removes a contact from a meta contact in a separate thread.
+     */
+    private class RemoveAllContactsThread extends Thread
+    {
+        public void run() {
+            mainFrame.getContactList().removeMetaContact(contactItem);
+        }
+    }
+
+    public void contactSelected(ContactListEvent evt)
+    {
+        mainFrame.getContactListPanel()
+            .getContactList().removeExcContactListListener(this);
+        
+        if(moveAllContacts) {
+            new MoveAllSubcontactsThread(evt.getSourceContact()).start();
+        }
+        else if(contactToMove != null) {
+            new MoveSubcontactThread(evt.getSourceContact()).start();
+        }
+    }
+
+    public void protocolContactSelected(ContactListEvent evt)
+    {
+        mainFrame.getContactListPanel()
+            .getContactList().removeExcContactListListener(this);
+        
+        if(moveAllContacts) {
+            new MoveAllSubcontactsThread(evt.getSourceContact()).start();
+        }
+        else if(contactToMove != null) {
+            new MoveSubcontactThread(evt.getSourceContact()).start();
+        }
+    }
+    
+    private class MoveSubcontactThread extends Thread
+    {
+        private MetaContact metaContact;
+        
+        public MoveSubcontactThread(MetaContact metaContact)
+        {
+            this.metaContact = metaContact;
+        }
+        
+        public void run()
+        {
+            mainFrame.getContactList()
+                .moveContact(contactToMove, metaContact);
+        }
+    }
+    
+    private class MoveAllSubcontactsThread extends Thread
+    {
+        private MetaContact metaContact;
+        
+        public MoveAllSubcontactsThread(MetaContact metaContact)
+        {
+            this.metaContact = metaContact;
+        }
+        
+        public void run()
+        {
+            Iterator i = contactItem.getContacts();
+            
+            while(i.hasNext()) {
+                Contact contact = (Contact) i.next();
+                mainFrame.getContactList()
+                    .moveContact(contact, metaContact);
+            }
         }
     }
 }
