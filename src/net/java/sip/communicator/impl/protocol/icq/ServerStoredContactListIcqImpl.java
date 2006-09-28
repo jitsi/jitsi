@@ -631,12 +631,25 @@ public class ServerStoredContactListIcqImpl
     public void moveContact(ContactIcqImpl contact,
                             ContactGroupIcqImpl newParent)
     {
-        List contactsToMove = new ArrayList();
+        if(contact.isPersistent())
+        {
+            List contactsToMove = new ArrayList();
 
-        contactsToMove.add(contact.getJoustSimBuddy());
+            contactsToMove.add(contact.getJoustSimBuddy());
 
-        buddyList.moveBuddies(contactsToMove,
-                              newParent.getJoustSimSourceGroup());
+            buddyList.moveBuddies(contactsToMove,
+                                  newParent.getJoustSimSourceGroup());
+        }
+        else
+        {
+            // if the contact buddy is volatile
+            // just add the buddy to the new group
+            // if everything is ok. The volatile contact will be reused
+            ContactGroupIcqImpl oldParent =
+                (ContactGroupIcqImpl)contact.getParentContactGroup();
+
+            addContact(newParent, contact.getUIN());
+        }
     }
 
     /**
