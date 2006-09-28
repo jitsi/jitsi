@@ -27,6 +27,9 @@ public class ServerStoredContactListJabberImpl
     private static final Logger logger =
         Logger.getLogger(ServerStoredContactListJabberImpl.class);
 
+    /**
+     * The name of the Volatile group
+     */
     private static final String VOLATILE_GROUP_NAME = "NotInContactList";
     /**
      * The jabber list that we encapsulate
@@ -227,6 +230,12 @@ public class ServerStoredContactListJabberImpl
         return null;
     }
 
+    /**
+     * Find a group with the specified Copy of Name. Used to track when
+     * a group name has changed
+     * @param name String
+     * @return ContactGroupJabberImpl
+     */
     private ContactGroupJabberImpl findContactGroupByNameCopy(String name)
     {
         Iterator contactGroups = rootGroup.subgroups();
@@ -527,6 +536,11 @@ public class ServerStoredContactListJabberImpl
         }
     }
 
+    /**
+     * Removes a contact from the serverside list
+     * Event will come for successful operation
+     * @param contactToRemove ContactJabberImpl
+     */
     void removeContact(ContactJabberImpl contactToRemove)
     {
         try
@@ -595,6 +609,10 @@ public class ServerStoredContactListJabberImpl
         this.roster.addRosterListener(new ChangeListener());
     }
 
+    /**
+     * When the protocol is online this method is used to fill or resolve
+     * the current contact list
+     */
     private void initRoster()
     {
         // first if unfiled exntries will move them in a group
@@ -609,13 +627,17 @@ public class ServerStoredContactListJabberImpl
 
                 if(contact == null)
                 {
+                    // if there is no such contact create it
                     contact = new ContactJabberImpl(item, this, true, true);
                     rootGroup.addContact(contact);
 
                     fireContactAdded(rootGroup, contact);
                 }
                 else
+                {
+                    // if contact exist so resolve it
                     contact.setResolved(item);
+                }
             }
         }
 
@@ -631,6 +653,7 @@ public class ServerStoredContactListJabberImpl
 
             if(group == null)
             {
+                // create the group as it doesn't exist
                 ContactGroupJabberImpl newGroup =
                 new ContactGroupJabberImpl(item, item.getEntries(), this, true);
 
@@ -642,6 +665,8 @@ public class ServerStoredContactListJabberImpl
             }
             else
             {
+                // the group exist so just resolved. The group will check and
+                // create or resolve its entries
                 group.setResolved(item);
 
                 //fire an event saying that the group has been resolved
@@ -715,6 +740,10 @@ public class ServerStoredContactListJabberImpl
     private class ChangeListener
         implements RosterListener
     {
+        /**
+         * Received event when entry is added to the serverstored list
+         * @param addresses Collection
+         */
         public void entriesAdded(Collection addresses)
         {
             logger.trace("entriesAdded " + addresses);
@@ -760,6 +789,11 @@ public class ServerStoredContactListJabberImpl
             }
         }
 
+        /**
+         * Event when an entry is updated. Somthing for the entry data
+         * or have been added to a new group or removed from one
+         * @param addresses Collection
+         */
         public void entriesUpdated(Collection addresses)
         {
             logger.trace("entriesUpdated  " + addresses);
@@ -830,6 +864,10 @@ public class ServerStoredContactListJabberImpl
             }
         }
 
+        /**
+         * Event received when entry has been removed from the list
+         * @param addresses Collection
+         */
         public void entriesDeleted(Collection addresses)
         {
             Iterator iter = addresses.iterator();
