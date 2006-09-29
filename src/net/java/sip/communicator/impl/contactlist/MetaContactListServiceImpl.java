@@ -1922,7 +1922,7 @@ public class MetaContactListServiceImpl
 
             //if this was the first contact group in the meta group fire an
             //ADDED event. otherwise fire a modification event.
-            if(newMetaGroup.countSubgroups() > 1)
+            if(newMetaGroup.countContactGroups() > 1)
             {
                 fireMetaContactGroupEvent(
                     newMetaGroup
