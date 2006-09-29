@@ -198,41 +198,19 @@ public class TestAccountInstallation
 
         table.put(ProtocolProviderFactory.PASSWORD, passwd);
 
-//        String serverAddress = System.getProperty(
-//            accountPrefix + ProtocolProviderFactory.SERVER_ADDRESS, null );
-//
-//        assertNotNull(
-//            "The system property named "
-//            + accountPrefix + ProtocolProviderFactory.SERVER_ADDRESS
-//            +" has to contain a valid server address to use for testing."
-//            , serverAddress);
-//
-//        table.put(ProtocolProviderFactory.SERVER_ADDRESS, serverAddress);
-//
-//        String serverPort = System.getProperty(
-//            accountPrefix + ProtocolProviderFactory.SERVER_PORT, null );
-//
-//        if(serverPort != null)
-//        {
-//            table.put(ProtocolProviderFactory.SERVER_PORT, serverPort);
-//        }
-//
-//        String proxyAddress = System.getProperty(
-//            accountPrefix + ProtocolProviderFactory.PROXY_ADDRESS, null );
-//
-//        if(serverPort != null)
-//        {
-//            table.put(ProtocolProviderFactory.PROXY_ADDRESS, proxyAddress);
-//
-//            String proxyPort = System.getProperty(
-//            accountPrefix + ProtocolProviderFactory.PROXY_PORT, null );
-//
-//            if(proxyPort != null)
-//            {
-//                table.put(ProtocolProviderFactory.PROXY_PORT, proxyPort);
-//            }
-//        }
+        String serverAddress = System.getProperty(
+                    accountPrefix + ProtocolProviderFactory.SERVER_ADDRESS, null);
 
+        // optional
+        if(serverAddress != null)
+            table.put(ProtocolProviderFactory.SERVER_ADDRESS, serverAddress);
+
+        String serverPort = System.getProperty(
+                    accountPrefix + ProtocolProviderFactory.SERVER_PORT, null);
+
+        // optional
+        if(serverPort != null)
+            table.put(ProtocolProviderFactory.SERVER_PORT, serverPort);
 
         return table;
     }
