@@ -392,6 +392,28 @@ public class ContactGroupIcqImpl
     }
 
     /**
+     * Returns the index of contact in this group -1 if no such contact was
+     * found.
+     *
+     * @param contact the contact whose index we're looking for.
+     * @return the index of contact in this group.
+     */
+    int findContactIndex(Contact contact)
+    {
+        Iterator contacts = contacts();
+        int i = 0;
+        while (contacts.hasNext())
+        {
+            ContactIcqImpl item = (ContactIcqImpl) contacts.next();
+            if(item == contact)
+                return i;
+            i++;
+        }
+        return -1;
+    }
+
+
+    /**
      * Returns the icq contact encapsulating with the spcieified screen name or
      * null if no such contact was found.
      *
