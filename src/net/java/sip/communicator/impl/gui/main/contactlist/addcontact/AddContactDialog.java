@@ -100,8 +100,6 @@ public class AddContactDialog extends JDialog
         
         this.setSize(520, 250);
         
-        this.setModal(false);
-        
         this.addButton.setName("add");
         this.cancelButton.setName("cancel");
         
