@@ -857,6 +857,16 @@ public class ServerStoredContactListIcqImpl
             ContactGroupIcqImpl oldParentGroup = null;
             ContactIcqImpl newContact
                 = findContactByScreenName(buddy.getScreenname().getFormatted());
+            ContactGroupIcqImpl parentGroup = findContactGroup(joustSimGroup);
+
+            boolean fireResolvedEvent = false;
+
+            if (parentGroup == null)
+            {
+                logger.debug("no parent group "
+                             + joustSimGroup + " found for buddy: " + buddy);
+                return;
+            }
 
             if(newContact == null)
             {
@@ -866,51 +876,21 @@ public class ServerStoredContactListIcqImpl
             else
             {
                 oldParentGroup = findContactGroup(newContact);
-                oldParentGroup.removeContact(newContact);
+                if(oldParentGroup != parentGroup)
+                    oldParentGroup.removeContact(newContact);
+
                 newContact.setJoustSimBuddy(buddy);
                 newContact.setPersistent(true);
-                newContact.setResolved(true);
-            }
-            ContactGroupIcqImpl parentGroup = findContactGroup(joustSimGroup);
-
-            if (parentGroup == null)
-            {
-                logger.debug("no parent group "
-                             + joustSimGroup + " found for buddy: " + buddy);
-                return;
-            }
-
-            int buddyIndex = newItems.indexOf(buddy);
-            if( buddyIndex == -1 ){
-                logger.debug(buddy+" was not present in newItems"+newItems);
-            }
-
-            //elements in the newItems list may include buddies that have not
-            //yet been reported through this method. In order to make sure that
-            //we keep the order  specified by the server, we try to add after a
-            //newItems member that has a corresponding ContactGroup entry in our
-            //contact list, and add the new entry after it
-
-            int insertPos = 0;
-            if (buddyIndex == 0)
-            {
-                //this is the first group so insert at 0.
-                parentGroup.addContact(insertPos, newContact);
-            }
-            else
-            {
-                for (; buddyIndex >= 0; buddyIndex--)
+                if(!newContact.isResolved())
                 {
-                    int prevContactIndex = parentGroup.findContactIndex(
-                            (Buddy) newItems.get(buddyIndex));
-
-                    //if we've found the nearest previous group that we already
-                    //know of we should insert the new group behind it.
-                    if (prevContactIndex != -1)
-                        insertPos = prevContactIndex + 1;
+                    newContact.setResolved(true);
+                    fireResolvedEvent = true;
                 }
-                parentGroup.addContact(insertPos, newContact);
             }
+
+            parentGroup.addContact(newContact);
+
+            int index = parentGroup.findContactIndex(newContact);
 
             //register a listener for name changes of this buddy
             buddy.addBuddyListener(jsimBuddyListener);
@@ -918,12 +898,18 @@ public class ServerStoredContactListIcqImpl
             //tell listeners about the added group
             if(oldParentGroup == null)
             {
-                fireContactAdded(parentGroup, newContact, insertPos);
+                fireContactAdded(parentGroup, newContact, index);
             }
-            else
+            else if(oldParentGroup != parentGroup)
             {
                 fireContactMoved(oldParentGroup, parentGroup
-                                 , newContact, insertPos);
+                                 , newContact, index);
+            }
+
+            //fire an event in case the contact has just been resolved.
+            if(fireResolvedEvent)
+            {
+                fireContactResolved(parentGroup, newContact);
             }
         }
 
