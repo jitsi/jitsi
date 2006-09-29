@@ -498,17 +498,25 @@ public class ContactRightButtonMenu
      * choosen subcontact.
      */
     private void moveContact(MetaContact toMetaContact)
-    {
-        mainFrame.getContactListPanel()
-            .getContactList().removeExcContactListListener(this);
-        
+    {        
         this.moveDialog.dispose();
         
-        if(moveAllContacts) {
-            new MoveAllSubcontactsThread(toMetaContact).start();
+        if(toMetaContact.equals(contactItem)) {
+            JOptionPane.showMessageDialog(this.mainFrame,
+                    Messages.getString("moveSubcontactInSameContact"),
+                    Messages.getString("moveSubcontact"),
+                    JOptionPane.WARNING_MESSAGE);
         }
-        else if(contactToMove != null) {
-            new MoveSubcontactThread(toMetaContact).start();
+        else {
+            this.mainFrame.getContactListPanel().getContactList()
+                .removeExcContactListListener(this);
+            
+            if(moveAllContacts) {
+                new MoveAllSubcontactsThread(toMetaContact).start();
+            }
+            else if(contactToMove != null) {
+                new MoveSubcontactThread(toMetaContact).start();
+            }
         }
     }
     
