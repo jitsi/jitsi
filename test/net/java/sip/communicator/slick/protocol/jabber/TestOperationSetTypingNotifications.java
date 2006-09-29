@@ -145,8 +145,19 @@ public class TestOperationSetTypingNotifications
     public void prepareContactList() throws Exception
     {
         // be sure that contacts are in their lists
-        opSetPresence1.subscribe(fixture.userID2);
-        opSetPresence2.subscribe(fixture.userID1);
+        try{
+            opSetPresence1.subscribe(fixture.userID2);
+        }
+        catch (OperationFailedException ex){
+            // the contact already exist its OK
+        }
+
+        try{
+            opSetPresence2.subscribe(fixture.userID1);
+        }
+        catch (OperationFailedException ex1){
+            // the contact already exist its OK
+        }
 
         Object o = new Object();
         synchronized (o)
