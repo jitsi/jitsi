@@ -2289,8 +2289,15 @@ public class MetaContactListServiceImpl
                                List    protoContacts,
                                String accountID)
     {
-        MetaContactImpl newMetaContact = new MetaContactImpl(metaUID);
-        newMetaContact.setDisplayName(displayName);
+        //first check if the meta contact exists already.
+        MetaContactImpl newMetaContact
+            = (MetaContactImpl)findMetaContactByMetaUID(metaUID);
+
+        if(newMetaContact == null)
+        {
+            newMetaContact = new MetaContactImpl(metaUID);
+            newMetaContact.setDisplayName(displayName);
+        }
 
         //create unresolved contacts for the protocontacts associated with this
         //mc
@@ -2304,8 +2311,9 @@ public class MetaContactListServiceImpl
         Iterator contactsIter = protoContacts.iterator();
         while (contactsIter.hasNext())
         {
-            MclStorageManager.StoredProtoContactDescriptor contactDescriptor =
-                (MclStorageManager.StoredProtoContactDescriptor)contactsIter.next();
+            MclStorageManager.StoredProtoContactDescriptor contactDescriptor
+                = (MclStorageManager.StoredProtoContactDescriptor)contactsIter
+                    .next();
 
             Contact protoContact = presenceOpSet.createUnresolvedContact(
                 contactDescriptor.contactAddress,
