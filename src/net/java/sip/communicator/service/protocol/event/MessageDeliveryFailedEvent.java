@@ -24,11 +24,39 @@ public class MessageDeliveryFailedEvent
       */
      private Contact to = null;
 
+     /**
+      * Set when no other error code can describe the exception that occurred.
+      */
+     public static final int UNKNOWN_ERROR = 1;
+
+     /**
+      * Set when delivery fails due to a failure in network communications or
+      * a transport error.
+      */
+     public static final int NETWORK_FAILURE = 2;
+
+     /**
+      * Set to indicate that delivery has failed because the provider was not
+      * registered.
+      */
+     public static final int PROVIDER_NOT_REGISTERED = 3;
+
+     /**
+      * Set when delivery fails for implementation specific reasons.
+      */
+     public static final int INTERNAL_ERROR = 4;
+
+     /**
+      * Set when delivery fails because we're trying to send a message to a
+      * contact that is currently offline and the server does not support
+      * offline messages.
+      */
+     public static final int OGGLINE_MESSAGES_NOT_SUPPORTED = 5;
 
      /**
       * An error code indicating the reason for the failure of this delivery.
       */
-     private int errorCode = -1;
+     private int errorCode = UNKNOWN_ERROR;
 
      /**
       * A timestamp indicating the exact date when the event occurred.
