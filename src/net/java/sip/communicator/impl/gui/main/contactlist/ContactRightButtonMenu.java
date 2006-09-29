@@ -84,6 +84,7 @@ public class ContactRightButtonMenu
     
     private MoveSubcontactMessageDialog moveDialog;
 
+    private ContactList guiContactList;
     /**
      * Creates an instance of ContactRightButtonMenu.
      * @param mainFrame The parent MainFrame window.
@@ -95,6 +96,8 @@ public class ContactRightButtonMenu
 
         this.mainFrame = mainFrame;
 
+        this.guiContactList = mainFrame.getContactListPanel().getContactList();
+        
         this.contactItem = contactItem;
 
         this.setLocation(getLocation());
@@ -408,8 +411,9 @@ public class ContactRightButtonMenu
             Contact contact = getContactFromMetaContact(
                     itemName.substring(moveSubcontactPrefix.length()));
 
-            mainFrame.getContactListPanel()
-                .getContactList().addExcContactListListener(this);
+            guiContactList.addExcContactListListener(this);
+            guiContactList.setCursor(
+                    Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
             
             this.moveDialog = new MoveSubcontactMessageDialog(mainFrame);
             
@@ -508,8 +512,10 @@ public class ContactRightButtonMenu
                     JOptionPane.WARNING_MESSAGE);
         }
         else {
-            this.mainFrame.getContactListPanel().getContactList()
-                .removeExcContactListListener(this);
+            guiContactList.removeExcContactListListener(this);
+            
+            guiContactList.setCursor(
+                    Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
             
             if(moveAllContacts) {
                 new MoveAllSubcontactsThread(toMetaContact).start();
