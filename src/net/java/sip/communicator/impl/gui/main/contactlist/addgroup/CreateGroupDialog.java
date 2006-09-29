@@ -66,8 +66,6 @@ public class CreateGroupDialog extends JDialog
     private void init() {
         this.setTitle(Messages.getString("addGroup"));
         
-        this.setModal(true);
-        
         this.addButton.setName("create");
         this.cancelButton.setName("cancel");
         
