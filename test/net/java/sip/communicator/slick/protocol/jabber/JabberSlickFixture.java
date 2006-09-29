@@ -1,6 +1,3 @@
-
-
-
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
@@ -217,6 +214,7 @@ public class JabberSlickFixture
     }
 
     public void clearProvidersLists()
+        throws Exception
     {
         Map supportedOperationSets1 = provider1.getSupportedOperationSets();
 
@@ -263,6 +261,7 @@ public class JabberSlickFixture
 
         ContactGroup rootGroup1 = opSetPersPresence1.getServerStoredContactListRoot();
 
+        // first delete the groups
         Vector groupsToRemove = new Vector();
         Iterator iter = rootGroup1.subgroups();
         while (iter.hasNext())
@@ -277,8 +276,22 @@ public class JabberSlickFixture
             opSetPersPresence1.removeServerStoredContactGroup(item);
         }
 
+        //then delete contacts if any in root list
+        Vector contactsToRemove = new Vector();
+        iter = rootGroup1.contacts();
+        while (iter.hasNext())
+        {
+            contactsToRemove.add(iter.next());
+        }
+        iter = contactsToRemove.iterator();
+        while (iter.hasNext())
+        {
+            opSetPersPresence1.unsubscribe((Contact)iter.next());
+        }
+
         ContactGroup rootGroup2 = opSetPersPresence2.getServerStoredContactListRoot();
 
+        // delete groups
         groupsToRemove = new Vector();
         iter = rootGroup2.subgroups();
         while (iter.hasNext())
@@ -291,6 +304,19 @@ public class JabberSlickFixture
         {
             ContactGroup item = (ContactGroup) iter.next();
             opSetPersPresence2.removeServerStoredContactGroup(item);
+        }
+
+        //then delete contacts if any in root list
+        contactsToRemove = new Vector();
+        iter = rootGroup2.contacts();
+        while (iter.hasNext())
+        {
+            contactsToRemove.add(iter.next());
+        }
+        iter = contactsToRemove.iterator();
+        while (iter.hasNext())
+        {
+            opSetPersPresence2.unsubscribe( (Contact) iter.next());
         }
     }
 }
