@@ -264,16 +264,38 @@ public class OperationSetBasicInstantMessagingJabberImpl
                              + msg.getBody());
             }
 
-            if(msg.getType() == org.jivesoftware.smack.packet.Message.Type.ERROR)
-            {
-                logger.info("Message error received from " + fromUserID);
-                return;
-            }
-
             Message newMessage = createMessage(msg.getBody());
 
             Contact sourceContact =
                 opSetPersPresence.findContactByID(fromUserID);
+
+            if(msg.getType() == org.jivesoftware.smack.packet.Message.Type.ERROR)
+            {
+                logger.info("Message error received from " + fromUserID);
+
+                int errorCode = packet.getError().getCode();
+                int errorResultCode = MessageDeliveryFailedEvent.UNKNOWN_ERROR;
+
+                if(errorCode == 503)
+                {
+                    org.jivesoftware.smackx.packet.MessageEvent msgEvent =
+                        (org.jivesoftware.smackx.packet.MessageEvent)
+                            packet.getExtension("x", "jabber:x:event");
+                    if(msgEvent != null && msgEvent.isOffline())
+                    {
+                        errorResultCode =
+                            MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED;
+                    }
+                }
+
+                MessageDeliveryFailedEvent ev =
+                    new MessageDeliveryFailedEvent(newMessage,
+                                                   sourceContact,
+                                                   errorResultCode,
+                                                   new Date());
+                fireMessageEvent(ev);
+                return;
+            }
 
             if(sourceContact == null)
             {
