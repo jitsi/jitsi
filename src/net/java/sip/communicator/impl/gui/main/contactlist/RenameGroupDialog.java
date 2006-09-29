@@ -62,8 +62,6 @@ public class RenameGroupDialog extends JDialog
     private void init() {
         this.setTitle(Messages.getString("renameContact"));
         
-        this.setModal(true);
-        
         this.renameButton.setName("rename");
         this.cancelButton.setName("cancel");
         
