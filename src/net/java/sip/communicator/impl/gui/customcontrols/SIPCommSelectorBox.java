@@ -154,9 +154,9 @@ public class SIPCommSelectorBox extends JLabel
      * @param text The object to select.
      * @param icon The icon to select.
      */
-    public void setSelected(String text, Icon icon) {
+    public void setSelected(Object o, Icon icon) {
         this.setIcon(icon);
-        this.setSelectedObject(text);
+        this.setSelectedObject(o);
     }
 
     /**
