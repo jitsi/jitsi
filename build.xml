@@ -534,10 +534,9 @@
         bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
         bundle-fileaccess-slick,bundle-media,bundle-media-slick,
         bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,
-        bundle-jabber,bundle-swing-ui,
+        bundle-jabber,bundle-jabber-slick,bundle-swing-ui,
         meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz"/>
-        <!-- bundle-jabber-slick -->
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -819,7 +818,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-JABBER-SLICK -->
-    <!-- Creates a bundle containing the slick for the Jabber protocol provider."
+    <!-- Creates a bundle containing the slick for the Jabber protocol provider."-->
     <target name="bundle-jabber-slick">
 
         <jar compress="false" destfile="${bundles.dest}/protocol-jabber-slick.jar"
@@ -830,7 +829,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib}/smackx.jar" prefix=""/>
         </jar>
     </target>
-    -->
+
 
 
      <!-- BUNDLE-SWING-UI -->
