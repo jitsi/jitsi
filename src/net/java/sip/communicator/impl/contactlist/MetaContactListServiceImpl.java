@@ -1920,11 +1920,24 @@ public class MetaContactListServiceImpl
             MetaContactGroup newMetaGroup
                 = handleGroupCreatedEvent(parentMetaGroup, evt.getSourceGroup());
 
-            fireMetaContactGroupEvent(
-                newMetaGroup
-                , evt.getSourceProvider()
-                , evt.getSourceGroup()
-                , MetaContactGroupEvent.META_CONTACT_GROUP_ADDED);
+            //if this was the first contact group in the meta group fire an
+            //ADDED event. otherwise fire a modification event.
+            if(newMetaGroup.countSubgroups() > 1)
+            {
+                fireMetaContactGroupEvent(
+                    newMetaGroup
+                    , evt.getSourceProvider()
+                    , evt.getSourceGroup()
+                    , MetaContactGroupEvent.CONTACT_GROUP_ADDED_TO_META_GROUP);
+            }
+            else
+            {
+                fireMetaContactGroupEvent(
+                    newMetaGroup
+                    , evt.getSourceProvider()
+                    , evt.getSourceGroup()
+                    , MetaContactGroupEvent.META_CONTACT_GROUP_ADDED);
+            }
         }
 
         /**
