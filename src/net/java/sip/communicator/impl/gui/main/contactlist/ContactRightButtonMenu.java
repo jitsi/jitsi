@@ -515,7 +515,7 @@ public class ContactRightButtonMenu
             guiContactList.removeExcContactListListener(this);
             
             guiContactList.setCursor(
-                    Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+                    Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             
             if(moveAllContacts) {
                 new MoveAllSubcontactsThread(toMetaContact).start();
