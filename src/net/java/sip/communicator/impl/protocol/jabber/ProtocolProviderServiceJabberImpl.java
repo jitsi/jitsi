@@ -373,7 +373,7 @@ public class ProtocolProviderServiceJabberImpl
      * @param reason a String further explaining the reason code or null if
      * no such explanation is necessary.
      */
-    private void fireRegistrationStateChanged( RegistrationState oldState,
+    void fireRegistrationStateChanged( RegistrationState oldState,
                                                RegistrationState newState,
                                                int               reasonCode,
                                                String            reason)
