@@ -51,7 +51,7 @@ public class MessageDeliveryFailedEvent
       * contact that is currently offline and the server does not support
       * offline messages.
       */
-     public static final int OGGLINE_MESSAGES_NOT_SUPPORTED = 5;
+     public static final int OFFLINE_MESSAGES_NOT_SUPPORTED = 5;
 
      /**
       * An error code indicating the reason for the failure of this delivery.
