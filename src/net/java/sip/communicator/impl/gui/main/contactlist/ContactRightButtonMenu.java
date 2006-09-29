@@ -81,6 +81,8 @@ public class ContactRightButtonMenu
     private Contact contactToMove;
     
     private boolean moveAllContacts = false;
+    
+    private MoveSubcontactMessageDialog moveDialog;
 
     /**
      * Creates an instance of ContactRightButtonMenu.
@@ -409,6 +411,10 @@ public class ContactRightButtonMenu
             mainFrame.getContactListPanel()
                 .getContactList().addExcContactListListener(this);
             
+            this.moveDialog = new MoveSubcontactMessageDialog(mainFrame);
+            
+            this.moveDialog.setVisible(true);
+                        
             if(contact != null) {
                 this.contactToMove = contact;                
             }
@@ -467,32 +473,48 @@ public class ContactRightButtonMenu
         }
     }
 
+    /**
+     * Implements ContactListListener.contactSelected method in order
+     * to move the choosen subcontact when a meta contact is selected.
+     */
     public void contactSelected(ContactListEvent evt)
     {
-        mainFrame.getContactListPanel()
-            .getContactList().removeExcContactListListener(this);
-        
-        if(moveAllContacts) {
-            new MoveAllSubcontactsThread(evt.getSourceContact()).start();
-        }
-        else if(contactToMove != null) {
-            new MoveSubcontactThread(evt.getSourceContact()).start();
-        }
+        this.moveContact(evt.getSourceContact());
     }
 
+    /**
+     * Implements ContactListListener.contactSelected method in order
+     * to move the choosen subcontact when a meta contact is selected.
+     */
     public void protocolContactSelected(ContactListEvent evt)
+    {
+        this.moveContact(evt.getSourceContact());
+    }
+    
+    /**
+     * Moves the previously choosen subcontact in the given toMetaContact.
+     * 
+     * @param toMetaContact the MetaContact, where to move the previously
+     * choosen subcontact.
+     */
+    private void moveContact(MetaContact toMetaContact)
     {
         mainFrame.getContactListPanel()
             .getContactList().removeExcContactListListener(this);
         
+        this.moveDialog.dispose();
+        
         if(moveAllContacts) {
-            new MoveAllSubcontactsThread(evt.getSourceContact()).start();
+            new MoveAllSubcontactsThread(toMetaContact).start();
         }
         else if(contactToMove != null) {
-            new MoveSubcontactThread(evt.getSourceContact()).start();
+            new MoveSubcontactThread(toMetaContact).start();
         }
     }
     
+    /**
+     * 
+     */
     private class MoveSubcontactThread extends Thread
     {
         private MetaContact metaContact;
@@ -509,6 +531,9 @@ public class ContactRightButtonMenu
         }
     }
     
+    /**
+     * 
+     */
     private class MoveAllSubcontactsThread extends Thread
     {
         private MetaContact metaContact;
