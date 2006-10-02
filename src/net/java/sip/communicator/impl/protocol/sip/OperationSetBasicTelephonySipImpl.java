@@ -17,6 +17,8 @@ import javax.sip.message.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import gov.nist.javax.sip.message.*;
+import gov.nist.javax.sip.stack.*;
 
 /**
  * Implements all call management logic and exports basic telephony support by
@@ -72,6 +74,9 @@ public class OperationSetBasicTelephonySipImpl
         this.protocolProvider = protocolProvider;
 
         protocolProvider.registerMethodProcessor(Request.INVITE, this);
+        protocolProvider.registerMethodProcessor(Request.CANCEL, this);
+        protocolProvider.registerMethodProcessor(Request.ACK, this);
+        protocolProvider.registerMethodProcessor(Request.BYE, this);
     }
 
     /**
@@ -82,19 +87,11 @@ public class OperationSetBasicTelephonySipImpl
      */
     public void addCallListener(CallListener listener)
     {
-        if(!callListeners.contains(listener))
+        synchronized(callListeners)
+        {
+            if (!callListeners.contains(listener))
                 callListeners.add(listener);
-    }
-
-    /**
-     * Indicates a user request to answer an incoming call from the specified
-     * CallParticipant.
-     *
-     * @param participant the call participant that we'd like to anwer.
-     */
-    public void answerCallParticipant(CallParticipant participant)
-    {
-        /** @todo implement answerCallParticipant() */
+        }
     }
 
     /**
@@ -279,7 +276,11 @@ public class OperationSetBasicTelephonySipImpl
                      + callListeners.size()
                      +" listeners. event is: " + cEvent.toString());
 
-        Iterator listeners = callListeners.iterator();
+        Iterator listeners = null;
+        synchronized(callListeners)
+        {
+            listeners = new ArrayList(callListeners).iterator();
+        }
 
         while(listeners.hasNext())
         {
@@ -289,6 +290,8 @@ public class OperationSetBasicTelephonySipImpl
                 listener.outgoingCallCreated(cEvent);
             else if(eventID == CallEvent.CALL_RECEIVED)
                 listener.incomingCallReceived(cEvent);
+            else if(eventID == CallEvent.CALL_ENDED)
+                listener.callEnded(cEvent);
         }
     }
 
@@ -329,7 +332,10 @@ public class OperationSetBasicTelephonySipImpl
      */
     public void removeCallListener(CallListener listener)
     {
-        callListeners.remove(listener);
+        synchronized(callListeners)
+        {
+            callListeners.remove(listener);
+        }
     }
 
     /**
@@ -346,8 +352,6 @@ public class OperationSetBasicTelephonySipImpl
             .getServerTransaction();
         SipProvider jainSipProvider = (SipProvider)requestEvent.getSource();
         Request request = requestEvent.getRequest();
-        String method = ( (CSeqHeader) request.getHeader(CSeqHeader.NAME))
-            .getMethod();
 
         if (serverTransaction == null)
         {
@@ -375,9 +379,6 @@ public class OperationSetBasicTelephonySipImpl
                     return;
             }
         }
-
-        Dialog dialog = serverTransaction.getDialog();
-        Request requestClone = (Request) request.clone();
 
         //INVITE
         if (request.getMethod().equals(Request.INVITE))
@@ -421,26 +422,7 @@ public class OperationSetBasicTelephonySipImpl
     public void processTransactionTerminated(
                     TransactionTerminatedEvent transactionTerminatedEvent)
     {
-        Transaction transaction;
-        if (transactionTerminatedEvent.isServerTransaction()) {
-            transaction = transactionTerminatedEvent.getServerTransaction();
-        }
-        else {
-            transaction = transactionTerminatedEvent.getClientTransaction();
-        }
-
-        CallParticipantSipImpl callParticipant = activeCallsRepository
-            .findCallParticipant(transaction.getDialog());
-
-        if (callParticipant == null)
-        {
-            return;
-        }
-
-        CallSipImpl call = (CallSipImpl)callParticipant.getCall();
-
-        //change status
-        callParticipant.setState(CallParticipantState.DISCONNECTED);
+        //nothing to do here.
     }
 
     /**
@@ -674,6 +656,11 @@ public class OperationSetBasicTelephonySipImpl
         CallParticipantSipImpl callParticipant = activeCallsRepository
             .findCallParticipant(clientTransaction.getDialog());
 
+        if (callParticipant == null) {
+            logger.debug("Received an authorization challenge for no "
+                         +"participant. authorizing anyway.");
+        }
+
         try
         {
             logger.debug("Authenticating an INVITE request.");
@@ -687,12 +674,15 @@ public class OperationSetBasicTelephonySipImpl
             //There is a new dialog that will be started with this request. Get
             //that dialog and record it into the Call objet for later use (by
             //Bye-s for example).
-            callParticipant.setDialog(retryTran.getDialog());
-            callParticipant.setFirstTransaction(retryTran);
-            callParticipant.setJainSipProvider(jainSipProvider);
-
+            //if the request was BYE then we need to authorize it anyway even
+            //if the call and the call participant are no longer there
+            if(callParticipant !=null)
+            {
+                callParticipant.setDialog(retryTran.getDialog());
+                callParticipant.setFirstTransaction(retryTran);
+                callParticipant.setJainSipProvider(jainSipProvider);
+            }
             retryTran.sendRequest();
-            return;
         }
         catch (Exception exc)
         {
@@ -766,6 +756,17 @@ public class OperationSetBasicTelephonySipImpl
     public void processDialogTerminated(DialogTerminatedEvent
                                         dialogTerminatedEvent)
     {
+        CallParticipantSipImpl callParticipant = activeCallsRepository
+            .findCallParticipant(dialogTerminatedEvent.getDialog());
+
+        if (callParticipant == null)
+        {
+            return;
+        }
+
+        //change status
+        callParticipant.setState(CallParticipantState.DISCONNECTED);
+
     }
 
     /**
@@ -956,9 +957,12 @@ public class OperationSetBasicTelephonySipImpl
                                 ServerTransaction serverTransaction,
                                 Request           invite)
     {
+        logger.trace("Creating call participant.");
         Dialog dialog = serverTransaction.getDialog();
         CallParticipantSipImpl callParticipant
             = createCallParticipantFor(serverTransaction, sourceProvider);
+        logger.trace("call participant created = " + callParticipant);
+
 
         //sdp description may be in acks - bug report Laurent Michel
         ContentLengthHeader cl = invite.getContentLength();
@@ -969,6 +973,7 @@ public class OperationSetBasicTelephonySipImpl
                                         new String(invite.getRawContent()));
         }
 
+        logger.trace("Will verify whether INVITE is properly addressed.");
         //Are we the one they are looking for?
         javax.sip.address.URI calleeURI = dialog.getLocalParty().getURI();
 
@@ -999,6 +1004,8 @@ public class OperationSetBasicTelephonySipImpl
 
                         //attach a to tag
                         protocolProvider.attachToTag(notFound, dialog);
+                        notFound.setHeader(
+                            protocolProvider.getSipCommUserAgentHeader());
                     }
                     catch (ParseException ex) {
                         logger.error("Error while trying to create a response"
@@ -1026,11 +1033,13 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         //Send RINGING
+        logger.debug("Invite seems ok, we'll say RINGING.");
         Response ringing = null;
         try {
             ringing = protocolProvider.getMessageFactory().createResponse(
                 Response.RINGING, invite);
             protocolProvider.attachToTag(ringing, dialog);
+            ringing.setHeader(protocolProvider.getSipCommUserAgentHeader());
 
             //set our display name
             ((ToHeader)ringing.getHeader(ToHeader.NAME))
@@ -1047,6 +1056,7 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
         try {
+            logger.trace("will send ringing response: ");
             serverTransaction.sendResponse(ringing);
             logger.debug("sent a ringing response: " + ringing);
         }
@@ -1080,15 +1090,13 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
 
-        //change status
-        callParticipant.setState(CallParticipantState.DISCONNECTED);
-
         //Send OK
         Response ok = null;
         try {
             ok = protocolProvider.getMessageFactory()
                 .createResponse(Response.OK, byeRequest);
             protocolProvider.attachToTag(ok, serverTransaction.getDialog());
+            ok.setHeader(protocolProvider.getSipCommUserAgentHeader());
         }
         catch (ParseException ex) {
             logger.error("Error while trying to send a response to a bye", ex);
@@ -1108,6 +1116,10 @@ public class OperationSetBasicTelephonySipImpl
                           + "exception was:\n",
                           ex);
         }
+
+        //change status
+        callParticipant.setState(CallParticipantState.DISCONNECTED);
+
     }
 
     /**
@@ -1159,18 +1171,17 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
 
-        //change status
-        callParticipant.setState(CallParticipantState.DISCONNECTED);
-
         // Cancels should be OK-ed and the initial transaction - terminated
         // (report and fix by Ranga)
         try {
             Response ok = protocolProvider.getMessageFactory().createResponse(
                 Response.OK, cancelRequest);
+
             protocolProvider.attachToTag(ok, serverTransaction.getDialog());
+            ok.setHeader(protocolProvider.getSipCommUserAgentHeader());
             serverTransaction.sendResponse(ok);
 
-            logger.debug("sent ok response: " + ok);
+            logger.debug("sent an ok response to a CANCEL request:\n" + ok);
         }
         catch (ParseException ex) {
             logger.error(
@@ -1199,11 +1210,13 @@ public class OperationSetBasicTelephonySipImpl
             Response requestTerminated =
                 protocolProvider.getMessageFactory()
                     .createResponse(Response.REQUEST_TERMINATED, invite);
+            requestTerminated.setHeader(
+                            protocolProvider.getSipCommUserAgentHeader());
             protocolProvider.attachToTag(requestTerminated
                                          , callParticipant.getDialog());
             inviteTran.sendResponse(requestTerminated);
             if( logger.isDebugEnabled() )
-                logger.debug("sent request terminated response: "
+                logger.debug("sent request terminated response:\n"
                               + requestTerminated);
         }
         catch (ParseException ex)
@@ -1218,6 +1231,9 @@ public class OperationSetBasicTelephonySipImpl
                          + "an INVITE request."
                          , ex);
         }
+
+        //change status
+        callParticipant.setState(CallParticipantState.DISCONNECTED);
     }
 
     /**
@@ -1233,14 +1249,22 @@ public class OperationSetBasicTelephonySipImpl
     public void hangupCallParticipant(CallParticipant participant)
         throws ClassCastException, OperationFailedException
     {
+        //do nothing if the call is already ended
+        if (participant.getState().equals(CallParticipantState.DISCONNECTED))
+        {
+            logger.debug("Ignoring a request to hangup a call participant "
+                         +"that is already DISCONNECTED");
+            return;
+        }
+
         CallParticipantSipImpl callParticipant
             = (CallParticipantSipImpl)participant;
 
         Dialog dialog = callParticipant.getDialog();
         if (callParticipant.getState().equals(CallParticipantState.CONNECTED))
         {
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
             sayBye(callParticipant);
+            callParticipant.setState(CallParticipantState.DISCONNECTED);
         }
         else if (callParticipant.getState()
                             .equals(CallParticipantState.CONNECTING)
@@ -1324,7 +1348,7 @@ public class OperationSetBasicTelephonySipImpl
         try
         {
             callParticipant.getDialog().sendRequest(clientTransaction);
-            logger.debug("sent request: " + bye);
+            logger.debug("sent request:\n" + bye);
         }
         catch (SipException ex)
         {
@@ -1339,6 +1363,7 @@ public class OperationSetBasicTelephonySipImpl
      * Sends a Cancel request to <tt>callParticipant</tt>.
      *
      * @param callParticipant the call participant that we need to cancel.
+     *
      * @throws OperationFailedException we faile to construct or send the
      * CANCEL request.
      */
@@ -1356,14 +1381,13 @@ public class OperationSetBasicTelephonySipImpl
 
         ClientTransaction clientTransaction =
             (ClientTransaction) callParticipant.getFirstTransaction();
-
         try
         {
             Request cancel = clientTransaction.createCancel();
             ClientTransaction cancelTransaction = callParticipant
                 .getJainSipProvider().getNewClientTransaction(cancel);
             cancelTransaction.sendRequest();
-            logger.debug("sent request: " + cancel);
+            logger.debug("sent request:\n" + cancel);
         }
         catch (SipException ex) {
             logger.error("Failed to send the CANCEL request", ex);
@@ -1391,6 +1415,8 @@ public class OperationSetBasicTelephonySipImpl
         {
             busyHere = protocolProvider.getMessageFactory()
                 .createResponse(Response.BUSY_HERE, request);
+            busyHere.setHeader(
+                            protocolProvider.getSipCommUserAgentHeader());
             protocolProvider.attachToTag(busyHere
                                          , callParticipant.getDialog());
         }
@@ -1416,7 +1442,7 @@ public class OperationSetBasicTelephonySipImpl
         try
         {
             serverTransaction.sendResponse(busyHere);
-            logger.debug("sent response: " + busyHere);
+            logger.debug("sent response:\n" + busyHere);
         }
         catch (Exception ex)
         {
@@ -1429,16 +1455,22 @@ public class OperationSetBasicTelephonySipImpl
     } //busy here
 
     /**
+     * * Indicates a user request to answer an incoming call from the specified
+     * CallParticipant.
+     *
      * Sends an OK response to <tt>callParticipant</tt>. Make sure that the call
      * participant contains an sdp description when you call this method.
      *
-     * @param callParticipant the call participant that we need to send the ok.
+     * @param participant the call participant that we need to send the ok
+     * to.
      * @throws OperationFailedException if we fail to create or send the
      * response.
      */
-    public void sayOK(CallParticipantSipImpl callParticipant)
+    public void answerCallParticipant(CallParticipant participant)
         throws OperationFailedException
     {
+        CallParticipantSipImpl callParticipant
+            = (CallParticipantSipImpl)participant;
         Transaction transaction = callParticipant.getFirstTransaction();
         Dialog dialog = callParticipant.getDialog();
 
@@ -1451,12 +1483,20 @@ public class OperationSetBasicTelephonySipImpl
                 , OperationFailedException.INTERNAL_ERROR);
         }
 
+        if(participant.getState().equals(CallParticipantState.CONNECTED))
+        {
+            logger.info("Ignoring user request to answer a CallParticipant "
+                        + "that is already connected. CP:" + participant);
+            return;
+        }
+
         ServerTransaction serverTransaction = (ServerTransaction) transaction;
         Response ok = null;
         try {
             ok = protocolProvider.getMessageFactory().createResponse(
                 Response.OK
                 ,callParticipant.getFirstTransaction().getRequest());
+            ok.setHeader(protocolProvider.getSipCommUserAgentHeader());
             protocolProvider.attachToTag(ok, dialog);
         }
         catch (ParseException ex) {
@@ -1520,31 +1560,13 @@ public class OperationSetBasicTelephonySipImpl
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
         }
-        //TODO This is here provisionally as my remote user agent that I am using for
-        //testing is not doing it. It is not correct from the protocol point of view
-        //and should probably be removed
-        if ( ( (ToHeader) ok.getHeader(ToHeader.NAME)).getTag() == null)
-        {
-            try
-            {
-                ( (ToHeader) ok.getHeader(ToHeader.NAME)).setTag(Integer.
-                    toString(dialog.hashCode()));
-            }
-            catch (ParseException ex)
-            {
-                callParticipant.setState(CallParticipantState.DISCONNECTED);
-                throw new OperationFailedException(
-                    "Unable to set to tag"
-                    , OperationFailedException.INTERNAL_ERROR
-                    , ex);
-            }
-        }
+
         ContactHeader contactHeader = protocolProvider.getContactHeader();
         ok.addHeader(contactHeader);
         try {
             serverTransaction.sendResponse(ok);
             if( logger.isDebugEnabled() )
-                logger.debug("sent response " + ok);
+                logger.debug("sent response\n" + ok);
         }
         catch (Exception ex) {
             callParticipant.setState(CallParticipantState.DISCONNECTED);
@@ -1596,4 +1618,28 @@ public class OperationSetBasicTelephonySipImpl
 
         return callParticipant;
     }
+
+    /**
+     * Returns a string representation of this OperationSetBasicTelephony
+     * instance including information that would permit to distinguish it among
+     * other instances when reading a log file.
+     * <p>
+     * @return  a string representation of this operation set.
+     */
+    public String toString()
+    {
+        String className = getClass().getName();
+        try
+        {
+            className = className.substring(className.lastIndexOf('.') + 1);
+        }
+        catch (Exception ex)
+        {
+            // we don't want to fail in this method because we've messed up
+            //something with indexes, so just ignore.
+        }
+        return className + "-[dn=" + protocolProvider.getOurDisplayName()
+               +" addr="+protocolProvider.getOurSipAddress() + "]";
+    }
+
 }
