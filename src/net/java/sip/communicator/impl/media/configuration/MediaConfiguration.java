@@ -19,15 +19,15 @@ import net.java.sip.communicator.util.*;
  * This class aims to provide a simple configuration interface for JMF.
  * It retrieves stored configuration when started or listens to
  * ConfigurationEvent for property changes and configures the JMF accordingly.
- * 
+ *
  * @author Martin Andre
  */
 public class MediaConfiguration
 {
     private Logger logger = Logger.getLogger(MediaConfiguration.class);
-    
+
     private Object syncRoot_Config = new Object();
-    
+
     /**
      * The configuration service to use when retrieving conf property values
      */
@@ -38,7 +38,7 @@ public class MediaConfiguration
      */
     private ConfigurationListener configurationListener =
         new ConfigurationListener();
-    
+
     /**
      * Audio and Video transmission
      */
@@ -46,22 +46,31 @@ public class MediaConfiguration
     private boolean videoTransmission = true;
     private boolean audioReception = true;
     private boolean videoReception = true;
-    
+
     /**
      * Capture devices
      */
     private CaptureDeviceInfo audioCaptureDevice = null;
     private CaptureDeviceInfo videoCaptureDevice = null;
 //    private DataSource avDataSource = null;
-    
+
     /**
      * Default constructor.
      */
     public MediaConfiguration() {
-        JMFInit.start();
-        detectConfiguredCaptureDevices();
+        //these seem to be throwing exceptions every now and then so we'll
+        //blindly catch them for now
+        try
+        {
+            JMFInit.start();
+            detectConfiguredCaptureDevices();
+        }
+        catch (Exception ex)
+        {
+            logger.error("Failed to initialize media.", ex);
+        }
     }
-    
+
     /**
      * Set the configuration service.
      *
@@ -89,7 +98,7 @@ public class MediaConfiguration
             }
         }
     }
-    
+
     /**
      * Detects capture devices configured through JMF and disable audio
      * and/or video transmission if none were found.
@@ -109,7 +118,7 @@ public class MediaConfiguration
             audioCaptureDevice = (CaptureDeviceInfo) audioCaptureDevices.get(0);
             logger.info("Found " + audioCaptureDevice.getName() +" as an audio capture device.");
         }
-        
+
         logger.info("Scanning for configured Video Devices.");
         Vector videoCaptureDevices = CaptureDeviceManager.getDeviceList(new
                 VideoFormat(VideoFormat.RGB));
@@ -133,11 +142,11 @@ public class MediaConfiguration
             }
         }
     }
-    
+
     public CaptureDeviceInfo getAudioCaptureDevice() {
         return audioCaptureDevice;
     }
-    
+
     public CaptureDeviceInfo getVideoCaptureDevice() {
         return videoCaptureDevice;
     }
@@ -147,7 +156,7 @@ public class MediaConfiguration
      * @param enable whereas Audio stream transmission must be enabled or disabled
      */
     protected void setAudioTransmission(boolean enable) {
-        logger.info(enable? "Enabling":"Disabling" 
+        logger.info(enable? "Enabling":"Disabling"
             + " Audio transmission.");
         this.audioTransmission = enable;
     }
