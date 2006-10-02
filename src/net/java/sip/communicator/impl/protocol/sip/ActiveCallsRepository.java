@@ -48,6 +48,7 @@ public class ActiveCallsRepository
     public void addCall(CallSipImpl call)
     {
         activeCalls.put(call.getCallID(), call);
+        call.addCallChangeListener(this);
     }
 
     /**
@@ -79,6 +80,10 @@ public class ActiveCallsRepository
         {
             CallSipImpl sourceCall = (CallSipImpl)this.activeCalls
                 .remove(evt.getSourceCall().getCallID());
+
+            logger.trace(  "Removing call " + sourceCall + " from the list of "
+                         + "active calls because it entered an ENDED state");
+
             this.parentOperationSet.fireCallEvent(
                 CallEvent.CALL_ENDED, sourceCall);
         }
@@ -107,6 +112,20 @@ public class ActiveCallsRepository
     {
         Iterator activeCalls = getActiveCalls();
 
+        if(dialog == null)
+        {
+            logger.debug("Cannot find a participant with a null dialog. "
+                         +"Returning null");
+            return null;
+        }
+
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("Looking for participant with dialog: " + dialog
+                         + " among " + this.activeCalls.size() + " calls");
+        }
+
+
         while(activeCalls.hasNext())
         {
             CallSipImpl call = (CallSipImpl)activeCalls.next();
@@ -130,13 +149,29 @@ public class ActiveCallsRepository
     {
         Iterator activeCalls = getActiveCalls();
 
+        if(dialog == null)
+        {
+            logger.debug("Cannot find a participant with a null dialog. "
+                         +"Returning null");
+            return null;
+        }
+
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("Looking for participant with dialog: " + dialog
+                         + " among " + this.activeCalls.size() + " calls");
+        }
+
         while(activeCalls.hasNext())
         {
             CallSipImpl call = (CallSipImpl)activeCalls.next();
             CallParticipantSipImpl callParticipant
                 = call.findCallParticipant(dialog);
             if(callParticipant != null)
+            {
+                logger.trace("Returning participant " + callParticipant);
                 return callParticipant;
+            }
         }
 
         return null;
