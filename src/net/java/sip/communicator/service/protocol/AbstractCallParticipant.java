@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 
 /**
@@ -22,6 +23,9 @@ import net.java.sip.communicator.service.protocol.event.*;
 public abstract class AbstractCallParticipant
     implements CallParticipant
 {
+    private static final Logger logger
+        = Logger.getLogger(AbstractCallParticipant.class);
+
     /**
      * All the CallParticipant listeners registered with this CallParticipant.
      */
@@ -34,8 +38,11 @@ public abstract class AbstractCallParticipant
      */
     public void addCallParticipantListener(CallParticipantListener listener)
     {
-        if(!callParticipantListeners.contains(listener))
-            this.callParticipantListeners.add(listener);
+        synchronized(callParticipantListeners)
+        {
+            if (!callParticipantListeners.contains(listener))
+                this.callParticipantListeners.add(listener);
+        }
     }
 
     /**
@@ -44,9 +51,12 @@ public abstract class AbstractCallParticipant
      */
     public void removeCallParticipantListener(CallParticipantListener listener)
     {
-        if(listener == null)
-            return;
-        callParticipantListeners.remove(listener);
+        synchronized(callParticipantListeners)
+        {
+            if (listener == null)
+                return;
+            callParticipantListeners.remove(listener);
+        }
     }
 
     /**
@@ -86,10 +96,21 @@ public abstract class AbstractCallParticipant
     {
         CallParticipantChangeEvent evt = new CallParticipantChangeEvent(
             this, eventType, oldValue, newValue, reason);
-        for (int i = 0; i < callParticipantListeners.size(); i++)
+
+        logger.debug("Dispatching a CallParticipantChangeEvent event to "
+                     + callParticipantListeners.size()
+                     +" listeners. event is: " + evt.toString());
+
+        Iterator listeners = null;
+        synchronized (callParticipantListeners)
+        {
+            listeners = new ArrayList(callParticipantListeners).iterator();
+        }
+
+        while (listeners.hasNext())
         {
             CallParticipantListener listener
-                = (CallParticipantListener)callParticipantListeners.get(i);
+                = (CallParticipantListener) listeners.next();
 
             if(eventType.equals(CallParticipantChangeEvent
                                 .CALL_PARTICIPANT_ADDRESS_CHANGE))

@@ -116,7 +116,11 @@ public abstract class Call
      */
     public void addCallChangeListener(CallChangeListener listener)
     {
-        this.callListeners.add(listener);
+        synchronized(callListeners)
+        {
+            if(!callListeners.contains(listener))
+                this.callListeners.add(listener);
+        }
     }
 
     /**
@@ -126,7 +130,10 @@ public abstract class Call
      */
     public void removeCallChangeListener(CallChangeListener listener)
     {
-        this.callListeners.remove(listener);
+        synchronized(callListeners)
+        {
+            this.callListeners.remove(listener);
+        }
     }
 
     /**
@@ -159,7 +166,11 @@ public abstract class Call
                      + callListeners.size()
                      +" listeners. event is: " + cpEvent.toString());
 
-        Iterator listeners = callListeners.iterator();
+        Iterator listeners = null;
+        synchronized(callListeners)
+        {
+           listeners = new ArrayList(callListeners).iterator();
+        }
 
         while(listeners.hasNext())
         {
@@ -203,11 +214,15 @@ public abstract class Call
         CallChangeEvent ccEvent = new CallChangeEvent(
             this, type, oldValue, newValue);
 
-        logger.debug("Dispatching a CallParticipant event to "
+        logger.debug("Dispatching a CallChange event to "
                      + callListeners.size()
                      +" listeners. event is: " + ccEvent.toString());
 
-        Iterator listeners = callListeners.iterator();
+        Iterator listeners = null;
+        synchronized(callListeners)
+        {
+            listeners = new ArrayList(callListeners).iterator();
+        }
 
         while(listeners.hasNext())
         {
