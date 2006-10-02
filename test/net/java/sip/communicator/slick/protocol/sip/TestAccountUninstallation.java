@@ -10,7 +10,9 @@ import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-
+import java.util.List;
+import java.util.LinkedList;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Tests whether accaounts are uninstalled properly. It is important that
@@ -69,11 +71,60 @@ public class TestAccountUninstallation
         TestSuite suite = new TestSuite();
 
         suite.addTest(
+            new TestAccountUninstallation("testProviderUnregister"));
+        suite.addTest(
             new TestAccountUninstallation("testInstallationPersistency"));
         suite.addTest(
             new TestAccountUninstallation("testUninstallAccount"));
 
+
         return suite;
+    }
+
+    /**
+     * Unregisters both providers and verifies whether they have changed state
+     * accordingly.
+     *
+     * @throws OperationFailedException if unregister fails with an error.
+     */
+    public void testProviderUnregister()
+        throws OperationFailedException
+    {
+        //make sure providers are still registered
+        assertEquals(fixture.provider1.getRegistrationState()
+                     , RegistrationState.REGISTERED);
+        assertEquals(fixture.provider2.getRegistrationState()
+                     , RegistrationState.REGISTERED);
+
+        UnregistrationEventCollector collector1
+            = new UnregistrationEventCollector();
+        UnregistrationEventCollector collector2
+            = new UnregistrationEventCollector();
+
+        fixture.provider1.addRegistrationStateChangeListener(collector1);
+        fixture.provider2.addRegistrationStateChangeListener(collector2);
+
+        //unregister both providers
+        fixture.provider1.unregister();
+        fixture.provider2.unregister();
+
+        collector1.waitForEvent(10000);
+        collector2.waitForEvent(10000);
+
+        assertEquals("Provider did not distribute unregister events"
+                     , 1
+                     , collector1.collectedNewStates.size());
+        assertEquals("Provider did not distribute unregister events"
+                     , 1
+                     , collector1.collectedNewStates.size());
+
+        //make sure both providers are now unregistered.
+        assertEquals("Provider state after calling unregister()."
+                     , RegistrationState.UNREGISTERED
+                     , fixture.provider1.getRegistrationState());
+        assertEquals("Provider state after calling unregister()."
+                     , RegistrationState.UNREGISTERED
+                     , fixture.provider2.getRegistrationState());
     }
 
     /**
@@ -266,5 +317,85 @@ public class TestAccountUninstallation
                 fixture.provider1.getAccountID())
               == null);
 
+    }
+
+    /**
+     * A class that would plugin as a registration listener to a protocol
+     * provider and simply record all events that it sees and notifyAll()
+     *  if it sees an event that notifies us of a completed
+     * registration.
+     */
+    public class UnregistrationEventCollector
+        implements RegistrationStateChangeListener
+    {
+        public List collectedNewStates = new LinkedList();
+
+        /**
+         * The method would simply register all received events so that they
+         * could be available for later inspection by the unit tests. In the
+         * case where a registraiton event notifying us of a completed
+         * registration is seen, the method would call notifyAll().
+         *
+         * @param evt ProviderStatusChangeEvent the event describing the status
+         * change.
+         */
+        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        {
+            logger.debug("Received a RegistrationStateChangeEvent: " + evt);
+
+            collectedNewStates.add(evt.getNewState());
+
+            if (evt.getNewState().equals(RegistrationState.UNREGISTERED))
+            {
+                logger.debug("We're registered and will notify those who wait");
+                synchronized (this)
+                {
+                    notifyAll();
+                }
+            }
+        }
+
+        /**
+         * Blocks until an event notifying us of the awaited state change is
+         * received or until waitFor miliseconds pass (whichever happens first).
+         *
+         * @param waitFor the number of miliseconds that we should be waiting
+         * for an event before simply bailing out.
+         */
+        public void waitForEvent(long waitFor)
+        {
+            logger.trace("Waiting for a RegistrationStateChangeEvent");
+
+            synchronized (this)
+            {
+                if (collectedNewStates.contains(RegistrationState.UNREGISTERED))
+                {
+                    logger.trace("Event already received. "
+                                 + collectedNewStates);
+                    return;
+                }
+
+                try
+                {
+                    wait(waitFor);
+
+                    if (collectedNewStates.size() > 0)
+                        logger.trace(
+                            "Received a RegistrationStateChangeEvent.");
+                    else
+                        logger.trace(
+                            "No RegistrationStateChangeEvent received for "
+                            + waitFor + "ms.");
+
+                }
+                catch (InterruptedException ex)
+                {
+                    logger.debug(
+                        "Interrupted while waiting for a "
+                        + "RegistrationStateChangeEvent"
+                        , ex);
+                }
+            }
+        }
     }
 }
