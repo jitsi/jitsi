@@ -78,6 +78,7 @@ public class ProtocolProviderServiceJabberImpl
      *
      */
     public void register(final SecurityAuthority authority)
+        throws OperationFailedException
     {
         if(authority == null)
             throw new IllegalArgumentException(
@@ -86,94 +87,91 @@ public class ProtocolProviderServiceJabberImpl
 
         synchronized(initializationLock)
         {
-            new Thread()
+            //verify whether a password has already been stored for this account
+            String password = JabberActivator.
+                getProtocolProviderFactory().loadPassword(getAccountID());
+
+            //decode
+            if (password == null)
             {
-                public void run() {
+                //create a default credentials object
+                UserCredentials credentials = new UserCredentials();
+                credentials.setUserName(getAccountID().getUserID());
 
-                    //verify whether a password has already been stored for this account
-                    String password = JabberActivator.
-                        getProtocolProviderFactory()
-                        .loadPassword(getAccountID());
+                //request a password from the user
+                credentials = authority.obtainCredentials(ProtocolNames.JABBER
+                    , credentials);
 
-                    //decode
-                    if (password == null)
-                    {
-                        //create a default credentials object
-                        UserCredentials credentials = new UserCredentials();
-                        credentials.setUserName(getAccountID().getUserID());
+                //extract the password the user passed us.
+                password = new String(credentials.getPassword());
 
-                        //request a password from the user
-                        credentials = authority.obtainCredentials(ProtocolNames.
-                            JABBER
-                            , credentials);
-
-                        //extract the password the user passed us.
-                        password = new String(credentials.getPassword());
-
-                        if (credentials.isPasswordPersistent())
-                        {
-                            JabberActivator.getProtocolProviderFactory()
-                                .storePassword(getAccountID(), password);
-                        }
-                    }
-
-                    //init the necessary objects
-                    try
-                    {
-                        //XMPPConnection.DEBUG_ENABLED = true;
-                        String userID =
-                            StringUtils.parseName(getAccountID().getUserID());
-                        String serviceName =
-                            StringUtils.parseServer(getAccountID().getUserID());
-
-                        String serverAddress = (String)getAccountID().
-                            getAccountProperties().get(
-                                    ProtocolProviderFactory.SERVER_ADDRESS);
-
-                        String serverPort = (String)getAccountID().
-                            getAccountProperties().get(
-                                    ProtocolProviderFactory.SERVER_PORT);
-
-                        connection = new XMPPConnection(
-                                serverAddress,
-                                Integer.parseInt(serverPort),
-                                serviceName);
-
-                        connection.addConnectionListener(
-                            new JabberConnectionListener());
-
-                        connection.login(userID, password, "sip-comm");
-
-                        if(connection.isAuthenticated())
-                        {
-                            currentConnectionState = RegistrationState.REGISTERED;
-
-                            connection.getRoster().
-                                setSubscriptionMode(Roster.SUBSCRIPTION_ACCEPT_ALL);
-
-
-                            fireRegistrationStateChanged(
-                                RegistrationState.UNREGISTERED,
-                                RegistrationState.REGISTERED,
-                                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
-                        }
-                    }
-                    catch (XMPPException ex)
-                    {
-                        logger.error("Error registering", ex);
-
-                        int reason =
-                            RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
-
-                        if(ex.getWrappedThrowable() instanceof UnknownHostException)
-                            reason =
-                                RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
-
-                        fireRegistrationStateChanged(RegistrationState.UNREGISTERED,
-                            RegistrationState.CONNECTION_FAILED, reason, null);
-                    }
+                if (credentials.isPasswordPersistent())
+                {
+                    JabberActivator.getProtocolProviderFactory()
+                        .storePassword(getAccountID(), password);
                 }
-            }.start();
+            }
+
+            //init the necessary objects
+            try
+            {
+                //XMPPConnection.DEBUG_ENABLED = true;
+                String userID =
+                    StringUtils.parseName(getAccountID().getUserID());
+                String serviceName =
+                    StringUtils.parseServer(getAccountID().getUserID());
+
+                String serverAddress = (String)getAccountID().
+                    getAccountProperties().get(
+                            ProtocolProviderFactory.SERVER_ADDRESS);
+
+                String serverPort = (String)getAccountID().
+                    getAccountProperties().get(
+                            ProtocolProviderFactory.SERVER_PORT);
+
+                connection = new XMPPConnection(
+                        serverAddress,
+                        Integer.parseInt(serverPort),
+                        serviceName);
+
+                connection.addConnectionListener(
+                    new JabberConnectionListener());
+
+                connection.login(userID, password, "sip-comm");
+
+                if(connection.isAuthenticated())
+                {
+                    currentConnectionState = RegistrationState.REGISTERED;
+
+                    connection.getRoster().
+                        setSubscriptionMode(Roster.SUBSCRIPTION_ACCEPT_ALL);
+
+
+                    fireRegistrationStateChanged(
+                        RegistrationState.UNREGISTERED,
+                        RegistrationState.REGISTERED,
+                        RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+                }
+            }
+            catch (NumberFormatException ex)
+            {
+                throw new OperationFailedException("Wrong port",
+                    OperationFailedException.INVALID_ACCOUNT_PROPERTIES, ex);
+            }
+            catch (XMPPException ex)
+            {
+                logger.error("Error registering", ex);
+
+                int reason =
+                    RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+
+                if(ex.getWrappedThrowable() instanceof UnknownHostException)
+                    reason =
+                        RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
+
+                fireRegistrationStateChanged(RegistrationState.UNREGISTERED,
+                    RegistrationState.CONNECTION_FAILED, reason, null);
+            }
         }
     }
 
