@@ -53,6 +53,11 @@ public class OperationFailedException
     public static final int CONTACT_GROUP_ALREADY_EXISTS = 5;
 
     /**
+     * Indicates that a user has tried to create a group that already exist.
+     */
+    public static final int INVALID_ACCOUNT_PROPERTIES = 6;
+
+    /**
      * The error code of the exception
      */
     private int errorCode = GENERAL_ERROR;
