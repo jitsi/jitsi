@@ -8,6 +8,8 @@ package net.java.sip.communicator.util;
 
 import java.io.*;
 import java.util.logging.*;
+import java.util.*;
+import java.text.*;
 
 /**
  * Print a brief summary of the LogRecord in a human readable. The summary will
@@ -23,6 +25,8 @@ public class ScLogFormatter
     static long startTime = System.currentTimeMillis();
 
     private static String lineSeparator = System.getProperty("line.separator");
+    private static DecimalFormat twoDigFmt = new DecimalFormat("00");
+    private static DecimalFormat threeDigFmt = new DecimalFormat("000");
 
     /**
      * Format the given LogRecord.
@@ -33,9 +37,17 @@ public class ScLogFormatter
     {
         StringBuffer sb = new StringBuffer();
 
-        //time since the program started
-        sb.append(System.currentTimeMillis() - startTime);
-        sb.append(" ");
+        //current time
+        Calendar cal = Calendar.getInstance();
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int minutes = cal.get(Calendar.MINUTE);
+        int seconds = cal.get(Calendar.SECOND);
+        int millis = cal.get(Calendar.MILLISECOND);
+
+        sb.append(twoDigFmt.format(hour)).append(':');
+        sb.append(twoDigFmt.format(minutes)).append(':');
+        sb.append(twoDigFmt.format(seconds)).append('.');
+        sb.append(threeDigFmt.format(millis)).append(' ');
 
         //log level
         sb.append(record.getLevel().getLocalizedName());
