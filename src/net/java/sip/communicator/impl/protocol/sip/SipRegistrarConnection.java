@@ -379,6 +379,24 @@ public class SipRegistrarConnection
             }
             //else - we simply reuse the expires timeout we stated in our last
             //request
+            else
+            {
+                Request register = clientTransatcion.getRequest();
+                expiresHeader = register.getExpires();
+
+                if (expiresHeader != null)
+                    expires = expiresHeader.getExpires();
+                else
+                {
+                    //if there is no expires header check the contact header
+                    contactHeader = (ContactHeader)register
+                        .getHeader(ContactHeader.NAME);
+                    if (contactHeader != null)
+                        expires = contactHeader.getExpires();
+                    else
+                        expires = 0;}
+
+            }
         }
 
         //If this is a respond to a REGISTER request ending our registration
@@ -410,7 +428,7 @@ public class SipRegistrarConnection
      */
     public void unregister() throws OperationFailedException
     {
-        if (getRegistrationState() == RegistrationState.REGISTERED)
+        if (getRegistrationState() != RegistrationState.REGISTERED)
         {
             return;
         }
@@ -436,6 +454,12 @@ public class SipRegistrarConnection
             //[issue 1] - increment registration cseq number
             //reported by - Roberto Tealdi <roby.tea@tin.it>
             cSeqHeader.setSeqNumber(getNextCSeqValue());
+
+            //remove the branch id.
+            ViaHeader via
+                = (ViaHeader)unregisterRequest.getHeader(ViaHeader.NAME);
+            if(via != null)
+                via.removeParameter("branch");
         }
         catch (InvalidArgumentException ex)
         {
@@ -475,9 +499,12 @@ public class SipRegistrarConnection
         {
             unregisterTransaction.sendRequest();
             logger.debug("sent request: " + unregisterRequest);
-            setRegistrationState(RegistrationState.UNREGISTERING,
-                                 RegistrationStateChangeEvent.
-                                 REASON_USER_REQUEST, null);
+
+            //emcho: i think we should not set to unregistered here but rather
+            //wait for the ok response.
+            // setRegistrationState(RegistrationState.UNREGISTERING,
+            //                     RegistrationStateChangeEvent.
+            //                     REASON_USER_REQUEST, null);
 
         }
         catch (SipException ex)
@@ -518,8 +545,7 @@ public class SipRegistrarConnection
                                       int               reasonCode,
                                       String            reason)
     {
-        if(    currentRegistrationState.equals(newState)
-            && currentRegistrationState.equals(RegistrationState.REGISTERED))
+        if( currentRegistrationState.equals(newState) )
             return;
 
         RegistrationState oldState = currentRegistrationState;
@@ -839,4 +865,26 @@ public class SipRegistrarConnection
     {
     }
 
+    /**
+     * Returns a string representation of this connection instance
+     * instance including information that would permit to distinguish it among
+     * other sip listeners when reading a log file.
+     * <p>
+     * @return  a string representation of this operation set.
+     */
+    public String toString()
+    {
+        String className = getClass().getName();
+        try
+        {
+            className = className.substring(className.lastIndexOf('.') + 1);
+        }
+        catch (Exception ex)
+        {
+            // we don't want to fail in this method because we've messed up
+            //something with indexes, so just ignore.
+        }
+        return className + "-[dn=" + sipProvider.getOurDisplayName()
+               +" addr="+sipProvider.getOurSipAddress() + "]";
+    }
 }
