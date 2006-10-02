@@ -410,30 +410,32 @@ public class OperationSetBasicInstantMessagingIcqImpl
      */
     private void fireMessageEvent(EventObject evt)
     {
-        synchronized(messageListeners)
+        Iterator listeners = null;
+        synchronized (messageListeners)
         {
-            for (int i = 0; i < messageListeners.size(); i++)
-            {
-                MessageListener listener
-                    = (MessageListener)messageListeners.get(i);
+            listeners = new ArrayList(messageListeners).iterator();
+        }
 
-                if (evt instanceof MessageDeliveredEvent )
-                {
-                    listener.messageDelivered((MessageDeliveredEvent)evt);
-                }
-                else if (evt instanceof MessageReceivedEvent)
-                {
-                    listener.messageReceived((MessageReceivedEvent) evt);
-                }
-                else if (evt instanceof MessageDeliveryFailedEvent)
-                {
-                    listener.messageDeliveryFailed(
-                        (MessageDeliveryFailedEvent) evt);
-                }
+        while (listeners.hasNext())
+        {
+            MessageListener listener
+                = (MessageListener) listeners.next();
+
+            if (evt instanceof MessageDeliveredEvent)
+            {
+                listener.messageDelivered( (MessageDeliveredEvent) evt);
+            }
+            else if (evt instanceof MessageReceivedEvent)
+            {
+                listener.messageReceived( (MessageReceivedEvent) evt);
+            }
+            else if (evt instanceof MessageDeliveryFailedEvent)
+            {
+                listener.messageDeliveryFailed(
+                    (MessageDeliveryFailedEvent) evt);
             }
         }
-    }
-
+        }
     /**
      * The listener that would retrieve instant messaging events from oscar.jar.
      */

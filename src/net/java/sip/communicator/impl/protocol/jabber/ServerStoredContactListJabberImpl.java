@@ -89,24 +89,27 @@ public class ServerStoredContactListJabberImpl
     /**
      * Registers the specified group listener so that it would receive events
      * on group modification/creation/destruction.
-     * @param l the ServerStoredGroupListener to register for group events
+     * @param listener the ServerStoredGroupListener to register for group events
      */
-    void addGroupListener(ServerStoredGroupListener l)
+    void addGroupListener(ServerStoredGroupListener listener)
     {
-        synchronized(serverStoredGroupListeners){
-            this.serverStoredGroupListeners.add(l);
+        synchronized(serverStoredGroupListeners)
+        {
+            if(!serverStoredGroupListeners.contains(listener))
+            this.serverStoredGroupListeners.add(listener);
         }
     }
 
     /**
      * Removes the specified group listener so that it won't receive further
      * events on group modification/creation/destruction.
-     * @param l the ServerStoredGroupListener to unregister
+     * @param listener the ServerStoredGroupListener to unregister
      */
-    void removeGroupListener(ServerStoredGroupListener l)
+    void removeGroupListener(ServerStoredGroupListener listener)
     {
-        synchronized(serverStoredGroupListeners){
-            this.serverStoredGroupListeners.remove(l);
+        synchronized(serverStoredGroupListeners)
+        {
+            this.serverStoredGroupListeners.remove(listener);
         }
     }
 
@@ -134,22 +137,25 @@ public class ServerStoredContactListJabberImpl
 
         logger.trace("Will dispatch the following grp event: " + evt);
 
-        synchronized (serverStoredGroupListeners){
-            Iterator listeners = this.serverStoredGroupListeners.iterator();
+        Iterator listeners = null;
+        synchronized (serverStoredGroupListeners)
+        {
+            listeners = new ArrayList(serverStoredGroupListeners).iterator();
+        }
 
-            while (listeners.hasNext())
-            {
-                ServerStoredGroupListener l
-                    = (ServerStoredGroupListener) listeners.next();
-                if (eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
-                    l.groupRemoved(evt);
-                else if (eventID == ServerStoredGroupEvent.GROUP_RENAMED_EVENT)
-                    l.groupNameChanged(evt);
-                else if (eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
-                    l.groupCreated(evt);
-                else if (eventID == ServerStoredGroupEvent.GROUP_RESOLVED_EVENT)
-                    l.groupResolved(evt);
-            }
+        while (listeners.hasNext())
+        {
+            ServerStoredGroupListener listener
+                = (ServerStoredGroupListener) listeners.next();
+
+            if (eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
+                listener.groupRemoved(evt);
+            else if (eventID == ServerStoredGroupEvent.GROUP_RENAMED_EVENT)
+                listener.groupNameChanged(evt);
+            else if (eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
+                listener.groupCreated(evt);
+            else if (eventID == ServerStoredGroupEvent.GROUP_RESOLVED_EVENT)
+                listener.groupResolved(evt);
         }
     }
 
@@ -474,6 +480,8 @@ public class ServerStoredContactListJabberImpl
     /**
      * Creates the specified group on the server stored contact list.
      * @param groupName a String containing the name of the new group.
+     * @throws OperationFailedException with code CONTACT_GROUP_ALREADY_EXISTS
+     * if the group we're trying to create is already in our contact list.
      */
     public void createGroup(String groupName)
         throws OperationFailedException

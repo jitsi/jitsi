@@ -186,22 +186,25 @@ public class ServerStoredContactListIcqImpl
 
         logger.trace("Will dispatch the following grp event: " + evt);
 
-        synchronized (serverStoredGroupListeners){
-            Iterator listeners = this.serverStoredGroupListeners.iterator();
+        Iterator listeners = null;
+        synchronized (serverStoredGroupListeners)
+        {
+            listeners = new ArrayList(serverStoredGroupListeners).iterator();
+        }
 
-            while (listeners.hasNext())
-            {
-                ServerStoredGroupListener l
-                    = (ServerStoredGroupListener) listeners.next();
-                if (eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
-                    l.groupRemoved(evt);
-                else if (eventID == ServerStoredGroupEvent.GROUP_RENAMED_EVENT)
-                    l.groupNameChanged(evt);
-                else if (eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
-                    l.groupCreated(evt);
-                else if (eventID == ServerStoredGroupEvent.GROUP_RESOLVED_EVENT)
-                    l.groupResolved(evt);
-            }
+        while (listeners.hasNext())
+        {
+            ServerStoredGroupListener listener
+                = (ServerStoredGroupListener) listeners.next();
+
+            if (eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
+                listener.groupRemoved(evt);
+            else if (eventID == ServerStoredGroupEvent.GROUP_RENAMED_EVENT)
+                listener.groupNameChanged(evt);
+            else if (eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
+                listener.groupCreated(evt);
+            else if (eventID == ServerStoredGroupEvent.GROUP_RESOLVED_EVENT)
+                listener.groupResolved(evt);
         }
     }
 

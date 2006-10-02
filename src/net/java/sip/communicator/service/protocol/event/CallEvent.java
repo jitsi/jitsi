@@ -79,4 +79,17 @@ public class CallEvent
     {
         return this.eventID;
     }
+
+    /**
+     * Returns a String representation of this CallEvent.
+     *
+     * @return  A a String representation of this CallEvent.
+     */
+    public String toString()
+    {
+
+        return "CallEvent:[ id=" + getEventID()
+            + " Call=" + getSourceCall() + "]";
+    }
+
 }

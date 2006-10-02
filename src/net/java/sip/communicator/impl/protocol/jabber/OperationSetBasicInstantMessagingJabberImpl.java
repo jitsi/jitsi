@@ -99,7 +99,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
     {
         synchronized(messageListeners)
         {
-            this.messageListeners.add(listener);
+            if(!messageListeners.contains(listener))
+            {
+                this.messageListeners.add(listener);
+            }
         }
     }
 
@@ -254,28 +257,32 @@ public class OperationSetBasicInstantMessagingJabberImpl
      */
     private void fireMessageEvent(EventObject evt)
     {
-        synchronized(messageListeners)
+        Iterator listeners = null;
+        synchronized (messageListeners)
         {
-            for (int i = 0; i < messageListeners.size(); i++)
-            {
-                MessageListener l = (MessageListener)messageListeners.get(i);
+            listeners = new ArrayList(messageListeners).iterator();
+        }
 
-                if (evt instanceof MessageDeliveredEvent )
-                {
-                    l.messageDelivered((MessageDeliveredEvent)evt);
-                }
-                else if (evt instanceof MessageReceivedEvent)
-                {
-                    l.messageReceived((MessageReceivedEvent) evt);
-                }
-                else if (evt instanceof MessageDeliveryFailedEvent)
-                {
-                    l.messageDeliveryFailed((MessageDeliveryFailedEvent) evt);
-                }
+        while (listeners.hasNext())
+        {
+            MessageListener listener
+                = (MessageListener) listeners.next();
+
+            if (evt instanceof MessageDeliveredEvent)
+            {
+                listener.messageDelivered( (MessageDeliveredEvent) evt);
+            }
+            else if (evt instanceof MessageReceivedEvent)
+            {
+                listener.messageReceived( (MessageReceivedEvent) evt);
+            }
+            else if (evt instanceof MessageDeliveryFailedEvent)
+            {
+                listener.messageDeliveryFailed(
+                    (MessageDeliveryFailedEvent) evt);
             }
         }
     }
-
     private class SmackMessageListener
         implements PacketListener
     {

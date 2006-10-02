@@ -396,7 +396,10 @@ public class ProtocolProviderServiceIcqImpl
     public void removeRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
     {
-        registrationListeners.remove(listener);
+        synchronized(registrationListeners)
+        {
+            registrationListeners.remove(listener);
+        }
     }
 
     /**
@@ -409,8 +412,11 @@ public class ProtocolProviderServiceIcqImpl
     public void addRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
     {
-        if(!registrationListeners.contains(listener))
+        synchronized(registrationListeners)
+        {
+            if (!registrationListeners.contains(listener))
                 registrationListeners.add(listener);
+        }
     }
 
     /**
@@ -469,8 +475,8 @@ public class ProtocolProviderServiceIcqImpl
                              afi.getErrorCode());
                 int code =  ConnectionClosedListener
                     .convertAuthCodeToReasonCode(afi);
-                reasonCode = ConnectionClosedListener.
-                    convertCodeToRegistrationStateChangeEvent(code);
+                reasonCode = ConnectionClosedListener
+                    .convertCodeToRegistrationStateChangeEvent(code);
                 reason = ConnectionClosedListener
                     .convertCodeToStringReason(code);
             }
@@ -506,10 +512,17 @@ public class ProtocolProviderServiceIcqImpl
         logger.debug("Dispatching " + event + " to "
                      + registrationListeners.size()+ " listeners.");
 
-        for (int i = 0; i < registrationListeners.size(); i++)
+        Iterator listeners = null;
+        synchronized (registrationListeners)
+        {
+            listeners = new ArrayList(registrationListeners).iterator();
+        }
+
+        while (listeners.hasNext())
         {
             RegistrationStateChangeListener listener
-                = (RegistrationStateChangeListener)registrationListeners.get(i);
+                = (RegistrationStateChangeListener) listeners.next();
+
             listener.registrationStateChanged(event);
         }
 

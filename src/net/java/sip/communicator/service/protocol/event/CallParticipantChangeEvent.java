@@ -120,7 +120,8 @@ public class CallParticipantChangeEvent
 
         return "CallParticipantChangeEvent: type="+getEventType()
             + " oldV="+getOldValue()
-            + " newV="+getNewValue();
+            + " newV="+getNewValue()
+            + " for participant=" + getSourceCallParticipant();
     }
 
     /**

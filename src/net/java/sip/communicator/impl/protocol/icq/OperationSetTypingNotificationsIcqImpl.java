@@ -122,13 +122,18 @@ public class OperationSetTypingNotificationsIcqImpl
         TypingNotificationEvent evt = new TypingNotificationEvent(
             sourceContact, evtCode);
 
-        synchronized(typingNotificationsListeners)
+        Iterator listeners = null;
+        synchronized (typingNotificationsListeners)
         {
-            for (int i = 0; i < typingNotificationsListeners.size(); i++)
-            {
-              ((TypingNotificationsListener)typingNotificationsListeners.get(i))
-                  .typingNotificationReceifed(evt);
-            }
+            listeners = new ArrayList(typingNotificationsListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            TypingNotificationsListener listener
+                = (TypingNotificationsListener) listeners.next();
+
+            listener.typingNotificationReceifed(evt);
         }
     }
 

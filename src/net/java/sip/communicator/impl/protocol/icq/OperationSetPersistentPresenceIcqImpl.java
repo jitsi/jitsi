@@ -950,7 +950,8 @@ public class OperationSetPersistentPresenceIcqImpl
     public void removeProviderPresenceStatusListener(
         ProviderPresenceStatusListener listener)
     {
-        synchronized(providerPresenceStatusListeners){
+        synchronized(providerPresenceStatusListeners)
+        {
             providerPresenceStatusListeners.remove(listener);
         }
     }
@@ -1011,22 +1012,25 @@ public class OperationSetPersistentPresenceIcqImpl
             new ProviderPresenceStatusChangeEvent(
                 icqProvider, oldStatus, newStatus);
 
-        synchronized (providerPresenceStatusListeners){
-            Iterator listeners = this.providerPresenceStatusListeners.iterator();
+        logger.debug("Dispatching Provider Status Change. Listeners="
+                     + providerPresenceStatusListeners.size()
+                     + " evt=" + evt);
 
-            logger.debug("Dispatching Provider Status Change. Listeners="
-                         + providerPresenceStatusListeners.size()
-                         + " evt=" + evt);
+        Iterator listeners = null;
+        synchronized (providerPresenceStatusListeners)
+        {
+            listeners = new ArrayList(providerPresenceStatusListeners)
+                .iterator();
+        }
 
-            while (listeners.hasNext())
-            {
-                ProviderPresenceStatusListener listener =
-                    (ProviderPresenceStatusListener) listeners.next();
-                listener.providerStatusChanged(evt);
-            }
+        while (listeners.hasNext())
+        {
+            ProviderPresenceStatusListener listener
+                = (ProviderPresenceStatusListener) listeners.next();
+
+            listener.providerStatusChanged(evt);
         }
     }
-
     /**
      * Notify all provider presence listeners that a new status message has
      * been set.
@@ -1041,19 +1045,22 @@ public class OperationSetPersistentPresenceIcqImpl
                 icqProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
                 oldStatusMessage, newStatusMessage);
 
-        synchronized (providerPresenceStatusListeners){
-            Iterator listeners = this.providerPresenceStatusListeners.iterator();
+        logger.debug("Dispatching  stat. msg change. Listeners="
+                     + providerPresenceStatusListeners.size()
+                     + " evt=" + evt);
 
-            logger.debug("Dispatching  stat. msg change. Listeners="
-                         + providerPresenceStatusListeners.size()
-                         + " evt=" + evt);
+        Iterator listeners = null;
+        synchronized (providerPresenceStatusListeners)
+        {
+            listeners = new ArrayList(providerPresenceStatusListeners).iterator();
+        }
 
-            while (listeners.hasNext())
-            {
-                ProviderPresenceStatusListener listener =
-                    (ProviderPresenceStatusListener) listeners.next();
-                listener.providerStatusMessageChanged(evt);
-            }
+        while (listeners.hasNext())
+        {
+            ProviderPresenceStatusListener listener
+                = (ProviderPresenceStatusListener) listeners.next();
+
+            listener.providerStatusMessageChanged(evt);
         }
     }
 
@@ -1077,19 +1084,28 @@ public class OperationSetPersistentPresenceIcqImpl
         logger.debug("Dispatching a Subscription Event to"
                      +subscriptionListeners.size() + " listeners. Evt="+evt);
 
-        synchronized(subscriptionListeners){
-            Iterator listeners = subscriptionListeners.iterator();
+        Iterator listeners = null;
+        synchronized (subscriptionListeners)
+        {
+            listeners = new ArrayList(subscriptionListeners).iterator();
+        }
 
-            while (listeners.hasNext())
+        while (listeners.hasNext())
+        {
+            SubscriptionListener listener
+                = (SubscriptionListener) listeners.next();
+
+            if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
             {
-                SubscriptionListener listener =
-                    (SubscriptionListener) listeners.next();
-                if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
-                    listener.subscriptionCreated(evt);
-                else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_REMOVED)
-                    listener.subscriptionRemoved(evt);
-                else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_FAILED)
-                    listener.subscriptionFailed(evt);
+                listener.subscriptionCreated(evt);
+            }
+            else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_REMOVED)
+            {
+                listener.subscriptionRemoved(evt);
+            }
+            else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_FAILED)
+            {
+                listener.subscriptionFailed(evt);
             }
         }
     }
@@ -1118,15 +1134,19 @@ public class OperationSetPersistentPresenceIcqImpl
         logger.debug("Dispatching a Contact Property Change Event to"
                      +subscriptionListeners.size() + " listeners. Evt="+evt);
 
-        synchronized(subscriptionListeners){
-            Iterator listeners = subscriptionListeners.iterator();
+        Iterator listeners = null;
 
-            while (listeners.hasNext())
-            {
-                SubscriptionListener listener =
-                    (SubscriptionListener) listeners.next();
-                listener.contactModified(evt);
-            }
+        synchronized (subscriptionListeners)
+        {
+            listeners = new ArrayList(subscriptionListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            SubscriptionListener listener
+                = (SubscriptionListener) listeners.next();
+
+            listener.contactModified(evt);
         }
     }
 
@@ -1152,15 +1172,18 @@ public class OperationSetPersistentPresenceIcqImpl
         logger.debug("Dispatching a Subscription Event to"
                      +subscriptionListeners.size() + " listeners. Evt="+evt);
 
-        synchronized(subscriptionListeners){
-            Iterator listeners = subscriptionListeners.iterator();
+        Iterator listeners = null;
+        synchronized (subscriptionListeners)
+        {
+            listeners = new ArrayList(subscriptionListeners).iterator();
+        }
 
-            while (listeners.hasNext())
-            {
-                SubscriptionListener listener =
-                    (SubscriptionListener) listeners.next();
-                listener.subscriptionMoved(evt);
-            }
+        while (listeners.hasNext())
+        {
+            SubscriptionListener listener
+                = (SubscriptionListener) listeners.next();
+
+            listener.subscriptionMoved(evt);
         }
     }
 
@@ -1182,19 +1205,22 @@ public class OperationSetPersistentPresenceIcqImpl
             new ContactPresenceStatusChangeEvent(
                 contact, icqProvider, parentGroup, oldStatus, newStatus);
 
-        synchronized(contactPresenceStatusListeners){
-            Iterator listeners = contactPresenceStatusListeners.iterator();
+        logger.debug("Dispatching Contact Status Change. Listeners="
+                     + contactPresenceStatusListeners.size()
+                     + " evt=" + evt);
 
-            logger.debug("Dispatching Contact Status Change. Listeners="
-                         + contactPresenceStatusListeners.size()
-                         + " evt=" + evt);
+        Iterator listeners = null;
+        synchronized (contactPresenceStatusListeners)
+        {
+            listeners = new ArrayList(contactPresenceStatusListeners).iterator();
+        }
 
-            while (listeners.hasNext())
-            {
-                ContactPresenceStatusListener listener =
-                    (ContactPresenceStatusListener) listeners.next();
-                listener.contactPresenceStatusChanged(evt);
-            }
+        while (listeners.hasNext())
+        {
+            ContactPresenceStatusListener listener
+                = (ContactPresenceStatusListener) listeners.next();
+
+            listener.contactPresenceStatusChanged(evt);
         }
     }
 

@@ -452,11 +452,11 @@ public class OperationSetPersistentPresenceJabberImpl
         IllegalArgumentException, IllegalStateException,
         OperationFailedException
     {
-        Presence p = jabberProvider.getConnection().getRoster().
+        Presence presence = jabberProvider.getConnection().getRoster().
                 getPresence(contactIdentifier);
 
-        if(p != null)
-            return jabberStatusToPresenceStatus(p.getMode());
+        if(presence != null)
+            return jabberStatusToPresenceStatus(presence.getMode());
         else
             return JabberStatusEnum.OFFLINE;
     }
@@ -717,19 +717,23 @@ public class OperationSetPersistentPresenceJabberImpl
 
         currentStatus = newStatus;
 
-        synchronized (providerPresenceStatusListeners){
-            Iterator listeners = this.providerPresenceStatusListeners.iterator();
 
-            logger.debug("Dispatching Provider Status Change. Listeners="
-                         + providerPresenceStatusListeners.size()
-                         + " evt=" + evt);
+        logger.debug("Dispatching Provider Status Change. Listeners="
+                     + providerPresenceStatusListeners.size()
+                     + " evt=" + evt);
 
-            while (listeners.hasNext())
-            {
-                ProviderPresenceStatusListener listener =
-                    (ProviderPresenceStatusListener) listeners.next();
-                listener.providerStatusChanged(evt);
-            }
+        Iterator listeners = null;
+        synchronized (providerPresenceStatusListeners)
+        {
+            listeners = new ArrayList(providerPresenceStatusListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            ProviderPresenceStatusListener listener
+                = (ProviderPresenceStatusListener) listeners.next();
+
+            listener.providerStatusChanged(evt);
         }
     }
 
@@ -747,19 +751,22 @@ public class OperationSetPersistentPresenceJabberImpl
                 jabberProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
                 oldStatusMessage, newStatusMessage);
 
-        synchronized (providerPresenceStatusListeners){
-            Iterator listeners = this.providerPresenceStatusListeners.iterator();
+        logger.debug("Dispatching  stat. msg change. Listeners="
+                     + providerPresenceStatusListeners.size()
+                     + " evt=" + evt);
 
-            logger.debug("Dispatching  stat. msg change. Listeners="
-                         + providerPresenceStatusListeners.size()
-                         + " evt=" + evt);
+        Iterator listeners = null;
+        synchronized (providerPresenceStatusListeners)
+        {
+            listeners = new ArrayList(providerPresenceStatusListeners).iterator();
+        }
 
-            while (listeners.hasNext())
-            {
-                ProviderPresenceStatusListener listener =
-                    (ProviderPresenceStatusListener) listeners.next();
-                listener.providerStatusMessageChanged(evt);
-            }
+        while (listeners.hasNext())
+        {
+            ProviderPresenceStatusListener listener =
+                (ProviderPresenceStatusListener) listeners.next();
+
+            listener.providerStatusMessageChanged(evt);
         }
     }
 
@@ -861,20 +868,23 @@ public class OperationSetPersistentPresenceJabberImpl
         logger.debug("Dispatching a Subscription Event to"
                      +subscriptionListeners.size() + " listeners. Evt="+evt);
 
-        synchronized(subscriptionListeners){
-            Iterator listeners = subscriptionListeners.iterator();
+        Iterator listeners = null;
+        synchronized (subscriptionListeners)
+        {
+            listeners = new ArrayList(subscriptionListeners).iterator();
+        }
 
-            while (listeners.hasNext())
-            {
-                SubscriptionListener listener =
-                    (SubscriptionListener) listeners.next();
-                if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
-                    listener.subscriptionCreated(evt);
-                else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_REMOVED)
-                    listener.subscriptionRemoved(evt);
-                else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_FAILED)
-                    listener.subscriptionFailed(evt);
-            }
+        while (listeners.hasNext())
+        {
+            SubscriptionListener listener
+                = (SubscriptionListener) listeners.next();
+
+            if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
+                listener.subscriptionCreated(evt);
+            else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_REMOVED)
+                listener.subscriptionRemoved(evt);
+            else if (evt.getEventID() == SubscriptionEvent.SUBSCRIPTION_FAILED)
+                listener.subscriptionFailed(evt);
         }
     }
 
@@ -899,15 +909,18 @@ public class OperationSetPersistentPresenceJabberImpl
         logger.debug("Dispatching a Subscription Event to"
                      +subscriptionListeners.size() + " listeners. Evt="+evt);
 
-        synchronized(subscriptionListeners){
-            Iterator listeners = subscriptionListeners.iterator();
+        Iterator listeners = null;
+        synchronized (subscriptionListeners)
+        {
+            listeners = new ArrayList(subscriptionListeners).iterator();
+        }
 
-            while (listeners.hasNext())
-            {
-                SubscriptionListener listener =
-                    (SubscriptionListener) listeners.next();
-                listener.subscriptionMoved(evt);
-            }
+        while (listeners.hasNext())
+        {
+            SubscriptionListener listener
+                = (SubscriptionListener) listeners.next();
+
+            listener.subscriptionMoved(evt);
         }
     }
 
@@ -928,19 +941,23 @@ public class OperationSetPersistentPresenceJabberImpl
             new ContactPresenceStatusChangeEvent(
                 contact, jabberProvider, parentGroup, oldStatus, newStatus);
 
-        synchronized(contactPresenceStatusListeners){
-            Iterator listeners = contactPresenceStatusListeners.iterator();
 
-            logger.debug("Dispatching Contact Status Change. Listeners="
-                         + contactPresenceStatusListeners.size()
-                         + " evt=" + evt);
+        logger.debug("Dispatching Contact Status Change. Listeners="
+                     + contactPresenceStatusListeners.size()
+                     + " evt=" + evt);
 
-            while (listeners.hasNext())
-            {
-                ContactPresenceStatusListener listener =
-                    (ContactPresenceStatusListener) listeners.next();
-                listener.contactPresenceStatusChanged(evt);
-            }
+        Iterator listeners = null;
+        synchronized (contactPresenceStatusListeners)
+        {
+            listeners = new ArrayList(contactPresenceStatusListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            ContactPresenceStatusListener listener
+                = (ContactPresenceStatusListener) listeners.next();
+
+            listener.contactPresenceStatusChanged(evt);
         }
     }
 
