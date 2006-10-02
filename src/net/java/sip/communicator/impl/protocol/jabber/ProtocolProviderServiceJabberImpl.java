@@ -322,7 +322,10 @@ public class ProtocolProviderServiceJabberImpl
     public void removeRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
     {
-        registrationListeners.remove(listener);
+        synchronized(registrationListeners)
+        {
+            registrationListeners.remove(listener);
+        }
     }
 
     /**
@@ -335,7 +338,11 @@ public class ProtocolProviderServiceJabberImpl
     public void addRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
     {
-        registrationListeners.add(listener);
+        synchronized(registrationListeners)
+        {
+            if (!registrationListeners.contains(listener))
+                registrationListeners.add(listener);
+        }
     }
 
     /**
@@ -383,10 +390,17 @@ public class ProtocolProviderServiceJabberImpl
         logger.debug("Dispatching " + event + " to "
                      + registrationListeners.size()+ " listeners.");
 
-        for (int i = 0; i < registrationListeners.size(); i++)
+        Iterator listeners = null;
+        synchronized (registrationListeners)
+        {
+            listeners = new ArrayList(registrationListeners).iterator();
+        }
+
+        while (listeners.hasNext())
         {
             RegistrationStateChangeListener listener
-                = (RegistrationStateChangeListener)registrationListeners.get(i);
+                = (RegistrationStateChangeListener) listeners.next();
+
             listener.registrationStateChanged(event);
         }
 
