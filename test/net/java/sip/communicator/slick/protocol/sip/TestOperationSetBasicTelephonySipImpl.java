@@ -66,7 +66,7 @@ public class TestOperationSetBasicTelephonySipImpl
      * @throws ParseException if we hand a malformed URI to someone
      * @throws OperationFailedException if something weird happens.
      */
-    public void atestCreateCancelCall()
+    public void testCreateCancelCall()
         throws ParseException, OperationFailedException
     {
         OperationSetBasicTelephony basicTelephonyP1
@@ -296,7 +296,7 @@ public class TestOperationSetBasicTelephonySipImpl
      * @throws ParseException if we hand a malformed URI to someone
      * @throws OperationFailedException if something weird happens.
      */
-    public void atestCreateRejectCall()
+    public void testCreateRejectCall()
         throws ParseException, OperationFailedException
     {
         OperationSetBasicTelephony basicTelephonyP1
