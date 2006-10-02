@@ -180,7 +180,7 @@ public class ProtocolProviderServiceSipImpl
      * A String indicating the default debug level for the jain-sip-ri (must be
      * log4j compatible).
      */
-    private static final String NSPVALUE_TRACE_LEVEL = "TRACE";
+    private static final String NSPVALUE_TRACE_LEVEL = "DEBUG";
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
@@ -282,8 +282,11 @@ public class ProtocolProviderServiceSipImpl
     public void addRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
     {
-        if(!registrationListeners.contains(listener))
+        synchronized(registrationListeners)
+        {
+            if (!registrationListeners.contains(listener))
                 registrationListeners.add(listener);
+        }
     }
 
     /**
@@ -309,10 +312,17 @@ public class ProtocolProviderServiceSipImpl
         logger.debug("Dispatching " + event + " to "
                      + registrationListeners.size()+ " listeners.");
 
-        for (int i = 0; i < registrationListeners.size(); i++)
+        Iterator listeners = null;
+        synchronized (registrationListeners)
+        {
+            listeners = new ArrayList(registrationListeners).iterator();
+        }
+
+        while (listeners.hasNext())
         {
             RegistrationStateChangeListener listener
-                = (RegistrationStateChangeListener)registrationListeners.get(i);
+                = (RegistrationStateChangeListener) listeners.next();
+
             listener.registrationStateChanged(event);
         }
 
@@ -378,7 +388,10 @@ public class ProtocolProviderServiceSipImpl
     public void removeRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
     {
-        this.registrationListeners.remove(listener);
+        synchronized(registrationListeners)
+        {
+            this.registrationListeners.remove(listener);
+        }
     }
 
     /**
@@ -889,7 +902,7 @@ public class ProtocolProviderServiceSipImpl
      */
     public void processResponse(ResponseEvent responseEvent)
     {
-        logger.debug("received response=" + responseEvent.getResponse());
+        logger.debug("received response=\n" + responseEvent.getResponse());
         ClientTransaction clientTransaction = responseEvent
             .getClientTransaction();
         if (clientTransaction == null) {
@@ -904,6 +917,14 @@ public class ProtocolProviderServiceSipImpl
         //find the object that is supposed to take care of responses with the
         //corresponding method
         SipListener processor = (SipListener)methodProcessors.get(method);
+
+        if(processor == null)
+        {
+            return;
+        }
+
+        logger.debug("Found one processor for method " + method
+                     + ", processor is=" + processor.toString());
 
         processor.processResponse(responseEvent);
     }
@@ -944,6 +965,14 @@ public class ProtocolProviderServiceSipImpl
         SipListener processor
             = (SipListener)methodProcessors.get(request.getMethod());
 
+        if (processor == null)
+        {
+            return;
+        }
+
+        logger.debug("Found one processor for method " + request.getMethod()
+                     + ", processor is=" + processor.toString());
+
         processor.processTimeout(timeoutEvent);
     }
 
@@ -982,6 +1011,14 @@ public class ProtocolProviderServiceSipImpl
         SipListener processor
             = (SipListener)methodProcessors.get(request.getMethod());
 
+        if(processor == null)
+        {
+            return;
+        }
+
+        logger.debug("Found one processor for method " + request.getMethod()
+                     + ", processor is=" + processor.toString());
+
         processor.processTransactionTerminated(transactionTerminatedEvent);
     }
 
@@ -1012,7 +1049,7 @@ public class ProtocolProviderServiceSipImpl
      */
     public void processRequest(RequestEvent requestEvent)
     {
-        logger.debug("received request=" + requestEvent.getRequest());
+        logger.debug("received request=\n" + requestEvent.getRequest());
 
         Request request = requestEvent.getRequest();
 
@@ -1021,6 +1058,14 @@ public class ProtocolProviderServiceSipImpl
         //find the object that is supposed to take care of responses with the
         //corresponding method
         SipListener processor = (SipListener)methodProcessors.get(method);
+
+        if(processor == null)
+        {
+            return;
+        }
+
+        logger.debug("Found one processor for method " + method
+                     + ", processor is=" + processor.toString());
 
         processor.processRequest(requestEvent);
     }
@@ -1066,7 +1111,7 @@ public class ProtocolProviderServiceSipImpl
 
         try
         {
-            this.jainSipStack.stop();
+//            this.jainSipStack.stop();
         }
         catch (Exception ex)
         {
@@ -1752,7 +1797,10 @@ public class ProtocolProviderServiceSipImpl
                 List userAgentTokens = new LinkedList();
                 userAgentTokens.add("SIP Communicator");
                 userAgentTokens.add("1.0");
-                userAgentTokens.add("CVS:" + new Date().toString());
+                String dateString
+                    = new Date().toString().replace(' ', '_').replace(':', '-');
+                userAgentTokens.add("CVS-" + dateString);
+
                 userAgentHeader
                     = this.headerFactory.createUserAgentHeader(userAgentTokens);
             }
