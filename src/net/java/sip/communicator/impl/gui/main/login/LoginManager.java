@@ -102,15 +102,7 @@ public class LoginManager
         SecurityAuthorityImpl secAuth
             = new SecurityAuthorityImpl(mainFrame, protocolProvider);
 
-        try
-        {
-            protocolProvider.register( secAuth );
-        }
-        catch (OperationFailedException ex)
-        {
-            logger.fatal("Unhandled exeption", ex);
-            /** @todo  handle exception*/
-        }
+        new RegisterProvider(protocolProvider, secAuth).start();
     }
 
     /**
@@ -242,9 +234,6 @@ public class LoginManager
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
             }
             logger.error(evt.getReason());
-
-            ((AuthenticationWindow) this.loginWindows.get(protocolProvider
-                    .getProtocolName())).showWindow();
         }
         else if (evt.getNewState()
                 .equals(RegistrationState.CONNECTION_FAILED)) {
@@ -383,5 +372,29 @@ public class LoginManager
     public void setManuallyDisconnected(boolean manuallyDisconnected)
     {
         this.manuallyDisconnected = manuallyDisconnected;
+    }
+    
+    
+    private class RegisterProvider extends Thread
+    {
+        ProtocolProviderService protocolProvider;
+        SecurityAuthority secAuth;
+        RegisterProvider(ProtocolProviderService protocolProvider,
+                SecurityAuthority secAuth)
+        {
+            this.protocolProvider = protocolProvider;
+            this.secAuth = secAuth;
+        }
+        public void run()
+        {
+            try
+            {
+                protocolProvider.register(secAuth);
+            }
+            catch (OperationFailedException ex)
+            {
+                logger.fatal("Unhandled exeption", ex);
+            }
+        }
     }
 }
