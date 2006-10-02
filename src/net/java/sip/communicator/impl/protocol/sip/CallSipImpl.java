@@ -11,6 +11,7 @@ import javax.sip.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A SIP implementation of the Call abstract class encapsulating SIP dialogs.
@@ -21,6 +22,7 @@ public class CallSipImpl
     extends Call
     implements CallParticipantListener
 {
+    private static final Logger logger = Logger.getLogger(CallSipImpl.class);
     /**
      * A list containing all <tt>CallParticipant</tt>s of this call.
      */
@@ -178,6 +180,12 @@ public class CallSipImpl
             removeCallParticipant(
                 (CallParticipantSipImpl)evt.getSourceCallParticipant());
         }
+        else if (((CallParticipantState)evt.getNewValue())
+                     == CallParticipantState.CONNECTED
+                && getCallState().equals(CallState.CALL_INITIALIZATION))
+        {
+            setCallState(CallState.CALL_IN_PROGRESS);
+        }
     }
 
     /**
@@ -207,13 +215,29 @@ public class CallSipImpl
     {
         Iterator callParticipants = this.getCallParticipants();
 
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("Looking for participant with dialog: " + dialog
+                         + "among " + this.callParticipants.size() + " calls");
+        }
+
+
         while (callParticipants.hasNext())
         {
             CallParticipantSipImpl cp
                 = (CallParticipantSipImpl)callParticipants.next();
 
             if( cp.getDialog() == dialog)
+            {
+                logger.trace("Returing cp="+cp);
                 return cp;
+            }
+            else
+            {
+                logger.trace("Ignoring cp="+cp
+                             + " because cp.dialog="+cp.getDialog()
+                             + " while dialog="+dialog);
+            }
         }
 
         return null;
