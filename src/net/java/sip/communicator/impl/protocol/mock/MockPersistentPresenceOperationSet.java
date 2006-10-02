@@ -78,8 +78,11 @@ public class MockPersistentPresenceOperationSet
     public void addContactPresenceStatusListener(
                         ContactPresenceStatusListener listener)
     {
-        if(!contactPresenceStatusListeners.contains(listener))
-            contactPresenceStatusListeners.add(listener);
+        synchronized(contactPresenceStatusListeners)
+        {
+            if (!contactPresenceStatusListeners.contains(listener))
+                contactPresenceStatusListeners.add(listener);
+        }
     }
 
     /**
@@ -97,12 +100,18 @@ public class MockPersistentPresenceOperationSet
         ContactPresenceStatusChangeEvent evt
             = new ContactPresenceStatusChangeEvent(source, parentProvider
                         , parentGroup, oldValue, source.getPresenceStatus());
-        for ( int i = 0; i < contactPresenceStatusListeners.size(); i++ )
-        {
 
+        Iterator listeners = null;
+        synchronized(contactPresenceStatusListeners)
+        {
+            listeners = new ArrayList(contactPresenceStatusListeners).iterator();
+        }
+
+
+        while(listeners.hasNext())
+        {
             ContactPresenceStatusListener listener
-                = (ContactPresenceStatusListener)contactPresenceStatusListeners
-                                                                .get(i);
+                = (ContactPresenceStatusListener)listeners.next();
 
             listener.contactPresenceStatusChanged(evt);
         }
@@ -120,12 +129,22 @@ public class MockPersistentPresenceOperationSet
                                       ContactGroup parentGroup,
                                       int          eventID)
     {
-        SubscriptionEvent evt  = new SubscriptionEvent(source, this.parentProvider,
-                    parentGroup, eventID);
-        for ( int i = 0; i < subscriptionListeners.size(); i++ )
+        SubscriptionEvent evt  = new SubscriptionEvent(source
+            , this.parentProvider
+            , parentGroup
+            , eventID);
+
+        Iterator listeners = null;
+        synchronized (subscriptionListeners)
         {
-            SubscriptionListener listener = (SubscriptionListener)
-                subscriptionListeners.get(i);
+            listeners = new ArrayList(subscriptionListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            SubscriptionListener listener
+                = (SubscriptionListener) listeners.next();
+
             if(eventID == SubscriptionEvent.SUBSCRIPTION_CREATED)
             {
                 listener.subscriptionCreated(evt);
@@ -154,10 +173,17 @@ public class MockPersistentPresenceOperationSet
             source, eventID,  (MockContactGroup)source.getParentContactGroup()
            , this.parentProvider, this);
 
-        for ( int i = 0; i < serverStoredGroupListeners.size(); i++ )
+        Iterator listeners = null;
+        synchronized (serverStoredGroupListeners)
         {
-            ServerStoredGroupListener listener = (ServerStoredGroupListener)
-                serverStoredGroupListeners.get(i);
+            listeners = new ArrayList(serverStoredGroupListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            ServerStoredGroupListener listener
+                = (ServerStoredGroupListener) listeners.next();
+
             if(eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
             {
                 listener.groupCreated(evt);
@@ -184,11 +210,17 @@ public class MockPersistentPresenceOperationSet
             = new ProviderPresenceStatusChangeEvent(this.parentProvider,
                                         oldValue, this.getPresenceStatus());
 
-        for ( int i = 0; i < providerPresenceStatusListeners.size(); i++ )
+        Iterator listeners = null;
+        synchronized (providerPresenceStatusListeners)
         {
-            ProviderPresenceStatusListener listener =
-                (ProviderPresenceStatusListener)providerPresenceStatusListeners
-                                                                .get(i);
+            listeners = new ArrayList(providerPresenceStatusListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            ProviderPresenceStatusListener listener
+                = (ProviderPresenceStatusListener) listeners.next();
+
             listener.providerStatusChanged(evt);
         }
     }
@@ -201,8 +233,11 @@ public class MockPersistentPresenceOperationSet
     public void addProviderPresenceStatusListener(
         ProviderPresenceStatusListener listener)
     {
-        if(!providerPresenceStatusListeners.contains(listener))
-            this.providerPresenceStatusListeners.add(listener);
+        synchronized(providerPresenceStatusListeners)
+        {
+            if (!providerPresenceStatusListeners.contains(listener))
+                this.providerPresenceStatusListeners.add(listener);
+        }
     }
 
     /**
@@ -215,8 +250,11 @@ public class MockPersistentPresenceOperationSet
     public void addServerStoredGroupChangeListener(ServerStoredGroupListener
                                                         listener)
     {
-        if(!serverStoredGroupListeners.contains(listener))
-            serverStoredGroupListeners.add(listener);
+        synchronized(serverStoredGroupListeners)
+        {
+            if (!serverStoredGroupListeners.contains(listener))
+                serverStoredGroupListeners.add(listener);
+        }
     }
 
     /**
@@ -226,8 +264,11 @@ public class MockPersistentPresenceOperationSet
      */
     public void addSubsciptionListener(SubscriptionListener listener)
     {
-        if(!subscriptionListeners.contains(listener))
-            this.subscriptionListeners.add( listener );
+        synchronized(subscriptionListeners)
+        {
+            if (!subscriptionListeners.contains(listener))
+                this.subscriptionListeners.add(listener);
+        }
     }
 
     /**
@@ -454,7 +495,10 @@ public class MockPersistentPresenceOperationSet
     public void removeContactPresenceStatusListener(
         ContactPresenceStatusListener listener)
     {
-        contactPresenceStatusListeners.add(listener);
+        synchronized(contactPresenceStatusListeners)
+        {
+            contactPresenceStatusListeners.remove(listener);
+        }
     }
 
     /**
@@ -466,7 +510,10 @@ public class MockPersistentPresenceOperationSet
     public void removeProviderPresenceStatusListener(
         ProviderPresenceStatusListener listener)
     {
-        this.providerPresenceStatusListeners.remove(listener);
+        synchronized(providerPresenceStatusListeners)
+        {
+            this.providerPresenceStatusListeners.remove(listener);
+        }
     }
 
     /**
@@ -531,7 +578,10 @@ public class MockPersistentPresenceOperationSet
     public void removeServerStoredGroupChangeListener(ServerStoredGroupListener
         listener)
     {
-        serverStoredGroupListeners.remove(listener);
+        synchronized(serverStoredGroupListeners)
+        {
+            serverStoredGroupListeners.remove(listener);
+        }
     }
 
     /**
@@ -541,7 +591,10 @@ public class MockPersistentPresenceOperationSet
      */
     public void removeSubscriptionListener(SubscriptionListener listener)
     {
-        this.subscriptionListeners.remove(listener);
+        synchronized(subscriptionListeners)
+        {
+            this.subscriptionListeners.remove(listener);
+        }
     }
 
     /**
