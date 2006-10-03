@@ -51,6 +51,18 @@ public class MetaContactListServiceImpl
                                    "RootMetaContactGroup");
 
     /**
+     * The event handler that will be handling our subscription events.
+     */
+    ContactListSubscriptionListener clSubscriptionEventHandler
+        = new ContactListSubscriptionListener();
+
+    /**
+     * The event handler that will be handling group events.
+     */
+    ContactListGroupListener clGroupEventHandler
+        = new ContactListGroupListener();
+
+    /**
      * The number of miliseconds to wait for confirmations of account
      * modifications before deciding to drop.
      */
@@ -173,6 +185,47 @@ public class MetaContactListServiceImpl
                 this.handleProviderAdded(provider);
             }
         }
+    }
+
+    /**
+     * Prepares the meta contact list service for shutdown.
+     *
+     * @param bc the currently active bundle context.
+     */
+    public void stop(BundleContext bc)
+    {
+        storageManager.storeContactListAndStopStorageManager();
+        bc.removeServiceListener(this);
+
+        //stop listening to all currently installed providers
+        Iterator providers
+            = this.currentlyInstalledProviders.keySet().iterator();
+
+        while (providers.hasNext())
+        {
+            ProtocolProviderService pp
+                = (ProtocolProviderService)providers.next();
+
+            OperationSetPersistentPresence opSetPersPresence
+                = (OperationSetPersistentPresence)pp
+                    .getOperationSet(OperationSetPersistentPresence.class);
+
+            opSetPersPresence
+                .removeSubscriptionListener(clSubscriptionEventHandler);
+            opSetPersPresence
+                .removeServerStoredGroupChangeListener(clGroupEventHandler);
+
+            //check if a non persistent presence operation set exists.
+            if(opSetPersPresence == null)
+            {
+                OperationSetPresence opSetPresence = (OperationSetPresence)pp
+                        .getOperationSet(OperationSetPresence.class);
+
+                opSetPersPresence
+                    .removeSubscriptionListener(clSubscriptionEventHandler);
+            }
+        }
+        currentlyInstalledProviders.clear();
     }
 
     /**
@@ -1053,7 +1106,9 @@ public class MetaContactListServiceImpl
      */
     public void purgeLocallyStoredContactListCopy()
     {
+        this.storageManager.storeContactListAndStopStorageManager();
         this.storageManager.removeContactListFile();
+        logger.trace("Removed meta contact list storage file.");
     }
 
     /**
@@ -1185,10 +1240,10 @@ public class MetaContactListServiceImpl
         }
 
         presenceOpSet
-            .addSubsciptionListener(new ContactListSubscriptionListener());
+            .addSubsciptionListener(clSubscriptionEventHandler);
 
         presenceOpSet
-            .addServerStoredGroupChangeListener(new ContactListGroupListener());
+            .addServerStoredGroupChangeListener(clGroupEventHandler);
     }
 
     /**
@@ -2024,26 +2079,27 @@ public class MetaContactListServiceImpl
         logger.trace("Will dispatch the following mcl event: "
                      + evt);
 
+        Iterator listeners = null;
         synchronized (metaContactListListeners)
         {
-            Iterator listeners = this.metaContactListListeners
-                .iterator();
+            listeners = new ArrayList(metaContactListListeners).iterator();
+        }
 
-            while (listeners.hasNext())
+        while (listeners.hasNext())
+        {
+            MetaContactListListener listener
+                = (MetaContactListListener) listeners.next();
+
+            switch (evt.getEventID())
             {
-                MetaContactListListener listener
-                    = (MetaContactListListener) listeners.next();
-                switch (evt.getEventID())
-                {
-                    case MetaContactEvent.META_CONTACT_ADDED:
-                        listener.metaContactAdded(evt);
-                        break;
-                    case MetaContactEvent.META_CONTACT_REMOVED:
-                        listener.metaContactRemoved(evt);
-                        break;
-                    default:
-                        logger.error("Unknown event type " + evt.getEventID());
-                }
+                case MetaContactEvent.META_CONTACT_ADDED:
+                    listener.metaContactAdded(evt);
+                    break;
+                case MetaContactEvent.META_CONTACT_REMOVED:
+                    listener.metaContactRemoved(evt);
+                    break;
+                default:
+                    logger.error("Unknown event type " + evt.getEventID());
             }
         }
     }
@@ -2060,23 +2116,24 @@ public class MetaContactListServiceImpl
         logger.trace("Will dispatch the following mcl property change event: "
                      + event);
 
+        Iterator listeners = null;
         synchronized (metaContactListListeners)
         {
-            Iterator listeners = this.metaContactListListeners
-                .iterator();
+            listeners = new ArrayList(metaContactListListeners).iterator();
+        }
 
-            while (listeners.hasNext())
+        while (listeners.hasNext())
+        {
+            MetaContactListListener listener
+                = (MetaContactListListener) listeners.next();
+
+            if (event instanceof MetaContactMovedEvent)
             {
-                MetaContactListListener listener
-                    = (MetaContactListListener) listeners.next();
-                if (event instanceof MetaContactMovedEvent)
-                {
-                    listener.metaContactMoved((MetaContactMovedEvent)event);
-                }
-                else if (event instanceof MetaContactRenamedEvent)
-                {
-                    listener.metaContactRenamed((MetaContactRenamedEvent)event);
-                }
+                listener.metaContactMoved( (MetaContactMovedEvent) event);
+            }
+            else if (event instanceof MetaContactRenamedEvent)
+            {
+                listener.metaContactRenamed( (MetaContactRenamedEvent) event);
             }
         }
     }
@@ -2094,23 +2151,24 @@ public class MetaContactListServiceImpl
         logger.trace("Will dispatch the following mcl property change event: "
                      + event);
 
+        Iterator listeners = null;
         synchronized (metaContactListListeners)
         {
-            Iterator listeners = this.metaContactListListeners
-                .iterator();
+            listeners = new ArrayList(metaContactListListeners).iterator();
+        }
 
-            while (listeners.hasNext())
+        while (listeners.hasNext())
+        {
+            MetaContactListListener listener
+                = (MetaContactListListener) listeners.next();
+
+            if (event instanceof MetaContactMovedEvent)
             {
-                MetaContactListListener listener
-                    = (MetaContactListListener) listeners.next();
-                if (event instanceof MetaContactMovedEvent)
-                {
-                    listener.metaContactMoved((MetaContactMovedEvent)event);
-                }
-                else if (event instanceof MetaContactRenamedEvent)
-                {
-                    listener.metaContactRenamed((MetaContactRenamedEvent)event);
-                }
+                listener.metaContactMoved( (MetaContactMovedEvent) event);
+            }
+            else if (event instanceof MetaContactRenamedEvent)
+            {
+                listener.metaContactRenamed( (MetaContactRenamedEvent) event);
             }
         }
     }
@@ -2141,29 +2199,30 @@ public class MetaContactListServiceImpl
         logger.trace("Will dispatch the following mcl property change event: "
                      + event);
 
+        Iterator listeners = null;
         synchronized (metaContactListListeners)
         {
-            Iterator listeners = this.metaContactListListeners
-                .iterator();
+            listeners = new ArrayList(metaContactListListeners).iterator();
+        }
 
-            while (listeners.hasNext())
+        while (listeners.hasNext())
+        {
+            MetaContactListListener listener
+                = (MetaContactListListener) listeners.next();
+
+            if (eventName.equals(ProtoContactEvent.PROTO_CONTACT_ADDED))
             {
-                MetaContactListListener listener
-                    = (MetaContactListListener) listeners.next();
-                if (eventName.equals(ProtoContactEvent.PROTO_CONTACT_ADDED))
-                {
-                    listener.protoContactAdded(event);
-                }
-                else if (eventName.equals(ProtoContactEvent
-                                            .PROTO_CONTACT_MOVED))
-                {
-                    listener.protoContactMoved(event);
-                }
-                else if (eventName.equals(ProtoContactEvent
-                                            .PROTO_CONTACT_REMOVED))
-                {
-                    listener.protoContactRemoved(event);
-                }
+                listener.protoContactAdded(event);
+            }
+            else if (eventName.equals(ProtoContactEvent
+                                      .PROTO_CONTACT_MOVED))
+            {
+                listener.protoContactMoved(event);
+            }
+            else if (eventName.equals(ProtoContactEvent
+                                      .PROTO_CONTACT_REMOVED))
+            {
+                listener.protoContactRemoved(event);
             }
         }
     }
@@ -2357,41 +2416,43 @@ public class MetaContactListServiceImpl
         logger.trace("Will dispatch the following mcl event: "
                      + evt);
 
+
+
+        Iterator listeners = null;
         synchronized (metaContactListListeners)
         {
-            Iterator listeners = this.metaContactListListeners
-                .iterator();
+            listeners = new ArrayList(metaContactListListeners).iterator();
+        }
 
-            while (listeners.hasNext())
+        while (listeners.hasNext())
+        {
+            MetaContactListListener listener
+                = (MetaContactListListener) listeners.next();
+
+            switch (eventID)
             {
-                MetaContactListListener listenet
-                    = (MetaContactListListener) listeners.next();
-
-                switch (eventID)
-                {
-                    case MetaContactGroupEvent.META_CONTACT_GROUP_ADDED:
-                        listenet.metaContactGroupAdded(evt);
-                        break;
-                    case MetaContactGroupEvent.META_CONTACT_GROUP_REMOVED:
-                        listenet.metaContactGroupRemoved(evt);
-                        break;
-                    case MetaContactGroupEvent.CHILD_CONTACTS_REORDERED:
-                        listenet.childContactsReordered(evt);
-                        break;
-                    case MetaContactGroupEvent
-                        .META_CONTACT_GROUP_RENAMED:
-                    case MetaContactGroupEvent
-                        .CONTACT_GROUP_RENAMED_IN_META_GROUP:
-                    case MetaContactGroupEvent
-                        .CONTACT_GROUP_REMOVED_FROM_META_GROUP:
-                    case MetaContactGroupEvent
-                        .CONTACT_GROUP_ADDED_TO_META_GROUP:
-                        listenet.metaContactGroupModified(evt);
-                        break;
-                    default:
-                        logger.error("Unknown event type (" + eventID
-                                     + ") for event: " + evt);
-                }
+                case MetaContactGroupEvent.META_CONTACT_GROUP_ADDED:
+                    listener.metaContactGroupAdded(evt);
+                    break;
+                case MetaContactGroupEvent.META_CONTACT_GROUP_REMOVED:
+                    listener.metaContactGroupRemoved(evt);
+                    break;
+                case MetaContactGroupEvent.CHILD_CONTACTS_REORDERED:
+                    listener.childContactsReordered(evt);
+                    break;
+                case MetaContactGroupEvent
+                    .META_CONTACT_GROUP_RENAMED:
+                case MetaContactGroupEvent
+                    .CONTACT_GROUP_RENAMED_IN_META_GROUP:
+                case MetaContactGroupEvent
+                    .CONTACT_GROUP_REMOVED_FROM_META_GROUP:
+                case MetaContactGroupEvent
+                    .CONTACT_GROUP_ADDED_TO_META_GROUP:
+                    listener.metaContactGroupModified(evt);
+                    break;
+                default:
+                    logger.error("Unknown event type (" + eventID
+                                 + ") for event: " + evt);
             }
         }
     }
