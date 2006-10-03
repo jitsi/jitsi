@@ -298,6 +298,20 @@ public class SipRegistrarConnection
             = sipProvider.getRegistrationContactHeader(
                 registrarAddress, getRegistrarListeningPoint());
 
+        //add expires in the contact header as well in case server likes it
+        //better there.
+        try
+        {
+            contactHeader.setExpires(registrationsExpiration);
+        }
+        catch (InvalidArgumentException exc)
+        {
+            logger.error("Failed to add an expires param ("+
+                         registrationsExpiration + ") to a contact header."
+                         +"will ignore error"
+                         ,exc);
+        }
+
         request.addHeader(contactHeader);
         //Transaction
         ClientTransaction regTrans = null;
@@ -357,16 +371,36 @@ public class SipRegistrarConnection
     {
         FromHeader fromHeader =
             ( (FromHeader) response.getHeader(FromHeader.NAME));
-        Address address = fromHeader.getAddress();
 
-        //check if the registrar has touched our expiration timeout
-        int expires = registrationsExpiration;
 
-        ExpiresHeader expiresHeader = response.getExpires();
+
+        //first extract the expires value that we requested
+        int requestedExpiration = 0;
+        Request register = clientTransatcion.getRequest();
+        ExpiresHeader expiresHeader = register.getExpires();
+
+        if (expiresHeader != null)
+            requestedExpiration = expiresHeader.getExpires();
+        else
+        {
+            //if there is no expires header check the contact header
+            ContactHeader contactHeader = (ContactHeader) register
+                .getHeader(ContactHeader.NAME);
+            if (contactHeader != null)
+                requestedExpiration = contactHeader.getExpires();
+            else
+                requestedExpiration = 0;
+        }
+
+        //now check if the registrar has touched our expiration timeout in its
+        //response
+        int grantedExpiration = registrationsExpiration;
+
+        expiresHeader = response.getExpires();
 
         if (expiresHeader != null)
         {
-            expires = expiresHeader.getExpires();
+            grantedExpiration = expiresHeader.getExpires();
         }
         else
         {
@@ -375,34 +409,24 @@ public class SipRegistrarConnection
                 ContactHeader.NAME);
             if (contactHeader != null)
             {
-                expires = contactHeader.getExpires();
+                grantedExpiration = contactHeader.getExpires();
             }
             //else - we simply reuse the expires timeout we stated in our last
             //request
             else
             {
-                Request register = clientTransatcion.getRequest();
-                expiresHeader = register.getExpires();
-
-                if (expiresHeader != null)
-                    expires = expiresHeader.getExpires();
-                else
-                {
-                    //if there is no expires header check the contact header
-                    contactHeader = (ContactHeader)register
-                        .getHeader(ContactHeader.NAME);
-                    if (contactHeader != null)
-                        expires = contactHeader.getExpires();
-                    else
-                        expires = 0;}
-
+                grantedExpiration = requestedExpiration;
             }
         }
 
         //If this is a respond to a REGISTER request ending our registration
         //then expires would be 0.
         //fix by Luca Bincoletto <Luca.Bincoletto@tilab.com>
-        if (expires <= 0)
+
+        //we also take into account the requested expiration since if it was 0
+        //we don't really care what the server replied (I have an asterisk here
+        //that gives me 3600 even if I request 0).
+        if (grantedExpiration <= 0 || requestedExpiration <= 0)
         {
             setRegistrationState(RegistrationState.UNREGISTERED
                 , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
@@ -411,7 +435,7 @@ public class SipRegistrarConnection
         else
         {
             //schedule a reregistration.
-            scheduleReRegistration(expires);
+            scheduleReRegistration(grantedExpiration);
 
             setRegistrationState(
                 RegistrationState.REGISTERED
@@ -473,6 +497,22 @@ public class SipRegistrarConnection
                 "Unable to set Expires Header"
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
+        }
+
+        //also set the expires param in the contact header in case server
+        //prefers it this way.
+        ContactHeader contact
+            = (ContactHeader)unregisterRequest.getHeader(ContactHeader.NAME);
+        try
+        {
+            contact.setExpires(0);
+        }
+        catch (InvalidArgumentException exc)
+        {
+            logger.error("Failed to add an expires param ("+
+                         registrationsExpiration + ") to a contact header."
+                         +"will ignore error"
+                         ,exc);
         }
 
         ClientTransaction unregisterTransaction = null;
