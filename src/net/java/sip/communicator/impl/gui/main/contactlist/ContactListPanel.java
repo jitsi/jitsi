@@ -540,7 +540,8 @@ public class ContactListPanel extends JScrollPane
      *
      * @param metaContact the contact whose status we will be updating
      */
-    public void updateChatContactStatus(MetaContact metaContact) {
+    public void updateChatContactStatus(
+            MetaContact metaContact, Contact protoContact) {
 
         ContactListModel listModel = (ContactListModel) this.getContactList()
                 .getModel();
@@ -550,7 +551,7 @@ public class ContactListPanel extends JScrollPane
                 ChatWindow msgWindow = (ChatWindow) contactMsgWindows
                         .get(metaContact);
                 msgWindow.getCurrentChatPanel().updateContactStatus(
-                        listModel.getMetaContactStatus(metaContact));
+                        protoContact);
             }
         } else if (tabbedChatWindow != null) {
 
@@ -565,8 +566,7 @@ public class ContactListPanel extends JScrollPane
                     tabbedChatWindow.setTabIcon(metaContact, listModel
                             .getMetaContactStatusIcon(metaContact));
                 }
-                chatPanel.updateContactStatus(listModel
-                        .getMetaContactStatus(metaContact));
+                chatPanel.updateContactStatus(protoContact);
             }
         }
     }
