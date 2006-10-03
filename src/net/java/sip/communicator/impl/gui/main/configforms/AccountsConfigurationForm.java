@@ -270,42 +270,42 @@ public class AccountsConfigurationForm extends JPanel
                             JOptionPane.YES_NO_CANCEL_OPTION);
                     
                     if(result == JOptionPane.YES_OPTION) {
-                        
                         ConfigurationService configService
-                            = GuiActivator.getConfigurationService();
+                        = GuiActivator.getConfigurationService();
+                    
+                    String prefix
+                        = "net.java.sip.communicator.impl.ui.accounts";
+                    
+                    List accounts = configService
+                            .getPropertyNamesByPrefix(prefix, true);
+                    
+                    Iterator accountsIter = accounts.iterator();
+                    
+                    while(accountsIter.hasNext()) {
                         
-                        String prefix = "net.java.sip.communicator.impl.ui.accounts";
+                        String accountRootPropName 
+                            = (String) accountsIter.next();
                         
-                        List accounts = configService
-                                .getPropertyNamesByPrefix(prefix, true);
+                        String accountUID 
+                            = configService.getString(accountRootPropName);
                         
-                        Iterator accountsIter = accounts.iterator();
-                        
-                        while(accountsIter.hasNext()) {
+                        if(accountUID.equals(protocolProvider
+                                .getAccountID().getAccountUniqueID())) {
                             
-                            String accountRootPropName 
-                                = (String) accountsIter.next();
-                            
-                            String accountUID 
-                                = configService.getString(accountRootPropName);
-                            
-                            if(accountUID.equals(protocolProvider
-                                    .getAccountID().getAccountUniqueID())) {
-                                
-                                configService.setProperty(
-                                    accountRootPropName,
-                                    null);
-                            }
+                            configService.setProperty(
+                                accountRootPropName,
+                                null);
+                            break;
                         }
-                        
-                        providerFactory.uninstallAccount(
+                    }
+                    providerFactory.uninstallAccount(
                                 protocolProvider.getAccountID());
                     }
                 }
             }
         }
     }
-    
+   
 
     /**
      * Implements the <tt>ServiceListener</tt> method. Verifies whether the
