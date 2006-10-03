@@ -1087,12 +1087,13 @@ public class MetaContactListServiceImpl
         ContactGroup groupToRemove,
         ProtocolProviderService sourceProvider)
     {
-        metaContainer.removeProtoGroup(groupToRemove);
+
 
         //go through all meta contacts and remove all contats that belong to the
         //same provider and are therefore children of the group that is being
         //removed
-        locallyRemoveAllContactsForProvider(metaContainer, sourceProvider);
+        locallyRemoveAllContactsForProvider(metaContainer
+                                            , groupToRemove);
 
         fireMetaContactGroupEvent(metaContainer, sourceProvider, groupToRemove
             , MetaContactGroupEvent.CONTACT_GROUP_REMOVED_FROM_META_GROUP);
@@ -1113,19 +1114,21 @@ public class MetaContactListServiceImpl
 
     /**
      * Goes through the specified group and removes from all meta contacts,
-     * protocol specific contacts belonging to the specified provider. Note
-     * that this method won't undertake any calls to the protocol itself as
-     * it is used only to update the local contact list as a result of a
-     * server generated event.
+     * protocol specific contacts belonging to the specified
+     * <tt>groupToRemove</tt>. Note that this method won't undertake any calls
+     * to the protocol itself as it is used only to update the local contact
+     * list as a result of a server generated event.
      *
-     * @param parent  the MetaContactGroup whose children we should go through
-     * @param sourceProvider the ProtocolProviderService whose contacts we'd
-     * like deleted from <tt>parent</tt>.
+     * @param parentMetaGroup  the MetaContactGroup whose children we should go
+     * through
+     * @param groupToRemove the proto group that we want removed together with
+     * its children.
      */
     private void locallyRemoveAllContactsForProvider(
-        MetaContactGroupImpl parent, ProtocolProviderService sourceProvider)
+                        MetaContactGroupImpl parentMetaGroup,
+                        ContactGroup         groupToRemove)
     {
-        Iterator childrenContactsIter = parent.getChildContacts();
+        Iterator childrenContactsIter = parentMetaGroup.getChildContacts();
 
         //first go through all direct children.
         while (childrenContactsIter.hasNext())
@@ -1136,17 +1139,17 @@ public class MetaContactListServiceImpl
             //Get references to all contacts that will be removed in case we
             //need to fire an event.
             Iterator contactsToRemove
-                = child.getContactsForProvider(sourceProvider);
+                = child.getContactsForContactGroup(groupToRemove);
 
-            child.removeContactsForProvider(sourceProvider);
+            child.removeContactsForGroup(groupToRemove);
 
             //if this was the last proto contact inside this meta contact,
             //then remove the meta contact as well. Otherwise only fire an
             //event.
             if (child.getContactCount() == 0)
             {
-                parent.removeMetaContact(child);
-                fireMetaContactEvent(child, parent
+                parentMetaGroup.removeMetaContact(child);
+                fireMetaContactEvent(child, parentMetaGroup
                                      , MetaContactEvent.META_CONTACT_REMOVED);
             }
             else
@@ -1165,6 +1168,41 @@ public class MetaContactListServiceImpl
                 }
             }
         }
+
+        Iterator subgroupsIter = parentMetaGroup.getSubgroups();
+
+        //then go through all subgroups.
+        while (subgroupsIter.hasNext())
+        {
+            MetaContactGroupImpl subMetaGroup
+                = (MetaContactGroupImpl)subgroupsIter.next();
+
+            Iterator contactGroups = subMetaGroup.getContactGroups();
+
+            ContactGroup protoGroup = null;
+            while(contactGroups.hasNext())
+            {
+                protoGroup = (ContactGroup)contactGroups.next();
+                if(groupToRemove == protoGroup.getParentContactGroup())
+                    this.locallyRemoveAllContactsForProvider(
+                            subMetaGroup, protoGroup);
+            }
+
+            //remove the group if there are no children left.
+            if(subMetaGroup.countSubgroups() == 0
+               && subMetaGroup.countChildContacts() == 0)
+            {
+                parentMetaGroup.removeSubgroup(subMetaGroup);
+                fireMetaContactGroupEvent(
+                    subMetaGroup
+                    , groupToRemove.getProtocolProvider()
+                    , protoGroup
+                    , MetaContactGroupEvent.META_CONTACT_GROUP_REMOVED);
+
+            }
+        }
+
+        parentMetaGroup.removeProtoGroup(groupToRemove);
     }
 
     /**
@@ -1643,6 +1681,45 @@ public class MetaContactListServiceImpl
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
+
+            ProtocolProviderService provider =
+                (ProtocolProviderService)sService;
+            //first check if the event really means that the accounts is
+            //uninstalled (or is it just stopped ... e.g. we could be shutting
+            //down) ... before that however, we'd need to get a reference to
+            //the service.
+            ProtocolProviderFactory sourceFactory = null;
+
+            ServiceReference[] allBundleServices
+                = event.getServiceReference().getBundle()
+                    .getRegisteredServices();
+
+            for (int i = 0; i < allBundleServices.length; i++)
+            {
+                Object service = bundleContext.getService(allBundleServices[i]);
+                if(service instanceof ProtocolProviderFactory)
+                {
+                    sourceFactory = (ProtocolProviderFactory) service;
+                    break;
+                }
+            }
+
+            if(sourceFactory == null)
+            {
+                //strange ... we must be shutting down. just bail
+                return;
+            }
+
+            if(sourceFactory.getRegisteredAccounts().contains(
+                provider.getAccountID()))
+            {
+                //the account is still installed. we don't need to do anything.
+                return;
+            }
+
+            logger.debug("Account uninstalled. acc.id="
+                         +provider.getAccountID() +". Removing from meta "
+                         +"contact list.");
             this
                 .handleProviderRemoved( (ProtocolProviderService) sService);
         }
