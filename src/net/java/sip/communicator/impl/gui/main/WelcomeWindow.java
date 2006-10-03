@@ -60,7 +60,7 @@ public class WelcomeWindow extends JDialog
         this.bc = context;
         this.communicator = c;
         this.loginManager = loginManager;
-        
+
         this.exitButton.setMnemonic(
                 Messages.getString("mnemonic.exit").charAt(0));
         this.continueButton.setMnemonic(
@@ -185,8 +185,8 @@ public class WelcomeWindow extends JDialog
                 this.bc.getBundle(0).stop();
             } catch (BundleException ex) {
                 logger.error("Failed to gently shutdown Oscar", ex);
+                System.exit(0);
             }
-            System.exit(0);
         }
     }
 
@@ -223,8 +223,8 @@ public class WelcomeWindow extends JDialog
                 bc.getBundle(0).stop();
             } catch (BundleException ex) {
                 logger.error("Failed to gently shutdown Oscar", ex);
+                System.exit(0);
             }
-            System.exit(0);
         }
     };
 }
