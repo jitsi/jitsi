@@ -131,9 +131,10 @@ public abstract class ProtocolProviderFactory
                NullPointerException;
 
     /**
-     * Returns a copy of the list containing all accounts currently registered
-     * in this protocol provider.
-     * @return ArrayList
+     * Returns a copy of the list containing the <tt>AccoudID</tt>s of all
+     * accounts currently registered in this protocol provider.
+     * @return a copy of the list containing the <tt>AccoudID</tt>s of all
+     * accounts currently registered in this protocol provider.
      */
     public abstract ArrayList getRegisteredAccounts();
 
