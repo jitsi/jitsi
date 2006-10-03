@@ -136,8 +136,8 @@ public class TestOperationSetBasicTelephonySipImpl
             = new CallParticipantStateEventCollector(
                 participantAtP2, CallParticipantState.INCOMING_CALL);
 
-        stateCollectorForPp1.waitForEvent(10000);
-        stateCollectorForPp2.waitForEvent(10000);
+        stateCollectorForPp1.waitForEvent(10000, true);
+        stateCollectorForPp2.waitForEvent(10000, true);
 
         assertSame("participantAtP1.getCall"
                    , participantAtP1.getCall(), callAtP1);
@@ -153,6 +153,7 @@ public class TestOperationSetBasicTelephonySipImpl
                      +"right state."
                     , CallParticipantState.INCOMING_CALL
                     , participantAtP2.getState());
+
 
         //test whether caller/callee info is properly distributed in case
         //the server is said to support it.
@@ -201,7 +202,6 @@ public class TestOperationSetBasicTelephonySipImpl
                          + "display name."
                          , expectedParticipant2DisplayName
                          , participantAtP2.getDisplayName());
-
         }
 
         //we'll now try to cancel the call
@@ -366,8 +366,8 @@ public class TestOperationSetBasicTelephonySipImpl
             = new CallParticipantStateEventCollector(
                 participantAtP2, CallParticipantState.INCOMING_CALL);
 
-        stateCollectorForPp1.waitForEvent(10000);
-        stateCollectorForPp2.waitForEvent(10000);
+        stateCollectorForPp1.waitForEvent(10000, true);
+        stateCollectorForPp2.waitForEvent(10000, true);
 
         assertSame("participantAtP1.getCall"
                    , participantAtP1.getCall(), callAtP1);
@@ -383,6 +383,7 @@ public class TestOperationSetBasicTelephonySipImpl
                      +"right state."
                     , CallParticipantState.INCOMING_CALL
                     , participantAtP2.getState());
+
 
         //test whether caller/callee info is properly distributed in case
         //the server is said to support it.
@@ -891,10 +892,10 @@ public class TestOperationSetBasicTelephonySipImpl
                 logger.debug(
                     "Collected evt("+collectedEvents.size()+")= "+event);
 
-                this.collectedEvents.add(event);
                 if(((CallParticipantState)event.getNewValue())
                     .equals(awaitedState))
                 {
+                    this.collectedEvents.add(event);
                     notifyAll();
                 }
             }
@@ -1036,9 +1037,9 @@ public class TestOperationSetBasicTelephonySipImpl
                 logger.debug(
                     "Collected evt("+collectedEvents.size()+")= "+event);
 
-                this.collectedEvents.add(event);
                 if(((CallState)event.getNewValue()).equals(awaitedState))
                 {
+                    this.collectedEvents.add(event);
                     notifyAll();
                 }
             }
