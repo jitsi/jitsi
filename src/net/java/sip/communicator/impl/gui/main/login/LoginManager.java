@@ -361,7 +361,7 @@ public class LoginManager
      */
     private void handleProviderRemoved(
             ProtocolProviderService protocolProvider) {        
-        this.mainFrame.removeAccount(protocolProvider);
+        this.mainFrame.removeProtocolProvider(protocolProvider);
     }
 
     public boolean isManuallyDisconnected()
