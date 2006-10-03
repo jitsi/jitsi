@@ -192,16 +192,34 @@ public class MetaContactImpl
     }
 
     /**
-     * Currently simply returns the first contact in the list of proto spec.
-     * contacts. We should do this more inteligently though and have it
-     * chose according to preconfigured preferences.
+     * Currently simply returns the most connected protocol contact. We should
+     * add the possibility to choose it also according to preconfigured
+     * preferences.
      *
      * @return the default <tt>Contact</tt> to use when communicating with
      *   this <tt>MetaContact</tt>
      */
     public Contact getDefaultContact()
     {
-        return (Contact)this.protoContacts.get(0);
+        PresenceStatus currentStatus = null;
+        Contact defaultContact = null;
+        for(int i = 0; i < this.protoContacts.size(); i++) {
+            Contact protoContact = (Contact)this.protoContacts.get(i);
+            
+            PresenceStatus contactStatus = protoContact.getPresenceStatus();
+            
+            if(currentStatus != null) {
+                if(currentStatus.getStatus() < contactStatus.getStatus()) {
+                    currentStatus = contactStatus;
+                    defaultContact = protoContact; 
+                }
+            }
+            else {
+                currentStatus = contactStatus;
+                defaultContact = protoContact;
+            }
+        }
+        return defaultContact;
     }
 
     /**
