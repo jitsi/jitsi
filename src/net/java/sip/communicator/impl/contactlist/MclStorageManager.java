@@ -54,6 +54,12 @@ public class MclStorageManager
     private boolean started = false;
 
     /**
+     * Indicates whether there has been a change since the last time we stored
+     * this contact list. Used by the storage methods.
+     */
+    private boolean isModified = false;
+
+    /**
      * A currently valid reference to the OSGI bundle context,
      */
     private BundleContext     bundleContext = null;
@@ -188,6 +194,12 @@ public class MclStorageManager
     private static final String CHILD_CONTACTS_NODE_NAME = "child-contacts";
 
     /**
+     * A lock that we use when storing the contact list to avoid being exited
+     * while in there.
+     */
+    private static final Object contactListRWLock = new Object();
+
+    /**
      * Determines whether the storage manager has been properly started or in
      * other words that it has successfully found and read the xml contact list
      * file.
@@ -270,7 +282,9 @@ public class MclStorageManager
                 //if the contact list does not exist - create it.
                 contactListDocument = builder.newDocument();
                 initVirginDocument(mclServiceImpl, contactListDocument);
-                storeContactList();
+
+                //write the contact list so that it is there for the parser
+                storeContactList0();
             }
             else
             {
@@ -289,6 +303,7 @@ public class MclStorageManager
             logger.error("Error finding configuration for default parsers", ex);
         }
 
+        this.launchStorageThread();
         mclServiceImpl.addMetaContactListListener(this);
         this.mclServiceImpl = mclServiceImpl;
         started = true;
@@ -298,13 +313,108 @@ public class MclStorageManager
      * Stores the contact list in its current state.
      * @throws IOException if writing fails.
      */
-    private void storeContactList() throws IOException
+    private void scheduleContactListStorage() throws IOException
     {
-        if(!isStarted())
-            return;
+        synchronized(this.contactListRWLock)
+        {
+            if (!isStarted())
+                return;
 
-        XMLUtils.indentedWriteXML(this.contactListDocument
-                                  , new FileWriter( this.contactlistFile));
+            this.isModified = true;
+            this.contactListRWLock.notifyAll();
+        }
+    }
+
+    /**
+     * Writes the contact list on the hard disk.
+     * @throws IOException in case writing fails.
+     */
+    private void storeContactList0() throws IOException
+    {
+        logger.trace("storing contact list. because is started =="
+                     + isStarted());
+        logger.trace("storing contact list. because is modified =="
+                     + isModified);
+        XMLUtils.indentedWriteXML( contactListDocument
+                                   , new FileWriter(contactlistFile));
+    }
+
+    /**
+     * Launches a separate thread that waits on the contact list rw lock and
+     * when notified stores the contact list in case there have been
+     * modifications since last time it saved.
+     */
+    private void launchStorageThread()
+    {
+        new Thread()
+        {
+            public void run()
+            {
+                try
+                {
+                    synchronized (contactListRWLock)
+                    {
+                        while(isStarted())
+                        {
+                            contactListRWLock.wait(5000);
+                            if (isModified)
+                            {
+                                storeContactList0();
+                                isModified = false;
+                            }
+                        }
+                    }
+                }
+                catch (IOException ex)
+                {
+                    logger.error("Storing contact list failed", ex);
+                    started = false;
+                }
+                catch (InterruptedException ex)
+                {
+                    logger.error("Storing contact list failed", ex);
+                    started = false;
+                }
+
+            }
+        }.start();
+    }
+
+    /**
+     * Returns the object that we use to lock when writing the contact list.
+     * @return the object that we use to lock when writing the contact list.
+     */
+    public Object getContactListRWLock()
+    {
+        return contactListRWLock;
+    }
+
+    /**
+     * Stops the storage manager and performs a final write
+     */
+    public void storeContactListAndStopStorageManager()
+    {
+
+        synchronized(getContactListRWLock())
+        {
+            if (!isStarted())
+                return;
+
+            started = false;
+
+            //make sure everyone gets released after we finish.
+            getContactListRWLock().notifyAll();
+
+            //write the contact list ourselves before we go out..
+            try
+            {
+                storeContactList0();
+            }
+            catch (IOException ex)
+            {
+                logger.debug("Failed to store contact list before stopping", ex);
+            }
+        }
     }
 
     /**
@@ -591,12 +701,12 @@ public class MclStorageManager
                                     , currentMetaGroup
                                     , protoGroupsMap);
             }
-            catch(Throwable t)
+            catch(Throwable throwable)
             {
                 //catch everything and bravely continue with remaining groups
                 //and contacts
                 logger.error("Failed to process group node " + currentGroupNode
-                             , t);
+                             , throwable);
             }
         }
     }
@@ -864,7 +974,7 @@ public class MclStorageManager
         parentGroupNode.appendChild(metaContactElement);
 
         try{
-            storeContactList();
+            scheduleContactListStorage();
         }
         catch (IOException ex){
             /**given we're being invoked from an event dispatch thread that was
@@ -913,7 +1023,7 @@ public class MclStorageManager
 
         try
         {
-            storeContactList();
+            scheduleContactListStorage();
         }
         catch (IOException ex)
         {
@@ -947,7 +1057,7 @@ public class MclStorageManager
         metaContactGroupNode.getParentNode().removeChild(metaContactGroupNode);
 
         try{
-            storeContactList();
+            scheduleContactListStorage();
         }
         catch (IOException ex){
             /**given we're being invoked from an event dispatch thread that was
@@ -997,7 +1107,7 @@ public class MclStorageManager
         childContacts.appendChild(metaContactNode);
 
         try{
-            storeContactList();
+            scheduleContactListStorage();
         }
         catch (IOException ex){
             /**given we're being invoked from an event dispatch thread that was
@@ -1079,7 +1189,7 @@ public class MclStorageManager
         metaContactNode.getParentNode().removeChild(metaContactNode);
 
         try{
-            storeContactList();
+            scheduleContactListStorage();
         }
         catch (IOException ex){
             /**given we're being invoked from an event dispatch thread that was
@@ -1117,7 +1227,7 @@ public class MclStorageManager
         updatePersistentDataForMetaContact(evt.getSourceMetaContact());
 
         try{
-            storeContactList();
+            scheduleContactListStorage();
         }
         catch (IOException ex){
             /**given we're being invoked from an event dispatch thread that was
@@ -1157,7 +1267,7 @@ public class MclStorageManager
 
         try
         {
-            storeContactList();
+            scheduleContactListStorage();
         }
         catch (IOException ex)
         {
@@ -1241,7 +1351,7 @@ public class MclStorageManager
 
         try
         {
-            storeContactList();
+            scheduleContactListStorage();
         }
         catch (IOException ex)
         {
@@ -1280,7 +1390,7 @@ public class MclStorageManager
 
         try
         {
-            storeContactList();
+            scheduleContactListStorage();
         }
         catch (IOException ex)
         {
@@ -1335,7 +1445,7 @@ public class MclStorageManager
 
         try
         {
-            storeContactList();
+            scheduleContactListStorage();
         }
         catch (IOException ex)
         {
