@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.account;
 
 import java.io.*;
 import java.util.*;
+
 import javax.imageio.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -262,22 +263,49 @@ public class AccountRegWizardContainerImpl extends Wizard
      */
     public void addAccountWizard(
             ProtocolProviderService protocolProvider,
-            AccountRegistrationWizard wizard) {
-        
-        String accNodeName
-            = "acc" + Long.toString(System.currentTimeMillis());
-        
-        String wizardClassName = wizard.getClass()
-            .getName().replace('.', '_');
-        
-        String accountPackage = "net.java.sip.communicator.impl.ui.accounts."
-                                + accNodeName;
-        
-        configService.setProperty(accountPackage, 
-                protocolProvider.getAccountID().getAccountUniqueID());
-        
-        configService.setProperty(accountPackage+".WIZARD",
-                wizardClassName);
+            AccountRegistrationWizard wizard)
+    {
+        String prefix = "net.java.sip.communicator.impl.ui.accounts";
+
+        List accounts = configService
+                .getPropertyNamesByPrefix(prefix, true);
+
+        boolean savedAccount = false;
+        Iterator accountsIter = accounts.iterator();
+
+        while(accountsIter.hasNext()) {
+            String accountRootPropName
+                = (String) accountsIter.next();
+
+            String accountUID
+                = configService.getString(accountRootPropName);
+
+            if(accountUID.equals(protocolProvider
+                    .getAccountID().getAccountUniqueID())) {
+
+                configService.setProperty(
+                        accountRootPropName + ".wizard",
+                        wizard);
+
+                savedAccount = true;
+            }
+        }
+
+        if(!savedAccount) {
+            String accNodeName
+                = "acc" + Long.toString(System.currentTimeMillis());
+
+            String accountPackage
+                = "net.java.sip.communicator.impl.ui.accounts."
+                        + accNodeName;
+
+            configService.setProperty(accountPackage,
+                    protocolProvider.getAccountID().getAccountUniqueID());
+
+            configService.setProperty(
+                    accountPackage+".wizard",
+                    wizard);
+        }
     }
 
     /**
