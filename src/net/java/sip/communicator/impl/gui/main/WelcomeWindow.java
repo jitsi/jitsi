@@ -88,7 +88,7 @@ public class WelcomeWindow extends JDialog
         this.windowBackground.setBorder(BorderFactory.createEmptyBorder(5, 10,
                 5, 5));
 
-        this.setDefaultCloseOperation(JDialog.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         this.addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e) {

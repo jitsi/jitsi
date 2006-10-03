@@ -92,7 +92,7 @@ public class MainFrame
 
         this.addWindowListener(new MainFrameWindowAdapter());
 
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setInitialBounds();
 
         this.setTitle(Messages.getString("sipCommunicator"));
@@ -562,7 +562,7 @@ public class MainFrame
         public void outgoingCallCreated(CallEvent event)
         {
             // TODO Auto-generated method stub
-            
+
         }
 
     }
