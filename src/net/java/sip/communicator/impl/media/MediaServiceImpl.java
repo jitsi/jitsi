@@ -117,14 +117,23 @@ public class MediaServiceImpl
      * offers/answers requested for the call that the original call participant
      * belonged to will receive the same IP/port couple as the first one in
      * order to allow conferencing. The associated port will be released once
-     * the call has ended. See RFC3264 for details on Offer/Answer model with SDP.
+     * the call has ended. See RFC3264 for details on Offer/Answer model with
+     * SDP.
      *
      * @param callParticipant the call participant meant to receive the offer
      * @return a String containing an SDP offer.
      */
     public String generateSdpAnswer(CallParticipant callParticipant)
     {
-        return "";
+        String testSdp = "v=0\n"
+            + "o=emcho 0 0 IN IP4 192.168.100.101\n"
+            + "s=-\n"
+            + "c=IN IP4 192.168.100.101\n"
+            + "t=0 0\n"
+            + "m=audio 22224 RTP/AVP 0 3 4 5 6 8 15 18\n"
+            + "m=video 22222 RTP/AVP 26 34 31\n";
+
+        return testSdp;
     }
 
     /**

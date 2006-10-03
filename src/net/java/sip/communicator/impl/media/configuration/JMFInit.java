@@ -105,29 +105,29 @@ public class JMFInit
         logger.info("Looking for video capture devices");
         Class auto = null;
         Class autoPlus = null;
-//        try {
-//            auto = Class.forName(
-//                    "net.java.sip.communicator.impl.media.configuration.VFWAuto");
-//        }
-//        catch (Exception e) {
-//            logger.warn("VFWAuto capturer detection failed!", e);
-//        }
-//        if (auto == null) {
-//            try {
-//                auto = Class.forName(
-//                        "net.java.sip.communicator.impl.media.configuration.SunVideoAuto");
-//            }
-//            catch (Exception ee) {
-//              logger.warn("SunVideoAuto capturer detection failed!", ee);
-//            }
-//            try {
-//                autoPlus = Class.forName(
-//                        "net.java.sip.communicator.impl.media.configuration.SunVideoPlusAuto");
-//            }
-//            catch (Exception ee) {
-//              logger.warn("SunVideoPlusAuto capturer detection failed!", ee);
-//            }
-//        }
+        try {
+            auto = Class.forName(
+                    "net.java.sip.communicator.impl.media.configuration.VFWAuto");
+        }
+        catch (Exception e) {
+            logger.warn("VFWAuto capturer detection failed!", e);
+        }
+        if (auto == null) {
+            try {
+                auto = Class.forName(
+                        "net.java.sip.communicator.impl.media.configuration.SunVideoAuto");
+            }
+            catch (Exception ee) {
+              logger.warn("SunVideoAuto capturer detection failed!", ee);
+            }
+            try {
+                autoPlus = Class.forName(
+                        "net.java.sip.communicator.impl.media.configuration.SunVideoPlusAuto");
+            }
+            catch (Exception ee) {
+              logger.warn("SunVideoPlusAuto capturer detection failed!", ee);
+            }
+        }
         if (auto == null) {
             try {
                 auto = Class.forName(

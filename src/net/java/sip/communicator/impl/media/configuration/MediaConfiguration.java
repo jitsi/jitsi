@@ -116,7 +116,8 @@ public class MediaConfiguration
         }
         else {
             audioCaptureDevice = (CaptureDeviceInfo) audioCaptureDevices.get(0);
-            logger.info("Found " + audioCaptureDevice.getName() +" as an audio capture device.");
+            logger.info("Found " + audioCaptureDevice.getName()
+                        +" as an audio capture device.");
         }
 
         logger.info("Scanning for configured Video Devices.");
@@ -124,7 +125,8 @@ public class MediaConfiguration
                 VideoFormat(VideoFormat.RGB));
         if (videoCaptureDevices.size() > 0) {
             videoCaptureDevice = (CaptureDeviceInfo) videoCaptureDevices.get(0);
-            logger.info("Found " + videoCaptureDevice.getName() + " as an RGB Video Device.");
+            logger.info("Found " + videoCaptureDevice.getName()
+                        + " as an RGB Video Device.");
         }
         // no RGB camera found. And what about YUV ?
         else
@@ -132,11 +134,13 @@ public class MediaConfiguration
             videoCaptureDevices = CaptureDeviceManager.getDeviceList(new
                     VideoFormat(VideoFormat.YUV));
             if (videoCaptureDevices.size() > 0) {
-                videoCaptureDevice = (CaptureDeviceInfo) videoCaptureDevices.get(0);
-                logger.info("Found " + videoCaptureDevice.getName() + " as an YUV Video Device.");
+                videoCaptureDevice
+                    = (CaptureDeviceInfo) videoCaptureDevices.get(0);
+                logger.info("Found " + videoCaptureDevice.getName()
+                            + " as an YUV Video Device.");
             }
             else {
-                logger.error("No Video Device was found.");
+                logger.info("No Video Device was found.");
                 videoCaptureDevice = null;
                 setVideoTransmission(false);
             }
