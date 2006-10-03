@@ -115,6 +115,36 @@ public class MetaContactImpl
     }
 
     /**
+     * Returns contacts, encapsulated by this MetaContact and belonging to
+     * the specified protocol ContactGroup.
+     * <p>
+     * In order to prevent problems with concurrency, the <tt>Iterator</tt>
+     * returned by this method is not be over the actual list of contacts but
+     * over a copy of that list.
+     *
+     * @param parentProtoGroup a reference to the <tt>ContactGroup</tt>
+     *   whose children we'd like removed..
+     * @return an Iterator over all <tt>Contact</tt>s encapsulated in this
+     * <tt>MetaContact</tt> and belonging to the specified proto ContactGroup.
+     */
+    public Iterator getContactsForContactGroup(ContactGroup parentProtoGroup)
+    {
+        Iterator contactsIter = protoContacts.iterator();
+        LinkedList providerContacts = new LinkedList();
+
+        while (contactsIter.hasNext())
+        {
+            Contact contact = (Contact)contactsIter.next();
+
+            if(contact.getParentContactGroup() == parentProtoGroup)
+                providerContacts.add( contact );
+        }
+
+        return providerContacts.iterator();
+    }
+
+
+    /**
      * Returns a contact encapsulated by this meta contact, having the specified
      * contactAddress and coming from the indicated ownerProvider.
      * <p>
@@ -393,6 +423,34 @@ public class MetaContactImpl
 
         return modified;
     }
+
+    /**
+     * Removes all proto contacts that belong to the specified protocol group.
+     *
+     * @param group the group whose children we want removed.
+     *
+     * @return true if this <tt>MetaContact</tt> was modified and false
+     * otherwise.
+     */
+    boolean removeContactsForGroup(ContactGroup protoGroup)
+    {
+        boolean modified = false;
+        Iterator contactsIter = protoContacts.iterator();
+
+        while(contactsIter.hasNext())
+        {
+            Contact contact = (Contact)contactsIter.next();
+
+            if (contact.getParentContactGroup() == protoGroup)
+            {
+                contactsIter.remove();
+                modified = true;
+            }
+        }
+
+        return modified;
+    }
+
 
     /**
      * Sets <tt>parentGroup</tt> as a parent of this meta contact. Do not
