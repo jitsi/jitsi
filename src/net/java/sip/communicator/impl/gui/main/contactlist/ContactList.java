@@ -70,7 +70,7 @@ public class ContactList extends JList
         this.getSelectionModel().setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION);
 
-        this.setCellRenderer(new ContactListCellRenderer());
+        this.setCellRenderer(new ContactListCellRenderer(mainFrame));
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 

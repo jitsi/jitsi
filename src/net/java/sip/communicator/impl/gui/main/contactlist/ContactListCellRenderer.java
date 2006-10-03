@@ -10,10 +10,12 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.util.*;
 
 import java.awt.*;
+import java.awt.image.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -41,14 +43,17 @@ public class ContactListCellRenderer extends JPanel
     private boolean isSelected = false;
 
     private boolean isLeaf = true;
+    
+    private MainFrame mainFrame;
 
     /**
      * Initialize the panel containing the node.
      */
-    public ContactListCellRenderer() {
+    public ContactListCellRenderer(MainFrame mainFrame) {
 
         super(new BorderLayout());
 
+        this.mainFrame = mainFrame;
         this.setBackground(Color.WHITE);
 
         this.buttonsPanel.setOpaque(false);
@@ -109,9 +114,18 @@ public class ContactListCellRenderer extends JPanel
                     = ImageLoader.getBytesInImage(
                             protocolContact.getPresenceStatus().getStatusIcon());
 
+                int providerIndex = mainFrame.getProviderIndex(
+                        protocolContact.getProtocolProvider());
+                
+                Image img;
+                if(providerIndex > 0) {
+                    img = createIndexedImage(protocolStatusIcon, providerIndex);
+                }
+                else {
+                    img = protocolStatusIcon;
+                }
                 ContactProtocolButton contactProtocolButton 
-                    = new ContactProtocolButton(protocolStatusIcon, 
-                                                protocolStatusIcon);
+                    = new ContactProtocolButton(img, img);
 
                 contactProtocolButton.setProtocolContact(protocolContact);
 
@@ -162,6 +176,31 @@ public class ContactListCellRenderer extends JPanel
         this.isSelected = isSelected;
 
         return this;
+    }
+    
+    /**
+     * Adds the protocol provider index to the given source image.
+     * @param sourceImage
+     * @param index
+     * @return
+     */
+    private Image createIndexedImage(Image sourceImage, int index)
+    {        
+        BufferedImage buffImage = new BufferedImage(
+                22, 16, BufferedImage.TYPE_INT_ARGB);
+        
+        Graphics2D g = (Graphics2D)buffImage.getGraphics();
+        AlphaComposite ac =
+            AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
+        
+        AntialiasingManager.activateAntialiasing(g);
+        g.setColor(Color.DARK_GRAY);
+        g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
+        g.drawImage(sourceImage, 0, 0, null);
+        g.setComposite(ac);
+        g.drawString(new Integer(index).toString(), 14, 8);
+        
+        return buffImage;
     }
 
     /**
