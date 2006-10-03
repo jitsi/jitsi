@@ -20,7 +20,7 @@ import java.text.*;
  */
 
 public class ScLogFormatter
-    extends Formatter
+    extends java.util.logging.Formatter
 {
     static long startTime = System.currentTimeMillis();
 
