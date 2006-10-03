@@ -23,6 +23,8 @@ public class ContactlistActivator
         Logger.getLogger(ContactlistActivator.class);
 
     ServiceRegistration mclServiceRegistration = null;
+    MetaContactListServiceImpl mclServiceImpl  = null;
+
     /**
      * Called when this bundle is started.
      *
@@ -34,8 +36,7 @@ public class ContactlistActivator
         logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
         Hashtable hashtable = new Hashtable();
 
-        MetaContactListServiceImpl mclServiceImpl =
-                                        new MetaContactListServiceImpl();
+        mclServiceImpl = new MetaContactListServiceImpl();
 
         //reg the icq account man.
         mclServiceRegistration =  context.registerService(
@@ -60,5 +61,7 @@ public class ContactlistActivator
      */
     public void stop(BundleContext context) throws Exception
     {
+        if(mclServiceImpl == null)
+            mclServiceImpl.stop(context);
     }
 }
