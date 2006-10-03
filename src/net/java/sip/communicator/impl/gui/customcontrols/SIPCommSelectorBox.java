@@ -106,8 +106,17 @@ public class SIPCommSelectorBox extends JLabel
             y += component.getY();
         }
 
+        int maxY = y + this.getHeight() + popup.getHeight(); 
+        
+        if(maxY > Toolkit.getDefaultToolkit().getScreenSize().getHeight()) {            
+            y -= popup.getHeight();
+        }
+        else {
+            y += this.getHeight();
+        }
+
         point.x = x;
-        point.y = y + this.getHeight();
+        point.y = y;
 
         return point;
     }
@@ -130,10 +139,13 @@ public class SIPCommSelectorBox extends JLabel
      * the main label component.
      */
     public void mouseClicked(MouseEvent e) {
-
         if (!this.popup.isVisible()) {
+            
             this.popup.setLocation(calculatePopupLocation());
             this.popup.setVisible(true);
+        }
+        else {
+            this.popup.setVisible(false);
         }
     }
 
