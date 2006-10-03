@@ -7,11 +7,11 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.util.*;
+
 import javax.swing.*;
 import javax.swing.Timer;
 
@@ -19,7 +19,6 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.icqconstants.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -49,19 +48,25 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
     
     private PresenceStatus lastSelectedStatus;
     
+    private int accountIndex;
+    
     /**
      * Creates an instance of <tt>StatusSelectorBox</tt> and initializes
      * the selector box with data.
      * 
      * @param mainFrame The main application window.
      * @param protocolProvider The protocol provider.
+     * @param accountIndex If we have more than one account for a protocol,
+     * each account has an index.
      */
     public StatusSelectorBox(MainFrame mainFrame,
-            ProtocolProviderService protocolProvider) {
+            ProtocolProviderService protocolProvider,
+            int accountIndex) {
         
         this.mainFrame = mainFrame;
         this.protocolProvider = protocolProvider;
-
+        this.accountIndex = accountIndex;
+        
         this.statusIterator = this.mainFrame
             .getProtocolPresence(protocolProvider).getSupportedStatusSet();
         
@@ -121,8 +126,7 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
                                         .setManuallyDisconnected(true);
                                     protocolProvider.unregister();
                                 }
-                                setSelected(menuItem.getText(), 
-                                        menuItem.getIcon());
+                                setSelectedStatus(status);
                             }
                             else {
                                 lastSelectedStatus = status; 
@@ -305,9 +309,10 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
      */
     public void setSelectedStatus(PresenceStatus status)
     {
+        Image statusImage = ImageLoader.getBytesInImage(status.getStatusIcon());
+        
         this.setSelected(status.getStatusName(),
-                new ImageIcon(
-                    ImageLoader.getBytesInImage(status.getStatusIcon())));
+                new ImageIcon(statusImage));
     }
 
     /**
@@ -328,8 +333,34 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
         return onlineStatus;
     }
 
+    /**
+     * Returns the status that is currently selected.
+     * @return the status that is currently selected
+     */
     public PresenceStatus getLastSelectedStatus()
     {
         return lastSelectedStatus;
+    }
+
+    public int getAccountIndex()
+    {
+        return accountIndex;
+    }
+
+    public void setAccountIndex(int accountIndex)
+    {
+        this.accountIndex = accountIndex;
+    }
+    
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+        
+        if(accountIndex > 0) {
+            AntialiasingManager.activateAntialiasing(g);
+            g.setColor(Color.DARK_GRAY);
+            g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
+            g.drawString(new Integer(accountIndex).toString(), 20, 12);
+        }
     }
 }

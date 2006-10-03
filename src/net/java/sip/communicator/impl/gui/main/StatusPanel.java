@@ -51,11 +51,11 @@ public class StatusPanel extends JPanel {
      * @param protocolProvider The protocol provider.
      */
     public void addAccount(ProtocolProviderService protocolProvider) {
-
         StatusSelectorBox protocolStatusCombo = new StatusSelectorBox(
-                this.mainFrame, protocolProvider);
+                this.mainFrame, protocolProvider,
+                this.mainFrame.getProviderIndex(protocolProvider));
         
-        this.protocolStatusCombos.put(protocolProvider.getAccountID(),
+        this.protocolStatusCombos.put(protocolProvider,
                 protocolStatusCombo);
 
         this.add(protocolStatusCombo);
@@ -67,19 +67,36 @@ public class StatusPanel extends JPanel {
      * Removes the selector box, containing all protocol statuses, from 
      * the StatusPanel and refreshes the panel.
      * 
-     * @param accountID The identifier of the account to remove.
+     * @param pps The protocol provider to remove.
      */
-    public void removeAccount(AccountID accountID) {
+    public void removeAccount(ProtocolProviderService pps) {
         
         StatusSelectorBox protocolStatusCombo = (StatusSelectorBox)
-            this.protocolStatusCombos.get(accountID);
+            this.protocolStatusCombos.get(pps);
 
-        this.protocolStatusCombos.remove(accountID);
+        this.protocolStatusCombos.remove(pps);
         this.remove(protocolStatusCombo);
 
         this.revalidate();
         this.repaint();
     }
+    
+    /**
+     * Updates the account given by the protocol provider.
+     * 
+     * @param protocolProvider the protocol provider for the account to update
+     */
+    public void updateAccount(ProtocolProviderService protocolProvider) {
+        StatusSelectorBox protocolStatusCombo = (StatusSelectorBox)
+            this.protocolStatusCombos.get(protocolProvider);
+    
+        protocolStatusCombo.setAccountIndex(
+                mainFrame.getProviderIndex(protocolProvider));
+        
+        this.revalidate();
+        this.repaint();
+    }
+
     
     /**
      * Shows the protocol animated icon, which indicates that it is in a
@@ -91,7 +108,7 @@ public class StatusPanel extends JPanel {
 
         StatusSelectorBox selectorBox 
             = (StatusSelectorBox) protocolStatusCombos
-                .get(protocolProvider.getAccountID());
+                .get(protocolProvider);
 
         selectorBox.startConnecting(Constants
                 .getProtocolAnimatedIcon(protocolProvider.getProtocolName()));
@@ -109,76 +126,78 @@ public class StatusPanel extends JPanel {
 
         StatusSelectorBox selectorBox 
             = (StatusSelectorBox) protocolStatusCombos
-                .get(protocolProvider.getAccountID());
+                .get(protocolProvider);
 
-        if(!protocolProvider.isRegistered())
-            selectorBox.updateStatus(selectorBox.getOfflineStatus());
-        else {            
-            if(selectorBox.getLastSelectedStatus() != null) {
-                selectorBox.updateStatus(selectorBox.getLastSelectedStatus());
-            }
-            else {
-                ConfigurationService configService
-                    = GuiActivator.getConfigurationService();
-                
-                //find the last contact status saved in the configuration.                
-                String lastStatus = null;
-                
-                Iterator i = mainFrame.getProtocolPresence(protocolProvider)
-                    .getSupportedStatusSet();
-                
-                String prefix = "net.java.sip.communicator.impl.ui.accounts";
-                
-                List accounts = configService
-                        .getPropertyNamesByPrefix(prefix, true);
-                
-                Iterator accountsIter = accounts.iterator();
-                
-                while(accountsIter.hasNext()) {
-                    String accountRootPropName 
-                        = (String) accountsIter.next();
-                    
-                    String accountUID 
-                        = configService.getString(accountRootPropName);
-                    
-                    if(accountUID.equals(protocolProvider
-                            .getAccountID().getAccountUniqueID())) {
-                        lastStatus = configService.getString(
-                                accountRootPropName + ".lastAccountStatus");
-                        
-                        if(lastStatus != null)
-                            break;
-                    }
-                }
-                
-                if(lastStatus == null) {                
-                    selectorBox.updateStatus(selectorBox.getOnlineStatus());
+        if(selectorBox != null) {
+            if(!protocolProvider.isRegistered())
+                selectorBox.updateStatus(selectorBox.getOfflineStatus());
+            else {            
+                if(selectorBox.getLastSelectedStatus() != null) {
+                    selectorBox.updateStatus(selectorBox.getLastSelectedStatus());
                 }
                 else {
-                    PresenceStatus status;
-                    while(i.hasNext()) {
-                        status = (PresenceStatus)i.next();
-                        if(status.getStatusName().equals(lastStatus)) {
-                            selectorBox.updateStatus(status);
-                            break;
-                        } 
+                    ConfigurationService configService
+                        = GuiActivator.getConfigurationService();
+                    
+                    //find the last contact status saved in the configuration.                
+                    String lastStatus = null;
+                    
+                    Iterator i = mainFrame.getProtocolPresence(protocolProvider)
+                        .getSupportedStatusSet();
+                    
+                    String prefix = "net.java.sip.communicator.impl.ui.accounts";
+                    
+                    List accounts = configService
+                            .getPropertyNamesByPrefix(prefix, true);
+                    
+                    Iterator accountsIter = accounts.iterator();
+                    
+                    while(accountsIter.hasNext()) {
+                        String accountRootPropName 
+                            = (String) accountsIter.next();
+                        
+                        String accountUID 
+                            = configService.getString(accountRootPropName);
+                        
+                        if(accountUID.equals(protocolProvider
+                                .getAccountID().getAccountUniqueID())) {
+                            lastStatus = configService.getString(
+                                    accountRootPropName + ".lastAccountStatus");
+                            
+                            if(lastStatus != null)
+                                break;
+                        }
+                    }
+                    
+                    if(lastStatus == null) {                
+                        selectorBox.updateStatus(selectorBox.getOnlineStatus());
+                    }
+                    else {
+                        PresenceStatus status;
+                        while(i.hasNext()) {
+                            status = (PresenceStatus)i.next();
+                            if(status.getStatusName().equals(lastStatus)) {
+                                selectorBox.updateStatus(status);
+                                break;
+                            } 
+                        }
                     }
                 }
             }
+            selectorBox.repaint();
         }
-        selectorBox.repaint();
     }
 
     /**
      * Checks if the given protocol has already its <tt>StatusSelectorBox</tt>
      * in the <tt>StatusPanel</tt>.
      * 
-     * @param accountID The identifier of the account.
+     * @param pps The protocol provider to check.
      * @return True if the protcol has already its StatusSelectorBox in the 
      * StatusPanel, False otherwise.
      */
-    public boolean containsAccount(AccountID accountID) {
-        if (protocolStatusCombos.containsKey(accountID))
+    public boolean containsAccount(ProtocolProviderService pps) {
+        if (protocolStatusCombos.containsKey(pps))
             return true;
         else
             return false;
