@@ -253,8 +253,11 @@ public class ChatPanel
      * 
      * @param status The presence status of the contact.
      */
-    public void updateContactStatus(PresenceStatus status) {        
+    public void updateContactStatus(Contact protoContact) {
+        PresenceStatus status = protocolContact.getPresenceStatus();
+        
         this.chatConferencePanel.updateContactStatus(status);
+        this.sendPanel.setSelectedProtocolContact(protoContact);
         String message = this.conversationPanel.processMessage(
                 this.metaContact.getDisplayName(),
                 new Date(System.currentTimeMillis()),

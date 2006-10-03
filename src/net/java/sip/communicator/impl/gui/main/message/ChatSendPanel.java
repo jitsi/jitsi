@@ -10,6 +10,8 @@ import java.util.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -35,12 +37,15 @@ public class ChatSendPanel extends JPanel implements ActionListener {
     private JPanel sendPanel = new JPanel(new BorderLayout(3, 0));
 
     private JLabel statusLabel = new JLabel();
+    
+    private JLabel sendViaLabel = new JLabel(Messages.getString("sendVia"));
 
     private ChatPanel chatPanel;
 
     private ArrayList protocolCList = new ArrayList();
 
-    private SIPCommSelectorBox contactSelectorBox = new SIPCommSelectorBox();
+    private SIPCommSelectorBox contactSelectorBox
+        = new SIPCommSelectorBox();
 
     /**
      * Creates an instance of <tt>ChatSendPanel</tt>.
@@ -56,8 +61,9 @@ public class ChatSendPanel extends JPanel implements ActionListener {
 
         this.statusPanel.add(statusLabel);
 
-        this.sendPanel.add(sendButton, BorderLayout.CENTER);
-        this.sendPanel.add(contactSelectorBox, BorderLayout.WEST);
+        this.sendPanel.add(sendButton, BorderLayout.EAST);
+        this.sendPanel.add(contactSelectorBox, BorderLayout.CENTER);
+        this.sendPanel.add(sendViaLabel, BorderLayout.WEST);
 
         this.add(statusPanel, BorderLayout.CENTER);
         this.add(sendPanel, BorderLayout.EAST);
@@ -67,25 +73,6 @@ public class ChatSendPanel extends JPanel implements ActionListener {
                 Messages.getString("sendMessage") + " Ctrl-Enter");
         this.sendButton.setMnemonic(
                 Messages.getString("mnemonic.sendMessage").charAt(0));
-    }
-
-    /**
-     * Overrides the <code>javax.swing.JComponent.paint()</code> to provide
-     * a new round border for the status panel.
-     * @param g The Graphics object.
-     */
-    public void paint(Graphics g) {
-        AntialiasingManager.activateAntialiasing(g);
-
-        super.paint(g);
-
-        Graphics2D g2 = (Graphics2D) g;
-
-        g2.setColor(Constants.MOVER_START_COLOR);
-        g2.setStroke(new BasicStroke(1f));
-
-        g2.drawRoundRect(3, 4, this.statusPanel.getWidth() - 2,
-                this.statusPanel.getHeight() - 2, 8, 8);
     }
 
     /**
@@ -147,15 +134,25 @@ public class ChatSendPanel extends JPanel implements ActionListener {
             if (!protocolCList.contains(contact))
                 protocolCList.add(contact);
 
-            String protocolName = contact.getProtocolProvider()
-                    .getProtocolName();
-
-            contactSelectorBox.addItem(contact.getDisplayName(), new ImageIcon(
-                    Constants.getProtocolIcon(protocolName)),
+            Image statusImage = ImageLoader.getBytesInImage(
+                    contact.getPresenceStatus().getStatusIcon());
+            
+            int index = this.chatPanel.getChatWindow().getMainFrame()
+                .getProviderIndex(contact.getProtocolProvider());
+        
+            Image img;
+            if(index > 0) {
+                img = createIndexedImage(statusImage, index);
+            }
+            else {
+                img = statusImage;
+            }
+            contactSelectorBox.addItem(contact.getDisplayName(),
+                    new ImageIcon(img),
                     new ProtocolItemListener());
         }
-    }
-
+    }    
+    
     /**
      * Sets the message text to the status panel in the bottom of the chat
      * window. Used to show typing notification messages, links' hrefs, etc.
@@ -181,7 +178,7 @@ public class ChatSendPanel extends JPanel implements ActionListener {
         }   
         statusLabel.setText(statusMessage);
     }
-
+    
     /**
      * Selects the given protocol contact from the list of protocol specific
      * contacts and shows its icon in the component on the left of the "Send"
@@ -189,13 +186,26 @@ public class ChatSendPanel extends JPanel implements ActionListener {
      * 
      * @param protocolContact The protocol specific contact to select.
      */
-    public void setSelectedProtocolContact(Contact protocolContact) {
-        contactSelectorBox.setIcon(new ImageIcon(Constants
-                .getProtocolIcon(protocolContact.getProtocolProvider()
-                        .getProtocolName())));
-        contactSelectorBox.setSelectedObject(protocolContact);
-    }
+    public void setSelectedProtocolContact(Contact protoContact)
+    {
+        Image statusImage = ImageLoader.getBytesInImage(
+                protoContact.getPresenceStatus().getStatusIcon());
+        
+        int index = this.chatPanel.getChatWindow().getMainFrame()
+            .getProviderIndex(protoContact.getProtocolProvider());
 
+        Image img;
+        if(index > 0) {
+            img = createIndexedImage(statusImage, index);
+        }
+        else {
+            img = statusImage;
+        }        
+        contactSelectorBox.setSelected(
+                protoContact,
+                new ImageIcon(img));
+    }
+    
     /**
      * The listener of the protocol contact's selector box.
      */
@@ -216,17 +226,61 @@ public class ChatSendPanel extends JPanel implements ActionListener {
                     chatPanel.setProtocolContact(protocolContact);
 
                     contactSelectorBox.setSelected(
-                            protocolContact, menuItem.getIcon());
+                            protocolContact, menuItem.getIcon());                    
                 }
             }
         }
     }
-
+    
     /**
      * Returns the protocol contact selector box.
      * @return the protocol contact selector box.
      */
     public SIPCommSelectorBox getContactSelectorBox() {
         return contactSelectorBox;
+    }
+    
+    /**
+     * Overrides the <code>javax.swing.JComponent.paint()</code> to provide
+     * a new round border for the status panel.
+     * @param g The Graphics object.
+     */
+    public void paint(Graphics g) {
+        AntialiasingManager.activateAntialiasing(g);
+
+        super.paint(g);
+
+        Graphics2D g2 = (Graphics2D) g;
+
+        g2.setColor(Constants.MOVER_START_COLOR);
+        g2.setStroke(new BasicStroke(1f));
+
+        g2.drawRoundRect(3, 4, this.statusPanel.getWidth() - 2,
+                this.statusPanel.getHeight() - 2, 8, 8);
+    }
+    
+    /**
+     * Adds the protocol provider index to the given source image.
+     * @param sourceImage
+     * @param index
+     * @return
+     */
+    private Image createIndexedImage(Image sourceImage, int index)
+    {        
+        BufferedImage buffImage = new BufferedImage(
+                22, 16, BufferedImage.TYPE_INT_ARGB);
+        
+        Graphics2D g = (Graphics2D)buffImage.getGraphics();
+        AlphaComposite ac =
+            AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
+        
+        AntialiasingManager.activateAntialiasing(g);
+        g.setColor(Color.DARK_GRAY);
+        g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
+        g.drawImage(sourceImage, 0, 0, null);
+        g.setComposite(ac);
+        g.drawString(new Integer(index).toString(), 14, 8);
+        
+        return buffImage;
     }
 }
