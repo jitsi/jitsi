@@ -496,7 +496,8 @@ public class OperationSetBasicTelephonySipImpl
             logger.error("Received error: " +response.getStatusCode()
                          +" "+ response.getReasonPhrase());
 
-            callParticipant.setState(CallParticipantState.FAILED);
+            if(callParticipant != null)
+                callParticipant.setState(CallParticipantState.FAILED);
         }
         //ignore everything else.
     }
@@ -1535,7 +1536,8 @@ public class OperationSetBasicTelephonySipImpl
 
         try
         {
-            ok.setContent(callParticipant.getSdpDescription()
+            ok.setContent(  SipActivator.getMediaService()
+                                .generateSdpAnswer(callParticipant)
                           , contentTypeHeader);
         }
         catch (NullPointerException ex)
