@@ -189,7 +189,15 @@ public class ProtocolProviderServiceIcqImpl
                 credentials = authority.obtainCredentials(ProtocolNames.ICQ
                                                           , credentials);
                 //extract the password the user passed us.
-                password = new String(credentials.getPassword());
+                char[] pass = credentials.getPassword();
+
+                // the user didn't provide us a password (canceled the operation)
+                if(pass == null)
+                {
+                    return;
+                }
+
+                password = new String(pass);
 
                 if (credentials.isPasswordPersistent())
                 {
@@ -500,7 +508,7 @@ public class ProtocolProviderServiceIcqImpl
      * @param reason a String further explaining the reason code or null if
      * no such explanation is necessary.
      */
-    private void fireRegistrationStateChanged( RegistrationState oldState,
+    void fireRegistrationStateChanged( RegistrationState oldState,
                                                RegistrationState newState,
                                                int               reasonCode,
                                                String            reason)

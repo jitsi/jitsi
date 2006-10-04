@@ -104,7 +104,14 @@ public class ProtocolProviderServiceJabberImpl
                     , credentials);
 
                 //extract the password the user passed us.
-                password = new String(credentials.getPassword());
+                char[] pass = credentials.getPassword();
+
+                // the user didn't provide us a password (canceled the operation)
+                if(pass == null)
+                    return;
+
+                password = new String(pass);
+
 
                 if (credentials.isPasswordPersistent())
                 {
