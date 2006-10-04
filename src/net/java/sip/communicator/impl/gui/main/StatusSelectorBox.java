@@ -91,6 +91,7 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
                     ImageLoader.getBytesInImage(status.getStatusIcon())),
                 new ItemActionListener());
         }
+        this.setSelectedStatus(offlineStatus);
     }
 
     /**
@@ -126,13 +127,15 @@ public class StatusSelectorBox extends SIPCommSelectorBox {
                                         .setManuallyDisconnected(true);
                                     protocolProvider.unregister();
                                 }
-                                setSelectedStatus(status);
+                                setSelectedStatus(status);                                
                             }
                             else {
                                 lastSelectedStatus = status; 
                                 mainFrame.getLoginManager()
                                     .login(protocolProvider);
                             }
+                            mainFrame.saveStatusInformation(
+                                    protocolProvider, status);
                         }
                         catch (IllegalArgumentException e1) {
 

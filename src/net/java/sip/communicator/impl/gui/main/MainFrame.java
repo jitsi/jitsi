@@ -643,8 +643,6 @@ public class MainFrame
                 configService.setProperty(
                         "net.java.sip.communicator.impl.ui.showCallPanel",
                         new Boolean(callManager.isShown()));
-
-                saveStatusInformation();
             }
             catch (PropertyVetoException e1) {
                 logger.error("The proposed property change "
@@ -721,61 +719,54 @@ public class MainFrame
      * on loging. Each time user logs in he's logged with the same status
      * as he was the last time before closing the application.
      */
-    public void saveStatusInformation ()
+    public void saveStatusInformation(ProtocolProviderService protocolProvider,
+            PresenceStatus status)
     {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
+        
+        String prefix = "net.java.sip.communicator.impl.ui.accounts";
 
-        Iterator pproviders = getProtocolProviders();
+        List accounts = configService
+                .getPropertyNamesByPrefix(prefix, true);
 
-        while(pproviders.hasNext()) {
-            ProtocolProviderService pps
-                = (ProtocolProviderService) pproviders.next();
+        boolean savedAccount = false;
+        Iterator accountsIter = accounts.iterator();
 
-            String prefix = "net.java.sip.communicator.impl.ui.accounts";
+        while(accountsIter.hasNext()) {
+            String accountRootPropName
+                = (String) accountsIter.next();
 
-            List accounts = configService
-                    .getPropertyNamesByPrefix(prefix, true);
+            String accountUID
+                = configService.getString(accountRootPropName);
 
-            boolean savedAccount = false;
-            Iterator accountsIter = accounts.iterator();
-
-            while(accountsIter.hasNext()) {
-                String accountRootPropName
-                    = (String) accountsIter.next();
-
-                String accountUID
-                    = configService.getString(accountRootPropName);
-
-                if(accountUID.equals(pps
-                        .getAccountID().getAccountUniqueID())) {
-
-                    configService.setProperty(
-                            accountRootPropName + ".lastAccountStatus",
-                            getProtocolPresence(pps)
-                            .getPresenceStatus().getStatusName());
-
-                    savedAccount = true;
-                }
-            }
-
-            if(!savedAccount) {
-                String accNodeName
-                    = "acc" + Long.toString(System.currentTimeMillis());
-
-                String accountPackage
-                    = "net.java.sip.communicator.impl.ui.accounts."
-                            + accNodeName;
-
-                configService.setProperty(accountPackage,
-                        pps.getAccountID().getAccountUniqueID());
+            if(accountUID.equals(protocolProvider
+                    .getAccountID().getAccountUniqueID())) {
 
                 configService.setProperty(
-                        accountPackage+".lastAccountStatus",
-                        getProtocolPresence(pps)
-                        .getPresenceStatus().getStatusName());
+                        accountRootPropName + ".lastAccountStatus",
+                        status.getStatusName());
+
+                savedAccount = true;
             }
         }
+
+        if(!savedAccount) {
+            String accNodeName
+                = "acc" + Long.toString(System.currentTimeMillis());
+
+            String accountPackage
+                = "net.java.sip.communicator.impl.ui.accounts."
+                        + accNodeName;
+
+            configService.setProperty(accountPackage,
+                    protocolProvider.getAccountID().getAccountUniqueID());
+
+            configService.setProperty(
+                    accountPackage+".lastAccountStatus",
+                    status.getStatusName());
+        }
+        
     }
 
     /**
@@ -796,6 +787,14 @@ public class MainFrame
         this.tabbedPane.revalidate();
     }
          
+    /**
+     * Checks in the configuration xml if there is already stored index for
+     * this provider and if yes, returns it, otherwise creates a new account
+     * index and stores it.
+     * 
+     * @param protocolProvider the protocol provider
+     * @return the protocol provider index
+     */
     private int initiateProviderIndex(
             ProtocolProviderService protocolProvider)
     {                
@@ -861,15 +860,21 @@ public class MainFrame
         return -1;
     }
     
+    /**
+     * Creates and calculates the account index for the given protocol
+     * provider.
+     * @param protocolProvider the protocol provider
+     * @param accountRootPropName the path to where the index should be saved
+     * in the configuration xml  
+     * @return the created index
+     */
     private int createAccountIndex(ProtocolProviderService protocolProvider,
             String accountRootPropName)
     {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
      
-        String prefix = "net.java.sip.communicator.impl.ui.accounts";
-        
-        int accountIndex = 0;
+        int accountIndex = -1;
         Enumeration pproviders = protocolProviders.keys();
         ProtocolProviderService pps;
             
@@ -882,51 +887,24 @@ public class MainFrame
                 
                 int index  = ((Integer)protocolProviders.get(pps))
                                         .intValue(); 
-                
-                if(index == 0) {
-                    index++;
-                    protocolProviders.put(pps, new Integer(index));
-                    
-                    List accounts = configService
-                        .getPropertyNamesByPrefix(prefix, true);
-
-                    Iterator accountsIter = accounts.iterator();
-            
-                    while(accountsIter.hasNext()) {
-                        String rootPropName
-                            = (String) accountsIter.next();
-                        
-                        String accountUID
-                            = configService.getString(rootPropName);
-                        
-                        if(accountUID.equals(pps
-                                .getAccountID().getAccountUniqueID())) {
-                            
-                            configService.setProperty(
-                                    rootPropName + ".accountIndex",
-                                    new Integer(index));
-                        }
-                    }
-                    this.getStatusPanel().updateAccount(pps);
-                }
-                
+                                
                 if(accountIndex < index) {
                     accountIndex = index;
                 }
             }
         }
-        if(accountIndex != 0) {
-            accountIndex++;
-            configService.setProperty(
-                    accountRootPropName + ".accountIndex",
-                    new Integer(accountIndex));
-        }
+        accountIndex++;
+        configService.setProperty(
+                accountRootPropName + ".accountIndex",
+                new Integer(accountIndex));
+        
         return accountIndex;
     }
     
     /**
-     *      
-     * @param removedProvider
+     * Updates the indexes in the configuration xml, when a provider has been
+     * removed.     
+     * @param removedProvider the removed protocol provider
      */
     private void updateProvidersIndexes(ProtocolProviderService removedProvider)
     {
