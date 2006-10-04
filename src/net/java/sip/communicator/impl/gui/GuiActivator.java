@@ -82,7 +82,7 @@ public class GuiActivator implements BundleActivator {
              * SwingUtilities.invokeLater(new RunLogin());
              */
             WelcomeWindow welcomeWindow = new WelcomeWindow(communicatorMain,
-                    loginManager, bundleContext);
+                    loginManager);
             
             welcomeWindow.showWindow();
             

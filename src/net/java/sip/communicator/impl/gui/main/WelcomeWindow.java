@@ -5,6 +5,8 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import org.osgi.framework.*;
+
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -42,8 +44,6 @@ public class WelcomeWindow extends JDialog
 
     private LoginManager loginManager;
 
-    private BundleContext bc;
-
     private Logger logger = Logger.getLogger(WelcomeWindow.class.getName());
 
     /**
@@ -54,10 +54,9 @@ public class WelcomeWindow extends JDialog
      * @param context The bundle context.
      */
     public WelcomeWindow(CommunicatorMain c,
-            LoginManager loginManager, BundleContext context) {
+            LoginManager loginManager) {
         super(c.getMainFrame(), Messages.getString("warning"));
 
-        this.bc = context;
         this.communicator = c;
         this.loginManager = loginManager;
 
@@ -182,7 +181,7 @@ public class WelcomeWindow extends JDialog
             SwingUtilities.invokeLater(new RunLogin());
         } else {
             try {
-                this.bc.getBundle(0).stop();
+                GuiActivator.bundleContext.getBundle(0).stop();
             } catch (BundleException ex) {
                 logger.error("Failed to gently shutdown Oscar", ex);
                 System.exit(0);
@@ -220,7 +219,7 @@ public class WelcomeWindow extends JDialog
     private class ExitAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
             try {
-                bc.getBundle(0).stop();
+                GuiActivator.bundleContext.getBundle(0).stop();
             } catch (BundleException ex) {
                 logger.error("Failed to gently shutdown Oscar", ex);
                 System.exit(0);

@@ -15,6 +15,8 @@ import java.util.List;
 
 import javax.swing.*;
 
+import org.osgi.framework.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
@@ -647,6 +649,15 @@ public class MainFrame
             catch (PropertyVetoException e1) {
                 logger.error("The proposed property change "
                         + "represents an unacceptable value");
+            }
+        }
+        
+        public void windowClosed(WindowEvent e) {
+            try {
+                GuiActivator.bundleContext.getBundle(0).stop();
+            } catch (BundleException ex) {
+                logger.error("Failed to gently shutdown Oscar", ex);
+                System.exit(0);
             }
         }
     }
