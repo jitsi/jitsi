@@ -117,13 +117,65 @@ public class StatusPanel extends JPanel {
     }
 
     /**
+     * 
+     * @param protocolProvider
+     * @return
+     */
+    public PresenceStatus getProtocolProviderLastStatus(
+            ProtocolProviderService protocolProvider)
+    {
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+        
+        //find the last contact status saved in the configuration.                
+        String lastStatus = null;
+        
+        Iterator i = mainFrame.getProtocolPresence(protocolProvider)
+            .getSupportedStatusSet();
+        
+        String prefix = "net.java.sip.communicator.impl.ui.accounts";
+        
+        List accounts = configService
+                .getPropertyNamesByPrefix(prefix, true);
+        
+        Iterator accountsIter = accounts.iterator();
+        
+        while(accountsIter.hasNext()) {
+            String accountRootPropName 
+                = (String) accountsIter.next();
+            
+            String accountUID 
+                = configService.getString(accountRootPropName);
+            
+            if(accountUID.equals(protocolProvider
+                    .getAccountID().getAccountUniqueID())) {
+                lastStatus = configService.getString(
+                        accountRootPropName + ".lastAccountStatus");
+                
+                if(lastStatus != null)
+                    break;
+            }
+        }
+        
+        if(lastStatus != null) {
+            PresenceStatus status;
+            while(i.hasNext()) {
+                status = (PresenceStatus)i.next();
+                if(status.getStatusName().equals(lastStatus)) {
+                    return status;
+                } 
+            }
+        }
+        return null;
+    }
+    
+    /**
      * Updates the status for this protocol provider.
      *  
      * @param protocolProvider The ProtocolProvider, which presence status to
      * update.
      */
     public void updateStatus(ProtocolProviderService protocolProvider) {
-
         StatusSelectorBox selectorBox 
             = (StatusSelectorBox) protocolStatusCombos
                 .get(protocolProvider);
@@ -135,52 +187,15 @@ public class StatusPanel extends JPanel {
                 if(selectorBox.getLastSelectedStatus() != null) {
                     selectorBox.updateStatus(selectorBox.getLastSelectedStatus());
                 }
-                else {
-                    ConfigurationService configService
-                        = GuiActivator.getConfigurationService();
-                    
-                    //find the last contact status saved in the configuration.                
-                    String lastStatus = null;
-                    
-                    Iterator i = mainFrame.getProtocolPresence(protocolProvider)
-                        .getSupportedStatusSet();
-                    
-                    String prefix = "net.java.sip.communicator.impl.ui.accounts";
-                    
-                    List accounts = configService
-                            .getPropertyNamesByPrefix(prefix, true);
-                    
-                    Iterator accountsIter = accounts.iterator();
-                    
-                    while(accountsIter.hasNext()) {
-                        String accountRootPropName 
-                            = (String) accountsIter.next();
-                        
-                        String accountUID 
-                            = configService.getString(accountRootPropName);
-                        
-                        if(accountUID.equals(protocolProvider
-                                .getAccountID().getAccountUniqueID())) {
-                            lastStatus = configService.getString(
-                                    accountRootPropName + ".lastAccountStatus");
-                            
-                            if(lastStatus != null)
-                                break;
-                        }
-                    }
+                else {           
+                    PresenceStatus lastStatus
+                        = getProtocolProviderLastStatus(protocolProvider);
                     
                     if(lastStatus == null) {                
                         selectorBox.updateStatus(selectorBox.getOnlineStatus());
                     }
                     else {
-                        PresenceStatus status;
-                        while(i.hasNext()) {
-                            status = (PresenceStatus)i.next();
-                            if(status.getStatusName().equals(lastStatus)) {
-                                selectorBox.updateStatus(status);
-                                break;
-                            } 
-                        }
+                        selectorBox.updateStatus(lastStatus);
                     }
                 }
             }
