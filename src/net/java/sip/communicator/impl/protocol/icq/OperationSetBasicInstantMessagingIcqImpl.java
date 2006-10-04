@@ -21,6 +21,7 @@ import net.kano.joscar.snaccmd.error.*;
 import net.kano.joscar.snaccmd.icbm.*;
 import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
+import net.java.sip.communicator.service.protocol.icqconstants.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation
@@ -87,6 +88,31 @@ public class OperationSetBasicInstantMessagingIcqImpl
      * time millis.
      */
     private static final long ONE_DAY = 86400001;
+
+    /**
+     * KeepAlive interval for sending packets
+     */
+    private static long KEEPALIVE_INTERVAL = 180000l; // 3 minutes
+
+    /**
+     * The interval after which a packet is considered to be lost
+     */
+    private static long KEEPALIVE_WAIT = 20000l;
+
+    /**
+     * The task sending packets
+     */
+    private KeepAliveSendTask keepAliveSendTask = null;
+    /**
+     * The timer executing tasks on specified intervals
+     */
+    private Timer keepAliveTimer = new Timer();
+    /**
+     * The queue holding the received packets
+     */
+    private LinkedList receivedKeepAlivePackets = new LinkedList();
+
+    private static String SYS_MSG_PREFIX_TEST = "SIP COMMUNICATOR SYSTEM MESSAGE!";
 
 
     /**
@@ -399,6 +425,13 @@ public class OperationSetBasicInstantMessagingIcqImpl
                     getDefaultFactoryList().registerAll(channelFourCmdFactory);
 
                 retreiveOfflineMessages();
+
+                // run keepalive thread
+                if(keepAliveSendTask == null)
+                    keepAliveSendTask = new KeepAliveSendTask();
+
+                keepAliveTimer.scheduleAtFixedRate(
+                    keepAliveSendTask, KEEPALIVE_INTERVAL, KEEPALIVE_INTERVAL);
             }
         }
     }
@@ -487,14 +520,23 @@ public class OperationSetBasicInstantMessagingIcqImpl
          */
         public void gotMessage(Conversation conversation, MessageInfo minfo)
         {
+            String msgBody = minfo.getMessage().getMessageBody();
             if(logger.isDebugEnabled())
                 logger.debug("Received from "
                              + conversation.getBuddy()
                              + " the message "
-                             + minfo.getMessage().getMessageBody());
+                             + msgBody);
 
-            Message newMessage = createMessage(
-                minfo.getMessage().getMessageBody());
+            if(msgBody.startsWith(SYS_MSG_PREFIX_TEST)
+                && conversation.getBuddy().getFormatted().
+                    equals(icqProvider.getAccountID().getUserID()))
+            {
+                logger.info("adddddddddd sys msg");
+                receivedKeepAlivePackets.addLast(msgBody);
+                return;
+            }
+
+            Message newMessage = createMessage(msgBody);
 
             Contact sourceContact =
                 opSetPersPresence.findContactByID( conversation.getBuddy()
@@ -566,6 +608,112 @@ public class OperationSetBasicInstantMessagingIcqImpl
         {
             //typing events are handled in OperationSetTypingNotifications
         }
+    }
 
+    /**
+     * Task sending packets on intervals.
+     * The task is runned on specified intervals by the keepAliveTimer
+     */
+    private class KeepAliveSendTask
+        extends TimerTask
+    {
+        public void run()
+        {
+            try
+            {
+                // if we are not registerd do nothing
+                if(!icqProvider.isRegistered())
+                    return;
+
+                StringBuffer sysMsg = new StringBuffer(SYS_MSG_PREFIX_TEST);
+                sysMsg.append("pp:").append(icqProvider.hashCode()).
+                    append("&op:").append(
+                        OperationSetBasicInstantMessagingIcqImpl.this.hashCode());
+
+                ImConversation imConversation =
+                    icqProvider.getAimConnection().getIcbmService().
+                    getImConversation(
+                        new Screenname(icqProvider.getAccountID().getUserID()));
+
+                // schedule the check task
+                keepAliveTimer.schedule(
+                    new KeepAliveCheckTask(), KEEPALIVE_WAIT);
+
+                logger.trace("send keepalive");
+                imConversation.sendMessage(new SimpleMessage(sysMsg.toString()));
+            }
+            catch (Exception ex)
+            {
+                logger.error("", ex);
+            }
+        }
+    }
+
+    /**
+     * Check if the first received packet in the queue
+     * is ok and if its not or the queue has no received packets
+     * the this means there is some network problem, so fire event
+     */
+    private class KeepAliveCheckTask
+        extends TimerTask
+    {
+        public void run()
+        {
+            try
+            {
+                // check till we find a correct message
+                // or if NoSuchElementException is thrown
+                // there is no message
+                while(!checkFirstPacket());
+            }
+            catch (Exception ex)
+            {
+                fireUnregisterd();
+            }
+        }
+
+        /**
+         * Checks whether first packet in queue is ok
+         * @return boolean
+         * @throws Exception
+         */
+        boolean checkFirstPacket()
+            throws Exception
+        {
+            String receivedStr =
+                    (String)receivedKeepAlivePackets.removeLast();
+
+            receivedStr = receivedStr.replaceAll(SYS_MSG_PREFIX_TEST, "");
+            String[] ss = receivedStr.split("&");
+
+            String provHashStr = ss[0].split(":")[1];
+            String opsetHashStr = ss[1].split(":")[1];
+
+            if(icqProvider.hashCode() != Integer.parseInt(provHashStr) ||
+                    OperationSetBasicInstantMessagingIcqImpl.this.hashCode() !=
+                    Integer.parseInt(opsetHashStr) )
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        /**
+         * Fire Unregistered event
+         */
+        void fireUnregisterd()
+        {
+            icqProvider.fireRegistrationStateChanged(
+                icqProvider.getRegistrationState(),
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);
+
+            opSetPersPresence.fireProviderPresenceStatusChangeEvent(
+                opSetPersPresence.getPresenceStatus().getStatus(),
+                IcqStatusEnum.OFFLINE.getStatus());
+        }
     }
 }

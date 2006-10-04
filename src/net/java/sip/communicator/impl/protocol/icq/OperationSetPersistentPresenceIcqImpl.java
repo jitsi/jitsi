@@ -996,7 +996,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * @param oldStatusL the status our icq stack had so far
      * @param newStatusL the status we have from now on
      */
-    private void fireProviderPresenceStatusChangeEvent(
+    void fireProviderPresenceStatusChangeEvent(
                         long oldStatusL, long newStatusL)
     {
         PresenceStatus oldStatus = icqStatusLongToPresenceStatus(oldStatusL);
