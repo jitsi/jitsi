@@ -524,7 +524,6 @@ public class TestOperationSetPresence
             authEventCollector.isAuthorizationResponseReceived = false;
             authEventCollector.authorizationResponseString = null;
 
-
             logger.debug("I will add buddy does it exists ?  " +
                          (operationSetPresence.findContactByID(fixture.testerAgent.getIcqUIN()) != null));
             // add the listener beacuse now our authorization will be accepted
@@ -551,7 +550,6 @@ public class TestOperationSetPresence
                          fixture.testerAgent.getAuthCmdFactory().requestReasonStr
                 );
 
-
             // wait for authorization process to be finnished
             // the modification of buddy (server will inform us
             // that he removed - awaiting authorization flag)
@@ -569,7 +567,7 @@ public class TestOperationSetPresence
         }
 
         assertEquals("Subscription event dispatching failed."
-                     , 2, subEvtCollector.collectedEvents.size());
+                     , 1, subEvtCollector.collectedEvents.size());
 
         // after the authorization process finished
         // we must have received two events
@@ -594,33 +592,6 @@ public class TestOperationSetPresence
             srcContact = subEvt.getSourceContact();
             srcProvider = subEvt.getSourceProvider();
         }
-
-        assertEquals("SubscriptionEvent Source:",
-                     fixture.testerAgent.getIcqUIN(),
-                     ((Contact)source).getAddress());
-        assertEquals("SubscriptionEvent Source Contact:",
-                     fixture.testerAgent.getIcqUIN(),
-                     srcContact.getAddress());
-        assertSame("SubscriptionEvent Source Provider:",
-                     fixture.provider,
-                     srcProvider);
-
-        evt = (EventObject)subEvtCollector.collectedEvents.get(1);
-
-        source = null;
-        srcContact = null;
-        srcProvider = null;
-
-        if(evt instanceof SubscriptionMovedEvent)
-        {
-            SubscriptionMovedEvent mvEvt = (SubscriptionMovedEvent)evt;
-
-            source = mvEvt.getSource();
-            srcContact = mvEvt.getSourceContact();
-            srcProvider = mvEvt.getSourceProvider();
-        }
-        else
-            fail("Second event must be SubscriptionMovedEvent");
 
         assertEquals("SubscriptionEvent Source:",
                      fixture.testerAgent.getIcqUIN(),
