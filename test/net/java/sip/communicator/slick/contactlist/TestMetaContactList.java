@@ -610,15 +610,17 @@ public class TestMetaContactList
         fixture.metaClService.removeMetaContactListListener(mclEvtCollector);
 
         //first check that the group was really removed
-        assertEquals("Number of evts dispatched while removing a contact group"
-                     , 1
-                     , mclEvtCollector.collectedMetaContactGroupEvents.size());
+        assertTrue("Number of evts dispatched while removing a contact group"
+                , mclEvtCollector.collectedMetaContactGroupEvents.size() > 0);
         evt = (MetaContactGroupEvent)mclEvtCollector
-                                    .collectedMetaContactGroupEvents.remove(0);
+                .collectedMetaContactGroupEvents.get(
+                    mclEvtCollector
+                        .collectedMetaContactGroupEvents.size() - 1);
+        mclEvtCollector.collectedMetaContactGroupEvents.clear();
 
         assertEquals("ID of the generated event",
-                     MetaContactGroupEvent.CONTACT_GROUP_REMOVED_FROM_META_GROUP,
-                     evt.getEventID());
+                     evt.getEventID(),
+                     MetaContactGroupEvent.CONTACT_GROUP_REMOVED_FROM_META_GROUP);
 
         assertEquals("Source group for the RemoveEvent."
                     , newMetaGroup
