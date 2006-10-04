@@ -141,8 +141,6 @@ public class ProtocolProviderServiceJabberImpl
 
                 if(connection.isAuthenticated())
                 {
-                    currentConnectionState = RegistrationState.REGISTERED;
-
                     connection.getRoster().
                         setSubscriptionMode(Roster.SUBSCRIPTION_ACCEPT_ALL);
 
@@ -383,6 +381,9 @@ public class ProtocolProviderServiceJabberImpl
                                                int               reasonCode,
                                                String            reason)
     {
+        // sets the new state
+        currentConnectionState = newState;
+
         RegistrationStateChangeEvent event =
             new RegistrationStateChangeEvent(
                             this, oldState, newState, reasonCode, reason);
@@ -414,10 +415,9 @@ public class ProtocolProviderServiceJabberImpl
         {
             RegistrationState oldConnectionState = currentConnectionState;
 
-            currentConnectionState = RegistrationState.UNREGISTERED;
             fireRegistrationStateChanged(
                     oldConnectionState,
-                    currentConnectionState,
+                    RegistrationState.UNREGISTERED,
                     RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
         }
 
@@ -425,10 +425,9 @@ public class ProtocolProviderServiceJabberImpl
         {
             RegistrationState oldConnectionState = currentConnectionState;
 
-            currentConnectionState = RegistrationState.UNREGISTERED;
             fireRegistrationStateChanged(
                     oldConnectionState,
-                    currentConnectionState,
+                    RegistrationState.UNREGISTERED,
                     RegistrationStateChangeEvent.REASON_INTERNAL_ERROR,
                     exception.getLocalizedMessage());
         }

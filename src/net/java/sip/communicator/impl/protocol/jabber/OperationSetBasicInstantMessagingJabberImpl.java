@@ -36,6 +36,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * KeepAlive interval for sending packets
      */
     private static long KEEPALIVE_INTERVAL = 180000l; // 3 minutes
+
     /**
      * The interval after which a packet is considered to be lost
      */
@@ -463,7 +464,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         void fireUnregisterd()
         {
             jabberProvider.fireRegistrationStateChanged(
-                RegistrationState.UNREGISTERED,
+                jabberProvider.getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED,
                 RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);
         }
