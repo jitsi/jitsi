@@ -167,100 +167,111 @@ public class ContactListPanel extends JScrollPane
         }
 
         public void run() {
-            PresenceStatus contactStatus = ((ContactListModel) contactList
-                    .getModel()).getMetaContactStatus(this.contactItem);
+            if(!protocolContact.getProtocolProvider().isRegistered()) {
+                SIPCommMsgTextArea msg = new SIPCommMsgTextArea(
+                        Messages.getString("providerNotConnected"));
+            
+                String title = Messages.getString("msgDeliveryFailure");
 
-            if (!Constants.TABBED_CHAT_WINDOW) {
-                //If in mode "open messages in new window"
-                if (contactMsgWindows.containsKey(this.contactItem)) {
-                    /*
-                     * If a chat window for this contact is already opened
-                     * show it.
-                     */
-                    ChatWindow msgWindow = (ChatWindow) contactMsgWindows
-                            .get(this.contactItem);
+                JOptionPane.showMessageDialog(ContactListPanel.this,
+                        msg, title, JOptionPane.WARNING_MESSAGE);
+            }
+            else {
+                PresenceStatus contactStatus = ((ContactListModel) contactList
+                        .getModel()).getMetaContactStatus(this.contactItem);
 
-                    if (msgWindow.getExtendedState() == JFrame.ICONIFIED)
-                        msgWindow.setExtendedState(JFrame.NORMAL);
+                if (!Constants.TABBED_CHAT_WINDOW) {
+                    //If in mode "open messages in new window"
+                    if (contactMsgWindows.containsKey(this.contactItem)) {
+                        /*
+                         * If a chat window for this contact is already opened
+                         * show it.
+                         */
+                        ChatWindow msgWindow = (ChatWindow) contactMsgWindows
+                                .get(this.contactItem);
 
-                    msgWindow.setVisible(true);
-                } else {
-                    /*
-                     * If there's no chat window for the contact
-                     * create it and show it.
-                     */
-                    ChatWindow msgWindow = new ChatWindow(mainFrame);
+                        if (msgWindow.getExtendedState() == JFrame.ICONIFIED)
+                            msgWindow.setExtendedState(JFrame.NORMAL);
 
-                    contactMsgWindows.put(this.contactItem, msgWindow);
+                        msgWindow.setVisible(true);
+                    } else {
+                        /*
+                         * If there's no chat window for the contact
+                         * create it and show it.
+                         */
+                        ChatWindow msgWindow = new ChatWindow(mainFrame);
 
-                    ChatPanel chatPanel = msgWindow.createChat(
-                            this.contactItem, contactStatus, protocolContact);
-                    
-                    chatPanel.loadHistory();
-                    
-                    msgWindow.addChat(chatPanel);
-                    
-                    msgWindow.pack();
+                        contactMsgWindows.put(this.contactItem, msgWindow);
 
-                    msgWindow.setVisible(true);
+                        ChatPanel chatPanel = msgWindow.createChat(
+                                this.contactItem, contactStatus, protocolContact);
+                        
+                        chatPanel.loadHistory();
+                        
+                        msgWindow.addChat(chatPanel);
+                        
+                        msgWindow.pack();
 
-                    msgWindow.getCurrentChatPanel().requestFocusInWriteArea();
-                }
-            } else {
-                // If in mode "group messages in one chat window"
-                if (tabbedChatWindow == null) {
-                    // If there's no open chat window
-                    tabbedChatWindow = new ChatWindow(mainFrame);
+                        msgWindow.setVisible(true);
 
-                    tabbedChatWindow.addWindowListener(new WindowAdapter() {
-                        public void windowClosing(WindowEvent e) {
-                            tabbedChatWindow = null;
-                        }
-                    });
-                }
-                /*
-                 * Get the hashtable containg all tabs and corresponding
-                 * chat panels.
-                 */
-                Hashtable contactTabsTable = tabbedChatWindow
-                        .getContactChatsTable();
-
-                //If there's no open tab for the given contact.
-                if (contactTabsTable
-                        .get(this.contactItem.getMetaUID()) == null) {
-                    ChatPanel chatPanel = tabbedChatWindow.createChat(
-                            this.contactItem, contactStatus, protocolContact);
-
-                    chatPanel.loadHistory();
-                    
-                    tabbedChatWindow.addChatTab(chatPanel);
-                    
-                    if (tabbedChatWindow.getTabCount() > 1) {
-                        tabbedChatWindow
-                            .setSelectedContactTab(this.contactItem);
+                        msgWindow.getCurrentChatPanel().requestFocusInWriteArea();
                     }
-
-                    if (tabbedChatWindow.getExtendedState() == JFrame.ICONIFIED)
-                        tabbedChatWindow.setExtendedState(JFrame.NORMAL);
-
-                    tabbedChatWindow.setVisible(true);
-
-                    tabbedChatWindow.getCurrentChatPanel()
-                        .requestFocusInWriteArea();
                 } else {
-                    //If a tab for the given contact already exists.
-                    if (tabbedChatWindow.getTabCount() > 1) {
-                        tabbedChatWindow
+                    // If in mode "group messages in one chat window"
+                    if (tabbedChatWindow == null) {
+                        // If there's no open chat window
+                        tabbedChatWindow = new ChatWindow(mainFrame);
+
+                        tabbedChatWindow.addWindowListener(new WindowAdapter() {
+                            public void windowClosing(WindowEvent e) {
+                                tabbedChatWindow = null;
+                            }
+                        });
+                    }
+                    /*
+                     * Get the hashtable containg all tabs and corresponding
+                     * chat panels.
+                     */
+                    Hashtable contactTabsTable = tabbedChatWindow
+                            .getContactChatsTable();
+
+                    //If there's no open tab for the given contact.
+                    if (contactTabsTable
+                            .get(this.contactItem.getMetaUID()) == null) {
+                        ChatPanel chatPanel = tabbedChatWindow.createChat(
+                                this.contactItem, contactStatus, protocolContact);
+
+                        chatPanel.loadHistory();
+                        
+                        tabbedChatWindow.addChatTab(chatPanel);
+                        
+                        if (tabbedChatWindow.getTabCount() > 1) {
+                            tabbedChatWindow
                                 .setSelectedContactTab(this.contactItem);
+                        }
+
+                        if (tabbedChatWindow.getExtendedState() == JFrame.ICONIFIED)
+                            tabbedChatWindow.setExtendedState(JFrame.NORMAL);
+
+                        tabbedChatWindow.setVisible(true);
+
+                        tabbedChatWindow.getCurrentChatPanel()
+                            .requestFocusInWriteArea();
+                    } else {
+                        //If a tab for the given contact already exists.
+                        if (tabbedChatWindow.getTabCount() > 1) {
+                            tabbedChatWindow
+                                    .setSelectedContactTab(this.contactItem);
+                        }
+
+                        if (tabbedChatWindow.getExtendedState() == JFrame.ICONIFIED)
+                            tabbedChatWindow.setExtendedState(JFrame.NORMAL);
+
+                        tabbedChatWindow.setVisible(true);
+
+                        tabbedChatWindow.getCurrentChatPanel()
+                            .requestFocusInWriteArea();
                     }
-
-                    if (tabbedChatWindow.getExtendedState() == JFrame.ICONIFIED)
-                        tabbedChatWindow.setExtendedState(JFrame.NORMAL);
-
-                    tabbedChatWindow.setVisible(true);
-
-                    tabbedChatWindow.getCurrentChatPanel()
-                        .requestFocusInWriteArea();
                 }
             }
         }
@@ -365,12 +376,7 @@ public class ContactListPanel extends JScrollPane
                 chatPanel.processMessage(protocolContact.getDisplayName(),
                         date, Constants.INCOMING_MESSAGE,
                         message.getContent());
-                /*
-                chatPanel.processMessage(
-                        protocolContact.getDisplayName(),
-                        date, Constants.INCOMING_MESSAGE,
-                        message.getContent());
-                */
+                
                 if (Constants.AUTO_POPUP_NEW_MESSAGE) {
                     tabbedChatWindow.addChatTab(chatPanel);
                     
@@ -445,14 +451,46 @@ public class ContactListPanel extends JScrollPane
     }
 
     /**
-     * Shows a warning message to the user when message delivery failed.
+     * Shows a warning message to the user when message delivery has failed.
      *
      * @param evt the event containing details on the message delivery failure
      */
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt) {
-        SIPCommMsgTextArea msg = new SIPCommMsgTextArea(
-                Messages.getString("msgNotDelivered", evt
-                .getDestinationContact().getDisplayName()));
+        
+        SIPCommMsgTextArea msg = null;
+        
+        if(evt.getErrorCode()
+                == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
+            
+            msg = new SIPCommMsgTextArea(
+                    Messages.getString("msgDeliveryOfflineNotSupported", evt
+                    .getDestinationContact().getDisplayName()));
+        }
+        else if(evt.getErrorCode()
+                == MessageDeliveryFailedEvent.NETWORK_FAILURE) {
+            msg = new SIPCommMsgTextArea(
+                    Messages.getString("msgNotDelivered", evt
+                    .getDestinationContact().getDisplayName()));
+        }
+        else if(evt.getErrorCode()
+                == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED) {
+            
+            msg = new SIPCommMsgTextArea(
+                    Messages.getString("msgSendConnectionProblem", evt
+                    .getDestinationContact().getDisplayName()));
+        }
+        else if(evt.getErrorCode()
+                == MessageDeliveryFailedEvent.INTERNAL_ERROR) {
+            msg = new SIPCommMsgTextArea(
+                    Messages.getString("msgDeliveryInternalError", evt
+                    .getDestinationContact().getDisplayName()));
+        }
+        else {
+            msg = new SIPCommMsgTextArea(
+                    Messages.getString("unknownError", evt
+                    .getDestinationContact().getDisplayName()));
+        }
+        
         String title = Messages.getString("msgDeliveryFailure");
 
         JOptionPane.showMessageDialog(this, msg, title,
