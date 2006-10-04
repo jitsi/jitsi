@@ -702,7 +702,7 @@ public class OperationSetPersistentPresenceJabberImpl
      * @param oldStatus the status our stack had so far
      * @param newStatus the status we have from now on
      */
-    private void fireProviderPresenceStatusChangeEvent(
+    void fireProviderPresenceStatusChangeEvent(
         PresenceStatus oldStatus, PresenceStatus newStatus)
     {
         if(oldStatus.equals(newStatus)){

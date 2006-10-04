@@ -13,6 +13,7 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -419,6 +420,15 @@ public class ProtocolProviderServiceJabberImpl
                     oldConnectionState,
                     RegistrationState.UNREGISTERED,
                     RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+
+            OperationSetPersistentPresenceJabberImpl opSetPersPresence =
+                (OperationSetPersistentPresenceJabberImpl)
+                    getSupportedOperationSets()
+                        .get(OperationSetPersistentPresence.class.getName());
+
+            opSetPersPresence.fireProviderPresenceStatusChangeEvent(
+                opSetPersPresence.getPresenceStatus(),
+                JabberStatusEnum.OFFLINE);
         }
 
         public void connectionClosedOnError(Exception exception)
@@ -430,6 +440,15 @@ public class ProtocolProviderServiceJabberImpl
                     RegistrationState.UNREGISTERED,
                     RegistrationStateChangeEvent.REASON_INTERNAL_ERROR,
                     exception.getLocalizedMessage());
+
+            OperationSetPersistentPresenceJabberImpl opSetPersPresence =
+                (OperationSetPersistentPresenceJabberImpl)
+                getSupportedOperationSets()
+                .get(OperationSetPersistentPresence.class.getName());
+
+            opSetPersPresence.fireProviderPresenceStatusChangeEvent(
+                opSetPersPresence.getPresenceStatus(),
+                JabberStatusEnum.OFFLINE);
         }
     }
 }

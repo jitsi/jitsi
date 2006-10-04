@@ -19,6 +19,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.protocol.jabberconstants.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation
@@ -467,6 +468,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 jabberProvider.getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED,
                 RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);
+
+            opSetPersPresence.fireProviderPresenceStatusChangeEvent(
+                opSetPersPresence.getPresenceStatus(),
+                JabberStatusEnum.OFFLINE);
         }
     }
 }
