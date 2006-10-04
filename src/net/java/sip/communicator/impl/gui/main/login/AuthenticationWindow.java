@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>LoginWindow</tt> is the window where the user should type his
  * user identifier and password to login.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class AuthenticationWindow extends JDialog implements ActionListener {
@@ -44,16 +44,16 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
 
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-    
+
     private JCheckBox rememberPassCheckBox
         = new JCheckBox(Messages.getString("rememberPassword"));
 
     private LoginWindowBackground backgroundPanel;
-    
+
     private UserCredentials userCredentials;
-    
+
     private String realm;
-    
+
     /**
      * Creates an instance of the <tt>LoginWindow</tt>.
      * @param mainFrame the parent <tt>MainFrame</tt> window.
@@ -65,19 +65,19 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
                 ProtocolProviderService protocolProvider,
                 String realm,
                 UserCredentials userCredentials) {
-        
+
         super(mainFrame);
-        
+
         this.userCredentials = userCredentials;
-        
+
         this.realm = realm;
-        
+
         this.setModal(true);
 
         backgroundPanel = new LoginWindowBackground(
                 Constants.getProtocolBigIcon(
                         protocolProvider.getProtocolName()));
-        
+
         this.backgroundPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
         this.backgroundPanel.setBorder(
@@ -106,22 +106,22 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
      * Constructs the <tt>LoginWindow</tt>.
      */
     private void init() {
-        
+
         this.uinValueLabel = new JLabel(userCredentials.getUserName());
         if(userCredentials.getPassword() != null) {
             this.passwdField.setText(userCredentials.getPassword().toString());
         }
-        
+
         this.realmTextArea.setLineWrap(true);
         this.realmTextArea.setWrapStyleWord(true);
         this.realmTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         this.realmTextArea.setEditable(false);
         this.realmTextArea.setText(
                 Messages.getString("securityAuthorityRealm", this.realm));
-                
+
         this.uinLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
         this.passwdLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
-        
+
         this.labelsPanel.add(uinLabel);
         this.labelsPanel.add(passwdLabel);
 
@@ -137,9 +137,9 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
         this.mainPanel.add(textFieldsPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
-        this.backgroundPanel.add(mainPanel, BorderLayout.CENTER);        
+        this.backgroundPanel.add(mainPanel, BorderLayout.CENTER);
 
-        this.loginButton.setName("login");
+        this.loginButton.setName("ok");
         this.cancelButton.setName("cancel");
 
         this.loginButton.addActionListener(this);
@@ -159,7 +159,7 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
     private void setTransparent(boolean transparent) {
         this.mainPanel.setOpaque(!transparent);
         this.labelsPanel.setOpaque(!transparent);
-        this.textFieldsPanel.setOpaque(!transparent);        
+        this.textFieldsPanel.setOpaque(!transparent);
         this.buttonsPanel.setOpaque(!transparent);
     }
 
@@ -167,7 +167,7 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
      * Specifies the window location and shows it.
      */
     public void showWindow() {
-        
+
         this.setWindowLocation();
         this.setVisible(true);
     }
@@ -188,7 +188,7 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
     /**
      * Handles the <tt>ActionEvent</tt> triggered when one of the buttons is
      * clicked. When "Login" button is choosen installs a new account from
-     * the user input and logs in. 
+     * the user input and logs in.
      */
     public void actionPerformed(ActionEvent e) {
 
@@ -200,22 +200,22 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
                     passwdField.getPassword());
             userCredentials.setPasswordPersistent(
                     rememberPassCheckBox.isSelected());
-        } else {
-            this.dispose();
         }
+
+        this.dispose();
     }
 
     /**
      * The <tt>LoginWindowBackground</tt> is a <tt>JPanel</tt> that overrides
      * the <code>paintComponent</code> method to provide a custom background
-     * image for this window. 
+     * image for this window.
      */
     private class LoginWindowBackground extends JPanel {
         private Image bgImage;
         public LoginWindowBackground(Image bgImage) {
             this.bgImage = bgImage;
         }
-        
+
         protected void paintComponent(Graphics g) {
 
             super.paintComponent(g);
@@ -226,7 +226,7 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
 
             g2.drawImage(bgImage, 40,
                 (this.getHeight()/2 - bgImage.getHeight(null)/2), null);
-            
+
             g2.drawImage(ImageLoader.getImage(
                     ImageLoader.AUTH_WINDOW_BACKGROUND),
                     0, 0, null);

@@ -310,7 +310,10 @@ public abstract class ProtocolProviderFactory
              =  configurationService.getString(
                     accountPrefix + "." + PASSWORD);
 
-        return new String(Base64.decode(mangledPassword));
+         if(mangledPassword == null)
+             return null;
+
+         return new String(Base64.decode(mangledPassword));
     }
 
 
