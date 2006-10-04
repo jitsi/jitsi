@@ -96,13 +96,18 @@ public class LoginManager
      * @param protocolProvider the ProtocolProviderService to register.
      */
     public void login(ProtocolProviderService protocolProvider) {
-        
-        this.mainFrame.activateAccount(protocolProvider);
-
         SecurityAuthorityImpl secAuth
             = new SecurityAuthorityImpl(mainFrame, protocolProvider);
 
-        new RegisterProvider(protocolProvider, secAuth).start();
+        PresenceStatus status = this.mainFrame.getStatusPanel()
+            .getProtocolProviderLastStatus(protocolProvider);
+        
+        if(status == null 
+            || status.getStatus() > PresenceStatus.ONLINE_THRESHOLD) {
+            
+            this.mainFrame.activateAccount(protocolProvider);
+            new RegisterProvider(protocolProvider, secAuth).start();
+        } 
     }
 
     /**
