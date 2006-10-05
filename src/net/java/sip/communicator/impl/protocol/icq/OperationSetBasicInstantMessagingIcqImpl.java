@@ -531,7 +531,6 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 && conversation.getBuddy().getFormatted().
                     equals(icqProvider.getAccountID().getUserID()))
             {
-                logger.info("adddddddddd sys msg");
                 receivedKeepAlivePackets.addLast(msgBody);
                 return;
             }
