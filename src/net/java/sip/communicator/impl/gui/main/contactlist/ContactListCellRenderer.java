@@ -143,8 +143,14 @@ public class ContactListCellRenderer extends JPanel
                 buttonsPanelWidth += CONTACT_PROTOCOL_BUTTON_WIDTH;
                 this.buttonsPanel.add(contactProtocolButton);
                 
+                String contactDisplayName = protocolContact.getDisplayName();
+                String contactAddress = protocolContact.getAddress();
                 toolTipText
-                    += "<br>" + protocolContact.getDisplayName();
+                    += "<br>"
+                        + ((!contactDisplayName
+                                .equals(contactAddress))
+                            ? contactDisplayName + " ("+contactAddress + ")"
+                                    : contactDisplayName);
             }
             this.buttonsPanel.setPreferredSize(
                     new Dimension(buttonsPanelWidth, 16));
