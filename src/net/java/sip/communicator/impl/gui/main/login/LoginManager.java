@@ -96,18 +96,12 @@ public class LoginManager
      * @param protocolProvider the ProtocolProviderService to register.
      */
     public void login(ProtocolProviderService protocolProvider) {
+        
         SecurityAuthorityImpl secAuth
             = new SecurityAuthorityImpl(mainFrame, protocolProvider);
-
-        PresenceStatus status = this.mainFrame.getStatusPanel()
-            .getProtocolProviderLastStatus(protocolProvider);
-        
-        if(status == null 
-            || status.getStatus() > PresenceStatus.ONLINE_THRESHOLD) {
             
-            this.mainFrame.activateAccount(protocolProvider);
-            new RegisterProvider(protocolProvider, secAuth).start();
-        } 
+        this.mainFrame.activateAccount(protocolProvider);
+        new RegisterProvider(protocolProvider, secAuth).start();
     }
 
     /**
@@ -150,7 +144,14 @@ public class LoginManager
                 
                 this.mainFrame.addProtocolProvider(protocolProvider);
                 
-                this.login(protocolProvider);
+                PresenceStatus status = this.mainFrame.getStatusPanel()
+                    .getProtocolProviderLastStatus(protocolProvider);
+                
+                if(status == null 
+                    || status.getStatus() > PresenceStatus.ONLINE_THRESHOLD) {
+                
+                    this.login(protocolProvider);
+                }
             }
         }
 
@@ -357,7 +358,14 @@ public class LoginManager
             ProtocolProviderService protocolProvider) {
         protocolProvider.addRegistrationStateChangeListener(this);
         this.mainFrame.addProtocolProvider(protocolProvider);
-        this.login(protocolProvider);
+        
+        PresenceStatus status = this.mainFrame.getStatusPanel()
+            .getProtocolProviderLastStatus(protocolProvider);
+        
+        if(status == null 
+            || status.getStatus() > PresenceStatus.ONLINE_THRESHOLD) {
+            this.login(protocolProvider);
+        }
     }
 
     /**
