@@ -117,9 +117,11 @@ public class StatusPanel extends JPanel {
     }
 
     /**
-     * 
-     * @param protocolProvider
-     * @return
+     * Returns the last status that was stored in the configuration xml for the
+     * given protocol provider.
+     * @param protocolProvider the protocol provider 
+     * @return the last status that was stored in the configuration xml for the
+     * given protocol provider
      */
     public PresenceStatus getProtocolProviderLastStatus(
             ProtocolProviderService protocolProvider)
