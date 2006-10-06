@@ -35,7 +35,8 @@ import net.java.sip.communicator.util.*;
  */
 public class ContactList extends JList
     implements  MetaContactListListener,
-                MouseListener {
+                MouseListener,
+                MouseMotionListener {
     
     private Logger logger = Logger.getLogger(ContactList.class.getName()); 
 
@@ -77,6 +78,7 @@ public class ContactList extends JList
         this.contactList.addMetaContactListListener(this);
 
         this.addMouseListener(this);
+        this.addMouseMotionListener(this);
         
         this.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
@@ -92,8 +94,9 @@ public class ContactList extends JList
      * Refreshes the list model.
      */
     public void metaContactAdded(MetaContactEvent evt) {
+        System.out.println("META CONTACT ADDED!!!!!!!!!!");
         int index = this.listModel.indexOf(evt.getSourceMetaContact());
-
+        
         this.listModel.contentAdded(index, index);
     }
 
@@ -102,8 +105,9 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact is renamed.
      */
     public void metaContactRenamed(MetaContactRenamedEvent evt) {
-        this.revalidate();
-        this.repaint();
+        int index = this.listModel.indexOf(evt.getSourceMetaContact());
+
+        this.listModel.contentChanged(index, index);
     }
 
     /**
@@ -111,8 +115,9 @@ public class ContactList extends JList
      * Refreshes the list when a protocol contact has been added.
      */
     public void protoContactAdded(ProtoContactEvent evt) {
-        this.revalidate();
-        this.repaint();
+        int index = this.listModel.indexOf(evt.getNewParent());
+
+        this.listModel.contentChanged(index, index);
     }
 
     /**
@@ -120,8 +125,9 @@ public class ContactList extends JList
      * Refreshes the list when a protocol contact has been removed.
      */
     public void protoContactRemoved(ProtoContactEvent evt) {
-        this.revalidate();
-        this.repaint();
+        int index = this.listModel.indexOf(evt.getOldParent());
+
+        this.listModel.contentChanged(index, index);
     }
 
     /**
@@ -129,8 +135,11 @@ public class ContactList extends JList
      * Refreshes the list when a protocol contact has been moved.
      */
     public void protoContactMoved(ProtoContactEvent evt) {
-        this.revalidate();
-        this.repaint();
+        int index = this.listModel.indexOf(evt.getOldParent());
+        int index1 = this.listModel.indexOf(evt.getNewParent());
+        
+        this.listModel.contentChanged(index, index);
+        this.listModel.contentChanged(index1, index1);
     }
 
     /**
@@ -138,8 +147,11 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact has been removed.
      */
     public void metaContactRemoved(MetaContactEvent evt) {
-        this.revalidate();
-        this.repaint();
+        int index = this.listModel.indexOf(evt.getParentGroup());
+
+        this.listModel.contentChanged(index,
+                index + listModel
+                    .countContactsAndSubgroups(evt.getParentGroup()));
     }
 
     /**
@@ -147,8 +159,9 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact has been moved.
      */
     public void metaContactMoved(MetaContactMovedEvent evt) {
-        this.revalidate();
-        this.repaint();
+        int index = this.listModel.indexOf(evt.getSourceMetaContact());
+
+        this.listModel.contentChanged(index, index);
     }
 
     /**
@@ -156,14 +169,15 @@ public class ContactList extends JList
      * Refreshes the list model when a new meta contact group has been added.
      */
     public void metaContactGroupAdded(MetaContactGroupEvent evt) {
+        System.out.println("META CONTACT GROUP ADDED!!!!!!!!!!");
         MetaContactGroup sourceGroup = evt.getSourceMetaContactGroup();
 
-        this.groupAdded(sourceGroup);
+        int index = this.listModel.indexOf(sourceGroup);
 
+        this.listModel.contentAdded(index,
+                index + listModel.countContactsAndSubgroups(sourceGroup));
+                
         //this.ensureIndexIsVisible(0);
-        
-        this.revalidate();
-        this.repaint();
     }
 
     /**
@@ -171,8 +185,11 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact group has been modified.
      */
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
-        this.revalidate();
-        this.repaint();
+        MetaContactGroup sourceGroup = evt.getSourceMetaContactGroup();
+
+        int index = this.listModel.indexOf(sourceGroup);
+
+        this.listModel.contentChanged(index, index);
     }
 
     /**
@@ -180,7 +197,6 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact group has been removed.
      */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
-        this.revalidate();
         this.repaint();
     }
 
@@ -203,35 +219,6 @@ public class ContactList extends JList
 
         if (currentlySelectedContact != null)
             this.setSelectedValue(currentlySelectedContact, false);
-    }
-
-    /**
-     * Refreshes the list model when a group is added.
-     *
-     * @param group The group which is added.
-     */
-    private void groupAdded(MetaContactGroup group) {
-
-        int index = this.listModel.indexOf(group);
-
-        this.listModel.contentAdded(index, index);
-
-        Iterator childContacts = group.getChildContacts();
-
-        while (childContacts.hasNext()) {
-            MetaContact contact = (MetaContact) childContacts.next();
-
-            int contactIndex = this.listModel.indexOf(contact);
-            this.listModel.contentAdded(contactIndex, contactIndex);
-        }
-
-        Iterator subGroups = group.getSubgroups();
-
-        while (subGroups.hasNext()) {
-            MetaContactGroup subGroup = (MetaContactGroup) subGroups.next();
-
-            this.groupAdded(subGroup);
-        }
     }
 
     /**
@@ -534,9 +521,7 @@ public class ContactList extends JList
         Point selectedCellPoint = this.indexToLocation(selectedIndex);
 
         int translatedX = e.getX() - selectedCellPoint.x;
-
-        int translatedY = e.getY() - selectedCellPoint.y;
-        
+                
         if(selectedValue instanceof MetaContactGroup) {
             MetaContactGroup group = (MetaContactGroup) selectedValue;
             
@@ -565,8 +550,9 @@ public class ContactList extends JList
             MetaContact contact = (MetaContact) selectedValue;
             
             //get the component under the mouse
-            Component component = renderer.getComponentAt(translatedX,
-                    translatedY);
+            Component component
+                = this.getHorizontalComponent(renderer, translatedX);
+
             if (component instanceof JLabel) {
                 //Right click and Ctrl+LeftClick on the contact label opens
                 //Popup menu
@@ -604,23 +590,103 @@ public class ContactList extends JList
     
                     int internalX = translatedX
                             - (renderer.getWidth() - panel.getWidth() - 2);
-                    int internalY = translatedY
-                            - (renderer.getHeight() - panel.getHeight());
-    
-                    Component c = panel.getComponentAt(4, 4);
-    
+                    
+                    Component c = getHorizontalComponent(panel, internalX);
+                        
                     if (c instanceof ContactProtocolButton) {
                         fireContactListEvent(contact,
-                            ((ContactProtocolButton) c).getProtocolContact(),
+                            ((ContactProtocolButton) c)
+                            .getProtocolContact(),
                             ContactListEvent.PROTOCOL_CONTACT_SELECTED);
                     }
                 }
             }
         }
     }
-
+    
     public void mouseReleased(MouseEvent e)
     {}
+    
+    public void mouseDragged(MouseEvent e)
+    {}
+
+    public void mouseMoved(MouseEvent e)
+    {
+        /* SET A TOOLTIP - NEED TO BE FIXED
+        int index = this.locationToIndex(e.getPoint());        
+        Object value = this.listModel.getElementAt(index);
+        
+        ContactListCellRenderer renderer 
+            = (ContactListCellRenderer) 
+                this.getCellRenderer().getListCellRendererComponent(
+                        this, value, index, true,
+                        true);
+    
+        Point selectedCellPoint = this.indexToLocation(index);
+    
+        int translatedX = e.getX() - selectedCellPoint.x;
+        
+        int translatedY = e.getY() - selectedCellPoint.y;
+        
+        if (value instanceof MetaContact) {
+            
+            //get the component under the mouse
+            Component component = this.getInnerComponent(renderer, translatedX);
+            
+            if (component instanceof JPanel) {
+                if(component.getName() != null
+                        && component.getName().equals("buttonsPanel")){
+                    
+                    JPanel panel = (JPanel) component;
+    
+                    int internalX = translatedX
+                            - (renderer.getWidth() - panel.getWidth() - 2);
+                    
+                    int internalY = translatedY
+                        - (renderer.getHeight() - panel.getHeight());
+                    
+                    Component c = this.getInnerComponent(panel, internalX);
+                    
+                    if (c instanceof ContactProtocolButton) {
+                        
+                        ContactProtocolButton button
+                            = (ContactProtocolButton)c;
+                        
+                        Point p = e.getPoint();
+                        SwingUtilities
+                            .convertPointToScreen(p, this);
+                        
+                        if(button.isToolTipShown())
+                            button.hideToolTip();
+                        else
+                            button.showToolTip(p.x, p.y);
+                    }
+                }
+            }            
+        }
+        */
+    }
+    
+    /**
+     * Returns the component positioned at the given x in the given container.
+     * It's used like getComponentAt.
+     * @param c the container where to search
+     * @param x the x coordinate of the searched component
+     * @return the component positioned at the given x in the given container
+     */
+    private Component getHorizontalComponent(Container c, int x)
+    {
+        Component innerComponent = null;
+        int width;
+        for(int i = 0; i < c.getComponentCount(); i++) {
+            innerComponent = c.getComponent(i);
+            width = innerComponent.getWidth();
+            if(x > innerComponent.getX() && x < innerComponent.getX() + width) {
+                return innerComponent;
+            }
+        }
+        return null;
+    }
     
     /**
      * Runs the info window for the specified contact at the

@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.image.*;
 
 import javax.swing.*;
+import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -33,13 +34,12 @@ public class ContactListCellRenderer extends JPanel
       
     private JLabel nameLabel = new JLabel();
 
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,
-            0, 0));
+    private JPanel buttonsPanel;
 
     private SIPCommButton extendPanelButton = new SIPCommButton(ImageLoader
             .getImage(ImageLoader.MORE_INFO_ICON), ImageLoader
             .getImage(ImageLoader.MORE_INFO_ICON));
-
+    
     private boolean isSelected = false;
 
     private boolean isLeaf = true;
@@ -56,6 +56,9 @@ public class ContactListCellRenderer extends JPanel
         this.mainFrame = mainFrame;
         this.setBackground(Color.WHITE);
 
+        buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new GridLayout(1, 0));
+        
         this.buttonsPanel.setOpaque(false);
         this.buttonsPanel.setName("buttonsPanel");
 
@@ -66,7 +69,7 @@ public class ContactListCellRenderer extends JPanel
         this.nameLabel.setIconTextGap(2);
         
         this.nameLabel.setPreferredSize(new Dimension(10, 17));
-                
+        
         this.add(nameLabel, BorderLayout.CENTER);
     }
 
@@ -88,7 +91,7 @@ public class ContactListCellRenderer extends JPanel
 
             MetaContact contactItem = (MetaContact) value;
 
-            toolTipText += contactItem.getDisplayName();
+            toolTipText += "<b>"+contactItem.getDisplayName()+"</b>";
 
             this.nameLabel.setText(contactItem.getDisplayName());
 
@@ -106,7 +109,7 @@ public class ContactListCellRenderer extends JPanel
             this.buttonsPanel.removeAll();
             
             Iterator i = contactItem.getContacts();
-            int buttonsPanelWidth = 0;
+            int buttonCount = 0;
             while (i.hasNext()) {
                 Contact protocolContact = (Contact) i.next();
                 
@@ -125,23 +128,29 @@ public class ContactListCellRenderer extends JPanel
                     img = protocolStatusIcon;
                 }
                 ContactProtocolButton contactProtocolButton 
-                    = new ContactProtocolButton(img, img);
+                    = new ContactProtocolButton(img);
 
                 contactProtocolButton.setProtocolContact(protocolContact);
 
-                contactProtocolButton.setSize(
+                contactProtocolButton.setBounds(buttonCount*16, 16, 
                         protocolStatusIcon.getWidth(null), protocolStatusIcon
                                 .getHeight(null));
-
+                
                 this.buttonsPanel.add(contactProtocolButton);
-
-                buttonsPanelWidth += contactProtocolButton.getWidth();
-                // toolTipText
-                // += "<img src='"
-                // + ImageLoader.getImagePath(protocolStatusIcon)
-                // + "'></img>";
-
+                
+                buttonCount++;
+                
+                toolTipText
+                    += "<br>" + protocolContact.getDisplayName();
             }
+            this.buttonsPanel.setPreferredSize(
+                    new Dimension(buttonCount*16, 16));
+            this.buttonsPanel.setBounds(
+                    list.getWidth() - 2 - buttonCount*16, 0,
+                    buttonCount*16, 16);
+            this.nameLabel.setBounds(
+                    0, 0, list.getWidth() - 2 - buttonCount*16, 17);
+            
             this.add(buttonsPanel, BorderLayout.EAST);
 
             this.isLeaf = true;
@@ -236,5 +245,5 @@ public class ContactListCellRenderer extends JPanel
             g2.drawRoundRect(1, 0, this.getWidth() - 1, this.getHeight() - 1,
                     7, 7);
         }
-    }   
+    }
 }
