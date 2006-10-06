@@ -232,7 +232,7 @@ public class ContactListModel extends AbstractListModel {
           
             currentIndex += this.indexOf(parentGroup);
           
-            currentIndex += countChildContacts(parentGroup);
+            currentIndex += countDirectChildContacts(parentGroup);
           
             currentIndex += parentGroup.indexOf(group) + 1;
             
@@ -240,7 +240,7 @@ public class ContactListModel extends AbstractListModel {
                 MetaContactGroup subGroup = parentGroup
                         .getMetaContactSubgroup(i);
                 
-                currentIndex += countSubgroupContacts(subGroup);
+                currentIndex += countContactsAndSubgroups(subGroup);
             }            
             index = currentIndex;
         }
@@ -255,7 +255,7 @@ public class ContactListModel extends AbstractListModel {
      * @param parentGroup The parent MetaContactGroup.
      * @return The number of all children of the given MetaContactGroup
      */
-    private int countSubgroupContacts(MetaContactGroup parentGroup) {
+    public int countContactsAndSubgroups(MetaContactGroup parentGroup) {
  
         int count = 0;
 
@@ -277,7 +277,7 @@ public class ContactListModel extends AbstractListModel {
             while (subgroups.hasNext()) {
                 MetaContactGroup subgroup = (MetaContactGroup) subgroups.next();
 
-                count += countSubgroupContacts(subgroup);
+                count += countContactsAndSubgroups(subgroup);
             }
         }
         return count;
@@ -290,7 +290,7 @@ public class ContactListModel extends AbstractListModel {
      * @param parentGroup The parent MetaContactGroup.
      * @return The number of all children of the given MetaContactGroup
      */
-    private int countChildContacts(MetaContactGroup parentGroup) {
+    public int countDirectChildContacts(MetaContactGroup parentGroup) {
  
         int count = 0;
 
@@ -360,10 +360,10 @@ public class ContactListModel extends AbstractListModel {
      * @param group The group to close.
      */
     public void closeGroup(MetaContactGroup group) {        
-        if (countSubgroupContacts(group) > 0) {
+        if (countContactsAndSubgroups(group) > 0) {
             contentRemoved(this.indexOf(group.getMetaContact(0)),
                 this.indexOf(group.getMetaContact(
-                        countSubgroupContacts(group) - 1)));
+                        countContactsAndSubgroups(group) - 1)));
             
             this.closedGroups.add(group);
         }
@@ -378,7 +378,7 @@ public class ContactListModel extends AbstractListModel {
         this.closedGroups.remove(group);
         contentAdded(this.indexOf(group.getMetaContact(0)), 
             this.indexOf(group.getMetaContact(
-                    countSubgroupContacts(group) - 1)));
+                    countContactsAndSubgroups(group) - 1)));
     }
 
     /**
