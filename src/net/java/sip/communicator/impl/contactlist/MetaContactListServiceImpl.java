@@ -2317,6 +2317,10 @@ public class MetaContactListServiceImpl
         MetaContactImpl metaContactImpl =
             (MetaContactImpl) findMetaContactByContact(evt.getSourceContact());
 
+        //ignore if we have no meta contact.
+        if(metaContactImpl == null)
+            return;
+
         metaContactImpl.reevalContact();
 
         fireMetaContactGroupEvent(
