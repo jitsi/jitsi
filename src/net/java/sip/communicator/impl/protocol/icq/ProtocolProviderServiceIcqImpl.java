@@ -197,6 +197,10 @@ public class ProtocolProviderServiceIcqImpl
                 // the user didn't provide us a password (canceled the operation)
                 if(pass == null)
                 {
+                    fireRegistrationStateChanged(
+                        RegistrationState.UNREGISTERED,
+                        RegistrationState.UNREGISTERED,
+                        RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
                     return;
                 }
 
