@@ -764,7 +764,15 @@ public class ServerStoredContactListJabberImpl
                 RosterEntry entry = roster.getEntry(id);
 
                 ContactJabberImpl contact =
-                    new ContactJabberImpl(roster.getEntry(id),
+                    findContactById(entry.getUser());
+
+                if(contact != null)
+                {
+                    contact.setResolved(entry);
+                    continue;
+                }
+
+                contact = new ContactJabberImpl(roster.getEntry(id),
                                           ServerStoredContactListJabberImpl.this,
                                           true,
                                           true);
