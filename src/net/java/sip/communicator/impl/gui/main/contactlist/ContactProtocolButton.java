@@ -16,14 +16,14 @@ import net.java.sip.communicator.service.protocol.*;
 public class ContactProtocolButton extends SIPCommButton {
 
     private Contact protocolContact;
-
+    
     /**
      * Creates an instance of ContactProtocolButton.
      * @param bgImage The background image of the button.
      * @param rolloverImage The rollover image of the button.
      */
-    public ContactProtocolButton(Image bgImage, Image rolloverImage) {
-        super(bgImage, rolloverImage);
+    public ContactProtocolButton(Image bgImage) {
+        super(bgImage, bgImage);
     }
 
     /**
