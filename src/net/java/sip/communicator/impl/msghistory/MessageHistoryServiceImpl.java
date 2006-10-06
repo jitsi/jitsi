@@ -285,7 +285,13 @@ public class MessageHistoryServiceImpl
             }
         }
 
-        return result;
+        LinkedList resultAsList = new LinkedList(result);
+        int startIndex = resultAsList.size() - count;
+
+        if(startIndex < 0)
+            startIndex = 0;
+
+        return resultAsList.subList(startIndex, resultAsList.size());
     }
 
     /**
@@ -844,9 +850,7 @@ public class MessageHistoryServiceImpl
          */
         private int getProgressMapping(int historyProgress)
         {
-            int curGrow = (historyProgress - lastHistoryProgress)/contactCount;
-
-            currentProgress += curGrow;
+            currentProgress += (historyProgress - lastHistoryProgress)/contactCount;
 
             if(historyProgress == HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE)
             {
