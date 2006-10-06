@@ -45,6 +45,8 @@ public class ContactListCellRenderer extends JPanel
     private boolean isLeaf = true;
     
     private MainFrame mainFrame;
+    
+    private int CONTACT_PROTOCOL_BUTTON_WIDTH = 20;
 
     /**
      * Initialize the panel containing the node.
@@ -109,7 +111,7 @@ public class ContactListCellRenderer extends JPanel
             this.buttonsPanel.removeAll();
             
             Iterator i = contactItem.getContacts();
-            int buttonCount = 0;
+            int buttonsPanelWidth = 0;
             while (i.hasNext()) {
                 Contact protocolContact = (Contact) i.next();
                 
@@ -131,25 +133,26 @@ public class ContactListCellRenderer extends JPanel
                     = new ContactProtocolButton(img);
 
                 contactProtocolButton.setProtocolContact(protocolContact);
+                
+                contactProtocolButton.setBounds(buttonsPanelWidth,
+                        16, 
+                        CONTACT_PROTOCOL_BUTTON_WIDTH,//the width is fixed in 
+                            //order all the icons to be with the same size
+                        img.getHeight(null));
 
-                contactProtocolButton.setBounds(buttonCount*16, 16, 
-                        protocolStatusIcon.getWidth(null), protocolStatusIcon
-                                .getHeight(null));
-                
+                buttonsPanelWidth += CONTACT_PROTOCOL_BUTTON_WIDTH;
                 this.buttonsPanel.add(contactProtocolButton);
-                
-                buttonCount++;
                 
                 toolTipText
                     += "<br>" + protocolContact.getDisplayName();
             }
             this.buttonsPanel.setPreferredSize(
-                    new Dimension(buttonCount*16, 16));
+                    new Dimension(buttonsPanelWidth, 16));
             this.buttonsPanel.setBounds(
-                    list.getWidth() - 2 - buttonCount*16, 0,
-                    buttonCount*16, 16);
+                    list.getWidth() - 2 - buttonsPanelWidth, 0,
+                    buttonsPanelWidth, 16);
             this.nameLabel.setBounds(
-                    0, 0, list.getWidth() - 2 - buttonCount*16, 17);
+                    0, 0, list.getWidth() - 2 - buttonsPanelWidth, 17);
             
             this.add(buttonsPanel, BorderLayout.EAST);
 
