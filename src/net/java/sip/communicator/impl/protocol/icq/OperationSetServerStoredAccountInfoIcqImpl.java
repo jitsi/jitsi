@@ -167,12 +167,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         icqProvider.getAimConnection().getInfoService().
             sendSnacRequest(new FullInfoCmd(uin, alreadySetDetails, null), responseListener);
 
-        synchronized(responseListener.waitingForResponseLock){
-            try{
-                responseListener.waitingForResponseLock.wait(2000);
-            }
-            catch (InterruptedException ex){}
-        }
+        responseListener.waitForEvent(5000);
 
         if(!responseListener.success)
             if(responseListener.timeout)
@@ -228,12 +223,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         icqProvider.getAimConnection().getInfoService().
             sendSnacRequest(new FullInfoCmd(uin, foundValues, removeValues), responseListener);
 
-        synchronized(responseListener.waitingForResponseLock){
-            try{
-                responseListener.waitingForResponseLock.wait(2000);}
-            catch (InterruptedException ex)
-            {}
-        }
+        responseListener.waitForEvent(5000);
 
         if(!responseListener.success && responseListener.timeout)
             throw new OperationFailedException("Replacing Detail Failed!",
@@ -296,12 +286,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
             sendSnacRequest(
                 new FullInfoCmd(uin, alreadySetDetails, null), responseListener);
 
-        synchronized(responseListener.waitingForResponseLock){
-            try{
-                responseListener.waitingForResponseLock.wait(2000);
-            }
-            catch (InterruptedException ex){}
-        }
+        responseListener.waitForEvent(5000);
 
         if(!responseListener.success && responseListener.timeout)
             throw new OperationFailedException("Replacing Detail Failed!",
@@ -330,51 +315,58 @@ public class OperationSetServerStoredAccountInfoIcqImpl
 
         private boolean timeout = false;
 
-        public void handleSent(SnacRequestSentEvent e)
+        public void handleSent(SnacRequestSentEvent evt)
         {}
 
         public void handleTimeout(SnacRequestTimeoutEvent event)
         {
             logger.trace("Timeout!");
 
-            synchronized(this) {
-                if (ran) return;
+            synchronized(waitingForResponseLock)
+            {
+                if (ran)
+                    return;
 
                 ran = true;
                 timeout = true;
+                waitingForResponseLock.notifyAll();
             }
+        }
 
+        public void handleResponse(SnacResponseEvent evt)
+        {
             synchronized(waitingForResponseLock)
             {
-                waitingForResponseLock.notifyAll();
-            }
-        }
-
-        public void handleResponse(SnacResponseEvent e)
-        {
-            synchronized(this) {
-                if (ran) return;
+                if (ran)
+                    return;
                 ran = true;
-            }
-            if(e.getSnacCommand() instanceof FullInfoAck)
-            {
-                FullInfoAck cmd = (FullInfoAck)e.getSnacCommand();;
-                if(cmd.isCommandSuccesful())
+                if (evt.getSnacCommand() instanceof FullInfoAck)
                 {
-                    success = true;
+                    FullInfoAck cmd = (FullInfoAck) evt.getSnacCommand();
+                    if (cmd.isCommandSuccesful())
+                    {
+                        success = true;
+                    }
                 }
-            }
-
-            synchronized(waitingForResponseLock){
                 waitingForResponseLock.notifyAll();
             }
         }
 
-        public void wait(int milliseconds)
+        public void waitForEvent(int milliseconds)
         {
-            synchronized (this){
-                if(ran) return;
-                this.wait(milliseconds);
+            synchronized (waitingForResponseLock){
+                if(ran)
+                    return;
+
+                try
+                {
+                    waitingForResponseLock.wait(milliseconds);
+                }
+                catch (InterruptedException exc)
+                {
+                    logger.error("Interrupted while waiting for response."
+                                 , exc);
+                }
             }
         }
     }
