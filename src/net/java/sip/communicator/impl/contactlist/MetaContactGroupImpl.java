@@ -505,20 +505,7 @@ public class MetaContactGroupImpl
     public MetaContact getMetaContact(int index) throws
         IndexOutOfBoundsException
     {
-        int i = 0;
-
-        Iterator childrenIter = getChildContacts();
-
-        while (childrenIter.hasNext())
-        {
-            MetaContact result = (MetaContact) childrenIter.next();
-            if (i++ == index)
-                return result;
-        }
-        //if we got here then index was out of the bounds
-        throw new IndexOutOfBoundsException(i
-            + " is larger than size()="
-            + childContacts.size());
+            return (MetaContactImpl)this.childContactsOrderedCopy.get(index);
     }
 
     /**
