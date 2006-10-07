@@ -385,7 +385,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
             {
                 // if we are not registerd do nothing
                 if(!jabberProvider.isRegistered())
+                {
+                    logger.trace("provider not registered. "
+                                 +"won't send keep alive. acc.id="
+                                 + jabberProvider.getAccountID()
+                                    .getAccountUniqueID());
                     return;
+                }
 
                 Chat chat =
                     jabberProvider.getConnection().
