@@ -111,7 +111,10 @@ public class ContactJabberImpl
     {
         if (obj == null
             || !(obj instanceof ContactJabberImpl)
-            || !((ContactJabberImpl)obj).getAddress().equals(getAddress()))
+            || !(((ContactJabberImpl)obj).getAddress().equals(getAddress())
+                && ((ContactJabberImpl)obj).getProtocolProvider()
+                        == getProtocolProvider()))
+
             return false;
 
         return true;
