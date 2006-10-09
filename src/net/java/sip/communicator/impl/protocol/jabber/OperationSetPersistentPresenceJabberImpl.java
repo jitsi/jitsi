@@ -844,6 +844,30 @@ public class OperationSetPersistentPresenceJabberImpl
                             , oldContactStatus, JabberStatusEnum.OFFLINE);
                     }
                 }
+
+                //do the same for all contacts in the root group
+                Iterator contactsIter
+                    = getServerStoredContactListRoot().contacts();
+
+                while (contactsIter.hasNext())
+                {
+                    ContactJabberImpl contact
+                        = (ContactJabberImpl) contactsIter.next();
+
+                    PresenceStatus oldContactStatus
+                        = contact.getPresenceStatus();
+
+                    if (!oldContactStatus.isOnline())
+                        continue;
+
+                    contact.updatePresenceStatus(JabberStatusEnum.OFFLINE);
+
+                    fireContactPresenceStatusChangeEvent(
+                        contact
+                        , contact.getParentContactGroup()
+                        , oldContactStatus, JabberStatusEnum.OFFLINE);
+                }
+
             }
         }
     }
