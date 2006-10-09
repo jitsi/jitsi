@@ -81,7 +81,9 @@ public class ProtocolContactSelectorBox
             }
         }
         logger.debug( "Could not find contact for menu item "
-                      + menuItem.getName());
+                      + menuItem.getText() + ". contactsTable("
+                      + contactsTable.size()+") is : "
+                      + contactsTable);
     }
 
     /**
