@@ -45,7 +45,7 @@ public class OperationSetPersistentPresenceJabberImpl
 
     /**
      * The presence status that we were last notified of etnering.
-     * The initial one is AVAILABLE
+     * The initial one is OFFLINE
      */
     private PresenceStatus currentStatus = JabberStatusEnum.OFFLINE;
 
