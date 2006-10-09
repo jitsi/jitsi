@@ -56,6 +56,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
      */
     private LinkedList receivedKeepAlivePackets = new LinkedList();
 
+    private int failedKeepalivePackets = 0;
+
     /**
      * A list of listeneres registered for message events.
      */
@@ -449,14 +451,23 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 // or if NoSuchElementException is thrown
                 // there is no message
                 while(!checkFirstPacket());
+                failedKeepalivePackets = 0;
             }
             catch (NoSuchElementException ex)
             {
                 logger.error(
                     "Did not receive last keep alive packet for account "
                     + jabberProvider.getAccountID().getAccountUniqueID());
-                logger.error("unregistering.");
-                fireUnregisterd();
+
+                failedKeepalivePackets++;
+
+                // if we have 3 keepalive fails then unregister
+                if(failedKeepalivePackets == 3)
+                {
+                    logger.error("unregistering.");
+                    fireUnregisterd();
+                    failedKeepalivePackets = 0;
+                }
             }
         }
 
