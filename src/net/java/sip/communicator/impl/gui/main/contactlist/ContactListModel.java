@@ -35,8 +35,6 @@ public class ContactListModel extends AbstractListModel {
 
     private Vector closedGroups = new Vector();
 
-    private Vector offlineContacts = new Vector();
-
     private boolean showOffline = true;
 
     /**
@@ -108,8 +106,7 @@ public class ContactListModel extends AbstractListModel {
      * @return The object at the given index.
      */
     public Object getElementAt(int index) {
-        Object element = this.getElementAt(this.rootGroup, index);
-
+        Object element = this.getElementAt(this.rootGroup, -1, index);
         return element;
     }
 
@@ -131,10 +128,9 @@ public class ContactListModel extends AbstractListModel {
                 Iterator i = group.getChildContacts();
                 while (i.hasNext()) {
                     MetaContact contact = (MetaContact) i.next();
-                    synchronized (offlineContacts) {
-                        if (!offlineContacts.contains(contact))
-                            size++;
-                    }
+                    
+                    if (isContactOnline(contact))
+                        size++;
                 }
             }
             size += group.countSubgroups();
@@ -198,7 +194,7 @@ public class ContactListModel extends AbstractListModel {
 
         int index = -1;
 
-        if (!offlineContacts.contains(contact)) {
+        if (showOffline || isContactOnline(contact)) {
             int currentIndex = 0;
             MetaContactGroup parentGroup = this.contactList
                     .findParentMetaContactGroup(contact);
@@ -267,7 +263,7 @@ public class ContactListModel extends AbstractListModel {
                 Iterator i = parentGroup.getChildContacts();
                 while (i.hasNext()) {
                     MetaContact contact = (MetaContact) i.next();
-                    if (!offlineContacts.contains(contact))
+                    if (isContactOnline(contact))
                         count++;
                 }
             }
@@ -302,7 +298,7 @@ public class ContactListModel extends AbstractListModel {
                 Iterator i = parentGroup.getChildContacts();
                 while (i.hasNext()) {
                     MetaContact contact = (MetaContact) i.next();
-                    if (!offlineContacts.contains(contact))
+                    if (isContactOnline(contact))
                         count++;
                 }
             }
@@ -317,36 +313,43 @@ public class ContactListModel extends AbstractListModel {
      * @param searchedIndex The index to search for.
      * @return The element at the given index, if it finds it, otherwise null.
      */
-    private Object getElementAt(MetaContactGroup group, int searchedIndex) {
+    private Object getElementAt(MetaContactGroup group,
+                int currentIndex, int searchedIndex) {
+        
         Object element = null;
-
-        if (!this.isGroupClosed(group)) {
-            Iterator contacts = group.getChildContacts();
-
-            while (contacts.hasNext()) {
-                MetaContact contact = (MetaContact) contacts.next();                
-                if (!offlineContacts.contains(contact)
-                        && this.indexOf(contact) == searchedIndex) {                    
-                    element = contact;
-                    break;
-                }
-            }
-
-            if (element == null) {
-                Iterator subgroups = group.getSubgroups();
-
-                while (subgroups.hasNext()) {
-                    MetaContactGroup subgroup = (MetaContactGroup) subgroups
-                            .next();
+        if(currentIndex == searchedIndex) {
+            element = group;
+        }
+        else {
+            if(!isGroupClosed(group)) {
+                int childCount = countChildContacts(group);
+                if(searchedIndex <= (currentIndex + childCount)) {
                     
-                    if (this.indexOf(subgroup) != searchedIndex) {
-                        element = getElementAt(subgroup, searchedIndex);
-                        if (element != null) {
+                    MetaContact contact = group.getMetaContact(
+                            searchedIndex - currentIndex - 1);
+                    
+                    if(showOffline || isContactOnline(contact))
+                        element = contact;
+                }
+                else {
+                    currentIndex += childCount;
+                    Iterator subgroups = group.getSubgroups();
+    
+                    while (subgroups.hasNext()) {
+                        MetaContactGroup subgroup
+                            = (MetaContactGroup) subgroups.next();
+                        element = getElementAt(
+                                subgroup, currentIndex + 1, searchedIndex);
+                        
+                        if(element != null)
                             break;
+                        else {
+                            if(!isGroupClosed(subgroup))
+                                currentIndex
+                                    += countChildContacts(subgroup) + 1;
+                            else
+                                currentIndex ++;
                         }
-                    } else {
-                        element = subgroup;
-                        break;
                     }
                 }
             }
@@ -395,89 +398,6 @@ public class ContactListModel extends AbstractListModel {
     }
 
     /**
-     * Removes all offline contacts from the contact list.
-     */
-    public void removeOfflineContacts() {
-        // Stock offline contacts before adding them in 
-        // offlineContacts Vector in order to have 
-        // getElementAt and indexOf working as nothing 
-        // was changed.
-        Vector offlineContactsCopy = new Vector();
-        // A copy of the size as it was before removing an offline contact.
-        int size = this.getSize();
-        for (int i = 0; i < size; i++) {
-            Object element = this.getElementAt(i);
-
-            if (element instanceof MetaContact) {
-                MetaContact contactNode = (MetaContact) element;
-
-                if (!getMetaContactStatus(contactNode).isOnline()) {
-                    int index = indexOf(contactNode);
-                    this.contentRemoved(index, index);
-                                        
-                    offlineContactsCopy.add(contactNode);
-                }
-            }
-        }
-        //Remove also offline contacts in closed groups.
-        for (int j = 0; j < closedGroups.size(); j++) {
-            MetaContactGroup closedGroup 
-                = (MetaContactGroup) closedGroups.get(j);
-            
-            removeClosedOfflineContacts(closedGroup, offlineContactsCopy);
-        }
-        
-        this.offlineContacts = offlineContactsCopy;
-    }
-    
-    /**
-     * Recursively removes offline contacts contained in closed groups.
-     *  
-     * @param group A MetaContactGroup.
-     * @param offlineContactsCopy A copy of the offlineContacts Vector. 
-     */
-    private void removeClosedOfflineContacts(MetaContactGroup group,
-            Vector offlineContactsCopy) {
-        Iterator iter = group.getChildContacts();
-        while (iter.hasNext()) {
-            MetaContact contact = (MetaContact) iter.next();
-            if (!getMetaContactStatus(contact).isOnline()) {
-                offlineContactsCopy.add(contact);
-            }
-        }
-        
-        Iterator iter1 = group.getSubgroups();
-        while (iter1.hasNext()) {
-            MetaContactGroup subgroup = (MetaContactGroup) iter1.next();
-            if (subgroup.countChildContacts() > 0
-                    || subgroup.countSubgroups() > 0) {
-                removeClosedOfflineContacts(subgroup, offlineContactsCopy);
-            }
-        }
-    }
-
-    /**
-     * Adds all offline contacts back to the contact list.
-     */
-    public void addOfflineContacts() {
-        //Create a copy of the list containing offline contacts
-        //and after that delete it. We need that the list is empty
-        //when calculating indexOf.
-        Vector contacts = (Vector) this.offlineContacts.clone();
-        this.offlineContacts.removeAllElements();
-        
-        for (int i = 0; i < contacts.size(); i++) {
-            
-            MetaContact contact = (MetaContact) contacts.get(i);
-            
-            if (!isGroupClosed(contact.getParentMetaContactGroup())) {
-                int index = this.indexOf(contact);
-                contentAdded(index, index);
-            }
-        }
-    }
-
-    /**
      * Returns true if offline contacts should be shown, 
      * false otherwise.
      * @return boolean true if offline contacts should be 
@@ -495,6 +415,7 @@ public class ContactListModel extends AbstractListModel {
      */
     public void setShowOffline(boolean showOffline) {
         this.showOffline = showOffline;
+        this.contentChanged(0, getSize() - 1);
     }
 
     /**
@@ -506,17 +427,45 @@ public class ContactListModel extends AbstractListModel {
      * @param newStatus The new status of the contact.
      */
     public void updateContactStatus(MetaContact contact,
-            PresenceStatus newStatus) {
-        if (!showOffline) {
-            if (newStatus.isOnline() && offlineContacts.contains(contact)) {
-                offlineContacts.remove(contact);
-            } else if (!newStatus.isOnline()
-                    && !offlineContacts.contains(contact)) {
-                offlineContacts.add(contact);
-            }
-        }
-
+            PresenceStatus newStatus) {        
         int index = this.indexOf(contact);
         this.contentChanged(index, index);
+    }
+    
+    /**
+     * Returns TRUE if the given meta contact is online, FALSE otherwise.
+     * @param contact the meta contact
+     * @return TRUE if the given meta contact is online, FALSE otherwise
+     */
+    public boolean isContactOnline(MetaContact contact)
+    {
+        //Lays on the fact that the default contact is the most connected.        
+        if(contact.getDefaultContact().getPresenceStatus().getStatus()
+                > PresenceStatus.ONLINE_THRESHOLD) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    public int countChildContacts(MetaContactGroup group)
+    { 
+        if(showOffline)
+            return group.countChildContacts();
+        else {
+            int count = 0;
+            Iterator i = group.getChildContacts();
+            while(i.hasNext()) {
+                MetaContact metaContact = (MetaContact)i.next();
+                if(isContactOnline(metaContact)) {
+                    count ++;
+                }
+                else {
+                    break;
+                }
+            }
+            return count;
+        }
     }
 }

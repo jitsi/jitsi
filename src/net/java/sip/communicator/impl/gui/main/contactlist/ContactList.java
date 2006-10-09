@@ -7,19 +7,15 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
-import com.sun.media.*;
-
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -94,10 +90,7 @@ public class ContactList extends JList
      * Refreshes the list model.
      */
     public void metaContactAdded(MetaContactEvent evt) {
-        System.out.println("META CONTACT ADDED!!!!!!!!!!");
-        int index = this.listModel.indexOf(evt.getSourceMetaContact());
-        
-        this.listModel.contentAdded(index, index);
+        this.repaint();
     }
 
     /**
@@ -105,9 +98,7 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact is renamed.
      */
     public void metaContactRenamed(MetaContactRenamedEvent evt) {
-        int index = this.listModel.indexOf(evt.getSourceMetaContact());
-
-        this.listModel.contentChanged(index, index);
+        this.repaint();
     }
 
     /**
@@ -125,9 +116,7 @@ public class ContactList extends JList
      * Refreshes the list when a protocol contact has been removed.
      */
     public void protoContactRemoved(ProtoContactEvent evt) {
-        int index = this.listModel.indexOf(evt.getOldParent());
-
-        this.listModel.contentChanged(index, index);
+        this.repaint();
     }
 
     /**
@@ -135,11 +124,7 @@ public class ContactList extends JList
      * Refreshes the list when a protocol contact has been moved.
      */
     public void protoContactMoved(ProtoContactEvent evt) {
-        int index = this.listModel.indexOf(evt.getOldParent());
-        int index1 = this.listModel.indexOf(evt.getNewParent());
-        
-        this.listModel.contentChanged(index, index);
-        this.listModel.contentChanged(index1, index1);
+        this.repaint();
     }
 
     /**
@@ -147,11 +132,7 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact has been removed.
      */
     public void metaContactRemoved(MetaContactEvent evt) {
-        int index = this.listModel.indexOf(evt.getParentGroup());
-
-        this.listModel.contentChanged(index,
-                index + listModel
-                    .countContactsAndSubgroups(evt.getParentGroup()));
+        this.repaint();
     }
 
     /**
@@ -159,24 +140,15 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact has been moved.
      */
     public void metaContactMoved(MetaContactMovedEvent evt) {
-        int index = this.listModel.indexOf(evt.getSourceMetaContact());
-
-        this.listModel.contentChanged(index, index);
+        this.repaint();
     }
 
     /**
      * Handles the <tt>MetaContactGroupEvent</tt>.
      * Refreshes the list model when a new meta contact group has been added.
      */
-    public void metaContactGroupAdded(MetaContactGroupEvent evt) {
-        System.out.println("META CONTACT GROUP ADDED!!!!!!!!!!");
-        MetaContactGroup sourceGroup = evt.getSourceMetaContactGroup();
-
-        int index = this.listModel.indexOf(sourceGroup);
-
-        this.listModel.contentAdded(index,
-                index + listModel.countContactsAndSubgroups(sourceGroup));
-                
+    public void metaContactGroupAdded(MetaContactGroupEvent evt) {        
+        this.repaint();                
         //this.ensureIndexIsVisible(0);
     }
 
@@ -185,11 +157,7 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact group has been modified.
      */
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
-        MetaContactGroup sourceGroup = evt.getSourceMetaContactGroup();
-
-        int index = this.listModel.indexOf(sourceGroup);
-
-        this.listModel.contentChanged(index, index);
+        this.repaint();
     }
 
     /**
@@ -208,15 +176,7 @@ public class ContactList extends JList
      * depends on the contact and not on the index.
      */
     public void childContactsReordered(MetaContactGroupEvent evt) {
-
-        MetaContactGroup group = evt.getSourceMetaContactGroup();
-
-        int startIndex = this.listModel.indexOf(group.getMetaContact(0));
-        int endIndex = this.listModel.indexOf(group.getMetaContact(group
-                .countChildContacts() - 1));
-
-        this.listModel.contentChanged(startIndex, endIndex);
-
+        this.repaint();
         if (currentlySelectedContact != null)
             this.setSelectedValue(currentlySelectedContact, false);
     }
