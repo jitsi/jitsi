@@ -416,21 +416,7 @@ public class ContactListModel extends AbstractListModel {
     public void setShowOffline(boolean showOffline) {
         this.showOffline = showOffline;
         this.contentChanged(0, getSize() - 1);
-    }
-
-    /**
-     * Informs the model that the contect of the given contact 
-     * was changed. When in mode "hide offline contacts", shows
-     * or hides the given contact depending on the new status.
-     *  
-     * @param contact The MetaContact which status has changed.
-     * @param newStatus The new status of the contact.
-     */
-    public void updateContactStatus(MetaContact contact,
-            PresenceStatus newStatus) {        
-        int index = this.indexOf(contact);
-        this.contentChanged(index, index);
-    }
+    }    
     
     /**
      * Returns TRUE if the given meta contact is online, FALSE otherwise.
@@ -449,6 +435,11 @@ public class ContactListModel extends AbstractListModel {
         }
     }
     
+    /**
+     * 
+     * @param group
+     * @return
+     */
     public int countChildContacts(MetaContactGroup group)
     { 
         if(showOffline)

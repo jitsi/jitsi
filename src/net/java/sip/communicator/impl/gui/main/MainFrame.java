@@ -518,11 +518,7 @@ public class MainFrame
             if (metaContact != null) {
                 ContactListPanel clistPanel = tabbedPane.getContactListPanel();
 
-                ContactListModel model = (ContactListModel) clistPanel
-                        .getContactList().getModel();
-
-                model.updateContactStatus(metaContact, evt.getNewStatus());
-
+                clistPanel.getContactList().repaint();
                 if(!evt.getOldStatus().equals(evt.getNewStatus()))
                     clistPanel.updateChatContactStatus(
                             metaContact, sourceContact);
