@@ -139,7 +139,6 @@ public class QuickMenu
 
             if (listModel.showOffline()) {                
                 listModel.setShowOffline(false);
-                listModel.removeOfflineContacts();
             }
             else {
                 Object selectedObject = null;
@@ -150,7 +149,6 @@ public class QuickMenu
                 }
 
                 listModel.setShowOffline(true);
-                listModel.addOfflineContacts();
 
                 if (selectedObject != null) {
                     if (selectedObject instanceof MetaContact) {
