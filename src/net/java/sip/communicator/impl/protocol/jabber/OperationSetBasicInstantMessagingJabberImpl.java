@@ -36,12 +36,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
     /**
      * KeepAlive interval for sending packets
      */
-    private static long KEEPALIVE_INTERVAL = 180000l; // 3 minutes
+    private static final long KEEPALIVE_INTERVAL = 180000l; // 3 minutes
 
     /**
      * The interval after which a packet is considered to be lost
      */
-    private static long KEEPALIVE_WAIT = 20000l;
+    private static final long KEEPALIVE_WAIT = 20000l;
 
     /**
      * The task sending packets
@@ -398,7 +398,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     createChat(jabberProvider.getAccountID().getUserID());
 
                 org.jivesoftware.smack.packet.Message msg = chat.createMessage();
-                msg.setBody("SYSTEM MESSAGE!");
+
+                //make the system message unique (emcho: I think some servers "
+                //may be ignoring repetitive messages.)
+                msg.setBody("SYSTEM MESSAGE! ("
+                            + System.currentTimeMillis()
+                            + ")");
 
                 KeepAliveEvent keepAliveEvent = new KeepAliveEvent();
 
@@ -413,12 +418,17 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 keepAliveTimer.schedule(
                     new KeepAliveCheckTask(), KEEPALIVE_WAIT);
 
-                logger.trace("send keepalive");
+                logger.trace(
+                    "send keepalive for acc: "
+                    + jabberProvider.getAccountID().getAccountUniqueID());
                 chat.sendMessage(msg);
             }
             catch (XMPPException ex)
             {
-                logger.error("", ex);
+                logger.error(
+                    "Error sending keep alive packet for account"
+                    + jabberProvider.getAccountID().getAccountUniqueID()
+                    , ex);
             }
         }
     }
@@ -442,6 +452,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
             }
             catch (NoSuchElementException ex)
             {
+                logger.error(
+                    "Did not receive last keep alive packet for account "
+                    + jabberProvider.getAccountID().getAccountUniqueID());
+                logger.error("unregistering.");
                 fireUnregisterd();
             }
         }
