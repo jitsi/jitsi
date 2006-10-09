@@ -42,6 +42,12 @@ public class MetaContactImpl
     private String displayName = "";
 
     /**
+     * The contact that should be chosen by default when communicating with this
+     * meta contact.
+     */
+    private Contact defaultContact = null;
+
+    /**
      * A callback to the meta contact group that is currently our parent. If
      * this is an orphan meta contact that has not yet been added or has been
      * removed from a group this callback is going to be null.
@@ -201,22 +207,29 @@ public class MetaContactImpl
      */
     public Contact getDefaultContact()
     {
-        PresenceStatus currentStatus = null;
-        Contact defaultContact = null;
-        for(int i = 0; i < this.protoContacts.size(); i++) {
-            Contact protoContact = (Contact)this.protoContacts.get(i);
-            
-            PresenceStatus contactStatus = protoContact.getPresenceStatus();
-            
-            if(currentStatus != null) {
-                if(currentStatus.getStatus() < contactStatus.getStatus()) {
-                    currentStatus = contactStatus;
-                    defaultContact = protoContact; 
+        if(defaultContact == null)
+        {
+
+            PresenceStatus currentStatus = null;
+            for (int i = 0; i < this.protoContacts.size(); i++)
+            {
+                Contact protoContact = (Contact)this.protoContacts.get(i);
+
+                PresenceStatus contactStatus = protoContact.getPresenceStatus();
+
+                if (currentStatus != null)
+                {
+                    if (currentStatus.getStatus() < contactStatus.getStatus())
+                    {
+                        currentStatus = contactStatus;
+                        defaultContact = protoContact;
+                    }
                 }
-            }
-            else {
-                currentStatus = contactStatus;
-                defaultContact = protoContact;
+                else
+                {
+                    currentStatus = contactStatus;
+                    defaultContact = protoContact;
+                }
             }
         }
         return defaultContact;
@@ -355,7 +368,8 @@ public class MetaContactImpl
 
     /**
      * Called by MetaContactListServiceImpl after a contact has changed its
-     * status, so that ordering in the parent group is updated.
+     * status, so that ordering in the parent group is updated. The method also
+     * elects the most connected contact as default contact.
      */
     void reevalContact()
     {
@@ -369,14 +383,23 @@ public class MetaContactImpl
             }
 
             this.totalStatus = 0;
+            int maxContactStatus = 0;
 
             Iterator protoContacts = this.protoContacts.iterator();
 
             while (protoContacts.hasNext())
-                totalStatus += ( (Contact) protoContacts.next()).
-                    getPresenceStatus()
-                    .getStatus();
+            {
+                Contact contact = ( (Contact) protoContacts.next());
+                int contactStatus = contact.getPresenceStatus()
+                        .getStatus();
 
+                if(maxContactStatus < contactStatus)
+                {
+                    maxContactStatus = contactStatus;
+                    this.defaultContact = contact;
+                }
+                totalStatus += contactStatus;
+            }
             //now readd it and the contact would be automatically placed
             //properly by the containing group
             if (parentGroup != null)
@@ -445,7 +468,7 @@ public class MetaContactImpl
     /**
      * Removes all proto contacts that belong to the specified protocol group.
      *
-     * @param group the group whose children we want removed.
+     * @param protoGroup the group whose children we want removed.
      *
      * @return true if this <tt>MetaContact</tt> was modified and false
      * otherwise.
