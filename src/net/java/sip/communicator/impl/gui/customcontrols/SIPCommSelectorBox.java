@@ -86,6 +86,14 @@ public class SIPCommSelectorBox extends JLabel
     }
 
     /**
+     * Adds an item to the "choice list" of this selector box.
+     * @param menuItem The menu item to add.
+     */
+    public void addItem(JMenuItem menuItem) {
+        this.popup.add(menuItem);
+    }
+    
+    /**
      * Calculates the "choice list" popup location depending on the
      * main label coordinates.
      * 
@@ -191,7 +199,7 @@ public class SIPCommSelectorBox extends JLabel
      * Returns the popup menu for this selector box.
      * @return the popup menu for this selector box.
      */
-    public JPopupMenu getPopup() {
+    public JPopupMenu getPopup() {        
         return popup;
     }   
 }
