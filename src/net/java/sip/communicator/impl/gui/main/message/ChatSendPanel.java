@@ -42,10 +42,7 @@ public class ChatSendPanel extends JPanel implements ActionListener {
 
     private ChatPanel chatPanel;
 
-    private ArrayList protocolCList = new ArrayList();
-
-    private SIPCommSelectorBox contactSelectorBox
-        = new SIPCommSelectorBox();
+    private ProtocolContactSelectorBox contactSelectorBox;
 
     /**
      * Creates an instance of <tt>ChatSendPanel</tt>.
@@ -57,6 +54,7 @@ public class ChatSendPanel extends JPanel implements ActionListener {
 
         this.chatPanel = chatPanel;
 
+        contactSelectorBox = new ProtocolContactSelectorBox(this);
         this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.statusPanel.add(statusLabel);
@@ -97,9 +95,10 @@ public class ChatSendPanel extends JPanel implements ActionListener {
             chatPanel.stopTypingNotifications();
 
             chatPanel.requestFocusInWriteArea();
+            
             try {
                 im.sendInstantMessage(contact, msg);
-            } catch (IllegalStateException ex) {
+            } catch (IllegalStateException ex) {                
                 SIPCommMsgTextArea errorMsg = new SIPCommMsgTextArea(
                         Messages.getString("msgSendConnectionProblem"));
 
@@ -130,26 +129,8 @@ public class ChatSendPanel extends JPanel implements ActionListener {
         Iterator protocolContacts = metaContact.getContacts();
         while (protocolContacts.hasNext()) {
             Contact contact = (Contact) protocolContacts.next();
-
-            if (!protocolCList.contains(contact))
-                protocolCList.add(contact);
-
-            Image statusImage = ImageLoader.getBytesInImage(
-                    contact.getPresenceStatus().getStatusIcon());
             
-            int index = this.chatPanel.getChatWindow().getMainFrame()
-                .getProviderIndex(contact.getProtocolProvider());
-        
-            Image img;
-            if(index > 0) {
-                img = createIndexedImage(statusImage, index);
-            }
-            else {
-                img = statusImage;
-            }
-            contactSelectorBox.addItem(contact.getDisplayName(),
-                    new ImageIcon(img),
-                    new ProtocolItemListener());
+            contactSelectorBox.addContact(contact);
         }
     }    
     
@@ -188,48 +169,16 @@ public class ChatSendPanel extends JPanel implements ActionListener {
      */
     public void setSelectedProtocolContact(Contact protoContact)
     {
-        Image statusImage = ImageLoader.getBytesInImage(
-                protoContact.getPresenceStatus().getStatusIcon());
-        
-        int index = this.chatPanel.getChatWindow().getMainFrame()
-            .getProviderIndex(protoContact.getProtocolProvider());
-
-        Image img;
-        if(index > 0) {
-            img = createIndexedImage(statusImage, index);
-        }
-        else {
-            img = statusImage;
-        }        
-        contactSelectorBox.setSelected(
-                protoContact,
-                new ImageIcon(img));
+        contactSelectorBox.setSelected(protoContact);
     }
     
     /**
-     * The listener of the protocol contact's selector box.
+     * 
+     * @param protoContact
      */
-    private class ProtocolItemListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            JMenuItem menuItem = (JMenuItem) e.getSource();
-            String itemTitle = menuItem.getText();
-
-            for (int i = 0; i < protocolCList.size(); i++) {
-                Contact protocolContact = (Contact) protocolCList.get(i);
-
-                if (protocolContact.getDisplayName().equals(itemTitle)) {
-                    OperationSetBasicInstantMessaging im = chatPanel
-                            .getChatWindow().getMainFrame().getProtocolIM(
-                                    protocolContact.getProtocolProvider());
-
-                    chatPanel.setImOperationSet(im);
-                    chatPanel.setProtocolContact(protocolContact);
-
-                    contactSelectorBox.setSelected(
-                            protocolContact, menuItem.getIcon());                    
-                }
-            }
-        }
+    public void updateContactStatus(Contact protoContact)
+    {
+        contactSelectorBox.updateContactStatus(protoContact);
     }
     
     /**
@@ -258,29 +207,9 @@ public class ChatSendPanel extends JPanel implements ActionListener {
         g2.drawRoundRect(3, 4, this.statusPanel.getWidth() - 2,
                 this.statusPanel.getHeight() - 2, 8, 8);
     }
-    
-    /**
-     * Adds the protocol provider index to the given source image.
-     * @param sourceImage
-     * @param index
-     * @return
-     */
-    private Image createIndexedImage(Image sourceImage, int index)
-    {        
-        BufferedImage buffImage = new BufferedImage(
-                22, 16, BufferedImage.TYPE_INT_ARGB);
-        
-        Graphics2D g = (Graphics2D)buffImage.getGraphics();
-        AlphaComposite ac =
-            AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
-        
-        AntialiasingManager.activateAntialiasing(g);
-        g.setColor(Color.DARK_GRAY);
-        g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
-        g.drawImage(sourceImage, 0, 0, null);
-        g.setComposite(ac);
-        g.drawString(new Integer(index).toString(), 14, 8);
-        
-        return buffImage;
+
+    public ChatPanel getChatPanel()
+    {
+        return chatPanel;
     }
 }

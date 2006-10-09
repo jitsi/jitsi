@@ -257,7 +257,7 @@ public class ChatPanel
         PresenceStatus status = protocolContact.getPresenceStatus();
         
         this.chatConferencePanel.updateContactStatus(status);
-        this.sendPanel.setSelectedProtocolContact(protoContact);
+        this.sendPanel.updateContactStatus(protoContact);
         String message = this.conversationPanel.processMessage(
                 this.metaContact.getDisplayName(),
                 new Date(System.currentTimeMillis()),
@@ -517,7 +517,7 @@ public class ChatPanel
     /**
      * Stops typing notifications sending.
      */
-    public void stopTypingNotifications(){
+    public void stopTypingNotifications(){        
         this.writeMessagePanel.stopTypingTimer();
     }
     

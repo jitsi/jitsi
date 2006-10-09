@@ -14,6 +14,8 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.message.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -146,11 +148,16 @@ public class ChatWritePanel extends JScrollPane implements
                 redo();
             }
         }
-        else if (chatPanel.getChatWindow().isTypingNotificationEnabled()
+        else if (chatPanel.getProtocolContact()
+                    .getProtocolProvider().isRegistered()
+                && chatPanel.getChatWindow().isTypingNotificationEnabled()
                 && e.getKeyCode() != KeyEvent.VK_ESCAPE) {
+            
             if (typingState != OperationSetTypingNotifications.STATE_TYPING) {
-                stoppedTypingTimer.setDelay(2 * 1000);
+                
+                stoppedTypingTimer.setDelay(2 * 1000);                
                 typingState = OperationSetTypingNotifications.STATE_TYPING;
+
                 chatPanel.getTnOperationSet().sendTypingNotification(
                         chatPanel.getProtocolContact(), typingState);
                 typingTimer.start();
@@ -203,11 +210,15 @@ public class ChatWritePanel extends JScrollPane implements
      * Stops the timer and sends a notification message.
      */
     public void stopTypingTimer() {
-        chatPanel.getTnOperationSet().sendTypingNotification(
-                chatPanel.getProtocolContact(),
-                OperationSetTypingNotifications.STATE_STOPPED);
-        typingState = OperationSetTypingNotifications.STATE_STOPPED;
-        stoppedTypingTimer.stop();
+        if (chatPanel.getProtocolContact()
+                .getProtocolProvider().isRegistered()) {
+            
+            chatPanel.getTnOperationSet().sendTypingNotification(
+                    chatPanel.getProtocolContact(),
+                    OperationSetTypingNotifications.STATE_STOPPED);
+            typingState = OperationSetTypingNotifications.STATE_STOPPED;
+            stoppedTypingTimer.stop();
+        }
     }
 
     /**
