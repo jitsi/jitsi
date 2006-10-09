@@ -28,4 +28,7 @@ Import-Package: org.osgi.framework,
  javax.swing.tree,
  javax.swing.undo,
  javax.swing.event,
- javax.swing.border
+ javax.swing.border,
+ edu.stanford.ejalbert,
+ edu.stanford.ejalbert.exception,
+ edu.stanford.ejalbert.exceptionhandler

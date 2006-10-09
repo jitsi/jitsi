@@ -7,9 +7,12 @@
 package net.java.sip.communicator.plugin.icqaccregwizz;
 
 import java.awt.*;
+import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -20,7 +23,9 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class FirstWizardPage extends JPanel
-    implements WizardPage, DocumentListener {
+    implements  WizardPage,
+                DocumentListener,
+                ActionListener {
 
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
     
@@ -87,6 +92,7 @@ public class FirstWizardPage extends JPanel
      * Initializes all panels, buttons, etc.
      */
     private void init() {
+        this.registerButton.addActionListener(this);
         this.uinField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(true);
         
@@ -232,5 +238,10 @@ public class FirstWizardPage extends JPanel
         
             this.rememberPassBox.setSelected(true);
         }
+    }
+
+    public void actionPerformed(ActionEvent e)
+    {
+        CrossPlatformBrowserLauncher.openURL("https://www.icq.com/register/");
     }
 }
