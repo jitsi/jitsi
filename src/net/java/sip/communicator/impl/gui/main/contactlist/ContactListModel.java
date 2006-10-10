@@ -184,12 +184,31 @@ public class ContactListModel extends AbstractListModel {
     }
 
     /**
+     * If the given object is instance of MetaContact or MetaContactGroup
+     * returns the index of this meta contact or group, otherwiser returns -1.
+     * @param o the object, which index we search
+     * @return the index of the given object if it founds it, otherwise -1
+     */
+    public int indexOf(Object o)
+    {
+        if(o instanceof MetaContact){
+            return this.indexOf((MetaContact)o);
+        }
+        else if(o instanceof MetaContactGroup){
+            return this.indexOf((MetaContactGroup)o);
+        }
+        else {
+            return -1;
+        }
+    }
+    
+    /**
      * Returns the index of the given MetaContact.
      *  
      * @param contact The MetaContact to search for.
      * @return The index of the given MetaContact.
      */
-    public int indexOf(MetaContact contact) {
+    private int indexOf(MetaContact contact) {
 
         int index = -1;
 
@@ -216,7 +235,7 @@ public class ContactListModel extends AbstractListModel {
      * @param group The given MetaContactGroup to search for.
      * @return The index of the given MetaContactGroup.
      */
-    public int indexOf(MetaContactGroup group) {
+    private int indexOf(MetaContactGroup group) {
 
         int index = -1;
         int currentIndex = 0;
@@ -227,7 +246,7 @@ public class ContactListModel extends AbstractListModel {
           
             currentIndex += this.indexOf(parentGroup);
           
-            currentIndex += countDirectChildContacts(parentGroup);
+            currentIndex += countChildContacts(parentGroup);
           
             currentIndex += parentGroup.indexOf(group) + 1;
             
@@ -273,33 +292,6 @@ public class ContactListModel extends AbstractListModel {
                 MetaContactGroup subgroup = (MetaContactGroup) subgroups.next();
 
                 count += countContactsAndSubgroups(subgroup);
-            }
-        }
-        return count;
-    }
-    
-    /**
-     * Returns the number of all child contacts of the given
-     * MetaContactGroup.
-     * 
-     * @param parentGroup The parent MetaContactGroup.
-     * @return The number of all children of the given MetaContactGroup
-     */
-    public int countDirectChildContacts(MetaContactGroup parentGroup) {
- 
-        int count = 0;
-
-        if (parentGroup != null && !this.isGroupClosed(parentGroup)) {
-            if (showOffline) {
-                count = parentGroup.countChildContacts();
-            }
-            else {                
-                Iterator i = parentGroup.getChildContacts();
-                while (i.hasNext()) {
-                    MetaContact contact = (MetaContact) i.next();
-                    if (isContactOnline(contact))
-                        count++;
-                }
             }
         }
         return count;
