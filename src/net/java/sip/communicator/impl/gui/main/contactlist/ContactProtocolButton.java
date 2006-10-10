@@ -20,7 +20,6 @@ public class ContactProtocolButton extends SIPCommButton {
     /**
      * Creates an instance of ContactProtocolButton.
      * @param bgImage The background image of the button.
-     * @param rolloverImage The rollover image of the button.
      */
     public ContactProtocolButton(Image bgImage) {
         super(bgImage, bgImage);

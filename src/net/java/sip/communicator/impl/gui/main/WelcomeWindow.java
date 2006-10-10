@@ -51,7 +51,6 @@ public class WelcomeWindow extends JDialog
      * @param c The application main class that runs the main application
      * window.
      * @param loginManager The login manager that runs all login windows.
-     * @param context The bundle context.
      */
     public WelcomeWindow(CommunicatorMain c,
             LoginManager loginManager) {

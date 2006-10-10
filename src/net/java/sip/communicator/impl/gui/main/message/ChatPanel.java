@@ -249,9 +249,9 @@ public class ChatPanel
     }
 
     /**
-     * Updates the contact status in the contact info panel.
+     * Updates the contact status in the chat panel.
      * 
-     * @param status The presence status of the contact.
+     * @param protoContact the protocol contact which status to update
      */
     public void updateContactStatus(Contact protoContact) {
         PresenceStatus status = protocolContact.getPresenceStatus();

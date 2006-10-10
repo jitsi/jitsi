@@ -165,7 +165,7 @@ public class ChatSendPanel extends JPanel implements ActionListener {
      * contacts and shows its icon in the component on the left of the "Send"
      * button.
      * 
-     * @param protocolContact The protocol specific contact to select.
+     * @param protoContact The protocol specific contact to select.
      */
     public void setSelectedProtocolContact(Contact protoContact)
     {
