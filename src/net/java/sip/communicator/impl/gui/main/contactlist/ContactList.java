@@ -40,13 +40,22 @@ public class ContactList extends JList
 
     private ContactListModel listModel;
 
-    private MetaContact currentlySelectedContact;
+    private Object currentlySelectedObject;
 
     private Vector contactListListeners = new Vector();
     
     private Vector excContactListListeners = new Vector();
     
     private MainFrame mainFrame;
+    
+    private Object refreshLock = new Object();
+    
+    private boolean isModified = false;
+    
+    private Vector groupsToModify = new Vector();
+    
+    private boolean refreshEnabled = true;
+    
     /**
      * Creates an instance of the <tt>ContactList</tt>.
      *
@@ -78,11 +87,11 @@ public class ContactList extends JList
         
         this.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                if (getSelectedValue() instanceof MetaContact) {
-                    currentlySelectedContact = (MetaContact) getSelectedValue();
-                }
+                currentlySelectedObject = getSelectedValue();
             }
         });
+        
+        new ContactListRefresh().start();
     }
 
     /**
@@ -90,7 +99,7 @@ public class ContactList extends JList
      * Refreshes the list model.
      */
     public void metaContactAdded(MetaContactEvent evt) {
-        this.refresh();
+        this.refreshAll();
     }
 
     /**
@@ -98,7 +107,7 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact is renamed.
      */
     public void metaContactRenamed(MetaContactRenamedEvent evt) {
-        this.refresh();
+        this.refreshAll();
     }
 
     /**
@@ -106,9 +115,7 @@ public class ContactList extends JList
      * Refreshes the list when a protocol contact has been added.
      */
     public void protoContactAdded(ProtoContactEvent evt) {
-        int index = this.listModel.indexOf(evt.getNewParent());
-
-        this.listModel.contentChanged(index, index);        
+        this.refreshAll();        
     }
 
     /**
@@ -116,7 +123,7 @@ public class ContactList extends JList
      * Refreshes the list when a protocol contact has been removed.
      */
     public void protoContactRemoved(ProtoContactEvent evt) {
-        this.refresh();
+        this.refreshAll();
     }
 
     /**
@@ -124,7 +131,7 @@ public class ContactList extends JList
      * Refreshes the list when a protocol contact has been moved.
      */
     public void protoContactMoved(ProtoContactEvent evt) {
-        this.refresh();
+        this.refreshAll();
     }
 
     /**
@@ -132,7 +139,7 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact has been removed.
      */
     public void metaContactRemoved(MetaContactEvent evt) {
-        this.refresh();
+        this.refreshAll();
     }
 
     /**
@@ -140,7 +147,7 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact has been moved.
      */
     public void metaContactMoved(MetaContactMovedEvent evt) {
-        this.refresh();
+        this.refreshAll();
     }
 
     /**
@@ -148,7 +155,7 @@ public class ContactList extends JList
      * Refreshes the list model when a new meta contact group has been added.
      */
     public void metaContactGroupAdded(MetaContactGroupEvent evt) {
-        this.refresh();             
+        this.refreshAll();             
         //this.ensureIndexIsVisible(0);
     }
 
@@ -157,7 +164,7 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact group has been modified.
      */
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
-        this.refresh();
+        this.refreshAll();
     }
 
     /**
@@ -165,7 +172,7 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact group has been removed.
      */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
-        this.refresh();
+        this.refreshAll();
     }
 
     /**
@@ -175,11 +182,11 @@ public class ContactList extends JList
      * that was selected before the reordered event. This way the selection
      * depends on the contact and not on the index.
      */
-    public void childContactsReordered(MetaContactGroupEvent evt) {        
-        if (currentlySelectedContact != null)
-            this.setSelectedValue(currentlySelectedContact, false);
-        this.refresh();
+    public void childContactsReordered(MetaContactGroupEvent evt) {
+        this.refreshGroup(evt.getSourceMetaContactGroup());        
     }
+   
+    
 
     /**
      * Returns the next list element that starts with
@@ -597,8 +604,6 @@ public class ContactList extends JList
     /**
      * Runs the info window for the specified contact at the
      * appropriate position.
-     *
-     * @author Yana Stamcheva
      */
     private class RunInfoWindow implements Runnable {
 
@@ -627,15 +632,103 @@ public class ContactList extends JList
             contactInfoPanel.requestFocusInWindow();
         }
     }
-
+    
     /**
-     * Refreshes the contact list. Should be invoked after any change in the
-     * contact list.
+     * Takes care of keeping the contact list up to date.
      */
-    public void refresh()
+    private class ContactListRefresh extends Thread
     {
-        this.revalidate();
-        this.repaint();
+        public void run()
+        {
+            while(refreshEnabled){
+                synchronized (refreshLock) {
+                    if(isModified) {
+                        try {
+                            refreshLock.wait(5000);
+                        }
+                        catch (InterruptedException e) {
+                            logger.error("Storing contact list failed", e);
+                        }
+                    }
+                }
+                
+                if(isModified){
+                    if(groupsToModify.size() > 0) {
+                        for(int i = 0; i < groupsToModify.size(); i ++) {
+                            MetaContactGroup group
+                                = (MetaContactGroup)groupsToModify.get(i);
+                            this.refreshGroup(group);
+                        }
+                        groupsToModify.removeAllElements();
+                    }
+                    else {
+                        this.refreshAll();
+                    }
+                    isModified = false;
+                }
+            }
+        }
+        
+        /**
+         * Refreshes the contact list. 
+         */
+        private void refreshAll()
+        {
+            revalidate();
+            repaint();
+        }
+        
+        /**
+         * Refreshes the given group content.
+         * @param group the group to update
+         */
+        private void refreshGroup(MetaContactGroup group)
+        {
+            if(!listModel.isGroupClosed(group))
+            {
+                int groupIndex = listModel.indexOf(group);
+                int lastIndex = listModel.countChildContacts(group);
+                
+                listModel.contentAdded(groupIndex, lastIndex);
+            }
+        }
     }
-
+    
+    /**
+     * Refreshes the given group content.
+     * @param group the group to refresh
+     */
+    public void refreshGroup(MetaContactGroup group)
+    {
+        isModified = true;
+        if(group != null && !groupsToModify.contains(group))
+            groupsToModify.add(group);
+        
+        synchronized (refreshLock) {
+            refreshLock.notifyAll();
+        }
+    }
+    
+    /**
+     * Refreshes all the contact list.
+     */
+    public void refreshAll()
+    {
+        refreshGroup(null);
+    }
+    
+    /**
+     * Selects the given object in the list.
+     *
+     * @param o the object to select
+     */
+    public void setSelectedValue(Object o) {
+        if(o == null)
+            setSelectedIndex(-1);
+        else if(!o.equals(getSelectedValue())) {
+            int i = listModel.indexOf(o);
+            this.setSelectedIndex(i);
+        }
+    }
+    
 }
