@@ -640,9 +640,9 @@ public class ContactList extends JList
     {
         public void run()
         {
-            while(refreshEnabled){
+            while(refreshEnabled){                
                 synchronized (refreshLock) {
-                    if(isModified) {
+                    if(!isModified) {
                         try {
                             refreshLock.wait(5000);
                         }
@@ -651,7 +651,6 @@ public class ContactList extends JList
                         }
                     }
                 }
-                
                 if(isModified){
                     if(groupsToModify.size() > 0) {
                         for(int i = 0; i < groupsToModify.size(); i ++) {
