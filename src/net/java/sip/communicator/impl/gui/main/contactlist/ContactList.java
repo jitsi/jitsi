@@ -175,10 +175,10 @@ public class ContactList extends JList
      * that was selected before the reordered event. This way the selection
      * depends on the contact and not on the index.
      */
-    public void childContactsReordered(MetaContactGroupEvent evt) {
-        this.refresh();
+    public void childContactsReordered(MetaContactGroupEvent evt) {        
         if (currentlySelectedContact != null)
             this.setSelectedValue(currentlySelectedContact, false);
+        this.refresh();
     }
 
     /**
