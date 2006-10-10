@@ -106,8 +106,7 @@ public class ContactListModel extends AbstractListModel {
      * @return The object at the given index.
      */
     public Object getElementAt(int index) {
-        Object element = this.getElementAt(this.rootGroup, -1, index);
-        return element;
+        return this.getElementAt(this.rootGroup, -1, index);
     }
 
     /**
@@ -140,7 +139,7 @@ public class ContactListModel extends AbstractListModel {
             while (subgroups.hasNext()) {
                 size += getContactListSize((MetaContactGroup) subgroups.next());
             }
-        }
+        }        
         return size;
     }
 
@@ -307,24 +306,31 @@ public class ContactListModel extends AbstractListModel {
     }
 
     /**
-     * Recursively searches all groups for the element at the given index. 
+     * Recursively searches the given group in depth for the element at the
+     * given index. 
      * 
-     * @param group The group in which we search.
-     * @param searchedIndex The index to search for.
-     * @return The element at the given index, if it finds it, otherwise null.
+     * @param group the group in which we search
+     * @param currentIndex the index, where we currently are
+     * @param searchedIndex the index to search for
+     * @return The element at the given index, if we find it, otherwise null.
      */
     private Object getElementAt(MetaContactGroup group,
                 int currentIndex, int searchedIndex) {
         
         Object element = null;
         if(currentIndex == searchedIndex) {
+            //the current index is the index of the group so if this is the
+            //searched index we return the group
             element = group;
         }
         else {
+            //if the group is closed don't count its children
             if(!isGroupClosed(group)) {
                 int childCount = countChildContacts(group);
                 if(searchedIndex <= (currentIndex + childCount)) {
-                    
+                    //if the searched index is lower than or equal to
+                    //the greater child index in this group then our element is
+                    //here
                     MetaContact contact = group.getMetaContact(
                             searchedIndex - currentIndex - 1);
                     
@@ -332,6 +338,7 @@ public class ContactListModel extends AbstractListModel {
                         element = contact;
                 }
                 else {
+                    //if we haven't found the contact we search the subgroups
                     currentIndex += childCount;
                     Iterator subgroups = group.getSubgroups();
     
@@ -344,6 +351,8 @@ public class ContactListModel extends AbstractListModel {
                         if(element != null)
                             break;
                         else {
+                            //if we haven't found the element on this iteration
+                            //we update the current index and we continue
                             if(!isGroupClosed(subgroup))
                                 currentIndex
                                     += countChildContacts(subgroup) + 1;
@@ -353,7 +362,7 @@ public class ContactListModel extends AbstractListModel {
                     }
                 }
             }
-        }
+        }        
         return element;
     }
 
@@ -436,9 +445,9 @@ public class ContactListModel extends AbstractListModel {
     }
     
     /**
-     * 
-     * @param group
-     * @return
+     * Counts group child contacts depending on the showOffline option.
+     * @param group the parent group to count for
+     * @return child contacts count for the given group
      */
     public int countChildContacts(MetaContactGroup group)
     { 

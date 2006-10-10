@@ -50,7 +50,7 @@ public class ContactList extends JList
     /**
      * Creates an instance of the <tt>ContactList</tt>.
      *
-     * @param contactList The related meta contactlist.
+     * @param mainFrame The main application window.
      */
     public ContactList(MainFrame mainFrame) {
 
@@ -90,7 +90,7 @@ public class ContactList extends JList
      * Refreshes the list model.
      */
     public void metaContactAdded(MetaContactEvent evt) {
-        this.repaint();
+        this.refresh();
     }
 
     /**
@@ -98,7 +98,7 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact is renamed.
      */
     public void metaContactRenamed(MetaContactRenamedEvent evt) {
-        this.repaint();
+        this.refresh();
     }
 
     /**
@@ -108,7 +108,7 @@ public class ContactList extends JList
     public void protoContactAdded(ProtoContactEvent evt) {
         int index = this.listModel.indexOf(evt.getNewParent());
 
-        this.listModel.contentChanged(index, index);
+        this.listModel.contentChanged(index, index);        
     }
 
     /**
@@ -116,7 +116,7 @@ public class ContactList extends JList
      * Refreshes the list when a protocol contact has been removed.
      */
     public void protoContactRemoved(ProtoContactEvent evt) {
-        this.repaint();
+        this.refresh();
     }
 
     /**
@@ -124,7 +124,7 @@ public class ContactList extends JList
      * Refreshes the list when a protocol contact has been moved.
      */
     public void protoContactMoved(ProtoContactEvent evt) {
-        this.repaint();
+        this.refresh();
     }
 
     /**
@@ -132,7 +132,7 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact has been removed.
      */
     public void metaContactRemoved(MetaContactEvent evt) {
-        this.repaint();
+        this.refresh();
     }
 
     /**
@@ -140,15 +140,15 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact has been moved.
      */
     public void metaContactMoved(MetaContactMovedEvent evt) {
-        this.repaint();
+        this.refresh();
     }
 
     /**
      * Handles the <tt>MetaContactGroupEvent</tt>.
      * Refreshes the list model when a new meta contact group has been added.
      */
-    public void metaContactGroupAdded(MetaContactGroupEvent evt) {        
-        this.repaint();                
+    public void metaContactGroupAdded(MetaContactGroupEvent evt) {
+        this.refresh();             
         //this.ensureIndexIsVisible(0);
     }
 
@@ -157,7 +157,7 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact group has been modified.
      */
     public void metaContactGroupModified(MetaContactGroupEvent evt) {
-        this.repaint();
+        this.refresh();
     }
 
     /**
@@ -165,7 +165,7 @@ public class ContactList extends JList
      * Refreshes the list when a meta contact group has been removed.
      */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
-        this.repaint();
+        this.refresh();
     }
 
     /**
@@ -176,7 +176,7 @@ public class ContactList extends JList
      * depends on the contact and not on the index.
      */
     public void childContactsReordered(MetaContactGroupEvent evt) {
-        this.repaint();
+        this.refresh();
         if (currentlySelectedContact != null)
             this.setSelectedValue(currentlySelectedContact, false);
     }
@@ -571,61 +571,7 @@ public class ContactList extends JList
     {}
 
     public void mouseMoved(MouseEvent e)
-    {
-        /* SET A TOOLTIP - NEED TO BE FIXED
-        int index = this.locationToIndex(e.getPoint());        
-        Object value = this.listModel.getElementAt(index);
-        
-        ContactListCellRenderer renderer 
-            = (ContactListCellRenderer) 
-                this.getCellRenderer().getListCellRendererComponent(
-                        this, value, index, true,
-                        true);
-    
-        Point selectedCellPoint = this.indexToLocation(index);
-    
-        int translatedX = e.getX() - selectedCellPoint.x;
-        
-        int translatedY = e.getY() - selectedCellPoint.y;
-        
-        if (value instanceof MetaContact) {
-            
-            //get the component under the mouse
-            Component component = this.getInnerComponent(renderer, translatedX);
-            
-            if (component instanceof JPanel) {
-                if(component.getName() != null
-                        && component.getName().equals("buttonsPanel")){
-                    
-                    JPanel panel = (JPanel) component;
-    
-                    int internalX = translatedX
-                            - (renderer.getWidth() - panel.getWidth() - 2);
-                    
-                    int internalY = translatedY
-                        - (renderer.getHeight() - panel.getHeight());
-                    
-                    Component c = this.getInnerComponent(panel, internalX);
-                    
-                    if (c instanceof ContactProtocolButton) {
-                        
-                        ContactProtocolButton button
-                            = (ContactProtocolButton)c;
-                        
-                        Point p = e.getPoint();
-                        SwingUtilities
-                            .convertPointToScreen(p, this);
-                        
-                        if(button.isToolTipShown())
-                            button.hideToolTip();
-                        else
-                            button.showToolTip(p.x, p.y);
-                    }
-                }
-            }            
-        }
-        */
-    }
+    {}
     
     /**
      * Returns the component positioned at the given x in the given container.
@@ -680,6 +626,16 @@ public class ContactList extends JList
 
             contactInfoPanel.requestFocusInWindow();
         }
+    }
+
+    /**
+     * Refreshes the contact list. Should be invoked after any change in the
+     * contact list.
+     */
+    public void refresh()
+    {
+        this.revalidate();
+        this.repaint();
     }
 
 }
