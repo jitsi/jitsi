@@ -411,16 +411,17 @@ public class OperationSetPersistentPresenceJabberImpl
         if(((JabberStatusEnum)status).equals(JabberStatusEnum.OFFLINE))
         {
             presence = new Presence(Presence.Type.UNAVAILABLE);
+            jabberProvider.unregister();
         }
         else
         {
             presence = new Presence(Presence.Type.AVAILABLE);
             presence.setMode(presenceStatusToJabberMode((JabberStatusEnum)status));
+
+            presence.setStatus(statusMessage);
+
+            jabberProvider.getConnection().sendPacket(presence);
         }
-
-        presence.setStatus(statusMessage);
-
-        jabberProvider.getConnection().sendPacket(presence);
 
         fireProviderPresenceStatusChangeEvent(currentStatus, status);
 

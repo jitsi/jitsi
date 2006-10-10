@@ -34,9 +34,6 @@ public class ProtocolProviderServiceJabberImpl
 
     private XMPPConnection connection = null;
 
-    private RegistrationState currentConnectionState =
-        RegistrationState.UNREGISTERED;
-
     /**
      * indicates whether or not the provider is initialized and ready for use.
      */
@@ -70,7 +67,12 @@ public class ProtocolProviderServiceJabberImpl
      */
     public RegistrationState getRegistrationState()
     {
-        return currentConnectionState;
+        if(connection == null)
+            return RegistrationState.UNREGISTERED;
+        else if(connection.isConnected() && connection.isAuthenticated())
+            return RegistrationState.REGISTERED;
+        else
+            return RegistrationState.UNREGISTERED;
     }
 
     /**
@@ -124,8 +126,7 @@ public class ProtocolProviderServiceJabberImpl
 
             // sets this if any is tring to use us through registration
             // to know we are not registered
-            this.currentConnectionState = RegistrationState.UNREGISTERED;
-            this.connection.close();
+            this.unregister();
 
             connectAndLogin(authority);
         }
@@ -254,7 +255,14 @@ public class ProtocolProviderServiceJabberImpl
      */
     public void unregister()
     {
+        RegistrationState currRegState = getRegistrationState();
+
         connection.close();
+
+        fireRegistrationStateChanged(
+                    currRegState,
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
     }
 
     /**
@@ -457,9 +465,6 @@ public class ProtocolProviderServiceJabberImpl
                                                int               reasonCode,
                                                String            reason)
     {
-        // sets the new state
-        currentConnectionState = newState;
-
         RegistrationStateChangeEvent event =
             new RegistrationStateChangeEvent(
                             this, oldState, newState, reasonCode, reason);
@@ -489,13 +494,6 @@ public class ProtocolProviderServiceJabberImpl
     {
         public void connectionClosed()
         {
-            RegistrationState oldConnectionState = currentConnectionState;
-
-//            fireRegistrationStateChanged(
-//                    oldConnectionState,
-//                    RegistrationState.UNREGISTERED,
-//                    RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
-
             OperationSetPersistentPresenceJabberImpl opSetPersPresence =
                 (OperationSetPersistentPresenceJabberImpl)
                     getSupportedOperationSets()
@@ -508,7 +506,7 @@ public class ProtocolProviderServiceJabberImpl
 
         public void connectionClosedOnError(Exception exception)
         {
-            RegistrationState oldConnectionState = currentConnectionState;
+            RegistrationState oldConnectionState = getRegistrationState();
 
             fireRegistrationStateChanged(
                     oldConnectionState,
