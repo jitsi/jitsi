@@ -465,7 +465,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 if(failedKeepalivePackets == 3)
                 {
                     logger.error("unregistering.");
-                    fireUnregisterd();
+//                    fireUnregisterd();
+                    jabberProvider.reregister();
                     failedKeepalivePackets = 0;
                 }
             }

@@ -59,6 +59,11 @@ public class ProtocolProviderServiceJabberImpl
     private AccountID accountID = null;
 
     /**
+     * Used when we need to re-register
+     */
+    private SecurityAuthority authority = null;
+
+    /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
      * currently in or null in case it is in a unknown state.
@@ -86,6 +91,78 @@ public class ProtocolProviderServiceJabberImpl
                 "The register method needs a valid non-null authority impl "
                 + " in order to be able and retrieve passwords.");
 
+        this.authority = authority;
+
+        try
+        {
+            connectAndLogin(authority);
+        }
+        catch (XMPPException ex)
+        {
+            logger.error("Error registering", ex);
+
+            int reason =
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+
+            if(ex.getWrappedThrowable() instanceof UnknownHostException)
+                reason =
+                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
+
+            fireRegistrationStateChanged(RegistrationState.UNREGISTERED,
+                RegistrationState.CONNECTION_FAILED, reason, null);
+        }
+    }
+
+    /**
+     * Connects and logins again to the server
+     */
+    void reregister()
+    {
+        try
+        {
+            logger.trace("Trying to reregister us!");
+
+            // sets this if any is tring to use us through registration
+            // to know we are not registered
+            this.currentConnectionState = RegistrationState.UNREGISTERED;
+            this.connection.close();
+
+            connectAndLogin(authority);
+        }
+        catch(OperationFailedException ex)
+        {
+            logger.error("Error ReRegistering", ex);
+
+            fireRegistrationStateChanged(RegistrationState.UNREGISTERED,
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);
+        }
+        catch (XMPPException ex)
+        {
+            logger.error("Error ReRegistering", ex);
+
+            int reason =
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+
+            if(ex.getWrappedThrowable() instanceof UnknownHostException)
+                reason =
+                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
+
+            fireRegistrationStateChanged(RegistrationState.UNREGISTERED,
+                RegistrationState.CONNECTION_FAILED, reason, null);
+        }
+    }
+
+    /**
+     * Connects and logins to the server
+     * @param authority SecurityAuthority
+     * @throws XMPPException if we cannot connect to the server - network problem
+     * @throws  OperationFailedException if login parameters
+     *          as server port are not correct
+     */
+    private void connectAndLogin(SecurityAuthority authority)
+        throws XMPPException, OperationFailedException
+    {
         synchronized(initializationLock)
         {
             //verify whether a password has already been stored for this account
@@ -168,20 +245,6 @@ public class ProtocolProviderServiceJabberImpl
             {
                 throw new OperationFailedException("Wrong port",
                     OperationFailedException.INVALID_ACCOUNT_PROPERTIES, ex);
-            }
-            catch (XMPPException ex)
-            {
-                logger.error("Error registering", ex);
-
-                int reason =
-                    RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
-
-                if(ex.getWrappedThrowable() instanceof UnknownHostException)
-                    reason =
-                        RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
-
-                fireRegistrationStateChanged(RegistrationState.UNREGISTERED,
-                    RegistrationState.CONNECTION_FAILED, reason, null);
             }
         }
     }
@@ -428,10 +491,10 @@ public class ProtocolProviderServiceJabberImpl
         {
             RegistrationState oldConnectionState = currentConnectionState;
 
-            fireRegistrationStateChanged(
-                    oldConnectionState,
-                    RegistrationState.UNREGISTERED,
-                    RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+//            fireRegistrationStateChanged(
+//                    oldConnectionState,
+//                    RegistrationState.UNREGISTERED,
+//                    RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
 
             OperationSetPersistentPresenceJabberImpl opSetPersPresence =
                 (OperationSetPersistentPresenceJabberImpl)
