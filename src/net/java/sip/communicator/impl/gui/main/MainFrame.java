@@ -517,10 +517,12 @@ public class MainFrame
             MetaContact metaContact = contactList
                     .findMetaContactByContact(sourceContact);
             
-            if (metaContact != null) {
-                if(!evt.getOldStatus().equals(evt.getNewStatus()))
+            if (metaContact != null) {                
+                if(!evt.getOldStatus().equals(evt.getNewStatus())) {
+                    clistPanel.getContactList().refreshAll();
                     clistPanel.updateChatContactStatus(
                             metaContact, sourceContact);
+                }
             }
         }
     }
