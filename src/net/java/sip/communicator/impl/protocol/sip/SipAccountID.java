@@ -23,7 +23,7 @@ public class SipAccountID
      *
      * @param userID the user id part of the SIP uri identifying this contact.
      * @param accountProperties any other properties necessary for the account.
-     * @param sererName the name of the server that the user belongs to.
+     * @param serverName the name of the server that the user belongs to.
      */
     protected SipAccountID(String userID,
                            Map    accountProperties,
