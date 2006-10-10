@@ -381,10 +381,9 @@ public class ChatWindow extends JFrame {
             if (chatTabbedPane.getTabCount() > 1) {
                 this.contactChats.remove(closeChat.getMetaContact()
                         .getMetaUID());
-            }
-
-            if (chatTabbedPane.getTabCount() > 1)
+                
                 chatTabbedPane.remove(index);
+            }                
 
             if (chatTabbedPane.getTabCount() == 1) {
 
