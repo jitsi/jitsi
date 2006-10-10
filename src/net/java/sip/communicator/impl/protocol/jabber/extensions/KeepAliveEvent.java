@@ -114,7 +114,7 @@ public class KeepAliveEvent
 
     /**
      * Sets the hash of the source opeartion set that will send the message
-     * @param srcProviderHash int hash of the operation set
+     * @param srcOpSetHash int hash of the operation set
      */
     public void setSrcOpSetHash(int srcOpSetHash)
     {
