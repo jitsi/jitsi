@@ -510,16 +510,16 @@ public class MainFrame
         public void contactPresenceStatusChanged(
                 ContactPresenceStatusChangeEvent evt) {
 
+            ContactListPanel clistPanel = tabbedPane.getContactListPanel();
+            
+            clistPanel.getContactList().refresh();
+            
             Contact sourceContact = evt.getSourceContact();
 
             MetaContact metaContact = contactList
                     .findMetaContactByContact(sourceContact);
 
             if (metaContact != null) {
-                ContactListPanel clistPanel = tabbedPane.getContactListPanel();
-
-                clistPanel.getContactList().refresh();
-                
                 if(!evt.getOldStatus().equals(evt.getNewStatus()))
                     clistPanel.updateChatContactStatus(
                             metaContact, sourceContact);
