@@ -28,7 +28,7 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
-	-$(ANT) -file $(BASEDIR)/build.xml rebuild
+	#-$(ANT) -file $(BASEDIR)/build.xml rebuild
 
 	touch $@
 
@@ -38,7 +38,7 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# Add here commands to clean up after the build process.
-	-$(ANT) -file $(BASEDIR)/build.xml clean
+	#-$(ANT) -file $(BASEDIR)/build.xml clean
 
 	dh_clean 
 

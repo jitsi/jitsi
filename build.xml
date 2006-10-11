@@ -23,7 +23,8 @@
     <property name="release" value="release"/>
     <property name="log" value="log"/>
     <property name="release.src" value="${release}/install"/>
-    <property name="inst.resrc" value="resources/install"/>
+    <property name="resources" value="resources"/>
+    <property name="inst.resrc" value="${resources}/install"/>
 
     <!-- Put here the release directory -->
     <property name="macosx.app.dir" value="${release}/macosx"/>
@@ -33,6 +34,13 @@
     <property name="macosx.app.name" value="SIP Communicator"/>
     <!-- Put here the Application version -->
     <property name="macosx.app.ver" value="1.0.rc1"/>
+
+    <!-- The release directory for Debian packages -->
+    <property name="debian.dir" value="${release}/debian"/>
+    <!-- Can we build debian packages? -->
+    <condition property="dpkg.present">
+      <available file="/usr/bin/dpkg-buildpackage"/>
+    </condition>
 
     <!-- load properties needed for running the automated tests (e.g. test.list)-->
     <property file="${basedir}/lib/testing.properties"/>
@@ -332,6 +340,28 @@
         <arg value="-ov"/>
         <arg value="${macosx.app.dir}/${macosx.dmg.name}"/>
       </exec>
+    </target>
+
+    <!-- Create a Debian package - This needs dpkg utilities -->
+	<target name="deb" depends="make"
+            if="dpkg.present"
+            description="Create a .deb package for Debian (needs dpkg utilities)">
+
+      <exec executable="/usr/bin/dpkg-buildpackage" dir="${inst.resrc}">
+        <arg value="-rfakeroot"/>
+        <arg value="-tc"/>
+        <arg value="-us"/>
+        <arg value="-uc"/>
+        <arg value="-b"/>
+      </exec>
+
+      <mkdir dir="${debian.dir}"/>
+      <move todir="${debian.dir}">
+        <fileset dir="${resources}">
+          <include name="sip-communicator*"/>
+        </fileset>
+      </move>
+
     </target>
 
     <!-- - - - - - - - - - - - - - UNIT TESTING - - - - - - - - - - - - - - -->
