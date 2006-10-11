@@ -87,7 +87,10 @@ public class ContactList extends JList
         
         this.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                currentlySelectedObject = getSelectedValue();
+                new Exception().printStackTrace();
+                if(!e.getValueIsAdjusting()) {               
+                    currentlySelectedObject = getSelectedValue();
+                }
             }
         });
         
@@ -183,7 +186,9 @@ public class ContactList extends JList
      * depends on the contact and not on the index.
      */
     public void childContactsReordered(MetaContactGroupEvent evt) {
-        this.refreshGroup(evt.getSourceMetaContactGroup());        
+        if(currentlySelectedObject != null)
+            setSelectedValue(currentlySelectedObject);
+        this.refreshGroup(evt.getSourceMetaContactGroup());
     }
    
     
@@ -662,7 +667,7 @@ public class ContactList extends JList
                     }
                     else {
                         this.refreshAll();
-                    }
+                    }                   
                     isModified = false;
                 }
             }
@@ -688,7 +693,7 @@ public class ContactList extends JList
                 int groupIndex = listModel.indexOf(group);
                 int lastIndex = listModel.countChildContacts(group);
                 
-                listModel.contentAdded(groupIndex, lastIndex);
+                listModel.contentChanged(groupIndex, lastIndex);
             }
         }
     }
@@ -724,7 +729,7 @@ public class ContactList extends JList
     public void setSelectedValue(Object o) {
         if(o == null)
             setSelectedIndex(-1);
-        else if(!o.equals(getSelectedValue())) {
+        else {
             int i = listModel.indexOf(o);
             this.setSelectedIndex(i);
         }
