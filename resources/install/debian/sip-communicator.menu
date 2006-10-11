@@ -1,0 +1,3 @@
+?package(sip-communicator):needs="x11" section="Apps/Net"\
+  title="SIP Communicator" command="/usr/bin/sip-communicator"\
+  icon="/usr/share/pixmaps/sip-communicator.xpm"
