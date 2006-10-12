@@ -326,7 +326,7 @@ public class MainFrame
 
         this.addAccount(protocolProvider);
     }
-    
+
     /**
      * Returns the index of the given protocol provider.
      * @param protocolProvider the protocol provider to search for
@@ -335,7 +335,7 @@ public class MainFrame
     public int getProviderIndex(ProtocolProviderService protocolProvider)
     {
         Object o = protocolProviders.get(protocolProvider);
-        
+
         if(o != null) {
             return ((Integer)o).intValue();
         }
@@ -370,13 +370,13 @@ public class MainFrame
     {
         this.protocolProviders.remove(protocolProvider);
         this.updateProvidersIndexes(protocolProvider);
-        
+
         if (getStatusPanel().containsAccount(protocolProvider)) {
             this.accounts.remove(protocolProvider);
             this.getStatusPanel().removeAccount(protocolProvider);
         }
     }
-    
+
     /**
      * Activates an account. Here we start the connecting process.
      *
@@ -511,13 +511,13 @@ public class MainFrame
                 ContactPresenceStatusChangeEvent evt) {
 
             ContactListPanel clistPanel = tabbedPane.getContactListPanel();
-            
+
             Contact sourceContact = evt.getSourceContact();
 
             MetaContact metaContact = contactList
                     .findMetaContactByContact(sourceContact);
-            
-            if (metaContact != null) {                
+
+            if (metaContact != null) {
                 if(!evt.getOldStatus().equals(evt.getNewStatus())) {
                     clistPanel.getContactList().refreshAll();
                     clistPanel.updateChatContactStatus(
@@ -646,14 +646,14 @@ public class MainFrame
                         + "represents an unacceptable value");
             }
         }
-        
+
         public void windowClosed(WindowEvent e) {
             try {
                 GuiActivator.bundleContext.getBundle(0).stop();
             } catch (BundleException ex) {
                 logger.error("Failed to gently shutdown Oscar", ex);
-                System.exit(0);
             }
+            System.exit(0);
         }
     }
 
@@ -721,7 +721,7 @@ public class MainFrame
     {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
-        
+
         String prefix = "net.java.sip.communicator.impl.ui.accounts";
 
         List accounts = configService
@@ -763,7 +763,7 @@ public class MainFrame
                     accountPackage+".lastAccountStatus",
                     status.getStatusName());
         }
-        
+
     }
 
     /**
@@ -783,30 +783,30 @@ public class MainFrame
         this.tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
         this.tabbedPane.revalidate();
     }
-         
+
     /**
      * Checks in the configuration xml if there is already stored index for
      * this provider and if yes, returns it, otherwise creates a new account
      * index and stores it.
-     * 
+     *
      * @param protocolProvider the protocol provider
      * @return the protocol provider index
      */
     private int initiateProviderIndex(
             ProtocolProviderService protocolProvider)
-    {                
+    {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
-    
+
         String prefix = "net.java.sip.communicator.impl.ui.accounts";
-        
+
         List accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);
 
         Iterator accountsIter = accounts.iterator();
 
         boolean savedAccount = false;
-        
+
         while(accountsIter.hasNext()) {
             String accountRootPropName
                 = (String) accountsIter.next();
@@ -816,11 +816,11 @@ public class MainFrame
 
             if(accountUID.equals(protocolProvider
                     .getAccountID().getAccountUniqueID())) {
-                
+
                 savedAccount = true;
                 String  index = configService.getString(
                         accountRootPropName + ".accountIndex");
-         
+
                 if(index != null) {
                     //if we have found the accountIndex for this protocol provider
                     //return this index
@@ -837,7 +837,7 @@ public class MainFrame
                 }
             }
         }
-        
+
         if(!savedAccount) {
             String accNodeName
                 = "acc" + Long.toString(System.currentTimeMillis());
@@ -851,18 +851,18 @@ public class MainFrame
 
             int accountIndex = createAccountIndex(protocolProvider,
                     accountPackage);
-            
+
             return accountIndex;
         }
         return -1;
     }
-    
+
     /**
      * Creates and calculates the account index for the given protocol
      * provider.
      * @param protocolProvider the protocol provider
      * @param accountRootPropName the path to where the index should be saved
-     * in the configuration xml  
+     * in the configuration xml
      * @return the created index
      */
     private int createAccountIndex(ProtocolProviderService protocolProvider,
@@ -870,21 +870,21 @@ public class MainFrame
     {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
-     
+
         int accountIndex = -1;
         Enumeration pproviders = protocolProviders.keys();
         ProtocolProviderService pps;
-            
+
         while(pproviders.hasMoreElements()) {
             pps = (ProtocolProviderService)pproviders.nextElement();
-            
+
             if(pps.getProtocolName().equals(
                     protocolProvider.getProtocolName())
                     && !pps.equals(protocolProvider)) {
-                
+
                 int index  = ((Integer)protocolProviders.get(pps))
-                                        .intValue(); 
-                                
+                                        .intValue();
+
                 if(accountIndex < index) {
                     accountIndex = index;
                 }
@@ -894,33 +894,33 @@ public class MainFrame
         configService.setProperty(
                 accountRootPropName + ".accountIndex",
                 new Integer(accountIndex));
-        
+
         return accountIndex;
     }
-    
+
     /**
      * Updates the indexes in the configuration xml, when a provider has been
-     * removed.     
+     * removed.
      * @param removedProvider the removed protocol provider
      */
     private void updateProvidersIndexes(ProtocolProviderService removedProvider)
     {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
-     
+
         String prefix = "net.java.sip.communicator.impl.ui.accounts";
-        
+
         Enumeration pproviders = protocolProviders.keys();
         ProtocolProviderService currentProvider = null;
-        int sameProtocolProvidersCount = 0;        
-        
+        int sameProtocolProvidersCount = 0;
+
         while(pproviders.hasMoreElements()) {
-            ProtocolProviderService pps 
+            ProtocolProviderService pps
                 = (ProtocolProviderService)pproviders.nextElement();
-            
+
             if(pps.getProtocolName().equals(
                     removedProvider.getProtocolName())) {
-                
+
                 sameProtocolProvidersCount++;
                 if(sameProtocolProvidersCount > 1) {
                     break;
@@ -928,25 +928,25 @@ public class MainFrame
                 currentProvider = pps;
             }
         }
-        
+
         if(sameProtocolProvidersCount < 2 && currentProvider != null) {
             protocolProviders.put(currentProvider, new Integer(0));
-            
+
             List accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);
-    
+
             Iterator accountsIter = accounts.iterator();
-    
+
             while(accountsIter.hasNext()) {
                 String rootPropName
                     = (String) accountsIter.next();
-                
+
                 String accountUID
                     = configService.getString(rootPropName);
-                
+
                 if(accountUID.equals(currentProvider
                         .getAccountID().getAccountUniqueID())) {
-                    
+
                     configService.setProperty(
                             rootPropName + ".accountIndex",
                             new Integer(0));

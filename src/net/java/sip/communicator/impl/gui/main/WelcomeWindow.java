@@ -183,8 +183,8 @@ public class WelcomeWindow extends JDialog
                 GuiActivator.bundleContext.getBundle(0).stop();
             } catch (BundleException ex) {
                 logger.error("Failed to gently shutdown Oscar", ex);
-                System.exit(0);
             }
+            System.exit(0);
         }
     }
 
@@ -221,8 +221,8 @@ public class WelcomeWindow extends JDialog
                 GuiActivator.bundleContext.getBundle(0).stop();
             } catch (BundleException ex) {
                 logger.error("Failed to gently shutdown Oscar", ex);
-                System.exit(0);
             }
+            System.exit(0);
         }
     };
 }
