@@ -83,7 +83,9 @@ public class ProtocolProviderServiceJabberImpl
      * @param authority the security authority that will be used for resolving
      *        any security challenges that may be returned during the
      *        registration or at any moment while wer're registered.
-     *
+     * @throws OperationFailedException with the corresponding code it the
+     * registration fails for some reason (e.g. a networking error or an
+     * implementation problem).
      */
     public void register(final SecurityAuthority authority)
         throws OperationFailedException
@@ -103,14 +105,14 @@ public class ProtocolProviderServiceJabberImpl
         {
             logger.error("Error registering", ex);
 
-            int reason =
-                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+            int reason
+                = RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
 
             if(ex.getWrappedThrowable() instanceof UnknownHostException)
-                reason =
-                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
+                reason
+                    = RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
 
-            fireRegistrationStateChanged(RegistrationState.UNREGISTERED,
+            fireRegistrationStateChanged(getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED, reason, null);
         }
     }
@@ -134,7 +136,7 @@ public class ProtocolProviderServiceJabberImpl
         {
             logger.error("Error ReRegistering", ex);
 
-            fireRegistrationStateChanged(RegistrationState.UNREGISTERED,
+            fireRegistrationStateChanged(getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED,
                 RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);
         }
@@ -149,7 +151,7 @@ public class ProtocolProviderServiceJabberImpl
                 reason =
                     RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
 
-            fireRegistrationStateChanged(RegistrationState.UNREGISTERED,
+            fireRegistrationStateChanged(getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED, reason, null);
         }
     }
@@ -188,7 +190,7 @@ public class ProtocolProviderServiceJabberImpl
                 if(pass == null)
                 {
                     fireRegistrationStateChanged(
-                        RegistrationState.UNREGISTERED,
+                        getRegistrationState(),
                         RegistrationState.UNREGISTERED,
                         RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
                     return;
@@ -237,7 +239,7 @@ public class ProtocolProviderServiceJabberImpl
 
 
                     fireRegistrationStateChanged(
-                        RegistrationState.UNREGISTERED,
+                        getRegistrationState(),
                         RegistrationState.REGISTERED,
                         RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
                 }
