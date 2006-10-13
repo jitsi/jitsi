@@ -66,6 +66,13 @@ public class MockProvider
         this.supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),
                 mockBImOpSet);
+
+        MockOperationSetBasicTelephony mockTelphonyOpSet =
+            new MockOperationSetBasicTelephony(this);
+
+        this.supportedOperationSets.put(
+                OperationSetBasicTelephony.class.getName(),
+                mockTelphonyOpSet);
     }
 
     /**
