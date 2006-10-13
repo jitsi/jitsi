@@ -87,7 +87,6 @@ public class ContactList extends JList
         
         this.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                new Exception().printStackTrace();
                 if(!e.getValueIsAdjusting()) {               
                     currentlySelectedObject = getSelectedValue();
                 }
