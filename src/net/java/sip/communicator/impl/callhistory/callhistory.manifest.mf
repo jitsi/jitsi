@@ -1,0 +1,19 @@
+Bundle-Activator: net.java.sip.communicator.impl.callhistory.CallHistoryActivator
+Bundle-Name: Call History Service Provider
+Bundle-Description: A bundle that implements the call history package.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: org.ungoverned.gravity.servicebinder,
+ org.osgi.framework,
+ net.java.sip.communicator.service.fileaccess,
+ net.java.sip.communicator.service.history,
+ net.java.sip.communicator.service.history.event,
+ net.java.sip.communicator.service.contactlist,
+ net.java.sip.communicator.service.history.records,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.icqconstants,
+ net.java.sip.communicator.service.protocol.event,
+Export-Package: net.java.sip.communicator.service.callhistory,
+ net.java.sip.communicator.service.callhistory.event
+Metadata-Location: /net/java/sip/communicator/impl/msghistory/callhistory.metadata.xml

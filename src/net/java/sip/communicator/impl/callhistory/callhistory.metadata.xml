@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<bundle>
+  <component class="net.java.sip.communicator.impl.msghistory.MessageHistoryServiceImpl">
+    <provides service="net.java.sip.communicator.service.msghistory.MessageHistoryService"/>
+
+    <requires service="net.java.sip.communicator.service.configuration.ConfigurationService"
+        filter=""
+        policy="static"
+        cardinality="1..1"
+        bind-method="setConfigurationService"
+        unbind-method="unsetConfigurationService" />
+
+    <requires service="net.java.sip.communicator.service.history.HistoryService"
+        filter=""
+        policy="static"
+        cardinality="1..1"
+        bind-method="setHistoryService"
+        unbind-method="unsetHistoryService" />
+
+    <requires service="net.java.sip.communicator.service.protocol.ProtocolProviderService"
+        filter=""
+        cardinality="1..n"
+        policy="dynamic"
+        bind-method="addProtocolProvider"
+        unbind-method="removeProtocolProvider" />
+
+  </component>
+</bundle>

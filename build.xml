@@ -560,6 +560,7 @@
     <target name="bundles"
         depends="bundle-util,bundle-configuration,bundle-configuration-slick,
         bundle-history,bundle-history-slick,bundle-messagehistory, bundle-msghistory-slick,
+        bundle-callhistory, bundle-callhistory-slick,
         bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
         bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
         bundle-fileaccess-slick,bundle-media,bundle-media-slick,
@@ -607,6 +608,27 @@
             manifest="test/net/java/sip/communicator/slick/msghistory/msghistory.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/msghistory"
                 prefix="net/java/sip/communicator/slick/msghistory"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-CALLHISTORY-->
+    <target name="bundle-callhistory">
+        <jar compress="false" destfile="${bundles.dest}/callhistory.jar"
+            manifest="src/net/java/sip/communicator/impl/callhistory/callhistory.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/callhistory"
+                prefix="net/java/sip/communicator/service/callhistory"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/callhistory"
+                prefix="net/java/sip/communicator/impl/callhistory" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-CALLEHISTORY-SLICK-->
+    <target name="bundle-callhistory-slick">
+        <jar compress="false" destfile="${bundles.dest}/callhistory-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/callhistory/callhistory.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/callhistory"
+                prefix="net/java/sip/communicator/slick/callhistory"/>
         </jar>
     </target>
 
