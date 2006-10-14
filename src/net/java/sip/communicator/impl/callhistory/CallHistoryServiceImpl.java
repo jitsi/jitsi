@@ -730,11 +730,12 @@ public class CallHistoryServiceImpl
     /**
      * Adding a record for removing participant from call
      * @param callParticipant CallParticipant
+     * @param srcCall Call
      */
-    private void handleParticipantRemoved(CallParticipant callParticipant)
+    private void handleParticipantRemoved(CallParticipant callParticipant,
+        Call srcCall)
     {
-        logger.info("handleParticipantRemoved");
-        CallRecord callRecord = findCallRecord(callParticipant.getCall());
+        CallRecord callRecord = findCallRecord(srcCall);
         String pAddress = callParticipant.getAddress();
 
         CallParticipantRecord cpRecord =
@@ -890,7 +891,8 @@ public class CallHistoryServiceImpl
 
         public void callParticipantRemoved(CallParticipantEvent evt)
         {
-            handleParticipantRemoved(evt.getSourceCallParticipant());
+            handleParticipantRemoved(evt.getSourceCallParticipant(),
+                                     evt.getSourceCall());
         }
 
         public void callStateChanged(CallChangeEvent evt)
