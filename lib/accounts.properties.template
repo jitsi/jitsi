@@ -56,6 +56,9 @@ accounts.sip.PRESERVE_PARTICIPANT_INFO=false
 # property.
 accounts.sip.account1.USER_ID=
 
+# The display name to associate with account1
+accounts.sip.account1.DISPLAY_NAME=
+
 # The password (in plain text) needed to log the user specified in USER_ID
 # on the server specified in SERVER_ADDRESS.
 accounts.sip.account1.PASSWORD=
@@ -80,6 +83,9 @@ accounts.sip.account1.PROXY_PORT=
 # The user id needed to log onto the server specified in the SERVER_ADDRESS
 # property.
 accounts.sip.account2.USER_ID=
+
+# The display name to associated with account2
+accounts.sip.account2.DISPLAY_NAME=
 
 # The password (in plain text) needed to log the user specified in USER_ID
 # on the server specified in SERVER_ADDRESS.
