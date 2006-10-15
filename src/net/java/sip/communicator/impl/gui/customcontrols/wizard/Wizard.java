@@ -199,9 +199,11 @@ public class Wizard extends WindowAdapter
      * @return Indicates how the dialog was closed. Compare this value against
      * the RETURN_CODE constants at the beginning of the class.
      */    
-    public int showModalDialog() {
+    public int showDialog(boolean modal) {
         
-        wizardDialog.setModal(true);
+        if(modal)
+            wizardDialog.setModal(true);
+        
         wizardDialog.pack();
         wizardDialog.setVisible(true);
         

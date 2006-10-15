@@ -79,8 +79,8 @@ public class AddContactWizard
     /**
      * Overrides the Wizard.showModalDialog method.
      */
-    public int showModalDialog() {
-        int returnCode = super.showModalDialog();
+    public int showDialog(boolean modal) {
+        int returnCode = super.showDialog(modal);
         
         if(returnCode == 0) {
             

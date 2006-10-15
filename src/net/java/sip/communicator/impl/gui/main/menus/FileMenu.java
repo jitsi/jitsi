@@ -121,12 +121,12 @@ public class FileMenu
             
             wizard.newAccount();
     
-            wizard.showModalDialog();
+            wizard.showDialog(false);
         }
         else if (itemName.equals("addContact")) {
             AddContactWizard wizard = new AddContactWizard(parentWindow);
             
-            wizard.showModalDialog();
+            wizard.showDialog(false);
         }
         else if (itemName.equals("createGroup")) {
             CreateGroupDialog dialog = new CreateGroupDialog(parentWindow);

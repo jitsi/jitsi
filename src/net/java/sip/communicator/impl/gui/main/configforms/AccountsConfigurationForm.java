@@ -226,7 +226,7 @@ public class AccountsConfigurationForm extends JPanel
             
             wizard.newAccount();
 
-            wizard.showModalDialog();
+            wizard.showDialog(false);
         }
         else if (sourceButton.equals(modifyButton)) {
             
@@ -250,7 +250,7 @@ public class AccountsConfigurationForm extends JPanel
                         accountsTable.getSelectedRow(), 0);
                 
                 wizard.modifyAccount(protocolProvider);
-                wizard.showModalDialog();
+                wizard.showDialog(false);
             }
         }
         else if(sourceButton.equals(removeButton)){
