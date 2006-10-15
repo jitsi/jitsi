@@ -185,7 +185,7 @@ public class LoginManager
 
         wizard.newAccount(noAccountFoundPage.getIdentifier());
 
-        wizard.showModalDialog();
+        wizard.showDialog(true);
     }
 
 
