@@ -35,22 +35,22 @@ import net.java.sip.communicator.util.*;
  * <tt>MetaContact</tt> or to a conference.
  * <p>
  * Note that the conference case is not yet implemented.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatWindow extends JFrame {
 
     private Logger logger = Logger.getLogger(ChatWindow.class.getName());
-    
+
     private static final String CHAT_WINDOW_WIDTH_PROPERTY
         = "net.java.sip.communicator.impl.ui.chatWindowWidth";
-    
+
     private static final String CHAT_WINDOW_HEIGHT_PROPERTY
         = "net.java.sip.communicator.impl.ui.chatWindowHeight";
-    
+
     private static final String CHAT_WINDOW_X_PROPERTY
         = "net.java.sip.communicator.impl.ui.chatWindowX";
-    
+
     private static final String CHAT_WINDOW_Y_PROPERTY
         = "net.java.sip.communicator.impl.ui.chatWindowY";
 
@@ -68,10 +68,10 @@ public class ChatWindow extends JFrame {
     private Hashtable contactChats = new Hashtable();
 
     private boolean enableTypingNotification = true;
-    
+
     /**
      * Creates an instance of <tt>ChatWindow</tt>.
-     * 
+     *
      * @param mainFrame The parent MainFrame.
      */
     public ChatWindow(MainFrame mainFrame) {
@@ -79,7 +79,7 @@ public class ChatWindow extends JFrame {
         this.mainFrame = mainFrame;
 
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        
+
         this.setSize(550, 450);
 
         this.setIconImage(ImageLoader.getImage(ImageLoader.SIP_LOGO));
@@ -87,21 +87,21 @@ public class ChatWindow extends JFrame {
         menusPanel = new MenusPanel(this);
 
         this.setSizeAndLocation();
-        
+
         this.init();
-        
+
         ActionMap amap = this.getRootPane().getActionMap();
-        
+
         amap.put("close", new CloseAction());
         amap.put("changeTabForword", new ForwordTabAction());
         amap.put("changeTabBackword", new BackwordTabAction());
         amap.put("sendMessage", new SendMessageAction());
         amap.put("openSmilies", new OpenSmileyAction());
-        amap.put("changeProtocol", new ChangeProtocolAction());        
+        amap.put("changeProtocol", new ChangeProtocolAction());
         amap.put("copy", new CopyAction());
         amap.put("paste", new PasteAction());
         amap.put("openHistory", new OpenHistoryAction());
-        
+
         InputMap imap = this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
@@ -117,7 +117,7 @@ public class ChatWindow extends JFrame {
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C,
                 KeyEvent.META_MASK), "copy");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_V,
-                KeyEvent.META_MASK), "paste");        
+                KeyEvent.META_MASK), "paste");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,
                 KeyEvent.CTRL_DOWN_MASK), "sendMessage");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_M,
@@ -126,8 +126,8 @@ public class ChatWindow extends JFrame {
                 KeyEvent.CTRL_DOWN_MASK), "changeProtocol");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_H,
                 KeyEvent.CTRL_DOWN_MASK), "openHistory");
-        
-        this.addWindowListener(new ChatWindowAdapter());       
+
+        this.addWindowListener(new ChatWindowAdapter());
     }
 
     /**
@@ -142,16 +142,16 @@ public class ChatWindow extends JFrame {
      */
     private void setCenterLocation(){
         this.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2 
+                Toolkit.getDefaultToolkit().getScreenSize().width/2
                     - this.getWidth()/2,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2 
+                Toolkit.getDefaultToolkit().getScreenSize().height/2
                     - this.getHeight()/2
                 );
     }
-    
+
     /**
      * Returns the main application widnow.
-     * 
+     *
      * @return The main application widnow.
      */
     public MainFrame getMainFrame() {
@@ -160,15 +160,15 @@ public class ChatWindow extends JFrame {
 
     /**
      * Sets the main application widnow.
-     * 
+     *
      * @param mainFrame The main application widnow.
      */
     public void setMainFrame(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
     }
-    
+
     /**
-     * Closes the current chat, triggering warnings to the user 
+     * Closes the current chat, triggering warnings to the user
      * when there are non-sent messages or a message is received
      * in last 2 seconds.
      */
@@ -189,7 +189,7 @@ public class ChatWindow extends JFrame {
                         .getTime() < 2 * 1000) {
             SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
                     Messages.getString("closeChatAfterNewMsg"));
-            
+
             int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
                     msgText, Messages
                             .getString("warning"),
@@ -221,7 +221,7 @@ public class ChatWindow extends JFrame {
     /**
      * Creates a <tt>ChatPanel</tt> for the given contact and saves it
      * in the list ot created <tt>ChatPanel</tt>s.
-     * 
+     *
      * @param contact The MetaContact for this chat.
      * @param status The current status.
      * @param protocolContact The protocol contact.
@@ -232,47 +232,47 @@ public class ChatWindow extends JFrame {
 
         ChatPanel chatPanel = new ChatPanel(
                 this, contact, protocolContact);
-        
+
         this.contactChats.put(contact.getMetaUID(), chatPanel);
-        
+
 //      this.sendPanel.addProtocols(contactItem.getProtocolList());
-        
+
         return chatPanel;
     }
-    
+
     /**
      * Adds a given <tt>ChatPanel</tt> to this chat window.
-     * 
+     *
      * @param chatPanel The <tt>ChatPanel</tt> to add.
      */
     public void addChat(ChatPanel chatPanel) {
         chatPanel.setChatVisible(true);
-        
+
         this.setCurrentChatPanel(chatPanel);
-        
+
         this.getContentPane().add(this.currentChatPanel, BorderLayout.CENTER);
-        
+
         this.windowTitle += chatPanel.getMetaContact()
             .getDisplayName() + " ";
 
         this.setTitle(this.windowTitle);
     }
-   
-    
+
+
     /**
      * Adds a given <tt>ChatPanel</tt> to the <tt>JTabbedPane</tt> of this chat
      * window.
-     * 
+     *
      * @param chatPanel The <tt>ChatPanel</tt> to add.
      */
     public void addChatTab(ChatPanel chatPanel) {
         chatPanel.setChatVisible(true);
-        
+
         String contactName = chatPanel.getMetaContact().getDisplayName();
         PresenceStatus status = chatPanel.getPresenceStatus();
-        
+
         if (chatTabbedPane == null) {
-            //Initialize the tabbed pane for the first time            
+            //Initialize the tabbed pane for the first time
 
             chatTabbedPane = new SIPCommTabbedPane(true);
 
@@ -287,44 +287,44 @@ public class ChatWindow extends JFrame {
             this.getContentPane().add(chatPanel, BorderLayout.CENTER);
 
             this.setTitle(contactName);
-            
+
             this.setCurrentChatPanel(chatPanel);
         }
         else {
             if (chatTabbedPane.getTabCount() > 0) {
-                //The tabbed pane contains already tabs.              
-                
+                //The tabbed pane contains already tabs.
+
                 chatTabbedPane.addTab(contactName, new ImageIcon(
                         Constants.getStatusIcon(status)),
                         chatPanel);
 
-                chatTabbedPane.getParent().validate();                
+                chatTabbedPane.getParent().validate();
             } else {
                 ChatPanel firstChatPanel = getCurrentChatPanel();
-                
+
                 PresenceStatus currentContactStatus = firstChatPanel
                         .getPresenceStatus();
                 //Add first two tabs to the tabbed pane.
                 chatTabbedPane.addTab(firstChatPanel.getMetaContact()
                     .getDisplayName(), new ImageIcon(Constants
                         .getStatusIcon(currentContactStatus)), firstChatPanel);
-                
+
                 chatTabbedPane.addTab(contactName, new ImageIcon(
                     Constants.getStatusIcon(status)), chatPanel);
-                
+
                 // Workaround for the following problem:
                 // The scrollbar in the conversation area moves up when the
                 // scrollpane is resized. This happens when ChatWindow is in
                 // mode "Group messages in one window" and the first chat panel
-                // is added to the tabbed pane. Then the scrollpane in the 
+                // is added to the tabbed pane. Then the scrollpane in the
                 // conversation area is slightly resized and is made smaller,
                 // which moves the scrollbar up.
-                firstChatPanel.setCaretToEnd();                
+                firstChatPanel.setCaretToEnd();
             }
 
             this.getContentPane().add(chatTabbedPane, BorderLayout.CENTER);
             this.getContentPane().validate();
-            
+
             int chatIndex = chatTabbedPane.getTabCount() - 1;
             if(chatTabbedPane.getSelectedIndex() == chatIndex)
                 this.setCurrentChatPanel(chatPanel);
@@ -333,20 +333,20 @@ public class ChatWindow extends JFrame {
 
     /**
      * Selects the chat tab which corresponds to the given <tt>MetaContact</tt>.
-     * 
+     *
      * @param contact The <tt>MetaContact</tt> to select.
      */
     public void setSelectedContactTab(MetaContact contact) {
 
-        if (this.contactChats != null 
+        if (this.contactChats != null
                 && contactChats.get(contact.getMetaUID()) != null) {
 
             ChatPanel chatPanel = ((ChatPanel) this.contactChats
                     .get(contact.getMetaUID()));
 
-            this.chatTabbedPane.setSelectedComponent(chatPanel);            
+            this.chatTabbedPane.setSelectedComponent(chatPanel);
             this.setTitle(chatPanel.getMetaContact().getDisplayName());
-            this.setCurrentChatPanel(chatPanel);            
+            this.setCurrentChatPanel(chatPanel);
             chatPanel.requestFocusInWriteArea();
         }
     }
@@ -368,7 +368,7 @@ public class ChatWindow extends JFrame {
 
     /**
      * Removes the tab with the given <code>index</code>.
-     * 
+     *
      * @param index The index of the tab to remove.
      */
     public void removeContactTab(int index) {
@@ -381,9 +381,9 @@ public class ChatWindow extends JFrame {
             if (chatTabbedPane.getTabCount() > 1) {
                 this.contactChats.remove(closeChat.getMetaContact()
                         .getMetaUID());
-                
+
                 chatTabbedPane.remove(index);
-            }                
+            }
 
             if (chatTabbedPane.getTabCount() == 1) {
 
@@ -404,7 +404,7 @@ public class ChatWindow extends JFrame {
             }
         }
     }
-    
+
     /**
      * Removes a given <tt>ChatPanel</tt>, when not in tabbed chat mode.
      * @param chatPanel The <tt>ChatPanel</tt> to remove.
@@ -422,11 +422,11 @@ public class ChatWindow extends JFrame {
         this.contactChats.remove(chatPanel.getMetaContact().getMetaUID());
         this.validate();
     }
-    
+
     /**
-     * Returns the table of all <tt>MetaContact</tt>s for this chat window. 
+     * Returns the table of all <tt>MetaContact</tt>s for this chat window.
      * This is used in case of tabbed chat window.
-     * 
+     *
      * @return The table of all MetaContact-s for this chat window.
      */
     public Hashtable getContactChatsTable() {
@@ -435,7 +435,7 @@ public class ChatWindow extends JFrame {
 
     /**
      * Returns the currently selected chat panel.
-     * 
+     *
      * @return the currently selected chat panel.
      */
     public ChatPanel getCurrentChatPanel() {
@@ -444,7 +444,7 @@ public class ChatWindow extends JFrame {
 
     /**
      * Sets the currently selected chat panel.
-     * 
+     *
      * @param currentChatPanel The chat panel which is currently selected.
      */
     public void setCurrentChatPanel(ChatPanel currentChatPanel) {
@@ -454,16 +454,18 @@ public class ChatWindow extends JFrame {
     /**
      * Returns the tab count of the chat tabbed pane. Meant to be
      * used when in "Group chat windows" mode.
-     * 
+     *
      * @return int The number of opened tabs.
      */
     public int getTabCount() {
-        return this.chatTabbedPane.getTabCount();
+        return (chatTabbedPane == null)
+                    ? 0
+                    : chatTabbedPane.getTabCount();
     }
 
     /**
      * Returns the chat tab index for the given MetaContact.
-     * 
+     *
      * @param contact The MetaContact we are searching for.
      * @return int The chat tab index for the given MetaContact.
      */
@@ -474,7 +476,7 @@ public class ChatWindow extends JFrame {
     /**
      * Highlights the corresponding tab when a message from
      * the given MetaContact is received.
-     * 
+     *
      * @param contact The MetaContact to highlight.
      */
     public void highlightTab(MetaContact contact) {
@@ -489,18 +491,18 @@ public class ChatWindow extends JFrame {
     public ChatPanel getChatPanel(MetaContact contact) {
         return (ChatPanel) this.contactChats.get(contact.getMetaUID());
     }
-    
+
     /**
      * Sets the given icon to the tab opened for the given MetaContact.
      * @param metaContact The MetaContact.
-     * @param icon The icon to set. 
+     * @param icon The icon to set.
      */
     public void setTabIcon(MetaContact metaContact, Icon icon) {
         int index = this.chatTabbedPane.indexOfComponent(this
                 .getChatPanel(metaContact));
         this.chatTabbedPane.setIconAt(index, icon);
     }
-    
+
     /**
      * The <tt>CloseAction</tt> is an <tt>AbstractAction</tt> that closes the
      * current chat.
@@ -546,7 +548,7 @@ public class ChatWindow extends JFrame {
             }
         }
     };
-    
+
     /**
      * The <tt>CopyAction</tt> is an <tt>AbstractAction</tt> that copies the
      * text currently selected.
@@ -556,7 +558,7 @@ public class ChatWindow extends JFrame {
             getCurrentChatPanel().copy();
         }
     };
-    
+
     /**
      * The <tt>PasteAction</tt> is an <tt>AbstractAction</tt> that pastes the
      * text contained in the clipboard in the current <tt>ChatPanel</tt>.
@@ -566,7 +568,7 @@ public class ChatWindow extends JFrame {
             getCurrentChatPanel().paste();
         }
     };
-    
+
     /**
      * The <tt>SendMessageAction</tt> is an <tt>AbstractAction</tt> that
      * sends the text that is currently in the write message area.
@@ -577,9 +579,9 @@ public class ChatWindow extends JFrame {
             chatPanel.stopTypingNotifications();
 
             chatPanel.sendMessage();
-        } 
+        }
     }
-    
+
     /**
      * The <tt>OpenSmileyAction</tt> is an <tt>AbstractAction</tt> that
      * opens the menu, containing all available smilies' icons.
@@ -587,9 +589,9 @@ public class ChatWindow extends JFrame {
     private class OpenSmileyAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
             menusPanel.getMainToolBar().getSmileyButton().doClick();
-        } 
+        }
     }
-    
+
     /**
      * The <tt>OpenHistoryAction</tt> is an <tt>AbstractAction</tt> that
      * opens the history window for the currently selected contact.
@@ -598,9 +600,9 @@ public class ChatWindow extends JFrame {
         public void actionPerformed(ActionEvent e) {
             System.out.println("EHOOOOOOOOO IDE LI TUUUUUUUUUK");
             menusPanel.getMainToolBar().getHistoryButton().doClick();
-        } 
+        }
     }
-    
+
     /**
      * The <tt>ChangeProtocolAction</tt> is an <tt>AbstractAction</tt> that
      * opens the menu, containing all available protocol contacts.
@@ -608,19 +610,19 @@ public class ChatWindow extends JFrame {
     private class ChangeProtocolAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
             getCurrentChatPanel().openProtocolSelectorBox();
-        } 
+        }
     }
-    
+
     /**
      * Enables typing notifications.
-     * 
+     *
      * @param enable <code>true</code> to enable typing notifications,
      * <code>false</code> to disable them.
      */
     public void enableTypingNotification(boolean enable) {
         this.enableTypingNotification = enable;
     }
-    
+
     /**
      * Checks whether typing notifications are enabled or not.
      * @return <code>true</code> if typing notifications are enabled,
@@ -629,7 +631,7 @@ public class ChatWindow extends JFrame {
     public boolean isTypingNotificationEnabled(){
         return enableTypingNotification;
     }
-    
+
     /**
      * Before closing the chat window saves the current size and position
      * through the <tt>ConfigurationService</tt>.
@@ -638,19 +640,19 @@ public class ChatWindow extends JFrame {
 
         public void windowDeiconified(WindowEvent e) {
             String title = getTitle();
-            
+
             if (title.endsWith("*")) {
                 setTitle(title.substring(0, title.length() - 1));
             }
         }
-       
+
         public void windowClosing(WindowEvent e) {
-            
+
             saveSizeAndLocation();
             close(true);
         }
     }
-    
+
     /**
      * Saves the current chat window size and position using the
      * ConfigurationService.
@@ -658,20 +660,20 @@ public class ChatWindow extends JFrame {
     public void saveSizeAndLocation() {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
-        
+
         try {
             configService.setProperty(
                 CHAT_WINDOW_WIDTH_PROPERTY,
                 new Integer(getWidth()));
-            
+
             configService.setProperty(
                 CHAT_WINDOW_HEIGHT_PROPERTY,
                 new Integer(getHeight()));
-            
+
             configService.setProperty(
                 CHAT_WINDOW_X_PROPERTY,
                 new Integer(getX()));
-            
+
             configService.setProperty(
                 CHAT_WINDOW_Y_PROPERTY,
                 new Integer(getY()));
@@ -681,29 +683,29 @@ public class ChatWindow extends JFrame {
                     + "represents an unacceptable value");
         }
     }
-    
+
     /**
      * Sets the window size and position.
      */
     public void setSizeAndLocation() {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
-        
+
         String width = configService.getString(CHAT_WINDOW_WIDTH_PROPERTY);
-        
+
         String height = configService.getString(CHAT_WINDOW_HEIGHT_PROPERTY);
-        
+
         String x = configService.getString(CHAT_WINDOW_X_PROPERTY);
-        
+
         String y = configService.getString(CHAT_WINDOW_Y_PROPERTY);
-        
-       
+
+
         if(width != null && height != null)
-            this.setSize(new Integer(width).intValue(), 
+            this.setSize(new Integer(width).intValue(),
                     new Integer(height).intValue());
-        
+
         if(x != null && y != null)
-            this.setLocation(new Integer(x).intValue(), 
+            this.setLocation(new Integer(x).intValue(),
                     new Integer(y).intValue());
         else
             this.setCenterLocation();
