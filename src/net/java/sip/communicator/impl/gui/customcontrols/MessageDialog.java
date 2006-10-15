@@ -137,7 +137,6 @@ public class MessageDialog extends JDialog
      * CANCEL_RETURN_CODE.
      */
     public int showDialog() {
-        this.setModal(true);
         this.setVisible(true);
         
         return returnCode;
