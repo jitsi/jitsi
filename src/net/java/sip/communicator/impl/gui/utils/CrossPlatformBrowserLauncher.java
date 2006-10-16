@@ -44,16 +44,16 @@ public class CrossPlatformBrowserLauncher {
     		if (urlString == null || urlString.trim().length() == 0) {
                 throw new MalformedURLException("You must specify a url.");
             }
-            new URL(urlString); // may throw MalformedURLException
-            BrowserLauncherErrorHandler errorHandler = new BrowserErrorHandler();
-            String targetBrowser = launcher.getBrowserList().get(0).toString();
+            logger.debug("Creating browser launcher...");
             
             BrowserLauncherRunner runner = new BrowserLauncherRunner(
                     launcher,
-                    targetBrowser,
                     urlString,
-                    errorHandler);
+                    null);
+            
+            logger.debug("Browser launcher created...");            
             Thread launcherThread = new Thread(runner);
+            logger.debug("Run browser in a different thread...");
             launcherThread.start();
         }
         catch (BrowserLaunchingInitializingException e) {
