@@ -428,10 +428,12 @@ public class OperationSetBasicInstantMessagingIcqImpl
 
                 // run keepalive thread
                 if(keepAliveSendTask == null)
+                {
                     keepAliveSendTask = new KeepAliveSendTask();
 
-                keepAliveTimer.scheduleAtFixedRate(
-                    keepAliveSendTask, KEEPALIVE_INTERVAL, KEEPALIVE_INTERVAL);
+                    keepAliveTimer.scheduleAtFixedRate(
+                        keepAliveSendTask, KEEPALIVE_INTERVAL, KEEPALIVE_INTERVAL);
+                }
             }
         }
     }
