@@ -129,7 +129,7 @@ public class ProtocolProviderServiceJabberImpl
 
             // sets this if any is tring to use us through registration
             // to know we are not registered
-            this.unregister();
+            this.unregister(false);
 
             connectAndLogin(authority);
         }
@@ -277,14 +277,26 @@ public class ProtocolProviderServiceJabberImpl
      */
     public void unregister()
     {
+        unregister(true);
+    }
+
+    /**
+     * Unregister and fire the event if requested
+     * @param fireEvent boolean
+     */
+    private void unregister(boolean fireEvent)
+    {
         RegistrationState currRegState = getRegistrationState();
 
         connection.close();
 
-        fireRegistrationStateChanged(
-                    currRegState,
-                    RegistrationState.UNREGISTERED,
-                    RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+        if(fireEvent)
+        {
+            fireRegistrationStateChanged(
+                currRegState,
+                RegistrationState.UNREGISTERED,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+        }
     }
 
     /**
@@ -528,22 +540,10 @@ public class ProtocolProviderServiceJabberImpl
 
         public void connectionClosedOnError(Exception exception)
         {
-            RegistrationState oldConnectionState = getRegistrationState();
+            logger.error("connectionClosedOnError " +
+                         exception.getLocalizedMessage());
 
-            fireRegistrationStateChanged(
-                    oldConnectionState,
-                    RegistrationState.UNREGISTERED,
-                    RegistrationStateChangeEvent.REASON_INTERNAL_ERROR,
-                    exception.getLocalizedMessage());
-
-            OperationSetPersistentPresenceJabberImpl opSetPersPresence =
-                (OperationSetPersistentPresenceJabberImpl)
-                getSupportedOperationSets()
-                .get(OperationSetPersistentPresence.class.getName());
-
-            opSetPersPresence.fireProviderPresenceStatusChangeEvent(
-                opSetPersPresence.getPresenceStatus(),
-                JabberStatusEnum.OFFLINE);
+            reregister();
         }
     }
 }
