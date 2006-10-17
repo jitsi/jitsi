@@ -176,6 +176,13 @@ public class HistoryWriterImpl implements HistoryWriter {
                 this.currentFile = file;
                 loaded = true;
             }
+
+            // if something happend and file was not loaded
+            // then we must create new one
+            if(this.currentDoc == null)
+            {
+                loaded = false;
+            }
         }
 
         if (!loaded)

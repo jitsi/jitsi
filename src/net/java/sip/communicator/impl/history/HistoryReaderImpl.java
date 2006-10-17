@@ -160,6 +160,12 @@ public class HistoryReaderImpl
             Document doc = this.historyImpl.
                 getDocumentForFile( (String) filelist.get(currentFile));
 
+            if(doc == null)
+            {
+                currentFile--;
+                continue;
+            }
+
             // will get nodes and construct a List of nodes
             // so we can easyly get sublist of it
             List nodes = new ArrayList();
@@ -312,6 +318,9 @@ public class HistoryReaderImpl
             String filename = (String) fileIterator.next();
 
             Document doc = this.historyImpl.getDocumentForFile(filename);
+
+            if(doc == null)
+                continue;
 
             NodeList nodes = doc.getElementsByTagName("record");
 

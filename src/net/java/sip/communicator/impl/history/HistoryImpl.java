@@ -227,8 +227,11 @@ public class HistoryImpl implements History {
                     retVal = builder.parse(file);
                 } catch (Exception e)
                 {
-                    throw new RuntimeException("Error occured while "
-                            + "parsing XML document.", e);
+//                    throw new RuntimeException("Error occured while "
+//                            + "parsing XML document.", e);
+//                    log.error("Error occured while parsing XML document.", e);
+                    log.error("Error occured while parsing XML document.");
+                    return null;
                 }
 
                 // Cache the loaded document for reuse if configured
