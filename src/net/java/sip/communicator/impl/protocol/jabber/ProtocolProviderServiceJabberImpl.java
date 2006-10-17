@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
+import javax.naming.*;
 
 /**
  * An implementation of the protocol provider service over the Jabber protocol
@@ -221,6 +222,25 @@ public class ProtocolProviderServiceJabberImpl
                 String serverPort = (String)getAccountID().
                     getAccountProperties().get(
                             ProtocolProviderFactory.SERVER_PORT);
+
+                // check to see is there SRV records for this server domain
+                try
+                {
+                    String hosts[] =
+                        NetworkUtils.getSRVRecords(
+                            "_xmpp-client._tcp." + serviceName);
+
+                    if(hosts != null && hosts.length > 0)
+                    {
+                        logger.trace("Will set server address from SRV records "
+                           + hosts[0]);
+                        serverAddress = hosts[0];
+                    }
+                }
+                catch (NamingException ex1)
+                {
+                    logger.error("Domain not resolved " + ex1.getMessage());
+                }
 
                 connection = new XMPPConnection(
                         serverAddress,

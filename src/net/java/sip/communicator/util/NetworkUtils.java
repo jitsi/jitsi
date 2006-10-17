@@ -8,11 +8,14 @@ package net.java.sip.communicator.util;
 
 import java.net.*;
 import java.util.*;
+import javax.naming.*;
+import javax.naming.directory.*;
 
 /**
  * Utility methods and fields to use when working with network addresses.
  *
  * @author Emil Ivov
+ * @author Damian Minkov
  */
 public class NetworkUtils
 {
@@ -93,5 +96,46 @@ public class NetworkUtils
     public static boolean isIPv6Address(String address)
     {
         return (address != null && address.indexOf(':') != -1);
+    }
+
+    /**
+     * Returns array of hosts from the SRV record of the specified domain.
+     * The records are ordered against the SRV record priority
+     * @param domain String
+     * @return String[]
+     */
+    public static String[] getSRVRecords(String domain)
+        throws NamingException
+    {
+        InitialDirContext iDirC = new InitialDirContext();
+        Attributes attributes =
+            iDirC.getAttributes("dns:/" + domain, new String[]{"SRV"});
+        Attribute attributeMX = attributes.get("SRV");
+
+        String[][] pvhn = new String[attributeMX.size()][2];
+        for(int i = 0; i < attributeMX.size(); i++)
+        {
+            pvhn[i] = ("" + attributeMX.get(i)).split("\\s+");
+        }
+
+        // sort the SRV RRs by RR value (lower is preferred)
+        Arrays.sort(pvhn, new Comparator()
+        {
+            public int compare(Object o1, Object o2)
+            {
+                return(Integer.parseInt(((String[])o1)[0]) -
+                       Integer.parseInt(((String[])o2)[0]));
+            }
+        });
+
+        // put sorted host names in an array, get rid of any trailing '.'
+        String[] sortedHostNames = new String[pvhn.length];
+        for(int i = 0; i < pvhn.length; i++)
+        {
+            sortedHostNames[i] = pvhn[i][3].endsWith(".") ?
+                pvhn[i][3].substring(0, pvhn[i][3].length() - 1) : pvhn[i][3];
+        }
+
+       return sortedHostNames;
     }
 }
