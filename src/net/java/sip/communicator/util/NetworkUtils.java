@@ -110,12 +110,16 @@ public class NetworkUtils
         InitialDirContext iDirC = new InitialDirContext();
         Attributes attributes =
             iDirC.getAttributes("dns:/" + domain, new String[]{"SRV"});
-        Attribute attributeMX = attributes.get("SRV");
+        Attribute attributeSRV = attributes.get("SRV");
 
-        String[][] pvhn = new String[attributeMX.size()][2];
-        for(int i = 0; i < attributeMX.size(); i++)
+        // if there is no SRV record
+        if(attributeSRV == null)
+            return null;
+
+        String[][] pvhn = new String[attributeSRV.size()][2];
+        for(int i = 0; i < attributeSRV.size(); i++)
         {
-            pvhn[i] = ("" + attributeMX.get(i)).split("\\s+");
+            pvhn[i] = ("" + attributeSRV.get(i)).split("\\s+");
         }
 
         // sort the SRV RRs by RR value (lower is preferred)
