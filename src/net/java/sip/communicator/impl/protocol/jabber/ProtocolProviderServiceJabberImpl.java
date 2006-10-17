@@ -369,6 +369,9 @@ public class ProtocolProviderServiceJabberImpl
         {
             this.accountID = accountID;
 
+            String keepAliveStrValue = (String)accountID.getAccountProperties().
+                                get("SEND_KEEP_ALIVE");
+
             //initialize the presence operationset
             OperationSetPersistentPresence persistentPresence =
                 new OperationSetPersistentPresenceJabberImpl(this);
@@ -382,8 +385,13 @@ public class ProtocolProviderServiceJabberImpl
                                         persistentPresence);
 
             //initialize the IM operation set
-            OperationSetBasicInstantMessaging basicInstantMessaging =
+            OperationSetBasicInstantMessagingJabberImpl basicInstantMessaging =
                 new OperationSetBasicInstantMessagingJabberImpl(this);
+
+            if(keepAliveStrValue != null)
+                basicInstantMessaging.
+                    setKeepAliveEnabled(
+                        new Boolean(keepAliveStrValue).booleanValue());
 
             supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),

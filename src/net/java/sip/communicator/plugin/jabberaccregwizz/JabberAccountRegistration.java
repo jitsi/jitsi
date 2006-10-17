@@ -24,6 +24,8 @@ public class JabberAccountRegistration {
 
     private int port;
 
+    private boolean sendKeepAlive;
+
     /**
      * Returns the password of the jabber registration account.
      * @return the password of the jabber registration account.
@@ -84,6 +86,15 @@ public class JabberAccountRegistration {
     }
 
     /**
+     * Is sending of keep alive packets is enabled
+     * @return boolean
+     */
+    public boolean isSendKeepAlive()
+    {
+        return sendKeepAlive;
+    }
+
+    /**
      * Sets the UIN of the jabber registration account.
      * @param uin the UIN of the jabber registration account.
      */
@@ -107,5 +118,14 @@ public class JabberAccountRegistration {
     public void setPort(int port)
     {
         this.port = port;
+    }
+
+    /**
+     * Set whether to send keep alive packets
+     * @param sendKeepAlive boolean
+     */
+    public void setSendKeepAlive(boolean sendKeepAlive)
+    {
+        this.sendKeepAlive = sendKeepAlive;
     }
 }

@@ -18,8 +18,8 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation
@@ -42,6 +42,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * The interval after which a packet is considered to be lost
      */
     private static final long KEEPALIVE_WAIT = 20000l;
+
+    private boolean keepAliveEnabled = false;
 
     /**
      * The task sending packets
@@ -245,7 +247,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                             org.jivesoftware.smack.packet.Message.class));
 
                 // run keepalive thread
-                if(keepAliveSendTask == null)
+                if(keepAliveSendTask == null && keepAliveEnabled)
                 {
                     keepAliveSendTask = new KeepAliveSendTask();
 
@@ -507,5 +509,14 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 opSetPersPresence.getPresenceStatus(),
                 JabberStatusEnum.OFFLINE);
         }
+    }
+
+    /**
+     * Set is keep alive sendin packets to be enabled
+     * @param keepAliveEnabled boolean
+     */
+    public void setKeepAliveEnabled(boolean keepAliveEnabled)
+    {
+        this.keepAliveEnabled = keepAliveEnabled;
     }
 }

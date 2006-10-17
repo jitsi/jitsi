@@ -134,6 +134,9 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
         accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
                                   String.valueOf(registration.getPort()));
 
+        accountProperties.put("SEND_KEEP_ALIVE",
+                              String.valueOf(registration.isSendKeepAlive()));
+
         if(protocolProvider != null) {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;

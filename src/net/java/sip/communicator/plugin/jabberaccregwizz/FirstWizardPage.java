@@ -52,6 +52,9 @@ public class FirstWizardPage extends JPanel
 
     private JPanel valuesAdvOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
 
+    private JCheckBox sendKeepAliveBox = new JCheckBox(
+            Resources.getString("sendKeepAlive"));
+
     private JCheckBox enableAdvOpButton = new JCheckBox(
         Resources.getString("ovverideServerOps"), false);
 
@@ -145,7 +148,11 @@ public class FirstWizardPage extends JPanel
         valuesAdvOpPanel.add(serverField);
         valuesAdvOpPanel.add(portField);
 
-        advancedOpPanel.add(enableAdvOpButton, BorderLayout.NORTH);
+        JPanel checkBoxesPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+        checkBoxesPanel.add(sendKeepAliveBox);
+        checkBoxesPanel.add(enableAdvOpButton);
+
+        advancedOpPanel.add(checkBoxesPanel, BorderLayout.NORTH);
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
 
@@ -206,6 +213,7 @@ public class FirstWizardPage extends JPanel
         registration.setRememberPassword(rememberPassBox.isSelected());
 
         registration.setServerAddress(serverField.getText());
+        registration.setSendKeepAlive(sendKeepAliveBox.isSelected());
         try
         {
             registration.setPort(Integer.parseInt(portField.getText()));
@@ -269,7 +277,7 @@ public class FirstWizardPage extends JPanel
         AccountID accountID = protocolProvider.getAccountID();
         String password = (String)accountID.getAccountProperties()
             .get(ProtocolProviderFactory.PASSWORD);
-        
+
         this.uinField.setText(accountID.getUserID());
 
         if(password != null) {
