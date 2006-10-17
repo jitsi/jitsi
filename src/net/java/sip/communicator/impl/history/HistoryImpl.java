@@ -231,7 +231,13 @@ public class HistoryImpl implements History {
 //                            + "parsing XML document.", e);
 //                    log.error("Error occured while parsing XML document.", e);
                     log.error("Error occured while parsing XML document.");
-                    return null;
+
+                    // will try to fix the xml file
+                    retVal = getFixedDocument(file);
+
+                    // if is not fixed return
+                    if(retVal == null)
+                        return null;
                 }
 
                 // Cache the loaded document for reuse if configured
@@ -246,4 +252,122 @@ public class HistoryImpl implements History {
         return retVal;
     }
 
+    /**
+     * Methods trying to fix histry xml files if corrupted
+     */
+    /**
+     * Returns the fixed document as xml Document
+     * if file cannot be fixed return null
+     *
+     * @param file File the file trying to fix
+     * @return Document the fixed doc
+     * @throws Exception
+     */
+    public Document getFixedDocument(File file)
+    {
+        log.info("Will try to fix file : " + file);
+        StringBuffer resultDocStr = new StringBuffer("<history>");
+
+        try
+        {
+            BufferedReader inReader = new BufferedReader(new FileReader(file));
+            String line = null;
+            while ( (line = inReader.readLine()) != null)
+            {
+                // find the next start of record node
+                if (line.indexOf("<record") == -1)
+                {
+                    continue;
+                }
+
+                String record = getRecordNodeString(line, inReader).toString();
+
+                if (record != null && isValidXML(record))
+                {
+                    resultDocStr.append(record);
+                }
+            }
+        }
+        catch (Exception ex1)
+        {
+            log.error("File cannot be fixed. Erro reading! " +
+                      ex1.getLocalizedMessage());
+        }
+
+        resultDocStr.append("</history>");
+
+        try
+        {
+            Document result = this.historyServiceImpl
+                .getDocumentBuilder().parse(new ByteArrayInputStream(
+                    resultDocStr.toString().getBytes("UTF-8")));
+
+            // parsing is ok . lets overwrite with correct values
+            log.trace("File fixed will write to disk!");
+            XMLUtils.writeXML(result, file);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            System.out.println("again cannot parse " + ex.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Returns the string containing the record node from the xml -
+     * the supplied Reader
+     * @param startingLine String
+     * @param inReader BufferedReader
+     * @return StringBuffer
+     */
+    private StringBuffer getRecordNodeString(
+        String startingLine, BufferedReader inReader)
+    {
+        try
+        {
+            StringBuffer result = new StringBuffer(startingLine);
+
+            String line = null;
+            while ( (line = inReader.readLine()) != null)
+            {
+                // find the next start of record node
+                if (line.indexOf("</record>") != -1)
+                {
+                    result.append(line);
+                    break;
+                }
+                result.append(line);
+            }
+
+            return result;
+        }
+        catch (IOException ex)
+        {
+            log.info("Error reading record " + ex.getLocalizedMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Checks whether the given xml is valid
+     * @param str String
+     * @return boolean
+     */
+    private boolean isValidXML(String str)
+    {
+        try
+        {
+            this.historyServiceImpl.getDocumentBuilder().parse(
+                new ByteArrayInputStream(str.getBytes("UTF-8")));
+        }
+        catch (Exception ex)
+        {
+            System.out.println("not valid xml " + ex.getMessage());
+            return false;
+        }
+
+        return true;
+    }
 }
