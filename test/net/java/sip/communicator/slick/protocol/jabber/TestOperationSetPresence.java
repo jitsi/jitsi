@@ -39,6 +39,9 @@ public class TestOperationSetPresence
     private OperationSetPresence operationSetPresence2 = null;
     private String statusMessageRoot = new String("Our status is now: ");
 
+    private static AuthEventCollector authEventCollector1 = new AuthEventCollector();
+    private static AuthEventCollector authEventCollector2 = new AuthEventCollector();
+
     public TestOperationSetPresence(String name)
     {
         super(name);
@@ -419,17 +422,84 @@ public class TestOperationSetPresence
     {
         logger.debug("Testing Subscription and Subscription Event Dispatch.");
 
-        // First create a subscription and verify that it really gets created.
+
+        logger.trace("set Auth Handlers");
+        operationSetPresence1.setAuthorizationHandler(authEventCollector1);
+        operationSetPresence2.setAuthorizationHandler(authEventCollector2);
+
+        /**
+         * Testing Scenario
+         *
+         * user1 add user2
+         *     - check user2 receive auth request
+         *     - user2 deny
+         *      - check user1 received deny
+         * user1 add user2
+         *     - check user2 receive auth request
+         *     - user2 accept
+         *     - check user1 received accept
+         */
+
+
+        // first we will reject
+        authEventCollector2.responseToRequest =
+            new AuthorizationResponse(AuthorizationResponse.REJECT, null);
+
+        operationSetPresence1.subscribe(fixture.userID2);
+
+        authEventCollector2.waitForAuthRequest(10000);
+
+        assertTrue("Error authorization request not received from " +
+                        fixture.userID2,
+                       authEventCollector2.isAuthorizationRequestReceived);
+
+        authEventCollector1.waitForAuthResponse(10000);
+
+        assertTrue("Error authorization reply not received from " +
+                        fixture.userID1,
+                       authEventCollector1.isAuthorizationResponseReceived);
+
+        assertEquals("Error received authorization reply not as expected",
+             authEventCollector2.responseToRequest.getResponseCode(),
+             authEventCollector1.response.getResponseCode());
+
+        pauseAfterStateChanges();
+
         SubscriptionEventCollector subEvtCollector
             = new SubscriptionEventCollector();
         operationSetPresence1.addSubsciptionListener(subEvtCollector);
 
-        synchronized(subEvtCollector){
-            operationSetPresence1.subscribe(fixture.userID2);
-            subEvtCollector.waitForEvent(10000);
-            //don't want any more events
-            operationSetPresence1.removeSubscriptionListener(subEvtCollector);
-        }
+        // second we will accept
+        authEventCollector2.responseToRequest =
+            new AuthorizationResponse(AuthorizationResponse.ACCEPT, null);
+        authEventCollector2.isAuthorizationRequestReceived = false;
+        authEventCollector1.isAuthorizationResponseReceived = false;
+
+        operationSetPresence1.subscribe(fixture.userID2);
+
+        authEventCollector2.waitForAuthRequest(10000);
+
+        assertTrue("Error authorization request not received from " +
+                        fixture.userID2,
+                       authEventCollector2.isAuthorizationRequestReceived);
+
+        authEventCollector1.waitForAuthResponse(10000);
+
+        assertTrue("Error authorization reply not received from " +
+                        fixture.userID1,
+                       authEventCollector1.isAuthorizationResponseReceived);
+
+        assertEquals("Error received authorization reply not as expected",
+             authEventCollector2.responseToRequest.getResponseCode(),
+             authEventCollector1.response.getResponseCode());
+
+        // fix . from no on accept all subscription request for the two tested accounts
+        authEventCollector1.responseToRequest =
+            new AuthorizationResponse(AuthorizationResponse.ACCEPT, null);
+        authEventCollector2.responseToRequest =
+            new AuthorizationResponse(AuthorizationResponse.ACCEPT, null);
+
+        operationSetPresence1.removeSubscriptionListener(subEvtCollector);
 
         assertEquals("Subscription event dispatching failed."
                      , 1, subEvtCollector.collectedEvents.size());
@@ -913,11 +983,9 @@ public class TestOperationSetPresence
         implements AuthorizationHandler
     {
         boolean isAuthorizationRequestSent = false;
-        String authorizationRequestReason = null;
 
         boolean isAuthorizationResponseReceived = false;
         AuthorizationResponse response = null;
-        String authorizationResponseString = null;
 
         // receiving auth request
         AuthorizationResponse responseToRequest = null;
@@ -933,7 +1001,6 @@ public class TestOperationSetPresence
                              sourceContact);
 
                 isAuthorizationRequestReceived = true;
-                authorizationRequestReason = req.getReason();
 
                 notifyAll();
 
@@ -958,7 +1025,6 @@ public class TestOperationSetPresence
             logger.trace("createAuthorizationRequest " + contact);
 
             AuthorizationRequest authReq = new AuthorizationRequest();
-            authReq.setReason(authorizationRequestReason);
 
             isAuthorizationRequestSent = true;
 
@@ -972,10 +1038,8 @@ public class TestOperationSetPresence
             {
                 isAuthorizationResponseReceived = true;
                 this.response = response;
-                authorizationResponseString = response.getReason();
 
                 logger.trace("processAuthorizationResponse '" +
-                             authorizationResponseString + "' " +
                              response.getResponseCode() + " " +
                              sourceContact);
 

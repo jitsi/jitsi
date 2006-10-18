@@ -242,6 +242,8 @@ public class ProtocolProviderServiceJabberImpl
                     logger.error("Domain not resolved " + ex1.getMessage());
                 }
 
+                Roster.setDefaultSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
+
                 connection = new XMPPConnection(
                         serverAddress,
                         Integer.parseInt(serverPort),
@@ -255,8 +257,7 @@ public class ProtocolProviderServiceJabberImpl
                 if(connection.isAuthenticated())
                 {
                     connection.getRoster().
-                        setSubscriptionMode(Roster.SUBSCRIPTION_ACCEPT_ALL);
-
+                        setSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
 
                     fireRegistrationStateChanged(
                         getRegistrationState(),
