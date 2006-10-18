@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.customcontrols.wizard;
 
 import java.beans.*;
+import java.util.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -105,9 +106,7 @@ public class Wizard extends WindowAdapter
     private JButton nextButton;
     private JButton cancelButton;
     
-    private int returnCode;
-
-    
+    private Vector wizardListeners = new Vector();    
     
     /**
      * Default constructor. This method creates a new WizardModel object and
@@ -199,15 +198,13 @@ public class Wizard extends WindowAdapter
      * @return Indicates how the dialog was closed. Compare this value against
      * the RETURN_CODE constants at the beginning of the class.
      */    
-    public int showDialog(boolean modal) {
+    public void showDialog(boolean modal) {
         
         if(modal)
             wizardDialog.setModal(true);
         
         wizardDialog.pack();
         wizardDialog.setVisible(true);
-        
-        return returnCode;
     }
     
     /**
@@ -341,15 +338,6 @@ public class Wizard extends WindowAdapter
         
     }
     
-    /**
-     * Retrieves the last return code set by the dialog.
-     * @return An integer that identifies how the dialog was closed. See the
-     * RETURN_CODE constants of this class for possible values.
-     */    
-    public int getReturnCode() {
-        return returnCode;
-    }
-    
    /**
      * Mirrors the WizardModel method of the same name.
      * @return A boolean indicating if the button is enabled.
@@ -419,7 +407,8 @@ public class Wizard extends WindowAdapter
         }
         this.removeWizzardIcon();
         
-        returnCode = code;
+        this.fireWizardEvent(WizardEvent.SUCCESS);
+        
         wizardDialog.dispose();
     }
     
@@ -507,7 +496,7 @@ public class Wizard extends WindowAdapter
      */ 
     
     public void windowClosing(WindowEvent e) {
-        returnCode = CANCEL_RETURN_CODE;
+        fireWizardEvent(WizardEvent.CANCEL);
     }
      
     
@@ -543,7 +532,36 @@ public class Wizard extends WindowAdapter
             this.wizardIconPanel.remove(wizardIconLabel);
     }
     
-    public void setReturnCode(int returnCode) {
-        this.returnCode = returnCode;
-    }   
+    public void addWizardListener(WizardListener l)
+    {
+        synchronized (wizardListeners) {
+            if(!wizardListeners.contains(l))
+                wizardListeners.add(l);
+        }
+    }
+    
+    public void removeWizardListener(WizardListener l)
+    {
+        synchronized (wizardListeners) {
+            if(wizardListeners.contains(l))
+                wizardListeners.remove(l);
+        }
+    }
+    
+    private void fireWizardEvent(int eventCode)
+    {
+        WizardEvent wizardEvent = new WizardEvent(this, eventCode);
+        
+        Iterator listeners = null;
+        synchronized (wizardListeners)
+        {
+            listeners = new ArrayList(wizardListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            WizardListener l = (WizardListener) listeners.next();
+            l.wizardFinished(wizardEvent);
+        }
+    }
 }
