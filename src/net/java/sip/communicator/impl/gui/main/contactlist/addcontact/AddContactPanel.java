@@ -87,6 +87,8 @@ public class AddContactPanel
         
         this.add(iconLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
+        
+        this.textField.getDocument().addDocumentListener(this);
     }
     
     /**
@@ -116,13 +118,13 @@ public class AddContactPanel
         this.setNextFinishButtonAccordingToUIN();
     }
     
-    private void setNextFinishButtonAccordingToUIN()
-    {
+    public void setNextFinishButtonAccordingToUIN()
+    {        
         if(parentWizard != null) {
-            if(textField.getText() != null && textField.getText() != ""){
+            if(textField.getText() != null && textField.getText().length() > 0){                
                 parentWizard.setNextFinishButtonEnabled(true);
             }
-            else {
+            else {                
                 parentWizard.setNextFinishButtonEnabled(false);
             }
         }

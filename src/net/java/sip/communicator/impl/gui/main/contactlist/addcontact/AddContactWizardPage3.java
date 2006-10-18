@@ -72,6 +72,7 @@ public class AddContactWizardPage3 implements WizardPage {
     }
 
     public void pageShowing() {
+        this.addContactPanel.setNextFinishButtonAccordingToUIN();
     }
 
     public void pageNext() {

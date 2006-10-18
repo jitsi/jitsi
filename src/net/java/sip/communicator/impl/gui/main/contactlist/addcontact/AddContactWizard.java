@@ -21,7 +21,8 @@ import net.java.sip.communicator.util.*;
 
 public class AddContactWizard
     extends Wizard
-    implements MetaContactListListener
+    implements  MetaContactListListener,
+                WizardListener
 {
     private Logger logger = Logger.getLogger(AddContactWizard.class.getName());
     
@@ -36,8 +37,10 @@ public class AddContactWizard
     private AddContactWizardPage3 page3;
     
     public AddContactWizard(MainFrame mainFrame)
-    {
+    {   
         this.mainFrame = mainFrame;
+     
+        super.addWizardListener(this);
         
         this.getDialog().setTitle(Messages.getString("addContactWizard"));
 
@@ -79,37 +82,8 @@ public class AddContactWizard
     /**
      * Overrides the Wizard.showModalDialog method.
      */
-    public int showDialog(boolean modal) {
-        int returnCode = super.showDialog(modal);
-        
-        if(returnCode == 0) {
-            
-            if(newContact.getNewGroup() != null
-                    && !newContact.getNewGroup().equals("")) {                
-                new CreateGroup(mainFrame.getContactList(), 
-                        newContact).start();
-            }
-            
-            ArrayList ppList = newContact.getProtocolProviders();
-            ArrayList groupList = newContact.getGroups();
-
-            for(int i = 0; i < ppList.size(); i ++) {
-                ProtocolProviderService pps
-                    = (ProtocolProviderService)ppList.get(i);
-
-                for(int j = 0; j < groupList.size(); j++) {
-                    MetaContactGroup group
-                        = (MetaContactGroup)groupList.get(j);
-                    
-                    new CreateContact(pps, group, newContact).start();
-                }
-            }
-        }
-        else if(returnCode == 1) {
-            this.getDialog().dispose();
-        }
-        
-        return returnCode;
+    public void showDialog(boolean modal) {
+        super.showDialog(modal);        
     }
     
     /**
@@ -306,4 +280,34 @@ public class AddContactWizard
 
     public void childContactsReordered(MetaContactGroupEvent evt)
     {}
+
+    public void wizardFinished(WizardEvent e)
+    {   
+        if(e.getEventCode() == WizardEvent.SUCCESS) {
+            
+            if(newContact.getNewGroup() != null
+                    && !newContact.getNewGroup().equals("")) {                
+                new CreateGroup(mainFrame.getContactList(), 
+                        newContact).start();
+            }
+            
+            ArrayList ppList = newContact.getProtocolProviders();
+            ArrayList groupList = newContact.getGroups();
+
+            for(int i = 0; i < ppList.size(); i ++) {
+                ProtocolProviderService pps
+                    = (ProtocolProviderService)ppList.get(i);
+
+                for(int j = 0; j < groupList.size(); j++) {
+                    MetaContactGroup group
+                        = (MetaContactGroup)groupList.get(j);
+                    
+                    new CreateContact(pps, group, newContact).start();
+                }
+            }
+        }
+        else if(e.getEventCode() == WizardEvent.ERROR) {
+            this.getDialog().dispose();
+        }
+    }
 }
