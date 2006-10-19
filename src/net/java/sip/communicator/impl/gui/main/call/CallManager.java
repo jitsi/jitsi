@@ -209,7 +209,7 @@ public class CallManager
                     Call createdCall;
                     try {
                         createdCall = telephony.createCall(
-                                phoneNumberCombo.getSelectedItem().toString());
+                            phoneNumberCombo.getEditor().getItem().toString());
                         
                         CallPanel callPanel = new CallPanel(
                                 this, createdCall, CallPanel.OUTGOING_CALL);
@@ -358,7 +358,7 @@ public class CallManager
      * button.
      */
     public void callEnded(CallEvent event)
-    {
+    {   
         SoundLoader.getSound(SoundLoader.BUSY).stop();
         SoundLoader.stop(Constants.getDefaultIncomingCallAudio());
         
@@ -371,7 +371,9 @@ public class CallManager
     }
 
     public void outgoingCallCreated(CallEvent event)
-    {}
+    {
+        System.out.println("OUTGOINT CALL::::::::" + event.getSourceCall());
+    }
     
     /**
      * Removes the given call panel tab.
