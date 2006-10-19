@@ -91,9 +91,11 @@ public class ChatSendPanel extends JPanel implements ActionListener {
 
             Contact contact = (Contact) contactSelectorBox.getSelectedObject();
 
-            //Send TYPING STOPPED event before sending the message            
-            chatPanel.stopTypingNotifications();
-
+            if(chatPanel.getTnOperationSet() != null) {
+                //Send TYPING STOPPED event before sending the message
+                chatPanel.stopTypingNotifications();
+            }
+            
             chatPanel.requestFocusInWriteArea();
             
             try {

@@ -149,8 +149,9 @@ public class ChatWritePanel extends JScrollPane implements
             }
         }
         else if (chatPanel.getProtocolContact()
-                    .getProtocolProvider().isRegistered()
+                    .getProtocolProvider().isRegistered()                
                 && chatPanel.getChatWindow().isTypingNotificationEnabled()
+                && chatPanel.getTnOperationSet() != null
                 && e.getKeyCode() != KeyEvent.VK_ESCAPE) {
             
             if (typingState != OperationSetTypingNotifications.STATE_TYPING) {
