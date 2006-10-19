@@ -61,6 +61,8 @@ public class ProtocolProviderServiceJabberImpl
      */
     private SecurityAuthority authority = null;
 
+    private boolean reconnecting = false;
+
     /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
@@ -130,6 +132,8 @@ public class ProtocolProviderServiceJabberImpl
             // sets this if any is tring to use us through registration
             // to know we are not registered
             this.unregister(false);
+
+            this.reconnecting = true;
 
             connectAndLogin(authority);
         }
@@ -256,6 +260,8 @@ public class ProtocolProviderServiceJabberImpl
 
                 if(connection.isAuthenticated())
                 {
+                    this.reconnecting = false;
+
                     connection.getRoster().
                         setSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
 
@@ -552,7 +558,10 @@ public class ProtocolProviderServiceJabberImpl
             logger.error("connectionClosedOnError " +
                          exception.getLocalizedMessage());
 
-            reregister();
+            if(!reconnecting)
+                reregister();
+            else
+                reconnecting = false;
         }
     }
 }
