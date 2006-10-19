@@ -82,7 +82,8 @@ public class ChatWindow extends JFrame {
 
         this.setSize(550, 450);
 
-        this.setIconImage(ImageLoader.getImage(ImageLoader.SIP_LOGO));
+        this.setIconImage(
+                ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
 
         menusPanel = new MenusPanel(this);
 
@@ -274,7 +275,7 @@ public class ChatWindow extends JFrame {
         if (chatTabbedPane == null) {
             //Initialize the tabbed pane for the first time
 
-            chatTabbedPane = new SIPCommTabbedPane(true);
+            chatTabbedPane = new SIPCommTabbedPane(true, false);
 
             chatTabbedPane.addCloseListener(new CloseListener() {
                 public void closeOperation(MouseEvent e) {
@@ -576,8 +577,7 @@ public class ChatWindow extends JFrame {
     private class SendMessageAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
             ChatPanel chatPanel = getCurrentChatPanel();
-            chatPanel.stopTypingNotifications();
-
+			//chatPanel.stopTypingNotifications();
             chatPanel.sendMessage();
         }
     }
@@ -598,7 +598,6 @@ public class ChatWindow extends JFrame {
      */
     private class OpenHistoryAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
-            System.out.println("EHOOOOOOOOO IDE LI TUUUUUUUUUK");
             menusPanel.getMainToolBar().getHistoryButton().doClick();
         }
     }
