@@ -124,7 +124,7 @@ public class CallSipImpl
      */
     public Iterator getCallParticipants()
     {
-        return callParticipants.iterator();
+        return new LinkedList(callParticipants).iterator();
     }
 
     /**
