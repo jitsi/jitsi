@@ -567,7 +567,8 @@
         bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,
         meta-contactlist,meta-contactlist-slick,
-        bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz"/>
+        bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
+    	bundle-plugin-sipaccregwizz"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -937,4 +938,14 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/jabberaccregwizz"/>
         </jar>
     </target>
+	
+	<!-- BUNDLE-PLUGIN-SIPACCREGWIZZ -->
+	    <target name="bundle-plugin-sipaccregwizz">
+	        <!-- Creates a bundle for the plugin SIP Account Registration Wizard."-->
+	        <jar compress="false" destfile="${bundles.dest}/sipaccregwizz.jar"
+	            manifest="src/net/java/sip/communicator/plugin/sipaccregwizz/sipaccregwizz.manifest.mf">
+	            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sipaccregwizz"
+	                prefix="net/java/sip/communicator/plugin/sipaccregwizz"/>
+	        </jar>
+	    </target>
 </project>
