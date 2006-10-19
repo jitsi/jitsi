@@ -119,7 +119,7 @@ public class ContactListPanel extends JScrollPane
      * Implements the ContactListListener.contactSelected method.
      */
     public void contactSelected(ContactListEvent evt)
-    {        
+    {
         SwingUtilities.invokeLater(
                 new RunMessageWindow(evt.getSourceContact()));
     }
@@ -411,7 +411,7 @@ public class ContactListPanel extends JScrollPane
         }
         
         if (Constants.AUTO_POPUP_NEW_MESSAGE)
-            Constants.getDefaultAudio().play();
+            Constants.getDefaultMessageAudio().play();
     }
 
     /**
