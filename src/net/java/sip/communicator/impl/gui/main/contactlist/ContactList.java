@@ -87,7 +87,7 @@ public class ContactList extends JList
         
         this.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                if(!e.getValueIsAdjusting()) {               
+                if(!e.getValueIsAdjusting()) {
                     currentlySelectedObject = getSelectedValue();
                 }
             }
@@ -726,8 +726,9 @@ public class ContactList extends JList
      * @param o the object to select
      */
     public void setSelectedValue(Object o) {
-        if(o == null)
+        if(o == null) {
             setSelectedIndex(-1);
+        }
         else {
             int i = listModel.indexOf(o);
             this.setSelectedIndex(i);
