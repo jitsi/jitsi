@@ -17,6 +17,7 @@ import java.awt.event.*;
 import java.awt.image.*;
 import javax.swing.text.html.*;
 
+import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
@@ -275,7 +276,7 @@ public class Constants {
      * The SIP protocol.
      */
     public static final String SIP = "SIP";
-
+    
     /*
      * ======================================================================
      * ------------------------ OTHER CONSTANTS ------------------------------
@@ -334,7 +335,7 @@ public class Constants {
 
         if (protocolName.equals(Constants.SIP)) {
 
-            protocolIcon = ImageLoader.getImage(ImageLoader.SIP_ONLINE_ICON);
+            protocolIcon = ImageLoader.getImage(ImageLoader.SIP_LOGO);
         } else if (protocolName.equals(Constants.ICQ)) {
 
             protocolIcon = ImageLoader.getImage(ImageLoader.ICQ_LOGO);
@@ -408,7 +409,8 @@ public class Constants {
     public static BufferedImage[] getProtocolAnimatedIcon(String protocolName) {
 
         if (protocolName.equals(Constants.SIP)) {
-            return null;
+            return ImageLoader.getAnimatedImage(
+                    ImageLoader.SIP_CONNECTING);
         }
         else if (protocolName.equals(Constants.ICQ)){
             return ImageLoader.getAnimatedImage(
@@ -508,13 +510,26 @@ public class Constants {
      * Returns the default sound used when user receives a message.
      * @return the default sound used when user receives a message.
      */
-    public static AudioClip getDefaultAudio() {
-        AudioClip audio = Applet
-                .newAudioClip(Constants.class
-                        .getClassLoader()
-                        .getResource(
-        "net/java/sip/communicator/impl/gui/resources/sounds/ship-sink.wav"));
-
-        return audio;
+    public static AudioClip getDefaultMessageAudio()
+    {   
+        return SoundLoader.getSound(SoundLoader.INCOMING_MESSAGE);
+    }
+    
+    /**
+     * Returns the default sound used when user makes a call.
+     * @return the default sound used when user makes a call.
+     */
+    public static AudioClip getDefaultOutgoingCallAudio()
+    {
+        return SoundLoader.getSound(SoundLoader.OUTGOING_CALL);
+    }
+    
+    /**
+     * Returns the default sound used when user receives a call.
+     * @return the default sound used when user receives a call.
+     */
+    public static AudioClip getDefaultIncomingCallAudio()
+    {  
+        return SoundLoader.getSound(SoundLoader.INCOMING_CALL);
     }
 }
