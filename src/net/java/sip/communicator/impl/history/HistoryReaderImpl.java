@@ -201,18 +201,29 @@ public class HistoryReaderImpl
 
                 ArrayList nameVals = new ArrayList();
 
+                boolean isRecordOK = true;
                 int len = propertyNodes.getLength();
                 for (int j = 0; j < len; j++)
                 {
                     Node propertyNode = propertyNodes.item(j);
                     if (propertyNode.getNodeType() == Node.ELEMENT_NODE)
                     {
-                        nameVals.add(propertyNode.getNodeName());
                         // Get nested TEXT node's value
-                        nameVals.add(propertyNode.getFirstChild()
-                                     .getNodeValue());
+                        Node nodeValue = propertyNode.getFirstChild();
+
+                        if(nodeValue != null)
+                        {
+                            nameVals.add(propertyNode.getNodeName());
+                            nameVals.add(nodeValue.getNodeValue());
+                        }
+                        else
+                            isRecordOK = false;
                     }
                 }
+
+                // if we found a broken record - just skip it
+                if(!isRecordOK)
+                    continue;
 
                 String[] propertyNames = new String[nameVals.size() / 2];
                 String[] propertyValues = new String[propertyNames.length];
