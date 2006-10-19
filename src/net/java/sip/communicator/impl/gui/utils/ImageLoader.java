@@ -678,6 +678,12 @@ public class ImageLoader {
      * ========================================================================
      */
     /**
+     * The SIP Communicator logo 16x16 icon.
+     */
+    public static final ImageID SIP_COMMUNICATOR_LOGO
+        = new ImageID("SIP_COMMUNICATOR_LOGO");
+    
+    /**
      * The ICQ logo 32x32 icon.
      */
     public static final ImageID ICQ_32x32 = new ImageID("ICQ_32x32");
@@ -794,11 +800,16 @@ public class ImageLoader {
     public static final ImageID SIP_LOGO = new ImageID("SIP_LOGO");
 
     /**
+     * The SIP "connecting" 16x16 animated icon.
+     */
+    public static final ImageID SIP_CONNECTING = new ImageID("SIP_CONNECTING");
+    
+    /**
      * The SIP online 16x16 icon.
      */
     public static final ImageID SIP_ONLINE_ICON
         = new ImageID("SIP_ONLINE_ICON");
-
+    
     /**
      * The SIP offline 16x16 icon.
      */
