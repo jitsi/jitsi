@@ -131,7 +131,8 @@ public class HistoryWindow
 
         this.setSizeAndLocation();
 
-        this.setIconImage(ImageLoader.getImage(ImageLoader.SIP_LOGO));
+        this.setIconImage(
+                ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
 
         this.initPanels();
 
