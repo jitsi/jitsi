@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
+import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.PropertyVetoException;
@@ -99,8 +100,24 @@ public class MainFrame
 
         this.setTitle(Messages.getString("sipCommunicator"));
 
-        this.setIconImage(ImageLoader.getImage(ImageLoader.SIP_LOGO));
+        this.setIconImage(
+            ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
 
+        KeyboardFocusManager focusManager =
+            KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        focusManager.addPropertyChangeListener(
+            new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent e) {
+                    String prop = e.getPropertyName();
+                    if (("focusOwner".equals(prop))) {
+                        Component comp = (Component)e.getNewValue();
+                        
+                        logger.info("FOCUS OWNER : " + comp);
+                    }
+                }
+            }
+        );
+        
         this.init();
     }
 
@@ -229,7 +246,7 @@ public class MainFrame
             OperationSetBasicInstantMessaging im
                 = (OperationSetBasicInstantMessaging)
                     supportedOperationSets.get(imOpSetClassName);
-
+            
             this.imOperationSets.put(protocolProvider, im);
             //Add to all instant messaging operation sets the Message
             //listener implemented in the ContactListPanel, which handles
@@ -245,7 +262,7 @@ public class MainFrame
             OperationSetTypingNotifications tn
                 = (OperationSetTypingNotifications)
                     supportedOperationSets.get(tnOpSetClassName);
-
+            
             this.tnOperationSets.put(protocolProvider, tn);
 
             //Add to all typing notification operation sets the Message
@@ -274,8 +291,11 @@ public class MainFrame
                 = (OperationSetBasicTelephony)
                     supportedOperationSets.get(telOpSetClassName);
 
-            telephony.addCallListener(new GUICallListener());
-
+            telephony.addCallListener(callManager);
+            this.getContactListPanel().getContactList()
+                .addListSelectionListener(callManager);
+            this.tabbedPane.addChangeListener(callManager);
+            
             this.protocolTelephonySets.put(protocolProvider, telephony);
         }
     }
@@ -406,8 +426,12 @@ public class MainFrame
     public OperationSetPresence getProtocolPresence(
             ProtocolProviderService protocolProvider)
     {
-        return (OperationSetPresence) this.protocolPresenceSets
-                .get(protocolProvider);
+        Object o = this.protocolPresenceSets.get(protocolProvider);
+        
+        if(o != null)            
+            return (OperationSetPresence) o;
+        
+        return null;
     }
 
     /**
@@ -422,8 +446,12 @@ public class MainFrame
     public OperationSetBasicInstantMessaging getProtocolIM(
             ProtocolProviderService protocolProvider)
     {
-        return (OperationSetBasicInstantMessaging) this.imOperationSets
-                .get(protocolProvider);
+        Object o = this.imOperationSets.get(protocolProvider);
+        
+        if(o != null)
+            return (OperationSetBasicInstantMessaging) o;
+        
+        return null;
     }
 
     /**
@@ -438,8 +466,12 @@ public class MainFrame
     public OperationSetTypingNotifications getTypingNotifications(
             ProtocolProviderService protocolProvider)
     {
-        return (OperationSetTypingNotifications) this.tnOperationSets
-                .get(protocolProvider);
+        Object o = this.tnOperationSets.get(protocolProvider);
+        
+        if(o != null)
+            return (OperationSetTypingNotifications) o;
+        
+        return null;
     }
 
     /**
@@ -454,8 +486,12 @@ public class MainFrame
     public OperationSetWebContactInfo getWebContactInfo(
             ProtocolProviderService protocolProvider)
     {
-        return (OperationSetWebContactInfo) this.webContactInfoOperationSets
-                .get(protocolProvider);
+        Object o = this.webContactInfoOperationSets.get(protocolProvider);
+        
+        if(o != null)
+            return (OperationSetWebContactInfo) o;
+        
+        return null;
     }
 
     /**
@@ -469,8 +505,12 @@ public class MainFrame
     public OperationSetBasicTelephony getTelephony(
             ProtocolProviderService protocolProvider)
     {
-        return (OperationSetBasicTelephony) this.protocolTelephonySets
-                .get(protocolProvider);
+        Object o = this.protocolTelephonySets.get(protocolProvider);
+        
+        if(o != null)
+            return (OperationSetBasicTelephony) o;
+        
+        return null;
     }
 
     /**
@@ -543,46 +583,7 @@ public class MainFrame
 
         }
     }
-
-    /**
-     * Listens for all CallReceivedEvents.
-     */
-    private class GUICallListener implements CallListener {
-
-        /**
-         * This method is called by a protocol provider whenever an incoming call
-         * is received.
-         * @param event a CallEvent instance describing the new incoming
-         * call
-         */
-        public void incomingCallReceived(CallEvent event)
-        {
-            /**@todo implement incomingCallReceived() */
-            System.out.println("@todo implement incomingCallReceived()");
-        }
-
-        /**
-         * Indicates that all participants have left the source call and that it
-         * has been ended. The event may be considered redundant since there are
-         * already events issued upon termination of a single call participant but
-         * we've decided to keep it for listeners that are only intersted in call
-         * duration and don't want to follow other call details.
-         * @param event the <tt>CallEvent</tt> containing the source call.
-         */
-        public void callEnded(CallEvent event)
-        {
-            /**@todo implement incomingCallReceived() */
-            System.out.println("@todo implement incomingCallReceived()");
-        }
-
-        public void outgoingCallCreated(CallEvent event)
-        {
-            // TODO Auto-generated method stub
-
-        }
-
-    }
-
+    
     public Hashtable getWaitToBeDeliveredMsgs()
     {
         return waitToBeDeliveredMsgs;
@@ -770,7 +771,8 @@ public class MainFrame
      * Returns the panel containing the ContactList.
      * @return ContactListPanel the panel containing the ContactList
      */
-    public ContactListPanel getContactListPanel() {
+    public ContactListPanel getContactListPanel()
+    {
         return this.tabbedPane.getContactListPanel();
     }
 
@@ -778,12 +780,45 @@ public class MainFrame
      * Adds a tab in the main tabbed pane, where the given call panel
      * will be added.
      */
-    public void addCallPanel(CallPanel callPanel) {
+    public void addCallPanel(CallPanel callPanel)
+    {
         this.tabbedPane.addTab(callPanel.getTitle(), callPanel);
         this.tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
         this.tabbedPane.revalidate();
     }
 
+    
+    /**
+     * Removes the tab in the main tabbed pane, where the given call panel
+     * is contained.
+     */
+    public void removeCallPanel(CallPanel callPanel)
+    {
+        this.tabbedPane.remove(callPanel);
+        
+        if(getSelectedCallPanel() == null)
+            this.tabbedPane.setSelectedIndex(0);
+        
+        this.tabbedPane.revalidate();
+    }
+
+    /**
+     * If the selected component in the main tabbed pane is an instance of
+     * CallPanel returns it, otherwise returns null. 
+     * @return the selected CallPanel or null if there's no CallPanel selected
+     */
+    public CallPanel getSelectedCallPanel()
+    {
+        Component c = this.tabbedPane.getSelectedComponent();
+        
+        if(c != null && c instanceof CallPanel) {
+            return (CallPanel) c;
+        }
+        else {
+            return null;
+        }
+    }
+    
     /**
      * Checks in the configuration xml if there is already stored index for
      * this provider and if yes, returns it, otherwise creates a new account
@@ -954,5 +989,23 @@ public class MainFrame
             }
             this.getStatusPanel().updateAccount(currentProvider);
         }
+    }
+
+    /**
+     * If the protocol provider supports presence operation set searches the
+     * last status which was selected, otherwise returns null.
+     * 
+     * @param protocolProvider the protocol provider we're interested in.
+     * @return the last protocol provider presence status, or null if this
+     * provider doesn't support presence operation set
+     */
+    public PresenceStatus getProtocolProviderLastStatus(
+            ProtocolProviderService protocolProvider)
+    {
+        if(getProtocolPresence(protocolProvider) != null)
+            return this.statusPanel
+                .getProtocolProviderLastStatus(protocolProvider);
+        else
+            return null;
     }
 }
