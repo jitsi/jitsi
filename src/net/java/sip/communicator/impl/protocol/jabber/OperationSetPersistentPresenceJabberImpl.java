@@ -17,6 +17,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.filter.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 /**
  * The Jabber implementation of a Persistent Presence Operation set. This class
@@ -422,6 +423,7 @@ public class OperationSetPersistentPresenceJabberImpl
             presence.setMode(presenceStatusToJabberMode((JabberStatusEnum)status));
 
             presence.setStatus(statusMessage);
+            presence.addExtension(new Version());
 
             jabberProvider.getConnection().sendPacket(presence);
         }

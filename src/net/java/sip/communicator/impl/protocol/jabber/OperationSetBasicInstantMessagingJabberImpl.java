@@ -180,6 +180,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             org.jivesoftware.smack.packet.Message msg = chat.createMessage();
             msg.setBody(message.getContent());
+            msg.addExtension(new Version());
 
             MessageEventManager.
                 addNotificationsRequests(msg, true, false, false, true);
