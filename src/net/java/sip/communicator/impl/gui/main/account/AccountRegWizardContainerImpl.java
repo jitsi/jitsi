@@ -207,17 +207,20 @@ public class AccountRegWizardContainerImpl extends Wizard
             String accountRootPropName = (String) accountsIter.next();
 
             String accountUID = configService.getString(accountRootPropName);
-            
+
             if(accountUID.equals(protocolProvider
                     .getAccountID().getAccountUniqueID())) {
-                
+                                
                 wizardClassName = configService.getString(
-                        accountRootPropName + ".WIZARD");
+                        accountRootPropName + ".wizard");
+                break;
             }
         }
+        
+        System.out.println("WIZARD CLASSS NAME::::::::" + wizardClassName);
         AccountRegistrationWizard wizard
             = getWizardFromClassName(wizardClassName);
-        
+        System.out.println("WIZARD::::::::" + wizard);
         this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
         
         this.setCurrentWizard(wizard);
@@ -285,7 +288,7 @@ public class AccountRegWizardContainerImpl extends Wizard
 
                 configService.setProperty(
                         accountRootPropName + ".wizard",
-                        wizard);
+                        wizard.getClass().getName().replace('.', '_'));
 
                 savedAccount = true;
             }
