@@ -99,8 +99,9 @@ public class LoginManager
         
         SecurityAuthorityImpl secAuth
             = new SecurityAuthorityImpl(mainFrame, protocolProvider);
-            
+           
         this.mainFrame.activateAccount(protocolProvider);
+        
         new RegisterProvider(protocolProvider, secAuth).start();
     }
 
@@ -144,7 +145,7 @@ public class LoginManager
                 
                 this.mainFrame.addProtocolProvider(protocolProvider);
                 
-                PresenceStatus status = this.mainFrame.getStatusPanel()
+                PresenceStatus status = this.mainFrame
                     .getProtocolProviderLastStatus(protocolProvider);
                 
                 if(status == null 
@@ -199,17 +200,21 @@ public class LoginManager
     public void registrationStateChanged(RegistrationStateChangeEvent evt) {
         ProtocolProviderService protocolProvider = evt.getProvider();
         
+        OperationSetPresence presence
+            = mainFrame.getProtocolPresence(protocolProvider);
+        
         if (evt.getNewState().equals(RegistrationState.REGISTERED)) {
             
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
             
-            mainFrame.getProtocolPresence(protocolProvider)
-                .setAuthorizationHandler(
+            if(presence != null) {
+                presence.setAuthorizationHandler(
                     new AuthorizationHandlerImpl());
-            
-        } else if (evt.getNewState().equals(
+            }
+        }
+        else if (evt.getNewState().equals(
                 RegistrationState.AUTHENTICATION_FAILED)) {
-
+            
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
             
             if (evt.getReasonCode() == RegistrationStateChangeEvent
@@ -243,7 +248,7 @@ public class LoginManager
         }
         else if (evt.getNewState()
                 .equals(RegistrationState.CONNECTION_FAILED)) {
-
+            
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
             
             SIPCommMsgTextArea msgText
@@ -256,6 +261,7 @@ public class LoginManager
             logger.error(evt.getReason());
         }
         else if (evt.getNewState().equals(RegistrationState.EXPIRED)) {
+            
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
             
             SIPCommMsgTextArea msgText
@@ -270,7 +276,7 @@ public class LoginManager
             logger.error(evt.getReason());
         }
         else if (evt.getNewState().equals(RegistrationState.UNREGISTERED)) {
-
+            
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
             
             if(!manuallyDisconnected) {
@@ -359,7 +365,7 @@ public class LoginManager
         protocolProvider.addRegistrationStateChangeListener(this);
         this.mainFrame.addProtocolProvider(protocolProvider);
         
-        PresenceStatus status = this.mainFrame.getStatusPanel()
+        PresenceStatus status = this.mainFrame
             .getProtocolProviderLastStatus(protocolProvider);
         
         if(status == null 
