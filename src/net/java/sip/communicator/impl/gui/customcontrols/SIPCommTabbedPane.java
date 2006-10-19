@@ -39,13 +39,16 @@ public class SIPCommTabbedPane extends JTabbedPane {
      * @param enhancedUI
      *            whether the tabbedPane should use an enhanced UI
      */
-    public SIPCommTabbedPane(boolean enhancedUI) {
+    public SIPCommTabbedPane(boolean closingTabs, boolean maximizingTabs) {
         super.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        
+        this.setUI(new SIPCommTabbedPaneEnhancedUI());
 
-        if (enhancedUI)
-            this.setUI(new SIPCommTabbedPaneEnhancedUI());
-
-        this.setMaxIcon(false);
+        if(!closingTabs)
+            this.setCloseIcon(false);
+        
+        if(!maximizingTabs)
+            this.setMaxIcon(false);
     }
 
     /**

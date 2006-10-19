@@ -11,6 +11,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 
 /** 
@@ -32,7 +33,7 @@ public class MainTabbedPane extends SIPCommTabbedPane {
      * @param parent The main application frame.
      */
     public MainTabbedPane(MainFrame parent) {
-        super(true);
+        super(false, false);
 
         this.setCloseIcon(false);
         this.setMaxIcon(false);

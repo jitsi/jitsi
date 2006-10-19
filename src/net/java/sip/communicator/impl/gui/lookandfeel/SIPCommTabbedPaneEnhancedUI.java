@@ -152,26 +152,31 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
 
         int titleWidth = SwingUtilities.computeStringWidth(metrics, title);
 
+        int preferredWidth = 0;
         if (isOneActionButtonEnabled()) {
-            int preferredWidth = CLOSABLE_TAB_BACKGROUND.getWidth(null) - 2
-                    * WIDTHDELTA - 20;
+            preferredWidth = CLOSABLE_TAB_BACKGROUND.getWidth(null)
+                - 2 * WIDTHDELTA - 20;
+            
             if (isCloseEnabled())
                 preferredWidth -= BUTTONSIZE;
 
             if (isMaxEnabled())
                 preferredWidth -= BUTTONSIZE;
+        }
+        else {
+            preferredWidth = TAB_BACKGROUND.getWidth() - 5;
+        }
 
-            while (titleWidth > preferredWidth) {
-                if (title.endsWith("..."))
-                    title = title.substring(0, title.indexOf("...") - 1)
-                            .concat("...");
-                else
-                    title = title.substring(0, title.length() - 3)
-                            .concat("...");
+        while (titleWidth > preferredWidth) {
+            if (title.endsWith("..."))
+                title = title.substring(0, title.indexOf("...") - 1)
+                        .concat("...");
+            else
+                title = title.substring(0, title.length() - 3)
+                        .concat("...");
 
-                titleWidth = SwingUtilities.computeStringWidth(metrics, title);
-                textRect.width = titleWidth;
-            }
+            titleWidth = SwingUtilities.computeStringWidth(metrics, title);
+            textRect.width = titleWidth;
         }
 
         View v = getTextViewForTab(tabIndex);
