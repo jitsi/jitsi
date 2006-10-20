@@ -245,7 +245,7 @@ public class TestAccountInstallation extends TestCase
         String uin = System.getProperty( IcqProtocolProviderSlick
                                          .TESTED_IMPL_USER_ID_PROP_NAME, null);
 
-        passwd += "1234";
+        passwd = "dam1234";
 
         Hashtable icqAccountProperties = new Hashtable();
         icqAccountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
