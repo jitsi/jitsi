@@ -77,15 +77,12 @@ public class CallComboBox
     
     /**
      * Handles events triggered by user selection. Enables the call button
-     * when user selects something the combo box.
+     * when user selects something in the combo box.
      */
     public void actionPerformed(ActionEvent e)
-    {   
-        if(!isComboFieldEmpty()) {
-            
-            callManager.setCallMetaContact(false);
-            callManager.getCallButton().setEnabled(true);
-        }
+    {            
+        callManager.setCallMetaContact(false);
+        callManager.getCallButton().setEnabled(true);
     }
     
     public void focusGained(FocusEvent e)
@@ -113,7 +110,7 @@ public class CallComboBox
             
             this.items = new ArrayList(items);
             filteredItems = new ArrayList(items.size());
-            updateFilteredItems();
+            updateFilteredItems();            
         }
                 
         public void addElement( Object obj ) {
@@ -216,17 +213,17 @@ public class CallComboBox
         public Component getEditorComponent() { return text; }
  
         public void setItem(Object item) {
-            
             if(filtering)
                 return;
  
             setting = true;
             String newText = (item == null) ? "" : item.toString();
+            
             text.setText(newText);
             setting = false;
         }
  
-        public Object getItem() {
+        public Object getItem() {            
             return text.getText();
         }
  
