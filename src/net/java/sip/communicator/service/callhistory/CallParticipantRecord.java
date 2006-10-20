@@ -11,9 +11,9 @@ import java.util.*;
  */
 public class CallParticipantRecord
 {
-    private String participantAddress = null;
-    private Date startTime = null;
-    private Date endTime = null;
+    protected String participantAddress = null;
+    protected Date startTime = null;
+    protected Date endTime = null;
 
     /**
      * Creates CallParticipantRecord
@@ -57,32 +57,5 @@ public class CallParticipantRecord
     public Date getStartTime()
     {
         return startTime;
-    }
-
-    /**
-     * Sets the time the participant joined the call
-     * @param startTime Date
-     */
-    public void setStartTime(Date startTime)
-    {
-        this.startTime = startTime;
-    }
-
-    /**
-     * Sets the particiapnts address
-     * @param participantAddress String
-     */
-    public void setParticipantAddress(String participantAddress)
-    {
-        this.participantAddress = participantAddress;
-    }
-
-    /**
-     * Sets the time participant leaves the call
-     * @param endTime Date
-     */
-    public void setEndTime(Date endTime)
-    {
-        this.endTime = endTime;
     }
 }

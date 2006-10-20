@@ -73,7 +73,8 @@ public class CallHistoryServiceImpl
      * Returns all the calls made by all the contacts
      * in the supplied metacontact after the given date
      *
-     * @param contact MetaContact
+     * @param contact MetaContact which contacts participate in
+     *      the returned calls
      * @param startDate Date the start date of the calls
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
@@ -91,7 +92,7 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection findByStartDate(Date startDate) throws RuntimeException
+    public Collection findByStartDate(Date startDate)
     {
         TreeSet result = new TreeSet(new CallRecordComparator());
         try
@@ -120,7 +121,8 @@ public class CallHistoryServiceImpl
      * Returns all the calls made by all the contacts
      * in the supplied metacontact before the given date
      *
-     * @param contact MetaContact
+     * @param contact MetaContact which contacts participate in
+     *      the returned calls
      * @param endDate Date the end date of the calls
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
@@ -217,7 +219,8 @@ public class CallHistoryServiceImpl
      * Returns the supplied number of calls by all the contacts
      * in the supplied metacontact
      *
-     * @param contact MetaContact
+     * @param contact MetaContact which contacts participate in
+     *      the returned calls
      * @param count calls count
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
@@ -256,6 +259,40 @@ public class CallHistoryServiceImpl
 
         return result;
     }
+
+    /**
+     * Find the calls made by the supplied participant address
+     * @param address String the address of the participant
+     * @return Collection of CallRecords with CallParticipantRecord
+     * @throws RuntimeException
+     */
+    public Collection findByParticipant(String address)
+        throws RuntimeException
+    {
+        TreeSet result = new TreeSet(new CallRecordComparator());
+        try
+        {
+            // the default ones
+            History history = this.getHistory(null, null);
+            HistoryReader reader = history.getReader();
+            addHistorySearchProgressListeners(reader, 1);
+            QueryResultSet rs =
+                reader.findByKeyword(address, "callParticipantIDs");
+            while (rs.hasNext())
+            {
+                HistoryRecord hr = (HistoryRecord) rs.next();
+                result.add(convertHistoryRecordToCallRecord(hr));
+            }
+            removeHistorySearchProgressListeners(reader);
+        }
+        catch (IOException ex)
+        {
+            logger.error("Could not read history", ex);
+        }
+
+        return result;
+    }
+
 
     /**
      * Returns the history by specified local and remote contact
@@ -298,7 +335,7 @@ public class CallHistoryServiceImpl
      */
     private Object convertHistoryRecordToCallRecord(HistoryRecord hr)
     {
-        CallRecord result = new CallRecord();
+        CallRecordImpl result = new CallRecordImpl();
 
         LinkedList callParticipantIDs = null;
         LinkedList callParticipantStart = null;
@@ -694,7 +731,7 @@ public class CallHistoryServiceImpl
         logger.info("callEnded");
         Date endTime = new Date();
 
-        CallRecord callRecord = findCallRecord(event.getSourceCall());
+        CallRecordImpl callRecord = findCallRecord(event.getSourceCall());
 
         // no such call
         if (callRecord == null)
@@ -738,8 +775,8 @@ public class CallHistoryServiceImpl
         CallRecord callRecord = findCallRecord(srcCall);
         String pAddress = callParticipant.getAddress();
 
-        CallParticipantRecord cpRecord =
-            callRecord.findParticipantRecord(pAddress);
+        CallParticipantRecordImpl cpRecord =
+            (CallParticipantRecordImpl)callRecord.findParticipantRecord(pAddress);
 
         // no such participant
         if(cpRecord == null)
@@ -753,12 +790,12 @@ public class CallHistoryServiceImpl
      * @param call Call
      * @return CallRecord
      */
-    private CallRecord findCallRecord(Call call)
+    private CallRecordImpl findCallRecord(Call call)
     {
         Iterator iter = currentCallRecords.iterator();
         while (iter.hasNext())
         {
-            CallRecord item = (CallRecord) iter.next();
+            CallRecordImpl item = (CallRecordImpl) iter.next();
             if(item.getSourceCall().equals(call))
                 return item;
         }
@@ -777,11 +814,11 @@ public class CallHistoryServiceImpl
         if(currentCallRecords.contains(sourceCall))
             return;
 
-        CallRecord newRecord = new CallRecord(
-            sourceCall,
+        CallRecordImpl newRecord = new CallRecordImpl(
             direction,
             new Date(),
             null);
+        newRecord.setSourceCall(sourceCall);
 
         sourceCall.addCallChangeListener(historyCallChangeListener);
 
@@ -862,8 +899,6 @@ public class CallHistoryServiceImpl
         }
     }
 
-
-
     /**
      * Used to compare CallRecords
      * and to be ordered in TreeSet according their timestamp
@@ -873,8 +908,8 @@ public class CallHistoryServiceImpl
     {
         public int compare(Object o1, Object o2)
         {
-            return ((CallRecord)o1).getStartTime().
-                compareTo(((CallRecord)o2).getStartTime());
+            return ((CallRecord)o2).getStartTime().
+                compareTo(((CallRecord)o1).getStartTime());
         }
     }
 

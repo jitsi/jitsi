@@ -23,37 +23,40 @@ public interface CallHistoryService
      * Returns all the calls made by all the contacts
      * in the supplied metacontact after the given date
      *
-     * @param contact MetaContact
+     * @param contact MetaContact which contacts participate in
+     *      the returned calls
      * @param startDate Date the start date of the calls
-     * @return Collection of CallReceivedEvent
+     * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    Collection findByStartDate(MetaContact contact, Date startDate)
+    public Collection findByStartDate(MetaContact contact, Date startDate)
         throws RuntimeException;
 
     /**
      * Returns all the calls made by all the contacts
      * in the supplied metacontact before the given date
      *
-     * @param contact MetaContact
+     * @param contact MetaContact which contacts participate in
+     *      the returned calls
      * @param endDate Date the end date of the calls
-     * @return Collection of CallReceivedEvent
+     * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    Collection findByEndDate(MetaContact contact, Date endDate)
+    public Collection findByEndDate(MetaContact contact, Date endDate)
         throws RuntimeException;
 
     /**
      * Returns all the calls made by all the contacts
      * in the supplied metacontact between the given dates
      *
-     * @param contact MetaContact
+     * @param contact MetaContact which contacts participate in
+     *      the returned calls
      * @param startDate Date the start date of the calls
      * @param endDate Date the end date of the calls
-     * @return Collection of CallReceivedEvent
+     * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    Collection findByPeriod(MetaContact contact, Date startDate, Date endDate)
+    public Collection findByPeriod(MetaContact contact, Date startDate, Date endDate)
         throws RuntimeException;
 
 
@@ -61,20 +64,20 @@ public interface CallHistoryService
      * Returns all the calls made after the given date
      *
      * @param startDate Date the start date of the calls
-     * @return Collection of CallReceivedEvent
+     * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    Collection findByStartDate(Date startDate)
+    public Collection findByStartDate(Date startDate)
         throws RuntimeException;
 
     /**
      * Returns all the calls made before the given date
      *
      * @param endDate Date the end date of the calls
-     * @return Collection of CallReceivedEvent
+     * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    Collection findByEndDate(Date endDate)
+    public Collection findByEndDate(Date endDate)
         throws RuntimeException;
 
     /**
@@ -82,22 +85,23 @@ public interface CallHistoryService
      *
      * @param startDate Date the start date of the calls
      * @param endDate Date the end date of the calls
-     * @return Collection of CallReceivedEvent
+     * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    Collection findByPeriod(Date startDate, Date endDate)
+    public Collection findByPeriod(Date startDate, Date endDate)
         throws RuntimeException;
 
     /**
      * Returns the supplied number of recent calls made by all the contacts
      * in the supplied metacontact
      *
-     * @param contact MetaContact
+     * @param contact MetaContact which contacts participate in
+     *      the returned calls
      * @param count calls count
-     * @return Collection of CallReceivedEvent
+     * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    Collection findLast(MetaContact contact, int count)
+    public Collection findLast(MetaContact contact, int count)
         throws RuntimeException;
 
     /**
@@ -105,24 +109,32 @@ public interface CallHistoryService
      * in the supplied metacontact
      *
      * @param count calls count
-     * @return Collection of CallReceivedEvent
+     * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    Collection findLast(int count)
+    public Collection findLast(int count)
         throws RuntimeException;
 
+    /**
+     * Find the calls made by the supplied participant address
+     * @param address String the address of the participant
+     * @return Collection of CallRecords with CallParticipantRecord
+     * @throws RuntimeException
+     */
+    public Collection findByParticipant(String address)
+        throws RuntimeException;
 
     /**
      * Adding progress listener for monitoring progress of search process
      *
      * @param listener HistorySearchProgressListener
      */
-   void addSearchProgressListener(CallHistorySearchProgressListener listener);
+   public void addSearchProgressListener(CallHistorySearchProgressListener listener);
 
    /**
     * Removing progress listener
     *
     * @param listener HistorySearchProgressListener
     */
-   void removeSearchProgressListener(CallHistorySearchProgressListener listener);
+   public void removeSearchProgressListener(CallHistorySearchProgressListener listener);
 }
