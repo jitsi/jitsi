@@ -371,9 +371,7 @@ public class CallManager
     }
 
     public void outgoingCallCreated(CallEvent event)
-    {
-        System.out.println("OUTGOINT CALL::::::::" + event.getSourceCall());
-    }
+    {}
     
     /**
      * Removes the given call panel tab.
