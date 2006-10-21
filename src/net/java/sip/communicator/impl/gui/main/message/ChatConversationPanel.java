@@ -7,14 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.main.message;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.regex.*;
-
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
+import java.io.*;
+import java.util.*;
+import java.util.regex.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -157,11 +155,9 @@ public class ChatConversationPanel
     {
         Element root = this.document.getDefaultRootElement();
 
-        Calendar calendar = Calendar.getInstance();
-        String chatHeader = "<h1>"
-                + this.processMonth(calendar.get(Calendar.MONTH) + 1) + " " 
-                + this.processTime(calendar.get(Calendar.DAY_OF_MONTH)) + ", "                
-                + this.processTime(calendar.get(Calendar.YEAR)) + " " + "</h1>";
+        Date date = new Date(System.currentTimeMillis());
+        
+        String chatHeader = "<h1>" + GuiUtils.formatDate(date) + " " + "</h1>";
 
         try {
             this.document.insertAfterStart(root, chatHeader);
@@ -188,20 +184,13 @@ public class ChatConversationPanel
         String chatString = "";
         String endHeaderTag = "";
         String timeString = "";
-
-        Calendar calendar1 = Calendar.getInstance();
+        
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
-        if((calendar.get(Calendar.DAY_OF_MONTH)
-                < calendar1.get(Calendar.DAY_OF_MONTH))
-            && (calendar.get(Calendar.MONTH)
-                <= calendar1.get(Calendar.MONTH))
-            && (calendar.get(Calendar.YEAR)
-                <= calendar1.get(Calendar.YEAR))) {
-            timeString = this.processMonth(calendar.get(Calendar.MONTH) + 1)
-                + " " + this.processTime(calendar.get(Calendar.DAY_OF_MONTH))
-                + " ";
+        if(GuiUtils.compareDates(
+                date, new Date(System.currentTimeMillis())) < 0) {
+            timeString = GuiUtils.formatDate(date) + " ";
         }
 
         if (messageType.equals(Constants.INCOMING_MESSAGE)) {
@@ -210,9 +199,7 @@ public class ChatConversationPanel
             endHeaderTag = "</h2>";
 
             chatString += timeString + contactName + " at "
-                + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
-                + processTime(calendar.get(Calendar.MINUTE)) + ":"
-                + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
+                + GuiUtils.formatTime(date) + endHeaderTag
                 + "<DIV>" + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
                 + "</PLAINTEXT>" + "</DIV>";
@@ -222,9 +209,7 @@ public class ChatConversationPanel
             endHeaderTag = "</h3>";
 
             chatString += timeString + Messages.getString("me") + " at "
-                + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
-                + processTime(calendar.get(Calendar.MINUTE)) + ":"
-                + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
+                + GuiUtils.formatTime(date) + endHeaderTag
                 + "<DIV>" + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
                 + "</PLAINTEXT>" + "</DIV>";
@@ -233,9 +218,7 @@ public class ChatConversationPanel
             chatString = "<h4>";
             endHeaderTag = "</h4>";
 
-            chatString += processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
-            + processTime(calendar.get(Calendar.MINUTE)) + ":"
-            + processTime(calendar.get(Calendar.SECOND)) + " "
+            chatString += GuiUtils.formatTime(date) + " "
             + contactName + " " + message + endHeaderTag;
         }
         else if (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)) {
@@ -243,9 +226,7 @@ public class ChatConversationPanel
             endHeaderTag = "</h2>";
 
             chatString += timeString + contactName + " at "
-                + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
-                + processTime(calendar.get(Calendar.MINUTE)) + ":"
-                + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
+                + GuiUtils.formatTime(date) + endHeaderTag
                 + "<DIV style=\"color:#707070;\">" + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
                 + "</PLAINTEXT>" + "</DIV>";
@@ -255,9 +236,7 @@ public class ChatConversationPanel
             endHeaderTag = "</h3>";
 
             chatString += timeString + Messages.getString("me") + " at "
-                + processTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":"
-                + processTime(calendar.get(Calendar.MINUTE)) + ":"
-                + processTime(calendar.get(Calendar.SECOND)) + endHeaderTag
+                + GuiUtils.formatTime(date) + endHeaderTag
                 + "<DIV style=\"color:#707070;\">" + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
                 + "</PLAINTEXT>" + "</DIV>";
@@ -355,7 +334,7 @@ public class ChatConversationPanel
                                 + "</B><PLAINTEXT>";
 
             m.appendReplacement(msgBuffer,
-                    StringUtils.replaceSpecialRegExpChars(replacement));
+                    GuiUtils.replaceSpecialRegExpChars(replacement));
         }
         m.appendTail(msgBuffer);
 
@@ -433,7 +412,7 @@ public class ChatConversationPanel
             String[] smileyStrings = smiley.getSmileyStrings();
 
             for (int j = 0; j < smileyStrings.length; j++) {
-                regexp += StringUtils
+                regexp += GuiUtils
                         .replaceSpecialRegExpChars(smileyStrings[j])
                         + "|";
             }
@@ -459,68 +438,13 @@ public class ChatConversationPanel
                     + "' ALT='" + matchGroup + "'></IMG><PLAINTEXT>";
 
             m.appendReplacement(msgBuffer,
-                    StringUtils.replaceSpecialRegExpChars(replacement));
+                    GuiUtils.replaceSpecialRegExpChars(replacement));
         }
         m.appendTail(msgBuffer);
 
         return msgBuffer.toString();
     }
-
-    /**
-     * Adds a 0 in the beginning of one digit numbers.
-     *
-     * @param time The time parameter could be hours, minutes or seconds.
-     * @return The formatted minutes string.
-     */
-    private String processTime(int time)
-    {
-        String timeString = new Integer(time).toString();
-
-        String resultString = "";
-        if (timeString.length() < 2)
-            resultString = resultString.concat("0").concat(timeString);
-        else
-            resultString = timeString;
-
-        return resultString;
-    }
     
-    /**
-     * Replaces the month with its abbreviation.
-     * @param month Value from 1 to 12, which indicates the month.
-     * @return the corresponding month abbreviation
-     */
-    private String processMonth(int month)
-    {
-        String monthString = "";
-        if(month == 1)
-            monthString = Messages.getString("january");
-        else if(month == 2)
-            monthString = Messages.getString("february");
-        else if(month == 3)
-            monthString = Messages.getString("march");
-        else if(month == 4)
-            monthString = Messages.getString("april");
-        else if(month == 5)
-            monthString = Messages.getString("may");
-        else if(month == 6)
-            monthString = Messages.getString("june");
-        else if(month == 7)
-            monthString = Messages.getString("july");
-        else if(month == 8)
-            monthString = Messages.getString("august");
-        else if(month == 9)
-            monthString = Messages.getString("september");
-        else if(month == 10)
-            monthString = Messages.getString("october");
-        else if(month == 11)
-            monthString = Messages.getString("november");
-        else if(month == 12)
-            monthString = Messages.getString("december");
-        
-        return monthString;
-    }   
-
     /**
      * Opens a link in the default browser when clicked and
      * shows link url in a popup on mouseover.

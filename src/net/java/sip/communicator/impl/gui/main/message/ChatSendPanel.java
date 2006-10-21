@@ -142,7 +142,7 @@ public class ChatSendPanel extends JPanel implements ActionListener {
      * @param statusMessage The message text to be displayed. 
      */
     public void setStatusMessage(String statusMessage) {
-        int stringWidth = StringUtils
+        int stringWidth = GuiUtils
             .getStringWidth(statusLabel, statusMessage);
         
         while (stringWidth > statusPanel.getWidth() - 10) {
@@ -156,7 +156,7 @@ public class ChatSendPanel extends JPanel implements ActionListener {
                     .substring(0, statusMessage.length() - 3)
                         .concat("...");
             }
-            stringWidth = StringUtils
+            stringWidth = GuiUtils
                 .getStringWidth(statusLabel, statusMessage);
         }   
         statusLabel.setText(statusMessage);
