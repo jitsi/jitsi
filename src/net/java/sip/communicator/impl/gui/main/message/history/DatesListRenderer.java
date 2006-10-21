@@ -35,33 +35,12 @@ public class DatesListRenderer
         Date dateValue = (Date) value;
         
         calendar.setTime(dateValue);
-        String text = this.processTime(calendar.get(Calendar.DAY_OF_MONTH)) + "/"
-        + this.processTime(calendar.get(Calendar.MONTH) + 1) + "/"
-        + this.processTime(calendar.get(Calendar.YEAR));
+        String text = GuiUtils.formatDate(dateValue);
         
         this.label.setText(text);
         this.isSelected = isSelected;
         
         return this;
-    }
-
-    /**
-     * Formats a time string.
-     *
-     * @param time The time parameter could be hours, minutes or seconds.
-     * @return The formatted minutes string.
-     */
-    private String processTime(int time) {
-
-        String timeString = new Integer(time).toString();
-
-        String resultString = "";
-        if (timeString.length() < 2)
-            resultString = resultString.concat("0").concat(timeString);
-        else
-            resultString = timeString;
-
-        return resultString;
     }
     
     /**
