@@ -697,22 +697,6 @@ public class MainFrame
     }
 
     /**
-     * Returns the class that manages user login.
-     * @return the class that manages user login.
-     */
-    public LoginManager getLoginManager() {
-        return loginManager;
-    }
-
-    /**
-     * Sets the class that manages user login.
-     * @param loginManager The user login manager.
-     */
-    public void setLoginManager(LoginManager loginManager) {
-        this.loginManager = loginManager;
-    }
-
-    /**
      * Saves the last status for all accounts. This information is used
      * on loging. Each time user logs in he's logged with the same status
      * as he was the last time before closing the application.
@@ -767,6 +751,29 @@ public class MainFrame
 
     }
 
+    /**
+     * Returns the class that manages user login.
+     * @return the class that manages user login.
+     */
+    public LoginManager getLoginManager()
+    {
+        return loginManager;
+    }
+
+    /**
+     * Sets the class that manages user login.
+     * @param loginManager The user login manager.
+     */
+    public void setLoginManager(LoginManager loginManager)
+    {
+        this.loginManager = loginManager;
+    }
+    
+    public CallList getCallList()
+    {
+        return this.tabbedPane.getCallListPanel().getCallList();
+    }
+    
     /**
      * Returns the panel containing the ContactList.
      * @return ContactListPanel the panel containing the ContactList

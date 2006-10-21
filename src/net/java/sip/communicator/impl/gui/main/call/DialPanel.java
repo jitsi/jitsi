@@ -12,6 +12,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
@@ -63,11 +64,17 @@ public class DialPanel extends JPanel implements ActionListener {
 
     private JPanel dialPadPanel = new JPanel(new GridLayout(4, 3, 5, 5));
 
+    private MainFrame mainFrame;
     /**
      * Creates an instance of <tt>DialPanel</tt>.
      */
-    public DialPanel() {
+    public DialPanel(MainFrame mainFrame) {
         super(new FlowLayout(FlowLayout.CENTER));
+
+        this.mainFrame = mainFrame;
+        
+        this.phoneNumberCombo = mainFrame.getCallManager()
+                .getCallComboBox();
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
@@ -194,14 +201,5 @@ public class DialPanel extends JPanel implements ActionListener {
             this.phoneNumberCombo.getEditor().setItem(phoneNumber + "*");
         }
         this.phoneNumberCombo.requestFocus();
-    }
-
-    /**
-     * Sets the combo box, where user enters the phone number to call to.
-     * @param combo The combo box, where user enters the phone number to
-     * call to.
-     */
-    public void setPhoneNumberCombo(JComboBox combo) {
-        this.phoneNumberCombo = combo;
     }
 }
