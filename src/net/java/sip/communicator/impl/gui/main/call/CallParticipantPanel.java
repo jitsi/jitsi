@@ -8,9 +8,12 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -22,21 +25,22 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class CallParticipantPanel extends JPanel
-{
-    JPanel contactPanel = new JPanel(new BorderLayout());
+{   
+    private JPanel contactPanel = new JPanel(new BorderLayout());
     
-    JPanel namePanel = new JPanel(new GridLayout(0, 1));
+    private JPanel namePanel = new JPanel(new GridLayout(0, 1));
     
-    JLabel nameLabel = new JLabel("", JLabel.CENTER);
+    private JLabel nameLabel = new JLabel("", JLabel.CENTER);
+     
+    private JLabel timeLabel = new JLabel("00:00:00", JLabel.CENTER);
     
-    JLabel timeLabel = new JLabel("00:00:00", JLabel.CENTER);
-    
-    JLabel photoLabel = new JLabel(new ImageIcon(
+    private JLabel photoLabel = new JLabel(new ImageIcon(
             ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)));
     
-    Timer timer = new Timer(1000, new CallTimerListener());
+    private Date initDate;
+    private Timer timer;
     
-    JLabel stateLabel;
+    private JLabel stateLabel;
     
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
@@ -50,6 +54,8 @@ public class CallParticipantPanel extends JPanel
         stateLabel = new JLabel(participant.getState().getStateString(),
                 JLabel.CENTER);
         
+        initDate = new Date(System.currentTimeMillis());
+        timer = new Timer(1000, new CallTimerListener());
         timer.setRepeats(true);
         
         if(participant.getDisplayName() != null)
@@ -98,40 +104,14 @@ public class CallParticipantPanel extends JPanel
      * duration of the call.
      */
     private class CallTimerListener implements ActionListener
-    {
-        private int timer = 0;
-        
+    {   
         public void actionPerformed(ActionEvent e)
         {
-            timer ++;
-            int s = timer%60;
-            int m = (timer - s)/60;
-            int h = m/60;
+            Date time = GuiUtils.substractDates(
+                    new Date(System.currentTimeMillis()),
+                    initDate);
             
-            timeLabel.setText(processTime(h)
-                    + ":" + processTime(m)
-                    + ":" + processTime(s));
+            timeLabel.setText(GuiUtils.formatTime(time));
         }
-    }
-
-    /**
-     * Adds a 0 in the beginning of one digit numbers.
-     *
-     * @param time The time parameter could be hours, minutes or seconds.
-     * @return The formatted minutes string.
-     */
-    private String processTime(int time)
-    {
-        String timeString = new Integer(time).toString();
-
-        String resultString = "";
-        if (timeString.length() < 2)
-            resultString = resultString.concat("0").concat(timeString);
-        else
-            resultString = timeString;
-
-        return resultString;
-    }
-    
-    
+    }    
 }
