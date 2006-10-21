@@ -56,7 +56,7 @@ public class ChatPanel
 
     private ChatWritePanel writeMessagePanel;
 
-    private ChatConferencePanel chatConferencePanel = new ChatConferencePanel();
+    private ChatConferencePanel chatConferencePanel;
 
     private ChatSendPanel sendPanel;
 
@@ -102,6 +102,8 @@ public class ChatPanel
         this.sendPanel = new ChatSendPanel(this);
 
         this.writeMessagePanel = new ChatWritePanel(this);
+        
+        this.chatConferencePanel = new ChatConferencePanel(this);
 
         this.topSplitPane.setResizeWeight(1.0D);
         this.messagePane.setResizeWeight(1.0D);
