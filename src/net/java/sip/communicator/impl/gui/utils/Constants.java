@@ -164,6 +164,27 @@ public class Constants {
      */
 
     /**
+     * The color used to paint the background of an incoming call history
+     * record.
+     */
+    public static final Color HISTORY_DATE_COLOR
+        = new Color(255, 201, 102);
+    
+    /**
+     * The color used to paint the background of an incoming call history
+     * record.
+     */
+    public static final Color HISTORY_IN_CALL_COLOR
+        = new Color(249, 255, 197);
+    
+    /**
+     * The color used to paint the background of an outgoing call history
+     * record.
+     */
+    public static final Color HISTORY_OUT_CALL_COLOR
+        = new Color(243, 244, 247);
+    
+    /**
      * The start color used to paint a gradient selected background of some
      * components.
      */
