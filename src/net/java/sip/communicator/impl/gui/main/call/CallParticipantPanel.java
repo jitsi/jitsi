@@ -13,7 +13,6 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -25,7 +24,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class CallParticipantPanel extends JPanel
-{   
+{
     private JPanel contactPanel = new JPanel(new BorderLayout());
     
     private JPanel namePanel = new JPanel(new GridLayout(0, 1));
@@ -37,26 +36,32 @@ public class CallParticipantPanel extends JPanel
     private JLabel photoLabel = new JLabel(new ImageIcon(
             ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)));
     
-    private Date initDate;
+    private Date startDate;
+    
+    private Date endDate;
+    
     private Timer timer;
     
     private JLabel stateLabel;
+    
+    private String callType;
     
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
      * 
      * @param participant the call participant
+     * @param callType the call type. INCOMING_CALL or OUTGOING_CALL
      */
     public CallParticipantPanel(CallParticipant participant)
     {
         super(new BorderLayout());
         
-        stateLabel = new JLabel(participant.getState().getStateString(),
+        this.stateLabel = new JLabel(participant.getState().getStateString(),
                 JLabel.CENTER);
         
-        initDate = new Date(System.currentTimeMillis());
-        timer = new Timer(1000, new CallTimerListener());
-        timer.setRepeats(true);
+        this.startDate = new Date(System.currentTimeMillis());
+        this.timer = new Timer(1000, new CallTimerListener());
+        this.timer.setRepeats(true);
         
         if(participant.getDisplayName() != null)
             nameLabel.setText(participant.getDisplayName());
@@ -109,9 +114,47 @@ public class CallParticipantPanel extends JPanel
         {
             Date time = GuiUtils.substractDates(
                     new Date(System.currentTimeMillis()),
-                    initDate);
+                    startDate);
             
+            endDate = time;
             timeLabel.setText(GuiUtils.formatTime(time));
         }
-    }    
+    }
+
+    /**
+     * Returns the start time of the contained participant call.
+     * 
+     * @return the start time of the contained participant call
+     */
+    public Date getStartTime()
+    {        
+        return startDate;
+    }
+    
+    /**
+     * Returns the start time of the contained participant call.
+     * 
+     * @return the start time of the contained participant call
+     */
+    public Date getEndTime()
+    {
+        if(endDate == null)
+            endDate = startDate;
+        
+        return endDate;
+    }
+    
+    /**
+     * Returns this call type : INCOMING_CALL or OUTGOING_CALL
+     * @return Returns this call type : INCOMING_CALL or OUTGOING_CALL
+     */
+    public String getCallType()
+    {
+        return GuiCallParticipantRecord.INCOMING_CALL;
+    }
+    
+    public void setCallType(String callType)
+    {
+        this.callType = callType;
+    }
 }
