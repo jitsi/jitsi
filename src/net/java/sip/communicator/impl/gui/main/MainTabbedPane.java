@@ -7,8 +7,6 @@
 
 package net.java.sip.communicator.impl.gui.main;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
@@ -23,8 +21,10 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
  */
 public class MainTabbedPane extends SIPCommTabbedPane {
 
-    private DialPanel dialPanel = new DialPanel();
+    private DialPanel dialPanel;
 
+    private CallListPanel callHistoryPanel;
+    
     private ContactListPanel contactListPanel;
 
     /**
@@ -40,11 +40,12 @@ public class MainTabbedPane extends SIPCommTabbedPane {
 
         contactListPanel = new ContactListPanel(parent);
 
-        dialPanel.setPhoneNumberCombo(parent.getCallManager()
-                .getPhoneNumberCombo());
-
+        callHistoryPanel = new CallListPanel(parent);
+        
+        dialPanel = new DialPanel(parent);
+                
         this.addTab(Messages.getString("contacts"), contactListPanel);
-        this.addTab(Messages.getString("callList"), new JPanel());
+        this.addTab(Messages.getString("callList"), callHistoryPanel);
         this.addTab(Messages.getString("dial"), dialPanel);
         
     }
@@ -55,5 +56,14 @@ public class MainTabbedPane extends SIPCommTabbedPane {
      */
     public ContactListPanel getContactListPanel() {
         return contactListPanel;
+    }
+    
+    /**
+     * Returns the <tt>CallListPanel</tt> contained in this tabbed pane.
+     * @return the <tt>CallListPanel</tt> contained in this tabbed pane
+     */
+    public CallListPanel getCallListPanel()
+    {
+        return this.callHistoryPanel;
     }
 }
