@@ -371,7 +371,7 @@ public class CallHistoryServiceImpl
         for (int i = 0; i < callParticipantIDs.size(); i++)
         {
 
-            CallParticipantRecord cpr = new CallParticipantRecord(
+            CallParticipantRecordImpl cpr = new CallParticipantRecordImpl(
                 (String)callParticipantIDs.get(i),
                 new Date(Long.parseLong((String)callParticipantStart.get(i))),
                 new Date(Long.parseLong((String)callParticipantEnd.get(i)))
@@ -756,7 +756,7 @@ public class CallHistoryServiceImpl
         if(callRecord == null)
             return;
 
-        CallParticipantRecord newRec = new CallParticipantRecord(
+        CallParticipantRecordImpl newRec = new CallParticipantRecordImpl(
             callParticipant.getAddress(),
             new Date(),
             null);
