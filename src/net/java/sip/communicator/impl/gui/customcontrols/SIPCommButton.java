@@ -59,12 +59,16 @@ public class SIPCommButton extends JButton {
      * @param rolloverImage The rollover image.
      * @param iconImage     The icon.
      */
-    public SIPCommButton(Image bgImage, Image rolloverImage, Image iconImage) {
+    public SIPCommButton(Image bgImage,
+            Image rolloverImage, 
+            Image iconImage,
+            Image pressedImage) {
         super();
 
         this.bgImage = bgImage;
         this.bgRolloverImage = rolloverImage;
         this.iconImage = iconImage;
+        this.pressedImage = pressedImage;
 
         this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
                 this.bgImage.getHeight(null)));
@@ -87,7 +91,7 @@ public class SIPCommButton extends JButton {
         this.setPreferredSize(new Dimension(this.bgImage.getWidth(null),
                 this.bgImage.getHeight(null)));
     }
-
+    
     /**
      * Overrides the <code>paintComponent</code> method of <tt>JButton</tt>
      * to paint the button background and icon, and all additional effects

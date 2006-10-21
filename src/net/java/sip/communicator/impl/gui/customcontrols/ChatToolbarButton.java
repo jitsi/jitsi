@@ -28,6 +28,7 @@ public class ChatToolbarButton extends SIPCommButton {
         super(ImageLoader.getImage(ImageLoader.CHAT_TOOLBAR_BUTTON_BG),
                 ImageLoader
                         .getImage(ImageLoader.CHAT_TOOLBAR_ROLLOVER_BUTTON_BG),
-                iconImage);
+                iconImage,
+                null);
     }
 }
