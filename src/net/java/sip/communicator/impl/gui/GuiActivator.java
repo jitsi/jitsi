@@ -11,6 +11,7 @@ import java.util.*;
 import org.osgi.framework.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
+import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -29,8 +30,8 @@ public class GuiActivator implements BundleActivator {
 
     private static UIService uiService = null;
 
-    private CommunicatorMain communicatorMain = new CommunicatorMain();
-
+    private CommunicatorMain communicatorMain;
+    
     private LoginManager loginManager;
 
     public static BundleContext bundleContext;
@@ -38,6 +39,8 @@ public class GuiActivator implements BundleActivator {
     private static ConfigurationService configService;
     
     private static MessageHistoryService msgHistoryService;
+    
+    private static CallHistoryService callHistoryService;
 
     private static Map providerFactoriesMap = new Hashtable();
 
@@ -49,6 +52,8 @@ public class GuiActivator implements BundleActivator {
     public void start(BundleContext bundleContext) throws Exception {
 
         GuiActivator.bundleContext = bundleContext;
+        
+        this.communicatorMain = new CommunicatorMain();
 
         MainFrame mainFrame = communicatorMain.getMainFrame();
 
@@ -116,24 +121,6 @@ public class GuiActivator implements BundleActivator {
     }
 
     /**
-     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
-     * context.
-     * @return the <tt>ConfigurationService</tt> obtained from the bundle
-     * context
-     */
-    public static ConfigurationService getConfigurationService() {
-        if(configService == null) {
-            ServiceReference configReference = bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
-
-            configService = (ConfigurationService) bundleContext
-                .getService(configReference);
-        }
-
-        return configService;
-    }
-
-    /**
      * Returns all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
      * context.
      * @return all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
@@ -193,6 +180,24 @@ public class GuiActivator implements BundleActivator {
     }
     
     /**
+     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>ConfigurationService</tt> obtained from the bundle
+     * context
+     */
+    public static ConfigurationService getConfigurationService() {
+        if(configService == null) {
+            ServiceReference configReference = bundleContext
+                .getServiceReference(ConfigurationService.class.getName());
+
+            configService = (ConfigurationService) bundleContext
+                .getService(configReference);
+        }
+
+        return configService;
+    }
+    
+    /**
      * Returns the <tt>MessageHistoryService</tt> obtained from the bundle
      * context.
      * @return the <tt>MessageHistoryService</tt> obtained from the bundle
@@ -208,6 +213,24 @@ public class GuiActivator implements BundleActivator {
         }
 
         return msgHistoryService;
+    }
+    
+    /**
+     * Returns the <tt>CallHistoryService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>CallHistoryService</tt> obtained from the bundle
+     * context
+     */
+    public static CallHistoryService getCallHistoryService() {
+        if (callHistoryService == null) {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(CallHistoryService.class.getName());
+
+            callHistoryService = (CallHistoryService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return callHistoryService;
     }
     
     /**
