@@ -39,19 +39,23 @@ public class ChatConferencePanel extends JPanel {
     private SIPCommButton addToChatButton = new SIPCommButton(ImageLoader
             .getImage(ImageLoader.ADD_TO_CHAT_BUTTON), ImageLoader
             .getImage(ImageLoader.ADD_TO_CHAT_ROLLOVER_BUTTON), ImageLoader
-            .getImage(ImageLoader.ADD_TO_CHAT_ICON));
+            .getImage(ImageLoader.ADD_TO_CHAT_ICON), null);
 
     private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
     private ChatContactPanel chatContactPanel;
+    
+    private ChatPanel chatPanel;
 
     /**
      * Creates an instance of <tt>ChatConferencePanel</tt>.
      */
-    public ChatConferencePanel() {
+    public ChatConferencePanel(ChatPanel chatPanel) {
 
         super(new BorderLayout(5, 5));
 
+        this.chatPanel = chatPanel;
+        
         this.setMinimumSize(new Dimension(150, 100));
 
         this.init();
@@ -82,7 +86,7 @@ public class ChatConferencePanel extends JPanel {
      */
     public void setChatMetaContact(MetaContact contactItem) {
 
-        this.chatContactPanel = new ChatContactPanel(contactItem);
+        this.chatContactPanel = new ChatContactPanel(chatPanel, contactItem);
 
         this.contactsPanel.add(chatContactPanel);
     }
@@ -96,7 +100,7 @@ public class ChatConferencePanel extends JPanel {
     public void setChatMetaContact(MetaContact contactItem, 
                                 PresenceStatus status) {
 
-        chatContactPanel = new ChatContactPanel(contactItem, status);
+        chatContactPanel = new ChatContactPanel(chatPanel, contactItem, status);
 
         this.contactsPanel.add(chatContactPanel);
     }

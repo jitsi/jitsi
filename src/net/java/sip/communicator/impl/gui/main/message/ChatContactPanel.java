@@ -8,11 +8,15 @@
 package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.*;
+import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.border.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -33,7 +37,10 @@ import net.java.sip.communicator.service.protocol.*;
  *  
  * @author Yana Stamcheva
  */
-public class ChatContactPanel extends JPanel {
+public class ChatContactPanel
+    extends JPanel
+    implements ActionListener
+{
 
     private SIPCommButton callButton = new SIPCommButton(ImageLoader
             .getImage(ImageLoader.CHAT_CONTACT_CALL_BUTTON), ImageLoader
@@ -61,14 +68,16 @@ public class ChatContactPanel extends JPanel {
     private MetaContact contactItem;
 
     private PresenceStatus status;
+    
+    private ChatPanel chatPanel;
 
     /**
      * Creates an instance of the <tt>ChatContactPanel</tt>.
      * 
      * @param contactItem The <tt>MetaContact</tt>.
      */
-    public ChatContactPanel(MetaContact contactItem) {
-        this(contactItem, null);
+    public ChatContactPanel(ChatPanel chatPanel, MetaContact contactItem) {
+        this(chatPanel, contactItem, null);
     }
 
     /**
@@ -77,7 +86,8 @@ public class ChatContactPanel extends JPanel {
      * @param contactItem The <tt>MetaContact</tt>.
      * @param status The contact status.
      */
-    public ChatContactPanel(MetaContact contactItem, PresenceStatus status) {
+    public ChatContactPanel(ChatPanel chatPanel,
+            MetaContact contactItem, PresenceStatus status) {
 
         super(new BorderLayout());
 
@@ -87,6 +97,7 @@ public class ChatContactPanel extends JPanel {
 
         this.contactItem = contactItem;
         this.status = status;
+        this.chatPanel = chatPanel;
 
         this.setOpaque(false);
         this.mainPanel.setOpaque(false);
@@ -110,8 +121,14 @@ public class ChatContactPanel extends JPanel {
         this.infoButton.setToolTipText(Messages.getString("userInfo"));
         this.sendFileButton.setToolTipText(Messages.getString("sendFile"));
 
-        this.buttonsPanel.add(callButton);
+        this.callButton.setName("call");
+        this.infoButton.setName("info");
+        
+        this.callButton.addActionListener(this);
+        this.infoButton.addActionListener(this);
+        
         this.buttonsPanel.add(infoButton);
+        this.buttonsPanel.add(callButton);
         this.buttonsPanel.add(sendFileButton);
 
         this.contactNamePanel.add(personNameLabel);
@@ -124,7 +141,6 @@ public class ChatContactPanel extends JPanel {
 
         // Disabled all unused buttons.
         this.callButton.setEnabled(false);
-        this.infoButton.setEnabled(false);
         this.sendFileButton.setEnabled(false);
     }
 
@@ -151,8 +167,7 @@ public class ChatContactPanel extends JPanel {
                 this.getHeight(), Constants.MOVER_START_COLOR);
 
         g2.setPaint(p);
-        g2
-                .fillRect(0, 0, this.getWidth(),
+        g2.fillRect(0, 0, this.getWidth(),
                         Constants.GRADIENT_SIZE);
 
         g2.setColor(Constants.MOVER_END_COLOR);
@@ -172,5 +187,34 @@ public class ChatContactPanel extends JPanel {
     public void setStatusIcon(PresenceStatus newStatus) {
         this.personNameLabel.setIcon(new ImageIcon(Constants
                 .getStatusIcon(newStatus)));
+    }
+
+    public void actionPerformed(ActionEvent e)
+    {
+        JButton button = (JButton) e.getSource();
+        
+        MainFrame mainFrame = chatPanel.getChatWindow().getMainFrame();
+        
+        if(button.getName().equals("call")) {
+            
+        }
+        else if(button.getName().equals("info")){            
+            
+            if(contactItem != null) {
+                Contact protocolContact = chatPanel.getProtocolContact();
+
+                ProtocolProviderService pps
+                    = protocolContact.getProtocolProvider();
+
+                OperationSetWebContactInfo wContactInfo
+                    = mainFrame.getWebContactInfo(pps);
+
+                if(wContactInfo != null) {
+                    CrossPlatformBrowserLauncher.openURL(
+                        wContactInfo.getWebContactInfo(protocolContact)
+                            .toString());
+                }
+            }
+        }
     }
 }
