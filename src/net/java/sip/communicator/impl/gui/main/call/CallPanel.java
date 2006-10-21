@@ -28,11 +28,7 @@ public class CallPanel
     extends JScrollPane
     implements  CallChangeListener,
                 CallParticipantListener
-{
-    public static final String INCOMING_CALL = "IncomingCall";
-    
-    public static final String OUTGOING_CALL = "OutgoingCall";
-    
+{   
     private JPanel mainPanel = new JPanel();
     
     private Hashtable participantsPanels = new Hashtable();
@@ -43,19 +39,14 @@ public class CallPanel
     
     private Call call;
     
-    private String callType;
-    
     /**
      * Creates an instance of CallPanel for the given call and call type.
      * @param call the call 
-     * @param callType INCOMING_CALL and OUTGOING_CALL 
      */
-    public CallPanel(CallManager callManager, Call call, String callType)
+    public CallPanel(CallManager callManager, Call call)
     {
         this.call = call;
         
-        this.callType = callType;
-     
         this.callManager = callManager;
         this.call.addCallChangeListener(this);
         
@@ -166,11 +157,21 @@ public class CallPanel
                 
                 participantPanel.stopCallTimer();
                 
+                //Create a call record and add it to the call list.
+                GuiCallParticipantRecord participantRecord
+                    = new GuiCallParticipantRecord(
+                            participantPanel.getName(),
+                            participantPanel.getCallType(),
+                            participantPanel.getStartTime(),
+                            participantPanel.getEndTime());
+                
+                callManager.getMainFrame().getCallList().addItem(
+                        participantRecord, 1);
+                
+                //remove the participant panel for this participant
                 this.participantsPanels.remove(participant);
                 
-                if(participantsPanels.size() == 0)
-                    this.callManager.removeCallPanel(this);
-                else {
+                if(participantsPanels.size() != 0) {
                     Timer timer = new Timer(5000,
                         new RemoveParticipantPanelListener(participantPanel));
                     
@@ -274,16 +275,5 @@ public class CallPanel
         {
             mainPanel.remove(participantPanel);
         }        
-    }
-
-    /**
-     * Returns this call type : INCOMING_CALL or OUTGOING_CALL
-     * @return Returns this call type : INCOMING_CALL or OUTGOING_CALL
-     */
-    public String getCallType()
-    {
-        return callType;
-    }
-    
-    
+    }    
 }
