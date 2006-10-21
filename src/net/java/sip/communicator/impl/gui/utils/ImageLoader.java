@@ -7,15 +7,14 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
+import java.awt.*;
+import java.awt.image.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
 import javax.imageio.*;
 import javax.imageio.stream.*;
-import javax.swing.*;
-
-import java.awt.*;
-import java.awt.image.*;
 
 import net.java.sip.communicator.util.*;
 
@@ -202,7 +201,19 @@ public class ImageLoader {
      */
     public static final ImageID HANGUP_ROLLOVER_BUTTON_BG
         = new ImageID("HANGUP_ROLLOVER_BUTTON_BG");
-
+    
+    /**
+     * The hangup button pressed image.
+     */
+    public static final ImageID CALL_BUTTON_PRESSED_BG
+        = new ImageID("CALL_BUTTON_PRESSED_BG");
+    
+    /**
+     * The hangup button pressed image.
+     */
+    public static final ImageID HANGUP_BUTTON_PRESSED_BG
+        = new ImageID("HANGUP_BUTTON_PRESSED_BG");
+    
     /**
      * The background image for the <tt>StatusSelectorBox</tt>.
      */
