@@ -49,11 +49,15 @@ public class CallManager
 
     private SIPCommButton callButton = new SIPCommButton(ImageLoader
             .getImage(ImageLoader.CALL_BUTTON_BG), ImageLoader
-            .getImage(ImageLoader.CALL_ROLLOVER_BUTTON_BG));
+            .getImage(ImageLoader.CALL_ROLLOVER_BUTTON_BG),
+            null,
+            ImageLoader.getImage(ImageLoader.CALL_BUTTON_PRESSED_BG));
 
     private SIPCommButton hangupButton = new SIPCommButton(ImageLoader
             .getImage(ImageLoader.HANGUP_BUTTON_BG), ImageLoader
-            .getImage(ImageLoader.HANGUP_ROLLOVER_BUTTON_BG));
+            .getImage(ImageLoader.HANGUP_ROLLOVER_BUTTON_BG),
+            null,
+            ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_PRESSED_BG));
 
     private SIPCommButton minimizeButton = new SIPCommButton(ImageLoader
             .getImage(ImageLoader.CALL_PANEL_MINIMIZE_BUTTON), ImageLoader
@@ -73,7 +77,7 @@ public class CallManager
     private boolean isShown;
     
     private boolean isCallMetaContact;
-
+    
     /**
      * Creates an instance of <tt>CallManager</tt>.
      * @param mainFrame The main application window.
@@ -142,8 +146,6 @@ public class CallManager
             
             //call button is pressed over an already open call panel
             if(mainFrame.getSelectedCallPanel() != null 
-                    && mainFrame.getSelectedCallPanel().getCallType() 
-                        == CallPanel.INCOMING_CALL
                     && mainFrame.getSelectedCallPanel().getCall().getCallState()
                         == CallState.CALL_INITIALIZATION) {
             
@@ -171,23 +173,7 @@ public class CallManager
                 Contact contact = getTelephonyContact(metaContact);
                 
                 if(contact != null) {
-                    telephony
-                        = mainFrame.getTelephony(contact.getProtocolProvider());
-                
-                    Call createdCall;
-                    try {
-                        createdCall = telephony.createCall(contact);
-                        
-                        CallPanel callPanel = new CallPanel(
-                                this, createdCall, CallPanel.OUTGOING_CALL);
-                        
-                        mainFrame.addCallPanel(callPanel);
-                        
-                        activeCalls.put(createdCall, callPanel);
-                    }
-                    catch (OperationFailedException e) {                        
-                        logger.error("The call could not be created: " + e);
-                    }
+                    new CreateCallThread(contact).start();
                 }
                 else {
                     JOptionPane.showMessageDialog(this.mainFrame,
@@ -200,38 +186,19 @@ public class CallManager
             //writen something in the phone combo box
             else if(!phoneNumberCombo.isComboFieldEmpty()) {
                 
-                ProtocolProviderService pps
-                    = getDefaultTelephonyProvider();
-                
-                if(pps != null) {
-                    telephony = mainFrame.getTelephony(pps);
-
-                    Call createdCall;
-                    try {
-                        createdCall = telephony.createCall(
-                            phoneNumberCombo.getEditor().getItem().toString());
-                        
-                        CallPanel callPanel = new CallPanel(
-                                this, createdCall, CallPanel.OUTGOING_CALL);
-                        
-                        mainFrame.addCallPanel(callPanel);
-                        
-                        activeCalls.put(createdCall, callPanel);
-                    }
-                    catch (OperationFailedException e) {
-                        logger.error("The call could not be created: " + e);
-                    }
-                    catch (ParseException e) {
-                        logger.error("The call could not be created: " + e);
-                    }
-                }
+                new CreateCallThread().start();
             }
         }
         else if (buttonName.equalsIgnoreCase("hangup")) {
             CallPanel selectedCallPanel = this.mainFrame.getSelectedCallPanel();
             
-            if(selectedCallPanel != null) {
+            if(selectedCallPanel != null) {             
+                
                 Call call = selectedCallPanel.getCall();
+                
+                activeCalls.remove(call);
+                mainFrame.removeCallPanel(selectedCallPanel);
+                updateButtonsStateAccordingToSelectedPanel();
                 
                 ProtocolProviderService pps
                     = call.getProtocolProvider();
@@ -251,10 +218,6 @@ public class CallManager
                         logger.error("Hang up was not successful: " + e);
                     }
                 }
-                
-                activeCalls.remove(call);
-                mainFrame.removeCallPanel(selectedCallPanel);
-                updateButtonsStateAccordingToSelectedPanel();
             }
         }
         else if (buttonName.equalsIgnoreCase("minimize")) {
@@ -339,8 +302,7 @@ public class CallManager
     {
         Call sourceCall = event.getSourceCall();
                     
-        CallPanel callPanel = new CallPanel(
-                this, sourceCall, CallPanel.INCOMING_CALL);
+        CallPanel callPanel = new CallPanel(this, sourceCall);
         
         mainFrame.addCallPanel(callPanel);
         
@@ -358,15 +320,16 @@ public class CallManager
      * button.
      */
     public void callEnded(CallEvent event)
-    {   
+    {
         SoundLoader.getSound(SoundLoader.BUSY).stop();
         SoundLoader.stop(Constants.getDefaultIncomingCallAudio());
         
         Call sourceCall = event.getSourceCall();
         
         if(activeCalls.get(sourceCall) != null) {
-            CallPanel callPanel = (CallPanel)activeCalls.get(sourceCall);
-            this.removeCallPanel(callPanel);
+            CallPanel callPanel = (CallPanel) activeCalls.get(sourceCall);
+            
+            this.removeCallPanel(callPanel);             
         }
     }
 
@@ -429,10 +392,14 @@ public class CallManager
      * ones selects a tab in the main tabbed pane that contains a call panel.
      */
     public void stateChanged(ChangeEvent e)
-    {
+    {        
         this.updateButtonsStateAccordingToSelectedPanel();
     }
     
+    /**
+     * 
+     *
+     */
     private void updateButtonsStateAccordingToSelectedPanel()
     {
         if(mainFrame.getSelectedCallPanel() != null) {            
@@ -475,7 +442,7 @@ public class CallManager
      * Returns the combo box, where user enters the phone number to call to.
      * @return the combo box, where user enters the phone number to call to.
      */
-    public JComboBox getPhoneNumberCombo()
+    public JComboBox getCallComboBox()
     {
         return phoneNumberCombo;
     }
@@ -536,5 +503,48 @@ public class CallManager
     {   
         this.isCallMetaContact = isCallMetaContact;
     }
+    
+    private class CreateCallThread extends Thread
+    {
+        Contact contact;
+        OperationSetBasicTelephony telephony;
+        
+        public CreateCallThread()
+        {
+            ProtocolProviderService pps
+                = getDefaultTelephonyProvider();
+            
+            if(pps != null) 
+                telephony = mainFrame.getTelephony(pps);
+        }
+        
+        public CreateCallThread(Contact contact)
+        {
+            this.contact = contact;
+            
+            telephony = mainFrame.getTelephony(contact.getProtocolProvider());
+        }
+        
+        public void run()
+        {
+            try {
+                Call createdCall = telephony.createCall(
+                    phoneNumberCombo.getEditor().getItem().toString());
+                
+                CallPanel callPanel = new CallPanel(CallManager.this, createdCall);
+                
+                mainFrame.addCallPanel(callPanel);
+                
+                activeCalls.put(createdCall, callPanel);
+            }
+            catch (OperationFailedException e) {
+                logger.error("The call could not be created: " + e);
+            }
+            catch (ParseException e) {
+                logger.error("The call could not be created: " + e);
+            }
+        }
+    }
+    
 
 }
