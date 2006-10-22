@@ -220,7 +220,7 @@ public class CallManager
                 
                 if(activeCalls.get(call) != null) {
                     
-                    if(removeCallTimer.isRunning())
+                    if(removeCallTimer != null && removeCallTimer.isRunning())
                         removeCallTimer.stop();
                     
                     mainFrame.removeCallPanel(callPanel);
