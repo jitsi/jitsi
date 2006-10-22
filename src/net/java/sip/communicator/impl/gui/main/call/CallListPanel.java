@@ -29,6 +29,10 @@ public class CallListPanel
     extends JPanel
     implements ActionListener
 {
+    private JPanel searchPanel = new JPanel(new BorderLayout());
+    
+    private JLabel searchLabel = new JLabel(Messages.getString("search") + ": ");
+    
     private SmartComboBox searchComboBox = new SmartComboBox();
     
     private CallList callList = new CallList();
@@ -69,8 +73,12 @@ public class CallListPanel
     private void initPanels()
     {
         this.scrollPane.getViewport().add(callList);
+     
+        this.searchPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        this.searchPanel.add(searchLabel, BorderLayout.WEST);
+        this.searchPanel.add(searchComboBox, BorderLayout.CENTER);
         
-        this.add(searchComboBox, BorderLayout.NORTH);
+        this.add(searchPanel, BorderLayout.NORTH);
         this.add(scrollPane, BorderLayout.CENTER);
     }
 
