@@ -25,11 +25,21 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class CallListCellRenderer extends JPanel 
     implements ListCellRenderer {
       
+    private JPanel dataPanel = new JPanel(new BorderLayout());
+    
     private JLabel nameLabel = new JLabel();
     
     private JLabel timeLabel = new JLabel();
     
     private JLabel durationLabel = new JLabel();
+    
+    private JLabel iconLabel = new JLabel();
+    
+    private Icon incomingIcon = new ImageIcon(ImageLoader.getImage(
+            ImageLoader.INCOMING_CALL_ICON));
+    
+    private Icon outgoingIcon = new ImageIcon(ImageLoader.getImage(
+            ImageLoader.OUTGOING_CALL_ICON));
     
     private boolean isSelected = false;
 
@@ -42,11 +52,13 @@ public class CallListCellRenderer extends JPanel
      */
     public CallListCellRenderer() {
 
-        super(new BorderLayout());
+        super(new BorderLayout(5, 5));
 
         this.setBackground(Color.WHITE);
         
         this.setOpaque(true);
+        
+        this.dataPanel.setOpaque(false);
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         
@@ -56,7 +68,9 @@ public class CallListCellRenderer extends JPanel
         
         this.nameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
         
-        this.add(nameLabel, BorderLayout.CENTER);        
+        this.dataPanel.add(nameLabel, BorderLayout.CENTER);
+        
+        this.add(dataPanel, BorderLayout.CENTER);        
     }
 
     /**
@@ -68,8 +82,9 @@ public class CallListCellRenderer extends JPanel
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus) {
 
-        this.remove(timeLabel);
-        this.remove(durationLabel);
+        this.dataPanel.remove(timeLabel);
+        this.dataPanel.remove(durationLabel);
+        this.remove(iconLabel);
         
         if (value instanceof GuiCallParticipantRecord) {
 
@@ -77,6 +92,11 @@ public class CallListCellRenderer extends JPanel
                 = (GuiCallParticipantRecord) value;
             
             this.direction = participant.getDirection();
+            
+            if(direction.equals(GuiCallParticipantRecord.INCOMING_CALL))
+                    iconLabel.setIcon(incomingIcon);
+            else
+                    iconLabel.setIcon(outgoingIcon);
             
             this.nameLabel.setText(participant.getParticipantName());
             
@@ -95,8 +115,10 @@ public class CallListCellRenderer extends JPanel
             //this.nameLabel.setIcon(listModel
             //        .getMetaContactStatusIcon(contactItem));
             
-            this.add(timeLabel, BorderLayout.EAST);
-            this.add(durationLabel, BorderLayout.SOUTH);
+            this.dataPanel.add(timeLabel, BorderLayout.EAST);
+            this.dataPanel.add(durationLabel, BorderLayout.SOUTH);
+            
+            this.add(iconLabel, BorderLayout.WEST);
                         
             this.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 

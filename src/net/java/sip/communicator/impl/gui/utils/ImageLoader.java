@@ -388,6 +388,18 @@ public class ImageLoader {
     public static final ImageID AUTHORIZATION_ICON
         = new ImageID("AUTHORIZATION_ICON");
     
+    /**
+     * The image used for decoration of incoming calls in the call list panel.
+     */
+    public static final ImageID INCOMING_CALL_ICON
+        = new ImageID("INCOMING_CALL");
+    
+    /**
+     * The image used for decoration of outgoing calls in the call list panel.
+     */
+    public static final ImageID OUTGOING_CALL_ICON
+        = new ImageID("OUTGOING_CALL");
+    
 
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
