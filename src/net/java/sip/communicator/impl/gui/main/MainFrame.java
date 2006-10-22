@@ -803,28 +803,25 @@ public class MainFrame
     {
         this.tabbedPane.remove(callPanel);
         
-        if(getSelectedCallPanel() == null)
+        Component c = getSelectedPanel();
+        
+        if(c == null || !(c instanceof CallPanel))
             this.tabbedPane.setSelectedIndex(0);
         
         this.tabbedPane.revalidate();
     }
 
     /**
-     * If the selected component in the main tabbed pane is an instance of
-     * CallPanel returns it, otherwise returns null. 
+     * Returns the component contained in the currently selected tab.
      * @return the selected CallPanel or null if there's no CallPanel selected
      */
-    public CallPanel getSelectedCallPanel()
+    public Component getSelectedPanel()
     {
         Component c = this.tabbedPane.getSelectedComponent();
         
-        if(c != null && c instanceof CallPanel) {
-            return (CallPanel) c;
-        }
-        else {
-            return null;
-        }
+        return c;
     }
+    
     
     /**
      * Checks in the configuration xml if there is already stored index for

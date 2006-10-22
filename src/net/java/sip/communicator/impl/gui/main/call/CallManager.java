@@ -141,17 +141,18 @@ public class CallManager
         String buttonName = button.getName();
 
         if (buttonName.equals("call")) {
-            OperationSetBasicTelephony telephony;
             
             Object o = mainFrame.getContactListPanel().getContactList()
                 .getSelectedValue();
             
+            Component selectedPanel = mainFrame.getSelectedPanel();
             //call button is pressed over an already open call panel
-            if(mainFrame.getSelectedCallPanel() != null 
-                    && mainFrame.getSelectedCallPanel().getCall().getCallState()
+            if(selectedPanel != null
+                    && selectedPanel instanceof CallPanel
+                    && ((CallPanel)selectedPanel).getCall().getCallState()
                         == CallState.CALL_INITIALIZATION) {
             
-                CallPanel callPanel = mainFrame.getSelectedCallPanel();
+                CallPanel callPanel = (CallPanel) selectedPanel;
                 
                 Call call = callPanel.getCall();
                 
@@ -166,6 +167,21 @@ public class CallManager
                     answerCall(pps, participant);
                 }
             }
+            else if(selectedPanel != null
+                        && selectedPanel instanceof CallListPanel
+                        && ((CallListPanel) selectedPanel)
+                            .getCallList().getSelectedIndex() != -1) {
+                
+                CallListPanel callListPanel = (CallListPanel) selectedPanel;
+                
+                GuiCallParticipantRecord callRecord
+                    = (GuiCallParticipantRecord) callListPanel
+                        .getCallList().getSelectedValue();
+                
+                String stringContact = callRecord.getParticipantName();
+                
+                new CreateCallThread(stringContact).start();
+            }   
             //call button is pressed when a meta contact is selected
             else if(isCallMetaContact && o != null && o instanceof MetaContact) {
                 
@@ -187,23 +203,27 @@ public class CallManager
             //if no contact is selected checks if the user has chosen or has
             //writen something in the phone combo box
             else if(!phoneNumberCombo.isComboFieldEmpty()) {
+                String stringContact
+                    = phoneNumberCombo.getEditor().getItem().toString();
                 
-                new CreateCallThread().start();
+                new CreateCallThread(stringContact).start();
             }
         }
         else if (buttonName.equalsIgnoreCase("hangup")) {
-            CallPanel selectedCallPanel = this.mainFrame.getSelectedCallPanel();
+            Component selectedPanel = this.mainFrame.getSelectedPanel();
             
-            if(selectedCallPanel != null) {             
+            if(selectedPanel != null && selectedPanel instanceof CallPanel) {             
                 
-                Call call = selectedCallPanel.getCall();
+                CallPanel callPanel = (CallPanel) selectedPanel;
+                
+                Call call = callPanel.getCall();
                 
                 if(activeCalls.get(call) != null) {
                     
                     if(removeCallTimer.isRunning())
                         removeCallTimer.stop();
                     
-                    mainFrame.removeCallPanel(selectedCallPanel);
+                    mainFrame.removeCallPanel(callPanel);
                     
                     ProtocolProviderService pps
                         = call.getProtocolProvider();
@@ -417,7 +437,8 @@ public class CallManager
      */
     private void updateButtonsStateAccordingToSelectedPanel()
     {
-        if(mainFrame.getSelectedCallPanel() != null) {            
+        Component selectedPanel = mainFrame.getSelectedPanel();
+        if(selectedPanel != null && selectedPanel instanceof CallPanel) {
             this.hangupButton.setEnabled(true);
         }
         else {
@@ -522,10 +543,13 @@ public class CallManager
     private class CreateCallThread extends Thread
     {
         Contact contact;
+        String stringContact;
         OperationSetBasicTelephony telephony;
         
-        public CreateCallThread()
+        public CreateCallThread(String contact)
         {
+            this.stringContact = contact;
+            
             ProtocolProviderService pps
                 = getDefaultTelephonyProvider();
             
@@ -543,8 +567,12 @@ public class CallManager
         public void run()
         {
             try {
-                Call createdCall = telephony.createCall(
-                    phoneNumberCombo.getEditor().getItem().toString());
+                Call createdCall;
+                
+                if(contact != null)
+                    createdCall = telephony.createCall(contact);
+                else    
+                    createdCall = telephony.createCall(stringContact);
                 
                 CallPanel callPanel = new CallPanel(CallManager.this, createdCall);
                 
