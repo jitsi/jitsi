@@ -125,7 +125,8 @@ public class CallListPanel
                         direction));
             }            
         }
-        this.callList.addItem(Messages.getString("olderCalls") + "...");
+        if(callList.getModel().getSize() > 0)
+            this.callList.addItem(Messages.getString("olderCalls") + "...");
     }
     
     /**
@@ -281,5 +282,15 @@ public class CallListPanel
     public CallList getCallList()
     {
         return callList;
+    }
+    
+    public void addCallRecord(int index, GuiCallParticipantRecord callRecord)
+    {
+        this.callList.addItem(callRecord, index);
+        
+        String participantName = callRecord.getParticipantName();
+        
+        this.addToCallComboBox(participantName);
+        this.addToSearchComboBox(participantName);
     }
 }
