@@ -78,7 +78,7 @@ public class CallManager
     
     private boolean isCallMetaContact;
     
-    private Timer removeCallTimer;
+    private Hashtable removeCallTimers = new Hashtable();
     
     /**
      * Creates an instance of <tt>CallManager</tt>.
@@ -139,7 +139,7 @@ public class CallManager
     {
         JButton button = (JButton) evt.getSource();
         String buttonName = button.getName();
-
+        
         if (buttonName.equals("call")) {
             
             Object o = mainFrame.getContactListPanel().getContactList()
@@ -210,9 +210,10 @@ public class CallManager
             }
         }
         else if (buttonName.equalsIgnoreCase("hangup")) {
+            
             Component selectedPanel = this.mainFrame.getSelectedPanel();
             
-            if(selectedPanel != null && selectedPanel instanceof CallPanel) {             
+            if(selectedPanel != null && selectedPanel instanceof CallPanel) {
                 
                 CallPanel callPanel = (CallPanel) selectedPanel;
                 
@@ -220,10 +221,12 @@ public class CallManager
                 
                 if(activeCalls.get(call) != null) {
                     
-                    if(removeCallTimer != null && removeCallTimer.isRunning())
-                        removeCallTimer.stop();
+                    if(removeCallTimers.containsKey(callPanel)) {                        
+                        ((Timer)removeCallTimers.get(callPanel)).stop();
+                        removeCallTimers.remove(callPanel);
+                    }
                     
-                    mainFrame.removeCallPanel(callPanel);
+                    removeCallPanel(callPanel);
                     
                     ProtocolProviderService pps
                         = call.getProtocolProvider();
@@ -369,10 +372,12 @@ public class CallManager
      */
     public void removeCallPanelWait(CallPanel callPanel)
     {
-        removeCallTimer = new Timer(5000, new RemoveCallPanelListener(callPanel));
+        Timer timer = new Timer(5000, new RemoveCallPanelListener(callPanel));
         
-        removeCallTimer.setRepeats(false);
-        removeCallTimer.start();
+        this.removeCallTimers.put(callPanel, timer);
+        
+        timer.setRepeats(false);
+        timer.start();
     }
     
     /**
@@ -398,7 +403,7 @@ public class CallManager
         }
         
         public void actionPerformed(ActionEvent e)
-        {   
+        {            
             removeCallPanel(callPanel);
         }        
     }

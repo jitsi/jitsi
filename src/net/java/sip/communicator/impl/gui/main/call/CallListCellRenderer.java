@@ -59,6 +59,8 @@ public class CallListCellRenderer extends JPanel
         this.setOpaque(true);
         
         this.dataPanel.setOpaque(false);
+        
+        this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         
