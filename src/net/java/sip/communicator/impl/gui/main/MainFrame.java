@@ -769,9 +769,9 @@ public class MainFrame
         this.loginManager = loginManager;
     }
     
-    public CallList getCallList()
+    public CallListPanel getCallListManager()
     {
-        return this.tabbedPane.getCallListPanel().getCallList();
+        return this.tabbedPane.getCallListPanel();
     }
     
     /**
