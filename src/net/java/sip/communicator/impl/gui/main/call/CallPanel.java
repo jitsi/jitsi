@@ -160,13 +160,13 @@ public class CallPanel
                 //Create a call record and add it to the call list.
                 GuiCallParticipantRecord participantRecord
                     = new GuiCallParticipantRecord(
-                            participantPanel.getName(),
+                            participantPanel.getParticipantName(),
                             participantPanel.getCallType(),
                             participantPanel.getStartTime(),
                             participantPanel.getEndTime());
                 
-                callManager.getMainFrame().getCallList().addItem(
-                        participantRecord, 1);
+                callManager.getMainFrame().getCallListManager().addCallRecord(
+                        1, participantRecord);
                 
                 //remove the participant panel for this participant
                 this.participantsPanels.remove(participant);

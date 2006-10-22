@@ -78,6 +78,8 @@ public class CallManager
     
     private boolean isCallMetaContact;
     
+    private Timer removeCallTimer;
+    
     /**
      * Creates an instance of <tt>CallManager</tt>.
      * @param mainFrame The main application window.
@@ -196,26 +198,30 @@ public class CallManager
                 
                 Call call = selectedCallPanel.getCall();
                 
-                activeCalls.remove(call);
-                mainFrame.removeCallPanel(selectedCallPanel);
-                updateButtonsStateAccordingToSelectedPanel();
-                
-                ProtocolProviderService pps
-                    = call.getProtocolProvider();
-                
-                OperationSetBasicTelephony telephony
-                    = mainFrame.getTelephony(pps);
-                
-                Iterator participants = call.getCallParticipants();
-                
-                while(participants.hasNext()) {
-                    try {
-                        //now we hang up the first call participant in the call
-                        telephony.hangupCallParticipant(
-                            (CallParticipant)participants.next());
-                    }
-                    catch (OperationFailedException e) {
-                        logger.error("Hang up was not successful: " + e);
+                if(activeCalls.get(call) != null) {
+                    
+                    if(removeCallTimer.isRunning())
+                        removeCallTimer.stop();
+                    
+                    mainFrame.removeCallPanel(selectedCallPanel);
+                    
+                    ProtocolProviderService pps
+                        = call.getProtocolProvider();
+                    
+                    OperationSetBasicTelephony telephony
+                        = mainFrame.getTelephony(pps);
+                    
+                    Iterator participants = call.getCallParticipants();
+                    
+                    while(participants.hasNext()) {
+                        try {
+                            //now we hang up the first call participant in the call
+                            telephony.hangupCallParticipant(
+                                (CallParticipant)participants.next());
+                        }
+                        catch (OperationFailedException e) {
+                            logger.error("Hang up was not successful: " + e);
+                        }
                     }
                 }
             }
@@ -325,11 +331,12 @@ public class CallManager
         SoundLoader.stop(Constants.getDefaultIncomingCallAudio());
         
         Call sourceCall = event.getSourceCall();
-        
+           
         if(activeCalls.get(sourceCall) != null) {
+            
             CallPanel callPanel = (CallPanel) activeCalls.get(sourceCall);
             
-            this.removeCallPanel(callPanel);             
+            this.removeCallPanelWait(callPanel);             
         }
     }
 
@@ -340,14 +347,24 @@ public class CallManager
      * Removes the given call panel tab.
      * @param callPanel the CallPanel to remove
      */
-    public void removeCallPanel(CallPanel callPanel)
-    {        
-        Timer timer = new Timer(5000, new RemoveCallPanelListener(callPanel));
+    public void removeCallPanelWait(CallPanel callPanel)
+    {
+        removeCallTimer = new Timer(5000, new RemoveCallPanelListener(callPanel));
         
-        timer.setRepeats(false);
-        timer.start();
+        removeCallTimer.setRepeats(false);
+        removeCallTimer.start();
     }
     
+    /**
+     * Removes the given call panel tab.
+     * @param callPanel the CallPanel to remove
+     */
+    private void removeCallPanel(CallPanel callPanel)
+    {
+        this.activeCalls.remove(callPanel.getCall());
+        mainFrame.removeCallPanel(callPanel);
+        updateButtonsStateAccordingToSelectedPanel();
+    }
     
     /**
      * Removes the given CallPanel from the main tabbed pane.
@@ -361,10 +378,8 @@ public class CallManager
         }
         
         public void actionPerformed(ActionEvent e)
-        {
-            activeCalls.remove(callPanel.getCall());
-            mainFrame.removeCallPanel(callPanel);
-            updateButtonsStateAccordingToSelectedPanel();
+        {   
+            removeCallPanel(callPanel);
         }        
     }
  

@@ -46,6 +46,9 @@ public class CallParticipantPanel extends JPanel
     
     private String callType;
     
+    private String participantName;
+    
+
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
      * 
@@ -64,9 +67,11 @@ public class CallParticipantPanel extends JPanel
         this.timer.setRepeats(true);
         
         if(participant.getDisplayName() != null)
-            nameLabel.setText(participant.getDisplayName());
+            participantName = participant.getDisplayName();
         else
-            nameLabel.setText(participant.getAddress());
+            participantName = participant.getAddress();
+        
+        this.nameLabel.setText(participantName);
         
         namePanel.add(nameLabel);
         namePanel.add(stateLabel);
@@ -153,8 +158,8 @@ public class CallParticipantPanel extends JPanel
         return GuiCallParticipantRecord.INCOMING_CALL;
     }
     
-    public void setCallType(String callType)
+    public String getParticipantName()
     {
-        this.callType = callType;
+        return participantName;
     }
 }
