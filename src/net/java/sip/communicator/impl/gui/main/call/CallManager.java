@@ -180,7 +180,7 @@ public class CallManager
                 
                 String stringContact = callRecord.getParticipantName();
                 
-                new CreateCallThread(stringContact).start();
+                createCall(stringContact);
             }   
             //call button is pressed when a meta contact is selected
             else if(isCallMetaContact && o != null && o instanceof MetaContact) {
@@ -191,7 +191,7 @@ public class CallManager
                 Contact contact = getTelephonyContact(metaContact);
                 
                 if(contact != null) {
-                    new CreateCallThread(contact).start();
+                    createCall(contact);
                 }
                 else {
                     JOptionPane.showMessageDialog(this.mainFrame,
@@ -206,7 +206,7 @@ public class CallManager
                 String stringContact
                     = phoneNumberCombo.getEditor().getItem().toString();
                 
-                new CreateCallThread(stringContact).start();
+                createCall(stringContact);
             }
         }
         else if (buttonName.equalsIgnoreCase("hangup")) {
@@ -543,8 +543,31 @@ public class CallManager
     public void setCallMetaContact(boolean isCallMetaContact)
     {   
         this.isCallMetaContact = isCallMetaContact;
+    }    
+    
+    /**
+     * Creates a call to the contact represented by the given string.
+     * 
+     * @param contact the contact to call to
+     */
+    public void createCall(String contact)
+    {
+        new CreateCallThread(contact).start();
     }
     
+    /**
+     * Creates a call to the given contact.
+     * 
+     * @param contact the protocol contact to call to
+     */
+    public void createCall(Contact contact)
+    {
+        new CreateCallThread(contact).start();
+    }    
+    
+    /**
+     * Creates a call from a given Contact or a given String.
+     */
     private class CreateCallThread extends Thread
     {
         Contact contact;

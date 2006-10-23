@@ -43,8 +43,12 @@ public class CallComboBox
         
         JTextField textField = (JTextField)this.getEditor().getEditorComponent();
                 
-        textField.addFocusListener(this);
+        textField.addFocusListener(this);       
         textField.getDocument().addDocumentListener(this);
+        
+        textField.getActionMap().put("createCall", new CreateCallAction());
+        textField.getInputMap().put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "createCall");
     }
  
     /**
@@ -74,6 +78,10 @@ public class CallComboBox
         callManager.getCallButton().setEnabled(true);        
     }
     
+    /**
+     * When the combo editor field gains the focus removes the selection
+     * in the contact list to prevent confusion on who should be dialed.
+     */
     public void focusGained(FocusEvent e)
     {
         this.callManager.setCallMetaContact(false);
@@ -92,6 +100,10 @@ public class CallComboBox
     public void removeUpdate(DocumentEvent e) { handleChange(); }
     public void changedUpdate(DocumentEvent e) {}
     
+    /**
+     * Enables or disabled the call button according to the content in the 
+     * combo box editor field.
+     */
     protected void handleChange() {
         String item = ((CallComboEditor)this.getEditor()).getItem().toString();
         
@@ -106,6 +118,25 @@ public class CallComboBox
             
             if(o == null || !(o instanceof MetaContact))
                 callManager.getCallButton().setEnabled(false);
+        }
+    }
+    
+    /**
+     * Creates a call to the contact given by the string in the combo box
+     * editor field.
+     */
+    private class CreateCallAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            String item = ((CallComboEditor)getEditor()).getItem().toString();
+            
+            if(item.length() > 0)
+                callManager.createCall(item);
+            else {                
+                if(!isPopupVisible())
+                    setPopupVisible(true);
+            }
         }
     }
 }
