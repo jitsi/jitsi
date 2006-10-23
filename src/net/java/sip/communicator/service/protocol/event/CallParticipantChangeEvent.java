@@ -18,7 +18,11 @@ import net.java.sip.communicator.service.protocol.*;
  * CALL_PARTICIPANT_DISPLAY_NAME_CHANGE - means that participant's displayName
  * has changed
  * <p>
- * CALL_PARTICIPANT_ADDRESS_CHANGE - means that participant's address has changed.
+ * CALL_PARTICIPANT_ADDRESS_CHANGE - means that participant's address has
+ * changed.
+ * <p>
+ * CALL_PARTICIPANT_ADDRESS_CHANGE - means that the transport address of the
+ * participant (the one that we use to communicate with her) has changed.
  * <p>
  * CALL_PARTICIPANT_IMAGE_CHANGE - participant updated photo.
  * <p>
@@ -48,6 +52,13 @@ public class CallParticipantChangeEvent
      */
     public static final String CALL_PARTICIPANT_ADDRESS_CHANGE =
                                                 "CallParticipantAddressChange";
+
+    /**
+     * An event type indicating that the corresponding event is caused by a
+     * change of the participant's address.
+     */
+    public static final String CALL_PARTICIPANT_TRANSPORT_ADDRESS_CHANGE =
+        "CallParticipantAddressChange";
 
     /**
      * An event type indicating that the corresponding event is caused by a
