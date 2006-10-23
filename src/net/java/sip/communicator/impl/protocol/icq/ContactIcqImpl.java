@@ -100,7 +100,10 @@ public class ContactIcqImpl
     {
         if (obj == null
             || !(obj instanceof ContactIcqImpl)
-            || !((ContactIcqImpl)obj).getUIN().equals(getUIN()))
+            || !(((ContactIcqImpl)obj).getAddress().equals(getAddress())
+                && ((ContactIcqImpl)obj).getProtocolProvider()
+                        == getProtocolProvider()))
+
             return false;
 
         return true;
