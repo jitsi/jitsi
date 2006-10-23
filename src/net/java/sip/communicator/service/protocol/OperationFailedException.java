@@ -72,6 +72,7 @@ public class OperationFailedException
     public OperationFailedException(String message, int errorCode)
     {
         super(message);
+        this.errorCode = errorCode;
     }
 
     /**
@@ -82,10 +83,12 @@ public class OperationFailedException
      * fields of this class)
      * @param cause the error that caused this exception
      */
-    public OperationFailedException(String message, int errorCode,
+    public OperationFailedException(String message,
+                                    int errorCode,
                                     Throwable cause)
     {
         super(message, cause);
+        this.errorCode = errorCode;
     }
 
     /**
