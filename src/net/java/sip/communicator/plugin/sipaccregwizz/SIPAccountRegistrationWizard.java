@@ -137,6 +137,9 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
         
         accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
                                   registration.getPort());
+        
+        accountProperties.put(ProtocolProviderFactory.PREFERRED_TRANSPORT,
+                registration.getPreferredTransport());
 
         if(protocolProvider != null) {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());

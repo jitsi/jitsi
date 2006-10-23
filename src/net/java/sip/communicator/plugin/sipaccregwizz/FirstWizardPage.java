@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -22,9 +23,14 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Damian Minkov
  */
 public class FirstWizardPage extends JPanel
-    implements WizardPage, DocumentListener {
+    implements  WizardPage,
+                DocumentListener,
+                ItemListener
+{
 
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
+    
+    private String defaultPortValue = "5060";
 
     private JPanel uinPassPanel = new JPanel(new BorderLayout(10, 10));
 
@@ -58,11 +64,17 @@ public class FirstWizardPage extends JPanel
     
     private JLabel portLabel = new JLabel(Resources.getString("port"));
     
+    private JLabel transportLabel
+        = new JLabel(Resources.getString("preferredTransport"));
+    
     private JTextField serverField = new JTextField();
     
     private JTextField proxyField = new JTextField();
     
-    private JTextField portField = new JTextField("5060");
+    private JTextField portField = new JTextField(defaultPortValue);
+    
+    private JComboBox transportCombo = new JComboBox(
+            new Object[]{"UDP", "TLS", "TCP"});
     
     private JPanel mainPanel = new JPanel();
 
@@ -86,7 +98,7 @@ public class FirstWizardPage extends JPanel
 
         this.registration = registration;
 
-        this.setPreferredSize(new Dimension(300, 150));
+        this.setPreferredSize(new Dimension(300, 250));
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -100,6 +112,7 @@ public class FirstWizardPage extends JPanel
      */
     private void init() {
         this.uinField.getDocument().addDocumentListener(this);
+        this.transportCombo.addItemListener(this);
         this.rememberPassBox.setSelected(true);
 
         labelsPanel.add(uinLabel);
@@ -120,6 +133,7 @@ public class FirstWizardPage extends JPanel
         serverField.setEditable(false);
         portField.setEditable(false);
         proxyField.setEditable(false);
+        transportCombo.setEnabled(false);
 
         enableAdvOpButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt) {
@@ -129,16 +143,21 @@ public class FirstWizardPage extends JPanel
             serverField.setEditable(cb.isSelected());
             portField.setEditable(cb.isSelected());
             proxyField.setEditable(cb.isSelected());
+            transportCombo.setEnabled(cb.isSelected());
         }});
+        
+        transportCombo.setSelectedItem("UDP");
 
         labelsAdvOpPanel.add(serverLabel);
         labelsAdvOpPanel.add(proxyLabel);
+        labelsAdvOpPanel.add(transportLabel);
         labelsAdvOpPanel.add(portLabel);
         
         valuesAdvOpPanel.add(serverField);
-        valuesAdvOpPanel.add(proxyField);
+        valuesAdvOpPanel.add(proxyField);        
+        valuesAdvOpPanel.add(transportCombo);
         valuesAdvOpPanel.add(portField);
-
+        
         advancedOpPanel.add(enableAdvOpButton, BorderLayout.NORTH);
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
@@ -202,6 +221,8 @@ public class FirstWizardPage extends JPanel
         registration.setServerAddress(serverField.getText());
         registration.setProxy(proxyField.getText());
         registration.setPort(portField.getText());
+        registration.setPreferredTransport(
+                transportCombo.getSelectedItem().toString());
     }
 
     /**
@@ -300,6 +321,18 @@ public class FirstWizardPage extends JPanel
         catch (NumberFormatException ex)
         {
              wizardContainer.setNextFinishButtonEnabled(false);
+        }
+    }
+
+    public void itemStateChanged(ItemEvent e)
+    {
+        if(e.getStateChange() == ItemEvent.SELECTED
+                && e.getItem().equals("TLS"))
+        {
+            portField.setText("5061");
+        }
+        else {           
+            portField.setText("5060");
         }
     }
 }
