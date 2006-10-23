@@ -73,6 +73,12 @@ public class NetworkAddressManagerServiceImpl
     private boolean useStun = true;
 
     /**
+     * The address of the stun server that we're currently using.
+     */
+    private StunAddress stunServerAddress = null;
+
+
+    /**
      * The socket that we use for dummy connections during selection of a local
      * address that has to be used when communicating with a specific location.
      */
@@ -100,6 +106,18 @@ public class NetworkAddressManagerServiceImpl
         = "net.java.sip.communicator.service.netaddr.BIND_RETRIES";
 
 
+    /**
+     * Default STUN server address.
+     */
+    public static final String DEFAULT_STUN_SERVER_ADDRESS
+        = "stun.iptel.org";
+
+    /**
+     * Default STUN server port.
+     */
+    public static final int DEFAULT_STUN_SERVER_PORT = 3478;
+
+
      /**
       * Initializes this network address manager service implementation and
       * starts all processes/threads associated with this address manager, such
@@ -117,6 +135,11 @@ public class NetworkAddressManagerServiceImpl
          String portStr = NetaddrActivator.getConfigurationService().getString(
              PROP_STUN_SERVER_PORT);
 
+         //we use the default stun server address only for chosing a public
+         //route and not for stun queries.
+         stunServerAddress = new StunAddress(DEFAULT_STUN_SERVER_ADDRESS
+                                             , DEFAULT_STUN_SERVER_PORT);
+
          if (stunAddressStr == null
              || portStr == null)
          {
@@ -127,8 +150,8 @@ public class NetworkAddressManagerServiceImpl
 
              port = Integer.valueOf(portStr).intValue();
 
-             detector = new SimpleAddressDetector(
-                 new StunAddress(stunAddressStr, port));
+             stunServerAddress = new StunAddress(stunAddressStr, port);
+             detector = new SimpleAddressDetector(stunServerAddress);
 
              if (logger.isDebugEnabled())
                  logger.debug(
@@ -301,6 +324,22 @@ public class NetworkAddressManagerServiceImpl
             logger.logExit();
         }
     }
+
+    /**
+     * Tries to obtain a mapped/public address for the specified port (possibly
+     * by executing a STUN query).
+     *
+     * @param port the port whose mapping we are interested in.
+     * @return a public address corresponding to the specified port or null
+     *   if all attempts to retrieve such an address have failed.
+     */
+    public InetSocketAddress getPublicAddressFor(int port)
+    {
+        return getPublicAddressFor(
+                    this.stunServerAddress.getSocketAddress().getAddress()
+                    , port);
+    }
+
 
     /**
      * This method gets called when a bound property is changed.
