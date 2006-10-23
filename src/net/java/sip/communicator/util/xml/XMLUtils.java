@@ -33,20 +33,13 @@ public class XMLUtils
      */
     public static String getAttribute(Node node, String name)
     {
-        try
-        {
-            logger.logEntry();
+        if (node == null)
+            return null;
 
-            if(node == null)
-                return null;
-
-            Node attribute = node.getAttributes().getNamedItem(name);
-            return (attribute==null)? null : attribute.getNodeValue().trim();
-        }
-        finally
-        {
-           logger.logExit();
-        }
+        Node attribute = node.getAttributes().getNamedItem(name);
+        return (attribute == null)
+                    ? null
+                    : attribute.getNodeValue().trim();
     }
 
     /**
@@ -57,22 +50,15 @@ public class XMLUtils
      */
     public static String getText(Element parentNode)
     {
-        try
+        Text text = getTextNode(parentNode);
+
+        if (text == null)
         {
-            logger.logEntry();
-
-            Text text = getTextNode(parentNode);
-
-            if (text == null){
-               return null;
-            }
-            else{
-                return text.getData();
-            }
+            return null;
         }
-        finally
+        else
         {
-           logger.logExit();
+            return text.getData();
         }
     }
 
@@ -84,23 +70,14 @@ public class XMLUtils
      */
     public static void setText(Element parentNode, String data)
     {
-        try
-        {
-            logger.logEntry();
+        Text txt = getTextNode(parentNode);
 
-            Text txt = getTextNode(parentNode);
-
-            if(txt != null)
-                txt.setData(data);
-            else
-            {
-                txt = parentNode.getOwnerDocument().createTextNode(data);
-                parentNode.appendChild(txt);
-            }
-        }
-        finally
+        if (txt != null)
+            txt.setData(data);
+        else
         {
-           logger.logExit();
+            txt = parentNode.getOwnerDocument().createTextNode(data);
+            parentNode.appendChild(txt);
         }
     }
 
@@ -112,22 +89,13 @@ public class XMLUtils
      */
     public static void setCData(Element element, String data)
     {
-        try
+        CDATASection txt = getCDataNode(element);
+        if (txt != null)
+            txt.setData(data);
+        else
         {
-            logger.logEntry();
-
-            CDATASection txt = getCDataNode(element);
-            if(txt != null)
-                txt.setData(data);
-            else
-            {
-                txt = element.getOwnerDocument().createCDATASection(data);
-                element.appendChild(txt);
-            }
-        }
-        finally
-        {
-           logger.logExit();
+            txt = element.getOwnerDocument().createCDATASection(data);
+            element.appendChild(txt);
         }
     }
 
@@ -138,20 +106,11 @@ public class XMLUtils
      */
     public static String getCData(Element element)
     {
-        try
-        {
-            logger.logEntry();
-
-            CDATASection text = getCDataNode(element);
-            if(text != null)
-                return text.getData().trim();
-            else
-                return null;
-        }
-        finally
-        {
-           logger.logExit();
-        }
+        CDATASection text = getCDataNode(element);
+        if (text != null)
+            return text.getData().trim();
+        else
+            return null;
     }
 
 
@@ -163,17 +122,8 @@ public class XMLUtils
      */
     public static CDATASection getCDataNode(Element element)
     {
-        try
-        {
-            logger.logEntry();
-
-            return (CDATASection)getChildByType(element,
-                                                Node.CDATA_SECTION_NODE);
-        }
-        finally
-        {
-           logger.logExit();
-        }
+        return (CDATASection)getChildByType(element,
+                                            Node.CDATA_SECTION_NODE);
     }
 
     /**
@@ -184,16 +134,7 @@ public class XMLUtils
      */
     public static Text getTextNode(Element element)
     {
-        try
-        {
-            logger.logEntry();
-
-            return (Text)getChildByType(element, Node.TEXT_NODE);
-        }
-        finally
-        {
-           logger.logExit();
-        }
+        return (Text)getChildByType(element, Node.TEXT_NODE);
     }
 
     /**
@@ -206,40 +147,34 @@ public class XMLUtils
      */
     public static Node getChildByType(Element element, short nodeType)
     {
-        try{
-            logger.logEntry();
-
-            if (element == null)
-                return null;
-
-            NodeList nodes = element.getChildNodes();
-            if (nodes == null || nodes.getLength() < 1)
-                return null;
-
-            Node node;
-            String data;
-            for (int i = 0; i < nodes.getLength(); i++)
-            {
-                node = nodes.item(i);
-                short type = node.getNodeType();
-                if (type == nodeType)
-                {
-                    if (type == Node.TEXT_NODE ||
-                        type == Node.CDATA_SECTION_NODE)
-                    {
-                        data = ( (Text) node).getData();
-                        if (data == null || data.trim().length() < 1)
-                            continue;
-                    }
-
-                    return node;
-                }
-            }
-
+        if (element == null)
             return null;
-        }finally{
-            logger.logExit();
+
+        NodeList nodes = element.getChildNodes();
+        if (nodes == null || nodes.getLength() < 1)
+            return null;
+
+        Node node;
+        String data;
+        for (int i = 0; i < nodes.getLength(); i++)
+        {
+            node = nodes.item(i);
+            short type = node.getNodeType();
+            if (type == nodeType)
+            {
+                if (type == Node.TEXT_NODE ||
+                    type == Node.CDATA_SECTION_NODE)
+                {
+                    data = ( (Text) node).getData();
+                    if (data == null || data.trim().length() < 1)
+                        continue;
+                }
+
+                return node;
+            }
         }
+
+        return null;
     }
 
     /**
@@ -296,9 +231,8 @@ public class XMLUtils
                                 String   doctypePublic)
         throws java.io.IOException
     {
-        try {
-           logger.logEntry();
-
+        try
+        {
            DOMSource domSource = new DOMSource(document);
            TransformerFactory tf = TransformerFactory.newInstance();
            Transformer serializer = tf.newTransformer();
@@ -322,9 +256,6 @@ public class XMLUtils
             //this one is thrown by the setOutputProperty or in other words -
             //shoudln't happen. so let's just log it down in case ...
             logger.error("Error saving configuration file", ex);
-        }
-        finally {
-            logger.logExit();
         }
     }
 
