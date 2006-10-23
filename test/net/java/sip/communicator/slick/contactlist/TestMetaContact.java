@@ -210,7 +210,7 @@ public class TestMetaContact extends TestCase
                         + " was wrongfully before "
                         + currentContact+ " with status="
                         + currentContactStatusSum
-                        , previousContactStatusSum <= currentContactStatusSum);
+                        , previousContactStatusSum >= currentContactStatusSum);
 
                 //if both were equal then assert alphabetical order.
                 if (previousContactStatusSum == currentContactStatusSum)
