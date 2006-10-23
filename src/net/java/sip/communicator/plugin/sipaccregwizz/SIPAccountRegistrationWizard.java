@@ -132,11 +132,14 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
                                   registration.getServerAddress());
 
+        accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
+                registration.getServerPort());
+
         accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
                 registration.getProxy());
         
-        accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
-                                  registration.getPort());
+        accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
+                registration.getProxyPort());
         
         accountProperties.put(ProtocolProviderFactory.PREFERRED_TRANSPORT,
                 registration.getPreferredTransport());

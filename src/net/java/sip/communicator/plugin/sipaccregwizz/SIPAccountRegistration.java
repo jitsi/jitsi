@@ -22,7 +22,9 @@ public class SIPAccountRegistration {
 
     private String serverAddress;
 
-    private String port;
+    private String serverPort;
+    
+    private String proxyPort;
     
     private String proxy;
     
@@ -102,9 +104,18 @@ public class SIPAccountRegistration {
      * The port on the specified server
      * @return int
      */
-    public String getPort()
+    public String getServerPort()
     {
-        return port;
+        return serverPort;
+    }
+    
+    /**
+     * The port on the specified proxy
+     * @return int
+     */
+    public String getProxyPort()
+    {
+        return proxyPort;
     }
 
     /**
@@ -116,7 +127,7 @@ public class SIPAccountRegistration {
     }
 
     /**
-     * Setting the server
+     * Sets the server
      * @param serverAddress String
      */
     public void setServerAddress(String serverAddress)
@@ -125,11 +136,20 @@ public class SIPAccountRegistration {
     }
 
     /**
-     * Setting the port
+     * Sets the server port.
      * @param port int
      */
-    public void setPort(String port)
+    public void setServerPort(String port)
     {
-        this.port = port;
+        this.serverPort = port;
+    }
+    
+    /**
+     * Sets the proxy port.
+     * @param port int
+     */
+    public void setProxyPort(String port)
+    {
+        this.proxyPort = port;
     }
 }

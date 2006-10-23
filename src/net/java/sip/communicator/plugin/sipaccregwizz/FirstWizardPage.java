@@ -62,7 +62,9 @@ public class FirstWizardPage extends JPanel
     
     private JLabel proxyLabel = new JLabel(Resources.getString("proxy"));
     
-    private JLabel portLabel = new JLabel(Resources.getString("port"));
+    private JLabel serverPortLabel = new JLabel(Resources.getString("serverPort"));
+    
+    private JLabel proxyPortLabel = new JLabel(Resources.getString("proxyPort"));
     
     private JLabel transportLabel
         = new JLabel(Resources.getString("preferredTransport"));
@@ -71,7 +73,9 @@ public class FirstWizardPage extends JPanel
     
     private JTextField proxyField = new JTextField();
     
-    private JTextField portField = new JTextField(defaultPortValue);
+    private JTextField serverPortField = new JTextField(defaultPortValue);
+    
+    private JTextField proxyPortField = new JTextField(defaultPortValue);
     
     private JComboBox transportCombo = new JComboBox(
             new Object[]{"UDP", "TLS", "TCP"});
@@ -131,8 +135,9 @@ public class FirstWizardPage extends JPanel
         mainPanel.add(uinPassPanel);
 
         serverField.setEditable(false);
-        portField.setEditable(false);
+        serverPortField.setEditable(false);
         proxyField.setEditable(false);
+        proxyPortField.setEditable(false);
         transportCombo.setEnabled(false);
 
         enableAdvOpButton.addActionListener(new ActionListener(){
@@ -141,22 +146,25 @@ public class FirstWizardPage extends JPanel
             JCheckBox cb = (JCheckBox)evt.getSource();
 
             serverField.setEditable(cb.isSelected());
-            portField.setEditable(cb.isSelected());
+            serverPortField.setEditable(cb.isSelected());
             proxyField.setEditable(cb.isSelected());
-            transportCombo.setEnabled(cb.isSelected());
+            proxyPortField.setEditable(cb.isSelected());
+            transportCombo.setEnabled(cb.isSelected());            
         }});
         
         transportCombo.setSelectedItem("UDP");
 
         labelsAdvOpPanel.add(serverLabel);
+        labelsAdvOpPanel.add(serverPortLabel);
         labelsAdvOpPanel.add(proxyLabel);
+        labelsAdvOpPanel.add(proxyPortLabel);
         labelsAdvOpPanel.add(transportLabel);
-        labelsAdvOpPanel.add(portLabel);
         
         valuesAdvOpPanel.add(serverField);
-        valuesAdvOpPanel.add(proxyField);        
+        valuesAdvOpPanel.add(serverPortField);
+        valuesAdvOpPanel.add(proxyField);
+        valuesAdvOpPanel.add(proxyPortField);
         valuesAdvOpPanel.add(transportCombo);
-        valuesAdvOpPanel.add(portField);
         
         advancedOpPanel.add(enableAdvOpButton, BorderLayout.NORTH);
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
@@ -219,8 +227,10 @@ public class FirstWizardPage extends JPanel
         registration.setRememberPassword(rememberPassBox.isSelected());
 
         registration.setServerAddress(serverField.getText());
+        registration.setServerPort(serverPortField.getText());
         registration.setProxy(proxyField.getText());
-        registration.setPort(portField.getText());
+        registration.setProxyPort(proxyPortField.getText());
+        System.out.println("TRANSPORT=================" + transportCombo.getSelectedItem().toString());
         registration.setPreferredTransport(
                 transportCombo.getSelectedItem().toString());
     }
@@ -281,12 +291,33 @@ public class FirstWizardPage extends JPanel
         String password = (String)accountID.getAccountProperties()
             .get(ProtocolProviderFactory.PASSWORD);
         
+        String serverAddress = (String)accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.SERVER_ADDRESS);
+    
+        String serverPort = (String)accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.SERVER_PORT);
+        
+        String proxyAddress = (String)accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.PROXY_ADDRESS);
+        
+        String proxyPort = (String)accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.PROXY_PORT);
+        
+        String preferredTransport = (String)accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
+        
         this.uinField.setText(accountID.getUserID());
 
         if(password != null) {
             this.passField.setText(password);
             this.rememberPassBox.setSelected(true);
         }
+        
+        serverField.setText(serverAddress);
+        serverPortField.setText(serverPort);
+        proxyField.setText(proxyAddress);
+        proxyPortField.setText(proxyPort);
+        transportCombo.setSelectedItem(preferredTransport);
     }
 
     /**
@@ -329,10 +360,12 @@ public class FirstWizardPage extends JPanel
         if(e.getStateChange() == ItemEvent.SELECTED
                 && e.getItem().equals("TLS"))
         {
-            portField.setText("5061");
+            serverPortField.setText("5061");
+            proxyPortField.setText("5061");
         }
         else {           
-            portField.setText("5060");
+            serverPortField.setText("5060");
+            proxyPortField.setText("5060");
         }
     }
 }
