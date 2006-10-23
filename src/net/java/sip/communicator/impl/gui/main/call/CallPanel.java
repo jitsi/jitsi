@@ -166,7 +166,7 @@ public class CallPanel
                             participantPanel.getEndTime());
                 
                 callManager.getMainFrame().getCallListManager().addCallRecord(
-                        1, participantRecord);
+                        0, participantRecord);
                 
                 //remove the participant panel for this participant
                 this.participantsPanels.remove(participant);

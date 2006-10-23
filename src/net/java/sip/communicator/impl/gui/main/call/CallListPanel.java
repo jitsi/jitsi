@@ -294,6 +294,11 @@ public class CallListPanel
     
     public void addCallRecord(int index, GuiCallParticipantRecord callRecord)
     {
+        if(callList.getModel().getSize() == 0) {
+            callList.addItem(processDate(callRecord.getStartTime()));
+            index ++;
+        }
+        
         this.callList.addItem(callRecord, index);
         
         String participantName = callRecord.getParticipantName();
