@@ -17,7 +17,6 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
-import net.java.sip.communicator.util.xml.XMLUtils;
 
 /**
  * A straight forward implementation of the ConfigurationService using an xml
@@ -123,65 +122,64 @@ public class ConfigurationServiceImpl
      * at least one propertychange listener.
      */
     public void setProperty(String propertyName, Object property,
-                            boolean isSystem) throws PropertyVetoException
+                            boolean isSystem)
+        throws PropertyVetoException
     {
-         try{
-            logger.logEntry();
+        Object oldValue = getProperty(propertyName);
+        //first check whether the change is ok with everyone
+        if (changeEventDispatcher.hasVetoableChangeListeners(propertyName))
+            changeEventDispatcher.fireVetoableChange(
+                propertyName, oldValue, property);
 
-            Object oldValue = getProperty(propertyName);
-            //first check whether the change is ok with everyone
-            if (changeEventDispatcher.hasVetoableChangeListeners(propertyName))
-                changeEventDispatcher.fireVetoableChange(
-                    propertyName, oldValue, property);
+        //no exception was thrown - lets change the property and fire a
+        //change event
 
-            //no exception was thrown - lets change the property and fire a
-            //change event
+        logger.trace(propertyName + "( oldValue=" + oldValue
+                     + ", newValue=" + property + ".");
 
-            logger.trace(propertyName+"( oldValue="+oldValue
-                         +", newValue=" + property+".");
+        //once set system, a property remains system event if the user
+        //specified sth else
 
-            //once set system, a property remains system event if the user
-            //specified sth else
+        if (isSystem(propertyName))
+            isSystem = true;
 
-            if(  isSystem(propertyName) )
-                isSystem = true;
+        if (property == null)
+        {
+            properties.remove(propertyName);
 
-            if (property == null){
-                properties.remove(propertyName);
-
-                if(isSystem){
-                    //we can't remove or nullset a sys prop so let's "empty" it.
-                    System.setProperty(propertyName, "");
-                }
-            }
-            else{
-                if(isSystem){
-                    //in case this is a system property, we must only store it
-                    //in the System property set and keep only a ref locally.
-                    System.setProperty(propertyName, property.toString());
-                    properties.put(propertyName,
-                                   new PropertyReference(propertyName));
-                }
-                else{
-                    properties.put(propertyName, property);
-                }
-            }
-            if (changeEventDispatcher.hasPropertyChangeListeners(propertyName))
-                changeEventDispatcher.firePropertyChange(
-                    propertyName, oldValue, property);
-
-            try{
-                storeConfiguration();
-            }
-            catch (IOException ex)
+            if (isSystem)
             {
-                logger.error("Failed to store configuration after "
-                             +"a property change");
+                //we can't remove or nullset a sys prop so let's "empty" it.
+                System.setProperty(propertyName, "");
             }
         }
-        finally
+        else
         {
-            logger.logExit();
+            if (isSystem)
+            {
+                //in case this is a system property, we must only store it
+                //in the System property set and keep only a ref locally.
+                System.setProperty(propertyName, property.toString());
+                properties.put(propertyName,
+                               new PropertyReference(propertyName));
+            }
+            else
+            {
+                properties.put(propertyName, property);
+            }
+        }
+        if (changeEventDispatcher.hasPropertyChangeListeners(propertyName))
+            changeEventDispatcher.firePropertyChange(
+                propertyName, oldValue, property);
+
+        try
+        {
+            storeConfiguration();
+        }
+        catch (IOException ex)
+        {
+            logger.error("Failed to store configuration after "
+                         + "a property change");
         }
     }
 
@@ -361,6 +359,7 @@ public class ConfigurationServiceImpl
     {
         try
         {
+            debugPrintSystemProperties();
             preloadSystemPropertyFiles();
             reloadConfiguration();
         }
@@ -400,8 +399,6 @@ public class ConfigurationServiceImpl
     {
         try
         {
-            logger.logEntry();
-
             DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -444,10 +441,6 @@ public class ConfigurationServiceImpl
             logger.error("Error finding configuration for default parsers", ex);
             return new Hashtable();
         }
-        finally
-        {
-            logger.logExit();
-        }
     }
 
     public void storeConfiguration()
@@ -488,54 +481,44 @@ public class ConfigurationServiceImpl
     private void storeConfiguration(File file)
         throws IOException
     {
-        try
+        //resolve the properties that were initially in the file - back to
+        //the document.
+
+        if (propertiesDocument == null)
+            propertiesDocument = createPropertiesDocument();
+
+        Node root = propertiesDocument.getFirstChild();
+
+        Node currentNode = null;
+        NodeList children = root.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++)
         {
-            logger.logEntry();
+            currentNode = children.item(i);
 
-            //resolve the properties that were initially in the file - back to
-            //the document.
-
-            if(propertiesDocument == null)
-                propertiesDocument = createPropertiesDocument();
-
-            Node root = propertiesDocument.getFirstChild();
-
-            Node currentNode = null;
-            NodeList children = root.getChildNodes();
-            for(int i = 0; i < children.getLength(); i++)
+            if (currentNode.getNodeType() == Node.ELEMENT_NODE)
             {
-                currentNode = children.item(i);
-
-                if(currentNode.getNodeType() == Node.ELEMENT_NODE)
-                {
-                    StringBuffer propertyNameBuff = new StringBuffer();
-                    propertyNameBuff.append(currentNode.getNodeName());
-                    updateNode(currentNode, propertyNameBuff, properties);
-                }
+                StringBuffer propertyNameBuff = new StringBuffer();
+                propertyNameBuff.append(currentNode.getNodeName());
+                updateNode(currentNode, propertyNameBuff, properties);
             }
-
-            //create in the document the properties that were added by other
-            //bundles after the initial property load.
-
-            Map newlyAddedProperties = cloneProperties();
-
-            //remove those that were originally there;
-            Iterator propNames = fileExtractedProperties.keySet().iterator();
-            while(propNames.hasNext())
-                newlyAddedProperties.remove(propNames.next());
-
-            this.processNewProperties(propertiesDocument,
-                                      newlyAddedProperties);
-
-
-            //write the file.
-            XMLUtils.indentedWriteXML(
-                propertiesDocument, new FileWriter( getConfigurationFile()));
         }
-        finally
-        {
-            logger.logExit();
-        }
+
+        //create in the document the properties that were added by other
+        //bundles after the initial property load.
+
+        Map newlyAddedProperties = cloneProperties();
+
+        //remove those that were originally there;
+        Iterator propNames = fileExtractedProperties.keySet().iterator();
+        while (propNames.hasNext())
+            newlyAddedProperties.remove(propNames.next());
+
+        this.processNewProperties(propertiesDocument,
+                                  newlyAddedProperties);
+
+        //write the file.
+        XMLUtils.indentedWriteXML(
+            propertiesDocument, new FileWriter(getConfigurationFile()));
     }
 
     /**
@@ -701,8 +684,6 @@ public class ConfigurationServiceImpl
     {
         try
         {
-            logger.logEntry();
-
             //see whether we have a user specified name for the conf file
             String pFileName = getSystemProperty(
                 FILE_NAME_PROPERTY);
@@ -771,10 +752,6 @@ public class ConfigurationServiceImpl
         {
             logger.error("Error creating config file", ex);
             return null;
-        }
-        finally
-        {
-            logger.logExit();
         }
     }
 
@@ -973,6 +950,25 @@ public class ConfigurationServiceImpl
         {
             configurationFile.delete();
             configurationFile = null;
+        }
+    }
+
+    /**
+     * Goes over all system properties and outputs their names and values for
+     * debug purposes. The method has no effect if the logger is at a log level
+     * other than DEBUG or TRACE (FINE or FINEST).
+     */
+    private void debugPrintSystemProperties()
+    {
+        if(logger.isDebugEnabled())
+        {
+            Properties pValues = System.getProperties();
+            Iterator pNames = pValues.keySet().iterator();
+            while(pNames.hasNext())
+            {
+                String name = (String)pNames.next();
+                logger.debug(name + "=" + pValues.getProperty(name));
+            }
         }
     }
 
