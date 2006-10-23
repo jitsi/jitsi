@@ -2321,13 +2321,19 @@ public class MetaContactListServiceImpl
         if(metaContactImpl == null)
             return;
 
-        metaContactImpl.reevalContact();
+        int oldContactIndex = metaContactImpl.getParentGroup()
+            .indexOf(metaContactImpl);
 
-        fireMetaContactGroupEvent(
-              findParentMetaContactGroup(metaContactImpl)
-            , evt.getSourceProvider()
-            , null
-            , MetaContactGroupEvent.CHILD_CONTACTS_REORDERED);
+        int newContactIndex = metaContactImpl.reevalContact();
+
+        if(oldContactIndex != newContactIndex)
+        {
+            fireMetaContactGroupEvent(
+                findParentMetaContactGroup(metaContactImpl)
+                , evt.getSourceProvider()
+                , null
+                , MetaContactGroupEvent.CHILD_CONTACTS_REORDERED);
+        }
     }
 
 
