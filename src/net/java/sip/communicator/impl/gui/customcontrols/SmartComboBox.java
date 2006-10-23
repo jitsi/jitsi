@@ -211,9 +211,12 @@ public class SmartComboBox extends JComboBox
             }
             
             ((FilterableComboBoxModel) getModel()).setFilter(filter);
-            // A bit nasty but it seems to get the popup validated properly
+            
             setPopupVisible(false);
-            setPopupVisible(true);
+            
+            if(getModel().getSize() > 0)
+                setPopupVisible(true);
+            
             filtering = false;
         }
     }
