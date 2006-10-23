@@ -40,7 +40,12 @@ public class NetaddrActivator
         try{
 
             logger.logEntry();
-            
+
+            //in here we load stati properties that should be else where
+            //System.setProperty("java.net.preferIPv4Stack", "false");
+            //System.setProperty("java.net.preferIPv6Addresses", "true");
+            //end ugly property set
+
             //keep a reference to the bundle context for later usage.
             this.bundleContext = bundleContext;
 
@@ -63,7 +68,7 @@ public class NetaddrActivator
             logger.logExit();
         }
     }
-    
+
     /**
      * Returns a reference to a ConfigurationService implementation currently
      * registered in the bundle context or null if no such implementation was
