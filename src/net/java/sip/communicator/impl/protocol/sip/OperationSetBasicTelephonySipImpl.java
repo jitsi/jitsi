@@ -14,11 +14,10 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
+import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import gov.nist.javax.sip.message.*;
-import gov.nist.javax.sip.stack.*;
 
 /**
  * Implements all call management logic and exports basic telephony support by
@@ -224,8 +223,12 @@ public class OperationSetBasicTelephonySipImpl
         //invite content
         try
         {
+            CallSession callSession = SipActivator.getMediaService()
+                .createCallSession(callParticipant.getCall());
+            ((CallSipImpl)callParticipant.getCall())
+                .setMediaCallSession(callSession);
             invite.setContent(
-                SipActivator.getMediaService().generateSdpOffer(callParticipant)
+                callSession.createSdpOffer()
                 , contentTypeHeader);
         }
         catch (ParseException ex)
@@ -238,6 +241,17 @@ public class OperationSetBasicTelephonySipImpl
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
         }
+        catch (MediaException ex)
+        {
+            logger.error(
+                "Failed to parse sdp data while creating invite request!"
+                , ex);
+            throw new OperationFailedException(
+                "Failed to parse sdp data while creating invite request!"
+                , OperationFailedException.INTERNAL_ERROR
+                , ex);
+        }
+
 
 
         try
@@ -592,13 +606,94 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
 
-        //Send ACK
+        Request ack = null;
+        ContentTypeHeader contentTypeHeader = null;
+        //Create ACK
         try
         {
             //Need to use dialog generated ACKs so that the remote UA core
             //sees them - Fixed by M.Ranganathan
-            Request ack = clientTransaction.getDialog()
-                                                   .createRequest(Request.ACK);
+            ack = clientTransaction.getDialog().createRequest(Request.ACK);
+
+            //Content should it be necessary.
+
+            //content type should be application/sdp (not applications)
+            //reported by Oleg Shevchenko (Miratech)
+            contentTypeHeader =
+                protocolProvider.getHeaderFactory().createContentTypeHeader(
+                "application", "sdp");
+        }
+        catch (ParseException ex)
+        {
+            //Shouldn't happen
+            callParticipant.setState(CallParticipantState.FAILED
+                , "Failed to create a content type header for the ACK request");
+            logger.error(
+                "Failed to create a content type header for the ACK request"
+                , ex);
+        }
+        catch (SipException ex)
+        {
+            logger.error("Failed to create ACK request!", ex);
+            callParticipant.setState(CallParticipantState.FAILED);
+            return;
+        }
+
+        //!!! set sdp content before setting call state as that is where
+       //listeners get alerted and they need the sdp
+       callParticipant.setSdpDescription(new String(ok.getRawContent()));
+
+        //notify the media manager of the sdp content
+        CallSession callSession
+            = ((CallSipImpl)callParticipant.getCall()).getMediaCallSession();
+
+        try
+        {
+            if(callSession == null)
+            {
+                //non existent call session - that means we didn't send sdp in
+                //the invide and this is the offer so we need to create the
+                //answer.
+                callSession = SipActivator.getMediaService()
+                    .createCallSession(callParticipant.getCall());
+                String sdp = callSession.processSdpOffer(
+                                      callParticipant
+                                    , callParticipant.getSdpDescription());
+                ack.setContent(sdp, contentTypeHeader);
+
+            }
+            callSession.processSdpAnswer(callParticipant
+                                         , callParticipant.getSdpDescription());
+        }
+        catch (ParseException exc)
+        {
+            logger.error("There was an error parsing the SDP description of "
+                         + callParticipant.getDisplayName()
+                         + "(" + callParticipant.getAddress() + ")"
+                        , exc);
+            callParticipant.setState(CallParticipantState.FAILED
+                , "There was an error parsing the SDP description of "
+                + callParticipant.getDisplayName()
+                + "(" + callParticipant.getAddress() + ")");
+        }
+        catch (MediaException exc)
+        {
+            logger.error("We failed to process the SDP description of "
+                         + callParticipant.getDisplayName()
+                         + "(" + callParticipant.getAddress() + ")"
+                         + ". Error was: "
+                         + exc.getMessage()
+                        , exc);
+            callParticipant.setState(CallParticipantState.FAILED
+                , "We failed to process the SDP description of "
+                + callParticipant.getDisplayName()
+                + "(" + callParticipant.getAddress() + ")"
+                + ". Error was: "
+                + exc.getMessage());
+        }
+
+        //send ack
+        try{
             clientTransaction.getDialog().sendAck(ack);
         }
         catch (SipException ex)
@@ -608,9 +703,7 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
 
-        // !!! set sdp content before setting call state as that is where
-        //listeners get alerted and they need the sdp
-        callParticipant.setSdpDescription(new String(ok.getRawContent()));
+
         //change status
         callParticipant.setState(CallParticipantState.CONNECTED);
     }
@@ -1526,21 +1619,40 @@ public class OperationSetBasicTelephonySipImpl
             //Shouldn't happen
             callParticipant.setState(CallParticipantState.DISCONNECTED);
             logger.error(
-                "Failed to create a content type header for the OK request"
+                "Failed to create a content type header for the OK response"
                 , ex);
             throw new OperationFailedException(
-                "Failed to create a content type header for the OK request"
+                "Failed to create a content type header for the OK response"
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
         }
 
         try
         {
-            ok.setContent(  SipActivator.getMediaService()
-                                .generateSdpAnswer(callParticipant)
-                          , contentTypeHeader);
+            CallSession callSession = SipActivator.getMediaService()
+                .createCallSession(callParticipant.getCall());
+            ((CallSipImpl)callParticipant.getCall())
+                .setMediaCallSession(callSession);
+
+            String sdp = null;
+            //if the offer was in the invite create an sdp answer
+            if (callParticipant.getSdpDescription() != null
+                && callParticipant.getSdpDescription().length() > 0)
+            {
+
+                sdp = callSession.processSdpOffer(
+                        callParticipant
+                        , callParticipant.getSdpDescription());
+            }
+            //if there was no offer in the invite - create an offer
+            else
+            {
+                sdp = callSession.createSdpOffer();
+
+            }
+            ok.setContent(sdp, contentTypeHeader);
         }
-        catch (NullPointerException ex)
+        catch (MediaException ex)
         {
             callParticipant.setState(CallParticipantState.DISCONNECTED);
             logger.error( "No sdp data was provided for the ok response to "
