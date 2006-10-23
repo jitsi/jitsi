@@ -370,8 +370,10 @@ public class MetaContactImpl
      * Called by MetaContactListServiceImpl after a contact has changed its
      * status, so that ordering in the parent group is updated. The method also
      * elects the most connected contact as default contact.
+     *
+     * @return the new index at which the contact was added.
      */
-    void reevalContact()
+    int reevalContact()
     {
         synchronized (parentGroupModLock)
         {
@@ -404,10 +406,11 @@ public class MetaContactImpl
             //properly by the containing group
             if (parentGroup != null)
             {
-                parentGroup.lightAddMetaContact(this);
+                return parentGroup.lightAddMetaContact(this);
             }
-
         }
+
+        return -1;
     }
 
 
