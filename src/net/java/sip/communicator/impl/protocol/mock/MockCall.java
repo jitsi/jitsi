@@ -158,4 +158,10 @@ public class MockCall
     public void participantImageChanged(CallParticipantChangeEvent evt)
     {
     }
+
+    public void participantTransportAddressChanged(CallParticipantChangeEvent
+        evt)
+    {
+    }
+
 }
