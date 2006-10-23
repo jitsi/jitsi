@@ -11,27 +11,25 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
-import javax.swing.plaf.metal.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
- * SIPCommComboBoxUI implementation.
+ *  SIPCommPopupMenuUI implementation.
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommComboBoxUI extends MetalComboBoxUI {
-    
+public class SIPCommPopupMenuUI extends BasicPopupMenuUI
+{
+    /**
+     * Creates a new SIPCommPopupMenuUI instance.
+     */
     public static ComponentUI createUI(JComponent c) {
-        return new SIPCommComboBoxUI();
+        return new SIPCommPopupMenuUI();
     }
-    
+
     public void paint(Graphics g, JComponent c) {        
         AntialiasingManager.activateAntialiasing(g);
-        super.paint(g, c);        
-    }
-    
-    protected ComboBoxEditor createEditor() {
-        return new SIPCommComboBoxEditor.UIResource();
+        super.paint(g, c);
     }
 }

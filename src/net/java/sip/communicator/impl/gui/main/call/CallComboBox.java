@@ -12,6 +12,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
  
@@ -37,6 +38,7 @@ public class CallComboBox
         
         this.callManager = callManager;
         
+        this.setUI(new SIPCommCallComboBoxUI());
         this.addActionListener(this);
         
         JTextField textField = (JTextField)this.getEditor().getEditorComponent();
