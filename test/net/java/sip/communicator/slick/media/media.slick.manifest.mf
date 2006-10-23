@@ -9,4 +9,4 @@ Import-Package: junit.framework,
  net.java.sip.communicator.service.media,
  net.java.sip.communicator.service.media.event,
  net.java.sip.communicator.util,
-Export-Package: net.java.sip.communicator.slick.media,
+Export-Package: net.java.sip.communicator.slick.media
