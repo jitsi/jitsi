@@ -30,6 +30,13 @@ public class NetworkUtils
     public static final int    MAX_PORT_NUMBER = 65535;
 
     /**
+     * The minimum int value that could correspond to a port nubmer bindable
+     * by the SIP Communicator.
+     */
+    public static final int    MIN_PORT_NUMBER = 1024;
+
+
+    /**
      * The random port number generator that we use in getRandomPortNumer()
      */
     private static Random portNumberGenerator = new Random();
@@ -82,7 +89,48 @@ public class NetworkUtils
      */
     public static int getRandomPortNumber()
     {
-        return portNumberGenerator.nextInt(MAX_PORT_NUMBER-1024) + 1024;
+        return getRandomPortNumber(MIN_PORT_NUMBER, MAX_PORT_NUMBER);
+    }
+
+    /**
+     * Returns a random local port number, greater than min and lower than max.
+     *
+     * @param min the minimum allowed value for the returned port number.
+     * @param max the maximum allowed value for the returned port number.
+     *
+     * @return a random int located between greater than min and lower than max.
+     */
+    public static int getRandomPortNumber(int min, int max)
+    {
+        return portNumberGenerator.nextInt(max - min) + min;
+    }
+
+    /**
+     * Returns a random local port number, greater than min and lower than max.
+     * If the pair flag is set to true, then the returned port number is
+     * guaranteed to be pair. This is useful for protocols that require this
+     * such as RTP
+     *
+     * @param min the minimum allowed value for the returned port number.
+     * @param max the maximum allowed value for the returned port number.
+     * @param pair specifies whether the caller would like the returned port to
+     * be pair.
+     *
+     * @return a random int located between greater than min and lower than max.
+     */
+    public static int getRandomPortNumber(int min, int max, boolean pair)
+    {
+        if(pair)
+        {
+            int delta = max - min;
+            delta /= 2;
+            int port = getRandomPortNumber(min, min + delta);
+            return port * 2;
+        }
+        else
+        {
+            return getRandomPortNumber(min, max);
+        }
     }
 
     /**
@@ -127,8 +175,8 @@ public class NetworkUtils
         {
             public int compare(Object o1, Object o2)
             {
-                return(Integer.parseInt(((String[])o1)[0]) -
-                       Integer.parseInt(((String[])o2)[0]));
+                return ( Integer.parseInt(((String[])o1)[0])
+                       - Integer.parseInt(((String[])o2)[0]));
             }
         });
 
