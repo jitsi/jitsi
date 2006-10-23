@@ -50,14 +50,25 @@ public interface NetworkAddressManagerService
      * STUN lib fails, tries to retrieve localhost, if that fails too, returns
      * null.
      *
-     * @param indendedDestination the destination that we'd like to use this
+     * @param intendedDestination the destination that we'd like to use this
      * address with.
      * @param port the port whose mapping we are interested in.
      * @return a public address corresponding to the specified port or null if
      * all attempts to retrieve such an address have failed.
      */
-    public InetSocketAddress getPublicAddressFor(InetAddress indendedDestination,
-                                                 int port);
+    public InetSocketAddress getPublicAddressFor(
+                                            InetAddress intendedDestination,
+                                            int         port);
+
+    /**
+     * Tries to obtain a mapped/public address for the specified port (possibly
+     * by executing a STUN query).
+     *
+     * @param port the port whose mapping we are interested in.
+     * @return a public address corresponding to the specified port or null
+     *   if all attempts to retrieve such an address have failed.
+     */
+    public InetSocketAddress getPublicAddressFor(int port);
 
     /**
       * Initializes the network address manager service implementation and
