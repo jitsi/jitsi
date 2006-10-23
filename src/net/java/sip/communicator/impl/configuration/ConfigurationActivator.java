@@ -37,11 +37,6 @@ public class ConfigurationActivator
 
             impl.start();
 
-            //in here we load stati properties that should be else where
-            System.setProperty("java.net.preferIPv4Stack", "false");
-            System.setProperty("java.net.preferIPv6Addresses", "true");
-            //end ugly property set
-
             bundleContext.registerService( ConfigurationService.class.getName(),
                                            impl,
                                            new java.util.Hashtable() );
