@@ -147,9 +147,15 @@ public class CallListPanel
         FilterableComboBoxModel comboModel =
             (FilterableComboBoxModel)searchComboBox.getModel();
         
+        String allItem = Messages.getString("all");
+
+        if(!comboModel.contains(allItem)) {            
+            searchComboBox.addItem(allItem);
+        }
         
         if(!comboModel.contains(obj))
             comboModel.addElement(obj);
+        
     }
     
     /**
@@ -209,7 +215,17 @@ public class CallListPanel
             
             this.callList.removeAll();
             
-            new LoadParticipantCallsFromHistory(item).start();
+            if(item.equals(Messages.getString("all"))) {
+                this.lastDateFromHistory = null;
+                
+                this.callList.removeAll();
+                
+                new LoadLastCallsFromHistory().start();
+                
+                filteredSearch = false;
+            }
+            else
+                new LoadParticipantCallsFromHistory(item).start();
             
             filteredSearch = true;
         }

@@ -34,7 +34,7 @@ public class SmartComboBox extends JComboBox
         setEditable(true);
         setFocusable(true);
     }
-    
+        
     /**
      * The data model used for this combo box. Filters the contents of the
      * combo box popup according to the user input. 
@@ -79,7 +79,10 @@ public class SmartComboBox extends JComboBox
             updateFilteredItems();
         }
         
-        public void insertElementAt( Object obj, int index ) {}
+        public void insertElementAt( Object obj, int index ) {
+            items.add(index, obj);
+            updateFilteredItems();
+        }
         
         public void setFilter(Filter filter)
         {   
