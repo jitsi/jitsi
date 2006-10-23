@@ -188,7 +188,7 @@ public class MetaContactListServiceLick
         mockContactToRename = new MockContact("Jane Doe", provider) ;
         root.addContact( mockContactToRename );
 
-        mockContactToReorder = new MockContact("I'llChangeMyStatus", provider);
+        mockContactToReorder = new MockContact("ZI'llChangeMyStatus", provider);
         root.addContact(mockContactToReorder);
 
         topLevelMockGroup = new MockContactGroup(topLevelGroupName, provider);
