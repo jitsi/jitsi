@@ -106,7 +106,11 @@
 
         <!-- Include all JAR files found in lib and any of its subdirectories. -->
         <fileset dir="${lib}">
-            <include name="**/*.jar"/>
+            <include name="*.jar"/>
+            <include name="jmf-lin/jmf.jar"/>
+            <include name="jmf-win/jmf.jar"/>
+            <include name="jmf-sol/jmf.jar"/>
+            <include name="bundles/*.jar"/>
         </fileset>
     </path>
 
@@ -343,7 +347,7 @@
     </target>
 
     <!-- Create a Debian package - This needs dpkg utilities -->
-	<target name="deb" depends="make"
+    <target name="deb" depends="make"
             if="dpkg.present"
             description="Create a .deb package for Debian (needs dpkg utilities)">
 
@@ -472,9 +476,12 @@
     </target>
 
     <!--RUN-SIP-COMMUNICATOR - n.b. has NO Dependents!! -->
+    <property name="ld.library.path"
+              value="${basedir}/${lib}/native:${system.LD_LIBRARY_PATH}"/>
     <target name="run"
         description="Starts oscar and runs sip-comunicator gui (use latest build).">
 
+         <!-- forking prevents from debugging-->
         <java classname="org.ungoverned.oscar.Main"
             fork="true"
             failonerror="true"
@@ -491,8 +498,9 @@
             <sysproperty key="java.util.logging.config.file"
                 value="lib/logging.properties"/>
 
-            <sysproperty key="java.library.path"
-                            value="${lib}/native/x86"/>
+            <!-- Setting LD_LIBRARY_PATH-->
+            <sysproperty key="java.library.path" value="${ld.library.path}"/>
+            <env key="LD_LIBRARY_PATH" value="${ld.library.path}"/>
         </java>
 
     </target>
@@ -568,7 +576,7 @@
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,
         meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
-    	bundle-plugin-sipaccregwizz"/>
+        bundle-plugin-sipaccregwizz"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -706,6 +714,7 @@
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
                 prefix="net/java/sip/communicator/impl/media"/>
             <zipfileset src="${jmf.home}/jmf.jar" prefix=""/>
+            <zipfileset src="${lib}/nist-sdp-1.0.jar" prefix=""/>
         </jar>
     </target>
 
@@ -795,7 +804,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/sip"
                 prefix="net/java/sip/communicator/impl/protocol/sip"/>
-            <zipfileset src="${lib}/sip-sdp.jar" prefix=""/>
+            <zipfileset src="${lib}/JainSipRi1.2.jar" prefix=""/>
+            <zipfileset src="${lib}/JainSipApi1.2.jar" prefix=""/>
             <zipfileset src="${lib}/concurrent.jar" prefix=""/>
             <zipfileset src="${lib}/log4j-1.2.8.jar" prefix=""/>
         </jar>
@@ -938,14 +948,14 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/jabberaccregwizz"/>
         </jar>
     </target>
-	
-	<!-- BUNDLE-PLUGIN-SIPACCREGWIZZ -->
-	    <target name="bundle-plugin-sipaccregwizz">
-	        <!-- Creates a bundle for the plugin SIP Account Registration Wizard."-->
-	        <jar compress="false" destfile="${bundles.dest}/sipaccregwizz.jar"
-	            manifest="src/net/java/sip/communicator/plugin/sipaccregwizz/sipaccregwizz.manifest.mf">
-	            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sipaccregwizz"
-	                prefix="net/java/sip/communicator/plugin/sipaccregwizz"/>
-	        </jar>
-	    </target>
+
+    <!-- BUNDLE-PLUGIN-SIPACCREGWIZZ -->
+        <target name="bundle-plugin-sipaccregwizz">
+            <!-- Creates a bundle for the plugin SIP Account Registration Wizard."-->
+            <jar compress="false" destfile="${bundles.dest}/sipaccregwizz.jar"
+                manifest="src/net/java/sip/communicator/plugin/sipaccregwizz/sipaccregwizz.manifest.mf">
+                <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sipaccregwizz"
+                    prefix="net/java/sip/communicator/plugin/sipaccregwizz"/>
+            </jar>
+        </target>
 </project>
