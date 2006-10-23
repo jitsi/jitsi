@@ -49,6 +49,16 @@ public interface CallParticipantListener
     public void participantAddressChanged(CallParticipantChangeEvent evt);
 
     /**
+     * Indicates that a change has occurred in the transport address that we
+     * use to communicate with the participant.
+     *
+     * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
+     * the source event as well as its previous and its new transport address.
+     */
+    public void participantTransportAddressChanged(
+                                        CallParticipantChangeEvent evt);
+
+    /**
      * Indicates that a change has occurred in the image of the source
      * CallParticipant.
      *
