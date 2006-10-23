@@ -109,10 +109,7 @@ public class CallListCellRenderer extends JPanel
            
             this.durationLabel.setText(
                     Messages.getString("duration") + " " +
-                    GuiUtils.formatTime(
-                    GuiUtils.substractDates(
-                            participant.getEndTime(),
-                            participant.getStartTime())));
+                    GuiUtils.formatTime(participant.getCallTime()));
             
             //this.nameLabel.setIcon(listModel
             //        .getMetaContactStatusIcon(contactItem));

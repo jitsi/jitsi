@@ -163,7 +163,7 @@ public class CallPanel
                             participantPanel.getParticipantName(),
                             participantPanel.getCallType(),
                             participantPanel.getStartTime(),
-                            participantPanel.getEndTime());
+                            participantPanel.getTime());
                 
                 callManager.getMainFrame().getCallListManager().addCallRecord(
                         0, participantRecord);

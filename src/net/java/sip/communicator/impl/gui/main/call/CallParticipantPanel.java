@@ -38,7 +38,7 @@ public class CallParticipantPanel extends JPanel
     
     private Date startDate;
     
-    private Date endDate;
+    private Date callTime = new Date(0);
     
     private Timer timer;
     
@@ -121,7 +121,7 @@ public class CallParticipantPanel extends JPanel
                     new Date(System.currentTimeMillis()),
                     startDate);
             
-            endDate = time;
+            callTime = time;
             timeLabel.setText(GuiUtils.formatTime(time));
         }
     }
@@ -141,12 +141,9 @@ public class CallParticipantPanel extends JPanel
      * 
      * @return the start time of the contained participant call
      */
-    public Date getEndTime()
-    {
-        if(endDate == null)
-            endDate = startDate;
-        
-        return endDate;
+    public Date getTime()
+    {   
+        return callTime;
     }
     
     /**

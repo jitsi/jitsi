@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.callhistory.*;
 
 /**
@@ -29,12 +30,12 @@ public class GuiCallParticipantRecord
     
     private Date startTime;
     
-    private Date endTime;    
+    private Date callTime;    
     
     public GuiCallParticipantRecord(String participantName,
             String direction,
             Date startTime,
-            Date endTime)
+            Date callTime)
     {
         this.direction = direction;
         
@@ -42,7 +43,7 @@ public class GuiCallParticipantRecord
         
         this.startTime = startTime;
         
-        this.endTime = endTime;
+        this.callTime = callTime;
     }
     
     public GuiCallParticipantRecord(CallParticipantRecord participantRecord,
@@ -54,7 +55,8 @@ public class GuiCallParticipantRecord
         
         this.startTime = participantRecord.getStartTime();
         
-        this.endTime = participantRecord.getEndTime();
+        this.callTime = GuiUtils.substractDates(
+                participantRecord.getEndTime(), startTime);
     }
     
     public String getDirection()
@@ -62,9 +64,9 @@ public class GuiCallParticipantRecord
         return direction;
     }
     
-    public Date getEndTime()
+    public Date getCallTime()
     {
-        return endTime;
+        return callTime;
     }
 
     public String getParticipantName()
