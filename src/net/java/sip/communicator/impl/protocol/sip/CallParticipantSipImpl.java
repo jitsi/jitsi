@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import javax.sip.*;
+import java.net.*;
 
 /**
  * Our SIP implementation of the default CallParticipant;
@@ -52,7 +53,7 @@ public class CallParticipantSipImpl
     private String participantID;
 
     /**
-     * The call participant belongs to.
+     * The call this participant belongs to.
      */
     private CallSipImpl call;
 
@@ -80,6 +81,13 @@ public class CallParticipantSipImpl
      * receiving requests and responses related to this call participant.
      */
     private SipProvider jainSipProvider = null;
+
+    /**
+     * The transport address that we are using to address the participant or the
+     * first one that we'll try when we next send them a message (could be the
+     * address of our sip registrar).
+     */
+    private InetSocketAddress transportAddress = null;
 
     /**
      * Creates a new call participant with address <tt>participantAddress</tt>.
@@ -181,6 +189,7 @@ public class CallParticipantSipImpl
     }
 
 
+
     /**
      * Returns the date (time) when this call participant acquired its
      * current status.
@@ -200,7 +209,10 @@ public class CallParticipantSipImpl
      */
     public String getDisplayName()
     {
-        return participantAddress.getDisplayName();
+        String displayName = participantAddress.getDisplayName();
+        return (displayName == null)
+                    ? participantAddress.getURI().toString()
+                    : displayName;
     }
 
     /**
@@ -396,4 +408,69 @@ public class CallParticipantSipImpl
     {
         return jainSipProvider;
     }
+
+    /**
+     * The address that we have used to contact this participant. In cases
+     * where no direct connection has been established with the participant,
+     * this method will return the address that will be first tried when
+     * connection is established (often the one used to connect with the
+     * protocol server). The address may change during a session and
+     *
+     * @param transportAddress The address that we have used to contact this
+     * participant.
+     */
+    public void setTransportAddress(InetSocketAddress transportAddress)
+    {
+        InetSocketAddress oldTransportAddress = this.transportAddress;
+        this.transportAddress = transportAddress;
+
+        this.fireCallParticipantChangeEvent(
+            CallParticipantChangeEvent
+                .CALL_PARTICIPANT_TRANSPORT_ADDRESS_CHANGE
+            , oldTransportAddress
+            , transportAddress);
+    }
+
+    /**
+     * The address that we have used to contact this participant. In cases
+     * where no direct connection has been established with the participant,
+     * this method will return the address that will be first tried when
+     * connection is established (often the one used to connect with the
+     * protocol server). The address may change during a session and
+     *
+     * @return The address that we have used to contact this participant.
+     */
+    public InetSocketAddress getLocalTransportAddress()
+    {
+        /** @todo this is ugly as we don't really know which listening point
+         * we're using. will do until we implement ice. */
+        int defaultLpPort
+            = ((ProtocolProviderServiceSipImpl)getProtocolProvider())
+                .getDefaultListeningPoint().getPort();
+
+        return new InetSocketAddress(defaultLpPort);
+    }
+
+    /**
+     * Returns the protocol provider that this participant belongs to.
+     * @return a reference to the ProtocolProviderService that this participant
+     * belongs to.
+     */
+    public ProtocolProviderService getProtocolProvider()
+    {
+        return this.getCall().getProtocolProvider();
+    }
+
+    /**
+     * Returns the contact corresponding to this participant or null if no
+     * particular contact has been associated.
+     * <p>
+     * @return the <tt>Contact</tt> corresponding to this participant or null
+     * if no particular contact has been associated.
+     */
+    public Contact getContact()
+    {
+        return null;
+    }
+
 }
