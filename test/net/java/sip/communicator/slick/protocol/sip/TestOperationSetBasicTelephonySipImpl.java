@@ -919,6 +919,15 @@ public class TestOperationSetBasicTelephonySipImpl
          * Unused by this collector
          * @param event ignored.
          */
+        public void participantTransportAddressChanged(
+                                        CallParticipantChangeEvent event)
+        {}
+
+
+        /**
+         * Unused by this collector
+         * @param event ignored.
+         */
         public void participantDisplayNameChanged(
                                             CallParticipantChangeEvent event)
         {}
