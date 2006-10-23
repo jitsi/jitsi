@@ -656,7 +656,7 @@ public class ProtocolProviderServiceSipImpl
                 = SipActivator.getConfigurationService().getString(
                     BIND_RETRIES_PROPERTY_NAME);
 
-            int bindRetries = 5;
+            int bindRetries = BIND_RETRIES_DEFAULT_VALUE;
 
             if (bindRetriesStr != null)
             {
@@ -669,7 +669,7 @@ public class ProtocolProviderServiceSipImpl
                     logger.error(bindRetriesStr
                                  + " does not appear to be an integer. "
                                  + "Defaulting port bind retries to 5.", ex);
-                    bindRetries = 5;
+                    bindRetries = BIND_RETRIES_DEFAULT_VALUE;
                 }
             }
 
