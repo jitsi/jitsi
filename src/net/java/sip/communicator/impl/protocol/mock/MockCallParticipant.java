@@ -1,18 +1,18 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.mock;
 
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.CallParticipantChangeEvent;
+import java.net.InetSocketAddress;
 
 /**
- * <p> </p>
- *
- * <p> </p>
- *
- * <p> </p>
- *
- * <p> </p>
  *
  * @author Damian Minkov
  */
@@ -157,4 +157,43 @@ public class MockCallParticipant
                 oldState,
                 newState);
     }
+
+    /**
+     * Returns the contact corresponding to this participant or null if no
+     * particular contact has been associated.
+     * <p>
+     * @return the <tt>Contact</tt> corresponding to this participant or null
+     * if no particular contact has been associated.
+     */
+    public Contact getContact()
+    {
+        /** @todo implement getContact() */
+        return null;
+    }
+
+    /**
+     * The address that we have used to contact this participant. In cases
+     * where no direct connection has been established with the participant,
+     * this method will return the address that will be first tried when
+     * connection is established (often the one used to connect with the
+     * protocol server). The address may change during a session and
+     *
+     * @return The address that we have used to contact this participant.
+     */
+    public InetSocketAddress getLocalTransportAddress()
+    {
+        /** @todo implement getLocalTransportAddress() */
+        return null;
+    }
+
+    /**
+     * Returns the protocol provider that this participant belongs to.
+     * @return a reference to the ProtocolProviderService that this participant
+     * belongs to.
+     */
+    public ProtocolProviderService getProtocolProvider()
+    {
+        return this.call.getProtocolProvider();
+    }
+
 }
