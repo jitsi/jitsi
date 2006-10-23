@@ -532,12 +532,14 @@ public class MetaContactGroupImpl
      * specific contacts.
      *
      * @param metaContact the <tt>MetaContact</tt> to add in the local vector.
+     * @return the index at which the contact was added.
      */
-    void lightAddMetaContact(MetaContactImpl metaContact)
+    int lightAddMetaContact(MetaContactImpl metaContact)
     {
         this.childContacts.add(metaContact);
         //no need to synch it's not a disaster if s.o. else reads the old copy.
         childContactsOrderedCopy = new LinkedList(childContacts);
+        return childContactsOrderedCopy.indexOf(metaContact);
     }
 
     /**
