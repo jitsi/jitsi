@@ -12,6 +12,7 @@ import javax.sip.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.media.*;
 
 /**
  * A SIP implementation of the Call abstract class encapsulating SIP dialogs.
@@ -32,6 +33,12 @@ public class CallSipImpl
      * The state that this call is currently in.
      */
     private CallState callState = CallState.CALL_INITIALIZATION;
+
+    /**
+     * The <tt>CallSession</tt> that the media service has created for this
+     * call.
+     */
+    private CallSession mediaCallSession = null;
 
     /**
      * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
@@ -161,6 +168,17 @@ public class CallSipImpl
      *
      * @param evt unused.
      */
+    public void participantTransportAddressChanged(
+                                    CallParticipantChangeEvent evt)
+    {}
+
+
+    /**
+     * Dummy implementation of a method (inherited from CallParticipantListener)
+     * that we don't need.
+     *
+     * @param evt unused.
+     */
     public void participantDisplayNameChanged(CallParticipantChangeEvent evt)
     {}
 
@@ -242,4 +260,30 @@ public class CallSipImpl
 
         return null;
     }
+
+    /**
+     * Sets the <tt>CallSession</tt> that the media service has created for this
+     * call.
+     *
+     * @param callSession the <tt>CallSession</tt> that the media service has
+     * created for this call.
+     */
+    public void setMediaCallSession(CallSession callSession)
+    {
+        this.mediaCallSession = callSession;
+    }
+
+    /**
+     * Sets the <tt>CallSession</tt> that the media service has created for this
+     * call.
+     *
+     * @return the <tt>CallSession</tt> that the media service has
+     * created for this call or null if no call session has been created so
+     * far.
+     */
+    public CallSession getMediaCallSession()
+    {
+        return this.mediaCallSession;
+    }
+
 }
