@@ -217,10 +217,9 @@ public class AccountRegWizardContainerImpl extends Wizard
             }
         }
         
-        System.out.println("WIZARD CLASSS NAME::::::::" + wizardClassName);
         AccountRegistrationWizard wizard
             = getWizardFromClassName(wizardClassName);
-        System.out.println("WIZARD::::::::" + wizard);
+        
         this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
         
         this.setCurrentWizard(wizard);
