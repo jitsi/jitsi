@@ -7,20 +7,16 @@
 package net.java.sip.communicator.impl.media;
 
 
-import javax.media.*;
+import java.net.*;
+import java.util.*;
 import javax.sdp.*;
 
-import javax.swing.*;
-
-import net.java.sip.communicator.impl.media.configuration.*;
-import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.impl.media.device.*;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.media.event.*;
-import net.java.sip.communicator.service.media.event.MediaEvent;
+import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-
-
 
 /**
  * The service is meant to be a wrapper of media libraries such as JMF,
@@ -38,11 +34,17 @@ public class MediaServiceImpl
 {
     private Logger logger = Logger.getLogger(MediaServiceImpl.class);
 
-    private SdpFactory sdpFactory;
-    private boolean isInitialized = false;
+    /**
+     * The SdpFactory instance that we use for construction of all sdp
+     * descriptions.
+     */
+    private SdpFactory sdpFactory = null;
 
-    private Player player = null;
-    private JPanel videoPanel = null;
+    /**
+     * A flag indicating whether the media service implementation is ready
+     * to be used.
+     */
+    private boolean isStarted = false;
 
     /**
      * Our event dispatcher.
@@ -52,88 +54,48 @@ public class MediaServiceImpl
     /**
      * Our configuration helper.
      */
-    private MediaConfiguration mediaConfiguration = new MediaConfiguration();
+    private DeviceConfiguration deviceConfiguration = new DeviceConfiguration();
 
     /**
      * Our media control helper.
      */
-    private MediaControl mediaControl = new MediaControl(mediaConfiguration);
+    private MediaControl mediaControl = new MediaControl();
+
+    /**
+     * Currently open call sessions.
+     */
+    private Hashtable activeCallSessions =  new Hashtable();
 
     /**
      * Default constructor
      */
-    public MediaServiceImpl() {
-    }
-
-    /**
-     * Set the configuration service.
-     *
-     * @param configurationService
-     */
-    public void setConfigurationService(ConfigurationService configurationService) {
-        mediaConfiguration.setConfigurationService(configurationService);
-    }
-
-    /**
-     * Remove a configuration service.
-     *
-     * @param configurationService
-     */
-    public void unsetConfigurationService(ConfigurationService configurationService) {
-        mediaConfiguration.unsetConfigurationService(configurationService);
-    }
-
-    /**
-     * The method is meant for use by protocol service implementations when
-     * willing to send an invitation to a remote callee. It is at that point
-     * that the media service would open a port where it would be waiting for
-     * data coming from the specified call participant. Subsequent sdpoffers
-     * requested for the call that the original call participant belonged to,
-     * would receive, the same IP/port couple as the first one in order to allow
-     * conferencing. The associated port will be released once the call has
-     * ended. See RFC3264 for details on Offer/Answer model with SDP.
-     *
-     * @param callParticipant the call participant meant to receive the offer
-     * @return a String containing an SDP offer.
-     */
-    public String generateSdpOffer(CallParticipant callParticipant)
+    public MediaServiceImpl()
     {
-        String testSdp = "v=0\n"
-            + "o=emcho 0 0 IN IP4 192.168.100.101\n"
-            + "s=-\n"
-            + "c=IN IP4 192.168.100.101\n"
-            + "t=0 0\n"
-            + "m=audio 22224 RTP/AVP 0 3 4 5 6 8 15 18\n"
-            + "m=video 22222 RTP/AVP 26 34 31\n";
-
-        return testSdp;
     }
 
     /**
-     * The method is meant for use by protocol service implementations when
-     * willing to respond to an invitation received from a remote caller. It is
-     * at that point that the media service would open a port where it would
-     * wait for data coming from the specified call participant. Subsequent sdp
-     * offers/answers requested for the call that the original call participant
-     * belonged to will receive the same IP/port couple as the first one in
-     * order to allow conferencing. The associated port will be released once
-     * the call has ended. See RFC3264 for details on Offer/Answer model with
-     * SDP.
-     *
-     * @param callParticipant the call participant meant to receive the offer
-     * @return a String containing an SDP offer.
+     * Creates a call session for <tt>call</tt>. The method allocates audio
+     * and video ports which won't be released until the corresponding call
+     * gets into a DISCONNECTED state. If a session already exists for call,
+     * it is returned and no new session is created.
+     * <p>
+     * @param call the Call that we'll be encapsulating in the newly created
+     * session.
+     * @return a <tt>CallSession</tt> encapsulating <tt>call</tt>.
+     * @throws MediaException with code IO_ERROR if we fail allocating ports.
      */
-    public String generateSdpAnswer(CallParticipant callParticipant)
+    public CallSession createCallSession(Call call)
+        throws MediaException
     {
-        String testSdp = "v=0\n"
-            + "o=emcho 0 0 IN IP4 192.168.100.101\n"
-            + "s=-\n"
-            + "c=IN IP4 192.168.100.101\n"
-            + "t=0 0\n"
-            + "m=audio 22224 RTP/AVP 0 3 4 5 6 8 15 18\n"
-            + "m=video 22222 RTP/AVP 26 34 31\n";
+        CallSessionImpl callSession = new CallSessionImpl(call, this);
 
-        return testSdp;
+        callSession.initialize();
+
+        activeCallSessions.put(call, callSession);
+
+        /** @todo make sure you remove the session once its over. */
+
+        return callSession;
     }
 
     /**
@@ -141,7 +103,8 @@ public class MediaServiceImpl
      * in the state of the media listener
      * @param listener the listener to register
      */
-    public void addMediaListener(MediaListener listener) {
+    public void addMediaListener(MediaListener listener)
+    {
         mediaDispatcher.addMediaListener(listener);
     }
 
@@ -150,7 +113,8 @@ public class MediaServiceImpl
      * in the state of the media listener
      * @param listener the listener to remove
      */
-    public void removeMediaListener(MediaListener listener) {
+    public void removeMediaListener(MediaListener listener)
+    {
         mediaDispatcher.removeMediaListener(listener);
     }
 
@@ -158,36 +122,85 @@ public class MediaServiceImpl
      * Initializes the service implementation, and puts it in a state where it
      * could interoperate with other services.
      */
-    public void initialize() {
-        //openCaptureDevices();
-        //createPlayer();
+    public void start()
+        throws MediaException
+    {
+        deviceConfiguration.initialize();
+        mediaControl.initialize(deviceConfiguration);
 
-        videoPanel = new JPanel();
+        sdpFactory = SdpFactory.getInstance();
 
-        // Now alert mediaListeners
-        MediaEvent mediaEvent = new MediaEvent(videoPanel);
-        mediaDispatcher.fireReceivedMediaStream(mediaEvent);
+        /** @todo fire media state change event. */
+        isStarted = true;
+    }
 
-        isInitialized = true;
+    /**
+     * Releases all resources and prepares for shutdown.
+     */
+    public void stop()
+    {
+        try
+        {
+            this.closeCaptureDevices();
+        }
+        catch (MediaException ex)
+        {
+            logger.error("Failed to properly close capture devices.", ex);
+        }
+        isStarted = false;
+        /** @todo fire media state change event. */
     }
 
     /**
      * Returns true if the media service implementation is initialized and ready
      * for use by other services, and false otherwise.
+     *
+     * @return true if the media manager is initialized and false otherwise.
      */
-    public boolean isInitialized() {
-        return isInitialized;
+    public boolean isStarted() {
+        return isStarted;
     }
 
     /**
+     *
+     * @throws MediaException
+     */
+    protected void assertStarted()
+        throws MediaException
+    {
+        if (!isStarted()) {
+            logger.error("The MediaServiceImpl had not been properly started! "
+                          + "Impossible to continue.");
+            throw new MediaException(
+                "The MediaManager had not been properly started! "
+                + "Impossible to continue."
+                , MediaException.SERVICE_NOT_STARTED);
+        }
+    }
+
+
+    /**
      * Open capture devices specified by configuration service.
+     *
+     * @throws MediaException if opening the devices fails.
      */
     private void openCaptureDevices()
+        throws MediaException
     {
-        mediaControl.openCaptureDevices();
-//        javax.media.protocol.DataSource dataSource = mediaControl.getDataSource();
-//        dataSource.disconnect();
+        mediaControl.initCaptureDevices();
     }
+
+    /**
+     * Close capture devices specified by configuration service.
+     *
+     * @throws MediaException if opening the devices fails.
+     */
+    private void closeCaptureDevices()
+        throws MediaException
+    {
+        mediaControl.closeCaptureDevices();
+    }
+
 
     /**
      * Makes the service implementation close all release any devices or other
@@ -195,7 +208,58 @@ public class MediaServiceImpl
      * collection.
      */
     public void shutdown() {
-        isInitialized = false;
+        isStarted = false;
         return;
+    }
+
+    /**
+     * A valid instance of an SDP factory that call session may use for
+     * manipulating sdp data.
+     *
+     * @return a valid instance of an SDP factory that call session may use for
+     * manipulating sdp data.
+     */
+    public SdpFactory getSdpFactory()
+    {
+        return sdpFactory;
+    }
+
+    /**
+     * A valid instance of the Media Control that the call session may use to
+     * query for supported audio video encodings.
+     *
+     * @return a valid instance of the Media Control that the call session may
+     * use to query for supported audio video encodings.
+     */
+    public MediaControl getMediaControl()
+    {
+        return mediaControl;
+    }
+
+    /**
+     * A valid instance of the DeviceConfiguration that a call session may use
+     * to query for supported support of audio/video capture.
+     *
+     * @return a valid instance of the DeviceConfiguration that a call session
+     * may use to query for supported support of audio/video capture.
+     */
+    public DeviceConfiguration getDeviceConfiguration()
+    {
+        return deviceConfiguration;
+    }
+
+
+//------------------ main method for testing ---------------------------------
+    /**
+     * This method is here most probably only temporarily for the sache of
+     * testing. @todo remove main method.
+     * @param args String[]
+     */
+    public static void main(String[] args)
+        throws Throwable
+    {
+        MediaServiceImpl msimpl = new MediaServiceImpl();
+        msimpl.start();
+        System.out.println("done");
     }
 }

@@ -23,34 +23,51 @@ import net.java.sip.communicator.service.protocol.*;
 public interface MediaService
 {
     /**
-     * The method is meant for use by protocol service implementations when
-     * willing to send an invitation to a remote callee. It is at that point
-     * that the media service would open a port where it would be waiting for
-     * data coming from the specified call participant. Subsequent sdpoffers
-     * requested for the call that the original call participant belonged to,
-     * would receive, the same IP/port couple as the first one in order to allow
-     * conferencing. The associated port will be released once the call has
-     * ended.
-     *
-     * @param callParticipant the call participant meant to receive the offer
-     * @return a String containing an SDP offer.
+     * The name of the property containing the number of binds that a Media
+     * Service Implementation should execute in case a port is already
+     * bound to (each retry would be on a new random port).
      */
-    public String generateSdpOffer(CallParticipant callParticipant);
+    public static final String BIND_RETRIES_PROPERTY_NAME
+        = "net.java.sip.communicator.service.media.BIND_RETRIES";
 
     /**
-     * The method is meant for use by protocol service implementations when
-     * willing to respond to an invitation received from a remote caller. It is
-     * at that point that the media service would open a port where it would
-     * wait for data coming from the specified call participant. Subsequent sdp
-     * offers/answers requested for the call that the original call participant
-     * belonged to will receive the same IP/port couple as the first one in
-     * order to allow conferencing. The associated port will be released once
-     * the call has ended.
-     *
-     * @param callParticipant the call participant meant to receive the answer
-     * @return a String containing an SDP answer.
+     * The name of the property that contains the minimum port number that we'd
+     * like our rtp managers to bind upon.
      */
-    public String generateSdpAnswer(CallParticipant callParticipant);
+    public static final String MIN_PORT_NUMBER_PROPERTY_NAME
+        = "net.java.sip.communicator.service.media.MAX_PORT_NUMBER";
+
+    /**
+     * The name of the property that contains the maximum port number that we'd
+     * like our rtp managers to bind upon.
+     */
+    public static final String MAX_PORT_NUMBER_PROPERTY_NAME
+        = "net.java.sip.communicator.service.media.MAX_PORT_NUMBER";
+
+    /**
+     * The default number of binds that a Media Service Implementation should
+     * execute in case a port is already bound to (each retry would be on a
+     * new random port).
+     */
+    public static final int BIND_RETRIES_DEFAULT_VALUE = 50;
+
+    /**
+     * Creates a call session for <tt>call</tt>. The method allocates audio
+     * and video ports which won't be released until the corresponding call
+     * gets into a DISCONNECTED state. If a session already exists for call,
+     * it is returned and no new session is created. Once created a session
+     * follows the state changes of the call it encapsulates and automatically
+     * adapts to them by starting or stopping transmission and/or reception of
+     * data. A CallSession would autodestroy when the <tt>Call</tt> it
+     * encapsulates enters the CALL_ENDED <tt>CallState</tt>.
+     * <p>
+     * @param call the Call that we'll be encapsulating in the newly created
+     * session.
+     * @return a <tt>CallSession</tt> encapsulating <tt>call</tt>.
+     * @throws MediaException with code IO_ERROR if we fail allocating ports.
+     */
+    public CallSession createCallSession(Call call)
+        throws MediaException;
 
     /**
      * Adds a listener that will be listening for incoming media and changes
@@ -67,24 +84,11 @@ public interface MediaService
     public void removeMediaListener(MediaListener listener);
 
     /**
-     * Initializes the service implementation, and puts it in a state where it
-     * could interoperate with other services.
-     */
-    public void initialize();
-
-    /**
      * Returns true if the media service implementation is initialized and ready
      * for use by other services, and false otherwise.
      *
      * @return true if the service implementation is initialized and ready for
      * use and false otherwise.
      */
-    public boolean isInitialized();
-
-    /**
-     * Makes the service implementation close all release any devices or other
-     * resources that it might have allocated and prepare for shutdown/garbage
-     * collection.
-     */
-    public void shutdown();
+    public boolean isStarted();
 }
