@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
+import java.net.*;
 
 /**
  * The CallParticipant is an interface that represents participants in a call.
@@ -105,4 +106,31 @@ public interface CallParticipant
      * available.
      */
     public byte[] getImage();
+
+    /**
+     * The address that we have used to contact this participant. In cases
+     * where no direct connection has been established with the participant,
+     * this method will return the address that will be first tried when
+     * connection is established (often the one used to connect with the
+     * protocol server). The address may change during a session and
+     *
+     * @return The address that we have used to contact this participant.
+     */
+    public InetSocketAddress getLocalTransportAddress();
+
+    /**
+     * Returns the protocol provider that this participant belongs to.
+     * @return a reference to the ProtocolProviderService that this participant
+     * belongs to.
+     */
+    public ProtocolProviderService getProtocolProvider();
+
+    /**
+     * Returns the contact corresponding to this participant or null if no
+     * particular contact has been associated.
+     * <p>
+     * @return the <tt>Contact</tt> corresponding to this participant or null
+     * if no particular contact has been associated.
+     */
+    public Contact getContact();
 }
