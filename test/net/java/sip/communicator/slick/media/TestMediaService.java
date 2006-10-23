@@ -89,7 +89,7 @@ public class TestMediaService extends TestCase
     public void testIsInitialized()
     {
         // Initial check
-        assertFalse(mediaService.isInitialized());
+        assertFalse(mediaService.isStarted());
 
         // Initialize service
 //emcho: breaks the build on proxenet cause there's no X server there.
@@ -102,8 +102,7 @@ public class TestMediaService extends TestCase
         // This means that we don't trust service impl
 
         // Shutdown service
-        mediaService.shutdown();
-        assertFalse(mediaService.isInitialized());
+        assertFalse(mediaService.isStarted());
     }
 
     /**
@@ -122,8 +121,6 @@ public class TestMediaService extends TestCase
 //        mediaService.initialize();
 //        assertNotNull("A MediaEvent with a registered listener", mediaEvent);
 
-        mediaService.shutdown();
-
         //test remove
         mediaEvent = null;
         mediaService.removeMediaListener(mediaListener);
@@ -135,7 +132,6 @@ public class TestMediaService extends TestCase
 //        assertNull("A MediaEvent after unregistering a listener.",
 //                mediaEvent);
 
-        mediaService.shutdown();
     }
 
 }
