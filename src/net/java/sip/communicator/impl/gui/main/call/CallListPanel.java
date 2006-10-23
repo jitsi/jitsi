@@ -311,9 +311,9 @@ public class CallListPanel
     public void addCallRecord(int index, GuiCallParticipantRecord callRecord)
     {
         if(callList.getModel().getSize() == 0) {
-            callList.addItem(processDate(callRecord.getStartTime()));
-            index ++;
+            callList.addItem(processDate(callRecord.getStartTime()), index);            
         }
+        index ++;
         
         this.callList.addItem(callRecord, index);
         
