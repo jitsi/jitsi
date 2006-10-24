@@ -38,7 +38,7 @@ public class CallParticipantPanel extends JPanel
     
     private Date startDate;
     
-    private Date callTime = new Date(0);
+    private Date callTime;
     
     private Timer timer;
     
@@ -65,6 +65,13 @@ public class CallParticipantPanel extends JPanel
         this.startDate = new Date(System.currentTimeMillis());
         this.timer = new Timer(1000, new CallTimerListener());
         this.timer.setRepeats(true);
+        
+        //Initialize the date to 0
+        //Need to use Calendar because new Date(0) retuns a date where the
+        //hour is intialized to 1.
+        Calendar c = Calendar.getInstance();
+        c.set(0, 0, 0, 0, 0, 0);
+        this.callTime = c.getTime();
         
         if(participant.getDisplayName() != null)
             participantName = participant.getDisplayName();
@@ -121,7 +128,8 @@ public class CallParticipantPanel extends JPanel
                     new Date(System.currentTimeMillis()),
                     startDate);
             
-            callTime = time;
+            callTime.setTime(time.getTime());
+            
             timeLabel.setText(GuiUtils.formatTime(time));
         }
     }
@@ -142,21 +150,30 @@ public class CallParticipantPanel extends JPanel
      * @return the start time of the contained participant call
      */
     public Date getTime()
-    {   
+    {
         return callTime;
     }
     
     /**
-     * Returns this call type : INCOMING_CALL or OUTGOING_CALL
+     * Returns this call type - GuiCallParticipantRecord: INCOMING_CALL
+     * or OUTGOING_CALL
      * @return Returns this call type : INCOMING_CALL or OUTGOING_CALL
      */
     public String getCallType()
     {
-        return GuiCallParticipantRecord.INCOMING_CALL;
+        if(callTime != null)
+            return callType;
+        else
+            return GuiCallParticipantRecord.INCOMING_CALL;
+    }
+    
+    public void setCallType(String callType)
+    {
+        this.callType = callType;
     }
     
     public String getParticipantName()
     {
         return participantName;
-    }
+    }    
 }

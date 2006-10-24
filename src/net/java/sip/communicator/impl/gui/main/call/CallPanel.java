@@ -43,7 +43,7 @@ public class CallPanel
      * Creates an instance of CallPanel for the given call and call type.
      * @param call the call
      */
-    public CallPanel(CallManager callManager, Call call)
+    public CallPanel(CallManager callManager, Call call, String callType)
     {
         this.call = call;
 
@@ -75,20 +75,23 @@ public class CallPanel
 
         this.getViewport().add(mainPanel);
 
-        this.init();
+     
+        this.init(callType);
+
     }
 
     /**
      * Initializes all panels which will contain participants information.
      */
-    public void init()
-    {
+
+    public void init(String callType)
+    {   
         Iterator i = call.getCallParticipants();
 
         while(i.hasNext()) {
             CallParticipant participant = (CallParticipant)i.next();
-
-            this.addCallParticipant(participant);
+        
+            this.addCallParticipant(participant, callType);
         }
     }
 
@@ -97,7 +100,7 @@ public class CallPanel
      *
      * @param participant the call participant
      */
-    private void addCallParticipant(CallParticipant participant)
+    private void addCallParticipant(CallParticipant participant, String callType)
     {
         if(participantsPanels.get(participant) != null)
             return;
@@ -109,6 +112,8 @@ public class CallPanel
         this.participantsPanels.put(participant, participantPanel);
 
         participant.addCallParticipantListener(this);
+        
+        participantPanel.setCallType(callType);
     }
 
     /**
@@ -130,7 +135,7 @@ public class CallPanel
     public void callParticipantAdded(CallParticipantEvent evt)
     {
         if(evt.getSourceCall() == call) {
-            this.addCallParticipant(evt.getSourceCallParticipant());
+            this.addCallParticipant(evt.getSourceCallParticipant(), null);
             this.revalidate();
             this.repaint();
         }
@@ -287,8 +292,7 @@ public class CallPanel
         public void actionPerformed(ActionEvent e)
         {
             mainPanel.remove(participantPanel);
-        }
+
+        }        
     }
-
-
 }

@@ -156,16 +156,7 @@ public class CallManager
                 
                 Call call = callPanel.getCall();
                 
-                ProtocolProviderService pps
-                    = call.getProtocolProvider();
-                
-                Iterator participants = call.getCallParticipants();
-                
-                while(participants.hasNext()) {
-                    CallParticipant participant
-                        = (CallParticipant)participants.next();
-                    answerCall(pps, participant);
-                }
+                answerCall(call);                
             }
             else if(selectedPanel != null
                         && selectedPanel instanceof CallListPanel
@@ -331,7 +322,8 @@ public class CallManager
     {
         Call sourceCall = event.getSourceCall();
                     
-        CallPanel callPanel = new CallPanel(this, sourceCall);
+        CallPanel callPanel = new CallPanel(this, sourceCall,
+                GuiCallParticipantRecord.INCOMING_CALL);
         
         mainFrame.addCallPanel(callPanel);
         
@@ -340,7 +332,7 @@ public class CallManager
         
         SoundLoader.playInLoop(Constants.getDefaultIncomingCallAudio(), 2000);
         
-        activeCalls.put(sourceCall, callPanel);        
+        activeCalls.put(sourceCall, callPanel);
     }
 
     /**
@@ -521,18 +513,9 @@ public class CallManager
      * @param pps the protocol provider to use
      * @param callParticipant the call participant to answer to
      */
-    public void answerCall(ProtocolProviderService pps,
-            CallParticipant callParticipant)
+    public void answerCall(Call call)
     {
-        OperationSetBasicTelephony telephony = mainFrame.getTelephony(pps);
-
-        try {
-            telephony.answerCallParticipant(callParticipant);
-        }
-        catch (OperationFailedException e) {
-            logger.error("Could not answer to : " + callParticipant
-                    + " caused by the following exception: " + e);
-        }
+        new AnswerCallThread(call).start();        
     }
 
     public boolean isCallMetaContact()
@@ -602,7 +585,8 @@ public class CallManager
                 else    
                     createdCall = telephony.createCall(stringContact);
                 
-                CallPanel callPanel = new CallPanel(CallManager.this, createdCall);
+                CallPanel callPanel = new CallPanel(CallManager.this, createdCall,
+                        GuiCallParticipantRecord.OUTGOING_CALL);
                 
                 mainFrame.addCallPanel(callPanel);
                 
@@ -617,5 +601,39 @@ public class CallManager
         }
     }
     
+    /**
+     * Answers all call participants in the given call.
+     */
+    private class AnswerCallThread extends Thread
+    {   
+        private Call call;
+        
+        public AnswerCallThread(Call call)
+        {
+            this.call = call;
+        }
+        
+        public void run()
+        {
+            ProtocolProviderService pps
+            = call.getProtocolProvider();
+        
+            Iterator participants = call.getCallParticipants();
+            
+            while(participants.hasNext()) {
+                CallParticipant participant
+                    = (CallParticipant)participants.next();
+                
+                OperationSetBasicTelephony telephony = mainFrame.getTelephony(pps);
 
+                try {
+                    telephony.answerCallParticipant(participant);
+                }
+                catch (OperationFailedException e) {
+                    logger.error("Could not answer to : " + participant
+                            + " caused by the following exception: " + e);
+                }
+            }
+        }
+    }
 }
