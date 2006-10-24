@@ -821,22 +821,22 @@ public class MediaControl
         else if (sourceFormat.matches(h263Fmt))
         {
             // For H.263, we only support some specific sizes.
-            if (size.width < 128)
-            {
-                width = 128;
-                height = 96;
-            }
-            else if (size.width < 176)
-            {
-                width = 176;
-                height = 144;
-            }
-            else
-            {
+            //if (size.width < 128)
+//            {
+//                width = 128;
+//                height = 96;
+//            }
+            //else if (size.width < 176)
+//            {
+//                width = 176;
+//                height = 144;
+//            }
+            //else
+//            {
                 width = 352;
                 height = 288;
 
-            }
+//            }
         }
         else
         {
