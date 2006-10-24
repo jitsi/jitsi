@@ -58,7 +58,7 @@ public class FirstWizardPage extends JPanel
     private JCheckBox enableAdvOpButton = new JCheckBox(
         Resources.getString("ovverideServerOps"), false);
 
-    private JLabel serverLabel = new JLabel(Resources.getString("server"));
+    private JLabel serverLabel = new JLabel(Resources.getString("registrar"));
     
     private JLabel proxyLabel = new JLabel(Resources.getString("proxy"));
     
