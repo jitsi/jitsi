@@ -378,7 +378,11 @@ public class CallHistoryServiceImpl
                 new Date(Long.parseLong((String)callParticipantStart.get(i))),
                 new Date(Long.parseLong((String)callParticipantEnd.get(i)))
                 );
-            cpr.setState((CallParticipantState)callParticipantStates.get(i));
+
+            // if there is no record about the states (backward compability)
+            if(callParticipantStates != null)
+                cpr.setState((CallParticipantState)callParticipantStates.get(i));
+
             result.getParticipantRecords().add(cpr);
         }
 
