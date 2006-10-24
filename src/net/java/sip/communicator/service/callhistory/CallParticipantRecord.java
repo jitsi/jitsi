@@ -2,6 +2,8 @@ package net.java.sip.communicator.service.callhistory;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.*;
+
 /**
  * Structure used for encapsulating data when writing or reading
  * Call History Data. Also These records are uesd for returning data
@@ -14,6 +16,7 @@ public class CallParticipantRecord
     protected String participantAddress = null;
     protected Date startTime = null;
     protected Date endTime = null;
+    protected CallParticipantState state = CallParticipantState.UNKNOWN;
 
     /**
      * Creates CallParticipantRecord
@@ -57,5 +60,14 @@ public class CallParticipantRecord
     public Date getStartTime()
     {
         return startTime;
+    }
+
+    /**
+     * Returns the actual state of the participant
+     * @return CallParticipantState
+     */
+    public CallParticipantState getState()
+    {
+        return state;
     }
 }

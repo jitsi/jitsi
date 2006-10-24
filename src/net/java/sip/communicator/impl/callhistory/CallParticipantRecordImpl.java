@@ -3,6 +3,7 @@ package net.java.sip.communicator.impl.callhistory;
 import java.util.*;
 
 import net.java.sip.communicator.service.callhistory.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Added some setters to CallParticipantRecord
@@ -50,5 +51,14 @@ public class CallParticipantRecordImpl
     public void setEndTime(Date endTime)
     {
         this.endTime = endTime;
+    }
+
+    /**
+     * Sets the participant state
+     * @param state CallParticipantState
+     */
+    public void setState(CallParticipantState state)
+    {
+        this.state = state;
     }
 }

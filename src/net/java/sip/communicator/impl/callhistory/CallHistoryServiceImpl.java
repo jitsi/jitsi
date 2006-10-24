@@ -41,7 +41,7 @@ public class CallHistoryServiceImpl
 
     private static String[] STRUCTURE_NAMES =
         new String[] { "callStart", "callEnd", "dir", "callParticipantIDs",
-            "callParticipantStart", "callParticipantEnd" };
+            "callParticipantStart", "callParticipantEnd","callParticipantStates" };
 
     private static HistoryRecordStructure recordStructure =
         new HistoryRecordStructure(STRUCTURE_NAMES);
@@ -293,7 +293,6 @@ public class CallHistoryServiceImpl
         return result;
     }
 
-
     /**
      * Returns the history by specified local and remote contact
      * if one of them is null the default is used
@@ -340,6 +339,7 @@ public class CallHistoryServiceImpl
         LinkedList callParticipantIDs = null;
         LinkedList callParticipantStart = null;
         LinkedList callParticipantEnd = null;
+        LinkedList callParticipantStates = null;
 
         // History structure
         // 0 - callStart
@@ -366,6 +366,8 @@ public class CallHistoryServiceImpl
                 callParticipantStart = getCSVs(value);
             else if(propName.equals(STRUCTURE_NAMES[5]))
                 callParticipantEnd = getCSVs(value);
+            else if(propName.equals(STRUCTURE_NAMES[6]))
+                callParticipantStates = getStates(value);
         }
 
         for (int i = 0; i < callParticipantIDs.size(); i++)
@@ -376,6 +378,7 @@ public class CallHistoryServiceImpl
                 new Date(Long.parseLong((String)callParticipantStart.get(i))),
                 new Date(Long.parseLong((String)callParticipantEnd.get(i)))
                 );
+            cpr.setState((CallParticipantState)callParticipantStates.get(i));
             result.getParticipantRecords().add(cpr);
         }
 
@@ -397,6 +400,55 @@ public class CallHistoryServiceImpl
             result.add(toks.nextToken());
         }
         return result;
+    }
+
+    /**
+     * Get the delimited strings and converts them to CallParticipantState
+     * @param str String delimited string states
+     * @return LinkedList the converted values list
+     */
+    private LinkedList getStates(String str)
+    {
+        LinkedList result = new LinkedList();
+
+        LinkedList stateStrs = getCSVs(str);
+
+        Iterator iter = stateStrs.iterator();
+        while (iter.hasNext())
+        {
+            String item = (String) iter.next();
+            result.addLast(convertStateStringToState(item));
+        }
+
+        return result;
+    }
+
+    /**
+     * Converts the state string to state
+     * @param state String the string
+     * @return CallParticipantState the state
+     */
+    private CallParticipantState convertStateStringToState(String state)
+    {
+        if(state.equals(CallParticipantState._CONNECTED))
+            return CallParticipantState.CONNECTED;
+        else if(state.equals(CallParticipantState._BUSY))
+            return CallParticipantState.BUSY;
+        else if(state.equals(CallParticipantState._FAILED))
+            return CallParticipantState.FAILED;
+        else if(state.equals(CallParticipantState._DISCONNECTED))
+            return CallParticipantState.DISCONNECTED;
+        else if(state.equals(CallParticipantState._ALERTING_REMOTE_SIDE))
+            return CallParticipantState.ALERTING_REMOTE_SIDE;
+        else if(state.equals(CallParticipantState._CONNECTING))
+            return CallParticipantState.CONNECTING;
+        else if(state.equals(CallParticipantState._ON_HOLD))
+            return CallParticipantState.ON_HOLD;
+        else if(state.equals(CallParticipantState._INITIATING_CALL))
+            return CallParticipantState.INITIATING_CALL;
+        else if(state.equals(CallParticipantState._INCOMING_CALL))
+            return CallParticipantState.INCOMING_CALL;
+        else return CallParticipantState.UNKNOWN;
     }
 
     /**
@@ -461,6 +513,7 @@ public class CallHistoryServiceImpl
             StringBuffer callParticipantIDs = new StringBuffer();
             StringBuffer callParticipantStartTime = new StringBuffer();
             StringBuffer callParticipantEndTime = new StringBuffer();
+            StringBuffer callParticipantStates = new StringBuffer();
 
             Iterator iter = callRecord.getParticipantRecords().iterator();
             while (iter.hasNext())
@@ -470,12 +523,14 @@ public class CallHistoryServiceImpl
                     callParticipantIDs.append(DELIM);
                     callParticipantStartTime.append(DELIM);
                     callParticipantEndTime.append(DELIM);
+                    callParticipantStates.append(DELIM);
                 }
 
                 CallParticipantRecord item = (CallParticipantRecord) iter.next();
                 callParticipantIDs.append(item.getParticipantAddress());
                 callParticipantStartTime.append(String.valueOf(item.getStartTime().getTime()));
                 callParticipantEndTime.append(String.valueOf(item.getEndTime().getTime()));
+                callParticipantStates.append(item.getState().getStateString());
             }
 
             historyWriter.addRecord(new String[] {
@@ -484,7 +539,8 @@ public class CallHistoryServiceImpl
                     callRecord.getDirection(),
                     callParticipantIDs.toString(),
                     callParticipantStartTime.toString(),
-                    callParticipantEndTime.toString()},
+                    callParticipantEndTime.toString(),
+                    callParticipantStates.toString()},
                     new Date()); // this date is when the history record is written
         } catch (IOException e)
         {
@@ -718,7 +774,6 @@ public class CallHistoryServiceImpl
      */
     public void outgoingCallCreated(CallEvent event)
     {
-        logger.info("outgoingCallCreated");
         handleNewCall(event.getSourceCall(), CallRecord.OUT);
     }
 
@@ -728,7 +783,6 @@ public class CallHistoryServiceImpl
      */
     public void callEnded(CallEvent event)
     {
-        logger.info("callEnded");
         Date endTime = new Date();
 
         CallRecordImpl callRecord = findCallRecord(event.getSourceCall());
@@ -756,6 +810,40 @@ public class CallHistoryServiceImpl
         if(callRecord == null)
             return;
 
+        callParticipant.addCallParticipantListener(new CallParticipantListener()
+        {
+            public void participantStateChanged(CallParticipantChangeEvent evt)
+            {
+                if(evt.getNewValue().equals(CallParticipantState.DISCONNECTED))
+                    return;
+                else
+                {
+                    CallParticipantRecordImpl participantRecord =
+                        findParticipantRecord(evt.getSourceCallParticipant());
+
+                    if(participantRecord == null)
+                        return;
+
+                    participantRecord.
+                        setState((CallParticipantState)evt.getNewValue());
+
+                    //Disconnected / Busy
+                    //Disconnected / Connecting - fail
+                    //Disconnected / Connected
+                }
+            }
+
+            public void participantDisplayNameChanged(
+                CallParticipantChangeEvent evt){}
+            public void participantAddressChanged(
+                CallParticipantChangeEvent evt){}
+            public void participantImageChanged(
+                CallParticipantChangeEvent evt){}
+
+            public void participantTransportAddressChanged(
+                CallParticipantChangeEvent evt){}
+        });
+
         CallParticipantRecordImpl newRec = new CallParticipantRecordImpl(
             callParticipant.getAddress(),
             new Date(),
@@ -782,6 +870,8 @@ public class CallHistoryServiceImpl
         if(cpRecord == null)
             return;
 
+        if(!callParticipant.getState().equals(CallParticipantState.DISCONNECTED))
+            cpRecord.setState(callParticipant.getState());
         cpRecord.setEndTime(new Date());
     }
 
@@ -793,6 +883,7 @@ public class CallHistoryServiceImpl
     private CallRecordImpl findCallRecord(Call call)
     {
         Iterator iter = currentCallRecords.iterator();
+
         while (iter.hasNext())
         {
             CallRecordImpl item = (CallRecordImpl) iter.next();
@@ -801,6 +892,23 @@ public class CallHistoryServiceImpl
         }
 
         return null;
+    }
+
+    /**
+     * Returns the participant record for the given participant
+     * @param callParticipant CallParticipant participant
+     * @return CallParticipantRecordImpl the corresponding record
+     */
+    private CallParticipantRecordImpl findParticipantRecord(
+        CallParticipant callParticipant)
+    {
+        CallRecord record = findCallRecord(callParticipant.getCall());
+
+        if (record == null)
+            return null;
+
+        return (CallParticipantRecordImpl) record.findParticipantRecord(
+                callParticipant.getAddress());
     }
 
     /**
@@ -930,8 +1038,6 @@ public class CallHistoryServiceImpl
                                      evt.getSourceCall());
         }
 
-        public void callStateChanged(CallChangeEvent evt)
-        {
-        }
+        public void callStateChanged(CallChangeEvent evt){}
     }
 }
