@@ -412,10 +412,12 @@ public class CallSessionImpl
 
         //create an sdp answer.
         SessionDescription sdpAnswer = createSessionDescription(sdpOffer);
+
+        //extract the remote addresses.
         Vector mediaDescriptions = null;
         try
         {
-            mediaDescriptions = sdpAnswer.getMediaDescriptions(true);
+            mediaDescriptions = sdpOffer.getMediaDescriptions(true);
         }
         catch (SdpException exc)
         {
@@ -427,7 +429,7 @@ public class CallSessionImpl
 
 
         //add the RTP targets
-        this.initStreamTargets(sdpAnswer.getConnection(), mediaDescriptions);
+        this.initStreamTargets(sdpOffer.getConnection(), mediaDescriptions);
 
         //create and init the streams (don't start streaming just yet but wait
         //for the call to enter the connected state).
@@ -1022,9 +1024,7 @@ public class CallSessionImpl
                             +"Will retry with another port", exc);
                 //get a pair port number between minPortNumber and
                 //maxPortNumber.
-                port = NetworkUtils.getRandomPortNumber(minPortNumber
-                                                      , maxPortNumber
-                                                      , true);
+                port +=2;
             }
             catch (IOException exc)
             {
