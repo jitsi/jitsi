@@ -1310,10 +1310,14 @@ GainControl gc = (GainControl)player.getControl(GainControl.class.getName());
  }
  else
     logger.debug("Player does not have gain control.");
-//javax.swing.JFrame frame = new javax.swing.JFrame();
-//frame.getContentPane().add( player.getControlPanelComponent() );
-//frame.pack();
-//frame.setVisible(true);
+java.awt.Component vc = player.getVisualComponent();
+if(vc != null)
+{
+    javax.swing.JFrame frame = new javax.swing.JFrame();
+    frame.getContentPane().add(vc);
+    frame.pack();
+    frame.setVisible(true);
+}
         }
         if (ce instanceof StartEvent) {
             logger.debug("Received a StartEvent");
