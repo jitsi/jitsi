@@ -8,8 +8,10 @@ package net.java.sip.communicator.impl.protocol.icq;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The ICQ implementation of the ProtocolProviderFactory.
@@ -17,7 +19,10 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class ProtocolProviderFactoryIcqImpl
     extends ProtocolProviderFactory
-{
+{    
+    private Logger logger = Logger.getLogger(
+            ProtocolProviderFactoryIcqImpl.class);
+    
     /**
      * The table that we store our accounts in.
      */
@@ -164,6 +169,21 @@ public class ProtocolProviderFactoryIcqImpl
      */
     public boolean uninstallAccount(AccountID accountID)
     {
+        //unregister the protocol provider
+        ServiceReference serRef = getProviderForAccount(accountID);
+        
+        ProtocolProviderService protocolProvider
+            = (ProtocolProviderService) IcqActivator.getBundleContext()
+                .getService(serRef);
+
+        try {
+            protocolProvider.unregister();
+        }
+        catch (OperationFailedException e) {           
+            logger.error("Failed to unregister protocol provider for account : "
+                    + accountID + " caused by : " + e);
+        }
+        
         ServiceRegistration registration
             = (ServiceRegistration)registeredAccounts.remove(accountID);
 

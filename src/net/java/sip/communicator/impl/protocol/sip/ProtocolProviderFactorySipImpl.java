@@ -2,9 +2,10 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * A SIP implementation of the protocol provider factory interface.
@@ -213,6 +214,21 @@ public class ProtocolProviderFactorySipImpl
      */
     public boolean uninstallAccount(AccountID accountID)
     {
+        //unregister the protocol provider
+        ServiceReference serRef = getProviderForAccount(accountID);
+        
+        ProtocolProviderService protocolProvider
+            = (ProtocolProviderService) SipActivator.getBundleContext()
+                .getService(serRef);
+
+        try {
+            protocolProvider.unregister();
+        }
+        catch (OperationFailedException e) {           
+            logger.error("Failed to unregister protocol provider for account : "
+                    + accountID + " caused by : " + e);
+        }
+        
         ServiceRegistration registration
             = (ServiceRegistration) registeredAccounts.remove(accountID);
 
