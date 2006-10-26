@@ -273,6 +273,9 @@ public class CallSessionImpl
             }
         }
 
+        rtpManager.removeTargets("Session ended.");
+        rtpManager.dispose();
+
         //stop all video streams
         rtpManager = getAudioRtpManager();
 
@@ -293,7 +296,8 @@ public class CallSessionImpl
             }
         }
 
-
+        rtpManager.removeTargets("Session ended.");
+        rtpManager.dispose();
     }
 
 
