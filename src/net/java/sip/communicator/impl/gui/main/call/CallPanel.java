@@ -38,82 +38,132 @@ public class CallPanel
     private String title;
 
     private Call call;
+    
+    private String callType;
+    
+    public CallPanel(CallManager callManager, Call call, String callType)
+    {
+        this.callManager = callManager;
+        
+        this.mainPanel.setBorder(
+                BorderFactory.createEmptyBorder(20, 10, 20, 10));
+
+        int contactsCount = call.getCallParticipantsCount();
+
+        if(contactsCount > 0) {
+            CallParticipant participant
+                = (CallParticipant) call.getCallParticipants().next();
+                        
+            this.title = participant.getDisplayName();
+
+            if(contactsCount < 2) {
+                this.mainPanel.setLayout(new BorderLayout());
+            }
+            else {
+                int rows = contactsCount/2 + contactsCount%2;
+                this.mainPanel.setLayout(new GridLayout(rows, 2));
+            }
+        }
+
+        this.setCall(call, callType);
+        
+        this.getViewport().add(mainPanel);
+    }
+    
+    /**
+     * Creates an instance of CallPanel for the given call and call type.
+     * @param call the call
+     */
+    public CallPanel(CallManager callManager, Vector contacts)
+    {
+        this.callManager = callManager;
+        
+        this.mainPanel.setBorder(
+                BorderFactory.createEmptyBorder(20, 10, 20, 10));
+
+        int contactsCount = contacts.size();
+
+        if(contactsCount > 0) {
+            String firstContact = (String) contacts.get(0);
+            
+            this.title = firstContact;
+
+            if(contactsCount < 2) {
+                this.mainPanel.setLayout(new BorderLayout());
+            }
+            else {
+                int rows = contactsCount/2 + contactsCount%2;
+                this.mainPanel.setLayout(new GridLayout(rows, 2));
+            }
+        }
+
+        Iterator i = contacts.iterator();
+
+        while(i.hasNext()) {
+            String contact = (String)i.next();
+        
+            this.addCallParticipant(contact, callType);
+        }
+        
+        this.getViewport().add(mainPanel);
+    }
 
     /**
      * Creates an instance of CallPanel for the given call and call type.
      * @param call the call
      */
-    public CallPanel(CallManager callManager, Call call, String callType)
+    public CallPanel(CallManager callManager, String contactString)
     {
-        this.call = call;
-
         this.callManager = callManager;
-        this.call.addCallChangeListener(this);
-
+        
         this.mainPanel.setBorder(
                 BorderFactory.createEmptyBorder(20, 10, 20, 10));
-
-        int participantsCount = call.getCallParticipantsCount();
-
-        if(participantsCount > 0) {
-            CallParticipant participant
-                = ((CallParticipant)call.getCallParticipants().next());
-
-            if(participant.getDisplayName() != null)
-                this.title = participant.getDisplayName();
-            else
-                this.title = participant.getAddress();
-
-            if(participantsCount < 2) {
-                this.mainPanel.setLayout(new BorderLayout());
-            }
-            else {
-                int rows = participantsCount/2 + participantsCount%2;
-                this.mainPanel.setLayout(new GridLayout(rows, 2));
-            }
-        }
-
-        this.getViewport().add(mainPanel);
-
-     
-        this.init(callType);
-
-    }
-
-    /**
-     * Initializes all panels which will contain participants information.
-     */
-
-    public void init(String callType)
-    {   
-        Iterator i = call.getCallParticipants();
-
-        while(i.hasNext()) {
-            CallParticipant participant = (CallParticipant)i.next();
+            
+        this.title = contactString;
+            
+        this.mainPanel.setLayout(new BorderLayout());
         
-            this.addCallParticipant(participant, callType);
-        }
+        this.addCallParticipant(contactString, callType);
+        
+        this.getViewport().add(mainPanel);
     }
 
+    
+    /**
+     * Cteates and adds a panel for a call participant.
+     *
+     * @param participantName the call participant name
+     * @param callType the type of call: INCOMING or OUTGOING
+     */
+    private CallParticipantPanel addCallParticipant(
+            String participantName, String callType)
+    {
+        CallParticipantPanel participantPanel
+            = new CallParticipantPanel(participantName);
+
+        this.mainPanel.add(participantPanel);
+        
+        participantPanel.setCallType(callType);
+        
+        return participantPanel;
+    }
+    
     /**
      * Cteates and adds a panel for a call participant.
      *
      * @param participant the call participant
      */
-    private void addCallParticipant(CallParticipant participant, String callType)
+    private CallParticipantPanel addCallParticipant(
+            CallParticipant participant, String callType)
     {
-        if(participantsPanels.get(participant) != null)
-            return;
-
         CallParticipantPanel participantPanel
             = new CallParticipantPanel(participant);
 
         this.mainPanel.add(participantPanel);
-        this.participantsPanels.put(participant, participantPanel);
-
-        participant.addCallParticipantListener(this);
         
         participantPanel.setCallType(callType);
+        
+        return participantPanel;
     }
 
     /**
@@ -135,7 +185,9 @@ public class CallPanel
     public void callParticipantAdded(CallParticipantEvent evt)
     {
         if(evt.getSourceCall() == call) {
-            this.addCallParticipant(evt.getSourceCallParticipant(), null);
+            this.addCallParticipant(
+                    evt.getSourceCallParticipant().getDisplayName(), null);
+            
             this.revalidate();
             this.repaint();
         }
@@ -265,6 +317,33 @@ public class CallPanel
         return call;
     }
 
+    public void setCall(Call call, String callType)
+    {
+        this.call = call;
+        this.callType = callType;
+        
+        this.call.addCallChangeListener(this);
+        
+        this.mainPanel.removeAll();
+        
+        Iterator participants = call.getCallParticipants();
+        
+        while(participants.hasNext()) {
+            
+            CallParticipant participant = (CallParticipant) participants.next();
+            
+            if(participantsPanels.contains(participant))
+                return;
+            
+            participant.addCallParticipantListener(this);
+            
+            CallParticipantPanel participantPanel = this.addCallParticipant(
+                    participant, callType);
+            
+            this.participantsPanels.put(participant, participantPanel);
+        }
+    }
+    
     /**
      * Indicates that a change has occurred in the transport address that we
      * use to communicate with the participant.

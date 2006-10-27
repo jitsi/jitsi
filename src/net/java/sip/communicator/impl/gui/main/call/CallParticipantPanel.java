@@ -30,7 +30,9 @@ public class CallParticipantPanel extends JPanel
     private JPanel namePanel = new JPanel(new GridLayout(0, 1));
     
     private JLabel nameLabel = new JLabel("", JLabel.CENTER);
-     
+    
+    private JLabel stateLabel = new JLabel("Unknown", JLabel.CENTER);
+    
     private JLabel timeLabel = new JLabel("00:00:00", JLabel.CENTER);
     
     private JLabel photoLabel = new JLabel(new ImageIcon(
@@ -42,26 +44,34 @@ public class CallParticipantPanel extends JPanel
     
     private Timer timer;
     
-    private JLabel stateLabel;
-    
     private String callType;
     
     private String participantName;
     
-
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
      * 
-     * @param participant the call participant
-     * @param callType the call type. INCOMING_CALL or OUTGOING_CALL
+     * @param callParticipant a call participant
      */
-    public CallParticipantPanel(CallParticipant participant)
+    public CallParticipantPanel(CallParticipant callParticipant)
+    {   
+        this(callParticipant.getDisplayName());
+        this.stateLabel.setText(callParticipant.getState().getStateString());
+    }
+    
+    /**
+     * Creates a <tt>CallParticipantPanel</tt> for the given participant name.
+     * 
+     * @param participantName a string representing the participant name
+     */
+    public CallParticipantPanel(String participantName)
     {
         super(new BorderLayout());
         
-        this.stateLabel = new JLabel(participant.getState().getStateString(),
-                JLabel.CENTER);
+        this.participantName = participantName;
         
+        this.nameLabel.setText(participantName);
+                
         this.startDate = new Date(System.currentTimeMillis());
         this.timer = new Timer(1000, new CallTimerListener());
         this.timer.setRepeats(true);
@@ -72,13 +82,6 @@ public class CallParticipantPanel extends JPanel
         Calendar c = Calendar.getInstance();
         c.set(0, 0, 0, 0, 0, 0);
         this.callTime = c.getTime();
-        
-        if(participant.getDisplayName() != null)
-            participantName = participant.getDisplayName();
-        else
-            participantName = participant.getAddress();
-        
-        this.nameLabel.setText(participantName);
         
         namePanel.add(nameLabel);
         namePanel.add(stateLabel);

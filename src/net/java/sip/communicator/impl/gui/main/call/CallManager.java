@@ -18,6 +18,7 @@ import javax.swing.event.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -73,7 +74,7 @@ public class CallManager
     private MainFrame mainFrame;
 
     private Hashtable activeCalls = new Hashtable();
-
+    
     private boolean isShown;
     
     private boolean isCallMetaContact;
@@ -142,10 +143,8 @@ public class CallManager
         
         if (buttonName.equals("call")) {
             
-            Object o = mainFrame.getContactListPanel().getContactList()
-                .getSelectedValue();
-            
             Component selectedPanel = mainFrame.getSelectedPanel();
+            
             //call button is pressed over an already open call panel
             if(selectedPanel != null
                     && selectedPanel instanceof CallPanel
@@ -173,31 +172,51 @@ public class CallManager
                 
                 createCall(stringContact);
             }   
-            //call button is pressed when a meta contact is selected
-            else if(isCallMetaContact && o != null && o instanceof MetaContact) {
+            else if(selectedPanel != null
+                    && selectedPanel instanceof ContactListPanel){
+            
+                //call button is pressed when a meta contact is selected
+                if(isCallMetaContact) {
+                    
+                    Object[] selectedContacts = mainFrame.getContactListPanel()
+                        .getContactList().getSelectedValues();
+                    
+                    Vector telephonyContacts = new Vector();
+                    
+                    for(int i = 0; i < selectedContacts.length; i ++) {
+                    
+                        Object o = selectedContacts[i];
+                        
+                        if(o instanceof MetaContact) {
+                            
+                            Contact contact = getTelephonyContact((MetaContact)o);
+                            
+                            if(contact != null) 
+                                telephonyContacts.add(contact);
+                            else {
+                                JOptionPane.showMessageDialog(this.mainFrame,
+                                Messages.getString("contactNotSupportingTelephony",
+                                                    contact.getDisplayName()),
+                                Messages.getString("warning"),
+                                JOptionPane.WARNING_MESSAGE);
+                            }
+                        }
+                    }
                 
-                MetaContact metaContact
-                    = (MetaContact)o;
-
-                Contact contact = getTelephonyContact(metaContact);
-                
-                if(contact != null) {
-                    createCall(contact);
+                    if(telephonyContacts.size() > 0)
+                        createCall(telephonyContacts);
+                    
+                }                
+                else if(!phoneNumberCombo.isComboFieldEmpty()) {
+                    
+                    //if no contact is selected checks if the user has chosen or has
+                    //writen something in the phone combo box
+                    
+                    String stringContact
+                        = phoneNumberCombo.getEditor().getItem().toString();
+                    
+                    createCall(stringContact);
                 }
-                else {
-                    JOptionPane.showMessageDialog(this.mainFrame,
-                            Messages.getString("contactNotSupportingTelephony"),
-                            Messages.getString("warning"),
-                            JOptionPane.WARNING_MESSAGE);
-                }
-            }
-            //if no contact is selected checks if the user has chosen or has
-            //writen something in the phone combo box
-            else if(!phoneNumberCombo.isComboFieldEmpty()) {
-                String stringContact
-                    = phoneNumberCombo.getEditor().getItem().toString();
-                
-                createCall(stringContact);
             }
         }
         else if (buttonName.equalsIgnoreCase("hangup")) {
@@ -535,7 +554,11 @@ public class CallManager
      */
     public void createCall(String contact)
     {
-        new CreateCallThread(contact).start();
+        CallPanel callPanel = new CallPanel(this, contact);
+        
+        mainFrame.addCallPanel(callPanel);
+        
+        new CreateCallThread(contact, callPanel).start();
     }
     
     /**
@@ -543,9 +566,13 @@ public class CallManager
      * 
      * @param contact the protocol contact to call to
      */
-    public void createCall(Contact contact)
+    public void createCall(Vector contacts)
     {
-        new CreateCallThread(contact).start();
+        CallPanel callPanel = new CallPanel(this, contacts);
+        
+        mainFrame.addCallPanel(callPanel);
+                
+        new CreateCallThread(contacts, callPanel).start();
     }    
     
     /**
@@ -553,13 +580,15 @@ public class CallManager
      */
     private class CreateCallThread extends Thread
     {
-        Contact contact;
+        Vector contacts;
+        CallPanel callPanel;
         String stringContact;
         OperationSetBasicTelephony telephony;
         
-        public CreateCallThread(String contact)
+        public CreateCallThread(String contact, CallPanel callPanel)
         {
             this.stringContact = contact;
+            this.callPanel = callPanel;
             
             ProtocolProviderService pps
                 = getDefaultTelephonyProvider();
@@ -568,11 +597,16 @@ public class CallManager
                 telephony = mainFrame.getTelephony(pps);
         }
         
-        public CreateCallThread(Contact contact)
+        public CreateCallThread(Vector contacts, CallPanel callPanel)
         {
-            this.contact = contact;
+            this.contacts = contacts;
+            this.callPanel = callPanel;
+
+            ProtocolProviderService pps
+                = getDefaultTelephonyProvider();
             
-            telephony = mainFrame.getTelephony(contact.getProtocolProvider());
+            if(pps != null) 
+                telephony = mainFrame.getTelephony(pps);
         }
         
         public void run()
@@ -580,15 +614,18 @@ public class CallManager
             try {
                 Call createdCall;
                 
-                if(contact != null)
+                if(contacts != null) {
+                    //in the future here we will have the posibility to call
+                    //more than one contact
+                    Contact contact = (Contact)contacts.get(0);
+                    
                     createdCall = telephony.createCall(contact);
+                }
                 else    
                     createdCall = telephony.createCall(stringContact);
                 
-                CallPanel callPanel = new CallPanel(CallManager.this, createdCall,
-                        GuiCallParticipantRecord.OUTGOING_CALL);
-                
-                mainFrame.addCallPanel(callPanel);
+                callPanel.setCall(
+                        createdCall, GuiCallParticipantRecord.OUTGOING_CALL);
                 
                 activeCalls.put(createdCall, callPanel);
             }
@@ -616,7 +653,7 @@ public class CallManager
         public void run()
         {
             ProtocolProviderService pps
-            = call.getProtocolProvider();
+                = call.getProtocolProvider();
         
             Iterator participants = call.getCallParticipants();
             
