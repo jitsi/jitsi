@@ -150,7 +150,13 @@ public class SmartComboBox extends JComboBox
     
         private String prefix;
         public StartsWithFilter(String prefix) { this.prefix = prefix; }
-        public boolean accept(Object o) { return o.toString().startsWith(prefix); }
+        public boolean accept(Object o)
+        {
+            if(o != null)
+                return o.toString().startsWith(prefix);
+            
+            return false;
+        }
     }
     
     public class CallComboEditor
