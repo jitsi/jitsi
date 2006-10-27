@@ -60,6 +60,7 @@ public class ContactListModel extends AbstractListModel {
      * @param endIndex The end index of the range.
      */
     public void contentChanged(int startIndex, int endIndex) {
+        
         fireContentsChanged(this, startIndex, endIndex);
     }
 
@@ -71,11 +72,8 @@ public class ContactListModel extends AbstractListModel {
      * @param endIndex The end index of the range.
      */
     public void contentAdded(final int startIndex, final int endIndex) {
-        SwingUtilities.invokeLater(new Thread() {
-            public void run() {
-                fireIntervalAdded(this, startIndex, endIndex);
-            }
-        });
+        
+        fireIntervalAdded(this, startIndex, endIndex);
     }
 
     /**
@@ -85,11 +83,8 @@ public class ContactListModel extends AbstractListModel {
      * @param endIndex The end index of the range.
      */
     public void contentRemoved(final int startIndex, final int endIndex) {
-        SwingUtilities.invokeLater(new Thread() {
-            public void run() {
-                fireIntervalRemoved(this, startIndex, endIndex);
-            }
-        });
+        
+        fireIntervalRemoved(this, startIndex, endIndex);
     }
 
     /**

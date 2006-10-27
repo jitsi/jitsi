@@ -119,6 +119,9 @@ public class ContactRightButtonMenu
 
         this.removeContactMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.DELETE_16x16_ICON)));
+        
+        this.moveSubcontactMenu.setIcon(new ImageIcon(ImageLoader
+                .getImage(ImageLoader.MOVE_CONTACT_ICON)));
 
         //Initialize the addSubcontact menu.
         Iterator providers = this.mainFrame.getProtocolProviders();

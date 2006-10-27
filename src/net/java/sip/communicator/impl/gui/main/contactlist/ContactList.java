@@ -34,6 +34,12 @@ public class ContactList extends JList
                 MouseListener,
                 MouseMotionListener {
 
+    private static final String ADD_OPERATION = "AddOperation";
+    
+    private static final String REMOVE_OPERATION = "RemoveOperation";
+    
+    private static final String MODIFY_OPERATION = "ModifyOperation";
+        
     private Logger logger = Logger.getLogger(ContactList.class.getName());
 
     private MetaContactListService contactList;
@@ -48,11 +54,7 @@ public class ContactList extends JList
 
     private MainFrame mainFrame;
 
-    private Object refreshLock = new Object();
-
-    private boolean isModified = false;
-
-    private Vector groupsToModify = new Vector();
+    private Hashtable contentToRefresh = new Hashtable();
 
     private boolean refreshEnabled = true;
 
@@ -100,81 +102,104 @@ public class ContactList extends JList
      * Handles the <tt>MetaContactEvent</tt>.
      * Refreshes the list model.
      */
-    public void metaContactAdded(MetaContactEvent evt) {
-        this.refreshAll();
+    public void metaContactAdded(MetaContactEvent evt)
+    {   
+        this.addContact(evt.getSourceMetaContact());
     }
 
     /**
      * Handles the <tt>MetaContactRenamedEvent</tt>.
      * Refreshes the list when a meta contact is renamed.
      */
-    public void metaContactRenamed(MetaContactRenamedEvent evt) {
-        this.refreshAll();
+    public void metaContactRenamed(MetaContactRenamedEvent evt)
+    {
+        this.modifyContact(evt.getSourceMetaContact());
     }
 
     /**
      * Handles the <tt>ProtoContactEvent</tt>.
      * Refreshes the list when a protocol contact has been added.
      */
-    public void protoContactAdded(ProtoContactEvent evt) {
-        this.refreshAll();
+    public void protoContactAdded(ProtoContactEvent evt)
+    {
+        this.modifyContact(evt.getNewParent());
     }
 
     /**
      * Handles the <tt>ProtoContactEvent</tt>.
      * Refreshes the list when a protocol contact has been removed.
      */
-    public void protoContactRemoved(ProtoContactEvent evt) {
-        this.refreshAll();
+    public void protoContactRemoved(ProtoContactEvent evt)
+    {
+        this.modifyContact(evt.getOldParent());
+        this.modifyContact(evt.getNewParent());
     }
 
     /**
      * Handles the <tt>ProtoContactEvent</tt>.
      * Refreshes the list when a protocol contact has been moved.
      */
-    public void protoContactMoved(ProtoContactEvent evt) {
-        this.refreshAll();
+    public void protoContactMoved(ProtoContactEvent evt)
+    {
+        this.modifyContact(evt.getOldParent());
+        this.modifyContact(evt.getNewParent());
     }
 
     /**
      * Handles the <tt>MetaContactEvent</tt>.
      * Refreshes the list when a meta contact has been removed.
      */
-    public void metaContactRemoved(MetaContactEvent evt) {
-        this.refreshAll();
+    public void metaContactRemoved(MetaContactEvent evt)
+    {
+        this.removeContact(evt.getSourceMetaContact());
     }
 
     /**
      * Handles the <tt>MetaContactMovedEvent</tt>.
      * Refreshes the list when a meta contact has been moved.
      */
-    public void metaContactMoved(MetaContactMovedEvent evt) {
-        this.refreshAll();
+    public void metaContactMoved(MetaContactMovedEvent evt)
+    {
+        this.modifyGroup(evt.getNewParent());
+        this.modifyGroup(evt.getOldParent());
     }
 
     /**
      * Handles the <tt>MetaContactGroupEvent</tt>.
      * Refreshes the list model when a new meta contact group has been added.
      */
-    public void metaContactGroupAdded(MetaContactGroupEvent evt) {
-        this.refreshAll();
-        //this.ensureIndexIsVisible(0);
+    public void metaContactGroupAdded(MetaContactGroupEvent evt)
+    {
+        System.out.println("GROUP ADDED========" + evt.getSourceMetaContactGroup());
+        MetaContactGroup group = evt.getSourceMetaContactGroup();
+        
+        if(!group.equals(contactList.getRoot()))
+            this.addGroup(group);
     }
 
     /**
      * Handles the <tt>MetaContactGroupEvent</tt>.
      * Refreshes the list when a meta contact group has been modified.
      */
-    public void metaContactGroupModified(MetaContactGroupEvent evt) {
-        this.refreshAll();
+    public void metaContactGroupModified(MetaContactGroupEvent evt)
+    {
+        MetaContactGroup group = evt.getSourceMetaContactGroup();
+        
+        if(!group.equals(contactList.getRoot()))
+            this.modifyGroup(evt.getSourceMetaContactGroup());
     }
 
     /**
      * Handles the <tt>MetaContactGroupEvent</tt>.
      * Refreshes the list when a meta contact group has been removed.
      */
-    public void metaContactGroupRemoved(MetaContactGroupEvent evt) {
-        this.refreshAll();
+    public void metaContactGroupRemoved(MetaContactGroupEvent evt)
+    {
+        System.out.println("GROUP REMOVED=======" + evt.getSourceMetaContactGroup());
+        MetaContactGroup group = evt.getSourceMetaContactGroup();
+        
+        if(!group.equals(contactList.getRoot()))
+            this.removeGroup(evt.getSourceMetaContactGroup());
     }
 
     /**
@@ -187,7 +212,7 @@ public class ContactList extends JList
     public void childContactsReordered(MetaContactGroupEvent evt) {
         if(currentlySelectedObject != null)
             setSelectedValue(currentlySelectedObject);
-        this.refreshGroup(evt.getSourceMetaContactGroup());
+        this.modifyGroup(evt.getSourceMetaContactGroup());
     }
 
 
@@ -641,59 +666,142 @@ public class ContactList extends JList
      * Takes care of keeping the contact list up to date.
      */
     private class ContactListRefresh extends Thread
-    {
+    {   
         public void run()
         {
-            while(refreshEnabled){
-                synchronized (refreshLock) {
-                    if(!isModified) {
-                        try {
-                            refreshLock.wait(9000);
-                            isModified = true;
-                        }
-                        catch (InterruptedException exc) {
-                            logger.error("Storing contact list failed", exc);
-                        }
-                    }
-                }
-                if(isModified){
-                    if(groupsToModify.size() > 0) {
-                        for(int i = 0; i < groupsToModify.size(); i ++) {
+            try {
+                Map copyContentToRefresh = null;
+                
+                while(refreshEnabled){                
+                    
+                    synchronized (contentToRefresh) {                        
+                        if(contentToRefresh.isEmpty())
+                            contentToRefresh.wait();
+                                
+                        copyContentToRefresh = new Hashtable(contentToRefresh);
+                        contentToRefresh.clear();
+                    }                    
+                    
+                    Iterator i = copyContentToRefresh.entrySet().iterator();
+                    while(i.hasNext()) {
+                        Map.Entry groupEntry = (Map.Entry) i.next();
+                        
+                        String operation
+                            = (String)groupEntry.getValue();
+                    
+                        Object o = groupEntry.getKey();
+                    
+                        if(o instanceof MetaContactGroup) {
+                            
                             MetaContactGroup group
-                                = (MetaContactGroup)groupsToModify.get(i);
-                            this.refreshGroup(group);
+                                = (MetaContactGroup) o;
+                            
+                            SwingUtilities.invokeLater(
+                                    new RefreshGroup(group, operation));
                         }
-                        groupsToModify.removeAllElements();
+                        else if(o instanceof MetaContact) {
+                            
+                            MetaContact contact
+                                = (MetaContact) o;
+                            
+                            SwingUtilities.invokeLater(
+                                    new RefreshContact(contact, operation));
+                        }                            
                     }
-                    else {
-                        this.refreshAll();
-                    }
-                    isModified = false;
                 }
             }
-        }
-
-        /**
-         * Refreshes the contact list.
-         */
-        private void refreshAll()
-        {
-            revalidate();
-            repaint();
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         /**
          * Refreshes the given group content.
          * @param group the group to update
          */
-        private void refreshGroup(MetaContactGroup group)
+        private class RefreshGroup implements Runnable
         {
-            if(!listModel.isGroupClosed(group))
+            private MetaContactGroup group;
+            private String operation;
+            
+            public RefreshGroup(MetaContactGroup group, String operation)
             {
-                int groupIndex = listModel.indexOf(group);
-                int lastIndex = listModel.countChildContacts(group);
+                this.group = group;
+                this.operation = operation;
+            }
+            
+            public void run()
+            {
+                if(operation.equals(MODIFY_OPERATION)) {
+                    if(!listModel.isGroupClosed(group))
+                    {
+                        if(listModel.showOffline()) {                        
+                            int groupIndex = listModel.indexOf(group);
+                            int lastIndex = listModel.countContactsAndSubgroups(group);
 
-                listModel.contentChanged(groupIndex, lastIndex);
+                            listModel.contentChanged(groupIndex, lastIndex);
+                        }
+                        else {
+                            int groupIndex = listModel.indexOf(group);
+                            int addedCount = listModel.countContactsAndSubgroups(group);
+                            int listSize = listModel.getSize(); 
+                            listModel.contentChanged(groupIndex, listSize - addedCount - 1);
+                            listModel.contentAdded(listSize - addedCount, listSize - 1);
+                        }
+                    }
+                }
+                else if(operation.equals(ADD_OPERATION)) {
+                    int groupIndex = listModel.indexOf(group);
+                    int addedCount = listModel.countContactsAndSubgroups(group);
+                    int listSize = listModel.getSize(); 
+                    listModel.contentChanged(groupIndex, listSize - addedCount - 1);
+                    listModel.contentAdded(listSize - addedCount, listSize - 1);
+                }
+                else if(operation.equals(REMOVE_OPERATION)) {                
+                    int groupIndex = listModel.indexOf(group);
+                    int removeCount = listModel.countContactsAndSubgroups(group);
+                    int listSize = listModel.getSize();
+
+                    listModel.contentRemoved(listSize - 1, listSize + removeCount - 1);
+                    listModel.contentChanged(groupIndex, listSize - 1);
+                }
+            }
+        }
+        
+        /**
+         * Refreshes the given contact content.
+         * @param group the contact to refresh
+         */
+        private class RefreshContact implements Runnable
+        {
+            private MetaContact contact;
+            private String operation;
+            
+            public RefreshContact(MetaContact contact, String operation)
+            {
+                this.contact = contact;
+                this.operation = operation;
+            }
+            
+            public void run()
+            {
+                if(operation.equals(MODIFY_OPERATION)) {
+                    int contactIndex = listModel.indexOf(contact);
+    
+                    listModel.contentChanged(contactIndex, contactIndex);
+                }
+                else if(operation.equals(ADD_OPERATION)) {
+                    int contactIndex = listModel.indexOf(contact);
+                    
+                    if(contactIndex != -1)
+                        listModel.contentAdded(contactIndex, contactIndex);
+                }
+                else if(operation.equals(REMOVE_OPERATION)) {
+                    int contactIndex = listModel.indexOf(contact);
+                    
+                    if(contactIndex != -1)
+                        listModel.contentRemoved(contactIndex, contactIndex);
+                }
             }
         }
     }
@@ -702,23 +810,102 @@ public class ContactList extends JList
      * Refreshes the given group content.
      * @param group the group to refresh
      */
-    public void refreshGroup(MetaContactGroup group)
+    public void modifyGroup(MetaContactGroup group)
     {
-        isModified = true;
-        if(group != null && !groupsToModify.contains(group))
-            groupsToModify.add(group);
-
-        synchronized (refreshLock) {
-            refreshLock.notifyAll();
+        synchronized (contentToRefresh) {
+            if(group != null
+                    && (!contentToRefresh.containsKey(group)
+                            || contentToRefresh.get(group).equals(
+                                    REMOVE_OPERATION))) {
+                
+                contentToRefresh.put(group, MODIFY_OPERATION);
+                contentToRefresh.notifyAll();
+            }
         }
     }
 
     /**
      * Refreshes all the contact list.
      */
-    public void refreshAll()
+    public void addGroup(MetaContactGroup group)
     {
-        refreshGroup(null);
+        synchronized (contentToRefresh) {
+            if(group != null
+                    && (!contentToRefresh.containsKey(group)
+                            || contentToRefresh.get(group).equals(
+                                    REMOVE_OPERATION))) {
+                
+                contentToRefresh.put(group, ADD_OPERATION);
+                contentToRefresh.notifyAll();
+            }
+        }
+    }
+    
+    /**
+     * Refreshes all the contact list.
+     */
+    public void removeGroup(MetaContactGroup group)
+    {
+        synchronized (contentToRefresh) {
+            if(group != null
+                    && (contentToRefresh.get(group) == null
+                        || !contentToRefresh.get(group).equals(
+                                REMOVE_OPERATION))) {
+                
+                contentToRefresh.put(group, REMOVE_OPERATION);
+                contentToRefresh.notifyAll();
+            }
+        }
+    }
+
+    /**
+     * Refreshes the given meta contact content.
+     * @param contact the meta contact to refresh
+     */
+    public void modifyContact(MetaContact contact)
+    {
+        synchronized (contentToRefresh) {
+            if(contact != null && !contentToRefresh.containsKey(contact)
+                    && !contentToRefresh.containsKey(
+                            contact.getParentMetaContactGroup())) {
+                
+                contentToRefresh.put(contact, MODIFY_OPERATION);
+                contentToRefresh.notifyAll();
+            }
+        }
+    }
+
+    /**
+     * Adds the given contact to the contact list.
+     */
+    public void addContact(MetaContact contact)
+    {
+        synchronized (contentToRefresh) {
+            if(contact != null && !contentToRefresh.containsKey(contact)
+                    && !contentToRefresh.containsKey(
+                            contact.getParentMetaContactGroup()))  {
+                
+                contentToRefresh.put(contact, ADD_OPERATION);
+                contentToRefresh.notifyAll();
+            }
+        }
+    }
+    
+    /**
+     * Refreshes all the contact list.
+     */
+    public void removeContact(MetaContact contact)
+    {
+        synchronized (contentToRefresh) {
+            if(contact != null
+                    && (contentToRefresh.get(contact) == null
+                        || !contentToRefresh.get(contact).equals(
+                                REMOVE_OPERATION))) {
+                
+                contentToRefresh.put(contact, REMOVE_OPERATION);                
+                contentToRefresh.notifyAll();
+            }
+        }
     }
 
     /**
