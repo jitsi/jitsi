@@ -30,7 +30,7 @@ public class SearchPanel
 
     private JButton searchButton = new JButton(Messages.getString("search"),
             new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.QUICK_MENU_SEARCH_ICON)));
+                    .getImage(ImageLoader.SEARCH_ICON)));
 
     private JLabel searchLabel
         = new JLabel(Messages.getString("search") + ": ");

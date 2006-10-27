@@ -53,7 +53,7 @@ public class QuickMenu
             .getImage(ImageLoader.QUICK_MENU_CONFIGURE_ICON)));
 
     private JButton searchButton = new JButton(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.QUICK_MENU_SEARCH_ICON)));
+            .getImage(ImageLoader.QUICK_MENU_SHOW_OFFLINE_ICON)));
 
     private JButton addButton = new JButton(new ImageIcon(ImageLoader
             .getImage(ImageLoader.QUICK_MENU_ADD_ICON)));

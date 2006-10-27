@@ -41,7 +41,7 @@ public class AppearanceConfigurationForm extends JPanel
     }
 
     public byte[] getIcon() {
-        return ImageLoader.getImageInBytes(ImageLoader.QUICK_MENU_SEARCH_ICON);
+        return ImageLoader.getImageInBytes(ImageLoader.SEARCH_ICON);
     }
 
     public Object getForm() {

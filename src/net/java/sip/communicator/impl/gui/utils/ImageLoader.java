@@ -155,10 +155,10 @@ public class ImageLoader {
 
     /**
      * The icon on the "Hide/Show offline contacts" button in the
-     * <tt>QuickMenu</tt> and in the <tt>AppearanceConfigurationForm</tt>.
+     * <tt>QuickMenu</tt>.
      */
-    public static final ImageID QUICK_MENU_SEARCH_ICON
-        = new ImageID("QUICK_MENU_SEARCH_ICON");
+    public static final ImageID QUICK_MENU_SHOW_OFFLINE_ICON
+        = new ImageID("QUICK_MENU_SHOW_OFFLINE_ICON");
 
     /**
      * The icon on the "Info" button in the <tt>QuickMenu</tt>.
@@ -399,6 +399,12 @@ public class ImageLoader {
      */
     public static final ImageID OUTGOING_CALL_ICON
         = new ImageID("OUTGOING_CALL");
+    
+    /**
+     * The image used in the right button menu for the move contact item.
+     */
+    public static final ImageID MOVE_CONTACT_ICON
+        = new ImageID("MOVE_CONTACT");
     
 
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
@@ -695,6 +701,11 @@ public class ImageLoader {
     public static final ImageID AUTH_WINDOW_BACKGROUND = new ImageID(
             "AUTH_WINDOW_BACKGROUND");
 
+    /**
+     * The icon used to indicate a search.
+     */
+    public static final ImageID SEARCH_ICON = new ImageID("SEARCH_ICON");
+    
     /*
      * =========================================================================
      * --------------------- PROTOCOLS STATUS ICONS ---------------------------
