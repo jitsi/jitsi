@@ -946,6 +946,9 @@ public class MediaControl
      */
     public void stopProcessingMedia(Object reader)
     {
+        if(sourceProcessor == null)
+            return;
+
         if( sourceProcessor.getState() ==  Processor.Started )
             sourceProcessor.stop();
 
