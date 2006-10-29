@@ -533,7 +533,7 @@ public class TestOperationSetBasicTelephonySipImpl
      * @throws ParseException if we hand a malformed URI to someone
      * @throws OperationFailedException if something weird happens.
      */
-    public void testCreateAnswerHangupCall()
+    public void aTestCreateAnswerHangupCall()
         throws ParseException, OperationFailedException
     {
         OperationSetBasicTelephony basicTelephonyP1
