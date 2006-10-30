@@ -36,15 +36,21 @@ public class SIPCommCallComboBoxUI extends SIPCommComboBoxUI
         {
             super(combo);
         }
-        
+                
         /**
-         * Implementation of ComboPopup.show().
+         * Makes the popup visible if it is hidden and makes it hidden if it is 
+         * visible.
          */
-        public void show() {
-            setListSelection(comboBox.getSelectedIndex());
+        protected void togglePopup() {
+            if ( isVisible() ) {
+                hide();
+            }
+            else {
+                setListSelection(comboBox.getSelectedIndex());
 
-            Point location = getPopupLocation();
-            show( comboBox, location.x, location.y );
+                Point location = getPopupLocation();
+                show( comboBox, location.x, location.y );
+            }
         }
         
         /**
