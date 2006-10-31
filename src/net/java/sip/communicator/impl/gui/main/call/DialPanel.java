@@ -22,7 +22,11 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 
-public class DialPanel extends JPanel implements ActionListener {
+public class DialPanel
+    extends JPanel
+    implements  ActionListener,
+                MouseListener
+{
 
     private JComboBox phoneNumberCombo;
 
@@ -77,6 +81,8 @@ public class DialPanel extends JPanel implements ActionListener {
                 .getCallComboBox();
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        
+        this.dialPadPanel.setPreferredSize(new Dimension(140, 140));
 
         this.init();
     }
@@ -85,6 +91,7 @@ public class DialPanel extends JPanel implements ActionListener {
      * Initializes this panel by adding all dial buttons to it.
      */
     public void init() {
+        oneButton.setLayout(null);
         oneButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
         twoButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
         threeButton.setAlignmentY(JButton.LEFT_ALIGNMENT);
@@ -123,6 +130,19 @@ public class DialPanel extends JPanel implements ActionListener {
         zeroButton.addActionListener(this);
         diezButton.addActionListener(this);
         starButton.addActionListener(this);
+        
+        oneButton.addMouseListener(this);
+        twoButton.addMouseListener(this);
+        threeButton.addMouseListener(this);
+        fourButton.addMouseListener(this);
+        fiveButton.addMouseListener(this);
+        sixButton.addMouseListener(this);
+        sevenButton.addMouseListener(this);
+        eightButton.addMouseListener(this);
+        nineButton.addMouseListener(this);
+        zeroButton.addMouseListener(this);
+        diezButton.addMouseListener(this);
+        starButton.addMouseListener(this);
 
         dialPadPanel.add(oneButton);
         dialPadPanel.add(twoButton);
@@ -153,53 +173,100 @@ public class DialPanel extends JPanel implements ActionListener {
             phoneNumber = (String) this.phoneNumberCombo.getEditor().getItem();
 
         if (buttonName.equals("one")) {
-            SoundLoader.getSound(SoundLoader.DIAL_ONE).play();
             this.phoneNumberCombo.getEditor().setItem(phoneNumber + "1");
         }
         else if (buttonName.equals("two")) {
-            SoundLoader.getSound(SoundLoader.DIAL_TWO).play();
             this.phoneNumberCombo.getEditor().setItem(phoneNumber + "2");
         }
         else if (buttonName.equals("three")) {
-            SoundLoader.getSound(SoundLoader.DIAL_THREE).play();
             this.phoneNumberCombo.getEditor().setItem(phoneNumber + "3");
         }
         else if (buttonName.equals("four")) {
-            SoundLoader.getSound(SoundLoader.DIAL_FOUR).play();
             this.phoneNumberCombo.getEditor().setItem(phoneNumber + "4");
         }
         else if (buttonName.equals("five")) {
-            SoundLoader.getSound(SoundLoader.DIAL_FIVE).play();
             this.phoneNumberCombo.getEditor().setItem(phoneNumber + "5");
         }
         else if (buttonName.equals("six")) {
-            SoundLoader.getSound(SoundLoader.DIAL_SIX).play();
             this.phoneNumberCombo.getEditor().setItem(phoneNumber + "6");
         }
         else if (buttonName.equals("seven")) {
-            SoundLoader.getSound(SoundLoader.DIAL_SEVEN).play();
             this.phoneNumberCombo.getEditor().setItem(phoneNumber + "7");
         }
         else if (buttonName.equals("eight")) {
-            SoundLoader.getSound(SoundLoader.DIAL_EIGHT).play();
             this.phoneNumberCombo.getEditor().setItem(phoneNumber + "8");
         }
         else if (buttonName.equals("nine")) {
-            SoundLoader.getSound(SoundLoader.DIAL_NINE).play();
             this.phoneNumberCombo.getEditor().setItem(phoneNumber + "9");
         }
         else if (buttonName.equals("zero")) {
-            SoundLoader.getSound(SoundLoader.DIAL_ZERO).play();
             this.phoneNumberCombo.getEditor().setItem(phoneNumber + "0");
         }
         else if (buttonName.equals("diez")) {
-            SoundLoader.getSound(SoundLoader.DIAL_DIEZ).play();
             this.phoneNumberCombo.getEditor().setItem(phoneNumber + "#");
         }
         else if (buttonName.equals("star")) {
-            SoundLoader.getSound(SoundLoader.DIAL_STAR).play();
             this.phoneNumberCombo.getEditor().setItem(phoneNumber + "*");
         }
         this.phoneNumberCombo.requestFocus();
+    }
+
+    public void mouseClicked(MouseEvent e)
+    {
+    }
+
+    public void mouseEntered(MouseEvent e)
+    {   
+    }
+
+    public void mouseExited(MouseEvent e)
+    {   
+    }
+
+    public void mousePressed(MouseEvent e)
+    {
+        JButton button = (JButton) e.getSource();
+        String buttonName = button.getName();
+
+        if (buttonName.equals("one")) {
+            SoundLoader.getSound(SoundLoader.DIAL_ONE).play();
+        }
+        else if (buttonName.equals("two")) {
+            SoundLoader.getSound(SoundLoader.DIAL_TWO).play();
+        }
+        else if (buttonName.equals("three")) {
+            SoundLoader.getSound(SoundLoader.DIAL_THREE).play();
+        }
+        else if (buttonName.equals("four")) {
+            SoundLoader.getSound(SoundLoader.DIAL_FOUR).play();
+        }
+        else if (buttonName.equals("five")) {
+            SoundLoader.getSound(SoundLoader.DIAL_FIVE).play();
+        }
+        else if (buttonName.equals("six")) {
+            SoundLoader.getSound(SoundLoader.DIAL_SIX).play();
+        }
+        else if (buttonName.equals("seven")) {
+            SoundLoader.getSound(SoundLoader.DIAL_SEVEN).play();
+        }
+        else if (buttonName.equals("eight")) {
+            SoundLoader.getSound(SoundLoader.DIAL_EIGHT).play();
+        }
+        else if (buttonName.equals("nine")) {
+            SoundLoader.getSound(SoundLoader.DIAL_NINE).play();
+        }
+        else if (buttonName.equals("zero")) {
+            SoundLoader.getSound(SoundLoader.DIAL_ZERO).play();
+        }
+        else if (buttonName.equals("diez")) {
+            SoundLoader.getSound(SoundLoader.DIAL_DIEZ).play();
+        }
+        else if (buttonName.equals("star")) {
+            SoundLoader.getSound(SoundLoader.DIAL_STAR).play();
+        }
+    }
+
+    public void mouseReleased(MouseEvent e)
+    {   
     }
 }
