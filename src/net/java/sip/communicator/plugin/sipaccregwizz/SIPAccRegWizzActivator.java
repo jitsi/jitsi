@@ -73,6 +73,6 @@ public class SIPAccRegWizzActivator implements BundleActivator {
             logger.error("SIPAccRegWizzActivator : " + ex);
         }
 
-        return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
+        return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);  
     }
 }

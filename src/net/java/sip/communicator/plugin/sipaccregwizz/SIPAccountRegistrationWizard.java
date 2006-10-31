@@ -89,10 +89,30 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
      */
     public Iterator getSummary() {
         Hashtable summaryTable = new Hashtable();
+        
+        boolean rememberPswd = new Boolean(registration.isRememberPassword())
+            .booleanValue();
+        
+        String rememberPswdString;
+        if(rememberPswd)
+            rememberPswdString = Resources.getString("yes");
+        else
+            rememberPswdString = Resources.getString("no");
 
-        summaryTable.put("UIN", registration.getUin());
-        summaryTable.put("Remember password",
-                new Boolean(registration.isRememberPassword()));
+        summaryTable.put(Resources.getString("uin"),
+                registration.getUin());
+        summaryTable.put(Resources.getString("rememberPassword"),
+                rememberPswdString);
+        summaryTable.put(Resources.getString("registrar"),
+                registration.getServerAddress());
+        summaryTable.put(Resources.getString("serverPort"),
+                registration.getServerPort());
+        summaryTable.put(Resources.getString("proxy"),
+                registration.getProxy());
+        summaryTable.put(Resources.getString("proxyPort"),
+                registration.getProxyPort());
+        summaryTable.put(Resources.getString("preferredTransport"),
+                registration.getPreferredTransport());
 
         return summaryTable.entrySet().iterator();
     }
@@ -106,8 +126,12 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
         ProtocolProviderFactory factory
             = SIPAccRegWizzActivator.getSIPProtocolProviderFactory();
 
-        return this.installAccount(factory,
+        ProtocolProviderService pps = null;
+        if (factory != null)
+            pps = this.installAccount(factory,
                 registration.getUin(), registration.getPassword());
+        
+        return pps;
     }
 
     /**

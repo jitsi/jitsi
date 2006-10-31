@@ -230,7 +230,6 @@ public class FirstWizardPage extends JPanel
         registration.setServerPort(serverPortField.getText());
         registration.setProxy(proxyField.getText());
         registration.setProxyPort(proxyPortField.getText());
-        System.out.println("TRANSPORT=================" + transportCombo.getSelectedItem().toString());
         registration.setPreferredTransport(
                 transportCombo.getSelectedItem().toString());
     }
