@@ -170,7 +170,6 @@ public class ContactList extends JList
      */
     public void metaContactGroupAdded(MetaContactGroupEvent evt)
     {
-        System.out.println("GROUP ADDED========" + evt.getSourceMetaContactGroup());
         MetaContactGroup group = evt.getSourceMetaContactGroup();
         
         if(!group.equals(contactList.getRoot()))
