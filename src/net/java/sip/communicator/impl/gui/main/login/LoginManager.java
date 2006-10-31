@@ -7,22 +7,22 @@
 
 package net.java.sip.communicator.impl.gui.main.login;
 
+import java.awt.*;
 import java.util.*;
 
-import java.awt.*;
 import javax.swing.*;
 
-import org.osgi.framework.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.authorization.*;
-import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>LoginManager</tt> manages the login operation. Here we obtain the
