@@ -147,13 +147,19 @@ public class SmartComboBox extends JComboBox
     
     class StartsWithFilter implements Filter
     {
-    
         private String prefix;
-        public StartsWithFilter(String prefix) { this.prefix = prefix; }
+        
+        public StartsWithFilter(String prefix)
+        { 
+            this.prefix = prefix.toLowerCase();
+        }
+        
         public boolean accept(Object o)
         {
-            if(o != null)
-                return o.toString().startsWith(prefix);
+            if(o != null) {
+                String objectString = o.toString().toLowerCase(); 
+                return (objectString.indexOf(prefix) >= 0) ? true : false;
+            }
             
             return false;
         }
