@@ -194,7 +194,6 @@ public class ContactList extends JList
      */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt)
     {
-        System.out.println("GROUP REMOVED=======" + evt.getSourceMetaContactGroup());
         MetaContactGroup group = evt.getSourceMetaContactGroup();
         
         if(!group.equals(contactList.getRoot()))
