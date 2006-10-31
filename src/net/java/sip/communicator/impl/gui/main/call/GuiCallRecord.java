@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.call;
 import java.util.*;
 
 import net.java.sip.communicator.service.callhistory.*;
-import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>GuiCallRecord</tt> is meant to be used in the call history to
@@ -27,11 +26,11 @@ public class GuiCallRecord
     private Date endTime;
     
     /**
-     * 
-     * @param guiParticipantRecords
-     * @param direction
-     * @param startTime
-     * @param endTime
+     * Creates an instance of <tt>GuiCallRecord<tt>.
+     * @param guiParticipantRecords participant records contained in this call
+     * record
+     * @param startTime call start time
+     * @param endTime call end time
      */
     public GuiCallRecord(Vector guiParticipantRecords,
             Date startTime,

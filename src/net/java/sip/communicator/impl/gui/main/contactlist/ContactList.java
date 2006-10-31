@@ -131,8 +131,8 @@ public class ContactList extends JList
      */
     public void protoContactRemoved(ProtoContactEvent evt)
     {
+        System.out.println("REMOVE PROTO CONTACT");
         this.modifyContact(evt.getOldParent());
-        this.modifyContact(evt.getNewParent());
     }
 
     /**

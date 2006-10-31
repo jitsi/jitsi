@@ -528,9 +528,8 @@ public class CallManager
     }
     
     /** 
-     * Answers the given callParticipant.
-     * @param pps the protocol provider to use
-     * @param callParticipant the call participant to answer to
+     * Answers the given call.
+     * @param call the call to answer
      */
     public void answerCall(Call call)
     {
@@ -564,7 +563,7 @@ public class CallManager
     /**
      * Creates a call to the given contact.
      * 
-     * @param contact the protocol contact to call to
+     * @param contacts the list of contacts to call to
      */
     public void createCall(Vector contacts)
     {

@@ -36,8 +36,8 @@ public class SIPCommTabbedPane extends JTabbedPane {
      * Creates the <code>CloseAndMaxTabbedPane</code> with an enhanced UI if
      * <code>enhancedUI</code> parameter is set to <code>true</code>.
      *
-     * @param enhancedUI
-     *            whether the tabbedPane should use an enhanced UI
+     * @param closingTabs support for closable tabs
+     * @param maximizingTabs support for maximisable tabs
      */
     public SIPCommTabbedPane(boolean closingTabs, boolean maximizingTabs) {
         super.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);

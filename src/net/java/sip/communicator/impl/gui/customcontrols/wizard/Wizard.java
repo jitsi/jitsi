@@ -195,8 +195,7 @@ public class Wizard extends WindowAdapter
     /**
      * Convienence method that displays a modal wizard dialog and blocks until
      * the dialog has completed.
-     * @return Indicates how the dialog was closed. Compare this value against
-     * the RETURN_CODE constants at the beginning of the class.
+     * @param modal whether to show a modal dialog
      */    
     public void showDialog(boolean modal) {
         

@@ -72,7 +72,8 @@ public class CallPanel
     
     /**
      * Creates an instance of CallPanel for the given call and call type.
-     * @param call the call
+     * @param callManager the CallManager that manages this panel
+     * @param contacts the list of contacts for this call panel
      */
     public CallPanel(CallManager callManager, Vector contacts)
     {
@@ -110,7 +111,8 @@ public class CallPanel
 
     /**
      * Creates an instance of CallPanel for the given call and call type.
-     * @param call the call
+     * @param callManager the CallManager that manages this call panel
+     * @param contactString the contact string that we are calling
      */
     public CallPanel(CallManager callManager, String contactString)
     {
