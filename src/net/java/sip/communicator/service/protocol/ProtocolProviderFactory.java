@@ -370,9 +370,18 @@ public abstract class ProtocolProviderFactory
 
                 //if this is a password - decode it first
                 if(propertyName.equals(PASSWORD))
-                    storedPropertyValue = new String(
-                        Base64.decode(storedPropertyValue));
-
+                {
+                    if(storedPropertyValue == null
+                       || storedPropertyValue.length() == 0)
+                    {
+                        storedPropertyValue = "";
+                    }
+                    else
+                    {
+                        storedPropertyValue = new String(
+                            Base64.decode(storedPropertyValue));
+                    }
+                }
                 accountProperties.put(propertyName, storedPropertyValue);
             }
             loadAccount(accountProperties);
