@@ -273,8 +273,16 @@ public class CallSessionImpl
             }
         }
 
+        //remove targets
         rtpManager.removeTargets("Session ended.");
+
+        //stop listening
+        rtpManager.removeReceiveStreamListener(this);
+        rtpManager.removeSendStreamListener(this);
+        rtpManager.removeSessionListener(this);
         rtpManager.dispose();
+
+        rtpManager = null;
 
         //stop all video streams
         rtpManager = getAudioRtpManager();
@@ -297,6 +305,10 @@ public class CallSessionImpl
         }
 
         rtpManager.removeTargets("Session ended.");
+        rtpManager.removeReceiveStreamListener(this);
+        rtpManager.removeSendStreamListener(this);
+        rtpManager.removeSessionListener(this);
+
         rtpManager.dispose();
     }
 
@@ -1054,6 +1066,22 @@ public class CallSessionImpl
             long buff = bc.setBufferLength(500);
             logger.trace("set receiver buffer len to=" + buff);
             bc.setEnabledThreshold(false);
+        }
+
+
+        //set max packet size
+        PacketSizeControl psc = (PacketSizeControl)rtpManager.getControl(
+            PacketSizeControl.class.getName());
+
+        if(psc != null)
+        {
+            logger.debug("Default packets size seems to be="
+                + psc.getPacketSize());
+
+            int ps = psc.setPacketSize(20);
+
+            logger.debug("Set packet size to: " + Integer.toString(ps));
+
         }
 
         //add listeners
