@@ -354,28 +354,28 @@ public class Constants {
 
         Image protocolIcon = null;
 
-        if (protocolName.equals(Constants.SIP)) {
+        if (protocolName.equalsIgnoreCase(Constants.SIP)) {
 
             protocolIcon = ImageLoader.getImage(ImageLoader.SIP_LOGO);
-        } else if (protocolName.equals(Constants.ICQ)) {
+        } else if (protocolName.equalsIgnoreCase(Constants.ICQ)) {
 
             protocolIcon = ImageLoader.getImage(ImageLoader.ICQ_LOGO);
-        } else if (protocolName.equals(Constants.MSN)) {
+        } else if (protocolName.equalsIgnoreCase(Constants.MSN)) {
 
             protocolIcon = ImageLoader.getImage(ImageLoader.MSN_LOGO);
-        } else if (protocolName.equals(Constants.AIM)) {
+        } else if (protocolName.equalsIgnoreCase(Constants.AIM)) {
 
             protocolIcon = ImageLoader.getImage(ImageLoader.AIM_LOGO);
 
-        } else if (protocolName.equals(Constants.YAHOO)) {
+        } else if (protocolName.equalsIgnoreCase(Constants.YAHOO)) {
 
             protocolIcon = ImageLoader.getImage(ImageLoader.YAHOO_LOGO);
 
-        } else if (protocolName.equals(Constants.JABBER)) {
+        } else if (protocolName.equalsIgnoreCase(Constants.JABBER)) {
 
             protocolIcon = ImageLoader.getImage(ImageLoader.JABBER_LOGO);
 
-        } else if (protocolName.equals(Constants.SKYPE)) {
+        } else if (protocolName.equalsIgnoreCase(Constants.SKYPE)) {
 
             protocolIcon = ImageLoader.getImage(ImageLoader.SKYPE_LOGO);
         }
