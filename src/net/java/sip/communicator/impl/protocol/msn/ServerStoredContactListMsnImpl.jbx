@@ -1,0 +1,12 @@
+[PropertyInfo]
+contactListModManager,net.java.sip.communicator.impl.protocol.msn.EventManager,false,false, , ,false,<default>
+messenger,net.sf.jml.MsnMessenger,false,false, , ,false,<default>
+msnProvider,net.java.sip.communicator.impl.protocol.msn.ProtocolProviderServiceMsnImpl,false,false, , ,false,<default>
+parentOperationSet,net.java.sip.communicator.impl.protocol.msn.OperationSetPersistentPresenceMsnImpl,false,false, , ,false,<default>
+rootGroup,net.java.sip.communicator.service.protocol.ContactGroup,false,false, , ,true,<default>
+serverStoredGroupListeners,java.util.Vector,false,false, , ,false,<default>
+[IconNames]
+
+
+
+

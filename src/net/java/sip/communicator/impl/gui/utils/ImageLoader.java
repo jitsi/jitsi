@@ -201,19 +201,19 @@ public class ImageLoader {
      */
     public static final ImageID HANGUP_ROLLOVER_BUTTON_BG
         = new ImageID("HANGUP_ROLLOVER_BUTTON_BG");
-    
+
     /**
      * The hangup button pressed image.
      */
     public static final ImageID CALL_BUTTON_PRESSED_BG
         = new ImageID("CALL_BUTTON_PRESSED_BG");
-    
+
     /**
      * The hangup button pressed image.
      */
     public static final ImageID HANGUP_BUTTON_PRESSED_BG
         = new ImageID("HANGUP_BUTTON_PRESSED_BG");
-    
+
     /**
      * The background image for the <tt>StatusSelectorBox</tt>.
      */
@@ -361,13 +361,13 @@ public class ImageLoader {
      */
     public static final ImageID ADD_CONTACT_WIZARD_ICON
         = new ImageID("ADD_CONTACT_WIZARD_ICON");
-    
+
     /**
      * The image used for decoration of the "Add group" window.
      */
     public static final ImageID ADD_GROUP_ICON
         = new ImageID("ADD_GROUP_ICON");
-    
+
     /**
      * The image used for decoration of the "Rename contact" window.
      */
@@ -380,32 +380,32 @@ public class ImageLoader {
      */
     public static final ImageID BROWSER_ICON
         = new ImageID("BROWSER_ICON");
-    
+
     /**
      * The image used for decoration of all windows concerning the process of
      * authorization.
      */
     public static final ImageID AUTHORIZATION_ICON
         = new ImageID("AUTHORIZATION_ICON");
-    
+
     /**
      * The image used for decoration of incoming calls in the call list panel.
      */
     public static final ImageID INCOMING_CALL_ICON
         = new ImageID("INCOMING_CALL");
-    
+
     /**
      * The image used for decoration of outgoing calls in the call list panel.
      */
     public static final ImageID OUTGOING_CALL_ICON
         = new ImageID("OUTGOING_CALL");
-    
+
     /**
      * The image used in the right button menu for the move contact item.
      */
     public static final ImageID MOVE_CONTACT_ICON
         = new ImageID("MOVE_CONTACT");
-    
+
 
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
@@ -656,19 +656,19 @@ public class ImageLoader {
      */
     public static final ImageID ADD_CONTACT_16x16_ICON
         = new ImageID("ADD_CONTACT_16x16_ICON");
-    
+
     /**
      * Add contact 16x16 image.
      */
     public static final ImageID ADD_GROUP_16x16_ICON
         = new ImageID("ADD_GROUP_16x16_ICON");
-    
+
     /**
      * Rename 16x16 image.
      */
     public static final ImageID RENAME_16x16_ICON
         = new ImageID("RENAME_16x16_ICON");
-    
+
     /**
      * Remove 16x16 image.
      */
@@ -705,7 +705,7 @@ public class ImageLoader {
      * The icon used to indicate a search.
      */
     public static final ImageID SEARCH_ICON = new ImageID("SEARCH_ICON");
-    
+
     /*
      * =========================================================================
      * --------------------- PROTOCOLS STATUS ICONS ---------------------------
@@ -716,7 +716,7 @@ public class ImageLoader {
      */
     public static final ImageID SIP_COMMUNICATOR_LOGO
         = new ImageID("SIP_COMMUNICATOR_LOGO");
-    
+
     /**
      * The ICQ logo 32x32 icon.
      */
@@ -782,6 +782,11 @@ public class ImageLoader {
     public static final ImageID MSN_LOGO = new ImageID("MSN_LOGO");
 
     /**
+     * The MSN "connecting" 16x16 animated icon.
+     */
+    public static final ImageID MSN_CONNECTING = new ImageID("MSN_CONNECTING");
+
+    /**
      * The AIM logo 32x32 icon.
      */
     public static final ImageID AIM_32x32 = new ImageID("AIM_32x32");
@@ -837,13 +842,13 @@ public class ImageLoader {
      * The SIP "connecting" 16x16 animated icon.
      */
     public static final ImageID SIP_CONNECTING = new ImageID("SIP_CONNECTING");
-    
+
     /**
      * The SIP online 16x16 icon.
      */
     public static final ImageID SIP_ONLINE_ICON
         = new ImageID("SIP_ONLINE_ICON");
-    
+
     /**
      * The SIP offline 16x16 icon.
      */

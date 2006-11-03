@@ -1,10 +1,15 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.service.protocol.jabberconstants;
 
 import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.icqconstants.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -21,7 +26,7 @@ import net.java.sip.communicator.util.*;
 public class JabberStatusEnum
     extends PresenceStatus
 {
-    private static Logger logger = Logger.getLogger(IcqStatusEnum.class);
+    private static Logger logger = Logger.getLogger(JabberStatusEnum.class);
 
     /**
      * The Free For Chat status. Indicates that the user is eager to

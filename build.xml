@@ -574,9 +574,10 @@
         bundle-fileaccess-slick,bundle-media,bundle-media-slick,
         bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,
+        bundle-msn,bundle-msn-slick,
         meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
-        bundle-plugin-sipaccregwizz"/>
+        bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -893,6 +894,32 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+    <!-- BUNDLE-MSN -->
+    <target name="bundle-msn">
+        <!-- Creates a bundle containing the msn impl of the protocol provider."-->
+        <jar compress="false" destfile="${bundles.dest}/protocol-msn.jar"
+            manifest="src/net/java/sip/communicator/impl/protocol/msn/msn.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/msn"
+                prefix="net/java/sip/communicator/impl/protocol/msn"/>
+            <zipfileset src="${lib}/jml-1.0a3.jar" prefix=""/>
+            <zipfileset src="${lib}/cindy.jar" prefix=""/>
+            <zipfileset src="${lib}/commons-logging.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-MSN-SLICK -->
+    <!-- Creates a bundle containing the slick for the Msn protocol provider."-->
+    <target name="bundle-msn-slick">
+
+        <jar compress="false" destfile="${bundles.dest}/protocol-msn-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/protocol/msn/msn.provider.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/msn"
+                prefix="net/java/sip/communicator/slick/protocol/msn"/>
+            <zipfileset src="${lib}/jml-1.0a3.jar" prefix=""/>
+            <zipfileset src="${lib}/cindy.jar" prefix=""/>
+            <zipfileset src="${lib}/commons-logging.jar" prefix=""/>
+        </jar>
+    </target>
 
 
      <!-- BUNDLE-SWING-UI -->
@@ -946,6 +973,16 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/plugin/jabberaccregwizz/jabberaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/jabberaccregwizz"
                 prefix="net/java/sip/communicator/plugin/jabberaccregwizz"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-MSNACCREGWIZZ -->
+    <target name="bundle-plugin-msnaccregwizz">
+        <!-- Creates a bundle for the plugin Msn Account Registration Wizard."-->
+        <jar compress="false" destfile="${bundles.dest}/msnaccregwizz.jar"
+            manifest="src/net/java/sip/communicator/plugin/msnaccregwizz/msnaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/msnaccregwizz"
+                prefix="net/java/sip/communicator/plugin/msnaccregwizz"/>
         </jar>
     </target>
 

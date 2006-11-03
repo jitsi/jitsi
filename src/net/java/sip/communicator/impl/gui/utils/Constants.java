@@ -169,21 +169,21 @@ public class Constants {
      */
     public static final Color HISTORY_DATE_COLOR
         = new Color(255, 201, 102);
-    
+
     /**
      * The color used to paint the background of an incoming call history
      * record.
      */
     public static final Color HISTORY_IN_CALL_COLOR
         = new Color(249, 255, 197);
-    
+
     /**
      * The color used to paint the background of an outgoing call history
      * record.
      */
     public static final Color HISTORY_OUT_CALL_COLOR
         = new Color(243, 244, 247);
-    
+
     /**
      * The start color used to paint a gradient selected background of some
      * components.
@@ -297,7 +297,7 @@ public class Constants {
      * The SIP protocol.
      */
     public static final String SIP = "SIP";
-    
+
     /*
      * ======================================================================
      * ------------------------ OTHER CONSTANTS ------------------------------
@@ -439,7 +439,7 @@ public class Constants {
         }
         else if (protocolName.equals(Constants.MSN)) {
             return ImageLoader.getAnimatedImage(
-                    ImageLoader.ICQ_CONNECTING);
+                    ImageLoader.MSN_CONNECTING);
         }
         else if (protocolName.equals(Constants.AIM)) {
             return ImageLoader.getAnimatedImage(
@@ -471,7 +471,7 @@ public class Constants {
     public static BufferedImage getStatusIcon(PresenceStatus status) {
         if(status != null) {
             int connectivity = status.getStatus();
-    
+
             if(connectivity < 20) {
                 return ImageLoader
                     .getImage(ImageLoader.USER_OFFLINE_ICON);
@@ -532,10 +532,10 @@ public class Constants {
      * @return the default sound used when user receives a message.
      */
     public static AudioClip getDefaultMessageAudio()
-    {   
+    {
         return SoundLoader.getSound(SoundLoader.INCOMING_MESSAGE);
     }
-    
+
     /**
      * Returns the default sound used when user makes a call.
      * @return the default sound used when user makes a call.
@@ -544,13 +544,13 @@ public class Constants {
     {
         return SoundLoader.getSound(SoundLoader.OUTGOING_CALL);
     }
-    
+
     /**
      * Returns the default sound used when user receives a call.
      * @return the default sound used when user receives a call.
      */
     public static AudioClip getDefaultIncomingCallAudio()
-    {  
+    {
         return SoundLoader.getSound(SoundLoader.INCOMING_CALL);
     }
 }

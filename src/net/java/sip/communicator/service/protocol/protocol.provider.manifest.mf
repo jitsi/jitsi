@@ -9,4 +9,5 @@ Import-Package: org.osgi.framework,
 Export-Package: net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.icqconstants,
  net.java.sip.communicator.service.protocol.jabberconstants,
+ net.java.sip.communicator.service.protocol.msnconstants,
  net.java.sip.communicator.service.protocol.event

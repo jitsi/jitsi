@@ -115,7 +115,7 @@
                 <package-root>test</package-root>
                 <unit-tests/>
                 <classpath mode="compile">
-                    :lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/oscar.jar:lib/sip-sdp.jar:lib/osgi.jar:lib/junit.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/bcprov-jdk14-130.jar:lib/joscar-0.9.4-cvs-bin.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar
+                    :lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/oscar.jar:lib/sip-sdp.jar:lib/osgi.jar:lib/junit.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/bcprov-jdk14-130.jar:lib/joscar-0.9.4-cvs-bin.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar:lib/jml-1.0a3.jar:lib/commons-logging.jar:lib/cindy.jar
                 </classpath>
                 <source-level>1.4</source-level>
             </compilation-unit>

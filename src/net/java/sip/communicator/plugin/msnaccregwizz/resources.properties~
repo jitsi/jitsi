@@ -1,0 +1,8 @@
+protocolName=Msn
+protocolDescription=The Msn service protocol
+uin=Email:
+password=Password:
+rememberPassword=Remember password
+uinAndPassword=ID and Password
+
+protocolIcon=net/java/sip/communicator/plugin/msnaccregwizz/resources/msn.gif
