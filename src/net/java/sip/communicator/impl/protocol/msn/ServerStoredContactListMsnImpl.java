@@ -238,7 +238,6 @@ public class ServerStoredContactListMsnImpl
 
             if (contactGroup.getGroupName().equals(name))
                 return contactGroup;
-
         }
 
         return null;
@@ -474,7 +473,7 @@ public class ServerStoredContactListMsnImpl
         //First create the new volatile contact;
         MsnContact[] emptyBuddies = new MsnContact[]{};
         ContactGroupMsnImpl newUnresolvedGroup = new ContactGroupMsnImpl(
-                new VolatileGroup(), emptyBuddies, this, false);
+                new VolatileGroup(groupName), emptyBuddies, this, false);
 
         this.rootGroup.addSubGroup(newUnresolvedGroup);
 
@@ -733,7 +732,6 @@ public class ServerStoredContactListMsnImpl
                         // if there is no such contact create it
                         contact = new ContactMsnImpl(
                             item, ServerStoredContactListMsnImpl.this, true, true);
-
                         rootGroup.addContact(contact);
 
                         fireContactAdded(rootGroup, contact);

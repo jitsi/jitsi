@@ -18,6 +18,13 @@ public class VolatileGroup
 {
     private String groupName = new String("NotInContactList");
 
+    VolatileGroup(){}
+
+    VolatileGroup(String groupName)
+    {
+        this.groupName = groupName;
+    }
+
     public MsnContactList getContactList(){return null;}
 
     public String getGroupId()
