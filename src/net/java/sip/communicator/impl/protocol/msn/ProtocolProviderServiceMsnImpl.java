@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.sf.jml.*;
 import net.sf.jml.event.*;
+import net.sf.jml.exception.*;
 import net.sf.jml.impl.*;
 
 /**
@@ -435,7 +436,14 @@ public class ProtocolProviderServiceMsnImpl
 
         public void exceptionCaught(MsnMessenger msnMessenger, Throwable throwable)
         {
-            logger.error("Error in Msn lib ", throwable);
+            if(throwable instanceof IncorrectPasswordException)
+                fireRegistrationStateChanged(
+                    getRegistrationState(),
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED,
+                    "Incorrect Password");
+            else
+                logger.error("Error in Msn lib ", throwable);
         }
     }
 }
