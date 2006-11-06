@@ -69,7 +69,7 @@ public class ProtocolProviderServiceMsnImpl
      */
     public RegistrationState getRegistrationState()
     {
-        if(messenger.getConnection() == null)
+        if(messenger == null || messenger.getConnection() == null)
             return RegistrationState.UNREGISTERED;
         else
             return RegistrationState.REGISTERED;
@@ -431,6 +431,10 @@ public class ProtocolProviderServiceMsnImpl
         public void logout(MsnMessenger msnMessenger)
         {
             logger.trace("logout");
+            fireRegistrationStateChanged(
+                getRegistrationState(),
+                RegistrationState.UNREGISTERED,
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
 
         }
 
