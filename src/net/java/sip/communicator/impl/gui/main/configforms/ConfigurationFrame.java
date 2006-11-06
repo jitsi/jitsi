@@ -40,6 +40,10 @@ public class ConfigurationFrame
     private TitlePanel titlePanel = new TitlePanel();
 
     private JPanel centerPanel = new JPanel(new BorderLayout());
+    
+    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    
+    private JButton cancelButton = new JButton(Messages.getString("close"));
 
     private MainFrame mainFrame;
 
@@ -50,9 +54,11 @@ public class ConfigurationFrame
      */
     public ConfigurationFrame(MainFrame mainFrame) {
         
+        super(mainFrame);
+       
         this.mainFrame = mainFrame;
 
-        this.setTitle(Messages.getString("configurations"));
+        this.setTitle(Messages.getString("configuration"));
         
         this.getContentPane().setLayout(new BorderLayout());
 
@@ -64,12 +70,24 @@ public class ConfigurationFrame
 
         this.getContentPane().add(configList, BorderLayout.WEST);
         
+        this.buttonsPanel.add(cancelButton);
+        
+        this.cancelButton.addActionListener(new ActionListener(){
+
+            public void actionPerformed(ActionEvent e)
+            {
+                dispose();
+            }
+        });
+        
+        this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
+                
         this.setLocation(
                 Toolkit.getDefaultToolkit().getScreenSize().width/2 
                     - this.getWidth()/2,
                 Toolkit.getDefaultToolkit().getScreenSize().height/2 
                     - this.getHeight()/2
-                );
+                );  
     }
 
     /**
@@ -251,6 +269,8 @@ public class ConfigurationFrame
         this.centerPanel.add(titlePanel, BorderLayout.NORTH);
         
         this.setVisible(true);
+        
+        this.cancelButton.requestFocus();
     }
 
     /**
@@ -283,5 +303,5 @@ public class ConfigurationFrame
     protected void close()
     {
         this.dispose();
-    }
+    }    
 }
