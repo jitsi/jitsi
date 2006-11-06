@@ -638,4 +638,13 @@ public class ChatConversationPanel
     {
         return (HTMLDocument)this.chatEditorPane.getDocument();
     }
+
+    /**
+     * Returns the right button popup menu.
+     * @return the right button popup menu
+     */
+    public ChatRightButtonMenu getRightButtonMenu()
+    {
+        return rightButtonMenu;
+    }
 }

@@ -702,4 +702,22 @@ public class ChatPanel
     public void setChatVisible(boolean isVisible) {
         this.isVisible = isVisible;
     }
+    
+    /**
+     * Returns the chat conversation panel contained in this chat panel.
+     * @return the chat conversation panel contained in this chat panel
+     */
+    public ChatConversationPanel getChatConversationPanel()
+    {
+        return conversationPanel;
+    }
+    
+    /**
+     * Returns the chat write panel contained in this chat panel.
+     * @return the chat write panel contained in this chat panel
+     */
+    public ChatWritePanel getChatWritePanel()
+    {
+        return writeMessagePanel;
+    }
 }

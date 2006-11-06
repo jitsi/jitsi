@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.message.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -690,6 +691,20 @@ public class ChatWindow
      */
     protected void close()
     {
-        close(false);
+        ChatRightButtonMenu chatRightMenu
+            = currentChatPanel.getChatConversationPanel().getRightButtonMenu();
+        
+        WritePanelRightButtonMenu writePanelRightMenu
+            = currentChatPanel.getChatWritePanel().getRightButtonMenu();
+        
+        if(chatRightMenu.isVisible()) {
+            chatRightMenu.setVisible(false);
+        }
+        else if(writePanelRightMenu.isVisible()) {
+            writePanelRightMenu.setVisible(false);
+        }
+        else {
+            close(false);
+        }
     }
 }

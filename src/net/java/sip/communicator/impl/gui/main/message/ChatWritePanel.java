@@ -248,5 +248,10 @@ public class ChatWritePanel extends JScrollPane implements
     }
 
     public void mouseExited(MouseEvent e) {
+    }
+
+    public WritePanelRightButtonMenu getRightButtonMenu()
+    {
+        return rightButtonMenu;
     }   
 }
