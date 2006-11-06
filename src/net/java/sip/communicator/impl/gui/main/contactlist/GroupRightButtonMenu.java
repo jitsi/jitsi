@@ -103,47 +103,12 @@ public class GroupRightButtonMenu extends JPopupMenu
         String itemName = item.getName();
         
         if(itemName.equals("removeGroup")) {
-            if(group != null) {
-                if(Constants.REMOVE_CONTACT_ASK) {
-                    String message = "<HTML>Are you sure you want to remove <B>"
-                        + this.group.getGroupName()
-                        + "</B><BR>from your contact list?</html>";
-    
-                    MessageDialog dialog = new MessageDialog(this.mainFrame,
-                            message, Messages.getString("remove"));
-    
-                    int returnCode = dialog.showDialog();
-    
-                    if (returnCode == MessageDialog.OK_RETURN_CODE) {
-                        new Thread() {
-                            public void run() {
-                                mainFrame.getContactList()
-                                    .removeMetaContactGroup(group);
-                            }
-                        }.start();
-                    }
-                    else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
-                        new Thread() {
-                            public void run() {
-                                mainFrame.getContactList()
-                                .removeMetaContactGroup(group);
-                            }
-                        }.start();
-    
-                        Constants.REMOVE_CONTACT_ASK = false;
-                    }
-                }
-                else {
-                    new Thread() {
-                        public void run() {
-                            mainFrame.getContactList()
-                            .removeMetaContactGroup(group);
-                        }
-                    }.start();
-                }
-            }
+            
+            if(group != null) 
+                new RemoveGroupThread(group).start();                
         }
         else if(itemName.equals("renameGroup")) {
+            
             RenameGroupDialog dialog = new RenameGroupDialog(
                     mainFrame.getContactList(), group);
 
@@ -173,6 +138,44 @@ public class GroupRightButtonMenu extends JPopupMenu
                     );
             
             dialog.setVisible(true);
+        }
+    }
+    
+    /**
+     * Removes a group from the contact list in a separate thread.
+     */
+    private class RemoveGroupThread extends Thread
+    {
+        private MetaContactGroup group;
+        
+        public RemoveGroupThread(MetaContactGroup group) {
+            this.group = group;
+        }
+        public void run() {
+            if(Constants.REMOVE_CONTACT_ASK) {
+                String message = "<HTML>Are you sure you want to remove <B>"
+                    + this.group.getGroupName()
+                    + "</B><BR>from your contact list?</html>";
+
+                MessageDialog dialog = new MessageDialog(mainFrame,
+                        message, Messages.getString("remove"));
+
+                int returnCode = dialog.showDialog();
+                
+                if (returnCode == MessageDialog.OK_RETURN_CODE) {
+                    mainFrame.getContactList()
+                                .removeMetaContactGroup(group);                    
+                }
+                else if (returnCode == MessageDialog.OK_DONT_ASK_CODE) {
+                    mainFrame.getContactList()
+                            .removeMetaContactGroup(group);
+                    
+                    Constants.REMOVE_CONTACT_ASK = false;
+                }
+            }
+            else {
+                mainFrame.getContactList().removeMetaContactGroup(group);
+            }
         }
     }
 }
