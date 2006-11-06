@@ -14,6 +14,7 @@ import javax.imageio.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
@@ -45,9 +46,11 @@ public class AccountRegWizardContainerImpl extends Wizard
      */
     private Vector accountRegListeners = new Vector();
     
-    public AccountRegWizardContainerImpl() {
-        this.getDialog().setTitle(
-                Messages.getString("accountRegistrationWizard"));
+    public AccountRegWizardContainerImpl(MainFrame mainFrame)
+    {
+        super(mainFrame);
+        
+        this.setTitle(Messages.getString("accountRegistrationWizard"));
         
         this.firstPage = new AccountRegFirstPage(this);
         

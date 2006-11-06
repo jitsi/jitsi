@@ -64,7 +64,8 @@ public class UIServiceImpl implements UIService {
         this.contactList = mainFrame.getContactListPanel();
         
         this.popupDialog = new PopupDialogImpl(mainFrame);
-        this.wizardContainer = new AccountRegWizardContainerImpl();
+        
+        this.wizardContainer = new AccountRegWizardContainerImpl(mainFrame);
         
         this.configurationFrame = new ConfigurationFrame(mainFrame);
     }
