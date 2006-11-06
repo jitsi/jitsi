@@ -68,6 +68,8 @@ public class DatesPanel
         this.getViewport().add(listPanel);
 
         this.datesList.addListSelectionListener(this);
+        
+        this.getVerticalScrollBar().setUnitIncrement(30);
     }
 
     /**
