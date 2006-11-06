@@ -26,6 +26,7 @@ import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.protocol.msn.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.PropertyVetoException;
 import net.java.sip.communicator.service.contactlist.*;
@@ -1016,14 +1017,6 @@ public class MainFrame
         else
             return null;
     }
-
-    /**
-     * Overwrites the <tt>SIPCommFrame</tt> close method. This method is
-     * invoked when user presses the Escape key.  
-     */
-    protected void close()
-    {
-    }
     
     /**
      * <tt>RenameAction</tt> is invoked when user presses the F2 key. Depending
@@ -1067,6 +1060,34 @@ public class MainFrame
                 
                 dialog.requestFocusInFiled();
             }
+        }
+    }
+    
+    /**
+     * Overwrites the <tt>SIPCommFrame</tt> close method. This method is
+     * invoked when user presses the Escape key.  
+     */
+    protected void close()
+    {
+        ContactList contactList = getContactListPanel().getContactList();
+        
+        ContactRightButtonMenu contactPopupMenu
+            = contactList.getContactRightButtonMenu();
+        
+        GroupRightButtonMenu groupPopupMenu
+            = contactList.getGroupRightButtonMenu();
+        
+        CommonRightButtonMenu commonPopupMenu
+            = getContactListPanel().getCommonRightButtonMenu();
+        
+        if(contactPopupMenu != null && contactPopupMenu.isVisible()) {
+            contactPopupMenu.setVisible(false);
+        }
+        else if(groupPopupMenu != null && groupPopupMenu.isVisible()) {
+            groupPopupMenu.setVisible(false);
+        }
+        else if(commonPopupMenu != null && commonPopupMenu.isVisible()) {
+            commonPopupMenu.setVisible(false);
         }
     }
 }

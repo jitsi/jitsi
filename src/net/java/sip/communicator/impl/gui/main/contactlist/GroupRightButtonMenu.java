@@ -88,7 +88,7 @@ public class GroupRightButtonMenu extends JPopupMenu
         this.removeGroupItem.setName("removeGroup");
         
         this.renameGroupItem.addActionListener(this);
-        this.removeGroupItem.addActionListener(this);
+        this.removeGroupItem.addActionListener(this);        
     }
     
     /**
