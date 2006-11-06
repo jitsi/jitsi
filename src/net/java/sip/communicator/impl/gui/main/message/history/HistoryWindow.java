@@ -16,6 +16,7 @@ import javax.swing.Timer;
 import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.message.*;
@@ -36,7 +37,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class HistoryWindow
-    extends JFrame
+    extends SIPCommFrame
     implements  ChatConversationContainer,
                 ActionListener,
                 MessageHistorySearchProgressListener
@@ -129,7 +130,7 @@ public class HistoryWindow
         this.historyMenu = new HistoryMenu(this);
         this.searchPanel = new SearchPanel(this);
 
-        this.setSizeAndLocation();
+        this.loadSizeAndLocation();
 
         this.setIconImage(
                 ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
@@ -138,16 +139,7 @@ public class HistoryWindow
 
         this.initData();
 
-        this.addWindowListener(new HistoryWindowAdapter());
-        
-        ActionMap amap = this.getRootPane().getActionMap();
-        
-        amap.put("close", new CloseAction());
-        
-        InputMap imap = this.getRootPane().getInputMap(
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
+        this.addWindowListener(new HistoryWindowAdapter());        
     }
 
     /**
@@ -302,37 +294,46 @@ public class HistoryWindow
         public void windowClosing(WindowEvent e) {
             msgHistory.removeSearchProgressListener(HistoryWindow.this);
             
-            ConfigurationService configService
-                = GuiActivator.getConfigurationService();
-
-            try {
-                configService.setProperty(
-                    HISTORY_WINDOW_WIDTH_PROPERTY,
-                    new Integer(getWidth()));
-
-                configService.setProperty(
-                    HISTORY_WINDOW_HEIGHT_PROPERTY,
-                    new Integer(getHeight()));
-
-                configService.setProperty(
-                    HISTORY_WINDOW_X_PROPERTY,
-                    new Integer(getX()));
-
-                configService.setProperty(
-                    HISTORY_WINDOW_Y_PROPERTY,
-                    new Integer(getY()));
-            }
-            catch (PropertyVetoException e1) {
-                logger.error("The proposed property change "
-                        + "represents an unacceptable value");
-            }
+            saveSizeAndLocation();
+        }
+    }
+    
+    /**
+     * Through the <tt>ConfigurationService</tt> saves the current window size
+     * and location.
+     */
+    private void saveSizeAndLocation()
+    {
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+    
+        try {
+            configService.setProperty(
+                HISTORY_WINDOW_WIDTH_PROPERTY,
+                new Integer(getWidth()));
+    
+            configService.setProperty(
+                HISTORY_WINDOW_HEIGHT_PROPERTY,
+                new Integer(getHeight()));
+    
+            configService.setProperty(
+                HISTORY_WINDOW_X_PROPERTY,
+                new Integer(getX()));
+    
+            configService.setProperty(
+                HISTORY_WINDOW_Y_PROPERTY,
+                new Integer(getY()));
+        }
+        catch (PropertyVetoException e1) {
+            logger.error("The proposed property change "
+                    + "represents an unacceptable value");
         }
     }
 
     /**
      * Sets the window size and position.
      */
-    public void setSizeAndLocation()
+    public void loadSizeAndLocation()
     {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
@@ -444,16 +445,6 @@ public class HistoryWindow
         }
     }
     
-    /**
-     * The <tt>CloseAction</tt> is an <tt>AbstractAction</tt> that closes the
-     * current history window.
-     */
-    private class CloseAction extends AbstractAction
-    {
-        public void actionPerformed(ActionEvent e) {
-            dispose();
-        }
-    };
         
     /**
      * Loads history dates.
@@ -629,5 +620,12 @@ public class HistoryWindow
             };
             SwingUtilities.invokeLater(updateDatesPanel);
         }       
+    }
+
+    protected void close()
+    {
+        this.dispose();
+        
+        saveSizeAndLocation();
     }
 }

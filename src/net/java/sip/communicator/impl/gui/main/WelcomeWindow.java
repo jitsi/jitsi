@@ -7,6 +7,7 @@ import javax.swing.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -20,7 +21,8 @@ import net.java.sip.communicator.util.*;
  *
  * @author Yana Stamcheva
  */
-public class WelcomeWindow extends JDialog
+public class WelcomeWindow
+    extends SIPCommDialog
     implements ActionListener {
 
     private JLabel welcomeLabel = new JLabel(
@@ -54,11 +56,13 @@ public class WelcomeWindow extends JDialog
      */
     public WelcomeWindow(CommunicatorMain c,
             LoginManager loginManager) {
-        super(c.getMainFrame(), Messages.getString("warning"));
-
+        super(c.getMainFrame());
+        
         this.communicator = c;
         this.loginManager = loginManager;
 
+        this.setTitle(Messages.getString("warning"));
+        
         this.exitButton.setMnemonic(
                 Messages.getString("mnemonic.exit").charAt(0));
         this.continueButton.setMnemonic(
@@ -95,13 +99,6 @@ public class WelcomeWindow extends JDialog
                 SwingUtilities.invokeLater(new RunLogin());
             }
         });
-
-        getRootPane().getActionMap().put("close", new CloseAction());
-
-        InputMap imap = this.getRootPane().getInputMap(
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
     }
 
     /**
@@ -199,19 +196,6 @@ public class WelcomeWindow extends JDialog
     }
 
     /**
-     * The <tt>CloseAction</tt> is an <tt>AbstractAction</tt> that
-     * closes this <tt>WelcomeWindow</tt> and shows the main application
-     * window and the login windows.
-     */
-    private class CloseAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
-            dispose();
-            communicator.showCommunicator(true);
-            SwingUtilities.invokeLater(new RunLogin());
-        }
-    };
-
-    /**
      * The <tt>ExitAction</tt> is an <tt>AbstractAction</tt> that
      * exits the application.
      */
@@ -224,5 +208,12 @@ public class WelcomeWindow extends JDialog
             }
             System.exit(0);
         }
-    };
+    }
+
+    protected void close()
+    {
+        dispose();
+        communicator.showCommunicator(true);
+        SwingUtilities.invokeLater(new RunLogin());        
+    }
 }

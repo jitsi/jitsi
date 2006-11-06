@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -25,7 +26,8 @@ import net.java.sip.communicator.util.*;
  * 
  * @author Yana Stamcheva
  */
-public class AddContactDialog extends JDialog
+public class AddContactDialog
+    extends SIPCommDialog
     implements ActionListener {
 
     private Logger logger = Logger.getLogger(AddContactDialog.class.getName());
@@ -194,5 +196,10 @@ public class AddContactDialog extends JDialog
         else {
             this.dispose();
         }
+    }
+
+    protected void close()
+    {
+        this.cancelButton.doClick();
     }
 }

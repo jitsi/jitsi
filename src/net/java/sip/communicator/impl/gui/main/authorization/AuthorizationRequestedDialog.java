@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -19,7 +20,8 @@ import net.java.sip.communicator.service.protocol.*;
  * 
  * @author Yana Stamcheva
  */
-public class AuthorizationRequestedDialog extends JDialog
+public class AuthorizationRequestedDialog
+    extends SIPCommDialog
     implements ActionListener {
     
     public static final int ACCEPT_CODE = 0;
@@ -61,8 +63,7 @@ public class AuthorizationRequestedDialog extends JDialog
     
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
     
-    private JSplitPane reasonsSplitPane
-        = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+    private JPanel reasonsPanel = new JPanel(new GridLayout(0, 1, 5, 5));
     
     private String title = Messages.getString("authorizationRequested");
     
@@ -115,9 +116,8 @@ public class AuthorizationRequestedDialog extends JDialog
         
         this.responseScrollPane.getViewport().add(responsePane);
         
-        this.reasonsSplitPane.setDividerLocation(170);
-        this.reasonsSplitPane.add(requestScrollPane);
-        this.reasonsSplitPane.add(responseScrollPane);
+        this.reasonsPanel.add(requestScrollPane);
+        this.reasonsPanel.add(responseScrollPane);
         
         this.acceptButton.setName("accept");
         this.rejectButton.setName("reject");
@@ -141,12 +141,12 @@ public class AuthorizationRequestedDialog extends JDialog
         
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.mainPanel.add(northPanel, BorderLayout.NORTH);
-        this.mainPanel.add(reasonsSplitPane, BorderLayout.CENTER);
+        this.mainPanel.add(reasonsPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
         this.getContentPane().add(mainPanel);
         
-        this.setSize(new Dimension(500, 400));
+        this.setSize(new Dimension(550, 400));
         
         this.setLocation(
                 Toolkit.getDefaultToolkit().getScreenSize().width/2
@@ -196,5 +196,10 @@ public class AuthorizationRequestedDialog extends JDialog
      */
     public String getResponseReason() {
         return this.responsePane.getText();
+    }
+
+    protected void close()
+    {
+        this.ignoreButton.doClick();
     }
 }

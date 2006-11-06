@@ -38,8 +38,9 @@ import net.java.sip.communicator.util.*;
  *
  * @author Yana Stamcheva
  */
-public class ChatWindow extends JFrame {
-
+public class ChatWindow
+    extends SIPCommFrame
+{
     private Logger logger = Logger.getLogger(ChatWindow.class.getName());
 
     private static final String CHAT_WINDOW_WIDTH_PROPERTY
@@ -90,43 +91,27 @@ public class ChatWindow extends JFrame {
         this.setSizeAndLocation();
 
         this.init();
-
-        ActionMap amap = this.getRootPane().getActionMap();
-
-        amap.put("close", new CloseAction());
-        amap.put("changeTabForword", new ForwordTabAction());
-        amap.put("changeTabBackword", new BackwordTabAction());
-        amap.put("sendMessage", new SendMessageAction());
-        amap.put("openSmilies", new OpenSmileyAction());
-        amap.put("changeProtocol", new ChangeProtocolAction());
-        amap.put("copy", new CopyAction());
-        amap.put("paste", new PasteAction());
-        amap.put("openHistory", new OpenHistoryAction());
-
-        InputMap imap = this.getRootPane().getInputMap(
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
-                KeyEvent.ALT_DOWN_MASK), "changeTabForword");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
-                KeyEvent.ALT_DOWN_MASK), "changeTabBackword");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,
-                KeyEvent.CTRL_DOWN_MASK), "copy");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,
-                KeyEvent.SHIFT_DOWN_MASK), "paste");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C,
-                KeyEvent.META_MASK), "copy");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_V,
-                KeyEvent.META_MASK), "paste");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,
-                KeyEvent.CTRL_DOWN_MASK), "sendMessage");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_M,
-                KeyEvent.CTRL_DOWN_MASK), "openSmilies");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P,
-                KeyEvent.CTRL_DOWN_MASK), "changeProtocol");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_H,
-                KeyEvent.CTRL_DOWN_MASK), "openHistory");
+        
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
+                KeyEvent.ALT_DOWN_MASK), new ForwordTabAction());
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
+                KeyEvent.ALT_DOWN_MASK), new BackwordTabAction());
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,
+                KeyEvent.CTRL_DOWN_MASK), new CopyAction());
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,
+                KeyEvent.SHIFT_DOWN_MASK), new PasteAction());
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_C,
+                KeyEvent.META_MASK), new CopyAction());
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_V,
+                KeyEvent.META_MASK), new PasteAction());
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,
+                KeyEvent.CTRL_DOWN_MASK), new SendMessageAction());
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_M,
+                KeyEvent.CTRL_DOWN_MASK), new OpenSmileyAction());
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_P,
+                KeyEvent.CTRL_DOWN_MASK), new ChangeProtocolAction());
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_H,
+                KeyEvent.CTRL_DOWN_MASK), new OpenHistoryAction());
 
         this.addWindowListener(new ChatWindowAdapter());
     }
@@ -505,16 +490,6 @@ public class ChatWindow extends JFrame {
     }
 
     /**
-     * The <tt>CloseAction</tt> is an <tt>AbstractAction</tt> that closes the
-     * current chat.
-     */
-    private class CloseAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
-            close(false);
-        }
-    };
-
-    /**
      * The <tt>ForwordTabAction</tt> is an <tt>AbstractAction</tt> that changes
      * the currently selected tab with the next one. Each time when the last tab
      * index is reached the first one is selected.
@@ -708,5 +683,13 @@ public class ChatWindow extends JFrame {
                     new Integer(y).intValue());
         else
             this.setCenterLocation();
+    }
+
+    /**
+     * Implements the SIPCommFrame close method.
+     */
+    protected void close()
+    {
+        close(false);
     }
 }

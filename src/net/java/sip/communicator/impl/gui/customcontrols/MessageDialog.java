@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -23,7 +25,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * 
  * @author Yana Stamcheva
  */
-public class MessageDialog extends JDialog
+public class MessageDialog
+    extends SIPCommDialog
     implements ActionListener {
 
     private JButton cancelButton = new JButton(Messages.getString("cancel"));
@@ -52,6 +55,8 @@ public class MessageDialog extends JDialog
     public static final int CANCEL_RETURN_CODE = 1;
     
     public static final int OK_DONT_ASK_CODE = 2;
+    
+    private Object lock = new Object();
 
     /**
      * Creates an instance of <tt>MessageDialog</tt> by specifying the
@@ -60,7 +65,7 @@ public class MessageDialog extends JDialog
      */
     public MessageDialog(Frame owner) {
         super(owner);
-
+        
         this.setLocationRelativeTo(owner);
 
         this.setTitle(Messages.getString("removeContact"));
@@ -136,8 +141,19 @@ public class MessageDialog extends JDialog
      * the user. If the user chooses cancel, the return code is the 
      * CANCEL_RETURN_CODE.
      */
-    public int showDialog() {
-        this.setVisible(true);
+    public int showDialog()
+    {   
+        setVisible(true);
+        
+        synchronized (lock) {
+            try {                    
+                lock.wait();
+            }
+            catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         
         return returnCode;
     }
@@ -161,6 +177,15 @@ public class MessageDialog extends JDialog
             this.returnCode = CANCEL_RETURN_CODE;
         }
         
+        synchronized (lock) {
+            lock.notify();
+        }
+                
         this.dispose();
+    }
+
+    protected void close()
+    {
+        this.cancelButton.doClick();
     }
 }

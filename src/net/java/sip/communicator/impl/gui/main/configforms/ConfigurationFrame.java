@@ -7,12 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.main.configforms;
 
-import java.io.*;
-import java.util.*;
-import javax.imageio.*;
-
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.util.*;
+
+import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -26,10 +26,11 @@ import net.java.sip.communicator.service.gui.*;
  * 
  * @author Yana Stamcheva
  */
-public class ConfigurationFrame extends JFrame
+public class ConfigurationFrame
+    extends SIPCommDialog
     implements  ConfigurationManager, 
-                MouseListener {
-
+                MouseListener
+{
     private Vector configContainer = new Vector();
 
     private JScrollPane formScrollPane = new JScrollPane();
@@ -232,6 +233,7 @@ public class ConfigurationFrame extends JFrame
      * @see net.java.sip.communicator.service.gui.ExportedDialog#showDialog()
      */
     public void showDialog() {
+        
         ConfigurationForm configForm 
             = (ConfigurationForm) this.configContainer.get(0);
         
@@ -241,7 +243,7 @@ public class ConfigurationFrame extends JFrame
             .add((Component)configForm.getForm());
 
         this.titlePanel.removeAll();
-
+        
         this.titlePanel.setTitleText(configForm.getTitle());
 
         this.centerPanel.remove(titlePanel);
@@ -273,5 +275,13 @@ public class ConfigurationFrame extends JFrame
      */
     public void moveDialog(int x, int y) {
         this.setLocation(x, y);
+    }
+
+    /**
+     * Implements <tt>SIPCommFrame</tt> close method.
+     */
+    protected void close()
+    {
+        this.dispose();
     }
 }

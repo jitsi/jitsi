@@ -42,7 +42,7 @@ public class AddContactWizard
      
         super.addWizardListener(this);
         
-        this.getDialog().setTitle(Messages.getString("addContactWizard"));
+        this.setTitle(Messages.getString("addContactWizard"));
 
         page1 = new AddContactWizardPage1(this, newContact,
                     mainFrame.getProtocolProviders());
@@ -71,7 +71,7 @@ public class AddContactWizard
      */
     public void centerWizard()
     {
-        this.getDialog().setLocation(
+        this.setLocation(
                 Toolkit.getDefaultToolkit().getScreenSize().width/2
                     - 250,
                 Toolkit.getDefaultToolkit().getScreenSize().height/2
@@ -282,9 +282,8 @@ public class AddContactWizard
     {}
 
     public void wizardFinished(WizardEvent e)
-    {   
+    {
         if(e.getEventCode() == WizardEvent.SUCCESS) {
-            
             if(newContact.getNewGroup() != null
                     && !newContact.getNewGroup().equals("")) {                
                 new CreateGroup(mainFrame.getContactList(), 
@@ -293,11 +292,11 @@ public class AddContactWizard
             
             ArrayList ppList = newContact.getProtocolProviders();
             ArrayList groupList = newContact.getGroups();
-
+    
             for(int i = 0; i < ppList.size(); i ++) {
                 ProtocolProviderService pps
                     = (ProtocolProviderService)ppList.get(i);
-
+    
                 for(int j = 0; j < groupList.size(); j++) {
                     MetaContactGroup group
                         = (MetaContactGroup)groupList.get(j);
@@ -305,9 +304,6 @@ public class AddContactWizard
                     new CreateContact(pps, group, newContact).start();
                 }
             }
-        }
-        else if(e.getEventCode() == WizardEvent.ERROR) {
-            this.getDialog().dispose();
         }
     }
 }

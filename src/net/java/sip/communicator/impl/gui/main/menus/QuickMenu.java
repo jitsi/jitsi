@@ -7,15 +7,13 @@
 
 package net.java.sip.communicator.impl.gui.main.menus;
 
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
@@ -106,7 +104,6 @@ public class QuickMenu
         this.configureButton.addActionListener(this);
         this.searchButton.addActionListener(this);
         this.infoButton.addActionListener(this);
-
     }
 
     /**

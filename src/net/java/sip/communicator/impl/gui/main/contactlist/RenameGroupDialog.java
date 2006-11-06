@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.service.contactlist.*;
 
@@ -20,7 +21,8 @@ import net.java.sip.communicator.service.contactlist.*;
  * 
  * @author Yana Stamcheva
  */
-public class RenameGroupDialog extends JDialog
+public class RenameGroupDialog
+    extends SIPCommDialog
     implements ActionListener {
 
     private RenameGroupPanel renameGroupPanel 
@@ -115,5 +117,10 @@ public class RenameGroupDialog extends JDialog
      */
     public void requestFocusInFiled() {
         this.renameGroupPanel.requestFocusInField();
+    }
+
+    protected void close()
+    {
+        this.cancelButton.doClick();
     }
 }

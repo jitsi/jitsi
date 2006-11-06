@@ -15,6 +15,7 @@ import java.awt.image.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.service.gui.*;
 
@@ -26,9 +27,11 @@ import net.java.sip.communicator.service.gui.*;
  * uses a CardLayout manager, the order of the panels is not linear. Each panel
  * determines at runtime what its next and previous panel will be.
  */
-public class Wizard extends WindowAdapter
-    implements WizardContainer, PropertyChangeListener {
-
+public class Wizard extends SIPCommDialog
+    implements  WindowListener,
+                WizardContainer, 
+                PropertyChangeListener
+{
     /**
      * The identifier of the summary wizard page.
      */
@@ -98,8 +101,7 @@ public class Wizard extends WindowAdapter
     
     private WizardModel wizardModel;
     private WizardController wizardController;
-    private JDialog wizardDialog;
-        
+            
     private JPanel cardPanel;
     private CardLayout cardLayout;            
     private JButton backButton;
@@ -122,8 +124,10 @@ public class Wizard extends WindowAdapter
      * @param owner The java.awt.Dialog object that is the owner of this dialog.
      */    
     public Wizard(Dialog owner) {
+        super(owner);
+        
         wizardModel = new WizardModel();
-        wizardDialog = new JDialog(owner);         
+                 
         initComponents();
     }
  
@@ -134,8 +138,10 @@ public class Wizard extends WindowAdapter
      * javax.swing.JDialog.
      */    
     public Wizard(Frame owner) {
+        super(owner);
+        
         wizardModel = new WizardModel();
-        wizardDialog = new JDialog(owner);         
+                 
         initComponents();
     }
     
@@ -146,51 +152,9 @@ public class Wizard extends WindowAdapter
      * @return The JDialog instance that this class created.
      */    
     public JDialog getDialog() {
-        return wizardDialog;
+        return this;
     }
     
-    /**
-     * Returns the owner of the generated javax.swing.JDialog.
-     * @return The owner (java.awt.Frame or java.awt.Dialog) of the
-     * javax.swing.JDialog generated
-     * by this class.
-     */    
-    public Component getOwner() {
-        return wizardDialog.getOwner();
-    }
-    
-    /**
-     * Sets the title of the generated javax.swing.JDialog.
-     * @param s The title of the dialog.
-     */    
-    public void setTitle(String s) {
-        wizardDialog.setTitle(s);
-    }
-    
-    /**
-     * Returns the current title of the generated dialog.
-     * @return The String-based title of the generated dialog.
-     */    
-    public String getTitle() {
-        return wizardDialog.getTitle();
-    }
-    
-    /**
-     * Sets the modality of the generated javax.swing.JDialog.
-     * @param b the modality of the dialog
-     */    
-    public void setModal(boolean b) {
-        wizardDialog.setModal(b);
-    }
-    
-    /**
-     * Returns the modality of the dialog.
-     * @return A boolean indicating whether or not the generated
-     * javax.swing.JDialog is modal.
-     */    
-    public boolean isModal() {
-        return wizardDialog.isModal();
-    }
     
     /**
      * Convienence method that displays a modal wizard dialog and blocks until
@@ -200,10 +164,10 @@ public class Wizard extends WindowAdapter
     public void showDialog(boolean modal) {
         
         if(modal)
-            wizardDialog.setModal(true);
+            this.setModal(true);
         
-        wizardDialog.pack();
-        wizardDialog.setVisible(true);
+        this.pack();
+        this.setVisible(true);
     }
     
     /**
@@ -277,7 +241,7 @@ public class Wizard extends WindowAdapter
         //  the dialog.
         
         if (id == null)
-            close(ERROR_RETURN_CODE);
+            close(Wizard.ERROR_RETURN_CODE);
         
         WizardPage oldPanelDescriptor
             = wizardModel.getCurrentWizardPage();
@@ -406,9 +370,14 @@ public class Wizard extends WindowAdapter
         }
         this.removeWizzardIcon();
         
-        this.fireWizardEvent(WizardEvent.SUCCESS);
+        if(code == CANCEL_RETURN_CODE)
+            this.fireWizardEvent(WizardEvent.CANCEL);
+        else if(code == FINISH_RETURN_CODE)
+            this.fireWizardEvent(WizardEvent.SUCCESS);
+        else if(code == ERROR_RETURN_CODE)
+            this.fireWizardEvent(WizardEvent.ERROR);
         
-        wizardDialog.dispose();
+        this.dispose();
     }
     
     /**
@@ -422,8 +391,8 @@ public class Wizard extends WindowAdapter
         wizardModel.addPropertyChangeListener(this);       
         wizardController = new WizardController(this);       
 
-        wizardDialog.getContentPane().setLayout(new BorderLayout());
-        wizardDialog.addWindowListener(this);
+        this.getContentPane().setLayout(new BorderLayout());
+        this.addWindowListener(this);
                 
         /*
          * Create the outer wizard panel, which is responsible for three 
@@ -479,11 +448,11 @@ public class Wizard extends WindowAdapter
         
         buttonPanel.add(buttonBox, java.awt.BorderLayout.EAST);
         
-        wizardDialog.getContentPane().add(
+        this.getContentPane().add(
                 buttonPanel, java.awt.BorderLayout.SOUTH);
-        wizardDialog.getContentPane().add(
+        this.getContentPane().add(
                 cardPanel, java.awt.BorderLayout.CENTER);
-        wizardDialog.getContentPane().add(
+        this.getContentPane().add(
                 wizardIconPanel, 
                 java.awt.BorderLayout.WEST);
     }
@@ -495,7 +464,7 @@ public class Wizard extends WindowAdapter
      */ 
     
     public void windowClosing(WindowEvent e) {
-        fireWizardEvent(WizardEvent.CANCEL);
+        this.close(Wizard.CANCEL_RETURN_CODE);
     }
      
     
@@ -504,11 +473,6 @@ public class Wizard extends WindowAdapter
         NEXT_TEXT = Messages.getString("next");
         CANCEL_TEXT = Messages.getString("cancel");
         FINISH_TEXT = Messages.getString("finish");
-    }
-
-
-    public void setLocation(int x, int y) {
-        this.wizardDialog.setLocation(x, y);
     }
 
     public BufferedImage getWizzardIcon() {
@@ -563,4 +527,30 @@ public class Wizard extends WindowAdapter
             l.wizardFinished(wizardEvent);
         }
     }
+
+    /**
+     * Implements the <tt>SIPCommDialog</tt> close method.
+     */
+    protected void close()
+    {
+        this.close(Wizard.CANCEL_RETURN_CODE);
+    }
+
+    public void windowActivated(WindowEvent e)
+    {}
+
+    public void windowClosed(WindowEvent e)
+    {}
+
+    public void windowDeactivated(WindowEvent e)
+    {}
+
+    public void windowDeiconified(WindowEvent e)
+    {}
+
+    public void windowIconified(WindowEvent e)
+    {}
+
+    public void windowOpened(WindowEvent e)
+    {}
 }

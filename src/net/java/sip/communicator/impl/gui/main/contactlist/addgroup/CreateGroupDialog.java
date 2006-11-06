@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -21,7 +22,8 @@ import net.java.sip.communicator.util.*;
  * a group.
  * @author Yana Stamcheva
  */
-public class CreateGroupDialog extends JDialog
+public class CreateGroupDialog
+    extends SIPCommDialog
     implements ActionListener {
     
     private Logger logger = Logger.getLogger(CreateGroupDialog.class.getName());
@@ -166,5 +168,10 @@ public class CreateGroupDialog extends JDialog
                 }
             }.start();
         }
+    }
+
+    protected void close()
+    {
+        this.cancelButton.doClick();
     }
 }

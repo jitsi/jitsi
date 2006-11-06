@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -21,7 +22,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class RequestAuthorizationDialog
-    extends JDialog
+    extends SIPCommDialog
     implements ActionListener
 {
     public static final int OK_RETURN_CODE = 1;
@@ -168,5 +169,10 @@ public class RequestAuthorizationDialog
     public String getRequestReason()
     {
         return requestPane.getText();
+    }
+
+    protected void close()
+    {
+        this.cancelButton.doClick();
     }   
 }

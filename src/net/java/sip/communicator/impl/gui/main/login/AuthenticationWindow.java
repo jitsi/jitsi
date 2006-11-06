@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -21,7 +22,10 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Yana Stamcheva
  */
-public class AuthenticationWindow extends JDialog implements ActionListener {
+public class AuthenticationWindow
+    extends SIPCommDialog
+    implements ActionListener
+{
 
     private JTextArea realmTextArea = new JTextArea();
 
@@ -250,5 +254,10 @@ public class AuthenticationWindow extends JDialog implements ActionListener {
         InputMap imap = this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
+    }
+
+    protected void close()
+    {
+        this.cancelButton.doClick();
     }
 }

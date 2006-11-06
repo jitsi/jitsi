@@ -58,8 +58,6 @@ public class WizardController implements ActionListener {
     private void cancelButtonPressed() {
         
         wizard.close(Wizard.CANCEL_RETURN_CODE);
-        
-        
     }
 
     /**
