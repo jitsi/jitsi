@@ -622,10 +622,21 @@ public class HistoryWindow
         }       
     }
 
+    /**
+     * Implements the <tt>SIPCommFrame</tt> close method, which is invoked when
+     * user presses the Esc key. Checks if the popup menu is visible and if
+     * this is the case hides it, otherwise saves the current history window
+     * size and location and disposes the window.
+     */
     protected void close()
     {
-        this.dispose();
+        if(chatConvPanel.getRightButtonMenu().isVisible()) {
+            chatConvPanel.getRightButtonMenu().setVisible(false);
+        }
+        else {
+            this.dispose();
         
-        saveSizeAndLocation();
+            saveSizeAndLocation();
+        }
     }
 }
