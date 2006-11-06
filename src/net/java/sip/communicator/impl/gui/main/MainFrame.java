@@ -18,6 +18,7 @@ import javax.swing.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
@@ -42,7 +43,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class MainFrame
-    extends JFrame
+    extends SIPCommFrame
 {
     private Logger logger = Logger.getLogger(MainFrame.class.getName());
 
@@ -126,6 +127,9 @@ public class MainFrame
      */
     private void init()
     {
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0),
+                new RenameAction());
+        
         this.menusPanel.add(menu, BorderLayout.NORTH);
         this.menusPanel.add(quickMenu, BorderLayout.CENTER);
 
@@ -1011,5 +1015,58 @@ public class MainFrame
                 .getProtocolProviderLastStatus(protocolProvider);
         else
             return null;
+    }
+
+    /**
+     * Overwrites the <tt>SIPCommFrame</tt> close method. This method is
+     * invoked when user presses the Escape key.  
+     */
+    protected void close()
+    {
+    }
+    
+    /**
+     * <tt>RenameAction</tt> is invoked when user presses the F2 key. Depending
+     * on the selection opens the appropriate form for renaming.
+     */
+    private class RenameAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            Object selectedObject
+                = getContactListPanel().getContactList().getSelectedValue();
+            
+            if(selectedObject instanceof MetaContact) {
+                RenameContactDialog dialog = new RenameContactDialog(
+                        contactList, (MetaContact)selectedObject);
+
+                dialog.setLocation(
+                        Toolkit.getDefaultToolkit().getScreenSize().width/2
+                            - 200,
+                        Toolkit.getDefaultToolkit().getScreenSize().height/2
+                            - 50
+                        );
+
+                dialog.setVisible(true);
+                
+                dialog.requestFocusInFiled();
+            }
+            else if(selectedObject instanceof MetaContactGroup) {
+                
+                RenameGroupDialog dialog = new RenameGroupDialog(
+                        contactList, (MetaContactGroup)selectedObject);
+
+                dialog.setLocation(
+                        Toolkit.getDefaultToolkit().getScreenSize().width/2
+                            - 200,
+                        Toolkit.getDefaultToolkit().getScreenSize().height/2
+                            - 50
+                        );
+
+                dialog.setVisible(true);
+                
+                dialog.requestFocusInFiled();
+            }
+        }
     }
 }
