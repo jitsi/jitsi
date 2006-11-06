@@ -63,6 +63,6 @@ public abstract class SIPCommDialog extends JDialog
         
         imap.put(keyStroke, actionID);
     }
-    
+
     protected abstract void close();
 }

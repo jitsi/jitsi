@@ -68,6 +68,7 @@ public class CreateGroupDialog
     private void init() {
         this.setTitle(Messages.getString("addGroup"));
         
+        this.getRootPane().setDefaultButton(addButton);
         this.addButton.setName("create");
         this.cancelButton.setName("cancel");
         

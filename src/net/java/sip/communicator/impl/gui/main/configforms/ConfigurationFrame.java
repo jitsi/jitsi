@@ -302,6 +302,6 @@ public class ConfigurationFrame
      */
     protected void close()
     {
-        this.dispose();
+        this.cancelButton.doClick();
     }    
 }

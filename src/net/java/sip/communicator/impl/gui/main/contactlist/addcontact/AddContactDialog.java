@@ -102,6 +102,7 @@ public class AddContactDialog
         
         this.setSize(520, 250);
         
+        this.getRootPane().setDefaultButton(addButton);
         this.addButton.setName("add");
         this.cancelButton.setName("cancel");
         

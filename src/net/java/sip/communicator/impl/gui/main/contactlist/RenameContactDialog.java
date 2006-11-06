@@ -64,6 +64,7 @@ public class RenameContactDialog
     private void init() {
         this.setTitle(Messages.getString("renameContact"));
         
+        this.getRootPane().setDefaultButton(renameButton);
         this.renameButton.setName("rename");
         this.cancelButton.setName("cancel");
         

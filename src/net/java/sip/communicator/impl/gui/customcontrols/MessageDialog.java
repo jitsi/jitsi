@@ -111,6 +111,8 @@ public class MessageDialog
      * Initializes this dialog.
      */
     private void init() {
+        this.getRootPane().setDefaultButton(okButton);
+
         this.checkBoxPanel.add(doNotAskAgain);
 
         this.buttonsPanel.add(okButton);
