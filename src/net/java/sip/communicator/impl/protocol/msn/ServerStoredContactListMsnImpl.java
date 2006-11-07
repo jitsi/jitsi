@@ -1010,6 +1010,8 @@ public class ServerStoredContactListMsnImpl
                 // we are moving from root to a group
                 logger.trace("Moving from root to a group: firing event");
                 waitMoveFromRoot.remove(contactID);
+                rootGroup.removeContact(contactToAdd);
+                dstGroup.addContact(contactToAdd);
                 fireContactMoved(rootGroup, dstGroup, contactToAdd);
                 return;
             }
@@ -1018,6 +1020,7 @@ public class ServerStoredContactListMsnImpl
             {
                 // we wait for remove from the previous group to fire
                 // event contact moved
+                dstGroup.addContact(contactToAdd);
                 waitMove.put(contactID, dstGroup);
                 return;
             }
@@ -1101,6 +1104,7 @@ public class ServerStoredContactListMsnImpl
             if(waitForMoveObj != null &&
                 waitForMoveObj instanceof ContactGroupMsnImpl)
             {
+                dstGroup.removeContact(contactToRemove);
                 fireContactMoved(
                     dstGroup,
                     (ContactGroupMsnImpl)waitForMoveObj,
