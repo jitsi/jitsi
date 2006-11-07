@@ -67,6 +67,11 @@ public class ServerStoredContactListMsnImpl
         = new ContactListModListenerImpl();
 
     /**
+     * indicates whether or not the contactlist is initialized and ready.
+     */
+    private boolean isInitialized = false;
+
+    /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
      *
      * @param parentOperationSet the operation set that created us and that
@@ -82,6 +87,24 @@ public class ServerStoredContactListMsnImpl
         this.parentOperationSet = parentOperationSet;
 
         this.msnProvider = provider;
+
+        // listens for provider registered events to set the isInitialized state
+        // of the contact list
+        provider.addRegistrationStateChangeListener(
+            new RegistrationStateChangeListener()
+            {
+                public void registrationStateChanged(
+                    RegistrationStateChangeEvent evt)
+                {
+                    if (evt.getNewState() == RegistrationState.UNREGISTERED
+                        || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
+                        || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
+                    {
+                        isInitialized = false;
+                    }
+                }
+            }
+        );
     }
 
     /**
@@ -679,6 +702,18 @@ public class ServerStoredContactListMsnImpl
     }
 
     /**
+     * Returns true if the contact list is initialized and
+     * ready for use, and false otherwise.
+     *
+     * @return true if the contact list is initialized and ready for use and false
+     * otherwise
+     */
+    boolean isInitialized()
+    {
+        return isInitialized;
+    }
+
+    /**
      * Wiats for init in the contact list and populates the contacts and fills or
      * resolves our contact list
      */
@@ -692,7 +727,8 @@ public class ServerStoredContactListMsnImpl
         public void contactListInitCompleted(MsnMessenger messenger)
         {
             logger.trace("contactListInitCompleted");
-            printList();
+            isInitialized = true;
+//            printList();
             // first init groups
             MsnContactList contactList = messenger.getContactList();
             MsnGroup[] groups = contactList.getGroups();

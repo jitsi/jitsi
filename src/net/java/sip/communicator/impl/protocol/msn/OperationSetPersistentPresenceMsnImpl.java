@@ -413,8 +413,16 @@ public class OperationSetPersistentPresenceMsnImpl
             throw new IllegalArgumentException(
                             status + " is not a valid Msn status");
 
-        msnProvider.getMessenger().getOwner().
-            setStatus((MsnUserStatus)scToMsnModesMappings.get(status));
+        // if the contact list is inited set the state
+        // otherwise just set the init status
+        //(as if set the status too early the server does not provide
+        // any status information about the contacts in our list)
+        if(ssContactList.isInitialized())
+            msnProvider.getMessenger().getOwner().
+                setStatus((MsnUserStatus)scToMsnModesMappings.get(status));
+        else
+            msnProvider.getMessenger().getOwner().
+                setInitStatus((MsnUserStatus)scToMsnModesMappings.get(status));
     }
 
     /**
