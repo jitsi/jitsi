@@ -1829,7 +1829,16 @@ public class MetaContactListServiceImpl
             }
 
             MetaContactImpl currentMetaContact = (MetaContactImpl)
-                findMetaContactByContact(evt.getSourceContact());
+                               findMetaContactByContact(evt.getSourceContact());
+             //if the move was caused by us (when merging contacts) then chances
+            //that the contact is already in the right group
+            MetaContactGroup currentParentGroup
+                = currentMetaContact.getParentMetaContactGroup();
+
+            if(currentParentGroup == newParentGroup)
+            {
+                return;
+            }
 
             //if the meta contact does not have other children apart from the
             //contact that we're currently moving then move the whole meta
