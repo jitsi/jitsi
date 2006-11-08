@@ -80,14 +80,13 @@ public class MsnProtocolProviderServiceLick
         //the following should only be run when we want online testing.
         if(!MsnSlickFixture.onlineTestingDisabled)
         {
-//            addTest(TestOperationSetPersistentPresence.suite());
-//
+            addTest(TestOperationSetPersistentPresence.suite());
+
             addTest(TestOperationSetBasicInstantMessaging.suite());
-//
-//            addTest(TestOperationSetTypingNotifications.suite());
+
+            addTest(TestOperationSetTypingNotifications.suite());
         }
-//
-//
+
         addTest(TestAccountUninstallation.suite());
         addTestSuite(TestAccountUninstallationPersistence.class);
 

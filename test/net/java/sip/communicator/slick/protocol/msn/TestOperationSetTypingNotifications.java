@@ -216,6 +216,9 @@ public class TestOperationSetTypingNotifications
         Contact contactToNotify =
             opSetPresence2.findContactByID(fixture.userID1);
 
+        opSetBasicIM2.sendInstantMessage(contactToNotify,
+                                         opSetBasicIM2.createMessage("pong"));
+
         opSetTypingNotifs2.sendTypingNotification(
             contactToNotify, OperationSetTypingNotifications.STATE_TYPING);
 
@@ -236,31 +239,6 @@ public class TestOperationSetTypingNotifications
 
         assertEquals("Source of the typing notification event"
                      , OperationSetTypingNotifications.STATE_TYPING
-                     , evt.getTypingState());
-
-        evtCollector.collectedEvents.clear();
-
-        opSetTypingNotifs1.addTypingNotificationsListener(evtCollector);
-
-        opSetTypingNotifs2.sendTypingNotification(
-            contactToNotify, OperationSetTypingNotifications.STATE_STOPPED);
-
-        evtCollector.waitForEvent(10000);
-
-        opSetTypingNotifs1.removeTypingNotificationsListener(evtCollector);
-
-        //check event dispatching
-        assertTrue("Number of typing events received was zero."
-            , evtCollector.collectedEvents.size() > 0);
-
-        evt = (TypingNotificationEvent)evtCollector.collectedEvents.get(0);
-
-        assertEquals("Source of the typing notification event"
-                     , fixture.userID2
-                     , evt.getSourceContact().getAddress() );
-
-        assertEquals("Source of the typing notification event"
-                     , OperationSetTypingNotifications.STATE_STOPPED
                      , evt.getTypingState());
     }
 

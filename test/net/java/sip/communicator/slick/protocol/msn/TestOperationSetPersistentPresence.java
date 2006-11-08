@@ -159,7 +159,10 @@ public class TestOperationSetPersistentPresence
             // the sever creates a group NotInContactList,
             // beacuse the buddy we are sending message to is not in
             // the contactlist. So this group must be ignored
-            if(!group.getGroupName().equals("NotInContactList"))
+            // Also we must ignore the group created by default
+            // from the msn lib
+            if(!group.getGroupName().equals("NotInContactList") &&
+                !group.getGroupName().equals("Default group"))
             {
                 assertNotNull("Group " + group.getGroupName() +
                               " was returned by "
@@ -203,11 +206,7 @@ public class TestOperationSetPersistentPresence
         // first clear the list
         fixture.clearProvidersLists();
 
-        Object o = new Object();
-        synchronized(o)
-        {
-            o.wait(3000);
-        }
+        waitFor(5000);
 
         logger.trace("testing creation of server stored groups");
         //first add a listener
@@ -247,7 +246,7 @@ public class TestOperationSetPersistentPresence
         {
             opSetPersPresence1.subscribe(group, fixture.userID2);
 
-            synchronized(o){o.wait(1500);}
+            waitFor(1500);
         }
         catch (Exception ex)
         {
@@ -272,10 +271,10 @@ public class TestOperationSetPersistentPresence
         opSetPersPresence1
             .addServerStoredGroupChangeListener(groupChangeCollector);
 
-        //create the group
+        //remove the group
         opSetPersPresence1.removeServerStoredContactGroup(
             opSetPersPresence1.getServerStoredContactListRoot()
-                .getGroup(testGroupName2));
+                .getGroup(testGroupName));
 
         groupChangeCollector.waitForEvent(10000);
 
@@ -286,13 +285,13 @@ public class TestOperationSetPersistentPresence
         assertEquals("Collected Group Change event",
                      1, groupChangeCollector.collectedEvents.size());
 
-        assertEquals("Group name.",  testGroupName2,
+        assertEquals("Group name.",  testGroupName,
             ((ServerStoredGroupEvent)groupChangeCollector.collectedEvents
                 .get(0)).getSourceGroup().getGroupName());
 
         // check whether the group is still on the contact list
         ContactGroup group = opSetPersPresence1.getServerStoredContactListRoot()
-            .getGroup(testGroupName2);
+            .getGroup(testGroupName);
 
         assertNull("A freshly removed group was still on the contact list.",
                       group);
@@ -356,11 +355,7 @@ public class TestOperationSetPersistentPresence
     {
         fixture.clearProvidersLists();
 
-        Object o = new Object();
-        synchronized(o)
-        {
-            o.wait(3000);
-        }
+        waitFor(3000);
 
         String contactList = System.getProperty(
             MsnProtocolProviderServiceLick.CONTACT_LIST_PROPERTY_NAME, null);
@@ -420,6 +415,9 @@ public class TestOperationSetPersistentPresence
         // now init the list
         Enumeration newGroupsEnum = contactListToCreate.keys();
 
+        GroupChangeCollector groupChangeCollector = new GroupChangeCollector();
+        opSetPersPresence1.addServerStoredGroupChangeListener(groupChangeCollector);
+
         //go over all groups in the contactsToAdd table
         while (newGroupsEnum.hasMoreElements())
         {
@@ -428,6 +426,8 @@ public class TestOperationSetPersistentPresence
 
             opSetPersPresence1.createServerStoredContactGroup(
                 opSetPersPresence1.getServerStoredContactListRoot(), groupName);
+
+            groupChangeCollector.waitForEvent(3000);
 
             ContactGroup newlyCreatedGroup =
                 opSetPersPresence1.getServerStoredContactListRoot().getGroup(groupName);
@@ -443,8 +443,20 @@ public class TestOperationSetPersistentPresence
             }
         }
 
+        waitFor(2000);
+
         //store the created contact list for later reference
         MsnSlickFixture.preInstalledBuddyList = contactListToCreate;
+    }
+
+    private void waitFor(long time)
+        throws Exception
+    {
+        Object o = new Object();
+        synchronized(o)
+        {
+            o.wait(time);
+        }
     }
 
     /**
@@ -677,6 +689,5 @@ public class TestOperationSetPersistentPresence
                 notifyAll();
             }
         }
-
     }
 }

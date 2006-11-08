@@ -728,7 +728,10 @@ public class ServerStoredContactListMsnImpl
         {
             logger.trace("contactListInitCompleted");
             isInitialized = true;
-//            printList();
+
+            if(logger.isDebugEnabled())
+                printList();
+
             // first init groups
             MsnContactList contactList = messenger.getContactList();
             MsnGroup[] groups = contactList.getGroups();
@@ -1228,7 +1231,7 @@ public class ServerStoredContactListMsnImpl
                                c[i].getBelongGroups().length);
         }
 
-        System.out.println("Number of groups : " + messenger.getContactList().getGroups().length);
+        logger.info("Number of groups : " + messenger.getContactList().getGroups().length);
         MsnGroup[] groups = messenger.getContactList().getGroups();
         for(int j = 0; j < groups.length; j++)
         {

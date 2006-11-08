@@ -62,6 +62,8 @@ public class ProtocolProviderServiceMsnImpl
 
     private OperationSetPersistentPresenceMsnImpl persistentPresence = null;
 
+    private OperationSetTypingNotificationsMsnImpl typingNotifications = null;
+
     /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
@@ -157,6 +159,7 @@ public class ProtocolProviderServiceMsnImpl
             messenger.addMessengerListener(new MsnConnectionListener());
 
             persistentPresence.setMessenger(messenger);
+            typingNotifications.setMessenger(messenger);
 
             messenger.login();
         }
@@ -279,7 +282,7 @@ public class ProtocolProviderServiceMsnImpl
                 basicInstantMessaging);
 
             //initialize the typing notifications operation set
-            OperationSetTypingNotifications typingNotifications =
+            typingNotifications =
                 new OperationSetTypingNotificationsMsnImpl(this);
 
             supportedOperationSets.put(
