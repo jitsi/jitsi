@@ -7,14 +7,13 @@
 
 package net.java.sip.communicator.impl.gui.main.presence;
 
+import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-import java.awt.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -26,7 +25,7 @@ import net.java.sip.communicator.service.protocol.*;
  * 
  * @author Yana Stamcheva
  */
-public class StatusPanel extends JPanel {
+public class StatusPanel extends JMenuBar {
 
     private Hashtable protocolStatusCombos = new Hashtable();
 
@@ -252,5 +251,24 @@ public class StatusPanel extends JPanel {
             return true;
         else
             return false;
-    }   
+    }
+       
+    /**
+     * Returns TRUE if there are selected status selector boxes, otherwise
+     * returns FALSE.
+     */
+    public boolean hasSelectedMenus()
+    {
+        Enumeration statusCombos = protocolStatusCombos.elements();
+        
+        while(statusCombos.hasMoreElements()) {
+            StatusSelectorBox statusSelectorBox
+                = (StatusSelectorBox)statusCombos.nextElement();
+            
+            if(statusSelectorBox.isSelected()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

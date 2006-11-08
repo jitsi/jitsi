@@ -10,8 +10,8 @@ import java.awt.image.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 
-public abstract class StatusSelectorBox extends SIPCommSelectorBox
-{
+public abstract class StatusSelectorBox extends SIPCommMenu
+{   
     public void startConnecting(BufferedImage[] images){}
     
     public void updateStatus(){}

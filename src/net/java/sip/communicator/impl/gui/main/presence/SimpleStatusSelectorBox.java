@@ -13,7 +13,6 @@ import java.awt.image.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -21,7 +20,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * The <tt>SimpleStatusSelectorBox</tt> is a <tt>SIPCommSelectorBox</tt> that
+ * The <tt>SimpleStatusSelectorBox</tt> is a <tt>SIPCommMenu</tt> that
  * contains two statuses ONLINE and OFFLINE. It's used to represent the status
  * of a protocol provider which doesn't support presence operation set.
  * 
@@ -43,10 +42,10 @@ public class SimpleStatusSelectorBox
 
     private ProtocolProviderService protocolProvider;
     
-    private Icon onlineIcon 
+    private ImageIcon onlineIcon 
         = new ImageIcon(ImageLoader.getImage(ImageLoader.SIP_LOGO));
     
-    private Icon offlineIcon
+    private ImageIcon offlineIcon
         =  new ImageIcon(LightGrayFilter.createDisabledImage(
                 ImageLoader.getImage(ImageLoader.SIP_LOGO)));
     
@@ -84,8 +83,8 @@ public class SimpleStatusSelectorBox
         onlineItem.addActionListener(this);
         offlineItem.addActionListener(this);
         
-        this.addItem(onlineItem);
-        this.addItem(offlineItem);
+        this.add(onlineItem);
+        this.add(offlineItem);
     }
 
     /**
@@ -167,8 +166,7 @@ public class SimpleStatusSelectorBox
 
             public void actionPerformed(ActionEvent evt) {
 
-                SimpleStatusSelectorBox.this.setIcon(new ImageIcon(
-                        animatedImageArray[j]));
+                setIcon(new ImageIcon(animatedImageArray[j]));
                 j = (j + 1) % animatedImageArray.length;
             }
 
