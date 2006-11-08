@@ -128,17 +128,17 @@ public class SIPCommBorders {
 
           if (!(c instanceof JTextComponent)) {                
                 if (c.isEnabled()) {
-                    SIPCommLFUtils.drawRoundBorder(g, x, y, w, h, 5, 5);
+                    SIPCommLFUtils.drawRoundBorder(g, x, y, w, h, 7, 7);
                 } else {
-                    SIPCommLFUtils.drawRoundDisabledBorder(g, x, y, w, h, 5, 5);
+                    SIPCommLFUtils.drawRoundDisabledBorder(g, x, y, w, h, 7, 7);
                 }
                 return;
           }
 
           if (c.isEnabled() && ((JTextComponent)c).isEditable()) {
-              SIPCommLFUtils.drawRoundBorder(g, x, y, w, h, 5, 5);
+              SIPCommLFUtils.drawRoundBorder(g, x, y, w, h, 7, 7);
           } else {
-              SIPCommLFUtils.drawRoundDisabledBorder(g, x, y, w, h, 5, 5);
+              SIPCommLFUtils.drawRoundDisabledBorder(g, x, y, w, h, 7, 7);
           }
         }
     }

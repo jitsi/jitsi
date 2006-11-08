@@ -27,6 +27,8 @@ public class SIPCommDefaultTheme
 {
     private static final ColorUIResource DARK_BLUE
             = new ColorUIResource(0x3f6296);
+    private static final ColorUIResource DARK_GRAY
+            = new ColorUIResource(0x474747);
     private static final ColorUIResource LIGHT_BLUE
             = new ColorUIResource(0x96A9C6);
     private static final ColorUIResource LIGHT_BLUE_GRAY
@@ -74,7 +76,25 @@ public class SIPCommDefaultTheme
             "CheckBoxMenuItem.gradient", buttonGradient,
 
             "Menu.opaque", Boolean.FALSE,
-
+            
+            "Menu.borderPainted", Boolean.FALSE,
+            "Menu.border", textFieldBorder,
+            "Menu.selectionBackground", LIGHT_GRAY,
+            "Menu.selectionForeground", DARK_GRAY,
+            "Menu.margin", new InsetsUIResource(0, 0, 0, 0),
+            
+            "MenuItem.borderPainted", Boolean.FALSE,
+            "MenuItem.border", textFieldBorder,
+            "MenuItem.selectionBackground", LIGHT_GRAY,
+            "MenuItem.selectionForeground", DARK_GRAY,
+            
+            "CheckBoxMenuItem.borderPainted", Boolean.FALSE,
+            "CheckBoxMenuItem.border", textFieldBorder,
+            "CheckBoxMenuItem.selectionBackground", LIGHT_GRAY,
+            "CheckBoxMenuItem.selectionForeground", DARK_GRAY,
+            
+            "PopupMenu.border", textFieldBorder,
+            
             "InternalFrame.activeTitleGradient", buttonGradient,
             
             "OptionPane.warningIcon",

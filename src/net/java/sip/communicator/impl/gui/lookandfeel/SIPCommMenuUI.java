@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
 import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
@@ -22,12 +23,45 @@ public class SIPCommMenuUI extends BasicMenuUI {
     /**
      * Creates a new SIPCommMenuUI instance.
      */
-    public static ComponentUI createUI(JComponent x) {
+    public static ComponentUI createUI(JComponent x) {        
         return new SIPCommMenuUI();
     }
 
-    public void paint(Graphics g, JComponent c) {
+    public void paint(Graphics g, JComponent c) {        
         AntialiasingManager.activateAntialiasing(g);
         super.paint(g, c);
+    }
+    
+    /**
+     * Draws the background of the menu.
+     * 
+     * @param g the paint graphics
+     * @param menuItem menu item to be painted
+     * @param bgColor selection background color
+     * @since 1.4
+     */    
+    protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor)
+    {
+        ButtonModel model = menuItem.getModel();
+        Color oldColor = g.getColor();
+        
+        int menuWidth = menuItem.getWidth();
+        int menuHeight = menuItem.getHeight();
+
+        if (menuItem.isOpaque()) {
+            if (model.isArmed()
+                || (menuItem instanceof JMenu && model.isSelected())) {
+                g.setColor(bgColor);
+                g.fillRoundRect(0, 0, menuWidth, menuHeight, 5, 5);
+                
+                g.setColor(SIPCommLookAndFeel.getControlDarkShadow());
+                g.drawRoundRect(0, 0, menuWidth - 1, menuHeight - 1, 5, 5);
+            }
+            else {                
+                g.setColor(menuItem.getBackground());                
+                g.fillRoundRect(0, 0, menuWidth, menuHeight, 5, 5);
+            }
+            g.setColor(oldColor);            
+        }
     }
 }

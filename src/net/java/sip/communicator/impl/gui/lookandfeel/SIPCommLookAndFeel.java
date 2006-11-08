@@ -47,6 +47,7 @@ public class SIPCommLookAndFeel extends MetalLookAndFeel {
 
         Object[] uiDefaults = {
                 "ButtonUI", lfPackageName + "SIPCommButtonUI",
+                "ToggleButtonUI", lfPackageName + "SIPCommToggleButtonUI",
                 "SplitPaneUI", lfPackageName + "SIPCommSplitPaneUI",
                 "ScrollBarUI", lfPackageName + "SIPCommScrollBarUI",
                 "ComboBoxUI", lfPackageName + "SIPCommComboBoxUI",
