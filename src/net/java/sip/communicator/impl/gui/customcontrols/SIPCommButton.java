@@ -37,21 +37,6 @@ public class SIPCommButton extends JButton {
     private String iconLayout = SIPCommButton.CENTER_ICON_LAYOUT;
 
     /**
-     * Creates a button with icon.
-     * 
-     * @param iconImage The button icon image.
-     * @param iconLayout The layout of the icon. One of the LEFT_ICON_LAYOUT,
-     * CENTER_ICON_LAYOUT and RIGHT_ICON_LAYOUT.
-     */
-    public SIPCommButton(Image iconImage, String iconLayout) {
-        super();
-
-        this.iconLayout = iconLayout;
-
-        this.setIcon(new ImageIcon(iconImage));
-    }
-
-    /**
      * Creates a button with custom background image, rollover image and
      * icon image.
      * 
