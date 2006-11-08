@@ -20,7 +20,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 public class ProtocolContactSelectorBox
-    extends SIPCommSelectorBox
+    extends JMenuBar
     implements ActionListener
 {
     private static final Logger logger
@@ -28,10 +28,14 @@ public class ProtocolContactSelectorBox
 
     private ChatSendPanel sendPanel;
     private Hashtable contactsTable = new Hashtable();
+    
+    private SIPCommMenu menu = new SIPCommMenu();
 
     public ProtocolContactSelectorBox(ChatSendPanel sendPanel)
     {
         this.sendPanel = sendPanel;
+        
+        this.add(menu);
     }
 
     public void addContact(Contact contact)
@@ -44,7 +48,7 @@ public class ProtocolContactSelectorBox
 
         menuItem.addActionListener(this);
         this.contactsTable.put(contact, menuItem);
-        this.addItem(menuItem);
+        this.menu.add(menuItem);
     }
 
     /**
@@ -75,8 +79,9 @@ public class ProtocolContactSelectorBox
 
                 chatPanel.setProtocolContact(protocolContact);
 
-                setSelected(
-                        protocolContact, menuItem.getIcon());
+                this.menu.setSelected(
+                    protocolContact, (ImageIcon)menuItem.getIcon());
+                
                 return;
             }
         }
@@ -134,9 +139,9 @@ public class ProtocolContactSelectorBox
         Icon icon = new ImageIcon(createContactStatusImage(protoContact));
 
         menuItem.setIcon(icon);
-        if(getSelectedObject().equals(protoContact))
+        if(menu.getSelectedObject().equals(protoContact))
         {
-            this.setIcon(icon);
+            this.menu.setIcon(icon);
         }
     }
 
@@ -146,7 +151,17 @@ public class ProtocolContactSelectorBox
      */
     public void setSelected(Contact protoContact)
     {
-        this.setSelected(protoContact,
+        this.menu.setSelected(protoContact,
                 new ImageIcon(createContactStatusImage(protoContact)));
+    }
+
+    /**
+     * Returns the protocol menu.
+     * 
+     * @return the protocol menu
+     */
+    public SIPCommMenu getMenu()
+    {
+        return menu;
     }
 }

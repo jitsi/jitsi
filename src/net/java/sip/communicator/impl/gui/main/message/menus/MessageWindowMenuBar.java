@@ -62,4 +62,21 @@ public class MessageWindowMenuBar extends JMenuBar {
         // Disable all menus that are not yet implemented.
         this.helpMenu.setEnabled(false);
     }
+    
+    /**
+     * Returns the currently selected menu. 
+     */
+    public JMenu getSelectedMenu()
+    {
+        int menuCount = this.getMenuCount();
+        
+        for(int i = 0; i < menuCount; i ++) {
+            JMenu menu = this.getMenu(i);
+            
+            if(menu.isSelected()) {
+                return menu;
+            }
+        }
+        return null;
+    }
 }

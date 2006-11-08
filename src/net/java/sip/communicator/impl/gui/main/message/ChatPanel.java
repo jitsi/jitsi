@@ -607,15 +607,9 @@ public class ChatPanel
      * communicate through.
      */
     public void openProtocolSelectorBox() {
-        SIPCommSelectorBox contactSelector 
+        SIPCommMenu contactSelector 
             = this.sendPanel.getContactSelectorBox();
-        JPopupMenu popup 
-            = contactSelector.getPopup();
-        
-        if (!popup.isVisible()) {
-            popup.setLocation(contactSelector.calculatePopupLocation());
-            popup.setVisible(true);
-        }
+        contactSelector.doClick();
     }
     
     /**
@@ -719,5 +713,14 @@ public class ChatPanel
     public ChatWritePanel getChatWritePanel()
     {
         return writeMessagePanel;
+    }
+    
+    /**
+     * Returns the chat send panel contained in this chat panel.
+     * @return the chat send panel contained in this chat panel
+     */
+    public ChatSendPanel getChatSendPanel()
+    {
+        return sendPanel;
     }
 }
