@@ -1089,5 +1089,11 @@ public class MainFrame
         else if(commonPopupMenu != null && commonPopupMenu.isVisible()) {
             commonPopupMenu.setVisible(false);
         }
+        else if(statusPanel.hasSelectedMenus() || menu.hasSelectedMenus()) {
+            MenuSelectionManager selectionManager
+                = MenuSelectionManager.defaultManager();
+            
+            selectionManager.clearSelectedPath();
+        }
     }
 }

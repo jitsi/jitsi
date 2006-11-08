@@ -7,10 +7,13 @@
 
 package net.java.sip.communicator.impl.gui.main.menus;
 
+import java.util.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.presence.*;
 
 /**
  * The main menu.
@@ -68,5 +71,22 @@ public class MainMenu
         // Disable all menus that are not yet implemented.
         this.viewMenu.setEnabled(false);
         this.helpMenu.setEnabled(false);
+    }
+    
+    /**
+     * Returns TRUE if there are selected menus, otherwise returns false.
+     */
+    public boolean hasSelectedMenus()
+    {
+        int menuCount = this.getMenuCount();
+        
+        for(int i = 0; i < menuCount; i ++) {
+            JMenu menu = this.getMenu(i);
+            
+            if(menu.isSelected()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
