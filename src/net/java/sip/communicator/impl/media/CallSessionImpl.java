@@ -472,10 +472,6 @@ public class CallSessionImpl
         Hashtable mediaEncodings
             = extractMediaEncodings(mediaDescriptions);
 
-        //intersect offered media encodings with those supported by the local
-        //media controller
-        mediaEncodings = intersectMediaEncodings(mediaEncodings);
-
         //make our processor output in these encodings.
         DataSource dataSource = mediaServCallback.getMediaControl()
             .createDataSourceForEncodings(mediaEncodings);
@@ -1139,23 +1135,8 @@ public class CallSessionImpl
         {
             long buff = bc.setBufferLength(500);
             logger.trace("set receiver buffer len to=" + buff);
-            bc.setEnabledThreshold(false);
-        }
-
-
-        //set max packet size
-        PacketSizeControl psc = (PacketSizeControl)rtpManager.getControl(
-            PacketSizeControl.class.getName());
-
-        if(psc != null)
-        {
-            logger.debug("Default packets size seems to be="
-                + psc.getPacketSize());
-
-            int ps = psc.setPacketSize(20);
-
-            logger.debug("Set packet size to: " + Integer.toString(ps));
-
+            bc.setEnabledThreshold(true);
+            bc.setMinimumThreshold(100);
         }
 
         //add listeners
