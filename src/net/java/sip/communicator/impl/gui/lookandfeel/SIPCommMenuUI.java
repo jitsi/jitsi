@@ -42,6 +42,9 @@ public class SIPCommMenuUI extends BasicMenuUI {
      */    
     protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor)
     {
+        AntialiasingManager.activateAntialiasing(g);
+        super.paintBackground(g, menuItem, bgColor);
+        
         ButtonModel model = menuItem.getModel();
         Color oldColor = g.getColor();
         

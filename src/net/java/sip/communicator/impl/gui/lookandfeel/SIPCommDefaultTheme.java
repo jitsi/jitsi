@@ -93,8 +93,6 @@ public class SIPCommDefaultTheme
             "CheckBoxMenuItem.selectionBackground", LIGHT_GRAY,
             "CheckBoxMenuItem.selectionForeground", DARK_GRAY,
             
-            "PopupMenu.border", textFieldBorder,
-            
             "InternalFrame.activeTitleGradient", buttonGradient,
             
             "OptionPane.warningIcon",
