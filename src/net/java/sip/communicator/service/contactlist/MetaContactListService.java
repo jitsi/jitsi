@@ -164,6 +164,24 @@ public interface MetaContactListService
     public void moveContact(Contact contact, MetaContact newParent)
         throws MetaContactListException;
 
+
+    /**
+     * Makes the specified <tt>contact</tt> a child of the
+     * <tt>newParent</tt> MetaContactGroup. If <tt>contact</tt> was
+     * previously a child of a meta contact, it will be removed from its
+     * old parent and to a newly created one even if they both are in the same 
+     * group. If the specified contact was the only child of its previous 
+     * parent, then the meta contact will also be moved.
+     *
+     * @param contact the <tt>Contact</tt> to move to the
+     * @param newParent the MetaContactGroup where we'd like contact to be moved.
+     *
+     * @throws MetaContactListException with an appropriate code if the
+     * operation fails for some reason.
+     */
+    public void moveContact(Contact contact, MetaContactGroup newParent)
+        throws MetaContactListException;
+
     /**
      * Deletes the specified contact from both the local contact list and (if
      * applicable) the server stored contact list if supported by the
