@@ -63,13 +63,13 @@ public class MetaContactListServiceImpl
         = new ContactListGroupListener();
 
     /**
-     * The number of miliseconds to wait for confirmations of account
+     * The number of milliseconds to wait for confirmations of account
      * modifications before deciding to drop.
      */
     public static int CONTACT_LIST_MODIFICATION_TIMEOUT = 10000;
 
     /**
-     * Listeners interested in events dispatched upond modification of the meta
+     * Listeners interested in events dispatched upon modification of the meta
      * contact list.
      */
     private Vector metaContactListListeners = new Vector();
@@ -87,7 +87,7 @@ public class MetaContactListServiceImpl
     private Hashtable groupEventIgnoreList = new Hashtable();
 
     /**
-     * Contains (as keys) <tt>Contact</tt> addressess that are currently
+     * Contains (as keys) <tt>Contact</tt> addresses that are currently
      * being resolved against a given protocol and that this class's
      * <tt>ContactListener</tt> should ignore as corresponding events will
      * be handled by the corresponding methods. The table maps the meta contact
@@ -119,7 +119,7 @@ public class MetaContactListServiceImpl
      * 1) They provide implementations of OperationSetPersistentPresence, it
      * would synchronize their contact lists with the local one (adding
      * subscriptions for contacts that do not exist in the server stored contact
-     * list and ading locally contacts that were found on the server but not in
+     * list and adding locally contacts that were found on the server but not in
      * the local file).
      * <p>
      * 2) The only provide non persistent implementations of
@@ -132,7 +132,7 @@ public class MetaContactListServiceImpl
      * them.
      * <p>
      *
-     * @param bc the currently valid osgi bundle context.
+     * @param bc the currently valid OSGI bundle context.
      */
     public void start(BundleContext bc)
     {
@@ -282,7 +282,7 @@ public class MetaContactListServiceImpl
      * @param contactID
      *            the identifier of the contact that the specified provider
      * @param fireEvent
-     *            specifies whether or not an even is to be faire at
+     *            specifies whether or not an even is to be fire at
      * the end of the method.Used when this method is called upon creation of a
      * new meta contact and not only a new contact.
      * @throws MetaContactListException
@@ -447,8 +447,8 @@ public class MetaContactListServiceImpl
      * by <tt>protoProvider</tt>. The method does not return before creating
      * all groups has completed.
      *
-     * @param protoProvider a reference to the protoco provider where the groups
-     * should be created.
+     * @param protoProvider a reference to the protocol provider where the 
+     * groups should be created.
      * @param metaGroup a ref to the last group of the path that should be
      * created in the specified <tt>protoProvider</tt>
      *
@@ -590,8 +590,7 @@ public class MetaContactListServiceImpl
         if (! (child instanceof MetaContactImpl))
         {
             throw new IllegalArgumentException(child
-                                               +
-                                               " is not a MetaContactImpl instance.");
+                                       + " is not a MetaContactImpl instance.");
         }
         return ( (MetaContactImpl) child).getParentGroup();
     }
@@ -658,8 +657,7 @@ public class MetaContactListServiceImpl
         if (! (metaContactGroup instanceof MetaContactGroupImpl))
         {
             throw new IllegalArgumentException(metaContactGroup
-                                               +
-                                               " is not an instance of MetaContactGroupImpl");
+                + " is not an instance of MetaContactGroupImpl");
         }
 
         MetaContactImpl newMetaContact = new MetaContactImpl();
@@ -778,6 +776,27 @@ public class MetaContactListServiceImpl
     }
 
     /**
+     * Makes the specified <tt>contact</tt> a child of the
+     * <tt>newParentMetaGroup</tt> MetaContactGroup. If <tt>contact</tt> was
+     * previously a child of a meta contact, it will be removed from its
+     * old parent and to a newly created one even if they both are in the same 
+     * group. If the specified contact was the only child of its previous 
+     * parent, then the meta contact will also be moved.
+     * 
+     * 
+     * @param contact the <tt>Contact</tt> to move to the
+     * @param newParentMetaGroup the MetaContactGroup where we'd like contact to be moved.
+     * @throws MetaContactListException with an appropriate code if the
+     * operation fails for some reason.
+     */
+    public void moveContact(Contact contact, 
+                            MetaContactGroup newParentMetaGroup) 
+        throws MetaContactListException
+    {
+        /** @todo implement */
+    }
+
+    /**
      * Makes the specified <tt>contact</tt> a child of the <tt>newParent</tt>
      * MetaContact.
      *
@@ -795,9 +814,8 @@ public class MetaContactListServiceImpl
     {
         if (! (newParentMetaContact instanceof MetaContactImpl))
         {
-            throw new IllegalArgumentException(newParentMetaContact
-                                               +
-                                               " is not a MetaContactImpl instance.");
+            throw new IllegalArgumentException(
+                newParentMetaContact + " is not a MetaContactImpl instance.");
         }
 
         MetaContactImpl currentParentMetaContact
