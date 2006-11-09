@@ -59,6 +59,8 @@ public class SimpleStatusSelectorBox
     
     private int accountIndex;
     
+    private JLabel titleLabel;
+    
     /**
      * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
      * 
@@ -82,6 +84,14 @@ public class SimpleStatusSelectorBox
         
         onlineItem.addActionListener(this);
         offlineItem.addActionListener(this);
+        
+        titleLabel = new JLabel(protocolProvider.getAccountID().getUserID());
+
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
+
+        this.add(titleLabel);
+        this.addSeparator();
         
         this.add(onlineItem);
         this.add(offlineItem);
