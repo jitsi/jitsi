@@ -639,11 +639,15 @@ public class MclStorageManager
         Node childContactsNode = XMLUtils.findChild(
                                         groupNode, CHILD_CONTACTS_NODE_NAME);
 
-        NodeList childContacts = childContactsNode.getChildNodes();
+        NodeList childContacts = (childContactsNode == null)
+            ? null 
+            : childContactsNode.getChildNodes();
 
         //go over every meta contact, extract its details and its encapsulated
         //proto contacts
-        for(int i = 0; i < childContacts.getLength(); i++)
+        for(int i = 0
+            ; childContacts != null && i < childContacts.getLength()
+            ; i++)
         {
             Node currentMetaContactNode = childContacts.item(i);
 
