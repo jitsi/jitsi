@@ -80,7 +80,8 @@ public class MediaControl
             // javax.media.format.AudioFormat.DVI_RTP;
             Integer.toString(SdpConstants.DVI4_16000),
             // javax.media.format.AudioFormat.ALAW;
-            Integer.toString(SdpConstants.PCMA),
+            // PCMU is only supported for decoding ... as good as not supported
+            //Integer.toString(SdpConstants.PCMA),
             // javax.media.format.AudioFormat.G728_RTP;
             Integer.toString(SdpConstants.G728)
             // javax.media.format.AudioFormat.G729_RTP
@@ -666,7 +667,8 @@ public class MediaControl
                 }
                 // We've set the output content to the RAW_RTP.
                 // So all the supported formats should work with RTP.
-                // We'll pick one that matches those specified by the constructor.
+                // We'll pick one that matches those specified by the
+                // constructor.
                 if (supported.length > 0)
                 {
                     if (supported[0] instanceof VideoFormat)
@@ -756,6 +758,9 @@ public class MediaControl
      */
     private void setJpegQuality(Player player, float val)
     {
+        if (player == null
+            || player.getState() < Player.Realized)
+            return;
         Control cs[] = player.getControls();
         QualityControl qc = null;
         VideoFormat jpegFmt = new VideoFormat(VideoFormat.JPEG);
