@@ -80,7 +80,7 @@ public class MetaContactImpl
     }
 
     /**
-     * Returns the number of protocol speciic <tt>Contact</tt>s that this
+     * Returns the number of protocol specific <tt>Contact</tt>s that this
      * <tt>MetaContact</tt> contains.
      *
      * @return an int indicating the number of protocol specific contacts
@@ -260,7 +260,7 @@ public class MetaContactImpl
      * <p>
      * Or in other words ordering of meta accounts would be first done by
      * presence status, then display name, and finally (in order to avoid
-     * equalities) be the farely random meta contact metaUID.
+     * equalities) be the fairly random meta contact metaUID.
      * <p>
      * @param   o the Object to be compared.
      * @return  a negative integer, zero, or a positive integer as this object
@@ -356,7 +356,8 @@ public class MetaContactImpl
                     || this.displayName.trim().length() == 0)){
                 //be careful not to use setDisplayName() here cause this will
                 //bring us into a deadlock.
-                this.displayName = new String(contact.getDisplayName().getBytes());
+                this.displayName 
+                    = new String(contact.getDisplayName().getBytes());
             }
 
             if (parentGroup != null)
@@ -543,7 +544,7 @@ public class MetaContactImpl
     /**
      * Returns the group that is currently holding this meta contact.
      *
-     * @return the gorup that is currently holding this meta contact.
+     * @return the group that is currently holding this meta contact.
      */
     MetaContactGroupImpl getParentGroup()
     {
@@ -551,7 +552,7 @@ public class MetaContactImpl
     }
 
     /**
-     * Returns the MetaContactGroup currently containin this meta contact
+     * Returns the MetaContactGroup currently containing this meta contact
      * @return a reference to the MetaContactGroup currently containing this
      * meta contact.
      */
