@@ -253,9 +253,19 @@ public class CallSessionImpl
      */
     private void stopStreaming()
     {
-        //stop all audio streams
-        RTPManager rtpManager = getAudioRtpManager();
+        stopStreaming(getAudioRtpManager());
+        this.audioRtpManager = null;
+        stopStreaming(getVideoRtpManager());
+        this.videoRtpManager = null;
+    }
 
+    /**
+     * Stops and closes all streams currently handled by <tt>rtpManager</tt>.
+     *
+     * @param rtpManager the rtpManager whose streams we'll be stopping.
+     */
+    private void stopStreaming(RTPManager rtpManager)
+    {
         Vector sendStreams = rtpManager.getSendStreams();
         Iterator ssIter = sendStreams.iterator();
 
@@ -264,6 +274,8 @@ public class CallSessionImpl
             SendStream stream = (SendStream) ssIter.next();
             try
             {
+                stream.getDataSource().stop();
+                stream.getDataSource().disconnect();
                 stream.stop();
                 stream.close();
             }
@@ -272,6 +284,23 @@ public class CallSessionImpl
                 logger.warn("Failed to stop stream.", ex);
             }
         }
+
+        Vector receiveStreams = rtpManager.getReceiveStreams();
+        Iterator rsIter = receiveStreams.iterator();
+        while(rsIter.hasNext())
+        {
+            ReceiveStream stream = (ReceiveStream) rsIter.next();
+            try
+            {
+                stream.getDataSource().stop();
+                stream.getDataSource().disconnect();
+            }
+            catch (IOException ex)
+            {
+                logger.warn("Failed to stop stream.", ex);
+            }
+        }
+
 
         //remove targets
         rtpManager.removeTargets("Session ended.");
@@ -281,37 +310,7 @@ public class CallSessionImpl
         rtpManager.removeSendStreamListener(this);
         rtpManager.removeSessionListener(this);
         rtpManager.dispose();
-
-        rtpManager = null;
-
-        //stop all video streams
-        rtpManager = getAudioRtpManager();
-
-        sendStreams = rtpManager.getSendStreams();
-        ssIter = sendStreams.iterator();
-
-        while(ssIter.hasNext())
-        {
-            SendStream stream = (SendStream) ssIter.next();
-            try
-            {
-                stream.stop();
-                stream.close();
-            }
-            catch (IOException ex)
-            {
-                logger.warn("Failed to stop stream.", ex);
-            }
-        }
-
-        rtpManager.removeTargets("Session ended.");
-        rtpManager.removeReceiveStreamListener(this);
-        rtpManager.removeSendStreamListener(this);
-        rtpManager.removeSessionListener(this);
-
-        rtpManager.dispose();
     }
-
 
     /**
      * The method is meant for use by protocol service implementations when
@@ -463,7 +462,8 @@ public class CallSessionImpl
      * SDP description.
      * @throws MediaException if we fail to create our data source with the
      * proper encodings and/or fail to initialize the RTP managers with the
-     * necessary streams.
+     * necessary streams and/or don't find encodings supported by both the
+     * remote participant and the local controller.
      */
     private void createSendStreams(Vector mediaDescriptions)
         throws MediaException
@@ -471,6 +471,10 @@ public class CallSessionImpl
         //extract the encodings these media descriptions specify
         Hashtable mediaEncodings
             = extractMediaEncodings(mediaDescriptions);
+
+        //intersect offered media encodings with those supported by the local
+        //media controller
+        mediaEncodings = intersectMediaEncodings(mediaEncodings);
 
         //make our processor output in these encodings.
         DataSource dataSource = mediaServCallback.getMediaControl()
@@ -732,12 +736,15 @@ public class CallSessionImpl
      * <tt>CallParticipant</tt> supports as well.
      *
      * @throws SdpException we fail creating the media descriptions
+     * @throws MediaException with code UNSUPPORTED_FORMAT_SET_ERROR if we don't
+     * support any of the offered media formats.
      */
     private Vector createMediaDescriptions(
                                           Vector            offerMediaDescs,
                                           InetSocketAddress publicAudioAddress,
                                           InetSocketAddress publicVideoAddress)
         throws SdpException
+              ,MediaException
     {
         //supported audio formats.
         String[] supportedAudioEncodings = mediaServCallback.getMediaControl()
@@ -752,8 +759,8 @@ public class CallSessionImpl
         //offer.
         if (offerMediaDescs != null && offerMediaDescs.size() > 0)
         {
-            Vector offeredVideoEncodings = null;
-            Vector offeredAudioEncodings = null;
+            Vector offeredVideoEncodings = new Vector();
+            Vector offeredAudioEncodings = new Vector();
             Iterator offerDescsIter = offerMediaDescs.iterator();
 
             while (offerDescsIter.hasNext())
@@ -765,53 +772,24 @@ public class CallSessionImpl
 
                 if (mediaType.equalsIgnoreCase("video"))
                 {
-                    offeredVideoEncodings = media.getMediaFormats(false);
+                    offeredVideoEncodings = media.getMediaFormats(true);
                     continue;
                 }
 
                 if (mediaType.equalsIgnoreCase("audio"))
                 {
-                    offeredAudioEncodings = media.getMediaFormats(false);
+                    offeredAudioEncodings = media.getMediaFormats(true);
                     continue;
                 }
             }
 
-
-            //recreate the formats we create according to what the other party
-            //offered.
-            List supportedAudioEncsList =Arrays.asList(supportedAudioEncodings);
-            List intersectedAudioEncsList = new LinkedList();
-            List supportedVideoEncsList =Arrays.asList(supportedVideoEncodings);
-            List intersectedVideoEncsList = new LinkedList();
-
-            //intersect supported audio formats with offered audio formats
-            if (   offeredAudioEncodings != null
-                && offeredAudioEncodings.size() > 0)
-            {
-                Iterator offeredAudioEncsIter
-                    = offeredAudioEncodings.iterator();
-
-                while (offeredAudioEncsIter.hasNext())
-                {
-                    String format = (String) offeredAudioEncsIter.next();
-                    if (supportedAudioEncsList.contains(format))
-                        intersectedAudioEncsList.add(format);
-                }
-            }
-
-            if (   offeredVideoEncodings != null
-                && offeredVideoEncodings.size() > 0)
-            {
-                //intersect supported video formats with offered video formats
-                Iterator offeredVideoEncsIter = offeredVideoEncodings.iterator();
-
-                while (offeredVideoEncsIter.hasNext())
-                {
-                    String format = (String) offeredVideoEncsIter.next();
-                    if (supportedVideoEncsList.contains(format))
-                        intersectedVideoEncsList.add(format);
-                }
-            }
+            //now intersect the offered encodings with what we support
+            Hashtable encodings = new Hashtable(2);
+            encodings.put("audio", offeredAudioEncodings);
+            encodings.put("video", offeredVideoEncodings);
+            encodings = intersectMediaEncodings(encodings);
+            List intersectedAudioEncsList = (List)encodings.get("audio");
+            List intersectedVideoEncsList = (List)encodings.get("video");
 
             //now replace the encodings arrays with the intersection
             supportedAudioEncodings
@@ -829,47 +807,143 @@ public class CallSessionImpl
 
         }
 
-        //--------Audio media description
-        //make sure preferred formats come first
-        MediaDescription am
-            = mediaServCallback.getSdpFactory().createMediaDescription(
-                "audio"
-                , publicAudioAddress.getPort()
-                , 1
-                , "RTP/AVP"
-                , supportedAudioEncodings);
-
-        if (!mediaServCallback.getDeviceConfiguration()
-            .isAudioCaptureSupported())
-        {
-            am.setAttribute("recvonly", null);
-        }
-
-        //--------Video media description
-        //"m=video 22222 RTP/AVP 34";
-        MediaDescription vm
-            = mediaServCallback.getSdpFactory().createMediaDescription(
-                "video"
-                , publicVideoAddress.getPort()
-                , 1
-                , "RTP/AVP"
-                , supportedVideoEncodings);
-
-        if (!mediaServCallback.getDeviceConfiguration()
-            .isVideoCaptureSupported())
-        {
-            vm.setAttribute("recvonly", null);
-        }
-
         Vector mediaDescs = new Vector();
-        mediaDescs.add(am);
-        mediaDescs.add(vm);
+
+        if(supportedAudioEncodings.length > 0)
+        {
+            //--------Audio media description
+            //make sure preferred formats come first
+            MediaDescription am
+                = mediaServCallback.getSdpFactory().createMediaDescription(
+                    "audio"
+                    , publicAudioAddress.getPort()
+                    , 1
+                    , "RTP/AVP"
+                    , supportedAudioEncodings);
+
+            if (!mediaServCallback.getDeviceConfiguration()
+                .isAudioCaptureSupported())
+            {
+                am.setAttribute("recvonly", null);
+            }
+            mediaDescs.add(am);
+        }
+        //--------Video media description
+        if(supportedVideoEncodings.length> 0)
+        {
+            //"m=video 22222 RTP/AVP 34";
+            MediaDescription vm
+                = mediaServCallback.getSdpFactory().createMediaDescription(
+                    "video"
+                    , publicVideoAddress.getPort()
+                    , 1
+                    , "RTP/AVP"
+                    , supportedVideoEncodings);
+
+            if (!mediaServCallback.getDeviceConfiguration()
+                .isVideoCaptureSupported())
+            {
+                vm.setAttribute("recvonly", null);
+            }
+            mediaDescs.add(vm);
+        }
+
+
+
 
         /** @todo record formats for participant. */
 
         return mediaDescs;
     }
 
+    /**
+     * Compares audio/video encodings in the <tt>offeredEncodings</tt>
+     * hashtable with those supported by the currently valid media controller
+     * and returns the set of those that were present in both. The hashtable
+     * a maps "audio"/"video" specifier to a list of encodings present in both
+     * the source <tt>offeredEncodings</tt> hashtable and the list of supported
+     * encodings.
+     *
+     * @param offeredEncodings a Hashtable containing sets of encodings that an
+     * interlocutor has sent to us.
+     * @return a <tt>Hashtable</tt> mapping an "audio"/"video" specifier to a
+     * list of encodings present in both the source <tt>offeredEncodings</tt>
+     * hashtable and the list of encodings supported by the local media
+     * controller.
+     * @throws MediaException code UNSUPPORTED_FORMAT_SET_ERROR if the
+     * intersection of both encoding sets does not contain any elements.
+     */
+    private Hashtable intersectMediaEncodings(Hashtable offeredEncodings)
+        throws MediaException
+    {
+        //audio encodings supported by the media controller
+        String[] supportedAudioEncodings = mediaServCallback.getMediaControl()
+            .getSupportedAudioEncodings();
+
+        //video encodings supported by the media controller
+        String[] supportedVideoEncodings = mediaServCallback.getMediaControl()
+            .getSupportedVideoEncodings();
+
+        //audio encodings offered by the remote party
+        List offeredAudioEncodings = (List)offeredEncodings.get("audio");
+
+        //video encodings offered by the remote party
+        List offeredVideoEncodings = (List)offeredEncodings.get("video");
+
+        //recreate the formats we create according to what the other party
+        //offered.
+        List supportedAudioEncsList = Arrays.asList(supportedAudioEncodings);
+        List intersectedAudioEncsList = new LinkedList();
+        List supportedVideoEncsList = Arrays.asList(supportedVideoEncodings);
+        List intersectedVideoEncsList = new LinkedList();
+
+        //intersect supported audio formats with offered audio formats
+        if (offeredAudioEncodings != null
+            && offeredAudioEncodings.size() > 0)
+        {
+            Iterator offeredAudioEncsIter
+                = offeredAudioEncodings.iterator();
+
+            while (offeredAudioEncsIter.hasNext())
+            {
+                String format = (String) offeredAudioEncsIter.next();
+                if (supportedAudioEncsList.contains(format))
+                    intersectedAudioEncsList.add(format);
+            }
+        }
+
+        if (offeredVideoEncodings != null
+            && offeredVideoEncodings.size() > 0)
+        {
+            //intersect supported video formats with offered video formats
+            Iterator offeredVideoEncsIter = offeredVideoEncodings.iterator();
+
+            while (offeredVideoEncsIter.hasNext())
+            {
+                String format = (String) offeredVideoEncsIter.next();
+                if (supportedVideoEncsList.contains(format))
+                    intersectedVideoEncsList.add(format);
+            }
+        }
+
+        //if the intersection contains no common formats then we need to
+        //bail.
+        if (intersectedAudioEncsList.size() == 0
+            && intersectedVideoEncsList.size() == 0)
+        {
+            throw new MediaException(
+                "None of the offered formats was supported by this "
+                + "media implementation"
+                , MediaException.UNSUPPORTED_FORMAT_SET_ERROR);
+
+        }
+
+        Hashtable intersection = new Hashtable(2);
+        intersection.put("audio", intersectedAudioEncsList);
+        intersection.put("video", intersectedAudioEncsList);
+
+        return intersection;
+    }
     /**
      * Returns a <tt>Hashtable</tt> mapping media types (e.g. audio or video)
      * to lists of JMF encoding strings corresponding to the SDP formats
@@ -884,7 +958,7 @@ public class CallSessionImpl
      */
     private Hashtable extractMediaEncodings(Vector mediaDescriptions)
     {
-        Hashtable mediaEncodings = new Hashtable();
+        Hashtable mediaEncodings = new Hashtable(2);
 
         Iterator descriptionsIter = mediaDescriptions.iterator();
 
@@ -1330,18 +1404,23 @@ public class CallSessionImpl
         }
         // Get this when the internal players are realized.
         if (ce instanceof RealizeCompleteEvent) {
+
+            //set the volume as it is not on max by default.
+            GainControl gc
+                = (GainControl)player.getControl(GainControl.class.getName());
+            if (gc != null)
+            {
+                logger.debug("Setting volume to max");
+                gc.setLevel(1);
+            }
+            else
+                logger.debug("Player does not have gain control.");
+
+
             logger.debug("A player was realized and will be started.");
             player.start();
 /** @todo very ugly test code
   * please don't forget to remove */
-GainControl gc = (GainControl)player.getControl(GainControl.class.getName());
- if(gc != null)
- {
-    logger.debug("Setting volue to max");
-    gc.setLevel(1);
- }
- else
-    logger.debug("Player does not have gain control.");
 java.awt.Component vc = player.getVisualComponent();
 if(vc != null)
 {
