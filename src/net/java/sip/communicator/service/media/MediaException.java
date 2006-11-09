@@ -42,10 +42,15 @@ public class MediaException
     public static final int IO_ERROR = 4;
 
     /**
+     * Set when the media service is requested to receive or transmit in a
+     * format set that is not supported by the implementation.
+     */
+    public static final int UNSUPPORTED_FORMAT_SET_ERROR = 5;
+
+    /**
      * The error code of the exception
      */
     private int errorCode = GENERAL_ERROR;
-
 
     /**
      * Creates an exception with the specified error message and error code.
