@@ -393,6 +393,8 @@ public class ChatWindow
                 this.getContentPane().add(chatPanel, BorderLayout.CENTER);
 
                 this.setCurrentChatPanel(chatPanel);
+                
+                chatPanel.requestFocusInWriteArea();
 
                 this.setTitle(onlyTabtitle);
             }
@@ -736,10 +738,11 @@ public class ChatWindow
     }
 
     /**
-     * Implements the SIPCommFrame close method.
+     * Implements the <tt>SIPCommFrame</tt> close method. We check for an open
+     * menu and if there's one we close it, otherwise we close the current chat.
      */
     protected void close()
-    {
+    {   
         ChatRightButtonMenu chatRightMenu = currentChatPanel
             .getChatConversationPanel().getRightButtonMenu();
 
@@ -753,16 +756,16 @@ public class ChatWindow
         MenuSelectionManager menuSelectionManager
             = MenuSelectionManager.defaultManager();
         
-        if (chatRightMenu.isVisible()) {
+        if (chatRightMenu.isVisible()) {            
             chatRightMenu.setVisible(false);
         }
-        else if (writePanelRightMenu.isVisible()) {
+        else if (writePanelRightMenu.isVisible()) {            
             writePanelRightMenu.setVisible(false);
         }
-        else if (selectedMenu != null) {            
+        else if (selectedMenu != null) {
             menuSelectionManager.clearSelectedPath();
         }
-        else if(contactMenu.isPopupMenuVisible()) {            
+        else if(contactMenu.isPopupMenuVisible()) {
             menuSelectionManager.clearSelectedPath();                        
         }
         else if(menusPanel.getMainToolBar().hasSelectedMenus()) {

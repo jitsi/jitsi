@@ -263,7 +263,7 @@ public class MainToolBar
         if(smiliesBox.isVisible())
             return true;
         
-        return true;
+        return false;
     }
     
     public void closeAllMenus()
