@@ -1344,7 +1344,8 @@ public class OperationSetBasicTelephonySipImpl
         throws ClassCastException, OperationFailedException
     {
         //do nothing if the call is already ended
-        if (participant.getState().equals(CallParticipantState.DISCONNECTED))
+        if (participant.getState().equals(CallParticipantState.DISCONNECTED)
+            || participant.getState().equals(CallParticipantState.FAILED))
         {
             logger.debug("Ignoring a request to hangup a call participant "
                          +"that is already DISCONNECTED");
@@ -1394,6 +1395,96 @@ public class OperationSetBasicTelephonySipImpl
             logger.error("Could not determine call participant state!");
         }
     } //end call
+
+    /**
+     * Sends an Internal Error response to <tt>callParticipant</tt>.
+     *
+     * @param callParticipant the call participant that we need to say bye to.
+     *
+     * @throws OperationFailedException if we failed constructing or sending a
+     * SIP Message.
+     */
+    public void sayInternalError(CallParticipantSipImpl callParticipant)
+        throws OperationFailedException
+    {
+        sayError(callParticipant, Response.SERVER_INTERNAL_ERROR);
+    }
+
+    /**
+     * Send an error response with the <tt>errorCode</tt> code to
+     * <tt>callParticipant</tt>.
+     *
+     * @param callParticipant the call participant that we need to say bye to.
+     * @param errorCode the code that the response should have.
+     *
+     * @throws OperationFailedException if we failed constructing or sending a
+     * SIP Message.
+     */
+    public void sayError(CallParticipantSipImpl callParticipant,
+                                 int                    errorCode)
+        throws OperationFailedException
+    {
+        Dialog dialog = callParticipant.getDialog();
+        callParticipant.setState(CallParticipantState.FAILED);
+        if (dialog == null)
+        {
+            logger.error(
+                "Failed to extract participant's associated dialog! "
+                +"Ending Call!");
+            throw new OperationFailedException(
+                "Failed to extract participant's associated dialog! "
+                +"Ending Call!"
+                ,OperationFailedException.INTERNAL_ERROR);
+        }
+        Transaction transaction = callParticipant.getFirstTransaction();
+        if (transaction == null || !dialog.isServer())
+        {
+            logger.error(
+                "Failed to extract a transaction"
+                +" from the call's associated dialog!");
+            throw new OperationFailedException(
+                "Failed to extract a transaction from the participant's "
+                +"associated dialog!"
+                , OperationFailedException.INTERNAL_ERROR);
+        }
+
+        ServerTransaction serverTransaction = (ServerTransaction) transaction;
+        Response internalError = null;
+        try
+        {
+            internalError = protocolProvider.getMessageFactory()
+                .createResponse(
+                    errorCode
+                    , callParticipant.getFirstTransaction().getRequest());
+            protocolProvider.attachToTag(internalError, dialog);
+        }
+        catch (ParseException ex) {
+            logger.error(
+                "Failed to construct an OK response to an INVITE request"
+                , ex);
+            throw new OperationFailedException(
+                "Failed to construct an OK response to an INVITE request"
+                , OperationFailedException.INTERNAL_ERROR
+                , ex);
+        }
+        ContactHeader contactHeader = protocolProvider.getContactHeader();
+        internalError.addHeader(contactHeader);
+        try {
+            serverTransaction.sendResponse(internalError);
+            if( logger.isDebugEnabled() )
+                logger.debug("sent response: " + internalError);
+        }
+        catch (Exception ex) {
+            logger.error(
+                "Failed to send an OK response to an INVITE request"
+                , ex);
+            throw new OperationFailedException(
+                "Failed to send an OK response to an INVITE request"
+                , OperationFailedException.INTERNAL_ERROR
+                , ex);
+        }
+    } //internal error
+
 
     /**
      * Sends a BYE request to <tt>callParticipant</tt>.
@@ -1648,18 +1739,18 @@ public class OperationSetBasicTelephonySipImpl
             else
             {
                 sdp = callSession.createSdpOffer();
-
             }
             ok.setContent(sdp, contentTypeHeader);
         }
         catch (MediaException ex)
         {
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
+            this.sayError((CallParticipantSipImpl)participant
+                                  , Response.NOT_ACCEPTABLE_HERE);
             logger.error( "No sdp data was provided for the ok response to "
                           + "an INVITE request!"
                           , ex);
             throw new OperationFailedException(
-                "No sdp data was provided for the ok response "
+                "Failed to created an SDP description for an ok response "
                 + "to an INVITE request!"
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
@@ -1677,12 +1768,14 @@ public class OperationSetBasicTelephonySipImpl
 
         ContactHeader contactHeader = protocolProvider.getContactHeader();
         ok.addHeader(contactHeader);
-        try {
+        try
+        {
             serverTransaction.sendResponse(ok);
             if( logger.isDebugEnabled() )
                 logger.debug("sent response\n" + ok);
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             callParticipant.setState(CallParticipantState.DISCONNECTED);
             logger.error(
                 "Failed to send an OK response to an INVITE request"
