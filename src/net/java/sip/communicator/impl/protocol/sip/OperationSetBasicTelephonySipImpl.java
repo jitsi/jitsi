@@ -804,7 +804,8 @@ public class OperationSetBasicTelephonySipImpl
     {
         Transaction transaction;
         if (timeoutEvent.isServerTransaction()) {
-            transaction = timeoutEvent.getServerTransaction();
+            //don't care. or maybe a stack bug?
+            return;
         }
         else {
             transaction = timeoutEvent.getClientTransaction();
