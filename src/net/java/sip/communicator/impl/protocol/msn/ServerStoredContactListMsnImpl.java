@@ -87,6 +87,7 @@ public class ServerStoredContactListMsnImpl
         this.parentOperationSet = parentOperationSet;
 
         this.msnProvider = provider;
+        rootGroup.setOwnerProvider(provider);
 
         // listens for provider registered events to set the isInitialized state
         // of the contact list
