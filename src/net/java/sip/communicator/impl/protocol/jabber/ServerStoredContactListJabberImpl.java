@@ -806,7 +806,7 @@ public class ServerStoredContactListJabberImpl
         }
 
         /**
-         * Event when an entry is updated. Somthing for the entry data
+         * Event when an entry is updated. Something for the entry data
          * or have been added to a new group or removed from one
          * @param addresses Collection
          */
