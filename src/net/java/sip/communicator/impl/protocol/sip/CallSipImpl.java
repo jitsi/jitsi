@@ -209,7 +209,7 @@ public class CallSipImpl
     /**
      * Returns <tt>true</tt> if <tt>dialog</tt> matches the jain sip dialog
      * established with one of the participants in this call.
-     *
+     * 
      * @param dialog the dialog whose corresponding participant we're looking
      * for.
      * @return true if this call contains a call participant whose jain sip
@@ -285,5 +285,4 @@ public class CallSipImpl
     {
         return this.mediaCallSession;
     }
-
 }
