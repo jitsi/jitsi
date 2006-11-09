@@ -140,6 +140,7 @@ public class FileMenu
                 logger.error("Failed to gently shutdown Oscar", ex);
             }
             parentWindow.dispose();
+            System.exit(0);
         }
     }
 }
