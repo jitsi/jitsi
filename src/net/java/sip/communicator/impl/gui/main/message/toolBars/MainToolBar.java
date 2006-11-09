@@ -40,9 +40,6 @@ public class MainToolBar
     private ChatToolbarButton pasteButton = new ChatToolbarButton(ImageLoader
         .getImage(ImageLoader.PASTE_ICON));
 
-    private ChatToolbarButton smileyButton = new ChatToolbarButton(ImageLoader
-            .getImage(ImageLoader.SMILIES_ICON));
-
     private ChatToolbarButton saveButton = new ChatToolbarButton(ImageLoader
         .getImage(ImageLoader.SAVE_ICON));
 
@@ -95,7 +92,7 @@ public class MainToolBar
 
         this.addSeparator();
 
-        this.add(smileyButton);
+        this.add(smiliesBox);
 
         this.addSeparator();
 
@@ -127,8 +124,8 @@ public class MainToolBar
         this.pasteButton
             .setToolTipText(Messages.getString("paste") + " Ctrl-P");
 
-        this.smileyButton.setName("smiley");
-        this.smileyButton.setToolTipText(Messages.getString("insertSmiley")
+        this.smiliesBox.setName("smiley");
+        this.smiliesBox.setToolTipText(Messages.getString("insertSmiley")
             + " Ctrl-M");
 
         this.previousButton.setName("previous");
@@ -151,8 +148,7 @@ public class MainToolBar
         this.printButton.addActionListener(this);
         this.cutButton.addActionListener(this);
         this.copyButton.addActionListener(this);
-        this.pasteButton.addActionListener(this);
-        this.smileyButton.addActionListener(this);
+        this.pasteButton.addActionListener(this);        
         this.previousButton.addActionListener(this);
         this.nextButton.addActionListener(this);
         this.sendFileButton.addActionListener(this);
@@ -196,19 +192,6 @@ public class MainToolBar
 
             this.messageWindow.getCurrentChatPanel().paste();
         }
-        else if (buttonText.equalsIgnoreCase("smiley")) {
-        	 if (e.getSource() instanceof SIPCommButton) {
-
-                SmiliesSelectorBox smiliesBox = new SmiliesSelectorBox(
-                        ImageLoader.getDefaultSmiliesPack(), messageWindow);
-                
-                smiliesBox.setInvoker((Component) e.getSource());
-
-                smiliesBox.setLocation(smiliesBox.getPopupLocation());
-
-                smiliesBox.setVisible(true);                
-            }
-        }
         else if (buttonText.equalsIgnoreCase("previous")) {
 
         }
@@ -237,9 +220,9 @@ public class MainToolBar
      * 
      * @return the button used to show the list of smilies.
      */
-    public AbstractButton getSmileyButton()
+    public SmiliesSelectorBox getSmiliesSelectorBox()
     {
-        return smileyButton;
+        return smiliesBox;
     }
 
     /**
@@ -260,14 +243,9 @@ public class MainToolBar
      */
     public boolean hasSelectedMenus()
     {        
-        if(smiliesBox.isVisible())
+        if(smiliesBox.isMenuSelected())
             return true;
         
         return false;
-    }
-    
-    public void closeAllMenus()
-    {
-        smiliesBox.setVisible(false);
     }
 }

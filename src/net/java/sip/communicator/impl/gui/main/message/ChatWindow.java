@@ -605,7 +605,7 @@ public class ChatWindow
     {
         public void actionPerformed(ActionEvent e)
         {
-            menusPanel.getMainToolBar().getSmileyButton().doClick();
+            menusPanel.getMainToolBar().getSmiliesSelectorBox().open();
         }
     }
 
@@ -756,20 +756,19 @@ public class ChatWindow
         MenuSelectionManager menuSelectionManager
             = MenuSelectionManager.defaultManager();
         
-        if (chatRightMenu.isVisible()) {            
+        if (chatRightMenu.isVisible()) {
+            
             chatRightMenu.setVisible(false);
         }
-        else if (writePanelRightMenu.isVisible()) {            
+        else if (writePanelRightMenu.isVisible()) {
+            
             writePanelRightMenu.setVisible(false);
         }
-        else if (selectedMenu != null) {
+        else if (selectedMenu != null
+            || contactMenu.isPopupMenuVisible()
+            || menusPanel.getMainToolBar().hasSelectedMenus()) {
+            
             menuSelectionManager.clearSelectedPath();
-        }
-        else if(contactMenu.isPopupMenuVisible()) {
-            menuSelectionManager.clearSelectedPath();                        
-        }
-        else if(menusPanel.getMainToolBar().hasSelectedMenus()) {
-            menusPanel.getMainToolBar().closeAllMenus();
         }
         else {
             close(false);

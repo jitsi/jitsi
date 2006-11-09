@@ -77,6 +77,8 @@ public class SIPCommDefaultTheme
 
             "Menu.opaque", Boolean.FALSE,
             
+            "MenuBar.border", null,
+            
             "Menu.borderPainted", Boolean.FALSE,
             "Menu.border", textFieldBorder,
             "Menu.selectionBackground", LIGHT_GRAY,

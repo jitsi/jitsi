@@ -9,10 +9,12 @@ package net.java.sip.communicator.impl.gui.main.message;
 
 import java.util.*;
 
+import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
@@ -21,13 +23,19 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * 
  * @author Yana Stamcheva
  */
-public class SmiliesSelectorBox extends BoxPopupMenu
+public class SmiliesSelectorBox extends JMenuBar
     implements ActionListener {
 
     private ChatWindow chatWindow;
 
     private ArrayList imageList;
 
+    private int gridRowCount = 0;
+
+    private int gridColCount = 0;
+    
+    private JMenu selectorBox = new JMenu();
+    
     /**
      * Creates an instance of this <tt>SmiliesSelectorBox</tt> and initializes
      * the panel with the smiley icons given by the incoming imageList.
@@ -36,12 +44,26 @@ public class SmiliesSelectorBox extends BoxPopupMenu
      */
     public SmiliesSelectorBox(ArrayList imageList, ChatWindow chatWindow) {
 
-        super(imageList.size());
-        
         this.imageList = imageList;
 
         this.chatWindow = chatWindow;
         
+        this.selectorBox.setUI(new SIPCommChatSelectorMenuUI());
+        
+        this.selectorBox.setPreferredSize(new Dimension(24, 24));
+        
+        //Should explicetly remove any border in order to align correctly the
+        //icon.
+        this.selectorBox.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        
+        this.selectorBox.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.SMILIES_ICON)));
+        
+        this.calculateGridDimensions(imageList.size());
+
+        this.selectorBox.getPopupMenu().setLayout(new GridLayout(
+                this.gridRowCount, this.gridColCount, 5, 5));
+                
         for (int i = 0; i < imageList.size(); i++) {
 
             Smiley smiley = (Smiley) this.imageList.get(i);
@@ -53,9 +75,21 @@ public class SmiliesSelectorBox extends BoxPopupMenu
 
             imageButton.addActionListener(this);
 
-            this.add(imageButton);
+            this.selectorBox.add(imageButton);
         }
 
+        this.add(selectorBox);
+    }
+    
+    /**
+     * In order to have a popup which is at the form closest to sqware.
+     * @param itemsCount the count of items that will be laied out.
+     */
+    private void calculateGridDimensions(int itemsCount) {
+
+        this.gridRowCount = (int) Math.round(Math.sqrt(itemsCount));
+
+        this.gridColCount = (int) Math.round(itemsCount / gridRowCount);
     }
 
     /**
@@ -82,5 +116,25 @@ public class SmiliesSelectorBox extends BoxPopupMenu
                 chatPanel.requestFocusInWriteArea();
             }
         }
+    }
+
+    /**
+     * Opens the smilies selector box.
+     */
+    public void open()
+    {
+        this.selectorBox.doClick();
+    }
+
+    /**
+     * Returns TRUE if the selector box is opened, otherwise returns FALSE.
+     * @return TRUE if the selector box is opened, otherwise returns FALSE
+     */
+    public boolean isMenuSelected()
+    {
+        if(selectorBox.isPopupMenuVisible())
+            return true;
+        
+        return false;
     }
 }

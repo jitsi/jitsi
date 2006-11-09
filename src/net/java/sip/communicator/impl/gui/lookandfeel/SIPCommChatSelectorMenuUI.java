@@ -15,22 +15,24 @@ import javax.swing.plaf.basic.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
- * The SIPCommSelectorMenuUI implementation.
+ * The SIPCommChatSelectorMenuUI implementation.
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommSelectorMenuUI
+public class SIPCommChatSelectorMenuUI
     extends BasicMenuUI
 {
     private Image menuBgImage
-        = ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX);
-    
+        = ImageLoader.getImage(ImageLoader.CHAT_TOOLBAR_BUTTON_BG);
+    private Image menuRolloverImage
+        = ImageLoader.getImage(ImageLoader.CHAT_TOOLBAR_ROLLOVER_BUTTON_BG);
+            
     /**
-     * Creates a new SIPCommSelectorMenuUI instance.
+     * Creates a new SIPCommChatSelectorMenuUI instance.
      */
     public static ComponentUI createUI(JComponent x)
-    {   
-        return new SIPCommSelectorMenuUI();
+    {
+        return new SIPCommChatSelectorMenuUI();
     }
 
     public void paint(Graphics g, JComponent c)
@@ -55,7 +57,7 @@ public class SIPCommSelectorMenuUI
         
         int menuWidth = menuItem.getWidth();
         int menuHeight = menuItem.getHeight();
-
-        g.drawImage(menuBgImage, 0, 0, menuWidth, menuHeight, null);       
+        
+        g.drawImage(menuBgImage, 0, 0, menuWidth, menuHeight, null);
     }
 }
