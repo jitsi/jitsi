@@ -15,8 +15,6 @@ import java.util.List;
 
 import javax.swing.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -26,13 +24,14 @@ import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.impl.protocol.msn.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.PropertyVetoException;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The main application window. This class is the core of this ui
@@ -626,23 +625,7 @@ public class MainFrame
             ConfigurationService configService
                 = GuiActivator.getConfigurationService();
 
-            try {
-                configService.setProperty(
-                    "net.java.sip.communicator.impl.ui.mainWindowWidth",
-                    new Integer(getWidth()));
-
-                configService.setProperty(
-                    "net.java.sip.communicator.impl.ui.mainWindowHeight",
-                    new Integer(getHeight()));
-
-                configService.setProperty(
-                        "net.java.sip.communicator.impl.ui.mainWindowX",
-                        new Integer(getX()));
-
-                configService.setProperty(
-                        "net.java.sip.communicator.impl.ui.mainWindowY",
-                        new Integer(getY()));
-
+            try {                
                 configService.setProperty(
                         "net.java.sip.communicator.impl.ui.showCallPanel",
                         new Boolean(callManager.isShown()));
@@ -666,33 +649,13 @@ public class MainFrame
     /**
      * Sets the window size and position.
      */
-    public void setSizeAndLocation() {
+    public void loadConfigurationSettings() {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
 
-        String width = configService.getString(
-            "net.java.sip.communicator.impl.ui.mainWindowWidth");
-
-        String height = configService.getString(
-            "net.java.sip.communicator.impl.ui.mainWindowHeight");
-
-        String x = configService.getString(
-            "net.java.sip.communicator.impl.ui.mainWindowX");
-
-        String y = configService.getString(
-            "net.java.sip.communicator.impl.ui.mainWindowY");
-
         String isShown = configService.getString(
             "net.java.sip.communicator.impl.ui.showCallPanel");
-
-        if(width != null && height != null)
-            this.setSize(new Integer(width).intValue(),
-                    new Integer(height).intValue());
-
-        if(x != null && y != null)
-            this.setLocation(new Integer(x).intValue(),
-                    new Integer(y).intValue());
-
+        
         if(isShown != null && isShown != "") {
             callManager.setShown(new Boolean(isShown).booleanValue());
         }

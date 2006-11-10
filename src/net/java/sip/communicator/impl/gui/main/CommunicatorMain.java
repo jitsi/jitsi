@@ -66,8 +66,7 @@ public class CommunicatorMain {
      */
     public void showCommunicator(boolean isVisible) {
         
-        this.mainFrame.setSizeAndLocation();
-        
+        this.mainFrame.loadConfigurationSettings();
         this.mainFrame.setVisible(isVisible);
     }
     

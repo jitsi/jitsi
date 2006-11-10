@@ -46,18 +46,6 @@ public class HistoryWindow
     private static final Logger logger = Logger
         .getLogger(HistoryWindow.class.getName());
 
-    private static final String HISTORY_WINDOW_WIDTH_PROPERTY
-        = "net.java.sip.communicator.impl.ui.historyWindowWidth";
-
-    private static final String HISTORY_WINDOW_HEIGHT_PROPERTY
-        = "net.java.sip.communicator.impl.ui.historyWindowHeight";
-
-    private static final String HISTORY_WINDOW_X_PROPERTY
-        = "net.java.sip.communicator.impl.ui.historyWindowX";
-
-    private static final String HISTORY_WINDOW_Y_PROPERTY
-        = "net.java.sip.communicator.impl.ui.historyWindowY";
-
     private ChatConversationPanel chatConvPanel;
     
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
@@ -108,6 +96,8 @@ public class HistoryWindow
      */
     public HistoryWindow(MainFrame mainFrame, MetaContact metaContact)
     {
+        this.setSize(500, 400);
+        
         chatConvPanel = new ChatConversationPanel(this);
         
         this.progressBar = new JProgressBar(
@@ -129,11 +119,6 @@ public class HistoryWindow
         this.datesPanel = new DatesPanel(this);
         this.historyMenu = new HistoryMenu(this);
         this.searchPanel = new SearchPanel(this);
-
-        this.loadSizeAndLocation();
-
-        this.setIconImage(
-                ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
 
         this.initPanels();
 
@@ -293,90 +278,7 @@ public class HistoryWindow
     {
         public void windowClosing(WindowEvent e) {
             msgHistory.removeSearchProgressListener(HistoryWindow.this);
-            
-            saveSizeAndLocation();
         }
-    }
-    
-    /**
-     * Through the <tt>ConfigurationService</tt> saves the current window size
-     * and location.
-     */
-    private void saveSizeAndLocation()
-    {
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
-    
-        try {
-            configService.setProperty(
-                HISTORY_WINDOW_WIDTH_PROPERTY,
-                new Integer(getWidth()));
-    
-            configService.setProperty(
-                HISTORY_WINDOW_HEIGHT_PROPERTY,
-                new Integer(getHeight()));
-    
-            configService.setProperty(
-                HISTORY_WINDOW_X_PROPERTY,
-                new Integer(getX()));
-    
-            configService.setProperty(
-                HISTORY_WINDOW_Y_PROPERTY,
-                new Integer(getY()));
-        }
-        catch (PropertyVetoException e1) {
-            logger.error("The proposed property change "
-                    + "represents an unacceptable value");
-        }
-    }
-
-    /**
-     * Sets the window size and position.
-     */
-    public void loadSizeAndLocation()
-    {
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
-
-        String width = configService.getString(HISTORY_WINDOW_WIDTH_PROPERTY);
-
-        String height = configService.getString(HISTORY_WINDOW_HEIGHT_PROPERTY);
-
-        String x = configService.getString(HISTORY_WINDOW_X_PROPERTY);
-
-        String y = configService.getString(HISTORY_WINDOW_Y_PROPERTY);
-
-
-        if(width != null && height != null) {
-            this.setSize(new Integer(width).intValue(),
-                    new Integer(height).intValue());
-        }
-        else {
-            this.setSize(new Dimension(
-                    Constants.HISTORY_WINDOW_WIDTH,
-                    Constants.HISTORY_WINDOW_HEIGHT));
-        }
-
-        if(x != null && y != null) {
-            this.setLocation(new Integer(x).intValue(),
-                    new Integer(y).intValue());
-        }
-        else {
-            this.setCenterLocation();
-        }
-    }
-
-    /**
-     * Positions this window in the center of the screen.
-     */
-    private void setCenterLocation()
-    {
-        this.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2
-                    - this.getWidth()/2,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2
-                    - this.getHeight()/2
-                );
     }
     
     /**
@@ -640,8 +542,6 @@ public class HistoryWindow
         }
         else {
             this.dispose();
-        
-            saveSizeAndLocation();
         }
     }
 }

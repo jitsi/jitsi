@@ -7,24 +7,21 @@
 
 package net.java.sip.communicator.impl.gui.main.message;
 
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.message.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.kano.joustsim.oscar.oscar.service.icbm.ft.controllers.*;
 
 /**
  * The chat window is the place, where users can write and send messages, view
@@ -44,18 +41,6 @@ public class ChatWindow
     extends SIPCommFrame
 {
     private Logger logger = Logger.getLogger(ChatWindow.class.getName());
-
-    private static final String CHAT_WINDOW_WIDTH_PROPERTY
-        = "net.java.sip.communicator.impl.ui.chatWindowWidth";
-
-    private static final String CHAT_WINDOW_HEIGHT_PROPERTY
-        = "net.java.sip.communicator.impl.ui.chatWindowHeight";
-
-    private static final String CHAT_WINDOW_X_PROPERTY
-        = "net.java.sip.communicator.impl.ui.chatWindowX";
-
-    private static final String CHAT_WINDOW_Y_PROPERTY
-        = "net.java.sip.communicator.impl.ui.chatWindowY";
 
     private ChatPanel currentChatPanel;
 
@@ -201,7 +186,6 @@ public class ChatWindow
             removeContactTab(chatTabbedPane.getSelectedIndex());
         }
         else {
-            saveSizeAndLocation();
             ChatWindow.this.dispose();
             mainFrame.getContactListPanel().setTabbedChatWindow(null);
         }
@@ -673,68 +657,11 @@ public class ChatWindow
                 setTitle(title.substring(0, title.length() - 1));
             }
         }
-
+        
         public void windowClosing(WindowEvent e)
-        {
-
-            saveSizeAndLocation();
+        {            
             close(true);
         }
-    }
-
-    /**
-     * Saves the current chat window size and position using the
-     * ConfigurationService.
-     */
-    public void saveSizeAndLocation()
-    {
-        ConfigurationService configService = GuiActivator
-            .getConfigurationService();
-
-        try {
-            configService.setProperty(CHAT_WINDOW_WIDTH_PROPERTY, new Integer(
-                getWidth()));
-
-            configService.setProperty(CHAT_WINDOW_HEIGHT_PROPERTY, new Integer(
-                getHeight()));
-
-            configService.setProperty(CHAT_WINDOW_X_PROPERTY, new Integer(
-                getX()));
-
-            configService.setProperty(CHAT_WINDOW_Y_PROPERTY, new Integer(
-                getY()));
-        }
-        catch (PropertyVetoException e1) {
-            logger.error("The proposed property change "
-                + "represents an unacceptable value");
-        }
-    }
-
-    /**
-     * Sets the window size and position.
-     */
-    public void setSizeAndLocation()
-    {
-        ConfigurationService configService = GuiActivator
-            .getConfigurationService();
-
-        String width = configService.getString(CHAT_WINDOW_WIDTH_PROPERTY);
-
-        String height = configService.getString(CHAT_WINDOW_HEIGHT_PROPERTY);
-
-        String x = configService.getString(CHAT_WINDOW_X_PROPERTY);
-
-        String y = configService.getString(CHAT_WINDOW_Y_PROPERTY);
-
-        if (width != null && height != null)
-            this.setSize(new Integer(width).intValue(), new Integer(height)
-                .intValue());
-
-        if (x != null && y != null)
-            this.setLocation(new Integer(x).intValue(), new Integer(y)
-                .intValue());
-        else
-            this.setCenterLocation();
     }
 
     /**
