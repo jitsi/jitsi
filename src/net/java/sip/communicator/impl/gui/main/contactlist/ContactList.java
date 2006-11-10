@@ -964,5 +964,23 @@ public class ContactList extends JList implements MetaContactListListener,
     {
         return groupRightButtonMenu;
     }
-
+    
+    /**
+     * Returns TRUE if the list shows offline contacts, FALSE otherwise.
+     * @return TRUE if the list shows offline contacts, FALSE otherwise
+     */
+    public boolean isShowOffline()
+    {
+        return listModel.showOffline();
+    }
+    
+    /**
+     * Sets the showOffline property.
+     * @param isShowOffline TRUE to show all offline users, FALSE to hide
+     * offline users.
+     */
+    public void setShowOffline(boolean isShowOffline)
+    {
+        listModel.setShowOffline(isShowOffline);
+    }
 }

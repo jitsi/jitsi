@@ -629,6 +629,13 @@ public class MainFrame
                 configService.setProperty(
                         "net.java.sip.communicator.impl.ui.showCallPanel",
                         new Boolean(callManager.isShown()));
+                
+                
+                configService.setProperty(
+                    "net.java.sip.communicator.impl.ui.showOffline",
+                    new Boolean(getContactListPanel()
+                        .getContactList().isShowOffline()));
+                
             }
             catch (PropertyVetoException e1) {
                 logger.error("The proposed property change "
@@ -653,15 +660,23 @@ public class MainFrame
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
 
-        String isShown = configService.getString(
+        String isCallPanelShown = configService.getString(
             "net.java.sip.communicator.impl.ui.showCallPanel");
         
-        if(isShown != null && isShown != "") {
-            callManager.setShown(new Boolean(isShown).booleanValue());
+        String isShowOffline = configService.getString(
+            "net.java.sip.communicator.impl.ui.showOffline");
+        
+        if(isCallPanelShown != null && isCallPanelShown != "") {
+            callManager.setShown(new Boolean(isCallPanelShown).booleanValue());
         }
         else {
             callManager.setShown(true);
         }
+        
+        if(isShowOffline != null && isShowOffline != "") {
+            getContactListPanel().getContactList()
+                .setShowOffline(new Boolean(isShowOffline).booleanValue());
+        }   
     }
 
     /**
