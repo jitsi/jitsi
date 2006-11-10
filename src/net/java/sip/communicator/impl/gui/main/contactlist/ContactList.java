@@ -154,7 +154,7 @@ public class ContactList extends JList implements MetaContactListListener,
      */
     public void metaContactRemoved(MetaContactEvent evt)
     {
-        this.removeContact(evt.getSourceMetaContact());
+        this.removeContact(evt);
     }
 
     /**
@@ -697,7 +697,19 @@ public class ContactList extends JList implements MetaContactListListener,
                             MetaContact contact = (MetaContact) o;
 
                             SwingUtilities.invokeLater(new RefreshContact(
-                                    contact, operation));
+                                    contact, contact.getParentMetaContactGroup(),
+                                    operation));
+                        }
+                        else if (o instanceof MetaContactEvent) {
+
+                            MetaContactEvent event = (MetaContactEvent) o;
+                            MetaContact contact
+                                = event.getSourceMetaContact();
+                            MetaContactGroup parentGroup
+                                = event.getParentGroup();
+
+                            SwingUtilities.invokeLater(new RefreshContact(
+                                    contact, parentGroup, operation));
                         }
                     }
                 }
@@ -776,10 +788,15 @@ public class ContactList extends JList implements MetaContactListListener,
         {
             private MetaContact contact;
 
+            private MetaContactGroup parentGroup;
+            
             private String operation;
 
-            public RefreshContact(MetaContact contact, String operation) {
+            public RefreshContact(MetaContact contact,
+                MetaContactGroup parentGroup, String operation) {
+                
                 this.contact = contact;
+                this.parentGroup = parentGroup;
                 this.operation = operation;
             }
 
@@ -797,10 +814,14 @@ public class ContactList extends JList implements MetaContactListListener,
                         listModel.contentAdded(contactIndex, contactIndex);
                 }
                 else if (operation.equals(REMOVE_OPERATION)) {
-                    int contactIndex = listModel.indexOf(contact);
+                    int groupIndex = listModel.indexOf(parentGroup);
 
-                    if (contactIndex != -1)
-                        listModel.contentRemoved(contactIndex, contactIndex);
+                    int listSize = listModel.getSize();
+                    
+                    if (groupIndex != -1) {
+                        listModel.contentChanged(groupIndex, listSize - 1);
+                        listModel.contentRemoved(listSize, listSize);
+                    }
                 }
             }
         }
@@ -895,14 +916,14 @@ public class ContactList extends JList implements MetaContactListListener,
     /**
      * Refreshes all the contact list.
      */
-    public void removeContact(MetaContact contact)
+    public void removeContact(MetaContactEvent event)
     {
+        MetaContact metaContact = event.getSourceMetaContact();
         synchronized (contentToRefresh) {
-            if (contact != null
-                    && (contentToRefresh.get(contact) == null || !contentToRefresh
-                            .get(contact).equals(REMOVE_OPERATION))) {
+            if (metaContact != null
+                    && !contentToRefresh.contains(event)) {
 
-                contentToRefresh.put(contact, REMOVE_OPERATION);
+                contentToRefresh.put(event, REMOVE_OPERATION);
                 contentToRefresh.notifyAll();
             }
         }
