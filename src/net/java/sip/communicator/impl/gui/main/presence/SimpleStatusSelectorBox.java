@@ -77,7 +77,11 @@ public class SimpleStatusSelectorBox
         this.protocolProvider = protocolProvider;
         this.accountIndex = accountIndex;
         
-        this.setToolTipText(protocolProvider.getAccountID().getUserID());
+        String tooltip = "<html><b>"
+            + protocolProvider.getAccountID().getUserID()
+            + "</b><br>Connecting</html>";
+    
+        this.setToolTipText(tooltip);    
                 
         onlineItem.setName("online");
         offlineItem.setName("offline");
@@ -155,6 +159,12 @@ public class SimpleStatusSelectorBox
         else {
             setSelected(offlineItem, offlineIcon);
         }
+        
+        String tooltip = this.getToolTipText();
+        
+        tooltip = tooltip.substring(0, tooltip.lastIndexOf("<br>"));
+        
+        this.setToolTipText(tooltip.concat("<br>" + onlineItem.getText()));
     }
 
     /**

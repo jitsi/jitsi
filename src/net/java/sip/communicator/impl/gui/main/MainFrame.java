@@ -1031,7 +1031,7 @@ public class MainFrame
             
             if(selectedObject instanceof MetaContact) {
                 RenameContactDialog dialog = new RenameContactDialog(
-                        contactList, (MetaContact)selectedObject);
+                        MainFrame.this, (MetaContact)selectedObject);
 
                 dialog.setLocation(
                         Toolkit.getDefaultToolkit().getScreenSize().width/2
@@ -1047,7 +1047,7 @@ public class MainFrame
             else if(selectedObject instanceof MetaContactGroup) {
                 
                 RenameGroupDialog dialog = new RenameGroupDialog(
-                        contactList, (MetaContactGroup)selectedObject);
+                        MainFrame.this, (MetaContactGroup)selectedObject);
 
                 dialog.setLocation(
                         Toolkit.getDefaultToolkit().getScreenSize().width/2

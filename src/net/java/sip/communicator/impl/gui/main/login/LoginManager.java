@@ -215,7 +215,8 @@ public class LoginManager
 
             if (presence != null) {
                 presence
-                    .setAuthorizationHandler(new AuthorizationHandlerImpl());
+                    .setAuthorizationHandler(
+                        new AuthorizationHandlerImpl(mainFrame));
             }
         }
         else if (evt.getNewState().equals(

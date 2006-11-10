@@ -29,12 +29,7 @@ public abstract class SIPCommDialog extends JDialog
         
         this.initInputMap(); 
     }
-    
-    public SIPCommDialog()
-    {
-        this.initInputMap(); 
-    }
-    
+        
     private void initInputMap()
     {
         amap = this.getRootPane().getActionMap();

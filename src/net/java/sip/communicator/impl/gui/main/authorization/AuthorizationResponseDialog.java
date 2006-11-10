@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -50,8 +51,9 @@ public class AuthorizationResponseDialog extends SIPCommDialog
      * @param response The <tt>AuthorizationResponse</tt> that has been
      * received.
      */
-    public AuthorizationResponseDialog(Contact contact,
+    public AuthorizationResponseDialog(MainFrame mainFrame, Contact contact,
             AuthorizationResponse response) {
+        super(mainFrame);
         
         this.setModal(true);
         

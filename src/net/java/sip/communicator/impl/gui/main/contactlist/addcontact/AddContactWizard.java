@@ -37,7 +37,9 @@ public class AddContactWizard
     private AddContactWizardPage3 page3;
     
     public AddContactWizard(MainFrame mainFrame)
-    {   
+    {
+        super(mainFrame);
+        
         this.mainFrame = mainFrame;
      
         super.addWizardListener(this);

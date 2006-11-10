@@ -633,6 +633,11 @@ public class HistoryWindow
         if(chatConvPanel.getRightButtonMenu().isVisible()) {
             chatConvPanel.getRightButtonMenu().setVisible(false);
         }
+        else if(historyMenu.isPopupMenuVisible()) {
+            MenuSelectionManager menuSelectionManager
+                = MenuSelectionManager.defaultManager();
+            menuSelectionManager.clearSelectedPath();
+        }
         else {
             this.dispose();
         

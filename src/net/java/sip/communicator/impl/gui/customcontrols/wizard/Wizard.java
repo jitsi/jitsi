@@ -111,14 +111,6 @@ public class Wizard extends SIPCommDialog
     private Vector wizardListeners = new Vector();    
     
     /**
-     * Default constructor. This method creates a new WizardModel object and
-     * passes it into the overloaded constructor.
-     */    
-    public Wizard() {
-        this((Frame)null);
-    }
-    
-    /**
      * This method accepts a java.awt.Dialog object as the javax.swing.JDialog's
      * parent.
      * @param owner The java.awt.Dialog object that is the owner of this dialog.

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.authorization;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -24,8 +25,10 @@ import net.java.sip.communicator.service.protocol.*;
 public class AuthorizationHandlerImpl
     implements AuthorizationHandler {
 
-    public AuthorizationHandlerImpl() {
-        
+    private MainFrame mainFrame;
+    
+    public AuthorizationHandlerImpl(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
     }
     
     /**
@@ -40,7 +43,7 @@ public class AuthorizationHandlerImpl
         AuthorizationResponse response = null;
         
         AuthorizationRequestedDialog dialog 
-            = new AuthorizationRequestedDialog(sourceContact, req);
+            = new AuthorizationRequestedDialog(mainFrame, sourceContact, req);
         
         int result = dialog.showDialog();
         
@@ -71,7 +74,7 @@ public class AuthorizationHandlerImpl
         AuthorizationRequest request = new AuthorizationRequest();
         
         RequestAuthorizationDialog dialog 
-            = new RequestAuthorizationDialog(contact, request);
+            = new RequestAuthorizationDialog(mainFrame, contact, request);
 
         int returnCode = dialog.showDialog();
         
@@ -95,7 +98,7 @@ public class AuthorizationHandlerImpl
             Contact sourceContact)
     {
         AuthorizationResponseDialog dialog 
-            = new AuthorizationResponseDialog(sourceContact, response);
+            = new AuthorizationResponseDialog(mainFrame, sourceContact, response);
         
         dialog.setVisible(true);
     }

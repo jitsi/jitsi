@@ -13,6 +13,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.contactlist.*;
 
 /**
@@ -46,12 +47,13 @@ public class RenameGroupDialog
      * @param clist The <tt>MetaContactListService</tt>.
      * @param metaGroup The <tt>MetaContactGroup</tt> to rename.
      */
-    public RenameGroupDialog(MetaContactListService clist,
+    public RenameGroupDialog(MainFrame mainFrame,
             MetaContactGroup metaGroup) {
+        super(mainFrame);
         
         this.setSize(new Dimension(520, 270));
         
-        this.clist = clist;
+        this.clist = mainFrame.getContactList();
         this.metaGroup = metaGroup;
         
         this.init();

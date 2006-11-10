@@ -49,6 +49,8 @@ public class CreateGroupDialog
      */
     public CreateGroupDialog(MainFrame mainFrame) {
         
+        super(mainFrame);
+        
         this.mainFrame = mainFrame;
         this.clist = mainFrame.getContactList();
         

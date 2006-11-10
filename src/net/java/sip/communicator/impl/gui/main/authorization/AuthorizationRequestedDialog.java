@@ -13,6 +13,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -75,8 +76,10 @@ public class AuthorizationRequestedDialog
      * @param contact The <tt>Contact</tt>, which requires authorisation.
      * @param request The <tt>AuthorizationRequest</tt> that will be sent.
      */
-    public AuthorizationRequestedDialog(Contact contact,
+    public AuthorizationRequestedDialog(MainFrame mainFrame, Contact contact,
             AuthorizationRequest request) {
+        
+        super(mainFrame);
         
         this.setModal(true);
         

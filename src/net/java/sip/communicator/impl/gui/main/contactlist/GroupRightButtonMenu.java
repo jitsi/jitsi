@@ -110,7 +110,7 @@ public class GroupRightButtonMenu extends JPopupMenu
         else if(itemName.equals("renameGroup")) {
             
             RenameGroupDialog dialog = new RenameGroupDialog(
-                    mainFrame.getContactList(), group);
+                    mainFrame, group);
 
             dialog.setLocation(
                     Toolkit.getDefaultToolkit().getScreenSize().width/2

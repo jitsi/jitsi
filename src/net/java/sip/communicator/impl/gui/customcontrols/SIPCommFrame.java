@@ -10,6 +10,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.utils.*;
+
 public abstract class SIPCommFrame extends JFrame
 {
     ActionMap amap;
@@ -17,6 +19,9 @@ public abstract class SIPCommFrame extends JFrame
     
     public SIPCommFrame()
     {
+        this.setIconImage(
+            ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
+        
         amap = this.getRootPane().getActionMap();
 
         amap.put("close", new CloseAction());

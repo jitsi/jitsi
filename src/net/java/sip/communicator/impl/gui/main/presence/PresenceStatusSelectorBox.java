@@ -79,7 +79,11 @@ public class PresenceStatusSelectorBox
         
         this.statusIterator = this.presence.getSupportedStatusSet();
         
-        this.setToolTipText(protocolProvider.getAccountID().getUserID());
+        String tooltip = "<html><b>"
+                + protocolProvider.getAccountID().getUserID()
+                + "</b><br>Connecting</html>";
+        
+        this.setToolTipText(tooltip);
                 
         titleLabel = new JLabel(protocolProvider.getAccountID().getUserID());
 
@@ -186,7 +190,8 @@ public class PresenceStatusSelectorBox
         OperationSetPresence presence = mainFrame
             .getProtocolPresence(protocolProvider);
         
-        this.connecting.stop();
+        if(connecting.isRunning())
+            this.connecting.stop();
         
         this.setSelectedStatus(status);
         
@@ -282,6 +287,12 @@ public class PresenceStatusSelectorBox
         
         this.setSelected(status.getStatusName(),
                 new ImageIcon(statusImage));
+        
+        String tooltip = this.getToolTipText();
+        
+        tooltip = tooltip.substring(0, tooltip.lastIndexOf("<br>"));
+        
+        this.setToolTipText(tooltip.concat("<br>" + status.getStatusName()));
     }
 
     /**

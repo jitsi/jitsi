@@ -313,7 +313,7 @@ public class ContactRightButtonMenu
         }
         else if (itemName.equalsIgnoreCase("renameContact")) {
             RenameContactDialog dialog = new RenameContactDialog(
-                    mainFrame.getContactList(), contactItem);
+                    mainFrame, contactItem);
 
             dialog.setLocation(
                     Toolkit.getDefaultToolkit().getScreenSize().width/2

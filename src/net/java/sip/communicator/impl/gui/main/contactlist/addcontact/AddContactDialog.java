@@ -65,6 +65,8 @@ public class AddContactDialog
             MetaContact metaContact,
             ProtocolProviderService pps) {
         
+        super(mainFrame);
+        
         this.mainFrame = mainFrame;
         this.clist = mainFrame.getContactList();
         this.metaContact = metaContact;
@@ -85,6 +87,8 @@ public class AddContactDialog
     public AddContactDialog(MainFrame mainFrame,
             MetaContactGroup group,
             ProtocolProviderService pps) {
+        
+        super(mainFrame);
         
         this.mainFrame = mainFrame;
         this.clist = mainFrame.getContactList();
