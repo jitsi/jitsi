@@ -260,30 +260,44 @@ public class CallManager
             }
         }
         else if (buttonName.equalsIgnoreCase("minimize")) {
-
-            this.remove(comboPanel);
-            this.remove(buttonsPanel);
-
-            this.minimizeButtonPanel.removeAll();
-            this.minimizeButtonPanel.add(restoreButton);
-            this.isShown = false;
-
-            this.mainFrame.getContactListPanel()
-                .getContactList().requestFocus();
-
-            this.mainFrame.validate();
+            this.hideCallPanel();
         }
         else if (buttonName.equalsIgnoreCase("restore")) {
-
-            this.add(comboPanel, BorderLayout.NORTH);
-            this.add(buttonsPanel, BorderLayout.CENTER);
-
-            this.minimizeButtonPanel.removeAll();
-            this.minimizeButtonPanel.add(minimizeButton);
-            this.isShown = true;
-
-            this.mainFrame.validate();
+            this.showCallPanel();
         }
+    }
+    
+    /**
+     * Hides the panel containing call and hangup buttons.
+     */
+    public void hideCallPanel()
+    {
+        this.remove(comboPanel);
+        this.remove(buttonsPanel);
+
+        this.minimizeButtonPanel.removeAll();
+        this.minimizeButtonPanel.add(restoreButton);
+        this.isShown = false;
+
+        this.mainFrame.getContactListPanel()
+            .getContactList().requestFocus();
+
+        this.mainFrame.validate();
+    }
+    
+    /**
+     * Shows the panel containing call and hangup buttons.
+     */
+    public void showCallPanel()
+    {
+        this.add(comboPanel, BorderLayout.NORTH);
+        this.add(buttonsPanel, BorderLayout.CENTER);
+
+        this.minimizeButtonPanel.removeAll();
+        this.minimizeButtonPanel.add(minimizeButton);
+        this.isShown = true;
+
+        this.mainFrame.validate();
     }
 
     /**

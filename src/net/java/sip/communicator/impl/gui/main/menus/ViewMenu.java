@@ -1,0 +1,86 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
+package net.java.sip.communicator.impl.gui.main.menus;
+
+import java.awt.*;
+import java.awt.event.*;
+
+import javax.swing.*;
+
+import org.osgi.framework.*;
+
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.account.*;
+import net.java.sip.communicator.impl.gui.main.call.CallManager;
+import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
+/**
+ * The <tt>ViewMenu</tt> is a menu in the main application menu bar.
+ * 
+ * @author Yana Stamcheva
+ */
+public class ViewMenu
+    extends JMenu 
+    implements ActionListener
+{
+
+    private Logger logger = Logger.getLogger(ViewMenu.class.getName());
+    
+    private JCheckBoxMenuItem hideCallPanelItem
+        = new JCheckBoxMenuItem(Messages.getString("hideCallPanel"));
+    
+    private MainFrame mainFrame;
+
+    /**
+     * Creates an instance of <tt>ViewMenu</tt>.
+     * @param parentWindow The parent <tt>ChatWindow</tt>.
+     */
+    public ViewMenu(MainFrame mainFrame) {
+
+        super(Messages.getString("view"));
+        
+        this.mainFrame = mainFrame;
+
+        this.hideCallPanelItem.setSelected(false);
+        
+        this.add(hideCallPanelItem);
+        
+        this.hideCallPanelItem.setName("hideCallPanel");
+        
+        this.hideCallPanelItem.addActionListener(this);
+        
+        this.setMnemonic(Messages.getString("view").charAt(0));
+        
+        this.hideCallPanelItem.setMnemonic(
+                Messages.getString("hideCallPanel").charAt(0));        
+    }
+
+    /**
+     * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
+     */
+    public void actionPerformed(ActionEvent e) {
+
+        JMenuItem menuItem = (JMenuItem) e.getSource();
+        String itemName = menuItem.getName();
+
+        if (itemName.equals("hideCallPanel")) {
+            CallManager callManager = mainFrame.getCallManager();
+            
+            if (hideCallPanelItem.isSelected()) {
+                callManager.hideCallPanel();
+            }
+            else {
+                callManager.showCallPanel();
+            }
+        }
+    }
+}

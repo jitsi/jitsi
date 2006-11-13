@@ -27,7 +27,7 @@ public class MainMenu
 
     private ToolsMenu toolsMenu;
 
-    private JMenu viewMenu = new JMenu();
+    private ViewMenu viewMenu;
 
     private JMenu helpMenu = new JMenu();
 
@@ -38,6 +38,7 @@ public class MainMenu
     {
         this.fileMenu = new FileMenu(mainFrame);
         this.toolsMenu = new ToolsMenu(mainFrame);
+        this.viewMenu = new ViewMenu(mainFrame);
         
         this.init();
     }
@@ -69,7 +70,6 @@ public class MainMenu
         this.add(helpMenu);
 
         // Disable all menus that are not yet implemented.
-        this.viewMenu.setEnabled(false);
         this.helpMenu.setEnabled(false);
     }
     
