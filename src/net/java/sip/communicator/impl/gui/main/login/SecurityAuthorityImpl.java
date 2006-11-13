@@ -12,17 +12,17 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>SecurityAuthorityImpl</tt> is an implementation of the
  * <tt>SecurityAuthority</tt> interface.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SecurityAuthorityImpl implements SecurityAuthority {
 
     private MainFrame mainFrame;
-    
+
     private ProtocolProviderService protocolProvider;
-    
+
     /**
-     * Creates an instance of <tt>SecurityAuthorityImpl</tt>. 
+     * Creates an instance of <tt>SecurityAuthorityImpl</tt>.
      * @param mainFrame The parent window of the <tt>AuthenticationWIndow</tt>
      * created in this class.
      * @param protocolProvider The <tt>ProtocolProviderService</tt> for this
@@ -33,7 +33,7 @@ public class SecurityAuthorityImpl implements SecurityAuthority {
         this.mainFrame = mainFrame;
         this.protocolProvider = protocolProvider;
     }
-    
+
     /**
      * Implements the <code>SecurityAuthority.obtainCredentials</code> method.
      * Creates and show an <tt>AuthenticationWindow</tt>, where user could enter
@@ -41,12 +41,12 @@ public class SecurityAuthorityImpl implements SecurityAuthority {
      */
     public UserCredentials obtainCredentials(String realm,
             UserCredentials userCredentials) {
-        
+
         AuthenticationWindow loginWindow = new AuthenticationWindow(
                 mainFrame, protocolProvider, realm, userCredentials);
-        
-        loginWindow.showWindow();
-        
+
+        loginWindow.setVisible(true);
+
         return userCredentials;
-    }    
+    }
 }
