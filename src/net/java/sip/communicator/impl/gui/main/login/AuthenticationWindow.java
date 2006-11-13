@@ -85,18 +85,14 @@ public class AuthenticationWindow
         this.backgroundPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
         this.backgroundPanel.setBorder(
-                BorderFactory.createEmptyBorder(45, 5, 5, 5));
-
+                BorderFactory.createEmptyBorder(20, 5, 5, 5));
+        
         this.getContentPane().setLayout(new BorderLayout());
 
         this.init();
 
         this.getContentPane().add(backgroundPanel, BorderLayout.CENTER);
-
-        this.pack();
-
-        this.setSize(370, 240);
-
+        
         this.setResizable(false);
 
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -116,6 +112,7 @@ public class AuthenticationWindow
             this.passwdField.setText(userCredentials.getPassword().toString());
         }
 
+        this.realmTextArea.setOpaque(false);
         this.realmTextArea.setLineWrap(true);
         this.realmTextArea.setWrapStyleWord(true);
         this.realmTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
@@ -128,7 +125,10 @@ public class AuthenticationWindow
 
         this.labelsPanel.add(uinLabel);
         this.labelsPanel.add(passwdLabel);
+        this.labelsPanel.add(new JLabel());
 
+        this.rememberPassCheckBox.setOpaque(false);
+        
         this.textFieldsPanel.add(uinValueLabel);
         this.textFieldsPanel.add(passwdField);
         this.textFieldsPanel.add(rememberPassCheckBox);
@@ -165,28 +165,6 @@ public class AuthenticationWindow
         this.labelsPanel.setOpaque(!transparent);
         this.textFieldsPanel.setOpaque(!transparent);
         this.buttonsPanel.setOpaque(!transparent);
-    }
-
-    /**
-     * Specifies the window location and shows it.
-     */
-    public void showWindow() {
-
-        this.setWindowLocation();
-        this.setVisible(true);
-    }
-
-    /**
-     * Locates the window in the middle of the screen.
-     */
-    private void setWindowLocation() {
-        int x = (Toolkit.getDefaultToolkit().getScreenSize().width
-                - this.getWidth()) / 2;
-
-        int y = (Toolkit.getDefaultToolkit().getScreenSize().height
-                - this.getHeight()) / 2;
-
-        this.setLocation(x, y);
     }
 
     /**
@@ -233,7 +211,7 @@ public class AuthenticationWindow
 
             g2.drawImage(ImageLoader.getImage(
                     ImageLoader.AUTH_WINDOW_BACKGROUND),
-                    0, 0, null);
+                    0, 0, this.getWidth(), this.getHeight(), null);
         }
     }
 
