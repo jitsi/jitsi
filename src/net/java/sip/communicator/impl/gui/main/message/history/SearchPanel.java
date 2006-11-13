@@ -101,8 +101,9 @@ public class SearchPanel
 
         this.historyWindow = historyWindow;
 
-        this.setBorder(BorderFactory.createTitledBorder(Messages
-                .getString("search"))); //$NON-NLS-1$
+        this.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(Messages.getString("search")),
+                BorderFactory.createEmptyBorder(5, 5, 5, 5))); 
         
         this.textFieldPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         
