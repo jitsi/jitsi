@@ -104,21 +104,6 @@ public class MainFrame
         this.setIconImage(
             ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
 
-        KeyboardFocusManager focusManager =
-            KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        focusManager.addPropertyChangeListener(
-            new PropertyChangeListener() {
-                public void propertyChange(PropertyChangeEvent e) {
-                    String prop = e.getPropertyName();
-                    if (("focusOwner".equals(prop))) {
-                        Component comp = (Component)e.getNewValue();
-                        
-                        logger.info("FOCUS OWNER : " + comp);
-                    }
-                }
-            }
-        );
-        
         this.init();
     }
 
