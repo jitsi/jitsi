@@ -224,7 +224,8 @@ public class LoginManager
 
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
 
-            if (evt.getReasonCode() == RegistrationStateChangeEvent.REASON_RECONNECTION_RATE_LIMIT_EXCEEDED) {
+            if (evt.getReasonCode() == RegistrationStateChangeEvent
+                    .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED) {
                 SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
                     .getString("reconnectionLimitExceeded", protocolProvider
                         .getAccountID().getUserID()));
@@ -232,7 +233,8 @@ public class LoginManager
                 JOptionPane.showMessageDialog(null, msgText, Messages
                     .getString("error"), JOptionPane.ERROR_MESSAGE);
             }
-            else if (evt.getReasonCode() == RegistrationStateChangeEvent.REASON_NON_EXISTING_USER_ID) {
+            else if (evt.getReasonCode() == RegistrationStateChangeEvent
+                    .REASON_NON_EXISTING_USER_ID) {
                 SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
                     .getString("nonExistingUserId", protocolProvider
                         .getProtocolName()));
@@ -240,9 +242,11 @@ public class LoginManager
                 JOptionPane.showMessageDialog(null, msgText, Messages
                     .getString("error"), JOptionPane.ERROR_MESSAGE);
             }
-            else if (evt.getReasonCode() == RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED) {
+            else if (evt.getReasonCode() == RegistrationStateChangeEvent
+                    .REASON_AUTHENTICATION_FAILED) {
                 SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
-                    .getString("authenticationFailed"));
+                    .getString("authenticationFailed",
+                            protocolProvider.getAccountID().getAccountAddress()));
 
                 JOptionPane.showMessageDialog(null, msgText, Messages
                     .getString("error"), JOptionPane.ERROR_MESSAGE);
@@ -254,7 +258,8 @@ public class LoginManager
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
 
             SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
-                .getString("connectionFailedMessage"));
+                .getString("connectionFailedMessage",
+                        protocolProvider.getAccountID().getAccountAddress()));
 
             JOptionPane.showMessageDialog(null, msgText, Messages
                 .getString("error"), JOptionPane.ERROR_MESSAGE);
@@ -279,7 +284,8 @@ public class LoginManager
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
 
             if (!manuallyDisconnected) {
-                if (evt.getReasonCode() == RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS) {
+                if (evt.getReasonCode() == RegistrationStateChangeEvent
+                        .REASON_MULTIPLE_LOGINS) {
                     SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
                         Messages.getString("multipleLogins", protocolProvider
                             .getAccountID().getUserID()));
@@ -287,7 +293,8 @@ public class LoginManager
                     JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
                 }
-                else if (evt.getReasonCode() == RegistrationStateChangeEvent.REASON_CLIENT_LIMIT_REACHED_FOR_IP) {
+                else if (evt.getReasonCode() == RegistrationStateChangeEvent
+                        .REASON_CLIENT_LIMIT_REACHED_FOR_IP) {
                     SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
                         Messages.getString("limitReachedForIp",
                             protocolProvider.getProtocolName()));

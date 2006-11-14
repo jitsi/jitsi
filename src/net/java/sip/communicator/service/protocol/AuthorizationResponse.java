@@ -67,8 +67,8 @@ public class AuthorizationResponse
      * @param responseCode AuthorizationResponseCode
      * @param reason String
      */
-    public AuthorizationResponse(AuthorizationResponseCode responseCode
-                                 , String reason)
+    public AuthorizationResponse(AuthorizationResponseCode responseCode,
+            String reason)
     {
         this.reason = reason;
         this.responseCode = responseCode;
