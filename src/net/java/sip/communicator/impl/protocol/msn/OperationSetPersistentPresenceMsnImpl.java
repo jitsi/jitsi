@@ -413,6 +413,12 @@ public class OperationSetPersistentPresenceMsnImpl
             throw new IllegalArgumentException(
                             status + " is not a valid Msn status");
 
+        if(status.equals(MsnStatusEnum.OFFLINE))
+        {
+            msnProvider.unregister();
+            return;
+        }
+
         // if the contact list is inited set the state
         // otherwise just set the init status
         //(as if set the status too early the server does not provide
