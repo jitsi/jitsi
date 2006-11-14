@@ -295,7 +295,8 @@ public class ProtocolProviderServiceJabberImpl
     {
         RegistrationState currRegState = getRegistrationState();
 
-        connection.close();
+        if(connection != null)
+            connection.close();
 
         if(fireEvent)
         {
