@@ -165,8 +165,10 @@ public abstract class SIPCommFrame extends JFrame
      */
     public void setVisible(boolean isVisible)
     {
-        if(isVisible)
+        if(isVisible) {
+            this.pack();
             this.setSizeAndLocation();
+        }
         
         super.setVisible(isVisible);
     }
