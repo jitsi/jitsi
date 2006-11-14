@@ -105,6 +105,7 @@ public class MessageDialog
         this(owner, message);
         
         this.okButton.setText(okButtonName);
+        this.okButton.setMnemonic(okButtonName.charAt(0));
     }
     
     /**
@@ -120,7 +121,8 @@ public class MessageDialog
 
         this.okButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
-        
+
+        this.cancelButton.setMnemonic(cancelButton.getText().charAt(0));
         this.messagePanel.add(iconLabel, BorderLayout.WEST);
         this.messagePanel.add(messageLabel, BorderLayout.CENTER);
 
