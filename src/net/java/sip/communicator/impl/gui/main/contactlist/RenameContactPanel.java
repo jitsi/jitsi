@@ -12,6 +12,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.MetaContact;
 
 /**
  * The <tt>RenameContactPanel</tt> is where the user could change the name of
@@ -43,8 +44,11 @@ public class RenameContactPanel extends JPanel {
     /**
      * Creates an instance of <tt>RenameContactPanel</tt> and initializes it.
      */
-    public RenameContactPanel() {
+    public RenameContactPanel(String oldName) {
         super(new BorderLayout());
+                
+        this.textField.setText(oldName);
+        this.textField.select(0, oldName.length());
         
         this.setPreferredSize(new Dimension(500, 200));
         

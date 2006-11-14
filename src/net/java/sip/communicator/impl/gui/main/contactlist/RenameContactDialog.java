@@ -26,8 +26,7 @@ public class RenameContactDialog
     extends SIPCommDialog
     implements ActionListener {
 
-    private RenameContactPanel renameContactPanel 
-        = new RenameContactPanel();
+    private RenameContactPanel renameContactPanel;
     
     private JButton renameButton = new JButton(Messages.getString("rename"));
     
@@ -56,6 +55,9 @@ public class RenameContactDialog
         
         this.clist = mainFrame.getContactList();
         this.metaContact = metaContact;
+        
+        this.renameContactPanel = new RenameContactPanel(
+                metaContact.getDisplayName());
         
         this.init();
     }
@@ -87,7 +89,7 @@ public class RenameContactDialog
         this.mainPanel.add(renameContactPanel, BorderLayout.NORTH);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
-        this.getContentPane().add(mainPanel);
+        this.getContentPane().add(mainPanel);        
     }
     
     /**
