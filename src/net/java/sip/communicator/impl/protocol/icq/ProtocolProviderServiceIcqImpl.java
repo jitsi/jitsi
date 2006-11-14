@@ -240,7 +240,8 @@ public class ProtocolProviderServiceIcqImpl
      */
     public void unregister()
     {
-        aimConnection.disconnect(true);
+        if(aimConnection != null)
+            aimConnection.disconnect(true);
     }
 
     /**
