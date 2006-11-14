@@ -27,7 +27,7 @@ public class ContactMsnImpl
 
     /**
      * Creates an MsnContactImpl
-     * @param rosterEntry the RosterEntry object that we will be encapsulating.
+     * @param contact the contact object that we will be encapsulating.
      * @param ssclCallback a reference to the ServerStoredContactListImpl
      * instance that created us.
      * @param isPersistent determines whether this contact is persistent or not.

@@ -59,7 +59,7 @@ public class ContactGroupMsnImpl
      * ServerStoredContactListImpl update will only be done if source group
      * is changed.
 
-     * @param rosterGroup the Msn Group correspoinding to the group
+     * @param msnGroup the Msn Group correspoinding to the group
      * @param groupMembers the group members that we should add to the group.
      * @param ssclCallback a callback to the server stored contact list
      * we're creating.
@@ -384,7 +384,7 @@ public class ContactGroupMsnImpl
 
     /**
      * Resolve this contact group against the specified group
-     * @param source the server stored group
+     * @param msnGroup the server stored group
      */
     void setResolved(MsnGroup msnGroup)
     {
