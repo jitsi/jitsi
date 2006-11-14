@@ -85,6 +85,18 @@
 			<description>SIP Communicator bundle Protocol Jabber</description>
 			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/protocol-jabber.jar"/>
 		</pack>
+        <pack name="protocol-sip" required="yes">
+			<description>SIP Communicator bundle Protocol SIP</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/protocol-sip.jar"/>
+		</pack>
+        <pack name="protocol-msn" required="yes">
+			<description>SIP Communicator bundle Protocol MSN</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/protocol-msn.jar"/>
+		</pack>
+        <pack name="media" required="yes">
+			<description>SIP Communicator bundle Media</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/media.jar"/>
+		</pack>
 		<pack name="netaddress" required="yes">
 			<description>SIP Communicator bundle Network Address</description>
 			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/netaddr.jar"/>
@@ -101,7 +113,11 @@
 			<description>SIP Communicator bundle Message History</description>
 			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/msghistory.jar"/>
 		</pack>
-		<pack name="swing-ui" required="yes">
+		<pack name="call-history" required="yes">
+			<description>SIP Communicator bundle Call History</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/callhistory.jar"/>
+		</pack>
+        <pack name="swing-ui" required="yes">
 			<description>SIP Communicator bundle Swing UI</description>
 			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/swing-ui.jar"/>
 		</pack>
@@ -112,6 +128,14 @@
         <pack name="jabberaccregwizz" required="yes">
 			<description>SIP Communicator bundle Jabber Account Registrattion Wizzard</description>
 			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/jabberaccregwizz.jar"/>
+		</pack>
+        <pack name="sipaccregwizz" required="yes">
+			<description>SIP Communicator bundle SIP Account Registrattion Wizzard</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/sipaccregwizz.jar"/>
+		</pack>
+        <pack name="msnaccregwizz" required="yes">
+			<description>SIP Communicator bundle MSN Account Registrattion Wizzard</description>
+            <file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/msnaccregwizz.jar"/>
 		</pack>
 
 		<!-- The executable files -->
