@@ -4,6 +4,7 @@ classes
 bin
 sc-bundles
 sip-communicator.utest.bin
+sip-communicator.bin
 test-reports
 nbproject
 bak
