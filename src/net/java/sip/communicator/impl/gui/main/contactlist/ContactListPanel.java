@@ -483,7 +483,8 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                             .getDisplayName()));
         }
         else {
-            msg = new SIPCommMsgTextArea(Messages.getString("unknownError", evt
+            msg = new SIPCommMsgTextArea(Messages.getString(
+                    "msgDeliveryFailedUnknownError", evt
                     .getDestinationContact().getDisplayName()));
         }
 

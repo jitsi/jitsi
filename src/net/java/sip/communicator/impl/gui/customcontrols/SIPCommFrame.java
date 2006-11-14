@@ -76,6 +76,7 @@ public abstract class SIPCommFrame extends JFrame
     {
         public void windowClosing(WindowEvent e) {
             saveSizeAndLocation();
+            close();
         }
     }
 

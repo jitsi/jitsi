@@ -16,6 +16,7 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.message.history.HistoryWindow;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -61,6 +62,8 @@ public class ContactList extends JList implements MetaContactListListener,
 
     private ContactRightButtonMenu contactRightButtonMenu;
 
+    private Hashtable contactHistory = new Hashtable();
+    
     /**
      * Creates an instance of the <tt>ContactList</tt>.
      * 
@@ -545,7 +548,7 @@ public class ContactList extends JList implements MetaContactListListener,
                         || (e.isControlDown() && !e.isMetaDown())) {
 
                     contactRightButtonMenu = new ContactRightButtonMenu(
-                            mainFrame, contact);
+                            this, contact);
 
                     SwingUtilities.convertPointToScreen(selectedCellPoint,
                             renderer);
@@ -982,5 +985,56 @@ public class ContactList extends JList implements MetaContactListListener,
     public void setShowOffline(boolean isShowOffline)
     {
         listModel.setShowOffline(isShowOffline);
+    }
+
+    /**
+     * Returns the main frame.
+     * @return the main frame
+     */
+    public MainFrame getMainFrame()
+    {
+        return mainFrame;
+    }
+    
+    /**
+     * Checks if there's an open history window for the given contact.
+     * @param contact the contact to check for
+     * @return TRUE if there's an opened history window for the given contact,
+     * FALSE otherwise.
+     */
+    public boolean containsHistoryWindowForContact(MetaContact contact)
+    {
+        return contactHistory.containsKey(contact);
+    }
+    
+    /**
+     * Returns the history window for the given contact. 
+     * @param contact the contact to search for
+     * @return the history window for the given contact
+     */
+    public HistoryWindow getHistoryWindowForContact(MetaContact contact)
+    {
+        return (HistoryWindow)contactHistory.get(contact);
+    }
+    
+    /**
+     * Adds a history window for a given contact in the table of opened
+     * history windows.
+     * @param contact the contact to add
+     * @param historyWindow the history window to add
+     */
+    public void addHistoryWindowForContact(MetaContact contact,
+            HistoryWindow historyWindow)
+    {
+        contactHistory.put(contact, historyWindow);
+    }
+ 
+    /**
+     * Removes the history window for the given contact.
+     * @param contact the contact to remove the history window 
+     */
+    public void removeHistoryWindowForContact(MetaContact contact)
+    {
+        contactHistory.remove(contact);
     }
 }

@@ -88,6 +88,7 @@ public abstract class SIPCommDialog extends JDialog
     {
         public void windowClosing(WindowEvent e) {
             saveSizeAndLocation();
+            close();
         }
     }
 

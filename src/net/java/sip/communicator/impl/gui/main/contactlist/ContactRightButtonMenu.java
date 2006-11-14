@@ -90,13 +90,13 @@ public class ContactRightButtonMenu
      * @param mainFrame The parent MainFrame window.
      * @param contactItem The MetaContact for which the menu is opened.
      */
-    public ContactRightButtonMenu(MainFrame mainFrame,
+    public ContactRightButtonMenu(ContactList contactList,
                                 MetaContact contactItem) {
         super();
 
-        this.mainFrame = mainFrame;
+        this.mainFrame = contactList.getMainFrame();
 
-        this.guiContactList = mainFrame.getContactListPanel().getContactList();
+        this.guiContactList = contactList;
         
         this.contactItem = contactItem;
 
@@ -328,10 +328,21 @@ public class ContactRightButtonMenu
         }
         else if (itemName.equalsIgnoreCase("viewHistory")) {
 
-            HistoryWindow history = new HistoryWindow(
+            HistoryWindow history;
+            
+            if(guiContactList.containsHistoryWindowForContact(contactItem)) {                
+                history = guiContactList.getHistoryWindowForContact(contactItem);
+                
+                history.toFront();
+            }
+            else {
+                history = new HistoryWindow(
                     this.mainFrame, this.contactItem);
-
-            history.setVisible(true);
+                
+                guiContactList.addHistoryWindowForContact(contactItem, history);
+                
+                history.setVisible(true);
+            }
         }
         else if (itemName.equalsIgnoreCase("userInfo")) {
             Contact defaultContact = contactItem.getDefaultContact();

@@ -7,27 +7,43 @@
 
 package net.java.sip.communicator.impl.gui.main.message.history;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Vector;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JMenuBar;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.MenuSelectionManager;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.text.html.*;
+import javax.swing.text.html.HTMLDocument;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.message.*;
-import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.msghistory.*;
-import net.java.sip.communicator.service.msghistory.event.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.impl.gui.GuiActivator;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommFrame;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
+import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.main.message.ChatConversationContainer;
+import net.java.sip.communicator.impl.gui.main.message.ChatConversationPanel;
+import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.msghistory.MessageHistoryService;
+import net.java.sip.communicator.service.msghistory.event.MessageHistorySearchProgressListener;
+import net.java.sip.communicator.service.msghistory.event.ProgressEvent;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.service.protocol.event.MessageDeliveredEvent;
+import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * The <tt>HistoryWindow</tt> is the window, where user could view or search
@@ -541,6 +557,9 @@ public class HistoryWindow
             menuSelectionManager.clearSelectedPath();
         }
         else {
+            this.mainFrame.getContactListPanel()
+                .getContactList().removeHistoryWindowForContact(metaContact);
+            
             this.dispose();
         }
     }
