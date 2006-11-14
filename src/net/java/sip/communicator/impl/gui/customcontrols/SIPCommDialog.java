@@ -175,9 +175,11 @@ public abstract class SIPCommDialog extends JDialog
      * position of this window before showing it.
      */
     public void setVisible(boolean isVisible)
-    {
-        if(isVisible)
+    {   
+        if(isVisible) {
+            this.pack();
             this.setSizeAndLocation();
+        }
         
         super.setVisible(isVisible);
     }
