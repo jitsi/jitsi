@@ -333,6 +333,9 @@ public class ContactRightButtonMenu
             if(guiContactList.containsHistoryWindowForContact(contactItem)) {                
                 history = guiContactList.getHistoryWindowForContact(contactItem);
                 
+                if(history.getState() == JFrame.ICONIFIED)
+                    history.setState(JFrame.NORMAL);
+                
                 history.toFront();
             }
             else {

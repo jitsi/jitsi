@@ -183,8 +183,12 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                     ChatWindow msgWindow = (ChatWindow) contactMsgWindows
                             .get(this.contactItem);
 
-                    if (msgWindow.isVisible())
+                    if (msgWindow.isVisible()) {
+                        if(msgWindow.getState() == JFrame.ICONIFIED)
+                            msgWindow.setState(JFrame.NORMAL);
+                        
                         msgWindow.toFront();
+                    }
                     else
                         msgWindow.setVisible(true);
                 }
@@ -245,8 +249,13 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                                 .setSelectedContactTab(this.contactItem);
                     }
 
-                    if (tabbedChatWindow.isVisible())
+                    if (tabbedChatWindow.isVisible()) {
+                        
+                        if(tabbedChatWindow.getState() == JFrame.ICONIFIED)
+                            tabbedChatWindow.setState(JFrame.NORMAL);
+                        
                         tabbedChatWindow.toFront();
+                    }
                     else
                         tabbedChatWindow.setVisible(true);
 
@@ -260,8 +269,12 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                                 .setSelectedContactTab(this.contactItem);
                     }
 
-                    if (tabbedChatWindow.isVisible())
+                    if (tabbedChatWindow.isVisible()) {
+                        
+                        if(tabbedChatWindow.getState() == JFrame.ICONIFIED)
+                            tabbedChatWindow.setState(JFrame.NORMAL);
                         tabbedChatWindow.toFront();
+                    }
                     else
                         tabbedChatWindow.setVisible(true);
 
@@ -313,8 +326,13 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                 }
 
                 if (Constants.AUTO_POPUP_NEW_MESSAGE) {
-                    if(msgWindow.isVisible())
+                    if(msgWindow.isVisible()) {
+                        
+                        if(msgWindow.getState() == JFrame.ICONIFIED)
+                            msgWindow.setState(JFrame.NORMAL);
+                        
                         msgWindow.toFront();
+                    }
                     else
                         msgWindow.setVisible(true);
                 }
@@ -377,8 +395,12 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                 if (Constants.AUTO_POPUP_NEW_MESSAGE) {
                     tabbedChatWindow.addChatTab(chatPanel);
 
-                    if(tabbedChatWindow.isVisible())
+                    if(tabbedChatWindow.isVisible()) {
+                        if(tabbedChatWindow.getState() == JFrame.ICONIFIED)
+                            tabbedChatWindow.setState(JFrame.NORMAL);
+                        
                         tabbedChatWindow.toFront();
+                    }
                     else
                         tabbedChatWindow.setVisible(true);
 
