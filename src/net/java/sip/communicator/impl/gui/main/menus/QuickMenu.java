@@ -70,7 +70,7 @@ public class QuickMenu
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
         this.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
-        this.setFloatable(false);
+        this.setFloatable(true);
 
         this.infoButton.setPreferredSize(new Dimension(28, 28));
         this.configureButton.setPreferredSize(new Dimension(28, 28));
