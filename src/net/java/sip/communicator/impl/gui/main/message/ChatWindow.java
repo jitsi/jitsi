@@ -338,8 +338,7 @@ public class ChatWindow
 
         this.setCurrentChatPanel(chatPanel);
         this.chatTabbedPane.setSelectedIndex(index);
-        this.setTitle(chatPanel.getMetaContact().getDisplayName());
-        this.setVisible(true);
+        this.setTitle(chatPanel.getMetaContact().getDisplayName());        
         chatPanel.requestFocusInWriteArea();
     }
 
@@ -653,8 +652,8 @@ public class ChatWindow
         {
             String title = getTitle();
 
-            if (title.endsWith("*")) {
-                setTitle(title.substring(0, title.length() - 1));
+            if (title.startsWith("*")) {
+                setTitle(title.substring(1, title.length()));
             }
         }
         

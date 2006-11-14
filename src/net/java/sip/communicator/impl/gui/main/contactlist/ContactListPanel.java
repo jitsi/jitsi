@@ -183,10 +183,10 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                     ChatWindow msgWindow = (ChatWindow) contactMsgWindows
                             .get(this.contactItem);
 
-                    if (msgWindow.getExtendedState() == JFrame.ICONIFIED)
-                        msgWindow.setExtendedState(JFrame.NORMAL);
-
-                    msgWindow.setVisible(true);
+                    if (msgWindow.isVisible())
+                        msgWindow.toFront();
+                    else
+                        msgWindow.setVisible(true);
                 }
                 else {
                     /*
@@ -245,10 +245,10 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                                 .setSelectedContactTab(this.contactItem);
                     }
 
-                    if (tabbedChatWindow.getExtendedState() == JFrame.ICONIFIED)
-                        tabbedChatWindow.setExtendedState(JFrame.NORMAL);
-
-                    tabbedChatWindow.setVisible(true);
+                    if (tabbedChatWindow.isVisible())
+                        tabbedChatWindow.toFront();
+                    else
+                        tabbedChatWindow.setVisible(true);
 
                     tabbedChatWindow.getCurrentChatPanel()
                             .requestFocusInWriteArea();
@@ -260,10 +260,10 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                                 .setSelectedContactTab(this.contactItem);
                     }
 
-                    if (tabbedChatWindow.getExtendedState() == JFrame.ICONIFIED)
-                        tabbedChatWindow.setExtendedState(JFrame.NORMAL);
-
-                    tabbedChatWindow.setVisible(true);
+                    if (tabbedChatWindow.isVisible())
+                        tabbedChatWindow.toFront();
+                    else
+                        tabbedChatWindow.setVisible(true);
 
                     tabbedChatWindow.getCurrentChatPanel()
                             .requestFocusInWriteArea();
@@ -309,11 +309,14 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                         Constants.INCOMING_MESSAGE, message.getContent());
 
                 if (msgWindow.getState() == JFrame.ICONIFIED) {
-                    msgWindow.setTitle(msgWindow.getTitle() + "*");
+                    msgWindow.setTitle("*" + msgWindow.getTitle());
                 }
 
                 if (Constants.AUTO_POPUP_NEW_MESSAGE) {
-                    msgWindow.setVisible(true);
+                    if(msgWindow.isVisible())
+                        msgWindow.toFront();
+                    else
+                        msgWindow.setVisible(true);
                 }
             }
             else {
@@ -356,7 +359,7 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                     }
                 });
             }
-
+            
             Hashtable contactTabsTable = tabbedChatWindow
                     .getContactChatsTable();
 
@@ -374,7 +377,10 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                 if (Constants.AUTO_POPUP_NEW_MESSAGE) {
                     tabbedChatWindow.addChatTab(chatPanel);
 
-                    tabbedChatWindow.setVisible(true);
+                    if(tabbedChatWindow.isVisible())
+                        tabbedChatWindow.toFront();
+                    else
+                        tabbedChatWindow.setVisible(true);
 
                     chatPanel.setCaretToEnd();
 
@@ -397,17 +403,20 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                         tabbedChatWindow.setSelectedContactTab(metaContact);
                     }
 
-                    if (!tabbedChatWindow.getTitle().endsWith("*")) {
-                        tabbedChatWindow.setTitle(tabbedChatWindow.getTitle()
-                                + "*");
+                    if (!tabbedChatWindow.getTitle().startsWith("*")) {
+                        tabbedChatWindow.setTitle(
+                                "*" + tabbedChatWindow.getTitle());
                     }
                 }
                 else {
                     if (tabbedChatWindow.getTabCount() > 1) {
                         tabbedChatWindow.highlightTab(metaContact);
                     }
-
-                    tabbedChatWindow.setVisible(true);
+                    
+                    if(tabbedChatWindow.isVisible())
+                        tabbedChatWindow.toFront();
+                    else
+                        tabbedChatWindow.setVisible(true);
                 }
             }
         }
