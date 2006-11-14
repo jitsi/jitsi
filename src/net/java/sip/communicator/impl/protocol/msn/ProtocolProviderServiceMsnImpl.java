@@ -450,7 +450,14 @@ public class ProtocolProviderServiceMsnImpl
                     RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED,
                     "Incorrect Password");
             else
+            {
                 logger.error("Error in Msn lib ", throwable);
+
+                fireRegistrationStateChanged(
+                    getRegistrationState(),
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+            }
         }
     }
 }
