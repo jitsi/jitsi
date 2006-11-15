@@ -406,6 +406,14 @@ public class ImageLoader {
     public static final ImageID MOVE_CONTACT_ICON
         = new ImageID("MOVE_CONTACT");
 
+    /**
+     * The image used for error messages in the chat window.
+     */
+    public static final ImageID EXCLAMATION_MARK
+        = new ImageID("EXCLAMATION_MARK");
+
+    
+    
 
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 

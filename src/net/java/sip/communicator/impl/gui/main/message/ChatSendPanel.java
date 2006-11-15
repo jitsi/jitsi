@@ -82,7 +82,6 @@ public class ChatSendPanel
      */
     public void actionPerformed(ActionEvent e)
     {
-
         if (!this.chatPanel.isWriteAreaEmpty()) {
             OperationSetBasicInstantMessaging im = this.chatPanel
                 .getImOperationSet();
@@ -107,13 +106,19 @@ public class ChatSendPanel
                 im.sendInstantMessage(contact, msg);
             }
             catch (IllegalStateException ex) {
-                SIPCommMsgTextArea errorMsg = new SIPCommMsgTextArea(Messages
-                    .getString("msgSendConnectionProblem"));
-
-                String title = Messages.getString("msgDeliveryFailure");
-
-                JOptionPane.showMessageDialog(this, errorMsg, title,
-                    JOptionPane.WARNING_MESSAGE);
+                chatPanel.refreshWriteArea();
+                
+                chatPanel.processMessage(
+                        contact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.OUTGOING_MESSAGE,
+                        msg.getContent());
+                
+                chatPanel.processMessage(
+                        contact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.ERROR_MESSAGE,
+                        Messages.getString("msgSendConnectionProblem"));
             }
         }
     }

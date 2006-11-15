@@ -297,7 +297,6 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
      */
     public void messageReceived(MessageReceivedEvent evt)
     {
-
         Contact protocolContact = evt.getSourceContact();
         Date date = evt.getTimestamp();
         Message message = evt.getSourceMessage();
@@ -480,40 +479,224 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
      */
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
     {
+        String errorMsg = null;
+     
+        Message sourceMessage = (Message) evt.getSource();
+        
+        Contact sourceContact = evt.getDestinationContact();
+        
+        MetaContact metaContact = mainFrame.getContactList()
+            .findMetaContactByContact(sourceContact);
+        
+        PresenceStatus contactStatus = ((ContactListModel) this.contactList
+                .getModel()).getMetaContactStatus(metaContact);
+                
+        if (evt.getErrorCode() 
+                == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
 
-        SIPCommMsgTextArea msg = null;
-
-        if (evt.getErrorCode() == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
-
-            msg = new SIPCommMsgTextArea(Messages.getString(
+            errorMsg = Messages.getString(
                     "msgDeliveryOfflineNotSupported", evt
-                            .getDestinationContact().getDisplayName()));
+                            .getDestinationContact().getDisplayName());
         }
-        else if (evt.getErrorCode() == MessageDeliveryFailedEvent.NETWORK_FAILURE) {
-            msg = new SIPCommMsgTextArea(Messages.getString("msgNotDelivered",
-                    evt.getDestinationContact().getDisplayName()));
+        else if (evt.getErrorCode()
+                == MessageDeliveryFailedEvent.NETWORK_FAILURE) {
+            
+            errorMsg = Messages.getString("msgNotDelivered",
+                    evt.getDestinationContact().getDisplayName());
         }
-        else if (evt.getErrorCode() == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED) {
+        else if (evt.getErrorCode()
+                == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED) {
 
-            msg = new SIPCommMsgTextArea(Messages.getString(
+            errorMsg = Messages.getString(
                     "msgSendConnectionProblem", evt.getDestinationContact()
-                            .getDisplayName()));
+                            .getDisplayName());
         }
-        else if (evt.getErrorCode() == MessageDeliveryFailedEvent.INTERNAL_ERROR) {
-            msg = new SIPCommMsgTextArea(Messages.getString(
+        else if (evt.getErrorCode()
+                == MessageDeliveryFailedEvent.INTERNAL_ERROR) {
+            
+            errorMsg = Messages.getString(
                     "msgDeliveryInternalError", evt.getDestinationContact()
-                            .getDisplayName()));
+                            .getDisplayName());
         }
         else {
-            msg = new SIPCommMsgTextArea(Messages.getString(
+            errorMsg = Messages.getString(
                     "msgDeliveryFailedUnknownError", evt
-                    .getDestinationContact().getDisplayName()));
+                    .getDestinationContact().getDisplayName());
         }
+               
+        
+        if (!Constants.TABBED_CHAT_WINDOW) {
+            // If in mode "open all messages in new window"
+            if (contactMsgWindows.containsKey(metaContact)) {
+                
+                ChatWindow msgWindow = (ChatWindow) contactMsgWindows
+                        .get(metaContact);
+        
+                ChatPanel chatPanel = msgWindow.getCurrentChatPanel();
+                
+                chatPanel.refreshWriteArea();
+                
+                chatPanel.processMessage(
+                        metaContact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.OUTGOING_MESSAGE,
+                        sourceMessage.getContent());
+                
+                chatPanel.processMessage(
+                        metaContact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.ERROR_MESSAGE,
+                        errorMsg);
+        
+                if (msgWindow.getState() == JFrame.ICONIFIED) {
+                    msgWindow.setTitle("*" + msgWindow.getTitle());
+                }
+        
+                if (Constants.AUTO_POPUP_NEW_MESSAGE) {
+                    if(msgWindow.isVisible()) {
+                        
+                        if(msgWindow.getState() == JFrame.ICONIFIED)
+                            msgWindow.setState(JFrame.NORMAL);
+                        
+                        msgWindow.toFront();
+                    }
+                    else
+                        msgWindow.setVisible(true);
+                }
+            }
+            else {
+                ChatWindow msgWindow = new ChatWindow(mainFrame);
 
-        String title = Messages.getString("msgDeliveryFailure");
+                contactMsgWindows.put(metaContact, msgWindow);
 
-        JOptionPane.showMessageDialog(this, msg, title,
-                JOptionPane.WARNING_MESSAGE);
+                ChatPanel chatPanel = msgWindow.createChat(metaContact,
+                        contactStatus, sourceContact);
+
+                chatPanel.loadHistory();
+                chatPanel.processMessage(
+                        metaContact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.OUTGOING_MESSAGE,
+                        sourceMessage.getContent());
+                
+                chatPanel.processMessage(
+                        metaContact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.ERROR_MESSAGE,
+                        errorMsg);
+        
+                /*
+                 * If there's no chat window for the contact create it and show
+                 * it.
+                 */
+                if (Constants.AUTO_POPUP_NEW_MESSAGE) {
+                    msgWindow.addChat(chatPanel);
+
+                    msgWindow.pack();
+
+                    msgWindow.setVisible(true);
+
+                    chatPanel.setCaretToEnd();
+                }
+            }
+        }
+        else {
+            //If in mode "group messages in one chat window"
+            if (tabbedChatWindow == null) {
+                // If there's no open chat window
+                tabbedChatWindow = new ChatWindow(mainFrame);
+
+                tabbedChatWindow.addWindowListener(new WindowAdapter() {
+
+                    public void windowClosing(WindowEvent e)
+                    {
+                        tabbedChatWindow = null;
+                    }
+                });
+            }
+            
+            Hashtable contactTabsTable = tabbedChatWindow
+                .getContactChatsTable();
+
+            ChatPanel chatPanel;
+
+            if (contactTabsTable.get(metaContact.getMetaUID()) != null) {
+                chatPanel = tabbedChatWindow.getChatPanel(metaContact);
+                
+                chatPanel.refreshWriteArea();
+                chatPanel.processMessage(
+                        metaContact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.OUTGOING_MESSAGE,
+                        sourceMessage.getContent());
+                
+                chatPanel.processMessage(
+                        metaContact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.ERROR_MESSAGE,
+                        errorMsg);
+        
+                if (tabbedChatWindow.getState() == JFrame.ICONIFIED) {
+                    if (tabbedChatWindow.getTabCount() > 1) {
+                        tabbedChatWindow.setSelectedContactTab(metaContact);
+                    }
+        
+                    if (!tabbedChatWindow.getTitle().startsWith("*")) {
+                        tabbedChatWindow.setTitle(
+                                "*" + tabbedChatWindow.getTitle());
+                    }
+                }
+                else {
+                    if (tabbedChatWindow.getTabCount() > 1) {
+                        tabbedChatWindow.highlightTab(metaContact);
+                    }
+                    
+                    if(tabbedChatWindow.isVisible())
+                        tabbedChatWindow.toFront();
+                    else
+                        tabbedChatWindow.setVisible(true);
+                }
+            }
+            else {
+                chatPanel = tabbedChatWindow.createChat(metaContact,
+                        contactStatus, sourceContact);
+
+                chatPanel.loadHistory();
+                chatPanel.processMessage(
+                        metaContact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.OUTGOING_MESSAGE,
+                        sourceMessage.getContent());
+                
+                chatPanel.processMessage(
+                        metaContact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.ERROR_MESSAGE,
+                        errorMsg);
+
+                if (Constants.AUTO_POPUP_NEW_MESSAGE) {
+                    tabbedChatWindow.addChatTab(chatPanel);
+
+                    if(tabbedChatWindow.isVisible()) {
+                        if(tabbedChatWindow.getState() == JFrame.ICONIFIED)
+                            tabbedChatWindow.setState(JFrame.NORMAL);
+                        
+                        tabbedChatWindow.toFront();
+                    }
+                    else
+                        tabbedChatWindow.setVisible(true);
+
+                    chatPanel.setCaretToEnd();
+
+                    tabbedChatWindow.getCurrentChatPanel()
+                            .requestFocusInWriteArea();
+
+                    if (tabbedChatWindow.getTabCount() > 1) {
+                        tabbedChatWindow.highlightTab(metaContact);
+                    }
+                }
+            }
+        }
     }
 
     /**

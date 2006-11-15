@@ -221,6 +221,18 @@ public class ChatConversationPanel
             chatString += GuiUtils.formatTime(date) + " "
             + contactName + " " + message + endHeaderTag;
         }
+        else if (messageType.equals(Constants.ERROR_MESSAGE)) {
+            chatString = "<h6>";
+            endHeaderTag = "</h6>";
+            
+            String errorIcon = "<IMG SRC='"
+                + ImageLoader.getImagePath(
+                        ImageLoader.getImage(ImageLoader.EXCLAMATION_MARK))
+                + "' </IMG>";
+            
+            chatString  += errorIcon + Messages.getString("msgDeliveryFailure")
+                + endHeaderTag + "<h5>" + message + "</h5>";
+        }
         else if (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)) {
             chatString = "<h2>";
             endHeaderTag = "</h2>";
