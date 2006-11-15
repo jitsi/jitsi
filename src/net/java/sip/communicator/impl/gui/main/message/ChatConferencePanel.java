@@ -113,4 +113,9 @@ public class ChatConferencePanel extends JPanel {
     public void updateContactStatus(PresenceStatus status) {
         this.chatContactPanel.setStatusIcon(status);
     }
+    
+    public void updateProtocolContact(Contact contact)
+    {
+        this.chatContactPanel.updateProtocolContact(contact);
+    }
 }

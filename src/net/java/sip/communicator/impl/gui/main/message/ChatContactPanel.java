@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -142,6 +143,8 @@ public class ChatContactPanel
         // Disabled all unused buttons.
         this.callButton.setEnabled(false);
         this.sendFileButton.setEnabled(false);
+        
+        this.updateProtocolContact(chatPanel.getProtocolContact());
     }
 
     /**
@@ -188,7 +191,32 @@ public class ChatContactPanel
         this.personNameLabel.setIcon(new ImageIcon(Constants
                 .getStatusIcon(newStatus)));
     }
+    
+    /**
+     * Disables or enables the contact info button depending on the selected 
+     * protocol contact.
+     * 
+     * @param protocolContact the selected protocol contact 
+     */
+    public void updateProtocolContact(Contact protocolContact)
+    {   
+        MainFrame mainFrame = chatPanel.getChatWindow().getMainFrame();
+        
+        ProtocolProviderService pps
+            = protocolContact.getProtocolProvider();
 
+        OperationSetWebContactInfo wContactInfo
+            = mainFrame.getWebContactInfo(pps);
+        
+        if(wContactInfo == null)
+            infoButton.setEnabled(false);
+        else
+            infoButton.setEnabled(true);
+    }
+    
+    /**
+     * 
+     */
     public void actionPerformed(ActionEvent e)
     {
         JButton button = (JButton) e.getSource();
@@ -201,6 +229,7 @@ public class ChatContactPanel
         else if(button.getName().equals("info")){            
             
             if(contactItem != null) {
+                
                 Contact protocolContact = chatPanel.getProtocolContact();
 
                 ProtocolProviderService pps

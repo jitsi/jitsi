@@ -268,7 +268,7 @@ public class ChatPanel
                         status.getStatusName()));
         this.conversationPanel.appendMessageToEnd(message);
     }
-
+    
     /**
      * Returns the default contact for the chat. The case of conference 
      * is not yet implemented and for now it returns the first contact.
@@ -404,6 +404,8 @@ public class ChatPanel
      */
     public void setProtocolContact(Contact protocolContact) {
         this.protocolContact = protocolContact;
+        
+        this.chatConferencePanel.updateProtocolContact(protocolContact);
     }
     
     /**

@@ -40,6 +40,8 @@ public class ContactRightButtonMenu
     private JMenu moveSubcontactMenu
         = new JMenu(Messages.getString("moveSubcontact"));
     
+    private JMenu userInfoMenu = new JMenu(Messages.getString("userInfo"));
+    
     private JMenu addSubcontactMenu = new JMenu(Messages
             .getString("addSubcontact"));
 
@@ -58,10 +60,6 @@ public class ContactRightButtonMenu
             .getString("renameContact"), new ImageIcon(ImageLoader
             .getImage(ImageLoader.RENAME_16x16_ICON)));
 
-    private JMenuItem userInfoItem = new JMenuItem(Messages
-            .getString("userInfo"), new ImageIcon(ImageLoader
-            .getImage(ImageLoader.INFO_16x16_ICON)));
-
     private JMenuItem viewHistoryItem = new JMenuItem(Messages
             .getString("viewHistory"), new ImageIcon(ImageLoader
             .getImage(ImageLoader.HISTORY_16x16_ICON)));
@@ -77,6 +75,8 @@ public class ContactRightButtonMenu
     private String addSubcontactPrefix = "addSubcontact:";
     
     private String moveSubcontactPrefix = "moveSubcontact:";
+    
+    private String infoSubcontactPrefix = "infoSubcontact:";
     
     private Contact contactToMove;
     
@@ -122,6 +122,9 @@ public class ContactRightButtonMenu
         
         this.moveSubcontactMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.MOVE_CONTACT_ICON)));
+        
+        this.userInfoMenu.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.INFO_16x16_ICON)));
 
         //Initialize the addSubcontact menu.
         Iterator providers = this.mainFrame.getProtocolProviders();
@@ -183,6 +186,9 @@ public class ContactRightButtonMenu
            JMenuItem allItem = new JMenuItem(Messages.getString("allContacts"));
            JMenuItem allItem1 = new JMenuItem(Messages.getString("allContacts"));
            
+           allItem.setFont(Constants.FONT.deriveFont(Font.BOLD));
+           allItem1.setFont(Constants.FONT.deriveFont(Font.BOLD));
+           
            allItem.addActionListener(this);
            allItem1.addActionListener(this);
            
@@ -198,20 +204,48 @@ public class ContactRightButtonMenu
         while (contacts.hasNext()) {
             Contact contact = (Contact)contacts.next();
 
-            JMenuItem contactItem = new JMenuItem(contact.getDisplayName());
-            JMenuItem contactItem1 = new JMenuItem(contact.getDisplayName());
+            ProtocolProviderService protocolProvider
+                = contact.getProtocolProvider();
+            
+            String contactDisplayName = contact.getDisplayName();
+            
+            JMenuItem contactItem = new JMenuItem(contactDisplayName);
+            JMenuItem contactItem1 = new JMenuItem(contactDisplayName);
+            JMenuItem contactItem2 = new JMenuItem(contactDisplayName);
 
+            String protocolName = contact
+                .getProtocolProvider().getProtocolName();
+            Icon protocolIcon = new ImageIcon(
+                    Constants.getProtocolIcon(protocolName));
+            
+            contactItem.setIcon(protocolIcon);
+            contactItem1.setIcon(protocolIcon);
+            
             contactItem.setName(removeContactPrefix + contact.getAddress()
-                    + contact.getProtocolProvider().getProtocolName());
+                    + protocolProvider.getProtocolName());
 
             contactItem1.setName(moveSubcontactPrefix + contact.getAddress()
-                    + contact.getProtocolProvider().getProtocolName());
+                    + protocolProvider.getProtocolName());
+            
+            contactItem2.setName(infoSubcontactPrefix + contact.getAddress()
+                    + protocolProvider.getProtocolName());
             
             contactItem.addActionListener(this);
             contactItem1.addActionListener(this);
+            contactItem2.addActionListener(this);
             
             this.removeContactMenu.add(contactItem);
             this.moveSubcontactMenu.add(contactItem1);
+
+            OperationSetWebContactInfo wContactInfo
+                = mainFrame.getWebContactInfo(protocolProvider);
+            
+            if(wContactInfo == null) {
+                contactItem2.setEnabled(false);
+                contactItem2.setToolTipText(
+                        Messages.getString("dontSupportWebInfo"));
+            }
+            this.userInfoMenu.add(contactItem2);
         }
 
         this.add(sendMessageItem);
@@ -234,7 +268,7 @@ public class ContactRightButtonMenu
         this.addSeparator();
 
         this.add(viewHistoryItem);
-        this.add(userInfoItem);
+        this.add(userInfoMenu);
 
         this.sendMessageItem.setName("sendMessage");
         this.sendFileItem.setName("sendFile");
@@ -242,13 +276,13 @@ public class ContactRightButtonMenu
         this.addSubcontactMenu.setName("addSubcontact");
         this.renameContactItem.setName("renameContact");
         this.viewHistoryItem.setName("viewHistory");
-        this.userInfoItem.setName("userInfo");
+        this.userInfoMenu.setName("userInfo");
 
         this.sendMessageItem.addActionListener(this);
         this.sendFileItem.addActionListener(this);
         this.renameContactItem.addActionListener(this);
         this.viewHistoryItem.addActionListener(this);
-        this.userInfoItem.addActionListener(this);
+        this.userInfoMenu.addActionListener(this);
 
         // Disable all menu items that do nothing.
         this.sendFileItem.setEnabled(false);
@@ -269,7 +303,7 @@ public class ContactRightButtonMenu
                 Messages.getString("mnemonic.renameContact").charAt(0));
         this.viewHistoryItem.setMnemonic(
                 Messages.getString("mnemonic.viewHistory").charAt(0));
-        this.userInfoItem.setMnemonic(
+        this.userInfoMenu.setMnemonic(
                 Messages.getString("mnemonic.userInfo").charAt(0));
     }
 
@@ -347,17 +381,19 @@ public class ContactRightButtonMenu
                 history.setVisible(true);
             }
         }
-        else if (itemName.equalsIgnoreCase("userInfo")) {
-            Contact defaultContact = contactItem.getDefaultContact();
-
-            ProtocolProviderService defaultProvider
-                = defaultContact.getProtocolProvider();
+        else if (itemName.startsWith(infoSubcontactPrefix)) {
+                        
+            Contact contact = getContactFromMetaContact(
+                    itemName.substring(infoSubcontactPrefix.length()));
+            
+            ProtocolProviderService contactProvider
+                = contact.getProtocolProvider();
 
             OperationSetWebContactInfo wContactInfo
-                = mainFrame.getWebContactInfo(defaultProvider);
+                = mainFrame.getWebContactInfo(contactProvider);
 
             CrossPlatformBrowserLauncher.openURL(
-                    wContactInfo.getWebContactInfo(defaultContact)
+                    wContactInfo.getWebContactInfo(contact)
                         .toString());
         }
         else if (itemName.startsWith(moveToPrefix)) {

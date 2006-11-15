@@ -81,7 +81,7 @@ public class ProtocolContactSelectorBox
 
                 this.menu.setSelected(
                     protocolContact, (ImageIcon)menuItem.getIcon());
-                
+
                 return;
             }
         }
