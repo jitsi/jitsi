@@ -398,6 +398,9 @@ public class ProtocolProviderServiceMsnImpl
         logger.debug("Dispatching " + event + " to "
                      + registrationListeners.size()+ " listeners.");
 
+        if(newState.equals(RegistrationState.UNREGISTERED))
+            messenger = null;
+
         Iterator listeners = null;
         synchronized (registrationListeners)
         {
@@ -434,10 +437,12 @@ public class ProtocolProviderServiceMsnImpl
         public void logout(MsnMessenger msnMessenger)
         {
             logger.trace("logout");
-            fireRegistrationStateChanged(
-                getRegistrationState(),
-                RegistrationState.UNREGISTERED,
-                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+
+            if(isRegistered())
+                fireRegistrationStateChanged(
+                    getRegistrationState(),
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
 
         }
 
@@ -453,10 +458,11 @@ public class ProtocolProviderServiceMsnImpl
             {
                 logger.error("Error in Msn lib ", throwable);
 
-                fireRegistrationStateChanged(
-                    getRegistrationState(),
-                    RegistrationState.UNREGISTERED,
-                    RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+                if(isRegistered())
+                    fireRegistrationStateChanged(
+                        getRegistrationState(),
+                        RegistrationState.UNREGISTERED,
+                        RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
             }
         }
     }
