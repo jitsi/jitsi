@@ -655,12 +655,7 @@ public class ChatWindow
             if (title.startsWith("*")) {
                 setTitle(title.substring(1, title.length()));
             }
-        }
-        
-        public void windowClosing(WindowEvent e)
-        {            
-            close(true);
-        }
+        }        
     }
 
     /**
