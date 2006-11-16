@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.mock;
 
+import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.CallParticipantChangeEvent;
-import java.net.InetSocketAddress;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  *

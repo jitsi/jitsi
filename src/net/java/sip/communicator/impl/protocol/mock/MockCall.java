@@ -4,8 +4,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.impl.protocol.sip.CallParticipantSipImpl;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 /**
  * @author Damian Minkov

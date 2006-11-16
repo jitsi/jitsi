@@ -787,15 +787,13 @@ public class CallHistoryServiceImpl
      */
     public void callEnded(CallEvent event)
     {
-        Date endTime = new Date();
-
         CallRecordImpl callRecord = findCallRecord(event.getSourceCall());
 
         // no such call
         if (callRecord == null)
             return;
 
-        callRecord.setEndTime(endTime);
+        callRecord.setEndTime(new Date());
 
         writeCall(callRecord, null, null);
 
@@ -828,6 +826,9 @@ public class CallHistoryServiceImpl
                     if(participantRecord == null)
                         return;
 
+                    if(evt.getNewValue().equals(CallParticipantState.CONNECTED))
+                        participantRecord.setStartTime(new Date());
+
                     participantRecord.
                         setState((CallParticipantState)evt.getNewValue());
 
@@ -848,10 +849,11 @@ public class CallHistoryServiceImpl
                 CallParticipantChangeEvent evt){}
         });
 
+        Date startDate = new Date();
         CallParticipantRecordImpl newRec = new CallParticipantRecordImpl(
             callParticipant.getAddress(),
-            new Date(),
-            null);
+            startDate,
+            startDate);
 
         callRecord.getParticipantRecords().add(newRec);
     }
@@ -876,7 +878,11 @@ public class CallHistoryServiceImpl
 
         if(!callParticipant.getState().equals(CallParticipantState.DISCONNECTED))
             cpRecord.setState(callParticipant.getState());
-        cpRecord.setEndTime(new Date());
+
+        if(cpRecord.getState().equals(CallParticipantState.CONNECTED))
+        {
+            cpRecord.setEndTime(new Date());
+        }
     }
 
     /**

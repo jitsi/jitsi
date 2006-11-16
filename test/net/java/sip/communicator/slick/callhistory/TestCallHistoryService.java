@@ -276,14 +276,14 @@ public class TestCallHistoryService
 
     public void checkRecordCompleteness()
     {
-        Vector participantAddresses = new Vector();
-        participantAddresses.add("some_address");
-        participantAddresses.add("some_new_address");
+        logger.info("---=== checkRecordCompleteness ===---");
+        String[] partAddresses =
+            new String[]{"some_address", "some_new_address"};
 
         try
         {
             Call newCall =
-                mockBTelphonyOpSet.placeCall((String)participantAddresses.get(0));
+                mockBTelphonyOpSet.placeCall(partAddresses[0]);
 
             Vector v = new Vector();
 
@@ -298,7 +298,7 @@ public class TestCallHistoryService
 
             CallParticipant newParticipant =
                 mockBTelphonyOpSet.addNewCallParticipant(newCall,
-                (String)participantAddresses.get(1));
+                partAddresses[1]);
 
             mockBTelphonyOpSet.hangupCallParticipant(newParticipant);
 
@@ -328,9 +328,9 @@ public class TestCallHistoryService
                      callRecord.getParticipantRecords().size(), 2);
 
         CallParticipantRecord callP1 =
-            callRecord.findParticipantRecord((String)participantAddresses.get(0));
+            callRecord.findParticipantRecord(partAddresses[0]);
         CallParticipantRecord callP2 =
-            callRecord.findParticipantRecord((String)participantAddresses.get(1));
+            callRecord.findParticipantRecord(partAddresses[1]);
 
         assertTrue("Second participant added after first one",
                    callP2.getStartTime().after(callP1.getStartTime()));
