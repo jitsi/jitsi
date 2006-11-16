@@ -83,8 +83,9 @@ public class LoginManager
         ServiceReference serRef = providerFactory
             .getProviderForAccount(accountID);
 
-        ProtocolProviderService protocolProvider = (ProtocolProviderService) GuiActivator.bundleContext
-            .getService(serRef);
+        ProtocolProviderService protocolProvider
+            = (ProtocolProviderService) GuiActivator
+                .bundleContext.getService(serRef);
 
         return protocolProvider;
     }
@@ -147,8 +148,8 @@ public class LoginManager
 
                 serRef = providerFactory.getProviderForAccount(accountID);
 
-                protocolProvider = (ProtocolProviderService) GuiActivator.bundleContext
-                    .getService(serRef);
+                protocolProvider = (ProtocolProviderService)
+                    GuiActivator.bundleContext.getService(serRef);
 
                 protocolProvider.addRegistrationStateChangeListener(this);
 
@@ -175,7 +176,8 @@ public class LoginManager
      */
     private void showAccountRegistrationWizard()
     {
-        AccountRegWizardContainerImpl wizard = (AccountRegWizardContainerImpl) GuiActivator
+        AccountRegWizardContainerImpl wizard
+            = (AccountRegWizardContainerImpl) GuiActivator
             .getUIService().getAccountRegWizardContainer();
 
         NoAccountFoundPage noAccountFoundPage = new NoAccountFoundPage();
@@ -420,7 +422,32 @@ public class LoginManager
                 protocolProvider.register(secAuth);
             }
             catch (OperationFailedException ex) {                
-                logger.fatal("Unhandled exeption", ex);
+                
+                int errorCode = ex.getErrorCode();
+                
+                if (errorCode == OperationFailedException.GENERAL_ERROR) {
+                    logger.error("Provider could not be unregistered"
+                            + " due to the following general error: " + ex);
+                }
+                else if (errorCode == OperationFailedException.INTERNAL_ERROR) {
+                    logger.error("Provider could not be unregistered"
+                            + " due to the following internal error: " + ex);
+                }
+                else if (errorCode == OperationFailedException.NETWORK_FAILURE) {
+                    logger.error("Provider could not be unregistered"
+                            + " due to a network failure: " + ex);
+                }
+                else if (errorCode == OperationFailedException
+                            .INVALID_ACCOUNT_PROPERTIES) {
+                    logger.error("Provider could not be unregistered"
+                            + " due to an invalid account property: " + ex);
+                }
+                
+                JOptionPane.showMessageDialog(mainFrame,
+                    Messages.getString("loginNotSucceeded",
+                        protocolProvider.getAccountID().getAccountAddress()),
+                    Messages.getString("error"),
+                    JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -441,7 +468,26 @@ public class LoginManager
                 protocolProvider.unregister();
             }
             catch (OperationFailedException ex) {
-                logger.fatal("Unhandled exeption", ex);
+                int errorCode = ex.getErrorCode();
+                
+                if (errorCode == OperationFailedException.GENERAL_ERROR) {
+                    logger.error("Provider could not be unregistered"
+                            + " due to the following general error: " + ex);
+                }
+                else if (errorCode == OperationFailedException.INTERNAL_ERROR) {
+                    logger.error("Provider could not be unregistered"
+                            + " due to the following internal error: " + ex);
+                }
+                else if (errorCode == OperationFailedException.NETWORK_FAILURE) {
+                    logger.error("Provider could not be unregistered"
+                            + " due to a network failure: " + ex);
+                }
+                
+                JOptionPane.showMessageDialog(mainFrame,
+                        Messages.getString("logoffNotSucceeded",
+                            protocolProvider.getAccountID().getAccountAddress()),
+                        Messages.getString("error"),
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
