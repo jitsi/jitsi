@@ -53,7 +53,8 @@ public class OperationFailedException
     public static final int CONTACT_GROUP_ALREADY_EXISTS = 5;
 
     /**
-     * Indicates that a user has tried to create a group that already exist.
+     * Indicates that a user has entered wrong account properties, like wrong
+     * port for example.
      */
     public static final int INVALID_ACCOUNT_PROPERTIES = 6;
 
