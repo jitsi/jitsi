@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16px"
+   height="16px"
+   id="svg1313"
+   sodipodi:version="0.32"
+   inkscape:version="0.44.1"
+   sodipodi:docbase="D:\workspace\sip-communicator\src\net\java\sip\communicator\impl\gui\resources\common\src"
+   sodipodi:docname="exclamationMark.svg">
+  <defs
+     id="defs1315">
+    <linearGradient
+       id="linearGradient14399">
+      <stop
+         style="stop-color:#143e7b;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop14401" />
+      <stop
+         style="stop-color:#93aacc;stop-opacity:0.65486723;"
+         offset="1.0000000"
+         id="stop14403" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient7006">
+      <stop
+         id="stop2072"
+         offset="0.0000000"
+         style="stop-color:#ababab;stop-opacity:1.0000000;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop7010" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5925">
+      <stop
+         style="stop-color:#ff8400;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop5927" />
+      <stop
+         id="stop5929"
+         offset="1.0000000"
+         style="stop-color:#ffc768;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5918">
+      <stop
+         id="stop5920"
+         offset="0.0000000"
+         style="stop-color:#143e7b;stop-opacity:1.0000000;" />
+      <stop
+         id="stop5922"
+         offset="1.0000000"
+         style="stop-color:#93aacc;stop-opacity:0.65486723;" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="25.498579"
+     inkscape:cx="8"
+     inkscape:cy="11.086121"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1227"
+     inkscape:window-height="767"
+     inkscape:window-x="108"
+     inkscape:window-y="140" />
+  <metadata
+     id="metadata1318">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="fill:#c00;fill-opacity:1;stroke:#8c0000;stroke-width:0.58802223;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4483"
+       width="15.411978"
+       height="15.411978"
+       x="0.29401112"
+       y="0.29401112"
+       ry="2.5"
+       inkscape:export-filename="D:\workspace\sip-communicator\src\net\java\sip\communicator\impl\gui\resources\common\exclamationMark.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       rx="2.5" />
+    <rect
+       style="fill:white;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.43048418;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect33516"
+       width="3.2164216"
+       height="6.5900836"
+       x="6.3171296"
+       y="-9.1043043"
+       ry="1.3"
+       inkscape:export-filename="D:\workspace\sip-communicator\src\net\java\sip\communicator\impl\gui\resources\common\exclamationMark.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"
+       transform="scale(1,-1)"
+       rx="1.3" />
+    <path
+       sodipodi:type="arc"
+       style="fill:white;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.75817871;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path33520"
+       sodipodi:cx="85.99942"
+       sodipodi:cy="148.24525"
+       sodipodi:rx="3.9848089"
+       sodipodi:ry="3.9848089"
+       d="M 89.984229,148.24525 A 3.9848089,3.9848089 0 1 1 89.984059,148.20844"
+       sodipodi:start="0"
+       sodipodi:end="6.2739468"
+       sodipodi:open="true"
+       transform="matrix(0.459747,0,0,-0.416689,-31.54003,73.94583)"
+       inkscape:export-filename="D:\workspace\sip-communicator\src\net\java\sip\communicator\impl\gui\resources\common\exclamationMark.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+  </g>
+</svg>
