@@ -55,7 +55,7 @@ public class AuthorizationResponseDialog extends SIPCommDialog
             AuthorizationResponse response) {
         super(mainFrame);
         
-        this.setModal(true);
+        this.setModal(false);
         
         this.setTitle(title);
         

@@ -81,7 +81,7 @@ public class AuthorizationRequestedDialog
         
         super(mainFrame);
         
-        this.setModal(true);
+        this.setModal(false);
         
         this.setTitle(title);
 
