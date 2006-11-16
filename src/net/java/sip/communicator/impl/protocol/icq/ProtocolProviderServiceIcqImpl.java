@@ -138,7 +138,16 @@ public class ProtocolProviderServiceIcqImpl
             return RegistrationState.REGISTERING;
         else if (joustSimConnState == State.DISCONNECTED
                  || joustSimConnState == State.NOTCONNECTED)
+        {
+            if(joustSimConnStateInfo != null
+                && joustSimConnStateInfo instanceof DisconnectedStateInfo
+                && !((DisconnectedStateInfo)joustSimConnStateInfo).isOnPurpose())
+            {
+                return RegistrationState.CONNECTION_FAILED;
+            }
+
             return RegistrationState.UNREGISTERED;
+        }
         else if (joustSimConnState == State.FAILED)
         {
             if(joustSimConnStateInfo != null
