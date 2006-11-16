@@ -295,6 +295,105 @@ public class MessageHistoryServiceImpl
     }
 
     /**
+     * Returns the supplied number of recent messages after the given date
+     * exchanged by all the contacts in the supplied metacontact
+     *
+     * @param contact MetaContact
+     * @param date messages after date
+     * @param count messages count
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection getFirstMessagesAfter(MetaContact contact, Date date,
+                                        int count) throws RuntimeException
+    {
+        TreeSet result = new TreeSet(new MessageEventComparator());
+
+        Iterator iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = (Contact) iter.next();
+
+            try
+            {
+                History history = this.getHistory(null, item);
+
+                HistoryReader reader = history.getReader();
+                Iterator recs = reader.getFirstRecordsAfter(date, count);
+                while (recs.hasNext())
+                {
+                    result.add(
+                        convertHistoryRecordToMessageEvent(
+                            (HistoryRecord)recs.next(),
+                            item));
+
+                }
+            } catch (IOException e)
+            {
+                logger.error("Could not read history", e);
+            }
+        }
+
+        LinkedList resultAsList = new LinkedList(result);
+        int startIndex = resultAsList.size() - count;
+
+        if(startIndex < 0)
+            startIndex = 0;
+
+        return resultAsList.subList(startIndex, resultAsList.size());
+
+    }
+
+    /**
+     * Returns the supplied number of recent messages before the given date
+     * exchanged by all the contacts in the supplied metacontact
+     *
+     * @param contact MetaContact
+     * @param date messages before date
+     * @param count messages count
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection getLastMessagesBefore(MetaContact contact, Date date,
+                                         int count) throws RuntimeException
+    {
+        TreeSet result = new TreeSet(new MessageEventComparator());
+
+        Iterator iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = (Contact) iter.next();
+
+            try
+            {
+                History history = this.getHistory(null, item);
+
+                HistoryReader reader = history.getReader();
+                Iterator recs = reader.getLastRecordsBefore(date, count);
+                while (recs.hasNext())
+                {
+                    result.add(
+                        convertHistoryRecordToMessageEvent(
+                            (HistoryRecord)recs.next(),
+                            item));
+
+                }
+            } catch (IOException e)
+            {
+                logger.error("Could not read history", e);
+            }
+        }
+
+        LinkedList resultAsList = new LinkedList(result);
+        int startIndex = resultAsList.size() - count;
+
+        if(startIndex < 0)
+            startIndex = 0;
+
+        return resultAsList.subList(startIndex, resultAsList.size());
+    }
+
+    /**
      * Returns the history by specified local and remote contact
      * if one of them is null the default is used
      *

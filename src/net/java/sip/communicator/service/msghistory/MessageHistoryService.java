@@ -28,7 +28,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    Collection findByStartDate(MetaContact contact, Date startDate)
+    public Collection findByStartDate(MetaContact contact, Date startDate)
         throws RuntimeException;
 
     /**
@@ -40,7 +40,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    Collection findByEndDate(MetaContact contact, Date endDate)
+    public Collection findByEndDate(MetaContact contact, Date endDate)
         throws RuntimeException;
 
     /**
@@ -53,7 +53,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    Collection findByPeriod(MetaContact contact, Date startDate, Date endDate)
+    public Collection findByPeriod(MetaContact contact, Date startDate, Date endDate)
         throws RuntimeException;
 
     /**
@@ -68,7 +68,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    Collection findByPeriod(MetaContact contact, Date startDate, Date endDate, String[] keywords)
+    public Collection findByPeriod(MetaContact contact, Date startDate, Date endDate, String[] keywords)
         throws RuntimeException;
 
     /**
@@ -84,7 +84,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    Collection findByPeriod(MetaContact contact, Date startDate, Date endDate,
+    public Collection findByPeriod(MetaContact contact, Date startDate, Date endDate,
                             String[] keywords, boolean caseSensitive)
         throws RuntimeException;
 
@@ -97,7 +97,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    Collection findByKeyword(MetaContact contact, String keyword)
+    public Collection findByKeyword(MetaContact contact, String keyword)
         throws RuntimeException;
 
     /**
@@ -122,7 +122,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    Collection findByKeywords(MetaContact contact, String[] keywords)
+    public Collection findByKeywords(MetaContact contact, String[] keywords)
         throws RuntimeException;
 
     /**
@@ -135,7 +135,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    Collection findByKeywords(MetaContact contact, String[] keywords, boolean caseSensitive)
+    public Collection findByKeywords(MetaContact contact, String[] keywords, boolean caseSensitive)
         throws RuntimeException;
 
     /**
@@ -147,7 +147,33 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    Collection findLast(MetaContact contact, int count)
+    public Collection findLast(MetaContact contact, int count)
+        throws RuntimeException;
+
+    /**
+     * Returns the supplied number of recent messages after the given date
+     * exchanged by all the contacts in the supplied metacontact
+     *
+     * @param contact MetaContact
+     * @param date messages after date
+     * @param count messages count
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection getFirstMessagesAfter(MetaContact contact, Date date, int count)
+        throws RuntimeException;
+
+    /**
+     * Returns the supplied number of recent messages before the given date
+     * exchanged by all the contacts in the supplied metacontact
+     *
+     * @param contact MetaContact
+     * @param date messages before date
+     * @param count messages count
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection getLastMessagesBefore(MetaContact contact, Date date, int count)
         throws RuntimeException;
 
     /**
@@ -155,13 +181,12 @@ public interface MessageHistoryService
      *
      * @param listener HistorySearchProgressListener
      */
-   void addSearchProgressListener(MessageHistorySearchProgressListener listener);
+   public void addSearchProgressListener(MessageHistorySearchProgressListener listener);
 
    /**
     * Removing progress listener
     *
     * @param listener HistorySearchProgressListener
     */
-   void removeSearchProgressListener(MessageHistorySearchProgressListener listener);
-
+   public void removeSearchProgressListener(MessageHistorySearchProgressListener listener);
 }

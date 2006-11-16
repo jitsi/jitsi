@@ -337,6 +337,35 @@ public class TestMsgHistoryService
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[4].getContent()));
 
+        /**
+         * Must return exactly the 3 messages after controlDate1
+         */
+        rs = msgHistoryService.getFirstMessagesAfter(testMetaContact, controlDate1, 3);
+
+        assertTrue("Nothing found 9", !rs.isEmpty());
+        msgs = getMessages(rs);
+        assertEquals("Messages must be 3", msgs.size(), 3);
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[1].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[2].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[3].getContent()));
+
+        /**
+         * Must return exactly the 3 messages before controlDate2
+         */
+        rs = msgHistoryService.getLastMessagesBefore(testMetaContact, controlDate2, 3);
+
+        assertTrue("Nothing found 10", !rs.isEmpty());
+        msgs = getMessages(rs);
+        assertEquals("Messages must be 3", msgs.size(), 3);
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[0].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[1].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[2].getContent()));
     }
 
     /**

@@ -303,6 +303,191 @@ public class HistoryReaderImpl
         return find(startDate, endDate, keywords, field, caseSensitive);
     }
 
+    /**
+     * Returns the supplied number of recent messages after the given date
+     *
+     * @param date messages after date
+     * @param count messages count
+     * @return QueryResultSet the found records
+     * @throws RuntimeException
+     */
+    public QueryResultSet getFirstRecordsAfter(Date date, int count) throws
+        RuntimeException
+    {
+        TreeSet result = new TreeSet(new HistoryRecordComparator());
+
+        Vector filelist =
+            filterFilesByDate(this.historyImpl.getFileList(), date, null);
+
+        int leftCount = count;
+        int currentFile = 0;
+
+        while(leftCount > 0 && currentFile < filelist.size())
+        {
+            Document doc = this.historyImpl.
+                getDocumentForFile( (String) filelist.get(currentFile));
+
+            if(doc == null)
+            {
+                currentFile++;
+                continue;
+            }
+
+            NodeList nodes = doc.getElementsByTagName("record");
+
+            Node node;
+            for (int i = 0; i < nodes.getLength() && leftCount > 0; i++)
+            {
+                node = nodes.item(i);
+
+                NodeList propertyNodes = node.getChildNodes();
+
+                String ts = node.getAttributes().getNamedItem("timestamp")
+                    .getNodeValue();
+                Date timestamp = new Date(Long.parseLong(ts));
+
+                if(!isInPeriod(timestamp, date, null))
+                    continue;
+
+                ArrayList nameVals = new ArrayList();
+
+                boolean isRecordOK = true;
+                int len = propertyNodes.getLength();
+                for (int j = 0; j < len; j++)
+                {
+                    Node propertyNode = propertyNodes.item(j);
+                    if (propertyNode.getNodeType() == Node.ELEMENT_NODE)
+                    {
+                        // Get nested TEXT node's value
+                        Node nodeValue = propertyNode.getFirstChild();
+
+                        if(nodeValue != null)
+                        {
+                            nameVals.add(propertyNode.getNodeName());
+                            nameVals.add(nodeValue.getNodeValue());
+                        }
+                        else
+                            isRecordOK = false;
+                    }
+                }
+
+                // if we found a broken record - just skip it
+                if(!isRecordOK)
+                    continue;
+
+                String[] propertyNames = new String[nameVals.size() / 2];
+                String[] propertyValues = new String[propertyNames.length];
+                for (int j = 0; j < propertyNames.length; j++)
+                {
+                    propertyNames[j] = (String) nameVals.get(j * 2);
+                    propertyValues[j] = (String) nameVals.get(j * 2 + 1);
+                }
+
+                HistoryRecord record = new HistoryRecord(propertyNames,
+                    propertyValues, timestamp);
+
+                result.add(record);
+                leftCount--;
+            }
+
+            currentFile++;
+        }
+
+        return new OrderedQueryResultSet(result);
+    }
+
+    /**
+     * Returns the supplied number of recent messages before the given date
+     *
+     * @param date messages before date
+     * @param count messages count
+     * @return QueryResultSet the found records
+     * @throws RuntimeException
+     */
+    public QueryResultSet getLastRecordsBefore(Date date, int count) throws
+        RuntimeException
+    {
+        // the files are supposed to be ordered from oldest to newest
+        Vector filelist =
+            filterFilesByDate(this.historyImpl.getFileList(), null, date);
+
+        TreeSet result = new TreeSet(new HistoryRecordComparator());
+        int leftCount = count;
+        int currentFile = filelist.size() - 1;
+
+        while(leftCount > 0 && currentFile >= 0)
+        {
+            Document doc = this.historyImpl.
+                getDocumentForFile( (String) filelist.get(currentFile));
+
+            if(doc == null)
+            {
+                currentFile--;
+                continue;
+            }
+
+            NodeList nodes = doc.getElementsByTagName("record");
+
+            Node node;
+            for (int i = 0; i < nodes.getLength() && leftCount > 0; i++)
+            {
+                node = nodes.item(i);
+                NodeList propertyNodes = node.getChildNodes();
+
+                String ts = node.getAttributes().getNamedItem("timestamp")
+                    .getNodeValue();
+                Date timestamp = new Date(Long.parseLong(ts));
+
+                if(!isInPeriod(timestamp, null, date))
+                    continue;
+
+                ArrayList nameVals = new ArrayList();
+
+                boolean isRecordOK = true;
+                int len = propertyNodes.getLength();
+                for (int j = 0; j < len; j++)
+                {
+                    Node propertyNode = propertyNodes.item(j);
+                    if (propertyNode.getNodeType() == Node.ELEMENT_NODE)
+                    {
+                        // Get nested TEXT node's value
+                        Node nodeValue = propertyNode.getFirstChild();
+
+                        if(nodeValue != null)
+                        {
+                            nameVals.add(propertyNode.getNodeName());
+                            nameVals.add(nodeValue.getNodeValue());
+                        }
+                        else
+                            isRecordOK = false;
+                    }
+                }
+
+                // if we found a broken record - just skip it
+                if(!isRecordOK)
+                    continue;
+
+                String[] propertyNames = new String[nameVals.size() / 2];
+                String[] propertyValues = new String[propertyNames.length];
+                for (int j = 0; j < propertyNames.length; j++)
+                {
+                    propertyNames[j] = (String) nameVals.get(j * 2);
+                    propertyValues[j] = (String) nameVals.get(j * 2 + 1);
+                }
+
+                HistoryRecord record = new HistoryRecord(propertyNames,
+                    propertyValues, timestamp);
+
+                result.add(record);
+                leftCount--;
+            }
+
+            currentFile--;
+        }
+
+        return new OrderedQueryResultSet(result);
+    }
+
     private QueryResultSet find(
         Date startDate, Date endDate,
         String[] keywords, String field, boolean caseSensitive)
