@@ -201,7 +201,7 @@ public class AuthorizationRequestedDialog
         return this.responsePane.getText();
     }
 
-    protected void close()
+    protected void close(boolean isEscaped)
     {
         this.ignoreButton.doClick();
     }

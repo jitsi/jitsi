@@ -188,7 +188,7 @@ public class MessageDialog
         this.dispose();
     }
 
-    protected void close()
+    protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
     }

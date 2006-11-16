@@ -546,7 +546,7 @@ public class HistoryWindow
      * this is the case hides it, otherwise saves the current history window
      * size and location and disposes the window.
      */
-    protected void close()
+    protected void close(boolean isEscaped)
     {
         if(chatConvPanel.getRightButtonMenu().isVisible()) {
             chatConvPanel.getRightButtonMenu().setVisible(false);

@@ -60,7 +60,7 @@ public abstract class SIPCommDialog extends JDialog
         public void actionPerformed(ActionEvent e)
         {
             saveSizeAndLocation();
-            close();
+            close(true);
         }
     }
     
@@ -88,7 +88,7 @@ public abstract class SIPCommDialog extends JDialog
     {
         public void windowClosing(WindowEvent e) {
             saveSizeAndLocation();
-            close();
+            close(false);
         }
     }
 
@@ -189,5 +189,5 @@ public abstract class SIPCommDialog extends JDialog
      * All functions implemented in this method will be invoked when user
      * presses the Escape key. 
      */
-    protected abstract void close();
+    protected abstract void close(boolean isEscaped);
 }

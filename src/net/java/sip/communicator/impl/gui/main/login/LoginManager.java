@@ -419,7 +419,7 @@ public class LoginManager
             try {
                 protocolProvider.register(secAuth);
             }
-            catch (OperationFailedException ex) {
+            catch (OperationFailedException ex) {                
                 logger.fatal("Unhandled exeption", ex);
             }
         }

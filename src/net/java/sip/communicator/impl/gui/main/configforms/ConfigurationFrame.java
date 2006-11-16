@@ -300,7 +300,7 @@ public class ConfigurationFrame
     /**
      * Implements <tt>SIPCommFrame</tt> close method.
      */
-    protected void close()
+    protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
     }    

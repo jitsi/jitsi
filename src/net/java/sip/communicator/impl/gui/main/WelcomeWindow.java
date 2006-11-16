@@ -210,10 +210,10 @@ public class WelcomeWindow
         }
     }
 
-    protected void close()
+    protected void close(boolean isEscaped)
     {
         dispose();
         communicator.showCommunicator(true);
-        SwingUtilities.invokeLater(new RunLogin());        
+        SwingUtilities.invokeLater(new RunLogin());
     }
 }

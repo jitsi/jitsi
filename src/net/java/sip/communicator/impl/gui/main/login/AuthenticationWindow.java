@@ -234,7 +234,7 @@ public class AuthenticationWindow
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
     }
 
-    protected void close()
+    protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
     }

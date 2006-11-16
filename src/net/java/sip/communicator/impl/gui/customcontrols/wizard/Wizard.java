@@ -523,7 +523,7 @@ public class Wizard extends SIPCommDialog
     /**
      * Implements the <tt>SIPCommDialog</tt> close method.
      */
-    protected void close()
+    protected void close(boolean isEscaped)
     {
         this.close(Wizard.CANCEL_RETURN_CODE);
     }

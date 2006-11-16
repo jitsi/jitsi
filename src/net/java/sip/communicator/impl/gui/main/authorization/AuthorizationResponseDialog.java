@@ -134,7 +134,7 @@ public class AuthorizationResponseDialog extends SIPCommDialog
         this.dispose();
     }
 
-    protected void close()
+    protected void close(boolean isEscaped)
     {
         this.dispose();
     }

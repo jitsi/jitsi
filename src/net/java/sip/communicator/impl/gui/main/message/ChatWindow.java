@@ -141,56 +141,7 @@ public class ChatWindow
     {
         this.mainFrame = mainFrame;
     }
-
-    /**
-     * Closes the current chat, triggering warnings to the user when there are
-     * non-sent messages or a message is received in last 2 seconds.
-     */
-    private void close(boolean immediately)
-    {
-        if (!getCurrentChatPanel().isWriteAreaEmpty()) {
-            SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
-                .getString("nonEmptyChatWindowClose"));
-            int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
-                msgText, Messages.getString("warning"),
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-
-            if (answer == JOptionPane.OK_OPTION) {
-                closeChat(immediately);
-            }
-        }
-        else if (System.currentTimeMillis() - getCurrentChatPanel()
-            .getLastIncomingMsgTimestamp().getTime() < 2 * 1000) {
-            SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
-                .getString("closeChatAfterNewMsg"));
-
-            int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
-                msgText, Messages.getString("warning"),
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-
-            if (answer == JOptionPane.OK_OPTION) {
-                closeChat(immediately);
-            }
-        }
-        else {
-            closeChat(immediately);
-        }
-    }
-
-    /**
-     * Closes the selected chat tab or the window if there are no tabs.
-     */
-    private void closeChat(boolean immediately)
-    {
-        if (!immediately && chatTabbedPane.getTabCount() > 1) {
-            removeContactTab(chatTabbedPane.getSelectedIndex());
-        }
-        else {
-            ChatWindow.this.dispose();
-            mainFrame.getContactListPanel().setTabbedChatWindow(null);
-        }
-    }
-
+    
     /**
      * Creates a <tt>ChatPanel</tt> for the given contact and saves it in the
      * list ot created <tt>ChatPanel</tt>s.
@@ -391,7 +342,7 @@ public class ChatWindow
      */
     public void removeChat(ChatPanel chatPanel)
     {
-        this.close(true);
+        this.closeWindow(false);
     }
 
     /**
@@ -647,7 +598,6 @@ public class ChatWindow
     public class ChatWindowAdapter
         extends WindowAdapter
     {
-
         public void windowDeiconified(WindowEvent e)
         {
             String title = getTitle();
@@ -655,44 +605,98 @@ public class ChatWindow
             if (title.startsWith("*")) {
                 setTitle(title.substring(1, title.length()));
             }
-        }        
+        }
+    }
+
+    /**
+     * Closes the current chat, triggering warnings to the user when there are
+     * non-sent messages or a message is received in last 2 seconds.
+     */
+    private void closeWindow(boolean immediately)
+    {
+        if (!getCurrentChatPanel().isWriteAreaEmpty()) {
+            SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
+                .getString("nonEmptyChatWindowClose"));
+            int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
+                msgText, Messages.getString("warning"),
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+
+            if (answer == JOptionPane.OK_OPTION) {
+                closeChat(immediately);
+            }
+        }
+        else if (System.currentTimeMillis() - getCurrentChatPanel()
+            .getLastIncomingMsgTimestamp().getTime() < 2 * 1000) {
+            SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
+                .getString("closeChatAfterNewMsg"));
+
+            int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
+                msgText, Messages.getString("warning"),
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+
+            if (answer == JOptionPane.OK_OPTION) {
+                closeChat(immediately);
+            }
+        }
+        else {
+            closeChat(immediately);
+        }
+    }
+
+    /**
+     * Closes the selected chat tab or the window if there are no tabs.
+     */
+    private void closeChat(boolean immediately)
+    {
+        if (!immediately && chatTabbedPane.getTabCount() > 1) {
+            removeContactTab(chatTabbedPane.getSelectedIndex());
+        }
+        else {
+            ChatWindow.this.dispose();
+            mainFrame.getContactListPanel().setTabbedChatWindow(null);
+        }
     }
 
     /**
      * Implements the <tt>SIPCommFrame</tt> close method. We check for an open
      * menu and if there's one we close it, otherwise we close the current chat.
      */
-    protected void close()
+    protected void close(boolean isEscaped)
     {   
-        ChatRightButtonMenu chatRightMenu = currentChatPanel
-            .getChatConversationPanel().getRightButtonMenu();
-
-        WritePanelRightButtonMenu writePanelRightMenu = currentChatPanel
-            .getChatWritePanel().getRightButtonMenu();
-
-        JMenu selectedMenu = menusPanel.getMainMenuBar().getSelectedMenu();
-        JMenu contactMenu = currentChatPanel.getChatSendPanel()
-            .getContactSelectorBox();
-        
-        MenuSelectionManager menuSelectionManager
-            = MenuSelectionManager.defaultManager();
-        
-        if (chatRightMenu.isVisible()) {
+        if(isEscaped) {
+            ChatRightButtonMenu chatRightMenu = currentChatPanel
+                .getChatConversationPanel().getRightButtonMenu();
+    
+            WritePanelRightButtonMenu writePanelRightMenu = currentChatPanel
+                .getChatWritePanel().getRightButtonMenu();
+    
+            JMenu selectedMenu = menusPanel.getMainMenuBar().getSelectedMenu();
+            JMenu contactMenu = currentChatPanel.getChatSendPanel()
+                .getContactSelectorBox();
             
-            chatRightMenu.setVisible(false);
-        }
-        else if (writePanelRightMenu.isVisible()) {
+            MenuSelectionManager menuSelectionManager
+                = MenuSelectionManager.defaultManager();
             
-            writePanelRightMenu.setVisible(false);
-        }
-        else if (selectedMenu != null
-            || contactMenu.isPopupMenuVisible()
-            || menusPanel.getMainToolBar().hasSelectedMenus()) {
-            
-            menuSelectionManager.clearSelectedPath();
+            if (chatRightMenu.isVisible()) {
+                
+                chatRightMenu.setVisible(false);
+            }
+            else if (writePanelRightMenu.isVisible()) {
+                
+                writePanelRightMenu.setVisible(false);
+            }
+            else if (selectedMenu != null
+                || contactMenu.isPopupMenuVisible()
+                || menusPanel.getMainToolBar().hasSelectedMenus()) {
+                
+                menuSelectionManager.clearSelectedPath();
+            }
+            else {            
+                closeWindow(false);
+            }
         }
         else {
-            close(false);
+            closeWindow(true);
         }
     }
 }

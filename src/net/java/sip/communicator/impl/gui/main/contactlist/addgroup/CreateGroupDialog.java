@@ -173,7 +173,7 @@ public class CreateGroupDialog
         }
     }
 
-    protected void close()
+    protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
     }

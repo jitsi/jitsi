@@ -125,7 +125,7 @@ public class RenameContactDialog
         this.renameContactPanel.requestFocusInField();
     }
 
-    protected void close()
+    protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
     }

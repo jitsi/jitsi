@@ -1030,7 +1030,7 @@ public class MainFrame
      * Overwrites the <tt>SIPCommFrame</tt> close method. This method is
      * invoked when user presses the Escape key.  
      */
-    protected void close()
+    protected void close(boolean isEscaped)
     {
         ContactList contactList = getContactListPanel().getContactList();
         

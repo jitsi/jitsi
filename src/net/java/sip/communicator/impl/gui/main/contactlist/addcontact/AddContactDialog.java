@@ -203,7 +203,7 @@ public class AddContactDialog
         }
     }
 
-    protected void close()
+    protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
     }
