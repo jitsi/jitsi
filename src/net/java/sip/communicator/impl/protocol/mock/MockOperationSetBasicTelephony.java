@@ -219,6 +219,14 @@ public class MockOperationSetBasicTelephony
     {
         Call newCall = createCall(toAddress);
         fireCallEvent(CallEvent.CALL_INITIATED, newCall);
+
+        // must have one participant
+        MockCallParticipant callPArt =
+            (MockCallParticipant)newCall.getCallParticipants().next();
+
+        callPArt.setState(CallParticipantState.ALERTING_REMOTE_SIDE, "no reason");
+        callPArt.setState(CallParticipantState.CONNECTED, "no reason");
+
         return newCall;
     }
 
@@ -256,7 +264,12 @@ public class MockOperationSetBasicTelephony
 
     public CallParticipant addNewCallParticipant(Call call, String address)
     {
-        return new MockCallParticipant(address, (MockCall)call);
+        MockCallParticipant callPArt = new MockCallParticipant(address, (MockCall)call);
+
+        callPArt.setState(CallParticipantState.ALERTING_REMOTE_SIDE, "no reason");
+        callPArt.setState(CallParticipantState.CONNECTED, "no reason");
+
+        return callPArt;
     }
 
     public void callParticipantAdded(CallParticipantEvent evt)
