@@ -79,8 +79,7 @@ public class ProtocolContactSelectorBox
 
                 chatPanel.setProtocolContact(protocolContact);
 
-                this.menu.setSelected(
-                    protocolContact, (ImageIcon)menuItem.getIcon());
+                this.setSelected(protocolContact, (ImageIcon)menuItem.getIcon());
 
                 return;
             }
@@ -145,16 +144,31 @@ public class ProtocolContactSelectorBox
         }
     }
 
+    public void setSelected(Contact protoContact, ImageIcon icon)
+    {
+        this.menu.setSelected(protoContact, icon);
+        
+        String tooltipText;
+        
+        if(!protoContact.getDisplayName().equals(protoContact.getAddress()))
+            tooltipText = protoContact.getDisplayName()
+                + " (" + protoContact.getAddress() + ")";
+        else
+            tooltipText = protoContact.getDisplayName();
+        
+        this.menu.setToolTipText(tooltipText);
+    }
+    
     /**
      * Sets the selected contact to the given proto contact.
      * @param protoContact the proto contact to select
      */
     public void setSelected(Contact protoContact)
     {
-        this.menu.setSelected(protoContact,
-                new ImageIcon(createContactStatusImage(protoContact)));
+        this.setSelected(protoContact,
+                new ImageIcon(createContactStatusImage(protoContact)));        
     }
-
+    
     /**
      * Returns the protocol menu.
      * 
