@@ -8,6 +8,8 @@ package net.java.sip.communicator.plugin.icqaccregwizz;
 
 import java.util.*;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -30,6 +32,8 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
     private WizardContainer wizardContainer;
     
     private ProtocolProviderService protocolProvider;
+    
+    private boolean isModification;
     
     /**
      * Creates an instance of <tt>IcqAccountRegistrationWizard</tt>.
@@ -120,20 +124,28 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
         
-        if(protocolProvider != null) {
+        if(isModification) {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;
         }
         
-        AccountID accountID = providerFactory.installAccount(
+        try {
+            AccountID accountID = providerFactory.installAccount(
                     user, accountProperties);
-                
-        ServiceReference serRef = providerFactory
-            .getProviderForAccount(accountID);
-
-        ProtocolProviderService protocolProvider
-            = (ProtocolProviderService) IcqAccRegWizzActivator.bundleContext
-                .getService(serRef);        
+        
+            ServiceReference serRef = providerFactory
+                .getProviderForAccount(accountID);
+    
+            protocolProvider
+                = (ProtocolProviderService) IcqAccRegWizzActivator.bundleContext
+                    .getService(serRef);
+        }
+        catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());            
+        }
+        catch (IllegalStateException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }       
         
         return protocolProvider;
     }
@@ -149,5 +161,7 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
         this.protocolProvider = protocolProvider;
         
         this.firstWizardPage.loadAccount(protocolProvider);
+        
+        this.isModification = true;
     }
 }

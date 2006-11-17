@@ -8,6 +8,8 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
 
 import java.util.*;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -33,6 +35,8 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
 
     private String propertiesPackage
         = "net.java.sip.communicator.plugin.sipaccregwizz";
+    
+    private boolean isModification;
 
     /**
      * Creates an instance of <tt>SIPAccountRegistrationWizard</tt>.
@@ -168,21 +172,30 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
         accountProperties.put(ProtocolProviderFactory.PREFERRED_TRANSPORT,
                 registration.getPreferredTransport());
 
-        if(protocolProvider != null) {
+        if(isModification) {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;
         }
 
-        AccountID accountID = providerFactory.installAccount(
+        try {
+            AccountID accountID = providerFactory.installAccount(
                     user, accountProperties);
 
-        ServiceReference serRef = providerFactory
-            .getProviderForAccount(accountID);
+            ServiceReference serRef = providerFactory
+                .getProviderForAccount(accountID);
+    
+            protocolProvider
+                = (ProtocolProviderService) SIPAccRegWizzActivator.bundleContext
+                    .getService(serRef);
 
-        ProtocolProviderService protocolProvider
-            = (ProtocolProviderService) SIPAccRegWizzActivator.bundleContext
-                .getService(serRef);
-
+        }
+        catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());            
+        }
+        catch (IllegalStateException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }   
+        
         return protocolProvider;
     }
 
@@ -197,5 +210,7 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
         this.protocolProvider = protocolProvider;
 
         this.firstWizardPage.loadAccount(protocolProvider);
+        
+        this.isModification = true;
     }
 }

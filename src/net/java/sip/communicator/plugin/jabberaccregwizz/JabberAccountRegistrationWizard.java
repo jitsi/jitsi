@@ -8,6 +8,8 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.util.*;
 
+import javax.swing.*;
+
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
@@ -33,6 +35,8 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
 
     private String propertiesPackage = "net.java.sip.communicator.plugin.jabberaccregwizz";
 
+    private boolean isModification;
+    
     /**
      * Creates an instance of <tt>JabberAccountRegistrationWizard</tt>.
      * @param wizardContainer the wizard container, where this wizard
@@ -137,20 +141,28 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
         accountProperties.put("SEND_KEEP_ALIVE",
                               String.valueOf(registration.isSendKeepAlive()));
 
-        if(protocolProvider != null) {
+        if(isModification) {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;
         }
 
-        AccountID accountID = providerFactory.installAccount(
-                    user, accountProperties);
-
-        ServiceReference serRef = providerFactory
-            .getProviderForAccount(accountID);
-
-        ProtocolProviderService protocolProvider
-            = (ProtocolProviderService) JabberAccRegWizzActivator.bundleContext
-                .getService(serRef);
+        try {
+            AccountID accountID = providerFactory.installAccount(
+                        user, accountProperties);
+    
+            ServiceReference serRef = providerFactory
+                .getProviderForAccount(accountID);
+    
+            protocolProvider = (ProtocolProviderService)
+                JabberAccRegWizzActivator.bundleContext
+                    .getService(serRef);
+        }
+        catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());            
+        }
+        catch (IllegalStateException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }       
 
         return protocolProvider;
     }
@@ -166,5 +178,7 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
         this.protocolProvider = protocolProvider;
 
         this.firstWizardPage.loadAccount(protocolProvider);
+        
+        isModification = true;
     }
 }
