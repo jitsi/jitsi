@@ -8,11 +8,11 @@ package net.java.sip.communicator.plugin.icqaccregwizz;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -39,6 +39,9 @@ public class FirstWizardPage extends JPanel
     
     private JLabel passLabel = new JLabel(Resources.getString("password"));
     
+    private JLabel existingAccountLabel
+        = new JLabel(Resources.getString("existingAccount"));
+    
     private JTextField uinField = new JTextField();
     
     private JPasswordField passField = new JPasswordField();
@@ -58,6 +61,8 @@ public class FirstWizardPage extends JPanel
             Resources.getString("registerNewAccount"));
     
     private JPanel mainPanel = new JPanel();
+    
+    private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
     
     private IcqAccountRegistration registration;
     
@@ -95,6 +100,8 @@ public class FirstWizardPage extends JPanel
         this.registerButton.addActionListener(this);
         this.uinField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(true);
+       
+        this.existingAccountLabel.setForeground(Color.RED);
         
         labelsPanel.add(uinLabel);
         labelsPanel.add(passLabel);
@@ -140,8 +147,8 @@ public class FirstWizardPage extends JPanel
      * Implements the <code>WizardPage.getNextPageIdentifier</code> to return
      * the next page identifier - the summary page.
      */
-    public Object getNextPageIdentifier() {
-        return WizardPage.SUMMARY_PAGE_IDENTIFIER;
+    public Object getNextPageIdentifier() {        
+        return nextPageIdentifier;
     }
 
     /**
@@ -172,9 +179,21 @@ public class FirstWizardPage extends JPanel
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
     public void pageNext() {
-        registration.setUin(uinField.getText());
-        registration.setPassword(new String(passField.getPassword()));
-        registration.setRememberPassword(rememberPassBox.isSelected());
+        String uin = uinField.getText();
+        
+        if(isExistingAccount(uin)) {
+            nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
+            uinPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
+            this.revalidate();
+        }
+        else {
+            nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
+            uinPassPanel.remove(existingAccountLabel);
+            
+            registration.setUin(uin);
+            registration.setPassword(new String(passField.getPassword()));
+            registration.setRememberPassword(rememberPassBox.isSelected());
+        }
     }
   
     /**
@@ -242,6 +261,22 @@ public class FirstWizardPage extends JPanel
 
     public void actionPerformed(ActionEvent e)
     {
-        CrossPlatformBrowserLauncher.openURL("https://www.icq.com/register/");
+        CrossPlatformBrowserLauncher.openURL("https://www.icq.com/register/");        
+    }
+    
+    private boolean isExistingAccount(String accountName)
+    {   
+        ProtocolProviderFactory factory 
+            = IcqAccRegWizzActivator.getIcqProtocolProviderFactory();
+        
+        ArrayList registeredAccounts = factory.getRegisteredAccounts();
+        
+        for(int i = 0; i < registeredAccounts.size(); i ++) {
+            AccountID accountID = (AccountID) registeredAccounts.get(i);
+            
+            if(accountName.equalsIgnoreCase(accountID.getUserID()))
+                return true;
+        }
+        return false;
     }
 }

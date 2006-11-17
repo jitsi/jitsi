@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -41,6 +42,9 @@ public class FirstWizardPage extends JPanel
     private JLabel uinLabel = new JLabel(Resources.getString("uin"));
 
     private JLabel passLabel = new JLabel(Resources.getString("password"));
+
+    private JLabel existingAccountLabel
+        = new JLabel(Resources.getString("existingAccount"));
 
     private JTextField uinField = new JTextField();
 
@@ -81,6 +85,8 @@ public class FirstWizardPage extends JPanel
             new Object[]{"UDP", "TLS", "TCP"});
     
     private JPanel mainPanel = new JPanel();
+    
+    private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
     private SIPAccountRegistration registration;
 
@@ -118,6 +124,8 @@ public class FirstWizardPage extends JPanel
         this.uinField.getDocument().addDocumentListener(this);
         this.transportCombo.addItemListener(this);
         this.rememberPassBox.setSelected(true);
+        
+        existingAccountLabel.setForeground(Color.RED);
 
         labelsPanel.add(uinLabel);
         labelsPanel.add(passLabel);
@@ -191,7 +199,7 @@ public class FirstWizardPage extends JPanel
      * the next page identifier - the summary page.
      */
     public Object getNextPageIdentifier() {
-        return WizardPage.SUMMARY_PAGE_IDENTIFIER;
+        return nextPageIdentifier;
     }
 
     /**
@@ -222,16 +230,28 @@ public class FirstWizardPage extends JPanel
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
     public void pageNext() {
-        registration.setUin(uinField.getText());
-        registration.setPassword(new String(passField.getPassword()));
-        registration.setRememberPassword(rememberPassBox.isSelected());
-
-        registration.setServerAddress(serverField.getText());
-        registration.setServerPort(serverPortField.getText());
-        registration.setProxy(proxyField.getText());
-        registration.setProxyPort(proxyPortField.getText());
-        registration.setPreferredTransport(
-                transportCombo.getSelectedItem().toString());
+        String uin = uinField.getText();
+        
+        if(isExistingAccount(uin)) {
+            nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
+            uinPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
+            this.revalidate();
+        }
+        else {
+            nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
+            uinPassPanel.remove(existingAccountLabel);
+            
+            registration.setUin(uinField.getText());
+            registration.setPassword(new String(passField.getPassword()));
+            registration.setRememberPassword(rememberPassBox.isSelected());
+    
+            registration.setServerAddress(serverField.getText());
+            registration.setServerPort(serverPortField.getText());
+            registration.setProxy(proxyField.getText());
+            registration.setProxyPort(proxyPortField.getText());
+            registration.setPreferredTransport(
+                    transportCombo.getSelectedItem().toString());
+        }
     }
 
     /**
@@ -366,5 +386,21 @@ public class FirstWizardPage extends JPanel
             serverPortField.setText("5060");
             proxyPortField.setText("5060");
         }
+    }
+    
+    private boolean isExistingAccount(String accountName)
+    {   
+        ProtocolProviderFactory factory 
+            = SIPAccRegWizzActivator.getSIPProtocolProviderFactory();
+        
+        ArrayList registeredAccounts = factory.getRegisteredAccounts();
+        
+        for(int i = 0; i < registeredAccounts.size(); i ++) {
+            AccountID accountID = (AccountID) registeredAccounts.get(i);
+            
+            if(accountName.equalsIgnoreCase(accountID.getUserID()))
+                return true;
+        }
+        return false;
     }
 }

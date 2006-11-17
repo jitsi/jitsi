@@ -8,6 +8,8 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -36,9 +38,12 @@ public class FirstWizardPage extends JPanel
     private JPanel valuesPanel = new JPanel(new GridLayout(0, 1, 10, 10));
 
     private JLabel uinLabel = new JLabel(Resources.getString("uin"));
-
+    
     private JLabel passLabel = new JLabel(Resources.getString("password"));
 
+    private JLabel existingAccountLabel
+                = new JLabel(Resources.getString("existingAccount"));
+    
     private JTextField uinField = new JTextField();
 
     private JPasswordField passField = new JPasswordField();
@@ -66,6 +71,8 @@ public class FirstWizardPage extends JPanel
 
     private JPanel mainPanel = new JPanel();
 
+    private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
+    
     private JabberAccountRegistration registration;
 
     private WizardContainer wizardContainer;
@@ -102,6 +109,8 @@ public class FirstWizardPage extends JPanel
         this.uinField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(true);
 
+        this.existingAccountLabel.setForeground(Color.RED);
+        
         labelsPanel.add(uinLabel);
         labelsPanel.add(passLabel);
 
@@ -177,7 +186,7 @@ public class FirstWizardPage extends JPanel
      * the next page identifier - the summary page.
      */
     public Object getNextPageIdentifier() {
-        return WizardPage.SUMMARY_PAGE_IDENTIFIER;
+        return nextPageIdentifier;
     }
 
     /**
@@ -208,18 +217,30 @@ public class FirstWizardPage extends JPanel
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
     public void pageNext() {
-        registration.setUin(uinField.getText());
-        registration.setPassword(new String(passField.getPassword()));
-        registration.setRememberPassword(rememberPassBox.isSelected());
-
-        registration.setServerAddress(serverField.getText());
-        registration.setSendKeepAlive(sendKeepAliveBox.isSelected());
-        try
-        {
-            registration.setPort(Integer.parseInt(portField.getText()));
+        String uin = uinField.getText();
+        
+        if(isExistingAccount(uin)) {
+            nextPageIdentifier = FIRST_PAGE_IDENTIFIER;
+            uinPassPanel.add(existingAccountLabel, BorderLayout.NORTH);
+            this.revalidate();
         }
-        catch (NumberFormatException ex)
-        {}
+        else {
+            nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
+            uinPassPanel.remove(existingAccountLabel);
+            
+            registration.setUin(uinField.getText());
+            registration.setPassword(new String(passField.getPassword()));
+            registration.setRememberPassword(rememberPassBox.isSelected());
+    
+            registration.setServerAddress(serverField.getText());
+            registration.setSendKeepAlive(sendKeepAliveBox.isSelected());
+            try
+            {
+                registration.setPort(Integer.parseInt(portField.getText()));
+            }
+            catch (NumberFormatException ex)
+            {}
+        }
     }
 
     /**
@@ -322,5 +343,21 @@ public class FirstWizardPage extends JPanel
         {
              wizardContainer.setNextFinishButtonEnabled(false);
         }
+    }
+    
+    private boolean isExistingAccount(String accountName)
+    {   
+        ProtocolProviderFactory factory 
+            = JabberAccRegWizzActivator.getJabberProtocolProviderFactory();
+        
+        ArrayList registeredAccounts = factory.getRegisteredAccounts();
+        
+        for(int i = 0; i < registeredAccounts.size(); i ++) {
+            AccountID accountID = (AccountID) registeredAccounts.get(i);
+            
+            if(accountName.equalsIgnoreCase(accountID.getUserID()))
+                return true;
+        }
+        return false;
     }
 }
