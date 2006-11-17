@@ -304,7 +304,7 @@ public class MessageHistoryServiceImpl
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection getFirstMessagesAfter(MetaContact contact, Date date,
+    public Collection findFirstMessagesAfter(MetaContact contact, Date date,
                                         int count) throws RuntimeException
     {
         TreeSet result = new TreeSet(new MessageEventComparator());
@@ -319,7 +319,7 @@ public class MessageHistoryServiceImpl
                 History history = this.getHistory(null, item);
 
                 HistoryReader reader = history.getReader();
-                Iterator recs = reader.getFirstRecordsAfter(date, count);
+                Iterator recs = reader.findFirstRecordsAfter(date, count);
                 while (recs.hasNext())
                 {
                     result.add(
@@ -354,7 +354,7 @@ public class MessageHistoryServiceImpl
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection getLastMessagesBefore(MetaContact contact, Date date,
+    public Collection findLastMessagesBefore(MetaContact contact, Date date,
                                          int count) throws RuntimeException
     {
         TreeSet result = new TreeSet(new MessageEventComparator());
@@ -369,7 +369,7 @@ public class MessageHistoryServiceImpl
                 History history = this.getHistory(null, item);
 
                 HistoryReader reader = history.getReader();
-                Iterator recs = reader.getLastRecordsBefore(date, count);
+                Iterator recs = reader.findLastRecordsBefore(date, count);
                 while (recs.hasNext())
                 {
                     result.add(

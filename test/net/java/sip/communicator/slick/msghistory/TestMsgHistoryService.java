@@ -156,11 +156,11 @@ public class TestMsgHistoryService
 
         messagesToSend = new Message[]
             {
-                mockBImOpSet.createMessage("test message word1"),
-                mockBImOpSet.createMessage("test message word2"),
-                mockBImOpSet.createMessage("test message word3"),
-                mockBImOpSet.createMessage("test message word4"),
-                mockBImOpSet.createMessage("test message word5")
+                mockBImOpSet.createMessage("test message word1-" + Math.random()),
+                mockBImOpSet.createMessage("test message word2" + Math.random()),
+                mockBImOpSet.createMessage("test message word3" + Math.random()),
+                mockBImOpSet.createMessage("test message word4" + Math.random()),
+                mockBImOpSet.createMessage("test message word5" + Math.random())
             };
     }
 
@@ -340,7 +340,7 @@ public class TestMsgHistoryService
         /**
          * Must return exactly the 3 messages after controlDate1
          */
-        rs = msgHistoryService.getFirstMessagesAfter(testMetaContact, controlDate1, 3);
+        rs = msgHistoryService.findFirstMessagesAfter(testMetaContact, controlDate1, 3);
 
         assertTrue("Nothing found 9", !rs.isEmpty());
         msgs = getMessages(rs);
@@ -355,7 +355,7 @@ public class TestMsgHistoryService
         /**
          * Must return exactly the 3 messages before controlDate2
          */
-        rs = msgHistoryService.getLastMessagesBefore(testMetaContact, controlDate2, 3);
+        rs = msgHistoryService.findLastMessagesBefore(testMetaContact, controlDate2, 3);
 
         assertTrue("Nothing found 10", !rs.isEmpty());
         msgs = getMessages(rs);

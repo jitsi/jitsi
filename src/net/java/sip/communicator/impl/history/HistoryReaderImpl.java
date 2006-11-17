@@ -311,7 +311,7 @@ public class HistoryReaderImpl
      * @return QueryResultSet the found records
      * @throws RuntimeException
      */
-    public QueryResultSet getFirstRecordsAfter(Date date, int count) throws
+    public QueryResultSet findFirstRecordsAfter(Date date, int count) throws
         RuntimeException
     {
         TreeSet result = new TreeSet(new HistoryRecordComparator());
@@ -404,7 +404,7 @@ public class HistoryReaderImpl
      * @return QueryResultSet the found records
      * @throws RuntimeException
      */
-    public QueryResultSet getLastRecordsBefore(Date date, int count) throws
+    public QueryResultSet findLastRecordsBefore(Date date, int count) throws
         RuntimeException
     {
         // the files are supposed to be ordered from oldest to newest
@@ -413,6 +413,7 @@ public class HistoryReaderImpl
 
         TreeSet result = new TreeSet(new HistoryRecordComparator());
         int leftCount = count;
+
         int currentFile = filelist.size() - 1;
 
         while(leftCount > 0 && currentFile >= 0)
@@ -429,7 +430,7 @@ public class HistoryReaderImpl
             NodeList nodes = doc.getElementsByTagName("record");
 
             Node node;
-            for (int i = 0; i < nodes.getLength() && leftCount > 0; i++)
+            for (int i = nodes.getLength() - 1; i >= 0 && leftCount > 0; i--)
             {
                 node = nodes.item(i);
                 NodeList propertyNodes = node.getChildNodes();
@@ -686,8 +687,6 @@ public class HistoryReaderImpl
      * Used to limit the files if any starting or ending date exist
      * So only few files to be searched.
      *
-     * Start or end date must not be equals to null
-     *
      * @param filelist Iterator
      * @param startDate Date
      * @param endDate Date
@@ -716,7 +715,7 @@ public class HistoryReaderImpl
                 new Long(filename.substring(0, filename.length() - 4)));
         }
 
-        Vector resultAsLong = new Vector();
+        TreeSet resultAsLong = new TreeSet();
 
         // if there is no startDate limit only to end date
         if(startDate == null)
@@ -725,6 +724,7 @@ public class HistoryReaderImpl
             files.add(endLong);
 
             resultAsLong.addAll(files.subSet(files.first(), endLong));
+
             resultAsLong.remove(endLong);
         }
         else if(endDate == null)
@@ -732,13 +732,12 @@ public class HistoryReaderImpl
             // end date is null get all the inclusive the one record before the startdate
             Long startLong = new Long(startDate.getTime());
             files.add(startLong);
-            resultAsLong.addAll(files.subSet(startLong, files.last()));
 
+            resultAsLong.addAll(files.subSet(startLong, files.last()));
             resultAsLong.add(files.last());
 
             // here we must get and the element before startLong
             resultAsLong.add(files.subSet(files.first(), startLong).last());
-
             resultAsLong.remove(startLong);
         }
         else

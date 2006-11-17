@@ -160,7 +160,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection getFirstMessagesAfter(MetaContact contact, Date date, int count)
+    public Collection findFirstMessagesAfter(MetaContact contact, Date date, int count)
         throws RuntimeException;
 
     /**
@@ -173,7 +173,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection getLastMessagesBefore(MetaContact contact, Date date, int count)
+    public Collection findLastMessagesBefore(MetaContact contact, Date date, int count)
         throws RuntimeException;
 
     /**

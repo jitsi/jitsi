@@ -159,7 +159,7 @@ public interface HistoryReader {
      * @return QueryResultSet the found records
      * @throws RuntimeException
      */
-    public QueryResultSet getFirstRecordsAfter(Date date, int count) throws RuntimeException;
+    public QueryResultSet findFirstRecordsAfter(Date date, int count) throws RuntimeException;
 
     /**
      * Returns the supplied number of recent messages before the given date
@@ -169,7 +169,7 @@ public interface HistoryReader {
      * @return QueryResultSet the found records
      * @throws RuntimeException
      */
-    public QueryResultSet getLastRecordsBefore(Date date, int count) throws RuntimeException;
+    public QueryResultSet findLastRecordsBefore(Date date, int count) throws RuntimeException;
 
     /**
      * Adding progress listener for monitoring progress of search process
