@@ -91,8 +91,6 @@ public class ChatWindow
             KeyEvent.META_MASK), new CopyAction());
         this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_V,
             KeyEvent.META_MASK), new PasteAction());
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,
-            KeyEvent.CTRL_DOWN_MASK), new SendMessageAction());
         this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_M,
             KeyEvent.CTRL_DOWN_MASK), new OpenSmileyAction());
         this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_P,
@@ -514,21 +512,6 @@ public class ChatWindow
             getCurrentChatPanel().paste();
         }
     };
-
-    /**
-     * The <tt>SendMessageAction</tt> is an <tt>AbstractAction</tt> that
-     * sends the text that is currently in the write message area.
-     */
-    private class SendMessageAction
-        extends AbstractAction
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            ChatPanel chatPanel = getCurrentChatPanel();
-            // chatPanel.stopTypingNotifications();
-            chatPanel.sendMessage();
-        }
-    }
 
     /**
      * The <tt>OpenSmileyAction</tt> is an <tt>AbstractAction</tt> that

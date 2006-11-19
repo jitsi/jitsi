@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
@@ -17,6 +18,7 @@ import javax.swing.undo.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.impl.gui.main.message.ChatWindow.*;
 import net.java.sip.communicator.impl.gui.main.message.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -54,11 +56,11 @@ public class ChatWritePanel extends JScrollPane implements
      * Creates an instance of <tt>ChatWritePanel</tt>.
      * @param chatPanel The parent <tt>ChatPanel</tt>.
      */
-    public ChatWritePanel(ChatPanel chatPanel) {
+    public ChatWritePanel(ChatPanel panel) {
 
         super();
 
-        this.chatPanel = chatPanel;
+        this.chatPanel = panel;
         
         this.rightButtonMenu 
             = new WritePanelRightButtonMenu(chatPanel.getChatWindow());
@@ -72,7 +74,16 @@ public class ChatWritePanel extends JScrollPane implements
         this.editorPane.getDocument().addUndoableEditListener(this);
         this.editorPane.addKeyListener(this);
         this.editorPane.addMouseListener(this);
-
+        
+        this.editorPane.getActionMap().put("send", new SendMessageAction());
+        this.editorPane.getActionMap().put("newLine", new NewLineAction());
+        
+        InputMap im = this.editorPane.getInputMap();
+        
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "send");
+        im.put(KeyStroke.getKeyStroke(
+                KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK), "newLine");
+        
         this.getViewport().add(editorPane, BorderLayout.CENTER);
 
         this.setBorder(BorderFactory.createCompoundBorder(
@@ -92,6 +103,34 @@ public class ChatWritePanel extends JScrollPane implements
         return editorPane;
     }
 
+    /**
+     * The <tt>SendMessageAction</tt> is an <tt>AbstractAction</tt> that
+     * sends the text that is currently in the write message area.
+     */
+    private class SendMessageAction
+        extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {            
+            // chatPanel.stopTypingNotifications();
+            chatPanel.sendMessage();
+        }
+    }
+    
+    /**
+     * The <tt>NewLineAction</tt> is an <tt>AbstractAction</tt> that
+     * types an enter in the write message area.
+     */
+    private class NewLineAction
+        extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {            
+            editorPane.setText(editorPane.getText()
+                    + System.getProperty("line.separator"));
+        }
+    }
+    
     /**
      * Handles the <tt>UndoableEditEvent</tt>, by adding the content edit
      * to the <tt>UndoManager</tt>.
