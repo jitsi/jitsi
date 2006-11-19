@@ -75,15 +75,6 @@ public class ChatWritePanel extends JScrollPane implements
         this.editorPane.addKeyListener(this);
         this.editorPane.addMouseListener(this);
         
-        this.editorPane.getActionMap().put("send", new SendMessageAction());
-        this.editorPane.getActionMap().put("newLine", new NewLineAction());
-        
-        InputMap im = this.editorPane.getInputMap();
-        
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "send");
-        im.put(KeyStroke.getKeyStroke(
-                KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK), "newLine");
-        
         this.getViewport().add(editorPane, BorderLayout.CENTER);
 
         this.setBorder(BorderFactory.createCompoundBorder(
@@ -101,34 +92,6 @@ public class ChatWritePanel extends JScrollPane implements
      */
     public JEditorPane getEditorPane() {
         return editorPane;
-    }
-
-    /**
-     * The <tt>SendMessageAction</tt> is an <tt>AbstractAction</tt> that
-     * sends the text that is currently in the write message area.
-     */
-    private class SendMessageAction
-        extends AbstractAction
-    {
-        public void actionPerformed(ActionEvent e)
-        {            
-            // chatPanel.stopTypingNotifications();
-            chatPanel.sendMessage();
-        }
-    }
-    
-    /**
-     * The <tt>NewLineAction</tt> is an <tt>AbstractAction</tt> that
-     * types an enter in the write message area.
-     */
-    private class NewLineAction
-        extends AbstractAction
-    {
-        public void actionPerformed(ActionEvent e)
-        {            
-            editorPane.setText(editorPane.getText()
-                    + System.getProperty("line.separator"));
-        }
     }
     
     /**
