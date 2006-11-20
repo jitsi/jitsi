@@ -344,6 +344,10 @@ public class MainToolBar
         return false;
     }
     
+    /**
+     * Loads a "page" from the history in the chat window. Invoked when history
+     * arrow keys are clicked. 
+     */
     private class HistoryMessagesLoader implements Runnable {        
         private Collection msgHistory;
         private MetaContact metaContact;
@@ -363,58 +367,30 @@ public class MainToolBar
             
             conversationPanel.setDefaultContent();
             
-            changeHistoryButtonsSate(metaContact);
+            changeHistoryButtonsSate();
         }
     }
     
-    /*
+    /**
+     * Disables/Enables history arrow buttons depending on whether the
+     * current page is the first, the last page or a middle page.
+     */
     private void changeHistoryButtonsSate()
     {
         if(chatPanel.getFirstHistoryMsgTimestamp()
-            .compareTo(conversationPanel.getPageFirstMsgTimestamp()) > 0) {
-            nextButton.setEnabled(true);
+            .compareTo(conversationPanel.getPageFirstMsgTimestamp()) < 0) {
+            previousButton.setEnabled(true);
         }
         else {
-            nextButton.setEnabled(false);
+            previousButton.setEnabled(false);
         }
         
         if(chatPanel.getLastHistoryMsgTimestamp()
-            .compareTo(conversationPanel.getPageLastMsgTimestamp()) < 0) {
-            previousButton.setEnabled(true);
-        }
-        else {
-            previousButton.setEnabled(false);
-        }
-    }
-    */
-    
-    private void changeHistoryButtonsSate(MetaContact metaContact)
-    {
-        MessageHistoryService msgHistory
-            = GuiActivator.getMsgHistoryService();
-        
-        Collection nextMessages = msgHistory
-            .findFirstMessagesAfter(
-                    metaContact, conversationPanel.getPageLastMsgTimestamp(), 1);
-        
-        Collection previousMessages = msgHistory
-            .findLastMessagesBefore(
-                    metaContact, conversationPanel.getPageFirstMsgTimestamp(), 1);
-    
-        
-        if(nextMessages.size() > 0) {
+            .compareTo(conversationPanel.getPageLastMsgTimestamp()) > 0) {
             nextButton.setEnabled(true);
         }
         else {
             nextButton.setEnabled(false);
         }
-        
-        if(previousMessages.size() > 0) {
-            previousButton.setEnabled(true);
-        }
-        else {
-            previousButton.setEnabled(false);
-        }
     }
-    
 }

@@ -122,13 +122,13 @@ public class ChatPanel
         
         addComponentListener(new TabSelectionFocusGainListener());
         
-        /*
+        
         new Thread(){
             public void run(){
                 loadHistoryPeriod();
             }
         }.start();
-        */
+        
     }
 
     /**
@@ -773,12 +773,12 @@ public class ChatPanel
             
             if(o1 instanceof MessageDeliveredEvent) {
                 MessageDeliveredEvent evt
-                    = (MessageDeliveredEvent)o;
+                    = (MessageDeliveredEvent)o1;
                 
                 this.lastHistoryMsgTimestamp = evt.getTimestamp();
             }
             else if(o1 instanceof MessageReceivedEvent) {
-                MessageReceivedEvent evt = (MessageReceivedEvent)o;
+                MessageReceivedEvent evt = (MessageReceivedEvent)o1;
                 
                 this.lastHistoryMsgTimestamp = evt.getTimestamp();
             }
