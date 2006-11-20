@@ -20,7 +20,11 @@ public class SettingsMenu extends JMenu
     
     private JCheckBoxMenuItem typingNotificationsItem 
         = new JCheckBoxMenuItem(
-                Messages.getString("typingNotifications"), true);
+                Messages.getString("enableTypingNotifications"), true);
+        
+    private JCheckBoxMenuItem sendingMessageCommandItem 
+        = new JCheckBoxMenuItem(
+                Messages.getString("useEnterToSend"), false);
     
     private ChatWindow chatWindow;
     
@@ -35,6 +39,9 @@ public class SettingsMenu extends JMenu
         
         this.chatWindow = chatWindow;
         
+        typingNotificationsItem.setName("typingNotifications");
+        sendingMessageCommandItem.setName("sendingMessageCommand");
+        
         this.setMnemonic(Messages.getString("mnemonic.chatSettings").charAt(0));
         this.typingNotificationsItem.setMnemonic(
                 Messages.getString("mnemonic.typingNotifications").charAt(0));
@@ -47,8 +54,10 @@ public class SettingsMenu extends JMenu
      */
     private void init(){
         this.add(typingNotificationsItem);
+        this.add(sendingMessageCommandItem);
         
         this.typingNotificationsItem.addActionListener(this);
+        this.sendingMessageCommandItem.addActionListener(this);
     }
 
     /**
@@ -57,11 +66,18 @@ public class SettingsMenu extends JMenu
     public void actionPerformed(ActionEvent e) {
         JCheckBoxMenuItem item = (JCheckBoxMenuItem)e.getSource();
         
-        if (item.isSelected()) {
-            chatWindow.enableTypingNotification(true);
+        if(item.getName().equals("typingNotifications")) {
+            
+            if (item.isSelected()) {
+                chatWindow.enableTypingNotification(true);
+            }
+            else {
+                chatWindow.enableTypingNotification(false);
+            }
         }
-        else {
-            chatWindow.enableTypingNotification(false);
-        }   
+        else if(item.getName().equals("sendingMessageCommand")) {
+            
+            chatWindow.changeSendCommand(item.isSelected());
+        }
     }
 }

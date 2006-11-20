@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.message.ChatWritePanel.*;
 import net.java.sip.communicator.impl.gui.main.message.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -90,9 +91,7 @@ public class ChatWindow
         this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_C,
             KeyEvent.META_MASK), new CopyAction());
         this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_V,
-            KeyEvent.META_MASK), new PasteAction());        
-        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,
-            KeyEvent.CTRL_DOWN_MASK), new SendMessageAction());
+            KeyEvent.META_MASK), new PasteAction());
         this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_M,
             KeyEvent.CTRL_DOWN_MASK), new OpenSmileyAction());
         this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_P,
@@ -103,6 +102,15 @@ public class ChatWindow
         this.addWindowListener(new ChatWindowAdapter());
     }
 
+    /**
+     * Changes the Ctrl+Enter message command with Enter or vice versa.
+     */
+    public void changeSendCommand(boolean isEnter) 
+    {
+        this.getCurrentChatPanel().getChatWritePanel()
+            .changeSendCommand(isEnter);
+    }
+    
     /**
      * Initializes this window, by adding the menus.
      */
