@@ -15,10 +15,12 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.message.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 /**
@@ -84,7 +86,16 @@ public class ChatWritePanel extends JScrollPane implements
         this.typingTimer.setRepeats(true);
         
         //initialize send command to Ctrl+Enter
-        this.changeSendCommand(false);
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+        
+        String messageCommand = configService.getString(
+                "net.java.sip.communicator.impl.ui.sendMessageCommand");
+        
+        if(messageCommand != null && messageCommand.equalsIgnoreCase("enter"))
+            this.changeSendCommand(true);
+        else
+            this.changeSendCommand(false);
     }
 
     /**

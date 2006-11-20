@@ -13,13 +13,14 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.message.ChatWritePanel.*;
 import net.java.sip.communicator.impl.gui.main.message.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -109,6 +110,18 @@ public class ChatWindow
     {
         this.getCurrentChatPanel().getChatWritePanel()
             .changeSendCommand(isEnter);
+        
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+        
+        if(isEnter)
+            configService.setProperty(
+                    "net.java.sip.communicator.impl.ui.sendMessageCommand",
+                    "Enter");
+        else
+            configService.setProperty(
+                    "net.java.sip.communicator.impl.ui.sendMessageCommand",
+                    "CtrlEnter");
     }
     
     /**
