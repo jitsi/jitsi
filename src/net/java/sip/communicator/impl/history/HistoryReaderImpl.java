@@ -731,14 +731,25 @@ public class HistoryReaderImpl
         {
             // end date is null get all the inclusive the one record before the startdate
             Long startLong = new Long(startDate.getTime());
-            files.add(startLong);
 
-            resultAsLong.addAll(files.subSet(startLong, files.last()));
-            resultAsLong.add(files.last());
+            if(files.size() > 0 &&
+               (startLong.longValue() < ((Long)files.first()).longValue()))
+            {
+                // if the start date is before any existing file date
+                // then return all the files
+                resultAsLong = files;
+            }
+            else
+            {
+                files.add(startLong);
 
-            // here we must get and the element before startLong
-            resultAsLong.add(files.subSet(files.first(), startLong).last());
-            resultAsLong.remove(startLong);
+                resultAsLong.addAll(files.subSet(startLong, files.last()));
+                resultAsLong.add(files.last());
+
+                // here we must get and the element before startLong
+                resultAsLong.add(files.subSet(files.first(), startLong).last());
+                resultAsLong.remove(startLong);
+            }
         }
         else
         {
