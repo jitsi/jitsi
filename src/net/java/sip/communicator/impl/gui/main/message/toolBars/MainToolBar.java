@@ -74,9 +74,7 @@ public class MainToolBar
     SmiliesSelectorBox smiliesBox;
     
     private ChatWindow messageWindow;
-    private ChatPanel chatPanel;
-    private ChatConversationPanel conversationPanel;
-    
+
     /**
      * Creates an instance and constructs the <tt>MainToolBar</tt>.
      * 
@@ -205,15 +203,17 @@ public class MainToolBar
             this.messageWindow.getCurrentChatPanel().paste();
         }
         else if (buttonText.equalsIgnoreCase("previous")) {
-            if(chatPanel == null) {
-                this.chatPanel = this.messageWindow.getCurrentChatPanel();
-                this.conversationPanel = this.chatPanel.getChatConversationPanel();
-            }
-                        
+
             new Thread() {
                 public void run(){
                     MessageHistoryService msgHistory
                         = GuiActivator.getMsgHistoryService();
+                    
+                    ChatPanel chatPanel
+                        = messageWindow.getCurrentChatPanel();
+                    
+                    ChatConversationPanel conversationPanel
+                        = chatPanel.getChatConversationPanel();
                     
                     MetaContact metaContact = chatPanel.getMetaContact();
                     
@@ -224,7 +224,7 @@ public class MainToolBar
                     
                     if(c.size() > 0) {
                         SwingUtilities.invokeLater(
-                                new HistoryMessagesLoader(c, metaContact));
+                                new HistoryMessagesLoader(c));
                                                 
                         //Save the last before the last page
                         Iterator i = c.iterator();
@@ -259,16 +259,18 @@ public class MainToolBar
             }.start();    
         }
         else if (buttonText.equalsIgnoreCase("next")) {
-            if(chatPanel == null) {
-                this.chatPanel = this.messageWindow.getCurrentChatPanel();
-                this.conversationPanel = this.chatPanel.getChatConversationPanel();
-            }
-            
+
             new Thread() {
                 public void run(){
                     MessageHistoryService msgHistory
                         = GuiActivator.getMsgHistoryService();
             
+                    ChatPanel chatPanel
+                        = messageWindow.getCurrentChatPanel();
+                    
+                    ChatConversationPanel conversationPanel
+                        = chatPanel.getChatConversationPanel();
+                
                     MetaContact metaContact = chatPanel.getMetaContact();
                     
                     Collection c;
@@ -289,7 +291,7 @@ public class MainToolBar
                     
                     if(c.size() > 0)
                         SwingUtilities.invokeLater(
-                                new HistoryMessagesLoader(c, metaContact));
+                                new HistoryMessagesLoader(c));
                 }   
             }.start();            
         }
@@ -350,13 +352,18 @@ public class MainToolBar
      */
     private class HistoryMessagesLoader implements Runnable {        
         private Collection msgHistory;
-        private MetaContact metaContact;
+        ChatPanel chatPanel;
+        ChatConversationPanel conversationPanel;
         
-        public HistoryMessagesLoader(Collection msgHistory,
-                MetaContact metaContact)
+        public HistoryMessagesLoader(Collection msgHistory)
         {
             this.msgHistory = msgHistory;
-            this.metaContact = metaContact;
+
+            this.chatPanel
+                = messageWindow.getCurrentChatPanel();
+            
+            this.conversationPanel
+                = chatPanel.getChatConversationPanel();
         }
         
         public void run()
@@ -367,7 +374,7 @@ public class MainToolBar
             
             conversationPanel.setDefaultContent();
             
-            changeHistoryButtonsSate();
+            changeHistoryButtonsSate(chatPanel);
         }
     }
     
@@ -375,10 +382,12 @@ public class MainToolBar
      * Disables/Enables history arrow buttons depending on whether the
      * current page is the first, the last page or a middle page.
      */
-    private void changeHistoryButtonsSate()
+    public void changeHistoryButtonsSate(ChatPanel chatPanel)
     {
+        ChatConversationPanel convPanel = chatPanel.getChatConversationPanel();
+        
         if(chatPanel.getFirstHistoryMsgTimestamp()
-            .compareTo(conversationPanel.getPageFirstMsgTimestamp()) < 0) {
+            .compareTo(convPanel.getPageFirstMsgTimestamp()) < 0) {
             previousButton.setEnabled(true);
         }
         else {
@@ -386,7 +395,7 @@ public class MainToolBar
         }
         
         if(chatPanel.getLastHistoryMsgTimestamp()
-            .compareTo(conversationPanel.getPageLastMsgTimestamp()) > 0) {
+            .compareTo(convPanel.getPageLastMsgTimestamp()) > 0) {
             nextButton.setEnabled(true);
         }
         else {

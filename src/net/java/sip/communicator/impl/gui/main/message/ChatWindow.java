@@ -12,6 +12,7 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -19,6 +20,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.events.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.message.menus.*;
+import net.java.sip.communicator.impl.gui.main.message.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -161,6 +163,15 @@ public class ChatWindow
     public void setMainFrame(MainFrame mainFrame)
     {
         this.mainFrame = mainFrame;
+    }
+    
+    /**
+     * Returns the main toolbar in this chat window.
+     * @return the main toolbar in this chat window
+     */
+    public MainToolBar getMainToolBar()
+    {
+        return menusPanel.getMainToolBar();
     }
     
     /**
@@ -719,5 +730,5 @@ public class ChatWindow
         else {
             closeWindow(true);
         }
-    }
+    }    
 }

@@ -122,7 +122,6 @@ public class ChatPanel
         
         addComponentListener(new TabSelectionFocusGainListener());
         
-        
         new Thread(){
             public void run(){
                 loadHistoryPeriod();
@@ -389,6 +388,9 @@ public class ChatPanel
                                     getMetaContact().getDisplayName());
 
                             chatWindow.setCurrentChatPanel(ChatPanel.this);
+                            
+                            chatWindow.getMainToolBar().changeHistoryButtonsSate(
+                                    ChatPanel.this);
 
                             writeMessagePanel.getEditorPane()
                                     .requestFocus();
@@ -738,6 +740,9 @@ public class ChatPanel
         return sendPanel;
     }
     
+    /**
+     * Loads history period dates for the current chat.
+     */
     private void loadHistoryPeriod()
     {
         MessageHistoryService msgHistory
