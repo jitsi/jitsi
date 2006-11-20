@@ -72,6 +72,10 @@ public class ChatPanel
     
     private boolean isVisible = false;
     
+    private Date firstHistoryMsgTimestamp;
+    
+    private Date lastHistoryMsgTimestamp;
+
     MessageHistoryService msgHistory
         = GuiActivator.getMsgHistoryService();
     
@@ -117,6 +121,14 @@ public class ChatPanel
         this.setChatMetaContact(metaContact, protocolContact.getPresenceStatus());
         
         addComponentListener(new TabSelectionFocusGainListener());
+        
+        /*
+        new Thread(){
+            public void run(){
+                loadHistoryPeriod();
+            }
+        }.start();
+        */
     }
 
     /**
@@ -181,7 +193,7 @@ public class ChatPanel
      * @param escapedMessageID The incoming message needed to be ignored if
      * contained in history.
      */
-    private void processHistory(Collection historyList,
+    public void processHistory(Collection historyList,
             String escapedMessageID)
     {
         Iterator i = historyList.iterator();
@@ -724,5 +736,62 @@ public class ChatPanel
     public ChatSendPanel getChatSendPanel()
     {
         return sendPanel;
+    }
+    
+    private void loadHistoryPeriod()
+    {
+        MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+        
+        Collection firstMessage = msgHistory
+            .findFirstMessagesAfter(metaContact, new Date(0), 1);
+        
+        if(firstMessage.size() > 0) {
+            
+            Iterator i = firstMessage.iterator();
+            
+            Object o = i.next();
+                        
+            if(o instanceof MessageDeliveredEvent) {                            
+                MessageDeliveredEvent evt
+                    = (MessageDeliveredEvent)o;
+                
+                this.firstHistoryMsgTimestamp = evt.getTimestamp();
+            }
+            else if(o instanceof MessageReceivedEvent) {
+                MessageReceivedEvent evt = (MessageReceivedEvent)o;
+                
+                this.firstHistoryMsgTimestamp = evt.getTimestamp();
+            }
+            
+            Collection lastMessage = msgHistory
+                .findLastMessagesBefore(metaContact, new Date(Long.MAX_VALUE), 1);
+            
+            Iterator i1 = lastMessage.iterator();
+
+            Object o1 = i1.next();
+            
+            if(o1 instanceof MessageDeliveredEvent) {
+                MessageDeliveredEvent evt
+                    = (MessageDeliveredEvent)o;
+                
+                this.lastHistoryMsgTimestamp = evt.getTimestamp();
+            }
+            else if(o1 instanceof MessageReceivedEvent) {
+                MessageReceivedEvent evt = (MessageReceivedEvent)o;
+                
+                this.lastHistoryMsgTimestamp = evt.getTimestamp();
+            }
+        }
+    }
+
+    public Date getFirstHistoryMsgTimestamp()
+    {
+        return firstHistoryMsgTimestamp;
+    }
+
+    public Date getLastHistoryMsgTimestamp()
+    {
+        return lastHistoryMsgTimestamp;
     }
 }

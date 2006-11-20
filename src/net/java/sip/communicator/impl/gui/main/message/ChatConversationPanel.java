@@ -77,7 +77,11 @@ public class ChatConversationPanel
      */
 
     private Date lastIncomingMsgTimestamp = new Date(0);
-
+    
+    private Date pageFirstMsgTimestamp = new Date(System.currentTimeMillis());
+    
+    private Date pageLastMsgTimestamp = new Date(0);
+    
     /**
      * Creates an instance of <tt>ChatConversationPanel</tt>.
      * @param chatContainer The parent <tt>ChatConversationContainer</tt>.
@@ -181,6 +185,19 @@ public class ChatConversationPanel
     public String processMessage(String contactName, Date date,
             String messageType, String message)
     {
+        if((messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)
+                || messageType.equals(Constants.HISTORY_OUTGOING_MESSAGE))
+            && (date.compareTo(pageFirstMsgTimestamp) < 0)) {
+            
+            pageFirstMsgTimestamp = date;
+        }
+        
+        if((messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)
+                || messageType.equals(Constants.HISTORY_OUTGOING_MESSAGE))
+                && (date.compareTo(pageLastMsgTimestamp) > 0)) {
+            pageLastMsgTimestamp = date;            
+        }
+        
         String chatString = "";
         String endHeaderTag = "";
         String timeString = "";
@@ -621,6 +638,9 @@ public class ChatConversationPanel
     {
         this.document = (HTMLDocument) editorKit.createDefaultDocument();
         Constants.loadSimpleStyle(document.getStyleSheet());
+        
+        pageFirstMsgTimestamp = new Date(System.currentTimeMillis());
+        pageLastMsgTimestamp = new Date(0);
     }
     
     /**
@@ -658,5 +678,23 @@ public class ChatConversationPanel
     public ChatRightButtonMenu getRightButtonMenu()
     {
         return rightButtonMenu;
+    }
+
+    /**
+     * Returns the date of the first message in the current page.
+     * @return the date of the first message in the current page
+     */
+    public Date getPageFirstMsgTimestamp()
+    {
+        return pageFirstMsgTimestamp;
+    }
+
+    /**
+     * Returns the date of the last message in the current page.
+     * @return the date of the last message in the current page
+     */
+    public Date getPageLastMsgTimestamp()
+    {
+        return pageLastMsgTimestamp;
     }
 }

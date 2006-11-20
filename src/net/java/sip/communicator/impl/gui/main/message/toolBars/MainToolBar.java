@@ -9,13 +9,19 @@ package net.java.sip.communicator.impl.gui.main.message.toolBars;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.message.*;
 import net.java.sip.communicator.impl.gui.main.message.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.msghistory.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * The <tt>MainToolBar</tt> is a <tt>JToolBar</tt> which contains buttons
@@ -60,11 +66,17 @@ public class MainToolBar
 
     private ChatToolbarButton fontButton = new ChatToolbarButton(ImageLoader
         .getImage(ImageLoader.FONT_ICON));
-
+    
+    private static final int MESSAGES_PER_PAGE = 20;
+    
+    private Date lastPageTimestamp; 
+    
     SmiliesSelectorBox smiliesBox;
     
     private ChatWindow messageWindow;
-
+    private ChatPanel chatPanel;
+    private ChatConversationPanel conversationPanel;
+    
     /**
      * Creates an instance and constructs the <tt>MainToolBar</tt>.
      * 
@@ -73,13 +85,15 @@ public class MainToolBar
     public MainToolBar(ChatWindow messageWindow) {
 
         this.messageWindow = messageWindow;
-
+        
         this.smiliesBox = new SmiliesSelectorBox(
             ImageLoader.getDefaultSmiliesPack(), messageWindow);
         
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 0));
         this.setBorder(BorderFactory.createEmptyBorder(2, 2, 5, 2));
+        
+        this.nextButton.setEnabled(false);
 
         this.add(saveButton);
         this.add(printButton);
@@ -158,8 +172,6 @@ public class MainToolBar
         // Disable all buttons that do nothing.
         this.saveButton.setEnabled(false);
         this.printButton.setEnabled(false);
-        this.previousButton.setEnabled(false);
-        this.nextButton.setEnabled(false);
         this.sendFileButton.setEnabled(false);
         this.fontButton.setEnabled(false);
     }
@@ -193,10 +205,93 @@ public class MainToolBar
             this.messageWindow.getCurrentChatPanel().paste();
         }
         else if (buttonText.equalsIgnoreCase("previous")) {
-
+            if(chatPanel == null) {
+                this.chatPanel = this.messageWindow.getCurrentChatPanel();
+                this.conversationPanel = this.chatPanel.getChatConversationPanel();
+            }
+                        
+            new Thread() {
+                public void run(){
+                    MessageHistoryService msgHistory
+                        = GuiActivator.getMsgHistoryService();
+                    
+                    MetaContact metaContact = chatPanel.getMetaContact();
+                    
+                    Collection c = msgHistory.findLastMessagesBefore(
+                            metaContact,
+                            conversationPanel.getPageFirstMsgTimestamp(),
+                            MESSAGES_PER_PAGE);
+                    
+                    if(c.size() > 0) {
+                        SwingUtilities.invokeLater(
+                                new HistoryMessagesLoader(c, metaContact));
+                                                
+                        //Save the last before the last page
+                        Iterator i = c.iterator();
+                        Object lastMessageObject = null;
+                        Date lastMessageTimeStamp = null;
+                        
+                        while(i.hasNext()) {
+                            Object o = i.next();
+                            
+                            if(!i.hasNext()) {
+                                lastMessageObject = o;
+                            }
+                        }                        
+                        
+                        if(lastMessageObject instanceof MessageDeliveredEvent) {                            
+                            MessageDeliveredEvent evt
+                                = (MessageDeliveredEvent)lastMessageObject;
+                            
+                            lastMessageTimeStamp = evt.getTimestamp();
+                        }
+                        else if(lastMessageObject instanceof MessageReceivedEvent) {
+                            MessageReceivedEvent evt
+                                = (MessageReceivedEvent) lastMessageObject;
+                            
+                            lastMessageTimeStamp = evt.getTimestamp();
+                        }
+                        
+                        if(lastPageTimestamp == null)
+                            lastPageTimestamp = lastMessageTimeStamp;                        
+                    }
+                }   
+            }.start();    
         }
         else if (buttonText.equalsIgnoreCase("next")) {
-
+            if(chatPanel == null) {
+                this.chatPanel = this.messageWindow.getCurrentChatPanel();
+                this.conversationPanel = this.chatPanel.getChatConversationPanel();
+            }
+            
+            new Thread() {
+                public void run(){
+                    MessageHistoryService msgHistory
+                        = GuiActivator.getMsgHistoryService();
+            
+                    MetaContact metaContact = chatPanel.getMetaContact();
+                    
+                    Collection c;
+                    if(lastPageTimestamp.compareTo(
+                            conversationPanel.getPageLastMsgTimestamp()) == 0) {
+                        
+                        c = msgHistory.findByPeriod(
+                                metaContact,
+                                lastPageTimestamp,
+                                new Date(System.currentTimeMillis()));
+                    }
+                    else {
+                        c = msgHistory.findFirstMessagesAfter(
+                            metaContact,
+                            conversationPanel.getPageLastMsgTimestamp(),
+                            MESSAGES_PER_PAGE);
+                    }
+                    
+                    if(c.size() > 0)
+                        SwingUtilities.invokeLater(
+                                new HistoryMessagesLoader(c, metaContact));
+                }   
+            }.start();            
         }
         else if (buttonText.equalsIgnoreCase("sendFile")) {
 
@@ -248,4 +343,78 @@ public class MainToolBar
         
         return false;
     }
+    
+    private class HistoryMessagesLoader implements Runnable {        
+        private Collection msgHistory;
+        private MetaContact metaContact;
+        
+        public HistoryMessagesLoader(Collection msgHistory,
+                MetaContact metaContact)
+        {
+            this.msgHistory = msgHistory;
+            this.metaContact = metaContact;
+        }
+        
+        public void run()
+        {
+            conversationPanel.clear();
+                        
+            chatPanel.processHistory(msgHistory, "");
+            
+            conversationPanel.setDefaultContent();
+            
+            changeHistoryButtonsSate(metaContact);
+        }
+    }
+    
+    /*
+    private void changeHistoryButtonsSate()
+    {
+        if(chatPanel.getFirstHistoryMsgTimestamp()
+            .compareTo(conversationPanel.getPageFirstMsgTimestamp()) > 0) {
+            nextButton.setEnabled(true);
+        }
+        else {
+            nextButton.setEnabled(false);
+        }
+        
+        if(chatPanel.getLastHistoryMsgTimestamp()
+            .compareTo(conversationPanel.getPageLastMsgTimestamp()) < 0) {
+            previousButton.setEnabled(true);
+        }
+        else {
+            previousButton.setEnabled(false);
+        }
+    }
+    */
+    
+    private void changeHistoryButtonsSate(MetaContact metaContact)
+    {
+        MessageHistoryService msgHistory
+            = GuiActivator.getMsgHistoryService();
+        
+        Collection nextMessages = msgHistory
+            .findFirstMessagesAfter(
+                    metaContact, conversationPanel.getPageLastMsgTimestamp(), 1);
+        
+        Collection previousMessages = msgHistory
+            .findLastMessagesBefore(
+                    metaContact, conversationPanel.getPageFirstMsgTimestamp(), 1);
+    
+        
+        if(nextMessages.size() > 0) {
+            nextButton.setEnabled(true);
+        }
+        else {
+            nextButton.setEnabled(false);
+        }
+        
+        if(previousMessages.size() > 0) {
+            previousButton.setEnabled(true);
+        }
+        else {
+            previousButton.setEnabled(false);
+        }
+    }
+    
 }
