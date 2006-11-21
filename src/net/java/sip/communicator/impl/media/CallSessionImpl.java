@@ -112,6 +112,12 @@ public class CallSessionImpl
     private int maxPortNumber = 6000;
 
     /**
+     * The list of currently active players that we have created during this
+     * session.
+     */
+    private List players = new ArrayList();
+
+    /**
      * Creates a new session for the specified <tt>call</tt>.
      *
      * @param call The call associated with this session.
@@ -199,6 +205,8 @@ public class CallSessionImpl
                 SendStream stream = (SendStream) ssIter.next();
                 try
                 {
+                    /** @todo are we sure we want to connect here? */
+                    stream.getDataSource().connect();
                     stream.start();
                     startedAtLeastOneStream = true;
                 }
@@ -1174,9 +1182,19 @@ public class CallSessionImpl
         {
             stopStreaming();
             mediaServCallback.getMediaControl().stopProcessingMedia(this);
-            /** @todo need to clean all the garbage and get rid of the session */
-            /** @todo remove ourselves as listeners from the call and
-             * call participant */
+
+            //close all players that we have created in this session
+            Iterator playersIter = players.iterator();
+
+            while(playersIter.hasNext())
+            {
+                Player player = ( Player )playersIter.next();
+                player.stop();
+                playersIter.remove();
+            }
+
+            //remove ourselves as listeners from the call
+            evt.getSourceCall().removeCallChangeListener(this);
         }
     }
 
@@ -1335,6 +1353,7 @@ public class CallSessionImpl
                 Player player = Manager.createPlayer(ds);
                 player.addControllerListener(this);
                 player.realize();
+                players.add(player);
             }
             catch (Exception e)
             {
@@ -1392,7 +1411,7 @@ public class CallSessionImpl
             if (gc != null)
             {
                 logger.debug("Setting volume to max");
-                gc.setLevel(1);
+                //gc.setLevel(1);
             }
             else
                 logger.debug("Player does not have gain control.");
