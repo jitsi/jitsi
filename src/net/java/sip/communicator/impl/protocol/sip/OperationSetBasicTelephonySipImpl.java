@@ -1850,4 +1850,37 @@ public class OperationSetBasicTelephonySipImpl
                +" addr="+protocolProvider.getOurSipAddress() + "]";
     }
 
+    /**
+     * Closes all active calls. And releases resources.
+     */
+    public void shutdown()
+    {
+        logger.trace("Ending all active calls.");
+        Iterator activeCalls = this.activeCallsRepository.getActiveCalls();
+
+        //go through all active calls.
+        while(activeCalls.hasNext())
+        {
+            CallSipImpl call = (CallSipImpl)activeCalls.next();
+
+            Iterator callParticipants = call.getCallParticipants();
+
+            //go through all call participants and say bye to every one.
+            while(callParticipants.hasNext())
+            {
+                CallParticipant participant
+                    = (CallParticipant) callParticipants.next();
+                try
+                {
+                    this.hangupCallParticipant(participant);
+                }
+                catch (Exception ex)
+                {
+                    logger.warn("Failed to properly hangup particpant "
+                                + participant
+                                , ex);
+                }
+            }
+        }
+    }
 }
