@@ -1081,6 +1081,12 @@ public class ProtocolProviderServiceSipImpl
         {
             return;
         }
+        logger.trace("Killing the SIP Protocol Provider.");
+        //kill all active calls
+        OperationSetBasicTelephonySipImpl telephony
+            = (OperationSetBasicTelephonySipImpl)getOperationSet(
+                OperationSetBasicTelephony.class);
+        telephony.shutdown();
 
         if(isRegistered())
         {
@@ -1553,6 +1559,9 @@ public class ProtocolProviderServiceSipImpl
                 + registrarAddress.getHostAddress() + ": "
                 + ex.getMessage());
         }
+
+        //initialize our OPTIONS handler
+        ClientCapabilities capabilities = new ClientCapabilities(this);
     }
 
     /**
@@ -1854,4 +1863,13 @@ public class ProtocolProviderServiceSipImpl
         }
     }
 
+    /**
+     * Returns a List of Strings corresponding to all methods that we have a
+     * processor for.
+     * @return a List of methods that we support.
+     */
+    public List getSupportedMethods()
+    {
+        return new ArrayList(methodProcessors.keySet());
+    }
 }
