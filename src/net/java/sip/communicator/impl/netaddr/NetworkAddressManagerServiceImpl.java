@@ -236,19 +236,25 @@ public class NetworkAddressManagerServiceImpl
                                       , this.RANDOM_ADDR_DISC_PORT);
         InetAddress localHost = localHostFinderSocket.getLocalAddress();
         localHostFinderSocket.disconnect();
+
+        //windows socket implementations return the any address so we need to
+        //find something else here ... InetAddress.getLocalHost seems to work
+        //better on windows so lets hope it'll do the trick.
+        if( localHost.isAnyLocalAddress())
+        {
+            try
+            {
+                localHost = InetAddress.getLocalHost();
+            }
+            catch (UnknownHostException ex)
+            {
+                //sigh ... ok return 0.0.0.0
+                logger.warn("Failed to get localhost ", ex);
+            }
+        }
+
         return localHost;
     }
-
-
-    /**
-     * Returns an InetAddress instance that represents the localhost, and that
-     * a socket can bind upon.
-     *
-     * @param anyAddressIsAccepted are (0.0.0.0 / ::0) addresses accepted as a
-     * return value.
-     * @return the address that was detected the address of the localhost.
-     */
-
 
     /**
      * The method queries a Stun server for a binding for the specified port.
