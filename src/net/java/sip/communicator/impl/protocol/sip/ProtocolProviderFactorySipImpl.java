@@ -216,7 +216,7 @@ public class ProtocolProviderFactorySipImpl
     {
         //unregister the protocol provider
         ServiceReference serRef = getProviderForAccount(accountID);
-        
+
         ProtocolProviderService protocolProvider
             = (ProtocolProviderService) SipActivator.getBundleContext()
                 .getService(serRef);
@@ -224,11 +224,11 @@ public class ProtocolProviderFactorySipImpl
         try {
             protocolProvider.unregister();
         }
-        catch (OperationFailedException e) {           
+        catch (OperationFailedException e) {
             logger.error("Failed to unregister protocol provider for account : "
                     + accountID + " caused by : " + e);
         }
-        
+
         ServiceRegistration registration
             = (ServiceRegistration) registeredAccounts.remove(accountID);
 
@@ -248,6 +248,7 @@ public class ProtocolProviderFactorySipImpl
      */
     public void stop()
     {
+        logger.trace("Preparing to stop all SIP protocol providers.");
         Enumeration registrations = this.registeredAccounts.elements();
 
         while(registrations.hasMoreElements())
@@ -258,7 +259,7 @@ public class ProtocolProviderFactorySipImpl
             ProtocolProviderServiceSipImpl provider
                 = (ProtocolProviderServiceSipImpl) SipActivator.getBundleContext().getService(reg.getReference());
 
-            //do a last attempt to kill the provider
+            //do an attempt to kill the provider
             provider.shutdown();
 
             reg.unregister();
