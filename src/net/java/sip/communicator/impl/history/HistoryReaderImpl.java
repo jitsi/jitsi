@@ -714,8 +714,22 @@ public class HistoryReaderImpl
             files.add(
                 new Long(filename.substring(0, filename.length() - 4)));
         }
-
+        
         TreeSet resultAsLong = new TreeSet();
+        
+        // Temporary fix of a NoSuchElementException
+        if(files.size() == 0)
+        { 
+            Vector result = new Vector();
+            Iterator iter = resultAsLong.iterator();
+            
+            while (iter.hasNext())
+            {
+                Long item = (Long) iter.next();
+                result.add(item.toString() + ".xml");
+            }
+            return result;
+        }        
 
         // if there is no startDate limit only to end date
         if(startDate == null)
@@ -745,7 +759,7 @@ public class HistoryReaderImpl
 
                 resultAsLong.addAll(files.subSet(startLong, files.last()));
                 resultAsLong.add(files.last());
-
+                
                 // here we must get and the element before startLong
                 resultAsLong.add(files.subSet(files.first(), startLong).last());
                 resultAsLong.remove(startLong);
