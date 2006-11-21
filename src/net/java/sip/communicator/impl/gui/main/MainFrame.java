@@ -114,7 +114,7 @@ public class MainFrame
     {
         this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0),
                 new RenameAction());
-        
+
         this.menusPanel.add(menu, BorderLayout.NORTH);
         this.menusPanel.add(quickMenu, BorderLayout.CENTER);
 
@@ -235,7 +235,7 @@ public class MainFrame
             OperationSetBasicInstantMessaging im
                 = (OperationSetBasicInstantMessaging)
                     supportedOperationSets.get(imOpSetClassName);
-            
+
             this.imOperationSets.put(protocolProvider, im);
             //Add to all instant messaging operation sets the Message
             //listener implemented in the ContactListPanel, which handles
@@ -251,7 +251,7 @@ public class MainFrame
             OperationSetTypingNotifications tn
                 = (OperationSetTypingNotifications)
                     supportedOperationSets.get(tnOpSetClassName);
-            
+
             this.tnOperationSets.put(protocolProvider, tn);
 
             //Add to all typing notification operation sets the Message
@@ -284,7 +284,7 @@ public class MainFrame
             this.getContactListPanel().getContactList()
                 .addListSelectionListener(callManager);
             this.tabbedPane.addChangeListener(callManager);
-            
+
             this.protocolTelephonySets.put(protocolProvider, telephony);
         }
     }
@@ -416,10 +416,10 @@ public class MainFrame
             ProtocolProviderService protocolProvider)
     {
         Object o = this.protocolPresenceSets.get(protocolProvider);
-        
-        if(o != null)            
+
+        if(o != null)
             return (OperationSetPresence) o;
-        
+
         return null;
     }
 
@@ -436,10 +436,10 @@ public class MainFrame
             ProtocolProviderService protocolProvider)
     {
         Object o = this.imOperationSets.get(protocolProvider);
-        
+
         if(o != null)
             return (OperationSetBasicInstantMessaging) o;
-        
+
         return null;
     }
 
@@ -456,10 +456,10 @@ public class MainFrame
             ProtocolProviderService protocolProvider)
     {
         Object o = this.tnOperationSets.get(protocolProvider);
-        
+
         if(o != null)
             return (OperationSetTypingNotifications) o;
-        
+
         return null;
     }
 
@@ -476,10 +476,10 @@ public class MainFrame
             ProtocolProviderService protocolProvider)
     {
         Object o = this.webContactInfoOperationSets.get(protocolProvider);
-        
+
         if(o != null)
             return (OperationSetWebContactInfo) o;
-        
+
         return null;
     }
 
@@ -495,10 +495,10 @@ public class MainFrame
             ProtocolProviderService protocolProvider)
     {
         Object o = this.protocolTelephonySets.get(protocolProvider);
-        
+
         if(o != null)
             return (OperationSetBasicTelephony) o;
-        
+
         return null;
     }
 
@@ -572,7 +572,7 @@ public class MainFrame
 
         }
     }
-    
+
     public Hashtable getWaitToBeDeliveredMsgs()
     {
         return waitToBeDeliveredMsgs;
@@ -610,17 +610,17 @@ public class MainFrame
             ConfigurationService configService
                 = GuiActivator.getConfigurationService();
 
-            try {                
+            try {
                 configService.setProperty(
                         "net.java.sip.communicator.impl.ui.showCallPanel",
                         new Boolean(callManager.isShown()));
-                
-                
+
+
                 configService.setProperty(
                     "net.java.sip.communicator.impl.ui.showOffline",
                     new Boolean(getContactListPanel()
                         .getContactList().isShowOffline()));
-                
+
             }
             catch (PropertyVetoException e1) {
                 logger.error("The proposed property change "
@@ -647,21 +647,21 @@ public class MainFrame
 
         String isCallPanelShown = configService.getString(
             "net.java.sip.communicator.impl.ui.showCallPanel");
-        
+
         String isShowOffline = configService.getString(
             "net.java.sip.communicator.impl.ui.showOffline");
-        
+
         if(isCallPanelShown != null && isCallPanelShown != "") {
             callManager.setShown(new Boolean(isCallPanelShown).booleanValue());
         }
         else {
             callManager.setShown(true);
         }
-        
+
         if(isShowOffline != null && isShowOffline != "") {
             getContactListPanel().getContactList()
                 .setShowOffline(new Boolean(isShowOffline).booleanValue());
-        }   
+        }
     }
 
     /**
@@ -736,12 +736,12 @@ public class MainFrame
     {
         this.loginManager = loginManager;
     }
-    
+
     public CallListPanel getCallListManager()
     {
         return this.tabbedPane.getCallListPanel();
     }
-    
+
     /**
      * Returns the panel containing the ContactList.
      * @return ContactListPanel the panel containing the ContactList
@@ -762,7 +762,7 @@ public class MainFrame
         this.tabbedPane.revalidate();
     }
 
-    
+
     /**
      * Removes the tab in the main tabbed pane, where the given call panel
      * is contained.
@@ -770,12 +770,12 @@ public class MainFrame
     public void removeCallPanel(CallPanel callPanel)
     {
         this.tabbedPane.remove(callPanel);
-        
+
         Component c = getSelectedPanel();
-        
+
         if(c == null || !(c instanceof CallPanel))
             this.tabbedPane.setSelectedIndex(0);
-        
+
         this.tabbedPane.revalidate();
     }
 
@@ -786,11 +786,11 @@ public class MainFrame
     public Component getSelectedPanel()
     {
         Component c = this.tabbedPane.getSelectedComponent();
-        
+
         return c;
     }
-    
-    
+
+
     /**
      * Checks in the configuration xml if there is already stored index for
      * this provider and if yes, returns it, otherwise creates a new account
@@ -966,7 +966,7 @@ public class MainFrame
     /**
      * If the protocol provider supports presence operation set searches the
      * last status which was selected, otherwise returns null.
-     * 
+     *
      * @param protocolProvider the protocol provider we're interested in.
      * @return the last protocol provider presence status, or null if this
      * provider doesn't support presence operation set
@@ -980,7 +980,7 @@ public class MainFrame
         else
             return null;
     }
-    
+
     /**
      * <tt>RenameAction</tt> is invoked when user presses the F2 key. Depending
      * on the selection opens the appropriate form for renaming.
@@ -991,7 +991,7 @@ public class MainFrame
         {
             Object selectedObject
                 = getContactListPanel().getContactList().getSelectedValue();
-            
+
             if(selectedObject instanceof MetaContact) {
                 RenameContactDialog dialog = new RenameContactDialog(
                         MainFrame.this, (MetaContact)selectedObject);
@@ -1004,11 +1004,11 @@ public class MainFrame
                         );
 
                 dialog.setVisible(true);
-                
+
                 dialog.requestFocusInFiled();
             }
             else if(selectedObject instanceof MetaContactGroup) {
-                
+
                 RenameGroupDialog dialog = new RenameGroupDialog(
                         MainFrame.this, (MetaContactGroup)selectedObject);
 
@@ -1020,29 +1020,29 @@ public class MainFrame
                         );
 
                 dialog.setVisible(true);
-                
+
                 dialog.requestFocusInFiled();
             }
         }
     }
-    
+
     /**
      * Overwrites the <tt>SIPCommFrame</tt> close method. This method is
-     * invoked when user presses the Escape key.  
+     * invoked when user presses the Escape key.
      */
     protected void close(boolean isEscaped)
     {
         ContactList contactList = getContactListPanel().getContactList();
-        
+
         ContactRightButtonMenu contactPopupMenu
             = contactList.getContactRightButtonMenu();
-        
+
         GroupRightButtonMenu groupPopupMenu
             = contactList.getGroupRightButtonMenu();
-        
+
         CommonRightButtonMenu commonPopupMenu
             = getContactListPanel().getCommonRightButtonMenu();
-        
+
         if(contactPopupMenu != null && contactPopupMenu.isVisible()) {
             contactPopupMenu.setVisible(false);
         }
@@ -1055,7 +1055,7 @@ public class MainFrame
         else if(statusPanel.hasSelectedMenus() || menu.hasSelectedMenus()) {
             MenuSelectionManager selectionManager
                 = MenuSelectionManager.defaultManager();
-            
+
             selectionManager.clearSelectedPath();
         }
     }
