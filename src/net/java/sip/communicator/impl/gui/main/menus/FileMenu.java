@@ -25,23 +25,23 @@ import net.java.sip.communicator.util.*;
 /**
  * The <tt>FileMenu</tt> is a menu in the main application menu bar that
  * contains "New account".
- * 
+ *
  * @author Yana Stamcheva
  */
 public class FileMenu
-    extends JMenu 
+    extends JMenu
     implements ActionListener
 {
 
     private Logger logger = Logger.getLogger(FileMenu.class.getName());
-    
+
     private JMenuItem newAccountMenuItem
         = new JMenuItem(Messages.getString("newAccount"));
-    
+
     private JMenuItem addContactItem
         = new JMenuItem(Messages.getString("addContact"), new ImageIcon(
                 ImageLoader.getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
-    
+
     private JMenuItem createGroupItem
         = new JMenuItem(Messages.getString("createGroup"), new ImageIcon(
                 ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
@@ -58,33 +58,33 @@ public class FileMenu
     public FileMenu(MainFrame parentWindow) {
 
         super(Messages.getString("file"));
-        
+
         this.parentWindow = parentWindow;
 
         this.add(newAccountMenuItem);
-        
+
         this.addSeparator();
-        
+
         this.add(addContactItem);
         this.add(createGroupItem);
-        
+
         this.addSeparator();
-        
+
         this.add(closeMenuItem);
-        
+
         //this.addContactItem.setIcon(new ImageIcon(ImageLoader
         //        .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
-        
+
         this.newAccountMenuItem.setName("newAccount");
         this.closeMenuItem.setName("close");
         this.addContactItem.setName("addContact");
         this.createGroupItem.setName("createGroup");
-        
+
         this.newAccountMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
         this.addContactItem.addActionListener(this);
         this.createGroupItem.addActionListener(this);
-        
+
         this.setMnemonic(Messages.getString("file").charAt(0));
         this.closeMenuItem.setMnemonic(
                 Messages.getString("mnemonic.close").charAt(0));
@@ -108,29 +108,29 @@ public class FileMenu
             AccountRegWizardContainerImpl wizard
                 = (AccountRegWizardContainerImpl)GuiActivator.getUIService()
                     .getAccountRegWizardContainer();
-    
+
             wizard.setTitle(
                 Messages.getString("accountRegistrationWizard"));
-    
+
             wizard.setLocation(
                 Toolkit.getDefaultToolkit().getScreenSize().width/2
                     - 250,
                 Toolkit.getDefaultToolkit().getScreenSize().height/2
                     - 100
             );
-            
+
             wizard.newAccount();
-    
+
             wizard.showDialog(false);
         }
         else if (itemName.equals("addContact")) {
             AddContactWizard wizard = new AddContactWizard(parentWindow);
-            
+
             wizard.showDialog(false);
         }
         else if (itemName.equals("createGroup")) {
             CreateGroupDialog dialog = new CreateGroupDialog(parentWindow);
-            
+
             dialog.setVisible(true);
         }
         else if (itemName.equals("close")) {
