@@ -114,8 +114,7 @@ public class JmfDeviceDetector
     {
         // check if JavaSound capture is available
         logger.info("Looking for Audio capturer");
-/** @todo enable direct sound auto */
-//        DirectSoundAuto directSoundAuto = new DirectSoundAuto();
+        DirectSoundAuto directSoundAuto = new DirectSoundAuto();
         JavaSoundAuto javaSoundAuto = new JavaSoundAuto();
 
         // Try to configgure capture devices for any operating system.
@@ -125,12 +124,11 @@ public class JmfDeviceDetector
         //Windows
         try
         {
-/** @todo enable vfw auto */
-//            VFWAuto vfwAuto = new VFWAuto();
-//            vfwAuto.autoDetectDevices();
-//            logger.info("Detected "
-//                        + nDevices
-//                        +" VFW video capture device(s).");
+            VFWAuto vfwAuto = new VFWAuto();
+            vfwAuto.autoDetectDevices();
+            logger.info("Detected "
+                        + nDevices
+                        +" VFW video capture device(s).");
         }
         catch (Throwable exc)
         {
@@ -140,13 +138,12 @@ public class JmfDeviceDetector
         //SunVideo
         try
         {
-/** @todo enable sun video */
-//            SunVideoAuto sunVideoAuto = new SunVideoAuto();
-//            nDevices = sunVideoAuto.autoDetectDevices();
-//
-//            logger.info("Detected "
-//                        + nDevices
-//                        +" SUN Video capture device(s).");
+            SunVideoAuto sunVideoAuto = new SunVideoAuto();
+            nDevices = sunVideoAuto.autoDetectDevices();
+
+            logger.info("Detected "
+                        + nDevices
+                        +" SUN Video capture device(s).");
         }
         catch (Exception exc)
         {
@@ -156,13 +153,12 @@ public class JmfDeviceDetector
         //SunVideoPlus
         try
         {
-/** @todo enable sun video auto plus */
-//            SunVideoPlusAuto sunVideoAutoPlus = new SunVideoPlusAuto();
-//            nDevices = sunVideoAutoPlus.autoDetectDevices();
-//
-//            logger.info("Detected "
-//                        + nDevices
-//                        + " SUN Video Plus device(s).");
+            SunVideoPlusAuto sunVideoAutoPlus = new SunVideoPlusAuto();
+            nDevices = sunVideoAutoPlus.autoDetectDevices();
+
+            logger.info("Detected "
+                        + nDevices
+                        + " SUN Video Plus device(s).");
         }
         catch (Exception exc)
         {
@@ -358,5 +354,10 @@ public class JmfDeviceDetector
     public static void detectAndConfigureCaptureDevices()
     {
         setupJMF();
+    }
+
+    public static void main(String[] args)
+    {
+        detectAndConfigureCaptureDevices();
     }
 }
