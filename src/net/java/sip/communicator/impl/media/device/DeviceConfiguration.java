@@ -86,6 +86,8 @@ public class DeviceConfiguration
             audioCaptureDevice = null;
         }
         else {
+            logger.debug("Found " + audioCaptureDevices.size()
+                         + " capture devices: " + audioCaptureDevices);
             audioCaptureDevice = (CaptureDeviceInfo) audioCaptureDevices.get(0);
             logger.info("Found " + audioCaptureDevice.getName()
                         +" as an audio capture device.");
