@@ -58,7 +58,7 @@ public class DOMElementWriter {
      */
     public void write(Element root, OutputStream out) throws IOException {
         Writer wri = new OutputStreamWriter(out, "UTF8");
-        wri.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        wri.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+lSep);
         write(root, wri, 0, "  ");
         wri.flush();
     }
@@ -116,7 +116,7 @@ public class DOMElementWriter {
             case Node.TEXT_NODE:
                 //if this is a new line don't print it as we print our own.
                 if(child.getNodeValue() != null
-                   && (   child.getNodeValue().indexOf(lSep) == -1
+                   && (   child.getNodeValue().indexOf("\n") == -1
                        || child.getNodeValue().trim().length() != 0))
                     out.write(encode(child.getNodeValue()));
                 break;

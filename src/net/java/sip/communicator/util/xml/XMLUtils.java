@@ -24,6 +24,8 @@ import net.java.sip.communicator.util.*;
 public class XMLUtils
 {
     private static Logger logger = Logger.getLogger(XMLUtils.class);
+    private static final String lSep = System.getProperty("line.separator");
+
     /**
      * Extracts from node the attribute with the specified name.
      * @param node the node whose attribute we'd like to extract.
@@ -271,7 +273,7 @@ public class XMLUtils
         {
             try
             {
-                wri.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+                wri.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+lSep);
                 (new DOMElementWriter()).write(rootElement, wri, 0, "  ");
                 wri.flush();
             }
