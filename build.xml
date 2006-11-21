@@ -54,7 +54,7 @@
          fields as indicated. -->
     <property file="lib/accounts.properties"/>
 
-    <!-- windows  -->
+    <!-- windows specific properties -->
     <condition property="jmf.home" value="${lib}/jmf-win">
         <os family="windows"/>
     </condition>
@@ -62,15 +62,26 @@
     <condition property="is.running.windows" value="${os.name}">
         <os family="windows"/>
     </condition>
-    <!-- linux -->
-    <condition property="jmf.home" value="${lib}/jmf-lin">
-        <equals arg1="${os.name}" arg2="linux" casesensitive="false" trim="true"/>
-    </condition>
 
+    <condition property="path"
+              value="${basedir}/${lib}/native/windows:${system.PATH}">
+        <isset property="is.running.windows"/>
+    </condition>
+    <!-- linux specific properties -->
     <condition property="is.running.linux" value="${os.name}">
         <equals arg1="${os.name}" arg2="linux" casesensitive="false" trim="true"/>
     </condition>
-    <!-- solaris -->
+
+    <condition property="jmf.home" value="${lib}/jmf-lin">
+        <isset property="is.running.linux"/>
+    </condition>
+
+    <condition property="ld.library.path"
+              value="${basedir}/${lib}/native/linux:${system.LD_LIBRARY_PATH}">
+        <isset property="is.running.linux"/>
+    </condition>
+
+    <!-- solaris specific properties -->
     <condition property="is.running.solaris" value="${os.name}">
         <equals arg1="${os.name}" arg2="solaris" casesensitive="false" trim="true"/>
     </condition>
@@ -78,20 +89,18 @@
         <equals arg1="${os.name}" arg2="SunOS" casesensitive="false" trim="true"/>
     </condition>
     <condition property="jmf.home" value="${lib}/jmf-sol">
-        <equals arg1="${os.name}" arg2="solaris" casesensitive="false" trim="true"/>
-    </condition>
-    <condition property="jmf.home" value="${lib}/jmf-sol">
-        <equals arg1="${os.name}" arg2="SunOS" casesensitive="false" trim="true"/>
+        <isset property="is.running.solaris"/>
     </condition>
 
+    <condition property="ld.library.path"
+              value="${basedir}/${lib}/native/solaris:${system.LD_LIBRARY_PATH}">
+        <isset property="is.running.solaris"/>
+    </condition>
 
+    <!-- set the jmf.properties here in case they were not set before -->
     <property name="jmf.home" value="${lib}/jmf-all"/>
-    <condition property="jmf.performancepack.available" value="true">
-        <not>
-            <equals arg1="${jmf.home}" arg2="${lib}/jmf-all"
-                casesensitive="false" trim="true"/>
-        </not>
-    </condition>
+    <property name="jmf.jar" value="${jmf.home}/jmf.jar"/>
+    <property name="sound.jar" value="${jmf.home}/sound.jar"/>
     <!-- end jmf.home-->
 
     <path id="project.source.path">
@@ -107,10 +116,20 @@
         <!-- Include all JAR files found in lib and any of its subdirectories. -->
         <fileset dir="${lib}">
             <include name="*.jar"/>
+            <include name="${jmf.jar}"/>
+            <include name="${sound.jar}"/>
+            <include name="bundles/*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="compile.class.path">
+        <path refid="project.class.path"/>
+        <!-- Add all jmf's to the compile class path to enable
+             cross compilation. -->
+        <fileset dir="${lib}">
             <include name="jmf-lin/jmf.jar"/>
             <include name="jmf-win/jmf.jar"/>
             <include name="jmf-sol/jmf.jar"/>
-            <include name="bundles/*.jar"/>
         </fileset>
     </path>
 
@@ -136,7 +155,7 @@
     <!-- java compile -->
     <target name="compile" depends="init">
         <!--internal-target- compiles the entire project source tree -->
-        <javac classpathref="project.class.path" debug="true"
+        <javac classpathref="compile.class.path" debug="true"
             deprecation="true" destdir="${dest}" nowarn="false"
             source="1.4" target="1.4">
             <src path="${src}"/>
@@ -151,7 +170,6 @@
         <delete failonerror="false" includeemptydirs="true">
             <fileset dir="${dest}"/>
             <fileset dir="${bundles.dest}"/>
-            <fileset dir="${native.libs}"/>
             <fileset dir="${java.doc}"/>
             <fileset dir="${release}"/>
             <fileset dir="${log}"/>
@@ -239,33 +257,6 @@
         <mkdir dir="${test.reports.dir}/html"/>
         <mkdir dir="${release}"/>
         <mkdir dir="${log}"/>
-
-        <!-- set the jmf.performancepack.extracted property so that we know
-             whether we'll have to extract jmf native libs -->
-        <condition property="jmf.performancepack.extracted">
-            <available file="${native.libs}"/>
-        </condition>
-
-        <ant target="extractnativejmf"/>
-
-    </target>
-
-    <target name="extractnativejmf"
-           if="jmf.performancepack.available"
-           unless="jmf.performancepack.extracted">
-        <!--internal-target- Verifies whether we have a jmf performance
-            pack for the current operating system and extracts it in the
-            lib/native directory -->
-        <echo>
-            Extracting ${os.name} performance pack native libs
-            from: ${jmf.home}/jmf-native.jar
-            to:${native.libs}
-        </echo>
-        <unjar dest="${native.libs}" overwrite="true" >
-            <fileset dir="${jmf.home}">
-                <include name="jmf-native.jar"/>
-            </fileset>
-        </unjar>
     </target>
 
     <!-- - - - - - - - - - - BUILDING RELEASE PACKAGES - - - - - - - - - - - -->
@@ -476,8 +467,6 @@
     </target>
 
     <!--RUN-SIP-COMMUNICATOR - n.b. has NO Dependents!! -->
-    <property name="ld.library.path"
-              value="${basedir}/${lib}/native:${system.LD_LIBRARY_PATH}"/>
     <target name="run"
         description="Starts oscar and runs sip-comunicator gui (use latest build).">
 
@@ -498,9 +487,10 @@
             <sysproperty key="java.util.logging.config.file"
                 value="lib/logging.properties"/>
 
-            <!-- Setting LD_LIBRARY_PATH-->
-            <sysproperty key="java.library.path" value="${ld.library.path}"/>
+            <!-- Setting properties necessary for dependencies on native libs.-->
+            <sysproperty key="java.library.path" value="${ld.library.path}:${path}"/>
             <env key="LD_LIBRARY_PATH" value="${ld.library.path}"/>
+            <env key="PATH" value="${path}"/>
         </java>
 
     </target>
@@ -726,7 +716,6 @@
             manifest="test/net/java/sip/communicator/slick/media/media.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/media"
                 prefix="net/java/sip/communicator/slick/media"/>
-            <zipfileset src="${jmf.home}/jmf.jar" prefix=""/>
         </jar>
     </target>
 
