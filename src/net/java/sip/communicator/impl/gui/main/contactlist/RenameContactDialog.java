@@ -43,7 +43,7 @@ public class RenameContactDialog
     /**
      * Creates an instance of <tt>RenameContactDialog</tt>.
      * 
-     * @param clist The <tt>MetaContactListService</tt>.
+     * @param mainFrame The main application window.
      * @param metaContact The <tt>MetaContact</tt> to rename.
      */
     public RenameContactDialog(MainFrame mainFrame,

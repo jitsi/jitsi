@@ -44,7 +44,7 @@ public class RenameGroupDialog
     /**
      * Creates an instance of <tt>RenameGroupDialog</tt>.
      * 
-     * @param clist The <tt>MetaContactListService</tt>.
+     * @param mainFrame The main application window.
      * @param metaGroup The <tt>MetaContactGroup</tt> to rename.
      */
     public RenameGroupDialog(MainFrame mainFrame,
