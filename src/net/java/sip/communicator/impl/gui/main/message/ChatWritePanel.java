@@ -92,7 +92,7 @@ public class ChatWritePanel extends JScrollPane implements
         String messageCommand = configService.getString(
                 "net.java.sip.communicator.impl.ui.sendMessageCommand");
         
-        if(messageCommand != null && messageCommand.equalsIgnoreCase("enter"))
+        if(messageCommand == null || messageCommand.equalsIgnoreCase("enter"))
             this.changeSendCommand(true);
         else
             this.changeSendCommand(false);
@@ -124,7 +124,10 @@ public class ChatWritePanel extends JScrollPane implements
                     KeyEvent.VK_ENTER, KeyEvent.SHIFT_DOWN_MASK), "newLine");
             
             chatPanel.getChatSendPanel().getSendButton()
-                .setToolTipText(Messages.getString("sendMessage") + " Enter");
+                .setToolTipText("<html>" + Messages.getString("sendMessage")
+                        + " - Enter <br> "
+                        + "Use Ctrl-Enter or Shift-Enter to make a new line"
+                        + "</html>");
         }
         else {
             im.put(KeyStroke.getKeyStroke(

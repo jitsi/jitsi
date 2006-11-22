@@ -3,8 +3,10 @@ package net.java.sip.communicator.impl.gui.main.message.menus;
 import java.awt.event.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.message.*;
+import net.java.sip.communicator.service.configuration.*;
 
 /**
  * The <tt>SettingsMenu</tt> is the menu in the chat window menu bar where
@@ -20,11 +22,11 @@ public class SettingsMenu extends JMenu
     
     private JCheckBoxMenuItem typingNotificationsItem 
         = new JCheckBoxMenuItem(
-                Messages.getString("enableTypingNotifications"), true);
+                Messages.getString("enableTypingNotifications"));
         
     private JCheckBoxMenuItem sendingMessageCommandItem 
         = new JCheckBoxMenuItem(
-                Messages.getString("useEnterToSend"), false);
+                Messages.getString("useCtrlEnterToSend"));
     
     private ChatWindow chatWindow;
     
@@ -46,6 +48,18 @@ public class SettingsMenu extends JMenu
         this.typingNotificationsItem.setMnemonic(
                 Messages.getString("mnemonic.typingNotifications").charAt(0));
         
+        
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+        
+        String messageCommand = configService.getString(
+                "net.java.sip.communicator.impl.ui.sendMessageCommand");
+        
+        if(messageCommand == null || messageCommand.equalsIgnoreCase("enter"))
+            this.sendingMessageCommandItem.setSelected(false);
+        else
+            this.sendingMessageCommandItem.setSelected(true);
+    
         this.init();
     }
     
@@ -77,7 +91,7 @@ public class SettingsMenu extends JMenu
         }
         else if(item.getName().equals("sendingMessageCommand")) {
             
-            chatWindow.changeSendCommand(item.isSelected());
+            chatWindow.changeSendCommand(!item.isSelected());
         }
     }
 }

@@ -386,6 +386,9 @@ public class MainToolBar
     {
         ChatConversationPanel convPanel = chatPanel.getChatConversationPanel();
         
+        if(chatPanel.getFirstHistoryMsgTimestamp() == null)
+            return;
+        
         if(chatPanel.getFirstHistoryMsgTimestamp()
             .compareTo(convPanel.getPageFirstMsgTimestamp()) < 0) {
             previousButton.setEnabled(true);

@@ -69,8 +69,6 @@ public class ChatSendPanel
         this.add(sendPanel, BorderLayout.EAST);
 
         this.sendButton.addActionListener(this);
-        this.sendButton.setToolTipText(Messages.getString("sendMessage")
-            + " Ctrl-Enter");
         this.sendButton.setMnemonic(Messages.getString("mnemonic.sendMessage")
             .charAt(0));
     }
