@@ -51,7 +51,8 @@ public class MoveSubcontactMessageDialog
     /**
      * Creates an instance of MoveSubcontactMessageDialog and constructs
      * all panels contained in this dialog.
-     * @param mainFrame the main application window
+     * @param parentWindow the main application window
+     * @param listener the listener that deals with moved contacts 
      */
     public MoveSubcontactMessageDialog(MainFrame parentWindow,
             ContactListListener listener)

@@ -42,7 +42,7 @@ public class ViewMenu
 
     /**
      * Creates an instance of <tt>ViewMenu</tt>.
-     * @param parentWindow The parent <tt>ChatWindow</tt>.
+     * @param mainFrame The parent <tt>MainFrame</tt> window.
      */
     public ViewMenu(MainFrame mainFrame) {
 

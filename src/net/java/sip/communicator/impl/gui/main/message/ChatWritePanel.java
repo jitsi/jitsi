@@ -54,7 +54,7 @@ public class ChatWritePanel extends JScrollPane implements
     
     /**
      * Creates an instance of <tt>ChatWritePanel</tt>.
-     * @param chatPanel The parent <tt>ChatPanel</tt>.
+     * @param panel The parent <tt>ChatPanel</tt>.
      */
     public ChatWritePanel(ChatPanel panel) {
 

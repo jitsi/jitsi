@@ -33,7 +33,7 @@ public class HelpMenu
 
     /**
      * Creates an instance of <tt>HelpMenu</tt>.
-     * @param parentWindow The parent <tt>MainFrame</tt>.
+     * @param mainFrame The parent <tt>MainFrame</tt>.
      */
     public HelpMenu(MainFrame mainFrame) {
 
