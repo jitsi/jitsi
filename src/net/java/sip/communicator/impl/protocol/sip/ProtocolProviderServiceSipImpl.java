@@ -597,17 +597,27 @@ public class ProtocolProviderServiceSipImpl
             String ourUserID = (String)accountID.getAccountProperties()
                 .get(ProtocolProviderFactory.USER_ID);
 
+            String sipUriHost = null;
+            if( ourUserID.indexOf("@") != -1
+                && ourUserID.indexOf("@") < ourUserID.length() -1 )
+            {
+                //use the domain in the SIP uri as a default registrar address.
+                sipUriHost = ourUserID.substring( ourUserID.indexOf("@") + 1 );
+                ourUserID = ourUserID.substring( 0, ourUserID.indexOf("@") );
+            }
+
             ourDisplayName = (String)accountID.getAccountProperties()
                 .get(ProtocolProviderFactory.DISPLAY_NAME);
 
-            String registrarAddressStr = sipRegistrarConnection
-                .getRegistrarAddress().getHostName();
+            if(sipUriHost == null)
+                sipUriHost = sipRegistrarConnection
+                    .getRegistrarAddress().getHostName();
 
             SipURI ourSipURI = null;
             try
             {
                 ourSipURI = addressFactory.createSipURI(
-                    ourUserID, registrarAddressStr);
+                    ourUserID, sipUriHost);
 
                 if(ourDisplayName == null
                    || ourDisplayName.trim().length() == 0)
@@ -619,10 +629,16 @@ public class ProtocolProviderServiceSipImpl
             }
             catch (ParseException ex)
             {
+                logger.error("Could not create a SIP URI for user "
+                             + ourUserID + "@" + sipUriHost
+                             + " and registrar " + sipRegistrarConnection
+                             .getRegistrarAddress().getHostName()
+                             , ex);
                 throw new IllegalArgumentException(
-                    "Could not create a SIP URI for user " + ourUserID
-                    + " and registrar " + registrarAddressStr);
-
+                    "Could not create a SIP URI for user "
+                    + ourUserID + "@" + sipUriHost
+                    + " and registrar " + sipRegistrarConnection
+                                        .getRegistrarAddress().getHostName());
             }
 
             //init the security manager
@@ -1452,6 +1468,15 @@ public class ProtocolProviderServiceSipImpl
         //First init the registrar address
         String registrarAddressStr = (String) accountID.getAccountProperties()
             .get(ProtocolProviderFactory.SERVER_ADDRESS);
+
+        //if there is no registrar address, parse the user_id and extract it
+        //from the domain part of the SIP URI.
+        if (registrarAddressStr == null)
+        {
+            String userID = (String) accountID.getAccountProperties()
+                .get(ProtocolProviderFactory.USER_ID);
+            registrarAddressStr = userID.substring( userID.indexOf("@")+1);
+        }
 
         InetAddress registrarAddress = null;
         try

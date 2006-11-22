@@ -35,7 +35,7 @@ import org.osgi.framework.*;
  * <p>
  * Note that the behaviour of this class will be changed when the Configuration
  * Service is ready.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class LoginManager
@@ -61,12 +61,12 @@ public class LoginManager
     /**
      * In the given <tt>ProtocolProviderFactory</tt> creates an account for
      * the given user and password.
-     * 
+     *
      * @param providerFactory The <tt>ProtocolProviderFactory</tt> where the
      *            new account is created.
      * @param user The user identifier for this account.
      * @param passwd The password for this account.
-     * 
+     *
      * @return The <tt>ProtocolProviderService</tt> of the newly created
      *         account.
      */
@@ -92,7 +92,7 @@ public class LoginManager
 
     /**
      * Registers the given protocol provider.
-     * 
+     *
      * @param protocolProvider the ProtocolProviderService to register.
      */
     public void login(ProtocolProviderService protocolProvider)
@@ -108,7 +108,7 @@ public class LoginManager
 
     /**
      * Unregisters the given protocol provider.
-     * 
+     *
      * @param protocolProvider the ProtocolProviderService to unregister
      */
     public void logoff(ProtocolProviderService protocolProvider)
@@ -118,7 +118,7 @@ public class LoginManager
 
     /**
      * Shows login window for each registered account.
-     * 
+     *
      * @param parent The parent MainFrame window.
      */
     public void runLogin(MainFrame parent)
@@ -200,7 +200,7 @@ public class LoginManager
      * The method is called by a ProtocolProvider implementation whenever a
      * change in the registration state of the corresponding provider had
      * occurred.
-     * 
+     *
      * @param evt ProviderStatusChangeEvent the event describing the status
      *            change.
      */
@@ -319,7 +319,7 @@ public class LoginManager
 
     /**
      * Returns the MainFrame.
-     * 
+     *
      * @return The MainFrame.
      */
     public MainFrame getMainFrame()
@@ -329,7 +329,7 @@ public class LoginManager
 
     /**
      * Sets the MainFrame.
-     * 
+     *
      * @param mainFrame The main frame.
      */
     public void setMainFrame(MainFrame mainFrame)
@@ -341,11 +341,19 @@ public class LoginManager
      * Implements the <tt>ServiceListener</tt> method. Verifies whether the
      * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
      * corresponding UI controls.
-     * 
+     *
      * @param event The <tt>ServiceEvent</tt> object.
      */
     public void serviceChanged(ServiceEvent event)
     {
+        //if the event is caused by a bundle being stopped, we don't want to
+        //know
+        if(event.getServiceReference().getBundle().getState()
+            == Bundle.STOPPING)
+        {
+            return;
+        }
+
         Object service = GuiActivator.bundleContext.getService(event
             .getServiceReference());
 
@@ -365,7 +373,7 @@ public class LoginManager
     /**
      * Adds all UI components (status selector box, etc) related to the given
      * protocol provider.
-     * 
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      */
     private void handleProviderAdded(ProtocolProviderService protocolProvider)
@@ -384,7 +392,7 @@ public class LoginManager
 
     /**
      * Removes all UI components related to the given protocol provider.
-     * 
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      */
     private void handleProviderRemoved(ProtocolProviderService protocolProvider)
@@ -421,10 +429,10 @@ public class LoginManager
             try {
                 protocolProvider.register(secAuth);
             }
-            catch (OperationFailedException ex) {                
-                
+            catch (OperationFailedException ex) {
+
                 int errorCode = ex.getErrorCode();
-                
+
                 if (errorCode == OperationFailedException.GENERAL_ERROR) {
                     logger.error("Provider could not be unregistered"
                             + " due to the following general error: " + ex);
@@ -442,7 +450,7 @@ public class LoginManager
                     logger.error("Provider could not be unregistered"
                             + " due to an invalid account property: " + ex);
                 }
-                
+
                 JOptionPane.showMessageDialog(mainFrame,
                     Messages.getString("loginNotSucceeded",
                         protocolProvider.getAccountID().getAccountAddress()),
@@ -451,17 +459,17 @@ public class LoginManager
             }
         }
     }
-    
+
     private class UnregisterProvider
         extends Thread
     {
         ProtocolProviderService protocolProvider;
-        
+
         UnregisterProvider(ProtocolProviderService protocolProvider)
         {
             this.protocolProvider = protocolProvider;
         }
-    
+
         public void run()
         {
             try {
@@ -469,7 +477,7 @@ public class LoginManager
             }
             catch (OperationFailedException ex) {
                 int errorCode = ex.getErrorCode();
-                
+
                 if (errorCode == OperationFailedException.GENERAL_ERROR) {
                     logger.error("Provider could not be unregistered"
                             + " due to the following general error: " + ex);
@@ -482,7 +490,7 @@ public class LoginManager
                     logger.error("Provider could not be unregistered"
                             + " due to a network failure: " + ex);
                 }
-                
+
                 JOptionPane.showMessageDialog(mainFrame,
                         Messages.getString("logoffNotSucceeded",
                             protocolProvider.getAccountID().getAccountAddress()),

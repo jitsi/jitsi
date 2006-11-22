@@ -29,7 +29,12 @@ public class SipAccountID
                            Map    accountProperties,
                            String serverName)
     {
-        super(userID, accountProperties, ProtocolNames.SIP, serverName);
+        super( ( userID.indexOf("@") > -1 )
+                    ? userID.substring(0, userID.indexOf("@"))
+                    : userID
+                , accountProperties
+                , ProtocolNames.SIP
+                , serverName);
     }
 
     /**
