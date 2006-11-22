@@ -212,6 +212,19 @@ public class MclStorageManager
         return started;
     }
 
+    /**
+     * Prepares the storage manager for shutdown.
+     */
+    public void stop ()
+    {
+        logger.trace("Stopping the MCL XML storage manager.");
+        this.started = false;
+        synchronized(contactListRWLock)
+        {
+            this.contactListRWLock.notifyAll();
+        }
+    }
+
 
     /**
      * Initializes the storage manager and makes it do initial load and parsing
@@ -335,8 +348,9 @@ public class MclStorageManager
                      + isStarted());
         logger.trace("storing contact list. because is modified =="
                      + isModified);
-        XMLUtils.indentedWriteXML( contactListDocument
-                                   , new FileWriter(contactlistFile));
+        if(isStarted())
+            XMLUtils.indentedWriteXML( contactListDocument
+                                       , new FileWriter(contactlistFile));
     }
 
     /**
@@ -640,7 +654,7 @@ public class MclStorageManager
                                         groupNode, CHILD_CONTACTS_NODE_NAME);
 
         NodeList childContacts = (childContactsNode == null)
-            ? null 
+            ? null
             : childContactsNode.getChildNodes();
 
         //go over every meta contact, extract its details and its encapsulated

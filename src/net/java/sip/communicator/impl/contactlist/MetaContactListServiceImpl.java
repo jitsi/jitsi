@@ -210,22 +210,31 @@ public class MetaContactListServiceImpl
                 = (OperationSetPersistentPresence)pp
                     .getOperationSet(OperationSetPersistentPresence.class);
 
-            opSetPersPresence
-                .removeSubscriptionListener(clSubscriptionEventHandler);
-            opSetPersPresence
-                .removeServerStoredGroupChangeListener(clGroupEventHandler);
-
-            //check if a non persistent presence operation set exists.
-            if(opSetPersPresence == null)
+            if(opSetPersPresence !=null)
             {
+                opSetPersPresence
+                    .removeSubscriptionListener(clSubscriptionEventHandler);
+                opSetPersPresence
+                    .removeServerStoredGroupChangeListener(clGroupEventHandler);
+            }
+            else
+            {
+                //check if a non persistent presence operation set exists.
                 OperationSetPresence opSetPresence = (OperationSetPresence)pp
                         .getOperationSet(OperationSetPresence.class);
 
-                opSetPersPresence
-                    .removeSubscriptionListener(clSubscriptionEventHandler);
+                if(opSetPresence != null)
+                {
+                    opSetPersPresence .removeSubscriptionListener(
+                        clSubscriptionEventHandler);
+                }
             }
         }
         currentlyInstalledProviders.clear();
+        if(storageManager != null)
+        {
+            storageManager.stop();
+        }
     }
 
     /**

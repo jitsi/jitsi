@@ -61,6 +61,7 @@ public class ContactlistActivator
      */
     public void stop(BundleContext context) throws Exception
     {
+        logger.trace("Stopping the contact list.");
         if(mclServiceImpl != null)
             mclServiceImpl.stop(context);
     }
