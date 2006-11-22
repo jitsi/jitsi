@@ -16,6 +16,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -315,15 +316,16 @@ public class AccountsConfigurationForm extends JPanel
      * @param event The <tt>ServiceEvent</tt> object.
      */
     public void serviceChanged(ServiceEvent event) {
-        Object service = GuiActivator.bundleContext
+        
+        Object sourceService = GuiActivator.bundleContext
             .getService(event.getServiceReference());
 
         // we don't care if the source service is not a protocol provider
-        if (! (service instanceof ProtocolProviderService)) {
+        if (! (sourceService instanceof ProtocolProviderService)) {
             return;
         }
 
-        ProtocolProviderService pps = (ProtocolProviderService) service;
+        ProtocolProviderService pps = (ProtocolProviderService) sourceService;
 
         if (event.getType() == ServiceEvent.REGISTERED)
         {
@@ -338,6 +340,31 @@ public class AccountsConfigurationForm extends JPanel
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
+            ProtocolProviderFactory sourceFactory = null;
+
+            ServiceReference[] allBundleServices
+                = event.getServiceReference().getBundle()
+                    .getRegisteredServices();
+
+            for (int i = 0; i < allBundleServices.length; i++)
+            {
+                Object service = GuiActivator.bundleContext
+                    .getService(allBundleServices[i]);
+                
+                if(service instanceof ProtocolProviderFactory)
+                {
+                    sourceFactory = (ProtocolProviderFactory) service;
+                    break;
+                }
+            }
+            
+            if(sourceFactory.getRegisteredAccounts().contains(
+                    pps.getAccountID()))
+            {
+                //the account is still installed. we don't need to do anything.
+                return;
+            }
+
             tableModel.removeRow(tableModel.rowIndexOf(pps));
         }
     }
