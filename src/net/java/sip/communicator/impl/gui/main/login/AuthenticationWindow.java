@@ -82,6 +82,8 @@ public class AuthenticationWindow
                 Constants.getProtocolBigIcon(
                         protocolProvider.getProtocolName()));
 
+        this.backgroundPanel.setPreferredSize(new Dimension(420, 230));
+        
         this.backgroundPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
         this.backgroundPanel.setBorder(
