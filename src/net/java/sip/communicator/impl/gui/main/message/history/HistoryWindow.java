@@ -7,8 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.main.message.history;
 
-import java.awt.BorderLayout;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -111,9 +110,7 @@ public class HistoryWindow
      * a history
      */
     public HistoryWindow(MainFrame mainFrame, MetaContact metaContact)
-    {
-        this.setSize(500, 400);
-        
+    {   
         chatConvPanel = new ChatConversationPanel(this);
         
         this.progressBar = new JProgressBar(
@@ -162,6 +159,7 @@ public class HistoryWindow
 
         this.mainPanel.add(datesPanel, BorderLayout.WEST);
 
+        this.mainPanel.setPreferredSize(new Dimension(500, 400));
         this.getContentPane().add(mainPanel);
     }
 
@@ -562,5 +560,10 @@ public class HistoryWindow
             
             this.dispose();
         }
+    }
+    
+    public void refreshHistory()
+    {
+        
     }
 }
