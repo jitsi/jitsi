@@ -42,7 +42,7 @@ public class AccountsConfigurationForm extends JPanel
 
     private Logger logger = Logger.getLogger(
             AccountsConfigurationForm.class.getName());
-    
+
     private JScrollPane tablePane = new JScrollPane();
 
     private JTable accountsTable = new JTable();
@@ -95,7 +95,7 @@ public class AccountsConfigurationForm extends JPanel
                 Messages.getString("mnemonic.modifyAccount").charAt(0));
         this.removeButton.setMnemonic(
                 Messages.getString("mnemonic.removeAccount").charAt(0));
-        
+
         this.buttonsPanel.add(newButton);
         this.buttonsPanel.add(modifyButton);
         this.buttonsPanel.add(removeButton);
@@ -112,7 +112,7 @@ public class AccountsConfigurationForm extends JPanel
         accountsTable.setRowHeight(22);
         accountsTable.setSelectionMode(
 
-        ListSelectionModel.SINGLE_SELECTION);    
+        ListSelectionModel.SINGLE_SELECTION);
 
         accountsTable.setShowHorizontalLines(false);
         accountsTable.setShowVerticalLines(false);
@@ -128,9 +128,9 @@ public class AccountsConfigurationForm extends JPanel
             .setCellRenderer(new LabelTableCellRenderer());
         columnModel.getColumn(1)
             .setCellRenderer(new LabelTableCellRenderer());
-        
+
         this.initializeAccountsTable();
-        
+
         this.tablePane.getViewport().add(accountsTable);
     }
 
@@ -147,10 +147,10 @@ public class AccountsConfigurationForm extends JPanel
 
             ProtocolProviderFactory providerFactory
                 = (ProtocolProviderFactory) entry.getValue();
-            
+
             ArrayList accountsList
                 = providerFactory.getRegisteredAccounts();
-            
+
             AccountID accountID;
             ServiceReference serRef;
             ProtocolProviderService protocolProvider;
@@ -164,7 +164,7 @@ public class AccountsConfigurationForm extends JPanel
                 protocolProvider
                     = (ProtocolProviderService) GuiActivator.bundleContext
                         .getService(serRef);
-                
+
                 String pName = protocolProvider.getProtocolName();
                 JLabel protocolLabel = new JLabel();
                 protocolLabel.setText(pName);
@@ -176,7 +176,7 @@ public class AccountsConfigurationForm extends JPanel
             }
         }
     }
-    
+
     /**
      * Returns the title of this configuration form.
      * @return the title of this configuration form.
@@ -206,9 +206,11 @@ public class AccountsConfigurationForm extends JPanel
      * Handles the <tt>ActionEvent</tt> triggered when user clicks on
      * on the buttons. Shows the account registration wizard when user
      * clicks on "New".
+     *
+     * @param evt the action event that has just occurred.
      */
-    public void actionPerformed(ActionEvent e) {
-        JButton sourceButton = (JButton)e.getSource();
+    public void actionPerformed(ActionEvent evt) {
+        JButton sourceButton = (JButton)evt.getSource();
 
         if (sourceButton.equals(newButton)) {
             AccountRegWizardContainerImpl wizard
@@ -224,75 +226,75 @@ public class AccountsConfigurationForm extends JPanel
                 Toolkit.getDefaultToolkit().getScreenSize().height/2
                     - 100
             );
-            
+
             wizard.newAccount();
 
             wizard.showDialog(false);
         }
         else if (sourceButton.equals(modifyButton)) {
-            
+
             if(accountsTable.getSelectedRow() != -1) {
                 AccountRegWizardContainerImpl wizard
                     = (AccountRegWizardContainerImpl)GuiActivator.getUIService()
                         .getAccountRegWizardContainer();
-                
+
                 wizard.setTitle(
                     Messages.getString("accountRegistrationWizard"));
-               
+
                 wizard.setLocation(
-                    Toolkit.getDefaultToolkit().getScreenSize().width/2 
+                    Toolkit.getDefaultToolkit().getScreenSize().width/2
                         - 250,
-                    Toolkit.getDefaultToolkit().getScreenSize().height/2 
+                    Toolkit.getDefaultToolkit().getScreenSize().height/2
                         - 100
                 );
-                
+
                 ProtocolProviderService protocolProvider
                     = (ProtocolProviderService)tableModel.getValueAt(
                         accountsTable.getSelectedRow(), 0);
-                
+
                 wizard.modifyAccount(protocolProvider);
                 wizard.showDialog(false);
             }
         }
         else if(sourceButton.equals(removeButton)){
-            
+
             if(accountsTable.getSelectedRow() != -1) {
                 ProtocolProviderService protocolProvider
                     = (ProtocolProviderService)tableModel.getValueAt(
                         accountsTable.getSelectedRow(), 0);
-                
-                ProtocolProviderFactory providerFactory 
+
+                ProtocolProviderFactory providerFactory
                     = GuiActivator.getProtocolProviderFactory(protocolProvider);
-                
+
                 if(providerFactory != null) {
                     int result = JOptionPane.showConfirmDialog(this,
                             Messages.getString("removeAccountMessage"),
                             Messages.getString("removeAccount"),
                             JOptionPane.YES_NO_CANCEL_OPTION);
-                    
+
                     if(result == JOptionPane.YES_OPTION) {
                         ConfigurationService configService
                         = GuiActivator.getConfigurationService();
-                    
+
                     String prefix
                         = "net.java.sip.communicator.impl.ui.accounts";
-                    
+
                     List accounts = configService
                             .getPropertyNamesByPrefix(prefix, true);
-                    
+
                     Iterator accountsIter = accounts.iterator();
-                    
+
                     while(accountsIter.hasNext()) {
-                        
-                        String accountRootPropName 
+
+                        String accountRootPropName
                             = (String) accountsIter.next();
-                        
-                        String accountUID 
+
+                        String accountUID
                             = configService.getString(accountRootPropName);
-                        
+
                         if(accountUID.equals(protocolProvider
                                 .getAccountID().getAccountUniqueID())) {
-                            
+
                             configService.setProperty(
                                 accountRootPropName,
                                 null);
@@ -306,7 +308,7 @@ public class AccountsConfigurationForm extends JPanel
             }
         }
     }
-   
+
 
     /**
      * Implements the <tt>ServiceListener</tt> method. Verifies whether the
@@ -315,8 +317,15 @@ public class AccountsConfigurationForm extends JPanel
      *
      * @param event The <tt>ServiceEvent</tt> object.
      */
-    public void serviceChanged(ServiceEvent event) {
-        
+    public void serviceChanged(ServiceEvent event)
+    {
+        //if the event is caused by a bundle being stopped, we don't want to
+        //know
+        if(event.getServiceReference().getBundle().getState()
+            == Bundle.STOPPING)
+        {
+            return;
+        }
         Object sourceService = GuiActivator.bundleContext
             .getService(event.getServiceReference());
 
@@ -350,14 +359,14 @@ public class AccountsConfigurationForm extends JPanel
             {
                 Object service = GuiActivator.bundleContext
                     .getService(allBundleServices[i]);
-                
+
                 if(service instanceof ProtocolProviderFactory)
                 {
                     sourceFactory = (ProtocolProviderFactory) service;
                     break;
                 }
             }
-            
+
             if(sourceFactory.getRegisteredAccounts().contains(
                     pps.getAccountID()))
             {
