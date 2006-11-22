@@ -152,7 +152,8 @@
                 <include name="launcher.ini"/>
                 <include name="setup-sip-communicator.exe"/>
             </fileset>
-    </copy>
+        </copy>
+
         <!-- copy the windows jre file -->
         <copy file="${windows.jre.file}"
               tofile="${windows.app.dir}/tmp/jre/jre-windows.exe"/>

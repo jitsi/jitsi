@@ -45,17 +45,22 @@
 
 			<fileset  targetdir="$INSTALL_PATH/lib" dir="lib">
 				<include name="**/*.jar"/>
-
-                                <exclude name="junit*.jar"/>
-                                <exclude name="**/jmf*/**"/>
-                                <exclude name="native"/>
-                                <exclude name="izpack"/>
+                <exclude name="junit*.jar"/>
+                <exclude name="**/jmf*/**"/>
+                <exclude name="native"/>
+                <exclude name="izpack"/>
 			</fileset>
 
 			<file targetdir="$INSTALL_PATH/lib" src="lib/felix.client.run.properties"/>
 			<file targetdir="$INSTALL_PATH/lib" src="lib/logging.properties"/>
 		</pack>
 
+        <pack name="native" required="yes">
+			<description>SIP Communicator Native libs</description>
+			<fileset  targetdir="$INSTALL_PATH/native" dir="lib/native/windows">
+                <include name="*"/>
+            </fileset>
+		</pack>
 		<pack name="util" required="yes">
 			<description>SIP Communicator util</description>
 			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/util.jar"/>

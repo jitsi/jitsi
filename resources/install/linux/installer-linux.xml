@@ -55,6 +55,12 @@
 			<file targetdir="$INSTALL_PATH/lib" src="lib/logging.properties"/>
 		</pack>
 
+        <pack name="native" required="yes">
+			<description>SIP Communicator Native libs</description>
+			<fileset  targetdir="$INSTALL_PATH/native" dir="lib/native/linux">
+                <include name="*"/>
+            </fileset>
+		</pack>
 		<pack name="util" required="yes">
 			<description>SIP Communicator util</description>
 			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/util.jar"/>
