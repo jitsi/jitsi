@@ -228,7 +228,7 @@
       description="Generates project javadoc.">
         <javadoc author="true" destdir="${java.doc}" package="true"
             version="true" use="true" windowtitle="SIP Communicator API"
-            classpathref="project.class.path" source="1.4+">
+            classpathref="compile.class.path" source="1.4+">
             <fileset dir="${src}"/>
             <tag name="todo" description="To do:"/>
         </javadoc>
