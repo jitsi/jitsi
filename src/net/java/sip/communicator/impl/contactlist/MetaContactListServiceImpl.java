@@ -199,7 +199,7 @@ public class MetaContactListServiceImpl
 
         //stop listening to all currently installed providers
         Iterator providers
-            = this.currentlyInstalledProviders.keySet().iterator();
+            = this.currentlyInstalledProviders.values().iterator();
 
         while (providers.hasNext())
         {
@@ -447,7 +447,7 @@ public class MetaContactListServiceImpl
      * by <tt>protoProvider</tt>. The method does not return before creating
      * all groups has completed.
      *
-     * @param protoProvider a reference to the protocol provider where the 
+     * @param protoProvider a reference to the protocol provider where the
      * groups should be created.
      * @param metaGroup a ref to the last group of the path that should be
      * created in the specified <tt>protoProvider</tt>
@@ -779,18 +779,18 @@ public class MetaContactListServiceImpl
      * Makes the specified <tt>contact</tt> a child of the
      * <tt>newParentMetaGroup</tt> MetaContactGroup. If <tt>contact</tt> was
      * previously a child of a meta contact, it will be removed from its
-     * old parent and to a newly created one even if they both are in the same 
-     * group. If the specified contact was the only child of its previous 
+     * old parent and to a newly created one even if they both are in the same
+     * group. If the specified contact was the only child of its previous
      * parent, then the meta contact will also be moved.
-     * 
-     * 
+     *
+     *
      * @param contact the <tt>Contact</tt> to move to the
      * @param newParentMetaGroup the MetaContactGroup where we'd like contact to be moved.
      * @throws MetaContactListException with an appropriate code if the
      * operation fails for some reason.
      */
-    public void moveContact(Contact contact, 
-                            MetaContactGroup newParentMetaGroup) 
+    public void moveContact(Contact contact,
+                            MetaContactGroup newParentMetaGroup)
         throws MetaContactListException
     {
         /** @todo implement */
@@ -1457,7 +1457,8 @@ public class MetaContactListServiceImpl
         logger.debug("Removing protocol provider "
                      + provider.getProtocolName());
 
-        this.currentlyInstalledProviders.remove(provider);
+        this.currentlyInstalledProviders.
+            remove(provider.getAccountID().getAccountUniqueID());
 
         //get the root group for the provider so that we could remove it.
         OperationSetPersistentPresence persPresOpSet

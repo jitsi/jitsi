@@ -64,6 +64,7 @@ public class MessageHistoryActivator
 
     public void stop(BundleContext bundleContext) throws Exception
     {
-
+        if(msgHistoryService != null)
+            msgHistoryService.stop(bundleContext);
     }
 }

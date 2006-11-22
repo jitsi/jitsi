@@ -3,20 +3,19 @@ Bundle-Name: File Access Service Provider
 Bundle-Description: A bundle that implements the file access package.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
-Import-Package: org.ungoverned.gravity.servicebinder,
- org.osgi.framework,
- net.java.sip.communicator.service.configuration,
- net.java.sip.communicator.service.fileaccess,
- net.java.sip.communicator.impl.fileaccess,
- org.w3c.dom,
- org.xml.sax,
- javax.xml.parsers,
+Import-Package: org.osgi.framework,
  org.apache.xml.serializer,
+ org.xml.sax,
+ org.w3c.dom,
  javax.xml.transform,
  javax.xml.transform.dom,
  javax.xml.transform.stream,
+ javax.xml.parsers,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.xml,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.fileaccess,
+ net.java.sip.communicator.impl.fileaccess
 Export-Package: net.java.sip.communicator.service.fileaccess,
- net.java.sip.communicator.impl.fileaccess,
+ net.java.sip.communicator.impl.fileaccess
 Metadata-Location: /net/java/sip/communicator/impl/fileaccess/fileaccess.metadata.xml

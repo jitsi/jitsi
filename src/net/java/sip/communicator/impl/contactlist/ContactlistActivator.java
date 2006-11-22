@@ -61,7 +61,7 @@ public class ContactlistActivator
      */
     public void stop(BundleContext context) throws Exception
     {
-        if(mclServiceImpl == null)
+        if(mclServiceImpl != null)
             mclServiceImpl.stop(context);
     }
 }

@@ -3,9 +3,9 @@ Bundle-Name: Configuration Service Implementation Compatibility Kit
 Bundle-Description: A Service Implementation Compatibility Kit for the Configuration Service
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
-Import-Package: net.java.sip.communicator.service.configuration,
+Import-Package: junit.framework,
+ net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.configuration.event,
- junit.framework,
  org.osgi.framework,
  org.w3c.dom,
  javax.xml.parsers,

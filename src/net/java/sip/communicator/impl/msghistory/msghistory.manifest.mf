@@ -3,8 +3,7 @@ Bundle-Name: Message History Service Provider
 Bundle-Description: A bundle that implements the message history package.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
-Import-Package: org.ungoverned.gravity.servicebinder,
- org.osgi.framework,
+Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.fileaccess,
  net.java.sip.communicator.service.history,
  net.java.sip.communicator.service.history.event,

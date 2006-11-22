@@ -502,6 +502,44 @@ public class CallHistoryServiceImpl
     }
 
     /**
+     * stops the service.
+     *
+     * @param bc BundleContext
+     */
+    public void stop(BundleContext bc)
+    {
+        bc.removeServiceListener(this);
+
+        ServiceReference[] protocolProviderRefs = null;
+        try
+        {
+            protocolProviderRefs = bc.getServiceReferences(
+                ProtocolProviderService.class.getName(),
+                null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            // this shouldn't happen since we're providing no parameter string
+            // but let's log just in case.
+            logger.error("Error while retrieving service refs", ex);
+            return;
+        }
+
+        // in case we found any
+        if (protocolProviderRefs != null)
+        {
+            for (int i = 0; i < protocolProviderRefs.length; i++)
+            {
+                ProtocolProviderService provider = (ProtocolProviderService) bc
+                    .getService(protocolProviderRefs[i]);
+
+                this.handleProviderRemoved(provider);
+            }
+        }
+    }
+
+
+    /**
      * Writes the given record to the history service
      * @param callRecord CallRecord
      * @param source Contact

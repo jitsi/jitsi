@@ -6,7 +6,6 @@ Bundle-Version: 0.0.1
 Export-Package: net.java.sip.communicator.service.contactlist,
  net.java.sip.communicator.service.contactlist.event
 Import-Package: org.osgi.framework,
- net.java.sip.communicator.util,
  net.java.sip.communicator.service.fileaccess,
  net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.configuration.event,

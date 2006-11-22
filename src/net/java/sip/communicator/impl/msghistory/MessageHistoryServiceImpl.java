@@ -475,7 +475,7 @@ public class MessageHistoryServiceImpl
      */
     public void start(BundleContext bc)
     {
-        logger.debug("Starting the meta contact list implementation.");
+        logger.debug("Starting the msg history implementation.");
         this.bundleContext = bc;
 
         // start listening for newly register or removed protocol providers
@@ -509,6 +509,45 @@ public class MessageHistoryServiceImpl
                     .getService(protocolProviderRefs[i]);
 
                 this.handleProviderAdded(provider);
+            }
+        }
+    }
+
+    /**
+     * stops the service.
+     *
+     * @param bc BundleContext
+     */
+    public void stop(BundleContext bc)
+    {
+        // start listening for newly register or removed protocol providers
+        bc.removeServiceListener(this);
+
+        ServiceReference[] protocolProviderRefs = null;
+        try
+        {
+            protocolProviderRefs = bc.getServiceReferences(
+                ProtocolProviderService.class.getName(),
+                null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            // this shouldn't happen since we're providing no parameter string
+            // but let's log just in case.
+            logger.error(
+                "Error while retrieving service refs", ex);
+            return;
+        }
+
+        // in case we found any
+        if (protocolProviderRefs != null)
+        {
+            for (int i = 0; i < protocolProviderRefs.length; i++)
+            {
+                ProtocolProviderService provider = (ProtocolProviderService) bc
+                    .getService(protocolProviderRefs[i]);
+
+                this.handleProviderRemoved(provider);
             }
         }
     }

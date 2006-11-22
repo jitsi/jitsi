@@ -52,7 +52,7 @@
                                 <exclude name="izpack"/>
 			</fileset>
 
-			<file targetdir="$INSTALL_PATH/lib" src="lib/oscar.client.run.properties"/>
+			<file targetdir="$INSTALL_PATH/lib" src="lib/felix.client.run.properties"/>
 			<file targetdir="$INSTALL_PATH/lib" src="lib/logging.properties"/>
 		</pack>
 
@@ -71,6 +71,10 @@
 		<pack name="protocol" required="yes">
 			<description>SIP Communicator bundle Protocol</description>
 			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/protocol.jar"/>
+		</pack>
+        <pack name="contactlist" required="yes">
+			<description>SIP Communicator bundle Contactlist</description>
+			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/contactlist.jar"/>
 		</pack>
 		<pack name="media" required="yes">
 			<description>SIP Communicator bundle Media</description>

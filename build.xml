@@ -287,7 +287,7 @@
                   name="${macosx.app.name}-${macosx.app.ver}"
                   shortname="SIP Communicator"
                   signature="sipc"
-                  mainclass="org.ungoverned.oscar.Main"
+                  mainclass="org.apache.felix.main.Main"
                   icon="src/net/java/sip/communicator/impl/gui/resources/common/logo/sc_logo_128x128.icns"
                   jvmversion="1.4+"
                   version="${macosx.app.ver}"
@@ -302,8 +302,8 @@
         <javaproperty name="apple.awt.showGrowBox" value="false"/>
 
         <!-- Tell oscar to run sip-communicator -->
-        <javaproperty name="oscar.config.properties"
-                      value="file:oscar.client.run.properties"/>
+        <javaproperty name="felix.config.properties"
+                      value="file:felix.client.run.properties"/>
         <!-- Tell java.util.logging about our logging preferences -->
         <javaproperty name="java.util.logging.config.file"
                       value="logging.properties"/>
@@ -315,7 +315,7 @@
           <include name="${bundles.dest}/*.jar" />
         </jarfileset>
         <javafilelist dir="${lib}"
-                      files="logging.properties, oscar.client.run.properties"/>
+                      files="logging.properties, felix.client.run.properties"/>
       </jarbundler>
     </target>
 
@@ -395,7 +395,7 @@
 
         <!-- Do the testing itself. Note that we don't fail on error as we need
              to generate an html report before leaving this target.-->
-        <java classname="org.ungoverned.oscar.Main"
+        <java classname="org.apache.felix.main.Main"
             fork="true"
             failonerror="false"
             resultproperty="test.result.code"
@@ -403,8 +403,8 @@
 
             <!-- The following two configure oscar telling it that it's running
                  as a test environment-->
-            <sysproperty key="oscar.config.properties"
-                value="file:./lib/oscar.unit.test.properties"/>
+            <sysproperty key="felix.config.properties"
+                value="file:./lib/felix.unit.test.properties"/>
 
             <!-- Tell the slick runner where to store test results. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
@@ -470,8 +470,8 @@
     <target name="run"
         description="Starts oscar and runs sip-comunicator gui (use latest build).">
 
-         <!-- forking prevents from debugging-->
-        <java classname="org.ungoverned.oscar.Main"
+         <!-- forking prevents from debugging -->
+        <java classname="org.apache.felix.main.Main"
             fork="true"
             failonerror="true"
             classpathref="project.class.path">
@@ -480,8 +480,8 @@
             <!--sysproperty key="icq.custom.message.charset" value="windows-1252"/-->
 
             <!-- Tell oscar to run sip-communicator-->
-            <sysproperty key="oscar.config.properties"
-                value="file:./lib/oscar.client.run.properties"/>
+            <sysproperty key="felix.config.properties"
+                value="file:./lib/felix.client.run.properties"/>
 
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
@@ -519,7 +519,7 @@
         </nbjpdastart>
 
         <java fork="true"
-              classname="org.ungoverned.oscar.Main"
+              classname="org.apache.felix.main.Main"
               classpathref="project.class.path"
               failonerror="true" >
            <jvmarg value="-Xdebug"/>
@@ -530,8 +530,8 @@
 
             <!-- The following two configure oscar telling it that it's running
                  as a test environment-->
-            <sysproperty key="oscar.config.properties"
-                value="file:./lib/oscar.unit.test.properties"/>
+            <sysproperty key="felix.config.properties"
+                value="file:./lib/felix.unit.test.properties"/>
 
             <!-- Tell the slick runner where to store test results. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
@@ -565,7 +565,7 @@
         bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,
         bundle-msn,bundle-msn-slick,
-        meta-contactlist,meta-contactlist-slick,
+        bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz"/>
 
@@ -923,13 +923,21 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+    <!-- BUNDLE-CONTACTLIST -->
+    <target name="bundle-contactlist">
+        <!-- Creates a bundle containing the contactlist interfaces."-->
+        <jar compress="false" destfile="${bundles.dest}/contactlist.jar"
+            manifest="src/net/java/sip/communicator/service/contactlist/contactlist.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/contactlist"
+                prefix="net/java/sip/communicator/service/contactlist"/>
+        </jar>
+    </target>
+
     <!-- BUNDLE-META-CONTACTLIST -->
     <target name="meta-contactlist">
         <!-- Creates the meta contact list bundle."-->
         <jar compress="false" destfile="${bundles.dest}/meta-cl.jar"
             manifest="src/net/java/sip/communicator/impl/contactlist/meta.cl.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/contactlist"
-                prefix="net/java/sip/communicator/service/contactlist"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/contactlist"
                 prefix="net/java/sip/communicator/impl/contactlist"/>
         </jar>

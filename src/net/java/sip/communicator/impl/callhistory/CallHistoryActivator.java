@@ -64,6 +64,7 @@ public class CallHistoryActivator
 
     public void stop(BundleContext bundleContext) throws Exception
     {
-
+        if(callHistoryService != null)
+            callHistoryService.stop(bundleContext);
     }
 }
