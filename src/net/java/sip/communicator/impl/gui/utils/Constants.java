@@ -235,12 +235,17 @@ public class Constants {
      */
     public static final Color BLUE_GRAY_BORDER_DARKER_COLOR = new Color(131, 149,
             178);
-
+    
     /**
      * Light gray color used in the look and feel.
      */
     public static final Color LIGHT_GRAY_COLOR = new Color(200, 200, 200);
-
+    
+    /**
+     * Dark blue color used in the About Window.
+     */
+    public static final Color DARK_BLUE = new Color(23, 65, 125);
+    
     /*
      * ======================================================================
      * --------------------------- FONT CONSTANTS ---------------------------

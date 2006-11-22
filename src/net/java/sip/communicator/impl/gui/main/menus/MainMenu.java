@@ -29,7 +29,7 @@ public class MainMenu
 
     private ViewMenu viewMenu;
 
-    private JMenu helpMenu = new JMenu();
+    private HelpMenu helpMenu;
 
     /**
      * Creates an instance of <tt>Menu</tt>.
@@ -39,6 +39,7 @@ public class MainMenu
         this.fileMenu = new FileMenu(mainFrame);
         this.toolsMenu = new ToolsMenu(mainFrame);
         this.viewMenu = new ViewMenu(mainFrame);
+        this.helpMenu = new HelpMenu(mainFrame);
         
         this.init();
     }
@@ -68,9 +69,6 @@ public class MainMenu
         this.add(toolsMenu);
         this.add(viewMenu);
         this.add(helpMenu);
-
-        // Disable all menus that are not yet implemented.
-        this.helpMenu.setEnabled(false);
     }
     
     /**

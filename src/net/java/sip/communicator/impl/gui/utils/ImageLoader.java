@@ -412,8 +412,11 @@ public class ImageLoader {
     public static final ImageID EXCLAMATION_MARK
         = new ImageID("EXCLAMATION_MARK");
 
-    
-    
+    /**
+     * The image used for about window background.
+     */
+    public static final ImageID ABOUT_WINDOW_BACKGROUND
+        = new ImageID("ABOUT_WINDOW_BACKGROUND");
 
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
