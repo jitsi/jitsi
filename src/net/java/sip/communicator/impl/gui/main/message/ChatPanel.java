@@ -127,7 +127,6 @@ public class ChatPanel
                 loadHistoryPeriod();
             }
         }.start();
-        
     }
 
     /**
@@ -383,17 +382,12 @@ public class ChatPanel
                 JTabbedPane tabbedPane = (JTabbedPane) parent;
                 if (tabbedPane.getSelectedComponent() == component) {
                     SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            getChatWindow().setTitle(
-                                    getMetaContact().getDisplayName());
+                        public void run() {                           
 
                             chatWindow.setCurrentChatPanel(ChatPanel.this);
-                            
-                            chatWindow.getMainToolBar().changeHistoryButtonsSate(
-                                    ChatPanel.this);
-
+                           
                             writeMessagePanel.getEditorPane()
-                                    .requestFocus();
+                                    .requestFocus();                               
                         }
                     });
                 }
@@ -788,6 +782,8 @@ public class ChatPanel
                 this.lastHistoryMsgTimestamp = evt.getTimestamp();
             }
         }
+
+        this.chatWindow.getMainToolBar().changeHistoryButtonsState(this);
     }
 
     public Date getFirstHistoryMsgTimestamp()

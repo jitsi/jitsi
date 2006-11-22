@@ -92,7 +92,8 @@ public class MainToolBar
         this.setBorder(BorderFactory.createEmptyBorder(2, 2, 5, 2));
         
         this.nextButton.setEnabled(false);
-
+        this.previousButton.setEnabled(false);
+        
         this.add(saveButton);
         this.add(printButton);
 
@@ -374,7 +375,7 @@ public class MainToolBar
             
             conversationPanel.setDefaultContent();
             
-            changeHistoryButtonsSate(chatPanel);
+            changeHistoryButtonsState(chatPanel);
         }
     }
     
@@ -382,23 +383,30 @@ public class MainToolBar
      * Disables/Enables history arrow buttons depending on whether the
      * current page is the first, the last page or a middle page.
      */
-    public void changeHistoryButtonsSate(ChatPanel chatPanel)
-    {
+    public void changeHistoryButtonsState(ChatPanel chatPanel)
+    {   
         ChatConversationPanel convPanel = chatPanel.getChatConversationPanel();
         
-        if(chatPanel.getFirstHistoryMsgTimestamp() == null)
-            return;
+        Date firstMsgInHistory = chatPanel.getFirstHistoryMsgTimestamp();
+        Date lastMsgInHistory = chatPanel.getLastHistoryMsgTimestamp();
+        Date firstMsgInPage = convPanel.getPageFirstMsgTimestamp();
+        Date lastMsgInPage = convPanel.getPageLastMsgTimestamp();
         
-        if(chatPanel.getFirstHistoryMsgTimestamp()
-            .compareTo(convPanel.getPageFirstMsgTimestamp()) < 0) {
+        if(firstMsgInHistory == null || lastMsgInHistory == null) {
+            previousButton.setEnabled(false);
+            nextButton.setEnabled(false);
+            return;
+        }
+        
+        if(firstMsgInHistory.compareTo(firstMsgInPage) < 0) {
             previousButton.setEnabled(true);
         }
         else {
             previousButton.setEnabled(false);
         }
         
-        if(chatPanel.getLastHistoryMsgTimestamp()
-            .compareTo(convPanel.getPageLastMsgTimestamp()) > 0) {
+        if(lastMsgInPage.getTime() > 0
+                && (lastMsgInHistory.compareTo(lastMsgInPage) > 0)) {
             nextButton.setEnabled(true);
         }
         else {

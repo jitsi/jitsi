@@ -186,7 +186,6 @@ public class ChatWindow
     public ChatPanel createChat(MetaContact contact, PresenceStatus status,
         Contact protocolContact)
     {
-
         ChatPanel chatPanel = new ChatPanel(this, contact, protocolContact);
 
         this.contactChats.put(contact.getMetaUID(), chatPanel);
@@ -418,6 +417,10 @@ public class ChatWindow
     public void setCurrentChatPanel(ChatPanel currentChatPanel)
     {
         this.currentChatPanel = currentChatPanel;
+
+        this.setTitle(currentChatPanel.getMetaContact().getDisplayName());
+
+        this.getMainToolBar().changeHistoryButtonsState(currentChatPanel);
     }
 
     /**

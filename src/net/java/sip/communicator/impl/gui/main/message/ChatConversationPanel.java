@@ -78,7 +78,7 @@ public class ChatConversationPanel
 
     private Date lastIncomingMsgTimestamp = new Date(0);
     
-    private Date pageFirstMsgTimestamp = new Date(System.currentTimeMillis());
+    private Date pageFirstMsgTimestamp = new Date(Long.MAX_VALUE);
     
     private Date pageLastMsgTimestamp = new Date(0);
     
