@@ -112,6 +112,12 @@ public class CallSessionImpl
     private int maxPortNumber = 6000;
 
     /**
+     * The name of the property indicating the length of our receive buffer.
+     */
+    private static final String PROPERTY_NAME_RECEIVE_BUFFER_LENGTH
+        = "net.java.sip.communicator.media.impl.RECEIVE_BUFFER_LENGTH";
+
+    /**
      * The list of currently active players that we have created during this
      * session.
      */
@@ -283,7 +289,6 @@ public class CallSessionImpl
             try
             {
                 stream.getDataSource().stop();
-                stream.getDataSource().disconnect();
                 stream.stop();
                 stream.close();
             }
@@ -301,7 +306,6 @@ public class CallSessionImpl
             try
             {
                 stream.getDataSource().stop();
-                stream.getDataSource().disconnect();
             }
             catch (IOException ex)
             {
@@ -1141,7 +1145,22 @@ public class CallSessionImpl
             .getControl(BufferControl.class.getName());
         if (bc != null)
         {
-            long buff = bc.setBufferLength(500);
+            long buff = 500;
+            String buffStr = MediaActivator.getConfigurationService()
+                    .getString(PROPERTY_NAME_RECEIVE_BUFFER_LENGTH);
+            try
+            {
+                if(buffStr != null && buffStr.length() > 0)
+                    buff = Long.parseLong(buffStr);
+            }
+            catch (NumberFormatException exc)
+            {
+                logger.warn(buffStr
+                            + " is not a valid receive buffer value (integer)."
+                            , exc);
+            }
+
+            buff = bc.setBufferLength(buff);
             logger.trace("set receiver buffer len to=" + buff);
             bc.setEnabledThreshold(true);
             bc.setMinimumThreshold(100);
