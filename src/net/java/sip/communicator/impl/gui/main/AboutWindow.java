@@ -101,6 +101,7 @@ public class AboutWindow
         this.textPanel.add(rightsArea);
         this.textPanel.add(licenseArea);
         
+        this.getRootPane().setDefaultButton(okButton);
         this.okButton.addActionListener(this);
         this.buttonPanel.add(okButton);
         this.buttonPanel.setOpaque(false);
