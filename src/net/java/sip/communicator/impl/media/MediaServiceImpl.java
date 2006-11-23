@@ -17,6 +17,10 @@ import net.java.sip.communicator.service.media.event.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import com.sun.media.util.Registry;
+import javax.media.PlugInManager;
+import javax.media.Format;
+import javax.media.Codec;
 
 /**
  * The service is meant to be a wrapper of media libraries such as JMF,
@@ -260,6 +264,17 @@ public class MediaServiceImpl
     {
         MediaServiceImpl msimpl = new MediaServiceImpl();
         msimpl.start();
+
+        String className = "classname";
+        Class pic = Class.forName(className);
+        Object instance = pic.newInstance();
+
+        PlugInManager.addPlugIn(
+            className,
+            ((Codec)instance).getSupportedInputFormats(),
+            ((Codec)instance).getSupportedOutputFormats(null),
+            PlugInManager.CODEC);
+
         System.out.println("done");
     }
 }

@@ -143,7 +143,7 @@ public class IcqProtocolProviderSlick
 
                     addTest(TestOperationSetTypingNotifications.suite());
 
-                    addTest(TestOperationSetServerStoredInfo.suite());
+//                    addTest(TestOperationSetServerStoredInfo.suite());
                 }
 
                 //This must remain after all other tests using the accounts
