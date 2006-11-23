@@ -27,8 +27,12 @@ public class ContactListEvent
      * selecting a protocol contact in the contact list.
      */
     public static final int PROTOCOL_CONTACT_SELECTED = 2;
-
-    private MetaContact sourceContact;
+    
+    /**
+     * Indicates that the ContactListEvent instance was triggered by selecting
+     * a group in the contact list.
+     */
+    public static final int GROUP_SELECTED = 3;
     
     private Contact sourceProtoContact;
     
@@ -38,11 +42,11 @@ public class ContactListEvent
      * @param eventID one of the XXX_SELECTED static fields indicating the
      * nature of the event.
      */
-    public ContactListEvent(MetaContact source, int eventID)
+    public ContactListEvent(Object source, int eventID)
     {
         super(source);
+        
         this.eventID = eventID;
-        this.sourceContact = source;
     }
 
     /**
@@ -52,12 +56,11 @@ public class ContactListEvent
      * @param eventID one of the XXX_SELECTED static fields indicating the
      * nature of the event.
      */
-    public ContactListEvent(MetaContact source,
+    public ContactListEvent(Object source,
             Contact protocolContact, int eventID)
     {
         super(source);
         this.eventID = eventID;
-        this.sourceContact = source;
         this.sourceProtoContact = protocolContact;
     }
     
@@ -77,7 +80,18 @@ public class ContactListEvent
      */
     public MetaContact getSourceContact()
     {
-        return sourceContact;
+        if(getSource() instanceof MetaContact)
+            return (MetaContact)getSource();
+        
+        return null;
+    }
+    
+    public MetaContactGroup getSourceGroup()
+    {
+        if(getSource() instanceof MetaContactGroup)
+            return (MetaContactGroup)getSource();
+        
+        return null;
     }
 
     /**

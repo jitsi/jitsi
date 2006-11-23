@@ -87,7 +87,7 @@ public class ContactRightButtonMenu
     private ContactList guiContactList;
     /**
      * Creates an instance of ContactRightButtonMenu.
-     * @param mainFrame The parent MainFrame window.
+     * @param contactList The contact list over which this menu is shown.
      * @param contactItem The MetaContact for which the menu is opened.
      */
     public ContactRightButtonMenu(ContactList contactList,
@@ -185,9 +185,6 @@ public class ContactRightButtonMenu
         if (contactItem.getContactCount() > 1) {
            JMenuItem allItem = new JMenuItem(Messages.getString("allContacts"));
            JMenuItem allItem1 = new JMenuItem(Messages.getString("allContacts"));
-           
-           allItem.setFont(Constants.FONT.deriveFont(Font.BOLD));
-           allItem1.setFont(Constants.FONT.deriveFont(Font.BOLD));
            
            allItem.addActionListener(this);
            allItem1.addActionListener(this);
@@ -529,6 +526,26 @@ public class ContactRightButtonMenu
             }   
         }
     }
+    
+    public void groupSelected(ContactListEvent evt)
+    {   
+        this.moveDialog.dispose();
+        
+        MetaContactGroup sourceGroup = evt.getSourceGroup();
+        
+        guiContactList.removeExcContactListListener(this);
+        
+        guiContactList.setCursor(
+                Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        
+        if(moveAllContacts) {
+            mainFrame.getContactList()
+                .moveMetaContact(contactItem, sourceGroup);
+        }
+        else if(contactToMove != null) {
+            new MoveSubcontactThread(sourceGroup).start();
+        }
+    }
 
     /**
      * Implements ContactListListener.contactSelected method in order
@@ -580,21 +597,35 @@ public class ContactRightButtonMenu
     }
     
     /**
-     * 
+     * Moves the previously choosen contact in the given meta group or meta
+     * contact.
      */
     private class MoveSubcontactThread extends Thread
     {
         private MetaContact metaContact;
+        
+        private MetaContactGroup metaGroup;
         
         public MoveSubcontactThread(MetaContact metaContact)
         {
             this.metaContact = metaContact;
         }
         
+        public MoveSubcontactThread(MetaContactGroup metaGroup)
+        {
+            this.metaGroup = metaGroup;
+        }
+        
         public void run()
         {
-            mainFrame.getContactList()
-                .moveContact(contactToMove, metaContact);
+            if(metaContact != null) {
+                mainFrame.getContactList()
+                    .moveContact(contactToMove, metaContact);
+            }
+            else {
+                mainFrame.getContactList()
+                    .moveContact(contactToMove, metaGroup);
+            }
         }
     }
     
@@ -620,5 +651,5 @@ public class ContactRightButtonMenu
                     .moveContact(contact, metaContact);
             }
         }
-    }
+    }    
 }

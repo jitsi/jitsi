@@ -7,14 +7,13 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+
 import javax.swing.*;
 import javax.swing.Timer;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.message.*;
@@ -126,6 +125,12 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
         SwingUtilities
                 .invokeLater(new RunMessageWindow(evt.getSourceContact()));
     }
+    
+    /**
+     * Implements the ContactListListener.groupSelected method.
+     */
+    public void groupSelected(ContactListEvent evt)
+    {}
 
     /**
      * Implements the ContactListListener.protocolContactSelected method.

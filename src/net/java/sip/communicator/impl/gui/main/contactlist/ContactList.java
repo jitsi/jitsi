@@ -355,9 +355,9 @@ public class ContactList extends JList implements MetaContactListListener,
      * @param sourceContact the contact that this event is about.
      * @param eventID the id indicating the exact type of the event to fire.
      */
-    public void fireContactListEvent(MetaContact sourceContact, int eventID)
+    public void fireContactListEvent(Object source, int eventID)
     {
-        ContactListEvent evt = new ContactListEvent(sourceContact, eventID);
+        ContactListEvent evt = new ContactListEvent(source, eventID);
 
         if (excContactListListeners.size() > 0) {
             synchronized (excContactListListeners) {
@@ -373,6 +373,9 @@ public class ContactList extends JList implements MetaContactListListener,
                         break;
                     case ContactListEvent.PROTOCOL_CONTACT_SELECTED:
                         listener.protocolContactSelected(evt);
+                        break;
+                    case ContactListEvent.GROUP_SELECTED:
+                        listener.groupSelected(evt);
                         break;
                     default:
                         logger.error("Unknown event type " + evt.getEventID());
@@ -393,6 +396,9 @@ public class ContactList extends JList implements MetaContactListListener,
                         break;
                     case ContactListEvent.PROTOCOL_CONTACT_SELECTED:
                         listener.protocolContactSelected(evt);
+                        break;
+                    case ContactListEvent.GROUP_SELECTED:
+                        listener.groupSelected(evt);
                         break;
                     default:
                         logger.error("Unknown event type " + evt.getEventID());
@@ -528,6 +534,9 @@ public class ContactList extends JList implements MetaContactListListener,
                         selectedCellPoint.y + renderer.getHeight());
 
                 groupRightButtonMenu.setVisible(true);
+            }
+            else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0){
+                fireContactListEvent(group, ContactListEvent.GROUP_SELECTED);
             }
         }
 

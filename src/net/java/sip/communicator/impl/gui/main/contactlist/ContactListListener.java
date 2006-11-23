@@ -11,6 +11,8 @@ import java.util.*;
 public interface ContactListListener extends EventListener
 {
     
+    public void groupSelected(ContactListEvent evt);
+    
     public void contactSelected(ContactListEvent evt);
     
     public void protocolContactSelected(ContactListEvent evt);
