@@ -547,7 +547,7 @@ public class MainFrame
                     .findMetaContactByContact(sourceContact);
 
             if (metaContact != null) {
-                if(!evt.getOldStatus().equals(evt.getNewStatus())) {
+                if(evt.getOldStatus() != evt.getNewStatus()) {
                     clistPanel.getContactList().modifyContact(metaContact);
                     clistPanel.updateChatContactStatus(
                             metaContact, sourceContact);
