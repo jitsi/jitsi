@@ -16,14 +16,15 @@ import javax.swing.table.*;
  * 
  * @author Yana Stamcheva
  */
-public class ExtendedTableModel extends DefaultTableModel {
-    
+public class ExtendedTableModel extends DefaultTableModel
+{   
     /**
      * Returns the index of the row, in which the given value is contained.
      * @param value the value to search for
      * @return the index of the row, in which the given value is contained.
      */
-    public int rowIndexOf(Object value) {
+    public int rowIndexOf(Object value)
+    {
         Vector dataVector = this.getDataVector();
         
         for(int i = 0; i < dataVector.size(); i ++) {
@@ -34,5 +35,11 @@ public class ExtendedTableModel extends DefaultTableModel {
             }
         }
         return -1;
+    }
+    
+    
+    public boolean isCellEditable(int row, int col)
+    {        
+        return false;
     }
 }

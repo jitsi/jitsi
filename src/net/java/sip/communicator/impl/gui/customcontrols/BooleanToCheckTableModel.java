@@ -25,4 +25,12 @@ public class BooleanToCheckTableModel extends DefaultTableModel {
     public Class getColumnClass(int c) {
         return getValueAt(0, c).getClass();
     }
+    
+    public boolean isCellEditable(int row, int col)
+    {        
+        if(col < 1)
+            return true;
+        else
+            return false;
+    }
 }
