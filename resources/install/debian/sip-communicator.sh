@@ -19,10 +19,12 @@ javabin=`which java`
 SCDIR=/usr/share/sip-communicator
 LIBPATH=$SCDIR/lib
 
+export LD_PRELOAD=/usr/lib/libaoss.so
+
 cd $SCDIR
 
 if [ -f $javabin ]
 then
-		$javabin -classpath "$LIBPATH/BrowserLauncher2-10rc4.jar:$LIBPATH/Stun4J.jar:$LIBPATH/bcprov-jdk14-130.jar:$LIBPATH/concurrent.jar:$LIBPATH/joscar-0.9.4-cvs-bin.jar:$LIBPATH/junit.jar:$LIBPATH/log4j-1.2.8.jar:$LIBPATH/moduleloader.jar:$LIBPATH/oscar-aim.jar:$LIBPATH/oscar.jar:$LIBPATH/osgi.jar:$LIBPATH/retroweaver-rt.jar:$LIBPATH/retroweaver.jar:$LIBPATH/servicebinder.jar:$LIBPATH/sip-sdp.jar:$LIBPATH/smack.jar:$LIBPATH/smackx.jar:$LIBPATH/xalan-2.6.0.jar.ant" -Dicq.custom.message.charset=windows-1251 -Doscar.config.properties=file:$LIBPATH/oscar.client.run.properties -Djava.util.logging.config.file=$LIBPATH/logging.properties org.ungoverned.oscar.Main
+		$javabin -classpath "$LIBPATH/BrowserLauncher2-10rc4.jar:$LIBPATH/JainSipApi1.2.jar:$LIBPATH/JainSipRi1.2.jar:$LIBPATH/Stun4J.jar:$LIBPATH/cindy.jar:$LIBPATH/commons-logging.jar:$LIBPATH/concurrent.jar:$LIBPATH/felix.jar:$LIBPATH/jml-1.0a3.jar:$LIBPATH/joscar-0.9.4-cvs-bin.jar:$LIBPATH/kxml-min.jar:$LIBPATH/nist-sdp-1.0.jar:$LIBPATH/oscar-aim.jar:$LIBPATH/retroweaver-rt.jar:$LIBPATH/retroweaver.jar:$LIBPATH/servicebinder.jar:$LIBPATH/sip-sdp.jar:$LIBPATH/smack.jar:$LIBPATH/smackx.jar" -Dicq.custom.message.charset=windows-1251 -Dfelix.config.properties=file:$LIBPATH/felix.client.run.properties -Djava.util.logging.config.file=$LIBPATH/logging.properties org.apache.felix.main.Main
 		exit $?
 fi

@@ -4,13 +4,7 @@
 #export DH_VERBOSE=1
 
 # Build
-JAVA_HOME_DIRS=/usr/lib/j2sdk1.5-sun /usr/lib/j2sdk1.4-sun
-export JAVA_HOME ?= $(shell for j in $(JAVA_HOME_DIRS); do [ -d "$$j" ] && echo $$j && exit 0; done)
-export JAVA=$(JAVA_HOME)/bin/java
-export JAVAC=$(JAVA_HOME)/bin/javac
-export JAR=$(JAVA_HOME)/bin/jar
 export ANT=ant
-# this only compile with sun javac and jar at the moment
 
 export BASEDIR=../..
 
@@ -53,12 +47,10 @@ install: build
 	cp debian/sip-communicator.desktop debian/sip-communicator/usr/share/applications/
 	cp $(BASEDIR)/lib/*.jar debian/sip-communicator/usr/share/sip-communicator/lib
 	cp $(BASEDIR)/lib/logging.properties debian/sip-communicator/usr/share/sip-communicator/lib
-	cp $(BASEDIR)/lib/oscar.client.run.properties debian/sip-communicator/usr/share/sip-communicator/lib
-	cp -r $(BASEDIR)/lib/native debian/sip-communicator/usr/share/sip-communicator/lib
-	cp $(BASEDIR)/lib/bundle/shell.jar debian/sip-communicator/usr/share/sip-communicator/lib/bundle/shell.jar
-	cp $(BASEDIR)/lib/bundle/bundlerepository.jar debian/sip-communicator/usr/share/sip-communicator/lib/bundle/bundlerepository.jar
-	cp $(BASEDIR)/lib/bundle/servicebinder.jar debian/sip-communicator/usr/share/sip-communicator/lib/bundle/servicebinder.jar
-	cp $(BASEDIR)/lib/bundle/tablelayout.jar debian/sip-communicator/usr/share/sip-communicator/lib/bundle/tablelayout.jar
+	cp $(BASEDIR)/lib/felix.client.run.properties debian/sip-communicator/usr/share/sip-communicator/lib
+	cp -r $(BASEDIR)/lib/native/linux debian/sip-communicator/usr/share/sip-communicator/lib/native
+	rm -rf debian/sip-communicator/usr/share/sip-communicator/lib/native/CVS
+	cp $(BASEDIR)/lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar debian/sip-communicator/usr/share/sip-communicator/lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar
 	cp -r $(BASEDIR)/sc-bundles debian/sip-communicator/usr/share/sip-communicator
 	install -m 755 debian/sip-communicator.sh debian/sip-communicator/usr/bin/sip-communicator
 
@@ -72,8 +64,8 @@ install: build
 	# Remove other unneeded libs
 	rm debian/sip-communicator/usr/share/sip-communicator/lib/junit.jar
 
-	# Make oscar deploy its bundles in ~/.noscar/sip-communicator.bin
-	sed -i -e "s/oscar.cache.profiledir=sip-communicator.bin/oscar.cache.profile=sip-communicator.bin/" debian/sip-communicator/usr/share/sip-communicator/lib/oscar.client.run.properties
+	# Make oscar deploy its bundles in ~/.felix/sip-communicator.bin
+	sed -i -e "s/felix.cache.profiledir=sip-communicator.bin/felix.cache.profile=sip-communicator.bin/" debian/sip-communicator/usr/share/sip-communicator/lib/felix.client.run.properties
 
 
 # Build i386 files here.

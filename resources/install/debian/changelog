@@ -1,3 +1,14 @@
+sip-communicator (1.0-alpha1-3) unstable; urgency=low
+
+  * OSGI implementation changed from Oscar to Felix:
+    - Bundle are now deployed by reference in ~/.felix/sip-communicator.bin
+    - Updated libs accordingly
+  * Dependancy added on alsa-oss so JMF can now use Alsa
+  * Removed Junit in Recommand section, because it is not relevant for the
+    user
+
+ -- Martin Andre <mandre@dev.java.net>  Fri, 24 Nov 2006 14:52:00 +0900
+
 sip-communicator (1.0-alpha1-2) unstable; urgency=low
 
   * Changed oscar behavior to deploy its bundles in

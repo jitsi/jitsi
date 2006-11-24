@@ -7,8 +7,7 @@ Standards-Version: 3.7.2
 
 Package: sip-communicator
 Architecture: i386
-Depends: java-virtual-machine, java2-runtime, libbcprov-java, liblog4j1.2-java, libxalan2-java
-Recommends: junit
+Depends: java-virtual-machine, java2-runtime, libbcprov-java, liblog4j1.2-java, libxalan2-java, alsa-oss
 Description: the Java VoIP and Instant Messaging client
  SIP Communicator is an application that allows you to do audio/video
  conversations over the Internet through the SIP protocol, as well as chat with
