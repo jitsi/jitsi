@@ -301,7 +301,7 @@
         <javaproperty name="apple.awt.brushMetalRounded" value="true"/>
         <javaproperty name="apple.awt.showGrowBox" value="false"/>
 
-        <!-- Tell oscar to run sip-communicator -->
+        <!-- Tell felix to run sip-communicator -->
         <javaproperty name="felix.config.properties"
                       value="file:felix.client.run.properties"/>
         <!-- Tell java.util.logging about our logging preferences -->
@@ -391,7 +391,7 @@
     <!--RUN-TESTS-->
     <target name="test"
         depends="prepare-single-test,prepare-all-tests,clean-test-reports"
-        description="Starts oscar and runs selected Service Impl Compatibility Kits.">
+        description="Starts felix and runs selected Service Impl Compatibility Kits.">
 
         <!-- Do the testing itself. Note that we don't fail on error as we need
              to generate an html report before leaving this target.-->
@@ -401,7 +401,7 @@
             resultproperty="test.result.code"
             classpathref="project.class.path">
 
-            <!-- The following two configure oscar telling it that it's running
+            <!-- The following two configure felix telling it that it's running
                  as a test environment-->
             <sysproperty key="felix.config.properties"
                 value="file:./lib/felix.unit.test.properties"/>
@@ -468,7 +468,7 @@
 
     <!--RUN-SIP-COMMUNICATOR - n.b. has NO Dependents!! -->
     <target name="run"
-        description="Starts oscar and runs sip-comunicator gui (use latest build).">
+        description="Starts felix and runs sip-comunicator gui (use latest build).">
 
          <!-- forking prevents from debugging -->
         <java classname="org.apache.felix.main.Main"
@@ -479,7 +479,7 @@
             <!-- Sets the charset for the messages -->
             <!--sysproperty key="icq.custom.message.charset" value="windows-1252"/-->
 
-            <!-- Tell oscar to run sip-communicator-->
+            <!-- Tell felix to run sip-communicator-->
             <sysproperty key="felix.config.properties"
                 value="file:./lib/felix.client.run.properties"/>
 
@@ -502,10 +502,10 @@
 
     <!-- - - NetBeans Targets for specific files selected via ide-actions - -->
 
-    <!--netbeans only - debug a single test file under oscar and jUnit-->
+    <!--netbeans only - debug a single test file under felix and jUnit-->
     <target name="debug-selected-file"
             depends="init,prepare-single-test,prepare-all-tests">
-        <!--internal-target- starts oscar and debugs the selected
+        <!--internal-target- starts felix and debugs the selected
                              Service Impl Compatibility Kit -->
 
       <fail unless="test.name"
@@ -528,7 +528,7 @@
            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
            <arg value="${test.name}"/>
 
-            <!-- The following two configure oscar telling it that it's running
+            <!-- The following two configure felix telling it that it's running
                  as a test environment-->
             <sysproperty key="felix.config.properties"
                 value="file:./lib/felix.unit.test.properties"/>
