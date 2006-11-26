@@ -682,19 +682,6 @@ public class SipRegistrarConnection
     }
 
     /**
-     * Handles a timeout of our register request.
-     * @param transatcion the transaction that has just timeouted.
-     * @param request our initial register request.
-     */
-    public void processTimeout(Transaction transatcion, Request request)
-    {
-        setRegistrationState(
-            RegistrationState.UNREGISTERED
-            , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
-            , "A timeout occurred while trying to connect to the server.");
-    }
-
-    /**
      * Handles a NOT_IMPLEMENTED response sent in reply of our register request.
      *
      * @param transatcion the transaction that our initial register reqeust
@@ -705,7 +692,7 @@ public class SipRegistrarConnection
                                       Response response)
     {
             setRegistrationState(
-                RegistrationState.UNREGISTERED
+                RegistrationState.CONNECTION_FAILED
                 , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
                 , registrarAddress.getHostAddress()
                 + " does not appear to be a sip registrar. (Returned a "
@@ -880,6 +867,10 @@ public class SipRegistrarConnection
      */
     public void processTimeout(TimeoutEvent timeoutEvent)
     {
+        setRegistrationState(
+            RegistrationState.CONNECTION_FAILED
+            , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+            , "A timeout occurred while trying to connect to the server.");
     }
 
     /**
@@ -893,6 +884,7 @@ public class SipRegistrarConnection
     public void processTransactionTerminated(TransactionTerminatedEvent
                                              transactionTerminatedEvent)
     {
+        //doesn't mean anything. we do failure handling in processTimeout
     }
 
     /**
@@ -903,6 +895,10 @@ public class SipRegistrarConnection
      */
     public void processIOException(IOExceptionEvent exceptionEvent)
     {
+        setRegistrationState(
+            RegistrationState.CONNECTION_FAILED
+            , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+            , "An error occurred while trying to connect to the server.");
     }
 
     /**

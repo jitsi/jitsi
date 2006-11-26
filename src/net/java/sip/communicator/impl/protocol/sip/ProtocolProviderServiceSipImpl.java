@@ -1,4 +1,4 @@
-/*
+    /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
  * Distributable under LGPL license.
@@ -1108,7 +1108,18 @@ public class ProtocolProviderServiceSipImpl
         {
             try
             {
+                //create a listener that would notify us when unregistration
+                //has completed.
+                ShutdownUnregistrationBlockListener listener
+                    = new ShutdownUnregistrationBlockListener();
+                addRegistrationStateChangeListener(listener);
+
+                //do the unregistration
                 unregister();
+
+                //leave ourselves time to complete unregistration (may include
+                //2 REGISTER requests in case notification is needed.)
+                listener.waitForEvent(5000);
             }
             catch (OperationFailedException ex)
             {
@@ -1896,5 +1907,82 @@ public class ProtocolProviderServiceSipImpl
     public List getSupportedMethods()
     {
         return new ArrayList(methodProcessors.keySet());
+    }
+
+    private class ShutdownUnregistrationBlockListener
+        implements RegistrationStateChangeListener
+    {
+            public List collectedNewStates = new LinkedList();
+
+            /**
+             * The method would simply register all received events so that they
+             * could be available for later inspection by the unit tests. In the
+             * case where a registraiton event notifying us of a completed
+             * registration is seen, the method would call notifyAll().
+             *
+             * @param evt ProviderStatusChangeEvent the event describing the status
+             * change.
+             */
+            public void registrationStateChanged(RegistrationStateChangeEvent evt)
+            {
+                logger.debug("Received a RegistrationStateChangeEvent: " + evt);
+
+                collectedNewStates.add(evt.getNewState());
+
+                if (evt.getNewState().equals(RegistrationState.UNREGISTERED))
+                {
+                    logger.debug(
+                        "We're unregistered and will notify those who wait");
+                    synchronized (this)
+                    {
+                        notifyAll();
+                    }
+                }
+            }
+
+            /**
+             * Blocks until an event notifying us of the awaited state change is
+             * received or until waitFor miliseconds pass (whichever happens first).
+             *
+             * @param waitFor the number of miliseconds that we should be waiting
+             * for an event before simply bailing out.
+             */
+            public void waitForEvent(long waitFor)
+            {
+                logger.trace("Waiting for a "
+                             +"RegistrationStateChangeEvent.UNREGISTERED");
+
+                synchronized (this)
+                {
+                    if (collectedNewStates.contains(
+                            RegistrationState.UNREGISTERED))
+                    {
+                        logger.trace("Event already received. "
+                                     + collectedNewStates);
+                        return;
+                    }
+
+                    try
+                    {
+                        wait(waitFor);
+
+                        if (collectedNewStates.size() > 0)
+                            logger.trace(
+                                "Received a RegistrationStateChangeEvent.");
+                        else
+                            logger.trace(
+                                "No RegistrationStateChangeEvent received for "
+                                + waitFor + "ms.");
+
+                    }
+                    catch (InterruptedException ex)
+                    {
+                        logger.debug(
+                            "Interrupted while waiting for a "
+                            +"RegistrationStateChangeEvent"
+                            , ex);
+                    }
+                }
+            }
     }
 }
