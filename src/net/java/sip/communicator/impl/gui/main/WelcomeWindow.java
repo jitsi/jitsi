@@ -57,12 +57,12 @@ public class WelcomeWindow
     public WelcomeWindow(CommunicatorMain c,
             LoginManager loginManager) {
         super(c.getMainFrame());
-        
+
         this.communicator = c;
         this.loginManager = loginManager;
 
         this.setTitle(Messages.getString("warning"));
-        
+
         this.exitButton.setMnemonic(
                 Messages.getString("mnemonic.exit").charAt(0));
         this.continueButton.setMnemonic(
@@ -179,9 +179,16 @@ public class WelcomeWindow
             try {
                 GuiActivator.bundleContext.getBundle(0).stop();
             } catch (BundleException ex) {
-                logger.error("Failed to gently shutdown Oscar", ex);
+                logger.error("Failed to gently shutdown Felix", ex);
+                System.exit(0);
             }
-            System.exit(0);
+            //stopping a bundle doesn't leave the time to the felix thread to
+            //properly end all bundles and call their Activator.stop() methods.
+            //if this causes problems don't uncomment the following line but
+            //try and see why felix isn't exiting (suggesting: is it running
+            //in embedded mode?)
+            //System.exit(0);
+
         }
     }
 
