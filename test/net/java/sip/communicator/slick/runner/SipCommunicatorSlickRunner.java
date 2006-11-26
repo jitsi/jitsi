@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * net.java.sip.communicator.slick.runner.TEST_LIST system property.
  * <p>
  * After running all unit tests the SipcCommunicatorSlickRunner will try to
- * gracefully shutdown the OSCAR OSGI framework (if it fails it'll shut it
+ * gracefully shutdown the Felix OSGI framework (if it fails it'll shut it
  * down rudely ;) ) and will System.exit() with an error code in case any
  * test failures occurred or with 0 if all tests passed.
  *
@@ -164,7 +164,7 @@ public class SipCommunicatorSlickRunner
             logger.info("====================================================");
             logger.info("");
 
-            //in order to shutdown oscar we'd first need to wait for it to
+            //in order to shutdown felix we'd first need to wait for it to
             //complete it's start process, so we'll have to implement shutdown
             //in a framework listener.
             bc.addFrameworkListener(new FrameworkListener(){
@@ -180,12 +180,12 @@ public class SipCommunicatorSlickRunner
                     }
                     catch (BundleException ex)
                     {
-                        logger.error("Failed to gently shutdown Oscar",ex);
+                        logger.error("Failed to gently shutdown Felix",ex);
                     }
 
                     //if everything is ok then the stop call shouldn't have
                     //exited the the program since we must have set the
-                    //"oscar.embedded.execution" property to true
+                    //"felix.embedded.execution" property to true
                     //we could therefore now System.exit() with a code
                     //indicating whether or not all unit tests went wrong
                     System.exit(errCount > 0? -1: 0);
