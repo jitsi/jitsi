@@ -307,9 +307,12 @@
 
         <jarfileset dir=".">
           <include name="${lib}/*.jar" />
+          <exclude name="${lib}/junit.jar" />
           <include name="${lib}/bundle/*.jar" />
+          <exclude name="${lib}/bundle/junit.jar" />
           <include name="${jmf.home}/*.jar" />
           <include name="${bundles.dest}/*.jar" />
+          <exclude name="${bundles.dest}/*-slick.jar" />
         </jarfileset>
         <javafilelist dir="${lib}"
                       files="logging.properties, felix.client.run.properties"/>
