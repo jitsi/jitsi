@@ -25,6 +25,7 @@
     <property name="release.src" value="${release}/install"/>
     <property name="resources" value="resources"/>
     <property name="inst.resrc" value="${resources}/install"/>
+    <condition property="path" id="" value="${basedir}/${lib}/native/windows:${system.PATH}"/>
 
     <!-- Put here the release directory -->
     <property name="macosx.app.dir" value="${release}/macosx"/>
@@ -63,10 +64,6 @@
         <os family="windows"/>
     </condition>
 
-    <condition property="path"
-              value="${basedir}/${lib}/native/windows:${system.PATH}">
-        <isset property="is.running.windows"/>
-    </condition>
     <!-- linux specific properties -->
     <condition property="is.running.linux" value="${os.name}">
         <equals arg1="${os.name}" arg2="linux" casesensitive="false" trim="true"/>
