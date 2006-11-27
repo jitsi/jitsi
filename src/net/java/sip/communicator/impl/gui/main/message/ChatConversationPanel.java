@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
+import java.text.*;
 import java.util.*;
 import java.util.regex.*;
 
@@ -21,6 +22,7 @@ import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.impl.gui.main.message.history.*;
 import net.java.sip.communicator.impl.gui.main.message.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
@@ -82,6 +84,10 @@ public class ChatConversationPanel
     
     private Date pageLastMsgTimestamp = new Date(0);
     
+    private int messagesPerPage = 0;
+    
+    private boolean isHistory = false;
+    
     /**
      * Creates an instance of <tt>ChatConversationPanel</tt>.
      * @param chatContainer The parent <tt>ChatConversationContainer</tt>.
@@ -92,6 +98,9 @@ public class ChatConversationPanel
 
         this.chatContainer = chatContainer;
 
+        if(chatContainer instanceof HistoryWindow)
+            isHistory = true;
+       
         this.rightButtonMenu
             = new ChatRightButtonMenu(this);
 
@@ -185,22 +194,31 @@ public class ChatConversationPanel
     public String processMessage(String contactName, Date date,
             String messageType, String message)
     {
-        if((messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)
+        if(!isHistory
+            && (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)
                 || messageType.equals(Constants.HISTORY_OUTGOING_MESSAGE))
             && (date.compareTo(pageFirstMsgTimestamp) < 0)) {
             
             pageFirstMsgTimestamp = date;
         }
         
-        if((messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)
+        if(!isHistory
+            && (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)
                 || messageType.equals(Constants.HISTORY_OUTGOING_MESSAGE))
-                && (date.compareTo(pageLastMsgTimestamp) > 0)) {
+            && (date.compareTo(pageLastMsgTimestamp) > 0)) {
             pageLastMsgTimestamp = date;            
         }
         
+        String dateString = DateFormat
+            .getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(date);
+                
         String chatString = "";
         String endHeaderTag = "";
         String timeString = "";
+        
+        String startDivTag = "<DIV id=\"message\">";
+        String startHistoryDivTag = "<DIV id=\"message\" style=\"color:#707070;\">";
+        String endDivTag = "</DIV>";
         
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -212,34 +230,34 @@ public class ChatConversationPanel
 
         if (messageType.equals(Constants.INCOMING_MESSAGE)) {
             this.lastIncomingMsgTimestamp = new Date();
-            chatString = "<h2>";
+            chatString = "<h2 id=\"header\" date=\"" + dateString + "\">";
             endHeaderTag = "</h2>";
 
             chatString += timeString + contactName + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag
-                + "<DIV>" + "<PLAINTEXT>"
+                + startDivTag + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
-                + "</PLAINTEXT>" + "</DIV>";
+                + "</PLAINTEXT>" + endDivTag;
         }
         else if (messageType.equals(Constants.OUTGOING_MESSAGE)){
-            chatString = "<h3>";
+            chatString = "<h3 id=\"header\" date=\"" + dateString + "\">";
             endHeaderTag = "</h3>";
 
             chatString += timeString + Messages.getString("me") + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag
-                + "<DIV>" + "<PLAINTEXT>"
+                + startDivTag + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
-                + "</PLAINTEXT>" + "</DIV>";
+                + "</PLAINTEXT>" + endDivTag;
         }
         else if (messageType.equals(Constants.SYSTEM_MESSAGE)) {
-            chatString = "<h4>";
+            chatString = "<h4 id=\"header\" date=\"" + dateString + "\">";
             endHeaderTag = "</h4>";
 
             chatString += GuiUtils.formatTime(date) + " "
             + contactName + " " + message + endHeaderTag;
         }
         else if (messageType.equals(Constants.ERROR_MESSAGE)) {
-            chatString = "<h6>";
+            chatString = "<h6 id=\"header\" date=\"" + dateString + "\">";
             endHeaderTag = "</h6>";
             
             String errorIcon = "<IMG SRC='"
@@ -251,25 +269,28 @@ public class ChatConversationPanel
                 + endHeaderTag + "<h5>" + message + "</h5>";
         }
         else if (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)) {
-            chatString = "<h2>";
+            chatString = "<h2 id=\"header\" date=\"" + dateString + "\">";
             endHeaderTag = "</h2>";
 
             chatString += timeString + contactName + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag
-                + "<DIV style=\"color:#707070;\">" + "<PLAINTEXT>"
+                + startHistoryDivTag + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
-                + "</PLAINTEXT>" + "</DIV>";
+                + "</PLAINTEXT>" + endDivTag;
         }
         else if (messageType.equals(Constants.HISTORY_OUTGOING_MESSAGE)) {
-            chatString = "<h3>";
+            chatString = "<h3 id=\"header\" date=\"" + dateString + "\">";
             endHeaderTag = "</h3>";
 
             chatString += timeString + Messages.getString("me") + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag
-                + "<DIV style=\"color:#707070;\">" + "<PLAINTEXT>"
+                + startHistoryDivTag + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
-                + "</PLAINTEXT>" + "</DIV>";
+                + "</PLAINTEXT>" + endDivTag;
         }
+        
+        messagesPerPage++;
+        
         return chatString;
     }
     
@@ -305,12 +326,16 @@ public class ChatConversationPanel
 
         try {
             this.document.insertAfterEnd(root
-                    .getElement(root.getElementCount() - 1), chatString);
+                    .getElement(root.getElementCount() - 1), chatString);            
         } catch (BadLocationException e) {
             LOGGER.error("Insert in the HTMLDocument failed.", e);
         } catch (IOException e) {
             LOGGER.error("Insert in the HTMLDocument failed.", e);
         }
+        
+        if(!isHistory)
+            this.ensureDocumentSize();
+        
         //Scroll to the last inserted text in the document.
         this.setCarretToEnd();
     }
@@ -323,20 +348,72 @@ public class ChatConversationPanel
     public void insertMessageAfterStart(String chatString)
     {
         Element root = this.document.getDefaultRootElement();
-
+        
         try {
             this.document.insertBeforeStart(root
-                    .getElement(0), chatString);
+                    .getElement(0), chatString);            
         } catch (BadLocationException e) {
             LOGGER.error("Insert in the HTMLDocument failed.", e);
         } catch (IOException e) {
             LOGGER.error("Insert in the HTMLDocument failed.", e);
         }
+        
+        if(!isHistory)
+            this.ensureDocumentSize();
+        
         //Scroll to the last inserted text in the document.
         this.setCarretToEnd();
     }
     
 
+    private void ensureDocumentSize()
+    {                
+        if(messagesPerPage >= Constants.CHAT_BUFFER_SIZE)
+        {
+            Element firstHeaderElement = this.document.getElement("header");
+            Element firstMessageElement = this.document.getElement("message");
+            try {
+                this.document.remove(firstHeaderElement.getStartOffset(),
+                    firstHeaderElement.getEndOffset()
+                        - firstHeaderElement.getStartOffset());
+                
+                this.document.remove(firstMessageElement.getStartOffset(),
+                    firstMessageElement.getEndOffset()
+                        - firstMessageElement.getStartOffset());
+            }
+            catch (BadLocationException e) {
+                LOGGER.error("Error removing messages from chat: ", e);
+            }
+            
+            Element newHeaderElement = this.document.getElement("header");
+            
+            String dateString = (String)newHeaderElement
+                .getAttributes().getAttribute("date");
+                 
+            
+            try {
+                Date newFirstMsgTimestamp;
+                newFirstMsgTimestamp
+                    = DateFormat.getDateTimeInstance(
+                        DateFormat.LONG, DateFormat.LONG).parse(dateString);
+                
+                //Update the start date for the last page. Needed in the main
+                //toolbar in order to load differently messages for the last page.
+                if(chatContainer instanceof ChatPanel) {
+                    
+                    ((ChatPanel)chatContainer).getChatWindow()
+                        .getMainToolBar().setBeginLastPageTimeStamp(
+                                pageFirstMsgTimestamp);
+                    
+                    pageFirstMsgTimestamp = newFirstMsgTimestamp;
+                }
+            }
+            catch (ParseException e) {
+                LOGGER.error("Error removing messages from chat: ", e);
+            }
+        }
+    }
+    
     /**
      * Highlights keywords searched in the history.
      * @param message the source message
@@ -641,6 +718,7 @@ public class ChatConversationPanel
         
         pageFirstMsgTimestamp = new Date(System.currentTimeMillis());
         pageLastMsgTimestamp = new Date(0);
+        messagesPerPage = 0;
     }
     
     /**

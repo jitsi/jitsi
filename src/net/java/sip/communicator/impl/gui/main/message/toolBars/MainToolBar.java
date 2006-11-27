@@ -69,7 +69,7 @@ public class MainToolBar
     
     private static final int MESSAGES_PER_PAGE = 20;
     
-    private Date lastPageTimestamp; 
+    private Date beginLastPageTimeStamp; 
     
     SmiliesSelectorBox smiliesBox;
     
@@ -253,8 +253,8 @@ public class MainToolBar
                             lastMessageTimeStamp = evt.getTimestamp();
                         }
                         
-                        if(lastPageTimestamp == null)
-                            lastPageTimestamp = lastMessageTimeStamp;                        
+                        if(beginLastPageTimeStamp == null)
+                            beginLastPageTimeStamp = lastMessageTimeStamp;                        
                     }
                 }   
             }.start();    
@@ -273,14 +273,14 @@ public class MainToolBar
                         = chatPanel.getChatConversationPanel();
                 
                     MetaContact metaContact = chatPanel.getMetaContact();
-                    
+                                        
                     Collection c;
-                    if(lastPageTimestamp.compareTo(
+                    if(beginLastPageTimeStamp.compareTo(
                             conversationPanel.getPageLastMsgTimestamp()) == 0) {
                         
                         c = msgHistory.findByPeriod(
                                 metaContact,
-                                lastPageTimestamp,
+                                beginLastPageTimeStamp,
                                 new Date(System.currentTimeMillis()));
                     }
                     else {
@@ -412,5 +412,10 @@ public class MainToolBar
         else {
             nextButton.setEnabled(false);
         }
+    }
+
+    public void setBeginLastPageTimeStamp(Date beginLastPageTimeStamp)
+    {
+        this.beginLastPageTimeStamp = beginLastPageTimeStamp;
     }
 }
