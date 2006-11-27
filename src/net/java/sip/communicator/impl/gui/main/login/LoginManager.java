@@ -304,6 +304,10 @@ public class LoginManager
                     JOptionPane.showMessageDialog(null, msgText, Messages
                         .getString("error"), JOptionPane.ERROR_MESSAGE);
                 }
+                else if (evt.getReasonCode() == RegistrationStateChangeEvent
+                        .REASON_CHANGE_REQUESTED_BY_USER) {
+                    //do nothing
+                }
                 else {
                     SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
                         Messages.getString("unregisteredMessage",
