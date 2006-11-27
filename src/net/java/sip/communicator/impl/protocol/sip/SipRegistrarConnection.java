@@ -429,7 +429,7 @@ public class SipRegistrarConnection
         if (grantedExpiration <= 0 || requestedExpiration <= 0)
         {
             setRegistrationState(RegistrationState.UNREGISTERED
-                , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+                , RegistrationStateChangeEvent.REASON_CHANGE_REQUESTED_BY_USER
                 , "Registration terminated.");
         }
         else
