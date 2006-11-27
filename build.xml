@@ -25,7 +25,7 @@
     <property name="release.src" value="${release}/install"/>
     <property name="resources" value="resources"/>
     <property name="inst.resrc" value="${resources}/install"/>
-    <condition property="path" id="" value="${basedir}/${lib}/native/windows:${system.PATH}"/>
+    <property name="path" value="${basedir}/${lib}/native/windows:${system.PATH}"/>
 
     <!-- Put here the release directory -->
     <property name="macosx.app.dir" value="${release}/macosx"/>
