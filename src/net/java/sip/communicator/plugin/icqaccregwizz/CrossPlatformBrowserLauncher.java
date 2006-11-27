@@ -17,41 +17,32 @@ import edu.stanford.ejalbert.exceptionhandler.*;
 /**
  * Launches a browser, depending on the operation system and the browsers
  * available.
- *  
+ *
  * @author Yana Stamcheva
  */
 public class CrossPlatformBrowserLauncher {
 
     private static Logger logger = Logger.getLogger(
             CrossPlatformBrowserLauncher.class.getName());
-    
+
 	private static BrowserLauncher launcher;
-	
+
     /**
      * Launches a browser for the given url, depending on the operation system
      * and the browsers available.
-     * 
+     *
      * @param urlString The url to open in the browser.
      */
     public static void openURL(String urlString) {
-        
+
 		try {
             launcher = new BrowserLauncher(null);
-                
+
     		if (urlString == null || urlString.trim().length() == 0) {
                 throw new MalformedURLException("You must specify a url.");
             }
             new URL(urlString); // may throw MalformedURLException
-            BrowserLauncherErrorHandler errorHandler = new BrowserErrorHandler();
-            String targetBrowser = launcher.getBrowserList().get(0).toString();
-            
-            BrowserLauncherRunner runner = new BrowserLauncherRunner(
-                    launcher,
-                    targetBrowser,
-                    urlString,
-                    errorHandler);
-            Thread launcherThread = new Thread(runner);
-            launcherThread.start();
+            launcher.openURLinBrowser(urlString);
         }
         catch (BrowserLaunchingInitializingException e) {
             logger.error("Failed to initialize browser launcher : " + e);
@@ -64,13 +55,13 @@ public class CrossPlatformBrowserLauncher {
             logger.error("The URL string could not be parsed : " + e);
         }
     }
-    
+
     /**
      * The error handler to be passed to the browser launcher runner.
      */
     private static class BrowserErrorHandler
         implements BrowserLauncherErrorHandler {
-        
+
         public void handleException(Exception ex) {
             logger.error(ex);
         }

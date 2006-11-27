@@ -25,6 +25,6 @@ cd $SCDIR
 
 if [ -f $javabin ]
 then
-		$javabin -classpath "$LIBPATH/BrowserLauncher2-10rc4.jar:$LIBPATH/JainSipApi1.2.jar:$LIBPATH/JainSipRi1.2.jar:$LIBPATH/Stun4J.jar:$LIBPATH/cindy.jar:$LIBPATH/commons-logging.jar:$LIBPATH/concurrent.jar:$LIBPATH/felix.jar:$LIBPATH/jml-1.0a3.jar:$LIBPATH/joscar-0.9.4-cvs-bin.jar:$LIBPATH/kxml-min.jar:$LIBPATH/nist-sdp-1.0.jar:$LIBPATH/oscar-aim.jar:$LIBPATH/retroweaver-rt.jar:$LIBPATH/retroweaver.jar:$LIBPATH/servicebinder.jar:$LIBPATH/sip-sdp.jar:$LIBPATH/smack.jar:$LIBPATH/smackx.jar" -Dicq.custom.message.charset=windows-1251 -Dfelix.config.properties=file:$LIBPATH/felix.client.run.properties -Djava.util.logging.config.file=$LIBPATH/logging.properties org.apache.felix.main.Main
+		$javabin -classpath "$LIBPATH/BrowserLauncher2.jar:$LIBPATH/JainSipApi1.2.jar:$LIBPATH/JainSipRi1.2.jar:$LIBPATH/Stun4J.jar:$LIBPATH/cindy.jar:$LIBPATH/commons-logging.jar:$LIBPATH/concurrent.jar:$LIBPATH/felix.jar:$LIBPATH/jml-1.0a3.jar:$LIBPATH/joscar-0.9.4-cvs-bin.jar:$LIBPATH/kxml-min.jar:$LIBPATH/nist-sdp-1.0.jar:$LIBPATH/oscar-aim.jar:$LIBPATH/retroweaver-rt.jar:$LIBPATH/retroweaver.jar:$LIBPATH/servicebinder.jar:$LIBPATH/sip-sdp.jar:$LIBPATH/smack.jar:$LIBPATH/smackx.jar" -Dicq.custom.message.charset=windows-1251 -Dfelix.config.properties=file:$LIBPATH/felix.client.run.properties -Djava.util.logging.config.file=$LIBPATH/logging.properties org.apache.felix.main.Main
 		exit $?
 fi
