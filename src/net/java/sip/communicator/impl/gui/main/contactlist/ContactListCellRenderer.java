@@ -35,7 +35,7 @@ public class ContactListCellRenderer extends JPanel
     private JLabel nameLabel = new JLabel();
 
     private JPanel buttonsPanel;
-
+    
     private SIPCommButton extendPanelButton = new SIPCommButton(ImageLoader
             .getImage(ImageLoader.MORE_INFO_ICON), ImageLoader
             .getImage(ImageLoader.MORE_INFO_ICON));
@@ -186,13 +186,26 @@ public class ContactListCellRenderer extends JPanel
             //this.remove(buttonsPanel);
             this.buttonsPanel.removeAll();
             
+            JLabel groupContentIndicator = new JLabel();
+            
             if(((ContactListModel)list.getModel()).isGroupClosed(groupItem))
-                this.buttonsPanel.add(new JLabel(new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.CLOSED_GROUP))));
+                groupContentIndicator.setIcon(new ImageIcon(ImageLoader
+                    .getImage(ImageLoader.CLOSED_GROUP)));
             else 
-                this.buttonsPanel.add(new JLabel(new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.OPENED_GROUP))));
+                groupContentIndicator.setIcon(new ImageIcon(ImageLoader
+                    .getImage(ImageLoader.OPENED_GROUP)));
 
+            //the width is fixed in 
+            //order all the icons to be with the same size
+            groupContentIndicator.setBounds(0, 0, 12, 12);
+            this.buttonsPanel.setPreferredSize(
+                    new Dimension(17, 16));
+            this.buttonsPanel.setBounds(
+                    list.getWidth() - 2 - 17, 0,
+                    17, 16);
+            
+            this.buttonsPanel.add(groupContentIndicator);
+            
             this.isLeaf = false;
         }
 

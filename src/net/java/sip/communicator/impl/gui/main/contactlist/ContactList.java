@@ -537,6 +537,31 @@ public class ContactList extends JList implements MetaContactListListener,
             }
             else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0){
                 fireContactListEvent(group, ContactListEvent.GROUP_SELECTED);
+                
+                //get the component under the mouse
+                Component component = this.getHorizontalComponent(renderer,
+                        translatedX);
+                
+                if (component instanceof JPanel) {
+                    if (component.getName() != null
+                            && component.getName().equals("buttonsPanel")) {
+                        JPanel panel = (JPanel) component;
+
+                        int internalX = translatedX
+                                - (renderer.getWidth() - panel.getWidth() - 2);
+
+                        Component c = getHorizontalComponent(panel, internalX);
+                        
+                        if (c instanceof JLabel) {
+                            if (listModel.isGroupClosed(group)) {
+                                listModel.openGroup(group);
+                            }
+                            else {
+                                listModel.closeGroup(group);
+                            }
+                        }
+                    }
+                }
             }
         }
 
