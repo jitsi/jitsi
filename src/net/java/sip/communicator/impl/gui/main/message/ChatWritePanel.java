@@ -162,9 +162,13 @@ public class ChatWritePanel extends JScrollPane implements
         extends AbstractAction
     {
         public void actionPerformed(ActionEvent e)
-        {            
-            editorPane.setText(editorPane.getText()
-                    + System.getProperty("line.separator"));
+        {
+            int caretPosition = editorPane.getCaretPosition();
+            String editorText = editorPane.getText();
+            
+            editorPane.setText(editorText.substring(0, caretPosition)
+                    + System.getProperty("line.separator")
+                    + editorText.substring(caretPosition));
         }
     }
     
