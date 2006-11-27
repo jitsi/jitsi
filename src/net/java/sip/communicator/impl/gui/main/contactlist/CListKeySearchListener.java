@@ -67,6 +67,11 @@ public class CListKeySearchListener implements KeyListener {
      * starting with the same letter.
      */
     public void keyTyped(KeyEvent e) {
+        
+        //Nothing to do if the contact list is empty
+        if(contactList.getModel().getSize() <= 0)
+            return;
+        
         long eventTimestamp = e.getWhen();
         String keyChar = String.valueOf(e.getKeyChar());
 
@@ -80,9 +85,6 @@ public class CListKeySearchListener implements KeyListener {
             closeGroup();
         }
         else {
-            //Nothing to do if the contact list is empty
-            if(contactList.getModel().getSize() <= 0)
-                return;
             
             if ((lastTypedTimestamp - eventTimestamp) > 1000) {
                 keyBuffer.delete(0, keyBuffer.length() - 1);
