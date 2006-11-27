@@ -80,6 +80,10 @@ public class CListKeySearchListener implements KeyListener {
             closeGroup();
         }
         else {
+            //Nothing to do if the contact list is empty
+            if(contactList.getModel().getSize() <= 0)
+                return;
+            
             if ((lastTypedTimestamp - eventTimestamp) > 1000) {
                 keyBuffer.delete(0, keyBuffer.length() - 1);
             }
@@ -90,7 +94,7 @@ public class CListKeySearchListener implements KeyListener {
 
             int selectedIndex = this.contactList.getSelectedIndex();
 
-            // Checks if there's any selected contact node and gets its name.
+            // Check if there's any selected contact node and get its name.
             if (selectedIndex != -1) {
                 Object selectedObject = this.contactList.getSelectedValue();
 
