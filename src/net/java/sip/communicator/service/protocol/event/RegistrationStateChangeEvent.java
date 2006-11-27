@@ -35,6 +35,12 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
     public static final int REASON_NOT_SPECIFIED = -1;
 
     /**
+     * Indicates that the change in the registration state that has just
+     * occurred has been requested by the user.
+     */
+    public static final int REASON_CHANGE_REQUESTED_BY_USER = 0;
+
+    /**
      * Indicates that the server has refused registration due to a problem with
      * the authentication (most probably a wrong password).
      */
