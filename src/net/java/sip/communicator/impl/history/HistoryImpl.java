@@ -364,7 +364,7 @@ public class HistoryImpl implements History {
         }
         catch (Exception ex)
         {
-            System.out.println("not valid xml " + ex.getMessage());
+            log.error("not valid xml " + str + " " + ex.getMessage());
             return false;
         }
 
