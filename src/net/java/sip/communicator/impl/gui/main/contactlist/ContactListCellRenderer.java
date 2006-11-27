@@ -183,7 +183,15 @@ public class ContactListCellRenderer extends JPanel
             // make getComponentAt work properly.
             this.setBounds(0, 0, list.getWidth() - 2, 20);
 
-            this.remove(buttonsPanel);
+            //this.remove(buttonsPanel);
+            this.buttonsPanel.removeAll();
+            
+            if(((ContactListModel)list.getModel()).isGroupClosed(groupItem))
+                this.buttonsPanel.add(new JLabel(new ImageIcon(ImageLoader
+                    .getImage(ImageLoader.CLOSED_GROUP))));
+            else 
+                this.buttonsPanel.add(new JLabel(new ImageIcon(ImageLoader
+                    .getImage(ImageLoader.OPENED_GROUP))));
 
             this.isLeaf = false;
         }

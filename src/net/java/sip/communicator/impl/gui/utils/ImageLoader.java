@@ -417,6 +417,18 @@ public class ImageLoader {
      */
     public static final ImageID ABOUT_WINDOW_BACKGROUND
         = new ImageID("ABOUT_WINDOW_BACKGROUND");
+    
+    /**
+     * The image used for opened groups.
+     */
+    public static final ImageID OPENED_GROUP
+        = new ImageID("OPENED_GROUP");
+    
+    /**
+     * The image used for closed groups.
+     */
+    public static final ImageID CLOSED_GROUP
+        = new ImageID("CLOSED_GROUP");
 
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
