@@ -115,7 +115,9 @@ public class AboutWindow
     }
 
     protected void close(boolean isEscaped)
-    {}
+    {
+        this.dispose();
+    }
         
     /**
      * Constructs the window background in order to have a background image.
