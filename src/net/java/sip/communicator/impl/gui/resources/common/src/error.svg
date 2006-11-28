@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.44.1"
+   sodipodi:docbase="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/src"
+   sodipodi:docname="error.svg">
+  <defs
+     id="defs4">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient9321">
+      <stop
+         style="stop-color:white;stop-opacity:1;"
+         offset="0"
+         id="stop9323" />
+      <stop
+         style="stop-color:white;stop-opacity:0;"
+         offset="1"
+         id="stop9325" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient9321"
+       id="linearGradient9327"
+       x1="-21.501607"
+       y1="227.29443"
+       x2="146.79461"
+       y2="227.29443"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="6.4327107"
+     inkscape:cx="239.38366"
+     inkscape:cy="699.77221"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:window-width="1672"
+     inkscape:window-height="989"
+     inkscape:window-x="0"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       sodipodi:type="star"
+       style="opacity:0.98999999;fill:#dd0101;fill-opacity:1;stroke:#b10000;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path1876"
+       sodipodi:sides="8"
+       sodipodi:cx="62.6465"
+       sodipodi:cy="227.29443"
+       sodipodi:r1="84.152611"
+       sodipodi:r2="72.878304"
+       sodipodi:arg1="1.0575441"
+       sodipodi:arg2="1.4502432"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 103.96653,300.60417 L 40.026361,308.34992 L -10.663235,268.61446 L -18.408983,204.67429 L 21.326472,153.9847 L 85.266638,146.23895 L 135.95623,185.97441 L 143.70198,249.91457 L 103.96653,300.60417 z "
+       transform="matrix(0.214781,2.570942e-2,-2.572584e-2,0.214631,208.719,298.0684)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/error.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="star"
+       style="opacity:0.98999999;fill:url(#linearGradient9327);fill-opacity:1;stroke:none;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path8434"
+       sodipodi:sides="8"
+       sodipodi:cx="62.6465"
+       sodipodi:cy="227.29443"
+       sodipodi:r1="84.152611"
+       sodipodi:r2="72.878304"
+       sodipodi:arg1="1.0575441"
+       sodipodi:arg2="1.4502432"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 103.96653,300.60417 L 40.026361,308.34992 L -10.663235,268.61446 L -18.408983,204.67429 L 21.326472,153.9847 L 85.266638,146.23895 L 135.95623,185.97441 L 143.70198,249.91457 L 103.96653,300.60417 z "
+       transform="matrix(0.192084,2.299254e-2,-2.300725e-2,0.191949,209.3871,303.1651)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/error.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="opacity:0.98999999;fill:white;fill-opacity:1;stroke:#b10000;stroke-width:0.67973334;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2764"
+       width="17.041733"
+       height="6.423605"
+       x="210.05806"
+       y="344.18365"
+       rx="2.9999833"
+       ry="2.9999847"
+       transform="matrix(0.999984,5.688157e-3,-5.667269e-3,0.999984,0,0)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/error.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+  </g>
+</svg>
