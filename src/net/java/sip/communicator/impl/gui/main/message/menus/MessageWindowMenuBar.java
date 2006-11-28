@@ -25,7 +25,7 @@ public class MessageWindowMenuBar extends JMenuBar {
 
     private SettingsMenu settingsMenu;
 
-    private JMenu helpMenu = new JMenu(Messages.getString("help"));
+    private HelpMenu helpMenu;
 
     private ChatWindow parentWindow;
 
@@ -43,6 +43,8 @@ public class MessageWindowMenuBar extends JMenuBar {
 
         settingsMenu = new SettingsMenu(this.parentWindow);
         
+        helpMenu = new HelpMenu(this.parentWindow);
+        
         this.init();
     }
 
@@ -58,9 +60,6 @@ public class MessageWindowMenuBar extends JMenuBar {
         this.add(settingsMenu);
 
         this.add(helpMenu);
-
-        // Disable all menus that are not yet implemented.
-        this.helpMenu.setEnabled(false);
     }
     
     /**
