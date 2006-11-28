@@ -99,6 +99,9 @@ public class SIPCommDefaultTheme
             
             "OptionPane.warningIcon",
                 new ImageIcon(ImageLoader.getImage(ImageLoader.WARNING_ICON)),
+                
+            "OptionPane.errorIcon",
+                new ImageIcon(ImageLoader.getImage(ImageLoader.ERROR_ICON)),
 
             "RadioButton.gradient", buttonGradient,
             "RadioButton.rollover", Boolean.TRUE,

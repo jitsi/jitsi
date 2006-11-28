@@ -130,6 +130,12 @@ public class ImageLoader {
      * of an option pane warning message.
      */
     public static final ImageID WARNING_ICON = new ImageID("WARNING_ICON");
+    
+    /**
+     * The icon used in the <tt>SIPCommLookAndFeel</tt> to paint the icon
+     * of an option pane error message.
+     */
+    public static final ImageID ERROR_ICON = new ImageID("ERROR_ICON");
 
     /*------------------------------------------------------------------------
      * ============================APPLICATION ICONS =========================
@@ -429,7 +435,7 @@ public class ImageLoader {
      */
     public static final ImageID CLOSED_GROUP
         = new ImageID("CLOSED_GROUP");
-
+    
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
     /**
