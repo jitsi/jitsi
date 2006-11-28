@@ -187,10 +187,6 @@ public class LoginManager
 
         wizard.setTitle(Messages.getString("accountRegistrationWizard"));
 
-        wizard.setLocation(
-            Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 250,
-            Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 100);
-
         wizard.newAccount(noAccountFoundPage.getIdentifier());
 
         wizard.showDialog(true);

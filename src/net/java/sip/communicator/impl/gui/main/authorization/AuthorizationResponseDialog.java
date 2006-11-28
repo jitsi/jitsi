@@ -116,14 +116,7 @@ public class AuthorizationResponseDialog extends SIPCommDialog
         
         this.getContentPane().add(mainPanel);
         
-        this.setSize(new Dimension(400, 200));
-        
-        this.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2
-                    - this.getWidth()/2,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2
-                    - this.getHeight()/2
-                );
+        this.setSize(new Dimension(400, 200));        
     }
 
     /**

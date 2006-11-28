@@ -89,7 +89,7 @@ public class GuiActivator implements BundleActivator {
             WelcomeWindow welcomeWindow = new WelcomeWindow(communicatorMain,
                     loginManager);
             
-            welcomeWindow.showWindow();
+            welcomeWindow.setVisible(true);
             
         } finally {
             logger.logExit();

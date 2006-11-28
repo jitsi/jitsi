@@ -28,7 +28,7 @@ public abstract class SIPCommDialog extends JDialog
         
         this.addWindowListener(new DialogWindowAdapter());
         
-        this.initInputMap();
+        this.initInputMap();        
     }
  
     public SIPCommDialog(Frame owner)
@@ -37,7 +37,7 @@ public abstract class SIPCommDialog extends JDialog
         
         this.addWindowListener(new DialogWindowAdapter());
         
-        this.initInputMap(); 
+        this.initInputMap();
     }
         
     private void initInputMap()
@@ -129,7 +129,8 @@ public abstract class SIPCommDialog extends JDialog
     /**
      * Sets window size and position.
      */
-    private void setSizeAndLocation() {
+    private void setSizeAndLocation()
+    {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
 
@@ -154,8 +155,9 @@ public abstract class SIPCommDialog extends JDialog
         if(x != null && y != null)
             this.setLocation(new Integer(x).intValue(),
                     new Integer(y).intValue());
-        else
+        else {            
             this.setCenterLocation();
+        }
     }
 
     /**

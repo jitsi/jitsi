@@ -80,14 +80,7 @@ public class ConfigurationFrame
             }
         });
         
-        this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
-                
-        this.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2 
-                    - this.getWidth()/2,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2 
-                    - this.getHeight()/2
-                );  
+        this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);         
     }
 
     /**

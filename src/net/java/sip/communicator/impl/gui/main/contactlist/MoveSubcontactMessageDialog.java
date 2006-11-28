@@ -34,7 +34,7 @@ public class MoveSubcontactMessageDialog
         = new JLabel(Messages.getString("moveSubcontact"));
     
     private JLabel iconLabel = new JLabel(
-            new ImageIcon(ImageLoader.getImage(ImageLoader.WARNING_ICON)));
+            new ImageIcon(ImageLoader.getImage(ImageLoader.INFO_ICON)));
     
     private JButton cancelButton = new JButton(Messages.getString("cancel"));
     
@@ -64,8 +64,6 @@ public class MoveSubcontactMessageDialog
         
         this.mainPanel.setPreferredSize(
                 new Dimension(dialogWidth, dialogHeight));
-        
-        this.computeDialogLocation(mainFrame);
         
         this.cancelButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
@@ -105,7 +103,7 @@ public class MoveSubcontactMessageDialog
      * or the right side of the main application window.
      * @param parentWindow the main application window
      */
-    private void computeDialogLocation(JFrame parentWindow)
+    private void setDialogLocation(JFrame parentWindow)
     {
         int dialogY = (int) Toolkit.getDefaultToolkit()
             .getScreenSize().getHeight()/2 - dialogHeight/2;
@@ -125,5 +123,12 @@ public class MoveSubcontactMessageDialog
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
+    }
+    
+    public void setVisible(boolean isVisible)
+    {
+        super.setVisible(isVisible);
+        
+        this.setDialogLocation(mainFrame);
     }
 }

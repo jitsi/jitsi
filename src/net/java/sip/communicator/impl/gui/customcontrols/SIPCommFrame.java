@@ -37,7 +37,8 @@ public abstract class SIPCommFrame extends JFrame
         imap = this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");        
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
+        
     }
     
     /**

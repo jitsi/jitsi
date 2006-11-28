@@ -57,9 +57,6 @@ public class CreateGroupDialog
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         
         this.setSize(520, 250);
-        
-        this.setLocation((int)screenSize.getWidth()/2 - getWidth()/2,
-                (int)screenSize.getHeight()/2 - getHeight()/2);
                 
         this.init();
     }

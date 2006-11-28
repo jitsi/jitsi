@@ -62,23 +62,7 @@ public class AddContactWizard
 
         this.setCurrentPage(AddContactWizardPage1.IDENTIFIER);
         
-        this.centerWizard();
-        
         this.mainFrame.getContactList().addMetaContactListListener(this);
-    }
-    
-    
-    /**
-     * Sets the location of the wizard at the center of the screen.
-     */
-    public void centerWizard()
-    {
-        this.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2
-                    - 250,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2
-                    - 100
-                );
     }
     
     /**

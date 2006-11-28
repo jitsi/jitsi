@@ -111,33 +111,7 @@ public class WelcomeWindow
     private void setTransparent(boolean transparent) {
         this.buttonPanel.setOpaque(!transparent);
     }
-
-    /**
-     * Shows this window.
-     */
-    public void showWindow() {
-
-        this.pack();
-
-        this.setWindowLocation();
-
-        this.setVisible(true);
-    }
-
-    /**
-     * Sets the location of this window.
-     */
-    private void setWindowLocation() {
-
-        int x = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth()
-                - this.getWidth()) / 2;
-
-        int y = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight()
-                - this.getHeight()) / 2;
-
-        this.setLocation(x, y);
-    }
-
+   
     /**
      * Constructs the window background in order to have a background image.
      */

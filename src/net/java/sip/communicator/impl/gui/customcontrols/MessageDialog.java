@@ -66,8 +66,6 @@ public class MessageDialog
     public MessageDialog(Frame owner) {
         super(owner);
         
-        this.setLocationRelativeTo(owner);
-
         this.setTitle(Messages.getString("removeContact"));
 
         this.setSize(Constants.MSG_DIALOG_WIDTH, Constants.MSG_DIALOG_HEIGHT);

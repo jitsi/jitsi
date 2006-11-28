@@ -220,13 +220,6 @@ public class AccountsConfigurationForm extends JPanel
             wizard.setTitle(
                 Messages.getString("accountRegistrationWizard"));
 
-            wizard.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2
-                    - 250,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2
-                    - 100
-            );
-
             wizard.newAccount();
 
             wizard.showDialog(false);
@@ -240,13 +233,6 @@ public class AccountsConfigurationForm extends JPanel
 
                 wizard.setTitle(
                     Messages.getString("accountRegistrationWizard"));
-
-                wizard.setLocation(
-                    Toolkit.getDefaultToolkit().getScreenSize().width/2
-                        - 250,
-                    Toolkit.getDefaultToolkit().getScreenSize().height/2
-                        - 100
-                );
 
                 ProtocolProviderService protocolProvider
                     = (ProtocolProviderService)tableModel.getValueAt(

@@ -130,18 +130,7 @@ public class ChatWindow
     {
         this.getContentPane().add(menusPanel, BorderLayout.NORTH);        
     }
-
-    /**
-     * Positions this window in the center of the screen.
-     */
-    private void setCenterLocation()
-    {
-        this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2
-            - this.getWidth() / 2,
-            Toolkit.getDefaultToolkit().getScreenSize().height / 2
-                - this.getHeight() / 2);
-    }
-
+    
     /**
      * Returns the main application widnow.
      * 
