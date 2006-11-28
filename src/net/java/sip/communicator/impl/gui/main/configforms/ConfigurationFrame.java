@@ -39,6 +39,8 @@ public class ConfigurationFrame
 
     private TitlePanel titlePanel = new TitlePanel();
 
+    private JPanel mainPanel = new JPanel(new BorderLayout());
+    
     private JPanel centerPanel = new JPanel(new BorderLayout());
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -66,9 +68,9 @@ public class ConfigurationFrame
 
         this.centerPanel.add(formScrollPane, BorderLayout.CENTER);
 
-        this.getContentPane().add(centerPanel, BorderLayout.CENTER);
+        this.mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-        this.getContentPane().add(configList, BorderLayout.WEST);
+        this.mainPanel.add(configList, BorderLayout.WEST);
         
         this.buttonsPanel.add(cancelButton);
         
@@ -80,7 +82,9 @@ public class ConfigurationFrame
             }
         });
         
-        this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);         
+        this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+        
+        this.getContentPane().add(mainPanel);
     }
 
     /**
@@ -164,18 +168,9 @@ public class ConfigurationFrame
             if (height < form.getPreferredSize().getHeight())
                 height = form.getPreferredSize().getHeight();
         }
-
-        if (width > Constants.CONFIG_FRAME_MAX_WIDTH)
-            width = Constants.CONFIG_FRAME_MAX_WIDTH;
-
-        if (height > Constants.CONFIG_FRAME_MAX_HEIGHT)
-            height = Constants.CONFIG_FRAME_MAX_HEIGHT;
-
-        width = width + configList.getPreferredSize().getWidth();
-
-        height = height + titlePanel.getPreferredSize().getHeight();
-
-        this.setSize((int) width + 120, (int) height + 50);
+        
+        this.mainPanel.setPreferredSize(new Dimension(
+            (int) width + 150, (int) height + 100));
     }
 
     /**

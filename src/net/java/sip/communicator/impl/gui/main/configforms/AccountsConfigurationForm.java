@@ -79,6 +79,8 @@ public class AccountsConfigurationForm extends JPanel
 
         this.add(tablePane, BorderLayout.CENTER);
         this.add(rightPanel, BorderLayout.EAST);
+        
+        this.setPreferredSize(new Dimension(500, 400));
     }
 
     /**
