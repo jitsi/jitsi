@@ -245,6 +245,8 @@ public class AccountsConfigurationForm extends JPanel
         else if(sourceButton.equals(removeButton)){
 
             if(accountsTable.getSelectedRow() != -1) {
+                mainFrame.getLoginManager().setManuallyDisconnected(true);
+                
                 ProtocolProviderService protocolProvider
                     = (ProtocolProviderService)tableModel.getValueAt(
                         accountsTable.getSelectedRow(), 0);

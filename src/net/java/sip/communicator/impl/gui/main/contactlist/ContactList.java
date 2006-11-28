@@ -809,9 +809,11 @@ public class ContactList extends JList implements MetaContactListListener,
                             .countContactsAndSubgroups(group);
                     int listSize = listModel.getSize();
 
-                    listModel.contentRemoved(listSize - 1, listSize
-                            + removeCount - 1);
-                    listModel.contentChanged(groupIndex, listSize - 1);
+                    if(listSize > 0 && removeCount > 0) {
+                        listModel.contentRemoved(listSize - 1, listSize
+                                + removeCount - 1);
+                        listModel.contentChanged(groupIndex, listSize - 1);
+                    }
                 }
             }
         }
@@ -855,7 +857,7 @@ public class ContactList extends JList implements MetaContactListListener,
 
                     int listSize = listModel.getSize();
                     
-                    if (groupIndex != -1) {
+                    if (groupIndex != -1 && listSize > 0) {
                         listModel.contentChanged(groupIndex, listSize - 1);
                         listModel.contentRemoved(listSize, listSize);
                     }
