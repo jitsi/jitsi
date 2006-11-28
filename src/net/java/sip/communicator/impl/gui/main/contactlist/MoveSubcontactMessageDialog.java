@@ -42,8 +42,8 @@ public class MoveSubcontactMessageDialog
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
-    private int dialogWidth = 300;
-    private int dialogHeight = 100;
+    private int dialogWidth = 350;
+    private int dialogHeight = 150;
     
     private MainFrame mainFrame;
     private ContactListListener clistListener;
