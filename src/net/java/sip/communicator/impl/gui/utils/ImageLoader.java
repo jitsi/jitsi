@@ -136,6 +136,12 @@ public class ImageLoader {
      * of an option pane error message.
      */
     public static final ImageID ERROR_ICON = new ImageID("ERROR_ICON");
+    
+    /**
+     * The icon used in the <tt>SIPCommLookAndFeel</tt> to paint the icon
+     * of an option pane info message.
+     */
+    public static final ImageID INFO_ICON = new ImageID("INFO_ICON");
 
     /*------------------------------------------------------------------------
      * ============================APPLICATION ICONS =========================
