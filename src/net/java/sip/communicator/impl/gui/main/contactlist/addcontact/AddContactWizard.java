@@ -123,7 +123,7 @@ public class AddContactWizard
                                     newContact.getUin()),
                             Messages.getString(
                                     "addContactErrorTitle"),
-                            JOptionPane.WARNING_MESSAGE);
+                            JOptionPane.ERROR_MESSAGE);
                 }
                 else if (errorCode
                     == MetaContactListException.CODE_LOCAL_IO_ERROR) {
@@ -134,7 +134,7 @@ public class AddContactWizard
                                 newContact.getUin()),
                         Messages.getString(
                                 "addContactErrorTitle"),
-                        JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.ERROR_MESSAGE);
                 }
                 else if (errorCode
                         == MetaContactListException.CODE_NETWORK_ERROR) {
@@ -145,7 +145,7 @@ public class AddContactWizard
                                     newContact.getUin()),
                             Messages.getString(
                                     "addContactErrorTitle"),
-                            JOptionPane.WARNING_MESSAGE);
+                            JOptionPane.ERROR_MESSAGE);
                 }
                 else {
                     
@@ -155,7 +155,7 @@ public class AddContactWizard
                                     newContact.getUin()),
                             Messages.getString(
                                     "addContactErrorTitle"),
-                            JOptionPane.WARNING_MESSAGE);
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         }

@@ -133,7 +133,7 @@ public class CreateGroupDialog
                                             groupName),
                                     Messages.getString(
                                             "addGroupErrorTitle"),
-                                    JOptionPane.WARNING_MESSAGE);
+                                    JOptionPane.ERROR_MESSAGE);
                         }
                         else if (errorCode
                             == MetaContactListException.CODE_LOCAL_IO_ERROR) {
@@ -144,7 +144,7 @@ public class CreateGroupDialog
                                         groupName),
                                 Messages.getString(
                                         "addGroupErrorTitle"),
-                                JOptionPane.WARNING_MESSAGE);
+                                JOptionPane.ERROR_MESSAGE);
                         }
                         else if (errorCode
                                 == MetaContactListException.CODE_NETWORK_ERROR) {

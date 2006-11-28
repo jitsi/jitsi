@@ -156,7 +156,7 @@ public class AddContactDialog
                                             uin),
                                     Messages.getString(
                                             "addContactErrorTitle"),
-                                    JOptionPane.WARNING_MESSAGE);
+                                    JOptionPane.ERROR_MESSAGE);
                             }
                             else if (errorCode
                                 == MetaContactListException
@@ -168,7 +168,7 @@ public class AddContactDialog
                                             uin),
                                     Messages.getString(
                                             "addContactErrorTitle"),
-                                    JOptionPane.WARNING_MESSAGE);
+                                    JOptionPane.ERROR_MESSAGE);
                             }
                             else if (errorCode
                                     == MetaContactListException
@@ -180,7 +180,7 @@ public class AddContactDialog
                                                 uin),
                                         Messages.getString(
                                                 "addContactErrorTitle"),
-                                        JOptionPane.WARNING_MESSAGE);
+                                        JOptionPane.ERROR_MESSAGE);
                             }
                             else {
                                 

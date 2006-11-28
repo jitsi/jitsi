@@ -198,7 +198,7 @@ public class CallManager
                                 Messages.getString("contactNotSupportingTelephony",
                                                     contact.getDisplayName()),
                                 Messages.getString("warning"),
-                                JOptionPane.WARNING_MESSAGE);
+                                JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
