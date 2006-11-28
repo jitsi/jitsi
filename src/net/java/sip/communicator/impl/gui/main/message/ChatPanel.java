@@ -113,8 +113,9 @@ public class ChatPanel
         this.messagePane.setResizeWeight(1.0D);
         this.chatConferencePanel.setPreferredSize(new Dimension(120, 100));
         this.chatConferencePanel.setMinimumSize(new Dimension(120, 100));
-        this.writeMessagePanel.setPreferredSize(new Dimension(400, 100));
-        this.writeMessagePanel.setMinimumSize(new Dimension(400, 100));
+        this.writeMessagePanel.setPreferredSize(new Dimension(500, 100));
+        this.writeMessagePanel.setMinimumSize(new Dimension(500, 100));
+        this.conversationPanel.setPreferredSize(new Dimension(400, 200));
         
         this.init();
 

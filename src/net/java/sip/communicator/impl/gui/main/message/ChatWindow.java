@@ -71,8 +71,6 @@ public class ChatWindow
 
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-        this.setSize(550, 450);
-
         this.setIconImage(ImageLoader
             .getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
 
@@ -130,7 +128,7 @@ public class ChatWindow
      */
     public void init()
     {
-        this.getContentPane().add(menusPanel, BorderLayout.NORTH);
+        this.getContentPane().add(menusPanel, BorderLayout.NORTH);        
     }
 
     /**
