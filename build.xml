@@ -28,7 +28,9 @@
     <property name="path" value="${basedir}/${lib}/native/windows:${system.PATH}"/>
 
     <!-- set the build label property and make it take the cc bild into account -->
-    <condition property="build.label" value="${label}" else="build">
+    <condition property="build.label"
+               value="nightly.${label}"
+               else="build.by.${user.name}">
         <isset property="label"/>
     </condition>
 
@@ -260,7 +262,7 @@
 
         <!-- set the build id according to the cruisecontrol property -->
         <replace file="${src}/net/java/sip/communicator/impl/version/NightlyBuildID.java"
-            token="build.id" value="nightly.${build.label}"/>
+            token="build.id" value="${build.label}"/>
 
         <!-- Recompile ant task classes-->
         <delete failonerror="false">
@@ -1035,21 +1037,17 @@ javax.swing.event, javax.swing.border"/>
     <!-- BUNDLE-SERVICE-VERSION -->
     <target name="bundle-version">
         <!-- Creates a bundle for the version service.-->
-        <jar compress="false" destfile="${bundles.dest}/bundle-version.jar"
+        <jar compress="false" destfile="${bundles.dest}/version.jar"
             manifest="src/net/java/sip/communicator/service/version/version.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/version"
-                prefix="net/java/sip/communicator/service/version">
-                <include name="VersionImpl.java"/>
-                <include name="NightlyBuildID.java"/>
-                <include name="VersionServiceImpl.java"/>
-            </zipfileset>
+                prefix="net/java/sip/communicator/service/version"/>
         </jar>
     </target>
 
     <!-- BUNDLE-SERVICEIMPL-VERSION -->
     <target name="bundle-version-impl">
         <!-- Creates a bundle for the version service impl.-->
-        <jar compress="false" destfile="${bundles.dest}/bundle-version-impl.jar"
+        <jar compress="false" destfile="${bundles.dest}/version-impl.jar"
             manifest="src/net/java/sip/communicator/impl/version/version.impl.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/version"
                 prefix="net/java/sip/communicator/impl/version"/>
@@ -1059,7 +1057,7 @@ javax.swing.event, javax.swing.border"/>
     <!-- BUNDLE-SERVICELICK-VERSION -->
     <target name="bundle-version-slick">
         <!-- Creates a bundle for the version service slick.-->
-        <jar compress="false" destfile="${bundles.dest}/bundle-version-slick.jar"
+        <jar compress="false" destfile="${bundles.dest}/version-slick.jar"
             manifest="test/net/java/sip/communicator/slick/version/version.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/version"
                 prefix="net/java/sip/communicator/slick/version"/>
