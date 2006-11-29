@@ -124,6 +124,13 @@ public class CallSessionImpl
     private List players = new ArrayList();
 
     /**
+     * The list of currently open Video frames that we have created during this
+     * session.
+     */
+    private List videoFrames = new ArrayList();
+
+
+    /**
      * Creates a new session for the specified <tt>call</tt>.
      *
      * @param call The call associated with this session.
@@ -1212,6 +1219,18 @@ public class CallSessionImpl
                 playersIter.remove();
             }
 
+
+            //close all video frames that we have created in this session
+            Iterator videoFramesIter = videoFrames.iterator();
+            while(videoFramesIter.hasNext())
+            {
+                javax.swing.JFrame frame
+                    = ( javax.swing.JFrame )videoFramesIter.next();
+                frame.setVisible(false);
+                frame.dispose();
+                videoFramesIter.remove();
+            }
+
             //remove ourselves as listeners from the call
             evt.getSourceCall().removeCallChangeListener(this);
         }
@@ -1447,6 +1466,7 @@ if(vc != null)
     frame.getContentPane().add(vc);
     frame.pack();
     frame.setVisible(true);
+    videoFrames.add(frame);
 }
         }
         if (ce instanceof StartEvent) {
