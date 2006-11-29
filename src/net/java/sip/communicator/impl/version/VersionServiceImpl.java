@@ -21,6 +21,7 @@ import net.java.sip.communicator.service.version.*;
 public class VersionServiceImpl
     implements VersionService
 {
+
     /**
      * Returns a <tt>Version</tt> object containing version details of the
      * SIP Communicator version that we're currently running.
