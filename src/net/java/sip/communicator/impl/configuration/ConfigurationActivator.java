@@ -29,24 +29,15 @@ public class ConfigurationActivator
      */
     public void start(BundleContext bundleContext) throws Exception
     {
-        try
-        {
-            logger.logEntry();
+        logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
 
-            logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
+        impl.start();
 
-            impl.start();
+        bundleContext.registerService(ConfigurationService.class.getName(),
+                                      impl,
+                                      new java.util.Hashtable());
 
-            bundleContext.registerService( ConfigurationService.class.getName(),
-                                           impl,
-                                           new java.util.Hashtable() );
-
-            logger.debug("Service Impl: " + getClass().getName() + " [REGISTERED]");
-        }
-        finally
-        {
-            logger.logExit();
-        }
+        logger.debug("Service Impl: " + getClass().getName() + " [REGISTERED]");
     }
 
     /**
@@ -58,14 +49,7 @@ public class ConfigurationActivator
      */
     public void stop(BundleContext bundlecontext) throws Exception
     {
-        try
-        {
-            logger.logEntry();
-            logger.info("The ConfigurationService stop method has been called.");
-        }
-        finally
-        {
-            logger.logEntry();
-        }
+        logger.logEntry();
+        logger.info("The ConfigurationService stop method has been called.");
     }
 }
