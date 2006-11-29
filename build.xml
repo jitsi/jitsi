@@ -605,7 +605,8 @@
         bundle-msn,bundle-msn-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
-        bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz"/>
+        bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
+        bundle-version,bundle-version-impl"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -850,7 +851,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-PROTOCOL -->
     <target name="bundle-protocol">
-        <!-- Creates a bundle containing the protocol provider interfaces."-->
+        <!-- Creates a bundle containing the protocol provider interfaces.-->
         <jar compress="false" destfile="${bundles.dest}/protocol.jar"
             manifest="src/net/java/sip/communicator/service/protocol/protocol.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
@@ -862,7 +863,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-ICQ -->
     <target name="bundle-icq">
-        <!-- Creates a bundle containing the icq impl of the protocol provider."-->
+        <!-- Creates a bundle containing the icq impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-icq.jar"
             manifest="src/net/java/sip/communicator/impl/protocol/icq/icq.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/icq"
@@ -875,7 +876,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-ICQ-SLICK -->
     <target name="bundle-icq-slick">
-        <!-- Creates a bundle containing the slick for the ICQ protocol provider."-->
+        <!-- Creates a bundle containing the slick for the ICQ protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-icq-slick.jar"
             manifest="test/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/icq"
@@ -898,7 +899,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-JABBER -->
     <target name="bundle-jabber">
-        <!-- Creates a bundle containing the jabber impl of the protocol provider."-->
+        <!-- Creates a bundle containing the jabber impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-jabber.jar"
             manifest="src/net/java/sip/communicator/impl/protocol/jabber/jabber.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/jabber"
@@ -909,7 +910,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-JABBER-SLICK -->
-    <!-- Creates a bundle containing the slick for the Jabber protocol provider."-->
+    <!-- Creates a bundle containing the slick for the Jabber protocol provider.-->
     <target name="bundle-jabber-slick">
 
         <jar compress="false" destfile="${bundles.dest}/protocol-jabber-slick.jar"
@@ -923,7 +924,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-MSN -->
     <target name="bundle-msn">
-        <!-- Creates a bundle containing the msn impl of the protocol provider."-->
+        <!-- Creates a bundle containing the msn impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-msn.jar"
             manifest="src/net/java/sip/communicator/impl/protocol/msn/msn.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/msn"
@@ -935,7 +936,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-MSN-SLICK -->
-    <!-- Creates a bundle containing the slick for the Msn protocol provider."-->
+    <!-- Creates a bundle containing the slick for the Msn protocol provider.-->
     <target name="bundle-msn-slick">
 
         <jar compress="false" destfile="${bundles.dest}/protocol-msn-slick.jar"
@@ -951,7 +952,7 @@ javax.swing.event, javax.swing.border"/>
 
      <!-- BUNDLE-SWING-UI -->
     <target name="bundle-swing-ui">
-        <!-- Bundle sip-communicator's UI."-->
+        <!-- Bundle sip-communicator's UI.-->
         <jar compress="false" destfile="${bundles.dest}/swing-ui.jar"
             manifest="src/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/gui"
@@ -963,7 +964,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-CONTACTLIST -->
     <target name="bundle-contactlist">
-        <!-- Creates a bundle containing the contactlist interfaces."-->
+        <!-- Creates a bundle containing the contactlist interfaces.-->
         <jar compress="false" destfile="${bundles.dest}/contactlist.jar"
             manifest="src/net/java/sip/communicator/service/contactlist/contactlist.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/contactlist"
@@ -973,7 +974,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-META-CONTACTLIST -->
     <target name="meta-contactlist">
-        <!-- Creates the meta contact list bundle."-->
+        <!-- Creates the meta contact list bundle.-->
         <jar compress="false" destfile="${bundles.dest}/meta-cl.jar"
             manifest="src/net/java/sip/communicator/impl/contactlist/meta.cl.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/contactlist"
@@ -983,7 +984,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-META-CONTACTLIST-SLICK -->
     <target name="meta-contactlist-slick">
-        <!-- Creates a bundle for the meta contact list SLICK."-->
+        <!-- Creates a bundle for the meta contact list SLICK.-->
         <jar compress="false" destfile="${bundles.dest}/meta-cl-slick.jar"
             manifest="test/net/java/sip/communicator/slick/contactlist/meta.cl.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/contactlist"
@@ -993,7 +994,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-PLUGIN-ICQACCREGWIZZ -->
     <target name="bundle-plugin-icqaccregwizz">
-        <!-- Creates a bundle for the plugin Icq Account Registration Wizard."-->
+        <!-- Creates a bundle for the plugin Icq Account Registration Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/icqaccregwizz.jar"
             manifest="src/net/java/sip/communicator/plugin/icqaccregwizz/icqaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/icqaccregwizz"
@@ -1003,7 +1004,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-PLUGIN-JABBERACCREGWIZZ -->
     <target name="bundle-plugin-jabberaccregwizz">
-        <!-- Creates a bundle for the plugin Jabber Account Registration Wizard."-->
+        <!-- Creates a bundle for the plugin Jabber Account Registration Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/jabberaccregwizz.jar"
             manifest="src/net/java/sip/communicator/plugin/jabberaccregwizz/jabberaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/jabberaccregwizz"
@@ -1013,7 +1014,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-PLUGIN-MSNACCREGWIZZ -->
     <target name="bundle-plugin-msnaccregwizz">
-        <!-- Creates a bundle for the plugin Msn Account Registration Wizard."-->
+        <!-- Creates a bundle for the plugin Msn Account Registration Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/msnaccregwizz.jar"
             manifest="src/net/java/sip/communicator/plugin/msnaccregwizz/msnaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/msnaccregwizz"
@@ -1022,12 +1023,46 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-PLUGIN-SIPACCREGWIZZ -->
-        <target name="bundle-plugin-sipaccregwizz">
-            <!-- Creates a bundle for the plugin SIP Account Registration Wizard."-->
-            <jar compress="false" destfile="${bundles.dest}/sipaccregwizz.jar"
-                manifest="src/net/java/sip/communicator/plugin/sipaccregwizz/sipaccregwizz.manifest.mf">
-                <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sipaccregwizz"
-                    prefix="net/java/sip/communicator/plugin/sipaccregwizz"/>
-            </jar>
-        </target>
+    <target name="bundle-plugin-sipaccregwizz">
+        <!-- Creates a bundle for the plugin SIP Account Registration Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/sipaccregwizz.jar"
+            manifest="src/net/java/sip/communicator/plugin/sipaccregwizz/sipaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sipaccregwizz"
+                prefix="net/java/sip/communicator/plugin/sipaccregwizz"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-SERVICE-VERSION -->
+    <target name="bundle-version">
+        <!-- Creates a bundle for the version service.-->
+        <jar compress="false" destfile="${bundles.dest}/bundle-version.jar"
+            manifest="src/net/java/sip/communicator/service/version/version.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/version"
+                prefix="net/java/sip/communicator/service/version">
+                <include name="VersionImpl.java"/>
+                <include name="NightlyBuildID.java"/>
+                <include name="VersionServiceImpl.java"/>
+            </zipfileset>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-SERVICEIMPL-VERSION -->
+    <target name="bundle-version-impl">
+        <!-- Creates a bundle for the version service impl.-->
+        <jar compress="false" destfile="${bundles.dest}/bundle-version-impl.jar"
+            manifest="src/net/java/sip/communicator/impl/version/version.impl.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/version"
+                prefix="net/java/sip/communicator/impl/version"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-SERVICELICK-VERSION -->
+    <target name="bundle-version-slick">
+        <!-- Creates a bundle for the version service slick.-->
+        <jar compress="false" destfile="${bundles.dest}/bundle-version-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/version/version.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/version"
+                prefix="net/java/sip/communicator/slick/version"/>
+        </jar>
+    </target>
 </project>
