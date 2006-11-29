@@ -25,7 +25,7 @@ public class AboutWindow
             "version 1.0 alpha1");
     
     private JTextArea logoArea
-        = new JTextArea("Open source VoIP & Instant messaging");
+        = new JTextArea("Open Source VoIP & Instant Messaging");
     
     private JEditorPane rightsArea = new JEditorPane();
     
