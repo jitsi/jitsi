@@ -27,6 +27,11 @@
     <property name="inst.resrc" value="${resources}/install"/>
     <property name="path" value="${basedir}/${lib}/native/windows:${system.PATH}"/>
 
+    <!-- set the build label property and make it take the cc bild into account -->
+    <condition property="build.label" value="${label}" else="build">
+        <isset property="label"/>
+    </condition>
+
     <!-- Put here the release directory -->
     <property name="macosx.app.dir" value="${release}/macosx"/>
     <!-- Put here the resource directory -->
@@ -150,7 +155,7 @@
     </target>
 
     <!-- java compile -->
-    <target name="compile" depends="init">
+    <target name="compile" depends="init,version">
         <!--internal-target- compiles the entire project source tree -->
         <javac classpathref="compile.class.path" debug="true"
             deprecation="true" destdir="${dest}" nowarn="false"
@@ -242,10 +247,43 @@
 
     <!--REBUILD-->
     <target name="rebuild" depends="clean,make"
-        description="Clean and make the project (including bundles)."/>
+        description="Clean and make the project (including bundles).">
+        <echo message="ver=${sip-communicator.version}"/>
+        </target>
+
+    <!-- SIP Communicator Version -->
+    <target name="version">
+        <!-- create a class that would contain our nightly build.id if any -->
+        <copy file="${src}/net/java/sip/communicator/impl/version/NightlyBuildID.java.tmpl"
+              tofile="${src}/net/java/sip/communicator/impl/version/NightlyBuildID.java"
+              overwrite="true"/>
+
+        <!-- set the build id according to the cruisecontrol property -->
+        <replace file="${src}/net/java/sip/communicator/impl/version/NightlyBuildID.java"
+            token="build.id" value="nightly.${build.label}"/>
+
+        <!-- Recompile ant task classes-->
+        <delete failonerror="false">
+            <fileset dir="${dest}" includes="net/java/sip/communicator/impl/version/*.class"/>
+        </delete>
+        <javac destdir="${dest}">
+            <src path="${src}"/>
+            <include name="net/java/sip/communicator/impl/version/NightlyBuildID.java" />
+            <include name="net/java/sip/communicator/impl/version/VersionImpl.java" />
+            <include name="net/java/sip/communicator/impl/version/SipCommunicatorVersionTask.java" />
+        </javac>
+
+
+        <taskdef name="sip-communicator-version" classpath="${dest}"
+                 classname="net.java.sip.communicator.impl.version.SipCommunicatorVersionTask"/>
+
+        <sip-communicator-version property="sip-communicator.version" />
+
+        <echo message="SIP Communicator version ${sip-communicator.version}" />
+    </target>
 
     <!--INIT-->
-    <target name="init">
+    <target name="init" >
         <mkdir dir="${dest}"/>
         <mkdir dir="${doc}"/>
         <mkdir dir="${java.doc}"/>
@@ -504,7 +542,7 @@
 
     <!--netbeans only - debug a single test file under felix and jUnit-->
     <target name="debug-selected-file"
-            depends="init,prepare-single-test,prepare-all-tests">
+            depends="init,version,prepare-single-test,prepare-all-tests">
         <!--internal-target- starts felix and debugs the selected
                              Service Impl Compatibility Kit -->
 
