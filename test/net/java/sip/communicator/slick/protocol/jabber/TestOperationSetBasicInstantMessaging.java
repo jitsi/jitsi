@@ -461,7 +461,9 @@ public class TestOperationSetBasicInstantMessaging
         }catch (UnknownHostException ex){}
 
         String message = hostname
-                         + "Hello this is the SIP Communicator build on: "
+                         + "Hello this is the SIP Communicator (version "
+                         + System.getProperty("sip-communicator.version")
+                         + ") build on: "
                          + new Date().toString()
                          + ". Have a very nice day!";
 
