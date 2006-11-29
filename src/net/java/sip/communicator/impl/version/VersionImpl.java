@@ -158,11 +158,6 @@ public class VersionImpl
         if(!isPreRelease())
             return null;
 
-        //if this is a nightly build, add a 0 at the beginning of the
-        //pre-release id so that it would lexicographically preceed the release.
-        if(isNightly())
-            return "0" + PRE_RELEASE_ID;
-
         return PRE_RELEASE_ID;
     }
 
