@@ -1,0 +1,5 @@
+Bundle-Name: Version Service Implementation
+Bundle-Description: Version Service Implementation.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Export-Package: net.java.sip.communicator.service.version
