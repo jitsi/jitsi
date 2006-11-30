@@ -87,4 +87,9 @@ public class MainMenu
         }
         return false;
     }
+
+    public ViewMenu getViewMenu()
+    {
+        return viewMenu;
+    }
 }

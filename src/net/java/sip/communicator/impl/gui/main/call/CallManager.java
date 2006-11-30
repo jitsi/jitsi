@@ -130,6 +130,11 @@ public class CallManager
         this.minimizeButton.setName("minimize");
         this.restoreButton.setName("restore");
 
+        this.minimizeButton.setToolTipText(
+            Messages.getString("hideCallPanel") + " Ctrl - H");
+        this.restoreButton.setToolTipText(
+            Messages.getString("showCallPanel") + " Ctrl - H");
+                
         this.callButton.addActionListener(this);
         this.hangupButton.addActionListener(this);
         this.minimizeButton.addActionListener(this);
@@ -274,9 +279,22 @@ public class CallManager
             }
         }
         else if (buttonName.equalsIgnoreCase("minimize")) {
+            JCheckBoxMenuItem hideCallPanelItem
+                = mainFrame.getMainMenu().getViewMenu().getHideCallPanelItem();
+            
+            if(!hideCallPanelItem.isSelected())
+                hideCallPanelItem.setSelected(true);
+            
             this.hideCallPanel();
         }
         else if (buttonName.equalsIgnoreCase("restore")) {
+            
+            JCheckBoxMenuItem hideCallPanelItem
+                = mainFrame.getMainMenu().getViewMenu().getHideCallPanelItem();
+            
+            if(hideCallPanelItem.isSelected())
+                hideCallPanelItem.setSelected(false);
+            
             this.showCallPanel();
         }
     }
@@ -292,7 +310,7 @@ public class CallManager
         this.minimizeButtonPanel.removeAll();
         this.minimizeButtonPanel.add(restoreButton);
         this.isShown = false;
-
+        
         this.mainFrame.getContactListPanel()
             .getContactList().requestFocus();
 

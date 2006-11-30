@@ -1077,4 +1077,13 @@ public class MainFrame
             selectionManager.clearSelectedPath();
         }
     }
+
+    /**
+     * Returns the main menu in the application window.
+     * @return the main menu in the application window
+     */
+    public MainMenu getMainMenu()
+    {
+        return menu;
+    }
 }

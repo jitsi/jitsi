@@ -61,7 +61,11 @@ public class ViewMenu
         this.setMnemonic(Messages.getString("view").charAt(0));
         
         this.hideCallPanelItem.setMnemonic(
-                Messages.getString("hideCallPanel").charAt(0));        
+                Messages.getString("hideCallPanel").charAt(0));
+        
+        this.hideCallPanelItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_H,
+                KeyEvent.CTRL_MASK));
     }
 
     /**
@@ -83,4 +87,9 @@ public class ViewMenu
             }
         }
     }
+
+    public JCheckBoxMenuItem getHideCallPanelItem()
+    {
+        return hideCallPanelItem;
+    }    
 }
