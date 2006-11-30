@@ -768,45 +768,6 @@ public class ImageLoader {
     public static final ImageID ICQ_CONNECTING = new ImageID("ICQ_CONNECTING");
 
     /**
-     * The ICQ "free for chat" 16x16 icon.
-     */
-    public static final ImageID ICQ_FF_CHAT_ICON = new ImageID(
-            "ICQ_FF_CHAT_ICON");
-
-    /**
-     * The ICQ "away" 16x16 icon.
-     */
-    public static final ImageID ICQ_AWAY_ICON = new ImageID("ICQ_AWAY_ICON");
-
-    /**
-     * The ICQ "not available" 16x16 icon.
-     */
-    public static final ImageID ICQ_NA_ICON = new ImageID("ICQ_NA_ICON");
-
-    /**
-     * The ICQ "do not disturb" 16x16 icon.
-     */
-    public static final ImageID ICQ_DND_ICON = new ImageID("ICQ_DND_ICON");
-
-    /**
-     * The ICQ "occupied" 16x16 icon.
-     */
-    public static final ImageID ICQ_OCCUPIED_ICON = new ImageID(
-            "ICQ_OCCUPIED_ICON");
-
-    /**
-     * The ICQ "offline" 16x16 icon.
-     */
-    public static final ImageID ICQ_OFFLINE_ICON = new ImageID(
-            "ICQ_OFFLINE_ICON");
-
-    /**
-     * The ICQ "invisible" 16x16 icon.
-     */
-    public static final ImageID ICQ_INVISIBLE_ICON = new ImageID(
-            "ICQ_INVISIBLE_ICON");
-
-    /**
      * The MSN logo 32x32 icon.
      */
     public static final ImageID MSN_32x32 = new ImageID("MSN_32x32");
@@ -874,54 +835,17 @@ public class ImageLoader {
     public static final ImageID SIP_LOGO = new ImageID("SIP_LOGO");
 
     /**
+     * The SIP logo 32x32 icon.
+     */
+    public static final ImageID SIP_32x32 = new ImageID("SIP_32x32");
+
+    
+    /**
      * The SIP "connecting" 16x16 animated icon.
      */
     public static final ImageID SIP_CONNECTING = new ImageID("SIP_CONNECTING");
 
-    /**
-     * The SIP online 16x16 icon.
-     */
-    public static final ImageID SIP_ONLINE_ICON
-        = new ImageID("SIP_ONLINE_ICON");
-
-    /**
-     * The SIP offline 16x16 icon.
-     */
-    public static final ImageID SIP_OFFLINE_ICON = new ImageID(
-            "SIP_OFFLINE_ICON");
-
-    /**
-     * The SIP invisible 16x16 icon.
-     */
-    public static final ImageID SIP_INVISIBLE_ICON = new ImageID(
-            "SIP_INVISIBLE_ICON");
-
-    /**
-     * The SIP away 16x16 icon.
-     */
-    public static final ImageID SIP_AWAY_ICON = new ImageID("SIP_AWAY_ICON");
-
-    /**
-     * The SIP "not availabled" 16x16 icon.
-     */
-    public static final ImageID SIP_NA_ICON = new ImageID("SIP_NA_ICON");
-
-    /**
-     * The SIP "do not disturb" 16x16 icon.
-     */
-    public static final ImageID SIP_DND_ICON = new ImageID("SIP_DND_ICON");
-
-    /**
-     * The SIP "occupied" 16x16 icon.
-     */
-    public static final ImageID SIP_OCCUPIED_ICON = new ImageID(
-            "SIP_OCCUPIED_ICON");
-
-    /**
-     * The SIP "chat" 16x16 icon.
-     */
-    public static final ImageID SIP_CHAT_ICON = new ImageID("SIP_CHAT_ICON");
-
+    
     /*
      * =======================================================================
      * ------------------------ USERS' ICONS ---------------------------------

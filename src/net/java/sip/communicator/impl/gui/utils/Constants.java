@@ -404,7 +404,7 @@ public class Constants {
 
         if (protocolName.equals(Constants.SIP)) {
 
-            protocolIcon = ImageLoader.getImage(ImageLoader.SIP_ONLINE_ICON);
+            protocolIcon = ImageLoader.getImage(ImageLoader.SIP_32x32);
         } else if (protocolName.equals(Constants.ICQ)) {
 
             protocolIcon = ImageLoader.getImage(ImageLoader.ICQ_32x32);

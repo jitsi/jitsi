@@ -208,8 +208,7 @@ public class AuthenticationWindow
 
             Graphics2D g2 = (Graphics2D) g;
 
-            g2.drawImage(bgImage, 40,
-                (this.getHeight()/2 - bgImage.getHeight(null)/2), null);
+            g2.drawImage(bgImage, 30, 30, null);
 
             g2.drawImage(ImageLoader.getImage(
                     ImageLoader.AUTH_WINDOW_BACKGROUND),
