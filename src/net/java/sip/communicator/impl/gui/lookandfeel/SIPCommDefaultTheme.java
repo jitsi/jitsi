@@ -143,9 +143,14 @@ public class SIPCommDefaultTheme
             "TabbedPane.unselectedBackground", LIGHT_GRAY,
 
             "TextField.border", textFieldBorder,
+            "TextField.margin", new InsetsUIResource(3, 3, 3, 3),
+            
             "PasswordField.border", textFieldBorder,
+            "PasswordField.margin", new InsetsUIResource(3, 3, 3, 3),
+            
             "FormattedTextField.border", textFieldBorder,
-
+            "FormattedTextField.margin", new InsetsUIResource(3, 3, 3, 3),
+            
             "Table.gridColor", LIGHT_BLUE_GRAY,
             "Table.background", getDesktopColor(),
 
