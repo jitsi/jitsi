@@ -77,8 +77,6 @@ public class MainFrame
 
     private MetaContactListService contactList;
 
-    private ArrayList accounts = new ArrayList();
-
     private Hashtable waitToBeDeliveredMsgs = new Hashtable();
 
     private LoginManager loginManager;
@@ -359,14 +357,18 @@ public class MainFrame
     public void addAccount(ProtocolProviderService protocolProvider)
     {
         if (!getStatusPanel().containsAccount(protocolProvider)) {
-            this.accounts.add(protocolProvider);
-
+            
             this.getStatusPanel().addAccount(protocolProvider);
 
             //request the focus int the contact list panel, which
             //permits to search in the contact list
             this.tabbedPane.getContactListPanel().getContactList()
                     .requestFocus();
+        }
+                
+        if(!callManager.containsCallAccount(protocolProvider)
+            && getTelephony(protocolProvider) != null) {
+            callManager.addCallAccount(protocolProvider);
         }
     }
 
@@ -381,8 +383,12 @@ public class MainFrame
         this.updateProvidersIndexes(protocolProvider);
 
         if (getStatusPanel().containsAccount(protocolProvider)) {
-            this.accounts.remove(protocolProvider);
+            
             this.getStatusPanel().removeAccount(protocolProvider);
+        }
+        
+        if(callManager.containsCallAccount(protocolProvider)) {
+            callManager.removeCallAccount(protocolProvider);
         }
     }
 
@@ -564,8 +570,14 @@ public class MainFrame
     private class GUIProviderPresenceStatusListener implements
             ProviderPresenceStatusListener
     {
-        public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt) {
-
+        public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
+        {
+            ProtocolProviderService pps = evt.getProvider();
+            
+            if(callManager.containsCallAccount(pps)) {
+                
+                callManager.updateCallAccountStatus(pps);
+            }
         }
 
         public void providerStatusMessageChanged(PropertyChangeEvent evt) {
@@ -777,7 +789,7 @@ public class MainFrame
     {
         this.tabbedPane.remove(callPanel);
 
-        Component c = getSelectedPanel();
+        Component c = getSelectedTab();
 
         if(c == null || !(c instanceof CallPanel))
             this.tabbedPane.setSelectedIndex(0);
@@ -789,7 +801,7 @@ public class MainFrame
      * Returns the component contained in the currently selected tab.
      * @return the selected CallPanel or null if there's no CallPanel selected
      */
-    public Component getSelectedPanel()
+    public Component getSelectedTab()
     {
         Component c = this.tabbedPane.getSelectedComponent();
 

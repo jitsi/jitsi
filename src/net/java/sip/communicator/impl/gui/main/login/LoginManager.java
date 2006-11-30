@@ -208,8 +208,15 @@ public class LoginManager
             .getProtocolPresence(protocolProvider);
 
         if (evt.getNewState().equals(RegistrationState.REGISTERED)) {
-
-            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
+            
+            this.mainFrame.getStatusPanel()
+                .updateStatus(protocolProvider);
+            
+            if(mainFrame.getCallManager().containsCallAccount(protocolProvider)) {
+                
+                this.mainFrame.getCallManager()
+                    .updateCallAccountStatus(protocolProvider);
+            }
 
             if (presence != null) {
                 presence

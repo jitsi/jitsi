@@ -47,6 +47,14 @@ public class CallManager
 
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,
             10, 0));
+    
+    private JLabel callViaLabel
+        = new JLabel(Messages.getString("callVia") + " ");
+    
+    private JPanel callViaPanel
+        = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 4));
+    
+    private AccountSelectorBox accountSelectorBox;
 
     private SIPCommButton callButton = new SIPCommButton(ImageLoader
             .getImage(ImageLoader.CALL_BUTTON_BG), ImageLoader
@@ -81,6 +89,8 @@ public class CallManager
     
     private Hashtable removeCallTimers = new Hashtable();
     
+    private ProtocolProviderService selectedCallProvider;
+    
     /**
      * Creates an instance of <tt>CallManager</tt>.
      * @param mainFrame The main application window.
@@ -91,13 +101,15 @@ public class CallManager
 
         this.mainFrame = mainFrame;
 
-        phoneNumberCombo = new CallComboBox(this);
+        this.phoneNumberCombo = new CallComboBox(this);
+        
+        this.accountSelectorBox = new AccountSelectorBox(this);
         
         this.buttonsPanel
                 .setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
 
         this.comboPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 0, 5));
-
+        
         this.init();
     }
 
@@ -107,10 +119,12 @@ public class CallManager
     private void init()
     {
         this.phoneNumberCombo.setEditable(true);
-                
-        this.comboPanel.add(phoneNumberCombo, BorderLayout.CENTER);
-        // this.add(comboPanel, BorderLayout.NORTH);
+        
+        this.callViaPanel.add(callViaLabel);
+        this.callViaPanel.add(accountSelectorBox);
 
+        this.comboPanel.add(phoneNumberCombo, BorderLayout.CENTER);
+                
         this.callButton.setName("call");
         this.hangupButton.setName("hangup");
         this.minimizeButton.setName("minimize");
@@ -128,7 +142,7 @@ public class CallManager
         
         this.hangupButton.setEnabled(false);
 
-        this.add(minimizeButtonPanel, BorderLayout.SOUTH);
+        this.add(minimizeButtonPanel, BorderLayout.SOUTH);        
     }
 
     
@@ -143,7 +157,7 @@ public class CallManager
         
         if (buttonName.equals("call")) {
             
-            Component selectedPanel = mainFrame.getSelectedPanel();
+            Component selectedPanel = mainFrame.getSelectedTab();
             
             //call button is pressed over an already open call panel
             if(selectedPanel != null
@@ -221,7 +235,7 @@ public class CallManager
         }
         else if (buttonName.equalsIgnoreCase("hangup")) {
             
-            Component selectedPanel = this.mainFrame.getSelectedPanel();
+            Component selectedPanel = this.mainFrame.getSelectedTab();
             
             if(selectedPanel != null && selectedPanel instanceof CallPanel) {
                 
@@ -301,6 +315,53 @@ public class CallManager
     }
 
     /**
+     * Adds the given call account to the list of call via accounts.
+     * @param pps the protocol provider service corresponding to the account
+     */
+    public void addCallAccount(ProtocolProviderService pps)
+    {   
+        if(accountSelectorBox.getAccountsNumber() > 0) {
+            this.comboPanel.add(callViaPanel, BorderLayout.SOUTH);            
+        }
+        accountSelectorBox.addAccount(pps);
+    }
+    
+    /**
+     * Removes the account corresponding to the given protocol provider from the
+     * call via selector box.
+     * @param protocolProvider the protocol provider service to remove
+     */
+    public void removeCallAccount(ProtocolProviderService pps)
+    {
+        this.accountSelectorBox.removeAccount(pps);
+        
+        if(accountSelectorBox.getAccountsNumber() < 2) {
+            this.comboPanel.remove(callViaPanel);            
+        }
+    }
+    
+    /**
+     * Returns TRUE if the account corresponding to the given protocol provider
+     * is already contained in the call via selector box, otherwise returns FALSE.
+     * @param pps the protocol provider service for the account
+     * @return TRUE if the account corresponding to the given protocol provider
+     * is already contained in the call via selector box, otherwise returns FALSE
+     */
+    public boolean containsCallAccount(ProtocolProviderService pps)
+    {
+        return accountSelectorBox.containsAccount(pps);
+    }
+    
+    /**
+     * Updates the call via account status.
+     * @param pps the protocol provider service for the account
+     */
+    public void updateCallAccountStatus(ProtocolProviderService pps)
+    {
+        accountSelectorBox.updateAccountStatus(pps);
+    }
+    
+    /**
      * For the given MetaContact returns the protocol contact that supports
      * a basic telephony operation.
      * @param metaContact the MetaContac we are trying to call
@@ -322,28 +383,10 @@ public class CallManager
         }
         return null;
     }
-
-    /**
-     * From all registered protocol providers returns the first one that
-     * supports basic telephony.
-     * @return the first protocol provider from all the registered providers
-     * that supports basic telephony
-     */
-    private ProtocolProviderService getDefaultTelephonyProvider() {
-        String telephonySet
-            = OperationSetBasicTelephony.class.getName();
-
-        Iterator i = mainFrame.getProtocolProviders();
-        while(i.hasNext()) {
-            ProtocolProviderService pps
-                = (ProtocolProviderService) i.next();
-            
-            if(pps.getSupportedOperationSets()
-                    .containsKey(telephonySet)) {
-                return pps;
-            }
-        }
-        return null;
+    
+    public void setCallProvider(ProtocolProviderService provider)
+    {
+        this.selectedCallProvider = provider;
     }
     
     /**
@@ -462,12 +505,12 @@ public class CallManager
     }
     
     /**
-     * 
+     * Updates call and hangup buttons' states aa 
      *
      */
     private void updateButtonsStateAccordingToSelectedPanel()
     {
-        Component selectedPanel = mainFrame.getSelectedPanel();
+        Component selectedPanel = mainFrame.getSelectedTab();
         if(selectedPanel != null && selectedPanel instanceof CallPanel) {
             this.hangupButton.setEnabled(true);
         }
@@ -550,11 +593,26 @@ public class CallManager
         new AnswerCallThread(call).start();        
     }
 
+    /**
+     * Returns TRUE if this call is a call to an internal meta contact from the
+     * contact list, otherwise returns FALSE.
+     * @return TRUE if this call is a call to an internal meta contact from the
+     * contact list, otherwise returns FALSE
+     */
     public boolean isCallMetaContact()
     {
         return isCallMetaContact;
     }
 
+    /**
+     * Sets the isCallMetaContact variable to TRUE or FALSE. This defines if
+     * this call is a call to a given meta contact selected from the contact
+     * list or a call to an external contact or phone number.
+     * 
+     * @param isCallMetaContact TRUE to define this call as a call to an internal
+     * meta contact and FALSE to define it as a call to an external contact or
+     * phone number.
+     */
     public void setCallMetaContact(boolean isCallMetaContact)
     {   
         this.isCallMetaContact = isCallMetaContact;
@@ -575,7 +633,7 @@ public class CallManager
     }
     
     /**
-     * Creates a call to the given contact.
+     * Creates a call to the given list of contacts.
      * 
      * @param contacts the list of contacts to call to
      */
@@ -603,23 +661,18 @@ public class CallManager
             this.stringContact = contact;
             this.callPanel = callPanel;
             
-            ProtocolProviderService pps
-                = getDefaultTelephonyProvider();
             
-            if(pps != null) 
-                telephony = mainFrame.getTelephony(pps);
+            if(selectedCallProvider != null) 
+                telephony = mainFrame.getTelephony(selectedCallProvider);
         }
         
         public CreateCallThread(Vector contacts, CallPanel callPanel)
         {
             this.contacts = contacts;
             this.callPanel = callPanel;
-
-            ProtocolProviderService pps
-                = getDefaultTelephonyProvider();
             
-            if(pps != null) 
-                telephony = mainFrame.getTelephony(pps);
+            if(selectedCallProvider != null) 
+                telephony = mainFrame.getTelephony(selectedCallProvider);
         }
         
         public void run()
