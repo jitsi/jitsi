@@ -1,0 +1,9 @@
+Bundle-Activator: net.java.sip.communicator.impl.shutdown.ShutdownTimeout
+Bundle-Name: ShutdownBundle
+Bundle-Description: A bundle that makes sure that when closed SIP Communicator will exit in 15 seconds at most.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.configuration.event,
+ net.java.sip.communicator.util

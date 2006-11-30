@@ -1063,4 +1063,14 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/slick/version"/>
         </jar>
     </target>
+
+    <!-- BUNDLE-SHUTDOWN -->
+    <target name="bundle-shutdown">
+        <!-- Creates a bundle for the shutdown plugin.-->
+        <jar compress="false" destfile="${bundles.dest}/shutdown.jar"
+            manifest="src/net/java/sip/communicator/slick/shutdown/shutdown.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/shutdown"
+                prefix="net/java/sip/communicator/impl/shutdown"/>
+        </jar>
+    </target>
 </project>
