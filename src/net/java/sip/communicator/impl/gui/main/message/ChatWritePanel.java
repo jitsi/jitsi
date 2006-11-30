@@ -169,6 +169,8 @@ public class ChatWritePanel extends JScrollPane implements
             editorPane.setText(editorText.substring(0, caretPosition)
                     + System.getProperty("line.separator")
                     + editorText.substring(caretPosition));
+            
+            editorPane.setCaretPosition(caretPosition + 1);
         }
     }
     
