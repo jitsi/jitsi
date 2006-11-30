@@ -302,6 +302,8 @@ public class ContactRightButtonMenu
                 Messages.getString("mnemonic.viewHistory").charAt(0));
         this.userInfoMenu.setMnemonic(
                 Messages.getString("mnemonic.userInfo").charAt(0));
+        this.moveSubcontactMenu.setMnemonic(
+                Messages.getString("mnemonic.moveSubcontact").charAt(0));
     }
 
     /**
