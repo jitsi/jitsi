@@ -26,6 +26,7 @@ import java.awt.Dimension;
  *
  * @author Martin Andre
  * @author Emil Ivov
+ * @author Damian Minkov
  */
 public class MediaControl
 {
@@ -123,6 +124,20 @@ public class MediaControl
      */
     private static final String DEBUG_DATA_SOURCE_URL_PROPERTY_NAME
         = "net.java.sip.communicator.impl.media.DEBUG_DATA_SOURCE_URL";
+
+    /**
+     *
+     */
+    private static String[] customCodecs = new String[]
+    {
+        "net.java.sip.communicator.impl.media.codec.audio.alaw.JavaEncoder",
+        "net.java.sip.communicator.impl.media.codec.audio.alaw.DePacketizer",
+        "net.java.sip.communicator.impl.media.codec.audio.alaw.Packetizer"
+//        "net.java.sip.communicator.impl.media.codec.audio.g729.JavaDecoder",
+//        "net.java.sip.communicator.impl.media.codec.audio.g729.JavaEncoder",
+//        "net.java.sip.communicator.impl.media.codec.audio.g729.DePacketizer",
+//        "net.java.sip.communicator.impl.media.codec.audio.g729.Packetizer"
+    };
 
     /**
      * The default constructor.
@@ -396,6 +411,9 @@ public class MediaControl
     private void initProcessor(DataSource dataSource)
         throws MediaException
     {
+        // register our custom codecs
+        registerCustomCodecs();
+
         try
         {
             try
@@ -959,5 +977,45 @@ public class MediaControl
 
         if(processorReaders.contains(reader))
             processorReaders.remove(reader);
+    }
+
+    /**
+     * Register in JMF the custom codecs we provide
+     */
+    private void registerCustomCodecs()
+    {
+        for (int i = 0; i < customCodecs.length; i++)
+        {
+            String className = customCodecs[i];
+            try
+            {
+
+                Class pic = Class.forName(className);
+                Object instance = pic.newInstance();
+
+                boolean result =
+                    PlugInManager.addPlugIn(
+                        className,
+                        ( (Codec) instance).getSupportedInputFormats(),
+                        ( (Codec) instance).getSupportedOutputFormats(null),
+                        PlugInManager.CODEC);
+                logger.debug("Codec : " + className +
+                             " is succsefully registered : " + result);
+            }
+            catch (Exception ex)
+            {
+                logger.debug("Codec : " + className +
+                             " is NOT succsefully registered");
+            }
+        }
+
+        try
+        {
+            PlugInManager.commit();
+        }
+        catch (IOException ex)
+        {
+            logger.error("Cannot commit to PlugInManager", ex);
+        }
     }
 }

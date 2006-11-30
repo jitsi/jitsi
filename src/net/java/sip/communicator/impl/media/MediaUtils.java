@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.media;
 import javax.media.format.*;
 import javax.sdp.*;
 import java.util.*;
+import net.java.sip.communicator.impl.media.codec.*;
 
 /**
  * Implements static utility methods used by media classes.
@@ -48,7 +49,7 @@ public class MediaUtils
             case SdpConstants.DVI4_16000:
                 return AudioFormat.DVI_RTP;
             case SdpConstants.PCMA:
-                return AudioFormat.ALAW;
+                return Constants.ALAW_RTP;
             case SdpConstants.G728:
                 return AudioFormat.G728_RTP;
             case SdpConstants.G729:
@@ -83,6 +84,10 @@ public class MediaUtils
         else if (jmfEncoding.equals(AudioFormat.ULAW_RTP))
         {
             return Integer.toString(SdpConstants.PCMU);
+        }
+        else if (jmfEncoding.equals(Constants.ALAW_RTP))
+        {
+            return Integer.toString(SdpConstants.PCMA);
         }
         else if (jmfEncoding.equals(AudioFormat.GSM_RTP))
         {
