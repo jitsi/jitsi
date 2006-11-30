@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.menus;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -166,19 +167,35 @@ public class QuickMenu
                     .getContactList().getSelectedValue();
 
             if(selectedMetaContact != null) {
-                Contact defaultContact = selectedMetaContact
-                    .getDefaultContact();
+                OperationSetWebContactInfo wContactInfo = null;
+                
+                Iterator protocolContacts = selectedMetaContact.getContacts();
+                
+                while(protocolContacts.hasNext()) {
+                    Contact protoContact = (Contact) protocolContacts.next();
+                    
+                    wContactInfo = mainFrame.getWebContactInfo(
+                        protoContact.getProtocolProvider());
+                    
+                    if(wContactInfo != null)
+                        break;
+                }
+                
+                if(wContactInfo != null) {
+                    Contact defaultContact = selectedMetaContact
+                        .getDefaultContact();
 
-                ProtocolProviderService defaultProvider
-                    = defaultContact.getProtocolProvider();
-
-                OperationSetWebContactInfo wContactInfo
-                    = mainFrame.getWebContactInfo(defaultProvider);
-
-                CrossPlatformBrowserLauncher.openURL(
-                        wContactInfo.getWebContactInfo(defaultContact)
-                            .toString());
-            }
+                    CrossPlatformBrowserLauncher.openURL(
+                            wContactInfo.getWebContactInfo(defaultContact)
+                                .toString());
+                }
+                else {
+                    JOptionPane.showMessageDialog(mainFrame,
+                        Messages.getString("selectContactSupportingInfo"),
+                        Messages.getString("warning"),
+                        JOptionPane.WARNING_MESSAGE);
+                }
+            }            
         }
     }
 
