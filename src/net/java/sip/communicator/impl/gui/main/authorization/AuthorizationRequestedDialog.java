@@ -119,8 +119,6 @@ public class AuthorizationRequestedDialog
             
             this.reasonsPanel.add(requestScrollPane);
             
-            this.mainPanel.add(reasonsPanel, BorderLayout.CENTER);
-            
             this.mainPanel.setPreferredSize(new Dimension(550, 400));            
         }
         else {
@@ -157,6 +155,7 @@ public class AuthorizationRequestedDialog
         
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.mainPanel.add(northPanel, BorderLayout.NORTH);        
+        this.mainPanel.add(reasonsPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
         this.getContentPane().add(mainPanel);
