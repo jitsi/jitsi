@@ -796,6 +796,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/netaddr"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/netaddr"
                 prefix="net/java/sip/communicator/impl/netaddr"/>
+            <zipfileset src="${lib}/Stun4J.jar" prefix=""/>
         </jar>
     </target>
 
