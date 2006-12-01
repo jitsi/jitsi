@@ -67,6 +67,8 @@ public class ShutdownTimeout
                 synchronized(this)
                 {
                     try{
+                        logger.trace("Starting shutdown countdown of "
+                                     + SHUTDOWN_TIMEOUT + "ms.");
                         wait(SHUTDOWN_TIMEOUT);
                         logger.error("Failed to gently shutdown. Forcing exit.");
                         System.exit(500);
