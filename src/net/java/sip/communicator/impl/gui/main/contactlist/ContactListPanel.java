@@ -163,9 +163,48 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
 
         private Contact protocolContact;
 
-        public RunMessageWindow(MetaContact contactItem) {
+        public RunMessageWindow(MetaContact contactItem)
+        {
             this.contactItem = contactItem;
-            this.protocolContact = contactItem.getDefaultContact();
+                        
+            Contact defaultContact = contactItem.getDefaultContact();
+            
+            ProtocolProviderService defaultProvider
+                = defaultContact.getProtocolProvider();
+            
+            OperationSetBasicInstantMessaging
+                defaultIM = (OperationSetBasicInstantMessaging)
+                    defaultProvider.getOperationSet(
+                            OperationSetBasicInstantMessaging.class);
+            
+            ProtocolProviderService protoContactProvider;
+            OperationSetBasicInstantMessaging protoContactIM;
+            
+            if (defaultContact.getPresenceStatus().getStatus() < 1
+                    && (!defaultIM.isOfflineMessagingSupported()
+                            || !defaultProvider.isRegistered()))
+            {  
+                Iterator protoContacts = contactItem.getContacts();
+                
+                while(protoContacts.hasNext())
+                {
+                    Contact contact = (Contact) protoContacts.next();
+                    
+                    protoContactProvider = contact.getProtocolProvider();
+                    
+                    protoContactIM = (OperationSetBasicInstantMessaging)
+                        protoContactProvider.getOperationSet(
+                            OperationSetBasicInstantMessaging.class);
+                    
+                    if(protoContactIM.isOfflineMessagingSupported()
+                            && protoContactProvider.isRegistered())
+                    {
+                        defaultContact = contact;
+                    }
+                }
+            }
+            
+            this.protocolContact = defaultContact;
         }
 
         public RunMessageWindow(MetaContact contactItem, Contact protocolContact) {
