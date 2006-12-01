@@ -210,7 +210,7 @@ public class ChatWindow
         chatPanel.setChatVisible(true);
 
         String contactName = chatPanel.getMetaContact().getDisplayName();
-        PresenceStatus status = chatPanel.getPresenceStatus();
+        PresenceStatus status = chatPanel.getDefaultContactStatus();
 
         if (chatTabbedPane == null) {
             // Initialize the tabbed pane for the first time
@@ -245,7 +245,7 @@ public class ChatWindow
                 ChatPanel firstChatPanel = getCurrentChatPanel();
 
                 PresenceStatus currentContactStatus = firstChatPanel
-                    .getPresenceStatus();
+                    .getDefaultContactStatus();
                 // Add first two tabs to the tabbed pane.
                 chatTabbedPane.addTab(firstChatPanel.getMetaContact()
                     .getDisplayName(), new ImageIcon(Constants

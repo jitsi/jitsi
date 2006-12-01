@@ -19,7 +19,6 @@ import javax.swing.text.html.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -629,10 +628,11 @@ public class ChatPanel
      * panel.
      * @return the <tt>PresenceStatus</tt> of the default contact for this chat
      * panel.
-     */
-    public PresenceStatus getPresenceStatus() {
+     */    
+    public PresenceStatus getDefaultContactStatus() {
         return getMetaContact().getDefaultContact().getPresenceStatus();
     }
+    
 
     /**
      * Implements the <code>ExportedDialog.isDialogVisible</code> method, to 
