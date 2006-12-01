@@ -68,6 +68,8 @@ public class AuthorizationRequestedDialog
     
     private String title = Messages.getString("authorizationRequested");
     
+    private Object lock = new Object();
+    
     private int result;
     
     /**
@@ -103,15 +105,24 @@ public class AuthorizationRequestedDialog
         this.northPanel.add(iconLabel, BorderLayout.WEST);
         this.northPanel.add(titlePanel, BorderLayout.CENTER);
         
-        this.requestScrollPane.setBorder(BorderFactory.createCompoundBorder(
+        if(request.getReason() != null && request.getReason() != "") {
+            this.requestScrollPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(3, 3, 3, 3),
                 SIPCommBorders.getBoldRoundBorder()));
         
-        this.requestPane.setEditable(false);
-        this.requestPane.setOpaque(false);
-        this.requestPane.setText(request.getReason());
-                
-        this.requestScrollPane.getViewport().add(requestPane);
+            this.requestPane.setEditable(false);
+            this.requestPane.setOpaque(false);
+            this.requestPane.setText(request.getReason());
+                    
+            this.requestScrollPane.getViewport().add(requestPane);
+            
+            this.reasonsPanel.add(requestScrollPane);
+            
+            this.mainPanel.setPreferredSize(new Dimension(550, 400));            
+        }
+        else {
+            this.mainPanel.setPreferredSize(new Dimension(550, 300));
+        }
         
         this.responseScrollPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(3, 3, 3, 3),
@@ -119,7 +130,6 @@ public class AuthorizationRequestedDialog
         
         this.responseScrollPane.getViewport().add(responsePane);
         
-        this.reasonsPanel.add(requestScrollPane);
         this.reasonsPanel.add(responseScrollPane);
         
         this.acceptButton.setName("accept");
@@ -148,8 +158,6 @@ public class AuthorizationRequestedDialog
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
         this.getContentPane().add(mainPanel);
-        
-        this.setSize(new Dimension(550, 400));        
     }
 
     /**
@@ -158,6 +166,16 @@ public class AuthorizationRequestedDialog
      */
     public int showDialog() {
         this.setVisible(true);
+        
+        synchronized (lock) {
+            try {                    
+                lock.wait();
+            }
+            catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         
         return result;
     }
@@ -182,6 +200,11 @@ public class AuthorizationRequestedDialog
         else {
             this.result = ERROR_CODE;
         }        
+        
+        synchronized (lock) {
+            lock.notify();
+        }
+        
         this.dispose();
     }
     

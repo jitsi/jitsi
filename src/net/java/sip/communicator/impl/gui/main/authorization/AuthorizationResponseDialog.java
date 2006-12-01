@@ -77,18 +77,27 @@ public class AuthorizationResponseDialog extends SIPCommDialog
                     + Messages.getString("authRejected"));
         }
         
-        this.responseScrollPane.setBorder(BorderFactory.createCompoundBorder(
+        if(response.getReason() != null && response.getReason() != "") {
+            this.responseScrollPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(3, 3, 3, 3),
                 SIPCommBorders.getBoldRoundBorder()));
         
-        this.responseArea.setText(response.getReason());
-        this.responseArea.setLineWrap(true);
-        this.responseArea.setWrapStyleWord(true);
-        this.responseArea.setEditable(false);
-        this.responseArea.setOpaque(false);
-        
-        this.responseScrollPane.getViewport().add(responseArea);
-        
+            this.responseArea.setText(response.getReason());
+            this.responseArea.setLineWrap(true);
+            this.responseArea.setWrapStyleWord(true);
+            this.responseArea.setEditable(false);
+            this.responseArea.setOpaque(false);
+            
+            this.responseScrollPane.getViewport().add(responseArea);
+            
+            this.mainPanel.add(responseScrollPane, BorderLayout.CENTER);
+            
+            this.mainPanel.setPreferredSize(new Dimension(400, 250));
+        }
+        else {
+            this.mainPanel.setPreferredSize(new Dimension(400, 200));
+        }
+                
         this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         this.infoTextArea.setLineWrap(true);
         this.infoTextArea.setWrapStyleWord(true);
@@ -111,12 +120,9 @@ public class AuthorizationResponseDialog extends SIPCommDialog
         
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.mainPanel.add(northPanel, BorderLayout.NORTH);
-        this.mainPanel.add(responseScrollPane, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
-        this.getContentPane().add(mainPanel);
-        
-        this.setSize(new Dimension(400, 200));        
+        this.getContentPane().add(mainPanel);        
     }
 
     /**

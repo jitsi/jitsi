@@ -57,6 +57,8 @@ public class RequestAuthorizationDialog
     
     private AuthorizationRequest request;
     
+    private Object lock = new Object();
+    
     private int returnCode;
     
     /**
@@ -78,7 +80,7 @@ public class RequestAuthorizationDialog
         titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
         titleLabel.setText(title);
         
-        this.mainPanel.setPreferredSize(new Dimension(350, 150));
+        this.mainPanel.setPreferredSize(new Dimension(400, 300));
         
         this.request = request;
         
@@ -96,7 +98,7 @@ public class RequestAuthorizationDialog
         this.infoTextArea.setOpaque(false);
         this.infoTextArea.setWrapStyleWord(true);
         this.infoTextArea.setEditable(false);
-        
+                
         this.titlePanel.add(titleLabel);
         this.titlePanel.add(infoTextArea);
         
@@ -123,9 +125,7 @@ public class RequestAuthorizationDialog
         this.mainPanel.add(requestScrollPane, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
-        this.getContentPane().add(mainPanel);
-        
-        this.setSize(new Dimension(400, 300));        
+        this.getContentPane().add(mainPanel);                   
     }
 
     /**
@@ -136,6 +136,18 @@ public class RequestAuthorizationDialog
     public int showDialog()
     {
         this.setVisible(true);
+        
+        this.requestPane.requestFocus();
+        
+        synchronized (lock) {
+            try {                    
+                lock.wait();
+            }
+            catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         
         return returnCode;
     }
@@ -155,6 +167,11 @@ public class RequestAuthorizationDialog
         else if(name.equals("cancel")) {
             returnCode = CANCEL_RETURN_CODE;
         }
+        
+        synchronized (lock) {
+            lock.notify();
+        }
+        
         this.dispose();
     }
     
