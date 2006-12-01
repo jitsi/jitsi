@@ -77,7 +77,8 @@ public class AuthorizationResponseDialog extends SIPCommDialog
                     + Messages.getString("authRejected"));
         }
         
-        if(response.getReason() != null && response.getReason() != "") {
+        if(response.getReason() != null && !response.getReason().equals("")) {
+            
             this.responseScrollPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(3, 3, 3, 3),
                 SIPCommBorders.getBoldRoundBorder()));
@@ -95,7 +96,7 @@ public class AuthorizationResponseDialog extends SIPCommDialog
             this.mainPanel.setPreferredSize(new Dimension(400, 250));
         }
         else {
-            this.mainPanel.setPreferredSize(new Dimension(400, 200));
+            this.mainPanel.setPreferredSize(new Dimension(400, 180));
         }
                 
         this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));

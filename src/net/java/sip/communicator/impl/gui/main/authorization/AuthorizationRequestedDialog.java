@@ -105,7 +105,8 @@ public class AuthorizationRequestedDialog
         this.northPanel.add(iconLabel, BorderLayout.WEST);
         this.northPanel.add(titlePanel, BorderLayout.CENTER);
         
-        if(request.getReason() != null && request.getReason() != "") {
+        if(request.getReason() != null && !request.getReason().equals("")) {
+            
             this.requestScrollPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(3, 3, 3, 3),
                 SIPCommBorders.getBoldRoundBorder()));
@@ -117,6 +118,8 @@ public class AuthorizationRequestedDialog
             this.requestScrollPane.getViewport().add(requestPane);
             
             this.reasonsPanel.add(requestScrollPane);
+            
+            this.mainPanel.add(reasonsPanel, BorderLayout.CENTER);
             
             this.mainPanel.setPreferredSize(new Dimension(550, 400));            
         }
@@ -153,8 +156,7 @@ public class AuthorizationRequestedDialog
         this.buttonsPanel.add(ignoreButton);
         
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        this.mainPanel.add(northPanel, BorderLayout.NORTH);
-        this.mainPanel.add(reasonsPanel, BorderLayout.CENTER);
+        this.mainPanel.add(northPanel, BorderLayout.NORTH);        
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
         this.getContentPane().add(mainPanel);
