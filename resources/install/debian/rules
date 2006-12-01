@@ -45,8 +45,11 @@ install: build
 	# Add here commands to install the package into debian/sip-communicator.
 	cp debian/sc-logo-32x32.xpm debian/sip-communicator/usr/share/pixmaps/sip-communicator.xpm
 	cp debian/sip-communicator.desktop debian/sip-communicator/usr/share/applications/
-	cp $(BASEDIR)/lib/*.jar debian/sip-communicator/usr/share/sip-communicator/lib
-	cp $(BASEDIR)/lib/logging.properties debian/sip-communicator/usr/share/sip-communicator/lib
+	cp $(BASEDIR)/lib/kxml-min.jar debian/sip-communicator/usr/share/sip-communicator/lib
+	cp $(BASEDIR)/lib/felix.jar debian/sip-communicator/usr/share/sip-communicator/lib
+	cp $(BASEDIR)/lib/servicebinder.jar debian/sip-communicator/usr/share/sip-communicator/lib
+	cp $(BASEDIR)/lib/jmf-lin/jmf.jar debian/sip-communicator/usr/share/sip-communicator/lib
+	cp $(BASEDIR)/resources/install/logging.properties debian/sip-communicator/usr/share/sip-communicator/lib
 	cp $(BASEDIR)/lib/felix.client.run.properties debian/sip-communicator/usr/share/sip-communicator/lib
 	cp -r $(BASEDIR)/lib/native/linux debian/sip-communicator/usr/share/sip-communicator/lib/native
 	rm -rf debian/sip-communicator/usr/share/sip-communicator/lib/native/CVS
@@ -57,14 +60,7 @@ install: build
 	# Remove all slicks
 	rm debian/sip-communicator/usr/share/sip-communicator/sc-bundles/*-slick.jar
 
-	# Don't include libs already in debian
-	rm debian/sip-communicator/usr/share/sip-communicator/lib/bcprov-jdk14-130.jar
-	rm debian/sip-communicator/usr/share/sip-communicator/lib/log4j-1.2.8.jar
-
-	# Remove other unneeded libs
-	rm debian/sip-communicator/usr/share/sip-communicator/lib/junit.jar
-
-	# Make oscar deploy its bundles in ~/.felix/sip-communicator.bin
+	# Make felix deploy its bundles in ~/.felix/sip-communicator.bin
 	sed -i -e "s/felix.cache.profiledir=sip-communicator.bin/felix.cache.profile=sip-communicator.bin/" debian/sip-communicator/usr/share/sip-communicator/lib/felix.client.run.properties
 
 
