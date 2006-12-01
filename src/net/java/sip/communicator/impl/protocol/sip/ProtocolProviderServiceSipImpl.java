@@ -148,7 +148,8 @@ public class ProtocolProviderServiceSipImpl
      * The default name of a debug log file for the jain-sip RI.
      */
     private static final String NSPVALUE_DEBUG_LOG =
-        "./log/sc-jainsipdebug.log";
+        System.getProperty("user.home")
+        + "/.sip-communicator/log/sc-jainsipdebug.log";
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
@@ -162,7 +163,8 @@ public class ProtocolProviderServiceSipImpl
      * The default name of a server log file for the jain-sip RI.
      */
     private static final String NSPVALUE_SERVER_LOG =
-        "./log/sc-jainsipserver.log";
+        System.getProperty("user.home")
+        + "/.sip-communicator/log/sc-jainsipserver.log";
 
     /**
      * A random generator we use to generate tags.
