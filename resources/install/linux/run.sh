@@ -1,3 +1,5 @@
+mkdir -p $HOME/.sip-communicator/log
+
 export PATH=$PATH:native
 export JAVA_HOME=jre
-${JAVA_HOME}/bin/java -classpath "lib/JainSipApi1.1.jar:lib/Stun4J.jar:lib/architectureviewer1.1.jar:lib/bcprov-jdk14-130.jar:lib/joscar-0.9.4-cvs-bin.jar:lib/nist-sdp-1.0.jar:lib/nist-sip-1.2.jar:lib/oscar-aim.jar:lib/felix.jar:lib/kxml-min.jar:lib/retroweaver-rt.jar:lib/retroweaver.jar:lib/servicebinder.jar:lib/BrowserLauncher2.jar:lib/sip-sdp.jar:lib/cindy.jar:lib/commons-logging.jar:lib/jml-1.0a3.jar" -Dicq.custom.message.charset=windows-1251 -Dfelix.config.properties=file:./lib/felix.client.run.properties -Djava.util.logging.config.file=lib/logging.properties org.apache.felix.main.Main
+${JAVA_HOME}/bin/java -classpath "lib/felix.jar:lib/kxml-min.jar:lib/servicebinder.jar:lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar:sc-bundles/util.jar" -Dicq.custom.message.charset=windows-1251 -Dfelix.config.properties=file:./lib/felix.client.run.properties -Djava.util.logging.config.file=lib/logging.properties org.apache.felix.main.Main

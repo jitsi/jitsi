@@ -45,16 +45,17 @@
 			<description>Include all libraries</description>
 
 			<fileset  targetdir="$INSTALL_PATH/lib" dir="lib">
-				<include name="**/*.jar"/>
-
-                                <exclude name="junit*.jar"/>
-                                <exclude name="**/jmf*/**"/>
-				<exclude name="native"/>
-                                <exclude name="izpack"/>
+				<include name="kxml-min.jar"/>
+                <include name="felix.jar"/>
+                <include name="servicebinder.jar"/>
+			</fileset>
+            <fileset  targetdir="$INSTALL_PATH/lib/bundle" dir="lib/bundle">
+				<include name="org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar"/>
 			</fileset>
 
+
 			<file targetdir="$INSTALL_PATH/lib" src="lib/felix.client.run.properties"/>
-			<file targetdir="$INSTALL_PATH/lib" src="lib/logging.properties"/>
+			<file targetdir="$INSTALL_PATH/lib" src="resources/install/logging.properties"/>
 		</pack>
 
 		<pack name="util" required="yes">
@@ -140,6 +141,11 @@
         <pack name="msnaccregwizz" required="yes">
 			<description>SIP Communicator bundle MSN Account Registrattion Wizzard</description>
             <file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/msnaccregwizz.jar"/>
+		</pack>
+        <pack name="version" required="yes">
+			<description>SIP Communicator bundle Version</description>
+            <file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/version-impl.jar"/>
+            <file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/version.jar"/>
 		</pack>
 
 		<!-- The executable files -->
