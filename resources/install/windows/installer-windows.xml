@@ -47,6 +47,7 @@
 				<include name="kxml-min.jar"/>
                 <include name="felix.jar"/>
                 <include name="servicebinder.jar"/>
+                <include name="BrowserLauncher2.jar"/>
 			</fileset>
             <fileset  targetdir="$INSTALL_PATH/lib/bundle" dir="lib/bundle">
 				<include name="org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar"/>
