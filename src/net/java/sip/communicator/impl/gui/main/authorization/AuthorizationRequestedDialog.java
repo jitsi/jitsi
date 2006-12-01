@@ -122,7 +122,7 @@ public class AuthorizationRequestedDialog
             this.mainPanel.setPreferredSize(new Dimension(550, 400));            
         }
         else {
-            this.mainPanel.setPreferredSize(new Dimension(550, 300));
+            this.mainPanel.setPreferredSize(new Dimension(550, 350));
         }
         
         this.responseScrollPane.setBorder(BorderFactory.createCompoundBorder(
