@@ -47,8 +47,8 @@ install: build
 	cp debian/sip-communicator.desktop debian/sip-communicator/usr/share/applications/
 	cp $(BASEDIR)/lib/kxml-min.jar debian/sip-communicator/usr/share/sip-communicator/lib
 	cp $(BASEDIR)/lib/felix.jar debian/sip-communicator/usr/share/sip-communicator/lib
+	cp $(BASEDIR)/lib/BrowserLauncher2.jar debian/sip-communicator/usr/share/sip-communicator/lib
 	cp $(BASEDIR)/lib/servicebinder.jar debian/sip-communicator/usr/share/sip-communicator/lib
-	cp $(BASEDIR)/lib/jmf-lin/jmf.jar debian/sip-communicator/usr/share/sip-communicator/lib
 	cp $(BASEDIR)/resources/install/logging.properties debian/sip-communicator/usr/share/sip-communicator/lib
 	cp $(BASEDIR)/lib/felix.client.run.properties debian/sip-communicator/usr/share/sip-communicator/lib
 	cp -r $(BASEDIR)/lib/native/linux debian/sip-communicator/usr/share/sip-communicator/lib/native
