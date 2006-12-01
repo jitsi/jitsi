@@ -77,4 +77,20 @@ public interface OperationSetBasicInstantMessaging
      * @param listener the <tt>MessageListener</tt> to unregister.
      */
     public void removeMessageListener(MessageListener listener);
+
+    /**
+     * Determines wheter the protocol provider (or the protocol itself) support
+     * sending and receiving offline messages. Most often this method would
+     * return true for protocols that support offline messages and false for
+     * those that don't. It is however possible for a protocol to support these
+     * messages and yet have a particular account that does not (i.e. feature
+     * not enabled on the protocol server). In cases like this it is possible
+     * for this method to return true even when offline messaging is not
+     * supported, and then have the sendMessage method throw an
+     * OperationFailedException with code - OFFLINE_MESSAGES_NOT_SUPPORTED.
+     *
+     * @return <tt>true</tt> if the protocol supports offline messages and
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isOfflineMessagingSupported();
 }
