@@ -46,7 +46,7 @@ public class SecurityAuthorityImpl implements SecurityAuthority {
                 mainFrame, protocolProvider, realm, userCredentials);
 
         loginWindow.setVisible(true);
-
-        return userCredentials;
+        
+        return loginWindow.getUserCredentials();
     }
 }

@@ -185,6 +185,9 @@ public class AuthenticationWindow
             userCredentials.setPasswordPersistent(
                     rememberPassCheckBox.isSelected());
         }
+        else {
+            this.userCredentials = null;
+        }
 
         this.dispose();
     }
@@ -238,5 +241,10 @@ public class AuthenticationWindow
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
+    }
+
+    public UserCredentials getUserCredentials()
+    {
+        return userCredentials;
     }
 }
