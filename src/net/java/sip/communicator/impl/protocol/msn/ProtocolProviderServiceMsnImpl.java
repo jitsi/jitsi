@@ -438,11 +438,11 @@ public class ProtocolProviderServiceMsnImpl
         {
             logger.trace("logout");
 
-            if(isRegistered())
-                fireRegistrationStateChanged(
-                    getRegistrationState(),
-                    RegistrationState.UNREGISTERED,
-                    RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+//            if(isRegistered())
+//                fireRegistrationStateChanged(
+//                    getRegistrationState(),
+//                    RegistrationState.UNREGISTERED,
+//                    RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
 
         }
 
@@ -456,13 +456,55 @@ public class ProtocolProviderServiceMsnImpl
                     "Incorrect Password");
             else
             {
+                if(throwable instanceof MsnProtocolException)
+                {
+                    MsnProtocolException exception =
+                        (MsnProtocolException)throwable;
+
+
+                    logger.error("Error in Msn lib ", exception);
+
+                    switch(exception.getErrorCode())
+                    {
+                        case 500:
+                        case 540:
+                        case 601:
+                            if(isRegistered())
+                            {
+                                unregister(false);
+                                fireRegistrationStateChanged(
+                                    getRegistrationState(),
+                                    RegistrationState.UNREGISTERED,
+                                    RegistrationStateChangeEvent.
+                                    REASON_INTERNAL_ERROR, null);
+                            }
+                            break;
+                        case 911:
+                            if(isRegistered())
+                            {
+                                unregister(false);
+                                fireRegistrationStateChanged(
+                                    getRegistrationState(),
+                                    RegistrationState.UNREGISTERED,
+                                    RegistrationStateChangeEvent.
+                                    REASON_AUTHENTICATION_FAILED, null);
+                            }
+                            break;
+                    }
+
+                    return;
+                }
+
                 logger.error("Error in Msn lib ", throwable);
 
                 if(isRegistered())
+                {
+                    unregister(false);
                     fireRegistrationStateChanged(
                         getRegistrationState(),
                         RegistrationState.UNREGISTERED,
                         RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+                }
             }
         }
     }
