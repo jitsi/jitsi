@@ -167,7 +167,7 @@ public class ChatWritePanel extends JScrollPane implements
             String editorText = editorPane.getText();
             
             editorPane.setText(editorText.substring(0, caretPosition)
-                    + System.getProperty("line.separator")
+                    + "\n"
                     + editorText.substring(caretPosition));
             
             editorPane.setCaretPosition(caretPosition + 1);
