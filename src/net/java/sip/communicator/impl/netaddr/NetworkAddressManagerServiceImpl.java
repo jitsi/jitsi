@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.util.*;
 import net.java.stun4j.*;
 import net.java.stun4j.client.*;
+import java.util.*;
 
 
 /**
@@ -244,10 +245,42 @@ public class NetworkAddressManagerServiceImpl
         {
             try
             {
-                localHost = InetAddress.getLocalHost();
+                //all that's inside the if is an ugly IPv6 hack
+                //(good ol' IPv6 - always causing more problems that it solves.)
+                if (intendedDestination instanceof Inet6Address)
+                {
+                    //return the first globally routable ipv6 address we find
+                    //on the machine (and hope it's a good one)
+                    Enumeration interfaces
+                        = NetworkInterface.getNetworkInterfaces();
+
+                    while (interfaces.hasMoreElements())
+                    {
+                        NetworkInterface iface
+                            = (NetworkInterface)interfaces.nextElement();
+                        Enumeration addresses = iface.getInetAddresses();
+                        while(addresses.hasMoreElements())
+                        {
+                            InetAddress address
+                                = (InetAddress)addresses.nextElement();
+                            if(address instanceof Inet6Address)
+                            {
+                                if(!address.isAnyLocalAddress()
+                                    && !address.isLinkLocalAddress()
+                                    && !address.isSiteLocalAddress()
+                                    && !address.isLoopbackAddress())
+                                {
+                                    return address;
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                    localHost = InetAddress.getLocalHost();
                 /** @todo test on windows for ipv6 cases */
             }
-            catch (UnknownHostException ex)
+            catch (Exception ex)
             {
                 //sigh ... ok return 0.0.0.0
                 logger.warn("Failed to get localhost ", ex);
@@ -256,6 +289,7 @@ public class NetworkAddressManagerServiceImpl
 
         return localHost;
     }
+
 
     /**
      * The method queries a Stun server for a binding for the specified port.
