@@ -118,4 +118,9 @@ public class ChatConferencePanel extends JPanel {
     {
         this.chatContactPanel.updateProtocolContact(contact);
     }
+
+    public void renameContact(String newName)
+    {
+        this.chatContactPanel.renameContact(newName);
+    }
 }

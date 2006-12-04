@@ -246,4 +246,13 @@ public class ChatContactPanel
             }
         }
     }
+    
+    /**
+     * Renames the contact contained in this chat contact panel.
+     * @param newName the new name
+     */
+    public void renameContact(String newName)
+    {
+        personNameLabel.setText(newName);
+    }
 }

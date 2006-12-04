@@ -375,14 +375,25 @@ public class ChatWindow
     }
 
     /**
-     * Returns the table of all <tt>MetaContact</tt>s for this chat window.
-     * This is used in case of tabbed chat window.
-     * 
-     * @return The table of all MetaContact-s for this chat window.
+     * Returns TRUE if this chat window contains a chat for the given contact,
+     * FALSE otherwise.
+     * @return TRUE if this chat window contains a chat for the given contact,
+     * FALSE otherwise
      */
-    public Hashtable getContactChatsTable()
+    public boolean containsContactChat(MetaContact metaContact)
     {
-        return this.contactChats;
+        return this.contactChats.containsKey(metaContact.getMetaUID());
+    }
+        
+    /**
+     * Returns TRUE if this chat window contains the given chatPanel,
+     * FALSE otherwise.
+     * @return TRUE if this chat window contains the given chatPanel,
+     * FALSE otherwise
+     */
+    public boolean containsContactChat(ChatPanel chatPanel)
+    {
+        return this.contactChats.containsValue(chatPanel);
     }
 
     /**
@@ -466,6 +477,20 @@ public class ChatWindow
         this.chatTabbedPane.setIconAt(index, icon);
     }
 
+    /**
+     * Sets the given title to the tab opened for the given MetaContact.
+     * @param metaContact the meta contact
+     * @param title the new title of the tab
+     */
+    public void setTabTitle(MetaContact metaContact, String title)
+    {
+        int index = this.chatTabbedPane.indexOfComponent(this
+                .getChatPanel(metaContact));
+        
+        if(index > -1)
+            this.chatTabbedPane.setTitleAt(index, title);
+    }
+    
     /**
      * The <tt>ForwordTabAction</tt> is an <tt>AbstractAction</tt> that
      * changes the currently selected tab with the next one. Each time when the
@@ -674,7 +699,7 @@ public class ChatWindow
         }
         else {
             ChatWindow.this.dispose();
-            mainFrame.getContactListPanel().setTabbedChatWindow(null);
+            mainFrame.getContactListPanel().removeChatWindow(null);
         }
     }
 

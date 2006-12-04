@@ -649,16 +649,15 @@ public class ChatPanel
      * make a chat panel visible.
      */
     public void showDialog() {
-        Hashtable contactChats = chatWindow.getContactChatsTable();
         
         if(Constants.TABBED_CHAT_WINDOW) {
-            if(!contactChats.containsValue(this))
+            if(!chatWindow.containsContactChat(this))
                 this.chatWindow.addChatTab(this);
             else
                 this.chatWindow.setSelectedContactTab(getMetaContact());
         }
         else {
-            if(!contactChats.containsValue(this))
+            if(!chatWindow.containsContactChat(this))
                 this.chatWindow.addChat(this);
         }
         
@@ -796,6 +795,22 @@ public class ChatPanel
     public Date getLastHistoryMsgTimestamp()
     {
         return lastHistoryMsgTimestamp;
+    }
+    
+    /**
+     * Updates all occurences of the contact name in the chat.
+     * @param newName the new name
+     */
+    public void renameContact(String newName)
+    {
+        chatConferencePanel.renameContact(newName);
+        
+        chatWindow.setTabTitle(metaContact, newName);
+        
+        if(chatWindow.getCurrentChatPanel().equals(this))
+        {
+            chatWindow.setTitle(newName);
+        }
     }
 
 }

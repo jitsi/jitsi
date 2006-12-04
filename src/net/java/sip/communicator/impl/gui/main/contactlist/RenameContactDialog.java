@@ -8,13 +8,17 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.message.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * The <tt>RenameContactDialog</tt> is the dialog containing the form for
@@ -39,6 +43,8 @@ public class RenameContactDialog
     private MetaContactListService clist;
     
     private MetaContact metaContact;
+    
+    private MainFrame mainFrame;
         
     /**
      * Creates an instance of <tt>RenameContactDialog</tt>.
@@ -50,7 +56,9 @@ public class RenameContactDialog
             MetaContact metaContact) {
         
         super(mainFrame);
-        
+       
+        this.mainFrame = mainFrame;
+            
         this.setSize(new Dimension(520, 270));
         
         this.clist = mainFrame.getContactList();
@@ -97,24 +105,34 @@ public class RenameContactDialog
      * the <code>renameMetaContact</code> method of the current
      * <tt>MetaContactListService</tt>.
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JButton button = (JButton)e.getSource();
         String name = button.getName();
         
-        if (name.equals("rename")) {
-            if (metaContact != null) {
-                new Thread() {
-                    public void run() {
+        if (name.equals("rename"))
+        {   
+            if (metaContact != null)
+            {
+                new Thread()
+                {
+                    public void run()
+                    {
                         clist.renameMetaContact(
                             metaContact, renameContactPanel.getNewName());
                     }
                 }.start();
+                
+                ChatPanel chatPanel
+                    = mainFrame.getContactListPanel().getContactChat(metaContact);
+                                
+                if (chatPanel != null) {
+                    chatPanel.renameContact(renameContactPanel.getNewName());
+                }           
             }
-            this.dispose();
         }
-        else {
-            this.dispose();
-        }
+                
+        this.dispose();
     }
     
     /**
