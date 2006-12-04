@@ -408,6 +408,8 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
             if (chatWindows.isEmpty()) {
                 // If there's no open chat window
                 chatWindow = new ChatWindow(mainFrame);
+                
+                chatWindows.put(metaContact, chatWindow);
             }
             else {
                 chatWindow = (ChatWindow) chatWindows.elements().nextElement();
