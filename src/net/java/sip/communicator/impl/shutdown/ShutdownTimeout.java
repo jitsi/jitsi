@@ -42,10 +42,14 @@ public class ShutdownTimeout
      * Dummy impl of the bundle activator start method.
      *
      * @param context unused
+     * @throws Exception If this method throws an exception
+     * (which won't happen).
      */
     public void start(BundleContext context)
         throws Exception
-    {}
+    {
+        logger.debug("Starting the ShutdownTimeout service.");
+    }
 
     /**
      * Called when this bundle is stopped so the Framework can perform the
@@ -72,11 +76,13 @@ public class ShutdownTimeout
                         wait(SHUTDOWN_TIMEOUT);
                         logger.error("Failed to gently shutdown. Forcing exit.");
                         System.exit(500);
-                    }catch (InterruptedException ex){}
+                    }catch (InterruptedException ex){
+                        logger.debug("Interrupted shutdown timer.");
+                    }
                 }
             }
         };
-
+        logger.trace("Created the shutdown timer thread.");
         shutdownTimeoutThread.setDaemon(true);
         shutdownTimeoutThread.start();
     }
