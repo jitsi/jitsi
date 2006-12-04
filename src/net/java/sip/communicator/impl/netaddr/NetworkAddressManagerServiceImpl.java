@@ -88,7 +88,7 @@ public class NetworkAddressManagerServiceImpl
      * A random (unused)local port to use when trying to select a local host
      * address to use when sending messages to a specific destination.
      */
-    private static int RANDOM_ADDR_DISC_PORT = 55721;
+    private static final int RANDOM_ADDR_DISC_PORT = 55721;
 
     /**
      * The prefix used for Dynamic Configuration of IPv4 Link-Local Addresses.
@@ -245,6 +245,7 @@ public class NetworkAddressManagerServiceImpl
             try
             {
                 localHost = InetAddress.getLocalHost();
+                /** @todo test on windows for ipv6 cases */
             }
             catch (UnknownHostException ex)
             {
