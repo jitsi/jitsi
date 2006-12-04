@@ -227,8 +227,33 @@ public class OperationSetBasicTelephonySipImpl
                 .createCallSession(callParticipant.getCall());
             ((CallSipImpl)callParticipant.getCall())
                 .setMediaCallSession(callSession);
+
+            //if possible try to indicate the address of the callee so that the
+            //media service can choose the most proper local address to
+            //advertise.
+            javax.sip.address.URI calleeURI = calleeAddress.getURI();
+            InetAddress intendedDestination = null;
+            if(calleeURI.isSipURI())
+            {
+                String host = ((SipURI)calleeURI).getHost();
+
+                try
+                {
+                    intendedDestination = InetAddress.getByName(host);
+                    invite.setContent(
+                        callSession.createSdpOffer(intendedDestination)
+                        , contentTypeHeader);
+                }
+                catch (UnknownHostException ex)
+                {
+                    logger.warn("Failed to obtain an InetAddress for "
+                                + host
+                                , ex);
+                }
+            }
+
             invite.setContent(
-                callSession.createSdpOffer()
+                callSession.createSdpOffer(intendedDestination)
                 , contentTypeHeader);
         }
         catch (ParseException ex)
