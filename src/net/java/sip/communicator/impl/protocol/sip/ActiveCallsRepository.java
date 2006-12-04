@@ -96,7 +96,7 @@ public class ActiveCallsRepository
      */
     public Iterator getActiveCalls()
     {
-        return activeCalls.values().iterator();
+        return new LinkedList(activeCalls.values()).iterator();
     }
 
     /**
