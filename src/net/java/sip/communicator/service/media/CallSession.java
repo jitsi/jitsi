@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.media;
 
 import net.java.sip.communicator.service.protocol.*;
 import java.text.*;
+import java.net.*;
 
 /**
  * A CallSession contains parameters associated with a particular Call such as
@@ -36,6 +37,23 @@ public interface CallSession
      * for some reason.
      */
     public String createSdpOffer()
+        throws MediaException;
+
+    /**
+     * The method is meant for use by protocol service implementations when
+     * willing to send an invitation to a remote callee. The intendedDestination
+     * parameter, may contain the address that the offer is to be sent to. In
+     * case it is null we'll try our best to determine a default local address.
+     *
+     * @param intendedDestination the address of the call participant that the
+     * descriptions is to be sent to.
+     * @return a new SDP description String advertising all params of
+     * <tt>callSession</tt>.
+     *
+     * @throws MediaException code SERVICE_NOT_STARTED if this method is called
+     * before the service was started.
+     */
+    public String createSdpOffer(InetAddress intendedDestination)
         throws MediaException;
 
     /**

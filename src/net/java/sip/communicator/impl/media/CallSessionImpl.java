@@ -353,8 +353,29 @@ public class CallSessionImpl
     public String createSdpOffer()
         throws net.java.sip.communicator.service.media.MediaException
     {
-        return createSessionDescription(null).toString();
+        return createSessionDescription(null, null).toString();
     }
+
+    /**
+     * The method is meant for use by protocol service implementations when
+     * willing to send an invitation to a remote callee. The intendedDestination
+     * parameter, may contain the address that the offer is to be sent to. In
+     * case it is null we'll try our best to determine a default local address.
+     *
+     * @param intendedDestination the address of the call participant that the
+     * descriptions is to be sent to.
+     * @return a new SDP description String advertising all params of
+     * <tt>callSession</tt>.
+     *
+     * @throws MediaException code SERVICE_NOT_STARTED if this method is called
+     * before the service was started.
+     */
+    public String createSdpOffer(InetAddress intendedDestination)
+        throws net.java.sip.communicator.service.media.MediaException
+    {
+        return createSessionDescription(null, intendedDestination).toString();
+    }
+
 
     /**
      * The method is meant for use by protocol service implementations upon
@@ -445,7 +466,7 @@ public class CallSessionImpl
         }
 
         //create an sdp answer.
-        SessionDescription sdpAnswer = createSessionDescription(sdpOffer);
+        SessionDescription sdpAnswer = createSessionDescription(sdpOffer, null);
 
         //extract the remote addresses.
         Vector mediaDescriptions = null;
@@ -632,17 +653,24 @@ public class CallSessionImpl
 
     /**
      * Creates an SDP description of this session using the offer descirption
-     * (if not null) for limiting
+     * (if not null) for limiting. The intendedDestination parameter, which may
+     * contain the address that the offer is to be sent to, will only be used if
+     * the <tt>offer</tt> or its connection parameter are <tt>null</tt>. In the
+     * oposite case we are using the address provided in the connection param as
+     * an intended destination.
      *
      * @param offer the call participant meant to receive the offer or null if
      * we are to construct our own offer.
+     * @param intendedDestination the address of the call participant that the
+     * descriptions is to be sent to.
      * @return a SessionDescription of this CallSession.
      *
      * @throws MediaException code INTERNAL_ERROR if we get an SDP exception
      * while creating and/or parsing the sdp description.
      */
     private SessionDescription createSessionDescription(
-                                                    SessionDescription offer)
+                                            SessionDescription offer,
+                                            InetAddress intendedDestination)
         throws MediaException
     {
         try
@@ -656,16 +684,60 @@ public class CallSessionImpl
             sessDescr.setVersion(v);
 
             //we don't yet implement ice so just try to choose a local address
-            //that corresponds to the address of our participant.
+            //that corresponds to the address provided by the offer or as an
+            //intended destination.
             NetworkAddressManagerService netAddressManager
                 = MediaActivator.getNetworkAddressManagerService();
 
-            InetSocketAddress publicVideoAddress
-                = netAddressManager.getPublicAddressFor(getVideoPort());
+            InetSocketAddress publicVideoAddress = null;
 
-            InetSocketAddress publicAudioAddress
-                = netAddressManager.getPublicAddressFor(getAudioPort());
+            InetSocketAddress publicAudioAddress = null;
 
+            if(offer != null)
+            {
+                Connection c = offer.getConnection();
+                if(c != null)
+                {
+                    try
+                    {
+                        intendedDestination = InetAddress.getByName(c.
+                            getAddress());
+                    }
+                    catch (SdpParseException ex)
+                    {
+                        logger.warn("error reading remote sdp. "
+                                    + c.toString()
+                                    + " is not a valid connection parameter.");
+                    }
+                    catch (UnknownHostException ex)
+                    {
+                        logger.warn("error reading remote sdp. "
+                                    + c.toString()
+                                    + " does not contain a valid address.");
+                    }
+                }
+            }
+
+            //in case we have managed to find out the intended destination,
+            //use it for selecting a local address.
+            if(intendedDestination != null)
+            {
+                publicVideoAddress
+                    = netAddressManager.getPublicAddressFor(
+                        intendedDestination, getVideoPort());
+                publicAudioAddress
+                    = netAddressManager.getPublicAddressFor(
+                        intendedDestination, getAudioPort());
+            }
+            else
+            {
+                //otherwise just try to get a default one.
+                publicVideoAddress
+                    = netAddressManager.getPublicAddressFor(getVideoPort());
+                publicAudioAddress
+                    = netAddressManager.getPublicAddressFor(getAudioPort());
+
+            }
             InetAddress publicIpAddress = publicAudioAddress.getAddress();
 
             String addrType
