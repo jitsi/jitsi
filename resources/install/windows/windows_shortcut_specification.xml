@@ -1,6 +1,6 @@
 <shortcuts>
 		<!--skipIfNotSupported/-->
-	<programGroup defaultName="SIPCommunicator" location="applications"/>
+	<programGroup defaultName="SIP Communicator" location="applications"/>
 	<shortcut
 		name="SIP Communicator"
 		target="$INSTALL_PATH\run.bat"
