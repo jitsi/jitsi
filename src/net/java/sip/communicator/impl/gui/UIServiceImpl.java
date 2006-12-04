@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.message.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
@@ -303,15 +304,12 @@ public class UIServiceImpl implements UIService {
         
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(contact);
-                
-        Hashtable contactChats 
-            = contactList.getTabbedChatWindow().getContactChatsTable();
         
-        if (contactChats.get(metaContact.getMetaUID()) != null) {
-            return (ExportedDialog) contactChats.get(metaContact.getMetaUID());
+        if (contactList.isChatOpenedForContact(metaContact)) {
+            return (ExportedDialog) contactList.getContactChat(metaContact);
         }
         else {            
-            return contactList.getTabbedChatWindow().createChat(
+            return contactList.getChatWindow(metaContact).createChat(
                     metaContact, contact.getPresenceStatus(), contact);        
         }
     }
