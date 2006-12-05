@@ -410,8 +410,9 @@ public class ContactListModel extends AbstractListModel {
      * false otherwise.
      */
     public void setShowOffline(boolean showOffline) {
+        int size = getSize();
         this.showOffline = showOffline;
-        this.contentChanged(0, getSize() - 1);
+        this.contentChanged(0, size - 1);        
     }    
     
     /**
