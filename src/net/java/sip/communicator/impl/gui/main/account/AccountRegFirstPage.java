@@ -11,6 +11,8 @@ import java.util.*;
 import javax.imageio.*;
 
 import java.awt.*;
+import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
@@ -31,7 +33,9 @@ import net.java.sip.communicator.service.gui.event.*;
 public class AccountRegFirstPage extends JPanel
     implements  AccountRegistrationListener,
                 WizardPage,
-                ListSelectionListener {
+                ListSelectionListener,
+                MouseListener
+{
         
     private String nextPageIdentifier;
 
@@ -99,6 +103,7 @@ public class AccountRegFirstPage extends JPanel
         accountRegsTable.setShowHorizontalLines(false);
         accountRegsTable.setShowVerticalLines(false);
         accountRegsTable.setModel(this.tableModel);
+        accountRegsTable.addMouseListener(this);
                 
         TableColumnModel columnModel = accountRegsTable.getColumnModel();
         
@@ -280,4 +285,22 @@ public class AccountRegFirstPage extends JPanel
         
         return wizardsList.iterator();
     }
+
+    public void mouseClicked(MouseEvent e)
+    {
+        if(e.getClickCount() > 1)
+            wizardContainer.getNextButton().doClick();
+    }
+
+    public void mouseEntered(MouseEvent e)
+    {}
+
+    public void mouseExited(MouseEvent e)
+    {}
+
+    public void mousePressed(MouseEvent e)
+    {}
+
+    public void mouseReleased(MouseEvent e)
+    {}
 }

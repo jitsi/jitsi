@@ -545,4 +545,14 @@ public class Wizard extends SIPCommDialog
 
     public void windowOpened(WindowEvent e)
     {}
+    
+    public JButton getNextButton()
+    {
+        return this.nextButton;
+    }
+    
+    public JButton getBackButton()
+    {
+        return this.backButton;
+    }
 }
