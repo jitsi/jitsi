@@ -28,12 +28,13 @@ public class SearchPanel
                 DocumentListener
 {
 
-    private JButton searchButton = new JButton(Messages.getString("search"),
-            new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.SEARCH_ICON)));
+    private I18NString searchString = Messages.getI18NString("search");
+    
+    private JButton searchButton = new JButton(searchString.getText(),
+            new ImageIcon(ImageLoader.getImage(ImageLoader.SEARCH_ICON)));
 
     private JLabel searchLabel
-        = new JLabel(Messages.getString("search") + ": ");
+        = new JLabel(searchString.getText() + ": ");
 
     private JTextField searchTextField = new JTextField();
     
@@ -102,7 +103,7 @@ public class SearchPanel
         this.historyWindow = historyWindow;
 
         this.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(Messages.getString("search")),
+                BorderFactory.createTitledBorder(searchString.getText()),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5))); 
         
         this.textFieldPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -148,8 +149,7 @@ public class SearchPanel
         */
         
         this.searchButton.setName("search");
-        this.searchButton.setMnemonic(
-                Messages.getString("mnemonic.search").charAt(0));
+        this.searchButton.setMnemonic(searchString.getMnemonic());
         
         // this.extendedSearchButton.setName("extendedSearch");
         // this.extendedSearchOpenedButton.setName("extendedSearchOpened");

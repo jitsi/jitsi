@@ -417,11 +417,11 @@ public class Wizard extends SIPCommDialog
         cancelButton.addActionListener(wizardController);
         
         backButton.setMnemonic(
-                Messages.getString("mnemonic.back").charAt(0));
+                Messages.getI18NString("back").getMnemonic());
         nextButton.setMnemonic(
-                Messages.getString("mnemonic.next").charAt(0));
+                Messages.getI18NString("next").getMnemonic());
         cancelButton.setMnemonic(
-                Messages.getString("mnemonic.cancel").charAt(0));
+                Messages.getI18NString("cancel").getMnemonic());
         
         //  Create the buttons with a separator above them, then place them
         //  on the east side of the panel with a small amount of space between
@@ -461,10 +461,10 @@ public class Wizard extends SIPCommDialog
      
     
     static {        
-        BACK_TEXT = Messages.getString("back");
-        NEXT_TEXT = Messages.getString("next");
-        CANCEL_TEXT = Messages.getString("cancel");
-        FINISH_TEXT = Messages.getString("finish");
+        BACK_TEXT = Messages.getI18NString("back").getText();
+        NEXT_TEXT = Messages.getI18NString("next").getText();
+        CANCEL_TEXT = Messages.getI18NString("cancel").getText();
+        FINISH_TEXT = Messages.getI18NString("finish").getText();
     }
 
     public BufferedImage getWizzardIcon() {

@@ -122,40 +122,48 @@ public class MainToolBar
         this.add(fontButton);
 
         this.saveButton.setName("save");
-        this.saveButton.setToolTipText(Messages.getString("save") + " Ctrl-S");
+        this.saveButton.setToolTipText(
+            Messages.getI18NString("save").getText() + " Ctrl-S");
 
         this.printButton.setName("print");
-        this.printButton.setToolTipText(Messages.getString("print"));
+        this.printButton.setToolTipText(
+            Messages.getI18NString("print").getText());
 
         this.cutButton.setName("cut");
-        this.cutButton.setToolTipText(Messages.getString("cut") + " Ctrl-X");
+        this.cutButton.setToolTipText(
+            Messages.getI18NString("cut").getText() + " Ctrl-X");
 
         this.copyButton.setName("copy");
-        this.copyButton.setToolTipText(Messages.getString("copy") + " Ctrl-C");
+        this.copyButton.setToolTipText(
+            Messages.getI18NString("copy").getText() + " Ctrl-C");
 
         this.pasteButton.setName("paste");
-        this.pasteButton
-            .setToolTipText(Messages.getString("paste") + " Ctrl-P");
+        this.pasteButton.setToolTipText(
+            Messages.getI18NString("paste").getText() + " Ctrl-P");
 
         this.smiliesBox.setName("smiley");
-        this.smiliesBox.setToolTipText(Messages.getString("insertSmiley")
-            + " Ctrl-M");
+        this.smiliesBox.setToolTipText(
+            Messages.getI18NString("insertSmiley").getText() + " Ctrl-M");
 
         this.previousButton.setName("previous");
-        this.previousButton.setToolTipText(Messages.getString("previous"));
+        this.previousButton.setToolTipText(
+            Messages.getI18NString("previous").getText());
 
         this.nextButton.setName("next");
-        this.nextButton.setToolTipText(Messages.getString("next"));
+        this.nextButton.setToolTipText(
+            Messages.getI18NString("next").getText());
 
         this.sendFileButton.setName("sendFile");
-        this.sendFileButton.setToolTipText(Messages.getString("sendFile"));
+        this.sendFileButton.setToolTipText(
+            Messages.getI18NString("sendFile").getText());
 
         this.historyButton.setName("history");
-        this.historyButton.setToolTipText(Messages.getString("history")
-            + " Ctrl-H");
+        this.historyButton.setToolTipText(
+            Messages.getI18NString("history").getText() + " Ctrl-H");
 
         this.fontButton.setName("font");
-        this.fontButton.setToolTipText(Messages.getString("font"));
+        this.fontButton.setToolTipText(
+            Messages.getI18NString("font").getText());
 
         this.saveButton.addActionListener(this);
         this.printButton.addActionListener(this);

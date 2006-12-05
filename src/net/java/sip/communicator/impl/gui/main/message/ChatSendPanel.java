@@ -29,8 +29,10 @@ public class ChatSendPanel
     extends JPanel
     implements ActionListener
 {
-
-    private JButton sendButton = new JButton(Messages.getString("send"));
+    
+    private I18NString sendString = Messages.getI18NString("send");
+    
+    private JButton sendButton = new JButton(sendString.getText());
 
     private JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
@@ -38,7 +40,8 @@ public class ChatSendPanel
 
     private JLabel statusLabel = new JLabel();
 
-    private JLabel sendViaLabel = new JLabel(Messages.getString("sendVia"));
+    private JLabel sendViaLabel = new JLabel(
+        Messages.getI18NString("sendVia").getText());
 
     private ChatPanel chatPanel;
 
@@ -69,8 +72,7 @@ public class ChatSendPanel
         this.add(sendPanel, BorderLayout.EAST);
 
         this.sendButton.addActionListener(this);
-        this.sendButton.setMnemonic(Messages.getString("mnemonic.sendMessage")
-            .charAt(0));
+        this.sendButton.setMnemonic(sendString.getMnemonic());
     }
 
     /**
@@ -116,7 +118,8 @@ public class ChatSendPanel
                         contact.getDisplayName(),
                         new Date(System.currentTimeMillis()),
                         Constants.ERROR_MESSAGE,
-                        Messages.getString("msgSendConnectionProblem"));
+                        Messages.getI18NString("msgSendConnectionProblem")
+                            .getText());
             }
         }
     }

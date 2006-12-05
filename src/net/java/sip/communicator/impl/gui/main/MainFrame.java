@@ -97,7 +97,7 @@ public class MainFrame
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setInitialBounds();
 
-        this.setTitle(Messages.getString("sipCommunicator"));
+        this.setTitle(Messages.getI18NString("sipCommunicator").getText());
 
         this.setIconImage(
             ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));

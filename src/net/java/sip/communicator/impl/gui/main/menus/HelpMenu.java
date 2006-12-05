@@ -26,8 +26,10 @@ public class HelpMenu
 
     private Logger logger = Logger.getLogger(HelpMenu.class.getName());
     
+    private I18NString aboutString = Messages.getI18NString("about");
+    
     private JMenuItem aboutItem
-        = new JMenuItem(Messages.getString("about"));
+        = new JMenuItem(aboutString.getText());
     
     private MainFrame mainFrame;
 
@@ -37,7 +39,7 @@ public class HelpMenu
      */
     public HelpMenu(MainFrame mainFrame) {
 
-        super(Messages.getString("help"));
+        super(Messages.getI18NString("help").getText());
         
         this.mainFrame = mainFrame;
         
@@ -47,10 +49,9 @@ public class HelpMenu
         
         this.aboutItem.addActionListener(this);
         
-        this.setMnemonic(Messages.getString("help").charAt(0));
+        this.setMnemonic(Messages.getI18NString("help").getMnemonic());
         
-        this.aboutItem.setMnemonic(
-                Messages.getString("about").charAt(0));        
+        this.aboutItem.setMnemonic(aboutString.getMnemonic());        
     }
 
     /**

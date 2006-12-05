@@ -25,19 +25,29 @@ public class WritePanelRightButtonMenu extends JPopupMenu
 
     private ChatWindow parentWindow;
     
-    private JMenuItem cutMenuItem = new JMenuItem(Messages.getString("cut"),
-            new ImageIcon(ImageLoader.getImage(ImageLoader.CUT_ICON)));
+    private I18NString cutString = Messages.getI18NString("cut");
+    
+    private I18NString copyString = Messages.getI18NString("copy");
+    
+    private I18NString pasteString = Messages.getI18NString("paste");
+    
+    private I18NString closeString = Messages.getI18NString("close");
+    
+    private JMenuItem cutMenuItem = new JMenuItem(
+        cutString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.CUT_ICON)));
 
-    private JMenuItem copyMenuItem = new JMenuItem(Messages.getString("copy"),
-            new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
+    private JMenuItem copyMenuItem = new JMenuItem(
+        copyString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
 
     private JMenuItem pasteMenuItem = new JMenuItem(
-            Messages.getString("paste"), new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.PASTE_ICON)));
+        pasteString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.PASTE_ICON)));
     
     private JMenuItem closeMenuItem = new JMenuItem(
-            Messages.getString("close"), new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.CLOSE_ICON)));
+        closeString.getText(), 
+        new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
     /**
      * Creates an instance of <tt>WritePanelRightButtonMenu</tt>.
      *  
@@ -74,14 +84,10 @@ public class WritePanelRightButtonMenu extends JPopupMenu
         this.pasteMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
         
-        this.copyMenuItem.setMnemonic(
-                Messages.getString("mnemonic.copy").charAt(0));
-        this.cutMenuItem.setMnemonic(
-                Messages.getString("mnemonic.cut").charAt(0));
-        this.pasteMenuItem.setMnemonic(
-                Messages.getString("mnemonic.paste").charAt(0));
-        this.closeMenuItem.setMnemonic(
-                Messages.getString("mnemonic.rightMenuClose").charAt(0));
+        this.copyMenuItem.setMnemonic(copyString.getMnemonic());
+        this.cutMenuItem.setMnemonic(cutString.getMnemonic());
+        this.pasteMenuItem.setMnemonic(pasteString.getMnemonic());
+        this.closeMenuItem.setMnemonic(closeString.getMnemonic());
         
         this.cutMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_X,

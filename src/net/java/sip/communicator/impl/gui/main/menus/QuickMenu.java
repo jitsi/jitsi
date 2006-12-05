@@ -78,11 +78,14 @@ public class QuickMenu
         this.searchButton.setPreferredSize(new Dimension(28, 28));
         this.addButton.setPreferredSize(new Dimension(28, 28));
 
-        this.infoButton.setToolTipText(Messages.getString("userInfo"));
-        this.configureButton.setToolTipText(Messages.getString("configure"));
-        this.searchButton
-                .setToolTipText(Messages.getString("showOfflineUsers"));
-        this.addButton.setToolTipText(Messages.getString("addContact"));
+        this.infoButton.setToolTipText(
+            Messages.getI18NString("userInfo").getText());
+        this.configureButton.setToolTipText(
+            Messages.getI18NString("configure").getText());
+        this.searchButton.setToolTipText(
+            Messages.getI18NString("showOfflineUsers").getText());
+        this.addButton.setToolTipText(
+            Messages.getI18NString("addContact").getText());
 
         this.init();
     }
@@ -191,8 +194,9 @@ public class QuickMenu
                 }
                 else {
                     JOptionPane.showMessageDialog(mainFrame,
-                        Messages.getString("selectContactSupportingInfo"),
-                        Messages.getString("warning"),
+                        Messages.getI18NString("selectContactSupportingInfo")
+                            .getText(),
+                        Messages.getI18NString("warning").getText(),
                         JOptionPane.WARNING_MESSAGE);
                 }
             }            

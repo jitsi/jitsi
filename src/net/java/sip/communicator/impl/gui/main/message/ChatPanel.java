@@ -275,8 +275,8 @@ public class ChatPanel
                 this.metaContact.getDisplayName(),
                 new Date(System.currentTimeMillis()),
                 Constants.SYSTEM_MESSAGE,
-                Messages.getString("statusChangedChatMessage",
-                        status.getStatusName()));
+                Messages.getI18NString("statusChangedChatMessage",
+                        status.getStatusName()).getText());
         this.conversationPanel.appendMessageToEnd(message);
     }
     

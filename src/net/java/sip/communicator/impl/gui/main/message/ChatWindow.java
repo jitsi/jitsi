@@ -662,9 +662,9 @@ public class ChatWindow
     {
         if (!getCurrentChatPanel().isWriteAreaEmpty()) {
             SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
-                .getString("nonEmptyChatWindowClose"));
+                .getI18NString("nonEmptyChatWindowClose").getText());
             int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
-                msgText, Messages.getString("warning"),
+                msgText, Messages.getI18NString("warning").getText(),
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
             if (answer == JOptionPane.OK_OPTION) {
@@ -674,10 +674,10 @@ public class ChatWindow
         else if (System.currentTimeMillis() - getCurrentChatPanel()
             .getLastIncomingMsgTimestamp().getTime() < 2 * 1000) {
             SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
-                .getString("closeChatAfterNewMsg"));
+                .getI18NString("closeChatAfterNewMsg").getText());
 
             int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
-                msgText, Messages.getString("warning"),
+                msgText, Messages.getI18NString("warning").getText(),
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
             if (answer == JOptionPane.OK_OPTION) {

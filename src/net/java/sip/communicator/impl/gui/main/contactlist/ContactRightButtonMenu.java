@@ -35,34 +35,63 @@ public class ContactRightButtonMenu
                 ContactListListener
 {
 
-    private JMenu moveToMenu = new JMenu(Messages.getString("moveToGroup"));
+    private I18NString allContactsString
+        = Messages.getI18NString("allContacts");
+    
+    private I18NString moveToString
+        = Messages.getI18NString("moveToGroup");
+    
+    private I18NString moveSubcontactString
+        = Messages.getI18NString("moveSubcontact");
+    
+    private I18NString userInfoString
+        = Messages.getI18NString("userInfo");
+    
+    private I18NString addSubcontactString
+        = Messages.getI18NString("addSubcontact");
+    
+    private I18NString removeContactString
+        = Messages.getI18NString("removeContact");
+    
+    private I18NString sendMessageString
+        = Messages.getI18NString("sendMessage");
+    
+    private I18NString sendFileString
+        = Messages.getI18NString("sendFile");
+    
+    private I18NString renameContactString
+        = Messages.getI18NString("renameContact");
+    
+    private I18NString viewHistoryString
+    = Messages.getI18NString("viewHistory");
+    
+    
+    private JMenu moveToMenu = new JMenu(moveToString.getText());
 
     private JMenu moveSubcontactMenu
-        = new JMenu(Messages.getString("moveSubcontact"));
+        = new JMenu(moveSubcontactString.getText());
     
-    private JMenu userInfoMenu = new JMenu(Messages.getString("userInfo"));
+    private JMenu userInfoMenu = new JMenu(userInfoString.getText());
     
-    private JMenu addSubcontactMenu = new JMenu(Messages
-            .getString("addSubcontact"));
+    private JMenu addSubcontactMenu = new JMenu(addSubcontactString.getText());
 
-    private JMenu removeContactMenu = new JMenu(Messages
-            .getString("removeContact"));
+    private JMenu removeContactMenu = new JMenu(removeContactString.getText());
 
-    private JMenuItem sendMessageItem = new JMenuItem(Messages
-            .getString("sendMessage"), new ImageIcon(ImageLoader
-            .getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
+    private JMenuItem sendMessageItem = new JMenuItem(
+        sendMessageString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
 
-    private JMenuItem sendFileItem = new JMenuItem(Messages
-            .getString("sendFile"), new ImageIcon(ImageLoader
-            .getImage(ImageLoader.SEND_FILE_16x16_ICON)));
+    private JMenuItem sendFileItem = new JMenuItem(
+        sendFileString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_FILE_16x16_ICON)));
 
-    private JMenuItem renameContactItem = new JMenuItem(Messages
-            .getString("renameContact"), new ImageIcon(ImageLoader
-            .getImage(ImageLoader.RENAME_16x16_ICON)));
+    private JMenuItem renameContactItem = new JMenuItem(
+        renameContactString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.RENAME_16x16_ICON)));
 
-    private JMenuItem viewHistoryItem = new JMenuItem(Messages
-            .getString("viewHistory"), new ImageIcon(ImageLoader
-            .getImage(ImageLoader.HISTORY_16x16_ICON)));
+    private JMenuItem viewHistoryItem = new JMenuItem(
+        viewHistoryString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.HISTORY_16x16_ICON)));
 
     private MetaContact contactItem;
 
@@ -130,7 +159,8 @@ public class ContactRightButtonMenu
         Iterator providers = this.mainFrame.getProtocolProviders();
 
         if(providers.hasNext()) {
-            JLabel infoLabel = new JLabel(Messages.getString("selectAccount"));
+            JLabel infoLabel = new JLabel(
+                Messages.getI18NString("selectAccount").getText());
 
             infoLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
             infoLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
@@ -159,7 +189,8 @@ public class ContactRightButtonMenu
         Iterator groups = this.mainFrame.getAllGroups();
 
         if(groups.hasNext()) {
-            JLabel infoLabel = new JLabel(Messages.getString("selectGroup"));
+            JLabel infoLabel = new JLabel(
+                Messages.getI18NString("selectGroup").getText());
 
             infoLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
             infoLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
@@ -183,19 +214,20 @@ public class ContactRightButtonMenu
         Iterator contacts = contactItem.getContacts();
 
         if (contactItem.getContactCount() > 1) {
-           JMenuItem allItem = new JMenuItem(Messages.getString("allContacts"));
-           JMenuItem allItem1 = new JMenuItem(Messages.getString("allContacts"));
+            
+            JMenuItem allItem = new JMenuItem(allContactsString.getText());
+            JMenuItem allItem1 = new JMenuItem(allContactsString.getText());
            
-           allItem.addActionListener(this);
-           allItem1.addActionListener(this);
+            allItem.addActionListener(this);
+            allItem1.addActionListener(this);
            
-           allItem.setName(removeContactPrefix + "allContacts");
-           allItem1.setName(moveSubcontactPrefix + "allContacts");
+            allItem.setName(removeContactPrefix + "allContacts");
+            allItem1.setName(moveSubcontactPrefix + "allContacts");
            
-           this.removeContactMenu.add(allItem);
-           this.moveSubcontactMenu.add(allItem1);
-           this.removeContactMenu.addSeparator();
-           this.moveSubcontactMenu.addSeparator();
+            this.removeContactMenu.add(allItem);
+            this.moveSubcontactMenu.add(allItem1);
+            this.removeContactMenu.addSeparator();
+            this.moveSubcontactMenu.addSeparator();
         }
 
         while (contacts.hasNext()) {
@@ -240,7 +272,7 @@ public class ContactRightButtonMenu
             if(wContactInfo == null) {
                 contactItem2.setEnabled(false);
                 contactItem2.setToolTipText(
-                        Messages.getString("dontSupportWebInfo"));
+                        Messages.getI18NString("dontSupportWebInfo").getText());
             }
             this.userInfoMenu.add(contactItem2);
         }
@@ -286,24 +318,15 @@ public class ContactRightButtonMenu
     }
     
     private void initMnemonics() {
-        this.sendMessageItem.setMnemonic(
-                Messages.getString("mnemonic.sendMessage").charAt(0));
-        this.sendFileItem.setMnemonic(
-                Messages.getString("mnemonic.sendFile").charAt(0));
-        this.moveToMenu.setMnemonic(
-                Messages.getString("mnemonic.moveTo").charAt(0));
-        this.addSubcontactMenu.setMnemonic(
-                Messages.getString("mnemonic.addSubcontact").charAt(0));
-        this.removeContactMenu.setMnemonic(
-                Messages.getString("mnemonic.removeContact").charAt(0));
-        this.renameContactItem.setMnemonic(
-                Messages.getString("mnemonic.renameContact").charAt(0));
-        this.viewHistoryItem.setMnemonic(
-                Messages.getString("mnemonic.viewHistory").charAt(0));
-        this.userInfoMenu.setMnemonic(
-                Messages.getString("mnemonic.userInfo").charAt(0));
-        this.moveSubcontactMenu.setMnemonic(
-                Messages.getString("mnemonic.moveSubcontact").charAt(0));
+        this.sendMessageItem.setMnemonic(sendMessageString.getMnemonic());
+        this.sendFileItem.setMnemonic(sendFileString.getMnemonic());
+        this.moveToMenu.setMnemonic(moveToString.getMnemonic());
+        this.addSubcontactMenu.setMnemonic(addSubcontactString.getMnemonic());
+        this.removeContactMenu.setMnemonic(removeContactString.getMnemonic());
+        this.renameContactItem.setMnemonic(renameContactString.getMnemonic());
+        this.viewHistoryItem.setMnemonic(viewHistoryString.getMnemonic());
+        this.userInfoMenu.setMnemonic(userInfoString.getMnemonic());
+        this.moveSubcontactMenu.setMnemonic(moveSubcontactString.getMnemonic());
     }
 
     /**
@@ -478,7 +501,7 @@ public class ContactRightButtonMenu
                     + "</B><BR>from your contact list?</html>";
     
                 MessageDialog dialog = new MessageDialog(mainFrame,
-                        message, Messages.getString("remove"));
+                        message, Messages.getI18NString("remove").getText());
     
                 int returnCode = dialog.showDialog();
                 
@@ -506,11 +529,11 @@ public class ContactRightButtonMenu
             if(Constants.REMOVE_CONTACT_ASK) {
                 String message
                     = "<HTML>Are you sure you want to remove <B>"
-                    + Messages.getString("allContacts")
+                    + allContactsString.getText()
                     + "</B><BR>from your contact list?</html>";
         
                 MessageDialog dialog = new MessageDialog(mainFrame,
-                        message, Messages.getString("remove"));
+                        message, Messages.getI18NString("remove").getText());
         
                 int returnCode = dialog.showDialog();
         
@@ -579,8 +602,8 @@ public class ContactRightButtonMenu
         
         if(toMetaContact.equals(contactItem)) {
             JOptionPane.showMessageDialog(this.mainFrame,
-                    Messages.getString("moveSubcontactInSameContact"),
-                    Messages.getString("moveSubcontact"),
+                    Messages.getI18NString("moveSubcontactInSameContact").getText(),
+                    Messages.getI18NString("moveSubcontact").getText(),
                     JOptionPane.WARNING_MESSAGE);
         }
         else {

@@ -40,7 +40,7 @@ public class AccountRegSummaryPage extends JScrollPane
     private Object previousPageIdentifier;
     
     private JLabel pageTitleLabel 
-        = new JLabel(Messages.getString("summary"), 
+        = new JLabel(Messages.getI18NString("summary").getText(), 
                 JLabel.CENTER);
     /**
      * Creates an <tt>AccountRegSummaryPage</tt>.

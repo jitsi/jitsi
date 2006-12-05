@@ -26,12 +26,16 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class CommonRightButtonMenu extends JPopupMenu
     implements ActionListener {
 
+    private I18NString addContactString = Messages.getI18NString("addContact");
+    
+    private I18NString createGroupString = Messages.getI18NString("createGroup");
+    
     private JMenuItem addContactItem
-        = new JMenuItem(Messages.getString("addContact"), new ImageIcon(
+        = new JMenuItem(addContactString.getText(), new ImageIcon(
             ImageLoader.getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
     
     private JMenuItem createGroupItem
-    = new JMenuItem(Messages.getString("createGroup"), new ImageIcon(
+    = new JMenuItem(createGroupString.getText(), new ImageIcon(
             ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
     
     private MainFrame mainFrame;
@@ -51,10 +55,8 @@ public class CommonRightButtonMenu extends JPopupMenu
         this.addContactItem.setName("addContact");
         this.createGroupItem.setName("createGroup");
         
-        this.addContactItem.setMnemonic(
-                Messages.getString("mnemonic.addContact").charAt(0));
-        this.createGroupItem.setMnemonic(
-                Messages.getString("mnemonic.createGroup").charAt(0));
+        this.addContactItem.setMnemonic(addContactString.getMnemonic());
+        this.createGroupItem.setMnemonic(createGroupString.getMnemonic());
         
         this.addContactItem.addActionListener(this);
         this.createGroupItem.addActionListener(this);

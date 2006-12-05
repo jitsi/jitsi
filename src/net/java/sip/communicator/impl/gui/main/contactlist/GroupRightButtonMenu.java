@@ -30,16 +30,21 @@ import net.java.sip.communicator.service.protocol.*;
 public class GroupRightButtonMenu extends JPopupMenu
     implements ActionListener {
 
-    private JMenu addContactMenu = new JMenu(Messages.getString("addContact"));
+    private I18NString addContactString = Messages.getI18NString("addContact");
     
-    private JMenuItem removeGroupItem = new JMenuItem(Messages
-            .getString("removeGroup"), new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.DELETE_16x16_ICON)));
+    private I18NString removeGroupString = Messages.getI18NString("removeGroup");
     
-    private JMenuItem renameGroupItem = new JMenuItem(Messages
-            .getString("renameGroup"), new ImageIcon(ImageLoader
-            .getImage(ImageLoader.RENAME_16x16_ICON)));
-
+    private I18NString renameGroupString = Messages.getI18NString("renameGroup");
+    
+    private JMenu addContactMenu = new JMenu(addContactString.getText());
+    
+    private JMenuItem removeGroupItem = new JMenuItem(
+        removeGroupString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.DELETE_16x16_ICON)));
+    
+    private JMenuItem renameGroupItem = new JMenuItem(
+        renameGroupString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.RENAME_16x16_ICON)));
     
     private MetaContactGroup group;
     
@@ -87,8 +92,15 @@ public class GroupRightButtonMenu extends JPopupMenu
         this.renameGroupItem.setName("renameGroup");
         this.removeGroupItem.setName("removeGroup");
         
+        
+        this.addContactMenu.setMnemonic(addContactString.getMnemonic());
+        
+        this.renameGroupItem.setMnemonic(renameGroupString.getMnemonic());
+        
+        this.removeGroupItem.setMnemonic(removeGroupString.getMnemonic());
+        
         this.renameGroupItem.addActionListener(this);
-        this.removeGroupItem.addActionListener(this);        
+        this.removeGroupItem.addActionListener(this);
     }
     
     /**
@@ -158,8 +170,9 @@ public class GroupRightButtonMenu extends JPopupMenu
                     + "</B><BR>from your contact list?</html>";
 
                 MessageDialog dialog = new MessageDialog(mainFrame,
-                        message, Messages.getString("remove"));
+                        message, Messages.getI18NString("remove").getText());
 
+                dialog.setTitle(Messages.getI18NString("removeGroup").getText());
                 int returnCode = dialog.showDialog();
                 
                 if (returnCode == MessageDialog.OK_RETURN_CODE) {

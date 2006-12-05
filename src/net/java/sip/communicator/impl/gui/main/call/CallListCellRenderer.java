@@ -103,12 +103,12 @@ public class CallListCellRenderer extends JPanel
             this.nameLabel.setText(participant.getParticipantName());
             
             this.timeLabel.setText(
-                    Messages.getString("at") + " " + 
+                    Messages.getI18NString("at").getText() + " " + 
                     GuiUtils.formatTime(
                     participant.getStartTime()));
            
             this.durationLabel.setText(
-                    Messages.getString("duration") + " " +
+                    Messages.getI18NString("duration").getText() + " " +
                     GuiUtils.formatTime(participant.getCallTime()));
             
             //this.nameLabel.setIcon(listModel

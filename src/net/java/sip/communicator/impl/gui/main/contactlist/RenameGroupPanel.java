@@ -21,17 +21,18 @@ import net.java.sip.communicator.impl.gui.utils.*;
  */
 public class RenameGroupPanel extends JPanel {
 
-    private JLabel uinLabel = new JLabel(Messages.getString("newName"));
+    private JLabel uinLabel = new JLabel(
+        Messages.getI18NString("newName").getText());
     
     private JTextField textField = new JTextField();
     
     private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
     
-    private SIPCommMsgTextArea infoLabel 
-        = new SIPCommMsgTextArea(Messages.getString("renameGroupInfo"));
+    private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
+        Messages.getI18NString("renameGroupInfo").getText());
     
-    private JLabel infoTitleLabel 
-        = new JLabel(Messages.getString("renameGroup"));
+    private JLabel infoTitleLabel = new JLabel(
+        Messages.getI18NString("renameGroup").getText());
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.RENAME_DIALOG_ICON)));

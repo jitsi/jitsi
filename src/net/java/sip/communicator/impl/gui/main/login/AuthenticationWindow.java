@@ -29,17 +29,23 @@ public class AuthenticationWindow
 
     private JTextArea realmTextArea = new JTextArea();
 
-    private JLabel uinLabel = new JLabel(Messages.getString("uin"));
+    private JLabel uinLabel = new JLabel(
+        Messages.getI18NString("uin").getText());
 
-    private JLabel passwdLabel = new JLabel(Messages.getString("passwd"));
+    private JLabel passwdLabel = new JLabel(
+        Messages.getI18NString("passwd").getText());
 
     private JLabel uinValueLabel;
 
     private JPasswordField passwdField = new JPasswordField(15);
 
-    private JButton loginButton = new JButton(Messages.getString("ok"));
+    private I18NString okString = Messages.getI18NString("ok");
+    
+    private I18NString cancelString = Messages.getI18NString("cancel");
+    
+    private JButton loginButton = new JButton(okString.getText());
 
-    private JButton cancelButton = new JButton(Messages.getString("cancel"));
+    private JButton cancelButton = new JButton(cancelString.getText());
 
     private JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 8, 8));
 
@@ -50,7 +56,7 @@ public class AuthenticationWindow
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
     private JCheckBox rememberPassCheckBox
-        = new JCheckBox(Messages.getString("rememberPassword"));
+        = new JCheckBox(Messages.getI18NString("rememberPassword").getText());
 
     private LoginWindowBackground backgroundPanel;
 
@@ -99,7 +105,8 @@ public class AuthenticationWindow
 
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        this.setTitle(Messages.getString("authenticationWindowTitle"));
+        this.setTitle(
+            Messages.getI18NString("authenticationWindowTitle").getText());
 
         this.enableKeyActions();
     }
@@ -120,7 +127,8 @@ public class AuthenticationWindow
         this.realmTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         this.realmTextArea.setEditable(false);
         this.realmTextArea.setText(
-                Messages.getString("securityAuthorityRealm", this.realm));
+            Messages.getI18NString("securityAuthorityRealm", this.realm)
+                .getText());
 
         this.uinLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
         this.passwdLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));

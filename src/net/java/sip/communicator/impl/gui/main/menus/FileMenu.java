@@ -35,19 +35,30 @@ public class FileMenu
 
     private Logger logger = Logger.getLogger(FileMenu.class.getName());
 
+    private I18NString newAccountString = Messages.getI18NString("newAccount");
+    
+    private I18NString addContactString = Messages.getI18NString("addContact");
+    
+    private I18NString closeString = Messages.getI18NString("close");
+    
+    private I18NString createGroupString = Messages.getI18NString("createGroup");
+    
+    private I18NString fileString = Messages.getI18NString("file");
+    
     private JMenuItem newAccountMenuItem
-        = new JMenuItem(Messages.getString("newAccount"));
+        = new JMenuItem(newAccountString.getText());
 
     private JMenuItem addContactItem
-        = new JMenuItem(Messages.getString("addContact"), new ImageIcon(
-                ImageLoader.getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
+        = new JMenuItem(addContactString.getText(), 
+            new ImageIcon(ImageLoader.getImage(
+                ImageLoader.ADD_CONTACT_16x16_ICON)));
 
     private JMenuItem createGroupItem
-        = new JMenuItem(Messages.getString("createGroup"), new ImageIcon(
-                ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
+        = new JMenuItem(createGroupString.getText(),
+            new ImageIcon(ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
 
     private JMenuItem closeMenuItem
-        = new JMenuItem(Messages.getString("close"));
+        = new JMenuItem(closeString.getText());
 
     private MainFrame parentWindow;
 
@@ -57,7 +68,7 @@ public class FileMenu
      */
     public FileMenu(MainFrame parentWindow) {
 
-        super(Messages.getString("file"));
+        super(Messages.getI18NString("file").getText());
 
         this.parentWindow = parentWindow;
 
@@ -85,15 +96,11 @@ public class FileMenu
         this.addContactItem.addActionListener(this);
         this.createGroupItem.addActionListener(this);
 
-        this.setMnemonic(Messages.getString("file").charAt(0));
-        this.closeMenuItem.setMnemonic(
-                Messages.getString("mnemonic.close").charAt(0));
-        this.newAccountMenuItem.setMnemonic(
-                Messages.getString("mnemonic.newAccount").charAt(0));
-        this.addContactItem.setMnemonic(
-                Messages.getString("mnemonic.addContact").charAt(0));
-        this.createGroupItem.setMnemonic(
-                Messages.getString("mnemonic.createGroup").charAt(0));
+        this.setMnemonic(fileString.getMnemonic());
+        this.closeMenuItem.setMnemonic(closeString.getMnemonic());
+        this.newAccountMenuItem.setMnemonic(newAccountString.getMnemonic());
+        this.addContactItem.setMnemonic(addContactString.getMnemonic());
+        this.createGroupItem.setMnemonic(createGroupString.getMnemonic());
     }
 
     /**
@@ -110,7 +117,7 @@ public class FileMenu
                     .getAccountRegWizardContainer();
 
             wizard.setTitle(
-                Messages.getString("accountRegistrationWizard"));
+                Messages.getI18NString("accountRegistrationWizard").getText());
 
             wizard.newAccount();
 

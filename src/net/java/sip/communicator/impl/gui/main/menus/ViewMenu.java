@@ -35,8 +35,11 @@ public class ViewMenu
 
     private Logger logger = Logger.getLogger(ViewMenu.class.getName());
     
+    private I18NString hideCallPanelString
+        = Messages.getI18NString("hideCallPanel");
+        
     private JCheckBoxMenuItem hideCallPanelItem
-        = new JCheckBoxMenuItem(Messages.getString("hideCallPanel"));
+        = new JCheckBoxMenuItem(hideCallPanelString.getText());
     
     private MainFrame mainFrame;
 
@@ -46,7 +49,7 @@ public class ViewMenu
      */
     public ViewMenu(MainFrame mainFrame) {
 
-        super(Messages.getString("view"));
+        super(Messages.getI18NString("view").getText());
         
         this.mainFrame = mainFrame;
 
@@ -58,10 +61,9 @@ public class ViewMenu
         
         this.hideCallPanelItem.addActionListener(this);
         
-        this.setMnemonic(Messages.getString("view").charAt(0));
+        this.setMnemonic(Messages.getI18NString("view").getMnemonic());
         
-        this.hideCallPanelItem.setMnemonic(
-                Messages.getString("hideCallPanel").charAt(0));
+        this.hideCallPanelItem.setMnemonic(hideCallPanelString.getMnemonic());
         
         this.hideCallPanelItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_H,

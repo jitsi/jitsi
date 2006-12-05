@@ -89,7 +89,8 @@ public class HistoryWindow
 
     private Hashtable dateHistoryTable = new Hashtable();
     
-    private JLabel readyLabel = new JLabel(Messages.getString("ready"));
+    private JLabel readyLabel = new JLabel(
+        Messages.getI18NString("ready").getText());
     
     private String lastExecutedSearch;
 
@@ -126,8 +127,8 @@ public class HistoryWindow
         this.mainFrame = mainFrame;
         this.metaContact = metaContact;
 
-        this.setTitle(Messages.getString(
-                "historyContact", metaContact.getDisplayName()));
+        this.setTitle(Messages.getI18NString(
+                "historyContact", metaContact.getDisplayName()).getText());
 
         this.datesPanel = new DatesPanel(this);
         this.historyMenu = new HistoryMenu(this);

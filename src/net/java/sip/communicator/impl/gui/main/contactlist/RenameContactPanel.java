@@ -22,17 +22,18 @@ import net.java.sip.communicator.service.contactlist.MetaContact;
  */
 public class RenameContactPanel extends JPanel {
 
-    private JLabel uinLabel = new JLabel(Messages.getString("newName"));
+    private JLabel uinLabel = new JLabel(
+        Messages.getI18NString("newName").getText());
     
     private JTextField textField = new JTextField();
     
     private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
     
-    private SIPCommMsgTextArea infoLabel 
-        = new SIPCommMsgTextArea(Messages.getString("renameContactWizard"));
+    private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
+        Messages.getI18NString("renameContactWizard").getText());
     
-    private JLabel infoTitleLabel 
-        = new JLabel(Messages.getString("renameContact"));
+    private JLabel infoTitleLabel = new JLabel(
+        Messages.getI18NString("renameContact").getText());
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.RENAME_DIALOG_ICON)));

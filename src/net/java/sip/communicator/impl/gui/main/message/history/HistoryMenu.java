@@ -8,6 +8,7 @@
 package net.java.sip.communicator.impl.gui.main.message.history;
 
 import java.awt.event.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -19,11 +20,15 @@ import net.java.sip.communicator.impl.gui.i18n.*;
  */
 public class HistoryMenu extends JMenu implements ActionListener {
 
-    private JMenuItem emptyMenuItem = new JMenuItem(Messages
-            .getString("emptyHistory"));
+    private I18NString emptyHistoryString
+        = Messages.getI18NString("emptyHistory");
+    
+    private I18NString closeString
+        = Messages.getI18NString("close");
+    
+    private JMenuItem emptyMenuItem = new JMenuItem(emptyHistoryString.getText());
 
-    private JMenuItem closeMenuItem 
-        = new JMenuItem(Messages.getString("close"));
+    private JMenuItem closeMenuItem = new JMenuItem(closeString.getText());
 
     private JFrame parentWindow;
 
@@ -33,12 +38,15 @@ public class HistoryMenu extends JMenu implements ActionListener {
      */
     public HistoryMenu(JFrame parentWindow) {
 
-        super(Messages.getString("history"));
+        super(Messages.getI18NString("history").getText());
 
         this.parentWindow = parentWindow;
 
         this.emptyMenuItem.setName("empty");
         this.closeMenuItem.setName("close");
+        
+        this.emptyMenuItem.setMnemonic(emptyHistoryString.getMnemonic());
+        this.closeMenuItem.setMnemonic(closeString.getMnemonic());
 
         this.emptyMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);

@@ -20,13 +20,17 @@ import net.java.sip.communicator.service.configuration.*;
 public class SettingsMenu extends JMenu
     implements ActionListener {
     
+    private I18NString typingNotifString
+        = Messages.getI18NString("enableTypingNotifications");
+    
+    private I18NString useCtrlEnterString
+        = Messages.getI18NString("useCtrlEnterToSend");
+    
     private JCheckBoxMenuItem typingNotificationsItem 
-        = new JCheckBoxMenuItem(
-                Messages.getString("enableTypingNotifications"));
+        = new JCheckBoxMenuItem(typingNotifString.getText());
         
     private JCheckBoxMenuItem sendingMessageCommandItem 
-        = new JCheckBoxMenuItem(
-                Messages.getString("useCtrlEnterToSend"));
+        = new JCheckBoxMenuItem(useCtrlEnterString.getText());
     
     private ChatWindow chatWindow;
     
@@ -37,17 +41,20 @@ public class SettingsMenu extends JMenu
      * @param chatWindow The <tt>ChatWindow</tt>.
      */
     public SettingsMenu(ChatWindow chatWindow){
-        super(Messages.getString("settings"));
+        super(Messages.getI18NString("settings").getText());
         
         this.chatWindow = chatWindow;
         
         typingNotificationsItem.setName("typingNotifications");
         sendingMessageCommandItem.setName("sendingMessageCommand");
         
-        this.setMnemonic(Messages.getString("mnemonic.chatSettings").charAt(0));
-        this.typingNotificationsItem.setMnemonic(
-                Messages.getString("mnemonic.typingNotifications").charAt(0));
+        this.setMnemonic(Messages.getI18NString("settings").getMnemonic());
         
+        this.typingNotificationsItem.setMnemonic(
+            typingNotifString.getMnemonic());
+        
+        this.sendingMessageCommandItem.setMnemonic(
+            useCtrlEnterString.getMnemonic());
         
         ConfigurationService configService
             = GuiActivator.getConfigurationService();

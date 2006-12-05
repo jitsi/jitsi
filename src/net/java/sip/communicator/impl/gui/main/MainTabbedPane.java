@@ -44,9 +44,11 @@ public class MainTabbedPane extends SIPCommTabbedPane {
         
         dialPanel = new DialPanel(parent);
                 
-        this.addTab(Messages.getString("contacts"), contactListPanel);
-        this.addTab(Messages.getString("callList"), callHistoryPanel);
-        this.addTab(Messages.getString("dial"), dialPanel);
+        this.addTab(Messages.getI18NString("contacts").getText(),
+                    contactListPanel);
+        this.addTab(Messages.getI18NString("callList").getText(),
+                    callHistoryPanel);
+        this.addTab(Messages.getI18NString("dial").getText(), dialPanel);
         
     }
 

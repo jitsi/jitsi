@@ -58,12 +58,16 @@ public class ChatConversationPanel
 
     private String currentHref;
 
+    private I18NString copyLinkString = Messages.getI18NString("copyLink");
+    
+    private I18NString openLinkString = Messages.getI18NString("openInBrowser");
+    
     private JMenuItem copyLinkItem
-        = new JMenuItem(Messages.getString("copyLink"),
+        = new JMenuItem(copyLinkString.getText(),
                 new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
 
     private JMenuItem openLinkItem
-        = new JMenuItem(Messages.getString("openInBrowser"),
+        = new JMenuItem(openLinkString.getText(),
                 new ImageIcon(ImageLoader.getImage(ImageLoader.BROWSER_ICON)));
 
     private JSeparator copyLinkSeparator = new JSeparator();
@@ -150,6 +154,10 @@ public class ChatConversationPanel
                 CrossPlatformBrowserLauncher.openURL(currentHref);
             }
         });
+        
+        openLinkItem.setMnemonic(openLinkString.getMnemonic());
+        copyLinkItem.setMnemonic(copyLinkString.getMnemonic());
+        
         /*
          * Tooltip on hyperlinks - JDK 1.5+
          *
@@ -243,7 +251,8 @@ public class ChatConversationPanel
             chatString = "<h3 id=\"header\" date=\"" + dateString + "\">";
             endHeaderTag = "</h3>";
 
-            chatString += timeString + Messages.getString("me") + " at "
+            chatString += timeString + Messages.getI18NString("me").getText()
+                + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag
                 + startDivTag + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))
@@ -265,7 +274,8 @@ public class ChatConversationPanel
                         ImageLoader.getImage(ImageLoader.EXCLAMATION_MARK))
                 + "' </IMG>";
             
-            chatString  += errorIcon + Messages.getString("msgDeliveryFailure")
+            chatString  += errorIcon
+                + Messages.getI18NString("msgDeliveryFailure").getText()
                 + endHeaderTag + "<h5>" + message + "</h5>";
         }
         else if (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)) {
@@ -282,7 +292,8 @@ public class ChatConversationPanel
             chatString = "<h3 id=\"header\" date=\"" + dateString + "\">";
             endHeaderTag = "</h3>";
 
-            chatString += timeString + Messages.getString("me") + " at "
+            chatString += timeString + Messages.getI18NString("me").getText()
+                + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag
                 + startHistoryDivTag + "<PLAINTEXT>"
                 + processSmilies(processNewLines(processLinks(message)))

@@ -26,16 +26,18 @@ public class CreateGroupPanel
     extends JPanel
 {
 
-    private JLabel uinLabel = new JLabel(Messages.getString("groupName"));
+    private JLabel uinLabel = new JLabel(
+        Messages.getI18NString("groupName").getText());
     
     private JTextField textField = new JTextField();
     
     private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
     
-    private SIPCommMsgTextArea infoLabel 
-        = new SIPCommMsgTextArea(Messages.getString("createGroupName"));
+    private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
+            Messages.getI18NString("createGroupName").getText());
     
-    private JLabel infoTitleLabel = new JLabel(Messages.getString("createGroup"));
+    private JLabel infoTitleLabel = new JLabel(
+        Messages.getI18NString("createGroup").getText());
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_GROUP_ICON)));

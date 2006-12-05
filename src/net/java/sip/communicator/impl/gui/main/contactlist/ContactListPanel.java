@@ -529,34 +529,34 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
         if (evt.getErrorCode() 
                 == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
 
-            errorMsg = Messages.getString(
+            errorMsg = Messages.getI18NString(
                     "msgDeliveryOfflineNotSupported", evt
-                            .getDestinationContact().getDisplayName());
+                            .getDestinationContact().getDisplayName()).getText();
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.NETWORK_FAILURE) {
             
-            errorMsg = Messages.getString("msgNotDelivered",
-                    evt.getDestinationContact().getDisplayName());
+            errorMsg = Messages.getI18NString("msgNotDelivered",
+                    evt.getDestinationContact().getDisplayName()).getText();
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED) {
 
-            errorMsg = Messages.getString(
+            errorMsg = Messages.getI18NString(
                     "msgSendConnectionProblem", evt.getDestinationContact()
-                            .getDisplayName());
+                            .getDisplayName()).getText();
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.INTERNAL_ERROR) {
             
-            errorMsg = Messages.getString(
+            errorMsg = Messages.getI18NString(
                     "msgDeliveryInternalError", evt.getDestinationContact()
-                            .getDisplayName());
+                            .getDisplayName()).getText();
         }
         else {
-            errorMsg = Messages.getString(
+            errorMsg = Messages.getI18NString(
                     "msgDeliveryFailedUnknownError", evt
-                    .getDestinationContact().getDisplayName());
+                    .getDestinationContact().getDisplayName()).getText();
         }
                
         ChatWindow chatWindow;
@@ -745,7 +745,7 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                 + " ";
 
         if (contactName.equals("")) {
-            contactName = Messages.getString("unknown") + " ";
+            contactName = Messages.getI18NString("unknown").getText() + " ";
         }
 
         int typingState = evt.getTypingState();
@@ -753,13 +753,15 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
                 .findMetaContactByContact(evt.getSourceContact());
 
         if (typingState == OperationSetTypingNotifications.STATE_TYPING) {
-            notificationMsg = Messages.getString("contactTyping", contactName);
+            notificationMsg
+                = Messages.getI18NString("contactTyping", contactName).getText();
+            
             typingTimer.setMetaContact(metaContact);
             typingTimer.start();
         }
         else if (typingState == OperationSetTypingNotifications.STATE_PAUSED) {
-            notificationMsg = Messages.getString("contactPausedTyping",
-                    contactName);
+            notificationMsg = Messages.getI18NString("contactPausedTyping",
+                    contactName).getText();
             typingTimer.setMetaContact(metaContact);
             typingTimer.start();
         }
@@ -767,7 +769,8 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
             notificationMsg = "";
         }
         else if (typingState == OperationSetTypingNotifications.STATE_STALE) {
-            notificationMsg = Messages.getString("contactTypingStateStale");
+            notificationMsg
+                = Messages.getI18NString("contactTypingStateStale").getText();
         }
         else if (typingState == OperationSetTypingNotifications.STATE_UNKNOWN) {
             // TODO: Implement state unknown

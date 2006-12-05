@@ -50,13 +50,18 @@ public class AuthorizationRequestedDialog
     private JLabel iconLabel = new JLabel(new ImageIcon(
             ImageLoader.getImage(ImageLoader.AUTHORIZATION_ICON)));
     
+    private I18NString acceptString = Messages.getI18NString("accept");
+    
+    private I18NString rejectString = Messages.getI18NString("reject");
+    
+    private I18NString ignoreString = Messages.getI18NString("ignore");
+    
     private JButton acceptButton 
-        = new JButton(Messages.getString("accept"));
+        = new JButton();
     
-    private JButton rejectButton
-        = new JButton(Messages.getString("reject"));
+    private JButton rejectButton = new JButton(rejectString.getText());
     
-    private JButton ignoreButton = new JButton(Messages.getString("ignore"));
+    private JButton ignoreButton = new JButton(ignoreString.getText());
     
     private JScrollPane requestScrollPane = new JScrollPane();
     
@@ -66,7 +71,8 @@ public class AuthorizationRequestedDialog
     
     private JPanel reasonsPanel = new JPanel(new GridLayout(0, 1, 5, 5));
     
-    private String title = Messages.getString("authorizationRequested");
+    private String title
+        = Messages.getI18NString("authorizationRequested").getText();
     
     private Object lock = new Object();
     
@@ -91,8 +97,9 @@ public class AuthorizationRequestedDialog
         titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
         titleLabel.setText(title);
         
-        infoTextArea.setText(Messages.getString("authorizationRequestedInfo", 
-                contact.getDisplayName()));
+        infoTextArea.setText(Messages.getI18NString("authorizationRequestedInfo", 
+                contact.getDisplayName()).getText());
+        
         this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         this.infoTextArea.setLineWrap(true);
         this.infoTextArea.setWrapStyleWord(true);
@@ -142,12 +149,9 @@ public class AuthorizationRequestedDialog
         this.rejectButton.addActionListener(this);
         this.ignoreButton.addActionListener(this);
                 
-        this.acceptButton.setMnemonic(
-                Messages.getString("mnemonic.acceptButton").charAt(0));
-        this.rejectButton.setMnemonic(
-                Messages.getString("mnemonic.rejectButton").charAt(0));
-        this.ignoreButton.setMnemonic(
-                Messages.getString("mnemonic.ignoreButton").charAt(0));
+        this.acceptButton.setMnemonic(acceptString.getMnemonic());
+        this.rejectButton.setMnemonic(rejectString.getMnemonic());
+        this.ignoreButton.setMnemonic(ignoreString.getMnemonic());
         
         this.buttonsPanel.add(acceptButton);
         this.buttonsPanel.add(rejectButton);

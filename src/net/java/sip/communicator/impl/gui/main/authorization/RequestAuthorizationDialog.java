@@ -36,9 +36,13 @@ public class RequestAuthorizationDialog
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
-    private JButton requestButton = new JButton(Messages.getString("request"));
+    private I18NString requestString = Messages.getI18NString("request");
     
-    private JButton cancelButton = new JButton(Messages.getString("cancel"));
+    private I18NString cancelString = Messages.getI18NString("cancel");
+    
+    private JButton requestButton = new JButton(requestString.getText());
+    
+    private JButton cancelButton = new JButton(cancelString.getText());
     
     private JScrollPane requestScrollPane = new JScrollPane();
     
@@ -53,7 +57,8 @@ public class RequestAuthorizationDialog
     
     private JLabel titleLabel = new JLabel();
     
-    private String title = Messages.getString("requestAuthorization");
+    private String title
+        = Messages.getI18NString("requestAuthorization").getText();
     
     private AuthorizationRequest request;
     
@@ -84,8 +89,8 @@ public class RequestAuthorizationDialog
         
         this.request = request;
         
-        infoTextArea.setText(Messages.getString("requestAuthorizationInfo", 
-                contact.getDisplayName()));
+        infoTextArea.setText(Messages.getI18NString("requestAuthorizationInfo", 
+                contact.getDisplayName()).getText());
         
         this.requestScrollPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(3, 3, 3, 3),
@@ -115,10 +120,8 @@ public class RequestAuthorizationDialog
         this.buttonsPanel.add(cancelButton);
         
         this.getRootPane().setDefaultButton(requestButton);
-        this.requestButton.setMnemonic(
-                Messages.getString("mnemonic.requestButton").charAt(0));
-        this.cancelButton.setMnemonic(
-                Messages.getString("mnemonic.cancel").charAt(0));
+        this.requestButton.setMnemonic(requestString.getMnemonic());
+        this.cancelButton.setMnemonic(cancelString.getMnemonic());
         
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.mainPanel.add(northPanel, BorderLayout.NORTH);

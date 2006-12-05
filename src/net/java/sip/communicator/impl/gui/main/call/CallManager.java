@@ -49,7 +49,7 @@ public class CallManager
             10, 0));
     
     private JLabel callViaLabel
-        = new JLabel(Messages.getString("callVia") + " ");
+        = new JLabel(Messages.getI18NString("callVia").getText() + " ");
     
     private JPanel callViaPanel
         = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 4));
@@ -131,9 +131,9 @@ public class CallManager
         this.restoreButton.setName("restore");
 
         this.minimizeButton.setToolTipText(
-            Messages.getString("hideCallPanel") + " Ctrl - H");
+            Messages.getI18NString("hideCallPanel").getText() + " Ctrl - H");
         this.restoreButton.setToolTipText(
-            Messages.getString("showCallPanel") + " Ctrl - H");
+            Messages.getI18NString("showCallPanel").getText() + " Ctrl - H");
                 
         this.callButton.addActionListener(this);
         this.hangupButton.addActionListener(this);
@@ -170,12 +170,16 @@ public class CallManager
                     && ((CallPanel)selectedPanel).getCall().getCallState()
                         == CallState.CALL_INITIALIZATION) {
             
+                SoundLoader.getSound(SoundLoader.BUSY).stop();
+                SoundLoader.stop(Constants.getDefaultIncomingCallAudio());
+                
                 CallPanel callPanel = (CallPanel) selectedPanel;
                 
                 Call call = callPanel.getCall();
                 
-                answerCall(call);                
+                answerCall(call);
             }
+            //call button is pressed over the call list
             else if(selectedPanel != null
                         && selectedPanel instanceof CallListPanel
                         && ((CallListPanel) selectedPanel)
@@ -191,6 +195,7 @@ public class CallManager
                 
                 createCall(stringContact);
             }   
+            //call button is pressed over the contact list
             else if(selectedPanel != null
                     && selectedPanel instanceof ContactListPanel){
             
@@ -214,9 +219,10 @@ public class CallManager
                                 telephonyContacts.add(contact);
                             else {
                                 JOptionPane.showMessageDialog(this.mainFrame,
-                                Messages.getString("contactNotSupportingTelephony",
-                                                    contact.getDisplayName()),
-                                Messages.getString("warning"),
+                                Messages.getI18NString(
+                                    "contactNotSupportingTelephony",
+                                    contact.getDisplayName()).getText(),
+                                Messages.getI18NString("warning").getText(),
                                 JOptionPane.ERROR_MESSAGE);
                             }
                         }
@@ -243,6 +249,10 @@ public class CallManager
             Component selectedPanel = this.mainFrame.getSelectedTab();
             
             if(selectedPanel != null && selectedPanel instanceof CallPanel) {
+                
+                SoundLoader.getSound(SoundLoader.BUSY).stop();
+                SoundLoader.stop(Constants.getDefaultIncomingCallAudio());
+                SoundLoader.stop(Constants.getDefaultOutgoingCallAudio());
                 
                 CallPanel callPanel = (CallPanel) selectedPanel;
                 
@@ -435,10 +445,7 @@ public class CallManager
      * button.
      */
     public void callEnded(CallEvent event)
-    {
-        SoundLoader.getSound(SoundLoader.BUSY).stop();
-        SoundLoader.stop(Constants.getDefaultIncomingCallAudio());
-        
+    {        
         Call sourceCall = event.getSourceCall();
            
         if(activeCalls.get(sourceCall) != null) {

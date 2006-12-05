@@ -50,7 +50,8 @@ public class AccountRegWizardContainerImpl extends Wizard
     {
         super(mainFrame);
         
-        this.setTitle(Messages.getString("accountRegistrationWizard"));
+        this.setTitle(
+            Messages.getI18NString("accountRegistrationWizard").getText());
         
         this.firstPage = new AccountRegFirstPage(this);
         

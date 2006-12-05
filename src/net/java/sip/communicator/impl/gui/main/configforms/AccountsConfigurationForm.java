@@ -51,11 +51,17 @@ public class AccountsConfigurationForm extends JPanel
 
     private JPanel buttonsPanel = new JPanel(new GridLayout(0, 1, 8, 8));
 
-    private JButton newButton = new JButton(Messages.getString("new"));
+    private I18NString newString = Messages.getI18NString("new");
+    
+    private I18NString modifyString = Messages.getI18NString("modify");
+    
+    private I18NString removeString = Messages.getI18NString("remove");
+    
+    private JButton newButton = new JButton(newString.getText());
 
-    private JButton modifyButton = new JButton(Messages.getString("modify"));
+    private JButton modifyButton = new JButton(modifyString.getText());
 
-    private JButton removeButton = new JButton(Messages.getString("remove"));
+    private JButton removeButton = new JButton(removeString.getText());
 
     private ExtendedTableModel tableModel = new ExtendedTableModel();
 
@@ -91,12 +97,9 @@ public class AccountsConfigurationForm extends JPanel
         this.modifyButton.addActionListener(this);
         this.removeButton.addActionListener(this);
 
-        this.newButton.setMnemonic(
-                Messages.getString("mnemonic.newAccount").charAt(0));
-        this.modifyButton.setMnemonic(
-                Messages.getString("mnemonic.modifyAccount").charAt(0));
-        this.removeButton.setMnemonic(
-                Messages.getString("mnemonic.removeAccount").charAt(0));
+        this.newButton.setMnemonic(newString.getMnemonic());
+        this.modifyButton.setMnemonic(modifyString.getMnemonic());
+        this.removeButton.setMnemonic(removeString.getMnemonic());
 
         this.buttonsPanel.add(newButton);
         this.buttonsPanel.add(modifyButton);
@@ -121,8 +124,8 @@ public class AccountsConfigurationForm extends JPanel
         accountsTable.setModel(tableModel);
 
         tableModel.addColumn("id");
-        tableModel.addColumn(Messages.getString("protocol"));
-        tableModel.addColumn(Messages.getString("account"));
+        tableModel.addColumn(Messages.getI18NString("protocol").getText());
+        tableModel.addColumn(Messages.getI18NString("account").getText());
 
         TableColumnModel columnModel = accountsTable.getColumnModel();
         columnModel.removeColumn(columnModel.getColumn(0));
@@ -184,7 +187,7 @@ public class AccountsConfigurationForm extends JPanel
      * @return the title of this configuration form.
      */
     public String getTitle() {
-        return Messages.getString("accounts");
+        return Messages.getI18NString("accounts").getText();
     }
 
     /**
@@ -220,7 +223,7 @@ public class AccountsConfigurationForm extends JPanel
                     .getAccountRegWizardContainer();
 
             wizard.setTitle(
-                Messages.getString("accountRegistrationWizard"));
+                Messages.getI18NString("accountRegistrationWizard").getText());
 
             wizard.newAccount();
 
@@ -234,7 +237,7 @@ public class AccountsConfigurationForm extends JPanel
                         .getAccountRegWizardContainer();
 
                 wizard.setTitle(
-                    Messages.getString("accountRegistrationWizard"));
+                    Messages.getI18NString("accountRegistrationWizard").getText());
 
                 ProtocolProviderService protocolProvider
                     = (ProtocolProviderService)tableModel.getValueAt(
@@ -258,9 +261,9 @@ public class AccountsConfigurationForm extends JPanel
 
                 if(providerFactory != null) {
                     int result = JOptionPane.showConfirmDialog(this,
-                            Messages.getString("removeAccountMessage"),
-                            Messages.getString("removeAccount"),
-                            JOptionPane.YES_NO_CANCEL_OPTION);
+                        Messages.getI18NString("removeAccountMessage").getText(),
+                        Messages.getI18NString("removeAccount").getText(),
+                        JOptionPane.YES_NO_CANCEL_OPTION);
 
                     if(result == JOptionPane.YES_OPTION) {
                         ConfigurationService configService

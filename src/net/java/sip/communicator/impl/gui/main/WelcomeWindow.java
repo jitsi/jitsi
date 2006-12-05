@@ -35,10 +35,14 @@ public class WelcomeWindow
 
     private WindowBackground windowBackground = new WindowBackground();
 
+    private I18NString continueString = Messages.getI18NString("continue");
+    
+    private I18NString exitString = Messages.getI18NString("exit");
+    
     private JButton continueButton
-        = new JButton(Messages.getString("continue"));
+        = new JButton(continueString.getText());
 
-    private JButton exitButton = new JButton(Messages.getString("exit"));
+    private JButton exitButton = new JButton(exitString.getText());
 
     private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
@@ -61,12 +65,10 @@ public class WelcomeWindow
         this.communicator = c;
         this.loginManager = loginManager;
 
-        this.setTitle(Messages.getString("warning"));
+        this.setTitle(Messages.getI18NString("warning").getText());
 
-        this.exitButton.setMnemonic(
-                Messages.getString("mnemonic.exit").charAt(0));
-        this.continueButton.setMnemonic(
-                Messages.getString("mnemonic.continue").charAt(0));
+        this.exitButton.setMnemonic(exitString.getMnemonic());
+        this.continueButton.setMnemonic(continueString.getMnemonic());
 
         this.getRootPane().setDefaultButton(continueButton);
 

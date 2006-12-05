@@ -211,10 +211,10 @@ public class PresenceStatusSelectorBox
                     == OperationFailedException.GENERAL_ERROR) {
                     SIPCommMsgTextArea msgText 
                     = new SIPCommMsgTextArea(Messages
-                        .getString("statusChangeGeneralError"));
+                        .getI18NString("statusChangeGeneralError").getText());
                     
                     JOptionPane.showMessageDialog(null, msgText,
-                            Messages.getString("generalError"),
+                            Messages.getI18NString("generalError").getText(),
                             JOptionPane.ERROR_MESSAGE);
                 }
                 else if (e1.getErrorCode() 
@@ -222,13 +222,13 @@ public class PresenceStatusSelectorBox
                             .NETWORK_FAILURE) {
                     SIPCommMsgTextArea msgText 
                         = new SIPCommMsgTextArea(
-                            Messages.getString(
-                                "statusChangeNetworkFailure"));
+                            Messages.getI18NString(
+                                "statusChangeNetworkFailure").getText());
                     
                     JOptionPane.showMessageDialog(
                         null,
                         msgText,
-                        Messages.getString("networkFailure"),
+                        Messages.getI18NString("networkFailure").getText(),
                         JOptionPane.ERROR_MESSAGE);
                 } 
                 else if (e1.getErrorCode()
@@ -236,13 +236,13 @@ public class PresenceStatusSelectorBox
                             .PROVIDER_NOT_REGISTERED) {
                     SIPCommMsgTextArea msgText 
                         = new SIPCommMsgTextArea(
-                            Messages.getString(
-                                "statusChangeNetworkFailure"));
+                            Messages.getI18NString(
+                                "statusChangeNetworkFailure").getText());
                     
                     JOptionPane.showMessageDialog(
                         null,
                         msgText,
-                        Messages.getString("networkFailure"),
+                        Messages.getI18NString("networkFailure").getText(),
                         JOptionPane.ERROR_MESSAGE);
                 }
                 logger.error("Error - changing status", e1);
@@ -375,10 +375,10 @@ public class PresenceStatusSelectorBox
                     == OperationFailedException.GENERAL_ERROR) {
                     SIPCommMsgTextArea msgText 
                         = new SIPCommMsgTextArea(Messages
-                            .getString("statusChangeGeneralError"));
+                            .getI18NString("statusChangeGeneralError").getText());
                     
                     JOptionPane.showMessageDialog(null, msgText,
-                            Messages.getString("generalError"),
+                            Messages.getI18NString("generalError").getText(),
                             JOptionPane.ERROR_MESSAGE);
                 }
                 else if (e1.getErrorCode() 
@@ -386,13 +386,13 @@ public class PresenceStatusSelectorBox
                             .NETWORK_FAILURE) {
                     SIPCommMsgTextArea msgText 
                         = new SIPCommMsgTextArea(
-                            Messages.getString(
-                                "statusChangeNetworkFailure"));
+                            Messages.getI18NString(
+                                "statusChangeNetworkFailure").getText());
                     
                     JOptionPane.showMessageDialog(
                         null,
                         msgText,
-                        Messages.getString("networkFailure"),
+                        Messages.getI18NString("networkFailure").getText(),
                         JOptionPane.ERROR_MESSAGE);
                 } 
                 else if (e1.getErrorCode()
@@ -400,13 +400,13 @@ public class PresenceStatusSelectorBox
                             .PROVIDER_NOT_REGISTERED) {
                     SIPCommMsgTextArea msgText 
                         = new SIPCommMsgTextArea(
-                            Messages.getString(
-                                "statusChangeNetworkFailure"));
+                            Messages.getI18NString(
+                                "statusChangeNetworkFailure").getText());
                     
                     JOptionPane.showMessageDialog(
                         null,
                         msgText,
-                        Messages.getString("networkFailure"),
+                        Messages.getI18NString("networkFailure").getText(),
                         JOptionPane.ERROR_MESSAGE);
                 }
                 logger.error("Error - changing status", e1);

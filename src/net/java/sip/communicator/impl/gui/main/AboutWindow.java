@@ -31,7 +31,9 @@ public class AboutWindow
 
     private JEditorPane licenseArea = new JEditorPane();
 
-    private JButton okButton = new JButton(Messages.getString("ok"));
+    private I18NString okString = Messages.getI18NString("ok");
+    
+    private JButton okButton = new JButton(okString.getText());
 
     private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
@@ -41,7 +43,7 @@ public class AboutWindow
     {
         super(owner);
 
-        this.setTitle(Messages.getString("about"));
+        this.setTitle(Messages.getI18NString("about").getText());
         this.setModal(false);
 
         this.mainPanel.setLayout(new BorderLayout());
@@ -102,7 +104,11 @@ public class AboutWindow
         this.textPanel.add(licenseArea);
 
         this.getRootPane().setDefaultButton(okButton);
+        
+        this.okButton.setMnemonic(okString.getMnemonic());
+        
         this.okButton.addActionListener(this);
+        
         this.buttonPanel.add(okButton);
         this.buttonPanel.setOpaque(false);
 

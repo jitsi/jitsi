@@ -30,9 +30,13 @@ public class CreateGroupDialog
     
     private CreateGroupPanel groupPanel = new CreateGroupPanel();
     
-    private JButton addButton = new JButton(Messages.getString("create"));
+    private I18NString createString = Messages.getI18NString("create");
     
-    private JButton cancelButton = new JButton(Messages.getString("cancel"));
+    private I18NString cancelString = Messages.getI18NString("cancel");
+    
+    private JButton addButton = new JButton(createString.getText());
+    
+    private JButton cancelButton = new JButton(cancelString.getText());
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
@@ -65,7 +69,7 @@ public class CreateGroupDialog
      * Initializes the dialog.
      */
     private void init() {
-        this.setTitle(Messages.getString("addGroup"));
+        this.setTitle(Messages.getI18NString("addGroup").getText());
         
         this.getRootPane().setDefaultButton(addButton);
         this.addButton.setName("create");
@@ -73,6 +77,9 @@ public class CreateGroupDialog
         
         this.addButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
+        
+        this.addButton.setMnemonic(createString.getMnemonic());
+        this.cancelButton.setMnemonic(cancelString.getMnemonic());
         
         this.buttonsPanel.add(addButton);
         this.buttonsPanel.add(cancelButton);
@@ -125,43 +132,43 @@ public class CreateGroupDialog
                                     .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
                                 
                                 JOptionPane.showMessageDialog(mainFrame,
-                                    Messages.getString(
+                                    Messages.getI18NString(
                                             "addGroupExistError",
-                                            groupName),
-                                    Messages.getString(
-                                            "addGroupErrorTitle"),
+                                            groupName).getText(),
+                                    Messages.getI18NString(
+                                            "addGroupErrorTitle").getText(),
                                     JOptionPane.ERROR_MESSAGE);
                         }
                         else if (errorCode
                             == MetaContactListException.CODE_LOCAL_IO_ERROR) {
                             
                             JOptionPane.showMessageDialog(mainFrame,
-                                Messages.getString(
+                                Messages.getI18NString(
                                         "addGroupLocalError",
-                                        groupName),
-                                Messages.getString(
-                                        "addGroupErrorTitle"),
+                                        groupName).getText(),
+                                Messages.getI18NString(
+                                        "addGroupErrorTitle").getText(),
                                 JOptionPane.ERROR_MESSAGE);
                         }
                         else if (errorCode
                                 == MetaContactListException.CODE_NETWORK_ERROR) {
                             
                             JOptionPane.showMessageDialog(mainFrame,
-                                    Messages.getString(
+                                    Messages.getI18NString(
                                             "addGroupNetError",
-                                            groupName),
-                                    Messages.getString(
-                                            "addGroupErrorTitle"),
+                                            groupName).getText(),
+                                    Messages.getI18NString(
+                                            "addGroupErrorTitle").getText(),
                                     JOptionPane.WARNING_MESSAGE);
                         }
                         else {
                             
                             JOptionPane.showMessageDialog(mainFrame,
-                                    Messages.getString(
+                                    Messages.getI18NString(
                                             "addGroupError",
-                                            groupName),
-                                    Messages.getString(
-                                            "addGroupErrorTitle"),
+                                            groupName).getText(),
+                                    Messages.getI18NString(
+                                            "addGroupErrorTitle").getText(),
                                     JOptionPane.WARNING_MESSAGE);
                         }
                     }

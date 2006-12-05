@@ -45,7 +45,9 @@ public class ConfigurationFrame
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
-    private JButton cancelButton = new JButton(Messages.getString("close"));
+    private I18NString closeString = Messages.getI18NString("close");
+    
+    private JButton closeButton = new JButton(closeString.getText());
 
     private MainFrame mainFrame;
 
@@ -60,7 +62,7 @@ public class ConfigurationFrame
        
         this.mainFrame = mainFrame;
 
-        this.setTitle(Messages.getString("configuration"));
+        this.setTitle(Messages.getI18NString("configuration").getText());
         
         this.getContentPane().setLayout(new BorderLayout());
 
@@ -72,9 +74,11 @@ public class ConfigurationFrame
 
         this.mainPanel.add(configList, BorderLayout.WEST);
         
-        this.buttonsPanel.add(cancelButton);
+        this.buttonsPanel.add(closeButton);
         
-        this.cancelButton.addActionListener(new ActionListener(){
+        this.closeButton.setMnemonic(closeString.getMnemonic());
+        
+        this.closeButton.addActionListener(new ActionListener(){
 
             public void actionPerformed(ActionEvent e)
             {
@@ -258,7 +262,7 @@ public class ConfigurationFrame
         
         this.setVisible(true);
         
-        this.cancelButton.requestFocus();
+        this.closeButton.requestFocus();
     }
 
     /**
@@ -290,6 +294,6 @@ public class ConfigurationFrame
      */
     protected void close(boolean isEscaped)
     {
-        this.cancelButton.doClick();
+        this.closeButton.doClick();
     }    
 }

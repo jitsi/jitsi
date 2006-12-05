@@ -27,16 +27,18 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class MoveSubcontactMessageDialog
     extends SIPCommDialog
 {
-    private SIPCommMsgTextArea infoArea 
-        = new SIPCommMsgTextArea(Messages.getString("moveSubcontactMsg"));
+    private SIPCommMsgTextArea infoArea = new SIPCommMsgTextArea(
+        Messages.getI18NString("moveSubcontactMsg").getText());
     
-    private JLabel infoTitleLabel 
-        = new JLabel(Messages.getString("moveSubcontact"));
+    private JLabel infoTitleLabel = new JLabel(
+        Messages.getI18NString("moveSubcontact").getText());
     
     private JLabel iconLabel = new JLabel(
             new ImageIcon(ImageLoader.getImage(ImageLoader.INFO_ICON)));
     
-    private JButton cancelButton = new JButton(Messages.getString("cancel"));
+    private I18NString cancelString = Messages.getI18NString("cancel");
+    
+    private JButton cancelButton = new JButton(cancelString.getText());
     
     private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
@@ -64,6 +66,8 @@ public class MoveSubcontactMessageDialog
         
         this.mainPanel.setPreferredSize(
                 new Dimension(dialogWidth, dialogHeight));
+        
+        this.cancelButton.setMnemonic(cancelString.getMnemonic());
         
         this.cancelButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {

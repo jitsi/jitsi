@@ -34,9 +34,13 @@ public class AddContactDialog
     
     private AddContactPanel addContactPanel = new AddContactPanel();
     
-    private JButton addButton = new JButton(Messages.getString("add"));
+    private I18NString addString = Messages.getI18NString("add");
     
-    private JButton cancelButton = new JButton(Messages.getString("cancel"));
+    private I18NString cancelString = Messages.getI18NString("cancel");
+    
+    private JButton addButton = new JButton(addString.getText());
+    
+    private JButton cancelButton = new JButton(cancelString.getText());
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
@@ -102,13 +106,17 @@ public class AddContactDialog
      * Initializes the dialog.
      */
     private void init() {
-        this.setTitle(Messages.getString("addContact"));
+        this.setTitle(Messages.getI18NString("addContact").getText());
         
         this.setSize(520, 250);
         
         this.getRootPane().setDefaultButton(addButton);
         this.addButton.setName("add");
         this.cancelButton.setName("cancel");
+        
+        this.addButton.setMnemonic(addString.getMnemonic());
+        
+        this.cancelButton.setMnemonic(cancelString.getMnemonic());
         
         this.addButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
@@ -124,6 +132,9 @@ public class AddContactDialog
         this.getContentPane().add(mainPanel);
     }
     
+    /**
+     * 
+     */
     public void actionPerformed(ActionEvent e) {
         JButton button = (JButton)e.getSource();
         String name = button.getName();
@@ -151,11 +162,11 @@ public class AddContactDialog
                                         .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
                                     
                                 JOptionPane.showMessageDialog(mainFrame,
-                                    Messages.getString(
+                                    Messages.getI18NString(
                                             "addContactExistError",
-                                            uin),
-                                    Messages.getString(
-                                            "addContactErrorTitle"),
+                                            uin).getText(),
+                                    Messages.getI18NString(
+                                            "addContactErrorTitle").getText(),
                                     JOptionPane.ERROR_MESSAGE);
                             }
                             else if (errorCode
@@ -163,11 +174,11 @@ public class AddContactDialog
                                     .CODE_LOCAL_IO_ERROR) {
                                 
                                 JOptionPane.showMessageDialog(mainFrame,
-                                    Messages.getString(
+                                    Messages.getI18NString(
                                             "addContactError",
-                                            uin),
-                                    Messages.getString(
-                                            "addContactErrorTitle"),
+                                            uin).getText(),
+                                    Messages.getI18NString(
+                                            "addContactErrorTitle").getText(),
                                     JOptionPane.ERROR_MESSAGE);
                             }
                             else if (errorCode
@@ -175,21 +186,21 @@ public class AddContactDialog
                                         .CODE_NETWORK_ERROR) {
                                 
                                 JOptionPane.showMessageDialog(mainFrame,
-                                        Messages.getString(
+                                        Messages.getI18NString(
                                                 "addContactError",
-                                                uin),
-                                        Messages.getString(
-                                                "addContactErrorTitle"),
+                                                uin).getText(),
+                                        Messages.getI18NString(
+                                                "addContactErrorTitle").getText(),
                                         JOptionPane.ERROR_MESSAGE);
                             }
                             else {
                                 
                                 JOptionPane.showMessageDialog(mainFrame,
-                                        Messages.getString(
+                                        Messages.getI18NString(
                                                 "addContactError",
-                                                uin),
-                                        Messages.getString(
-                                                "addContactErrorTitle"),
+                                                uin).getText(),
+                                        Messages.getI18NString(
+                                                "addContactErrorTitle").getText(),
                                         JOptionPane.WARNING_MESSAGE);
                             }
                         }

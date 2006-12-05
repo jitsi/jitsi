@@ -50,11 +50,11 @@ public class SimpleStatusSelectorBox
                 ImageLoader.getImage(ImageLoader.SIP_LOGO)));
     
     private JMenuItem onlineItem = new JMenuItem(
-            Messages.getString("online"),
+            Messages.getI18NString("online").getText(),
             onlineIcon);
     
     private JMenuItem offlineItem = new JMenuItem(
-            Messages.getString("offline"),
+            Messages.getI18NString("offline").getText(),
             offlineIcon);
     
     private int accountIndex;

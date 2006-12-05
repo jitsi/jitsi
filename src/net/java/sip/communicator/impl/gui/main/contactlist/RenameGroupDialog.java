@@ -29,9 +29,13 @@ public class RenameGroupDialog
     private RenameGroupPanel renameGroupPanel 
         = new RenameGroupPanel();
     
-    private JButton renameButton = new JButton(Messages.getString("rename"));
+    private I18NString renameString = Messages.getI18NString("rename");
     
-    private JButton cancelButton = new JButton(Messages.getString("cancel"));
+    private I18NString cancelString = Messages.getI18NString("cancel");
+    
+    private JButton renameButton = new JButton(renameString.getText());
+    
+    private JButton cancelButton = new JButton(cancelString.getText());
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
@@ -64,16 +68,14 @@ public class RenameGroupDialog
      * fields, etc.
      */
     private void init() {
-        this.setTitle(Messages.getString("renameContact"));
+        this.setTitle(Messages.getI18NString("renameGroup").getText());
         
         this.getRootPane().setDefaultButton(renameButton);
         this.renameButton.setName("rename");
         this.cancelButton.setName("cancel");
         
-        this.renameButton.setMnemonic(
-                Messages.getString("mnemonic.renameContactButton").charAt(0));
-        this.cancelButton.setMnemonic(
-                Messages.getString("mnemonic.cancel").charAt(0));
+        this.renameButton.setMnemonic(renameString.getMnemonic());
+        this.cancelButton.setMnemonic(cancelString.getMnemonic());
         
         this.renameButton.addActionListener(this);
         this.cancelButton.addActionListener(this);

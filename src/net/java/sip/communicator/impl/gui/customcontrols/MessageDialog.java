@@ -29,12 +29,14 @@ public class MessageDialog
     extends SIPCommDialog
     implements ActionListener {
 
-    private JButton cancelButton = new JButton(Messages.getString("cancel"));
+    private JButton cancelButton = new JButton(
+        Messages.getI18NString("cancel").getText());
 
-    private JButton okButton = new JButton(Messages.getString("ok"));
+    private JButton okButton = new JButton(
+        Messages.getI18NString("ok").getText());
 
     private JCheckBox doNotAskAgain = new JCheckBox(Messages
-            .getString("doNotAskAgain"));
+            .getI18NString("doNotAskAgain").getText());
 
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.WARNING_ICON)));
@@ -66,7 +68,7 @@ public class MessageDialog
     public MessageDialog(Frame owner) {
         super(owner);
         
-        this.setTitle(Messages.getString("removeContact"));
+        this.setTitle(Messages.getI18NString("removeContact").getText());
 
         this.setSize(Constants.MSG_DIALOG_WIDTH, Constants.MSG_DIALOG_HEIGHT);
 

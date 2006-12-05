@@ -35,11 +35,11 @@ public class SelectGroupPanel
     private BooleanToCheckTableModel tableModel
         = new BooleanToCheckTableModel();
     
-    private SIPCommMsgTextArea infoLabel 
-        = new SIPCommMsgTextArea(Messages.getString("selectGroupWizard"));
+    private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
+            Messages.getI18NString("selectGroupWizard").getText());
     
     private JLabel infoTitleLabel = new JLabel(
-            Messages.getString("selectGroupWizardTitle"));
+            Messages.getI18NString("selectGroupWizardTitle").getText());
     
     private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
     
@@ -51,7 +51,7 @@ public class SelectGroupPanel
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
     
     private JLabel createGroupLabel = new JLabel(
-            Messages.getString("createGroup") + ":");
+            Messages.getI18NString("createGroup").getText() + ":");
     
     private JTextField createGroupField = new JTextField();
     
@@ -116,7 +116,7 @@ public class SelectGroupPanel
         groupsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
         
         tableModel.addColumn("");
-        tableModel.addColumn(Messages.getString("group"));
+        tableModel.addColumn(Messages.getI18NString("group").getText());
         
         while(groupsList.hasNext()) {
             

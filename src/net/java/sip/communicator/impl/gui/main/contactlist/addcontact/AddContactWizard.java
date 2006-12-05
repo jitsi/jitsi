@@ -44,7 +44,7 @@ public class AddContactWizard
      
         super.addWizardListener(this);
         
-        this.setTitle(Messages.getString("addContactWizard"));
+        this.setTitle(Messages.getI18NString("addContactWizard").getText());
 
         page1 = new AddContactWizardPage1(this, newContact,
                     mainFrame.getProtocolProviders());
@@ -102,43 +102,43 @@ public class AddContactWizard
                             .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
                         
                         JOptionPane.showMessageDialog(mainFrame,
-                            Messages.getString(
+                            Messages.getI18NString(
                                     "addContactExistError",
-                                    newContact.getUin()),
-                            Messages.getString(
-                                    "addContactErrorTitle"),
+                                    newContact.getUin()).getText(),
+                            Messages.getI18NString(
+                                    "addContactErrorTitle").getText(),
                             JOptionPane.ERROR_MESSAGE);
                 }
                 else if (errorCode
                     == MetaContactListException.CODE_LOCAL_IO_ERROR) {
                     
                     JOptionPane.showMessageDialog(mainFrame,
-                        Messages.getString(
+                        Messages.getI18NString(
                                 "addContactError",
-                                newContact.getUin()),
-                        Messages.getString(
-                                "addContactErrorTitle"),
+                                newContact.getUin()).getText(),
+                        Messages.getI18NString(
+                                "addContactErrorTitle").getText(),
                         JOptionPane.ERROR_MESSAGE);
                 }
                 else if (errorCode
                         == MetaContactListException.CODE_NETWORK_ERROR) {
                     
                     JOptionPane.showMessageDialog(mainFrame,
-                            Messages.getString(
+                            Messages.getI18NString(
                                     "addContactError",
-                                    newContact.getUin()),
-                            Messages.getString(
-                                    "addContactErrorTitle"),
+                                    newContact.getUin()).getText(),
+                            Messages.getI18NString(
+                                    "addContactErrorTitle").getText(),
                             JOptionPane.ERROR_MESSAGE);
                 }
                 else {
                     
                     JOptionPane.showMessageDialog(mainFrame,
-                            Messages.getString(
+                            Messages.getI18NString(
                                     "addContactError",
-                                    newContact.getUin()),
-                            Messages.getString(
-                                    "addContactErrorTitle"),
+                                    newContact.getUin()).getText(),
+                            Messages.getI18NString(
+                                    "addContactErrorTitle").getText(),
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -175,43 +175,43 @@ public class AddContactWizard
                                     .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
                                 
                                 JOptionPane.showMessageDialog(mainFrame,
-                                    Messages.getString(
+                                    Messages.getI18NString(
                                             "addGroupExistError",
-                                            groupName),
-                                    Messages.getString(
-                                            "addGroupErrorTitle"),
+                                            groupName).getText(),
+                                    Messages.getI18NString(
+                                            "addGroupErrorTitle").getText(),
                                     JOptionPane.WARNING_MESSAGE);
                         }
                         else if (errorCode
                             == MetaContactListException.CODE_LOCAL_IO_ERROR) {
                             
                             JOptionPane.showMessageDialog(mainFrame,
-                                Messages.getString(
+                                Messages.getI18NString(
                                         "addGroupLocalError",
-                                        groupName),
-                                Messages.getString(
-                                        "addGroupErrorTitle"),
+                                        groupName).getText(),
+                                Messages.getI18NString(
+                                        "addGroupErrorTitle").getText(),
                                 JOptionPane.WARNING_MESSAGE);
                         }
                         else if (errorCode
                                 == MetaContactListException.CODE_NETWORK_ERROR) {
                             
                             JOptionPane.showMessageDialog(mainFrame,
-                                    Messages.getString(
+                                    Messages.getI18NString(
                                             "addGroupNetError",
-                                            groupName),
-                                    Messages.getString(
-                                            "addGroupErrorTitle"),
+                                            groupName).getText(),
+                                    Messages.getI18NString(
+                                            "addGroupErrorTitle").getText(),
                                     JOptionPane.WARNING_MESSAGE);
                         }
                         else {
                             
                             JOptionPane.showMessageDialog(mainFrame,
-                                    Messages.getString(
+                                    Messages.getI18NString(
                                             "addGroupError",
-                                            groupName),
-                                    Messages.getString(
-                                            "addGroupErrorTitle"),
+                                            groupName).getText(),
+                                    Messages.getI18NString(
+                                            "addGroupErrorTitle").getText(),
                                     JOptionPane.WARNING_MESSAGE);
                         }
                     }

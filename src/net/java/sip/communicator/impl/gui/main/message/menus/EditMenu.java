@@ -23,15 +23,23 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class EditMenu extends JMenu 
     implements ActionListener {
 
-    private JMenuItem cutMenuItem = new JMenuItem(Messages.getString("cut"),
-            new ImageIcon(ImageLoader.getImage(ImageLoader.CUT_ICON)));
+    private I18NString cutString = Messages.getI18NString("cut");
+    
+    private I18NString copyString = Messages.getI18NString("copy");
+    
+    private I18NString pasteString = Messages.getI18NString("paste");
+    
+    private JMenuItem cutMenuItem = new JMenuItem(
+        cutString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.CUT_ICON)));
 
-    private JMenuItem copyMenuItem = new JMenuItem(Messages.getString("copy"),
-            new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
+    private JMenuItem copyMenuItem = new JMenuItem(
+        copyString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
 
     private JMenuItem pasteMenuItem = new JMenuItem(
-            Messages.getString("paste"), new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.PASTE_ICON)));
+        pasteString.getText(), 
+        new ImageIcon(ImageLoader.getImage(ImageLoader.PASTE_ICON)));
 
     private ChatWindow chatWindow;
 
@@ -42,7 +50,7 @@ public class EditMenu extends JMenu
      */
     public EditMenu(ChatWindow chatWindow) {
 
-        super(Messages.getString("edit"));
+        super(Messages.getI18NString("edit").getText());
 
         this.chatWindow = chatWindow;
 
@@ -58,10 +66,10 @@ public class EditMenu extends JMenu
         this.add(copyMenuItem);
         this.add(pasteMenuItem);
         
-        this.setMnemonic(Messages.getString("edit").charAt(0));
-        this.cutMenuItem.setMnemonic(Messages.getString("mnemonic.cut").charAt(0));
-        this.copyMenuItem.setMnemonic(Messages.getString("mnemonic.copy").charAt(0));
-        this.pasteMenuItem.setMnemonic(Messages.getString("mnemonic.paste").charAt(0));
+        this.setMnemonic(Messages.getI18NString("edit").getMnemonic());
+        this.cutMenuItem.setMnemonic(cutString.getMnemonic());
+        this.copyMenuItem.setMnemonic(copyString.getMnemonic());
+        this.pasteMenuItem.setMnemonic(pasteString.getMnemonic());
         
         this.cutMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_X,

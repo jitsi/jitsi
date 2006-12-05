@@ -124,7 +124,8 @@ public class ChatWritePanel extends JScrollPane implements
                     KeyEvent.VK_ENTER, KeyEvent.SHIFT_DOWN_MASK), "newLine");
             
             chatPanel.getChatSendPanel().getSendButton()
-                .setToolTipText("<html>" + Messages.getString("sendMessage")
+                .setToolTipText("<html>"
+                        + Messages.getI18NString("sendMessage").getText()
                         + " - Enter <br> "
                         + "Use Ctrl-Enter or Shift-Enter to make a new line"
                         + "</html>");
@@ -136,7 +137,8 @@ public class ChatWritePanel extends JScrollPane implements
                     KeyEvent.VK_ENTER, 0), "newLine");
             
             chatPanel.getChatSendPanel().getSendButton()
-                .setToolTipText(Messages.getString("sendMessage") + " Ctrl-Enter");
+                .setToolTipText(Messages.getI18NString("sendMessage").getText()
+                    + " Ctrl-Enter");
         }
     }
     

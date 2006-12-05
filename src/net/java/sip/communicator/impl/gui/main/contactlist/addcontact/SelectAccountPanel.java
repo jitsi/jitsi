@@ -44,11 +44,11 @@ public class SelectAccountPanel extends JPanel {
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
     
-    private SIPCommMsgTextArea infoLabel 
-        = new SIPCommMsgTextArea(Messages.getString("selectProvidersWizard"));
+    private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
+            Messages.getI18NString("selectProvidersWizard").getText());
     
-    private JLabel infoTitleLabel 
-        = new JLabel(Messages.getString("selectProvidersWizardTitle"), 
+    private JLabel infoTitleLabel = new JLabel(
+            Messages.getI18NString("selectProvidersWizardTitle").getText(), 
                 JLabel.CENTER);
     
     /**
@@ -95,8 +95,8 @@ public class SelectAccountPanel extends JPanel {
         accountsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
         
         tableModel.addColumn("");
-        tableModel.addColumn(Messages.getString("account"));
-        tableModel.addColumn(Messages.getString("protocol"));
+        tableModel.addColumn(Messages.getI18NString("account").getText());
+        tableModel.addColumn(Messages.getI18NString("protocol").getText());
                 
         while(protocolProvidersList.hasNext()) {
             ProtocolProviderService pps 

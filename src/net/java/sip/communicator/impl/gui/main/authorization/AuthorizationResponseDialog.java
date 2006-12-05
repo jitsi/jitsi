@@ -27,7 +27,9 @@ public class AuthorizationResponseDialog extends SIPCommDialog
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         
-    private JButton okButton = new JButton(Messages.getString("ok"));
+    private I18NString okString = Messages.getI18NString("ok");
+    
+    private JButton okButton = new JButton(okString.getText());
     
     private JScrollPane responseScrollPane = new JScrollPane();
     
@@ -42,7 +44,8 @@ public class AuthorizationResponseDialog extends SIPCommDialog
     
     private JLabel titleLabel = new JLabel();
     
-    private String title = Messages.getString("authorizationResponse");
+    private String title
+        = Messages.getI18NString("authorizationResponse").getText();
         
     /**
      * Constructs the <tt>RequestAuthorisationDialog</tt>.
@@ -70,11 +73,11 @@ public class AuthorizationResponseDialog extends SIPCommDialog
         
         if(responseCode.equals(AuthorizationResponse.ACCEPT)) {
             infoTextArea.setText(contact.getDisplayName() + " "
-                    + Messages.getString("authAccepted"));
+                    + Messages.getI18NString("authAccepted").getText());
         }
         else if(responseCode.equals(AuthorizationResponse.REJECT)) {
             infoTextArea.setText(contact.getDisplayName() + " "
-                    + Messages.getString("authRejected"));
+                    + Messages.getI18NString("authRejected").getText());
         }
         
         if(response.getReason() != null && !response.getReason().equals("")) {
@@ -113,6 +116,7 @@ public class AuthorizationResponseDialog extends SIPCommDialog
         
         this.okButton.requestFocus();
         this.okButton.setName("ok");
+        this.okButton.setMnemonic(okString.getMnemonic());
         this.getRootPane().setDefaultButton(okButton);
         
         this.okButton.addActionListener(this);

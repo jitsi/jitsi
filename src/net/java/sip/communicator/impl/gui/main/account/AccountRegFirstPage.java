@@ -50,10 +50,11 @@ public class AccountRegFirstPage extends JPanel
     private JPanel textPanel = new JPanel(new GridLayout(0, 1, 5, 5));
     
     private JTextArea messageTextArea = new JTextArea(
-                Messages.getString("selectAccountRegistration"));
+            Messages.getI18NString("selectAccountRegistration").getText());
     
     private JLabel pageTitleLabel 
-        = new JLabel(Messages.getString("selectAccountRegWizardTitle"), 
+        = new JLabel(
+            Messages.getI18NString("selectAccountRegWizardTitle").getText(), 
                 JLabel.CENTER);
     
     public AccountRegFirstPage(AccountRegWizardContainerImpl container) {
@@ -96,8 +97,8 @@ public class AccountRegFirstPage extends JPanel
         //The first column name is not internationalized because it's
         //only for internal use.
         this.tableModel.addColumn("id");
-        this.tableModel.addColumn(Messages.getString("name"));
-        this.tableModel.addColumn(Messages.getString("description"));
+        this.tableModel.addColumn(Messages.getI18NString("name").getText());
+        this.tableModel.addColumn(Messages.getI18NString("description").getText());
      
         accountRegsTable.setRowHeight(22);
         accountRegsTable.setShowHorizontalLines(false);

@@ -275,7 +275,7 @@ public class CallPanel
         }
         else if(evt.getNewValue() == CallParticipantState.CONNECTED) {
             //start the timer that takes care of refreshing the time label
-            SoundLoader.stop(Constants.getDefaultOutgoingCallAudio());
+            SoundLoader.stop(Constants.getDefaultOutgoingCallAudio());            
             participantPanel.startCallTimer();
         }
         else if(evt.getNewValue() == CallParticipantState.CONNECTING) {

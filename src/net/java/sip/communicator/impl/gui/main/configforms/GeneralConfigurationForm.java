@@ -21,19 +21,19 @@ public class GeneralConfigurationForm extends JPanel implements
         ConfigurationForm {
 
     private JCheckBox launchOnStartUpCheck = new JCheckBox(Messages
-            .getString("launchOnStartUp"));
+            .getI18NString("launchOnStartUp").getText());
 
     private JCheckBox alwaysOnTopCheck = new JCheckBox(Messages
-            .getString("alwaysOnTop"));
+            .getI18NString("alwaysOnTop").getText());
 
     private JCheckBox updateAutomaticallyCheck = new JCheckBox(Messages
-            .getString("updateAutomatically"));
+            .getI18NString("updateAutomatically").getText());
 
     private JCheckBox enableNotificationsCheck = new JCheckBox(Messages
-            .getString("enableNotifications"));
+            .getI18NString("enableNotifications").getText());
 
     private JCheckBox activateWhenMinimizedCheck = new JCheckBox(Messages
-            .getString("activateOnlyWhenMinimized"));
+            .getI18NString("activateOnlyWhenMinimized").getText());
 
     private JPanel appliBehaviourPanel = new JPanel(new GridLayout(0, 1));
 
@@ -49,14 +49,14 @@ public class GeneralConfigurationForm extends JPanel implements
 
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        this.appliBehaviourPanel.setBorder(BorderFactory
-                .createTitledBorder(Messages.getString("application")));
+        this.appliBehaviourPanel.setBorder(BorderFactory.createTitledBorder(
+            Messages.getI18NString("application").getText()));
 
-        this.updatesPanel.setBorder(BorderFactory.createTitledBorder(Messages
-                .getString("updates")));
+        this.updatesPanel.setBorder(BorderFactory.createTitledBorder(
+            Messages.getI18NString("updates").getText()));
 
-        this.notificationsPanel.setBorder(BorderFactory
-                .createTitledBorder(Messages.getString("notifications")));
+        this.notificationsPanel.setBorder(BorderFactory.createTitledBorder(
+            Messages.getI18NString("notifications").getText()));
 
         this.appliBehaviourPanel.add(launchOnStartUpCheck);
         this.appliBehaviourPanel.add(alwaysOnTopCheck);
@@ -74,7 +74,7 @@ public class GeneralConfigurationForm extends JPanel implements
     }
 
     public String getTitle() {
-        return Messages.getString("general");
+        return Messages.getI18NString("general").getText();
     }
 
     public byte[] getIcon() {

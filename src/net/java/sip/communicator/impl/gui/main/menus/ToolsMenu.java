@@ -33,8 +33,9 @@ public class ToolsMenu
 
     private Logger logger = Logger.getLogger(ToolsMenu.class.getName());
     
-    private JMenuItem configMenuItem
-        = new JMenuItem(Messages.getString("settings"));
+    private I18NString settingsString = Messages.getI18NString("settings");
+    
+    private JMenuItem configMenuItem = new JMenuItem(settingsString.getText());
     
     private MainFrame parentWindow;
     
@@ -46,7 +47,7 @@ public class ToolsMenu
      */
     public ToolsMenu(MainFrame parentWindow) {
 
-        super(Messages.getString("tools"));
+        super(Messages.getI18NString("tools").getText());
         
         this.parentWindow = parentWindow;
 
@@ -56,9 +57,8 @@ public class ToolsMenu
         
         this.configMenuItem.addActionListener(this);
         
-        this.setMnemonic(Messages.getString("mnemonic.tools").charAt(0));
-        this.configMenuItem.setMnemonic(
-                Messages.getString("mnemonic.toolsMenuSettings").charAt(0));
+        this.setMnemonic(Messages.getI18NString("tools").getMnemonic());
+        this.configMenuItem.setMnemonic(settingsString.getMnemonic());
     }
 
     /**

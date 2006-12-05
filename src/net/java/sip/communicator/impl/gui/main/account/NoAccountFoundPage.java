@@ -25,7 +25,7 @@ public class NoAccountFoundPage extends JPanel
     private static String NO_ACCOUNT_FOUND_PAGE = "NoAccountFoundPage";
     
     private JTextArea messageArea
-        = new JTextArea(Messages.getString("noAccountFound"));
+        = new JTextArea(Messages.getI18NString("noAccountFound").getText());
         
     /**
      * Creates an instance of <tt>NoAccountFoundPage</tt>.

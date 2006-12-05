@@ -31,6 +31,14 @@ public class MainMenu
 
     private HelpMenu helpMenu;
 
+    private I18NString fileString = Messages.getI18NString("file");
+    
+    private I18NString toolsString = Messages.getI18NString("tools");
+    
+    private I18NString viewString = Messages.getI18NString("view");
+    
+    private I18NString helpString = Messages.getI18NString("help");
+    
     /**
      * Creates an instance of <tt>Menu</tt>.
      */
@@ -49,21 +57,21 @@ public class MainMenu
      */
     private void init()
     {
-        fileMenu.setText(Messages.getString("file"));
-        fileMenu.setMnemonic(Messages.getString("mnemonic.file").charAt(0));
-        fileMenu.setToolTipText(Messages.getString("file"));
+        fileMenu.setText(fileString.getText());
+        fileMenu.setMnemonic(fileString.getMnemonic());
+        fileMenu.setToolTipText(fileString.getText());
 
-        toolsMenu.setText(Messages.getString("tools"));
-        toolsMenu.setMnemonic(Messages.getString("mnemonic.tools").charAt(0));
-        toolsMenu.setToolTipText(Messages.getString("tools"));
+        toolsMenu.setText(toolsString.getText());
+        toolsMenu.setMnemonic(toolsString.getMnemonic());
+        toolsMenu.setToolTipText(toolsString.getText());
 
-        viewMenu.setText(Messages.getString("view"));
-        viewMenu.setMnemonic(Messages.getString("mnemonic.view").charAt(0));
-        viewMenu.setToolTipText(Messages.getString("settings"));
+        viewMenu.setText(viewString.getText());
+        viewMenu.setMnemonic(viewString.getMnemonic());
+        viewMenu.setToolTipText(viewString.getText());
 
-        helpMenu.setText(Messages.getString("help"));
-        helpMenu.setMnemonic(Messages.getString("mnemonic.help").charAt(0));
-        helpMenu.setToolTipText(Messages.getString("help"));
+        helpMenu.setText(helpString.getText());
+        helpMenu.setMnemonic(helpString.getMnemonic());
+        helpMenu.setToolTipText(helpString.getText());
 
         this.add(fileMenu);
         this.add(toolsMenu);

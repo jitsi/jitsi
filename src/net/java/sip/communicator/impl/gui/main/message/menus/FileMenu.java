@@ -23,16 +23,23 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class FileMenu extends JMenu 
     implements ActionListener {
 
-    private JMenuItem saveMenuItem = new JMenuItem(Messages.getString("save"),
-            new ImageIcon(ImageLoader.getImage(ImageLoader.SAVE_ICON)));
+    private I18NString saveString = Messages.getI18NString("save");
+    
+    private I18NString printString = Messages.getI18NString("print");
+    
+    private I18NString closeString = Messages.getI18NString("close");
+    
+    private JMenuItem saveMenuItem = new JMenuItem(
+        saveString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.SAVE_ICON)));
 
     private JMenuItem printMenuItem = new JMenuItem(
-            Messages.getString("print"), new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.PRINT_ICON)));
+        printString.getText(), 
+        new ImageIcon(ImageLoader.getImage(ImageLoader.PRINT_ICON)));
 
     private JMenuItem closeMenuItem = new JMenuItem(
-            Messages.getString("close"), new ImageIcon(ImageLoader
-                    .getImage(ImageLoader.CLOSE_ICON)));
+        closeString.getText(),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
 
     private ChatWindow parentWindow;
 
@@ -42,7 +49,7 @@ public class FileMenu extends JMenu
      */
     public FileMenu(ChatWindow parentWindow) {
 
-        super(Messages.getString("file"));
+        super(Messages.getI18NString("file").getText());
         
         this.parentWindow = parentWindow;
 
@@ -61,13 +68,10 @@ public class FileMenu extends JMenu
         this.printMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
 
-        this.setMnemonic(Messages.getString("file").charAt(0));
-        this.saveMenuItem.setMnemonic(
-                Messages.getString("mnemonic.save").charAt(0));
-        this.printMenuItem.setMnemonic(
-                Messages.getString("mnemonic.print").charAt(0));
-        this.closeMenuItem.setMnemonic(
-                Messages.getString("mnemonic.close").charAt(0));
+        this.setMnemonic(Messages.getI18NString("file").getMnemonic());
+        this.saveMenuItem.setMnemonic(saveString.getMnemonic());
+        this.printMenuItem.setMnemonic(printString.getMnemonic());
+        this.closeMenuItem.setMnemonic(closeString.getMnemonic());
         
         this.saveMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_S,

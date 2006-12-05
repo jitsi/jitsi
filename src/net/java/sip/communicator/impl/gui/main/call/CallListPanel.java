@@ -31,7 +31,8 @@ public class CallListPanel
 {
     private JPanel searchPanel = new JPanel(new BorderLayout());
     
-    private JLabel searchLabel = new JLabel(Messages.getString("search") + ": ");
+    private JLabel searchLabel = new JLabel(
+        Messages.getI18NString("search").getText() + ": ");
     
     private SmartComboBox searchComboBox = new SmartComboBox();
     
@@ -134,7 +135,8 @@ public class CallListPanel
             }            
         }
         if(callList.getModel().getSize() > 0)
-            this.callList.addItem(Messages.getString("olderCalls") + "...");
+            this.callList.addItem(
+                Messages.getI18NString("olderCalls").getText() + "...");
     }
     
     /**
@@ -147,7 +149,7 @@ public class CallListPanel
         FilterableComboBoxModel comboModel =
             (FilterableComboBoxModel)searchComboBox.getModel();
         
-        String allItem = Messages.getString("all");
+        String allItem = Messages.getI18NString("all").getText();
 
         if(!comboModel.contains(allItem)) {            
             searchComboBox.addItem(allItem);
@@ -189,7 +191,7 @@ public class CallListPanel
         
         if(GuiUtils.compareDates(date, new Date(currentDate)) == 0) {
             
-            resultString = Messages.getString("today");
+            resultString = Messages.getI18NString("today").getText();
         }
         else {
             Calendar c = Calendar.getInstance();
@@ -215,7 +217,7 @@ public class CallListPanel
             
             this.callList.removeAll();
             
-            if(item.equals(Messages.getString("all"))) {
+            if(item.equals(Messages.getI18NString("all").getText())) {
                 this.lastDateFromHistory = null;
                 
                 this.callList.removeAll();

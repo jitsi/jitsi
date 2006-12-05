@@ -157,29 +157,29 @@ public class GuiUtils {
     {
         String monthString = "";
         if(month == 1)
-            monthString = Messages.getString("january");
+            monthString = Messages.getI18NString("january").getText();
         else if(month == 2)
-            monthString = Messages.getString("february");
+            monthString = Messages.getI18NString("february").getText();
         else if(month == 3)
-            monthString = Messages.getString("march");
+            monthString = Messages.getI18NString("march").getText();
         else if(month == 4)
-            monthString = Messages.getString("april");
+            monthString = Messages.getI18NString("april").getText();
         else if(month == 5)
-            monthString = Messages.getString("may");
+            monthString = Messages.getI18NString("may").getText();
         else if(month == 6)
-            monthString = Messages.getString("june");
+            monthString = Messages.getI18NString("june").getText();
         else if(month == 7)
-            monthString = Messages.getString("july");
+            monthString = Messages.getI18NString("july").getText();
         else if(month == 8)
-            monthString = Messages.getString("august");
+            monthString = Messages.getI18NString("august").getText();
         else if(month == 9)
-            monthString = Messages.getString("september");
+            monthString = Messages.getI18NString("september").getText();
         else if(month == 10)
-            monthString = Messages.getString("october");
+            monthString = Messages.getI18NString("october").getText();
         else if(month == 11)
-            monthString = Messages.getString("november");
+            monthString = Messages.getI18NString("november").getText();
         else if(month == 12)
-            monthString = Messages.getString("december");
+            monthString = Messages.getI18NString("december").getText();
         
         return monthString;
     }

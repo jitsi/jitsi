@@ -21,7 +21,7 @@ public class AppearanceConfigurationForm extends JPanel
     implements ConfigurationForm {
 
     private JCheckBox launchOnStartUpCheck 
-        = new JCheckBox(Messages.getString("launchOnStartUp"));
+        = new JCheckBox(Messages.getI18NString("launchOnStartUp").getText());
 
     private JPanel appliBehaviourPanel = new JPanel(new GridLayout(0, 1));
 
@@ -29,7 +29,8 @@ public class AppearanceConfigurationForm extends JPanel
         super(new BorderLayout());
 
         this.appliBehaviourPanel.setBorder(BorderFactory
-                .createTitledBorder(Messages.getString("application")));
+                .createTitledBorder(
+                    Messages.getI18NString("application").getText()));
 
         this.appliBehaviourPanel.add(launchOnStartUpCheck);
 
@@ -37,7 +38,7 @@ public class AppearanceConfigurationForm extends JPanel
     }
 
     public String getTitle() {
-        return Messages.getString("appearance");
+        return Messages.getI18NString("appearance").getText();
     }
 
     public byte[] getIcon() {

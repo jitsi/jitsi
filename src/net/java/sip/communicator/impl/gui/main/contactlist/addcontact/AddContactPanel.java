@@ -28,16 +28,19 @@ public class AddContactPanel
     implements DocumentListener
 {
 
-    private JLabel uinLabel = new JLabel(Messages.getString("identifier"));
+    private JLabel uinLabel = new JLabel(
+        Messages.getI18NString("identifier").getText());
     
     private JTextField textField = new JTextField();
     
     private JPanel dataPanel = new JPanel(new BorderLayout(5, 5));
     
     private SIPCommMsgTextArea infoLabel 
-        = new SIPCommMsgTextArea(Messages.getString("addContactIdentifier"));
+        = new SIPCommMsgTextArea(
+            Messages.getI18NString("addContactIdentifier").getText());
     
-    private JLabel infoTitleLabel = new JLabel(Messages.getString("addContact"));
+    private JLabel infoTitleLabel = new JLabel(
+        Messages.getI18NString("addContact").getText());
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));

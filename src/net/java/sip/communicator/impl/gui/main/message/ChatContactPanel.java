@@ -118,9 +118,12 @@ public class ChatContactPanel
                 .getStatusIcon(status)));
         // this.personPhotoLabel.setIcon(new ImageIcon(contactItem.getPhoto()));
 
-        this.callButton.setToolTipText(Messages.getString("call"));
-        this.infoButton.setToolTipText(Messages.getString("userInfo"));
-        this.sendFileButton.setToolTipText(Messages.getString("sendFile"));
+        this.callButton.setToolTipText(
+            Messages.getI18NString("call").getText());
+        this.infoButton.setToolTipText(
+            Messages.getI18NString("userInfo").getText());
+        this.sendFileButton.setToolTipText(
+            Messages.getI18NString("sendFile").getText());
 
         this.callButton.setName("call");
         this.infoButton.setName("info");
