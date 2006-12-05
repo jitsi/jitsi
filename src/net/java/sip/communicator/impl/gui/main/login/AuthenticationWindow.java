@@ -155,6 +155,9 @@ public class AuthenticationWindow
 
         this.loginButton.setName("ok");
         this.cancelButton.setName("cancel");
+        
+        this.loginButton.setMnemonic(okString.getMnemonic());
+        this.cancelButton.setMnemonic(cancelString.getMnemonic());
 
         this.loginButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
