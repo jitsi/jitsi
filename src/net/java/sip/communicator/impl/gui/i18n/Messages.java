@@ -25,14 +25,33 @@ public class Messages {
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
-    public static String getString(String key) {
+    public static I18NString getI18NString(String key) {
+        
+        I18NString i18nString = new I18NString();
+        
+        String resourceString;
         try {
-            return RESOURCE_BUNDLE.getString(key);
+            resourceString = RESOURCE_BUNDLE.getString(key);
+            
+            int mnemonicIndex = resourceString.indexOf('&');
+            
+            if(mnemonicIndex > -1) {
+                i18nString.setMnemonic(resourceString.charAt(mnemonicIndex + 1));
+                
+                String firstPart = resourceString.substring(0, mnemonicIndex);
+                String secondPart = resourceString.substring(mnemonicIndex + 1);
+                
+                resourceString = firstPart.concat(secondPart);
+            }
+            
+            i18nString.setText(resourceString);
 
         } catch (MissingResourceException e) {
 
-            return '!' + key + '!';
+            i18nString.setText('!' + key + '!');
         }
+        
+        return i18nString;
     }
 
     /**
@@ -43,15 +62,35 @@ public class Messages {
      * @return An internationalized string corresponding to the given key,
      * by replacing all occurences of '?' with the given string param.
      */
-    public static String getString(String key, String param) {
+    public static I18NString getI18NString(String key, String param) {
+        
+        I18NString i18nString = new I18NString();
+        
+        String resourceString;
+        
         try {
-            String sourceString = RESOURCE_BUNDLE.getString(key);
+            resourceString = RESOURCE_BUNDLE.getString(key);
 
-            return sourceString.replaceAll("\\?", param);
+            resourceString = resourceString.replaceAll("\\?", param);
+            
+            int mnemonicIndex = resourceString.indexOf('&');
+            
+            if(mnemonicIndex > -1) {
+                i18nString.setMnemonic(resourceString.charAt(mnemonicIndex + 1));
+                
+                String firstPart = resourceString.substring(0, mnemonicIndex);
+                String secondPart = resourceString.substring(mnemonicIndex + 1);
+                
+                resourceString = firstPart.concat(secondPart);
+            }
+            
+            i18nString.setText(resourceString);
 
         } catch (MissingResourceException e) {
 
-            return '!' + key + '!';
+            i18nString.setText('!' + key + '!');
         }
+        
+        return i18nString;
     }
 }
