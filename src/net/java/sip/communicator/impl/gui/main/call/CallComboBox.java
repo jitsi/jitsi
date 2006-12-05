@@ -26,7 +26,6 @@ import net.java.sip.communicator.service.contactlist.*;
 public class CallComboBox
     extends SmartComboBox
     implements  ActionListener,
-                FocusListener,
                 DocumentListener
 {   
     
@@ -42,8 +41,7 @@ public class CallComboBox
         this.addActionListener(this);
         
         JTextField textField = (JTextField)this.getEditor().getEditorComponent();
-                
-        textField.addFocusListener(this);       
+               
         textField.getDocument().addDocumentListener(this);
         
         textField.getActionMap().put("createCall", new CreateCallAction());
@@ -78,24 +76,7 @@ public class CallComboBox
         callManager.getCallButton().setEnabled(true);        
     }
     
-    /**
-     * When the combo editor field gains the focus removes the selection
-     * in the contact list to prevent confusion on who should be dialed.
-     */
-    public void focusGained(FocusEvent e)
-    {
-        this.callManager.setCallMetaContact(false);
-        
-        ContactList clist = this.callManager.getMainFrame()
-            .getContactListPanel().getContactList();
-        clist.removeSelectionInterval(
-                clist.getSelectedIndex(), clist.getSelectedIndex());
-    }
-
-    public void focusLost(FocusEvent e)
-    {}
-
-        
+            
     public void insertUpdate(DocumentEvent e) { handleChange(); }
     public void removeUpdate(DocumentEvent e) { handleChange(); }
     public void changedUpdate(DocumentEvent e) {}
@@ -109,6 +90,12 @@ public class CallComboBox
         
         if (item.length() > 0) {
             callManager.setCallMetaContact(false);
+            
+            ContactList clist = this.callManager.getMainFrame()
+                .getContactListPanel().getContactList();
+        
+            clist.removeSelectionInterval(
+                clist.getSelectedIndex(), clist.getSelectedIndex());
             
             callManager.getCallButton().setEnabled(true);
         }
