@@ -56,8 +56,7 @@ public class AuthorizationRequestedDialog
     
     private I18NString ignoreString = Messages.getI18NString("ignore");
     
-    private JButton acceptButton 
-        = new JButton();
+    private JButton acceptButton = new JButton(acceptString.getText());
     
     private JButton rejectButton = new JButton(rejectString.getText());
     
