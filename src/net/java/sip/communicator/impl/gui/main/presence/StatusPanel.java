@@ -72,7 +72,10 @@ public class StatusPanel extends JMenuBar {
         this.protocolStatusCombos.put(protocolProvider,
                 protocolStatusCombo);
 
-        this.add(protocolStatusCombo);
+        if(protocolProvider.getProtocolName().equals("SIP"))
+            this.add(protocolStatusCombo, FlowLayout.LEFT);
+        else
+            this.add(protocolStatusCombo);
 
         this.getParent().validate();
     }
