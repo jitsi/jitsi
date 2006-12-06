@@ -7,13 +7,11 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.util.*;
-
 import java.awt.*;
 import java.awt.image.*;
+import java.util.*;
 
 import javax.swing.*;
-import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -237,7 +235,7 @@ public class ContactListCellRenderer extends JPanel
         g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
         g.drawImage(sourceImage, 0, 0, null);
         g.setComposite(ac);
-        g.drawString(new Integer(index).toString(), 14, 8);
+        g.drawString(new Integer(index+1).toString(), 14, 8);
         
         return buffImage;
     }

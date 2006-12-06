@@ -340,7 +340,7 @@ public class PresenceStatusSelectorBox
             AntialiasingManager.activateAntialiasing(g);
             g.setColor(Color.DARK_GRAY);
             g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
-            g.drawString(new Integer(accountIndex).toString(), 20, 12);
+            g.drawString(new Integer(accountIndex+1).toString(), 20, 12);
         }
     }
         

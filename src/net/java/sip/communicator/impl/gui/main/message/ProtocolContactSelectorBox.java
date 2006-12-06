@@ -118,7 +118,7 @@ public class ProtocolContactSelectorBox
             g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
             g.drawImage(statusImage, 0, 0, null);
             g.setComposite(ac);
-            g.drawString(new Integer(index).toString(), 14, 8);
+            g.drawString(new Integer(index+1).toString(), 14, 8);
 
             img = buffImage;
         }
