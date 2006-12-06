@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class WelcomeWindow
-    extends SIPCommDialog
+    extends SIPCommFrame
     implements ActionListener {
 
     private JLabel welcomeLabel = new JLabel(
@@ -60,8 +60,7 @@ public class WelcomeWindow
      */
     public WelcomeWindow(CommunicatorMain c,
             LoginManager loginManager) {
-        super(c.getMainFrame());
-
+        
         this.communicator = c;
         this.loginManager = loginManager;
 
