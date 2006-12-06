@@ -136,7 +136,7 @@ public class HistoryWindow
 
         this.initPanels();
 
-        this.initData();
+        this.initDates();
 
         this.addWindowListener(new HistoryWindowAdapter());        
     }
@@ -168,8 +168,9 @@ public class HistoryWindow
      * Initializes the history with a list of all dates, for which a history
      * with the given contact is availabled.
      */
-    private void initData()
-    {        
+    private void initDates()
+    {   
+        this.initProgressBar();
         new DatesLoader().start();
     }
 
@@ -179,7 +180,9 @@ public class HistoryWindow
      * @param endDate the end date of the period
      */
     public void showHistoryByPeriod(Date startDate, Date endDate)
-    {        
+    {
+        this.initProgressBar();
+        
         if((searchKeyword == null || searchKeyword == "")
                 && dateHistoryTable.containsKey(startDate)) {
             
@@ -202,7 +205,9 @@ public class HistoryWindow
      * @param keyword the keyword to search
      */
     public void showHistoryByKeyword(String keyword)
-    {   
+    {
+        this.initProgressBar();
+        
         chatConvPanel.clear();        
         datesPanel.setLastSelectedIndex(-1);
 
@@ -322,14 +327,7 @@ public class HistoryWindow
         if((lastProgress != progress)
                 && evt.getStartDate() == null
                 || evt.getStartDate() != ignoreProgressDate) {
-            
-            if(progressBar.getPercentComplete() == 0) {
-                this.mainPanel.remove(readyLabel);
-                this.mainPanel.add(progressBar, BorderLayout.SOUTH);
-                this.mainPanel.revalidate();
-                this.mainPanel.repaint();
-            }
-    
+                
             this.progressBar.setValue(progress);
             
             if(progressBar.getPercentComplete() == 1.0) {
@@ -565,6 +563,15 @@ public class HistoryWindow
     
     public void refreshHistory()
     {
+        
+    }
+    
+    private void initProgressBar()
+    {
+        this.mainPanel.remove(readyLabel);
+        this.mainPanel.add(progressBar, BorderLayout.SOUTH);
+        this.mainPanel.revalidate();
+        this.mainPanel.repaint();
         
     }
 }
