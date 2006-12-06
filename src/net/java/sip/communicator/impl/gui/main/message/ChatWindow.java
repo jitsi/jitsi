@@ -12,6 +12,7 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -32,7 +33,6 @@ import net.java.sip.communicator.util.*;
  * messages in one window" and "Open messages in new window". In the first case
  * a <tt>JTabbedPane</tt> is added in the window, where each tab contains a
  * <tt>ChatPanel</tt>. In the second case the <tt>ChatPanel</tt> is added
- * directly to the window. The <tt>ChatPanel</tt> contains all chat elements
  * like a "write message area", "send" button, etc. It corresponds to a
  * <tt>MetaContact</tt> or to a conference.
  * <p>
@@ -58,6 +58,10 @@ public class ChatWindow
     private Hashtable contactChats = new Hashtable();
 
     private boolean enableTypingNotification = true;
+    
+    private int lastSelectedIndex;
+    
+    private boolean isLastIndex;
 
     /**
      * Creates an instance of <tt>ChatWindow</tt>.
@@ -220,12 +224,12 @@ public class ChatWindow
             chatTabbedPane.addCloseListener(new CloseListener() {
                 public void closeOperation(MouseEvent e)
                 {
-
                     int tabIndex = chatTabbedPane.getOverTabIndex();
+                    
                     removeContactTab(tabIndex);
                 }
             });
-
+            
             this.getContentPane().add(chatPanel, BorderLayout.CENTER);
 
             this.setTitle(contactName);
@@ -327,7 +331,7 @@ public class ChatWindow
                 this.contactChats.remove(closeChat.getMetaContact()
                     .getMetaUID());
 
-                chatTabbedPane.remove(index);
+                chatTabbedPane.removeTabAt(index);
             }
 
             if (chatTabbedPane.getTabCount() == 1) {

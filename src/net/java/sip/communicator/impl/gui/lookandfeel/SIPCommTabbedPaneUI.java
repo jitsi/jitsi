@@ -1444,22 +1444,21 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         }
 
         public void mousePressed(MouseEvent e) {
+            
             if (closeIndexStatus == OVER) {
                 closeIndexStatus = PRESSED;
-                tabScroller.tabPanel.repaint();
-                return;
+                tabScroller.tabPanel.repaint();                
             }
-
-            if (maxIndexStatus == OVER) {
+            else if (maxIndexStatus == OVER) {
                 maxIndexStatus = PRESSED;
                 tabScroller.tabPanel.repaint();
-                return;
             }
-
+            else {
+                super.mousePressed(e);
+            }
         }
 
         public void mouseClicked(MouseEvent e) {
-            super.mousePressed(e);
             if (e.getClickCount() > 1 && overTabIndex != -1) {
                 ((SIPCommTabbedPane) tabPane).fireDoubleClickTabEvent(e,
                         overTabIndex);
@@ -1467,7 +1466,7 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
         }
 
         public void mouseReleased(MouseEvent e) {
-
+            
             updateOverTab(e.getX(), e.getY());
 
             if (overTabIndex == -1) {

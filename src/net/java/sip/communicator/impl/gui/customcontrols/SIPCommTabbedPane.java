@@ -11,12 +11,14 @@ package net.java.sip.communicator.impl.gui.customcontrols;
  * SETLabs, Infosys Technologies Ltd. May 2004 - Jul 2004 Ecole des Mines de
  * Nantes, France
  */
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+
+import javax.accessibility.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
@@ -28,9 +30,14 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
  *
  * @author Yana Stamcheva
  */
-public class SIPCommTabbedPane extends JTabbedPane {
-
+public class SIPCommTabbedPane
+    extends JTabbedPane
+    implements ChangeListener
+{
+    
     private int overTabIndex = -1;
+    
+    private int lastSelectedIndex;
 
     /**
      * Creates the <code>CloseAndMaxTabbedPane</code> with an enhanced UI if
@@ -49,6 +56,8 @@ public class SIPCommTabbedPane extends JTabbedPane {
         
         if(!maximizingTabs)
             this.setMaxIcon(false);
+        
+        this.addChangeListener(this);
     }
 
     /**
@@ -384,6 +393,7 @@ public class SIPCommTabbedPane extends JTabbedPane {
      * @param tabIndex The index of the tab to be selected.
      */
     public void setSelectedIndex(int tabIndex) {
+        
         SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) this.getUI();
         if (ui.isTabHighlighted(tabIndex)) {
             ui.tabRemoveHighlight(tabIndex);
@@ -403,5 +413,24 @@ public class SIPCommTabbedPane extends JTabbedPane {
             ui.tabAddHightlight(tabIndex);
 
         this.repaint();
+    }
+    
+    public void removeTabAt(int index)
+    {
+        if (index < lastSelectedIndex)
+        {
+            this.setSelectedIndex(lastSelectedIndex - 1);
+        }
+        else if (index > lastSelectedIndex)
+        {
+            this.setSelectedIndex(lastSelectedIndex);
+        }
+        
+        super.removeTabAt(index);
+    }
+    
+    public void stateChanged(ChangeEvent e)
+    {
+        lastSelectedIndex = this.getSelectedIndex();
     }
 }
