@@ -207,11 +207,15 @@ public class PresenceStatusSelectorBox
                 logger.error("Error - changing status", e1);
             }
             catch (OperationFailedException e1) {
+                
+                String accountName = protocolProvider.getAccountID().getUserID();
+                
                 if (e1.getErrorCode() 
                     == OperationFailedException.GENERAL_ERROR) {
                     SIPCommMsgTextArea msgText 
                     = new SIPCommMsgTextArea(Messages
-                        .getI18NString("statusChangeGeneralError").getText());
+                        .getI18NString("statusChangeGeneralError",
+                            accountName).getText());
                     
                     JOptionPane.showMessageDialog(null, msgText,
                             Messages.getI18NString("generalError").getText(),
@@ -223,7 +227,8 @@ public class PresenceStatusSelectorBox
                     SIPCommMsgTextArea msgText 
                         = new SIPCommMsgTextArea(
                             Messages.getI18NString(
-                                "statusChangeNetworkFailure").getText());
+                                "statusChangeNetworkFailure",
+                                accountName).getText());
                     
                     JOptionPane.showMessageDialog(
                         null,
@@ -237,7 +242,8 @@ public class PresenceStatusSelectorBox
                     SIPCommMsgTextArea msgText 
                         = new SIPCommMsgTextArea(
                             Messages.getI18NString(
-                                "statusChangeNetworkFailure").getText());
+                                "statusChangeNetworkFailure",
+                                accountName).getText());
                     
                     JOptionPane.showMessageDialog(
                         null,

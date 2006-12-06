@@ -533,33 +533,28 @@ public class ContactListPanel
                 == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
 
             errorMsg = Messages.getI18NString(
-                    "msgDeliveryOfflineNotSupported", evt
-                            .getDestinationContact().getDisplayName()).getText();
+                    "msgDeliveryOfflineNotSupported").getText();
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.NETWORK_FAILURE) {
             
-            errorMsg = Messages.getI18NString("msgNotDelivered",
-                    evt.getDestinationContact().getDisplayName()).getText();
+            errorMsg = Messages.getI18NString("msgNotDelivered").getText();
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED) {
 
             errorMsg = Messages.getI18NString(
-                    "msgSendConnectionProblem", evt.getDestinationContact()
-                            .getDisplayName()).getText();
+                    "msgSendConnectionProblem").getText();
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.INTERNAL_ERROR) {
             
             errorMsg = Messages.getI18NString(
-                    "msgDeliveryInternalError", evt.getDestinationContact()
-                            .getDisplayName()).getText();
+                    "msgDeliveryInternalError").getText();
         }
         else {
             errorMsg = Messages.getI18NString(
-                    "msgDeliveryFailedUnknownError", evt
-                    .getDestinationContact().getDisplayName()).getText();
+                    "msgDeliveryFailedUnknownError").getText();
         }
                
         ChatWindow chatWindow;

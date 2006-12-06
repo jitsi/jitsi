@@ -325,7 +325,7 @@ public class LoginManager
                 else {
                     SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
                         Messages.getI18NString("unregisteredMessage",
-                            protocolProvider.getProtocolName()).getText());
+                            protocolProvider.getAccountID().getUserID()).getText());
 
                     JOptionPane.showMessageDialog(null, msgText,
                         Messages.getI18NString("error").getText(),
