@@ -29,8 +29,11 @@ import net.java.sip.communicator.service.protocol.event.*;
  * 
  * @author Yana Stamcheva
  */
-public class ContactListPanel extends JScrollPane implements MessageListener,
-        TypingNotificationsListener, ContactListListener
+public class ContactListPanel
+    extends JScrollPane
+    implements  MessageListener,
+                TypingNotificationsListener,
+                ContactListListener
 {
 
     private MainFrame mainFrame;
@@ -56,8 +59,8 @@ public class ContactListPanel extends JScrollPane implements MessageListener,
 
         this.getViewport().add(treePanel);
 
-        this
-                .setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        this.setHorizontalScrollBarPolicy(
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         this.getVerticalScrollBar().setUnitIncrement(30);
     }
