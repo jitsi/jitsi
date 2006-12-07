@@ -9,10 +9,12 @@ package net.java.sip.communicator.impl.gui.main.message.history;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
 import javax.swing.Timer;
+import javax.swing.text.*;
 import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -72,8 +74,6 @@ public class HistoryWindow
     private JLabel readyLabel = new JLabel(
         Messages.getI18NString("ready").getText());
     
-    private Date lastDate;
-
     private String searchKeyword;
     
     private Vector datesVector = new Vector();
@@ -81,8 +81,6 @@ public class HistoryWindow
     private Date ignoreProgressDate;
     
     private int lastProgress = 0;
-    
-    private HTMLDocument currentDocument;
         
     /**
      * Creates an instance of the <tt>HistoryWindow</tt>.
@@ -160,7 +158,7 @@ public class HistoryWindow
      */
     private void initDates()
     {   
-        this.initProgressBar();
+        this.initProgressBar(null);
         new DatesLoader().start();
     }
 
@@ -170,21 +168,20 @@ public class HistoryWindow
      * @param endDate the end date of the period
      */
     public void showHistoryByPeriod(Date startDate, Date endDate)
-    {
-        this.initProgressBar();
-        
+    {   
         if((searchKeyword == null || searchKeyword == "")
                 && dateHistoryTable.containsKey(startDate)) {
             
             HTMLDocument document
                 = (HTMLDocument)dateHistoryTable.get(startDate);
-            
-            this.currentDocument = document;
-            
+                        
             this.chatConvPanel.setContent(document);
         }
         else {
             this.chatConvPanel.clear();
+            //init progress bar by precising the date that will be loaded.
+            this.initProgressBar(startDate);
+            
             new MessagesLoader(startDate, endDate).start();                         
         }        
     }
@@ -195,7 +192,7 @@ public class HistoryWindow
      */
     public void showHistoryByKeyword(String keyword)
     {
-        this.initProgressBar();
+        this.initProgressBar(null);
         
         chatConvPanel.clear();        
         datesPanel.setLastSelectedIndex(-1);
@@ -389,8 +386,7 @@ public class HistoryWindow
                         //Initializes the conversation panel with the data of the
                         //last conversation.
                         int lastDateIndex = datesPanel.getModel().getSize() - 1;
-                        datesPanel.setSelected(lastDateIndex);
-                        lastDate = datesPanel.getDate(lastDateIndex);
+                        datesPanel.setSelected(lastDateIndex);                        
                     }
                 };
                 SwingUtilities.invokeLater(updateDatesPanel);
@@ -420,7 +416,6 @@ public class HistoryWindow
             Runnable updateMessagesPanel = new Runnable() {
                 public void run() {
                     HTMLDocument doc = createHistory(msgList);
-                    currentDocument = doc;
                     
                     if(searchKeyword == null || searchKeyword == "") {
                         dateHistoryTable.put(startDate, doc);
@@ -541,95 +536,114 @@ public class HistoryWindow
         }
     }
     
-    private void initProgressBar()
-    {        
-        this.mainPanel.remove(readyLabel);
-        this.mainPanel.add(progressBar, BorderLayout.SOUTH);
-        this.mainPanel.revalidate();
-        this.mainPanel.repaint();
+    /**
+     * Removes the "Ready" label and adds the progress bar in the bottom of the
+     * history window.
+     */
+    private void initProgressBar(Date date)
+    {
+        if(date == null || date != ignoreProgressDate)
+        {
+            this.mainPanel.remove(readyLabel);
+            this.mainPanel.add(progressBar, BorderLayout.SOUTH);
+            this.mainPanel.revalidate();
+            this.mainPanel.repaint();
+        }
     }
 
+    /**
+     * Implements MessageListener.messageReceived method in order to refresh the
+     * history when new message is received.
+     */
     public void messageReceived(MessageReceivedEvent evt)
     {
         Contact sourceContact = evt.getSourceContact();
         
-        Contact containedContact = metaContact.getContact(
-            sourceContact.getAddress(), sourceContact.getProtocolProvider());
-        
-        if(containedContact != null)
-        {
-            if(GuiUtils.compareDates(lastDate, evt.getTimestamp()) == 0)
-            {
-                HTMLDocument document
-                    = (HTMLDocument) dateHistoryTable.get(lastDate);
-                
-                if(currentDocument.equals(document))
-                {                    
-                    String processedMessage = chatConvPanel.processMessage(
-                        evt.getSourceContact().getDisplayName(),
-                        evt.getTimestamp(), Constants.INCOMING_MESSAGE,
-                        evt.getSourceMessage().getContent(), searchKeyword);
-            
-                    chatConvPanel.appendMessageToEnd(processedMessage);
-                }
-            }
-            else if (lastDate == null
-                || GuiUtils.compareDates(lastDate, evt.getTimestamp()) < 0)
-            {
-                long milisecondsPerDay = 24*60*60*1000;
-                                
-                Date date = new Date(evt.getTimestamp().getTime()
-                    - evt.getTimestamp().getTime()%milisecondsPerDay);
-                
-                datesVector.add(date);
-                datesPanel.addDate(date);
-                
-                this.lastDate = date;
-            }
-        }
+        this.processMessage(sourceContact, evt.getTimestamp(),
+            Constants.INCOMING_MESSAGE, evt.getSourceMessage().getContent());
     }
 
+    /**
+     * Implements MessageListener.messageDelivered method in order to refresh the
+     * history when new message is sent.
+     */
     public void messageDelivered(MessageDeliveredEvent evt)
     {
         Contact destContact = evt.getDestinationContact();
         
+        this.processMessage(destContact, evt.getTimestamp(),
+            Constants.OUTGOING_MESSAGE, evt.getSourceMessage().getContent());
+    }
+    
+    public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
+    {}
+    
+    /**
+     * Processes the message given by the parameters.
+     * 
+     * @param contact the message source or destination contact
+     * @param timestamp the timestamp of the message
+     * @param messageType INCOMING or OUTGOING
+     * @param messageContent the content text of the message
+     */
+    private void processMessage(Contact contact, Date timestamp,
+        String messageType, String messageContent)
+    {
         Contact containedContact = metaContact.getContact(
-            destContact.getAddress(), destContact.getProtocolProvider());
+            contact.getAddress(), contact.getProtocolProvider());
         
         if(containedContact != null)
         {
+            int lastDateIndex = datesPanel.getModel().getSize() - 1;
+            
+            Date lastDate = datesPanel.getDate(lastDateIndex);
+            
             if(lastDate != null
-                && GuiUtils.compareDates(lastDate, evt.getTimestamp()) == 0)
+                && GuiUtils.compareDates(lastDate, timestamp) == 0)
             {
                 HTMLDocument document
                     = (HTMLDocument) dateHistoryTable.get(lastDate);
                 
-                if(currentDocument.equals(document))
-                {                    
+                if(document != null)
+                {
                     String processedMessage = chatConvPanel.processMessage(
-                        destContact.getDisplayName(),
-                        evt.getTimestamp(), Constants.OUTGOING_MESSAGE,
-                        evt.getSourceMessage().getContent(), searchKeyword);
+                        contact.getDisplayName(),
+                        timestamp, messageType,
+                        messageContent, searchKeyword);
             
-                    chatConvPanel.appendMessageToEnd(processedMessage);
+                    this.appendMessageToDocument(document, processedMessage);
                 }
             }
             else if (lastDate == null
-                || GuiUtils.compareDates(lastDate, evt.getTimestamp()) < 0)
+                || GuiUtils.compareDates(lastDate, timestamp) < 0)
             {
                 long milisecondsPerDay = 24*60*60*1000;
                                 
-                Date date = new Date(evt.getTimestamp().getTime()
-                    - evt.getTimestamp().getTime()%milisecondsPerDay);
+                Date date = new Date(timestamp.getTime()
+                    - timestamp.getTime()%milisecondsPerDay);
                 
                 datesVector.add(date);
                 datesPanel.addDate(date);
-                
-                this.lastDate = date;
             }
         }
     }
+    
+    /**
+     * Appends the given string at the end of the given html document.
+     * 
+     * @param chatString the string to append
+     */
+    private void appendMessageToDocument(HTMLDocument doc, String chatString)
+    {
+        Element root = doc.getDefaultRootElement();
 
-    public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
-    {}
+        try {
+            doc.insertAfterEnd(root
+                    .getElement(root.getElementCount() - 1), chatString);            
+        } catch (BadLocationException e) {
+            logger.error("Insert in the HTMLDocument failed.", e);
+        } catch (IOException e) {
+            logger.error("Insert in the HTMLDocument failed.", e);
+        }
+    }
 }
