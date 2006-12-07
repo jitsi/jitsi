@@ -131,45 +131,45 @@ public class CreateGroupDialog
                                 == MetaContactListException
                                     .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
                                 
-                                JOptionPane.showMessageDialog(mainFrame,
+                            new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
                                             "addGroupExistError",
                                             groupName).getText(),
                                     Messages.getI18NString(
-                                            "addGroupErrorTitle").getText(),
-                                    JOptionPane.ERROR_MESSAGE);
+                                            "addGroupErrorTitle").getText())
+                                            .showDialog();
                         }
                         else if (errorCode
                             == MetaContactListException.CODE_LOCAL_IO_ERROR) {
                             
-                            JOptionPane.showMessageDialog(mainFrame,
+                            new ErrorDialog(mainFrame,
                                 Messages.getI18NString(
                                         "addGroupLocalError",
                                         groupName).getText(),
                                 Messages.getI18NString(
-                                        "addGroupErrorTitle").getText(),
-                                JOptionPane.ERROR_MESSAGE);
+                                        "addGroupErrorTitle").getText())
+                                        .showDialog();
                         }
                         else if (errorCode
                                 == MetaContactListException.CODE_NETWORK_ERROR) {
                             
-                            JOptionPane.showMessageDialog(mainFrame,
+                            new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
                                             "addGroupNetError",
                                             groupName).getText(),
                                     Messages.getI18NString(
-                                            "addGroupErrorTitle").getText(),
-                                    JOptionPane.WARNING_MESSAGE);
+                                            "addGroupErrorTitle").getText())
+                                            .showDialog();
                         }
                         else {
                             
-                            JOptionPane.showMessageDialog(mainFrame,
+                            new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
                                             "addGroupError",
                                             groupName).getText(),
                                     Messages.getI18NString(
-                                            "addGroupErrorTitle").getText(),
-                                    JOptionPane.WARNING_MESSAGE);
+                                            "addGroupErrorTitle").getText())
+                                            .showDialog();
                         }
                     }
                 }

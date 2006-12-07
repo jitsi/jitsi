@@ -193,11 +193,11 @@ public class QuickMenu
                                 .toString());
                 }
                 else {
-                    JOptionPane.showMessageDialog(mainFrame,
+                    new ErrorDialog(mainFrame,
                         Messages.getI18NString("selectContactSupportingInfo")
                             .getText(),
                         Messages.getI18NString("warning").getText(),
-                        JOptionPane.WARNING_MESSAGE);
+                        ErrorDialog.WARNING).showDialog();
                 }
             }            
         }

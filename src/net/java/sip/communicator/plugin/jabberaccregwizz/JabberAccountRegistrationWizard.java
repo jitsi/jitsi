@@ -11,6 +11,8 @@ import java.util.*;
 import javax.swing.*;
 
 import org.osgi.framework.*;
+
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -158,10 +160,10 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
                     .getService(serRef);
         }
         catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());            
+            new ErrorDialog(null, e.getMessage()).showDialog();            
         }
         catch (IllegalStateException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            new ErrorDialog(null, e.getMessage()).showDialog();
         }       
 
         return protocolProvider;

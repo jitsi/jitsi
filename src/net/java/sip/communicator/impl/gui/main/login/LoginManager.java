@@ -233,35 +233,31 @@ public class LoginManager
             if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED) {
                 
-                SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
-                    Messages.getI18NString("reconnectionLimitExceeded",
-                        protocolProvider.getAccountID().getUserID()).getText());
+                String msgText = Messages.getI18NString(
+                    "reconnectionLimitExceeded",
+                    protocolProvider.getAccountID().getUserID()).getText();
 
-                JOptionPane.showMessageDialog(null, msgText,
-                    Messages.getI18NString("error").getText(),
-                    JOptionPane.ERROR_MESSAGE);
+                new ErrorDialog(null, msgText,
+                    Messages.getI18NString("error").getText()).showDialog();
             }
             else if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_NON_EXISTING_USER_ID) {
                 
-                SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
-                    Messages.getI18NString("nonExistingUserId", protocolProvider
-                        .getProtocolName()).getText());
+                String msgText = Messages.getI18NString(
+                    "nonExistingUserId", protocolProvider
+                    .getProtocolName()).getText();
 
-                JOptionPane.showMessageDialog(null, msgText,
-                    Messages.getI18NString("error").getText(),
-                    JOptionPane.ERROR_MESSAGE);
+                new ErrorDialog(null, msgText,
+                    Messages.getI18NString("error").getText()).showDialog();
             }
             else if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_AUTHENTICATION_FAILED) {
-                SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
-                    Messages.getI18NString("authenticationFailed",
+                String msgText = Messages.getI18NString("authenticationFailed",
                         protocolProvider.getAccountID().getAccountAddress())
-                        .getText());
+                        .getText();
 
-                JOptionPane.showMessageDialog(null, msgText, 
-                    Messages.getI18NString("error").getText(),
-                    JOptionPane.ERROR_MESSAGE);
+                new ErrorDialog(null, msgText, 
+                    Messages.getI18NString("error").getText()).showDialog();
             }
             logger.error(evt.getReason());
         }
@@ -269,13 +265,11 @@ public class LoginManager
 
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
 
-            SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
-                Messages.getI18NString("connectionFailedMessage",
-                    protocolProvider.getAccountID().getAccountAddress()).getText());
+            String msgText = Messages.getI18NString("connectionFailedMessage",
+                protocolProvider.getAccountID().getAccountAddress()).getText();
 
-            JOptionPane.showMessageDialog(null, msgText,
-                Messages.getI18NString("error").getText(),
-                JOptionPane.ERROR_MESSAGE);
+            new ErrorDialog(null, msgText,
+                Messages.getI18NString("error").getText()).showDialog();
 
             logger.error(evt.getReason());
         }
@@ -283,13 +277,11 @@ public class LoginManager
 
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
 
-            SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
-                Messages.getI18NString("connectionExpiredMessage",
-                    protocolProvider.getProtocolName()).getText());
+            String msgText = Messages.getI18NString("connectionExpiredMessage",
+                    protocolProvider.getProtocolName()).getText();
 
-            JOptionPane.showMessageDialog(null, msgText,
-                Messages.getI18NString("error").getText(),
-                JOptionPane.ERROR_MESSAGE);
+            new ErrorDialog(null, msgText,
+                Messages.getI18NString("error").getText()).showDialog();
 
             logger.error(evt.getReason());
         }
@@ -300,36 +292,31 @@ public class LoginManager
             if (!manuallyDisconnected) {
                 if (evt.getReasonCode() == RegistrationStateChangeEvent
                         .REASON_MULTIPLE_LOGINS) {
-                    SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
-                        Messages.getI18NString("multipleLogins",
-                        protocolProvider.getAccountID().getUserID()).getText());
+                    String msgText = Messages.getI18NString("multipleLogins",
+                        protocolProvider.getAccountID().getUserID()).getText();
 
-                    JOptionPane.showMessageDialog(null, msgText,
-                        Messages.getI18NString("error").getText(), 
-                        JOptionPane.ERROR_MESSAGE);
+                    new ErrorDialog(null, msgText,
+                        Messages.getI18NString("error").getText()).showDialog();
                 }
                 else if (evt.getReasonCode() == RegistrationStateChangeEvent
                         .REASON_CLIENT_LIMIT_REACHED_FOR_IP) {
-                    SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
-                        Messages.getI18NString("limitReachedForIp",
-                            protocolProvider.getProtocolName()).getText());
+                    
+                    String msgText = Messages.getI18NString("limitReachedForIp",
+                            protocolProvider.getProtocolName()).getText();
 
-                    JOptionPane.showMessageDialog(null, msgText,
-                        Messages.getI18NString("error").getText(),
-                        JOptionPane.ERROR_MESSAGE);
+                    new ErrorDialog(null, msgText,
+                        Messages.getI18NString("error").getText()).showDialog();
                 }
                 else if (evt.getReasonCode() == RegistrationStateChangeEvent
                         .REASON_CHANGE_REQUESTED_BY_USER) {
                     //do nothing
                 }
                 else {
-                    SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
-                        Messages.getI18NString("unregisteredMessage",
-                            protocolProvider.getAccountID().getUserID()).getText());
+                    String msgText = Messages.getI18NString("unregisteredMessage",
+                        protocolProvider.getAccountID().getUserID()).getText();
 
-                    JOptionPane.showMessageDialog(null, msgText,
-                        Messages.getI18NString("error").getText(),
-                        JOptionPane.ERROR_MESSAGE);
+                    new ErrorDialog(null, msgText,
+                        Messages.getI18NString("error").getText()).showDialog();
                 }
                 logger.error(evt.getReason());
             }
@@ -470,12 +457,11 @@ public class LoginManager
                             + " due to an invalid account property: " + ex);
                 }
 
-                JOptionPane.showMessageDialog(mainFrame,
+                new ErrorDialog(mainFrame,
                     Messages.getI18NString("loginNotSucceeded",
                         protocolProvider.getAccountID()
                         .getAccountAddress()).getText(),
-                    Messages.getI18NString("error").getText(),
-                    JOptionPane.ERROR_MESSAGE);
+                    Messages.getI18NString("error").getText()).showDialog();
             }
         }
     }
@@ -511,12 +497,11 @@ public class LoginManager
                             + " due to a network failure: " + ex);
                 }
 
-                JOptionPane.showMessageDialog(mainFrame,
+                new ErrorDialog(mainFrame,
                         Messages.getI18NString("logoffNotSucceeded",
                             protocolProvider.getAccountID()
                             .getAccountAddress()).getText(),
-                        Messages.getI18NString("error").getText(),
-                        JOptionPane.ERROR_MESSAGE);
+                        Messages.getI18NString("error").getText()).showDialog();
             }
         }
     }

@@ -601,10 +601,11 @@ public class ContactRightButtonMenu
         this.moveDialog.dispose();
         
         if(toMetaContact.equals(contactItem)) {
-            JOptionPane.showMessageDialog(this.mainFrame,
+            new ErrorDialog(this.mainFrame,
                     Messages.getI18NString("moveSubcontactInSameContact").getText(),
                     Messages.getI18NString("moveSubcontact").getText(),
-                    JOptionPane.WARNING_MESSAGE);
+                    ErrorDialog.WARNING)
+                    .showDialog();
         }
         else {
             guiContactList.removeExcContactListListener(this);

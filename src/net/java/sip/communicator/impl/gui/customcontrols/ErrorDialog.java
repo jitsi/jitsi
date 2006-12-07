@@ -24,47 +24,33 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * 
  * @author Yana Stamcheva
  */
-public class MessageDialog
+public class ErrorDialog
     extends SIPCommDialog
     implements ActionListener {
-
-    private JButton cancelButton = new JButton(
-        Messages.getI18NString("cancel").getText());
 
     private JButton okButton = new JButton(
         Messages.getI18NString("ok").getText());
 
-    private JCheckBox doNotAskAgain = new JCheckBox(Messages
-            .getI18NString("doNotAskAgain").getText());
-
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.WARNING_ICON)));
+            .getImage(ImageLoader.ERROR_ICON)));
 
-    private JLabel messageLabel = new JLabel();
+    private SIPCommMsgTextArea messageTextArea = new SIPCommMsgTextArea();
 
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JPanel checkBoxPanel = new JPanel(
-            new FlowLayout(FlowLayout.LEADING));
-
     private JPanel messagePanel = new JPanel(new BorderLayout(5, 5));
     
-    private int returnCode;
+    public static final int WARNING = 1;
     
-    public static final int OK_RETURN_CODE = 0;
+    public static final int ERROR = 0;
     
-    public static final int CANCEL_RETURN_CODE = 1;
-    
-    public static final int OK_DONT_ASK_CODE = 2;
-    
-    private Object lock = new Object();
-
     /**
      * Creates an instance of <tt>MessageDialog</tt> by specifying the
      * owner window.
      * @param owner This dialog owner.
      */
-    public MessageDialog(Frame owner) {
+    public ErrorDialog(Frame owner)
+    {
         super(owner);
         
         this.setTitle(Messages.getI18NString("removeContact").getText());
@@ -74,8 +60,6 @@ public class MessageDialog
         this.getContentPane().setLayout(new BorderLayout(5, 5));
 
         this.messagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0,
-                10));
-        this.checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10,
                 10));
 
         this.init();
@@ -87,10 +71,11 @@ public class MessageDialog
      * @param owner The dialog owner.
      * @param message The message to be displayed.
      */
-    public MessageDialog(Frame owner, String message) {
+    public ErrorDialog(Frame owner, String message)
+    {
         this(owner);
         
-        this.messageLabel.setText(message);
+        this.messageTextArea.setText(message);
     }
 
     /**
@@ -99,34 +84,37 @@ public class MessageDialog
      * @param owner The dialog owner.
      * @param message The message to be displayed.
      */
-    public MessageDialog(Frame owner, String message,
-            String okButtonName) {
+    public ErrorDialog(Frame owner, String message, String title)
+    {
         this(owner, message);
         
-        this.okButton.setText(okButtonName);
-        this.okButton.setMnemonic(okButtonName.charAt(0));
+        this.setTitle(title);
+    }
+    
+    public ErrorDialog(Frame owner, String message, String title, int type)
+    {
+        this(owner, message, title);
+        
+        if(type == WARNING)
+            iconLabel.setIcon(new ImageIcon(ImageLoader
+                .getImage(ImageLoader.WARNING_ICON)));        
     }
     
     /**
      * Initializes this dialog.
      */
-    private void init() {
+    private void init()
+    {
         this.getRootPane().setDefaultButton(okButton);
 
-        this.checkBoxPanel.add(doNotAskAgain);
-
         this.buttonsPanel.add(okButton);
-        this.buttonsPanel.add(cancelButton);
 
         this.okButton.addActionListener(this);
-        this.cancelButton.addActionListener(this);
 
-        this.cancelButton.setMnemonic(cancelButton.getText().charAt(0));
         this.messagePanel.add(iconLabel, BorderLayout.WEST);
-        this.messagePanel.add(messageLabel, BorderLayout.CENTER);
+        this.messagePanel.add(messageTextArea, BorderLayout.CENTER);
 
-        this.getContentPane().add(messagePanel, BorderLayout.NORTH);
-        this.getContentPane().add(checkBoxPanel, BorderLayout.CENTER);
+        this.getContentPane().add(messagePanel, BorderLayout.CENTER);
         this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
     }
 
@@ -134,8 +122,9 @@ public class MessageDialog
      * Sets the message to be displayed.
      * @param message The message to be displayed.
      */
-    public void setMessage(String message) {
-        this.messageLabel.setText(message);
+    public void setMessage(String message)
+    {
+        this.messageTextArea.setText(message);
     }
     
     /**
@@ -144,51 +133,22 @@ public class MessageDialog
      * the user. If the user chooses cancel, the return code is the 
      * CANCEL_RETURN_CODE.
      */
-    public int showDialog()
+    public void showDialog()
     {   
-        setVisible(true);
-        
-        synchronized (lock) {
-            try {                    
-                lock.wait();
-            }
-            catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        
-        return returnCode;
+        setVisible(true);        
     }
     
     /**
      * Handles the <tt>ActionEvent</tt>. Depending on the user choice sets
      * the return code to the appropriate value.
      */
-    public void actionPerformed(ActionEvent e) {
-        JButton button = (JButton)e.getSource();
-        
-        if(button.equals(okButton)) {
-            if (doNotAskAgain.isSelected()) {
-                this.returnCode = OK_DONT_ASK_CODE;
-            }
-            else {
-                this.returnCode = OK_RETURN_CODE;
-            }
-        }
-        else {
-            this.returnCode = CANCEL_RETURN_CODE;
-        }
-        
-        synchronized (lock) {
-            lock.notify();
-        }
-                
+    public void actionPerformed(ActionEvent e)
+    {                   
         this.dispose();
     }
 
     protected void close(boolean isEscaped)
     {
-        this.cancelButton.doClick();
+        this.okButton.doClick();
     }
 }

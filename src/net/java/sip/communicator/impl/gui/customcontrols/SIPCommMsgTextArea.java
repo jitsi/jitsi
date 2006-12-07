@@ -17,7 +17,20 @@ import javax.swing.*;
  */
 public class SIPCommMsgTextArea extends JTextArea {
 
-    /**
+    public SIPCommMsgTextArea()
+    {
+        this.setEditable(false);
+        this.setLineWrap(true);
+        this.setWrapStyleWord(true);
+        this.setOpaque(false);
+        
+        int col = 40;
+        this.setColumns(col);
+        int docLen = this.getDocument().getLength();
+        this.setRows((int)Math.ceil(docLen/col));
+    }
+    
+    /** 
      * Creates a text area with a fixed number of columns and wraps the 
      * text within it.
      * @param text The text to insert in this text area.

@@ -161,47 +161,47 @@ public class AddContactDialog
                                     == MetaContactListException
                                         .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
                                     
-                                JOptionPane.showMessageDialog(mainFrame,
+                                new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
                                             "addContactExistError",
                                             uin).getText(),
                                     Messages.getI18NString(
-                                            "addContactErrorTitle").getText(),
-                                    JOptionPane.ERROR_MESSAGE);
+                                            "addContactErrorTitle").getText())
+                                            .showDialog();
                             }
                             else if (errorCode
                                 == MetaContactListException
                                     .CODE_LOCAL_IO_ERROR) {
                                 
-                                JOptionPane.showMessageDialog(mainFrame,
+                                new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
                                             "addContactError",
                                             uin).getText(),
                                     Messages.getI18NString(
-                                            "addContactErrorTitle").getText(),
-                                    JOptionPane.ERROR_MESSAGE);
+                                            "addContactErrorTitle").getText())
+                                            .showDialog();
                             }
                             else if (errorCode
                                     == MetaContactListException
                                         .CODE_NETWORK_ERROR) {
                                 
-                                JOptionPane.showMessageDialog(mainFrame,
+                                new ErrorDialog(mainFrame,
                                         Messages.getI18NString(
                                                 "addContactError",
                                                 uin).getText(),
                                         Messages.getI18NString(
-                                                "addContactErrorTitle").getText(),
-                                        JOptionPane.ERROR_MESSAGE);
+                                                "addContactErrorTitle").getText())
+                                                .showDialog();
                             }
                             else {
                                 
-                                JOptionPane.showMessageDialog(mainFrame,
+                                new ErrorDialog(mainFrame,
                                         Messages.getI18NString(
                                                 "addContactError",
                                                 uin).getText(),
                                         Messages.getI18NString(
-                                                "addContactErrorTitle").getText(),
-                                        JOptionPane.WARNING_MESSAGE);
+                                                "addContactErrorTitle").getText())
+                                                .showDialog();
                             }
                         }
                     }

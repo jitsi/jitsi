@@ -218,12 +218,12 @@ public class CallManager
                             if(contact != null) 
                                 telephonyContacts.add(contact);
                             else {
-                                JOptionPane.showMessageDialog(this.mainFrame,
+                                new ErrorDialog(this.mainFrame,
                                 Messages.getI18NString(
                                     "contactNotSupportingTelephony",
                                     contact.getDisplayName()).getText(),
-                                Messages.getI18NString("warning").getText(),
-                                JOptionPane.ERROR_MESSAGE);
+                                Messages.getI18NString("warning").getText())
+                                .showDialog();
                             }
                         }
                     }

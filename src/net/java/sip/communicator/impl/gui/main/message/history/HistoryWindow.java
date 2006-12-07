@@ -8,41 +8,25 @@
 package net.java.sip.communicator.impl.gui.main.message.history;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Vector;
+import java.awt.event.*;
+import java.util.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.MenuSelectionManager;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.Timer;
-import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.*;
 
-import net.java.sip.communicator.impl.gui.GuiActivator;
-import net.java.sip.communicator.impl.gui.customcontrols.SIPCommFrame;
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.main.MainFrame;
-import net.java.sip.communicator.impl.gui.main.message.ChatConversationContainer;
-import net.java.sip.communicator.impl.gui.main.message.ChatConversationPanel;
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.msghistory.MessageHistoryService;
-import net.java.sip.communicator.service.msghistory.event.MessageHistorySearchProgressListener;
-import net.java.sip.communicator.service.msghistory.event.ProgressEvent;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
-import net.java.sip.communicator.service.protocol.event.MessageDeliveredEvent;
-import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.message.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.msghistory.*;
+import net.java.sip.communicator.service.msghistory.event.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>HistoryWindow</tt> is the window, where user could view or search
@@ -54,8 +38,8 @@ import net.java.sip.communicator.util.Logger;
 public class HistoryWindow
     extends SIPCommFrame
     implements  ChatConversationContainer,
-                ActionListener,
-                MessageHistorySearchProgressListener
+                MessageHistorySearchProgressListener,
+                MessageListener
 {
 
     private static final Logger logger = Logger
@@ -83,18 +67,12 @@ public class HistoryWindow
 
     private MainFrame mainFrame;
 
-    private static String KEYWORD_SEARCH = "KeywordSearch";
-
-    private static String PERIOD_SEARCH = "PeriodSearch";
-
     private Hashtable dateHistoryTable = new Hashtable();
     
     private JLabel readyLabel = new JLabel(
         Messages.getI18NString("ready").getText());
     
-    private String lastExecutedSearch;
-
-    private Date searchStartDate;
+    private Date lastDate;
 
     private String searchKeyword;
     
@@ -103,6 +81,8 @@ public class HistoryWindow
     private Date ignoreProgressDate;
     
     private int lastProgress = 0;
+    
+    private HTMLDocument currentDocument;
         
     /**
      * Creates an instance of the <tt>HistoryWindow</tt>.
@@ -138,7 +118,17 @@ public class HistoryWindow
 
         this.initDates();
 
-        this.addWindowListener(new HistoryWindowAdapter());        
+        this.addWindowListener(new HistoryWindowAdapter());
+        
+        Iterator protoContacts = metaContact.getContacts();
+        
+        while(protoContacts.hasNext())
+        {
+            Contact protoContact = (Contact) protoContacts.next();
+            
+            this.mainFrame.getProtocolIM(protoContact.getProtocolProvider())
+                .addMessageListener(this);
+        }
     }
 
     /**
@@ -189,15 +179,14 @@ public class HistoryWindow
             HTMLDocument document
                 = (HTMLDocument)dateHistoryTable.get(startDate);
             
+            this.currentDocument = document;
+            
             this.chatConvPanel.setContent(document);
         }
         else {
             this.chatConvPanel.clear();
             new MessagesLoader(startDate, endDate).start();                         
-        }
-        
-        this.lastExecutedSearch = PERIOD_SEARCH;
-        this.searchStartDate = startDate;
+        }        
     }
 
     /**
@@ -213,7 +202,6 @@ public class HistoryWindow
 
         new KeywordDatesLoader(keyword).start();
         
-        lastExecutedSearch = KEYWORD_SEARCH;
         searchKeyword = keyword;
     }
 
@@ -273,21 +261,6 @@ public class HistoryWindow
     public Window getWindow()
     {
         return this;
-    }
-
-    /**
-     * Handles the <tt>ActionEvent</tt> triggered when user clicks on the
-     * refresh button. Executes ones more the last search.
-     */
-    public void actionPerformed(ActionEvent e)
-    {
-        if(lastExecutedSearch.equals(KEYWORD_SEARCH)) {            
-            showHistoryByKeyword(searchKeyword);
-        }
-        else if(lastExecutedSearch.equals(PERIOD_SEARCH)) {
-            showHistoryByPeriod(searchStartDate,
-                    new Date(System.currentTimeMillis()));
-        }
     }
 
     /**
@@ -401,22 +374,27 @@ public class HistoryWindow
                 }
             }
             
-            Runnable updateDatesPanel = new Runnable() {
-                public void run() {
-                    Date date = null;
-                    for(int i = 0; i < datesVector.size(); i++) {
-                        date = (Date)datesVector.get(i);
-                        datesPanel.addDate(date);
+            if(msgArray.length > 0)
+            {
+                Runnable updateDatesPanel = new Runnable() {
+                    public void run() {
+                        Date date = null;
+                        for(int i = 0; i < datesVector.size(); i++) {
+                            date = (Date)datesVector.get(i);
+                            datesPanel.addDate(date);
+                        }
+                        if(date != null) {
+                            ignoreProgressDate = date;
+                        }
+                        //Initializes the conversation panel with the data of the
+                        //last conversation.
+                        int lastDateIndex = datesPanel.getModel().getSize() - 1;
+                        datesPanel.setSelected(lastDateIndex);
+                        lastDate = datesPanel.getDate(lastDateIndex);
                     }
-                    if(date != null) {
-                        ignoreProgressDate = date;
-                    }
-                    //Initializes the conversation panel with the data of the
-                    //last conversation.
-                    datesPanel.setSelected(datesPanel.getModel().getSize() - 1);
-                }
-            };
-            SwingUtilities.invokeLater(updateDatesPanel);            
+                };
+                SwingUtilities.invokeLater(updateDatesPanel);
+            } 
         } 
      }
     
@@ -442,6 +420,8 @@ public class HistoryWindow
             Runnable updateMessagesPanel = new Runnable() {
                 public void run() {
                     HTMLDocument doc = createHistory(msgList);
+                    currentDocument = doc;
+                    
                     if(searchKeyword == null || searchKeyword == "") {
                         dateHistoryTable.put(startDate, doc);
                     }
@@ -561,17 +541,95 @@ public class HistoryWindow
         }
     }
     
-    public void refreshHistory()
-    {
-        
-    }
-    
     private void initProgressBar()
-    {
+    {        
         this.mainPanel.remove(readyLabel);
         this.mainPanel.add(progressBar, BorderLayout.SOUTH);
         this.mainPanel.revalidate();
         this.mainPanel.repaint();
-        
     }
+
+    public void messageReceived(MessageReceivedEvent evt)
+    {
+        Contact sourceContact = evt.getSourceContact();
+        
+        Contact containedContact = metaContact.getContact(
+            sourceContact.getAddress(), sourceContact.getProtocolProvider());
+        
+        if(containedContact != null)
+        {
+            if(GuiUtils.compareDates(lastDate, evt.getTimestamp()) == 0)
+            {
+                HTMLDocument document
+                    = (HTMLDocument) dateHistoryTable.get(lastDate);
+                
+                if(currentDocument.equals(document))
+                {                    
+                    String processedMessage = chatConvPanel.processMessage(
+                        evt.getSourceContact().getDisplayName(),
+                        evt.getTimestamp(), Constants.INCOMING_MESSAGE,
+                        evt.getSourceMessage().getContent(), searchKeyword);
+            
+                    chatConvPanel.appendMessageToEnd(processedMessage);
+                }
+            }
+            else if (lastDate == null
+                || GuiUtils.compareDates(lastDate, evt.getTimestamp()) < 0)
+            {
+                long milisecondsPerDay = 24*60*60*1000;
+                                
+                Date date = new Date(evt.getTimestamp().getTime()
+                    - evt.getTimestamp().getTime()%milisecondsPerDay);
+                
+                datesVector.add(date);
+                datesPanel.addDate(date);
+                
+                this.lastDate = date;
+            }
+        }
+    }
+
+    public void messageDelivered(MessageDeliveredEvent evt)
+    {
+        Contact destContact = evt.getDestinationContact();
+        
+        Contact containedContact = metaContact.getContact(
+            destContact.getAddress(), destContact.getProtocolProvider());
+        
+        if(containedContact != null)
+        {
+            if(lastDate != null
+                && GuiUtils.compareDates(lastDate, evt.getTimestamp()) == 0)
+            {
+                HTMLDocument document
+                    = (HTMLDocument) dateHistoryTable.get(lastDate);
+                
+                if(currentDocument.equals(document))
+                {                    
+                    String processedMessage = chatConvPanel.processMessage(
+                        destContact.getDisplayName(),
+                        evt.getTimestamp(), Constants.OUTGOING_MESSAGE,
+                        evt.getSourceMessage().getContent(), searchKeyword);
+            
+                    chatConvPanel.appendMessageToEnd(processedMessage);
+                }
+            }
+            else if (lastDate == null
+                || GuiUtils.compareDates(lastDate, evt.getTimestamp()) < 0)
+            {
+                long milisecondsPerDay = 24*60*60*1000;
+                                
+                Date date = new Date(evt.getTimestamp().getTime()
+                    - evt.getTimestamp().getTime()%milisecondsPerDay);
+                
+                datesVector.add(date);
+                datesPanel.addDate(date);
+                
+                this.lastDate = date;
+            }
+        }
+    }
+
+    public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
+    {}
 }
