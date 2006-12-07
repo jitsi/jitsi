@@ -55,8 +55,6 @@ public class ErrorDialog
         
         this.setTitle(Messages.getI18NString("removeContact").getText());
 
-        this.setSize(Constants.MSG_DIALOG_WIDTH, Constants.MSG_DIALOG_HEIGHT);
-
         this.getContentPane().setLayout(new BorderLayout(5, 5));
 
         this.messagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0,
@@ -135,7 +133,8 @@ public class ErrorDialog
      */
     public void showDialog()
     {   
-        setVisible(true);        
+        this.pack();
+        this.setVisible(true);        
     }
     
     /**
