@@ -1542,7 +1542,6 @@ if(vc != null)
         }
         if (ce instanceof StartEvent) {
             logger.debug("Received a StartEvent");
-//            mediaManager.firePlayerStarting(p);
         }
         if (ce instanceof ControllerErrorEvent) {
             logger.error(
@@ -1551,7 +1550,6 @@ if(vc != null)
         }
         if (ce instanceof ControllerClosedEvent) {
             logger.debug("Received a ControllerClosedEvent");
-//            mediaManager.firePlayerStopped();
         }
     }
 }
