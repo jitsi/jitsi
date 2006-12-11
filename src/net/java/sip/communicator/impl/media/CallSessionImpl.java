@@ -376,7 +376,6 @@ public class CallSessionImpl
         return createSessionDescription(null, intendedDestination).toString();
     }
 
-
     /**
      * The method is meant for use by protocol service implementations upon
      * reception of an SDP answer in response to an offer sent by us earlier.
