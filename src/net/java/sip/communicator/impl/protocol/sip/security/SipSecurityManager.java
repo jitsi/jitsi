@@ -364,6 +364,7 @@ public class SipSecurityManager
             }
 
             authorization.setResponse(response);
+
         }
         catch (ParseException ex)
         {
