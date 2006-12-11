@@ -448,6 +448,10 @@ public class CallManager
     {        
         Call sourceCall = event.getSourceCall();
            
+        SoundLoader.getSound(SoundLoader.BUSY).stop();
+        SoundLoader.stop(Constants.getDefaultIncomingCallAudio());
+        SoundLoader.stop(Constants.getDefaultOutgoingCallAudio());
+        
         if(activeCalls.get(sourceCall) != null) {
             
             CallPanel callPanel = (CallPanel) activeCalls.get(sourceCall);
