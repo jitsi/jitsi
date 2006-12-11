@@ -8,11 +8,11 @@ package net.java.sip.communicator.impl.gui.main.authorization;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -32,7 +32,12 @@ public class RequestAuthorizationDialog
     
     private JTextArea infoTextArea = new JTextArea();
     
-    private JEditorPane requestPane = new JEditorPane();
+    private JLabel requestLabel = new JLabel(
+        Messages.getI18NString("typeYourRequest").getText() + ": ");
+    
+    private JTextField requestField = new JTextField();
+    
+    private JPanel requestPanel = new JPanel(new BorderLayout());
     
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
@@ -43,8 +48,6 @@ public class RequestAuthorizationDialog
     private JButton requestButton = new JButton(requestString.getText());
     
     private JButton cancelButton = new JButton(cancelString.getText());
-    
-    private JScrollPane requestScrollPane = new JScrollPane();
     
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
     
@@ -85,18 +88,12 @@ public class RequestAuthorizationDialog
         titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
         titleLabel.setText(title);
         
-        this.mainPanel.setPreferredSize(new Dimension(400, 300));
+        this.mainPanel.setPreferredSize(new Dimension(400, 230));
         
         this.request = request;
         
         infoTextArea.setText(Messages.getI18NString("requestAuthorizationInfo", 
                 contact.getDisplayName()).getText());
-        
-        this.requestScrollPane.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(3, 3, 3, 3),
-                SIPCommBorders.getBoldRoundBorder()));
-        
-        this.requestScrollPane.getViewport().add(requestPane);
         
         this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         this.infoTextArea.setLineWrap(true);
@@ -109,6 +106,9 @@ public class RequestAuthorizationDialog
         
         this.northPanel.add(iconLabel, BorderLayout.WEST);
         this.northPanel.add(titlePanel, BorderLayout.CENTER);
+        
+        this.requestPanel.add(requestLabel, BorderLayout.WEST);
+        this.requestPanel.add(requestField, BorderLayout.CENTER);
         
         this.requestButton.setName("request");
         this.cancelButton.setName("cancel");
@@ -125,7 +125,7 @@ public class RequestAuthorizationDialog
         
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.mainPanel.add(northPanel, BorderLayout.NORTH);
-        this.mainPanel.add(requestScrollPane, BorderLayout.CENTER);
+        this.mainPanel.add(requestPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
         this.getContentPane().add(mainPanel);                   
@@ -140,7 +140,7 @@ public class RequestAuthorizationDialog
     {
         this.setVisible(true);
         
-        this.requestPane.requestFocus();
+        this.requestField.requestFocus();
         
         synchronized (lock) {
             try {                    
@@ -184,7 +184,7 @@ public class RequestAuthorizationDialog
      */
     public String getRequestReason()
     {
-        return requestPane.getText();
+        return requestField.getText();
     }
 
     protected void close(boolean isEscaped)

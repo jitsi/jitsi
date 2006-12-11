@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.authorization;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -49,15 +47,15 @@ public class AuthorizationHandlerImpl
         
         if(result == AuthorizationRequestedDialog.ACCEPT_CODE) {
             response = new AuthorizationResponse(AuthorizationResponse.ACCEPT,
-                    dialog.getResponseReason());
+                    null);
         }
         else if(result == AuthorizationRequestedDialog.REJECT_CODE) {
             response = new AuthorizationResponse(AuthorizationResponse.REJECT,
-                    dialog.getResponseReason());
+                    null);
         }
         else if(result == AuthorizationRequestedDialog.IGNORE_CODE) {
             response = new AuthorizationResponse(AuthorizationResponse.IGNORE,
-                    dialog.getResponseReason());
+                    null);
         }        
         return response;
     }

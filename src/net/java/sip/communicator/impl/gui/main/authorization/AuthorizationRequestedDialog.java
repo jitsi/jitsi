@@ -37,8 +37,6 @@ public class AuthorizationRequestedDialog
     
     private JEditorPane requestPane = new JEditorPane();
     
-    private JEditorPane responsePane = new JEditorPane();
-    
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
     private JPanel northPanel = new JPanel(new BorderLayout());
@@ -63,8 +61,6 @@ public class AuthorizationRequestedDialog
     private JButton ignoreButton = new JButton(ignoreString.getText());
     
     private JScrollPane requestScrollPane = new JScrollPane();
-    
-    private JScrollPane responseScrollPane = new JScrollPane();
     
     private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
     
@@ -125,19 +121,12 @@ public class AuthorizationRequestedDialog
             
             this.reasonsPanel.add(requestScrollPane);
             
-            this.mainPanel.setPreferredSize(new Dimension(550, 400));            
+            this.mainPanel.setPreferredSize(new Dimension(550, 300));            
         }
         else {
-            this.mainPanel.setPreferredSize(new Dimension(550, 350));
+            this.mainPanel.setPreferredSize(new Dimension(550, 200));
         }
         
-        this.responseScrollPane.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(3, 3, 3, 3),
-                SIPCommBorders.getBoldRoundBorder()));
-        
-        this.responseScrollPane.getViewport().add(responsePane);
-        
-        this.reasonsPanel.add(responseScrollPane);
         
         this.acceptButton.setName("accept");
         this.rejectButton.setName("reject");
@@ -212,15 +201,6 @@ public class AuthorizationRequestedDialog
         this.dispose();
     }
     
-    /**
-     * Returns the response reason, which has been entered from the user to
-     * explain it's response on the request.
-     * @return the response reason of the user
-     */
-    public String getResponseReason() {
-        return this.responsePane.getText();
-    }
-
     protected void close(boolean isEscaped)
     {
         this.ignoreButton.doClick();
