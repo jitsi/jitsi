@@ -41,7 +41,8 @@ import net.java.sip.communicator.util.*;
 public class QuickMenu
     extends SIPCommToolBar 
     implements  ActionListener,
-                PluginComponentListener {
+                PluginComponentListener,
+                ComponentListener {
 
     private Logger logger = Logger.getLogger(QuickMenu.class.getName());
     
@@ -61,6 +62,8 @@ public class QuickMenu
 
     private MainFrame mainFrame;
 
+    private int movedDownButtons = 0;
+    
     /**
      * Create an instance of the <tt>QuickMenu</tt>.
      * @param mainFrame The parent <tt>MainFrame</tt> window.
@@ -70,6 +73,7 @@ public class QuickMenu
 
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
+                
         this.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
         this.setFloatable(true);
 
@@ -94,6 +98,7 @@ public class QuickMenu
      * Initialize the <tt>QuickMenu</tt> by adding the buttons.
      */
     private void init() {
+        
         this.add(addButton);
         this.add(configureButton);
         this.add(infoButton);
@@ -108,6 +113,11 @@ public class QuickMenu
         this.configureButton.addActionListener(this);
         this.searchButton.addActionListener(this);
         this.infoButton.addActionListener(this);
+        
+        this.addButton.addComponentListener(this);
+        this.configureButton.addComponentListener(this);
+        this.searchButton.addComponentListener(this);
+        this.infoButton.addComponentListener(this);
     }
 
     /**
@@ -218,4 +228,37 @@ public class QuickMenu
     public void pluginComponentRemoved(PluginComponentEvent event) {
         //TODO Implement pluginComponentRemoved.
     }
+
+    public void componentHidden(ComponentEvent e)
+    {}
+
+    public void componentMoved(ComponentEvent e)
+    {        
+        int compCount = this.getComponentCount();
+        int buttonHeight = this.infoButton.getHeight();
+
+        int biggestY = 0;
+        for (int i = 0; i < compCount; i ++)
+        {
+            Component c = this.getComponent(i);
+            
+            if(c instanceof JButton)
+            {
+                if(c.getY() > biggestY)
+                    biggestY = c.getY();
+            }
+        }
+        
+        this.setPreferredSize(
+            new Dimension(this.getWidth(), biggestY + buttonHeight));
+        
+        ((JPanel)this.getParent()).revalidate();
+        ((JPanel)this.getParent()).repaint();
+    }
+
+    public void componentResized(ComponentEvent e)
+    {}
+
+    public void componentShown(ComponentEvent e)
+    {}
 }

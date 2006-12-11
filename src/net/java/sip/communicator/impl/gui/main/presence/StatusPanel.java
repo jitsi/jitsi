@@ -8,6 +8,7 @@
 package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
@@ -25,7 +26,10 @@ import net.java.sip.communicator.service.protocol.*;
  * 
  * @author Yana Stamcheva
  */
-public class StatusPanel extends JMenuBar {
+public class StatusPanel
+    extends JMenuBar
+    implements ComponentListener
+{
 
     private Hashtable protocolStatusCombos = new Hashtable();
 
@@ -68,6 +72,8 @@ public class StatusPanel extends JMenuBar {
                         this.mainFrame, protocolProvider,
                         providerIndex);
         }
+        
+        protocolStatusCombo.addComponentListener(this);
         
         this.protocolStatusCombos.put(protocolProvider,
                 protocolStatusCombo);
@@ -274,4 +280,37 @@ public class StatusPanel extends JMenuBar {
         }
         return false;
     }
+
+    public void componentHidden(ComponentEvent e)
+    {}
+
+    public void componentMoved(ComponentEvent e)
+    {
+        int compCount = this.getComponentCount();
+        int buttonHeight = e.getComponent().getHeight();
+
+        int biggestY = 0;
+        for (int i = 0; i < compCount; i ++)
+        {
+            Component c = this.getComponent(i);
+            
+            if(c instanceof StatusSelectorBox)
+            {
+                if(c.getY() > biggestY)
+                    biggestY = c.getY();
+            }
+        }
+        
+        this.setPreferredSize(
+            new Dimension(this.getWidth(), biggestY + buttonHeight));
+        
+        ((JPanel)this.getParent()).revalidate();
+        ((JPanel)this.getParent()).repaint();
+    }
+
+    public void componentResized(ComponentEvent e)
+    {}
+
+    public void componentShown(ComponentEvent e)
+    {}
 }
