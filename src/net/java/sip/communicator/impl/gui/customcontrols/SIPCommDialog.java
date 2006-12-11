@@ -184,6 +184,11 @@ public abstract class SIPCommDialog extends JDialog
             this.setSizeAndLocation();
         }
         
+        JButton button = this.getRootPane().getDefaultButton();
+        
+        if(button != null)
+            button.requestFocus();
+        
         super.setVisible(isVisible);
     }
     
