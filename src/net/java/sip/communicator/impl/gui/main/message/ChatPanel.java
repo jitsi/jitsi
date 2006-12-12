@@ -40,7 +40,7 @@ import net.java.sip.communicator.util.*;
  */
 public class ChatPanel
     extends JPanel
-    implements  ExportedDialog,
+    implements  ApplicationWindow,
                 ChatConversationContainer
 {
 
@@ -635,7 +635,7 @@ public class ChatPanel
     
 
     /**
-     * Implements the <code>ExportedDialog.isDialogVisible</code> method, to 
+     * Implements the <code>ApplicationWindow.isVisible</code> method, to 
      * check whether this chat panel is currently visible.
      * @return <code>true</code> if this chat panel is currently visible,
      * <code>false</code> otherwise.
@@ -645,10 +645,10 @@ public class ChatPanel
     }
 
     /**
-     * Implements the <code>ExportedDialog.showDialog</code> method, to 
+     * Implements the <code>ApplicationWindow.show</code> method, to 
      * make a chat panel visible.
      */
-    public void showDialog() {
+    public void show() {
         
         if(Constants.TABBED_CHAT_WINDOW) {
             if(!chatWindow.containsContactChat(this))
@@ -665,10 +665,10 @@ public class ChatPanel
     }
 
     /**
-     * Implements the <code>ExportedDialog.hideDialog</code> method, to 
-     * hide a chat panel.
+     * Implements the <code>ApplicationWindow.hide</code> method. Hides the chat
+     * panel.
      */
-    public void hideDialog() {
+    public void hide() {
         this.isVisible = false;
         
         if(Constants.TABBED_CHAT_WINDOW) {
@@ -680,23 +680,41 @@ public class ChatPanel
     }
 
     /**
-     * Implements the <code>ExportedDialog.resizeDialog</code> method, to 
-     * resize the chat window to the given width and height.
+     * Implements the <code>ApplicationWindow.resize</code> method. Resizes the 
+     * chat window to the given width and height.
      * @param width The new width to set.
      * @param height The new height to set.
      */
-    public void resizeDialog(int width, int height) {
+    public void resize(int width, int height) {
         this.chatWindow.setSize(width, height);
     }
 
     /**
-     * Implements the <code>ExportedDialog.moveDialog</code> method, to 
-     * move the chat window to the given x and y coordinates.
+     * Implements the <code>ApplicationWindow.move</code> method. Moves 
+     * the chat window to the given x and y coordinates.
      * @param x The <code>x</code> coordinate.
      * @param y The <code>y</code> coordinate.
      */
-    public void moveDialog(int x, int y) {
+    public void move(int x, int y) {
         this.chatWindow.setLocation(x, y);
+    }
+
+    /**
+     * Implements the <code>ApplicationWindow.minimize</code> method. Minimizes 
+     * the chat window.
+     */
+    public void minimize()
+    {
+        this.chatWindow.setState(JFrame.ICONIFIED);
+    }
+
+    /**
+     * Implements the <code>ApplicationWindow.maximize</code> method. Maximizes
+     * the chat window.
+     */
+    public void maximize()
+    {
+        this.chatWindow.setState(JFrame.MAXIMIZED_BOTH);
     }
 
     /**
@@ -813,4 +831,5 @@ public class ChatPanel
         }
     }
 
+    
 }
