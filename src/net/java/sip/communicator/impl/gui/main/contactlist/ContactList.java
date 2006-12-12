@@ -809,7 +809,7 @@ public class ContactList extends JList implements MetaContactListListener,
                             .countContactsAndSubgroups(group);
                     int listSize = listModel.getSize();
 
-                    if(listSize > 0 && removeCount > 0) {
+                    if(listSize > 0) {
                         listModel.contentRemoved(listSize - 1, listSize
                                 + removeCount - 1);
                         listModel.contentChanged(groupIndex, listSize - 1);
