@@ -12,6 +12,7 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -42,7 +43,8 @@ public class QuickMenu
     extends SIPCommToolBar 
     implements  ActionListener,
                 PluginComponentListener,
-                ComponentListener {
+                ComponentListener,
+                ListSelectionListener {
 
     private Logger logger = Logger.getLogger(QuickMenu.class.getName());
     
@@ -119,6 +121,40 @@ public class QuickMenu
         this.searchButton.addComponentListener(this);
         this.infoButton.addComponentListener(this);
     }
+    
+    private void initPluginComponents()
+    {
+        Iterator pluginComponents = GuiActivator.getUIService()
+            .getComponentsForContainer(
+                UIService.CONTAINER_MAIN_TOOL_BAR);
+        
+        if(pluginComponents.hasNext())
+            this.addSeparator();
+        
+        while (pluginComponents.hasNext())
+        {
+            Component c = (Component)pluginComponents.next();
+            
+            this.add(c);
+                        
+            if (c instanceof ContactAwareComponent)
+            {
+                Object selectedValue = mainFrame.getContactListPanel()
+                    .getContactList().getSelectedValue();
+                            
+                if(selectedValue instanceof MetaContact)
+                {
+                    ((ContactAwareComponent)c)
+                        .setCurrentContact((MetaContact)selectedValue);
+                }
+                else if(selectedValue instanceof MetaContactGroup)
+                {
+                    ((ContactAwareComponent)c)
+                        .setCurrentContactGroup((MetaContactGroup)selectedValue);
+                }
+            }
+        }
+    }
 
     /**
      * Handles the <tt>ActionEvent</tt> triggered when user clicks on one of
@@ -138,7 +174,7 @@ public class QuickMenu
 
             configDialog = GuiActivator.getUIService().getConfigurationManager();
 
-            configDialog.showDialog();
+            configDialog.show();
         }
         else if (buttonName.equals("search")) {
 
@@ -147,32 +183,27 @@ public class QuickMenu
 
             ContactListModel listModel
                 = (ContactListModel) contactList.getModel();
-
-            if (listModel.showOffline()) {                
-                listModel.setShowOffline(false);
+            
+            Object selectedObject = null;
+            int currentlySelectedIndex = contactList.getSelectedIndex();
+            if(currentlySelectedIndex != -1) {
+                selectedObject
+                    = listModel.getElementAt(currentlySelectedIndex);
             }
-            else {
-                Object selectedObject = null;
-                int currentlySelectedIndex = contactList.getSelectedIndex();
-                if(currentlySelectedIndex != -1) {
-                    selectedObject
-                        = listModel.getElementAt(currentlySelectedIndex);
-                }
 
-                listModel.setShowOffline(true);
+            listModel.setShowOffline(!listModel.showOffline());
 
-                if (selectedObject != null) {
-                    if (selectedObject instanceof MetaContact) {
-                        contactList.setSelectedIndex(
-                            listModel.indexOf((MetaContact) selectedObject));
-                    }
-                    else {
-                        contactList.setSelectedIndex(
-                            listModel.indexOf(
-                                    (MetaContactGroup) selectedObject));
-                    }
+            if (selectedObject != null) {
+                if (selectedObject instanceof MetaContact) {
+                    contactList.setSelectedIndex(
+                        listModel.indexOf((MetaContact) selectedObject));
                 }
-            }            
+                else {
+                    contactList.setSelectedIndex(
+                        listModel.indexOf(
+                                (MetaContactGroup) selectedObject));
+                }
+            }           
         }
         else if (buttonName.equals("info")) {
             MetaContact selectedMetaContact =
@@ -218,7 +249,26 @@ public class QuickMenu
      * method.
      */
     public void pluginComponentAdded(PluginComponentEvent event) {
-        //TODO Implement pluginComponentAdded.
+        Component c = (Component) event.getSource();
+        
+        this.add(c);
+        
+        if (c instanceof ContactAwareComponent)
+        {
+            Object selectedValue = mainFrame.getContactListPanel()
+                    .getContactList().getSelectedValue();
+            
+            if(selectedValue instanceof MetaContact)
+            {
+                ((ContactAwareComponent)c)
+                    .setCurrentContact((MetaContact)selectedValue);
+            }
+            else if(selectedValue instanceof MetaContactGroup)
+            {
+                ((ContactAwareComponent)c)
+                    .setCurrentContactGroup((MetaContactGroup)selectedValue);
+            }
+        }
     }
 
     /**
@@ -226,12 +276,18 @@ public class QuickMenu
      * method.
      */
     public void pluginComponentRemoved(PluginComponentEvent event) {
-        //TODO Implement pluginComponentRemoved.
+        Component c = (Component) event.getSource();
+        
+        this.remove(c);
     }
 
     public void componentHidden(ComponentEvent e)
     {}
 
+    /**
+     * Implements ComponentListener.componentMoved method in order to resize
+     * the toolbar when buttons are aligned on more than one row.
+     */
     public void componentMoved(ComponentEvent e)
     {        
         int compCount = this.getComponentCount();
@@ -261,4 +317,37 @@ public class QuickMenu
 
     public void componentShown(ComponentEvent e)
     {}
+    
+    public void valueChanged(ListSelectionEvent e)
+    {   
+        if((e.getFirstIndex() != -1 || e.getLastIndex() != -1))
+        {
+            Iterator pluginComponents = GuiActivator.getUIService()
+                .getComponentsForContainer(
+                    UIService.CONTAINER_MAIN_TOOL_BAR);
+            
+            while (pluginComponents.hasNext())
+            {
+                Component c = (Component)pluginComponents.next();
+                    
+                if(!(c instanceof ContactAwareComponent))
+                    continue;
+                
+                Object selectedValue = mainFrame.getContactListPanel()
+                    .getContactList().getSelectedValue();
+                            
+                if(selectedValue instanceof MetaContact)
+                {
+                    ((ContactAwareComponent)c)
+                        .setCurrentContact((MetaContact)selectedValue);
+                }
+                else if(selectedValue instanceof MetaContactGroup)
+                {
+                    ((ContactAwareComponent)c)
+                        .setCurrentContactGroup(
+                            (MetaContactGroup)selectedValue);
+                }
+            }            
+        }
+    }
 }

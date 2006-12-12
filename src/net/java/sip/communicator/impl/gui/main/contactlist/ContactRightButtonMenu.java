@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -20,6 +21,8 @@ import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.main.message.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -32,6 +35,7 @@ import net.java.sip.communicator.service.protocol.*;
 public class ContactRightButtonMenu
     extends JPopupMenu
     implements  ActionListener,
+                PluginComponentListener,
                 ContactListListener
 {
 
@@ -298,6 +302,8 @@ public class ContactRightButtonMenu
 
         this.add(viewHistoryItem);
         this.add(userInfoMenu);
+        
+        this.initPluginComponents();
 
         this.sendMessageItem.setName("sendMessage");
         this.sendFileItem.setName("sendFile");
@@ -317,7 +323,28 @@ public class ContactRightButtonMenu
         this.sendFileItem.setEnabled(false);
     }
     
-    private void initMnemonics() {
+    private void initPluginComponents()
+    {
+        Iterator pluginComponents = GuiActivator.getUIService()
+            .getComponentsForContainer(
+                UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
+        
+        if(pluginComponents.hasNext())
+            this.addSeparator();
+        
+        while (pluginComponents.hasNext())
+        {
+            Component o = (Component)pluginComponents.next();
+            
+            this.add(o);
+            
+            if (o instanceof ContactAwareComponent)
+                ((ContactAwareComponent)o).setCurrentContact(contactItem);
+        }
+    }
+    
+    private void initMnemonics()
+    {
         this.sendMessageItem.setMnemonic(sendMessageString.getMnemonic());
         this.sendFileItem.setMnemonic(sendFileString.getMnemonic());
         this.moveToMenu.setMnemonic(moveToString.getMnemonic());
@@ -677,5 +704,27 @@ public class ContactRightButtonMenu
                     .moveContact(contact, metaContact);
             }
         }
-    }    
+    }
+    
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+        
+        this.add(c);
+        
+        if (c instanceof ContactAwareComponent)
+        {   
+            ((ContactAwareComponent)c)
+                .setCurrentContact(contactItem);
+        }
+        
+        this.repaint();
+    }
+
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+        
+        this.remove(c);
+    }
 }
