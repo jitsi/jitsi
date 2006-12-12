@@ -911,7 +911,7 @@ public class ContactListPanel
      * depending on the chat mode and if this is the case returns
      * <code>true</code>, otherwise returns <code>false</code>.
      * 
-     * @param contact The <tt>Contact</tt> for which to check.
+     * @param metaContact The <tt>MetaContact</tt> for which to check.
      * @return <code>true</code> if there is an open chat tab or chat window
      *         for the given contact, <code>false</code> otherwise.
      */

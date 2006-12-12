@@ -357,7 +357,7 @@ public class CallManager
     /**
      * Removes the account corresponding to the given protocol provider from the
      * call via selector box.
-     * @param protocolProvider the protocol provider service to remove
+     * @param pps the protocol provider service to remove
      */
     public void removeCallAccount(ProtocolProviderService pps)
     {

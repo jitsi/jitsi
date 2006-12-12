@@ -352,7 +352,7 @@ public class ContactList extends JList implements MetaContactListListener,
      * Creates the corresponding ContactListEvent and notifies all
      * <tt>ContactListListener</tt>s that a contact is selected.
      * 
-     * @param sourceContact the contact that this event is about.
+     * @param source the contact that this event is about.
      * @param eventID the id indicating the exact type of the event to fire.
      */
     public void fireContactListEvent(Object source, int eventID)

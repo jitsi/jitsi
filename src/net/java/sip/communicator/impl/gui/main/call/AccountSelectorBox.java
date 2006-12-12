@@ -123,7 +123,7 @@ public class AccountSelectorBox
     /**
      * Obtains the status icon for the given protocol contact and
      * adds to it the account index information.
-     * @param protoContact the proto contact for which to create the image
+     * @param pps the protocol provider for which to create the image
      * @return the indexed status image
      */
     public Image createAccountStatusImage(ProtocolProviderService pps)
@@ -213,7 +213,7 @@ public class AccountSelectorBox
     
     /**
      * Sets the selected contact to the given proto contact.
-     * @param protoContact the proto contact to select
+     * @param pps the protocol provider to select
      */
     public void setSelected(ProtocolProviderService pps)
     {
