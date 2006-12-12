@@ -22,7 +22,7 @@ package net.java.sip.communicator.service.gui;
  * 
  * @author Yana Stamcheva
  */
-public interface ConfigurationManager extends ExportedDialog {
+public interface ConfigurationManager extends ApplicationWindow {
 
     /**
      * Adds the given <tt>ConfigurationForm</tt> in this

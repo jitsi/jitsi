@@ -19,7 +19,7 @@ package net.java.sip.communicator.service.gui;
  * 
  * @author Yana Stamcheva
  */
-public interface PopupDialog extends ExportedDialog {    
+public interface PopupDialog extends ApplicationWindow {    
     //
     // Option types
     //    
