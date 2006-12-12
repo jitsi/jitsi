@@ -45,9 +45,14 @@
 
     <!-- The release directory for Debian packages -->
     <property name="debian.dir" value="${release}/debian"/>
+    <property name="debian.binary.dir" value="${debian.dir}/binary"/>
     <!-- Can we build debian packages? -->
-    <condition property="dpkg.present">
+    <condition property="dpkg.build.present">
       <available file="/usr/bin/dpkg-buildpackage"/>
+    </condition>
+    <!-- Can we deploy debian packages? -->
+    <condition property="dpkg.scan.present">
+      <available file="/usr/bin/dpkg-scanpackages"/>
     </condition>
 
     <!-- load properties needed for running the automated tests (e.g. test.list)-->
@@ -379,7 +384,7 @@
 
     <!-- Create a Debian package - This needs dpkg utilities -->
     <target name="deb" depends="make"
-            if="dpkg.present"
+            if="dpkg.build.present"
             description="Create a .deb package for Debian (needs dpkg utilities)">
 
       <exec executable="/usr/bin/dpkg-buildpackage" dir="${inst.resrc}">
@@ -396,6 +401,39 @@
           <include name="sip-communicator*"/>
         </fileset>
       </move>
+
+    </target>
+
+    <!-- Prepare to deploy the Debian package - This needs dpkg utilities -->
+    <target name="deb-rel" depends="deb"
+            if="dpkg.scan.present"
+            description="Prepare to deploy Debian package (needs dpkg utilities)">
+
+      <mkdir dir="${debian.binary.dir}"/>
+      <move todir="${debian.binary.dir}">
+        <fileset dir="${debian.dir}">
+          <include name="sip-communicator*"/>
+        </fileset>
+      </move>
+
+      <exec executable="/usr/bin/dpkg-scanpackages"
+          dir="${debian.dir}"
+          output="${debian.binary.dir}/dpkg-scanpackages.out"
+          errorproperty="dpkg-scanpackages.err">
+        <arg value="binary"/>
+        <arg value="/dev/null"/>
+      </exec>
+
+      <exec executable="/bin/gzip"
+          dir="${debian.dir}"
+          input="${debian.binary.dir}/dpkg-scanpackages.out"
+          output="${debian.binary.dir}/Packages.gz">
+        <arg value="-9c"/>
+      </exec>
+
+      <!-- Delete the temporary file -->
+      <delete file="${debian.binary.dir}/dpkg-scanpackages.out"
+              quiet="yes" failonerror="false"/>
 
     </target>
 
