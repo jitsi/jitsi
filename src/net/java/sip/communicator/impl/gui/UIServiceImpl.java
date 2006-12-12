@@ -45,10 +45,11 @@ public class UIServiceImpl implements UIService {
     private static final List supportedContainers = new ArrayList();
     static {
         supportedContainers.add(UIService.CONTAINER_MAIN_TOOL_BAR);
-        supportedContainers.add(UIService.CONTAINER_CHAT_TOOL_BAR);
+        supportedContainers.add(UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
+        supportedContainers.add(UIService.CONTAINER_GROUP_RIGHT_BUTTON_MENU);
     }
     
-    private static final Hashtable exportedDialogs = new Hashtable();
+    private static final Hashtable exportedWindows = new Hashtable();
         
     private MainFrame mainFrame;
     
@@ -106,6 +107,39 @@ public class UIServiceImpl implements UIService {
     }
 
     /**
+     * Implements <code>UIService.addComponent(ContainerID, String, Object)
+     * </code>. For now this method only invokes addComponent(containerID,
+     * component).
+     * @see UIService#addComponent(ContainerID, String, Object)
+     */
+    public void addComponent(ContainerID containerID, String constraint,
+            Object component) throws ClassCastException,
+            IllegalArgumentException {
+        this.addComponent(containerID, component);
+    }
+
+    /**
+     * 
+     */
+    public void addComponent(ContainerID containerID,
+        ContactAwareComponent component)
+        throws ClassCastException, IllegalArgumentException
+    {
+        this.addComponent(containerID, component);        
+    }
+
+    /**
+     * 
+     */
+    public void addComponent(ContainerID containerID,
+        String constraint,
+        ContactAwareComponent component)
+        throws ClassCastException, IllegalArgumentException
+    {
+        this.addComponent(containerID, constraint, component);
+    }
+    
+    /**
      * Implements <code>UISercie.getSupportedContainers</code>. Returns the
      * list of supported containers by this implementation .
      * 
@@ -122,26 +156,21 @@ public class UIServiceImpl implements UIService {
     public Iterator getComponentsForContainer(ContainerID containerID)
             throws IllegalArgumentException {
 
-        Vector plugins = (Vector) this.registeredPlugins.get(containerID);
-
-        if (plugins != null)
-            return plugins.iterator();
-        else
+        if(!supportedContainers.contains(containerID))
             throw new IllegalArgumentException(
-                    "The container that you specified is not "
-                            + "supported by this UIService implementation.");
-    }
-
-    /**
-     * Implements <code>UIService.addComponent(ContainerID, String, Object)
-     * </code>. For now this method only invokes addComponent(containerID,
-     * component).
-     * @see UIService#addComponent(ContainerID, String, Object)
-     */
-    public void addComponent(ContainerID containerID, String constraint,
-            Object component) throws ClassCastException,
-            IllegalArgumentException {
-        this.addComponent(containerID, component);
+                "The container that you specified is not "
+                        + "supported by this UIService implementation.");
+        
+        Vector plugins = new Vector();
+        
+        Object o = registeredPlugins.get(containerID);
+        
+        if(o != null)
+        {
+            plugins = (Vector)o;
+        }
+        
+        return plugins.iterator();
     }
 
     /**
@@ -261,25 +290,24 @@ public class UIServiceImpl implements UIService {
     }
 
     /**
-     * Implements <code>getExportedDialogs</code> in the UIService interface.
-     * Returns an iterator over a set of all dialogs exported by this
+     * Implements <code>getApplicationWindows</code> in the UIService interface.
+     * Returns an iterator over a set of all windows exported by this
      * implementation.
-     * @see UIService#getExportedDialogs()
+     * @see UIService#getApplicationWindows()
      */
-    public Iterator getExportedDialogs() {
-        return Collections.unmodifiableMap(exportedDialogs)
+    public Iterator getApplicationWindows() {
+        return Collections.unmodifiableMap(exportedWindows)
             .values().iterator();
     }
 
     /**
-     * Implements <code>getApplicationDialog</code> in the UIService interface.
-     * Returns the <tt>Dialog</tt> corresponding to the given
-     * <tt>DialogID</tt>.
-     * @see UIService#getApplicationDialog(DialogID)
+     * Implements <code>getApplicationWindow</code> in the UIService interface.
+     * Returns the window corresponding to the given <tt>WindowID</tt>.
+     * @see UIService#getApplicationWindow(WindowID)
      */
-    public ExportedDialog getApplicationDialog(DialogID dialogID) {
-        if (exportedDialogs.contains(dialogID)) {
-            return (ExportedDialog) exportedDialogs.get(dialogID);
+    public ApplicationWindow getApplicationWindow(WindowID dialogID) {
+        if (exportedWindows.contains(dialogID)) {
+            return (ApplicationWindow) exportedWindows.get(dialogID);
         }
         return null;
     }
@@ -298,15 +326,15 @@ public class UIServiceImpl implements UIService {
      * Implements <code>getChatDialog</code> in the UIService interface. If
      * a chat dialog for the given contact exists already returns it,
      * otherwise creates a new one.
-     * @see UIService#getChatDialog(Contact)
+     * @see UIService#getChatWindow(Contact)
      */
-    public ExportedDialog getChatDialog(Contact contact) {
+    public ApplicationWindow getChatWindow(Contact contact) {
         
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(contact);
         
         if (contactList.isChatOpenedForContact(metaContact)) {
-            return (ExportedDialog) contactList.getContactChat(metaContact);
+            return (ApplicationWindow) contactList.getContactChat(metaContact);
         }
         else {            
             return contactList.getChatWindow(metaContact).createChat(
@@ -315,12 +343,12 @@ public class UIServiceImpl implements UIService {
     }
 
     /**
-     * Implements the <code>UIService.isDialogExported</code> method.
-     * Checks if there's an exported dialog for the given <tt>DialogID</tt>.
-     * @see UIService#isDialogExported(DialogID)
+     * Implements the <code>UIService.containsApplicationWindow</code> method.
+     * Checks if there's an exported window for the given <tt>WindowID</tt>.
+     * @see UIService#containsApplicationWindow(WindowID)
      */
-    public boolean isDialogExported(DialogID dialogID) {
-        return exportedDialogs.contains(dialogID);
+    public boolean containsApplicationWindow(WindowID dialogID) {
+        return exportedWindows.contains(dialogID);
     }
 
     /**
@@ -342,7 +370,7 @@ public class UIServiceImpl implements UIService {
     public AccountRegistrationWizardContainer getAccountRegWizardContainer() {
         return this.wizardContainer;
     }
-   
+
     /**
      * Implements the <code>UIService.getConfigurationManager</code>.
      * Returns the current implementation of the <tt>ConfigurationManager</tt>
