@@ -393,6 +393,7 @@
         <arg value="-us"/>
         <arg value="-uc"/>
         <arg value="-b"/>
+        <arg value="-d"/>
       </exec>
 
       <mkdir dir="${debian.dir}"/>
