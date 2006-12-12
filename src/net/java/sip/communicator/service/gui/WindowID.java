@@ -7,17 +7,17 @@
 package net.java.sip.communicator.service.gui;
 
 /**
- * The <tt>DialogID</tt> wraps a string which is meant to point to an
+ * The <tt>WindowID</tt> wraps a string which is meant to point to an
  * application dialog, like per example a "Configuration" dialog or
  * "Add contact" dialog.
  *
  * @author Yana Stamcheva
  */
-public class DialogID{
+public class WindowID{
 
     private String dialogName;
 
-    public DialogID(String dialogName){
+    public WindowID(String dialogName){
         this.dialogName = dialogName;
     }
 
