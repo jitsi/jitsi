@@ -258,5 +258,11 @@ public class PopupDialogImpl extends JOptionPane
      */
     public void moveDialog(int x, int y) {
         this.setLocation(x, y);
-    }    
+    }
+
+    public void minimize()
+    {}
+
+    public void maximize()
+    {}    
 }

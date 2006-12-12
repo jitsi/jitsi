@@ -18,7 +18,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**
@@ -231,16 +230,16 @@ public class ConfigurationFrame
     }
 
     /**
-     * Implements <code>ExportedDialog.isDialogVisible</code> method.
-     * @see net.java.sip.communicator.service.gui.ExportedDialog#isDialogVisible()
+     * Implements <code>ApplicationWindow.isVisible</code> method.
+     * @see net.java.sip.communicator.service.gui.ApplicationWindow#isVisible()
      */
     public boolean isDialogVisible() {
         return this.isVisible();
     }
 
     /**
-     * Implements <code>ExportedDialog.showDialog</code> method.
-     * @see net.java.sip.communicator.service.gui.ExportedDialog#showDialog()
+     * Implements <code>ApplicationWindow.showDialog</code> method.
+     * @see net.java.sip.communicator.service.gui.ApplicationWindow#show()
      */
     public void showDialog() {
         
@@ -266,24 +265,24 @@ public class ConfigurationFrame
     }
 
     /**
-     * Implements <code>ExportedDialog.hideDialog</code> method.
-     * @see net.java.sip.communicator.service.gui.ExportedDialog#hideDialog()
+     * Implements <code>ApplicationWindow.hide</code> method.
+     * @see net.java.sip.communicator.service.gui.ApplicationWindow#hide()
      */
     public void hideDialog() {
         this.setVisible(false);
     }
 
     /**
-     * Implements <code>ExportedDialog.resizeDialog</code> method.
-     * @see net.java.sip.communicator.service.gui.ExportedDialog#resizeDialog(int, int)
+     * Implements <code>ApplicationWindow.resize</code> method.
+     * @see net.java.sip.communicator.service.gui.ApplicationWindow#resize(int, int)
      */
     public void resizeDialog(int width, int height) {
         this.setSize(width, height);
     }
 
     /**
-     * Implements <code>ExportedDialog.moveDialog</code> method.
-     * @see net.java.sip.communicator.service.gui.ExportedDialog#moveDialog(int, int)
+     * Implements <code>ApplicationWindow.move</code> method.
+     * @see net.java.sip.communicator.service.gui.ApplicationWindow#move(int, int)
      */
     public void moveDialog(int x, int y) {
         this.setLocation(x, y);
@@ -295,5 +294,11 @@ public class ConfigurationFrame
     protected void close(boolean isEscaped)
     {
         this.closeButton.doClick();
-    }    
+    }
+
+    public void minimize()
+    {}
+
+    public void maximize()
+    {}    
 }
