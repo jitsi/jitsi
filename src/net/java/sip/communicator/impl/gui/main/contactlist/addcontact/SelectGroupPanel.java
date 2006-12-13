@@ -7,11 +7,10 @@
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
@@ -27,13 +26,15 @@ import net.java.sip.communicator.service.gui.*;
  */
 public class SelectGroupPanel
     extends JPanel
-    implements  DocumentListener
+    implements  ItemListener
 {
+
+    private JPanel groupPanel = new JPanel(new BorderLayout()); 
     
-    private JTable groupsTable = new JTable();
-        
-    private BooleanToCheckTableModel tableModel
-        = new BooleanToCheckTableModel();
+    private JLabel groupLabel = new JLabel(
+            Messages.getI18NString("selectGroup").getText() + ": ");
+    
+    private JComboBox groupCombo = new JComboBox();
     
     private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
             Messages.getI18NString("selectGroupWizard").getText());
@@ -44,24 +45,15 @@ public class SelectGroupPanel
     private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
     
     private JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
-    
-    private JScrollPane tablePane = new JScrollPane();
+   
+    private JPanel rightNorthPanel = new JPanel();
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
     
-    private JLabel createGroupLabel = new JLabel(
-            Messages.getI18NString("createGroup").getText() + ":");
-    
-    private JTextField createGroupField = new JTextField();
-    
-    private JPanel createGroupPanel = new JPanel(new BorderLayout());
-    
     private NewContact newContact;
     
     private WizardContainer parentWizard;
-    
-    private Iterator groupsList;
     
     /**
      * Creates an instance of <tt>SelectGroupPanel</tt>.
@@ -83,10 +75,18 @@ public class SelectGroupPanel
         
         this.newContact = newContact;
         
-        this.groupsList = groupsList;
-           
-        this.initGroupsTable();
-                
+        this.groupCombo.setPreferredSize(new Dimension(300, 22));
+        this.groupCombo.setEditable(true);
+        this.groupCombo.addItemListener(this);
+        
+        while(groupsList.hasNext())
+        {   
+            MetaContactGroup group
+                = (MetaContactGroup)groupsList.next();
+            
+            groupCombo.addItem(new GroupWrapper(group));
+        }
+        
         this.infoLabel.setEditable(false);
         
         this.infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -94,125 +94,78 @@ public class SelectGroupPanel
         
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);
-
-        this.createGroupPanel.add(createGroupLabel, BorderLayout.WEST);
-        this.createGroupPanel.add(createGroupField, BorderLayout.CENTER);
         
+        this.groupPanel.add(groupLabel, BorderLayout.WEST);
+        this.groupPanel.add(groupCombo, BorderLayout.CENTER);
+                
+        this.rightNorthPanel.setLayout(
+            new BoxLayout(rightNorthPanel, BoxLayout.Y_AXIS));
+        
+        this.rightNorthPanel.add(labelsPanel);
+        this.rightNorthPanel.add(groupPanel);
+     
         this.rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
-        this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
-        this.rightPanel.add(tablePane, BorderLayout.CENTER);
-        this.rightPanel.add(createGroupPanel, BorderLayout.SOUTH);
+        
+        this.rightPanel.add(rightNorthPanel, BorderLayout.NORTH);
         
         this.add(iconLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
-        
-        this.createGroupField.getDocument().addDocumentListener(this);
     } 
     
     /**
-     * Initializes the groups table.
-     */
-    private void initGroupsTable(){
-        groupsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
-        
-        tableModel.addColumn("");
-        tableModel.addColumn(Messages.getI18NString("group").getText());
-        
-        while(groupsList.hasNext()) {
-            
-            MetaContactGroup group
-                = (MetaContactGroup)groupsList.next();
-            
-            tableModel.addRow(new Object[]{new Boolean(false), group});
-        }
-        
-        groupsTable.setModel(tableModel);
-        
-        groupsTable.setRowHeight(22);
-        groupsTable.getColumnModel().getColumn(0).sizeWidthToFit();
-        groupsTable.getColumnModel().getColumn(1)
-            .setCellRenderer(new LabelTableCellRenderer());
-        
-        this.tablePane.getViewport().add(groupsTable);
-    }
-    
-    public void addCheckBoxCellListener(CellEditorListener l) {
-        if(groupsTable.getModel().getRowCount() != 0) {
-            groupsTable.getCellEditor(0, 0).addCellEditorListener(l);
-        }
-    }
-    
-    /**
-     * Checks whether there is a selected check box in the table.
-     * @return <code>true</code> if any of the check boxes is selected,
-     * <code>false</code> otherwise.
-     */
-    public boolean isCheckBoxSelected()
-    {
-        boolean isSelected = false;
-        TableModel model = groupsTable.getModel();
-        
-        for (int i = 0; i < groupsTable.getRowCount(); i ++) {
-            Object value = model.getValueAt(i, 0);
-            
-            if (value instanceof Boolean) {
-                Boolean check = (Boolean)value;
-                if (check.booleanValue()) {
-                    isSelected = check.booleanValue();
-                    break;
-                }
-            }
-        }
-        return isSelected;
-    }
-
-    /**
      * Adds all selected from user contact groups in the new contact.
      */
-    public void addNewContactGroups()
+    public void addNewContactGroup()
     {
-        TableModel model = groupsTable.getModel();
+        Object group = groupCombo.getSelectedItem();
         
-        for (int i = 0; i < groupsTable.getRowCount(); i ++) {
-            Object value = model.getValueAt(i, 0);
-            
-            if (value instanceof Boolean) {
-                Boolean check = (Boolean)value;
-                if (check.booleanValue()) {             
-                    newContact.addGroup(
-                            (MetaContactGroup)model.getValueAt(i, 1));
-                }
-            }
-        }
-        
-        String newGroup = createGroupField.getText();
-        if(newGroup != null && newGroup != "") {
-            newContact.setNewGroup(newGroup);
-        }
+        if (group instanceof GroupWrapper)
+            newContact.addGroup(((GroupWrapper)group).getMetaGroup());
+        else            
+            newContact.setNewGroup(group.toString());
     }
     
-    public void changedUpdate(DocumentEvent e)
-    {   
-    }
-
-    public void insertUpdate(DocumentEvent e)
+    /**
+     * 
+     */
+    public void setNextButtonAccordingToComboBox()
     {
-        this.setNextFinishButtonAccordingToUIN();
-    }
-
-    public void removeUpdate(DocumentEvent e)
-    {
-        this.setNextFinishButtonAccordingToUIN();
-    }
-    
-    private void setNextFinishButtonAccordingToUIN()
-    {
-        if(createGroupField.getText() != null
-                    || createGroupField.getText() != ""){
+        if(groupCombo.getSelectedItem() != null
+            || groupCombo.getSelectedItem() != "")
+        {
             parentWizard.setNextFinishButtonEnabled(true);
         }
-        else {
+        else
+        {
             parentWizard.setNextFinishButtonEnabled(false);
+        }
+    }
+
+    /**
+     * Implements <tt>ItemListener.itemStateChanged</tt>.
+     */
+    public void itemStateChanged(ItemEvent e)
+    {
+        this.setNextButtonAccordingToComboBox();
+    }
+    
+    private class GroupWrapper
+    {
+        private MetaContactGroup group;
+        
+        public GroupWrapper(MetaContactGroup group)
+        {
+            this.group = group;
+        }
+        
+        public String toString()
+        {
+            return group.getGroupName();
+        }
+        
+        public MetaContactGroup getMetaGroup()
+        {
+            return this.group;
         }
     }
 }

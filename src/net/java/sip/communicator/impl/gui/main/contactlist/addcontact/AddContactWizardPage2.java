@@ -44,9 +44,7 @@ public class AddContactWizardPage2
                 
         this.wizard = wizard;
         
-        selectGroupPanel = new SelectGroupPanel(wizard, newContact, groupsList);
-        
-        selectGroupPanel.addCheckBoxCellListener(this);        
+        selectGroupPanel = new SelectGroupPanel(wizard, newContact, groupsList);                
     }
     
     /**
@@ -71,26 +69,15 @@ public class AddContactWizardPage2
      * nothing is selected.
      */
     public void pageShowing() {
-        setNextButtonAccordingToCheckBox();
+        selectGroupPanel.setNextButtonAccordingToComboBox();
     }    
     
-    /**
-     * Enables the next button when the user makes a choise and disables it 
-     * if nothing is selected.
-     */
-    private void setNextButtonAccordingToCheckBox() {
-        if (selectGroupPanel.isCheckBoxSelected())
-            wizard.setNextFinishButtonEnabled(true);
-        else
-            wizard.setNextFinishButtonEnabled(false);
-    }
-
     /**
      * When user canceled editing the next button is enabled or disabled
      * depending on if the user has selected a check box or not.
      */
     public void editingCanceled(ChangeEvent e) {
-        setNextButtonAccordingToCheckBox();
+        selectGroupPanel.setNextButtonAccordingToComboBox();
     }
 
     /**
@@ -98,7 +85,7 @@ public class AddContactWizardPage2
      * depending on if the user has selected a check box or not.
      */
     public void editingStopped(ChangeEvent e) {
-        setNextButtonAccordingToCheckBox();
+        selectGroupPanel.setNextButtonAccordingToComboBox();
     }
 
     public Object getIdentifier() {
@@ -116,7 +103,7 @@ public class AddContactWizardPage2
     }
 
     public void pageNext() {
-        this.selectGroupPanel.addNewContactGroups();
+        this.selectGroupPanel.addNewContactGroup();
     }
 
     public void pageBack() {
