@@ -32,12 +32,13 @@ public class HelpMenu
         = new JMenuItem(aboutString.getText());
     
     private MainFrame mainFrame;
-
+    
     /**
      * Creates an instance of <tt>HelpMenu</tt>.
-     * @param mainFrame The parent <tt>MainFrame</tt>.
+     * @param mainFrame the parent window
      */
-    public HelpMenu(MainFrame mainFrame) {
+    public HelpMenu (MainFrame mainFrame)
+    {
 
         super(Messages.getI18NString("help").getText());
         
