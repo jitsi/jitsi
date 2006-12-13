@@ -120,7 +120,7 @@ public class SelectGroupPanel
         Object group = groupCombo.getSelectedItem();
         
         if (group instanceof GroupWrapper)
-            newContact.addGroup(((GroupWrapper)group).getMetaGroup());
+            newContact.setGroup(((GroupWrapper)group).getMetaGroup());
         else            
             newContact.setNewGroup(group.toString());
     }

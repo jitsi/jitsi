@@ -22,7 +22,7 @@ public class NewContact {
 
     private ArrayList protocolProviders = new ArrayList();
     
-    private ArrayList groups = new ArrayList();
+    private MetaContactGroup group;
     
     private String uin;
     
@@ -45,8 +45,8 @@ public class NewContact {
      * 
      * @param group The <tt>MetaContactGroup</tt> to add.
      */
-    public void addGroup(MetaContactGroup group) {
-        groups.add(group);
+    public void setGroup(MetaContactGroup group) {
+        this.group = group;
     }
 
     /**
@@ -72,8 +72,8 @@ public class NewContact {
      * @return a list of meta contact groups, where this contact should be
      * added.
      */
-    public ArrayList getGroups() {
-        return groups;
+    public MetaContactGroup getGroup() {
+        return group;
     }
 
     /**

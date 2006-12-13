@@ -278,18 +278,13 @@ public class AddContactWizard
             }
             
             ArrayList ppList = newContact.getProtocolProviders();
-            ArrayList groupList = newContact.getGroups();
+            MetaContactGroup group = newContact.getGroup();
     
             for(int i = 0; i < ppList.size(); i ++) {
                 ProtocolProviderService pps
                     = (ProtocolProviderService)ppList.get(i);
-    
-                for(int j = 0; j < groupList.size(); j++) {
-                    MetaContactGroup group
-                        = (MetaContactGroup)groupList.get(j);
                     
-                    new CreateContact(pps, group, newContact).start();
-                }
+                new CreateContact(pps, group, newContact).start();                
             }
         }
     }
