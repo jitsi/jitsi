@@ -8,6 +8,9 @@
     <property name="jdk.home" value="/usr/java/java"/>
     <property name="dest" value="classes"/>
     <property name="bundles.dest" value="sc-bundles"/>
+    <property name="bundles.dest.macosx" value="${bundles.dest}/os/macosx"/>
+    <property name="bundles.dest.windows" value="${bundles.dest}/os/windows"/>
+    <property name="bundles.dest.linux" value="${bundles.dest}/os/linux"/>
     <property name="doc" value="doc"/>
     <property name="java.doc" value="${doc}/api"/>
     <property name="lib" value="lib"/>
@@ -119,6 +122,9 @@
     <path id="project.class.path">
         <pathelement location="${dest}"/>
         <pathelement location="${lib}"/>
+
+        <!-- for mac specific plugins -->
+        <pathelement location="/System/Library/Java"/>
 
         <!-- Include all JAR files found in lib and any of its subdirectories. -->
         <fileset dir="${lib}">
@@ -293,6 +299,13 @@
         <mkdir dir="${doc}"/>
         <mkdir dir="${java.doc}"/>
         <mkdir dir="${bundles.dest}"/>
+
+        <!-- create dirs for os specific bundles -->
+        <mkdir dir="${bundles.dest}/os"/>
+        <mkdir dir="${bundles.dest.macosx}"/>
+        <mkdir dir="${bundles.dest.linux}"/>
+        <mkdir dir="${bundles.dest.windows}"/>
+
         <mkdir dir="${test.reports.dir}"/>
         <mkdir dir="${test.reports.dir}/html"/>
         <mkdir dir="${release}"/>
@@ -335,6 +348,7 @@
                   infostring="SIP Communicator"
                   bundleid="org.sip-communicator"
                   stubfile="${macosx.stubfile}"
+                  extraclasspath="/System/Library/Java"
                   workingdirectory="$APP_PACKAGE/Contents/Resources/Java">
 
         <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
@@ -353,14 +367,18 @@
           <include name="${lib}/felix.jar" />
           <include name="${lib}/BrowserLauncher2.jar" />
           <include name="${lib}/servicebinder.jar" />
+          <include name="${lib}/growl.jar" />
           <include name="${lib}/bundle/*.jar" />
           <exclude name="${lib}/bundle/junit.jar" />
           <include name="${jmf.home}/*.jar" />
           <include name="${bundles.dest}/*.jar" />
+          <include name="${bundles.dest.macosx}/*.jar" />
           <exclude name="${bundles.dest}/*-slick.jar" />
         </jarfileset>
-        <javafilelist dir="${lib}"
-                      files="logging.properties, felix.client.run.properties"/>
+        <javafilelist dir="${lib}" files="logging.properties"/>
+        <javafilelist dir="resources/install/macosx"
+                      files="felix.client.run.properties"/>
+
       </jarbundler>
     </target>
 
@@ -650,7 +668,8 @@
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
-        bundle-version,bundle-version-impl,bundle-shutdown"/>
+        bundle-version,bundle-version-impl,bundle-shutdown,
+        bundle-growlnotification"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1114,6 +1133,16 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/shutdown/shutdown.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/shutdown"
                 prefix="net/java/sip/communicator/impl/shutdown"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-GROWLNOTIFICATION-->
+    <target name="bundle-growlnotification">
+        <!-- Creates a bundle for the growlnotification plugin.-->
+        <jar compress="false" destfile="${bundles.dest.macosx}/growlnotification.jar"
+            manifest="src/net/java/sip/communicator/impl/growlnotification/growlnotification.manifest.mf">
+                    <zipfileset dir="${dest}/net/java/sip/communicator/impl/growlnotification"
+                prefix="net/java/sip/communicator/impl/growlnotification" />
         </jar>
     </target>
 </project>
