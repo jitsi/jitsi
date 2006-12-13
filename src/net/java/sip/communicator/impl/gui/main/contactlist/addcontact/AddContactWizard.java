@@ -283,7 +283,7 @@ public class AddContactWizard
             for(int i = 0; i < ppList.size(); i ++) {
                 ProtocolProviderService pps
                     = (ProtocolProviderService)ppList.get(i);
-                    
+
                 new CreateContact(pps, group, newContact).start();                
             }
         }

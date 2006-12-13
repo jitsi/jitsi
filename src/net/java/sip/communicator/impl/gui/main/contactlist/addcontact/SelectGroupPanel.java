@@ -121,7 +121,7 @@ public class SelectGroupPanel
         
         if (group instanceof GroupWrapper)
             newContact.setGroup(((GroupWrapper)group).getMetaGroup());
-        else            
+        else
             newContact.setNewGroup(group.toString());
     }
     

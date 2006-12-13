@@ -146,12 +146,26 @@ public class SelectAccountPanel extends JPanel {
                 Boolean check = (Boolean)value;
                 if(check.booleanValue()){
                     isSelected = check.booleanValue();
-
+                }
+            }
+        }
+        return isSelected;
+    }
+    
+    public void setSelectedAccounts()
+    {
+        TableModel model = accountsTable.getModel();
+        
+        for (int i = 0; i < accountsTable.getRowCount(); i ++) {
+            Object value = model.getValueAt(i, 0);
+            
+            if (value instanceof Boolean) {
+                Boolean check = (Boolean)value;
+                if(check.booleanValue()){
                     newContact.addProtocolProvider(
                         (ProtocolProviderService)model.getValueAt(i, 1));
                 }
             }
         }
-        return isSelected;
     }
 }
