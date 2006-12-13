@@ -44,8 +44,11 @@ public class RenameGroupPanel extends JPanel {
     /**
      * Creates an instance of <tt>RenameGroupPanel</tt> and initializes it.
      */
-    public RenameGroupPanel() {
+    public RenameGroupPanel(String groupName) {
         super(new BorderLayout());
+        
+        this.textField.setText(groupName);
+        this.textField.select(0, groupName.length());
         
         this.setPreferredSize(new Dimension(500, 200));
         

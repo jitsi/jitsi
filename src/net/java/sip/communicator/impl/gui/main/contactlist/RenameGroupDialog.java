@@ -26,8 +26,7 @@ public class RenameGroupDialog
     extends SIPCommDialog
     implements ActionListener {
 
-    private RenameGroupPanel renameGroupPanel 
-        = new RenameGroupPanel();
+    private RenameGroupPanel renameGroupPanel;
     
     private I18NString renameString = Messages.getI18NString("rename");
     
@@ -59,6 +58,8 @@ public class RenameGroupDialog
         
         this.clist = mainFrame.getContactList();
         this.metaGroup = metaGroup;
+        
+        this.renameGroupPanel = new RenameGroupPanel(metaGroup.getGroupName());
         
         this.init();
     }
