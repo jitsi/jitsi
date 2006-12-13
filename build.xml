@@ -40,8 +40,6 @@
     <property name="macosx.resrc.dir" value="${inst.resrc}/macosx"/>
     <!-- Put here the Application name -->
     <property name="macosx.app.name" value="SIP Communicator"/>
-    <!-- Put here the Application version -->
-    <property name="macosx.app.ver" value="1.0.rc1"/>
 
     <!-- The release directory for Debian packages -->
     <property name="debian.dir" value="${release}/debian"/>
@@ -321,18 +319,18 @@
       </condition>
 
       <!-- Delete the old .app if it exists -->
-      <delete dir="${macosx.app.dir}/${macosx.app.name}-${macosx.app.ver}.app"
+      <delete dir="${macosx.app.dir}/${macosx.app.name}-${sip-communicator.version}.app"
               quiet="yes" failonerror="false"/>
 
       <!-- This creates the .app for MacOSX -->
       <jarbundler dir="${macosx.app.dir}"
-                  name="${macosx.app.name}-${macosx.app.ver}"
+                  name="${macosx.app.name}-${sip-communicator.version}"
                   shortname="SIP Communicator"
                   signature="sipc"
                   mainclass="org.apache.felix.main.Main"
                   icon="src/net/java/sip/communicator/impl/gui/resources/common/logo/sc_logo_128x128.icns"
                   jvmversion="1.4+"
-                  version="${macosx.app.ver}"
+                  version="${sip-communicator.version}"
                   build="draft"
                   infostring="SIP Communicator"
                   bundleid="org.sip-communicator"
@@ -351,8 +349,10 @@
                       value="logging.properties"/>
 
         <jarfileset dir=".">
-          <include name="${lib}/*.jar" />
-          <exclude name="${lib}/junit.jar" />
+          <include name="${lib}/kxml-min.jar" />
+          <include name="${lib}/felix.jar" />
+          <include name="${lib}/BrowserLauncher2.jar" />
+          <include name="${lib}/servicebinder.jar" />
           <include name="${lib}/bundle/*.jar" />
           <exclude name="${lib}/bundle/junit.jar" />
           <include name="${jmf.home}/*.jar" />
@@ -368,15 +368,15 @@
     <target name="dmg" depends="macosx"
             description="Create a .dmg package for MACOSX (only works on MACOSX)">
       <property name="macosx.dmg.name"
-                value="${macosx.app.name}-${macosx.app.ver}.dmg"/>
+                value="${macosx.app.name}-${sip-communicator.version}.dmg"/>
 
       <!-- This is executed only if the OS is MacOSX -->
       <exec executable="/usr/bin/hdiutil" os="Mac OS X">
         <arg value="create"/>
         <arg value="-srcfolder"/>
-        <arg value="${macosx.app.dir}/${macosx.app.name}-${macosx.app.ver}.app"/>
+        <arg value="${macosx.app.dir}/${macosx.app.name}-${sip-communicator.version}.app"/>
         <arg value="-volname"/>
-        <arg value="${macosx.app.name} ${macosx.app.ver}"/>
+        <arg value="${macosx.app.name} ${sip-communicator.version}"/>
         <arg value="-ov"/>
         <arg value="${macosx.app.dir}/${macosx.dmg.name}"/>
       </exec>
