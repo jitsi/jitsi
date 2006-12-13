@@ -640,15 +640,15 @@ public class ChatPanel
      * @return <code>true</code> if this chat panel is currently visible,
      * <code>false</code> otherwise.
      */
-    public boolean isDialogVisible() {
+    public boolean isWindowVisible() {
         return this.isVisible;
     }
 
     /**
-     * Implements the <code>ApplicationWindow.show</code> method, to 
+     * Implements the <code>ApplicationWindow.showWindow</code> method, to 
      * make a chat panel visible.
      */
-    public void show() {
+    public void showWindow() {
         
         if(Constants.TABBED_CHAT_WINDOW) {
             if(!chatWindow.containsContactChat(this))
@@ -665,10 +665,10 @@ public class ChatPanel
     }
 
     /**
-     * Implements the <code>ApplicationWindow.hide</code> method. Hides the chat
-     * panel.
+     * Implements the <code>ApplicationWindow.hideWindow</code> method. Hides
+     * the chat panel.
      */
-    public void hide() {
+    public void hideWindow() {
         this.isVisible = false;
         
         if(Constants.TABBED_CHAT_WINDOW) {
@@ -680,39 +680,39 @@ public class ChatPanel
     }
 
     /**
-     * Implements the <code>ApplicationWindow.resize</code> method. Resizes the 
-     * chat window to the given width and height.
+     * Implements the <code>ApplicationWindow.resizeWindow</code> method.
+     * Resizes the chat window to the given width and height.
      * @param width The new width to set.
      * @param height The new height to set.
      */
-    public void resize(int width, int height) {
+    public void resizeWindow(int width, int height) {
         this.chatWindow.setSize(width, height);
     }
 
     /**
-     * Implements the <code>ApplicationWindow.move</code> method. Moves 
+     * Implements the <code>ApplicationWindow.moveWindow</code> method. Moves 
      * the chat window to the given x and y coordinates.
      * @param x The <code>x</code> coordinate.
      * @param y The <code>y</code> coordinate.
      */
-    public void move(int x, int y) {
+    public void moveWindow(int x, int y) {
         this.chatWindow.setLocation(x, y);
     }
 
     /**
-     * Implements the <code>ApplicationWindow.minimize</code> method. Minimizes 
-     * the chat window.
+     * Implements the <code>ApplicationWindow.minimizeWindow</code> method.
+     * Minimizes the chat window.
      */
-    public void minimize()
+    public void minimizeWindow()
     {
         this.chatWindow.setState(JFrame.ICONIFIED);
     }
 
     /**
-     * Implements the <code>ApplicationWindow.maximize</code> method. Maximizes
-     * the chat window.
+     * Implements the <code>ApplicationWindow.maximizeWindow</code> method.
+     * Maximizes the chat window.
      */
-    public void maximize()
+    public void maximizeWindow()
     {
         this.chatWindow.setState(JFrame.MAXIMIZED_BOTH);
     }

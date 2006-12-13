@@ -230,18 +230,18 @@ public class ConfigurationFrame
     }
 
     /**
-     * Implements <code>ApplicationWindow.isVisible</code> method.
-     * @see net.java.sip.communicator.service.gui.ApplicationWindow#isVisible()
+     * Implements <code>ApplicationWindow.isWindowVisible</code> method.
+     * @see net.java.sip.communicator.service.gui.ApplicationWindow#isWindowVisible()
      */
-    public boolean isDialogVisible() {
+    public boolean isWindowVisible() {
         return this.isVisible();
     }
 
     /**
-     * Implements <code>ApplicationWindow.showDialog</code> method.
-     * @see net.java.sip.communicator.service.gui.ApplicationWindow#show()
+     * Implements <code>ApplicationWindow.showWindow</code> method.
+     * @see net.java.sip.communicator.service.gui.ApplicationWindow#showWindow()
      */
-    public void showDialog() {
+    public void showWindow() {
         
         ConfigurationForm configForm 
             = (ConfigurationForm) this.configContainer.get(0);
@@ -265,29 +265,43 @@ public class ConfigurationFrame
     }
 
     /**
-     * Implements <code>ApplicationWindow.hide</code> method.
-     * @see net.java.sip.communicator.service.gui.ApplicationWindow#hide()
+     * Implements <code>ApplicationWindow.hideWindow</code> method.
+     * @see net.java.sip.communicator.service.gui.ApplicationWindow#hideWindow()
      */
-    public void hideDialog() {
+    public void hideWindow() {
         this.setVisible(false);
     }
 
     /**
-     * Implements <code>ApplicationWindow.resize</code> method.
-     * @see net.java.sip.communicator.service.gui.ApplicationWindow#resize(int, int)
+     * Implements <code>ApplicationWindow.resizeWindow</code> method.
+     * @see net.java.sip.communicator.service.gui.ApplicationWindow#resizeWindow(int, int)
      */
-    public void resizeDialog(int width, int height) {
+    public void resizeWindow(int width, int height) {
         this.setSize(width, height);
     }
 
     /**
-     * Implements <code>ApplicationWindow.move</code> method.
-     * @see net.java.sip.communicator.service.gui.ApplicationWindow#move(int, int)
+     * Implements <code>ApplicationWindow.moveWindow</code> method.
+     * @see net.java.sip.communicator.service.gui.ApplicationWindow#moveWindow(int, int)
      */
-    public void moveDialog(int x, int y) {
+    public void moveWindow(int x, int y) {
         this.setLocation(x, y);
     }
 
+    /**
+     * Implements <code>ApplicationWindow.minimizeWindow</code> method.
+     * @see net.java.sip.communicator.service.gui.ApplicationWindow#minimizeWindow()
+     */
+    public void minimizeWindow()
+    {}
+
+    /**
+     * Implements <code>ApplicationWindow.maximizeWindow</code> method.
+     * @see net.java.sip.communicator.service.gui.ApplicationWindow#maximizeWindow()
+     */
+    public void maximizeWindow()
+    {}
+    
     /**
      * Implements <tt>SIPCommFrame</tt> close method.
      */
@@ -295,10 +309,5 @@ public class ConfigurationFrame
     {
         this.closeButton.doClick();
     }
-
-    public void minimize()
-    {}
-
-    public void maximize()
-    {}    
+    
 }

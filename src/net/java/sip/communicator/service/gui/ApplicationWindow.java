@@ -21,17 +21,17 @@ public interface ApplicationWindow {
      * @return <code>true</code> if the window is visible and
      * <code>false</code> otherwise.
      */
-    public boolean isVisible();
+    public boolean isWindowVisible();
     
     /**
      * Shows the window.
      */
-    public void show();
+    public void showWindow();
     
     /**
      * Hides the window.
      */
-    public void hide();
+    public void hideWindow();
     
     /**
      * Resizes the window with the given width and height.
@@ -39,7 +39,7 @@ public interface ApplicationWindow {
      * @param width The new width.
      * @param height The new height.
      */
-    public void resize(int width, int height);
+    public void resizeWindow(int width, int height);
     
     /**
      * Moves the window to the given coordinates.
@@ -47,15 +47,15 @@ public interface ApplicationWindow {
      * @param x The x coordinate.
      * @param y The y coordinate.
      */
-    public void move(int x, int y);
+    public void moveWindow(int x, int y);
     
     /**
      * Minimizes the window.
      */
-    public void minimize();
+    public void minimizeWindow();
     
     /**
      * Maximizes the window.
      */
-    public void maximize();
+    public void maximizeWindow();
 }

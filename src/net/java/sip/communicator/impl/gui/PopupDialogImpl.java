@@ -220,49 +220,49 @@ public class PopupDialogImpl extends JOptionPane
     }
 
     /**
-     * Implements the <tt>PopupDialog.isDialogVisible</tt> method.
+     * Implements the <tt>PopupDialog.isWindowVisible</tt> method.
      * @return <code>true</code> if the dialog is visible, <code>false</code>
      * otherwise.
      */
-    public boolean isDialogVisible() {
+    public boolean isWindowVisible() {
         return this.isVisible();
     }
 
     /**
-     * Implements the <tt>PopupDialog.isDialogVisible</tt> method.
+     * Implements the <tt>PopupDialog.showWindow</tt> method.
      * Shows this <tt>JOptionPane</tt>.
      */
-    public void showDialog() {
+    public void showWindow() {
         this.setVisible(true);
     }
 
     /**
-     * Implements the <tt>PopupDialog.isDialogVisible</tt> method.
+     * Implements the <tt>PopupDialog.hideWindow</tt> method.
      * Hides this <tt>JOptionPane</tt>.
      */
-    public void hideDialog() {
+    public void hideWindow() {
         this.setVisible(false);
     }
 
     /**
-     * Implements the <tt>PopupDialog.isDialogVisible</tt> method.
+     * Implements the <tt>PopupDialog.resizeWindow</tt> method.
      * Resizes this <tt>JOptionPane</tt>.
      */
-    public void resizeDialog(int width, int height) {
+    public void resizeWindow(int width, int height) {
         this.setSize(width, height);
     }
 
     /**
-     * Implements the <tt>PopupDialog.isDialogVisible</tt> method.
+     * Implements the <tt>PopupDialog.moveWindow</tt> method.
      * Moves this <tt>JOptionPane</tt>.
      */
-    public void moveDialog(int x, int y) {
+    public void moveWindow(int x, int y) {
         this.setLocation(x, y);
     }
 
-    public void minimize()
+    public void minimizeWindow()
     {}
 
-    public void maximize()
+    public void maximizeWindow()
     {}    
 }
