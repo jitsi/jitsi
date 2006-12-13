@@ -273,7 +273,7 @@
         <delete failonerror="false">
             <fileset dir="${dest}" includes="net/java/sip/communicator/impl/version/*.class"/>
         </delete>
-        <javac destdir="${dest}">
+        <javac destdir="${dest}" source="1.4" target="1.4">
             <src path="${src}"/>
             <include name="net/java/sip/communicator/impl/version/NightlyBuildID.java" />
             <include name="net/java/sip/communicator/impl/version/VersionImpl.java" />
@@ -565,6 +565,9 @@
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
                 value="lib/logging.properties"/>
+
+            <sysproperty key="net.java.preferIPv6Addresses"
+                value="true"/>
 
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path" value="${ld.library.path}:${path}"/>
