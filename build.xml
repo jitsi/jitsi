@@ -808,6 +808,7 @@
                 prefix="net/java/sip/communicator/impl/media"/>
             <zipfileset src="${jmf.home}/jmf.jar" prefix=""/>
             <zipfileset src="${lib}/nist-sdp-1.0.jar" prefix=""/>
+             <zipfileset src="${lib}/jspeex.jar" prefix=""/>
         </jar>
     </target>
 
