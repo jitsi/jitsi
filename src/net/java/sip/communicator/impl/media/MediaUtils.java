@@ -50,6 +50,12 @@ public class MediaUtils
                 return AudioFormat.DVI_RTP;
             case SdpConstants.PCMA:
                 return Constants.ALAW_RTP;
+            case 97:
+                return Constants.ILBC_RTP;
+            case 98:
+                return Constants.ILBC_RTP;
+            case 110:
+                return Constants.SPEEX_RTP;
             case SdpConstants.G728:
                 return AudioFormat.G728_RTP;
             case SdpConstants.G729:
@@ -128,6 +134,22 @@ public class MediaUtils
         else if (jmfEncoding.equals(VideoFormat.H261_RTP))
         {
             return Integer.toString(SdpConstants.H261);
+        }
+        else if (jmfEncoding.equals(Constants.ILBC))
+        {
+            return Integer.toString(97);
+        }
+        else if (jmfEncoding.equals(Constants.ILBC_RTP))
+        {
+            return Integer.toString(97);
+        }
+        else if (jmfEncoding.equals(Constants.SPEEX))
+        {
+            return Integer.toString(110);
+        }
+        else if (jmfEncoding.equals(Constants.SPEEX_RTP))
+        {
+            return Integer.toString(110);
         }
         else
         {

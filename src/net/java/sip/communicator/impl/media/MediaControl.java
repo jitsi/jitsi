@@ -81,8 +81,8 @@ public class MediaControl
             // javax.media.format.AudioFormat.DVI_RTP;
             Integer.toString(SdpConstants.DVI4_16000),
             // javax.media.format.AudioFormat.ALAW;
-            // PCMU is only supported for decoding ... as good as not supported
-            //Integer.toString(SdpConstants.PCMA),
+            Integer.toString(SdpConstants.PCMA),
+            Integer.toString(110),
             // javax.media.format.AudioFormat.G728_RTP;
             Integer.toString(SdpConstants.G728)
             // javax.media.format.AudioFormat.G729_RTP
@@ -132,7 +132,11 @@ public class MediaControl
     {
         "net.java.sip.communicator.impl.media.codec.audio.alaw.JavaEncoder",
         "net.java.sip.communicator.impl.media.codec.audio.alaw.DePacketizer",
-        "net.java.sip.communicator.impl.media.codec.audio.alaw.Packetizer"
+        "net.java.sip.communicator.impl.media.codec.audio.alaw.Packetizer",
+        "net.java.sip.communicator.impl.media.codec.audio.speex.JavaEncoder",
+        "net.java.sip.communicator.impl.media.codec.audio.speex.JavaDecoder"
+//        ,"net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaEncoder",
+//        "net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaDecoder"
 //        "net.java.sip.communicator.impl.media.codec.audio.g729.JavaDecoder",
 //        "net.java.sip.communicator.impl.media.codec.audio.g729.JavaEncoder",
 //        "net.java.sip.communicator.impl.media.codec.audio.g729.DePacketizer",

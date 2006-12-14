@@ -13,4 +13,8 @@ package net.java.sip.communicator.impl.media.codec;
 public class Constants
 {
     public static final String ALAW_RTP = "ALAW/rtp";
+    public static final String SPEEX_RTP = "speex/rtp";
+    public static final String SPEEX = "speex";
+    public static final String ILBC_RTP = "ilbc/rtp";
+    public static final String ILBC = "ilbc";
 }
