@@ -116,15 +116,18 @@ public class SimpleStatusSelectorBox
             }
         }
         else {
-            try {
-                mainFrame.getLoginManager()
-                    .setManuallyDisconnected(true);
-                protocolProvider.unregister();
-            }
-            catch (OperationFailedException e1) {
-                logger.error("Unable to unregister the protocol provider: "
-                        + protocolProvider
-                        + " due to the following exception: " + e1);
+            if(protocolProvider.isRegistered())
+            {
+                try {
+                    mainFrame.getLoginManager()
+                        .setManuallyDisconnected(true);
+                    protocolProvider.unregister();
+                }
+                catch (OperationFailedException e1) {
+                    logger.error("Unable to unregister the protocol provider: "
+                            + protocolProvider
+                            + " due to the following exception: " + e1);
+                }
             }
         }
     }

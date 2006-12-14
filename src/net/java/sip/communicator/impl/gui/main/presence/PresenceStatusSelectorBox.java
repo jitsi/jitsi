@@ -150,7 +150,7 @@ public class PresenceStatusSelectorBox
                             }
                             setSelectedStatus(status);                                
                         }
-                        else {
+                        else if (status.isOnline()){
                             lastSelectedStatus = status; 
                             loginManager.login(protocolProvider);
                         }
