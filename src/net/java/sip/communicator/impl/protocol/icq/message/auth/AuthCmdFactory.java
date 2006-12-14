@@ -107,10 +107,10 @@ public class AuthCmdFactory
                     if (authRequest != null)
                     {
                         //SNAC(13,14)     send future authorization grant to client
-//                        aimConnection.getSsiService().sendSnac(
-//                            new AuthFutureCmd(
-//                                uinToAskForAuth,
-//                                authRequest.getReason()));
+                        aimConnection.getSsiService().sendSnac(
+                            new AuthFutureCmd(
+                                uinToAskForAuth,
+                                authRequest.getReason()));
 
                         Vector buddiesToBeAdded = new Vector();
 
