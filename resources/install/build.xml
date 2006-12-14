@@ -154,7 +154,7 @@
 
         <izpack
                input="${basedir}/${inst.resrc}/windows/installer-windows.xml"
-               output="${windows.app.dir}/tmp/sip-communicator-${sip-communicator.version}-windows.jar"
+               output="${windows.app.dir}/tmp/sip-communicator-windows.jar"
                installerType="standard"
                basedir="${basedir}"
                izPackDir="${izpack.dir}/"/>
