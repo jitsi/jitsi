@@ -76,7 +76,6 @@ public class SelectGroupPanel
         this.newContact = newContact;
         
         this.groupCombo.setPreferredSize(new Dimension(300, 22));
-        this.groupCombo.setEditable(true);
         this.groupCombo.addItemListener(this);
         
         while(groupsList.hasNext())
@@ -115,14 +114,11 @@ public class SelectGroupPanel
     /**
      * Adds all selected from user contact groups in the new contact.
      */
-    public void addNewContactGroup()
+    public void setGroup()
     {
         Object group = groupCombo.getSelectedItem();
         
-        if (group instanceof GroupWrapper)
-            newContact.setGroup(((GroupWrapper)group).getMetaGroup());
-        else
-            newContact.setNewGroup(group.toString());
+        newContact.setGroup(((GroupWrapper)group).getMetaGroup());        
     }
     
     /**

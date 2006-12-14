@@ -6,24 +6,19 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
-import java.awt.*;
 import java.util.*;
-
-import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 public class AddContactWizard
     extends Wizard
-    implements  MetaContactListListener,
-                WizardListener
+    implements  WizardListener
 {
     private Logger logger = Logger.getLogger(AddContactWizard.class.getName());
     
@@ -61,9 +56,7 @@ public class AddContactWizard
 
         this.registerWizardPage(AddContactWizardPage3.IDENTIFIER, page3);
 
-        this.setCurrentPage(AddContactWizardPage1.IDENTIFIER);
-        
-        this.mainFrame.getContactList().addMetaContactListListener(this);
+        this.setCurrentPage(AddContactWizardPage1.IDENTIFIER);        
     }
     
     /**
@@ -80,13 +73,15 @@ public class AddContactWizard
         ProtocolProviderService pps;
         MetaContactGroup group;
         NewContact newContact;
+        
         CreateContact(ProtocolProviderService pps,
-                MetaContactGroup group,
-                NewContact newContact) {
+                NewContact newContact)
+        {
             this.pps = pps;
-            this.group = group;
+            this.group = newContact.getGroup();
             this.newContact = newContact;
         }
+        
         public void run() {
             try {
                 mainFrame.getContactList()
@@ -96,7 +91,7 @@ public class AddContactWizard
             catch (MetaContactListException ex) {
                 logger.error(ex);
                 ex.printStackTrace();
-                int errorCode = ex.getErrorCode();                
+                int errorCode = ex.getErrorCode();
                 
                 if (errorCode
                         == MetaContactListException
@@ -145,146 +140,18 @@ public class AddContactWizard
             }
         }
     }
-    
-    /**
-     * Creates a new meta contact group in a separate thread.
-     */
-    private class CreateGroup extends Thread {
-        MetaContactListService mcl;
-        NewContact newContact;
-        
-        CreateGroup(MetaContactListService mcl,
-                NewContact newContact) {
-            this.mcl = mcl;
-            this.newContact = newContact;
-        }
-        public void run() {
-            
-            new Thread() {
-                public void run() {
-                    String groupName = newContact.getNewGroup();
-                    try {
-                        mcl.createMetaContactGroup(
-                            mcl.getRoot(), groupName);
-                    }
-                    catch (MetaContactListException ex) {
-                        logger.error(ex);
-                        int errorCode = ex.getErrorCode();
-                        
-                        if (errorCode
-                                == MetaContactListException
-                                    .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
-                                
-                            new ErrorDialog(mainFrame,
-                                    Messages.getI18NString(
-                                            "addGroupExistError",
-                                            groupName).getText(),
-                                    Messages.getI18NString(
-                                            "addGroupErrorTitle").getText())
-                                            .showDialog();
-                        }
-                        else if (errorCode
-                            == MetaContactListException.CODE_LOCAL_IO_ERROR) {
-                            
-                            new ErrorDialog(mainFrame,
-                                Messages.getI18NString(
-                                        "addGroupLocalError",
-                                        groupName).getText(),
-                                Messages.getI18NString(
-                                        "addGroupErrorTitle").getText())
-                                        .showDialog();
-                        }
-                        else if (errorCode
-                                == MetaContactListException.CODE_NETWORK_ERROR) {
-                            
-                            new ErrorDialog(mainFrame,
-                                    Messages.getI18NString(
-                                            "addGroupNetError",
-                                            groupName).getText(),
-                                    Messages.getI18NString(
-                                            "addGroupErrorTitle").getText())
-                                            .showDialog();
-                        }
-                        else {
-                            
-                            new ErrorDialog(mainFrame,
-                                    Messages.getI18NString(
-                                            "addGroupError",
-                                            groupName).getText(),
-                                    Messages.getI18NString(
-                                            "addGroupErrorTitle").getText())
-                                            .showDialog();
-                        }
-                    }
-                }
-            }.start();
-        }
-    }
-
-    public void metaContactAdded(MetaContactEvent evt)
-    {}
-
-    public void metaContactRenamed(MetaContactRenamedEvent evt)
-    {}
-
-    public void protoContactAdded(ProtoContactEvent evt)
-    {}
-
-    public void protoContactRemoved(ProtoContactEvent evt)
-    {}
-
-    public void protoContactMoved(ProtoContactEvent evt)
-    {}
-
-    public void metaContactRemoved(MetaContactEvent evt)
-    {}
-
-    public void metaContactMoved(MetaContactMovedEvent evt)
-    {}
-
-    public void metaContactGroupAdded(MetaContactGroupEvent evt)
-    {
-        MetaContactGroup group
-            = (MetaContactGroup)evt.getSourceMetaContactGroup();
-    
-        if(group.getGroupName().equals(newContact.getNewGroup())) {
-            ArrayList ppList = newContact.getProtocolProviders();
-            
-            for(int i = 0; i < ppList.size(); i ++) {
-                ProtocolProviderService pps
-                    = (ProtocolProviderService)ppList.get(i);
-                
-                new CreateContact(pps, group, newContact).start();
-            }
-        }
-    }
-
-    public void metaContactGroupModified(MetaContactGroupEvent evt)
-    {}
-
-    public void metaContactGroupRemoved(MetaContactGroupEvent evt)
-    {}
-
-    public void childContactsReordered(MetaContactGroupEvent evt)
-    {}
 
     public void wizardFinished(WizardEvent e)
     {
         if(e.getEventCode() == WizardEvent.SUCCESS) {
-            if(newContact.getNewGroup() != null
-                    && !newContact.getNewGroup().equals("")) {                
-                new CreateGroup(mainFrame.getContactList(), 
-                        newContact).start();
-            }
             
             ArrayList ppList = newContact.getProtocolProviders();
-            MetaContactGroup group = newContact.getGroup();
-    
+                
             for(int i = 0; i < ppList.size(); i ++) {
                 ProtocolProviderService pps
                     = (ProtocolProviderService)ppList.get(i);
 
-                new CreateContact(pps, group, newContact).start();                
+                new CreateContact(pps, newContact).start();                
             }
         }
     }

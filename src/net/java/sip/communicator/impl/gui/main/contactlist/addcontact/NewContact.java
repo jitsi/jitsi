@@ -26,8 +26,6 @@ public class NewContact {
     
     private String uin;
     
-    private String newGroup;
-    
     /**
      * Adds a protocol provider to the list of protocol providers, where this
      * contact will be added.
@@ -84,15 +82,5 @@ public class NewContact {
      */
     public ArrayList getProtocolProviders() {
         return protocolProviders;
-    }
-
-    public String getNewGroup()
-    {
-        return newGroup;
-    }
-
-    public void setNewGroup(String newGroup)
-    {
-        this.newGroup = newGroup;
     }
 }

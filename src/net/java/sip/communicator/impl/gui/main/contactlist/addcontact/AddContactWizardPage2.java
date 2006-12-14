@@ -103,7 +103,7 @@ public class AddContactWizardPage2
     }
 
     public void pageNext() {
-        this.selectGroupPanel.addNewContactGroup();
+        this.selectGroupPanel.setGroup();
     }
 
     public void pageBack() {
