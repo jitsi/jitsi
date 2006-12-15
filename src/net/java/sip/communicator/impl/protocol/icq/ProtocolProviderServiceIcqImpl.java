@@ -540,6 +540,14 @@ public class ProtocolProviderServiceIcqImpl
             new RegistrationStateChangeEvent(
                             this, oldState, newState, reasonCode, reason);
 
+        if(newState.equals(RegistrationState.CONNECTION_FAILED) &&
+            isRegistered())
+        {
+            // if for some reason (keep alive failed) and connection is
+            // still connected disconneted
+            unregister();
+        }
+
         logger.debug("Dispatching " + event + " to "
                      + registrationListeners.size()+ " listeners.");
 

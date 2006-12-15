@@ -106,7 +106,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
     /**
      * The timer executing tasks on specified intervals
      */
-    private Timer keepAliveTimer = new Timer();
+    private Timer keepAliveTimer = null;
     /**
      * The queue holding the received packets
      */
@@ -449,11 +449,25 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 if(keepAliveSendTask == null)
                 {
                     keepAliveSendTask = new KeepAliveSendTask();
+                    keepAliveTimer = new Timer();
 
                     keepAliveTimer.scheduleAtFixedRate(
                         keepAliveSendTask, KEEPALIVE_INTERVAL, KEEPALIVE_INTERVAL);
                 }
             }
+            else
+                if (evt.getNewState() == RegistrationState.UNREGISTERED)
+                {
+                    // stop keepalive thread
+                    if (keepAliveSendTask != null)
+                    {
+                        keepAliveSendTask.cancel();
+                        keepAliveTimer.cancel();
+
+                        keepAliveSendTask = null;
+                        keepAliveTimer = null;
+                    }
+                }
         }
     }
 
