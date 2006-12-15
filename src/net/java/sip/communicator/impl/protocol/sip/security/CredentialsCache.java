@@ -59,4 +59,12 @@ class CredentialsCache
         return (CredentialsCacheEntry)this.authenticatedRealms.remove(realm);
     }
 
+    /**
+     * Empty the credentials cache (all authorization challenges) would end up
+     * requesting a password from the user.
+     */
+    void clear()
+    {
+        authenticatedRealms.clear();
+    }
 }
