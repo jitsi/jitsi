@@ -431,6 +431,11 @@ public class CallManager
         
         mainFrame.addCallPanel(callPanel);
         
+        if(mainFrame.getState() == JFrame.ICONIFIED)
+            mainFrame.setState(JFrame.NORMAL);
+        
+        mainFrame.toFront();
+        
         this.callButton.setEnabled(true);
         this.hangupButton.setEnabled(true);
         
