@@ -20,7 +20,7 @@
 	<classpathentry kind="lib" path="lib/oscar-aim.jar"/>
 	<classpathentry kind="lib" path="lib/retroweaver.jar"/>
 	<classpathentry kind="lib" path="lib/retroweaver-rt.jar"/>
-    <classpathentry kind="lib" path="lib/jml-1.0a3.jar"/>
+    <classpathentry kind="lib" path="lib/jml-1.0b1.jar"/>
     <classpathentry kind="lib" path="lib/commons-logging.jar"/>
     <classpathentry kind="lib" path="lib/cindy.jar"/>
 	<classpathentry kind="output" path="bin"/>

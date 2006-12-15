@@ -994,7 +994,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/protocol/msn/msn.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/msn"
                 prefix="net/java/sip/communicator/impl/protocol/msn"/>
-            <zipfileset src="${lib}/jml-1.0a3.jar" prefix=""/>
+            <zipfileset src="${lib}/jml-1.0b1.jar" prefix=""/>
             <zipfileset src="${lib}/cindy.jar" prefix=""/>
             <zipfileset src="${lib}/commons-logging.jar" prefix=""/>
         </jar>
@@ -1008,7 +1008,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="test/net/java/sip/communicator/slick/protocol/msn/msn.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/msn"
                 prefix="net/java/sip/communicator/slick/protocol/msn"/>
-            <zipfileset src="${lib}/jml-1.0a3.jar" prefix=""/>
+            <zipfileset src="${lib}/jml-1.0b1.jar" prefix=""/>
             <zipfileset src="${lib}/cindy.jar" prefix=""/>
             <zipfileset src="${lib}/commons-logging.jar" prefix=""/>
         </jar>

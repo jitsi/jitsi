@@ -739,6 +739,10 @@ public class ServerStoredContactListMsnImpl
             for (int i = 0; i < groups.length; i++)
             {
                 MsnGroup item = groups[i];
+
+                if(item.isDefaultGroup())
+                    continue;
+
                 ContactGroupMsnImpl group = findContactGroup(item.getGroupName());
 
                 if (group == null)
@@ -831,6 +835,11 @@ public class ServerStoredContactListMsnImpl
         public void contactRemovedMe(MsnMessenger messenger, MsnContact contact)
         {
         }
+
+        public void contactAddCompleted(MsnMessenger messenger, MsnContact contact){}
+        public void contactRemoveCompleted(MsnMessenger messenger, MsnContact contact){}
+        public void groupAddCompleted(MsnMessenger messenger, MsnGroup group){}
+        public void groupRemoveCompleted(MsnMessenger messenger, MsnGroup group){}
     }
 
     /**
