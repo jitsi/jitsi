@@ -111,12 +111,26 @@ public class ProtocolProviderServiceJabberImpl
             int reason
                 = RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
 
+            RegistrationState regState = RegistrationState.UNREGISTERED;
+
             if(ex.getWrappedThrowable() instanceof UnknownHostException)
+            {
                 reason
                     = RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
+                regState = RegistrationState.CONNECTION_FAILED;
+            }
+            else
+                if((connection.getSASLAuthentication() != null &&
+                    connection.getSASLAuthentication().isAuthenticated()) ||
+                    !connection.isAuthenticated())
+                {
+                    reason
+                        = RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED;
+                    regState = RegistrationState.AUTHENTICATION_FAILED;
+                }
 
-            fireRegistrationStateChanged(getRegistrationState(),
-                RegistrationState.CONNECTION_FAILED, reason, null);
+            fireRegistrationStateChanged(
+                getRegistrationState(), regState, reason, null);
         }
     }
 

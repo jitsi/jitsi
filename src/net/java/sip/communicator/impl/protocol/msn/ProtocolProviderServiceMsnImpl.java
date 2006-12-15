@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.msn;
 
+import java.nio.channels.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -161,7 +162,17 @@ public class ProtocolProviderServiceMsnImpl
             persistentPresence.setMessenger(messenger);
             typingNotifications.setMessenger(messenger);
 
-            messenger.login();
+            try
+            {
+                messenger.login();
+            }
+            catch (UnresolvedAddressException ex)
+            {
+                fireRegistrationStateChanged(
+                    getRegistrationState(),
+                    RegistrationState.CONNECTION_FAILED,
+                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND, null);
+            }
         }
     }
 
@@ -398,7 +409,8 @@ public class ProtocolProviderServiceMsnImpl
         logger.debug("Dispatching " + event + " to "
                      + registrationListeners.size()+ " listeners.");
 
-        if(newState.equals(RegistrationState.UNREGISTERED))
+        if(newState.equals(RegistrationState.UNREGISTERED) ||
+            newState.equals(RegistrationState.CONNECTION_FAILED))
             messenger = null;
 
         Iterator listeners = null;
@@ -451,7 +463,7 @@ public class ProtocolProviderServiceMsnImpl
             if(throwable instanceof IncorrectPasswordException)
                 fireRegistrationStateChanged(
                     getRegistrationState(),
-                    RegistrationState.UNREGISTERED,
+                    RegistrationState.AUTHENTICATION_FAILED,
                     RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED,
                     "Incorrect Password");
             else
@@ -485,7 +497,7 @@ public class ProtocolProviderServiceMsnImpl
                                 unregister(false);
                                 fireRegistrationStateChanged(
                                     getRegistrationState(),
-                                    RegistrationState.UNREGISTERED,
+                                    RegistrationState.AUTHENTICATION_FAILED,
                                     RegistrationStateChangeEvent.
                                     REASON_AUTHENTICATION_FAILED, null);
                             }
