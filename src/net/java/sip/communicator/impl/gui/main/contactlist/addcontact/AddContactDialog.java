@@ -141,8 +141,12 @@ public class AddContactDialog
         
         if (name.equals("add")) {
             if (metaContact != null) {
-                this.clist.addNewContactToMetaContact(pps, metaContact,
-                    addContactPanel.getUIN());
+                new Thread() {
+                    public void run() {
+                        clist.addNewContactToMetaContact(pps, metaContact,
+                            addContactPanel.getUIN());
+                    }
+                }.start();                
             }
             else if (group != null) {
                 new Thread() {
