@@ -779,6 +779,13 @@ public class SipRegistrarConnection
                                            , response
                                            , sourceProvider);
         }
+        //403 FORBIDDEN
+        else if (response.getStatusCode() == Response.FORBIDDEN)
+        {
+            processForbidden(clientTransaction
+                             , response
+                             , sourceProvider);
+        }
         //errors
         else if ( response.getStatusCode() / 100 == 4 )
         {
@@ -833,6 +840,37 @@ public class SipRegistrarConnection
                 );
         }
     }
+
+    /**
+     * Makes sure that the last password used is removed from the cache, and
+     * notifies the user of the authentication failure..
+     *
+     * @param clientTransaction the corresponding transaction
+     * @param response the challenge
+     * @param jainSipProvider the provider that received the challende
+     */
+    private void processForbidden(
+                        ClientTransaction clientTransaction,
+                        Response          response,
+                        SipProvider       jainSipProvider)
+    {
+        logger.debug("Authenticating a Register request.");
+
+        sipProvider.getSipSecurityManager().handleForbiddenResponse(
+                response
+                , clientTransaction
+                , jainSipProvider);
+
+
+            //tell the others we couldn't register
+            this.setRegistrationState(
+                RegistrationState.AUTHENTICATION_FAILED
+                , RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED
+                , "Received a "+Response.FORBIDDEN+" FORBIDDEN response while "
+                +"authenticating. Server returned error:"
+                + response.getReasonPhrase());
+    }
+
 
     /**
      * Process an asynchronously reported DialogTerminatedEvent.
