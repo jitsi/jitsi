@@ -722,7 +722,7 @@ public class ChatWindow
     
             JMenu selectedMenu = menusPanel.getMainMenuBar().getSelectedMenu();
             JMenu contactMenu = currentChatPanel.getChatSendPanel()
-                .getContactSelectorBox();
+                .getProtoContactSelectorBox().getMenu();
             
             MenuSelectionManager menuSelectionManager
                 = MenuSelectionManager.defaultManager();

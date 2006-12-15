@@ -201,9 +201,9 @@ public class ChatSendPanel
      * 
      * @return the protocol contact selector box.
      */
-    public SIPCommMenu getContactSelectorBox()
+    public ProtocolContactSelectorBox getProtoContactSelectorBox()
     {
-        return contactSelectorBox.getMenu();
+        return contactSelectorBox;
     }
 
     /**

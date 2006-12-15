@@ -619,7 +619,7 @@ public class ChatPanel
      */
     public void openProtocolSelectorBox() {
         SIPCommMenu contactSelector 
-            = this.sendPanel.getContactSelectorBox();
+            = this.sendPanel.getProtoContactSelectorBox().getMenu();
         contactSelector.doClick();
     }
     
