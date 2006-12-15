@@ -266,8 +266,13 @@ public abstract class ProtocolProviderFactory
                 + " in package" + getFactoryImplPackageName());
 
         //obscure the password
-        String mangledPassword
-            = new String(Base64.encode(password.getBytes()));
+        String mangledPassword = null;
+
+        //if password is null then the caller simply wants the current password
+        //removed from the cache. make sure they don't get a null pointer
+        //instead.
+        if(password != null)
+            mangledPassword = new String(Base64.encode(password.getBytes()));
 
         //get a reference to the config service and store it.
         ServiceReference confReference
