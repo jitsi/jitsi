@@ -1051,7 +1051,8 @@ public class TestOperationSetPresence
         {
             synchronized(this)
             {
-                if(isAuthorizationResponseReceived) return;
+                if(isAuthorizationResponseReceived)
+                    return;
                 try{
                     wait(waitFor);
                 }

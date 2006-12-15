@@ -477,7 +477,8 @@ public class ProtocolProviderServiceSipImpl
     public void unregister()
         throws OperationFailedException
     {
-        if(!isRegistered())
+        if(getRegistrationState().equals(RegistrationState.UNREGISTERED)
+            || getRegistrationState().equals(RegistrationState.UNREGISTERING))
         {
             return;
         }
@@ -1329,16 +1330,17 @@ public class ProtocolProviderServiceSipImpl
         ContactHeader registrationContactHeader = null;
         try
         {
-            InetAddress localAddress = SipActivator
+            InetSocketAddress localAddress = SipActivator
                 .getNetworkAddressManagerService()
-                    .getLocalHost(registrarAddress);
+                    .getPublicAddressFor(registrarAddress
+                                         , srcListeningPoint.getPort());
 
             SipURI contactURI = addressFactory.createSipURI(
                 ((SipURI)ourSipAddress.getURI()).getUser()
-                , localAddress.getHostAddress());
+                , localAddress.getAddress().getHostAddress());
 
             contactURI.setTransportParam(srcListeningPoint.getTransport());
-            contactURI.setPort(srcListeningPoint.getPort());
+            contactURI.setPort(localAddress.getPort());
             Address contactAddress = addressFactory.createAddress( contactURI );
 
             if (ourDisplayName != null)

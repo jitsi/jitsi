@@ -429,7 +429,7 @@ public class SipRegistrarConnection
         if (grantedExpiration <= 0 || requestedExpiration <= 0)
         {
             setRegistrationState(RegistrationState.UNREGISTERED
-                , RegistrationStateChangeEvent.REASON_CHANGE_REQUESTED_BY_USER
+                , RegistrationStateChangeEvent.REASON_USER_REQUEST
                 , "Registration terminated.");
         }
         else
@@ -452,8 +452,9 @@ public class SipRegistrarConnection
      */
     public void unregister() throws OperationFailedException
     {
-        if (getRegistrationState() != RegistrationState.REGISTERED)
+        if (getRegistrationState() == RegistrationState.UNREGISTERED)
         {
+            logger.trace("Trying to unregister when already unresgistered");
             return;
         }
 
@@ -533,19 +534,22 @@ public class SipRegistrarConnection
                 "Unable to create a unregister transaction"
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
-
         }
         try
         {
+
+
             unregisterTransaction.sendRequest();
             logger.debug("sent request: " + unregisterRequest);
 
-            //emcho: i think we should not set to unregistered here but rather
-            //wait for the ok response.
-            // setRegistrationState(RegistrationState.UNREGISTERING,
-            //                     RegistrationStateChangeEvent.
-            //                     REASON_USER_REQUEST, null);
-
+            //if we're currently registered we'll wait for an ok response
+            //before changing the status. otherwise we set it immediately.
+            if(!getRegistrationState().equals(RegistrationState.REGISTERED))
+            {
+                logger.trace("Setting state to UNREGISTERED.");
+                setRegistrationState(RegistrationState.UNREGISTERED,
+                                     RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+            }
         }
         catch (SipException ex)
         {
@@ -867,6 +871,10 @@ public class SipRegistrarConnection
      */
     public void processTimeout(TimeoutEvent timeoutEvent)
     {
+        //don't alert the user if we're already off
+        if(getRegistrationState().equals(RegistrationState.UNREGISTERED))
+            return;
+
         setRegistrationState(
             RegistrationState.CONNECTION_FAILED
             , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED

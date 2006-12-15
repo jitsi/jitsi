@@ -38,7 +38,7 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
      * Indicates that the change in the registration state that has just
      * occurred has been requested by the user.
      */
-    public static final int REASON_CHANGE_REQUESTED_BY_USER = 0;
+    public static final int REASON_USER_REQUEST = 0;
 
     /**
      * Indicates that the server has refused registration due to a problem with
@@ -80,11 +80,6 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
      * in the state transition indicated by this event.
      */
     public static final int REASON_INTERNAL_ERROR = 6;
-
-    /**
-     * Indicates that event change has occurred because the user requested it.
-     */
-    public static final int REASON_USER_REQUEST = 7;
 
     /**
      * Indicates that the specified server was not found (i.e. the fqdn was not
@@ -198,7 +193,7 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
      * in a "details box". In the rest of the time, such services should consult
      * the error code and provide corresponding, localized, reason phrases.
      *
-     * @return a non localized String explaining the reason fo the state
+     * @return a non localized String explaining the reason for the state
      * transition.
      */
     public String getReason()

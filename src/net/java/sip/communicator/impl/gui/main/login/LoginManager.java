@@ -209,12 +209,12 @@ public class LoginManager
             .getProtocolPresence(protocolProvider);
 
         if (evt.getNewState().equals(RegistrationState.REGISTERED)) {
-            
+
             this.mainFrame.getStatusPanel()
                 .updateStatus(protocolProvider);
-            
+
             if(mainFrame.getCallManager().containsCallAccount(protocolProvider)) {
-                
+
                 this.mainFrame.getCallManager()
                     .updateCallAccountStatus(protocolProvider);
             }
@@ -232,7 +232,7 @@ public class LoginManager
 
             if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED) {
-                
+
                 String msgText = Messages.getI18NString(
                     "reconnectionLimitExceeded",
                     protocolProvider.getAccountID().getUserID()).getText();
@@ -242,7 +242,7 @@ public class LoginManager
             }
             else if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_NON_EXISTING_USER_ID) {
-                
+
                 String msgText = Messages.getI18NString(
                     "nonExistingUserId", protocolProvider
                     .getProtocolName()).getText();
@@ -256,7 +256,7 @@ public class LoginManager
                         protocolProvider.getAccountID().getAccountAddress())
                         .getText();
 
-                new ErrorDialog(null, msgText, 
+                new ErrorDialog(null, msgText,
                     Messages.getI18NString("error").getText()).showDialog();
             }
             logger.error(evt.getReason());
@@ -300,7 +300,7 @@ public class LoginManager
                 }
                 else if (evt.getReasonCode() == RegistrationStateChangeEvent
                         .REASON_CLIENT_LIMIT_REACHED_FOR_IP) {
-                    
+
                     String msgText = Messages.getI18NString("limitReachedForIp",
                             protocolProvider.getProtocolName()).getText();
 
@@ -308,7 +308,7 @@ public class LoginManager
                         Messages.getI18NString("error").getText()).showDialog();
                 }
                 else if (evt.getReasonCode() == RegistrationStateChangeEvent
-                        .REASON_CHANGE_REQUESTED_BY_USER) {
+                        .REASON_USER_REQUEST) {
                     //do nothing
                 }
                 else {

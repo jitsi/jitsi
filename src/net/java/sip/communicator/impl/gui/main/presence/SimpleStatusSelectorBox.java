@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.*;
  * The <tt>SimpleStatusSelectorBox</tt> is a <tt>SIPCommMenu</tt> that
  * contains two statuses ONLINE and OFFLINE. It's used to represent the status
  * of a protocol provider which doesn't support presence operation set.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SimpleStatusSelectorBox
@@ -41,29 +41,29 @@ public class SimpleStatusSelectorBox
     private Connecting connecting = new Connecting();
 
     private ProtocolProviderService protocolProvider;
-    
-    private ImageIcon onlineIcon 
+
+    private ImageIcon onlineIcon
         = new ImageIcon(ImageLoader.getImage(ImageLoader.SIP_LOGO));
-    
+
     private ImageIcon offlineIcon
         =  new ImageIcon(LightGrayFilter.createDisabledImage(
                 ImageLoader.getImage(ImageLoader.SIP_LOGO)));
-    
+
     private JMenuItem onlineItem = new JMenuItem(
             Messages.getI18NString("online").getText(),
             onlineIcon);
-    
+
     private JMenuItem offlineItem = new JMenuItem(
             Messages.getI18NString("offline").getText(),
             offlineIcon);
-    
+
     private int accountIndex;
-    
+
     private JLabel titleLabel;
-    
+
     /**
      * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
-     * 
+     *
      * @param mainFrame The main application window.
      * @param protocolProvider The protocol provider.
      * @param accountIndex If we have more than one account for a protocol,
@@ -76,19 +76,19 @@ public class SimpleStatusSelectorBox
         this.mainFrame = mainFrame;
         this.protocolProvider = protocolProvider;
         this.accountIndex = accountIndex;
-        
+
         String tooltip = "<html><b>"
             + protocolProvider.getAccountID().getUserID()
             + "</b><br>Connecting</html>";
-    
-        this.setToolTipText(tooltip);    
-                
+
+        this.setToolTipText(tooltip);
+
         onlineItem.setName("online");
         offlineItem.setName("offline");
-        
+
         onlineItem.addActionListener(this);
         offlineItem.addActionListener(this);
-        
+
         titleLabel = new JLabel(protocolProvider.getAccountID().getUserID());
 
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
@@ -96,7 +96,7 @@ public class SimpleStatusSelectorBox
 
         this.add(titleLabel);
         this.addSeparator();
-        
+
         this.add(onlineItem);
         this.add(offlineItem);
     }
@@ -104,21 +104,21 @@ public class SimpleStatusSelectorBox
     /**
      * Handles the <tt>ActionEvent</tt> triggered when one of the items
      * in the list is selected.
-     */    
+     */
     public void actionPerformed(ActionEvent e)
     {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
-        
+
         if(itemName.equals("online")) {
             if(!protocolProvider.isRegistered()) {
                 this.mainFrame.getLoginManager().login(protocolProvider);
             }
         }
         else {
-            if(!   protocolProvider.getRegistrationState()
+            if(    !protocolProvider.getRegistrationState()
                             .equals(RegistrationState.UNREGISTERED)
-                && protocolProvider.getRegistrationState()
+                && !protocolProvider.getRegistrationState()
                             .equals(RegistrationState.UNREGISTERING))
             {
                 try {
@@ -139,7 +139,7 @@ public class SimpleStatusSelectorBox
     /**
      * Starts the timer that changes the images given by the array, thus
      * creating an animated image that indicates that the user is connecting.
-     * 
+     *
      * @param images A <tt>BufferedImage</tt> array that contains all images
      * from which to create the animated image indicating the connecting state.
      */
@@ -156,20 +156,20 @@ public class SimpleStatusSelectorBox
      * Stops the timer that manages the connecting animated icon.
      */
     public void updateStatus()
-    {        
+    {
         this.connecting.stop();
-        
+
         if(protocolProvider.isRegistered()) {
-            setSelected(onlineItem, onlineIcon); 
+            setSelected(onlineItem, onlineIcon);
         }
         else {
             setSelected(offlineItem, offlineIcon);
         }
-        
+
         String tooltip = this.getToolTipText();
-        
+
         tooltip = tooltip.substring(0, tooltip.lastIndexOf("<br>"));
-        
+
         this.setToolTipText(tooltip.concat("<br>" + onlineItem.getText()));
     }
 
@@ -208,11 +208,11 @@ public class SimpleStatusSelectorBox
     {
         this.accountIndex = accountIndex;
     }
-    
+
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        
+
         if(accountIndex > 0) {
             AntialiasingManager.activateAntialiasing(g);
             g.setColor(Color.DARK_GRAY);
