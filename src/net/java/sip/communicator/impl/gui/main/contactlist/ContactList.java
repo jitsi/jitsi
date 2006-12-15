@@ -16,6 +16,7 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.message.*;
 import net.java.sip.communicator.impl.gui.main.message.history.HistoryWindow;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
@@ -129,6 +130,17 @@ public class ContactList extends JList implements MetaContactListListener,
     public void protoContactAdded(ProtoContactEvent evt)
     {
         this.modifyContact(evt.getNewParent());
+        
+        Contact contact = evt.getProtoContact();
+        MetaContact metaContact = contactList.findMetaContactByContact(contact);
+        ContactListPanel clistPanel = mainFrame.getContactListPanel();
+        
+        if (clistPanel.isChatOpenedForContact(metaContact))
+        {
+            ChatPanel chatPanel = clistPanel.getContactChat(metaContact);
+            chatPanel.getChatSendPanel()
+                .getProtoContactSelectorBox().addContact(contact);
+        }
     }
 
     /**
@@ -136,8 +148,7 @@ public class ContactList extends JList implements MetaContactListListener,
      * protocol contact has been removed.
      */
     public void protoContactRemoved(ProtoContactEvent evt)
-    {
-        System.out.println("REMOVE PROTO CONTACT");
+    {   
         this.modifyContact(evt.getOldParent());
     }
 
