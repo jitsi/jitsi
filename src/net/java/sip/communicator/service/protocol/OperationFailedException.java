@@ -59,6 +59,12 @@ public class OperationFailedException
     public static final int INVALID_ACCOUNT_PROPERTIES = 6;
 
     /**
+     * Indicates that authentication with a server has failed.
+     */
+    public static final int AUTHENTICATION_FAILED = 7;
+
+
+    /**
      * The error code of the exception
      */
     private int errorCode = GENERAL_ERROR;
