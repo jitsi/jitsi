@@ -187,6 +187,7 @@ public class SipSecurityManager
                 {
                     //use the stored password to authenticate
                     ccEntry = createCcEntryWithStoredPassword(storedPassword);
+                    logger.trace("seem to have a stored pass! Try with it.");
                 }
                 else
                 {
@@ -238,7 +239,8 @@ public class SipSecurityManager
             {
                 throw new OperationFailedException(
                     "Unable to authenticate with realm " + realm
-                    , OperationFailedException.GENERAL_ERROR);
+                    + ". User did not provide credentials."
+                    , OperationFailedException.AUTHENTICATION_FAILED);
             }
 
             AuthorizationHeader authorization =
@@ -287,6 +289,27 @@ public class SipSecurityManager
     {
         return this.securityAuthority;
     }
+
+    /**
+     * Makes sure that the password that was used for this forbidden response,
+     * is removed from the local cache and is not stored for future use.
+     *
+     * @param forbidden the 401/407 challenge response
+     * @param endedTransaction the transaction established by the challenged
+     * request
+     * @param transactionCreator the JAIN SipProvider that we should use to
+     * create the new transaction.
+     */
+    public void handleForbiddenResponse(
+                                    Response          forbidden,
+                                    ClientTransaction endedTransaction,
+                                    SipProvider       transactionCreator)
+    {
+        //a request that we previously sent was mal-authenticated. empty the
+        //credentials cache so that we don't use the same credentials once more.
+        cachedCredentials.clear();
+    }
+
 
     /**
      * Generates an authorisation header in response to wwwAuthHeader.
@@ -439,10 +462,11 @@ public class SipSecurityManager
                 defaultCredentials);
 
         //store the password if the user wants us to
-        if(ccEntry.userCredentials.isPasswordPersistent())
-            SipActivator.getProtocolProviderFactory().storePassword(
-                accountID
-                , ccEntry.userCredentials.getPasswordAsString());
+        if( ccEntry.userCredentials != null
+            && ccEntry.userCredentials.isPasswordPersistent())
+                SipActivator.getProtocolProviderFactory().storePassword(
+                    accountID
+                    , ccEntry.userCredentials.getPasswordAsString());
 
         return ccEntry;
     }
