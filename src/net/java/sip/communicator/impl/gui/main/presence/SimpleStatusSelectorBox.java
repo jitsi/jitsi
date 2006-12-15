@@ -116,7 +116,10 @@ public class SimpleStatusSelectorBox
             }
         }
         else {
-            if(protocolProvider.isRegistered())
+            if(!   protocolProvider.getRegistrationState()
+                            .equals(RegistrationState.UNREGISTERED)
+                && protocolProvider.getRegistrationState()
+                            .equals(RegistrationState.UNREGISTERING))
             {
                 try {
                     mainFrame.getLoginManager()
