@@ -1,0 +1,1125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created by Emil Ivov on Jul 6, 2005 8:30:22 PM-->
+
+<project default="ant-usage" name="sip-communicator-1.0">
+
+    <dirname property="basedir" file="${ant.file}"/>
+    <property environment="system"/>
+    <property name="jdk.home" value="/usr/java/java"/>
+    <property name="dest" value="classes"/>
+    <property name="bundles.dest" value="sc-bundles"/>
+    <property name="doc" value="doc"/>
+    <property name="java.doc" value="${doc}/api"/>
+    <property name="lib" value="lib"/>
+    <property name="native.libs" value="${lib}/native"/>
+    <property name="src" value="src"/>
+    <property name="src2" value="test"/>
+    <property name="testsrc" value="${src2}"/>
+    <property name="home" value="${system.HOME}"/>
+    <property name="bin" value="sip-communicator.bin"/>
+    <property name="utest.bin" value="sip-communicator.utest.bin"/>
+    <property name="test.reports.dir" value="test-reports"/>
+    <property name="test.html.reports.dir" value="${test.reports.dir}/html"/>
+    <property name="release" value="release"/>
+    <property name="log" value="log"/>
+    <property name="release.src" value="${release}/install"/>
+    <property name="resources" value="resources"/>
+    <property name="inst.resrc" value="${resources}/install"/>
+    <property name="path" value="${basedir}/${lib}/native/windows:${system.PATH}"/>
+
+    <!-- set the build label property and make it take the cc bild into account -->
+    <condition property="build.label"
+               value="nightly.${label}"
+               else="build.by.${user.name}">
+        <isset property="label"/>
+    </condition>
+
+    <!-- Put here the release directory -->
+    <property name="macosx.app.dir" value="${release}/macosx"/>
+    <!-- Put here the resource directory -->
+    <property name="macosx.resrc.dir" value="${inst.resrc}/macosx"/>
+    <!-- Put here the Application name -->
+    <property name="macosx.app.name" value="SIP Communicator"/>
+    <!-- Put here the Application version -->
+    <property name="macosx.app.ver" value="1.0.rc1"/>
+
+    <!-- The release directory for Debian packages -->
+    <property name="debian.dir" value="${release}/debian"/>
+    <property name="debian.binary.dir" value="${debian.dir}/binary"/>
+    <!-- Can we build debian packages? -->
+    <condition property="dpkg.build.present">
+      <available file="/usr/bin/dpkg-buildpackage"/>
+    </condition>
+    <!-- Can we deploy debian packages? -->
+    <condition property="dpkg.scan.present">
+      <available file="/usr/bin/dpkg-scanpackages"/>
+    </condition>
+
+    <!-- load properties needed for running the automated tests (e.g. test.list)-->
+    <property file="${basedir}/lib/testing.properties"/>
+
+    <!-- The following file contains a list of protocol account initialization
+         properties, such as SIP server addresses and usernames, ICQ uin-s and
+         passwords, AIM screennames and etc. The file should not be committed
+         to CVS or shared among developers since that could lead to multiple
+         login problems and cause testing to fail. You could create the file
+         yourself using the lib/account.properties.template and setting all
+         fields as indicated. -->
+    <property file="lib/accounts.properties"/>
+
+    <!-- windows specific properties -->
+    <condition property="jmf.home" value="${lib}/jmf-win">
+        <os family="windows"/>
+    </condition>
+
+    <condition property="is.running.windows" value="${os.name}">
+        <os family="windows"/>
+    </condition>
+
+    <!-- linux specific properties -->
+    <condition property="is.running.linux" value="${os.name}">
+        <equals arg1="${os.name}" arg2="linux" casesensitive="false" trim="true"/>
+    </condition>
+
+    <condition property="jmf.home" value="${lib}/jmf-lin">
+        <isset property="is.running.linux"/>
+    </condition>
+
+    <condition property="ld.library.path"
+              value="${basedir}/${lib}/native/linux:${system.LD_LIBRARY_PATH}">
+        <isset property="is.running.linux"/>
+    </condition>
+
+    <!-- solaris specific properties -->
+    <condition property="is.running.solaris" value="${os.name}">
+        <equals arg1="${os.name}" arg2="solaris" casesensitive="false" trim="true"/>
+    </condition>
+    <condition property="is.running.solaris" value="${os.name}">
+        <equals arg1="${os.name}" arg2="SunOS" casesensitive="false" trim="true"/>
+    </condition>
+    <condition property="jmf.home" value="${lib}/jmf-sol">
+        <isset property="is.running.solaris"/>
+    </condition>
+
+    <condition property="ld.library.path"
+              value="${basedir}/${lib}/native/solaris:${system.LD_LIBRARY_PATH}">
+        <isset property="is.running.solaris"/>
+    </condition>
+
+    <!-- set the jmf.properties here in case they were not set before -->
+    <property name="jmf.home" value="${lib}/jmf-all"/>
+    <property name="jmf.jar" value="${jmf.home}/jmf.jar"/>
+    <property name="sound.jar" value="${jmf.home}/sound.jar"/>
+    <!-- end jmf.home-->
+
+    <path id="project.source.path">
+        <!-- refer to both main and test source files. -->
+        <pathelement location="${src}"/>
+        <pathelement location="${src2}"/>
+    </path>
+
+    <path id="project.class.path">
+        <pathelement location="${dest}"/>
+        <pathelement location="${lib}"/>
+
+        <!-- Include all JAR files found in lib and any of its subdirectories. -->
+        <fileset dir="${lib}">
+            <include name="*.jar"/>
+            <include name="${jmf.jar}"/>
+            <include name="${sound.jar}"/>
+            <include name="bundles/*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="compile.class.path">
+        <path refid="project.class.path"/>
+        <!-- Add all jmf's to the compile class path to enable
+             cross compilation. -->
+        <fileset dir="${lib}">
+            <include name="jmf-lin/jmf.jar"/>
+            <include name="jmf-win/jmf.jar"/>
+            <include name="jmf-sol/jmf.jar"/>
+        </fileset>
+    </path>
+
+    <!-- Import installation build xml -->
+    <import file="${inst.resrc}/build.xml"/>
+
+  <!-- default Ant target does nothing except print helpful options -->
+  <!-- Ant-external target will appear in -projecthelp output       -->
+    <target name="ant-usage"
+        description="simply execute 'ant' to discover the most useful targets.">
+       <echo message="Useful ant commands for the SIP Communicator Project..." />
+       <echo message="'ant rebuild' for a safe clean/build sequence" />
+       <echo message="'ant rebuild run' for a safe clean/build/run" />
+       <echo message="'ant make run' for incremental build/run" />
+       <echo message="'ant run' to run the last build (use with care!)" />
+       <echo message="'ant test' to run the tests over the last build" />
+       <echo message="'ant rebuild test' for safe clean/build/test sequence" />
+       <echo message="'ant make test' for incremental build/test sequence" />
+       <echo message="'ant -projecthelp' for other useful build targets" />
+       <echo message="'ant -help' for Ant help" />
+    </target>
+
+    <!-- java compile -->
+    <target name="compile" depends="init,version">
+        <!--internal-target- compiles the entire project source tree -->
+        <javac classpathref="compile.class.path" debug="true"
+            deprecation="true" destdir="${dest}" nowarn="false"
+            source="1.4" target="1.4">
+            <src path="${src}"/>
+            <src path="${src2}"/>
+            <include name="**/*.java" />
+        </javac>
+    </target>
+
+    <!-- clean -->
+    <target name="clean" depends="clean-bundle-repositories,clean-test-reports"
+        description="Remove all generated files and prepare for a clean build.">
+        <delete failonerror="false" includeemptydirs="true">
+            <fileset dir="${dest}"/>
+            <fileset dir="${bundles.dest}"/>
+            <fileset dir="${java.doc}"/>
+            <fileset dir="${release}"/>
+            <fileset dir="${log}"/>
+        </delete>
+    </target>
+
+    <!-- internal target - removes the current set of test reports, so
+         residual data is not left to confuse a cached browser -->
+    <target name="clean-test-reports">
+        <delete failonerror="false" includeemptydirs="true">
+            <fileset dir="${test.reports.dir}"/>
+        </delete>
+    </target>
+
+    <!-- internal target - removes the OSGI repositories, so that next run
+         recreates them -->
+    <target name="clean-bundle-repositories">
+        <delete failonerror="false" includeemptydirs="true">
+            <fileset dir="${bin}"/>
+            <fileset dir="${utest.bin}"/>
+        </delete>
+    </target>
+
+    <!-- resource -->
+    <target name="resource">
+        <!--internal-target- Copies all resource file to the ${dest} dir -->
+        <copy todir="${dest}">
+            <fileset dir="${src}">
+                <include name="**/*.jpeg"/>
+                <include name="**/*.wav"/>
+                <include name="**/*.au"/>
+                <include name="**/*.gif"/>
+                <include name="**/*.png"/>
+                <include name="**/*.PNG"/>
+                <include name="**/*.jpg"/>
+                <include name="**/*.properties"/>
+                <include name="**/*.xml"/>
+                <include name="**/*.themerc"/>
+                <include name="**/gtkrc"/>
+                <include name="**/*.css"/>
+            </fileset>
+            <fileset dir="${src2}">
+                <include name="**/*.jpeg"/>
+                <include name="**/*.wav"/>
+                <include name="**/*.au"/>
+                <include name="**/*.gif"/>
+                <include name="**/*.png"/>
+                <include name="**/*.jpg"/>
+                <include name="**/*.xml"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- JAVADOC -->
+    <target name="javadoc"
+      description="Generates project javadoc.">
+        <javadoc author="true" destdir="${java.doc}" package="true"
+            version="true" use="true" windowtitle="SIP Communicator API"
+            classpathref="compile.class.path" source="1.4+">
+            <fileset dir="${src}"/>
+            <tag name="todo" description="To do:"/>
+        </javadoc>
+    </target>
+
+    <!--PACKAGE-->
+    <!--Copy resource files and update bundles jars. -->
+    <target name="package" depends="resource,bundles"/>
+
+
+    <!--MAKE-->
+    <target name="make" depends="clean-bundle-repositories,compile,package"
+        description="Incremental compile and package the project."/>
+
+    <!--REBUILD-->
+    <target name="rebuild" depends="clean,make"
+        description="Clean and make the project (including bundles).">
+        <echo message="ver=${sip-communicator.version}"/>
+        </target>
+
+    <!-- SIP Communicator Version -->
+    <target name="version">
+        <!-- create a class that would contain our nightly build.id if any -->
+        <copy file="${src}/net/java/sip/communicator/impl/version/NightlyBuildID.java.tmpl"
+              tofile="${src}/net/java/sip/communicator/impl/version/NightlyBuildID.java"
+              overwrite="true"/>
+
+        <!-- set the build id according to the cruisecontrol property -->
+        <replace file="${src}/net/java/sip/communicator/impl/version/NightlyBuildID.java"
+            token="build.id" value="${build.label}"/>
+
+        <!-- Recompile ant task classes-->
+        <delete failonerror="false">
+            <fileset dir="${dest}" includes="net/java/sip/communicator/impl/version/*.class"/>
+        </delete>
+        <javac destdir="${dest}">
+            <src path="${src}"/>
+            <include name="net/java/sip/communicator/impl/version/NightlyBuildID.java" />
+            <include name="net/java/sip/communicator/impl/version/VersionImpl.java" />
+            <include name="net/java/sip/communicator/impl/version/SipCommunicatorVersionTask.java" />
+        </javac>
+
+
+        <taskdef name="sip-communicator-version" classpath="${dest}"
+                 classname="net.java.sip.communicator.impl.version.SipCommunicatorVersionTask"/>
+
+        <sip-communicator-version property="sip-communicator.version" />
+
+        <echo message="SIP Communicator version ${sip-communicator.version}" />
+    </target>
+
+    <!--INIT-->
+    <target name="init" >
+        <mkdir dir="${dest}"/>
+        <mkdir dir="${doc}"/>
+        <mkdir dir="${java.doc}"/>
+        <mkdir dir="${bundles.dest}"/>
+        <mkdir dir="${test.reports.dir}"/>
+        <mkdir dir="${test.reports.dir}/html"/>
+        <mkdir dir="${release}"/>
+        <mkdir dir="${log}"/>
+    </target>
+
+    <!-- - - - - - - - - - - BUILDING RELEASE PACKAGES - - - - - - - - - - - -->
+    <target name="macosx" depends="make"
+            description="Create an .app package for MACOSX">
+
+      <taskdef name="jarbundler"
+               classname="net.sourceforge.jarbundler.JarBundler"/>
+
+       <mkdir dir="${macosx.app.dir}"/>
+
+      <property name="macosx.stubfile"
+                value="${macosx.resrc.dir}/JavaApplicationStub"/>
+      <condition property="macosx.stubfile"
+                 value="/System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub">
+        <equals arg1="${os.name}"
+                arg2="Mac OS X"
+                casesensitive="false"
+                trim="true"/>
+      </condition>
+
+      <!-- Delete the old .app if it exists -->
+      <delete dir="${macosx.app.dir}/${macosx.app.name}-${macosx.app.ver}.app"
+              quiet="yes" failonerror="false"/>
+
+      <!-- This creates the .app for MacOSX -->
+      <jarbundler dir="${macosx.app.dir}"
+                  name="${macosx.app.name}-${macosx.app.ver}"
+                  shortname="SIP Communicator"
+                  signature="sipc"
+                  mainclass="org.apache.felix.main.Main"
+                  icon="src/net/java/sip/communicator/impl/gui/resources/common/logo/sc_logo_128x128.icns"
+                  jvmversion="1.4+"
+                  version="${macosx.app.ver}"
+                  build="draft"
+                  infostring="SIP Communicator"
+                  bundleid="org.sip-communicator"
+                  stubfile="${macosx.stubfile}"
+                  workingdirectory="$APP_PACKAGE/Contents/Resources/Java">
+
+        <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
+        <javaproperty name="apple.awt.brushMetalRounded" value="true"/>
+        <javaproperty name="apple.awt.showGrowBox" value="false"/>
+
+        <!-- Tell felix to run sip-communicator -->
+        <javaproperty name="felix.config.properties"
+                      value="file:felix.client.run.properties"/>
+        <!-- Tell java.util.logging about our logging preferences -->
+        <javaproperty name="java.util.logging.config.file"
+                      value="logging.properties"/>
+
+        <jarfileset dir=".">
+          <include name="${lib}/*.jar" />
+          <exclude name="${lib}/junit.jar" />
+          <include name="${lib}/bundle/*.jar" />
+          <exclude name="${lib}/bundle/junit.jar" />
+          <include name="${jmf.home}/*.jar" />
+          <include name="${bundles.dest}/*.jar" />
+          <exclude name="${bundles.dest}/*-slick.jar" />
+        </jarfileset>
+        <javafilelist dir="${lib}"
+                      files="logging.properties, felix.client.run.properties"/>
+      </jarbundler>
+    </target>
+
+    <!-- Create the DMG - This only works on MacOSX (need hdiutil) -->
+    <target name="dmg" depends="macosx"
+            description="Create a .dmg package for MACOSX (only works on MACOSX)">
+      <property name="macosx.dmg.name"
+                value="${macosx.app.name}-${macosx.app.ver}.dmg"/>
+
+      <!-- This is executed only if the OS is MacOSX -->
+      <exec executable="/usr/bin/hdiutil" os="Mac OS X">
+        <arg value="create"/>
+        <arg value="-srcfolder"/>
+        <arg value="${macosx.app.dir}/${macosx.app.name}-${macosx.app.ver}.app"/>
+        <arg value="-volname"/>
+        <arg value="${macosx.app.name} ${macosx.app.ver}"/>
+        <arg value="-ov"/>
+        <arg value="${macosx.app.dir}/${macosx.dmg.name}"/>
+      </exec>
+    </target>
+
+    <!-- Create a Debian package - This needs dpkg utilities -->
+    <target name="deb" depends="make"
+            if="dpkg.build.present"
+            description="Create a .deb package for Debian (needs dpkg utilities)">
+
+      <exec executable="/usr/bin/dpkg-buildpackage" dir="${inst.resrc}">
+        <arg value="-rfakeroot"/>
+        <arg value="-tc"/>
+        <arg value="-us"/>
+        <arg value="-uc"/>
+        <arg value="-b"/>
+        <arg value="-d"/>
+      </exec>
+
+      <mkdir dir="${debian.dir}"/>
+      <move todir="${debian.dir}">
+        <fileset dir="${resources}">
+          <include name="sip-communicator*"/>
+        </fileset>
+      </move>
+
+    </target>
+
+    <!-- Prepare to deploy the Debian package - This needs dpkg utilities -->
+    <target name="deb-rel" depends="deb"
+            if="dpkg.scan.present"
+            description="Prepare to deploy Debian package (needs dpkg utilities)">
+
+      <mkdir dir="${debian.binary.dir}"/>
+      <move todir="${debian.binary.dir}">
+        <fileset dir="${debian.dir}">
+          <include name="sip-communicator*"/>
+        </fileset>
+      </move>
+
+      <exec executable="/usr/bin/dpkg-scanpackages"
+          dir="${debian.dir}"
+          output="${debian.binary.dir}/dpkg-scanpackages.out"
+          errorproperty="dpkg-scanpackages.err">
+        <arg value="binary"/>
+        <arg value="/dev/null"/>
+      </exec>
+
+      <exec executable="/bin/gzip"
+          dir="${debian.dir}"
+          input="${debian.binary.dir}/dpkg-scanpackages.out"
+          output="${debian.binary.dir}/Packages.gz">
+        <arg value="-9c"/>
+      </exec>
+
+      <!-- Delete the temporary file -->
+      <delete file="${debian.binary.dir}/dpkg-scanpackages.out"
+              quiet="yes" failonerror="false"/>
+
+    </target>
+
+    <!-- - - - - - - - - - - - - - UNIT TESTING - - - - - - - - - - - - - - -->
+
+    <!--PREPARE-TESTS-->
+    <target name="identify-test">
+        <!--internal-target- identify Service Impl Compatibility Kits to run -->
+        <condition property="test.name.known">
+            <!-- has a single test class has been defined?    -->
+            <!-- e.g. ant test -Dtest.name=SlickName    -->
+            <isset property="test.name"/>
+        </condition>
+    </target>
+
+    <target name="prepare-single-test" depends="identify-test"
+            if="test.name.known">
+        <!--internal-target- prepare to run a single Service Impl Compatibility Kit -->
+        <!-- extract the simple Test class name. -->
+        <basename property="simple.test.names" file="${test.name}"/>
+    </target>
+
+    <!--internal-target- prepare to run all known Service Impl Compatibility Kit -->
+    <!-- assign all known Test classes. -->
+    <target name="prepare-all-tests" depends="identify-test"
+            unless="test.name.known"
+            description="prepares to run all known Service Impl Compatibility Kits">
+        <!-- load Test classes from a test conf file. -->
+        <!-- this would set the "simple.test.names" property -->
+        <property name="simple.test.names" value="${test.list}"/>
+    </target>
+
+    <!--RUN-TESTS-->
+    <target name="test"
+        depends="prepare-single-test,prepare-all-tests,clean-test-reports"
+        description="Starts felix and runs selected Service Impl Compatibility Kits.">
+
+        <!-- Do the testing itself. Note that we don't fail on error as we need
+             to generate an html report before leaving this target.-->
+        <java classname="org.apache.felix.main.Main"
+            fork="true"
+            failonerror="false"
+            resultproperty="test.result.code"
+            classpathref="project.class.path">
+
+            <!-- The following two configure felix telling it that it's running
+                 as a test environment-->
+            <sysproperty key="felix.config.properties"
+                value="file:./lib/felix.unit.test.properties"/>
+
+<sysproperty key="net.java.sip.communicator.fileaccess.SIP_COMMUNICATOR_HOME"
+                value=".sip-communicator-test"/>
+
+            <!-- Tell the slick runner where to store test results. -->
+            <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
+                value="${test.reports.dir}"/>
+
+            <!-- Tell the slick runner about TestSutes we've preregistered. -->
+            <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
+                value="${simple.test.names}"/>
+
+            <!-- Tell java.util.logging about our logging preferences -->
+            <sysproperty key="java.util.logging.config.file"
+                value="lib/logging.properties"/>
+
+            <!-- Tell all protocol testers their account details. -->
+            <syspropertyset id="accounts">
+              <propertyref prefix="accounts"/>
+              <propertyref prefix="net"/>
+            </syspropertyset>
+        </java>
+
+        <!-- Generate the html report.
+             Run it quietly (i.e. redirect the output) because we don't won't to
+             see its "Build Successful" output line as users might confuse it
+             for a general build success while this might not be the case.-->
+        <echo message="Generating HTML test reports ..."/>
+        <java fork="true"
+              classname="org.apache.tools.ant.launch.Launcher"
+              classpath="${java.class.path}:lib/xalan-2.6.0.jar.ant"
+              failonerror="true"
+              output="${test.html.reports.dir}/output.txt">
+           <arg value="htmlreport"/>
+        </java>
+        <echo message="Done."/>
+        <echo/><echo/>
+        <echo message="Test results available in ./test-reports/html/index.html "/>
+        <echo/>
+
+        <!-- Check whether testing went alright and fail if not.-->
+        <condition property="testing.failed">
+          <not>
+            <equals arg1="0"
+            arg2="${test.result.code}"
+            casesensitive="false" trim="true"/>
+          </not>
+        </condition>
+        <fail if="testing.failed"/>
+    </target>
+
+    <!-- We use this target from within the test target in order to generate
+         a human readable test report. We do not directly use the htmlreport
+         target because we  need to include xalan in the classpath before we
+         do.-->
+    <target name="htmlreport">
+      <junitreport todir="${test.reports.dir}">
+        <fileset dir="${test.reports.dir}">
+          <include name="SC-TEST-*.xml"/>
+        </fileset>
+        <report format="frames" todir="${test.html.reports.dir}"/>
+      </junitreport>
+    </target>
+
+    <!--RUN-SIP-COMMUNICATOR - n.b. has NO Dependents!! -->
+    <target name="run"
+        description="Starts felix and runs sip-comunicator gui (use latest build).">
+
+         <!-- forking prevents from debugging -->
+        <java classname="org.apache.felix.main.Main"
+            fork="true"
+            failonerror="true"
+            classpathref="project.class.path">
+
+            <!-- Sets the charset for the messages -->
+            <!--sysproperty key="icq.custom.message.charset" value="windows-1252"/-->
+
+<sysproperty key="net.java.sip.communicator.fileaccess.SIP_COMMUNICATOR_HOME"
+                value=".sip-communicator-test"/>
+
+            <!-- Tell felix to run sip-communicator-->
+            <sysproperty key="felix.config.properties"
+                value="file:./lib/felix.client.run.properties"/>
+
+            <!-- Tell java.util.logging about our logging preferences -->
+            <sysproperty key="java.util.logging.config.file"
+                value="lib/logging.properties"/>
+
+            <sysproperty key="java.net.preferIPv4Stack" value="true"/>
+
+            <!-- Setting properties necessary for dependencies on native libs.-->
+            <sysproperty key="java.library.path" value="${ld.library.path}:${path}"/>
+            <env key="LD_LIBRARY_PATH" value="${ld.library.path}"/>
+            <env key="PATH" value="${path}"/>
+        </java>
+
+    </target>
+
+    <!--CRUISE CONTROL BUILD LOOP target-->
+    <target name="cc-buildloop" depends="rebuild,test"
+            description="Comprehensive (paranoid) rebuild and test (used by Cruise Control)."/>
+
+
+    <!-- - - NetBeans Targets for specific files selected via ide-actions - -->
+
+    <!--netbeans only - debug a single test file under felix and jUnit-->
+    <target name="debug-selected-file"
+            depends="init,version,prepare-single-test,prepare-all-tests">
+        <!--internal-target- starts felix and debugs the selected
+                             Service Impl Compatibility Kit -->
+
+      <fail unless="test.name"
+            message="debug impossible when 'test.name' property not defined!" />
+
+        <nbjpdastart name="${test.name}"
+                     addressproperty="jpda.address"
+                     transport="dt_socket" >
+            <classpath refid="project.class.path" />
+            <sourcepath refid="project.source.path" />
+        </nbjpdastart>
+
+        <java fork="true"
+              classname="org.apache.felix.main.Main"
+              classpathref="project.class.path"
+              failonerror="true" >
+           <jvmarg value="-Xdebug"/>
+           <jvmarg value="-Xnoagent"/>
+           <jvmarg value="-Djava.compiler=none"/>
+           <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
+           <arg value="${test.name}"/>
+
+            <!-- The following two configure felix telling it that it's running
+                 as a test environment-->
+            <sysproperty key="felix.config.properties"
+                value="file:./lib/felix.unit.test.properties"/>
+
+            <!-- Tell the slick runner where to store test results. -->
+            <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
+                value="${test.reports.dir}"/>
+
+            <!-- Tell the slick runner which Test class to run. -->
+            <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
+                value="${simple.test.names}"/>
+
+            <!-- Tell the slick runner which Test class to run.
+            <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
+                value="SlicklessTests"/> -->
+
+            <!-- Tell java.util.logging about our logging preferences -->
+            <sysproperty key="java.util.logging.config.file"
+                value="lib/logging.properties"/>
+
+        </java>
+    </target>
+
+
+    <!-- - - - - - - - - - - - - - BUNDLE BUILDING TARGETS - - - - - - - -  - -->
+    <!--ALL BUNDLES-->
+    <target name="bundles"
+        depends="bundle-util,bundle-configuration,bundle-configuration-slick,
+        bundle-history,bundle-history-slick,bundle-messagehistory, bundle-msghistory-slick,
+        bundle-callhistory, bundle-callhistory-slick,
+        bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
+        bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
+        bundle-fileaccess-slick,bundle-media,bundle-media-slick,
+        bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,
+        bundle-jabber,bundle-jabber-slick,bundle-swing-ui,
+        bundle-msn,bundle-msn-slick,
+        bundle-contactlist,meta-contactlist,meta-contactlist-slick,
+        bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
+        bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
+        bundle-version,bundle-version-impl,bundle-shutdown"/>
+
+    <!--BUNDLE-HISTORY-->
+    <target name="bundle-history">
+        <jar compress="false" destfile="${bundles.dest}/history.jar"
+            manifest="src/net/java/sip/communicator/impl/history/history.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/history"
+                prefix="net/java/sip/communicator/service/history"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/history"
+                prefix="net/java/sip/communicator/impl/history" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-HISTORY-SLICK-->
+    <target name="bundle-history-slick">
+        <jar compress="false" destfile="${bundles.dest}/history-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/history/history.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/history"
+                prefix="net/java/sip/communicator/slick/history"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-MESSAGEHISTORY-->
+    <target name="bundle-messagehistory">
+        <jar compress="false" destfile="${bundles.dest}/msghistory.jar"
+            manifest="src/net/java/sip/communicator/impl/msghistory/msghistory.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/msghistory"
+                prefix="net/java/sip/communicator/service/msghistory"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/msghistory"
+                prefix="net/java/sip/communicator/impl/msghistory" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-MESSAGEHISTORY-SLICK-->
+    <target name="bundle-msghistory-slick">
+        <jar compress="false" destfile="${bundles.dest}/msghistory-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/msghistory/msghistory.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/msghistory"
+                prefix="net/java/sip/communicator/slick/msghistory"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-CALLHISTORY-->
+    <target name="bundle-callhistory">
+        <jar compress="false" destfile="${bundles.dest}/callhistory.jar"
+            manifest="src/net/java/sip/communicator/impl/callhistory/callhistory.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/callhistory"
+                prefix="net/java/sip/communicator/service/callhistory"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/callhistory"
+                prefix="net/java/sip/communicator/impl/callhistory" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-CALLEHISTORY-SLICK-->
+    <target name="bundle-callhistory-slick">
+        <jar compress="false" destfile="${bundles.dest}/callhistory-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/callhistory/callhistory.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/callhistory"
+                prefix="net/java/sip/communicator/slick/callhistory"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-FILEACCESS-->
+    <target name="bundle-fileaccess">
+        <jar compress="false" destfile="${bundles.dest}/fileaccess.jar"
+            manifest="src/net/java/sip/communicator/impl/fileaccess/fileaccess.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/fileaccess"
+                prefix="net/java/sip/communicator/service/fileaccess"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/fileaccess"
+                prefix="net/java/sip/communicator/impl/fileaccess" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-FILEACCESS-SLICK-->
+    <target name="bundle-fileaccess-slick">
+        <jar compress="false" destfile="${bundles.dest}/fileaccess-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/fileaccess/fileaccess.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/fileaccess"
+                prefix="net/java/sip/communicator/slick/fileaccess"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-UTIL-->
+    <target name="bundle-util">
+        <jar compress="false" destfile="${bundles.dest}/util.jar"
+            manifest="src/net/java/sip/communicator/util/util.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/util"
+                prefix="net/java/sip/communicator/util"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-CONFIGURATION-->
+    <target name="bundle-configuration">
+        <jar
+            compress="false"
+            destfile="${bundles.dest}/configuration.jar"
+            manifest="src/net/java/sip/communicator/impl/configuration/configuration.manifest.mf" >
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/configuration"
+                prefix="net/java/sip/communicator/service/configuration"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/configuration"
+                prefix="net/java/sip/communicator/impl/configuration" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-CONFIGURATION-SLICK-->
+    <target name="bundle-configuration-slick">
+        <jar compress="false" destfile="${bundles.dest}/configuration-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/configuration/configuration.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/configuration"
+                prefix="net/java/sip/communicator/slick/configuration"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-JUNIT -->
+    <target name="bundle-junit">
+        <jar compress="true" destfile="lib/bundle/junit.jar"
+            manifest="test/junit/junit.manifest.mf">
+            <zipfileset src="${lib}/junit.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-MEDIA-->
+    <target name="bundle-media">
+        <!-- Creates a bundle containing the impl of the media package."-->
+        <jar
+            compress="false" destfile="${bundles.dest}/media.jar"
+            manifest="src/net/java/sip/communicator/impl/media/media.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/media"
+                prefix="net/java/sip/communicator/service/media"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
+                prefix="net/java/sip/communicator/impl/media"/>
+            <zipfileset src="${jmf.home}/jmf.jar" prefix=""/>
+            <zipfileset src="${lib}/nist-sdp-1.0.jar" prefix=""/>
+            <zipfileset src="${lib}/jspeex.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-MEDIA-SLICK-->
+    <target name="bundle-media-slick">
+        <!-- Creates a bundle containing the slick for the media package."-->
+        <jar compress="false" destfile="${bundles.dest}/media-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/media/media.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/media"
+                prefix="net/java/sip/communicator/slick/media"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-SERVICEBINDER -->
+    <target name="bundle-servicebinder">
+        <jar compress="true" destfile="lib/bundle/servicebinder.jar"
+            filesetmanifest="merge">
+
+            <zipfileset src="${lib}/servicebinder.jar" prefix=""/>
+            <manifest>
+                <attribute name="Import-Package" value="org.osgi.framework"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!--BUNDLE-ARCHITECTUREVIEWER -->
+    <target name="bundle-architectureviewer">
+        <jar compress="true" destfile="lib/bundle/architectureviewer1.1.jar"
+            filesetmanifest="merge">
+
+            <zipfileset src="${lib}/architectureviewer1.1.jar" prefix=""/>
+            <manifest>
+                <attribute name="Import-Package"
+                    value="javax.swing,	javax.swing.text,
+org.ungoverned.gravity.servicebinder, org.ungoverned.gravity.servicebinder.architecture,
+javax.accessibility, javax.swing.plaf, javax.swing.tree, javax.swing.undo,
+javax.swing.event, javax.swing.border"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!--BUNDLE-NETADDR -->
+    <target name="bundle-netaddr">
+        <jar compress="false" destfile="${bundles.dest}/netaddr.jar"
+            manifest="src/net/java/sip/communicator/impl/netaddr/netaddr.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/netaddr"
+                prefix="net/java/sip/communicator/service/netaddr"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/netaddr"
+                prefix="net/java/sip/communicator/impl/netaddr"/>
+            <zipfileset src="${lib}/Stun4J.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-NETADDR-SLICK -->
+    <target name="bundle-netaddr-slick">
+        <jar compress="false" destfile="${bundles.dest}/netaddr-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/netaddr/netaddr.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/netaddr"
+                prefix="net/java/sip/communicator/slick/netaddr"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-SLICKLESS-->
+    <target name="bundle-slickless">
+        <!--internal-target- Runs all tests which do not belong to a service implementation and don't therefore need a running OSGI framework -->
+        <jar compress="false" destfile="${bundles.dest}/slickless.jar"
+            manifest="test/net/java/sip/communicator/slick/slickless/slickless.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/slickless"
+                prefix="net/java/sip/communicator/slick/slickless"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-SLICK-RUNNER-->
+    <target name="bundle-slick-runner">
+        <!--internal-target- Creates a bundle that runs all SLICKs that currently exist in sip-com -->
+        <jar compress="false" destfile="${bundles.dest}/slick-runner.jar"
+            manifest="test/net/java/sip/communicator/slick/runner/slick-runner.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/runner"
+                prefix="net/java/sip/communicator/slick/runner"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-SIP-->
+    <target name="bundle-sip">
+        <!--internal-target- Creates a bundle containing the sip implementation of the protocol provider package -->
+        <jar compress="false" destfile="${bundles.dest}/protocol-sip.jar"
+            manifest="src/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/sip"
+                prefix="net/java/sip/communicator/impl/protocol/sip"/>
+            <zipfileset src="${lib}/JainSipRi1.2.jar" prefix=""/>
+            <zipfileset src="${lib}/JainSipApi1.2.jar" prefix=""/>
+            <zipfileset src="${lib}/concurrent.jar" prefix=""/>
+            <zipfileset src="${lib}/log4j-1.2.8.jar" prefix=""/>
+        </jar>
+    </target>
+    <target name="bundle-sip-slick">
+        <!--internal-target- Creates a bundle containing the all tests for the
+            sip implementation of the protocol provider package -->
+        <jar compress="false" destfile="${bundles.dest}/protocol-sip-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/protocol/sip/sip.provider.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/sip"
+                prefix="net/java/sip/communicator/slick/protocol/sip"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PROTOCOL -->
+    <target name="bundle-protocol">
+        <!-- Creates a bundle containing the protocol provider interfaces.-->
+        <jar compress="false" destfile="${bundles.dest}/protocol.jar"
+            manifest="src/net/java/sip/communicator/service/protocol/protocol.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
+                prefix="net/java/sip/communicator/service/protocol"/>
+            <zipfileset dir="resources/images"
+                prefix="resources/images"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-ICQ -->
+    <target name="bundle-icq">
+        <!-- Creates a bundle containing the icq impl of the protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/protocol-icq.jar"
+            manifest="src/net/java/sip/communicator/impl/protocol/icq/icq.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/icq"
+                prefix="net/java/sip/communicator/impl/protocol/icq"/>
+            <zipfileset src="${lib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
+            <zipfileset src="${lib}/oscar-aim.jar" prefix=""/>
+            <zipfileset src="${lib}/retroweaver-rt.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-ICQ-SLICK -->
+    <target name="bundle-icq-slick">
+        <!-- Creates a bundle containing the slick for the ICQ protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/protocol-icq-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/icq"
+                prefix="net/java/sip/communicator/slick/protocol/icq"/>
+            <zipfileset src="${lib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
+            <zipfileset src="${lib}/oscar-aim.jar" prefix=""/>
+            <zipfileset src="${lib}/retroweaver-rt.jar" prefix=""/>
+        </jar>
+    </target>
+
+     <!--BUNDLE-MOCK-PROVIDER-->
+    <target name="bundle-mock">
+        <!--internal-target- Creates a bundle containing the mock implementation of the protocol provider package -->
+        <jar compress="false" destfile="${bundles.dest}/protocol-mock.jar"
+            manifest="src/net/java/sip/communicator/impl/protocol/mock/mock.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/mock"
+                prefix="net/java/sip/communicator/impl/protocol/mock"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-JABBER -->
+    <target name="bundle-jabber">
+        <!-- Creates a bundle containing the jabber impl of the protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/protocol-jabber.jar"
+            manifest="src/net/java/sip/communicator/impl/protocol/jabber/jabber.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/jabber"
+                prefix="net/java/sip/communicator/impl/protocol/jabber"/>
+            <zipfileset src="${lib}/smack.jar" prefix=""/>
+            <zipfileset src="${lib}/smackx.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-JABBER-SLICK -->
+    <!-- Creates a bundle containing the slick for the Jabber protocol provider.-->
+    <target name="bundle-jabber-slick">
+
+        <jar compress="false" destfile="${bundles.dest}/protocol-jabber-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/protocol/jabber/jabber.provider.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/jabber"
+                prefix="net/java/sip/communicator/slick/protocol/jabber"/>
+            <zipfileset src="${lib}/smack.jar" prefix=""/>
+            <zipfileset src="${lib}/smackx.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-MSN -->
+    <target name="bundle-msn">
+        <!-- Creates a bundle containing the msn impl of the protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/protocol-msn.jar"
+            manifest="src/net/java/sip/communicator/impl/protocol/msn/msn.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/msn"
+                prefix="net/java/sip/communicator/impl/protocol/msn"/>
+            <zipfileset src="${lib}/jml-1.0a3.jar" prefix=""/>
+            <zipfileset src="${lib}/cindy.jar" prefix=""/>
+            <zipfileset src="${lib}/commons-logging.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-MSN-SLICK -->
+    <!-- Creates a bundle containing the slick for the Msn protocol provider.-->
+    <target name="bundle-msn-slick">
+
+        <jar compress="false" destfile="${bundles.dest}/protocol-msn-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/protocol/msn/msn.provider.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/msn"
+                prefix="net/java/sip/communicator/slick/protocol/msn"/>
+            <zipfileset src="${lib}/jml-1.0a3.jar" prefix=""/>
+            <zipfileset src="${lib}/cindy.jar" prefix=""/>
+            <zipfileset src="${lib}/commons-logging.jar" prefix=""/>
+        </jar>
+    </target>
+
+
+     <!-- BUNDLE-SWING-UI -->
+    <target name="bundle-swing-ui">
+        <!-- Bundle sip-communicator's UI.-->
+        <jar compress="false" destfile="${bundles.dest}/swing-ui.jar"
+            manifest="src/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/gui"
+                prefix="net/java/sip/communicator/service/gui"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
+                prefix="net/java/sip/communicator/impl/gui"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-CONTACTLIST -->
+    <target name="bundle-contactlist">
+        <!-- Creates a bundle containing the contactlist interfaces.-->
+        <jar compress="false" destfile="${bundles.dest}/contactlist.jar"
+            manifest="src/net/java/sip/communicator/service/contactlist/contactlist.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/contactlist"
+                prefix="net/java/sip/communicator/service/contactlist"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-META-CONTACTLIST -->
+    <target name="meta-contactlist">
+        <!-- Creates the meta contact list bundle.-->
+        <jar compress="false" destfile="${bundles.dest}/meta-cl.jar"
+            manifest="src/net/java/sip/communicator/impl/contactlist/meta.cl.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/contactlist"
+                prefix="net/java/sip/communicator/impl/contactlist"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-META-CONTACTLIST-SLICK -->
+    <target name="meta-contactlist-slick">
+        <!-- Creates a bundle for the meta contact list SLICK.-->
+        <jar compress="false" destfile="${bundles.dest}/meta-cl-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/contactlist/meta.cl.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/contactlist"
+                prefix="net/java/sip/communicator/slick/contactlist"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-ICQACCREGWIZZ -->
+    <target name="bundle-plugin-icqaccregwizz">
+        <!-- Creates a bundle for the plugin Icq Account Registration Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/icqaccregwizz.jar"
+            manifest="src/net/java/sip/communicator/plugin/icqaccregwizz/icqaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/icqaccregwizz"
+                prefix="net/java/sip/communicator/plugin/icqaccregwizz"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-JABBERACCREGWIZZ -->
+    <target name="bundle-plugin-jabberaccregwizz">
+        <!-- Creates a bundle for the plugin Jabber Account Registration Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/jabberaccregwizz.jar"
+            manifest="src/net/java/sip/communicator/plugin/jabberaccregwizz/jabberaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/jabberaccregwizz"
+                prefix="net/java/sip/communicator/plugin/jabberaccregwizz"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-MSNACCREGWIZZ -->
+    <target name="bundle-plugin-msnaccregwizz">
+        <!-- Creates a bundle for the plugin Msn Account Registration Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/msnaccregwizz.jar"
+            manifest="src/net/java/sip/communicator/plugin/msnaccregwizz/msnaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/msnaccregwizz"
+                prefix="net/java/sip/communicator/plugin/msnaccregwizz"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-SIPACCREGWIZZ -->
+    <target name="bundle-plugin-sipaccregwizz">
+        <!-- Creates a bundle for the plugin SIP Account Registration Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/sipaccregwizz.jar"
+            manifest="src/net/java/sip/communicator/plugin/sipaccregwizz/sipaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sipaccregwizz"
+                prefix="net/java/sip/communicator/plugin/sipaccregwizz"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-SERVICE-VERSION -->
+    <target name="bundle-version">
+        <!-- Creates a bundle for the version service.-->
+        <jar compress="false" destfile="${bundles.dest}/version.jar"
+            manifest="src/net/java/sip/communicator/service/version/version.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/version"
+                prefix="net/java/sip/communicator/service/version"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-SERVICEIMPL-VERSION -->
+    <target name="bundle-version-impl">
+        <!-- Creates a bundle for the version service impl.-->
+        <jar compress="false" destfile="${bundles.dest}/version-impl.jar"
+            manifest="src/net/java/sip/communicator/impl/version/version.impl.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/version"
+                prefix="net/java/sip/communicator/impl/version"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-SERVICELICK-VERSION -->
+    <target name="bundle-version-slick">
+        <!-- Creates a bundle for the version service slick.-->
+        <jar compress="false" destfile="${bundles.dest}/version-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/version/version.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/version"
+                prefix="net/java/sip/communicator/slick/version"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-SHUTDOWN -->
+    <target name="bundle-shutdown">
+        <!-- Creates a bundle for the shutdown plugin.-->
+        <jar compress="false" destfile="${bundles.dest}/shutdown.jar"
+            manifest="src/net/java/sip/communicator/impl/shutdown/shutdown.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/shutdown"
+                prefix="net/java/sip/communicator/impl/shutdown"/>
+        </jar>
+    </target>
+</project>
