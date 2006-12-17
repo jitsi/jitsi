@@ -124,6 +124,8 @@ public class ProtocolProviderServiceJabberImpl
                     connection.getSASLAuthentication().isAuthenticated()) ||
                     !connection.isAuthenticated())
                 {
+                    JabberActivator.getProtocolProviderFactory().
+                        storePassword(getAccountID(), null);
                     reason
                         = RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED;
                     regState = RegistrationState.AUTHENTICATION_FAILED;

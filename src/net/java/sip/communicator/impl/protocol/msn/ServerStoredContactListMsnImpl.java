@@ -1170,6 +1170,15 @@ public class ServerStoredContactListMsnImpl
             rootGroup.removeSubGroup(group);
             fireGroupEvent(group, ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
         }
+
+        public void loggingFromOtherLocation()
+        {
+            msnProvider.unregister(false);
+            msnProvider.fireRegistrationStateChanged(
+                msnProvider.getRegistrationState(),
+                RegistrationState.UNREGISTERED,
+                RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS, null);
+        }
     }
 
     /**

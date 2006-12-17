@@ -63,4 +63,10 @@ public interface EventListener
      * @param id String the id of the removed group
      */
     public void groupRemoved(String id);
+
+    /**
+     * Indicates that we are logged out
+     * beacuse account logged in from other location
+     */
+    public void loggingFromOtherLocation();
 }

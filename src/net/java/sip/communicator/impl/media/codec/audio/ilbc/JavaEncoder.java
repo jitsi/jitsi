@@ -123,14 +123,12 @@ public class JavaEncoder
             return OUTPUT_BUFFER_NOT_FILLED;
         }
 
-        short[] data = new short[enc.ULP_inst.blockl];
 		short[] encoded_data = new short[ILBC_NO_OF_BYTES / 2];
 
         int outLength = ILBC_NO_OF_BYTES;
         byte[] outdata = validateByteArraySize(outputBuffer, outLength);
 
-        Utils.byteToShortArr(inpData, inOffset, data);
-
+        short[] data = Utils.byteToShortArray(inpData, inOffset, inpLength, true);
         enc.encode(encoded_data, data);
 
         Utils.shortArrToByteArr(encoded_data, outdata, false);

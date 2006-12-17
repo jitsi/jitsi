@@ -188,7 +188,7 @@ public class ProtocolProviderServiceMsnImpl
      * Unregister and fire the event if requested
      * @param fireEvent boolean
      */
-    private void unregister(boolean fireEvent)
+    void unregister(boolean fireEvent)
     {
         RegistrationState currRegState = getRegistrationState();
 
@@ -449,7 +449,7 @@ public class ProtocolProviderServiceMsnImpl
         public void logout(MsnMessenger msnMessenger)
         {
             logger.trace("logout");
-
+            unregister(false);
 //            if(isRegistered())
 //                fireRegistrationStateChanged(
 //                    getRegistrationState(),
@@ -461,11 +461,16 @@ public class ProtocolProviderServiceMsnImpl
         public void exceptionCaught(MsnMessenger msnMessenger, Throwable throwable)
         {
             if(throwable instanceof IncorrectPasswordException)
+            {
+                unregister(false);
+                MsnActivator.getProtocolProviderFactory().
+                    storePassword(getAccountID(), null);
                 fireRegistrationStateChanged(
                     getRegistrationState(),
                     RegistrationState.AUTHENTICATION_FAILED,
                     RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED,
                     "Incorrect Password");
+            }
             else
             {
                 if(throwable instanceof MsnProtocolException)
@@ -495,6 +500,8 @@ public class ProtocolProviderServiceMsnImpl
                             if(isRegistered())
                             {
                                 unregister(false);
+                                MsnActivator.getProtocolProviderFactory().
+                                    storePassword(getAccountID(), null);
                                 fireRegistrationStateChanged(
                                     getRegistrationState(),
                                     RegistrationState.AUTHENTICATION_FAILED,

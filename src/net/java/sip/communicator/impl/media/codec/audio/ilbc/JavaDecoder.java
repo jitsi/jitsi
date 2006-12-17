@@ -45,7 +45,8 @@ public class JavaDecoder
                             16,
                             1,
                             Format.NOT_SPECIFIED,
-                            Format.NOT_SPECIFIED)};
+                            Format.NOT_SPECIFIED
+            )};
 
         defaultOutputFormats = new AudioFormat[]
             {
@@ -114,11 +115,7 @@ public class JavaDecoder
             initConverter( (AudioFormat) newFormat, inpLength);
         }
 
-
-        short[] data = Utils.byteToShortArray(inData, inOffset, inpLength);
-//
-//        short[] data = new short[inpLength/2];
-//        Utils.byteToShortArr(inData, inOffset, data);
+        short[] data = Utils.byteToShortArray(inData, inOffset, inpLength, false);
 
         short[] decodedData = new short[dec.ULP_inst.blockl];
         dec.decode(decodedData, data, (short) 1);

@@ -29,8 +29,8 @@ public class Utils
      * @throws java.lang.ArrayIndexOutOfBoundsException
      */
     public static short[] byteToShortArray
-        (byte[] byteArray, int offset, int length) throws
-        ArrayIndexOutOfBoundsException
+        (byte[] byteArray, int offset, int length, boolean little)
+        throws ArrayIndexOutOfBoundsException
     {
 
         if (0 < length && (offset + length) <= byteArray.length)
@@ -41,8 +41,17 @@ public class Utils
             for (int i = offset, j = 0; j < shortLength;
                  j++, temp = 0x00000000)
             {
-                temp = byteArray[i++] << 8;
-                temp |= 0x000000FF & byteArray[i++];
+                if(little)
+                {
+                    temp = byteArray[i++] & 0x000000FF;
+                    temp |= 0x0000FF00 & (byteArray[i++] << 8);
+                }
+                else
+                {
+                    temp = byteArray[i++] << 8;
+                    temp |= 0x000000FF & byteArray[i++];
+                }
+
                 shortArray[j] = (short) temp;
             }
             return shortArray;
@@ -96,36 +105,5 @@ public class Utils
             rtn[1] = (byte) (v & 0xff);
         }
         return rtn;
-    }
-
-    public static void byteToShortArr(byte[] in, int inOffset, short[] dst)
-    {
-        for (int i = 0; i < dst.length; i++)
-        {
-            if (in[inOffset + 2 * i + 1] >= 0)
-            {
-                dst[i] = in[inOffset + 2 * i + 1];
-                dst[i] *= (short) 256;
-                if ( (in[inOffset + 2 * i + 1] >= 0) && (in[inOffset + 2 * i] < 0))
-                    dst[i] += (in[inOffset + 2 * i] + 256);
-                else
-                    dst[i] += (in[inOffset + 2 * i]);
-            }
-            else
-            {
-                dst[i] = (in[inOffset + 2 * i + 1]);
-                dst[i]++;
-                dst[i] *= (short) 256;
-                if (in[inOffset + 2 * i] < 0)
-                {
-                    dst[i] += (in[inOffset + 2 * i]);
-                }
-                else
-                {
-                    dst[i] += (in[inOffset + 2 * i]);
-                    dst[i] -= 256;
-                }
-            }
-        }
     }
 }

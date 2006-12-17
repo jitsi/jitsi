@@ -192,6 +192,12 @@ public class EventManager
                 }
             }
         }
+        else if(incoming instanceof IncomingOUT)
+        {
+            IncomingOUT incomingOUT  = (IncomingOUT)incoming;
+            if(incomingOUT.isLoggingFromOtherLocation())
+                fireLoggingFromOtherLocation();
+        }
     }
 
     /**
@@ -331,6 +337,21 @@ public class EventManager
             while (iter.hasNext())
             {
                 ((EventListener)iter.next()).groupRemoved(id);
+            }
+        }
+    }
+
+    /**
+     * Fired when we recived event for logging in from other location
+     */
+    private void fireLoggingFromOtherLocation()
+    {
+        synchronized (listeners)
+        {
+            Iterator iter = listeners.iterator();
+            while (iter.hasNext())
+            {
+                ( (EventListener) iter.next()).loggingFromOtherLocation();
             }
         }
     }
