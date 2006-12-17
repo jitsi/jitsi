@@ -77,7 +77,7 @@ public class GrowlNotificationServiceImpl
         try
         {
             Constructor constructor = Growl.class.getConstructor(new Class[]
-                                       {String.class, String.class, String.class});
+                                {String.class, String[].class, String[].class});
             notifier = (Growl)constructor.newInstance(
                     new Object[]{"SIP Communicator", allNotif, defaultNotif});
             notifier.register();
