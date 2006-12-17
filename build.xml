@@ -1142,7 +1142,7 @@ javax.swing.event, javax.swing.border"/>
         <!-- Creates a bundle for the growlnotification plugin.-->
         <jar compress="false" destfile="${bundles.dest.macosx}/growlnotification.jar"
             manifest="src/net/java/sip/communicator/impl/growlnotification/growlnotification.manifest.mf">
-                    <zipfileset dir="${dest}/net/java/sip/communicator/impl/growlnotification"
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/growlnotification"
                 prefix="net/java/sip/communicator/impl/growlnotification" />
         </jar>
     </target>
