@@ -331,6 +331,15 @@
                 trim="true"/>
       </condition>
 
+      <!-- Prepare the felix.client.run.properties file for macosx -->
+      <exec executable="/usr/bin/sed"
+          dir="${basedir}"
+          input="${lib}/felix.client.run.properties"
+          output="${macosx.resrc.dir}/felix.client.run.properties">
+        <arg value="-f"/>
+        <arg value="${macosx.resrc.dir}/felix.client.run.properties.sed"/>
+      </exec>
+
       <!-- Delete the old .app if it exists -->
       <delete dir="${macosx.app.dir}/${macosx.app.name}-${sip-communicator.version}.app"
               quiet="yes" failonerror="false"/>
@@ -376,9 +385,8 @@
           <exclude name="${bundles.dest}/*-slick.jar" />
         </jarfileset>
         <javafilelist dir="${lib}" files="logging.properties"/>
-        <javafilelist dir="resources/install/macosx"
+        <javafilelist dir="${macosx.resrc.dir}"
                       files="felix.client.run.properties"/>
-
       </jarbundler>
     </target>
 
