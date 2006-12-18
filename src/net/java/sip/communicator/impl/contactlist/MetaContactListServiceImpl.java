@@ -802,7 +802,20 @@ public class MetaContactListServiceImpl
                             MetaContactGroup newParentMetaGroup)
         throws MetaContactListException
     {
-        /** @todo implement */
+        /** first create the new meta contact */
+        MetaContactImpl metaContactImpl = new MetaContactImpl();
+
+        MetaContactGroupImpl newParentMetaGroupImpl
+            = (MetaContactGroupImpl)newParentMetaGroup;
+
+        newParentMetaGroupImpl.addMetaContact(metaContactImpl);
+
+        fireMetaContactEvent(metaContactImpl
+                             , newParentMetaGroupImpl
+                             , MetaContactEvent.META_CONTACT_ADDED);
+
+        /** then move the sub contactact to the new metacontact container */
+        moveContact(contact, metaContactImpl);
     }
 
     /**
@@ -1843,7 +1856,6 @@ public class MetaContactListServiceImpl
                 return;
             }
 
-
             MetaContactGroupImpl oldParentGroup = (MetaContactGroupImpl)
                 findMetaContactGroupByContactGroup(evt.getOldParentGroup());
             MetaContactGroupImpl newParentGroup = (MetaContactGroupImpl)
@@ -1859,7 +1871,7 @@ public class MetaContactListServiceImpl
             MetaContactImpl currentMetaContact = (MetaContactImpl)
                                findMetaContactByContact(evt.getSourceContact());
              //if the move was caused by us (when merging contacts) then chances
-            //that the contact is already in the right group
+            //are that the contact is already in the right group
             MetaContactGroup currentParentGroup
                 = currentMetaContact.getParentMetaContactGroup();
 
