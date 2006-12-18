@@ -487,7 +487,6 @@ public class NetworkAddressManagerServiceImpl
      */
     private void initializeLocalHostFinderSocket()
     {
-
         String bindRetriesStr
             = NetaddrActivator.getConfigurationService().getString(
                 BIND_RETRIES_PROPERTY_NAME);
