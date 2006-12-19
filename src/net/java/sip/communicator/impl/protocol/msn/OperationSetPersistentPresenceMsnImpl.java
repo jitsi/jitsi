@@ -67,6 +67,12 @@ public class OperationSetPersistentPresenceMsnImpl
     private Vector contactPresenceStatusListeners = new Vector();
 
     /**
+     * Sometimes status changes are received before the contact list is inited
+     * here we store such events so we can show them correctly
+     */
+    private Hashtable earlyStatusChange = new Hashtable();
+
+    /**
      * The array list we use when returning from the getSupportedStatusSet()
      * method.
      */
@@ -956,6 +962,44 @@ public class OperationSetPersistentPresenceMsnImpl
         ssContactList.setMessenger(messenger);
     }
 
+    void earlyStatusesDispatch()
+    {
+        Iterator iter = earlyStatusChange.keySet().iterator();
+        while (iter.hasNext())
+        {
+            String contactEmail = (String)iter.next();
+
+            ContactMsnImpl sourceContact = ssContactList.findContactById(contactEmail);
+
+            if (sourceContact == null)
+            {
+                return;
+            }
+
+            PresenceStatus oldStatus
+                = sourceContact.getPresenceStatus();
+
+            PresenceStatus newStatus
+                = msnStatusToPresenceStatus((MsnUserStatus)
+                                            earlyStatusChange.get(contactEmail));
+
+            // when old and new status are the same do nothing
+            // no change
+            if(oldStatus.equals(newStatus))
+                return;
+
+            sourceContact.updatePresenceStatus(newStatus);
+
+            ContactGroup parent
+                = ssContactList.findContactGroup(sourceContact);
+
+            logger.debug("Will Dispatch the contact status event.");
+            fireContactPresenceStatusChangeEvent(sourceContact, parent,
+                oldStatus, newStatus);
+        }
+        earlyStatusChange.clear();
+    }
+
     /**
      * Waits for status changes from the contacts in the list
      * or ouw own account
@@ -991,6 +1035,11 @@ public class OperationSetPersistentPresenceMsnImpl
             if (sourceContact == null)
             {
                 logger.warn("No source contact found for msncontact=" + contact);
+
+                // maybe list is not inited yet will store till init
+                earlyStatusChange.put(contact.getEmail().getEmailAddress(),
+                    contact.getStatus());
+
                 return;
             }
 
