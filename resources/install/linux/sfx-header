@@ -15,14 +15,18 @@ tail -n +$SKIP $0 | tar xz -C $WRKDIR
 
 PREV=`pwd`
 cd $WRKDIR
-chmod +x setup.sh 
+chmod +x setup.sh
 chmod +x jre/bin/java
 
-# this change is due to the fact that the installer searches 
+# this change is due to the fact that the installer searches
 # the jre in this directory to copy it to the installation folder
-mkdir -p release/linux/tmp
-ln -s `pwd`/jre release/linux/tmp/jre
+#mkdir -p release/linux/tmp
+#ln -s `pwd`/jre release/linux/tmp/jre
 ./setup.sh
+
+INSTALL_PATH=`cat inst_path`
+cp -r jre $INSTALL_PATH
+chmod a+x $INSTALL_PATH/jre/bin/java
 
 # delete the temp files
 cd $PREV

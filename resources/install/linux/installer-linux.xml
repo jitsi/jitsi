@@ -25,8 +25,6 @@
             <res src="resources/install/linux/linux_shortcut_specification.xml" id="Unix_shortcutSpec.xml"/>
 	</resources>
 
-	<native type="izpack" name="ShellLink.dll"/>
-
 	<panels>
 		<panel classname="HelloPanel"/>
 		<panel classname="LicencePanel"/>
@@ -163,16 +161,17 @@
             <file targetdir="$INSTALL_PATH" src="resources/install/linux/uninstall.sh"  override="true"/>
 			<executable targetfile="$INSTALL_PATH/run.sh" stage="never" os="linux"/>
             <executable targetfile="$INSTALL_PATH/uninstall.sh" stage="never" os="linux"/>
-            <executable targetfile="$INSTALL_PATH/jre/bin/java" stage="never" os="linux"/>
+            <parsable targetfile="inst_path" />
 		</pack>
 
-        <pack name="jre" required="yes" loose="true">
+        <!-- loose param is not working -->
+        <!--pack name="jre" required="yes" loose="true">
           <description>SIP Communicator included jre</description>
 
           <fileset  targetdir="$INSTALL_PATH/jre" dir="release/linux/tmp/jre">
             <include name="**/*"/>
           </fileset>
-        </pack>
+        </pack-->
 	</packs>
 
 </installation>

@@ -97,6 +97,7 @@
         <copy todir="${linux.app.dir}/tmp">
             <fileset dir="${basedir}/${inst.resrc}/linux">
                 <include name="setup.sh"/>
+                <include name="inst_path"/>
             </fileset>
     </copy>
         <!-- copy the jre -->
