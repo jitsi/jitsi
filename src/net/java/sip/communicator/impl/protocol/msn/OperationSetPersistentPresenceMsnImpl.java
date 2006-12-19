@@ -648,7 +648,7 @@ public class OperationSetPersistentPresenceMsnImpl
      * Converts the specified msn status to one of the status fields of the
      * MsnStatusEnum class.
      *
-     * @param mode the msn Status
+     * @param status the msn Status
      * @return a PresenceStatus instance representation of the Msn Status
      * parameter. The returned result is one of the MsnStatusEnum fields.
      */
@@ -962,6 +962,10 @@ public class OperationSetPersistentPresenceMsnImpl
         ssContactList.setMessenger(messenger);
     }
 
+    /**
+     * Fires all the saved statuses which were received before
+     * contact list init
+     */
     void earlyStatusesDispatch()
     {
         Iterator iter = earlyStatusChange.keySet().iterator();
@@ -1009,7 +1013,7 @@ public class OperationSetPersistentPresenceMsnImpl
     {
         /**
          * Indicates that ower status changed
-         * @param newStatus MsnUserStatus the new status
+         * @param messenger the messenger changing the status
          */
         public void ownerStatusChanged(MsnMessenger messenger)
         {
