@@ -45,6 +45,8 @@ public class SoundLoader
     
     private static Timer playAudioTimer = new Timer(1000, null);
     
+    private static Hashtable audioListeners = new Hashtable();
+    
     /**
      * Loads an audio for a given sound identifier.
      * @param soundID The identifier of the sound.
@@ -104,13 +106,17 @@ public class SoundLoader
                 //first play the audio and then start the timer and wait
                 audio.play();
                 playAudioTimer.setDelay(interval);
-                playAudioTimer.addActionListener(new PlayAudioListener(audio));
                 playAudioTimer.setRepeats(true);
+                
+                ActionListener audioListener = new PlayAudioListener(audio);
+                audioListeners.put(audio, audioListener);
+                
+                playAudioTimer.addActionListener(audioListener);                                
                 playAudioTimer.start();
             }
         }
         
-        new NewThread(audio, interval).start();
+        new NewThread(audio, interval).start();     
     }
     
     /**
@@ -120,6 +126,8 @@ public class SoundLoader
     public static void stop(AudioClip audio)
     {
         playAudioTimer.stop();
+        playAudioTimer.removeActionListener(
+            (ActionListener)audioListeners.get(audio));
         audio.stop();
     }
     
