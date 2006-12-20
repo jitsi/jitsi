@@ -278,23 +278,23 @@ public class CallPanel
             SoundLoader.stop(Constants.getDefaultOutgoingCallAudio());            
             participantPanel.startCallTimer();
         }
-        else if(evt.getNewValue() == CallParticipantState.CONNECTING) {
+        else if(evt.getNewValue() == CallParticipantState.CONNECTING) {            
         }
-        else if(evt.getNewValue() == CallParticipantState.DISCONNECTED) {
+        else if(evt.getNewValue() == CallParticipantState.DISCONNECTED) {            
             //The call participant should be already removed from the call
             //see callParticipantRemoved
         }
-        else if(evt.getNewValue() == CallParticipantState.FAILED) {
+        else if(evt.getNewValue() == CallParticipantState.FAILED) {            
             //The call participant should be already removed from the call
             //see callParticipantRemoved
         }
-        else if(evt.getNewValue() == CallParticipantState.INCOMING_CALL) {
+        else if(evt.getNewValue() == CallParticipantState.INCOMING_CALL) {            
         }
-        else if(evt.getNewValue() == CallParticipantState.INITIATING_CALL) {
+        else if(evt.getNewValue() == CallParticipantState.INITIATING_CALL) {            
         }
-        else if(evt.getNewValue() == CallParticipantState.ON_HOLD) {
+        else if(evt.getNewValue() == CallParticipantState.ON_HOLD) {            
         }
-        else if(evt.getNewValue() == CallParticipantState.UNKNOWN) {
+        else if(evt.getNewValue() == CallParticipantState.UNKNOWN) {            
         }
     }
 
@@ -375,5 +375,10 @@ public class CallPanel
             mainPanel.remove(participantPanel);
 
         }        
+    }
+
+    public Iterator getParticipantsPanels()
+    {
+        return participantsPanels.values().iterator();
     }
 }

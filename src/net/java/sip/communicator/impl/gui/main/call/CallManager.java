@@ -169,11 +169,21 @@ public class CallManager
                     && selectedPanel instanceof CallPanel
                     && ((CallPanel)selectedPanel).getCall().getCallState()
                         == CallState.CALL_INITIALIZATION) {
-            
+
                 SoundLoader.getSound(SoundLoader.BUSY).stop();
                 SoundLoader.stop(Constants.getDefaultIncomingCallAudio());
                 
                 CallPanel callPanel = (CallPanel) selectedPanel;
+                
+                Iterator participantPanels = callPanel.getParticipantsPanels();
+                
+                while (participantPanels.hasNext())
+                {
+                    CallParticipantPanel panel
+                        = (CallParticipantPanel) participantPanels.next();
+                    
+                    panel.setState("Connecting");
+                }
                 
                 Call call = callPanel.getCall();
                 
@@ -183,7 +193,7 @@ public class CallManager
             else if(selectedPanel != null
                         && selectedPanel instanceof CallListPanel
                         && ((CallListPanel) selectedPanel)
-                            .getCallList().getSelectedIndex() != -1) {
+                            .getCallList().getSelectedIndex() != -1) {                
                 
                 CallListPanel callListPanel = (CallListPanel) selectedPanel;
                 
@@ -198,7 +208,7 @@ public class CallManager
             //call button is pressed over the contact list
             else if(selectedPanel != null
                     && selectedPanel instanceof ContactListPanel){
-            
+                
                 //call button is pressed when a meta contact is selected
                 if(isCallMetaContact) {
                     
@@ -450,7 +460,7 @@ public class CallManager
      * button.
      */
     public void callEnded(CallEvent event)
-    {        
+    {
         Call sourceCall = event.getSourceCall();
            
         SoundLoader.getSound(SoundLoader.BUSY).stop();
