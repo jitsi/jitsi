@@ -6,22 +6,34 @@
  */
 package net.java.sip.communicator.impl.gui;
 
-import java.util.*;
+import java.awt.Component;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
-import java.awt.*;
-import javax.swing.*;
+import javax.swing.JFrame;
 
-import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.account.*;
-import net.java.sip.communicator.impl.gui.main.configforms.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.impl.gui.main.message.*;
-import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.event.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
+import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
+import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
+import net.java.sip.communicator.service.gui.ApplicationWindow;
+import net.java.sip.communicator.service.gui.ConfigurationManager;
+import net.java.sip.communicator.service.gui.ContactAwareComponent;
+import net.java.sip.communicator.service.gui.ContainerID;
+import net.java.sip.communicator.service.gui.PopupDialog;
+import net.java.sip.communicator.service.gui.UIService;
+import net.java.sip.communicator.service.gui.WindowID;
+import net.java.sip.communicator.service.gui.event.PluginComponentEvent;
+import net.java.sip.communicator.service.gui.event.PluginComponentListener;
+import net.java.sip.communicator.service.protocol.Contact;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * An implementation of the <tt>UIService</tt> that gives access to 
@@ -84,19 +96,24 @@ public class UIServiceImpl implements UIService {
      */
     public void addComponent(ContainerID containerID, Object component)
             throws ClassCastException, IllegalArgumentException {
-
+        
         if (!supportedContainers.contains(containerID)) {
+            
             throw new IllegalArgumentException(
                     "The constraint that you specified is not"
                             + " supported by this UIService implementation.");
         }
         else if (!(component instanceof Component)) {
+            
             throw new ClassCastException(
                 "The specified plugin is not a valid swing or awt component.");
         } else {
+            
             if (registeredPlugins.containsKey(containerID)) {
+            
                 ((Vector) registeredPlugins.get(containerID)).add(component);
             } else {
+            
                 Vector plugins = new Vector();
                 plugins.add(component);
                 registeredPlugins.put(containerID, plugins);
@@ -104,6 +121,7 @@ public class UIServiceImpl implements UIService {
             this.firePluginEvent(component, containerID,
                     PluginComponentEvent.PLUGIN_COMPONENT_ADDED);
         }
+        
     }
 
     /**
@@ -124,8 +142,14 @@ public class UIServiceImpl implements UIService {
     public void addComponent(ContainerID containerID,
         ContactAwareComponent component)
         throws ClassCastException, IllegalArgumentException
-    {
-        this.addComponent(containerID, component);        
+    {    
+        if (!(component instanceof Component)) {
+            
+            throw new ClassCastException(
+                "The specified plugin is not a valid swing or awt component.");
+        }
+        
+        this.addComponent(containerID, (Component)component);        
     }
 
     /**
