@@ -3,25 +3,79 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/Stun4J.jar"/>
-	<classpathentry kind="lib" path="lib/jaxen-1.1-beta-8.jar"/>
-	<classpathentry sourcepath="/opt/oscar/src.jar" kind="lib" path="lib/oscar.jar"/>
-	<classpathentry kind="lib" path="lib/sip-sdp.jar"/>
-	<classpathentry kind="lib" path="lib/osgi.jar"/>
-	<classpathentry kind="lib" path="lib/junit.jar"/>
-	<classpathentry kind="lib" path="lib/moduleloader.jar"/>
-	<classpathentry kind="lib" path="lib/servicebinder.jar"/>
+	<classpathentry kind="lib" path="lib/bundle/junit.jar"/>
+	<classpathentry kind="lib" path="lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/jdic/linux/jdic_stub.jar"/>
+	<classpathentry kind="lib" path="lib/jdic/sunos/jdic_stub.jar"/>
+	<classpathentry kind="lib" path="lib/jdic/windows/jdic_stub.jar"/>
+	<classpathentry kind="lib" path="lib/jdic/jdic.jar"/>
 	<classpathentry kind="lib" path="lib/jmf-all/jmf.jar"/>
 	<classpathentry kind="lib" path="lib/jmf-lin/jmf.jar"/>
 	<classpathentry kind="lib" path="lib/jmf-sol/jmf.jar"/>
 	<classpathentry kind="lib" path="lib/jmf-win/jmf.jar"/>
+	<classpathentry kind="lib" path="lib/jmf-win/sound.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk14-130.jar"/>
+	<classpathentry kind="lib" path="lib/BrowserLauncher2.jar"/>
+	<classpathentry kind="lib" path="lib/cindy.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/concurrent.jar"/>
+	<classpathentry kind="lib" path="lib/felix.jar"/>
+	<classpathentry kind="lib" path="lib/JainSipApi1.2.jar"/>
+	<classpathentry kind="lib" path="lib/JainSipRi1.2.jar"/>
 	<classpathentry kind="lib" path="lib/joscar-0.9.4-cvs-bin.jar"/>
+	<classpathentry kind="lib" path="lib/junit.jar"/>
+	<classpathentry kind="lib" path="lib/kxml-min.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.8.jar"/>
+	<classpathentry kind="lib" path="lib/nist-sdp-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/oscar-aim.jar"/>
 	<classpathentry kind="lib" path="lib/retroweaver.jar"/>
 	<classpathentry kind="lib" path="lib/retroweaver-rt.jar"/>
-    <classpathentry kind="lib" path="lib/jml-1.0b1.jar"/>
-    <classpathentry kind="lib" path="lib/commons-logging.jar"/>
-    <classpathentry kind="lib" path="lib/cindy.jar"/>
+	<classpathentry kind="lib" path="lib/servicebinder.jar"/>
+	<classpathentry kind="lib" path="lib/smack.jar"/>
+	<classpathentry kind="lib" path="lib/smackx.jar"/>
+	<classpathentry kind="lib" path="lib/Stun4J.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/callhistory.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/callhistory-slick.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/configuration.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/configuration-slick.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/contactlist.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/fileaccess.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/fileaccess-slick.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/history.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/history-slick.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/icqaccregwizz.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/jabberaccregwizz.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/media.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/media-slick.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/meta-cl.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/meta-cl-slick.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/msghistory.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/msghistory-slick.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/msnaccregwizz.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/netaddr.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/netaddr-slick.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/protocol.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/protocol-icq.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/protocol-icq-slick.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/protocol-jabber.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/protocol-jabber-slick.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/protocol-mock.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/protocol-msn.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/protocol-msn-slick.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/protocol-sip.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/protocol-sip-slick.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/shutdown.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/sipaccregwizz.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/slickless.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/slick-runner.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/swing-ui.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/util.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/version.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/version-impl.jar"/>
+	<classpathentry kind="lib" path="lib/growl.jar"/>
+	<classpathentry kind="lib" path="lib/jspeex.jar"/>
+	<classpathentry kind="lib" path="sc-bundles/os/macosx/growlnotification.jar"/>
+	<classpathentry kind="lib" path="sip-communicator.bin/bundle1/version0.0/embedded/kxml2-2.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/jml-1.0b1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
