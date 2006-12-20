@@ -432,26 +432,6 @@ public class CallParticipantSipImpl
     }
 
     /**
-     * The address that we have used to contact this participant. In cases
-     * where no direct connection has been established with the participant,
-     * this method will return the address that will be first tried when
-     * connection is established (often the one used to connect with the
-     * protocol server). The address may change during a session and
-     *
-     * @return The address that we have used to contact this participant.
-     */
-    public InetSocketAddress getLocalTransportAddress()
-    {
-        /** @todo this is ugly as we don't really know which listening point
-         * we're using. will do until we implement ice. */
-        int defaultLpPort
-            = ((ProtocolProviderServiceSipImpl)getProtocolProvider())
-                .getDefaultListeningPoint().getPort();
-
-        return new InetSocketAddress(defaultLpPort);
-    }
-
-    /**
      * Returns the protocol provider that this participant belongs to.
      * @return a reference to the ProtocolProviderService that this participant
      * belongs to.

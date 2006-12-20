@@ -172,21 +172,6 @@ public class MockCallParticipant
     }
 
     /**
-     * The address that we have used to contact this participant. In cases
-     * where no direct connection has been established with the participant,
-     * this method will return the address that will be first tried when
-     * connection is established (often the one used to connect with the
-     * protocol server). The address may change during a session and
-     *
-     * @return The address that we have used to contact this participant.
-     */
-    public InetSocketAddress getLocalTransportAddress()
-    {
-        /** @todo implement getLocalTransportAddress() */
-        return null;
-    }
-
-    /**
      * Returns the protocol provider that this participant belongs to.
      * @return a reference to the ProtocolProviderService that this participant
      * belongs to.
