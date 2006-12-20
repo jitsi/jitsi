@@ -23,7 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class AuthenticationWindow
-    extends SIPCommDialog
+    extends SIPCommFrame
     implements ActionListener
 {
 
@@ -76,13 +76,9 @@ public class AuthenticationWindow
                 String realm,
                 UserCredentials userCredentials) {
 
-        super(mainFrame);
-
         this.userCredentials = userCredentials;
 
         this.realm = realm;
-
-        this.setModal(true);
 
         backgroundPanel = new LoginWindowBackground(
                 Constants.getProtocolBigIcon(
@@ -257,5 +253,10 @@ public class AuthenticationWindow
     public UserCredentials getUserCredentials()
     {
         return userCredentials;
+    }
+
+    public JPasswordField getPasswdField()
+    {
+        return passwdField;
     }
 }

@@ -44,9 +44,11 @@ public class SecurityAuthorityImpl implements SecurityAuthority {
 
         AuthenticationWindow loginWindow = new AuthenticationWindow(
                 mainFrame, protocolProvider, realm, userCredentials);
-
+        
         loginWindow.setVisible(true);
         
+        loginWindow.getPasswdField().requestFocus();
+         
         return loginWindow.getUserCredentials();
     }
 }
