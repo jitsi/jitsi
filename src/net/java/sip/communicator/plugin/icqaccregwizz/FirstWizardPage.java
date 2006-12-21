@@ -113,7 +113,8 @@ public class FirstWizardPage extends JPanel
         
         this.uinExampleLabel.setForeground(Color.GRAY);
         this.uinExampleLabel.setFont(uinExampleLabel.getFont().deriveFont(8));
-        this.emptyPanel.setMaximumSize(new Dimension(40, 25));
+        this.emptyPanel.setMaximumSize(new Dimension(40, 35));
+        this.uinExampleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
         
         labelsPanel.add(uinLabel); 
         labelsPanel.add(emptyPanel);
