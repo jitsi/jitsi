@@ -939,7 +939,7 @@ public class ImageLoader {
                 ":-*", ":*" }));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY4, new String[] {
-                ":-0", ":0" }));
+                ":-0" }));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY5, new String[] {
                 ":-((", ":((" }));
