@@ -62,6 +62,8 @@ public class AuthenticationWindow
 
     private UserCredentials userCredentials;
 
+    private Object lock = new Object();
+    
     private String realm;
 
     /**
@@ -196,6 +198,10 @@ public class AuthenticationWindow
             this.userCredentials = null;
         }
 
+        synchronized (lock) {
+            lock.notify();
+        }
+        
         this.dispose();
     }
 
@@ -249,14 +255,26 @@ public class AuthenticationWindow
     {
         this.cancelButton.doClick();
     }
+    
+    /**
+     * Shows this modal dialog.
+     * @return the result code, which shows what was the choice of the user
+     */
+    public UserCredentials showWindow() {
+        this.setVisible(true);
 
-    public UserCredentials getUserCredentials()
-    {
+        this.passwdField.requestFocus();
+        
+        synchronized (lock) {
+            try {                    
+                lock.wait();
+            }
+            catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        
         return userCredentials;
-    }
-
-    public JPasswordField getPasswdField()
-    {
-        return passwdField;
     }
 }
