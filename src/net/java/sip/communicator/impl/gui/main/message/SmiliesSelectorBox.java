@@ -11,6 +11,7 @@ import java.util.*;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -68,14 +69,17 @@ public class SmiliesSelectorBox extends JMenuBar
 
             Smiley smiley = (Smiley) this.imageList.get(i);
 
-            ChatToolbarButton imageButton = new ChatToolbarButton(
-                    ImageLoader.getImage(smiley.getImageID()));
+            JMenuItem smileyItem = new JMenuItem (
+                    new ImageIcon(ImageLoader.getImage(smiley.getImageID())));
+            
+            smileyItem.setPreferredSize(new Dimension(28, 28));
+            smileyItem.setMargin(new Insets(2, -5, 2, 0));
+            
+            smileyItem.setToolTipText(smiley.getSmileyStrings()[0]);
 
-            imageButton.setToolTipText(smiley.getSmileyStrings()[0]);
+            smileyItem.addActionListener(this);
 
-            imageButton.addActionListener(this);
-
-            this.selectorBox.add(imageButton);
+            this.selectorBox.add(smileyItem);
         }
 
         this.add(selectorBox);
@@ -90,32 +94,6 @@ public class SmiliesSelectorBox extends JMenuBar
         this.gridRowCount = (int) Math.round(Math.sqrt(itemsCount));
 
         this.gridColCount = (int) Math.round(itemsCount / gridRowCount);
-    }
-
-    /**
-     * Writes the symbol corresponding to a choosen smiley icon to the write
-     * message area at the end of the current text.
-     */
-    public void actionPerformed(ActionEvent e) {
-
-        JButton imageButton = (JButton) e.getSource();
-        String buttonText = imageButton.getToolTipText();
-
-        for (int i = 0; i < this.imageList.size(); i++) {
-
-            Smiley smiley = (Smiley) this.imageList.get(i);
-
-            if (buttonText.equals(smiley.getSmileyStrings()[0])) {
-
-                ChatPanel chatPanel = this.chatWindow
-                        .getCurrentChatPanel();
-
-                chatPanel.addTextInWriteArea(
-                        smiley.getSmileyStrings()[0] + " ");
-
-                chatPanel.requestFocusInWriteArea();
-            }
-        }
     }
 
     /**
@@ -136,5 +114,31 @@ public class SmiliesSelectorBox extends JMenuBar
             return true;
         
         return false;
+    }
+
+    /**
+     * Writes the symbol corresponding to a choosen smiley icon to the write
+     * message area at the end of the current text.
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        JMenuItem smileyItem = (JMenuItem) e.getSource();
+        String buttonText = smileyItem.getToolTipText();
+
+        for (int i = 0; i < this.imageList.size(); i++) {
+
+            Smiley smiley = (Smiley) this.imageList.get(i);
+
+            if (buttonText.equals(smiley.getSmileyStrings()[0])) {
+
+                ChatPanel chatPanel = this.chatWindow
+                        .getCurrentChatPanel();
+
+                chatPanel.addTextInWriteArea(
+                        smiley.getSmileyStrings()[0] + " ");
+
+                chatPanel.requestFocusInWriteArea();
+            }
+        }
     }
 }
