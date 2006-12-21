@@ -29,9 +29,9 @@ public class FirstWizardPage extends JPanel
 
     private JPanel uinPassPanel = new JPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel labelsPanel = new JPanel();
 
-    private JPanel valuesPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    private JPanel valuesPanel = new JPanel();
 
     private JLabel uinLabel = new JLabel(Resources.getString("uin"));
 
@@ -39,6 +39,10 @@ public class FirstWizardPage extends JPanel
 
     private JLabel existingAccountLabel
         = new JLabel(Resources.getString("existingAccount"));
+    
+    private JPanel emptyPanel = new JPanel();
+    
+    private JLabel uinExampleLabel = new JLabel("Ex: johnsmith@hotmail.com");
     
     private JTextField uinField = new JTextField();
 
@@ -78,6 +82,10 @@ public class FirstWizardPage extends JPanel
         this.init();
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        this.labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
+        
+        this.valuesPanel.setLayout(new BoxLayout(valuesPanel, BoxLayout.Y_AXIS));
     }
 
     /**
@@ -89,10 +97,16 @@ public class FirstWizardPage extends JPanel
 
         this.existingAccountLabel.setForeground(Color.RED);
         
+        this.uinExampleLabel.setForeground(Color.GRAY);
+        this.uinExampleLabel.setFont(uinExampleLabel.getFont().deriveFont(8));
+        this.emptyPanel.setMaximumSize(new Dimension(40, 25));
+        
         labelsPanel.add(uinLabel);
+        labelsPanel.add(emptyPanel);
         labelsPanel.add(passLabel);
 
         valuesPanel.add(uinField);
+        valuesPanel.add(uinExampleLabel);
         valuesPanel.add(passField);
 
         uinPassPanel.add(labelsPanel, BorderLayout.WEST);
