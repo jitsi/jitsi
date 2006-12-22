@@ -42,7 +42,7 @@ public class VersionImpl
      * and version revisions are exclusive, so in case this version is a pre-
      * release the revision will bereturn null.
      */
-    public static final String  PRE_RELEASE_ID          = "alpha1";
+    public static final String  PRE_RELEASE_ID          = "alpha2";
 
     /**
      * Returns the version revision number of the current SIP Communicator
@@ -56,7 +56,7 @@ public class VersionImpl
      * Indicates if this SIP Communicator version corresponds to a nightly build
      * of a repository snapshot or to an official SIP Communicator release.
      */
-    public static final boolean IS_NIGHTLY_BUILD        = false;
+    public static final boolean IS_NIGHTLY_BUILD        = true;
 
     /**
      * Returns the VersionImpl instance describing the current version of
