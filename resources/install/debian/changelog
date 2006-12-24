@@ -1,3 +1,9 @@
+sip-communicator (1.0-alpha2-1) unstable; urgency=low
+
+  * Switching to alpha2 nightly	builds
+
+ -- Martin Andre <mandre@dev.java.net>  Fri, 22 Dec 2006 14:52:00 +0900
+
 sip-communicator (1.0-alpha1-3) unstable; urgency=low
 
   * OSGI implementation changed from Oscar to Felix:
