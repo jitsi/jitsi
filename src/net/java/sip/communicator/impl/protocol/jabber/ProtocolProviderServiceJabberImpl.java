@@ -264,10 +264,28 @@ public class ProtocolProviderServiceJabberImpl
 
                 Roster.setDefaultSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
 
-                connection = new XMPPConnection(
+                try
+                {
+                    connection = new XMPPConnection(
                         serverAddress,
                         Integer.parseInt(serverPort),
                         serviceName);
+                }
+                catch (XMPPException exc)
+                {
+                    logger.error("Failed to establish a Jabber connection for "
+                        + getAccountID().getAccountUniqueID(), exc);
+                    fireRegistrationStateChanged(
+                        getRegistrationState()
+                        , RegistrationState.CONNECTION_FAILED
+                        , OperationFailedException.NETWORK_FAILURE
+                        , null);
+                    throw new OperationFailedException(
+                        "Failed to establish a Jabber connection for "
+                        + getAccountID().getAccountUniqueID()
+                        , OperationFailedException.NETWORK_FAILURE
+                        , exc);
+                }
 
                 connection.addConnectionListener(
                     new JabberConnectionListener());
