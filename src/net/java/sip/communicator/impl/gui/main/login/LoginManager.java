@@ -462,6 +462,8 @@ public class LoginManager
                         protocolProvider.getAccountID()
                         .getAccountAddress()).getText(),
                     Messages.getI18NString("error").getText()).showDialog();
+
+                mainFrame.getStatusPanel().updateStatus(protocolProvider);
             }
         }
     }
