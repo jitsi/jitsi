@@ -452,6 +452,8 @@ public class CallManager
         SoundLoader.playInLoop(Constants.getDefaultIncomingCallAudio(), 2000);
         
         activeCalls.put(sourceCall, callPanel);
+        
+        this.showCallPanel();
     }
 
     /**
