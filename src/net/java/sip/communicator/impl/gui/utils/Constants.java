@@ -34,6 +34,10 @@ public class Constants {
     private static Logger logger = Logger.getLogger(CommunicatorMain.class
             .getName());
 
+    public static final String ONLINE_STATUS = "Online";
+    
+    public static final String OFFLINE_STATUS = "Offline";
+    
     /*
      * ===================================================================
      * ------------------------ CONFIG CONSTANTS ---------------------------
@@ -61,7 +65,7 @@ public class Constants {
      * chat is opened.
      */
     public static int CHAT_HISTORY_SIZE = 10;
-
+    
     /*
      * ===================================================================
      * ------------------------ MESSAGE TYPES ---------------------------

@@ -83,8 +83,8 @@ public class SimpleStatusSelectorBox
 
         this.setToolTipText(tooltip);
 
-        onlineItem.setName("online");
-        offlineItem.setName("offline");
+        onlineItem.setName(Constants.ONLINE_STATUS);
+        offlineItem.setName(Constants.OFFLINE_STATUS);
 
         onlineItem.addActionListener(this);
         offlineItem.addActionListener(this);
@@ -99,6 +99,8 @@ public class SimpleStatusSelectorBox
 
         this.add(onlineItem);
         this.add(offlineItem);
+        
+        setSelected(offlineItem, offlineIcon);
     }
 
     /**
@@ -110,10 +112,13 @@ public class SimpleStatusSelectorBox
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
-        if(itemName.equals("online")) {
+        if(itemName.equals(Constants.ONLINE_STATUS)) {
             if(!protocolProvider.isRegistered()) {
                 this.mainFrame.getLoginManager().login(protocolProvider);
             }
+            
+            mainFrame.saveStatusInformation(
+                protocolProvider, Constants.ONLINE_STATUS);
         }
         else {
             if(    !protocolProvider.getRegistrationState()
@@ -132,6 +137,9 @@ public class SimpleStatusSelectorBox
                             + " due to the following exception: " + e1);
                 }
             }
+            
+            mainFrame.saveStatusInformation(
+                protocolProvider, Constants.OFFLINE_STATUS);
         }
     }
 
@@ -155,15 +163,23 @@ public class SimpleStatusSelectorBox
     /**
      * Stops the timer that manages the connecting animated icon.
      */
-    public void updateStatus()
+    public void updateStatus(String statusString)
     {
         this.connecting.stop();
 
-        if(protocolProvider.isRegistered()) {
-            setSelected(onlineItem, onlineIcon);
+        if(statusString != null)
+        {
+            if(statusString.equals(Constants.ONLINE_STATUS))
+                setSelected(onlineItem, onlineIcon);
+            else
+                setSelected(offlineItem, offlineIcon);
         }
-        else {
-            setSelected(offlineItem, offlineIcon);
+        else
+        {
+            if(protocolProvider.isRegistered())
+                setSelected(onlineItem, onlineIcon);            
+            else
+                setSelected(offlineItem, offlineIcon);
         }
 
         String tooltip = this.getToolTipText();
@@ -172,7 +188,7 @@ public class SimpleStatusSelectorBox
 
         this.setToolTipText(tooltip.concat("<br>" + onlineItem.getText()));
     }
-
+    
     /**
      * A <tt>Timer</tt> that creates an animated icon, which indicates the
      * connecting state.
