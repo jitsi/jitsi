@@ -290,6 +290,11 @@ public class ProtocolProviderServiceJabberImpl
                 connection.addConnectionListener(
                     new JabberConnectionListener());
 
+                fireRegistrationStateChanged(
+                        getRegistrationState()
+                        , RegistrationState.REGISTERING
+                        , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+                        , null);
                 connection.login(userID, password, "sip-comm");
 
                 if(connection.isAuthenticated())
@@ -304,6 +309,15 @@ public class ProtocolProviderServiceJabberImpl
                         RegistrationState.REGISTERED,
                         RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
                 }
+                else
+                {
+                    fireRegistrationStateChanged(
+                        getRegistrationState()
+                        , RegistrationState.UNREGISTERED
+                        , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+                        , null);
+                }
+
             }
             catch (NumberFormatException ex)
             {
