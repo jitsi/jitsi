@@ -35,7 +35,7 @@ public interface MediaService
      * like our rtp managers to bind upon.
      */
     public static final String MIN_PORT_NUMBER_PROPERTY_NAME
-        = "net.java.sip.communicator.service.media.MAX_PORT_NUMBER";
+        = "net.java.sip.communicator.service.media.MIN_PORT_NUMBER";
 
     /**
      * The name of the property that contains the maximum port number that we'd
