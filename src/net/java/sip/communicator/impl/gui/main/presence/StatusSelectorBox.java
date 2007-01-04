@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.presence;
 import java.awt.image.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.service.protocol.*;
 
 public abstract class StatusSelectorBox extends SIPCommMenu
 {   
@@ -18,5 +19,5 @@ public abstract class StatusSelectorBox extends SIPCommMenu
         
     public int getAccountIndex(){return -1;}
     
-    public void setAccountIndex(int index){}
+    public void setAccountIndex(int index){}    
 }

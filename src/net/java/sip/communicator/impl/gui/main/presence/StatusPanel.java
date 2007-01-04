@@ -140,30 +140,15 @@ public class StatusPanel
         selectorBox.repaint();
     }
 
-    /**
-     * Returns the last status that was stored in the configuration xml for the
-     * given protocol provider.
-     * @param protocolProvider the protocol provider 
-     * @return the last status that was stored in the configuration xml for the
-     * given protocol provider
-     */
-    public PresenceStatus getProtocolProviderLastStatus(
-            ProtocolProviderService protocolProvider)
+    public String getLastStatusString(
+        ProtocolProviderService protocolProvider)
     {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
         
         //find the last contact status saved in the configuration.                
         String lastStatus = null;
-        
-        OperationSetPresence presence
-            = mainFrame.getProtocolPresence(protocolProvider);
-        
-        if(presence == null)
-            return null;
-        
-        Iterator i = presence.getSupportedStatusSet();
-        
+                        
         String prefix = "net.java.sip.communicator.impl.ui.accounts";
         
         List accounts = configService
@@ -188,6 +173,29 @@ public class StatusPanel
             }
         }
         
+        return lastStatus;
+    }
+        
+    /**
+     * Returns the last status that was stored in the configuration xml for the
+     * given protocol provider.
+     * @param protocolProvider the protocol provider 
+     * @return the last status that was stored in the configuration xml for the
+     * given protocol provider
+     */
+    public PresenceStatus getLastPresenceStatus(
+        ProtocolProviderService protocolProvider)
+    {   
+        String lastStatus = getLastStatusString(protocolProvider);
+        
+        OperationSetPresence presence
+            = mainFrame.getProtocolPresence(protocolProvider);
+    
+        if(presence == null)
+            return null;
+        
+        Iterator i = presence.getSupportedStatusSet();
+        
         if(lastStatus != null) {
             PresenceStatus status;
             while(i.hasNext()) {
@@ -196,7 +204,7 @@ public class StatusPanel
                     return status;
                 } 
             }
-        }
+        }        
         return null;
     }
     
@@ -229,7 +237,7 @@ public class StatusPanel
                 }
                 else {           
                     PresenceStatus lastStatus
-                        = getProtocolProviderLastStatus(protocolProvider);
+                        = getLastPresenceStatus(protocolProvider);
                     
                     if(lastStatus == null) {                
                         presenceSelectorBox.updateStatus(
@@ -242,7 +250,10 @@ public class StatusPanel
             }
         }
         else {
-            ((SimpleStatusSelectorBox)selectorBox).updateStatus();
+            String lastStatusString
+                = getLastStatusString(protocolProvider);
+            
+            ((SimpleStatusSelectorBox)selectorBox).updateStatus(lastStatusString);
         }            
         selectorBox.repaint();
     }

@@ -135,9 +135,10 @@ public class PresenceStatusSelectorBox
 
                     if (status.getStatusName().equals(menuItem.getText())
                             && !presence.getPresenceStatus().equals(status)) {
-
                         
-                        if(protocolProvider.isRegistered()) {
+                        if (protocolProvider.getRegistrationState()
+                                == RegistrationState.REGISTERED)
+                        {
                             if (status.isOnline()) {
                                 
                                 new PublishPresenceStatusThread(status)
@@ -148,14 +149,35 @@ public class PresenceStatusSelectorBox
                                 
                                 loginManager.logoff(protocolProvider);
                             }
-                            setSelectedStatus(status);                                
-                        }
-                        else if (status.isOnline()){
-                            lastSelectedStatus = status; 
+                            setSelectedStatus(status);
+                        }                        
+                        else if (protocolProvider.getRegistrationState()
+                                    != RegistrationState.REGISTERED
+                                && protocolProvider.getRegistrationState()
+                                    != RegistrationState.REGISTERING
+                                && protocolProvider.getRegistrationState()
+                                    != RegistrationState.AUTHENTICATING
+                                && status.isOnline())
+                        {
+                            lastSelectedStatus = status;
                             loginManager.login(protocolProvider);
                         }
+                        else
+                        {
+                            if(!status.isOnline()
+                                && !(protocolProvider.getRegistrationState()
+                                == RegistrationState.UNREGISTERING))
+                            {
+                                loginManager.setManuallyDisconnected(true);
+                                
+                                loginManager.logoff(protocolProvider);
+                                
+                                setSelectedStatus(status);
+                            }
+                        }
+                        
                         mainFrame.saveStatusInformation(
-                                protocolProvider, status);
+                                protocolProvider, status.getStatusName());
                         
                         break;
                     }

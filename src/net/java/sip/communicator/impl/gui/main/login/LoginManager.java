@@ -7,10 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.main.login;
 
-import java.awt.*;
 import java.util.*;
-
-import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -18,6 +15,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.authorization.*;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -52,7 +50,6 @@ public class LoginManager
 
     public LoginManager(MainFrame mainFrame)
     {
-
         this.mainFrame = mainFrame;
         this.mainFrame.setLoginManager(this);
         GuiActivator.bundleContext.addServiceListener(this);
@@ -155,12 +152,15 @@ public class LoginManager
 
                 this.mainFrame.addProtocolProvider(protocolProvider);
 
-                PresenceStatus status = this.mainFrame
+                Object status = this.mainFrame
                     .getProtocolProviderLastStatus(protocolProvider);
 
                 if (status == null
-                    || status.getStatus() > PresenceStatus.ONLINE_THRESHOLD) {
-
+                    || status.equals(Constants.ONLINE_STATUS) 
+                    || ((status instanceof PresenceStatus)
+                        && (((PresenceStatus)status).getStatus() 
+                            > PresenceStatus.ONLINE_THRESHOLD)))
+                {
                     this.login(protocolProvider);
                 }
             }
@@ -387,11 +387,15 @@ public class LoginManager
         protocolProvider.addRegistrationStateChangeListener(this);
         this.mainFrame.addProtocolProvider(protocolProvider);
 
-        PresenceStatus status = this.mainFrame
+        Object status = this.mainFrame
             .getProtocolProviderLastStatus(protocolProvider);
 
         if (status == null
-            || status.getStatus() > PresenceStatus.ONLINE_THRESHOLD) {
+            || status.equals(Constants.ONLINE_STATUS) 
+            || ((status instanceof PresenceStatus)
+                && (((PresenceStatus)status).getStatus() 
+                    > PresenceStatus.ONLINE_THRESHOLD)))
+        {
             this.login(protocolProvider);
         }
     }
