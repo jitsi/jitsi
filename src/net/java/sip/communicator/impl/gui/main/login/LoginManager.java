@@ -444,22 +444,27 @@ public class LoginManager
                 int errorCode = ex.getErrorCode();
 
                 if (errorCode == OperationFailedException.GENERAL_ERROR) {
-                    logger.error("Provider could not be unregistered"
-                            + " due to the following general error: " + ex);
+                    logger.error("Provider could not be registered"
+                            + " due to the following general error: ", ex);
                 }
                 else if (errorCode == OperationFailedException.INTERNAL_ERROR) {
-                    logger.error("Provider could not be unregistered"
-                            + " due to the following internal error: " + ex);
+                    logger.error("Provider could not be registered"
+                            + " due to the following internal error: ", ex);
                 }
                 else if (errorCode == OperationFailedException.NETWORK_FAILURE) {
-                    logger.error("Provider could not be unregistered"
+                    logger.error("Provider could not be registered"
                             + " due to a network failure: " + ex);
                 }
                 else if (errorCode == OperationFailedException
                             .INVALID_ACCOUNT_PROPERTIES) {
-                    logger.error("Provider could not be unregistered"
-                            + " due to an invalid account property: " + ex);
+                    logger.error("Provider could not be registered"
+                            + " due to an invalid account property: ", ex);
                 }
+                else
+                {
+                    logger.error("Provider could not be registered.", ex);
+                }
+
 
                 new ErrorDialog(mainFrame,
                     Messages.getI18NString("loginNotSucceeded",
