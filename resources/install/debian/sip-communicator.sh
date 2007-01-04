@@ -8,7 +8,7 @@ eval set -- "$TEMP"
 
 while true ; do
         case "$1" in
-                -V|--version) echo "SIP Communicator version 1.0-alpha1"; exit 0;;
+                -V|--version) echo "SIP Communicator version 1.0-alpha2.nightly.build"; exit 0;;
                 --) shift ; break ;;
                 *) echo "Internal error!" ; exit 1 ;;
         esac
