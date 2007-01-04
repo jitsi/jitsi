@@ -688,7 +688,7 @@ public class MainFrame
      * as he was the last time before closing the application.
      */
     public void saveStatusInformation(ProtocolProviderService protocolProvider,
-            PresenceStatus status)
+            String statusName)
     {
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
@@ -713,7 +713,7 @@ public class MainFrame
 
                 configService.setProperty(
                         accountRootPropName + ".lastAccountStatus",
-                        status.getStatusName());
+                        statusName);
 
                 savedAccount = true;
             }
@@ -732,7 +732,7 @@ public class MainFrame
 
             configService.setProperty(
                     accountPackage+".lastAccountStatus",
-                    status.getStatusName());
+                    statusName);
         }
 
     }
@@ -989,14 +989,14 @@ public class MainFrame
      * @return the last protocol provider presence status, or null if this
      * provider doesn't support presence operation set
      */
-    public PresenceStatus getProtocolProviderLastStatus(
+    public Object getProtocolProviderLastStatus(
             ProtocolProviderService protocolProvider)
     {
         if(getProtocolPresence(protocolProvider) != null)
             return this.statusPanel
-                .getProtocolProviderLastStatus(protocolProvider);
+                .getLastPresenceStatus(protocolProvider);
         else
-            return null;
+            return this.statusPanel.getLastStatusString(protocolProvider);
     }
 
     /**
