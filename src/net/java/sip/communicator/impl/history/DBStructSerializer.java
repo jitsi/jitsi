@@ -109,8 +109,7 @@ public class DBStructSerializer {
      */
     public History loadHistory(File dbDatFile) throws SAXException,
             IOException, ParseException {
-        DocumentBuilder builder = historyService.getDocumentBuilder();
-        Document doc = builder.parse(dbDatFile);
+        Document doc = historyService.parse(dbDatFile);
 
         Node root = doc.getFirstChild();
         HistoryID id = loadID(root);

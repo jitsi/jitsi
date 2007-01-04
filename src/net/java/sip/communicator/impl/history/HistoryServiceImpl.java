@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.history;
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.*;
+import org.xml.sax.*;
+import org.w3c.dom.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.fileaccess.*;
@@ -169,6 +171,34 @@ public class HistoryServiceImpl implements HistoryService {
     protected DocumentBuilder getDocumentBuilder()
     {
         return builder;
+    }
+
+    /**
+     * Parse documets. Synchronized to avoid exception
+     * when concurently parsing with same DocumentBuilder
+     * @param file File the file to parse
+     * @return Document the result document
+     * @throws SAXException exception
+     * @throws IOException exception
+     */
+    protected synchronized Document parse(File file)
+        throws SAXException, IOException
+    {
+        return builder.parse(file);
+    }
+
+    /**
+     * Parse documets. Synchronized to avoid exception
+     * when concurently parsing with same DocumentBuilder
+     * @param in ByteArrayInputStream the stream to parse
+     * @return Document the result document
+     * @throws SAXException exception
+     * @throws IOException exception
+     */
+    protected synchronized Document parse(ByteArrayInputStream in)
+        throws SAXException, IOException
+    {
+        return builder.parse(in);
     }
 
     private void findDatFiles(Vector vect, File directory)

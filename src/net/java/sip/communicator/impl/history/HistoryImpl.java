@@ -220,11 +220,8 @@ public class HistoryImpl implements History {
             {
                 File file = (File) obj;
 
-                DocumentBuilder builder = this.historyServiceImpl
-                        .getDocumentBuilder();
-
                 try {
-                    retVal = builder.parse(file);
+                    retVal = this.historyServiceImpl.parse(file);
                 } catch (Exception e)
                 {
 //                    throw new RuntimeException("Error occured while "
@@ -298,8 +295,8 @@ public class HistoryImpl implements History {
 
         try
         {
-            Document result = this.historyServiceImpl
-                .getDocumentBuilder().parse(new ByteArrayInputStream(
+            Document result =
+                this.historyServiceImpl.parse(new ByteArrayInputStream(
                     resultDocStr.toString().getBytes("UTF-8")));
 
             // parsing is ok . lets overwrite with correct values
@@ -359,7 +356,7 @@ public class HistoryImpl implements History {
     {
         try
         {
-            this.historyServiceImpl.getDocumentBuilder().parse(
+            this.historyServiceImpl.parse(
                 new ByteArrayInputStream(str.getBytes("UTF-8")));
         }
         catch (Exception ex)
