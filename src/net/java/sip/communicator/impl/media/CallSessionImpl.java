@@ -115,7 +115,7 @@ public class CallSessionImpl
      * The name of the property indicating the length of our receive buffer.
      */
     private static final String PROPERTY_NAME_RECEIVE_BUFFER_LENGTH
-        = "net.java.sip.communicator.media.impl.RECEIVE_BUFFER_LENGTH";
+        = "net.java.sip.communicator.impl.media.RECEIVE_BUFFER_LENGTH";
 
     /**
      * The list of currently active players that we have created during this
