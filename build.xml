@@ -331,6 +331,15 @@
                 trim="true"/>
       </condition>
 
+      <!-- Prepare the logging.properties file for macosx -->
+      <exec executable="/usr/bin/sed" 
+          dir="${basedir}"
+          input="${inst.resrc}/logging.properties"
+          output="${macosx.resrc.dir}/logging.properties">
+        <arg value="-f"/>
+        <arg value="${macosx.resrc.dir}/logging.properties.sed"/>
+      </exec>
+
       <!-- Prepare the felix.client.run.properties file for macosx -->
       <exec executable="/usr/bin/sed"
           dir="${basedir}"
@@ -341,12 +350,12 @@
       </exec>
 
       <!-- Delete the old .app if it exists -->
-      <delete dir="${macosx.app.dir}/${macosx.app.name}-${sip-communicator.version}.app"
+      <delete dir="${macosx.app.dir}/${macosx.app.name}.app"
               quiet="yes" failonerror="false"/>
 
       <!-- This creates the .app for MacOSX -->
       <jarbundler dir="${macosx.app.dir}"
-                  name="${macosx.app.name}-${sip-communicator.version}"
+                  name="${macosx.app.name}"
                   shortname="SIP Communicator"
                   signature="sipc"
                   mainclass="org.apache.felix.main.Main"
@@ -384,10 +393,12 @@
           <include name="${bundles.dest.macosx}/*.jar" />
           <exclude name="${bundles.dest}/*-slick.jar" />
         </jarfileset>
-        <javafilelist dir="${lib}" files="logging.properties"/>
+        <javafilelist dir="${macosx.resrc.dir}" 
+                      files="logging.properties"/>
         <javafilelist dir="${macosx.resrc.dir}"
                       files="felix.client.run.properties"/>
       </jarbundler>
+      <mkdir dir="${macosx.app.dir}/${macosx.app.name}.app/Contents/Resources/Java/log"/>
     </target>
 
     <!-- Create the DMG - This only works on MacOSX (need hdiutil) -->
@@ -400,7 +411,7 @@
       <exec executable="/usr/bin/hdiutil" os="Mac OS X">
         <arg value="create"/>
         <arg value="-srcfolder"/>
-        <arg value="${macosx.app.dir}/${macosx.app.name}-${sip-communicator.version}.app"/>
+        <arg value="${macosx.app.dir}/${macosx.app.name}.app"/>
         <arg value="-volname"/>
         <arg value="${macosx.app.name} ${sip-communicator.version}"/>
         <arg value="-ov"/>

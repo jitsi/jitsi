@@ -1,0 +1,1 @@
+s/java.util.logging.FileHandler.pattern\ =\ %h\/.sip-communicator\/log/java.util.logging.FileHandler.pattern\ =\ log/
