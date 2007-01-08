@@ -527,7 +527,8 @@ public class OperationSetBasicTelephonySipImpl
                                            , sourceProvider);
         }
         //errors
-        else if ( response.getStatusCode() / 100 == 4 )
+        else if ( response.getStatusCode() / 100 == 4 ||
+            response.getStatusCode() / 100 == 5)
         {
             CallParticipantSipImpl callParticipant = activeCallsRepository
                 .findCallParticipant(clientTransaction.getDialog());
