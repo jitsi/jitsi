@@ -105,6 +105,7 @@ public class AccountRegFirstPage extends JPanel
         accountRegsTable.setShowVerticalLines(false);
         accountRegsTable.setModel(this.tableModel);
         accountRegsTable.addMouseListener(this);
+        accountRegsTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
                 
         TableColumnModel columnModel = accountRegsTable.getColumnModel();
         
@@ -112,8 +113,12 @@ public class AccountRegFirstPage extends JPanel
         
         columnModel.getColumn(0)
             .setCellRenderer(new LabelTableCellRenderer());
+                
         columnModel.getColumn(1)
             .setCellRenderer(new LabelTableCellRenderer());
+        
+        columnModel.getColumn(0).setPreferredWidth(100);
+        columnModel.getColumn(1).setPreferredWidth(377);
         
         this.tableScrollPane.getViewport().add(accountRegsTable);
     }

@@ -21,37 +21,36 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Yana Stamcheva
  */
-public class LabelTableCellRenderer extends JPanel
-    implements TableCellRenderer {
-
-    private JLabel label = new JLabel();
-
-    public LabelTableCellRenderer(){
-        label.setHorizontalAlignment(JLabel.CENTER);
+public class LabelTableCellRenderer extends JLabel
+    implements TableCellRenderer
+{
+    public LabelTableCellRenderer()
+    {   
+        this.setHorizontalAlignment(JLabel.LEFT);
         this.setOpaque(true);
-
-        this.add(label, BorderLayout.CENTER);
+        this.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
     }
 
     public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
+            boolean isSelected, boolean hasFocus, int row, int column)
+    {
 
         if(value instanceof JLabel) {
             JLabel labelValue = (JLabel)value;
 
-            label.setText(labelValue.getText());
-            label.setIcon(labelValue.getIcon());
+            this.setText(labelValue.getText());
+            this.setIcon(labelValue.getIcon());
         }
         else if (value instanceof ProtocolProviderService) {
             ProtocolProviderService pps = (ProtocolProviderService)value;
-            label.setText(pps.getAccountID().getUserID());
+            this.setText(pps.getAccountID().getUserID());
         }
         else if (value instanceof MetaContactGroup) {
             MetaContactGroup group = (MetaContactGroup) value;
-            label.setText(group.getGroupName());
+            this.setText(group.getGroupName());
         }
         else {
-            label.setText(value.toString());
+            this.setText(value.toString());
         }
 
         if(isSelected)

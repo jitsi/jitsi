@@ -121,12 +121,13 @@ public class AccountsConfigurationForm extends JPanel
 
         accountsTable.setShowHorizontalLines(false);
         accountsTable.setShowVerticalLines(false);
-        accountsTable.setModel(tableModel);
-
+        accountsTable.setModel(tableModel);  
+        accountsTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        
         tableModel.addColumn("id");
         tableModel.addColumn(Messages.getI18NString("protocol").getText());
         tableModel.addColumn(Messages.getI18NString("account").getText());
-
+        
         TableColumnModel columnModel = accountsTable.getColumnModel();
         columnModel.removeColumn(columnModel.getColumn(0));
         columnModel.getColumn(0)
@@ -134,6 +135,9 @@ public class AccountsConfigurationForm extends JPanel
         columnModel.getColumn(1)
             .setCellRenderer(new LabelTableCellRenderer());
 
+        columnModel.getColumn(0).setPreferredWidth(100);
+        columnModel.getColumn(1).setPreferredWidth(361);
+        
         this.initializeAccountsTable();
 
         this.tablePane.getViewport().add(accountsTable);
