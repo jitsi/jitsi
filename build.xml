@@ -33,7 +33,7 @@
     <!-- set the build label property and make it take the cc bild into account -->
     <condition property="build.label"
                value="nightly.${label}"
-               else="build.by.${user.name}">
+               else="0.build.by.${user.name}">
         <isset property="label"/>
     </condition>
 
@@ -424,6 +424,34 @@
             if="dpkg.build.present"
             description="Create a .deb package for Debian (needs dpkg utilities)">
 
+      <!-- Prepare the changelog file for the version number -->
+      <exec executable="/bin/sed"
+          dir="${inst.resrc}/debian"
+          input="${inst.resrc}/debian/changelog.tmpl"
+          output="${inst.resrc}/debian/changelog" >
+        <arg value="s/_VERSION_/${sip-communicator.version}/"/>
+      </exec>
+
+      <!-- Put the current date in the changelog -->
+	  <exec executable="/bin/date"
+          outputproperty="date" >
+        <arg value="-R"/>
+      </exec>
+      <exec executable="/bin/sed"
+          dir="${inst.resrc}/debian"
+          input="${inst.resrc}/debian/changelog"
+          output="${inst.resrc}/debian/changelog" >
+        <arg value="s/_DATE_/${date}/"/>
+      </exec>
+
+      <!-- Put correct version in the sip-communicator executable file -->
+      <exec executable="/bin/sed"
+          dir="${inst.resrc}/debian"
+          input="${inst.resrc}/debian/sip-communicator.sh.tmpl"
+          output="${inst.resrc}/debian/sip-communicator.sh" >
+        <arg value="s/_SC_VERSION_/${sip-communicator.version}/"/>
+      </exec>
+
       <exec executable="/usr/bin/dpkg-buildpackage" dir="${inst.resrc}">
         <arg value="-rfakeroot"/>
         <arg value="-tc"/>
@@ -439,6 +467,14 @@
           <include name="sip-communicator*"/>
         </fileset>
       </move>
+
+      <!-- Delete the temporary file -->
+      <delete quiet="yes" failonerror="false">
+        <fileset dir="${inst.resrc}/debian/">
+          <include name="changelog"/>
+          <include name="sip-communicator.sh"/>
+        </fileset>
+      </delete>
 
     </target>
 
