@@ -7,7 +7,7 @@
 package net.java.sip.communicator.service.gui;
 
 /**
- * The <tt>WizardPage</tt> represents a page in a <tt>WizardContainer</tt>. 
+ * The <tt>WizardPage</tt> represents a page in a <tt>WizardContainer</tt>.
  * A page has a unique identifier. Each page should specify the identifier
  * of both next and previous page to be displayed when user clicks "Next"
  * or "Back" wizard button. These identifiers will be used from the
@@ -22,8 +22,8 @@ package net.java.sip.communicator.service.gui;
  * <tt>AccountRegistrationWizardContainer</tt>, where it is added.
  * <p>
  * The predefined FINISH_PAGE_IDENTIFIER should be used to mark the end of
- * a wizard. 
- * 
+ * a wizard.
+ *
  * @author Yana Stamcheva
  */
 public interface WizardPage {
@@ -31,40 +31,42 @@ public interface WizardPage {
     /**
      * The identifier of the last wizard page.
      */
-    String FINISH_PAGE_IDENTIFIER = "FINISH";    
+    String FINISH_PAGE_IDENTIFIER = "FINISH";
 
     /**
      * The identifier of the summary wizard page.
      */
-    String SUMMARY_PAGE_IDENTIFIER = "SUMMARY";    
+    String SUMMARY_PAGE_IDENTIFIER = "SUMMARY";
 
     /**
      * The identifier of the default wizard page.
      */
-    String DEFAULT_PAGE_IDENTIFIER = "DEFAULT";    
+    String DEFAULT_PAGE_IDENTIFIER = "DEFAULT";
 
-    
+
     /**
-     * Returns the idenfier of this <tt>WizardPage</tt>.
-     * 
-     * @return the idenfier of this <tt>WizardPage</tt>
+     * Returns the identifier of this <tt>WizardPage</tt>.
+     *
+     * @return the identifier of this <tt>WizardPage</tt>
      */
     public Object getIdentifier();
-    
+
     /**
      * Returns the identifier of the next wizard page. Meant to be used by
      * the <tt>WizardContainer</tt> to determine which is the next page to
-     * display when user clicks on the "Next" wizard button.
-     * 
+     * display when user clicks on the "Next" wizard button.<p>
+     * When this instance corresponds to the last page of the wizard this
+     * method should return <tt>WizardPage.FINISH_PAGE_IDENTIFIER</tt>
+     *
      * @return the identifier of the next wizard page
      */
     public Object getNextPageIdentifier();
-    
+
     /**
      * Returns the identifier of the previous wizard page. Meant to be used by
      * the <tt>WizardContainer</tt> to determine which is the page to display
      * when user clicks on the "Back" wizard button.
-     * 
+     *
      * @return the identifier of the prevoious wizard page
      */
     public Object getBackPageIdentifier();
@@ -76,11 +78,11 @@ public interface WizardPage {
      * made usind Java Swing, this method should return a java.awt.Component to
      * be added properly in the <tt>WizardContainer</tt> implemented in UI
      * Service implementation.
-     * 
+     *
      * @return the user interface form represented by this page
      */
     public Object getWizardForm();
-    
+
     /**
      * Invoked when this <tt>WizardPage</tt> will be hidden eighter because
      * the user has clicked "Back" or "Next". This method should be invoked
@@ -91,7 +93,7 @@ public interface WizardPage {
      * <tt>WizardPage</tt> is about to be hidden.
      */
     public void pageHiding();
-    
+
     /**
      * Invoked when this <tt>WizardPage</tt> is shown to the user and has
      * become the current wizard page. This method should be invoked from the
@@ -102,7 +104,7 @@ public interface WizardPage {
      * <tt>WizardPage</tt> is shown.
      */
     public void pageShown();
-    
+
     /**
      * Invoked when this <tt>WizardPage</tt> will be shown eighter because
      * the user has clicked "Back" on the next wizard page or "Next" on the
@@ -114,14 +116,14 @@ public interface WizardPage {
      * <tt>WizardPage</tt> is about to be shown.
      */
     public void pageShowing();
-    
+
     /**
      * Invoked when user clicks on the "Next" wizard button. You should add
      * here all operations you need to be executed when user clicks "Next" on
      * this <tt>WizardPage</tt>.
      */
     public void pageNext();
-    
+
     /**
      * Invoked when user clicks on the "Back" wizard button. You should add
      * here all operations you need to be executed when user clicks "Back" on

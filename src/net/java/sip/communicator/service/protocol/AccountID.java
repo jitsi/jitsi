@@ -35,6 +35,9 @@ public abstract class AccountID
      * Contains all implementation specific properties that define the account.
      * The exact names of the keys are protocol (and sometimes implementation)
      * specific.
+     * Currently, only String property keys and values will get properly stored.
+     * If you need something else, please consider converting it through custom
+     * accessors (get/set) in your implementation.
      */
     protected Map accountProperties = null;
 
