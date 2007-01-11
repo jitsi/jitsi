@@ -191,13 +191,15 @@ public class MediaControl
         setEncodingPreference(SdpConstants.H261,       800);
 
         //audio
-        setEncodingPreference(SdpConstants.GSM,        500);
-        setEncodingPreference(SdpConstants.PCMU,       450);
-        setEncodingPreference(SdpConstants.DVI4_8000,  400);
-        setEncodingPreference(SdpConstants.DVI4_16000, 350);
-        setEncodingPreference(SdpConstants.PCMA,       300);
-        setEncodingPreference(SdpConstants.G723,       250);
-        setEncodingPreference(SdpConstants.G728,       200);
+        setEncodingPreference(97,                      500);
+        setEncodingPreference(SdpConstants.GSM,        450);
+        setEncodingPreference(SdpConstants.PCMU,       400);
+        setEncodingPreference(110,                     350);
+        setEncodingPreference(SdpConstants.DVI4_8000,  300);
+        setEncodingPreference(SdpConstants.DVI4_16000, 250);
+        setEncodingPreference(SdpConstants.PCMA,       200);
+        setEncodingPreference(SdpConstants.G723,       150);
+        setEncodingPreference(SdpConstants.G728,       100);
 
         //now override with those that are specified by the user.
         ConfigurationService confService
