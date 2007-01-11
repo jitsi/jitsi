@@ -264,8 +264,11 @@ public class CallSessionImpl
 
 
         if(!startedAtLeastOneStream && sendStreams.size() > 0)
+        {
+            stopStreaming();
             throw new MediaException("Failed to start streaming"
-                , MediaException.INTERNAL_ERROR);
+                                     , MediaException.INTERNAL_ERROR);
+        }
     }
 
     /**
@@ -1026,7 +1029,7 @@ public class CallSessionImpl
 
         Hashtable intersection = new Hashtable(2);
         intersection.put("audio", intersectedAudioEncsList);
-        intersection.put("video", intersectedAudioEncsList);
+        intersection.put("video", intersectedVideoEncsList);
 
         return intersection;
     }
@@ -1076,7 +1079,7 @@ public class CallSessionImpl
                     mediaEncodings.put(mediaType, jmfEncodings);
             }
         }
-
+        logger.trace("Possible media encodings="+mediaEncodings);
         return mediaEncodings;
     }
 
@@ -1528,14 +1531,30 @@ public class CallSessionImpl
 
             logger.debug("A player was realized and will be started.");
             player.start();
-/** @todo very ugly test code
+/** @todo video frame is currently handled with very ugly test code
   * please don't forget to remove */
 java.awt.Component vc = player.getVisualComponent();
 if(vc != null)
 {
     javax.swing.JFrame frame = new javax.swing.JFrame();
+    frame.setTitle("SIP Communicator - Video Call");
     frame.getContentPane().add(vc);
     frame.pack();
+    //center
+    java.awt.Dimension frameSize = frame.getSize();
+
+    //ugly resize if too tiny
+    if(frameSize.width < 300)
+    {
+        frame.setSize(frameSize.width * 2, frameSize.height * 2);
+        frameSize = frame.getSize();
+    }
+    java.awt.Dimension screenSize
+        = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+
+    frame.setLocation((screenSize.width - frameSize.width)/2
+                      ,(screenSize.height - frameSize.height)/2);
+
     frame.setVisible(true);
     videoFrames.add(frame);
 }
