@@ -802,6 +802,11 @@ public class ImageLoader {
      * The Yahoo logo 16x16 icon.
      */
     public static final ImageID YAHOO_LOGO = new ImageID("YAHOO_LOGO");
+    
+    /**
+     * The ICQ "connecting" 16x16 animated icon.
+     */
+    public static final ImageID YAHOO_CONNECTING = new ImageID("YAHOO_CONNECTING");
 
     /**
      * The Jabber logo 32x32 icon.

@@ -461,7 +461,7 @@ public class Constants {
         }
         else if (protocolName.equals(Constants.YAHOO)) {
             return ImageLoader.getAnimatedImage(
-                    ImageLoader.ICQ_CONNECTING);
+                    ImageLoader.YAHOO_CONNECTING);
         }
         else if (protocolName.equals(Constants.JABBER)) {
             return ImageLoader.getAnimatedImage(

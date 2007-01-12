@@ -332,7 +332,7 @@
       </condition>
 
       <!-- Prepare the logging.properties file for macosx -->
-      <exec executable="/usr/bin/sed" 
+      <exec executable="/usr/bin/sed"
           dir="${basedir}"
           input="${inst.resrc}/logging.properties"
           output="${macosx.resrc.dir}/logging.properties">
@@ -393,7 +393,7 @@
           <include name="${bundles.dest.macosx}/*.jar" />
           <exclude name="${bundles.dest}/*-slick.jar" />
         </jarfileset>
-        <javafilelist dir="${macosx.resrc.dir}" 
+        <javafilelist dir="${macosx.resrc.dir}"
                       files="logging.properties"/>
         <javafilelist dir="${macosx.resrc.dir}"
                       files="felix.client.run.properties"/>
@@ -639,7 +639,7 @@
             <sysproperty key="java.util.logging.config.file"
                 value="lib/logging.properties"/>
 
-            <sysproperty key="net.java.preferIPv6Addresses"
+            <sysproperty key="java.net.preferIPv6Addresses"
                 value="true"/>
 
             <!-- Setting properties necessary for dependencies on native libs.-->
@@ -719,10 +719,11 @@
         bundle-fileaccess-slick,bundle-media,bundle-media-slick,
         bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,
-        bundle-msn,bundle-msn-slick,
+        bundle-msn,bundle-msn-slick,bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
+        bundle-plugin-yahooaccregwizz,
         bundle-version,bundle-version-impl,bundle-shutdown,
         bundle-growlnotification"/>
 
@@ -1068,6 +1069,29 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib}/commons-logging.jar" prefix=""/>
         </jar>
     </target>
+    
+        <!-- BUNDLE-YAHOO -->
+    <target name="bundle-yahoo">
+        <!-- Creates a bundle containing the yahoo impl of the protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/protocol-yahoo.jar"
+            manifest="src/net/java/sip/communicator/impl/protocol/yahoo/yahoo.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/yahoo"
+                prefix="net/java/sip/communicator/impl/protocol/yahoo"/>
+            <zipfileset src="${lib}/ymsg_network_v0_61.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-YAHOO-SLICK -->
+    <!-- Creates a bundle containing the slick for the Yahoo protocol provider.-->
+    <target name="bundle-yahoo-slick">
+
+        <jar compress="false" destfile="${bundles.dest}/protocol-yahoo-slick.jar"
+            manifest="test/net/java/sip/communicator/slick/protocol/yahoo/yahoo.provider.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/yahoo"
+                prefix="net/java/sip/communicator/slick/protocol/yahoo"/>
+            <zipfileset src="${lib}/ymsg_network_v0_61.jar" prefix=""/>
+        </jar>
+    </target>
 
 
      <!-- BUNDLE-SWING-UI -->
@@ -1139,6 +1163,16 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/plugin/msnaccregwizz/msnaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/msnaccregwizz"
                 prefix="net/java/sip/communicator/plugin/msnaccregwizz"/>
+        </jar>
+    </target>
+    
+    <!-- BUNDLE-PLUGIN-YAHOOACCREGWIZZ -->
+    <target name="bundle-plugin-yahooaccregwizz">
+        <!-- Creates a bundle for the plugin Yahoo Account Registration Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/yahooaccregwizz.jar"
+            manifest="src/net/java/sip/communicator/plugin/yahooaccregwizz/yahooaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/yahooaccregwizz"
+                prefix="net/java/sip/communicator/plugin/yahooaccregwizz"/>
         </jar>
     </target>
 
