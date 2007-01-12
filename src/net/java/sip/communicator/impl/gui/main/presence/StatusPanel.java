@@ -250,10 +250,7 @@ public class StatusPanel
             }
         }
         else {
-            String lastStatusString
-                = getLastStatusString(protocolProvider);
-            
-            ((SimpleStatusSelectorBox)selectorBox).updateStatus(lastStatusString);
+            ((SimpleStatusSelectorBox)selectorBox).updateStatus();
         }            
         selectorBox.repaint();
     }

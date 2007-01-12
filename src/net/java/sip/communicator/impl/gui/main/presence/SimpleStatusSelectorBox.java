@@ -163,23 +163,15 @@ public class SimpleStatusSelectorBox
     /**
      * Stops the timer that manages the connecting animated icon.
      */
-    public void updateStatus(String statusString)
+    public void updateStatus()
     {
         this.connecting.stop();
 
-        if(statusString != null)
-        {
-            if(statusString.equals(Constants.ONLINE_STATUS))
-                setSelected(onlineItem, onlineIcon);
-            else
-                setSelected(offlineItem, offlineIcon);
+        if(protocolProvider.isRegistered()) {
+            setSelected(onlineItem, onlineIcon);
         }
-        else
-        {
-            if(protocolProvider.isRegistered())
-                setSelected(onlineItem, onlineIcon);            
-            else
-                setSelected(offlineItem, offlineIcon);
+        else {
+            setSelected(offlineItem, offlineIcon);
         }
 
         String tooltip = this.getToolTipText();
@@ -188,7 +180,7 @@ public class SimpleStatusSelectorBox
 
         this.setToolTipText(tooltip.concat("<br>" + onlineItem.getText()));
     }
-    
+
     /**
      * A <tt>Timer</tt> that creates an animated icon, which indicates the
      * connecting state.
