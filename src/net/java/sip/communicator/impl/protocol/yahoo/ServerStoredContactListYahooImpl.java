@@ -423,8 +423,8 @@ public class ServerStoredContactListYahooImpl
      */
     ContactYahooImpl createVolatileContact(String id)
     {
-         VolatileContactYahooImpl newVolatileContact
-            = new VolatileContactYahooImpl(id, this);
+         ContactYahooImpl newVolatileContact
+            = new ContactYahooImpl(id, this, false);
 
         //Check whether a volatile group already exists and if not create
         //one
@@ -628,12 +628,14 @@ public class ServerStoredContactListYahooImpl
     {
         try
         {
+            String userID = contact.getAddress();
+                        
             contactListModListenerImpl.
-                waitForMove(contact.getSourceContact().getId(), 
+                waitForMove(userID, 
                 contact.getParentContactGroup().getGroupName());
             
             yahooSession.addFriend(
-                contact.getSourceContact().getId(), 
+                userID, 
                 newParent.getGroupName());
         }
         catch(IOException ex)
@@ -814,7 +816,7 @@ public class ServerStoredContactListYahooImpl
         }
         return null;
     }
-
+    
     /**
      * Imulates firing adding contact in group and moving contact to group.
      * When moving contact it is first adding to the new group then
@@ -867,7 +869,7 @@ public class ServerStoredContactListYahooImpl
             }
             String contactID = ev.getFriend().getId();
             ContactYahooImpl contactToAdd = findContactById(contactID);
-            
+
             if(contactToAdd == null)
             {
                 contactToAdd =
@@ -878,14 +880,23 @@ public class ServerStoredContactListYahooImpl
                 if(!contactToAdd.isPersistent())
                 {
                     // we must remove the volatile buddy as we will add
-                    // the persistent one
+                    // the persistent one. 
+                    // Volatile buddy is moving from the volatile group
+                    // to the new one
                     ContactGroupYahooImpl parent = 
                         (ContactGroupYahooImpl)contactToAdd.getParentContactGroup();
+
                     parent.removeContact(contactToAdd);
                     
-                    contactToAdd =
-                        new ContactYahooImpl(ev.getFriend(), 
-                            ServerStoredContactListYahooImpl.this, true, true);
+                    contactToAdd.setPersistent(true);
+                    contactToAdd.setResolved(ev.getFriend());
+                    
+                    group.addContact(contactToAdd);
+                    
+                    fireContactMoved(parent, group, contactToAdd);
+                    waitMove.remove(contactID);
+                    
+                    return;
                 }
             
             Object isWaitingForMove = waitMove.get(contactID);
@@ -923,6 +934,8 @@ public class ServerStoredContactListYahooImpl
          */
         public void friendRemovedReceived(SessionFriendEvent ev)
         {
+            logger.trace("Receive event for removing a friend : " + ev);
+            
             String contactID = ev.getFriend().getId();
             
             // first check is this part of move action

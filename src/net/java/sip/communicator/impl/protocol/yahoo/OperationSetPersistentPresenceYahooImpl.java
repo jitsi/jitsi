@@ -132,6 +132,13 @@ public class OperationSetPersistentPresenceYahooImpl
      * buddy list.
      */
     private ServerStoredContactListYahooImpl ssContactList = null;
+    
+    /**
+     * Status events are received before subscription one.
+     * And when subscription is received we deliver
+     * and the status events.
+     */
+    private StatusUpdater statusUpdater = new StatusUpdater();
 
     public OperationSetPersistentPresenceYahooImpl(
         ProtocolProviderServiceYahooImpl provider)
@@ -609,6 +616,10 @@ public class OperationSetPersistentPresenceYahooImpl
             throw new IllegalArgumentException(
                 "Argument is not an yahoo contact group (group=" + parent + ")");
 
+        if(contactIdentifier.indexOf("@") > -1 )
+            contactIdentifier = 
+                contactIdentifier.substring(0, contactIdentifier.indexOf("@"));
+        
         ssContactList.addContact((ContactGroupYahooImpl)parent, contactIdentifier);
     }
 
@@ -846,6 +857,8 @@ public class OperationSetPersistentPresenceYahooImpl
                 ssContactList.setYahooSession(yahooProvider.getYahooSession());
                 
                 initContactStatuses();
+                
+                addSubsciptionListener(statusUpdater);
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                  || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
@@ -860,6 +873,8 @@ public class OperationSetPersistentPresenceYahooImpl
 
                 fireProviderPresenceStatusChangeEvent(oldStatus,
                     currentStatus);
+                
+                removeSubscriptionListener(statusUpdater);
 
                 //send event notifications saying that all our buddies are
                 //offline. The protocol does not implement top level buddies
@@ -1062,5 +1077,29 @@ public class OperationSetPersistentPresenceYahooImpl
             
             handleContactStatusChange(sourceContact, evt.getFriend().getStatus());
         }
-    }    
+    }
+    
+    /**
+     * Updates the statuses of newly created persistent contacts
+     */
+    private class StatusUpdater implements SubscriptionListener
+    {
+        public void subscriptionCreated(SubscriptionEvent evt) 
+        {
+            ContactYahooImpl contact = 
+                (ContactYahooImpl)evt.getSourceContact();
+            
+            if(!contact.isPersistent())
+                return;
+            
+            handleContactStatusChange(contact, 
+                contact.getSourceContact().getStatus());
+        }
+
+        public void subscriptionFailed(SubscriptionEvent evt) {}
+        public void subscriptionRemoved(SubscriptionEvent evt) {}
+        public void subscriptionMoved(SubscriptionMovedEvent evt) {}
+        public void subscriptionResolved(SubscriptionEvent evt) {}
+        public void contactModified(ContactPropertyChangeEvent evt) {}
+    }
 }

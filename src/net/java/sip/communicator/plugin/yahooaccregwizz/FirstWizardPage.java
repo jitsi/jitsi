@@ -42,7 +42,7 @@ public class FirstWizardPage extends JPanel
     
     private JPanel emptyPanel = new JPanel();
     
-    private JLabel uinExampleLabel = new JLabel("Ex: johnsmith@hotmail.com");
+    private JLabel uinExampleLabel = new JLabel("Ex: johnsmith@yahoo.com or johnsmith");
     
     private JTextField uinField = new JTextField();
 
