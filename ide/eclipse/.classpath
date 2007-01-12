@@ -33,5 +33,6 @@
 	<classpathentry kind="lib" path="lib/growl.jar"/>
 	<classpathentry kind="lib" path="lib/jspeex.jar"/>
 	<classpathentry kind="lib" path="lib/jml-1.0b1.jar"/>
+	<classpathentry kind="lib" path="lib/ymsg_network_v0_61.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

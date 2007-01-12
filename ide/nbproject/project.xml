@@ -107,7 +107,7 @@
             <compilation-unit>
                 <package-root>src</package-root>
                 <classpath mode="compile">
-                    :lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/felix.jar:lib/sip-sdp.jar:lib/osgi.jar:lib/junit.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/bcprov-jdk14-130.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar:lib/jml-1.0a3.jar:lib/commons-logging.jar:lib/cindy.jar:
+                    :lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/felix.jar:lib/sip-sdp.jar:lib/osgi.jar:lib/junit.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/bcprov-jdk14-130.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar:lib/jml-1.0a3.jar:lib/commons-logging.jar:lib/cindy.jar:lib/ymsg_network_v0_61.jar
                 </classpath>
                 <source-level>1.4</source-level>
             </compilation-unit>
@@ -115,7 +115,7 @@
                 <package-root>test</package-root>
                 <unit-tests/>
                 <classpath mode="compile">
-                    :lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/felix.jar:lib/sip-sdp.jar:lib/osgi.jar:lib/junit.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/bcprov-jdk14-130.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar:lib/jml-1.0a3.jar:lib/commons-logging.jar:lib/cindy.jar:classes:
+                    :lib/Stun4J.jar:lib/jaxen-1.1-beta-8.jar:lib/felix.jar:lib/sip-sdp.jar:lib/osgi.jar:lib/junit.jar:lib/moduleloader.jar:lib/servicebinder.jar:lib/jmf-all/jmf.jar:lib/jmf-lin/jmf.jar:lib/jmf-sol/jmf.jar:lib/jmf-win/jmf.jar:lib/bcprov-jdk14-130.jar:lib/oscar-aim.jar:lib/retroweaver.jar:lib/retroweaver-rt.jar:lib/jml-1.0a3.jar:lib/commons-logging.jar:lib/cindy.jar:classes:lib/ymsg_network_v0_61.jar
                 </classpath>
                 <source-level>1.4</source-level>
             </compilation-unit>
