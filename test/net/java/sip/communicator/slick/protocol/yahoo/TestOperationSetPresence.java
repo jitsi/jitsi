@@ -232,14 +232,14 @@ public class TestOperationSetPresence
     }
 
     /**
-     * Verify that changing state to ONLINE works as supposed to and that it
+     * Verify that changing state to BE_RIGHT_BACK works as supposed to and that it
      * generates the corresponding event.
      * @throws Exception in case a failure occurs while the operation set
      * is switching to the new state.
      */
-    public void testChangingStateToOnline() throws Exception
+    public void testChangingStateToBRB() throws Exception
     {
-        subtestStateTransition(YahooStatusEnum.AVAILABLE);
+        subtestStateTransition(YahooStatusEnum.BE_RIGHT_BACK);
     }
 
     /**

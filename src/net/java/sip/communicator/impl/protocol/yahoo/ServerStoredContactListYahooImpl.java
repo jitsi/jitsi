@@ -540,14 +540,14 @@ public class ServerStoredContactListYahooImpl
         logger.trace("removing group " + groupToRemove);
     
         // if its not persistent group just remove it
-//        if(!groupToRemove.isPersistent())
-//        {
-//            rootGroup.removeSubGroup(groupToRemove);
-//            fireGroupEvent(groupToRemove, 
-//                ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
-//            return;
-//        }
-        
+        if(!groupToRemove.isPersistent())
+        {
+            rootGroup.removeSubGroup(groupToRemove);
+            fireGroupEvent(groupToRemove, 
+                ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
+            return;
+        }
+
         Vector contacts = groupToRemove.getSourceGroup().getMembers();
         
         if(contacts.size() == 0)
@@ -957,6 +957,10 @@ public class ServerStoredContactListYahooImpl
             }
             
             ContactYahooImpl contactToRemove = findContactById(contactID);
+            
+            // strange we cannot find the contact to be removed
+            if(contactToRemove == null)
+                return;
             
             ContactGroupYahooImpl parentGroup =
                     (ContactGroupYahooImpl)contactToRemove.getParentContactGroup();

@@ -353,6 +353,8 @@ public class TestOperationSetPersistentPresence
     public void prepareContactList()
         throws Exception
     {
+        logger.trace("prepareContactList");        
+        
         fixture.clearProvidersLists();
 
         waitFor(3000);
