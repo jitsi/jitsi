@@ -26,6 +26,9 @@ public class YahooSession
         transmitGroupRename(oldName, newName);
     }
     
+    /**
+     * Removes the server part from the given id
+     */
     public static String getYahooUserID(String id)
     {
         return (id.indexOf("@") > -1 )
