@@ -18,15 +18,46 @@ public class ContactYahooImpl
     implements Contact
 {
     private YahooUser contact = null;
-    private boolean isLocal = false;
     private byte[] image = null;
     private PresenceStatus status = YahooStatusEnum.OFFLINE;
     private ServerStoredContactListYahooImpl ssclCallback = null;
     private boolean isPersistent = false;
     private boolean isResolved = false;
+    private boolean isVolatile = false;
     
-    private String tempId = null;
+    private String yahooID = null;
+    private String id = null;
 
+    /**
+     * Creates an YahooContactImpl with custom yahooID
+     * @param contactID sets the contact Id if its different from the YahooUser id
+     * @param contact the contact object that we will be encapsulating.
+     * @param ssclCallback a reference to the ServerStoredContactListImpl
+     * instance that created us.
+     * @param isPersistent determines whether this contact is persistent or not.
+     * @param isResolved specifies whether the contact has been resolved against
+     * the server contact list
+     */
+    ContactYahooImpl(
+                   String yahooID,
+                   YahooUser contact,
+                   ServerStoredContactListYahooImpl ssclCallback,
+                   boolean isPersistent,
+                   boolean isResolved)
+    {
+        this.yahooID = yahooID;
+        
+        this.contact = contact;
+        this.ssclCallback = ssclCallback;
+        this.isPersistent = isPersistent;
+        this.isResolved = isResolved;
+        
+        if(contact != null)
+            id = contact.getId();
+        else if(yahooID != null)
+            id = YahooSession.getYahooUserID(yahooID);
+    }
+    
     /**
      * Creates an YahooContactImpl
      * @param contact the contact object that we will be encapsulating.
@@ -42,23 +73,27 @@ public class ContactYahooImpl
                    boolean isPersistent,
                    boolean isResolved)
     {
-        this.contact = contact;
-        this.isLocal = isLocal;
-        this.ssclCallback = ssclCallback;
-        this.isPersistent = isPersistent;
-        this.isResolved = isResolved;
+        this(null, contact, ssclCallback, isPersistent, isResolved);
     }
     
+    /**
+     * Creates volatile or unresolved contact
+     */
     ContactYahooImpl(
         String id,
         ServerStoredContactListYahooImpl ssclCallback,
-        boolean isPersistent)
+        boolean isResolved,
+        boolean isPersistent,
+        boolean isVolatile)
     {
-        this.tempId = id;
-        this.isLocal = isLocal;
+        this.yahooID = id;
         this.ssclCallback = ssclCallback;
         this.isPersistent = isPersistent;
-        this.isResolved = false;
+        this.isResolved = isResolved;
+        this.isVolatile = isVolatile;
+        
+        if(id != null)
+            this.id = YahooSession.getYahooUserID(yahooID);
     }
 
     /**
@@ -67,22 +102,37 @@ public class ContactYahooImpl
      */
     public String getAddress()
     {
-        if(isResolved)
+        // if the contact is volatile or with custom id return it
+        if(yahooID != null)
+            return yahooID;
+        // otherwise return the supplied contact id
+        else
             return contact.getId();
-        else 
-            return tempId;
     }
-
+    
     /**
-     * Determines whether or not this Contact instance represents the user used
-     * by this protocol provider to connect to the service.
-     *
-     * @return true if this Contact represents us (the local user) and false
-     * otherwise.
+     * Returns the custom yahooID if set
      */
-    public boolean isLocal()
+    String getYahooID()
     {
-        return isLocal;
+        return yahooID;
+    }
+    
+    /**
+     * Returns the contact Id. 
+     * If contact missing the yahooID without @yahoo.com part is returned
+     */
+    String getID()
+    {
+        return id;
+    }
+    
+    /**
+     * Returns whether the contact is volatile.
+     */
+    boolean isVolatile()
+    {
+        return isVolatile;
     }
 
     public byte[] getImage()
@@ -112,10 +162,9 @@ public class ContactYahooImpl
     {
         if (obj == null
             || !(obj instanceof ContactYahooImpl)
-            || !(YahooSession.getYahooUserID(((ContactYahooImpl)obj).getAddress())
-                .equals(YahooSession.getYahooUserID(getAddress()))
+            || !( ((ContactYahooImpl)obj).getID().equals(getID()) )
                 && ((ContactYahooImpl)obj).getProtocolProvider()
-                        == getProtocolProvider()))
+                        == getProtocolProvider())
             return false;
         else
             return true;
@@ -170,10 +219,7 @@ public class ContactYahooImpl
      */
     public String getDisplayName()
     {
-        if(isResolved)
-            return getAddress();
-        else
-            return tempId;
+        return getAddress();
     }
 
     /**
@@ -239,6 +285,7 @@ public class ContactYahooImpl
 
         this.isResolved = true;
         contact = entry;
+        isVolatile = false;
     }
 
     /**

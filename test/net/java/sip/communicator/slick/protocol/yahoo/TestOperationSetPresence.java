@@ -284,32 +284,38 @@ public class TestOperationSetPresence
 
         //First register a listener to make sure that all corresponding
         //events have been generated.
-        PresenceStatusEventCollector statusEventCollector
+        PresenceStatusEventCollector statusEventCollector1
             = new PresenceStatusEventCollector();
+        ContactPresenceEventCollector statusEventCollector2
+            = new ContactPresenceEventCollector(fixture.userID2, newStatus);
         operationSetPresence1.addProviderPresenceStatusListener(
-            statusEventCollector);
+            statusEventCollector1);
+        operationSetPresence2.addContactPresenceStatusListener(
+            statusEventCollector2);
 
         //change the status
         operationSetPresence1.publishPresenceStatus(newStatus, null);
-        pauseAfterStateChanges();
 
         //test event notification.
-        statusEventCollector.waitForPresEvent(10000);
+        statusEventCollector1.waitForPresEvent(10000);
+        statusEventCollector2.waitForEvent(10000);
 
         operationSetPresence1.removeProviderPresenceStatusListener(
-            statusEventCollector);
+            statusEventCollector1);
+        operationSetPresence2.removeContactPresenceStatusListener(
+            statusEventCollector2);
 
         assertEquals("Events dispatched during an event transition.",
-                     1, statusEventCollector.collectedPresEvents.size());
+                     1, statusEventCollector1.collectedPresEvents.size());
         assertEquals("A status changed event contained wrong old status.",
                      oldStatus,
                      ((ProviderPresenceStatusChangeEvent)
-                        statusEventCollector.collectedPresEvents.get(0))
+                        statusEventCollector1.collectedPresEvents.get(0))
                             .getOldStatus());
         assertEquals("A status changed event contained wrong new status.",
                      newStatus,
                      ((ProviderPresenceStatusChangeEvent)
-                        statusEventCollector.collectedPresEvents.get(0))
+                        statusEventCollector1.collectedPresEvents.get(0))
                             .getNewStatus());
 
         // verify that the operation set itself is aware of the status change
@@ -341,67 +347,6 @@ public class TestOperationSetPresence
         {
             logger.debug("Pausing between state changes was interrupted", ex);
         }
-    }
-    /**
-     * Verifies that querying status works fine. The tester agent would
-     * change status and the operation set would have to return the right status
-     * after every change.
-     *
-     * @throws java.lang.Exception if one of the transitions fails
-     */
-    public void testQueryContactStatus()
-        throws Exception
-    {
-        // --- NA ---
-        logger.debug("Will Query an BRB contact.");
-        subtestQueryContactStatus(YahooStatusEnum.BE_RIGHT_BACK,
-                                  YahooStatusEnum.BE_RIGHT_BACK);
-
-        // --- DND ---
-        logger.debug("Will Query a Busy contact.");
-        subtestQueryContactStatus(YahooStatusEnum.BUSY,
-                                  YahooStatusEnum.BUSY);
-
-        // --- FFC ---
-        logger.debug("Will Query a Idle contact.");
-        subtestQueryContactStatus(YahooStatusEnum.IDLE,
-                                  YahooStatusEnum.IDLE);
-
-        // --- INVISIBLE ---
-        logger.debug("Will Query an Invisible contact.");
-        subtestQueryContactStatus(YahooStatusEnum.INVISIBLE,
-                                  YahooStatusEnum.OFFLINE);
-
-        // --- Online ---
-        logger.debug("Will Query an Online contact.");
-        subtestQueryContactStatus(YahooStatusEnum.AVAILABLE,
-                                  YahooStatusEnum.AVAILABLE);
-    }
-
-    /**
-     * Used by functions testing the queryContactStatus method of the
-     * presence operation set.
-     * @param status the status as specified, that
-     * the tester agent should switch to.
-     * @param expectedReturn the PresenceStatus that the presence operation
-     * set should see the tester agent in once it has switched to taStatusLong.
-     *
-     * @throws java.lang.Exception if querying the status causes some exception.
-     */
-    public void subtestQueryContactStatus(PresenceStatus status,
-                                          PresenceStatus expectedReturn)
-        throws Exception
-    {
-        operationSetPresence2.publishPresenceStatus(status, "status message");
-
-        pauseAfterStateChanges();
-
-        PresenceStatus actualReturn
-            = operationSetPresence1.queryContactStatus(fixture.userID2);
-        assertEquals("Querying a "
-                     + expectedReturn.getStatusName()
-                     + " state did not return as expected"
-                     , expectedReturn, actualReturn);
     }
 
     /**
@@ -879,6 +824,10 @@ public class TestOperationSetPresence
 
                 try{
                     wait(waitFor);
+                     if(collectedEvents.size() > 0)
+                        logger.trace("Received a change in contact status.");
+                    else
+                        logger.trace("No change received for "+waitFor+"ms.");
                 }
                 catch (InterruptedException ex)
                 {

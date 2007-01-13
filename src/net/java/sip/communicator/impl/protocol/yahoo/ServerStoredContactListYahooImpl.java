@@ -65,16 +65,13 @@ public class ServerStoredContactListYahooImpl
 
     private ContactListModListenerImpl contactListModListenerImpl
         = new ContactListModListenerImpl();
-
-    /**
-     * indicates whether or not the contactlist is initialized and ready.
-     */
-    private boolean isInitialized = false;
     
     /**
      * Handler for incoming authorization requests.
      */
     private AuthorizationHandler handler = null;
+    
+    private Hashtable addedCustomYahooIds = new Hashtable();
 
     /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
@@ -93,24 +90,6 @@ public class ServerStoredContactListYahooImpl
 
         this.yahooProvider = provider;
         rootGroup.setOwnerProvider(provider);
-
-        // listens for provider registered events to set the isInitialized state
-        // of the contact list
-        provider.addRegistrationStateChangeListener(
-            new RegistrationStateChangeListener()
-            {
-                public void registrationStateChanged(
-                    RegistrationStateChangeEvent evt)
-                {
-                    if (evt.getNewState() == RegistrationState.UNREGISTERED
-                        || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
-                        || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
-                    {
-                        isInitialized = false;
-                    }
-                }
-            }
-        );
     }
     
     /**
@@ -381,7 +360,8 @@ public class ServerStoredContactListYahooImpl
                 OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
         }
         
-        createUnresolvedContact(parent, id);
+        if(id.indexOf("@") > -1 )
+            addedCustomYahooIds.put(YahooSession.getYahooUserID(id), id);        
         
         try
         {
@@ -405,14 +385,13 @@ public class ServerStoredContactListYahooImpl
      */
     ContactYahooImpl createVolatileContact(String id)
     {
-         ContactYahooImpl newVolatileContact
-            = new ContactYahooImpl(id, this, false);
+        ContactYahooImpl newVolatileContact = 
+            new ContactYahooImpl(id, this, false, false, true);
 
-        //Check whether a volatile group already exists and if not create
-        //one
+        //Check whether a volatile group already exists and if not create one
         ContactGroupYahooImpl theVolatileGroup = getNonPersistentGroup();
 
-        //if the parent group is null then add necessary create the group
+        //if the parent group is null then create it
         if (theVolatileGroup == null)
         {
             theVolatileGroup = new VolatileContactGroupYahooImpl(
@@ -452,7 +431,7 @@ public class ServerStoredContactListYahooImpl
     ContactYahooImpl createUnresolvedContact(ContactGroup parentGroup, String id)
     {
         ContactYahooImpl newUnresolvedContact
-            = new ContactYahooImpl(id, this, true);
+            = new ContactYahooImpl(id, this, false, false, false);
 
         if(parentGroup instanceof ContactGroupYahooImpl)
             ((ContactGroupYahooImpl)parentGroup).
@@ -522,14 +501,14 @@ public class ServerStoredContactListYahooImpl
         logger.trace("removing group " + groupToRemove);
     
         // if its not persistent group just remove it
-        if(!groupToRemove.isPersistent())
+        if(!groupToRemove.isPersistent() || !groupToRemove.isResolved())
         {
             rootGroup.removeSubGroup(groupToRemove);
             fireGroupEvent(groupToRemove, 
                 ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
             return;
         }
-
+        
         Vector contacts = groupToRemove.getSourceGroup().getMembers();
         
         if(contacts.size() == 0)
@@ -565,6 +544,17 @@ public class ServerStoredContactListYahooImpl
     void removeContact(ContactYahooImpl contactToRemove)
     {
         logger.trace("Removing yahoo contact " + contactToRemove.getSourceContact());
+        
+        if(contactToRemove.isVolatile())
+        {
+            ContactGroupYahooImpl parent = 
+                (ContactGroupYahooImpl)contactToRemove.getParentContactGroup();    
+            
+            parent.removeContact(contactToRemove);
+            fireContactRemoved(parent, contactToRemove);
+            return;
+        }
+        
         try
         {
             yahooSession.removeFriend(
@@ -608,10 +598,9 @@ public class ServerStoredContactListYahooImpl
     public void moveContact(ContactYahooImpl contact,
                             ContactGroupYahooImpl newParent)
     {
+        String userID = contact.getID();
         try
         {
-            String userID = contact.getAddress();
-                        
             contactListModListenerImpl.
                 waitForMove(userID, 
                 contact.getParentContactGroup().getGroupName());
@@ -622,8 +611,7 @@ public class ServerStoredContactListYahooImpl
         }
         catch(IOException ex)
         {
-            contactListModListenerImpl.
-                removeWaitForMove(contact.getSourceContact().getId());
+            contactListModListenerImpl.removeWaitForMove(userID);
             logger.error("Contact cannot be added " + ex.getMessage());
         }
     }
@@ -728,18 +716,6 @@ public class ServerStoredContactListYahooImpl
     }
 
     /**
-     * Returns true if the contact list is initialized and
-     * ready for use, and false otherwise.
-     *
-     * @return true if the contact list is initialized and ready for use and false
-     * otherwise
-     */
-    boolean isInitialized()
-    {
-        return isInitialized;
-    }
-
-    /**
      * When the protocol is online this method is used to fill or resolve
      * the current contact list
      */
@@ -832,7 +808,7 @@ public class ServerStoredContactListYahooImpl
                 findContactGroup(ev.getGroup());
             
             if(group == null){
-                logger.trace("Group not found!" + group);
+                logger.trace("Group not found!" + ev.getGroup());
                 return;
             }
             
@@ -849,44 +825,36 @@ public class ServerStoredContactListYahooImpl
                 
                 return;
             }
+            
             String contactID = ev.getFriend().getId();
             ContactYahooImpl contactToAdd = findContactById(contactID);
+            
+            boolean isVolatile = false;
 
             if(contactToAdd == null)
             {
-                contactToAdd =
-                    new ContactYahooImpl(ev.getFriend(), 
+                if(addedCustomYahooIds.containsKey(contactID))
+                {
+                    String expectedContactID = 
+                         (String)addedCustomYahooIds.remove(contactID);
+
+                    contactToAdd =
+                        new ContactYahooImpl(expectedContactID, ev.getFriend(), 
                             ServerStoredContactListYahooImpl.this, true, true);
+                }
+                else
+                {
+                    contactToAdd =
+                        new ContactYahooImpl(ev.getFriend(), 
+                            ServerStoredContactListYahooImpl.this, true, true);
+                }
             }
             else
-                if(!contactToAdd.isPersistent())
-                {
-                    // we must remove the volatile buddy as we will add
-                    // the persistent one. 
-                    // Volatile buddy is moving from the volatile group
-                    // to the new one
-                    ContactGroupYahooImpl parent = 
-                        (ContactGroupYahooImpl)contactToAdd.getParentContactGroup();
-
-                    parent.removeContact(contactToAdd);
-                    
-                    contactToAdd.setPersistent(true);
-                    contactToAdd.setResolved(ev.getFriend());
-                    
-                    group.addContact(contactToAdd);
-                    
-                    fireContactMoved(parent, group, contactToAdd);
-                    waitMove.remove(contactID);
-                    
-                    return;
-                }
-                else if(!contactToAdd.isResolved())
-                {
-                    // the contact is already created just resole it
-                    contactToAdd.setResolved(ev.getFriend());
-                    return;
-                }
+            {
+                isVolatile = contactToAdd.isVolatile();
+            }
             
+            //first check is contact is moving from a group
             Object isWaitingForMove = waitMove.get(contactID);
             
             if(isWaitingForMove != null && isWaitingForMove instanceof String)
@@ -907,12 +875,34 @@ public class ServerStoredContactListYahooImpl
                     logger.info("Cannot Remove(till moving) contact :" + 
                         contactToAdd + " from group " + oldParent);
                 }
+                return;
             }
-            else
+            
+            if(isVolatile)
             {
+                // we must remove the volatile buddy as we will add
+                // the persistent one. 
+                // Volatile buddy is moving from the volatile group
+                // to the new one
+                ContactGroupYahooImpl parent = 
+                    (ContactGroupYahooImpl)contactToAdd.getParentContactGroup();
+
+                parent.removeContact(contactToAdd);
+                fireContactRemoved(parent, contactToAdd);
+
+                contactToAdd.setPersistent(true);
+                contactToAdd.setResolved(ev.getFriend());
+
                 group.addContact(contactToAdd);
+
                 fireContactAdded(group, contactToAdd);
+                waitMove.remove(contactID);
+
+                return;
             }
+            
+            group.addContact(contactToAdd);
+            fireContactAdded(group, contactToAdd);
         }
 
         /**
@@ -980,7 +970,7 @@ public class ServerStoredContactListYahooImpl
             ContactYahooImpl contact = findContactById(ev.getFrom());
             
             if(contact == null)
-                contact = parentOperationSet.createVolatileContact(ev.getFrom());
+                contact = createVolatileContact(ev.getFrom());
             
             AuthorizationRequest request = new AuthorizationRequest();
             request.setReason(ev.getMessage());
