@@ -213,14 +213,16 @@ public class ProtocolProviderServiceYahooImpl
         
         try
         {
-            yahooSession.logout();
+            if(yahooSession != null && 
+               yahooSession.getSessionStatus() == StatusConstants.MESSAGING)
+                yahooSession.logout();
         }
         catch(Exception ex)
         {
-            logger.error("Cannot logout!");
+            logger.error("Cannot logout! ", ex);
         }
         
-        yahooSession.reset();
+        yahooSession = null;
 
         if(fireEvent)
         {
@@ -473,7 +475,7 @@ public class ProtocolProviderServiceYahooImpl
          **/
         public void connectionClosed(SessionEvent ev)
         {
-            unregister(false);
+            unregister(true);
             if(isRegistered())
                 fireRegistrationStateChanged(
                     getRegistrationState(),

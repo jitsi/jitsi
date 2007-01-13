@@ -25,9 +25,7 @@ public class YahooAccountID
      */
     YahooAccountID(String id, Map accountProperties )
     {
-        super((id.indexOf("@") > -1 )
-                    ? id.substring(0, id.indexOf("@"))
-                    : id, 
+        super(YahooSession.getYahooUserID(id), 
               accountProperties, ProtocolNames.YAHOO, "yahoo.com");
     }
 }

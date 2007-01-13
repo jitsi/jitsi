@@ -356,7 +356,9 @@ public class ContactGroupYahooImpl
         while (contacts.hasNext())
         {
             ContactYahooImpl item = (ContactYahooImpl) contacts.next();
-            if(item.getAddress().equals(id))
+            
+            if(YahooSession.getYahooUserID(item.getAddress())
+                .equals(YahooSession.getYahooUserID(id)))
                 return item;
         }
         return null;

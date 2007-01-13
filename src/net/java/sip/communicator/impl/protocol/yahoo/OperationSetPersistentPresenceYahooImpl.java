@@ -615,10 +615,6 @@ public class OperationSetPersistentPresenceYahooImpl
         if(! (parent instanceof ContactGroupYahooImpl) )
             throw new IllegalArgumentException(
                 "Argument is not an yahoo contact group (group=" + parent + ")");
-
-        if(contactIdentifier.indexOf("@") > -1 )
-            contactIdentifier = 
-                contactIdentifier.substring(0, contactIdentifier.indexOf("@"));
         
         ssContactList.addContact((ContactGroupYahooImpl)parent, contactIdentifier);
     }
@@ -1089,7 +1085,7 @@ public class OperationSetPersistentPresenceYahooImpl
             ContactYahooImpl contact = 
                 (ContactYahooImpl)evt.getSourceContact();
             
-            if(!contact.isPersistent())
+            if(!contact.isPersistent() || !contact.isResolved())
                 return;
             
             handleContactStatusChange(contact, 

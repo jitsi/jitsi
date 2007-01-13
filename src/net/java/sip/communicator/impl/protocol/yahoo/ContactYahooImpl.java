@@ -112,7 +112,8 @@ public class ContactYahooImpl
     {
         if (obj == null
             || !(obj instanceof ContactYahooImpl)
-            || !(((ContactYahooImpl)obj).getAddress().equals(getAddress())
+            || !(YahooSession.getYahooUserID(((ContactYahooImpl)obj).getAddress())
+                .equals(YahooSession.getYahooUserID(getAddress()))
                 && ((ContactYahooImpl)obj).getProtocolProvider()
                         == getProtocolProvider()))
             return false;

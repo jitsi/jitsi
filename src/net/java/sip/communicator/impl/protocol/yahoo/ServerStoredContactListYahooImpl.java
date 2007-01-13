@@ -306,16 +306,6 @@ public class ServerStoredContactListYahooImpl
 
             if (result != null)
                 return result;
-
-        }
-
-        Iterator rootContacts = rootGroup.contacts();
-        while (rootContacts.hasNext())
-        {
-            ContactYahooImpl item = (ContactYahooImpl) rootContacts.next();
-
-            if(item.getAddress().equals(id))
-                return item;
         }
 
         return null;
@@ -341,16 +331,6 @@ public class ServerStoredContactListYahooImpl
 
             if( contactGroup.findContact(child.getAddress())!= null)
                 return contactGroup;
-        }
-
-        Iterator contacts = rootGroup.contacts();
-
-        while(contacts.hasNext())
-        {
-            ContactYahooImpl contact = (ContactYahooImpl) contacts.next();
-
-            if( contact.equals(child))
-                return rootGroup;
         }
 
         return null;
@@ -383,7 +363,7 @@ public class ServerStoredContactListYahooImpl
      * @param parent the group under which we want the new contact placed.
      * @throws OperationFailedException if the contact already exist
      */
-    public void addContact(final ContactGroupYahooImpl parent, final String id)
+    public void addContact(final ContactGroupYahooImpl parent, String id)
         throws OperationFailedException
     {
         logger.trace("Adding contact " + id + " to parent=" + parent);
@@ -401,9 +381,11 @@ public class ServerStoredContactListYahooImpl
                 OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
         }
         
+        createUnresolvedContact(parent, id);
+        
         try
         {
-            yahooSession.addFriend(id, parent.getGroupName());
+            yahooSession.addFriend(YahooSession.getYahooUserID(id), parent.getGroupName());
         }
         catch(IOException ex)
         {
@@ -470,7 +452,7 @@ public class ServerStoredContactListYahooImpl
     ContactYahooImpl createUnresolvedContact(ContactGroup parentGroup, String id)
     {
         ContactYahooImpl newUnresolvedContact
-            = new ContactYahooImpl(id, this, false);
+            = new ContactYahooImpl(id, this, true);
 
         if(parentGroup instanceof ContactGroupYahooImpl)
             ((ContactGroupYahooImpl)parentGroup).
@@ -896,6 +878,12 @@ public class ServerStoredContactListYahooImpl
                     fireContactMoved(parent, group, contactToAdd);
                     waitMove.remove(contactID);
                     
+                    return;
+                }
+                else if(!contactToAdd.isResolved())
+                {
+                    // the contact is already created just resole it
+                    contactToAdd.setResolved(ev.getFriend());
                     return;
                 }
             

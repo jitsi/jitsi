@@ -25,4 +25,11 @@ public class YahooSession
     {
         transmitGroupRename(oldName, newName);
     }
+    
+    public static String getYahooUserID(String id)
+    {
+        return (id.indexOf("@") > -1 )
+                    ? id.substring(0, id.indexOf("@"))
+                    : id;
+    }
 }
