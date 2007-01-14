@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -124,7 +123,7 @@ public class IcqStatusEnum
      * @return The image for the given identifier.
      */
     public static byte[] loadIcon(String imagePath) {
-        InputStream is = JabberStatusEnum.class.getClassLoader()
+        InputStream is = IcqStatusEnum.class.getClassLoader()
             .getResourceAsStream(imagePath);
         
         byte[] icon = null;
