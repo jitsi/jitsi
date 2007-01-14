@@ -179,6 +179,18 @@ public class ImageLoader {
         = new ImageID("QUICK_MENU_INFO_ICON");
 
     /**
+     * The icon on the "Sound" button in the <tt>QuickMenu</tt>.
+     */
+    public static final ImageID QUICK_MENU_SOUND_ON_ICON
+        = new ImageID("QUICK_MENU_SOUND_ON_ICON");
+
+    /**
+     * The icon on the "Sound" button in the <tt>QuickMenu</tt>.
+     */
+    public static final ImageID QUICK_MENU_SOUND_OFF_ICON
+        = new ImageID("QUICK_MENU_SOUND_OFF_ICON");
+
+    /**
      * The background image of a <tt>QuickMenu</tt> button.
      */
     public static final ImageID QUICK_MENU_BUTTON_BG
@@ -189,7 +201,7 @@ public class ImageLoader {
      */
     public static final ImageID QUICK_MENU_BUTTON_ROLLOVER_BG
         = new ImageID("QUICK_MENU_BUTTON_ROLLOVER_BG");
-
+    
     /**
      * The call button image.
      */
