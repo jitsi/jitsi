@@ -19,6 +19,8 @@ import javax.naming.directory.*;
  */
 public class NetworkUtils
 {
+    private static final Logger logger
+        = Logger.getLogger(NetworkUtils.class);
     /**
      * A string containing the "any" local address.
      */
@@ -149,8 +151,11 @@ public class NetworkUtils
     /**
      * Returns array of hosts from the SRV record of the specified domain.
      * The records are ordered against the SRV record priority
-     * @param domain String
-     * @return String[]
+     * @param domain the name of the domain we'd like to resolve (_proto._tcp
+     * included).
+     * @return an array of Strings containing records returned by the DNS
+     * server.
+     * @throws NamingException if the DNS query fails.
      */
     public static String[] getSRVRecords(String domain)
         throws NamingException
@@ -188,6 +193,14 @@ public class NetworkUtils
                 pvhn[i][3].substring(0, pvhn[i][3].length() - 1) : pvhn[i][3];
         }
 
+        if (logger.isTraceEnabled())
+        {
+            logger.trace("DNS SRV query for domain " + domain + " returned:");
+            for (int i = 0; i < sortedHostNames.length; i++)
+            {
+                logger.trace(sortedHostNames[i]);
+            }
+        }
        return sortedHostNames;
     }
 }
