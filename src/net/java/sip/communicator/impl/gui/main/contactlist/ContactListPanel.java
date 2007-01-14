@@ -14,6 +14,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.message.*;
@@ -480,8 +481,9 @@ public class ContactListPanel
             }
         }
 
-        if (Constants.AUTO_POPUP_NEW_MESSAGE)
-            Constants.getDefaultMessageAudio().play();
+        if (!GuiActivator.getAudioNotifier().isMute())
+            GuiActivator.getAudioNotifier()
+                .createAudio(Sounds.INCOMING_MESSAGE).play();
     }
 
     /**

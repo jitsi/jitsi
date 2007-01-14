@@ -13,7 +13,9 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -265,17 +267,30 @@ public class CallPanel
         participantPanel.setState(
                 sourceParticipant.getState().getStateString());
 
-        if(evt.getNewValue() == CallParticipantState.ALERTING_REMOTE_SIDE) {
-            SoundLoader.playInLoop(
-                    Constants.getDefaultOutgoingCallAudio(), 3000);
+        if(evt.getNewValue() == CallParticipantState.ALERTING_REMOTE_SIDE)
+        {   
+            if(!GuiActivator.getAudioNotifier().isMute())
+            {
+                GuiActivator.getAudioNotifier()
+                    .createAudio(Sounds.OUTGOING_CALL).playInLoop(3000);                
+            }
         }
-        else if(evt.getNewValue() == CallParticipantState.BUSY) {
-            SoundLoader.stop(Constants.getDefaultOutgoingCallAudio());
-            SoundLoader.getSound(SoundLoader.BUSY).loop();
+        else if(evt.getNewValue() == CallParticipantState.BUSY)
+        {
+            GuiActivator.getAudioNotifier()
+                .createAudio(Sounds.OUTGOING_CALL).stop();
+            
+            GuiActivator.getAudioNotifier()
+                .createAudio(Sounds.BUSY).playInLoop(0);
         }
         else if(evt.getNewValue() == CallParticipantState.CONNECTED) {
             //start the timer that takes care of refreshing the time label
-            SoundLoader.stop(Constants.getDefaultOutgoingCallAudio());            
+            
+            GuiActivator.getAudioNotifier()
+                .createAudio(Sounds.OUTGOING_CALL).stop();
+            GuiActivator.getAudioNotifier()
+                .createAudio(Sounds.INCOMING_CALL).stop();    
+            
             participantPanel.startCallTimer();
         }
         else if(evt.getNewValue() == CallParticipantState.CONNECTING) {            
@@ -320,7 +335,7 @@ public class CallPanel
     }
 
     public void setCall(Call call, String callType)
-    {
+    {   
         this.call = call;
         this.callType = callType;
         

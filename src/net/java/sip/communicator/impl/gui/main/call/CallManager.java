@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -170,8 +171,11 @@ public class CallManager
                     && ((CallPanel)selectedPanel).getCall().getCallState()
                         == CallState.CALL_INITIALIZATION) {
 
-                SoundLoader.getSound(SoundLoader.BUSY).stop();
-                SoundLoader.stop(Constants.getDefaultIncomingCallAudio());
+                GuiActivator.getAudioNotifier()
+                    .createAudio(Sounds.BUSY).stop();
+                
+                GuiActivator.getAudioNotifier()
+                    .createAudio(Sounds.INCOMING_CALL).stop();
                 
                 CallPanel callPanel = (CallPanel) selectedPanel;
                 
@@ -260,10 +264,12 @@ public class CallManager
             
             if(selectedPanel != null && selectedPanel instanceof CallPanel) {
                 
-                SoundLoader.getSound(SoundLoader.BUSY).stop();
-                SoundLoader.stop(Constants.getDefaultIncomingCallAudio());
-                SoundLoader.stop(Constants.getDefaultOutgoingCallAudio());
-                
+                GuiActivator.getAudioNotifier().createAudio(Sounds.BUSY).stop();
+                GuiActivator.getAudioNotifier()
+                    .createAudio(Sounds.INCOMING_CALL).stop();
+                GuiActivator.getAudioNotifier()
+                    .createAudio(Sounds.OUTGOING_CALL).stop();
+                                
                 CallPanel callPanel = (CallPanel) selectedPanel;
                 
                 Call call = callPanel.getCall();
@@ -449,7 +455,9 @@ public class CallManager
         this.callButton.setEnabled(true);
         this.hangupButton.setEnabled(true);
         
-        SoundLoader.playInLoop(Constants.getDefaultIncomingCallAudio(), 2000);
+        if(!GuiActivator.getAudioNotifier().isMute())
+            GuiActivator.getAudioNotifier()
+                .createAudio(Sounds.INCOMING_CALL).playInLoop(2000);
         
         activeCalls.put(sourceCall, callPanel);
         
@@ -465,9 +473,9 @@ public class CallManager
     {
         Call sourceCall = event.getSourceCall();
            
-        SoundLoader.getSound(SoundLoader.BUSY).stop();
-        SoundLoader.stop(Constants.getDefaultIncomingCallAudio());
-        SoundLoader.stop(Constants.getDefaultOutgoingCallAudio());
+        GuiActivator.getAudioNotifier().createAudio(Sounds.BUSY).stop();
+        GuiActivator.getAudioNotifier().createAudio(Sounds.INCOMING_CALL).stop();
+        GuiActivator.getAudioNotifier().createAudio(Sounds.OUTGOING_CALL).stop();
         
         if(activeCalls.get(sourceCall) != null) {
             
@@ -736,10 +744,13 @@ public class CallManager
                 else    
                     createdCall = telephony.createCall(stringContact);
                 
-                callPanel.setCall(
+                if(createdCall != null)
+                {
+                    callPanel.setCall(
                         createdCall, GuiCallParticipantRecord.OUTGOING_CALL);
                 
-                activeCalls.put(createdCall, callPanel);
+                    activeCalls.put(createdCall, callPanel);
+                }
             }
             catch (OperationFailedException e) {
                 logger.error("The call could not be created: " + e);

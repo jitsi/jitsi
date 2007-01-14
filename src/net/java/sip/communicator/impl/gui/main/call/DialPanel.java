@@ -12,8 +12,10 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.audionotifier.*;
 
 /**
  * The <tt>DialPanel</tt> is the panel that contains the buttons to
@@ -228,41 +230,46 @@ public class DialPanel
         JButton button = (JButton) e.getSource();
         String buttonName = button.getName();
 
+        if(GuiActivator.getAudioNotifier().isMute())
+            return;
+        
+        AudioNotifierService audioNotifier = GuiActivator.getAudioNotifier();
+        
         if (buttonName.equals("one")) {
-            SoundLoader.getSound(SoundLoader.DIAL_ONE).play();
+            audioNotifier.createAudio(Sounds.DIAL_ONE).play();
         }
         else if (buttonName.equals("two")) {
-            SoundLoader.getSound(SoundLoader.DIAL_TWO).play();
+            audioNotifier.createAudio(Sounds.DIAL_TWO).play();
         }
         else if (buttonName.equals("three")) {
-            SoundLoader.getSound(SoundLoader.DIAL_THREE).play();
+            audioNotifier.createAudio(Sounds.DIAL_THREE).play();
         }
         else if (buttonName.equals("four")) {
-            SoundLoader.getSound(SoundLoader.DIAL_FOUR).play();
+            audioNotifier.createAudio(Sounds.DIAL_FOUR).play();
         }
         else if (buttonName.equals("five")) {
-            SoundLoader.getSound(SoundLoader.DIAL_FIVE).play();
+            audioNotifier.createAudio(Sounds.DIAL_FIVE).play();
         }
         else if (buttonName.equals("six")) {
-            SoundLoader.getSound(SoundLoader.DIAL_SIX).play();
+            audioNotifier.createAudio(Sounds.DIAL_SIX).play();
         }
         else if (buttonName.equals("seven")) {
-            SoundLoader.getSound(SoundLoader.DIAL_SEVEN).play();
+            audioNotifier.createAudio(Sounds.DIAL_SEVEN).play();
         }
         else if (buttonName.equals("eight")) {
-            SoundLoader.getSound(SoundLoader.DIAL_EIGHT).play();
+            audioNotifier.createAudio(Sounds.DIAL_EIGHT).play();
         }
         else if (buttonName.equals("nine")) {
-            SoundLoader.getSound(SoundLoader.DIAL_NINE).play();
+            audioNotifier.createAudio(Sounds.DIAL_NINE).play();
         }
         else if (buttonName.equals("zero")) {
-            SoundLoader.getSound(SoundLoader.DIAL_ZERO).play();
+            audioNotifier.createAudio(Sounds.DIAL_ZERO).play();
         }
         else if (buttonName.equals("diez")) {
-            SoundLoader.getSound(SoundLoader.DIAL_DIEZ).play();
+            audioNotifier.createAudio(Sounds.DIAL_DIEZ).play();
         }
         else if (buttonName.equals("star")) {
-            SoundLoader.getSound(SoundLoader.DIAL_STAR).play();
+            audioNotifier.createAudio(Sounds.DIAL_STAR).play();
         }
     }
 
