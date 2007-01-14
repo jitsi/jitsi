@@ -725,7 +725,7 @@
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,
         bundle-version,bundle-version-impl,bundle-shutdown,
-        bundle-growlnotification"/>
+        bundle-growlnotification,bundle-audionotifier"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1233,6 +1233,20 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/growlnotification/growlnotification.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/growlnotification"
                 prefix="net/java/sip/communicator/impl/growlnotification" />
+        </jar>
+    </target>
+	
+	<!--BUNDLE-AUDIO NOTIFIER-->
+    <target name="bundle-audionotifier">
+        <!-- Creates a bundle for the audio notifier service.-->
+        <jar compress="false" destfile="${bundles.dest}/audionotifier.jar"
+            manifest="src/net/java/sip/communicator/impl/audionotifier/audionotifier.manifest.mf">
+        	<zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
+        	                prefix="net/java/sip/communicator/service/audionotifier"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/audionotifier"
+                prefix="net/java/sip/communicator/impl/audionotifier" />
+        	<zipfileset dir="resources/sounds"
+        	                prefix="resources/sounds"/>
         </jar>
     </target>
 </project>
