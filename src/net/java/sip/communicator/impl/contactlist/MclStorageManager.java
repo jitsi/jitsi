@@ -349,8 +349,10 @@ public class MclStorageManager
         logger.trace("storing contact list. because is modified =="
                      + isModified);
         if(isStarted())
-            XMLUtils.indentedWriteXML( contactListDocument
-                                       , new FileWriter(contactlistFile));
+        {
+            XMLUtils.indentedWriteXML(contactListDocument
+                                      , new FileOutputStream(contactlistFile));
+        }
     }
 
     /**
