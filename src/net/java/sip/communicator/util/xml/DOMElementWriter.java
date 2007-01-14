@@ -56,8 +56,10 @@ public class DOMElementWriter {
      * @param out the outputstream to write to.
      * @throws IOException if an error happens while writing to the stream.
      */
-    public void write(Element root, OutputStream out) throws IOException {
-        Writer wri = new OutputStreamWriter(out, "UTF8");
+    public void write(Element root, OutputStream out)
+        throws IOException
+    {
+        Writer wri = new OutputStreamWriter(out, "UTF-8");
         wri.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+lSep);
         write(root, wri, 0, "  ");
         wri.flush();
@@ -72,31 +74,40 @@ public class DOMElementWriter {
      * @param indentWith string that should be used to indent the corresponding tag.
      * @throws IOException if an error happens while writing to the stream.
      */
-    public void write(Element element, Writer out, int indent,
+    public void write(Node element, Writer out, int indent,
                       String indentWith)
-        throws IOException {
-
+        throws IOException
+    {
         // Write indent characters
         for (int i = 0; i < indent; i++) {
             out.write(indentWith);
         }
 
-        // Write element
-        out.write("<");
-        out.write(element.getTagName());
-
-        // Write attributes
-        NamedNodeMap attrs = element.getAttributes();
-        for (int i = 0; i < attrs.getLength(); i++) {
-            Attr attr = (Attr) attrs.item(i);
-            out.write(" ");
-            out.write(attr.getName());
-            out.write("=\"");
-            out.write(encode(attr.getValue()));
-            out.write("\"");
+        if(element.getNodeType() == Node.COMMENT_NODE)
+        {
+            out.write("<!--");
+            out.write(encode(element.getNodeValue()));
+            out.write("-->");
         }
-        out.write(">");
+        else
+        {
+            // Write element
+            out.write("<");
+            out.write(((Element)element).getTagName());
 
+            // Write attributes
+            NamedNodeMap attrs = element.getAttributes();
+            for (int i = 0; i < attrs.getLength(); i++)
+            {
+                Attr attr = (Attr) attrs.item(i);
+                out.write(" ");
+                out.write(attr.getName());
+                out.write("=\"");
+                out.write(encode(attr.getValue()));
+                out.write("\"");
+            }
+            out.write(">");
+        }
         // Write child elements and text
         boolean hasChildren = false;
         NodeList children = element.getChildNodes();
@@ -105,12 +116,12 @@ public class DOMElementWriter {
 
             switch (child.getNodeType()) {
 
-            case Node.ELEMENT_NODE:
+            case Node.ELEMENT_NODE: case Node.COMMENT_NODE:
                 if (!hasChildren) {
                     out.write(lSep);
                     hasChildren = true;
                 }
-                write((Element) child, out, indent + 1, indentWith);
+                write(child, out, indent + 1, indentWith);
                 break;
 
             case Node.TEXT_NODE:
@@ -120,13 +131,6 @@ public class DOMElementWriter {
                        || child.getNodeValue().trim().length() != 0))
                     out.write(encode(child.getNodeValue()));
                 break;
-
-            case Node.COMMENT_NODE:
-                out.write("<!--");
-                out.write(encode(child.getNodeValue()));
-                out.write("-->");
-                break;
-
             case Node.CDATA_SECTION_NODE:
                 out.write("<![CDATA[");
                 out.write(encodedata(((Text) child).getData()));
@@ -162,9 +166,13 @@ public class DOMElementWriter {
         }
 
         // Write element close
-        out.write("</");
-        out.write(element.getTagName());
-        out.write(">");
+        if(element.getNodeType() == Node.ELEMENT_NODE)
+        {
+            out.write("</");
+            out.write(((Element)element).getTagName());
+            out.write(">");
+        }
+
         out.write(lSep);
         out.flush();
     }
