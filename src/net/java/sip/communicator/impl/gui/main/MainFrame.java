@@ -624,12 +624,12 @@ public class MainFrame
 
             try {
                 configService.setProperty(
-                        "net.java.sip.communicator.impl.ui.showCallPanel",
+                        "net.java.sip.communicator.impl.gui.showCallPanel",
                         new Boolean(callManager.isShown()));
 
 
                 configService.setProperty(
-                    "net.java.sip.communicator.impl.ui.showOffline",
+                    "net.java.sip.communicator.impl.gui.showOffline",
                     new Boolean(getContactListPanel()
                         .getContactList().isShowOffline()));
 
@@ -664,10 +664,10 @@ public class MainFrame
             = GuiActivator.getConfigurationService();
 
         String isCallPanelShown = configService.getString(
-            "net.java.sip.communicator.impl.ui.showCallPanel");
+            "net.java.sip.communicator.impl.gui.showCallPanel");
 
         String isShowOffline = configService.getString(
-            "net.java.sip.communicator.impl.ui.showOffline");
+            "net.java.sip.communicator.impl.gui.showOffline");
 
         if(isCallPanelShown != null && isCallPanelShown != "") {
             callManager.setShown(new Boolean(isCallPanelShown).booleanValue());
@@ -693,7 +693,7 @@ public class MainFrame
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
 
-        String prefix = "net.java.sip.communicator.impl.ui.accounts";
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
         List accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);
@@ -724,7 +724,7 @@ public class MainFrame
                 = "acc" + Long.toString(System.currentTimeMillis());
 
             String accountPackage
-                = "net.java.sip.communicator.impl.ui.accounts."
+                = "net.java.sip.communicator.impl.gui.accounts."
                         + accNodeName;
 
             configService.setProperty(accountPackage,
@@ -823,7 +823,7 @@ public class MainFrame
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
 
-        String prefix = "net.java.sip.communicator.impl.ui.accounts";
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
         List accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);
@@ -868,7 +868,7 @@ public class MainFrame
                 = "acc" + Long.toString(System.currentTimeMillis());
 
             String accountPackage
-                = "net.java.sip.communicator.impl.ui.accounts."
+                = "net.java.sip.communicator.impl.gui.accounts."
                         + accNodeName;
 
             configService.setProperty(accountPackage,
@@ -933,7 +933,7 @@ public class MainFrame
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
 
-        String prefix = "net.java.sip.communicator.impl.ui.accounts";
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
         Enumeration pproviders = protocolProviders.keys();
         ProtocolProviderService currentProvider = null;

@@ -90,7 +90,7 @@ public class ChatWritePanel extends JScrollPane implements
             = GuiActivator.getConfigurationService();
         
         String messageCommand = configService.getString(
-                "net.java.sip.communicator.impl.ui.sendMessageCommand");
+                "net.java.sip.communicator.impl.gui.sendMessageCommand");
         
         if(messageCommand == null || messageCommand.equalsIgnoreCase("enter"))
             this.changeSendCommand(true);

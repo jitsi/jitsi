@@ -276,7 +276,7 @@ public class AccountsConfigurationForm extends JPanel
                         = GuiActivator.getConfigurationService();
 
                     String prefix
-                        = "net.java.sip.communicator.impl.ui.accounts";
+                        = "net.java.sip.communicator.impl.gui.accounts";
 
                     List accounts = configService
                             .getPropertyNamesByPrefix(prefix, true);

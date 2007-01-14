@@ -149,7 +149,7 @@ public class StatusPanel
         //find the last contact status saved in the configuration.                
         String lastStatus = null;
                         
-        String prefix = "net.java.sip.communicator.impl.ui.accounts";
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
         
         List accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);

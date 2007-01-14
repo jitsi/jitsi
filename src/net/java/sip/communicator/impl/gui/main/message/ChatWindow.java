@@ -119,11 +119,11 @@ public class ChatWindow
         
         if(isEnter)
             configService.setProperty(
-                    "net.java.sip.communicator.impl.ui.sendMessageCommand",
+                    "net.java.sip.communicator.impl.gui.sendMessageCommand",
                     "Enter");
         else
             configService.setProperty(
-                    "net.java.sip.communicator.impl.ui.sendMessageCommand",
+                    "net.java.sip.communicator.impl.gui.sendMessageCommand",
                     "CtrlEnter");
     }
     

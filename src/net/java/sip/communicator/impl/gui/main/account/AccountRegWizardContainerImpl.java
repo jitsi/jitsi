@@ -200,7 +200,7 @@ public class AccountRegWizardContainerImpl extends Wizard
         
         String wizardClassName = null;
         
-        String prefix = "net.java.sip.communicator.impl.ui.accounts";
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
                         
         List accounts = this.configService
                 .getPropertyNamesByPrefix(prefix, true);
@@ -271,7 +271,7 @@ public class AccountRegWizardContainerImpl extends Wizard
             ProtocolProviderService protocolProvider,
             AccountRegistrationWizard wizard)
     {
-        String prefix = "net.java.sip.communicator.impl.ui.accounts";
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
         List accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);
@@ -302,7 +302,7 @@ public class AccountRegWizardContainerImpl extends Wizard
                 = "acc" + Long.toString(System.currentTimeMillis());
 
             String accountPackage
-                = "net.java.sip.communicator.impl.ui.accounts."
+                = "net.java.sip.communicator.impl.gui.accounts."
                         + accNodeName;
 
             configService.setProperty(accountPackage,
