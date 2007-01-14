@@ -518,7 +518,7 @@ public class ConfigurationServiceImpl
 
         //write the file.
         XMLUtils.indentedWriteXML(
-            propertiesDocument, new FileWriter(getConfigurationFile()));
+            propertiesDocument, new FileOutputStream(getConfigurationFile()));
     }
 
     /**
@@ -663,6 +663,78 @@ public class ConfigurationServiceImpl
     }
 
     /**
+     * Returns the location of the directory where SIP Communicator is to store
+     * user specific data such as configuration files, message and call history
+     * as well as is bundle repository.
+     *
+     * @return the location of the directory where SIP Communicator is to store
+     * user specific data such as configuration files, message and call history
+     * as well as is bundle repository.
+     */
+    public String getScHomeDirLocation()
+    {
+        //first let's check whether we already have the name of the directory
+        //set as a configuration property
+        String scHomeDirLocation = getString(PNAME_SC_HOME_DIR_LOCATION);
+
+        if (scHomeDirLocation == null)
+        {
+            //no luck, check whether user has specified a custom name in the
+            //system properties
+            scHomeDirLocation
+                = getSystemProperty(PNAME_SC_HOME_DIR_LOCATION);
+
+            if (scHomeDirLocation == null)
+            {
+                scHomeDirLocation = getSystemProperty("user.home");
+            }
+
+            //now save all this as a configuration property so that we don't
+            //have to look for it in the sys props next time and so that it is
+            //available for other bundles to consult.
+            properties.put(PNAME_SC_HOME_DIR_LOCATION, scHomeDirLocation);
+        }
+
+        return scHomeDirLocation;
+    }
+
+    /**
+     * Returns the name of the directory where SIP Communicator is to store user
+     * specific data such as configuration files, message and call history
+     * as well as is bundle repository.
+     *
+     * @return the name of the directory where SIP Communicator is to store
+     * user specific data such as configuration files, message and call history
+     * as well as is bundle repository.
+     */
+    public String getScHomeDirName()
+    {
+        //first let's check whether we already have the name of the directory
+        //set as a configuration property
+        String scHomeDirName = getString(PNAME_SC_HOME_DIR_NAME);
+
+        if (scHomeDirName == null)
+        {
+            //no luck, check whether user has specified a custom name in the
+            //system properties
+            scHomeDirName
+                = getSystemProperty(PNAME_SC_HOME_DIR_NAME);
+
+            if (scHomeDirName == null)
+            {
+                scHomeDirName = ".sip-communicator";
+            }
+
+            //now save all this as a configuration property so that we don't
+            //have to look for it in the sys props next time and so that it is
+            //available for other bundles to consult.
+            properties.put(PNAME_SC_HOME_DIR_NAME, scHomeDirName);
+        }
+
+        return scHomeDirName;
+    }
+
+    /**
      * Returns a reference to the configuration file that the service should
      * load. The method would try to load a file with the name
      * sip-communicator.xml unless a different one is specified in the system
@@ -701,10 +773,17 @@ public class ConfigurationServiceImpl
                 return configFileInCurrentDir;
             }
 
-            // we didn't find it in ".", try the user.home directory
-            File configDir = new File(getSystemProperty("user.home") +
-                                      File.separator +
-                                      ".sip-communicator");
+            // we didn't find it in ".", try the SIP Communicator home directory
+            // first check whether a custom SC home directory is specified
+
+            //name of the sip-communicator home directory
+            String scHomeDirName = getScHomeDirName();
+
+            //location of the sip-communicator home directory
+            String scHomeDirLocation = getScHomeDirLocation();
+
+            File configDir = new File( scHomeDirLocation
+                                       + File.separator + scHomeDirName);
 
             File configFileInUserHomeDir =
                 new File(configDir, pFileName);
@@ -866,7 +945,7 @@ public class ConfigurationServiceImpl
 
         String propStrValue = propValue.toString().trim();
 
-        return propStrValue.length() > 0
+        return (propStrValue.length() > 0)
                     ? propStrValue
                     : null;
     }

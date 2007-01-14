@@ -20,27 +20,11 @@ import java.io.*;
 public interface FileAccessService {
 
     /**
-     * The key of the system property containing the user home dir
-     */
-    public static final String SYSPROPERTYKEY_USER_HOME = "user.home";
-
-    /**
      * The key of the configuration property containing the user home dir - if
      * it is not defined the system property is used
      */
     public static final String CONFPROPERTYKEY_USER_HOME
         = "net.java.sip.communicator.fileaccess.USER_HOME";
-
-    /**
-     * The subdirectory of USER_HOME in which all user files will be stored
-     */
-    public static final String CONFPROPERTYKEY_SIPCOMM_DIRECTORY
-        = "net.java.sip.communicator.fileaccess.SIP_COMMUNICATOR_HOME";
-
-    /**
-     * The default subdirectory
-     */
-    public static final String DEFAULT_SIPCOMM_DIRECTORY = ".sip-communicator";
 
     /**
      * This method returns a created temporary file. After you close this file

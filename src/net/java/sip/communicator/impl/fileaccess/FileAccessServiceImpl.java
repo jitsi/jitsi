@@ -50,11 +50,14 @@ public class FileAccessServiceImpl implements FileAccessService {
     /**
      * Set the configuration service.
      *
-     * @param configurationService
+     * @param configurationService a currently active instance of the
+     * configuration service
      */
     public void setConfigurationService(
-            ConfigurationService configurationService) {
-        synchronized (this.syncRoot) {
+            ConfigurationService configurationService)
+    {
+        synchronized (this.syncRoot)
+        {
             this.configurationService = configurationService;
             logger.debug("New configuration service registered.");
         }
@@ -63,41 +66,64 @@ public class FileAccessServiceImpl implements FileAccessService {
     /**
      * Remove a configuration service.
      *
-     * @param configurationService
+     * @param configurationService a currently active instance of the
+     * configuration service
      */
     public void unsetConfigurationService(
-            ConfigurationService configurationService) {
-        synchronized (this.syncRoot) {
-            if (this.configurationService == configurationService) {
+            ConfigurationService configurationService)
+    {
+        synchronized (this.syncRoot)
+        {
+            if (this.configurationService == configurationService)
+            {
                 this.configurationService = null;
                 logger.debug("Configuration service unregistered.");
             }
         }
     }
 
-    public File getTemporaryFile() throws IOException {
+    /**
+     * This method returns a created temporary file. After you close this file
+     * it is not guaranteed that you will be able to open it again nor that it
+     * will contain any information.
+     *
+     * Note: DO NOT store unencrypted sensitive information in this file
+     *
+     * @return The created temporary file
+     * @throws IOException
+     *             If the file cannot be created
+     */
+    public File getTemporaryFile()
+        throws IOException
+    {
         File retVal = null;
 
-        try {
+        try
+        {
             logger.logEntry();
 
             retVal = TempFileManager.createTempFile(TEMP_FILE_PREFIX,
                     TEMP_FILE_SUFFIX);
-        } finally {
+        }
+        finally
+        {
             logger.logExit();
         }
 
         return retVal;
     }
 
-    public File getTemporaryDirectory() throws IOException {
+    public File getTemporaryDirectory() throws IOException
+    {
         File file = getTemporaryFile();
 
-        if (!file.delete()) {
+        if (!file.delete())
+        {
             throw new IOException("Could not create temporary directory, "
                     + "because: could not delete temporary file.");
         }
-        if (!file.mkdirs()) {
+        if (!file.mkdirs())
+        {
             throw new IOException("Could not create temporary directory");
         }
 
@@ -105,16 +131,29 @@ public class FileAccessServiceImpl implements FileAccessService {
     }
 
     /**
-     * @throws IllegalStateException
-     *             Thrown if the configuration service is not set
+     * This method returns a file specific to the current user. It may not
+     * exist, but it is guaranteed that you will have the sufficient rights to
+     * create it.
+     *
+     * This file should not be considered secure because the implementor may
+     * return a file accesible to everyone. Generaly it will reside in current
+     * user's homedir, but it may as well reside in a shared directory.
+     *
+     * Note: DO NOT store unencrypted sensitive information in this file
+     *
+     * @param fileName
+     *            The name of the private file you wish to access
+     * @return The file
+     * @throws Exception if we faile to create the file.
      */
-    public File getPrivatePersistentFile(String fileName) throws Exception {
-        // TODO: Validate: Assert.assertNonNull(fileName, "Parameter fileName
-        // should be non-null");
+    public File getPrivatePersistentFile(String fileName)
+        throws Exception
+    {
 
         File file = null;
 
-        try {
+        try
+        {
             logger.logEntry();
 
             String fullPath = getFullPath(fileName);
@@ -125,28 +164,52 @@ public class FileAccessServiceImpl implements FileAccessService {
                         + "this file in current user's home directory: "
                         + file.getAbsolutePath());
             }
-        } finally {
+        }
+        finally
+        {
             logger.logExit();
         }
 
         return file;
     }
 
-    public File getPrivatePersistentDirectory(String dirName) throws Exception {
-        // TODO: Validate: Assert.assertNonNull(dirName, "Parameter dirName
-        // should be non-null");
-
+    /**
+     * This method creates a directory specific to the current user.
+     *
+     * This directory should not be considered secure because the implementor
+     * may return a directory accesible to everyone. Generaly it will reside in
+     * current user's homedir, but it may as well reside in a shared directory.
+     *
+     * It is guaranteed that you will be able to create files in it.
+     *
+     * Note: DO NOT store unencrypted sensitive information in this file
+     *
+     * @param dirName
+     *            The name of the private directory you wish to access.
+     * @return The created directory.
+     * @throws Exception
+     *             Thrown if there is no suitable location for the persistent
+     *             directory.
+     */
+    public File getPrivatePersistentDirectory(String dirName)
+        throws Exception
+    {
         String fullPath = getFullPath(dirName);
         File dir = new File(fullPath, dirName);
 
-        if (dir.exists()) {
-            if (!dir.isDirectory()) {
+        if (dir.exists())
+        {
+            if (!dir.isDirectory())
+            {
                 throw new RuntimeException("Could not create directory "
                         + "because: A file exists with this name:"
                         + dir.getAbsolutePath());
             }
-        } else {
-            if (!dir.mkdirs()) {
+        }
+        else
+        {
+            if (!dir.mkdirs())
+            {
                 throw new IOException("Could not create directory");
             }
         }
@@ -154,16 +217,26 @@ public class FileAccessServiceImpl implements FileAccessService {
         return dir;
     }
 
+    /**
+     * This method creates a directory specific to the current user.
+     *
+     * {@link #getPrivatePersistentDirectory(String)}
+     *
+     * @param dirNames
+     *            The name of the private directory you wish to access.
+     * @return The created directory.
+     * @throws Exception
+     *             Thrown if there is no suitable location for the persistent
+     *             directory.
+     */
     public File getPrivatePersistentDirectory(String[] dirNames)
-            throws Exception {
-        // TODO: Validate: Assert.assertNonNull(dirNames, "Parameter dirNames
-        // should be non-null");
-        // TODO: Validate: Assert.assertTrue(dirNames.length > 0,
-        // "dirNames.length should be > 0");
-
+        throws Exception
+    {
         StringBuffer dirName = new StringBuffer();
-        for (int i = 0; i < dirNames.length; i++) {
-            if (i > 0) {
+        for (int i = 0; i < dirNames.length; i++)
+        {
+            if (i > 0)
+            {
                 dirName.append(File.separatorChar);
             }
             dirName.append(dirNames[i]);
@@ -172,43 +245,24 @@ public class FileAccessServiceImpl implements FileAccessService {
         return getPrivatePersistentDirectory(dirName.toString());
     }
 
-    private String getFullPath(String fileName) {
-        // TODO: Validate: Assert.assertNonNull(fileName, "The filename should
-        // be non-null.");
+    /**
+     * Returns the full parth corresponding to a file located in the
+     * sip-communicator config home and carrying the specified name.
+     * @param fileName the name of the file whose location we're looking for.
+     * @return the config home location of a a file withe the specified name.
+     */
+    private String getFullPath(String fileName)
+    {
 
-        String userhome = null;
-        String sipSubdir = null;
+        String userhome =  this.configurationService.getScHomeDirLocation();
+        String sipSubdir = this.configurationService.getScHomeDirName();
 
-        // Obtain configuration service lock
-        synchronized (this.syncRoot) {
-            // TODO: Assert: Assert.assertNonNull(this.configurationService,
-            // "The configurationService should be non-null.");
-
-            userhome = this.configurationService
-                    .getString(FileAccessService.CONFPROPERTYKEY_USER_HOME);
-            sipSubdir = this.configurationService
-                    .getString(FileAccessService.CONFPROPERTYKEY_SIPCOMM_DIRECTORY);
-            if(sipSubdir == null)
-                sipSubdir = System.getProperty(
-                    FileAccessService.CONFPROPERTYKEY_SIPCOMM_DIRECTORY);
-        }
-
-        if (userhome == null) {
-            userhome = System
-                    .getProperty(FileAccessService.SYSPROPERTYKEY_USER_HOME);
-            if (userhome == null) {
-                throw new IllegalStateException(
-                        "No user home directory specified in system's environment");
-            }
-        }
-        if (sipSubdir == null) {
-            sipSubdir = FileAccessService.DEFAULT_SIPCOMM_DIRECTORY;
-        }
-
-        if (!userhome.endsWith(File.separator)) {
+        if (!userhome.endsWith(File.separator))
+        {
             userhome += File.separator;
         }
-        if (!sipSubdir.endsWith(File.separator)) {
+        if (!sipSubdir.endsWith(File.separator))
+        {
             sipSubdir += File.separator;
         }
 
@@ -222,18 +276,20 @@ public class FileAccessServiceImpl implements FileAccessService {
      * If those conditions are met it returns a File in the directory with a
      * fileName. If not - returns null.
      *
-     * @param homedir
-     * @param fileName
+     * @param homedir the location of the sip-communicator home directory.
+     * @param fileName the name of the file to create.
      * @return Returns null if the file does not exist and cannot be created.
      *         Otherwise - an object to this file
      * @throws IOException
      *             Thrown if the home directory cannot be created
      */
     private File accessibleFile(String homedir, String fileName)
-            throws IOException {
+            throws IOException
+    {
         File file = null;
 
-        try {
+        try
+        {
             logger.logEntry();
 
             homedir = homedir.trim();
@@ -248,7 +304,8 @@ public class FileAccessServiceImpl implements FileAccessService {
 
             File homedirFile = new File(homedir);
 
-            if (!homedirFile.exists()) {
+            if (!homedirFile.exists())
+            {
                 logger.debug("Creating home directory : "
                         + homedirFile.getAbsolutePath());
                 if (!homedirFile.mkdirs()) {
@@ -260,11 +317,14 @@ public class FileAccessServiceImpl implements FileAccessService {
                 }
                 logger.debug("Home directory created : "
                         + homedirFile.getAbsolutePath());
-            } else if (!homedirFile.canWrite()) {
+            }
+            else if (!homedirFile.canWrite())
+            {
                 file = null;
             }
 
-        } finally {
+        } finally
+        {
             logger.logExit();
         }
 
