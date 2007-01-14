@@ -540,31 +540,4 @@ public class Constants {
             logger.error("Failed to load css style.", e);
         }
     }
-
-    /**
-     * Returns the default sound used when user receives a message.
-     * @return the default sound used when user receives a message.
-     */
-    public static AudioClip getDefaultMessageAudio()
-    {
-        return SoundLoader.getSound(SoundLoader.INCOMING_MESSAGE);
-    }
-
-    /**
-     * Returns the default sound used when user makes a call.
-     * @return the default sound used when user makes a call.
-     */
-    public static AudioClip getDefaultOutgoingCallAudio()
-    {
-        return SoundLoader.getSound(SoundLoader.OUTGOING_CALL);
-    }
-
-    /**
-     * Returns the default sound used when user receives a call.
-     * @return the default sound used when user receives a call.
-     */
-    public static AudioClip getDefaultIncomingCallAudio()
-    {
-        return SoundLoader.getSound(SoundLoader.INCOMING_CALL);
-    }
 }
