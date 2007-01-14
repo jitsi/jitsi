@@ -192,7 +192,13 @@ public class XMLUtils
     public static void writeXML(Document document, File out)
         throws java.io.IOException
     {
-        writeXML(document, new StreamResult(out), null, null);
+        indentedWriteXML(document, new FileOutputStream(out));
+//        writeXML(document
+//                 , new StreamResult(
+//                        new OutputStreamWriter(
+//                                new FileOutputStream(out), "UTF-8"))
+//                 , null
+//                 , null);
     }
 
     /**
@@ -264,15 +270,16 @@ public class XMLUtils
     /**
      * A simple implementation of XML writing that also allows for indentation.
      * @param doc the Document that we will be writing.
-     * @param wri a Writer to write the document through.
+     * @param out an OutputStream to write the document through.
      */
-    public static void indentedWriteXML(Document doc, Writer wri)
+    public static void indentedWriteXML(Document doc, OutputStream out)
     {
         Element rootElement = doc.getDocumentElement();
-        if (wri != null)
+        if (out != null)
         {
             try
             {
+                Writer wri = new OutputStreamWriter(out, "UTF-8");
                 wri.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+lSep);
                 (new DOMElementWriter()).write(rootElement, wri, 0, "  ");
                 wri.flush();
