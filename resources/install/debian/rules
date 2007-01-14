@@ -61,7 +61,7 @@ install: build
 	rm debian/sip-communicator/usr/share/sip-communicator/sc-bundles/*-slick.jar
 
 	# Make felix deploy its bundles in ~/.felix/sip-communicator.bin
-	sed -i -e "s/felix.cache.profiledir=sip-communicator.bin/felix.cache.profiledir=\${user.home}\/.sip-communicator\/plugins/" debian/sip-communicator/usr/share/sip-communicator/lib/felix.client.run.properties
+	sed -i -e "s/felix.cache.profiledir=sip-communicator.bin/felix.cache.profile=sip-communicator.bin/" debian/sip-communicator/usr/share/sip-communicator/lib/felix.client.run.properties
 
 
 # Build i386 files here.
