@@ -60,6 +60,9 @@ public class QuickMenu
     private JButton addButton = new JButton(new ImageIcon(ImageLoader
             .getImage(ImageLoader.QUICK_MENU_ADD_ICON)));
 
+    private JButton soundButton = new JButton(
+        new ImageIcon(ImageLoader.getImage(ImageLoader.QUICK_MENU_SOUND_ON_ICON)));
+
     private ConfigurationManager configDialog;
 
     private MainFrame mainFrame;
@@ -83,6 +86,7 @@ public class QuickMenu
         this.configureButton.setPreferredSize(new Dimension(28, 28));
         this.searchButton.setPreferredSize(new Dimension(28, 28));
         this.addButton.setPreferredSize(new Dimension(28, 28));
+        this.soundButton.setPreferredSize(new Dimension(28, 28));
 
         this.infoButton.setToolTipText(
             Messages.getI18NString("userInfo").getText());
@@ -91,7 +95,13 @@ public class QuickMenu
         this.searchButton.setToolTipText(
             Messages.getI18NString("showOfflineUsers").getText());
         this.addButton.setToolTipText(
-            Messages.getI18NString("addContact").getText());
+            Messages.getI18NString("addContact").getText());        
+        this.addButton.setToolTipText(
+            Messages.getI18NString("soundOnOff").getText());
+        
+
+        this.updateMuteButton(
+                GuiActivator.getAudioNotifier().isMute());
 
         this.init();
     }
@@ -105,21 +115,25 @@ public class QuickMenu
         this.add(configureButton);
         this.add(infoButton);
         this.add(searchButton);
+        this.add(soundButton);
 
         this.addButton.setName("add");
         this.configureButton.setName("config");
         this.searchButton.setName("search");
         this.infoButton.setName("info");
+        this.soundButton.setName("sound");
 
         this.addButton.addActionListener(this);
         this.configureButton.addActionListener(this);
         this.searchButton.addActionListener(this);
         this.infoButton.addActionListener(this);
+        this.soundButton.addActionListener(this);
         
         this.addButton.addComponentListener(this);
         this.configureButton.addComponentListener(this);
         this.searchButton.addComponentListener(this);
         this.infoButton.addComponentListener(this);
+        this.soundButton.addComponentListener(this);
     }
     
     private void initPluginComponents()
@@ -160,23 +174,27 @@ public class QuickMenu
      * Handles the <tt>ActionEvent</tt> triggered when user clicks on one of
      * the buttons in this toolbar.
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JButton button = (JButton) e.getSource();
         String buttonName = button.getName();
 
-        if (buttonName.equals("add")) {
+        if (buttonName.equals("add"))
+        {
 
             AddContactWizard wizard = new AddContactWizard(mainFrame);
             
             wizard.showDialog(false);
         }
-        else if (buttonName.equals("config")) {
+        else if (buttonName.equals("config"))
+        {
 
             configDialog = GuiActivator.getUIService().getConfigurationManager();
 
             configDialog.showWindow();
         }
-        else if (buttonName.equals("search")) {
+        else if (buttonName.equals("search"))
+        {
 
             ContactList contactList = mainFrame.getContactListPanel()
                 .getContactList();
@@ -205,7 +223,8 @@ public class QuickMenu
                 }
             }           
         }
-        else if (buttonName.equals("info")) {
+        else if (buttonName.equals("info"))
+        {
             MetaContact selectedMetaContact =
                 (MetaContact) mainFrame.getContactListPanel()
                     .getContactList().getSelectedValue();
@@ -241,6 +260,19 @@ public class QuickMenu
                         ErrorDialog.WARNING).showDialog();
                 }
             }            
+        }
+        else if (buttonName.equals("sound"))
+        {
+            if(GuiActivator.getAudioNotifier().isMute())
+            {
+                updateMuteButton(false);
+                GuiActivator.getAudioNotifier().setMute(false);
+            }
+            else
+            {
+                updateMuteButton(true);
+                GuiActivator.getAudioNotifier().setMute(true);
+            }
         }
     }
 
@@ -349,5 +381,17 @@ public class QuickMenu
                 }
             }            
         }
+    }
+
+    public void updateMuteButton(boolean isMute)
+    {   
+        if(!isMute)
+            this.soundButton.setIcon(
+                new ImageIcon(ImageLoader.getImage(
+                    ImageLoader.QUICK_MENU_SOUND_ON_ICON)));
+        else
+            this.soundButton.setIcon(
+                new ImageIcon(ImageLoader.getImage(
+                    ImageLoader.QUICK_MENU_SOUND_OFF_ICON)));
     }
 }
