@@ -21,6 +21,24 @@ import net.java.sip.communicator.util.xml.*;
 public interface ConfigurationService
 {
     /**
+     * The name of the property that indicates the name of the directory where
+     * SIP Communicator is to store user specific data such as configuration
+     * files, message and call history as well as is bundle repository.
+     */
+    public static final String PNAME_SC_HOME_DIR_NAME
+        = "net.java.sip.communicator.SC_HOME_DIR_NAME";
+
+    /**
+     * The name of the property that indicates the location of the directory
+     * where SIP Communicator is to store user specific data such as
+     * configuration files, message and call history as well as is bundle
+     * repository.
+     */
+    public static final String PNAME_SC_HOME_DIR_LOCATION
+        = "net.java.sip.communicator.SC_HOME_DIR_LOCATION";
+
+
+    /**
      * Sets the property with the specified name to the specified value. Calling
      * this method would first trigger a PropertyChangeEvent that will
      * be dispatched to all VetoableChangeListeners. In case no complaints
@@ -238,5 +256,27 @@ public interface ConfigurationService
      * it when this method is called.
      */
     public void purgeStoredConfiguration();
+
+    /**
+     * Returns the name of the directory where SIP Communicator is to store user
+     * specific data such as configuration files, message and call history
+     * as well as is bundle repository.
+     *
+     * @return the name of the directory where SIP Communicator is to store
+     * user specific data such as configuration files, message and call history
+     * as well as is bundle repository.
+     */
+    public String getScHomeDirName();
+
+    /**
+     * Returns the location of the directory where SIP Communicator is to store
+     * user specific data such as configuration files, message and call history
+     * as well as is bundle repository.
+     *
+     * @return the location of the directory where SIP Communicator is to store
+     * user specific data such as configuration files, message and call history
+     * as well as is bundle repository.
+     */
+    public String getScHomeDirLocation();
 
 }
