@@ -83,6 +83,12 @@ public class SipRegistrarConnection
      */
     private long nextCSeqValue = 1;
 
+    /**
+     * The client transaction that we used for sending the last REGISTER
+     * request.
+     */
+    ClientTransaction regTrans = null;
+
 
     /**
      * Creates a new instance of this class.
@@ -313,8 +319,8 @@ public class SipRegistrarConnection
         }
 
         request.addHeader(contactHeader);
+
         //Transaction
-        ClientTransaction regTrans = null;
         try
         {
             sipProvider.getJainSipStack().getSipProviders();
@@ -470,6 +476,8 @@ public class SipRegistrarConnection
                 "Could not find the initial register request."
                 , OperationFailedException.INTERNAL_ERROR);
         }
+
+        //We are apparently registered so send a un-Register request.
         Request unregisterRequest = (Request) registerRequest.clone();
         try
         {
@@ -537,8 +545,6 @@ public class SipRegistrarConnection
         }
         try
         {
-
-
             unregisterTransaction.sendRequest();
             logger.debug("sent request: " + unregisterRequest);
 
@@ -547,8 +553,19 @@ public class SipRegistrarConnection
             if(!getRegistrationState().equals(RegistrationState.REGISTERED))
             {
                 logger.trace("Setting state to UNREGISTERED.");
-                setRegistrationState(RegistrationState.UNREGISTERED,
-                                     RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+                setRegistrationState(
+                    RegistrationState.UNREGISTERED
+                    , RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+
+                //kill the registration tran in case it is still active
+                if (regTrans != null
+                    && regTrans.getState().getValue()
+                            <= TransactionState.PROCEEDING.getValue())
+                {
+                    logger.trace("Will try to terminate reg tran ...");
+                    regTrans.terminate();
+                    logger.trace("Transaction terminated!");
+                }
             }
         }
         catch (SipException ex)
