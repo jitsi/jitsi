@@ -147,9 +147,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * The default name of a debug log file for the jain-sip RI.
      */
-    private static final String NSPVALUE_DEBUG_LOG =
-        System.getProperty("user.home")
-        + "/.sip-communicator/log/sc-jainsipdebug.log";
+    private static String NSPVALUE_DEBUG_LOG = "log/sc-jainsipdebug.log";
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
@@ -162,9 +160,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * The default name of a server log file for the jain-sip RI.
      */
-    private static final String NSPVALUE_SERVER_LOG =
-        System.getProperty("user.home")
-        + "/.sip-communicator/log/sc-jainsipserver.log";
+    private static String NSPVALUE_SERVER_LOG  = "log/sc-jainsipserver.log";
 
     /**
      * A random generator we use to generate tags.
@@ -510,6 +506,15 @@ public class ProtocolProviderServiceSipImpl
     {
         synchronized (initializationLock)
         {
+            String logDir
+                = SipActivator.getConfigurationService().getScHomeDirLocation()
+                + System.getProperty("file.separator")
+                + SipActivator.getConfigurationService().getScHomeDirName()
+                + System.getProperty("file.separator");
+
+            NSPVALUE_DEBUG_LOG = logDir + NSPNAME_DEBUG_LOG;
+            NSPVALUE_SERVER_LOG = logDir + NSPNAME_SERVER_LOG;
+
             this.accountID = accountID;
 
             sipFactory = SipFactory.getInstance();
