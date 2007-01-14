@@ -283,7 +283,7 @@ public class UIServiceImpl implements UIService {
      * @see UIService#maximize()
      */
     public void maximize() {
-        this.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);        
+        this.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
 
     /**

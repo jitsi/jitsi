@@ -11,6 +11,7 @@ import java.util.*;
 import org.osgi.framework.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
+import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -41,6 +42,8 @@ public class GuiActivator implements BundleActivator {
     private static MessageHistoryService msgHistoryService;
     
     private static CallHistoryService callHistoryService;
+    
+    private static AudioNotifierService audioNotifierService;
 
     private static Map providerFactoriesMap = new Hashtable();
 
@@ -231,6 +234,24 @@ public class GuiActivator implements BundleActivator {
         }
 
         return callHistoryService;
+    }
+    
+    /**
+     * Returns the <tt>AudioNotifierService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>AudioNotifierService</tt> obtained from the bundle
+     * context
+     */
+    public static AudioNotifierService getAudioNotifier() {
+        if (audioNotifierService == null) {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(AudioNotifierService.class.getName());
+
+            audioNotifierService = (AudioNotifierService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return audioNotifierService;
     }
     
     /**

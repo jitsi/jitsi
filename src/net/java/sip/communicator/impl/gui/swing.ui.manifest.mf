@@ -36,4 +36,5 @@ Import-Package: org.osgi.framework,
  javax.swing.border,
  edu.stanford.ejalbert,
  edu.stanford.ejalbert.exception,
- edu.stanford.ejalbert.exceptionhandler
+ edu.stanford.ejalbert.exceptionhandler,
+ net.java.sip.communicator.service.audionotifier
