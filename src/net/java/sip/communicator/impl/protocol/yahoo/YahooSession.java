@@ -19,7 +19,9 @@ import ymsg.network.*;
 public class YahooSession
     extends Session
 {
-    
+    /**
+     * Renames a group. Not working for now
+     */
     public void renameGroup(String oldName, String newName) 
         throws IOException    
     {
