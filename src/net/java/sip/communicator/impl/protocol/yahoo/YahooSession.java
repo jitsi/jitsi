@@ -35,4 +35,28 @@ public class YahooSession
                     ? id.substring(0, id.indexOf("@"))
                     : id;
     }
+    
+    /**
+     * Sending typing notifications
+     * @param to user we are notifing
+     * @param from our user id
+     */
+    void keyTyped(String to, String from)
+    {
+        try { 
+            transmitNotify(to, from, true, " ", NOTIFY_TYPING); 
+        }catch(IOException e){}
+    }
+    
+    /**
+     * Sending stop typing notifications
+     * @param to user we are notifing
+     * @param from our user id
+     */
+    void stopTyping(String to, String from)
+    {	
+        try { 
+            transmitNotify(to, from, false, " ", NOTIFY_TYPING); 
+        }catch(IOException e){}
+    }
 }

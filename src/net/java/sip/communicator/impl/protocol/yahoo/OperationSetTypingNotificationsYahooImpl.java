@@ -137,9 +137,19 @@ public class OperationSetTypingNotificationsYahooImpl
 
        if(typingState == OperationSetTypingNotifications.STATE_TYPING)
        {
+
            yahooProvider.getYahooSession().
-               keyTyped(notifiedContact.getAddress());
+               keyTyped(notifiedContact.getAddress(), 
+               yahooProvider.getAccountID().getUserID());
        }
+       else
+           if(typingState == OperationSetTypingNotifications.STATE_STOPPED ||
+           typingState == OperationSetTypingNotifications.STATE_PAUSED)
+           {
+               yahooProvider.getYahooSession().
+                   stopTyping(notifiedContact.getAddress(), 
+                   yahooProvider.getAccountID().getUserID());
+           }
     }
 
     /**

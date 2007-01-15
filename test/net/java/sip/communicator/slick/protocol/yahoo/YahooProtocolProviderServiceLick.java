@@ -84,8 +84,7 @@ public class YahooProtocolProviderServiceLick
 
             addTest(TestOperationSetBasicInstantMessaging.suite());
 
-            // Sending typing notifications doesn't work for now
-            //addTest(TestOperationSetTypingNotifications.suite());
+            addTest(TestOperationSetTypingNotifications.suite());
         }
 
         addTest(TestAccountUninstallation.suite());
