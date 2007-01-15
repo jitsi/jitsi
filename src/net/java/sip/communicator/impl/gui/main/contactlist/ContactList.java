@@ -537,7 +537,7 @@ public class ContactList extends JList implements MetaContactListListener,
                         group);
 
                 SwingUtilities
-                        .convertPointToScreen(selectedCellPoint, renderer);
+                        .convertPointToScreen(selectedCellPoint, this);
 
                 groupRightButtonMenu.setInvoker(this);
 
@@ -595,8 +595,8 @@ public class ContactList extends JList implements MetaContactListListener,
                     contactRightButtonMenu = new ContactRightButtonMenu(
                             this, contact);
 
-                    SwingUtilities.convertPointToScreen(selectedCellPoint,
-                            renderer);
+                    SwingUtilities
+                        .convertPointToScreen(selectedCellPoint, this);
 
                     contactRightButtonMenu.setInvoker(this);
 
