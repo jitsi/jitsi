@@ -432,6 +432,26 @@ public class TestOperationSetPresence
         //the actual presence status of the tester agent because a first
         //notification is not supposed to have the old status as it really was.
         assertNotNull( "Reported old PresenceStatus: ", reportedOldStatus );
+
+        try
+        {
+            // add the the user to the reverse side needed for status tests
+            subEvtCollector.collectedEvents.clear();
+            operationSetPresence2.addSubsciptionListener(subEvtCollector);
+
+            synchronized (subEvtCollector)
+            {
+                operationSetPresence2.subscribe(fixture.userID1);
+                //we may already have the event, but it won't hurt to check.
+                subEvtCollector.waitForEvent(10000);
+                operationSetPresence2.removeSubscriptionListener(
+                    subEvtCollector);
+            }
+        }
+        catch (OperationFailedException ex)
+        {
+            // happens if the user is already subscribed
+        }
         
         dumplists();
     }
@@ -530,7 +550,7 @@ public class TestOperationSetPresence
         Object o = new Object();
         synchronized(o)
         {
-            o.wait(6000);
+            o.wait(3000);
         }
     }
 
@@ -888,9 +908,9 @@ public class TestOperationSetPresence
         public AuthorizationResponse processAuthorisationRequest(
                 AuthorizationRequest req, Contact sourceContact)
         {
-            try{
-                opset.subscribe(sourceContact.getAddress());
-            }catch(Exception ex){}
+//            try{
+//                opset.subscribe(sourceContact.getAddress());
+//            }catch(Exception ex){}
             
             return
                 new AuthorizationResponse(AuthorizationResponse.ACCEPT, "");
