@@ -25,13 +25,12 @@ public class SIPCommPopupMenuUI extends BasicPopupMenuUI
      * Creates a new SIPCommPopupMenuUI instance.
      */
     public static ComponentUI createUI(JComponent c) {
-        c.setOpaque(false);
         return new SIPCommPopupMenuUI();
     }
 
     public void paint(Graphics g, JComponent c) {
         AntialiasingManager.activateAntialiasing(g);
         
-        super.paint(g, c);           
+        super.paint(g, c);
     }
 }
