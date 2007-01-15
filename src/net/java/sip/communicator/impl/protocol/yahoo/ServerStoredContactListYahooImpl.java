@@ -385,6 +385,7 @@ public class ServerStoredContactListYahooImpl
      */
     ContactYahooImpl createVolatileContact(String id)
     {
+        logger.trace("Creating volatile contact " + id);
         ContactYahooImpl newVolatileContact = 
             new ContactYahooImpl(id, this, false, false, true);
 
@@ -430,6 +431,7 @@ public class ServerStoredContactListYahooImpl
      */
     ContactYahooImpl createUnresolvedContact(ContactGroup parentGroup, String id)
     {
+        logger.trace("Creating unresolved contact " + id + " to parent=" + parentGroup);
         ContactYahooImpl newUnresolvedContact
             = new ContactYahooImpl(id, this, false, false, false);
 

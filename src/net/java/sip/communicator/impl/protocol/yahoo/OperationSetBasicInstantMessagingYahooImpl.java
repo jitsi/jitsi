@@ -157,8 +157,9 @@ public class OperationSetBasicInstantMessagingYahooImpl
 
         try     
         {
+            String toUserID = ((ContactYahooImpl) to).getID();
             yahooProvider.getYahooSession().sendMessage(
-                ((ContactYahooImpl) to).getSourceContact().getId(),
+                toUserID,
                 message.getContent());
             
             MessageDeliveredEvent msgDeliveredEvt

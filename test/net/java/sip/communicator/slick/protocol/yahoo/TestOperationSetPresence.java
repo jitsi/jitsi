@@ -37,7 +37,6 @@ public class TestOperationSetPresence
     private YahooSlickFixture fixture = new YahooSlickFixture();
     private OperationSetPresence operationSetPresence1 = null;
     private OperationSetPresence operationSetPresence2 = null;
-    private String statusMessageRoot = new String("Our status is now: ");
     
     private AuthHandler authHandler1 = null;
     private AuthHandler authHandler2 = null;
@@ -280,7 +279,8 @@ public class TestOperationSetPresence
         PresenceStatus oldStatus = operationSetPresence1.getPresenceStatus();
 
         logger.debug(   "old status is=" + oldStatus.getStatusName()
-                     + " new status=" + newStatus.getStatusName());
+                     + " new status=" + newStatus.getStatusName()
+                     + " for contact : " + fixture.userID1);
 
         //First register a listener to make sure that all corresponding
         //events have been generated.
@@ -332,21 +332,6 @@ public class TestOperationSetPresence
                      actualStatus);
 
         logger.trace(" --=== finished test ===--");
-    }
-
-    /**
-     * Give time changes to take effect
-     */
-    private void pauseAfterStateChanges()
-    {
-        try
-        {
-            Thread.currentThread().sleep(1500);
-        }
-        catch (InterruptedException ex)
-        {
-            logger.debug("Pausing between state changes was interrupted", ex);
-        }
     }
 
     /**
@@ -467,6 +452,8 @@ public class TestOperationSetPresence
         {
             // happens if the user is already subscribed
         }
+        
+        dumplists();
     }
 
     /**
@@ -563,7 +550,7 @@ public class TestOperationSetPresence
         Object o = new Object();
         synchronized(o)
         {
-            o.wait(3000);
+            o.wait(6000);
         }
     }
 
@@ -934,5 +921,46 @@ public class TestOperationSetPresence
         }
         public void processAuthorizationResponse(
                 AuthorizationResponse response, Contact sourceContact){}
+    }
+    
+    private void dumplists()
+    {
+        OperationSetPersistentPresence op1 = (OperationSetPersistentPresence)operationSetPresence1;
+        OperationSetPersistentPresence op2 = (OperationSetPersistentPresence)operationSetPresence2;
+        
+        logger.info("------------ START DUMP LIST " + fixture.userID1 + " ------------");
+        ContactGroup rootGroup = op1.getServerStoredContactListRoot();
+        Iterator groups = rootGroup.subgroups();
+        while (groups.hasNext() )
+        {
+            ContactGroup group = (ContactGroup)groups.next();
+            logger.info("group " + group.getGroupName());
+            
+            Iterator contactsIter = group.contacts();
+            while(contactsIter.hasNext())
+            {
+                logger.info("\tcontact " + contactsIter.next());
+            }
+        }
+        logger.info("------------ END DUMP LIST " + fixture.userID1 + " ------------");
+        
+        
+        logger.info("------------ START DUMP LIST " + fixture.userID2 + " ------------");
+        rootGroup = op2.getServerStoredContactListRoot();
+        groups = rootGroup.subgroups();
+        while (groups.hasNext() )
+        {
+            ContactGroup group = (ContactGroup)groups.next();
+            logger.info("group " + group.getGroupName());
+            
+            Iterator contactsIter = group.contacts();
+            while(contactsIter.hasNext())
+            {
+                logger.info("\tcontact " + contactsIter.next());
+            }
+        }
+        logger.info("------------ END DUMP LIST " + fixture.userID2 + " ------------");
+        
+        
     }
 }
