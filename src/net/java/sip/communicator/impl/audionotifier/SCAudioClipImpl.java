@@ -38,13 +38,15 @@ public class SCAudioClipImpl implements SCAudioClip
     
     private ActionListener audioListener;
     
+    private AudioNotifierService audioNotifier;
+    
     /**
      * Creates the audio clip and initialize the listener used from the
      * loop timer.
      * 
      * @param url the url pointing to the audio file
      */
-    public SCAudioClipImpl(URL url)
+    public SCAudioClipImpl(URL url, AudioNotifierService audioNotifier)
     {   
         InputStream inputstream;
         try {
@@ -58,6 +60,8 @@ public class SCAudioClipImpl implements SCAudioClip
         
         this.audioListener = new PlayAudioListener(audioClip);
         this.playAudioTimer.addActionListener(audioListener);
+        
+        this.audioNotifier = audioNotifier;
     }
     
     /**
@@ -65,7 +69,7 @@ public class SCAudioClipImpl implements SCAudioClip
      */
     public void play()
     {
-        if (audioClip != null)        
+        if (audioClip != null && !audioNotifier.isMute())
             audioClip.play();
     }
 
@@ -76,19 +80,22 @@ public class SCAudioClipImpl implements SCAudioClip
      */
     public void playInLoop(int interval)
     {   
-        this.loopInterval = interval;
-        
-        if(interval == 0)
-            audioClip.loop();
-        else
+        if(!audioNotifier.isMute())
         {
-            //first play the audio and then start the timer and wait
-            audioClip.play();
-            playAudioTimer.setDelay(interval);
-            playAudioTimer.setRepeats(true);
-                                            
-            playAudioTimer.start();
+            if(interval == 0)
+                audioClip.loop();
+            else
+            {
+                //first play the audio and then start the timer and wait
+                audioClip.play();
+                playAudioTimer.setDelay(interval);
+                playAudioTimer.setRepeats(true);
+                                                
+                playAudioTimer.start();
+            }
         }
+     
+        this.loopInterval = interval;
         
         this.isLooping = true;
     }

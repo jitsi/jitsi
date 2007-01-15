@@ -230,9 +230,6 @@ public class DialPanel
         JButton button = (JButton) e.getSource();
         String buttonName = button.getName();
 
-        if(GuiActivator.getAudioNotifier().isMute())
-            return;
-        
         AudioNotifierService audioNotifier = GuiActivator.getAudioNotifier();
         
         if (buttonName.equals("one")) {

@@ -480,10 +480,9 @@ public class ContactListPanel
                 }
             }
         }
-
-        if (!GuiActivator.getAudioNotifier().isMute())
-            GuiActivator.getAudioNotifier()
-                .createAudio(Sounds.INCOMING_MESSAGE).play();
+        
+        GuiActivator.getAudioNotifier()
+            .createAudio(Sounds.INCOMING_MESSAGE).play();
     }
 
     /**

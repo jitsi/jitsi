@@ -455,8 +455,7 @@ public class CallManager
         this.callButton.setEnabled(true);
         this.hangupButton.setEnabled(true);
         
-        if(!GuiActivator.getAudioNotifier().isMute())
-            GuiActivator.getAudioNotifier()
+        GuiActivator.getAudioNotifier()
                 .createAudio(Sounds.INCOMING_CALL).playInLoop(2000);
         
         activeCalls.put(sourceCall, callPanel);

@@ -269,11 +269,8 @@ public class CallPanel
 
         if(evt.getNewValue() == CallParticipantState.ALERTING_REMOTE_SIDE)
         {   
-            if(!GuiActivator.getAudioNotifier().isMute())
-            {
-                GuiActivator.getAudioNotifier()
-                    .createAudio(Sounds.OUTGOING_CALL).playInLoop(3000);                
-            }
+            GuiActivator.getAudioNotifier()
+                .createAudio(Sounds.OUTGOING_CALL).playInLoop(3000);
         }
         else if(evt.getNewValue() == CallParticipantState.BUSY)
         {

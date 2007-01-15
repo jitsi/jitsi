@@ -45,7 +45,7 @@ public class AudioNotifierImpl
                 URL url = AudioNotifierImpl.class.getClassLoader()
                     .getResource(uri);
                 
-                audioClip = new SCAudioClipImpl(url);
+                audioClip = new SCAudioClipImpl(url, this);
                 
                 audioClips.put(uri, audioClip);            
             }            
