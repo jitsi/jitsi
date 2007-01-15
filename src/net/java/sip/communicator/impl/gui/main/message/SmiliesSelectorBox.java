@@ -35,7 +35,7 @@ public class SmiliesSelectorBox extends JMenuBar
 
     private int gridColCount = 0;
     
-    private JMenu selectorBox = new JMenu();
+    private SIPCommMenu selectorBox = new SIPCommMenu();
     
     /**
      * Creates an instance of this <tt>SmiliesSelectorBox</tt> and initializes

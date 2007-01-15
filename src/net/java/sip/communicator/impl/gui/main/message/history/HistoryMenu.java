@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 
 /**
@@ -18,7 +19,9 @@ import net.java.sip.communicator.impl.gui.i18n.*;
  * 
  * @author Yana Stamcheva
  */
-public class HistoryMenu extends JMenu implements ActionListener {
+public class HistoryMenu
+    extends SIPCommMenu
+    implements ActionListener {
 
     private I18NString emptyHistoryString
         = Messages.getI18NString("emptyHistory");

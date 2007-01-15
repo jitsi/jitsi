@@ -70,16 +70,19 @@ public class ContactRightButtonMenu
     = Messages.getI18NString("viewHistory");
     
     
-    private JMenu moveToMenu = new JMenu(moveToString.getText());
+    private SIPCommMenu moveToMenu = new SIPCommMenu(moveToString.getText());
 
-    private JMenu moveSubcontactMenu
-        = new JMenu(moveSubcontactString.getText());
+    private SIPCommMenu moveSubcontactMenu
+        = new SIPCommMenu(moveSubcontactString.getText());
     
-    private JMenu userInfoMenu = new JMenu(userInfoString.getText());
+    private SIPCommMenu userInfoMenu
+        = new SIPCommMenu(userInfoString.getText());
     
-    private JMenu addSubcontactMenu = new JMenu(addSubcontactString.getText());
+    private SIPCommMenu addSubcontactMenu
+        = new SIPCommMenu(addSubcontactString.getText());
 
-    private JMenu removeContactMenu = new JMenu(removeContactString.getText());
+    private SIPCommMenu removeContactMenu
+        = new SIPCommMenu(removeContactString.getText());
 
     private JMenuItem sendMessageItem = new JMenuItem(
         sendMessageString.getText(),
@@ -639,7 +642,7 @@ public class ContactRightButtonMenu
             
             guiContactList.setCursor(
                     Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            
+
             if(moveAllContacts) {
                 new MoveAllSubcontactsThread(toMetaContact).start();
             }

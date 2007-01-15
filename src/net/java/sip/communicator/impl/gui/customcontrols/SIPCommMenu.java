@@ -44,16 +44,11 @@ public class SIPCommMenu
      * 
      * @param selectedItem The item that is initialy selected.
      */
-    public SIPCommMenu(Object selectedItem)
+    public SIPCommMenu(String text)
     {
-        this.selectedItem = selectedItem;
-
-        if (selectedItem instanceof Image)
-            this.setIcon(new ImageIcon((Image) selectedItem));
-        else
-            this.setText(selectedItem.toString());
+        super(text);        
     }
-
+    
     /**
      * Adds an item to the "choice list" of this selector box.
      * 

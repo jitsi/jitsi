@@ -720,8 +720,8 @@ public class ChatWindow
             WritePanelRightButtonMenu writePanelRightMenu = currentChatPanel
                 .getChatWritePanel().getRightButtonMenu();
     
-            JMenu selectedMenu = menusPanel.getMainMenuBar().getSelectedMenu();
-            JMenu contactMenu = currentChatPanel.getChatSendPanel()
+            SIPCommMenu selectedMenu = menusPanel.getMainMenuBar().getSelectedMenu();
+            SIPCommMenu contactMenu = currentChatPanel.getChatSendPanel()
                 .getProtoContactSelectorBox().getMenu();
             
             MenuSelectionManager menuSelectionManager

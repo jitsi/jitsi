@@ -15,6 +15,7 @@ import javax.swing.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
@@ -27,7 +28,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class ToolsMenu
-    extends JMenu 
+    extends SIPCommMenu 
     implements ActionListener
 {
 

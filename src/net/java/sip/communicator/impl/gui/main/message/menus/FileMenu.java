@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.message.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -20,7 +21,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * 
  * @author Yana Stamcheva
  */
-public class FileMenu extends JMenu 
+public class FileMenu extends SIPCommMenu 
     implements ActionListener {
 
     private I18NString saveString = Messages.getI18NString("save");

@@ -42,7 +42,8 @@ public class GroupRightButtonMenu
     
     private I18NString renameGroupString = Messages.getI18NString("renameGroup");
     
-    private JMenu addContactMenu = new JMenu(addContactString.getText());
+    private SIPCommMenu addContactMenu
+        = new SIPCommMenu(addContactString.getText());
     
     private JMenuItem removeGroupItem = new JMenuItem(
         removeGroupString.getText(),

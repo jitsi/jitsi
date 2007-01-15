@@ -4,6 +4,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.message.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -17,7 +18,7 @@ import net.java.sip.communicator.service.configuration.*;
  * 
  * @author Yana Stamcheva
  */
-public class SettingsMenu extends JMenu
+public class SettingsMenu extends SIPCommMenu
     implements ActionListener {
     
     private I18NString typingNotifString

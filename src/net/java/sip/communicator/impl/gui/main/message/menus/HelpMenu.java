@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.message.*;
@@ -21,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class HelpMenu
-    extends JMenu
+    extends SIPCommMenu
     implements ActionListener
 {
 

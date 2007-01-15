@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.message.menus;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.message.*;
 /**
@@ -65,12 +66,12 @@ public class MessageWindowMenuBar extends JMenuBar {
     /**
      * Returns the currently selected menu. 
      */
-    public JMenu getSelectedMenu()
+    public SIPCommMenu getSelectedMenu()
     {
         int menuCount = this.getMenuCount();
         
         for(int i = 0; i < menuCount; i ++) {
-            JMenu menu = this.getMenu(i);
+            SIPCommMenu menu = (SIPCommMenu) this.getMenu(i);
             
             if(menu.isSelected()) {
                 return menu;
