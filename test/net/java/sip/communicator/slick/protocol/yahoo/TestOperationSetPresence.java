@@ -925,6 +925,13 @@ public class TestOperationSetPresence
     
     private void dumplists()
     {
+        // just wait a liitle all modification events to be received
+        Object o = new Object();
+        synchronized(o)
+        {
+            try{o.wait(3000);}catch (InterruptedException ex){}
+        }        
+        
         OperationSetPersistentPresence op1 = (OperationSetPersistentPresence)operationSetPresence1;
         OperationSetPersistentPresence op2 = (OperationSetPersistentPresence)operationSetPresence2;
         

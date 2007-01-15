@@ -814,12 +814,26 @@ public class ServerStoredContactListYahooImpl
                 return;
             }
             
+            String contactID = ev.getFriend().getId();
+            ContactYahooImpl contactToAdd = findContactById(contactID);
+            
             // if group is note resolved resolve it
             // this means newly created group
             if(!group.isResolved())
             {
-                YahooGroup gr = findGroup(ev.getGroup());
+                // if the contact is volatile me must remove it 
+                // as new one will be created
+                if(contactToAdd != null && contactToAdd.isVolatile())
+                {
+                    ContactGroupYahooImpl parent = 
+                        (ContactGroupYahooImpl)contactToAdd.getParentContactGroup();
+
+                    parent.removeContact(contactToAdd);
+                    fireContactRemoved(parent, contactToAdd);
+                }
                 
+                YahooGroup gr = findGroup(ev.getGroup());
+
                 if(gr != null)
                     group.setResolved(gr);
                 
@@ -828,8 +842,6 @@ public class ServerStoredContactListYahooImpl
                 return;
             }
             
-            String contactID = ev.getFriend().getId();
-            ContactYahooImpl contactToAdd = findContactById(contactID);
             
             boolean isVolatile = false;
 
