@@ -253,7 +253,7 @@ public class LoginManager
             else if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_AUTHENTICATION_FAILED) {
                 String msgText = Messages.getI18NString("authenticationFailed",
-                        protocolProvider.getAccountID().getAccountAddress())
+                        protocolProvider.getAccountID().getUserID())
                         .getText();
 
                 new ErrorDialog(null, msgText,
@@ -266,7 +266,7 @@ public class LoginManager
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
 
             String msgText = Messages.getI18NString("connectionFailedMessage",
-                protocolProvider.getAccountID().getAccountAddress()).getText();
+                protocolProvider.getAccountID().getUserID()).getText();
 
             new ErrorDialog(null, msgText,
                 Messages.getI18NString("error").getText()).showDialog();
