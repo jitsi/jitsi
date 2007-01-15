@@ -182,14 +182,25 @@ public abstract class SIPCommDialog extends JDialog
         if(isVisible) {
             this.pack();
             this.setSizeAndLocation();
+            
+            JButton button = this.getRootPane().getDefaultButton();
+            
+            if(button != null)
+                button.requestFocus();
         }
         
-        JButton button = this.getRootPane().getDefaultButton();
-        
-        if(button != null)
-            button.requestFocus();
-        
         super.setVisible(isVisible);
+    }
+    
+    /**
+     * Overwrites the dispose method in order to save the size and the position
+     * of this window before closing it.
+     */
+    public void dispose()
+    {
+        super.dispose();
+        
+        this.saveSizeAndLocation();
     }
     
     /**

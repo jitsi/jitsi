@@ -176,6 +176,17 @@ public abstract class SIPCommFrame extends JFrame
     }
     
     /**
+     * Overwrites the dispose method in order to save the size and the position
+     * of this window before closing it.
+     */
+    public void dispose()
+    {
+        super.dispose();
+        
+        this.saveSizeAndLocation();
+    }
+    
+    /**
      * All functions implemented in this method will be invoked when user
      * presses the Escape key. 
      */
