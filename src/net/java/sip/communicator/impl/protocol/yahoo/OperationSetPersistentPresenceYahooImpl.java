@@ -706,7 +706,7 @@ public class OperationSetPersistentPresenceYahooImpl
             return YahooStatusEnum.OFFLINE;
         // Yahoo supports custom statuses so if such is set just return available
         else
-            return YahooStatusEnum.OFFLINE;
+            return YahooStatusEnum.AVAILABLE;
     }
 
     /**
