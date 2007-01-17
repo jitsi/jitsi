@@ -98,7 +98,6 @@ public class QuickMenu
             Messages.getI18NString("addContact").getText());        
         this.addButton.setToolTipText(
             Messages.getI18NString("soundOnOff").getText());
-        
 
         this.updateMuteButton(
                 GuiActivator.getAudioNotifier().isMute());
