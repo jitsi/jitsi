@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * A default implementation of a meta contact.
+ * A default implementation of the MetaContact interface.
  * @author Emil Ivov
  */
 public class MetaContactImpl
