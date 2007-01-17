@@ -49,8 +49,8 @@ public class MainFrame
 
     private JPanel contactListPanel = new JPanel(new BorderLayout());
 
-    private JPanel menusPanel = new JPanel(new BorderLayout());
-
+    private JPanel mainPanel = new JPanel(new BorderLayout(0, 5));
+    
     private MainMenu menu;
 
     private CallManager callManager;
@@ -113,15 +113,16 @@ public class MainFrame
         this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0),
                 new RenameAction());
 
-        this.menusPanel.add(menu, BorderLayout.NORTH);
-        this.menusPanel.add(quickMenu, BorderLayout.CENTER);
-
+        this.setJMenuBar(menu);
+        
         this.contactListPanel.add(tabbedPane, BorderLayout.CENTER);
         this.contactListPanel.add(callManager, BorderLayout.SOUTH);
-
-        this.getContentPane().add(menusPanel, BorderLayout.NORTH);
-        this.getContentPane().add(contactListPanel, BorderLayout.CENTER);
-        this.getContentPane().add(statusPanel, BorderLayout.SOUTH);
+        
+        this.mainPanel.add(quickMenu, BorderLayout.NORTH);
+        this.mainPanel.add(contactListPanel, BorderLayout.CENTER);
+        this.mainPanel.add(statusPanel, BorderLayout.SOUTH);
+        
+        this.getContentPane().add(mainPanel);
     }
 
     /**
