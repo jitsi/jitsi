@@ -133,11 +133,11 @@ public class PresenceStatusSelectorBox
 
                     PresenceStatus status = ((PresenceStatus) statusSet.next());
 
-                    if (status.getStatusName().equals(menuItem.getText())
-                            && !presence.getPresenceStatus().equals(status)) {
+                    if (status.getStatusName().equals(menuItem.getText())) {
                         
                         if (protocolProvider.getRegistrationState()
-                                == RegistrationState.REGISTERED)
+                                == RegistrationState.REGISTERED
+                            && !presence.getPresenceStatus().equals(status))
                         {
                             if (status.isOnline()) {
                                 
