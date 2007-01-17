@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32px"
+   height="32px"
+   id="svg1892"
+   sodipodi:version="0.32"
+   inkscape:version="0.44.1"
+   sodipodi:docbase="/home/yana"
+   sodipodi:docname="sound1.svg">
+  <defs
+     id="defs1894">
+    <linearGradient
+       id="linearGradient2086">
+      <stop
+         style="stop-color:#143e7b;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop2088" />
+      <stop
+         id="stop2090"
+         offset="1.0000000"
+         style="stop-color:#d1d4e1;stop-opacity:1.0000000;" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2086"
+       id="radialGradient6628"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.539767,1.563546,-1.371278,0.475708,241.7855,-56.07594)"
+       cx="85.191597"
+       cy="148.79466"
+       fx="85.191597"
+       fy="148.79466"
+       r="4.2038088" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7006"
+       id="linearGradient1888"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.977778,0,0,0.977778,6.34117,6.631411)"
+       x1="9.8417168"
+       y1="3.5654814"
+       x2="15.339729"
+       y2="3.5654814" />
+    <linearGradient
+       id="linearGradient7006">
+      <stop
+         id="stop2072"
+         offset="0.0000000"
+         style="stop-color:#ff8400;stop-opacity:1.0000000;" />
+      <stop
+         style="stop-color:#ffc768;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop7010" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7006"
+       id="linearGradient1890"
+       gradientUnits="userSpaceOnUse"
+       x1="3.7242577"
+       y1="14.15297"
+       x2="9.9257431"
+       y2="14.15297" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2086"
+       id="linearGradient1916"
+       gradientUnits="userSpaceOnUse"
+       x1="4.9554658"
+       y1="14.424489"
+       x2="10.984362"
+       y2="13.934393" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2086"
+       id="linearGradient1942"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.977778,0,0,0.977778,6.749072,7.384899)"
+       x1="9.8417168"
+       y1="3.5654814"
+       x2="15.701273"
+       y2="5.8552551" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="16.972694"
+     inkscape:cx="16"
+     inkscape:cy="16"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1672"
+     inkscape:window-height="989"
+     inkscape:window-x="0"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata1897">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <path
+       style="fill:url(#linearGradient1942);fill-opacity:1.0;fill-rule:evenodd;stroke:#6d6d6d;stroke-width:0.30773109;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 16.55763,7.3555899 C 18.008435,7.4018004 19.678999,7.7180228 20.163059,9.9154456 C 20.625164,12.013196 19.64408,12.769829 21.59406,14.387194 C 19.154876,14.436689 18.745955,12.985495 18.507609,11.680583 C 18.507609,11.680583 18.184135,10.469971 16.603841,10.386691 C 16.409858,10.349621 16.651067,7.270786 16.55763,7.3555899 z "
+       id="path2798"
+       sodipodi:nodetypes="cscccc"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/soundOn.png"
+       inkscape:export-xdpi="89.919052"
+       inkscape:export-ydpi="89.919052" />
+    <rect
+       style="opacity:0.98999999;fill:#6c6c6c;fill-opacity:1;stroke:#6c6c6c;stroke-width:0.30773109;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1904"
+       width="0.79573381"
+       height="14.656327"
+       x="15.891184"
+       y="7.3618994"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/soundOn.png"
+       inkscape:export-xdpi="89.919052"
+       inkscape:export-ydpi="89.919052" />
+    <path
+       sodipodi:type="arc"
+       style="opacity:0.98999999;fill:url(#linearGradient1916);fill-opacity:1.0;stroke:#6c6c6c;stroke-width:0.30000001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path1906"
+       sodipodi:cx="6.8250003"
+       sodipodi:cy="14.15297"
+       sodipodi:rx="2.9507425"
+       sodipodi:ry="1.9821782"
+       d="M 9.7757428,14.15297 A 2.9507425,1.9821782 0 1 1 9.7756168,14.134658"
+       sodipodi:start="0"
+       sodipodi:end="6.2739468"
+       sodipodi:open="true"
+       transform="matrix(1.049595,-0.229951,0.231468,1.042719,3.103502,9.27531)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/soundOn.png"
+       inkscape:export-xdpi="89.919052"
+       inkscape:export-ydpi="89.919052" />
+    <rect
+       style="opacity:0.98999999;fill:#6c6c6c;fill-opacity:1;stroke:#6c6c6c;stroke-width:0.44719186;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7297"
+       width="1.1563529"
+       height="21.298428"
+       x="22.006313"
+       y="-12.049683"
+       transform="matrix(0.66198,0.749522,-0.749522,0.66198,0,0)"
+       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/buttons/soundOff.png"
+       inkscape:export-xdpi="89.919052"
+       inkscape:export-ydpi="89.919052" />
+  </g>
+</svg>
