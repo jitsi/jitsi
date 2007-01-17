@@ -179,15 +179,20 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
     }
 
     protected int calculateTabWidth(int tabPlacement, int tabIndex,
-            FontMetrics metrics) {
-        int delta = 5;
-        if (!isOneActionButtonEnabled())
-            delta += 5;
-        else {
+            FontMetrics metrics)
+    {
+        int delta = 0;
+        
+        Insets tabInsets = getTabInsets(tabPlacement, tabIndex);
+        
+        if (isOneActionButtonEnabled())
+        {
+            tabInsets.right = 0;
+            
             if (isCloseButtonEnabled)
-                delta += BUTTONSIZE + WIDTHDELTA;
+                delta += BUTTONSIZE;
             if (isMaxButtonEnabled)
-                delta += BUTTONSIZE + WIDTHDELTA;
+                delta += BUTTONSIZE;
         }
 
         return super.calculateTabWidth(tabPlacement, tabIndex, metrics) + delta;

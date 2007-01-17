@@ -34,12 +34,10 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
 
     private static final Color highlightedColor = new Color(249, 117, 10);
 
-    private static BufferedImage TAB_BACKGROUND = ImageLoader
-            .getImage(ImageLoader.TAB_BG);
+    private static final int TAB_OVERLAP = 10;
 
-    private static BufferedImage CLOSABLE_TAB_BACKGROUND = ImageLoader
-            .getImage(ImageLoader.CLOSABLE_TAB_BG);
-
+    private static final int PREFERRED_WIDTH = 150;
+    
     public static ComponentUI createUI(JComponent c) {
         return new SIPCommTabbedPaneEnhancedUI();
     }
@@ -109,39 +107,54 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
     protected void paintTabBackground(Graphics g, int tabPlacement,
             int tabIndex, int x, int y, int w, int h, boolean isSelected) {
 
-        BufferedImage img = null;
-
+        BufferedImage leftImg = null;
+        BufferedImage middleImg = null;
+        BufferedImage rightImg = null;
+        
         Graphics2D g2 = (Graphics2D) g;
 
         AntialiasingManager.activateAntialiasing(g2);
-
-        if (!isOneActionButtonEnabled()) {
-            if (isSelected) {
-
-                if (tabPane.isEnabledAt(tabIndex)) {
-                    img = ImageLoader.getImage(ImageLoader.SELECTED_TAB_BG);
-                } else {
-                    img = ImageLoader.getImage(ImageLoader.TAB_BG);
-                }
-
-                g2.drawImage(img, x, y, null);
-            } else {
-                img = ImageLoader.getImage(ImageLoader.TAB_BG);
-
-                g2.drawImage(img, x, y, null);
+      
+        int tabOverlap = 0;
+        
+        if (isSelected)
+        {
+            if (tabPane.isEnabledAt(tabIndex))
+            {
+                leftImg = ImageLoader.getImage(
+                    ImageLoader.SELECTED_TAB_LEFT_BG);
+                middleImg = ImageLoader.getImage(
+                    ImageLoader.SELECTED_TAB_MIDDLE_BG);
+                rightImg = ImageLoader.getImage(
+                    ImageLoader.SELECTED_TAB_RIGHT_BG);
+                
+                tabOverlap = TAB_OVERLAP;
             }
-        } else {
-            if (isSelected) {
-                img = ImageLoader
-                        .getImage(ImageLoader.SELECTED_CLOSABLE_TAB_BG);
-
-                g2.drawImage(img, x, y, null);
-            } else {
-                img = ImageLoader.getImage(ImageLoader.CLOSABLE_TAB_BG);
-
-                g2.drawImage(img, x, y, null);
+            else
+            {
+                leftImg = ImageLoader.getImage(
+                    ImageLoader.TAB_LEFT_BG);
+                middleImg = ImageLoader.getImage(
+                    ImageLoader.TAB_MIDDLE_BG);
+                rightImg = ImageLoader.getImage(
+                    ImageLoader.TAB_RIGHT_BG);
             }
         }
+        else
+        {
+            leftImg = ImageLoader.getImage(
+                ImageLoader.TAB_LEFT_BG);
+            middleImg = ImageLoader.getImage(
+                ImageLoader.TAB_MIDDLE_BG);
+            rightImg = ImageLoader.getImage(
+                ImageLoader.TAB_RIGHT_BG);
+        }
+        
+        g2.drawImage(leftImg, x, y, null);
+        g2.drawImage(middleImg, x + leftImg.getWidth(), y,
+            w - leftImg.getWidth() - rightImg.getWidth() + tabOverlap,
+            leftImg.getHeight(), null);
+        g2.drawImage(rightImg, x + w - rightImg.getWidth() + tabOverlap, y, null);                
     }
 
     protected void paintText(Graphics g, int tabPlacement, Font font,
@@ -154,8 +167,8 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
 
         int preferredWidth = 0;
         if (isOneActionButtonEnabled()) {
-            preferredWidth = CLOSABLE_TAB_BACKGROUND.getWidth(null)
-                - 2 * WIDTHDELTA - 20;
+            preferredWidth = calculateTabWidth(tabPlacement, tabIndex, metrics)
+                - WIDTHDELTA - 15;
             
             if (isCloseEnabled())
                 preferredWidth -= BUTTONSIZE;
@@ -164,7 +177,7 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
                 preferredWidth -= BUTTONSIZE;
         }
         else {
-            preferredWidth = TAB_BACKGROUND.getWidth() - 5;
+            preferredWidth = titleWidth;
         }
 
         while (titleWidth > preferredWidth) {
@@ -172,12 +185,13 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
                 title = title.substring(0, title.indexOf("...") - 1)
                         .concat("...");
             else
-                title = title.substring(0, title.length() - 3)
+                title = title.substring(0, title.length() - 4)
                         .concat("...");
 
-            titleWidth = SwingUtilities.computeStringWidth(metrics, title);
-            textRect.width = titleWidth;
+            titleWidth = SwingUtilities.computeStringWidth(metrics, title);            
         }
+        
+        textRect.width = titleWidth;
 
         View v = getTextViewForTab(tabIndex);
         if (v != null) {
@@ -315,15 +329,18 @@ public class SIPCommTabbedPaneEnhancedUI extends SIPCommTabbedPaneUI {
         return new ScrollableTabButton(direction);
     }
 
+    
     protected int calculateTabWidth(int tabPlacement, int tabIndex,
             FontMetrics metrics) {
-        int width = 0;
-        if (!isOneActionButtonEnabled())
-            width = TAB_BACKGROUND.getWidth(null);
-        else {
-            width = CLOSABLE_TAB_BACKGROUND.getWidth(null) - 14;
+        
+        int width = super.calculateTabWidth(tabPlacement, tabIndex, metrics);
+        
+        if (isOneActionButtonEnabled())
+        {
+            if(width > PREFERRED_WIDTH)
+                width = PREFERRED_WIDTH;
         }
-
+        
         return width;
-    }
+    }   
 }
