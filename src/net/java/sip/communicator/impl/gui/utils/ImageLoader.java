@@ -87,15 +87,41 @@ public class ImageLoader {
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
      * of a tab.
      */
-    public static final ImageID TAB_BG = new ImageID("TAB_BG");
+    public static final ImageID TAB_LEFT_BG = new ImageID("TAB_LEFT_BG");
+
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
+     * of a tab.
+     */
+    public static final ImageID TAB_MIDDLE_BG = new ImageID("TAB_MIDDLE_BG");
+    
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
+     * of a tab.
+     */
+    public static final ImageID TAB_RIGHT_BG = new ImageID("TAB_RIGHT_BG");
+    
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
+     * of a selected tab.
+     */
+    public static final ImageID SELECTED_TAB_LEFT_BG
+        = new ImageID("SELECTED_TAB_LEFT_BG");
 
     /**
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
      * of a selected tab.
      */
-    public static final ImageID SELECTED_TAB_BG
-        = new ImageID("SELECTED_TAB_BG");
-
+    public static final ImageID SELECTED_TAB_MIDDLE_BG
+        = new ImageID("SELECTED_TAB_MIDDLE_BG");
+    
+    /**
+     * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
+     * of a selected tab.
+     */
+    public static final ImageID SELECTED_TAB_RIGHT_BG
+        = new ImageID("SELECTED_TAB_RIGHT_BG");
+    
     /**
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
      * of a closable tab.
