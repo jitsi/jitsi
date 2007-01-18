@@ -12,7 +12,6 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -102,6 +101,10 @@ public class ChatWindow
             KeyEvent.CTRL_DOWN_MASK), new ChangeProtocolAction());
         this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_H,
             KeyEvent.CTRL_DOWN_MASK), new OpenHistoryAction());
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_W,
+            KeyEvent.META_MASK), new CloseAction());
+        this.addKeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_W,
+            KeyEvent.CTRL_DOWN_MASK), new CloseAction());
 
         this.addWindowListener(new ChatWindowAdapter());
     }
@@ -619,6 +622,19 @@ public class ChatWindow
         }
     }
 
+    /**
+     * The <tt>CloseAction</tt> is an <tt>AbstractAction</tt> that
+     * closes a tab in the chat window.
+     */
+    private class CloseAction
+        extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            close(true);
+        }
+    }
+    
     /**
      * Enables typing notifications.
      * 
