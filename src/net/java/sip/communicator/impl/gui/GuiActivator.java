@@ -8,8 +8,11 @@ package net.java.sip.communicator.impl.gui;
 
 import java.util.*;
 
+import javax.swing.*;
+
 import org.osgi.framework.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.WelcomeWindow.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.callhistory.*;
@@ -83,18 +86,14 @@ public class GuiActivator implements BundleActivator {
                     this.uiService, null);
 
             logger.info("UI Service ...[REGISTERED]");
-
-            /*
-             * TO BE UNCOMMENTED when the welcome window is removed.
-             * this.uiService.setVisible(true);
-             * SwingUtilities.invokeLater(new RunLogin());
-             */
-            WelcomeWindow welcomeWindow = new WelcomeWindow(communicatorMain,
-                    loginManager);
+             
+            WelcomeWindow welcomeWindow = new WelcomeWindow();
             
             welcomeWindow.setVisible(true);
-            
-        } finally {
+            communicatorMain.showCommunicator(true);
+            SwingUtilities.invokeLater(new RunLogin());                        
+        }
+        finally {
             logger.logExit();
         }
     }

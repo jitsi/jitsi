@@ -34,21 +34,12 @@ public class WelcomeWindow
         + " for more information.</font></html>");
 
     private WindowBackground windowBackground = new WindowBackground();
-
-    private I18NString continueString = Messages.getI18NString("continue");
     
-    private I18NString exitString = Messages.getI18NString("exit");
+    private I18NString closeString = Messages.getI18NString("close");
     
-    private JButton continueButton
-        = new JButton(continueString.getText());
+    private JButton closeButton = new JButton(closeString.getText());
 
-    private JButton exitButton = new JButton(exitString.getText());
-
-    private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-
-    private CommunicatorMain communicator;
-
-    private LoginManager loginManager;
+    private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
     private Logger logger = Logger.getLogger(WelcomeWindow.class.getName());
 
@@ -58,25 +49,18 @@ public class WelcomeWindow
      * window.
      * @param loginManager The login manager that runs all login windows.
      */
-    public WelcomeWindow(CommunicatorMain c,
-            LoginManager loginManager) {
-        
-        this.communicator = c;
-        this.loginManager = loginManager;
-
+    public WelcomeWindow()
+    {   
         this.setTitle(Messages.getI18NString("warning").getText());
 
-        this.exitButton.setMnemonic(exitString.getMnemonic());
-        this.continueButton.setMnemonic(continueString.getMnemonic());
+        this.closeButton.setMnemonic(closeString.getMnemonic());
+        
+        this.getRootPane().setDefaultButton(closeButton);
 
-        this.getRootPane().setDefaultButton(continueButton);
-
-        this.continueButton.addActionListener(this);
-        this.exitButton.addActionListener(this);
-
-        this.buttonPanel.add(continueButton);
-        this.buttonPanel.add(exitButton);
-
+        this.closeButton.addActionListener(this);
+        
+        this.buttonPanel.add(closeButton);
+        
         this.windowBackground.setLayout(new BorderLayout());
         this.getContentPane().setLayout(new BorderLayout());
 
@@ -93,13 +77,6 @@ public class WelcomeWindow
 
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        this.addWindowListener(new WindowAdapter(){
-            public void windowClosing(WindowEvent e) {
-                dispose();
-                communicator.showCommunicator(true);
-                SwingUtilities.invokeLater(new RunLogin());
-            }
-        });
     }
 
     /**
@@ -145,57 +122,13 @@ public class WelcomeWindow
      * Handles the <tt>ActionEvent</tt> triggered when user clicks on one
      * of the buttons.
      */
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource().equals(continueButton)) {
-            this.dispose();
-            this.communicator.showCommunicator(true);
-            SwingUtilities.invokeLater(new RunLogin());
-        } else {
-            try {
-                GuiActivator.bundleContext.getBundle(0).stop();
-            } catch (BundleException ex) {
-                logger.error("Failed to gently shutdown Felix", ex);
-                System.exit(0);
-            }
-            //stopping a bundle doesn't leave the time to the felix thread to
-            //properly end all bundles and call their Activator.stop() methods.
-            //if this causes problems don't uncomment the following line but
-            //try and see why felix isn't exiting (suggesting: is it running
-            //in embedded mode?)
-            //System.exit(0);
-
-        }
+    public void actionPerformed(ActionEvent e)
+    {   
+        dispose();        
     }
-
-    /**
-     * The <tt>RunLogin</tt> implements the Runnable interface and is used to
-     * shows the login windows in new thread.
-     */
-    private class RunLogin implements Runnable {
-        public void run() {
-            loginManager.runLogin(communicator.getMainFrame());
-        }
-    }
-
-    /**
-     * The <tt>ExitAction</tt> is an <tt>AbstractAction</tt> that
-     * exits the application.
-     */
-    private class ExitAction extends AbstractAction {
-        public void actionPerformed(ActionEvent e) {
-            try {
-                GuiActivator.bundleContext.getBundle(0).stop();
-            } catch (BundleException ex) {
-                logger.error("Failed to gently shutdown Oscar", ex);
-            }
-            System.exit(0);
-        }
-    }
-
+    
     protected void close(boolean isEscaped)
     {
-        dispose();
-        communicator.showCommunicator(true);
-        SwingUtilities.invokeLater(new RunLogin());
+        dispose();        
     }
 }
