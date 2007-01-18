@@ -208,8 +208,8 @@ public class QuickMenu
                     = listModel.getElementAt(currentlySelectedIndex);
             }
 
-            listModel.setShowOffline(!listModel.showOffline());
-
+            contactList.setShowOffline(!contactList.isShowOffline());
+            
             if (selectedObject != null) {
                 if (selectedObject instanceof MetaContact) {
                     contactList.setSelectedIndex(

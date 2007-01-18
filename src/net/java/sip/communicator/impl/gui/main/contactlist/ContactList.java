@@ -31,8 +31,11 @@ import net.java.sip.communicator.util.*;
  * 
  * @author Yana Stamcheva
  */
-public class ContactList extends JList implements MetaContactListListener,
-        MouseListener, MouseMotionListener
+public class ContactList
+    extends JList
+    implements  MetaContactListListener,
+                MouseListener,
+                MouseMotionListener
 {
 
     private static final String ADD_OPERATION = "AddOperation";
@@ -64,13 +67,14 @@ public class ContactList extends JList implements MetaContactListListener,
     private ContactRightButtonMenu contactRightButtonMenu;
 
     private Hashtable contactHistory = new Hashtable();
-    
+
     /**
      * Creates an instance of the <tt>ContactList</tt>.
      * 
      * @param mainFrame The main application window.
      */
-    public ContactList(MainFrame mainFrame) {
+    public ContactList(MainFrame mainFrame)
+    {
 
         this.mainFrame = mainFrame;
 
@@ -83,7 +87,7 @@ public class ContactList extends JList implements MetaContactListListener,
         this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.getSelectionModel().setSelectionMode(
-                ListSelectionModel.SINGLE_SELECTION);
+            ListSelectionModel.SINGLE_SELECTION);
 
         this.setCellRenderer(new ContactListCellRenderer(mainFrame));
 
@@ -94,10 +98,12 @@ public class ContactList extends JList implements MetaContactListListener,
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
 
-        this.addListSelectionListener(new ListSelectionListener() {
+        this.addListSelectionListener(new ListSelectionListener()
+        {
             public void valueChanged(ListSelectionEvent e)
             {
-                if (!e.getValueIsAdjusting()) {
+                if (!e.getValueIsAdjusting())
+                {
                     currentlySelectedObject = getSelectedValue();
                 }
             }
@@ -130,16 +136,16 @@ public class ContactList extends JList implements MetaContactListListener,
     public void protoContactAdded(ProtoContactEvent evt)
     {
         this.modifyContact(evt.getNewParent());
-        
+
         Contact contact = evt.getProtoContact();
         MetaContact metaContact = contactList.findMetaContactByContact(contact);
         ContactListPanel clistPanel = mainFrame.getContactListPanel();
-        
+
         if (clistPanel.isChatOpenedForContact(metaContact))
         {
             ChatPanel chatPanel = clistPanel.getContactChat(metaContact);
-            chatPanel.getChatSendPanel()
-                .getProtoContactSelectorBox().addContact(contact);
+            chatPanel.getChatSendPanel().getProtoContactSelectorBox()
+                .addContact(contact);
         }
     }
 
@@ -148,7 +154,7 @@ public class ContactList extends JList implements MetaContactListListener,
      * protocol contact has been removed.
      */
     public void protoContactRemoved(ProtoContactEvent evt)
-    {   
+    {
         this.modifyContact(evt.getOldParent());
     }
 
@@ -247,11 +253,13 @@ public class ContactList extends JList implements MetaContactListListener,
 
         int max = model.getSize();
 
-        if (prefix == null) {
+        if (prefix == null)
+        {
             throw new IllegalArgumentException();
         }
 
-        if (startIndex < 0 || startIndex >= max) {
+        if (startIndex < 0 || startIndex >= max)
+        {
             throw new IllegalArgumentException();
         }
 
@@ -260,18 +268,22 @@ public class ContactList extends JList implements MetaContactListListener,
         // start search from the next element after the selected element
         int increment = (bias == Position.Bias.Forward) ? 1 : -1;
         int index = startIndex;
-        do {
+        do
+        {
             Object o = model.getElementAt(index);
 
-            if (o != null) {
+            if (o != null)
+            {
                 String contactName = null;
 
-                if (o instanceof MetaContact) {
+                if (o instanceof MetaContact)
+                {
                     contactName = ((MetaContact) o).getDisplayName()
-                            .toUpperCase();
+                        .toUpperCase();
                 }
 
-                if (contactName != null && contactName.startsWith(prefix)) {
+                if (contactName != null && contactName.startsWith(prefix))
+                {
                     return index;
                 }
             }
@@ -299,10 +311,12 @@ public class ContactList extends JList implements MetaContactListListener,
     public MetaContactGroup getGroupByID(String metaUID)
     {
         Iterator i = contactList.getRoot().getSubgroups();
-        while (i.hasNext()) {
+        while (i.hasNext())
+        {
             MetaContactGroup group = (MetaContactGroup) i.next();
 
-            if (group.getMetaUID().equals(metaUID)) {
+            if (group.getMetaUID().equals(metaUID))
+            {
                 return group;
             }
         }
@@ -316,7 +330,8 @@ public class ContactList extends JList implements MetaContactListListener,
      */
     public void addContactListListener(ContactListListener listener)
     {
-        synchronized (contactListListeners) {
+        synchronized (contactListListeners)
+        {
             if (!contactListListeners.contains(listener))
                 this.contactListListeners.add(listener);
         }
@@ -329,7 +344,8 @@ public class ContactList extends JList implements MetaContactListListener,
      */
     public void removeContactListListener(ContactListListener listener)
     {
-        synchronized (contactListListeners) {
+        synchronized (contactListListeners)
+        {
             this.contactListListeners.remove(listener);
         }
     }
@@ -341,7 +357,8 @@ public class ContactList extends JList implements MetaContactListListener,
      */
     public void addExcContactListListener(ContactListListener listener)
     {
-        synchronized (excContactListListeners) {
+        synchronized (excContactListListeners)
+        {
             if (!excContactListListeners.contains(listener))
                 this.excContactListListeners.add(listener);
         }
@@ -354,7 +371,8 @@ public class ContactList extends JList implements MetaContactListListener,
      */
     public void removeExcContactListListener(ContactListListener listener)
     {
-        synchronized (excContactListListeners) {
+        synchronized (excContactListListeners)
+        {
             this.excContactListListeners.remove(listener);
         }
     }
@@ -370,15 +388,19 @@ public class ContactList extends JList implements MetaContactListListener,
     {
         ContactListEvent evt = new ContactListEvent(source, eventID);
 
-        if (excContactListListeners.size() > 0) {
-            synchronized (excContactListListeners) {
+        if (excContactListListeners.size() > 0)
+        {
+            synchronized (excContactListListeners)
+            {
                 Iterator listeners = new Vector(this.excContactListListeners)
-                        .iterator();
+                    .iterator();
 
-                while (listeners.hasNext()) {
+                while (listeners.hasNext())
+                {
                     ContactListListener listener = (ContactListListener) listeners
-                            .next();
-                    switch (evt.getEventID()) {
+                        .next();
+                    switch (evt.getEventID())
+                    {
                     case ContactListEvent.CONTACT_SELECTED:
                         listener.contactSelected(evt);
                         break;
@@ -394,14 +416,18 @@ public class ContactList extends JList implements MetaContactListListener,
                 }
             }
         }
-        else {
-            synchronized (contactListListeners) {
+        else
+        {
+            synchronized (contactListListeners)
+            {
                 Iterator listeners = this.contactListListeners.iterator();
 
-                while (listeners.hasNext()) {
+                while (listeners.hasNext())
+                {
                     ContactListListener listener = (ContactListListener) listeners
-                            .next();
-                    switch (evt.getEventID()) {
+                        .next();
+                    switch (evt.getEventID())
+                    {
                     case ContactListEvent.CONTACT_SELECTED:
                         listener.contactSelected(evt);
                         break;
@@ -428,18 +454,21 @@ public class ContactList extends JList implements MetaContactListListener,
      * @param eventID the id indicating the exact type of the event to fire.
      */
     public void fireContactListEvent(MetaContact sourceContact,
-            Contact protocolContact, int eventID)
+        Contact protocolContact, int eventID)
     {
         ContactListEvent evt = new ContactListEvent(sourceContact,
-                protocolContact, eventID);
+            protocolContact, eventID);
 
-        synchronized (contactListListeners) {
+        synchronized (contactListListeners)
+        {
             Iterator listeners = this.contactListListeners.iterator();
 
-            while (listeners.hasNext()) {
+            while (listeners.hasNext())
+            {
                 ContactListListener listener = (ContactListListener) listeners
-                        .next();
-                switch (evt.getEventID()) {
+                    .next();
+                switch (evt.getEventID())
+                {
                 case ContactListEvent.CONTACT_SELECTED:
                     listener.contactSelected(evt);
                     break;
@@ -458,7 +487,8 @@ public class ContactList extends JList implements MetaContactListListener,
      */
     public void mouseClicked(MouseEvent e)
     {
-        if (e.getClickCount() > 1) {
+        if (e.getClickCount() > 1)
+        {
 
             int selectedIndex = this.locationToIndex(e.getPoint());
 
@@ -466,14 +496,17 @@ public class ContactList extends JList implements MetaContactListListener,
 
             Object element = listModel.getElementAt(selectedIndex);
 
-            if (element instanceof MetaContactGroup) {
+            if (element instanceof MetaContactGroup)
+            {
 
                 MetaContactGroup group = (MetaContactGroup) element;
 
-                if (listModel.isGroupClosed(group)) {
+                if (listModel.isGroupClosed(group))
+                {
                     listModel.openGroup(group);
                 }
-                else {
+                else
+                {
                     listModel.closeGroup(group);
                 }
             }
@@ -511,8 +544,9 @@ public class ContactList extends JList implements MetaContactListListener,
     {
         // Select the contact under the right button click.
         if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
-                || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-                || (e.isControlDown() && !e.isMetaDown())) {
+            || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+            || (e.isControlDown() && !e.isMetaDown()))
+        {
             this.setSelectedIndex(locationToIndex(e.getPoint()));
         }
 
@@ -520,54 +554,61 @@ public class ContactList extends JList implements MetaContactListListener,
         Object selectedValue = this.getSelectedValue();
 
         ContactListCellRenderer renderer = (ContactListCellRenderer) this
-                .getCellRenderer().getListCellRendererComponent(this,
-                        selectedValue, selectedIndex, true, true);
+            .getCellRenderer().getListCellRendererComponent(this,
+                selectedValue, selectedIndex, true, true);
 
         Point selectedCellPoint = this.indexToLocation(selectedIndex);
 
         int translatedX = e.getX() - selectedCellPoint.x;
 
-        if (selectedValue instanceof MetaContactGroup) {
+        if (selectedValue instanceof MetaContactGroup)
+        {
             MetaContactGroup group = (MetaContactGroup) selectedValue;
 
             if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-                    || (e.isControlDown() && !e.isMetaDown())) {
+                || (e.isControlDown() && !e.isMetaDown()))
+            {
 
                 groupRightButtonMenu = new GroupRightButtonMenu(mainFrame,
-                        group);
+                    group);
 
-                SwingUtilities
-                        .convertPointToScreen(selectedCellPoint, this);
+                SwingUtilities.convertPointToScreen(selectedCellPoint, this);
 
                 groupRightButtonMenu.setInvoker(this);
 
                 groupRightButtonMenu.setLocation(selectedCellPoint.x,
-                        selectedCellPoint.y + renderer.getHeight());
+                    selectedCellPoint.y + renderer.getHeight());
 
                 groupRightButtonMenu.setVisible(true);
             }
-            else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0){
+            else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
+            {
                 fireContactListEvent(group, ContactListEvent.GROUP_SELECTED);
-                
-                //get the component under the mouse
+
+                // get the component under the mouse
                 Component component = this.getHorizontalComponent(renderer,
-                        translatedX);
-                
-                if (component instanceof JPanel) {
+                    translatedX);
+
+                if (component instanceof JPanel)
+                {
                     if (component.getName() != null
-                            && component.getName().equals("buttonsPanel")) {
+                        && component.getName().equals("buttonsPanel"))
+                    {
                         JPanel panel = (JPanel) component;
 
                         int internalX = translatedX
-                                - (renderer.getWidth() - panel.getWidth() - 2);
+                            - (renderer.getWidth() - panel.getWidth() - 2);
 
                         Component c = getHorizontalComponent(panel, internalX);
-                        
-                        if (c instanceof JLabel) {
-                            if (listModel.isGroupClosed(group)) {
+
+                        if (c instanceof JLabel)
+                        {
+                            if (listModel.isGroupClosed(group))
+                            {
                                 listModel.openGroup(group);
                             }
-                            else {
+                            else
+                            {
                                 listModel.closeGroup(group);
                             }
                         }
@@ -579,21 +620,24 @@ public class ContactList extends JList implements MetaContactListListener,
         // Open message window, right button menu or contact info when
         // mouse is pressed. Distinguish on which component was pressed
         // the mouse and make the appropriate work.
-        if (selectedValue instanceof MetaContact) {
+        if (selectedValue instanceof MetaContact)
+        {
             MetaContact contact = (MetaContact) selectedValue;
 
             // get the component under the mouse
             Component component = this.getHorizontalComponent(renderer,
-                    translatedX);
+                translatedX);
 
-            if (component instanceof JLabel) {
+            if (component instanceof JLabel)
+            {
                 // Right click and Ctrl+LeftClick on the contact label opens
                 // Popup menu
                 if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-                        || (e.isControlDown() && !e.isMetaDown())) {
+                    || (e.isControlDown() && !e.isMetaDown()))
+                {
 
-                    contactRightButtonMenu = new ContactRightButtonMenu(
-                            this, contact);
+                    contactRightButtonMenu = new ContactRightButtonMenu(this,
+                        contact);
 
                     SwingUtilities
                         .convertPointToScreen(selectedCellPoint, this);
@@ -601,36 +645,40 @@ public class ContactList extends JList implements MetaContactListListener,
                     contactRightButtonMenu.setInvoker(this);
 
                     contactRightButtonMenu.setLocation(selectedCellPoint.x,
-                            selectedCellPoint.y + renderer.getHeight());
+                        selectedCellPoint.y + renderer.getHeight());
 
                     contactRightButtonMenu.setVisible(true);
                 }
                 // Left click on the contact label opens Chat window
-                else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
+                else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
+                {
                     fireContactListEvent(contact,
-                            ContactListEvent.CONTACT_SELECTED);
+                        ContactListEvent.CONTACT_SELECTED);
                 }
             }
-            else if (component instanceof JButton) {
+            else if (component instanceof JButton)
+            {
                 // Click on the info button opens the info popup panel
                 SwingUtilities.invokeLater(new RunInfoWindow(selectedCellPoint,
-                        contact));
+                    contact));
             }
-            else if (component instanceof JPanel) {
+            else if (component instanceof JPanel)
+            {
                 if (component.getName() != null
-                        && component.getName().equals("buttonsPanel")) {
+                    && component.getName().equals("buttonsPanel"))
+                {
                     JPanel panel = (JPanel) component;
 
                     int internalX = translatedX
-                            - (renderer.getWidth() - panel.getWidth() - 2);
+                        - (renderer.getWidth() - panel.getWidth() - 2);
 
                     Component c = getHorizontalComponent(panel, internalX);
 
-                    if (c instanceof ContactProtocolButton) {
+                    if (c instanceof ContactProtocolButton)
+                    {
                         fireContactListEvent(contact,
-                                ((ContactProtocolButton) c)
-                                        .getProtocolContact(),
-                                ContactListEvent.PROTOCOL_CONTACT_SELECTED);
+                            ((ContactProtocolButton) c).getProtocolContact(),
+                            ContactListEvent.PROTOCOL_CONTACT_SELECTED);
                     }
                 }
             }
@@ -661,10 +709,12 @@ public class ContactList extends JList implements MetaContactListListener,
     {
         Component innerComponent = null;
         int width;
-        for (int i = 0; i < c.getComponentCount(); i++) {
+        for (int i = 0; i < c.getComponentCount(); i++)
+        {
             innerComponent = c.getComponent(i);
             width = innerComponent.getWidth();
-            if (x > innerComponent.getX() && x < innerComponent.getX() + width) {
+            if (x > innerComponent.getX() && x < innerComponent.getX() + width)
+            {
                 return innerComponent;
             }
         }
@@ -675,14 +725,17 @@ public class ContactList extends JList implements MetaContactListListener,
      * Runs the info window for the specified contact at the appropriate
      * position.
      */
-    private class RunInfoWindow implements Runnable
+    private class RunInfoWindow
+        implements
+        Runnable
     {
 
         private MetaContact contactItem;
 
         private Point p;
 
-        private RunInfoWindow(Point p, MetaContact contactItem) {
+        private RunInfoWindow(Point p, MetaContact contactItem)
+        {
 
             this.p = p;
             this.contactItem = contactItem;
@@ -692,7 +745,7 @@ public class ContactList extends JList implements MetaContactListListener,
         {
 
             ContactInfoPanel contactInfoPanel = new ContactInfoPanel(mainFrame,
-                    contactItem);
+                contactItem);
 
             SwingUtilities.convertPointToScreen(p, ContactList.this);
 
@@ -708,16 +761,20 @@ public class ContactList extends JList implements MetaContactListListener,
     /**
      * Takes care of keeping the contact list up to date.
      */
-    private class ContactListRefresh extends Thread
+    private class ContactListRefresh
+        extends Thread
     {
         public void run()
         {
-            try {
+            try
+            {
                 Map copyContentToRefresh = null;
 
-                while (refreshEnabled) {
+                while (refreshEnabled)
+                {
 
-                    synchronized (contentToRefresh) {
+                    synchronized (contentToRefresh)
+                    {
                         if (contentToRefresh.isEmpty())
                             contentToRefresh.wait();
 
@@ -726,43 +783,47 @@ public class ContactList extends JList implements MetaContactListListener,
                     }
 
                     Iterator i = copyContentToRefresh.entrySet().iterator();
-                    while (i.hasNext()) {
+                    while (i.hasNext())
+                    {
                         Map.Entry groupEntry = (Map.Entry) i.next();
 
                         String operation = (String) groupEntry.getValue();
 
                         Object o = groupEntry.getKey();
 
-                        if (o instanceof MetaContactGroup) {
+                        if (o instanceof MetaContactGroup)
+                        {
 
                             MetaContactGroup group = (MetaContactGroup) o;
 
                             SwingUtilities.invokeLater(new RefreshGroup(group,
-                                    operation));
+                                operation));
                         }
-                        else if (o instanceof MetaContact) {
+                        else if (o instanceof MetaContact)
+                        {
 
                             MetaContact contact = (MetaContact) o;
 
                             SwingUtilities.invokeLater(new RefreshContact(
-                                    contact, contact.getParentMetaContactGroup(),
-                                    operation));
+                                contact, contact.getParentMetaContactGroup(),
+                                operation));
                         }
-                        else if (o instanceof MetaContactEvent) {
+                        else if (o instanceof MetaContactEvent)
+                        {
 
                             MetaContactEvent event = (MetaContactEvent) o;
-                            MetaContact contact
-                                = event.getSourceMetaContact();
-                            MetaContactGroup parentGroup
-                                = event.getParentGroup();
+                            MetaContact contact = event.getSourceMetaContact();
+                            MetaContactGroup parentGroup = event
+                                .getParentGroup();
 
                             SwingUtilities.invokeLater(new RefreshContact(
-                                    contact, parentGroup, operation));
+                                contact, parentGroup, operation));
                         }
                     }
                 }
             }
-            catch (InterruptedException e) {
+            catch (InterruptedException e)
+            {
                 e.printStackTrace();
             }
         }
@@ -772,57 +833,53 @@ public class ContactList extends JList implements MetaContactListListener,
          * 
          * @param group the group to update
          */
-        private class RefreshGroup implements Runnable
+        private class RefreshGroup
+            implements
+            Runnable
         {
             private MetaContactGroup group;
 
             private String operation;
 
-            public RefreshGroup(MetaContactGroup group, String operation) {
+            public RefreshGroup(MetaContactGroup group, String operation)
+            {
                 this.group = group;
                 this.operation = operation;
             }
 
             public void run()
             {
-                if (operation.equals(MODIFY_OPERATION)) {
-                    if (!listModel.isGroupClosed(group)) {
-                        if (listModel.showOffline()) {
-                            int groupIndex = listModel.indexOf(group);
-                            int lastIndex = listModel
-                                    .countContactsAndSubgroups(group);
+                if (operation.equals(MODIFY_OPERATION))
+                {
+                    if (!listModel.isGroupClosed(group))
+                    {
+                        int groupIndex = listModel.indexOf(group);
+                        int lastIndex = listModel
+                            .countContactsAndSubgroups(group);
 
-                            listModel.contentChanged(groupIndex, lastIndex);
-                        }
-                        else {
-                            int groupIndex = listModel.indexOf(group);
-                            int addedCount = listModel
-                                    .countContactsAndSubgroups(group);
-                            int listSize = listModel.getSize();
-                            listModel.contentChanged(groupIndex, listSize
-                                    - addedCount - 1);
-                            listModel.contentAdded(listSize - addedCount,
-                                    listSize - 1);
-                        }
+                        listModel.contentChanged(groupIndex, lastIndex);
                     }
                 }
-                else if (operation.equals(ADD_OPERATION)) {
+                else if (operation.equals(ADD_OPERATION))
+                {
                     int groupIndex = listModel.indexOf(group);
                     int addedCount = listModel.countContactsAndSubgroups(group);
                     int listSize = listModel.getSize();
                     listModel.contentChanged(groupIndex, listSize - addedCount
-                            - 1);
+                        - 1);
                     listModel.contentAdded(listSize - addedCount, listSize - 1);
                 }
-                else if (operation.equals(REMOVE_OPERATION)) {
+                else if (operation.equals(REMOVE_OPERATION))
+                {
                     int groupIndex = listModel.indexOf(group);
                     int removeCount = listModel
-                            .countContactsAndSubgroups(group);
+                        .countContactsAndSubgroups(group);
                     int listSize = listModel.getSize();
 
-                    if(listSize > 0) {
+                    if (listSize > 0)
+                    {
                         listModel.contentRemoved(listSize - 1, listSize
-                                + removeCount - 1);
+                            + removeCount - 1);
                         listModel.contentChanged(groupIndex, listSize - 1);
                     }
                 }
@@ -834,17 +891,20 @@ public class ContactList extends JList implements MetaContactListListener,
          * 
          * @param group the contact to refresh
          */
-        private class RefreshContact implements Runnable
+        private class RefreshContact
+            implements
+            Runnable
         {
             private MetaContact contact;
 
             private MetaContactGroup parentGroup;
-            
+
             private String operation;
 
             public RefreshContact(MetaContact contact,
-                MetaContactGroup parentGroup, String operation) {
-                
+                MetaContactGroup parentGroup, String operation)
+            {
+
                 this.contact = contact;
                 this.parentGroup = parentGroup;
                 this.operation = operation;
@@ -852,23 +912,27 @@ public class ContactList extends JList implements MetaContactListListener,
 
             public void run()
             {
-                if (operation.equals(MODIFY_OPERATION)) {
+                if (operation.equals(MODIFY_OPERATION))
+                {
                     int contactIndex = listModel.indexOf(contact);
 
                     listModel.contentChanged(contactIndex, contactIndex);
                 }
-                else if (operation.equals(ADD_OPERATION)) {
+                else if (operation.equals(ADD_OPERATION))
+                {
                     int contactIndex = listModel.indexOf(contact);
 
                     if (contactIndex != -1)
                         listModel.contentAdded(contactIndex, contactIndex);
                 }
-                else if (operation.equals(REMOVE_OPERATION)) {
+                else if (operation.equals(REMOVE_OPERATION))
+                {
                     int groupIndex = listModel.indexOf(parentGroup);
 
                     int listSize = listModel.getSize();
-                    
-                    if (groupIndex != -1 && listSize > 0) {
+
+                    if (groupIndex != -1 && listSize > 0)
+                    {
                         listModel.contentChanged(groupIndex, listSize - 1);
                         listModel.contentRemoved(listSize, listSize);
                     }
@@ -884,10 +948,12 @@ public class ContactList extends JList implements MetaContactListListener,
      */
     public void modifyGroup(MetaContactGroup group)
     {
-        synchronized (contentToRefresh) {
+        synchronized (contentToRefresh)
+        {
             if (group != null
-                    && (!contentToRefresh.containsKey(group)
-                    || contentToRefresh.get(group).equals(REMOVE_OPERATION))) {
+                && (!contentToRefresh.containsKey(group) || contentToRefresh
+                    .get(group).equals(REMOVE_OPERATION)))
+            {
 
                 contentToRefresh.put(group, MODIFY_OPERATION);
                 contentToRefresh.notifyAll();
@@ -900,10 +966,12 @@ public class ContactList extends JList implements MetaContactListListener,
      */
     public void addGroup(MetaContactGroup group)
     {
-        synchronized (contentToRefresh) {
+        synchronized (contentToRefresh)
+        {
             if (group != null
-                    && (!contentToRefresh.containsKey(group)
-                    || contentToRefresh.get(group).equals(REMOVE_OPERATION))) {
+                && (!contentToRefresh.containsKey(group) || contentToRefresh
+                    .get(group).equals(REMOVE_OPERATION)))
+            {
 
                 contentToRefresh.put(group, ADD_OPERATION);
                 contentToRefresh.notifyAll();
@@ -916,10 +984,12 @@ public class ContactList extends JList implements MetaContactListListener,
      */
     public void removeGroup(MetaContactGroup group)
     {
-        synchronized (contentToRefresh) {
+        synchronized (contentToRefresh)
+        {
             if (group != null
-                    && (contentToRefresh.get(group) == null || !contentToRefresh
-                            .get(group).equals(REMOVE_OPERATION))) {
+                && (contentToRefresh.get(group) == null || !contentToRefresh
+                    .get(group).equals(REMOVE_OPERATION)))
+            {
 
                 contentToRefresh.put(group, REMOVE_OPERATION);
                 contentToRefresh.notifyAll();
@@ -934,11 +1004,13 @@ public class ContactList extends JList implements MetaContactListListener,
      */
     public void modifyContact(MetaContact contact)
     {
-        synchronized (contentToRefresh) {
+        synchronized (contentToRefresh)
+        {
             if (contact != null
-                    && !contentToRefresh.containsKey(contact)
-                    && !contentToRefresh.containsKey(contact
-                            .getParentMetaContactGroup())) {
+                && !contentToRefresh.containsKey(contact)
+                && !contentToRefresh.containsKey(contact
+                    .getParentMetaContactGroup()))
+            {
 
                 contentToRefresh.put(contact, MODIFY_OPERATION);
                 contentToRefresh.notifyAll();
@@ -951,11 +1023,13 @@ public class ContactList extends JList implements MetaContactListListener,
      */
     public void addContact(MetaContact contact)
     {
-        synchronized (contentToRefresh) {
+        synchronized (contentToRefresh)
+        {
             if (contact != null
-                    && !contentToRefresh.containsKey(contact)
-                    && !contentToRefresh.containsKey(contact
-                            .getParentMetaContactGroup())) {
+                && !contentToRefresh.containsKey(contact)
+                && !contentToRefresh.containsKey(contact
+                    .getParentMetaContactGroup()))
+            {
 
                 contentToRefresh.put(contact, ADD_OPERATION);
                 contentToRefresh.notifyAll();
@@ -969,16 +1043,17 @@ public class ContactList extends JList implements MetaContactListListener,
     public void removeContact(MetaContactEvent event)
     {
         MetaContact metaContact = event.getSourceMetaContact();
-        synchronized (contentToRefresh) {
-            if (metaContact != null
-                    && !contentToRefresh.contains(event)) {
+        synchronized (contentToRefresh)
+        {
+            if (metaContact != null && !contentToRefresh.contains(event))
+            {
 
                 contentToRefresh.put(event, REMOVE_OPERATION);
                 contentToRefresh.notifyAll();
             }
         }
     }
-
+        
     /**
      * Selects the given object in the list.
      * 
@@ -986,10 +1061,12 @@ public class ContactList extends JList implements MetaContactListListener,
      */
     public void setSelectedValue(Object o)
     {
-        if (o == null) {
+        if (o == null)
+        {
             setSelectedIndex(-1);
         }
-        else {
+        else
+        {
             int i = listModel.indexOf(o);
             this.setSelectedIndex(i);
         }
@@ -1014,71 +1091,85 @@ public class ContactList extends JList implements MetaContactListListener,
     {
         return groupRightButtonMenu;
     }
-    
+
     /**
      * Returns TRUE if the list shows offline contacts, FALSE otherwise.
+     * 
      * @return TRUE if the list shows offline contacts, FALSE otherwise
      */
     public boolean isShowOffline()
     {
-        return listModel.showOffline();
+        return listModel.isShowOffline();
     }
-    
+
     /**
      * Sets the showOffline property.
+     * 
      * @param isShowOffline TRUE to show all offline users, FALSE to hide
-     * offline users.
+     *            offline users.
      */
     public void setShowOffline(boolean isShowOffline)
     {
+        int listSize = listModel.getSize();
+        
         listModel.setShowOffline(isShowOffline);
+        
+        int newListSize = listModel.getSize();
+        
+        listModel.contentRemoved(newListSize - 1, listSize - 1);
+        listModel.contentChanged(0, newListSize - 1);
     }
 
     /**
      * Returns the main frame.
+     * 
      * @return the main frame
      */
     public MainFrame getMainFrame()
     {
         return mainFrame;
     }
-    
+
     /**
      * Checks if there's an open history window for the given contact.
+     * 
      * @param contact the contact to check for
      * @return TRUE if there's an opened history window for the given contact,
-     * FALSE otherwise.
+     *         FALSE otherwise.
      */
     public boolean containsHistoryWindowForContact(MetaContact contact)
     {
         return contactHistory.containsKey(contact);
     }
-    
+
     /**
-     * Returns the history window for the given contact. 
+     * Returns the history window for the given contact.
+     * 
      * @param contact the contact to search for
      * @return the history window for the given contact
      */
     public HistoryWindow getHistoryWindowForContact(MetaContact contact)
     {
-        return (HistoryWindow)contactHistory.get(contact);
+        return (HistoryWindow) contactHistory.get(contact);
     }
-    
+
     /**
-     * Adds a history window for a given contact in the table of opened
-     * history windows.
+     * Adds a history window for a given contact in the table of opened history
+     * windows.
+     * 
      * @param contact the contact to add
      * @param historyWindow the history window to add
      */
     public void addHistoryWindowForContact(MetaContact contact,
-            HistoryWindow historyWindow)
+        HistoryWindow historyWindow)
     {
         contactHistory.put(contact, historyWindow);
     }
- 
+
     /**
      * Removes the history window for the given contact.
-     * @param contact the contact to remove the history window 
+     * 
+     * @param contact the contact to remove the history window
      */
     public void removeHistoryWindowForContact(MetaContact contact)
     {
