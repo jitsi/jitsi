@@ -32,6 +32,6 @@ cd $SCDIR
 
 if [ -f $javabin ]
 then
-        $javabin -classpath	"$LIBPATH/felix.jar:$LIBPATH/kxml-min.jar:$LIBPATH/servicebinder.jar:$LIBPATH/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar:$LIBPATH/BrowserLauncher2.jar:$SCDIR/sc-bundles/util.jar" -Dicq.custom.message.charset=windows-1251 -Dfelix.config.properties=file:$LIBPATH/felix.client.run.properties -Djava.util.logging.config.file=$LIBPATH/logging.properties net.java.sip.communicator.launcher.SIPCommunicator
+        $javabin -classpath	"$LIBPATH/felix.jar:$LIBPATH/kxml-min.jar:$LIBPATH/servicebinder.jar:$LIBPATH/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar:$LIBPATH/BrowserLauncher2.jar:$SCDIR/sc-bundles/util.jar" -Dicq.custom.message.charset=windows-1251 -Dfelix.config.properties=file:$LIBPATH/felix.client.run.properties -Djava.util.logging.config.file=$LIBPATH/logging.properties org.apache.felix.main.Main
         exit $?
 fi

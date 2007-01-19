@@ -358,7 +358,7 @@
                   name="${macosx.app.name}"
                   shortname="SIP Communicator"
                   signature="sipc"
-                  mainclass="net.java.sip.communicator.launcher.SIPCommunicator"
+                  mainclass="org.apache.felix.main.Main"
                   icon="src/net/java/sip/communicator/impl/gui/resources/common/logo/sc_logo_128x128.icns"
                   jvmversion="1.4+"
                   version="${sip-communicator.version}"
@@ -623,7 +623,7 @@
         description="Starts felix and runs sip-comunicator gui (use latest build).">
 
          <!-- forking prevents from debugging -->
-        <java classname="net.java.sip.communicator.launcher.SIPCommunicator"
+        <java classname="org.apache.felix.main.Main"
             fork="true"
             failonerror="true"
             classpathref="project.class.path">
