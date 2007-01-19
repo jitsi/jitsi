@@ -865,9 +865,13 @@ public class ContactList
                     int groupIndex = listModel.indexOf(group);
                     int addedCount = listModel.countContactsAndSubgroups(group);
                     int listSize = listModel.getSize();
-                    listModel.contentChanged(groupIndex, listSize - addedCount
-                        - 1);
-                    listModel.contentAdded(listSize - addedCount, listSize - 1);
+                    if (listSize > 0)
+                    {
+                        listModel.contentChanged(
+                            groupIndex, listSize - addedCount - 1);
+                        listModel.contentAdded(
+                            listSize - addedCount, listSize - 1);
+                    }
                 }
                 else if (operation.equals(REMOVE_OPERATION))
                 {
@@ -1116,8 +1120,11 @@ public class ContactList
         
         int newListSize = listModel.getSize();
         
-        listModel.contentRemoved(newListSize - 1, listSize - 1);
-        listModel.contentChanged(0, newListSize - 1);
+        if(listSize > 0 && newListSize > 0)
+        {
+            listModel.contentRemoved(newListSize - 1, listSize - 1);
+            listModel.contentChanged(0, newListSize - 1);
+        }
     }
 
     /**
