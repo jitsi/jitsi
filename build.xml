@@ -725,7 +725,7 @@
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,
         bundle-version,bundle-version-impl,bundle-shutdown,
-        bundle-growlnotification,bundle-audionotifier"/>
+        bundle-growlnotification,bundle-audionotifier,bundle-plugin-splashscreen"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1259,4 +1259,14 @@ javax.swing.event, javax.swing.border"/>
                     prefix="net/java/sip/communicator/plugin/exampleplugin"/>
             </jar>
         </target>
+	
+	<!-- BUNDLE-PLUGIN-SPLASH SCREEN -->
+	    <target name="bundle-plugin-splashscreen">
+	        <!-- Creates a bundle for the Splash Screen plugin.-->
+	        <jar compress="false" destfile="${bundles.dest}/splashscreen.jar"
+	            manifest="src/net/java/sip/communicator/plugin/splashscreen/splashscreen.manifest.mf">
+	            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/exampleplugin"
+	                prefix="net/java/sip/communicator/plugin/exampleplugin"/>
+	        </jar>
+	    </target>
 </project>

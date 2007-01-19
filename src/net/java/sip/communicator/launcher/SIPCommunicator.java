@@ -22,12 +22,7 @@ public class SIPCommunicator
      */
     public static void main(String[] args)
         throws Exception
-    {
-        WelcomeWindow welcomeWindow = new WelcomeWindow();
-        
-        welcomeWindow.pack();
-        welcomeWindow.setVisible(true);
-        
+    {   
         Main.main(args);        
     }
 }
