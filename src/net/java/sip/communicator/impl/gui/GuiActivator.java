@@ -12,8 +12,9 @@ import javax.swing.*;
 
 import org.osgi.framework.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.WelcomeWindow.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
+import net.java.sip.communicator.launcher.*;
+import net.java.sip.communicator.launcher.WelcomeWindow.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -86,12 +87,12 @@ public class GuiActivator implements BundleActivator {
                     this.uiService, null);
 
             logger.info("UI Service ...[REGISTERED]");
-             
-            WelcomeWindow welcomeWindow = new WelcomeWindow();
             
-            welcomeWindow.setVisible(true);
+            //used by the splash screen to determine when the ui service is started
+            System.setProperty("uiService", "started");
+            
             communicatorMain.showCommunicator(true);
-            SwingUtilities.invokeLater(new RunLogin());                        
+            SwingUtilities.invokeLater(new RunLogin());
         }
         finally {
             logger.logExit();
