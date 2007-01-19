@@ -623,7 +623,7 @@
         description="Starts felix and runs sip-comunicator gui (use latest build).">
 
          <!-- forking prevents from debugging -->
-        <java classname="org.apache.felix.main.Main"
+        <java classname="net.java.sip.communicator.launcher.SIPCommunicator"
             fork="true"
             failonerror="true"
             classpathref="project.class.path">
@@ -642,7 +642,7 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="true"/>
 
-            <!-- Setting properties necessary for dependencies on native libs.-->
+        	<!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path" value="${ld.library.path}:${path}"/>
             <env key="LD_LIBRARY_PATH" value="${ld.library.path}"/>
             <env key="PATH" value="${path}"/>
@@ -1249,4 +1249,14 @@ javax.swing.event, javax.swing.border"/>
         	                prefix="resources/sounds"/>
         </jar>
     </target>
+	
+	<!-- BUNDLE-PLUGIN-EXAMPLE PLUGIN -->
+	    <target name="bundle-plugin-exampleplugin">
+	        <!-- Creates a bundle for the plugin SIP Account Registration Wizard.-->
+	        <jar compress="false" destfile="${bundles.dest}/exampleplugin.jar"
+	            manifest="src/net/java/sip/communicator/plugin/exampleplugin/exampleplugin.manifest.mf">
+	            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/exampleplugin"
+	                prefix="net/java/sip/communicator/plugin/exampleplugin"/>
+	        </jar>
+	    </target>
 </project>
