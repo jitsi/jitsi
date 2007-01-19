@@ -104,7 +104,7 @@ public class WelcomeWindow
         this.loadingPanel.add(bundleLabel, BorderLayout.CENTER);
         this.loadingPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
         this.loadingPanel
-            .setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                .setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         this.textPanel.add(titleLabel);
         this.textPanel.add(versionLabel);
