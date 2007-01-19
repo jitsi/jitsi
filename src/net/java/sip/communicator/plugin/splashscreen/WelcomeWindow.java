@@ -33,21 +33,21 @@ public class WelcomeWindow
 
     private static final Font FONT = new Font(FONT_NAME, Font.PLAIN,
             new Integer(FONT_SIZE).intValue());
-    
+
     private JPanel loadingPanel = new JPanel(new BorderLayout());
-    
+
     private JLabel loadingLabel = new JLabel("Loading: ");
-    
-    private JLabel bundleLabel = new JLabel(); 
-    
+
+    private JLabel bundleLabel = new JLabel();
+
     public WelcomeWindow()
     {
         this.setTitle("SIP Communicator");
         this.setModal(false);
         this.setUndecorated(true);
-        
+
         this.mainPanel.setLayout(new BorderLayout());
-        
+
         this.textPanel.setPreferredSize(new Dimension(470, 240));
         this.textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
         this.textPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 0, 15));
@@ -70,7 +70,7 @@ public class WelcomeWindow
         this.logoArea.setPreferredSize(new Dimension(100, 20));
         this.logoArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
         this.logoArea.setBorder(BorderFactory.createEmptyBorder(20, 180, 0, 0));
-        
+
         this.rightsArea.setContentType("text/html");
         this.rightsArea.setText(
                 "<html><font size=3>(c)2003-2006 Copyright <b>sip-communicator.org</b>."
@@ -83,7 +83,7 @@ public class WelcomeWindow
         this.rightsArea.setOpaque(false);
         this.rightsArea.setEditable(false);
         this.rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        
+
         this.licenseArea.setContentType("text/html");
         this.licenseArea.setText( "<html><font size=3 style=bold>"
             + "The SIP Communicator is currently under active development."
@@ -97,45 +97,47 @@ public class WelcomeWindow
         this.licenseArea.setOpaque(false);
         this.licenseArea.setEditable(false);
         this.licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        
+
         this.bundleLabel.setFont(loadingLabel.getFont().deriveFont(Font.PLAIN));
         this.loadingPanel.setOpaque(false);
         this.loadingPanel.add(loadingLabel, BorderLayout.WEST);
         this.loadingPanel.add(bundleLabel, BorderLayout.CENTER);
         this.loadingPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        
+        this.loadingPanel
+            .setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         this.textPanel.add(titleLabel);
         this.textPanel.add(versionLabel);
         this.textPanel.add(logoArea);
         this.textPanel.add(rightsArea);
         this.textPanel.add(licenseArea);
-                
+
         this.mainPanel.add(textPanel, BorderLayout.CENTER);
         this.mainPanel.add(loadingPanel, BorderLayout.SOUTH);
-        
+
         this.getContentPane().add(mainPanel);
 
         this.setResizable(false);
-        
+
         this.mainPanel.setPreferredSize(new Dimension(570, 330));
-        
+
         this.setLocation(
             Toolkit.getDefaultToolkit().getScreenSize().width/2
                 - 527/2,
             Toolkit.getDefaultToolkit().getScreenSize().height/2
                 - 305/2
-            );        
+            );
     }
 
     protected void close()
     {
         this.dispose();
     }
-    
+
     public void setBundle(String bundleName)
     {
         this.bundleLabel.setText(bundleName);
-        
+
         this.loadingPanel.revalidate();
         this.loadingPanel.repaint();
     }
