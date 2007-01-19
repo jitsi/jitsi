@@ -59,7 +59,7 @@ public class WelcomeWindow
         //this.versionLabel.setForeground(Color.GRAY);
         //this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        this.logoArea.setFont(FONT.deriveFont(Font.BOLD, 14));
+        this.logoArea.setFont(FONT.deriveFont(Font.BOLD, 12));
         this.logoArea.setForeground(DARK_BLUE);
         this.logoArea.setOpaque(false);
         this.logoArea.setLineWrap(true);
