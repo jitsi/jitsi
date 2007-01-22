@@ -292,7 +292,7 @@ public class XMLUtils
     }
 
 
-        /**
+    /**
      * Whenever you'd need to print a configuration node and/or its children.
      *
      * @param root the root node to print.
