@@ -276,55 +276,55 @@ public class TestOperationSetPresence
     {
         logger.trace(" --=== beginning state transition test ===--");
 
-        PresenceStatus oldStatus = operationSetPresence1.getPresenceStatus();
+        PresenceStatus oldStatus = operationSetPresence2.getPresenceStatus();
 
         logger.debug(   "old status is=" + oldStatus.getStatusName()
                      + " new status=" + newStatus.getStatusName()
-                     + " for contact : " + fixture.userID1);
+                     + " for contact : " + fixture.userID2);
 
         //First register a listener to make sure that all corresponding
         //events have been generated.
-        PresenceStatusEventCollector statusEventCollector1
+        PresenceStatusEventCollector statusEventCollector2
             = new PresenceStatusEventCollector();
-        ContactPresenceEventCollector statusEventCollector2
-            = new ContactPresenceEventCollector(fixture.userID2, newStatus);
-        operationSetPresence1.addProviderPresenceStatusListener(
-            statusEventCollector1);
-        operationSetPresence2.addContactPresenceStatusListener(
+        ContactPresenceEventCollector statusEventCollector1
+            = new ContactPresenceEventCollector(fixture.userID1, newStatus);
+        operationSetPresence2.addProviderPresenceStatusListener(
             statusEventCollector2);
+        operationSetPresence1.addContactPresenceStatusListener(
+            statusEventCollector1);
 
         //change the status
-        operationSetPresence1.publishPresenceStatus(newStatus, null);
+        operationSetPresence2.publishPresenceStatus(newStatus, null);
 
         //test event notification.
-        statusEventCollector1.waitForPresEvent(10000);
-        statusEventCollector2.waitForEvent(10000);
+        statusEventCollector2.waitForPresEvent(10000);
+        statusEventCollector1.waitForEvent(10000);
 
-        operationSetPresence1.removeProviderPresenceStatusListener(
-            statusEventCollector1);
-        operationSetPresence2.removeContactPresenceStatusListener(
+        operationSetPresence2.removeProviderPresenceStatusListener(
             statusEventCollector2);
+        operationSetPresence1.removeContactPresenceStatusListener(
+            statusEventCollector1);
 
         assertEquals("Events dispatched during an event transition.",
-                     1, statusEventCollector1.collectedPresEvents.size());
+                     1, statusEventCollector2.collectedPresEvents.size());
         assertEquals("A status changed event contained wrong old status.",
                      oldStatus,
                      ((ProviderPresenceStatusChangeEvent)
-                        statusEventCollector1.collectedPresEvents.get(0))
+                        statusEventCollector2.collectedPresEvents.get(0))
                             .getOldStatus());
         assertEquals("A status changed event contained wrong new status.",
                      newStatus,
                      ((ProviderPresenceStatusChangeEvent)
-                        statusEventCollector1.collectedPresEvents.get(0))
+                        statusEventCollector2.collectedPresEvents.get(0))
                             .getNewStatus());
 
         // verify that the operation set itself is aware of the status change
         assertEquals("opSet.getPresenceStatus() did not return properly.",
             newStatus,
-            operationSetPresence1.getPresenceStatus());
+            operationSetPresence2.getPresenceStatus());
 
         YahooStatusEnum actualStatus = (YahooStatusEnum)
-            operationSetPresence2.queryContactStatus(fixture.userID1);
+            operationSetPresence1.queryContactStatus(fixture.userID2);
 
         assertEquals("The underlying implementation did not switch to the "
                      +"requested presence status.",
