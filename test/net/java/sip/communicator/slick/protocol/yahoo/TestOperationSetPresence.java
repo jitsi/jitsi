@@ -967,7 +967,5 @@ public class TestOperationSetPresence
             }
         }
         logger.info("------------ END DUMP LIST " + fixture.userID2 + " ------------");
-        
-        
     }
 }
