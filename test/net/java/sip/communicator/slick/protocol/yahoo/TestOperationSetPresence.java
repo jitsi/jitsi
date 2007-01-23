@@ -383,9 +383,9 @@ public class TestOperationSetPresence
             = (YahooStatusEnum)operationSetPresence2.getPresenceStatus();
 
 
-        YahooStatusEnum newStatus = YahooStatusEnum.IDLE;
+        YahooStatusEnum newStatus = YahooStatusEnum.ON_THE_PHONE;
 
-        //in case we are by any chance already in a FREE_FOR_CHAT status, we'll
+        //in case we are by any chance already in a ON_THE_PHONE status, we'll
         //be changing to something else
         if(oldStatus.equals(newStatus)){
             newStatus = YahooStatusEnum.BUSY;
@@ -510,9 +510,9 @@ public class TestOperationSetPresence
         logger.debug("Testing (lack of) presence notifications.");
         YahooStatusEnum oldStatus
             = (YahooStatusEnum)operationSetPresence2.getPresenceStatus();
-        YahooStatusEnum newStatus = YahooStatusEnum.IDLE;
+        YahooStatusEnum newStatus = YahooStatusEnum.ON_THE_PHONE;
 
-        //in case we are by any chance already in a FREE_FOR_CHAT status, we'll
+        //in case we are by any chance already in a ON_THE_PHONE status, we'll
         //be changing to something else
         if(oldStatus.equals(newStatus)){
             newStatus = YahooStatusEnum.BUSY;
