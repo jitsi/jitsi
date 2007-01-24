@@ -243,6 +243,10 @@ public class OperationSetBasicInstantMessagingYahooImpl
         {
             listeners = new ArrayList(messageListeners).iterator();
         }
+        
+        logger.debug("Dispatching  msg evt. Listeners="
+                     + messageListeners.size()
+                     + " evt=" + evt);
 
         while (listeners.hasNext())
         {
