@@ -218,7 +218,6 @@ public class StatusPanel
         StatusSelectorBox selectorBox 
             = (StatusSelectorBox) protocolStatusCombos
                 .get(protocolProvider);
-
         
         if(selectorBox == null)
             return;

@@ -204,7 +204,10 @@ public class LoginManager
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
         ProtocolProviderService protocolProvider = evt.getProvider();
-
+        
+        logger.trace("Protocol provider: " + protocolProvider
+            + " changed its state to: " + evt.getNewState().getStateName());
+        
         OperationSetPresence presence = mainFrame
             .getProtocolPresence(protocolProvider);
 
@@ -384,6 +387,9 @@ public class LoginManager
      */
     private void handleProviderAdded(ProtocolProviderService protocolProvider)
     {
+        logger.trace("The following protocol provider was just added: "
+            + protocolProvider.getAccountID().getAccountAddress());
+        
         protocolProvider.addRegistrationStateChangeListener(this);
         this.mainFrame.addProtocolProvider(protocolProvider);
 

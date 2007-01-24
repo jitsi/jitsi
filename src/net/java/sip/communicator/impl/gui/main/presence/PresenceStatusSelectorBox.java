@@ -212,8 +212,17 @@ public class PresenceStatusSelectorBox
         OperationSetPresence presence = mainFrame
             .getProtocolPresence(protocolProvider);
         
+        logger.trace("Update status for provider: "
+            + protocolProvider.getAccountID().getAccountAddress()
+            + ". The new status will be: " + status.getStatusName());
+        
         if(connecting.isRunning())
+        {
+            logger.trace("Stop the connecting icon for provider: "
+                + protocolProvider.getAccountID().getAccountAddress());
+            
             this.connecting.stop();
+        }
         
         this.setSelectedStatus(status);
         
