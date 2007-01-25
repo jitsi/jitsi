@@ -18,6 +18,7 @@ javabin=`which java`
 
 SCDIR=/usr/share/sip-communicator
 LIBPATH=$SCDIR/lib
+OSLIBPATH=$LIBPATH/os-specific
 
 #set add LIBPATH to LD_LIBRARY_PATH for any sc natives (e.g. jmf .so's)
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBPATH/native
@@ -32,6 +33,6 @@ cd $SCDIR
 
 if [ -f $javabin ]
 then
-        $javabin -classpath	"$LIBPATH/felix.jar:$LIBPATH/kxml-min.jar:$LIBPATH/servicebinder.jar:$LIBPATH/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar:$LIBPATH/BrowserLauncher2.jar:$SCDIR/sc-bundles/util.jar" -Dicq.custom.message.charset=windows-1251 -Dfelix.config.properties=file:$LIBPATH/felix.client.run.properties -Djava.util.logging.config.file=$LIBPATH/logging.properties org.apache.felix.main.Main
+        $javabin -classpath	"$OSLIBPATH/jmf.jar:$OSLIBPATH/jdic_stub.jar:$LIBPATH/jdic-all.jar:$LIBPATH/felix.jar:$LIBPATH/kxml-min.jar:$LIBPATH/servicebinder.jar:$LIBPATH/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar:$LIBPATH/BrowserLauncher2.jar:$SCDIR/sc-bundles/util.jar" -Dicq.custom.message.charset=windows-1251 -Dfelix.config.properties=file:$LIBPATH/felix.client.run.properties -Djava.util.logging.config.file=$LIBPATH/logging.properties org.apache.felix.main.Main
         exit $?
 fi
