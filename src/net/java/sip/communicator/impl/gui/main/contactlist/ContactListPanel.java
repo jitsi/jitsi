@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The contactlist panel not only contains the contact list but it has the role
@@ -48,6 +49,8 @@ public class ContactListPanel
     private TypingTimer typingTimer = new TypingTimer();
 
     private CommonRightButtonMenu commonRightButtonMenu;
+    
+    private Logger logger = Logger.getLogger(ContactListPanel.class);
 
     /**
      * Creates the contactlist scroll panel defining the parent frame.
@@ -340,6 +343,9 @@ public class ContactListPanel
      */
     public void messageReceived(MessageReceivedEvent evt)
     {
+        logger.trace("MESSAGE RECEIVED from contact: "
+            + evt.getSourceContact().getAddress());
+        
         Contact protocolContact = evt.getSourceContact();
         Date date = evt.getTimestamp();
         Message message = evt.getSourceMessage();
@@ -423,13 +429,21 @@ public class ContactListPanel
 
             // If there's no open tab for the given contact.
             if (!chatWindow.containsContactChat(metaContact)) {
+                
+                logger.trace("MESSAGE RECEIVED: create new chat for contact: "
+                    + evt.getSourceContact().getAddress());
+                
                 chatPanel = chatWindow.createChat(metaContact,
                         contactStatus, protocolContact);
 
                 chatPanel.loadHistory(message.getMessageUID());
+                
+                logger.trace("MESSAGE RECEIVED: process message in chat for contact: "
+                    + evt.getSourceContact().getAddress());
+                
                 chatPanel.processMessage(protocolContact.getDisplayName(),
                         date, Constants.INCOMING_MESSAGE, message.getContent());
-
+                
                 if (Constants.AUTO_POPUP_NEW_MESSAGE) {
                     chatWindow.addChatTab(chatPanel);
 
@@ -453,11 +467,17 @@ public class ContactListPanel
                 }
             }
             else {
+                logger.trace("MESSAGE RECEIVED: get existing chat for contact: "
+                    + evt.getSourceContact().getAddress());
+                
                 chatPanel = chatWindow.getChatPanel(metaContact);
 
+                logger.trace("MESSAGE RECEIVED: process message in chat for contact: "
+                    + evt.getSourceContact().getAddress());
+                
                 chatPanel.processMessage(protocolContact.getDisplayName(),
                         date, Constants.INCOMING_MESSAGE, message.getContent());
-
+                
                 if (chatWindow.getState() == JFrame.ICONIFIED) {
                     if (chatWindow.getTabCount() > 1) {
                         chatWindow.setSelectedContactTab(metaContact);
@@ -492,7 +512,9 @@ public class ContactListPanel
      */
     public void messageDelivered(MessageDeliveredEvent evt)
     {
-
+        logger.trace("MESSAGE DELIVERED to contact: "
+            + evt.getDestinationContact().getAddress());
+        
         Message msg = evt.getSourceMessage();
         Hashtable waitToBeDelivered = this.mainFrame.getWaitToBeDeliveredMsgs();
         String msgUID = msg.getMessageUID();
@@ -503,6 +525,9 @@ public class ContactListPanel
             ProtocolProviderService protocolProvider = evt
                     .getDestinationContact().getProtocolProvider();
 
+            logger.trace("MESSAGE DELIVERED: process message to chat for contact: "
+                    + evt.getDestinationContact().getAddress());
+            
             chatPanel.processMessage(this.mainFrame
                     .getAccount(protocolProvider), evt.getTimestamp(),
                     Constants.OUTGOING_MESSAGE, msg.getContent());
