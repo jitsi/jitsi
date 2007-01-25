@@ -14,6 +14,7 @@
     <property name="doc" value="doc"/>
     <property name="java.doc" value="${doc}/api"/>
     <property name="lib" value="lib"/>
+    <property name="excludelib" value="${lib}/installer-exclude"/>
     <property name="native.libs" value="${lib}/native"/>
     <property name="src" value="src"/>
     <property name="src2" value="test"/>
@@ -127,8 +128,8 @@
     <property name="os.home" value="${lib}"/>
 	
 	<!-- set the jmf.properties here in case they were not set before -->
-    <property name="jmf.jar" value="${os.home}/jmf.jar"/>
-    <property name="sound.jar" value="${os.home}/sound.jar"/>
+    <property name="jmf.jar" value="${os.home}/installer-exclude/jmf.jar"/>
+    <property name="sound.jar" value="${os.home}/installer-exclude/sound.jar"/>
     <!-- end jmf.home-->
 	
 	<property name="jdic_stub.jar" value="${os.home}/jdic_stub.jar"/>
@@ -148,13 +149,14 @@
         	
         <!-- Include all JAR files found in lib and any of its subdirectories. -->
         <fileset dir="${lib}">
-            <include name="*.jar"/>            
-            <include name="bundles/*.jar"/>
+            <include name="*.jar"/>
+        	<include name="installer-exclude/*.jar"/>
+        	<include name="bundles/*.jar"/>
         </fileset>
     	
     	<fileset dir="${os.home}">
-            <include name="*.jar"/>
-        </fileset>    	    	
+            <include name="**/*.jar"/>
+        </fileset>
     </path>
 
     <path id="compile.class.path">
@@ -162,10 +164,7 @@
         <!-- Add all jmf's and jdic's to the compile class path to enable
              cross compilation. -->
         <fileset dir="${lib}">
-            <include name="os-specific/linux/*.jar"/>
-            <include name="os-specific/windows/*.jar"/>
-            <include name="os-specific/solaris/*.jar"/>
-			<include name="os-specific/mac/*.jar"/>
+        	<include name="os-specific/**/*.jar"/>
         </fileset>
     </path>
 
@@ -607,7 +606,7 @@
         <echo message="Generating HTML test reports ..."/>
         <java fork="true"
               classname="org.apache.tools.ant.launch.Launcher"
-              classpath="${java.class.path}:lib/xalan-2.6.0.jar.ant"
+              classpath="${java.class.path}:${excludelib}/xalan-2.6.0.jar.ant"
               failonerror="true"
               output="${test.html.reports.dir}/output.txt">
            <arg value="htmlreport"/>
@@ -872,7 +871,7 @@
     <target name="bundle-junit">
         <jar compress="true" destfile="lib/bundle/junit.jar"
             manifest="test/junit/junit.manifest.mf">
-            <zipfileset src="${lib}/junit.jar" prefix=""/>
+            <zipfileset src="${excludelib}/junit.jar" prefix=""/>
         </jar>
     </target>
 
@@ -887,9 +886,9 @@
                 prefix="net/java/sip/communicator/service/media"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
                 prefix="net/java/sip/communicator/impl/media"/>
-            <zipfileset src="${os.home}/jmf.jar" prefix=""/>
-            <zipfileset src="${lib}/nist-sdp-1.0.jar" prefix=""/>
-             <zipfileset src="${lib}/jspeex.jar" prefix=""/>
+            <zipfileset src="${jmf.jar}" prefix=""/>
+            <zipfileset src="${excludelib}/nist-sdp-1.0.jar" prefix=""/>
+             <zipfileset src="${excludelib}/jspeex.jar" prefix=""/>
         </jar>
     </target>
 
@@ -920,7 +919,7 @@
         <jar compress="true" destfile="lib/bundle/architectureviewer1.1.jar"
             filesetmanifest="merge">
 
-            <zipfileset src="${lib}/architectureviewer1.1.jar" prefix=""/>
+            <zipfileset src="${excludelib}/architectureviewer1.1.jar" prefix=""/>
             <manifest>
                 <attribute name="Import-Package"
                     value="javax.swing,	javax.swing.text,
@@ -939,7 +938,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/netaddr"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/netaddr"
                 prefix="net/java/sip/communicator/impl/netaddr"/>
-            <zipfileset src="${lib}/Stun4J.jar" prefix=""/>
+            <zipfileset src="${excludelib}/Stun4J.jar" prefix=""/>
         </jar>
     </target>
 
@@ -979,10 +978,10 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/sip"
                 prefix="net/java/sip/communicator/impl/protocol/sip"/>
-            <zipfileset src="${lib}/JainSipRi1.2.jar" prefix=""/>
-            <zipfileset src="${lib}/JainSipApi1.2.jar" prefix=""/>
-            <zipfileset src="${lib}/concurrent.jar" prefix=""/>
-            <zipfileset src="${lib}/log4j-1.2.8.jar" prefix=""/>
+            <zipfileset src="${excludelib}/JainSipRi1.2.jar" prefix=""/>
+            <zipfileset src="${excludelib}/JainSipApi1.2.jar" prefix=""/>
+            <zipfileset src="${excludelib}/concurrent.jar" prefix=""/>
+            <zipfileset src="${excludelib}/log4j-1.2.8.jar" prefix=""/>
         </jar>
     </target>
     <target name="bundle-sip-slick">
@@ -1014,9 +1013,9 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/protocol/icq/icq.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/icq"
                 prefix="net/java/sip/communicator/impl/protocol/icq"/>
-            <zipfileset src="${lib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
-            <zipfileset src="${lib}/oscar-aim.jar" prefix=""/>
-            <zipfileset src="${lib}/retroweaver-rt.jar" prefix=""/>
+            <zipfileset src="${excludelib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
+            <zipfileset src="${excludelib}/oscar-aim.jar" prefix=""/>
+            <zipfileset src="${excludelib}/retroweaver-rt.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1027,9 +1026,9 @@ javax.swing.event, javax.swing.border"/>
             manifest="test/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/icq"
                 prefix="net/java/sip/communicator/slick/protocol/icq"/>
-            <zipfileset src="${lib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
-            <zipfileset src="${lib}/oscar-aim.jar" prefix=""/>
-            <zipfileset src="${lib}/retroweaver-rt.jar" prefix=""/>
+            <zipfileset src="${excludelib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
+            <zipfileset src="${excludelib}/oscar-aim.jar" prefix=""/>
+            <zipfileset src="${excludelib}/retroweaver-rt.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1050,8 +1049,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/protocol/jabber/jabber.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/jabber"
                 prefix="net/java/sip/communicator/impl/protocol/jabber"/>
-            <zipfileset src="${lib}/smack.jar" prefix=""/>
-            <zipfileset src="${lib}/smackx.jar" prefix=""/>
+            <zipfileset src="${excludelib}/smack.jar" prefix=""/>
+            <zipfileset src="${excludelib}/smackx.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1063,8 +1062,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="test/net/java/sip/communicator/slick/protocol/jabber/jabber.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/jabber"
                 prefix="net/java/sip/communicator/slick/protocol/jabber"/>
-            <zipfileset src="${lib}/smack.jar" prefix=""/>
-            <zipfileset src="${lib}/smackx.jar" prefix=""/>
+            <zipfileset src="${excludelib}/smack.jar" prefix=""/>
+            <zipfileset src="${excludelib}/smackx.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1075,9 +1074,9 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/protocol/msn/msn.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/msn"
                 prefix="net/java/sip/communicator/impl/protocol/msn"/>
-            <zipfileset src="${lib}/jml-1.0b1.jar" prefix=""/>
-            <zipfileset src="${lib}/cindy.jar" prefix=""/>
-            <zipfileset src="${lib}/commons-logging.jar" prefix=""/>
+            <zipfileset src="${excludelib}/jml-1.0b1.jar" prefix=""/>
+            <zipfileset src="${excludelib}/cindy.jar" prefix=""/>
+            <zipfileset src="${excludelib}/commons-logging.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1089,9 +1088,9 @@ javax.swing.event, javax.swing.border"/>
             manifest="test/net/java/sip/communicator/slick/protocol/msn/msn.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/msn"
                 prefix="net/java/sip/communicator/slick/protocol/msn"/>
-            <zipfileset src="${lib}/jml-1.0b1.jar" prefix=""/>
-            <zipfileset src="${lib}/cindy.jar" prefix=""/>
-            <zipfileset src="${lib}/commons-logging.jar" prefix=""/>
+            <zipfileset src="${excludelib}/jml-1.0b1.jar" prefix=""/>
+            <zipfileset src="${excludelib}/cindy.jar" prefix=""/>
+            <zipfileset src="${excludelib}/commons-logging.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1102,7 +1101,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/protocol/yahoo/yahoo.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/yahoo"
                 prefix="net/java/sip/communicator/impl/protocol/yahoo"/>
-            <zipfileset src="${lib}/ymsg_network_v0_61.jar" prefix=""/>
+            <zipfileset src="${excludelib}/ymsg_network_v0_61.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1114,7 +1113,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="test/net/java/sip/communicator/slick/protocol/yahoo/yahoo.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/yahoo"
                 prefix="net/java/sip/communicator/slick/protocol/yahoo"/>
-            <zipfileset src="${lib}/ymsg_network_v0_61.jar" prefix=""/>
+            <zipfileset src="${excludelib}/ymsg_network_v0_61.jar" prefix=""/>
         </jar>
     </target>
 
