@@ -284,6 +284,8 @@ public class OperationSetBasicInstantMessagingYahooImpl
         
         private void handleNewMessage(SessionEvent ev)
         {
+            logger.debug("Message received : " + ev);
+            
             Message newMessage = createMessage(ev.getMessage());
             
             Contact sourceContact = opSetPersPresence.
