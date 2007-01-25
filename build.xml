@@ -410,7 +410,6 @@
           	<include name="${lib}/growl.jar" />
           	<include name="${lib}/bundle/*.jar" />
         	<include name="${lib}/jdic-all.jar" />
-			<include name="${lib}/AppleJavaExtensions.jar" />
 			<include name="${lib}/os-specific/mac/*.jar" />
           	<exclude name="${lib}/bundle/junit.jar" />
           	<include name="${bundles.dest}/*.jar" />
