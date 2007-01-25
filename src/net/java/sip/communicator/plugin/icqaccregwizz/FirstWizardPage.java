@@ -276,7 +276,8 @@ public class FirstWizardPage extends JPanel
 
     public void actionPerformed(ActionEvent e)
     {
-        CrossPlatformBrowserLauncher.openURL("https://www.icq.com/register/");        
+        IcqAccRegWizzActivator.getBrowserLauncher()
+            .openURL("https://www.icq.com/register/");        
     }
     
     private boolean isExistingAccount(String accountName)

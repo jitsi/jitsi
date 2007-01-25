@@ -7,6 +7,8 @@
 package net.java.sip.communicator.plugin.icqaccregwizz;
 
 import org.osgi.framework.*;
+
+import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -23,8 +25,8 @@ public class IcqAccRegWizzActivator implements BundleActivator {
 
     private static Logger logger = Logger.getLogger(
             IcqAccRegWizzActivator.class.getName());
-
-    private static ConfigurationService configService;
+    
+    private static BrowserLauncherService browserLauncherService;
     
     /**
      * Starts this bundle.
@@ -72,5 +74,23 @@ public class IcqAccRegWizzActivator implements BundleActivator {
         }
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
+    }
+    
+    /**
+     * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>BrowserLauncherService</tt> obtained from the bundle
+     * context
+     */
+    public static BrowserLauncherService getBrowserLauncher() {
+        if (browserLauncherService == null) {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(BrowserLauncherService.class.getName());
+
+            browserLauncherService = (BrowserLauncherService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return browserLauncherService;
     }
 }
