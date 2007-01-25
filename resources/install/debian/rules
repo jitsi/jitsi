@@ -51,7 +51,7 @@ install: build
 	cp $(BASEDIR)/lib/servicebinder.jar debian/sip-communicator/usr/share/sip-communicator/lib
 	cp $(BASEDIR)/resources/install/logging.properties debian/sip-communicator/usr/share/sip-communicator/lib
 	cp $(BASEDIR)/lib/felix.client.run.properties debian/sip-communicator/usr/share/sip-communicator/lib
-	cp -r $(BASEDIR)/lib/os-specific/linux debian/sip-communicator/usr/share/sip-communicator/lib/os-specific
+	cp $(BASEDIR)/lib/os-specific/linux/*.* debian/sip-communicator/usr/share/sip-communicator/lib/os-specific
 	cp -r $(BASEDIR)/lib/native/linux debian/sip-communicator/usr/share/sip-communicator/lib/native
 	rm -rf debian/sip-communicator/usr/share/sip-communicator/lib/native/CVS
 	cp $(BASEDIR)/lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar debian/sip-communicator/usr/share/sip-communicator/lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar
