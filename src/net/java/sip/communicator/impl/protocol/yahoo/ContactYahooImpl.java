@@ -30,7 +30,7 @@ public class ContactYahooImpl
 
     /**
      * Creates an YahooContactImpl with custom yahooID
-     * @param contactID sets the contact Id if its different from the YahooUser id
+     * @param yahooID sets the contact Id if its different from the YahooUser id
      * @param contact the contact object that we will be encapsulating.
      * @param ssclCallback a reference to the ServerStoredContactListImpl
      * instance that created us.

@@ -39,126 +39,34 @@
 	</panels>
 
 	<packs>
-
 		<!-- The lib files -->
 		<pack name="lib" required="yes">
-			<description>Include all libraries</description>
-
-			<fileset  targetdir="$INSTALL_PATH/lib" dir="lib" override="true">
-				<include name="kxml-min.jar"/>
-                <include name="felix.jar"/>
-                <include name="servicebinder.jar"/>
-                <include name="BrowserLauncher2.jar"/>
-			</fileset>
-            <fileset  targetdir="$INSTALL_PATH/lib/bundle" dir="lib/bundle" override="true">
-				<include name="org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar"/>
-			</fileset>
-
-
-			<file targetdir="$INSTALL_PATH/lib" src="lib/felix.client.run.properties" override="true"/>
-			<file targetdir="$INSTALL_PATH/lib" src="resources/install/logging.properties" override="true"/>
+                    <description>Include all libraries</description>
+                    <fileset  targetdir="$INSTALL_PATH/lib" dir="lib" override="true">
+                        <include name="kxml-min.jar"/>
+                        <include name="felix.jar"/>
+                        <include name="servicebinder.jar"/>
+                    </fileset>
+                    <file targetdir="$INSTALL_PATH/lib/bundle" src="lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar" override="true"/>
+                    <file targetdir="$INSTALL_PATH/lib" src="lib/felix.client.run.properties" override="true"/>
+                    <file targetdir="$INSTALL_PATH/lib" src="resources/install/logging.properties" override="true"/>
 		</pack>
-
-		<pack name="util" required="yes">
-			<description>SIP Communicator util</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/util.jar" override="true"/>
+                <pack name="bundles" required="yes">
+                    <description>SIP Communicator bundles</description>
+                    <fileset  targetdir="$INSTALL_PATH/sc-bundles" dir="sc-bundles" override="true">
+                        <include name="*.jar"/>
+                        <exclude name="*slick.jar"/>
+                    </fileset>
 		</pack>
-		<pack name="configuration" required="yes">
-			<description>SIP Communicator bundle configuration</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/configuration.jar" override="true"/>
-		</pack>
-		<pack name="file-access" required="yes">
-			<description>SIP Communicator bundle File Access</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/fileaccess.jar" override="true"/>
-		</pack>
-		<pack name="protocol" required="yes">
-			<description>SIP Communicator bundle Protocol</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/protocol.jar" override="true"/>
-		</pack>
-		<pack name="contactlist" required="yes">
-			<description>SIP Communicator bundle Contactlist</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/contactlist.jar" override="true"/>
-		</pack>
-		<pack name="media" required="yes">
-			<description>SIP Communicator bundle Media</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/media.jar" override="true"/>
-		</pack>
-		<pack name="protocol-icq" required="yes">
-			<description>SIP Communicator bundle Protocol ICQ</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/protocol-icq.jar" override="true"/>
-		</pack>
-        <pack name="protocol-jabber" required="yes">
-			<description>SIP Communicator bundle Protocol Jabber</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/protocol-jabber.jar" override="true"/>
-		</pack>
-        <pack name="protocol-sip" required="yes">
-			<description>SIP Communicator bundle Protocol SIP</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/protocol-sip.jar" override="true"/>
-		</pack>
-        <pack name="protocol-msn" required="yes">
-			<description>SIP Communicator bundle Protocol MSN</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/protocol-msn.jar" override="true"/>
-		</pack>
-        <pack name="media" required="yes">
-			<description>SIP Communicator bundle Media</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/media.jar" override="true"/>
-		</pack>
-		<pack name="netaddress" required="yes">
-			<description>SIP Communicator bundle Network Address</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/netaddr.jar" override="true"/>
-		</pack>
-		<pack name="metacontact-list" required="yes">
-			<description>SIP Communicator bundle MetaContact List</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/meta-cl.jar" override="true"/>
-		</pack>
-		<pack name="history" required="yes">
-			<description>SIP Communicator bundle History</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/history.jar" override="true"/>
-		</pack>
-		<pack name="msg-history" required="yes">
-			<description>SIP Communicator bundle Message History</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/msghistory.jar" override="true"/>
-		</pack>
-		<pack name="call-history" required="yes">
-			<description>SIP Communicator bundle Call History</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/callhistory.jar" override="true"/>
-		</pack>
-        <pack name="swing-ui" required="yes">
-			<description>SIP Communicator bundle Swing UI</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/swing-ui.jar" override="true"/>
-		</pack>
-		<pack name="icqaccregwizz" required="yes">
-			<description>SIP Communicator bundle ICQ Account Registrattion Wizzard</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/icqaccregwizz.jar" override="true"/>
-		</pack>
-        <pack name="jabberaccregwizz" required="yes">
-			<description>SIP Communicator bundle Jabber Account Registrattion Wizzard</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/jabberaccregwizz.jar" override="true"/>
-		</pack>
-        <pack name="sipaccregwizz" required="yes">
-			<description>SIP Communicator bundle SIP Account Registrattion Wizzard</description>
-			<file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/sipaccregwizz.jar" override="true"/>
-		</pack>
-        <pack name="msnaccregwizz" required="yes">
-			<description>SIP Communicator bundle MSN Account Registrattion Wizzard</description>
-            <file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/msnaccregwizz.jar" override="true"/>
-		</pack>
-        <pack name="version" required="yes">
-			<description>SIP Communicator bundle Version</description>
-            <file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/version-impl.jar" override="true"/>
-            <file  targetdir="$INSTALL_PATH/sc-bundles" src="sc-bundles/version.jar" override="true"/>
-		</pack>
-
 		<!-- The executable files -->
 		<pack name="run" required="yes">
-			<description>Exceutable</description>
-
-            <file targetdir="$INSTALL_PATH" src="resources/install/linux/run.sh" os="linux" override="true"/>
-            <file targetdir="$INSTALL_PATH" src="resources/install/linux/sc-logo.png" os="linux" override="true"/>
-            <file targetdir="$INSTALL_PATH" src="resources/install/windows/run.bat" os="windows" override="true"/>
-            <file targetdir="$INSTALL_PATH" src="resources/install/windows/sc-logo.ico" os="windows" override="true"/>
-			<executable targetfile="$INSTALL_PATH/run.sh" stage="never" os="linux"/>
-			<executable targetfile="$INSTALL_PATH/run.bat" stage="never" os="windows"/>
+                    <description>Exceutable</description>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/linux/run.sh" os="linux" override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/linux/sc-logo.png" os="linux" override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/windows/run.bat" os="windows" override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/windows/sc-logo.ico" os="windows" override="true"/>
+                    <executable targetfile="$INSTALL_PATH/run.sh" stage="never" os="linux"/>
+                    <executable targetfile="$INSTALL_PATH/run.bat" stage="never" os="windows"/>
 		</pack>
 	</packs>
 
