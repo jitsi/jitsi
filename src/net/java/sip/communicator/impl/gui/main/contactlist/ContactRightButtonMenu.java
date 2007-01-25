@@ -444,7 +444,7 @@ public class ContactRightButtonMenu
             OperationSetWebContactInfo wContactInfo
                 = mainFrame.getWebContactInfo(contactProvider);
 
-            CrossPlatformBrowserLauncher.openURL(
+            GuiActivator.getBrowserLauncher().openURL(
                     wContactInfo.getWebContactInfo(contact)
                         .toString());
         }

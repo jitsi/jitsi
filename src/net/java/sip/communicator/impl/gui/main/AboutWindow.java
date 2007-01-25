@@ -6,6 +6,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -72,7 +73,7 @@ public class AboutWindow
         this.logoArea.setBorder(BorderFactory.createEmptyBorder(30, 180, 0, 0));
 
         this.rightsArea.setContentType("text/html");
-        this.rightsArea.setText("<html>(c)2003-2006 Copyright <b>sip-communicator.org</b>."
+        this.rightsArea.setText("<html>(c)2003-2007 Copyright <b>sip-communicator.org</b>."
                 + " All rights reserved. Visit "
                 + "<a href=\"http://sip-communicator.org\">"
                 + "http://sip-communicator.org</a>.</html>");
@@ -158,7 +159,7 @@ public class AboutWindow
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
             String href = e.getDescription();
 
-            CrossPlatformBrowserLauncher.openURL(href);
+            GuiActivator.getBrowserLauncher().openURL(href);
         }
     }
 

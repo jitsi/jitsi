@@ -14,6 +14,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -242,7 +243,7 @@ public class ChatContactPanel
                     = mainFrame.getWebContactInfo(pps);
 
                 if(wContactInfo != null) {
-                    CrossPlatformBrowserLauncher.openURL(
+                    GuiActivator.getBrowserLauncher().openURL(
                         wContactInfo.getWebContactInfo(protocolContact)
                             .toString());
                 }

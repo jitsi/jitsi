@@ -20,6 +20,7 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.message.history.*;
@@ -151,7 +152,7 @@ public class ChatConversationPanel
         });
         openLinkItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                CrossPlatformBrowserLauncher.openURL(currentHref);
+                GuiActivator.getBrowserLauncher().openURL(currentHref);
             }
         });
         
@@ -648,7 +649,7 @@ public class ChatConversationPanel
             openContextMenu(p);
         }
         else if((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {            
-            CrossPlatformBrowserLauncher.openURL(currentHref);
+            GuiActivator.getBrowserLauncher().openURL(currentHref);
         }
     }
 

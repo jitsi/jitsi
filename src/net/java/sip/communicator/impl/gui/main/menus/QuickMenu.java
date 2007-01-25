@@ -247,7 +247,7 @@ public class QuickMenu
                     Contact defaultContact = selectedMetaContact
                         .getDefaultContact();
 
-                    CrossPlatformBrowserLauncher.openURL(
+                    GuiActivator.getBrowserLauncher().openURL(
                             wContactInfo.getWebContactInfo(defaultContact)
                                 .toString());
                 }

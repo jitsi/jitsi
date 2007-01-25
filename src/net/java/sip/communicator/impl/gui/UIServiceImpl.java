@@ -255,7 +255,15 @@ public class UIServiceImpl implements UIService {
      * @see UIService#isVisible()
      */
     public boolean isVisible() {
-        return this.mainFrame.isVisible();
+        if(mainFrame.isVisible())
+        {
+            if(mainFrame.getExtendedState() == JFrame.ICONIFIED)
+                return false;
+            else
+                return true;
+        }
+        else
+            return false;
     }
 
     /**
@@ -292,7 +300,15 @@ public class UIServiceImpl implements UIService {
      * @see UIService#restore()
      */
     public void restore() {
-        this.mainFrame.setExtendedState(JFrame.NORMAL);        
+        if (mainFrame.isVisible()) {
+            
+            if(mainFrame.getState() == JFrame.ICONIFIED)
+                mainFrame.setState(JFrame.NORMAL);
+            
+            mainFrame.toFront();
+        }
+        else
+            mainFrame.setVisible(true);
     }
 
     /**

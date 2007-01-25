@@ -13,6 +13,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.service.audionotifier.*;
+import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -48,6 +49,8 @@ public class GuiActivator implements BundleActivator {
     
     private static AudioNotifierService audioNotifierService;
 
+    private static BrowserLauncherService browserLauncherService;
+    
     private static Map providerFactoriesMap = new Hashtable();
 
     /**
@@ -249,7 +252,25 @@ public class GuiActivator implements BundleActivator {
 
         return audioNotifierService;
     }
-    
+  
+    /**
+     * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>BrowserLauncherService</tt> obtained from the bundle
+     * context
+     */
+    public static BrowserLauncherService getBrowserLauncher() {
+        if (browserLauncherService == null) {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(BrowserLauncherService.class.getName());
+
+            browserLauncherService = (BrowserLauncherService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return browserLauncherService;
+    }
+  
     /**
      * Returns the current implementation of the <tt>UIService</tt>.
      * @return the current implementation of the <tt>UIService</tt>
