@@ -8,9 +8,9 @@
     <property name="jdk.home" value="/usr/java/java"/>
     <property name="dest" value="classes"/>
     <property name="bundles.dest" value="sc-bundles"/>
-    <property name="bundles.dest.macosx" value="${bundles.dest}/os/macosx"/>
-    <property name="bundles.dest.windows" value="${bundles.dest}/os/windows"/>
-    <property name="bundles.dest.linux" value="${bundles.dest}/os/linux"/>
+    <property name="bundles.dest.macosx" value="${bundles.dest}/os-specific/macosx"/>
+    <property name="bundles.dest.windows" value="${bundles.dest}/os-specific/windows"/>
+    <property name="bundles.dest.linux" value="${bundles.dest}/os-specific/linux"/>
     <property name="doc" value="doc"/>
     <property name="java.doc" value="${doc}/api"/>
     <property name="lib" value="lib"/>
@@ -69,20 +69,20 @@
     <property file="lib/accounts.properties"/>
 
     <!-- windows specific properties -->
-    <condition property="jmf.home" value="${lib}/jmf-win">
+	<condition property="is.running.windows" value="${os.name}">
         <os family="windows"/>
     </condition>
 
-    <condition property="is.running.windows" value="${os.name}">
-        <os family="windows"/>
+	<condition property="os.home" value="${lib}/os-specific/windows">
+        <isset property="is.running.windows"/>
     </condition>
-
+    
     <!-- linux specific properties -->
     <condition property="is.running.linux" value="${os.name}">
         <equals arg1="${os.name}" arg2="linux" casesensitive="false" trim="true"/>
     </condition>
 
-    <condition property="jmf.home" value="${lib}/jmf-lin">
+    <condition property="os.home" value="${lib}/os-specific/linux">
         <isset property="is.running.linux"/>
     </condition>
 
@@ -90,15 +90,17 @@
               value="${basedir}/${lib}/native/linux:${system.LD_LIBRARY_PATH}">
         <isset property="is.running.linux"/>
     </condition>
-
-    <!-- solaris specific properties -->
+    
+	<!-- solaris specific properties -->
     <condition property="is.running.solaris" value="${os.name}">
         <equals arg1="${os.name}" arg2="solaris" casesensitive="false" trim="true"/>
     </condition>
-    <condition property="is.running.solaris" value="${os.name}">
+    
+	<condition property="is.running.solaris" value="${os.name}">
         <equals arg1="${os.name}" arg2="SunOS" casesensitive="false" trim="true"/>
     </condition>
-    <condition property="jmf.home" value="${lib}/jmf-sol">
+	
+    <condition property="os.home" value="${lib}/os-specific/solaris">
         <isset property="is.running.solaris"/>
     </condition>
 
@@ -107,11 +109,29 @@
         <isset property="is.running.solaris"/>
     </condition>
 
-    <!-- set the jmf.properties here in case they were not set before -->
-    <property name="jmf.home" value="${lib}/jmf-all"/>
-    <property name="jmf.jar" value="${jmf.home}/jmf.jar"/>
-    <property name="sound.jar" value="${jmf.home}/sound.jar"/>
+	<!-- mac specific properties -->
+	<condition property="is.running.macos" value="${os.name}">
+		<os family="mac"/>
+    </condition>
+	
+	<condition property="os.home" value="${lib}/os-specific/mac">
+        <isset property="is.running.macos"/>
+    </condition>
+
+	<condition property="dyld.library.path"
+		value="${basedir}/${lib}/native/mac:${system.DYLD_LIBRARY_PATH}">
+		<isset property="is.running.macos"/>
+	</condition>
+
+	<!-- set the os.home here in case it was not set before -->
+    <property name="os.home" value="${lib}"/>
+	
+	<!-- set the jmf.properties here in case they were not set before -->
+    <property name="jmf.jar" value="${os.home}/jmf.jar"/>
+    <property name="sound.jar" value="${os.home}/sound.jar"/>
     <!-- end jmf.home-->
+	
+	<property name="jdic_stub.jar" value="${os.home}/jdic_stub.jar"/>
 
     <path id="project.source.path">
         <!-- refer to both main and test source files. -->
@@ -125,24 +145,27 @@
 
         <!-- for mac specific plugins -->
         <pathelement location="/System/Library/Java"/>
-
+        	
         <!-- Include all JAR files found in lib and any of its subdirectories. -->
         <fileset dir="${lib}">
-            <include name="*.jar"/>
-            <include name="${jmf.jar}"/>
-            <include name="${sound.jar}"/>
+            <include name="*.jar"/>            
             <include name="bundles/*.jar"/>
         </fileset>
+    	
+    	<fileset dir="${os.home}">
+            <include name="*.jar"/>
+        </fileset>    	    	
     </path>
 
     <path id="compile.class.path">
         <path refid="project.class.path"/>
-        <!-- Add all jmf's to the compile class path to enable
+        <!-- Add all jmf's and jdic's to the compile class path to enable
              cross compilation. -->
         <fileset dir="${lib}">
-            <include name="jmf-lin/jmf.jar"/>
-            <include name="jmf-win/jmf.jar"/>
-            <include name="jmf-sol/jmf.jar"/>
+            <include name="os-specific/linux/*.jar"/>
+            <include name="os-specific/windows/*.jar"/>
+            <include name="os-specific/solaris/*.jar"/>
+			<include name="os-specific/mac/*.jar"/>
         </fileset>
     </path>
 
@@ -301,7 +324,7 @@
         <mkdir dir="${bundles.dest}"/>
 
         <!-- create dirs for os specific bundles -->
-        <mkdir dir="${bundles.dest}/os"/>
+        <mkdir dir="${bundles.dest}/os-specific"/>
         <mkdir dir="${bundles.dest.macosx}"/>
         <mkdir dir="${bundles.dest.linux}"/>
         <mkdir dir="${bundles.dest.windows}"/>
@@ -381,17 +404,18 @@
                       value="logging.properties"/>
 
         <jarfileset dir=".">
-          <include name="${lib}/kxml-min.jar" />
-          <include name="${lib}/felix.jar" />
-          <include name="${lib}/BrowserLauncher2.jar" />
-          <include name="${lib}/servicebinder.jar" />
-          <include name="${lib}/growl.jar" />
-          <include name="${lib}/bundle/*.jar" />
-          <exclude name="${lib}/bundle/junit.jar" />
-          <include name="${jmf.home}/*.jar" />
-          <include name="${bundles.dest}/*.jar" />
-          <include name="${bundles.dest.macosx}/*.jar" />
-          <exclude name="${bundles.dest}/*-slick.jar" />
+          	<include name="${lib}/kxml-min.jar" />
+          	<include name="${lib}/felix.jar" />
+          	<include name="${lib}/servicebinder.jar" />
+          	<include name="${lib}/growl.jar" />
+          	<include name="${lib}/bundle/*.jar" />
+        	<include name="${lib}/jdic-all.jar" />
+			<include name="${lib}/AppleJavaExtensions.jar" />
+			<include name="${lib}/os-specific/mac/*.jar" />
+          	<exclude name="${lib}/bundle/junit.jar" />
+          	<include name="${bundles.dest}/*.jar" />
+          	<include name="${bundles.dest.macosx}/*.jar" />
+          	<exclude name="${bundles.dest}/*-slick.jar" />
         </jarfileset>
         <javafilelist dir="${macosx.resrc.dir}"
                       files="logging.properties"/>
@@ -627,7 +651,7 @@
             fork="true"
             failonerror="true"
             classpathref="project.class.path">
-
+        	
             <!-- Sets the charset for the messages -->
             <!--sysproperty key="icq.custom.message.charset" value="windows-1252"/-->
 
@@ -641,11 +665,15 @@
 
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="true"/>
+        	
+        	<sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+        	                value="${user.home}/schome"/>
 
             <!-- Setting properties necessary for dependencies on native libs.-->
-            <sysproperty key="java.library.path" value="${ld.library.path}:${path}"/>
+        	<sysproperty key="java.library.path" value="${ld.library.path}:${path}:${dyld.library.path}"/>
             <env key="LD_LIBRARY_PATH" value="${ld.library.path}"/>
             <env key="PATH" value="${path}"/>
+			<env key="DYLD_LIBRARY_PATH" value="${dyld.library.path}"/>
         </java>
 
     </target>
@@ -725,7 +753,8 @@
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,
         bundle-version,bundle-version-impl,bundle-shutdown,
-        bundle-growlnotification,bundle-audionotifier,bundle-plugin-splashscreen"/>
+        bundle-growlnotification,bundle-audionotifier,bundle-plugin-splashscreen,
+    	bundle-plugin-systray,bundle-browserlauncher"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -862,7 +891,7 @@
                 prefix="net/java/sip/communicator/service/media"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
                 prefix="net/java/sip/communicator/impl/media"/>
-            <zipfileset src="${jmf.home}/jmf.jar" prefix=""/>
+            <zipfileset src="${os.home}/jmf.jar" prefix=""/>
             <zipfileset src="${lib}/nist-sdp-1.0.jar" prefix=""/>
              <zipfileset src="${lib}/jspeex.jar" prefix=""/>
         </jar>
@@ -1269,4 +1298,27 @@ javax.swing.event, javax.swing.border"/>
                     prefix="net/java/sip/communicator/plugin/splashscreen"/>
             </jar>
         </target>
+	
+	<!--BUNDLE-MEDIA-->
+    <target name="bundle-plugin-systray">
+        <!-- Creates a bundle for the Systray plugin."-->
+        <jar
+            compress="false" destfile="${bundles.dest}/systray.jar"
+            manifest="src/net/java/sip/communicator/plugin/systray/systray.manifest.mf">            
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/systray"
+                prefix="net/java/sip/communicator/plugin/systray"/>
+        </jar>
+    </target>
+
+	<!-- BUNDLE-BROWSER LAUNCHER -->
+    <target name="bundle-browserlauncher">
+        <!-- Creates a bundle for the browser launcher. .-->
+        <jar compress="false" destfile="${bundles.dest}/browserlauncher.jar"
+            manifest="src/net/java/sip/communicator/impl/browserlauncher/browserlauncher.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/browserlauncher"
+                prefix="net/java/sip/communicator/service/browserlauncher"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/browserlauncher"
+                prefix="net/java/sip/communicator/impl/browserlauncher"/>
+        </jar>
+    </target>
 </project>
