@@ -1020,6 +1020,33 @@ public class OperationSetPersistentPresenceYahooImpl
             listener.contactPresenceStatusChanged(evt);
         }
     }
+
+    private void handleContactStatusChange(YahooUser yFriend)
+    {
+        ContactYahooImpl sourceContact = 
+            ssContactList.findContactById(yFriend.getId());
+
+        if(sourceContact == null)
+        {
+            if(yahooProvider.getAccountID().getUserID().
+                equals(yFriend.getId()))
+            {
+                // thats my own status
+                logger.trace("Own status changed to " + yFriend.getStatus());
+                PresenceStatus oldStatus = currentStatus;
+                currentStatus =
+                    yahooStatusToPresenceStatus(yFriend.getStatus());
+                fireProviderPresenceStatusChangeEvent(oldStatus, currentStatus);
+
+                return;
+            }
+            // strange
+            else                    
+                return;
+        }
+        
+        handleContactStatusChange(sourceContact, yFriend.getStatus());
+    }
     
     void handleContactStatusChange(ContactYahooImpl sourceContact, long newStat)
     {
@@ -1049,29 +1076,16 @@ public class OperationSetPersistentPresenceYahooImpl
         {
             logger.debug("Received a status update for contact " + evt);
             
-            ContactYahooImpl sourceContact = 
-                ssContactList.findContactById(evt.getFriend().getId());
-
-            if(sourceContact == null)
+            if(evt.getFriend() != null)
             {
-                if(yahooProvider.getAccountID().getUserID().
-                    equals(evt.getFriend().getId()))
-                {
-                    // thats my own status
-                    logger.trace("Own status changed to " + evt.getFriend().getStatus());
-                    PresenceStatus oldStatus = currentStatus;
-                    currentStatus =
-                        yahooStatusToPresenceStatus(evt.getFriend().getStatus());
-                    fireProviderPresenceStatusChangeEvent(oldStatus, currentStatus);
-
-                    return;
-                }
-                // strange
-                else                    
-                    return;
+                handleContactStatusChange(evt.getFriend());
             }
-            
-            handleContactStatusChange(sourceContact, evt.getFriend().getStatus());
+            else if(evt.getFriends() != null)
+            {
+                YahooUser[] yfs = evt.getFriends();
+                for (int i = 0; i < yfs.length; i++)
+                    handleContactStatusChange(yfs[i]);
+            }
         }
     }
     
