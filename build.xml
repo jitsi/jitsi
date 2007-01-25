@@ -665,9 +665,6 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="true"/>
         	
-        	<sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-        	                value="${user.home}/schome"/>
-
             <!-- Setting properties necessary for dependencies on native libs.-->
         	<sysproperty key="java.library.path" value="${ld.library.path}:${path}:${dyld.library.path}"/>
             <env key="LD_LIBRARY_PATH" value="${ld.library.path}"/>
