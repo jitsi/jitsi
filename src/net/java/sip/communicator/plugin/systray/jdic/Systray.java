@@ -30,7 +30,7 @@ public class Systray
             Systray.class.getResource("systrayIcon.png"));
 
         trayIcon = new TrayIcon(
-            logoIcon, "SIP Communicator", new JPopupMenu("Menu"));
+            logoIcon, "SIP Communicator", null);
 
         trayIcon.setIconAutoSize(false);
         trayIcon.addActionListener(new ActionListener() {
