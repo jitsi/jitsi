@@ -44,7 +44,7 @@
                     <file targetdir="$INSTALL_PATH/lib" src="lib/kxml-min.jar" override="true"/>
                     <file targetdir="$INSTALL_PATH/lib" src="lib/felix.jar" override="true"/>
                     <file targetdir="$INSTALL_PATH/lib" src="lib/servicebinder.jar" override="true"/>
-                    <fileset  targetdir="$INSTALL_PATH/lib" dir="os-specific/windows" override="true">
+                    <fileset  targetdir="$INSTALL_PATH/lib" dir="lib/os-specific/windows" override="true">
                         <include name="*.jar"/>
                         <exclude name="jmf.jar"/>
                         <exclude name="sound.jar"/>

@@ -43,7 +43,7 @@
                         <include name="felix.jar"/>
                         <include name="servicebinder.jar"/>
                     </fileset>
-                    <fileset  targetdir="$INSTALL_PATH/lib" dir="os-specific/linux" override="true">
+                    <fileset  targetdir="$INSTALL_PATH/lib" dir="lib/os-specific/linux" override="true">
                         <include name="*.jar"/>
                         <exclude name="jmf.jar"/>
                     </fileset>
