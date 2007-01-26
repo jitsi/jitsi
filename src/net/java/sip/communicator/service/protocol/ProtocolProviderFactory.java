@@ -89,6 +89,14 @@ public abstract class ProtocolProviderFactory
     public static final String PROXY_PORT = "PROXY_PORT";
 
     /**
+     * The name of the property under which we store the the type of the proxy
+     * stored against the PROXY_ADDRESS property. Exact type values depend on
+     * protocols and among them are socks4, socks5, http and possibly others.
+     */
+    public static final String PROXY_TYPE = "PROXY_TYPE";
+
+
+    /**
      * The name of the property under which we store the name of the transport
      * protocol that needs to be used to access the proxy.
      */
