@@ -354,22 +354,23 @@
       </condition>
 
       <!-- Prepare the logging.properties file for macosx -->
-      <exec executable="/usr/bin/sed"
-          dir="${basedir}"
-          input="${inst.resrc}/logging.properties"
-          output="${macosx.resrc.dir}/logging.properties">
-        <arg value="-f"/>
-        <arg value="${macosx.resrc.dir}/logging.properties.sed"/>
-      </exec>
+      <copy file="${inst.resrc}/logging.properties"
+              tofile="${macosx.resrc.dir}/logging.properties"
+              overwrite="true"/>
+      <replace file="${macosx.resrc.dir}/logging.properties"
+            token="java.util.logging.FileHandler.pattern = %h/.sip-communicator/log" 
+            value="java.util.logging.FileHandler.pattern = log"/>
 
       <!-- Prepare the felix.client.run.properties file for macosx -->
-      <exec executable="/usr/bin/sed"
-          dir="${basedir}"
-          input="${lib}/felix.client.run.properties"
-          output="${macosx.resrc.dir}/felix.client.run.properties">
-        <arg value="-f"/>
-        <arg value="${macosx.resrc.dir}/felix.client.run.properties.sed"/>
-      </exec>
+      <copy file="${lib}/felix.client.run.properties"
+            tofile="${macosx.resrc.dir}/felix.client.run.properties"
+            overwrite="true"/>
+      <replace file="${macosx.resrc.dir}/felix.client.run.properties"
+            token="org.osgi.framework.system.packages=" 
+            value="org.osgi.framework.system.packages= com.growl;"/>
+      <echo file="${macosx.resrc.dir}/felix.client.run.properties" 
+            append="true">felix.auto.start.70= reference:file:sc-bundles/os-specific/macosx/growlnotification.jar
+      </echo>
 
       <!-- Delete the old .app if it exists -->
       <delete dir="${macosx.app.dir}/${macosx.app.name}.app"
