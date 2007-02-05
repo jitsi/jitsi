@@ -425,20 +425,69 @@
 
     <!-- Create the DMG - This only works on MacOSX (need hdiutil) -->
     <target name="dmg" depends="macosx"
+            if="is.running.macos"
             description="Create a .dmg package for MACOSX (only works on MACOSX)">
       <property name="macosx.dmg.name"
                 value="${macosx.app.name}-${sip-communicator.version}.dmg"/>
-
-      <!-- This is executed only if the OS is MacOSX -->
+      <property name="macosx.dmg.tmpname"
+                value="${macosx.app.name}-tmp.dmg"/>
+      <delete file="${macosx.app.dir}/${macosx.dmg.name}"
+              quiet="yes" failonerror="false"/>
+      
+      <!-- Create a temporary Disk Image -->
       <exec executable="/usr/bin/hdiutil" os="Mac OS X">
         <arg value="create"/>
         <arg value="-srcfolder"/>
         <arg value="${macosx.app.dir}/${macosx.app.name}.app"/>
         <arg value="-volname"/>
-        <arg value="${macosx.app.name} ${sip-communicator.version}"/>
+        <arg value="${macosx.app.name}"/>
         <arg value="-ov"/>
+        <arg value="${macosx.app.dir}/${macosx.dmg.tmpname}"/>
+        <arg value="-format"/>
+        <arg value="UDRW"/>
+      </exec>
+      <!-- Attach the temporary image -->
+      <exec executable="/usr/bin/hdiutil" os="Mac OS X">
+        <arg value="attach"/>
+        <arg value="${macosx.app.dir}/${macosx.dmg.tmpname}"/>
+        <arg value="-mountroot"/>
+        <arg value="${release}/"/>
+      </exec>
+      <!-- Copy the background, icon and DS_Store files -->
+      <mkdir dir="${release}/${macosx.app.name}/.background"/>
+      <copy file="${macosx.resrc.dir}/dmg-background.png"
+              tofile="${release}/${macosx.app.name}/.background/background.png"
+              overwrite="true"/>
+      <copy file="${macosx.resrc.dir}/dmg-VolumeIcon.icns"
+              tofile="${release}/${macosx.app.name}/.VolumeIcon.icns"
+              overwrite="true"/>
+      <copy file="${macosx.resrc.dir}/dmg-DS_Store"
+              tofile="${release}/${macosx.app.name}/.DS_Store"
+              overwrite="true"/>
+      <exec executable="/Developer/Tools/SetFile" os="Mac OS X">
+        <arg value="-a"/>
+        <arg value="C"/>
+        <arg value="${release}/${macosx.app.name}"/>
+      </exec>
+      <!-- Add a symbolic link to the Applications directory -->
+      <symlink link="${release}/${macosx.app.name}" resource="/Applications"/> 
+      <!-- Detach the temporary image -->
+      <exec executable="/usr/bin/hdiutil" os="Mac OS X">
+        <arg value="detach"/>
+        <arg value="${release}/${macosx.app.name}"/>
+      </exec>
+      <!-- Compress it to a new image -->
+      <exec executable="/usr/bin/hdiutil" os="Mac OS X">
+        <arg value="convert"/>
+        <arg value="${macosx.app.dir}/${macosx.dmg.tmpname}"/>
+        <arg value="-format"/>
+        <arg value="UDZO"/>
+        <arg value="-o"/>
         <arg value="${macosx.app.dir}/${macosx.dmg.name}"/>
       </exec>
+      <!-- Delete the temporary image -->
+      <delete file="${macosx.app.dir}/${macosx.dmg.tmpname}"
+              quiet="yes" failonerror="false"/>
     </target>
 
     <!-- Create a Debian package - This needs dpkg utilities -->
