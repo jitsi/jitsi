@@ -106,7 +106,14 @@ public class IcqProtocolProviderSlick
 
                     //initialize the tested account's contact list so that
                     //it could be ready when testing starts.
-                    initializeTestedContactList();
+                    try
+                    {
+                        initializeTestedContactList();
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.error("Error initing of tester agent list", ex);
+                    }
 
                     //As Tested account is not registered here we send him a
                     //message. Message will be delivered offline. receive test
