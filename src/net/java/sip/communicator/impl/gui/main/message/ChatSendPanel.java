@@ -6,17 +6,30 @@
  */
 package net.java.sip.communicator.impl.gui.main.message;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Date;
+import java.util.Iterator;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.impl.gui.i18n.I18NString;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
+import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
+import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.GuiUtils;
+import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.protocol.Contact;
+import net.java.sip.communicator.service.protocol.Message;
+import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
 
 /**
  * The <tt>ChatSendPanel</tt> is the panel in the bottom of the chat. It
@@ -46,20 +59,25 @@ public class ChatSendPanel
     private ChatPanel chatPanel;
 
     private ProtocolContactSelectorBox contactSelectorBox;
+    
+    private MetaContact currentMetaContact;
 
     /**
      * Creates an instance of <tt>ChatSendPanel</tt>.
      * 
      * @param chatPanel The parent <tt>ChatPanel</tt>.
      */
-    public ChatSendPanel(ChatPanel chatPanel)
+    public ChatSendPanel(ChatPanel chatPanel,
+            MetaContact metaContact, Contact protocolContact)
     {
 
         super(new BorderLayout(5, 5));
 
         this.chatPanel = chatPanel;
 
-        contactSelectorBox = new ProtocolContactSelectorBox(this);
+        contactSelectorBox = new ProtocolContactSelectorBox(
+            chatPanel, metaContact, protocolContact);
+        
         this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.statusPanel.add(statusLabel);
@@ -135,23 +153,6 @@ public class ChatSendPanel
     }
 
     /**
-     * Initializes the <tt>ContactSelectorBox</tt> with all protocol specific
-     * contacts for the given <tt>MetaContact</tt>.
-     * 
-     * @param metaContact The <tt>MetaContact</tt>.
-     */
-    public void addProtocolContacts(MetaContact metaContact)
-    {
-
-        Iterator protocolContacts = metaContact.getContacts();
-        while (protocolContacts.hasNext()) {
-            Contact contact = (Contact) protocolContacts.next();
-
-            contactSelectorBox.addContact(contact);
-        }
-    }
-
-    /**
      * Sets the message text to the status panel in the bottom of the chat
      * window. Used to show typing notification messages, links' hrefs, etc.
      * 
@@ -173,18 +174,6 @@ public class ChatSendPanel
             stringWidth = GuiUtils.getStringWidth(statusLabel, statusMessage);
         }
         statusLabel.setText(statusMessage);
-    }
-
-    /**
-     * Selects the given protocol contact from the list of protocol specific
-     * contacts and shows its icon in the component on the left of the "Send"
-     * button.
-     * 
-     * @param protoContact The protocol specific contact to select.
-     */
-    public void setSelectedProtocolContact(Contact protoContact)
-    {
-        contactSelectorBox.setSelected(protoContact);
     }
 
     /**
@@ -230,5 +219,10 @@ public class ChatSendPanel
     public ChatPanel getChatPanel()
     {
         return chatPanel;
+    }
+
+    public MetaContact getCurrentMetaContact()
+    {
+        return currentMetaContact;
     }
 }

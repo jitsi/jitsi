@@ -65,8 +65,6 @@ public class ChatPanel
     private OperationSetBasicInstantMessaging imOperationSet;
 
     private OperationSetTypingNotifications tnOperationSet;
-
-    private Contact protocolContact;
     
     private MetaContact metaContact;
     
@@ -94,21 +92,21 @@ public class ChatPanel
 
         this.chatWindow = chatWindow;
         this.metaContact = metaContact;
-        this.protocolContact = protocolContact;
-        
+
         this.imOperationSet = this.chatWindow.getMainFrame().getProtocolIM(
                 protocolContact.getProtocolProvider());
         this.tnOperationSet = this.chatWindow.getMainFrame()
                 .getTypingNotifications(protocolContact.getProtocolProvider());
         
         this.conversationPanel = new ChatConversationPanel(this);
+        
+        this.chatConferencePanel = new ChatConferencePanel(this,
+            metaContact, protocolContact);
 
-        this.sendPanel = new ChatSendPanel(this);
+        this.sendPanel = new ChatSendPanel(this, metaContact, protocolContact);
 
         this.writeMessagePanel = new ChatWritePanel(this);
         
-        this.chatConferencePanel = new ChatConferencePanel(this);
-
         this.topSplitPane.setResizeWeight(1.0D);
         this.messagePane.setResizeWeight(1.0D);
         this.chatConferencePanel.setPreferredSize(new Dimension(120, 100));
@@ -118,9 +116,7 @@ public class ChatPanel
         this.conversationPanel.setPreferredSize(new Dimension(400, 200));
         
         this.init();
-
-        this.setChatMetaContact(metaContact, protocolContact.getPresenceStatus());
-        
+                
         addComponentListener(new TabSelectionFocusGainListener());
         
         new Thread(){
@@ -231,45 +227,18 @@ public class ChatPanel
     }
     
     /**
-     * Adds a new <tt>MetaContact</tt> to this chat panel.
-     * 
-     * @param contactItem The MetaContact to add.
-     * @param status The current presence status of the contact.
-     */
-    private void setChatMetaContact(MetaContact metaContact, 
-                                PresenceStatus status) {
-        this.metaContact = metaContact;
-
-        this.chatConferencePanel.setChatMetaContact(metaContact, status);
-
-        this.sendPanel.addProtocolContacts(metaContact);
-
-        this.sendPanel.setSelectedProtocolContact(this.protocolContact);
-    }
-
-    /**
-     * Adds a new <tt>MetaContact</tt> to this chat panel.
-     * 
-     * @param contactItem The <tt>MetaContact</tt> to add.
-     */
-    private void setChatMetaContact(MetaContact metaContact) {
-
-        this.metaContact = metaContact;
-
-        this.chatConferencePanel.setChatMetaContact(metaContact);
-
-        this.sendPanel.addProtocolContacts(metaContact);
-    }
-
-    /**
      * Updates the contact status in the chat panel.
      * 
      * @param protoContact the protocol contact which status to update
      */
-    public void updateContactStatus(Contact protoContact) {
-        PresenceStatus status = protocolContact.getPresenceStatus();
+    public void updateContactStatus(MetaContact metaContact, Contact protoContact)
+    {
+        PresenceStatus status = sendPanel.getProtoContactSelectorBox()
+            .getProtocolContact().getPresenceStatus();
         
-        this.chatConferencePanel.updateContactStatus(status);
+        this.chatConferencePanel.updateContactStatus(
+            metaContact.getDefaultContact().getPresenceStatus());
+        
         this.sendPanel.updateContactStatus(protoContact);
         String message = this.conversationPanel.processMessage(
                 this.metaContact.getDisplayName(),
@@ -404,18 +373,17 @@ public class ChatPanel
      * @return The protocol contact for this chat.
      */
     public Contact getProtocolContact() {
-        return protocolContact;
+        return sendPanel.getProtoContactSelectorBox()
+                    .getProtocolContact();
     }
-
+    
     /**
-     * Sets the protocol contact for this chat.
-     * @param protocolContact The subcontact for the protocol.
      */
     public void setProtocolContact(Contact protocolContact) {
-        this.protocolContact = protocolContact;
-        
-        this.chatConferencePanel.updateProtocolContact(protocolContact);
+        sendPanel.getProtoContactSelectorBox()
+                    .setSelected(protocolContact);
     }
+
     
     /**
      * Passes the message to the contained <code>ChatConversationPanel</code>
@@ -831,5 +799,9 @@ public class ChatPanel
         }
     }
 
+    public ChatConferencePanel getChatConferencePanel()
+    {
+        return chatConferencePanel;
+    }
     
 }

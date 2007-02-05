@@ -581,8 +581,8 @@ public class MainFrame
         {
             ProtocolProviderService pps = evt.getProvider();
             
-            if(callManager.containsCallAccount(pps)) {
-                
+            if(callManager.containsCallAccount(pps))
+            {
                 callManager.updateCallAccountStatus(pps);
             }
         }

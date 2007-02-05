@@ -357,6 +357,7 @@ public class ContactListPanel
                 .getModel()).getMetaContactStatus(metaContact);
 
         ChatWindow chatWindow;
+        ChatPanel chatPanel;
         
         if (!Constants.TABBED_CHAT_WINDOW) {
             // If in mode "open all messages in new window"
@@ -367,7 +368,9 @@ public class ContactListPanel
                 chatWindow = (ChatWindow) chatWindows
                         .get(metaContact);
 
-                chatWindow.getCurrentChatPanel().processMessage(
+                chatPanel = chatWindow.getCurrentChatPanel();
+                
+                chatPanel.processMessage(
                         protocolContact.getDisplayName(), date,
                         Constants.INCOMING_MESSAGE, message.getContent());
 
@@ -392,7 +395,7 @@ public class ContactListPanel
 
                 chatWindows.put(metaContact, msgWindow);
 
-                ChatPanel chatPanel = msgWindow.createChat(metaContact,
+                chatPanel = msgWindow.createChat(metaContact,
                         contactStatus, protocolContact);
 
                 chatPanel.loadHistory(message.getMessageUID());
@@ -425,8 +428,6 @@ public class ContactListPanel
                 chatWindow = (ChatWindow) chatWindows.elements().nextElement();
             }
             
-            ChatPanel chatPanel;
-
             // If there's no open tab for the given contact.
             if (!chatWindow.containsContactChat(metaContact)) {
                 
@@ -503,6 +504,12 @@ public class ContactListPanel
         
         GuiActivator.getAudioNotifier()
             .createAudio(Sounds.INCOMING_MESSAGE).play();
+        
+        if (!chatPanel.getProtocolContact().getProtocolProvider()
+            .equals(protocolContact.getProtocolProvider()))
+        {
+            chatPanel.setProtocolContact(protocolContact);
+        }
     }
 
     /**
@@ -854,7 +861,7 @@ public class ContactListPanel
                 chatWindow = (ChatWindow) chatWindows
                         .get(metaContact);
                 chatWindow.getCurrentChatPanel().updateContactStatus(
-                        protoContact);
+                        metaContact, protoContact);
             }
         }
         else if (!chatWindows.isEmpty()) {
@@ -868,7 +875,7 @@ public class ContactListPanel
                     chatWindow.setTabIcon(metaContact, listModel
                             .getMetaContactStatusIcon(metaContact));
                 }
-                chatPanel.updateContactStatus(protoContact);
+                chatPanel.updateContactStatus(metaContact, protoContact);
             }
         }
     }

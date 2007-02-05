@@ -16,6 +16,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -26,16 +27,35 @@ public class ProtocolContactSelectorBox
     private static final Logger logger
         = Logger.getLogger(ProtocolContactSelectorBox.class);
 
-    private ChatSendPanel sendPanel;
+    private ChatPanel chatPanel;
+    
     private Hashtable contactsTable = new Hashtable();
     
     private SIPCommMenu menu = new SIPCommMenu();
 
-    public ProtocolContactSelectorBox(ChatSendPanel sendPanel)
+    private MetaContact metaContact;
+    
+    private Contact currentProtoContact;
+    
+    public ProtocolContactSelectorBox(ChatPanel chatPanel,
+        MetaContact metaContact, Contact protocolContact)
     {
-        this.sendPanel = sendPanel;
+        this.chatPanel = chatPanel;
+        
+        this.metaContact = metaContact;
+        
+        this.currentProtoContact = protocolContact;
         
         this.add(menu);
+        
+        Iterator protocolContacts = metaContact.getContacts();
+        while (protocolContacts.hasNext()) {
+            Contact contact = (Contact) protocolContacts.next();
+
+            this.addContact(contact);
+        }
+        
+        this.setSelected(protocolContact);
     }
 
     public void addContact(Contact contact)
@@ -57,7 +77,6 @@ public class ProtocolContactSelectorBox
     public void actionPerformed(ActionEvent e) {
         JMenuItem menuItem = (JMenuItem) e.getSource();
 
-        ChatPanel chatPanel = sendPanel.getChatPanel();
         MainFrame mainFrame = chatPanel.getChatWindow().getMainFrame();
 
         Enumeration i = contactsTable.keys();
@@ -76,8 +95,6 @@ public class ProtocolContactSelectorBox
 
                 chatPanel.setImOperationSet(im);
                 chatPanel.setTnOperationSet(tn);
-
-                chatPanel.setProtocolContact(protocolContact);
 
                 this.setSelected(protocolContact, (ImageIcon)menuItem.getIcon());
 
@@ -101,7 +118,7 @@ public class ProtocolContactSelectorBox
         Image statusImage = ImageLoader.getBytesInImage(
                 protoContact.getPresenceStatus().getStatusIcon());
 
-        int index = sendPanel.getChatPanel().getChatWindow().getMainFrame()
+        int index = chatPanel.getChatWindow().getMainFrame()
             .getProviderIndex(protoContact.getProtocolProvider());
 
         Image img = null;
@@ -134,9 +151,21 @@ public class ProtocolContactSelectorBox
      */
     public void updateContactStatus(Contact protoContact)
     {
-        JMenuItem menuItem = (JMenuItem)contactsTable.get(protoContact);
-        Icon icon = new ImageIcon(createContactStatusImage(protoContact));
-
+        JMenuItem menuItem;
+        Icon icon;
+        
+        if (protoContact.equals(currentProtoContact)
+            && !protoContact.getPresenceStatus().isOnline())
+        {
+            Contact newContact
+                = metaContact.getDefaultContact();
+            
+            this.setSelected(newContact);
+        }
+        
+        menuItem = (JMenuItem)contactsTable.get(protoContact);
+        icon = new ImageIcon(createContactStatusImage(protoContact));
+        
         menuItem.setIcon(icon);
         if(menu.getSelectedObject().equals(protoContact))
         {
@@ -146,6 +175,8 @@ public class ProtocolContactSelectorBox
 
     public void setSelected(Contact protoContact, ImageIcon icon)
     {
+        this.currentProtoContact = protoContact;
+        
         this.menu.setSelected(protoContact, icon);
         
         String tooltipText;
@@ -156,7 +187,7 @@ public class ProtocolContactSelectorBox
         else
             tooltipText = protoContact.getDisplayName();
         
-        this.menu.setToolTipText(tooltipText);
+        this.menu.setToolTipText(tooltipText);        
     }
     
     /**
@@ -178,4 +209,9 @@ public class ProtocolContactSelectorBox
     {
         return menu;
     }
+
+    public Contact getProtocolContact()
+    {
+        return currentProtoContact;
+    }    
 }

@@ -7,21 +7,34 @@
 
 package net.java.sip.communicator.impl.gui.main.message;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.BevelBorder;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.call.*;
-import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.impl.gui.GuiActivator;
+import net.java.sip.communicator.impl.gui.customcontrols.SIPCommButton;
+import net.java.sip.communicator.impl.gui.i18n.Messages;
+import net.java.sip.communicator.impl.gui.main.MainFrame;
+import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.protocol.Contact;
+import net.java.sip.communicator.service.protocol.OperationSetWebContactInfo;
+import net.java.sip.communicator.service.protocol.PresenceStatus;
+import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 
 /**
  * The <tt>ChatContactPanel</tt> is the panel that appears on the right of the
@@ -89,7 +102,7 @@ public class ChatContactPanel
      * @param status The contact status.
      */
     public ChatContactPanel(ChatPanel chatPanel,
-            MetaContact contactItem, PresenceStatus status) {
+            MetaContact contactItem, Contact protocolContact) {
 
         super(new BorderLayout());
 
@@ -98,7 +111,7 @@ public class ChatContactPanel
         this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
         this.contactItem = contactItem;
-        this.status = status;
+        this.status = protocolContact.getPresenceStatus();
         this.chatPanel = chatPanel;
 
         this.setOpaque(false);
@@ -107,6 +120,8 @@ public class ChatContactPanel
         this.buttonsPanel.setOpaque(false);
 
         this.init();
+        
+        this.updateProtocolContact(protocolContact);
     }
 
     /**
@@ -146,9 +161,7 @@ public class ChatContactPanel
 
         // Disabled all unused buttons.
         this.callButton.setEnabled(false);
-        this.sendFileButton.setEnabled(false);
-        
-        this.updateProtocolContact(chatPanel.getProtocolContact());
+        this.sendFileButton.setEnabled(false);        
     }
 
     /**
@@ -216,6 +229,8 @@ public class ChatContactPanel
             infoButton.setEnabled(false);
         else
             infoButton.setEnabled(true);
+        
+        this.setStatusIcon(protocolContact.getPresenceStatus());
     }
     
     /**

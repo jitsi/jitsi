@@ -50,11 +50,17 @@ public class ChatConferencePanel extends JPanel {
     /**
      * Creates an instance of <tt>ChatConferencePanel</tt>.
      */
-    public ChatConferencePanel(ChatPanel chatPanel) {
+    public ChatConferencePanel(ChatPanel chatPanel,
+        MetaContact metaContact, Contact protocolContact) {
 
         super(new BorderLayout(5, 5));
 
         this.chatPanel = chatPanel;
+        
+        chatContactPanel = new ChatContactPanel(
+            chatPanel, metaContact, protocolContact);
+
+        this.contactsPanel.add(chatContactPanel);
         
         this.setMinimumSize(new Dimension(150, 100));
 
@@ -81,36 +87,12 @@ public class ChatConferencePanel extends JPanel {
     }
 
     /**
-     * Adds a <tt>MetaContact</tt> to the chat.
-     * @param contactItem The <tt>MetaContact</tt> to be added.
-     */
-    public void setChatMetaContact(MetaContact contactItem) {
-
-        this.chatContactPanel = new ChatContactPanel(chatPanel, contactItem);
-
-        this.contactsPanel.add(chatContactPanel);
-    }
-
-    /**
-     * Adds a <tt>MetaContact</tt> to the chat, by specifying the contact
-     * presence status.
-     * @param contactItem The <tt>MetaContact</tt> to be added.
-     * @param status The <tt>PresenceStatus</tt> of the contact.
-     */
-    public void setChatMetaContact(MetaContact contactItem, 
-                                PresenceStatus status) {
-
-        chatContactPanel = new ChatContactPanel(chatPanel, contactItem, status);
-
-        this.contactsPanel.add(chatContactPanel);
-    }
-
-    /**
      * Updates the status icon of the contact in this
      * <tt>ChatConferencePanel</tt>.
      * @param status The new <tt>PresenceStatus</tt>.
      */
-    public void updateContactStatus(PresenceStatus status) {
+    public void updateContactStatus(PresenceStatus status)
+    {
         this.chatContactPanel.setStatusIcon(status);
     }
     
