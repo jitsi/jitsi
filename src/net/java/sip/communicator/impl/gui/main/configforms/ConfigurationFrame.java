@@ -153,8 +153,8 @@ public class ConfigurationFrame
      * Calculates the size of the frame depending on the size of the largest
      * contained form.
      */
-    public void recalculateSize() {
-
+    public void recalculateSize()
+    {
         double width = 0;
 
         double height = 0;
@@ -171,7 +171,7 @@ public class ConfigurationFrame
             if (height < form.getPreferredSize().getHeight())
                 height = form.getPreferredSize().getHeight();
         }
-        
+     
         this.mainPanel.setPreferredSize(new Dimension(
             (int) width + 150, (int) height + 100));
     }

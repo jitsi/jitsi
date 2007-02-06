@@ -135,6 +135,7 @@ public class CreateGroupDialog
                                     Messages.getI18NString(
                                             "addGroupExistError",
                                             groupName).getText(),
+                                            ex,
                                     Messages.getI18NString(
                                             "addGroupErrorTitle").getText())
                                             .showDialog();
@@ -146,6 +147,7 @@ public class CreateGroupDialog
                                 Messages.getI18NString(
                                         "addGroupLocalError",
                                         groupName).getText(),
+                                        ex,
                                 Messages.getI18NString(
                                         "addGroupErrorTitle").getText())
                                         .showDialog();
@@ -157,6 +159,7 @@ public class CreateGroupDialog
                                     Messages.getI18NString(
                                             "addGroupNetError",
                                             groupName).getText(),
+                                            ex,
                                     Messages.getI18NString(
                                             "addGroupErrorTitle").getText())
                                             .showDialog();
@@ -167,6 +170,7 @@ public class CreateGroupDialog
                                     Messages.getI18NString(
                                             "addGroupError",
                                             groupName).getText(),
+                                            ex,
                                     Messages.getI18NString(
                                             "addGroupErrorTitle").getText())
                                             .showDialog();

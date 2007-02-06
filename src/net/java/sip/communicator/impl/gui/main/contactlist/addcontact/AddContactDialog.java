@@ -169,6 +169,7 @@ public class AddContactDialog
                                     Messages.getI18NString(
                                             "addContactExistError",
                                             uin).getText(),
+                                            ex,
                                     Messages.getI18NString(
                                             "addContactErrorTitle").getText())
                                             .showDialog();
@@ -181,6 +182,7 @@ public class AddContactDialog
                                     Messages.getI18NString(
                                             "addContactError",
                                             uin).getText(),
+                                            ex,
                                     Messages.getI18NString(
                                             "addContactErrorTitle").getText())
                                             .showDialog();
@@ -193,6 +195,7 @@ public class AddContactDialog
                                         Messages.getI18NString(
                                                 "addContactError",
                                                 uin).getText(),
+                                                ex,
                                         Messages.getI18NString(
                                                 "addContactErrorTitle").getText())
                                                 .showDialog();
@@ -203,6 +206,7 @@ public class AddContactDialog
                                         Messages.getI18NString(
                                                 "addContactError",
                                                 uin).getText(),
+                                                ex,
                                         Messages.getI18NString(
                                                 "addContactErrorTitle").getText())
                                                 .showDialog();

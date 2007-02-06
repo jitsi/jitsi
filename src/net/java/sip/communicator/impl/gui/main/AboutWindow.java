@@ -28,9 +28,9 @@ public class AboutWindow
     private JTextArea logoArea
         = new JTextArea("Open Source VoIP & Instant Messaging");
 
-    private JEditorPane rightsArea = new JEditorPane();
+    private StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
 
-    private JEditorPane licenseArea = new JEditorPane();
+    private StyledHTMLEditorPane licenseArea = new StyledHTMLEditorPane();
 
     private I18NString okString = Messages.getI18NString("ok");
     
@@ -73,10 +73,16 @@ public class AboutWindow
         this.logoArea.setBorder(BorderFactory.createEmptyBorder(30, 180, 0, 0));
 
         this.rightsArea.setContentType("text/html");
-        this.rightsArea.setText("<html>(c)2003-2007 Copyright <b>sip-communicator.org</b>."
+        
+        String startDivTag = "<DIV id=\"message\">";
+        String endDivTag = "</DIV>";
+        
+        this.rightsArea.appendToEnd(startDivTag
+                + "(c)2003-2007 Copyright <b>sip-communicator.org</b>."
                 + " All rights reserved. Visit "
                 + "<a href=\"http://sip-communicator.org\">"
-                + "http://sip-communicator.org</a>.</html>");
+                + "http://sip-communicator.org</a>."
+                + endDivTag);
 
         this.rightsArea.setPreferredSize(new Dimension(50, 20));
         this.rightsArea.setBorder(BorderFactory.createEmptyBorder(0, 180, 0, 0));
@@ -86,10 +92,12 @@ public class AboutWindow
         this.rightsArea.addHyperlinkListener(this);
 
         this.licenseArea.setContentType("text/html");
-        this.licenseArea.setText("<html>The <b>SIP Communicator</b> is distributed under the"
+        this.licenseArea.appendToEnd(startDivTag
+                + "The <b>SIP Communicator</b> is distributed under the"
                 + " terms of the  LGPL "
                 + "(<a href=\"http://www.gnu.org\">"
-                + "http://www.gnu.org</a>).</html>");
+                + "http://www.gnu.org</a>)."
+                + endDivTag);
 
         this.licenseArea.setPreferredSize(new Dimension(50, 20));
         this.licenseArea.setBorder(BorderFactory.createEmptyBorder(10, 180, 0, 0));

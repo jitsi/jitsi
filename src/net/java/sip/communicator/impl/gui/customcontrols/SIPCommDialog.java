@@ -19,8 +19,10 @@ public abstract class SIPCommDialog extends JDialog
 {
     private Logger logger = Logger.getLogger(SIPCommDialog.class);
     
-    ActionMap amap;
-    InputMap imap;
+    private ActionMap amap;
+    private InputMap imap;
+    
+    private boolean isSaveSizeAndLocation = true;
 
     public SIPCommDialog(Dialog owner)
     {
@@ -39,7 +41,21 @@ public abstract class SIPCommDialog extends JDialog
         
         this.initInputMap();
     }
+    
+    public SIPCommDialog(Dialog owner, boolean isSaveSizeAndLocation)
+    {
+        this(owner);
         
+        this.isSaveSizeAndLocation = isSaveSizeAndLocation;
+    }
+     
+    public SIPCommDialog(Frame owner, boolean isSaveSizeAndLocation)
+    {
+        this(owner);
+        
+        this.isSaveSizeAndLocation = isSaveSizeAndLocation;        
+    }
+    
     private void initInputMap()
     {
         amap = this.getRootPane().getActionMap();
@@ -59,7 +75,9 @@ public abstract class SIPCommDialog extends JDialog
     {
         public void actionPerformed(ActionEvent e)
         {
-            saveSizeAndLocation();
+            if(isSaveSizeAndLocation)
+                saveSizeAndLocation();
+            
             close(true);
         }
     }
@@ -86,8 +104,11 @@ public abstract class SIPCommDialog extends JDialog
      */
     public class DialogWindowAdapter extends WindowAdapter
     {
-        public void windowClosing(WindowEvent e) {
-            saveSizeAndLocation();
+        public void windowClosing(WindowEvent e)
+        {
+            if(isSaveSizeAndLocation)
+                saveSizeAndLocation();
+            
             close(false);
         }
     }
@@ -198,9 +219,10 @@ public abstract class SIPCommDialog extends JDialog
      */
     public void dispose()
     {
-        super.dispose();
+        if(isSaveSizeAndLocation)
+            this.saveSizeAndLocation();
         
-        this.saveSizeAndLocation();
+        super.dispose();
     }
     
     /**

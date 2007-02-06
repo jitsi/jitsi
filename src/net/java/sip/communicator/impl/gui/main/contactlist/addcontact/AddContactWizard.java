@@ -101,6 +101,7 @@ public class AddContactWizard
                             Messages.getI18NString(
                                     "addContactExistError",
                                     newContact.getUin()).getText(),
+                                    ex,
                             Messages.getI18NString(
                                     "addContactErrorTitle").getText())
                                     .showDialog();
@@ -112,6 +113,7 @@ public class AddContactWizard
                         Messages.getI18NString(
                                 "addContactError",
                                 newContact.getUin()).getText(),
+                                ex,
                         Messages.getI18NString(
                                 "addContactErrorTitle").getText())
                                 .showDialog();
@@ -123,6 +125,7 @@ public class AddContactWizard
                             Messages.getI18NString(
                                     "addContactError",
                                     newContact.getUin()).getText(),
+                                    ex,
                             Messages.getI18NString(
                                     "addContactErrorTitle").getText())
                                     .showDialog();
@@ -133,6 +136,7 @@ public class AddContactWizard
                             Messages.getI18NString(
                                     "addContactError",
                                     newContact.getUin()).getText(),
+                                    ex,
                             Messages.getI18NString(
                                     "addContactErrorTitle").getText())
                                     .showDialog();

@@ -247,7 +247,7 @@ public class PresenceStatusSelectorBox
                     = Messages.getI18NString("statusChangeGeneralError",
                             accountName).getText();
                     
-                    new ErrorDialog(null, msgText,
+                    new ErrorDialog(null, msgText, e1,
                             Messages.getI18NString("generalError").getText())
                             .showDialog();
                 }
@@ -262,6 +262,7 @@ public class PresenceStatusSelectorBox
                     new ErrorDialog(
                         null,
                         msgText,
+                        e1,
                         Messages.getI18NString("networkFailure").getText())
                         .showDialog();
                 } 
@@ -276,6 +277,7 @@ public class PresenceStatusSelectorBox
                     new ErrorDialog(
                         null,
                         msgText,
+                        e1,
                         Messages.getI18NString("networkFailure").getText())
                         .showDialog();
                 }
@@ -411,7 +413,7 @@ public class PresenceStatusSelectorBox
                         = Messages
                             .getI18NString("statusChangeGeneralError").getText();
                     
-                    new ErrorDialog(null, msgText,
+                    new ErrorDialog(null, msgText, e1,
                             Messages.getI18NString("generalError").getText())
                             .showDialog();
                 }
@@ -425,6 +427,7 @@ public class PresenceStatusSelectorBox
                     new ErrorDialog(
                         null,
                         msgText,
+                        e1,
                         Messages.getI18NString("networkFailure").getText())
                         .showDialog();
                 } 
@@ -438,6 +441,7 @@ public class PresenceStatusSelectorBox
                     new ErrorDialog(
                         null,
                         msgText,
+                        e1,
                         Messages.getI18NString("networkFailure").getText())
                         .showDialog();
                 }

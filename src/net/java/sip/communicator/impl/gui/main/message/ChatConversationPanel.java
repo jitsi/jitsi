@@ -448,8 +448,8 @@ public class ChatConversationPanel
 
             String matchGroup = m.group().trim();
 
-            String replacement = "</PLAINTEXT><B>" + matchGroup
-                                + "</B><PLAINTEXT>";
+            String replacement = "</PLAINTEXT><I>" + matchGroup
+                                + "</I><PLAINTEXT>";
 
             m.appendReplacement(msgBuffer,
                     GuiUtils.replaceSpecialRegExpChars(replacement));

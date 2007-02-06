@@ -191,10 +191,10 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
 
         }
         catch (IllegalArgumentException e) {
-            new ErrorDialog(null, e.getMessage()).showDialog();            
+            new ErrorDialog(null, e.getMessage(), e).showDialog();
         }
         catch (IllegalStateException e) {
-            new ErrorDialog(null, e.getMessage()).showDialog();
+            new ErrorDialog(null, e.getMessage(), e).showDialog();
         }   
         
         return protocolProvider;
