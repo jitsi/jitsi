@@ -250,10 +250,8 @@ public class ContactRightButtonMenu
             JMenuItem contactItem1 = new JMenuItem(contactDisplayName);
             JMenuItem contactItem2 = new JMenuItem(contactDisplayName);
 
-            String protocolName = contact
-                .getProtocolProvider().getProtocolName();
             Icon protocolIcon = new ImageIcon(
-                    Constants.getProtocolIcon(protocolName));
+                    createContactStatusImage(contact));
             
             contactItem.setIcon(protocolIcon);
             contactItem1.setIcon(protocolIcon);
@@ -763,6 +761,44 @@ public class ContactRightButtonMenu
         }
         
         int index = mainFrame.getProviderIndex(pps);
+
+        Image img = null;
+        if(index > 0) {
+            BufferedImage buffImage = new BufferedImage(
+                    22, 16, BufferedImage.TYPE_INT_ARGB);
+
+            Graphics2D g = (Graphics2D)buffImage.getGraphics();
+            AlphaComposite ac =
+                AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
+
+            AntialiasingManager.activateAntialiasing(g);
+            g.setColor(Color.DARK_GRAY);
+            g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
+            g.drawImage(statusImage, 0, 0, null);
+            g.setComposite(ac);
+            g.drawString(new Integer(index+1).toString(), 14, 8);
+
+            img = buffImage;
+        }
+        else {
+            img = statusImage;
+        }
+        return img;
+    }
+    
+    /**
+     * Obtains the status icon for the given protocol contact and
+     * adds to it the account index information.
+     * @param protoContact the proto contact for which to create the image
+     * @return the indexed status image
+     */
+    public Image createContactStatusImage(Contact protoContact)
+    {
+        Image statusImage = ImageLoader.getBytesInImage(
+                protoContact.getPresenceStatus().getStatusIcon());
+
+        int index = mainFrame.getProviderIndex(
+            protoContact.getProtocolProvider());
 
         Image img = null;
         if(index > 0) {
