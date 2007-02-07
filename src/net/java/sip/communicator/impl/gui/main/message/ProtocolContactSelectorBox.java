@@ -160,7 +160,8 @@ public class ProtocolContactSelectorBox
             Contact newContact
                 = metaContact.getDefaultContact();
             
-            this.setSelected(newContact);
+            if(newContact.getPresenceStatus().isOnline())
+                this.setSelected(newContact);
         }
         
         menuItem = (JMenuItem)contactsTable.get(protoContact);
