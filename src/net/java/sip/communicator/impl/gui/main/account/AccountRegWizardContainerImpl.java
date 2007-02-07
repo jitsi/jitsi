@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.account;
 
-import java.awt.Dimension;
 import java.io.*;
 import java.util.*;
 
@@ -59,8 +58,6 @@ public class AccountRegWizardContainerImpl extends Wizard
         this.summaryPage = new AccountRegSummaryPage(this);
         
         this.addAccountRegistrationListener(firstPage);
-
-        this.setPreferredSize(new Dimension(450, 350));
     }
             
     /**
