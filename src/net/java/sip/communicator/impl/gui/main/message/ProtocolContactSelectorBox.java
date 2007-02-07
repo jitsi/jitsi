@@ -164,6 +164,12 @@ public class ProtocolContactSelectorBox
                 this.setSelected(newContact);
         }
         
+        if (!containsOtherOnlineContacts(protoContact)
+            && protoContact.getPresenceStatus().isOnline())
+        {
+            this.setSelected(protoContact);
+        }
+                
         menuItem = (JMenuItem)contactsTable.get(protoContact);
         icon = new ImageIcon(createContactStatusImage(protoContact));
         
@@ -214,5 +220,27 @@ public class ProtocolContactSelectorBox
     public Contact getProtocolContact()
     {
         return currentProtoContact;
-    }    
+    }
+    
+    /**
+     * Searches online contacts in the send via combo box.
+     * 
+     * @return TRUE if the send via combo box contains online contacts, otherwise
+     * returns FALSE.
+     */
+    private boolean containsOtherOnlineContacts(Contact contact)
+    {
+        Enumeration e = contactsTable.keys();
+        
+        while(e.hasMoreElements())
+        {
+            Contact comboContact = (Contact) e.nextElement();
+            
+            if(!comboContact.equals(contact)
+                && comboContact.getPresenceStatus().isOnline())
+                return true;
+        }
+        
+        return false;
+    }
 }
