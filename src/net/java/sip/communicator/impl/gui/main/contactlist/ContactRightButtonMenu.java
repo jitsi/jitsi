@@ -11,6 +11,8 @@ import java.util.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -27,7 +29,6 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The ContactRightButtonMenu is the menu, opened when user clicks with the
- * right mouse button on a contact in the contact list. Through this menu the
  * user could add a subcontact, remove a contact, send message, etc.
  *
  * @author Yana Stamcheva
@@ -184,7 +185,7 @@ public class ContactRightButtonMenu
 
             JMenuItem menuItem = new JMenuItem(pps.getAccountID()
                     .getUserID(),
-                    new ImageIcon(Constants.getProtocolIcon(protocolName)));
+                    new ImageIcon(createAccountStatusImage(pps)));
 
             menuItem.setName(addSubcontactPrefix + protocolName);
             menuItem.addActionListener(this);
@@ -729,5 +730,61 @@ public class ContactRightButtonMenu
         Component c = (Component) event.getSource();
         
         this.remove(c);
+    }
+    
+    /**
+     * Obtains the status icon for the given protocol contact and
+     * adds to it the account index information.
+     * @param pps the protocol provider for which to create the image
+     * @return the indexed status image
+     */
+    public Image createAccountStatusImage(ProtocolProviderService pps)
+    {  
+        Image statusImage;
+        
+        OperationSetPresence presence
+            = this.mainFrame.getProtocolPresence(pps);
+        
+        if(presence != null)
+        {
+            
+            statusImage = ImageLoader.getBytesInImage(
+                presence.getPresenceStatus().getStatusIcon()); 
+        }
+        else if (pps.isRegistered())
+        {
+            statusImage
+                = ImageLoader.getImage(ImageLoader.SIP_LOGO);
+        }
+        else {
+            statusImage
+                =  LightGrayFilter.createDisabledImage(
+                    ImageLoader.getImage(ImageLoader.SIP_LOGO));
+        }
+        
+        int index = mainFrame.getProviderIndex(pps);
+
+        Image img = null;
+        if(index > 0) {
+            BufferedImage buffImage = new BufferedImage(
+                    22, 16, BufferedImage.TYPE_INT_ARGB);
+
+            Graphics2D g = (Graphics2D)buffImage.getGraphics();
+            AlphaComposite ac =
+                AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
+
+            AntialiasingManager.activateAntialiasing(g);
+            g.setColor(Color.DARK_GRAY);
+            g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
+            g.drawImage(statusImage, 0, 0, null);
+            g.setComposite(ac);
+            g.drawString(new Integer(index+1).toString(), 14, 8);
+
+            img = buffImage;
+        }
+        else {
+            img = statusImage;
+        }
+        return img;
     }
 }
