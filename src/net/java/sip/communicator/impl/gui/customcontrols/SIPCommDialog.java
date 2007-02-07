@@ -157,25 +157,35 @@ public abstract class SIPCommDialog extends JDialog
 
         String className = this.getClass().getName();
         
-        String width = configService.getString(
+        String widthString = configService.getString(
             className + ".width");
 
-        String height = configService.getString(
+        String heightString = configService.getString(
             className + ".height");
 
-        String x = configService.getString(
+        String xString = configService.getString(
             className + ".x");
 
-        String y = configService.getString(
+        String yString = configService.getString(
             className + ".y");
 
-        if(width != null && height != null)
-            this.setSize(new Integer(width).intValue(),
-                    new Integer(height).intValue());            
-
-        if(x != null && y != null)
-            this.setLocation(new Integer(x).intValue(),
-                    new Integer(y).intValue());
+        int width = 0;
+        int height = 0;
+        
+        if(widthString != null && heightString != null)
+        {   
+            width = new Integer(width).intValue();
+            height = new Integer(height).intValue();
+            
+            if(width > 0 && height > 0)
+                this.setSize(width, height);
+        }
+        
+        if(xString != null && yString != null)
+        {   
+            this.setLocation(new Integer(xString).intValue(),
+                new Integer(yString).intValue());
+        }        
         else {            
             this.setCenterLocation();
         }
