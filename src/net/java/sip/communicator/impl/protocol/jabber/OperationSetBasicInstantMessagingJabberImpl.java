@@ -332,7 +332,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 logger.debug("Received from "
                              + fromUserID
                              + " the message "
-                             + msg.getBody());
+                             + msg.toXML());
             }
 
             KeepAliveEvent keepAliveEvent =
