@@ -88,8 +88,8 @@ public class AccountSelectorBox
                     
                 setSelected(pps);
             }
-            else if(pps.isRegistered() && !selectedProvider.isRegistered()) {
-                
+            else if(pps.isRegistered() && !selectedProvider.isRegistered())
+            {   
                 setSelected(pps);
             }
         }
@@ -186,6 +186,29 @@ public class AccountSelectorBox
                 
         Icon icon = new ImageIcon(createAccountStatusImage(pps));
 
+        ProtocolProviderService selectedPPS
+            = (ProtocolProviderService) menu.getSelectedObject();
+        
+        //When the currently selected provider becomes offline, select another one.
+        if (selectedPPS.equals(pps)
+            && !pps.isRegistered())
+        {
+            ProtocolProviderService newPPS
+                = findFirstRegisteredProvider(); 
+            
+            if(newPPS != null)
+                this.setSelected(newPPS);
+        }
+        
+        //If the currently selected provider is offline and some of other providers
+        //become online, select the new one.
+        if(!selectedPPS.equals(pps)
+            && !selectedPPS.isRegistered()
+            && pps.isRegistered())
+        {
+            this.setSelected(pps);
+        }
+        
         menuItem.setIcon(icon);
         if(menu.getSelectedObject().equals(pps))
         {
@@ -269,5 +292,21 @@ public class AccountSelectorBox
         
         if(selectedProvider == pps && accountsTable.size() > 0)
             setSelected((ProtocolProviderService)accountsTable.keys().nextElement());
+    }
+    
+    private ProtocolProviderService findFirstRegisteredProvider()
+    {
+        Enumeration e = this.accountsTable.keys();
+        
+        while(e.hasMoreElements())
+        {
+            ProtocolProviderService pps
+                = (ProtocolProviderService) e.nextElement();
+            
+            if(pps.isRegistered())
+                return pps;
+        }
+        
+        return null;
     }
 }
