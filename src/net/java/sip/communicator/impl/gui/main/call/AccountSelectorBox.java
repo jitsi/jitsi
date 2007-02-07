@@ -133,18 +133,18 @@ public class AccountSelectorBox
         OperationSetPresence presence
             = callManager.getMainFrame().getProtocolPresence(pps);
         
-        if(presence != null) {
+        if(presence != null)
+        {
             
             statusImage = ImageLoader.getBytesInImage(
                 presence.getPresenceStatus().getStatusIcon()); 
         }
-        else if (pps.isRegistered()) {
-            
+        else if (pps.isRegistered())
+        {
             statusImage
                 = ImageLoader.getImage(ImageLoader.SIP_LOGO);
         }
-        else { 
-            
+        else {
             statusImage
                 =  LightGrayFilter.createDisabledImage(
                     ImageLoader.getImage(ImageLoader.SIP_LOGO));
@@ -181,7 +181,7 @@ public class AccountSelectorBox
      * @param pps the protocol provider service to update
      */
     public void updateAccountStatus(ProtocolProviderService pps)
-    {        
+    {
         JMenuItem menuItem = (JMenuItem)accountsTable.get(pps);
                 
         Icon icon = new ImageIcon(createAccountStatusImage(pps));

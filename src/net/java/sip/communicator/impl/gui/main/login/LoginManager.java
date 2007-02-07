@@ -216,8 +216,8 @@ public class LoginManager
             this.mainFrame.getStatusPanel()
                 .updateStatus(protocolProvider);
 
-            if(mainFrame.getCallManager().containsCallAccount(protocolProvider)) {
-
+            if(mainFrame.getCallManager().containsCallAccount(protocolProvider))
+            {
                 this.mainFrame.getCallManager()
                     .updateCallAccountStatus(protocolProvider);
             }
@@ -291,6 +291,12 @@ public class LoginManager
         else if (evt.getNewState().equals(RegistrationState.UNREGISTERED)) {
 
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
+            
+            if(mainFrame.getCallManager().containsCallAccount(protocolProvider))
+            {
+                this.mainFrame.getCallManager()
+                    .updateCallAccountStatus(protocolProvider);
+            }
 
             if (!manuallyDisconnected) {
                 if (evt.getReasonCode() == RegistrationStateChangeEvent
