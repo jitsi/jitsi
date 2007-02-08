@@ -9,11 +9,10 @@ package net.java.sip.communicator.impl.protocol.icq;
 import java.beans.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.icq.message.auth.*;
-import net.java.sip.communicator.impl.protocol.icq.message.imicbm.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
+import net.java.sip.communicator.service.protocol.AuthorizationResponse.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
@@ -26,6 +25,7 @@ import net.kano.joustsim.oscar.*;
 import net.kano.joustsim.oscar.oscar.service.bos.*;
 import net.kano.joustsim.oscar.oscar.service.buddy.*;
 import net.kano.joustsim.oscar.oscar.service.ssi.*;
+
 
 /**
  * The ICQ implementation of a Persistent Presence Operation set. This class
@@ -114,6 +114,9 @@ public class OperationSetPersistentPresenceIcqImpl
      * The presence status that we were last notified of etnering.
      */
     private long currentIcqStatus = -1;
+
+    private AuthorizationHandler authorizationHandler = null;
+    private AuthListener authListener = new AuthListener();
 
     /**
      * The array list we use when returning from the getSupportedStatusSet()
@@ -276,7 +279,7 @@ public class OperationSetPersistentPresenceIcqImpl
         GetInfoCmd getInfoCmd =
             new GetInfoCmd(GetInfoCmd.CMD_USER_INFO, contactIdentifier);
 
-        icqProvider.getAimConnection().getInfoService()
+        icqProvider.getAimConnection().getInfoService().getOscarConnection()
             .sendSnacRequest(getInfoCmd, responseRetriever);
 
         synchronized(responseRetriever)
@@ -628,7 +631,7 @@ public class OperationSetPersistentPresenceIcqImpl
         MainBosService bosService
             = icqProvider.getAimConnection().getBosService();
 
-        bosService.sendSnac(new SetExtraInfoCmd(icqStatus));
+        bosService.getOscarConnection().sendSnac(new SetExtraInfoCmd(icqStatus));
         bosService.setStatusMessage(statusMessage);
 
         //so that everyone sees the change.
@@ -810,35 +813,10 @@ public class OperationSetPersistentPresenceIcqImpl
          * provider so that there could be only one.
          *
          **/
-        ClientSnacProcessor snacProcessor = icqProvider.getAimConnection().
-            getInfoService().getOscarConnection().
-            getSnacProcessor();
+        this.authorizationHandler = handler;
 
-        AuthCmdFactory authCmdFactory =
-            new AuthCmdFactory(icqProvider, icqProvider.getAimConnection(), handler);
-
-        SsiCmdFactory ssiCmdFactory =
-            new SsiCmdFactory(icqProvider, icqProvider.getAimConnection(), handler);
-
-        ChannelFourCmdFactory channelFourFactory =
-        ((OperationSetBasicInstantMessagingIcqImpl)
-            icqProvider.getSupportedOperationSets()
-            .get(OperationSetBasicInstantMessaging.class.getName())).
-            getChannelFourFactory();
-
-        channelFourFactory.addCommandHandler(
-            IcbmChannelFourCommand.MTYPE_AUTHREQ, authCmdFactory);
-        channelFourFactory.addCommandHandler(
-            IcbmChannelFourCommand.MTYPE_AUTHDENY, authCmdFactory);
-        channelFourFactory.addCommandHandler(
-            IcbmChannelFourCommand.MTYPE_AUTHOK, authCmdFactory);
-
-        snacProcessor.addGlobalResponseListener(authCmdFactory);
-        snacProcessor.getCmdFactoryMgr().getDefaultFactoryList().
-            registerAll(ssiCmdFactory);
-
-        // incoming future authorization commands
-        // facList.registerAll(new AuthFutureCmdFactory());
+        icqProvider.getAimConnection().getSsiService().
+            addBuddyAuthorizationListener(authListener);
     }
 
     /**
@@ -1491,6 +1469,92 @@ public class OperationSetPersistentPresenceIcqImpl
         }
 
     }
+
+    private class AuthListener
+        implements BuddyAuthorizationListener
+    {
+        public void authorizationDenied(Screenname screenname, String reason)
+        {
+            logger.trace("authorizationDenied from " + screenname);
+            Contact srcContact = findContactByID(screenname.getFormatted());
+
+            authorizationHandler.processAuthorizationResponse(
+                new AuthorizationResponse(AuthorizationResponse.REJECT, reason),
+                srcContact);
+        }
+
+        public void authorizationAccepted(Screenname screenname, String reason)
+        {
+            logger.trace("authorizationAccepted from " + screenname);
+            Contact srcContact = findContactByID(screenname.getFormatted());
+
+            authorizationHandler.processAuthorizationResponse(
+                new AuthorizationResponse(AuthorizationResponse.REJECT, reason),
+                srcContact);
+        }
+
+        public void authorizationRequestReceived(Screenname screenname,
+                                                 String reason)
+        {
+            logger.trace("authorizationRequestReceived from " + screenname);
+            Contact srcContact = findContactByID(screenname.getFormatted());
+
+            if(srcContact == null)
+                srcContact = createVolatileContact(screenname.getFormatted());
+
+            AuthorizationRequest authRequest = new AuthorizationRequest();
+                authRequest.setReason(reason);
+
+            AuthorizationResponse authResponse =
+                authorizationHandler.processAuthorisationRequest(
+                    authRequest, srcContact);
+
+
+            if (authResponse.getResponseCode() == AuthorizationResponse.IGNORE)
+                return;
+
+            icqProvider.getAimConnection().getSsiService().
+                replyBuddyAuthorization(
+                    screenname,
+                    authResponse.getResponseCode() == AuthorizationResponse.ACCEPT,
+                    authResponse.getReason());
+        }
+
+        public boolean authorizationRequired(Screenname screenname)
+        {
+            logger.trace("authorizationRequired from " + screenname);
+
+            logger.trace("finding buddy : " + screenname);
+            Contact srcContact = findContactByID(screenname.getFormatted());
+
+            if(srcContact == null)
+                srcContact = createVolatileContact(screenname.getFormatted());
+
+            AuthorizationRequest authRequest =
+                authorizationHandler.createAuthorizationRequest(
+                srcContact);
+
+            if(authRequest == null)
+                return false;
+
+            icqProvider.getAimConnection().getSsiService().
+                sendFutureBuddyAuthorization(screenname, authRequest.getReason());
+
+            icqProvider.getAimConnection().getSsiService().
+                requestBuddyAuthorization(screenname, authRequest.getReason());
+
+            return true;
+        }
+
+        public void futureAuthorizationGranted(Screenname screenname,
+                                               String reason)
+        {
+            logger.trace("futureAuthorizationGranted from " + screenname);
+        }
+
+        public void youWereAdded(Screenname screenname)
+        {
+            logger.trace("youWereAdded from " + screenname);
+        }
+    }
 }
-
-

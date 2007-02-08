@@ -56,6 +56,10 @@ public class ScLogFormatter
         //caller method
         inferCaller(record);
         String loggerName = record.getLoggerName();
+
+        if(loggerName == null)
+            loggerName = record.getSourceClassName();
+
         if(loggerName.startsWith("net.java.sip.communicator."))
         {
             sb.append(loggerName.substring("net.java.sip.communicator."

@@ -567,7 +567,7 @@ public class TestOperationSetPresence
         }
 
         assertEquals("Subscription event dispatching failed."
-                     , 1, subEvtCollector.collectedEvents.size());
+                     , 2, subEvtCollector.collectedEvents.size());
 
         // after the authorization process finished
         // we must have received two events
@@ -592,6 +592,33 @@ public class TestOperationSetPresence
             srcContact = subEvt.getSourceContact();
             srcProvider = subEvt.getSourceProvider();
         }
+
+        assertEquals("SubscriptionEvent Source:",
+                     fixture.testerAgent.getIcqUIN(),
+                     ((Contact)source).getAddress());
+        assertEquals("SubscriptionEvent Source Contact:",
+                     fixture.testerAgent.getIcqUIN(),
+                     srcContact.getAddress());
+        assertSame("SubscriptionEvent Source Provider:",
+                     fixture.provider,
+                     srcProvider);
+
+        evt = (EventObject)subEvtCollector.collectedEvents.get(1);
+
+        source = null;
+        srcContact = null;
+        srcProvider = null;
+
+        if(evt instanceof SubscriptionMovedEvent)
+        {
+            SubscriptionMovedEvent mvEvt = (SubscriptionMovedEvent)evt;
+
+            source = mvEvt.getSource();
+            srcContact = mvEvt.getSourceContact();
+            srcProvider = mvEvt.getSourceProvider();
+        }
+        else
+            fail("Second event must be SubscriptionMovedEvent");
 
         assertEquals("SubscriptionEvent Source:",
                      fixture.testerAgent.getIcqUIN(),

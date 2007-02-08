@@ -272,6 +272,13 @@ public class OperationSetTypingNotificationsIcqImpl
             logger.debug("buddyInfoUpdated for:"+buddy+" info: " +info);
         }
 
+        public void sendAutomaticallyFailed(
+            IcbmService service,
+            net.kano.joustsim.oscar.oscar.service.icbm.Message message,
+            Set triedConversations)
+        {
+        }
+
     }
 
     /**
@@ -314,5 +321,12 @@ public class OperationSetTypingNotificationsIcqImpl
         public void conversationOpened(Conversation conv){}
         public void newConversation(IcbmService service, Conversation conv){}
         public void sentMessage(Conversation conv, MessageInfo minfo){}
+
+        public void sendAutomaticallyFailed(IcbmService service,
+                                            net.kano.joustsim.oscar.oscar.
+                                            service.icbm.Message message,
+                                            Set triedConversations)
+        {
+        }
     }
 }

@@ -431,7 +431,7 @@ public class IcqTesterAgent
                            new Screenname(screenname).getFormatted());
 
 
-        conn.getInfoService()
+        conn.getInfoService().getOscarConnection()
             .sendSnacRequest(getInfoCmd, responseRetriever);
 
         synchronized(responseRetriever.waitingForResponseLock)
@@ -619,7 +619,7 @@ public class IcqTesterAgent
 
         //do the state switch
         synchronized(bosEventNotifier.infoLock ){
-            conn.getBosService().sendSnac(new SetExtraInfoCmd(icqStatus));
+            conn.getBosService().getOscarConnection().sendSnac(new SetExtraInfoCmd(icqStatus));
 
             try{bosEventNotifier.infoLock.wait(10000);}
                 catch (InterruptedException ex){logger.debug("Strange!");}
@@ -1432,7 +1432,7 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
                         LayoutEventCollector evtCollector = new LayoutEventCollector();
                         joustSimBuddyList.addLayoutListener(evtCollector);
 
-                        conn.getSsiService().sendSnac(addCMD);
+                        conn.getSsiService().getOscarConnection().sendSnac(addCMD);
 
                         evtCollector.waitForANewBuddy(20000);
                         joustSimBuddyList.removeLayoutListener(evtCollector);
@@ -1440,7 +1440,7 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
                         logger.trace("Finished - Adding buddy as awaiting authorization");
 
                         //SNAC(13,18)     send authorization request
-                        conn.getSsiService().sendSnac(
+                        conn.getSsiService().getOscarConnection().sendSnac(
                             new RequestAuthCmd(
                                 uinToAskForAuth,
                                 requestReasonStr));
@@ -1508,14 +1508,14 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         FullUserInfoCmd cmd = new FullUserInfoCmd(getIcqUIN());
         cmd.writeOutByte(0x030c, 0); // 0x030C User authorization permissions
         cmd.writeOutByte(0x02F8, 0); // 0x02F8  User 'show web status' permissions
-        conn.getSsiService().sendSnac(cmd);
+        conn.getSsiService().getOscarConnection().sendSnac(cmd);
     }
 
     public Hashtable getUserInfo(String uin)
     {
         UserInfoResponse response = new UserInfoResponse();
 
-        conn.getInfoService().sendSnacRequest(
+        conn.getInfoService().getOscarConnection().sendSnacRequest(
             FullUserInfoCmd.getFullInfoRequestCommand(getIcqUIN(), uin),
             response);
 
@@ -1532,13 +1532,13 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
     {
         FullUserInfoCmd cmd = new FullUserInfoCmd(getIcqUIN());
         cmd.writeOutString(0x014A, lastName);
-        conn.getSsiService().sendSnac(cmd);
+        conn.getSsiService().getOscarConnection().sendSnac(cmd);
     }
     public void setUserInfoPhoneNumber(String phone)
     {
         FullUserInfoCmd cmd = new FullUserInfoCmd(getIcqUIN());
         cmd.writeOutString(0x0276, phone);
-        conn.getSsiService().sendSnac(cmd);
+        conn.getSsiService().getOscarConnection().sendSnac(cmd);
     }
     public void setUserInfoLanguage(int language1, int language2, int language3)
     {
@@ -1546,13 +1546,13 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         cmd.writeOutShort(0x0186, language1);
         cmd.writeOutShort(0x0186, language2);
         cmd.writeOutShort(0x0186, language3);
-        conn.getSsiService().sendSnac(cmd);
+        conn.getSsiService().getOscarConnection().sendSnac(cmd);
     }
     public void setUserInfoHomeCountry(int countryCode)
     {
         FullUserInfoCmd cmd = new FullUserInfoCmd(getIcqUIN());
         cmd.writeOutShort(0x01A4, countryCode);
-        conn.getSsiService().sendSnac(cmd);
+        conn.getSsiService().getOscarConnection().sendSnac(cmd);
     }
 
 

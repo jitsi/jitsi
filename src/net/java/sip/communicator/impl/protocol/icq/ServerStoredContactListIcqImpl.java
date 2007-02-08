@@ -870,13 +870,11 @@ public class ServerStoredContactListIcqImpl
                              + joustSimGroup + " found for buddy: " + buddy);
                 return;
             }
-            
+
             if(newContact == null)
             {
                 newContact = new ContactIcqImpl(
                     buddy, ServerStoredContactListIcqImpl.this, true, true);
-                
-                parentGroup.addContact(newContact);
             }
             else
             {
@@ -892,6 +890,8 @@ public class ServerStoredContactListIcqImpl
                     fireResolvedEvent = true;
                 }
             }
+
+            parentGroup.addContact(newContact);
 
             int index = parentGroup.findContactIndex(newContact);
 
@@ -1144,6 +1144,16 @@ public class ServerStoredContactListIcqImpl
         {
             /** @todo implement buddyCommentChanged() */
             logger.debug("/** @todo implement buddyCommentChanged() */");
+        }
+
+        public void awaitingAuthChanged(Buddy simpleBuddy,
+                                        boolean oldAwaitingAuth,
+                                        boolean newAwaitingAuth)
+        {
+            /** @todo  */
+            logger.debug("awaitingAuthChanged for " + simpleBuddy
+                + " oldAwaitingAuth: " + oldAwaitingAuth
+                + " newAwaitingAuth: " + newAwaitingAuth);
         }
 
     }

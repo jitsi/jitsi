@@ -95,6 +95,20 @@ public abstract class ProtocolProviderFactory
      */
     public static final String PROXY_TYPE = "PROXY_TYPE";
 
+    /**
+    * The name of the property under which we store the the username for the proxy
+    * stored against the PROXY_ADDRESS property.
+    */
+   public static final String PROXY_USERNAME = "PROXY_USERNAME";
+
+   /**
+    * The name of the property under which we store the password for the proxy
+    * stored against the PROXY_ADDRESS property.
+    */
+   public static final String PROXY_PASSWORD = "PROXY_PASSWORD";
+
+
+
 
     /**
      * The name of the property under which we store the name of the transport

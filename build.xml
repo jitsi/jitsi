@@ -77,7 +77,7 @@
 	<condition property="os.home" value="${lib}/os-specific/windows">
         <isset property="is.running.windows"/>
     </condition>
-    
+
     <!-- linux specific properties -->
     <condition property="is.running.linux" value="${os.name}">
         <equals arg1="${os.name}" arg2="linux" casesensitive="false" trim="true"/>
@@ -91,16 +91,16 @@
               value="${basedir}/${lib}/native/linux:${system.LD_LIBRARY_PATH}">
         <isset property="is.running.linux"/>
     </condition>
-    
+
 	<!-- solaris specific properties -->
     <condition property="is.running.solaris" value="${os.name}">
         <equals arg1="${os.name}" arg2="solaris" casesensitive="false" trim="true"/>
     </condition>
-    
+
 	<condition property="is.running.solaris" value="${os.name}">
         <equals arg1="${os.name}" arg2="SunOS" casesensitive="false" trim="true"/>
     </condition>
-	
+
     <condition property="os.home" value="${lib}/os-specific/solaris">
         <isset property="is.running.solaris"/>
     </condition>
@@ -114,7 +114,7 @@
 	<condition property="is.running.macos" value="${os.name}">
 		<os family="mac"/>
     </condition>
-	
+
 	<condition property="os.home" value="${lib}/os-specific/mac">
         <isset property="is.running.macos"/>
     </condition>
@@ -126,12 +126,12 @@
 
 	<!-- set the os.home here in case it was not set before -->
     <property name="os.home" value="${lib}"/>
-	
+
 	<!-- set the jmf.properties here in case they were not set before -->
     <property name="jmf.jar" value="${os.home}/installer-exclude/jmf.jar"/>
     <property name="sound.jar" value="${os.home}/installer-exclude/sound.jar"/>
     <!-- end jmf.home-->
-	
+
 	<property name="jdic_stub.jar" value="${os.home}/jdic_stub.jar"/>
 
     <path id="project.source.path">
@@ -146,14 +146,14 @@
 
         <!-- for mac specific plugins -->
         <pathelement location="/System/Library/Java"/>
-        	
+
         <!-- Include all JAR files found in lib and any of its subdirectories. -->
         <fileset dir="${lib}">
             <include name="*.jar"/>
         	<include name="installer-exclude/*.jar"/>
         	<include name="bundles/*.jar"/>
         </fileset>
-    	
+
     	<fileset dir="${os.home}">
             <include name="**/*.jar"/>
         </fileset>
@@ -358,7 +358,7 @@
               tofile="${macosx.resrc.dir}/logging.properties"
               overwrite="true"/>
       <replace file="${macosx.resrc.dir}/logging.properties"
-            token="java.util.logging.FileHandler.pattern = %h/.sip-communicator/log" 
+            token="java.util.logging.FileHandler.pattern = %h/.sip-communicator/log"
             value="java.util.logging.FileHandler.pattern = log"/>
 
       <!-- Prepare the felix.client.run.properties file for macosx -->
@@ -366,9 +366,9 @@
             tofile="${macosx.resrc.dir}/felix.client.run.properties"
             overwrite="true"/>
       <replace file="${macosx.resrc.dir}/felix.client.run.properties"
-            token="org.osgi.framework.system.packages=" 
+            token="org.osgi.framework.system.packages="
             value="org.osgi.framework.system.packages= com.growl;"/>
-      <echo file="${macosx.resrc.dir}/felix.client.run.properties" 
+      <echo file="${macosx.resrc.dir}/felix.client.run.properties"
             append="true">felix.auto.start.70= reference:file:sc-bundles/os-specific/macosx/growlnotification.jar
       </echo>
 
@@ -433,7 +433,7 @@
                 value="${macosx.app.name}-tmp.dmg"/>
       <delete file="${macosx.app.dir}/${macosx.dmg.name}"
               quiet="yes" failonerror="false"/>
-      
+
       <!-- Create a temporary Disk Image -->
       <exec executable="/usr/bin/hdiutil" os="Mac OS X">
         <arg value="create"/>
@@ -470,7 +470,7 @@
         <arg value="${release}/${macosx.app.name}"/>
       </exec>
       <!-- Add a symbolic link to the Applications directory -->
-      <symlink link="${release}/${macosx.app.name}" resource="/Applications"/> 
+      <symlink link="${release}/${macosx.app.name}" resource="/Applications"/>
       <!-- Detach the temporary image -->
       <exec executable="/usr/bin/hdiutil" os="Mac OS X">
         <arg value="detach"/>
@@ -694,7 +694,7 @@
             fork="true"
             failonerror="true"
             classpathref="project.class.path">
-        	
+
             <!-- Sets the charset for the messages -->
             <!--sysproperty key="icq.custom.message.charset" value="windows-1252"/-->
 
@@ -708,7 +708,7 @@
 
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="true"/>
-        	
+
             <!-- Setting properties necessary for dependencies on native libs.-->
         	<sysproperty key="java.library.path" value="${ld.library.path}:${path}:${dyld.library.path}"/>
             <env key="LD_LIBRARY_PATH" value="${ld.library.path}"/>
@@ -1058,9 +1058,11 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/protocol/icq/icq.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/icq"
                 prefix="net/java/sip/communicator/impl/protocol/icq"/>
-            <zipfileset src="${excludelib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
-            <zipfileset src="${excludelib}/oscar-aim.jar" prefix=""/>
-            <zipfileset src="${excludelib}/retroweaver-rt.jar" prefix=""/>
+            <zipfileset src="${excludelib}/joscar-client.jar" prefix=""/>
+            <zipfileset src="${excludelib}/joscar-common.jar" prefix=""/>
+            <zipfileset src="${excludelib}/joscar-protocol.jar" prefix=""/>
+            <zipfileset src="${excludelib}/retroweaver-rt-2.0Beta2.jar" prefix=""/>
+            <zipfileset src="${excludelib}/jsocks-klea.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1071,9 +1073,11 @@ javax.swing.event, javax.swing.border"/>
             manifest="test/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/icq"
                 prefix="net/java/sip/communicator/slick/protocol/icq"/>
-            <zipfileset src="${excludelib}/joscar-0.9.4-cvs-bin.jar" prefix=""/>
-            <zipfileset src="${excludelib}/oscar-aim.jar" prefix=""/>
-            <zipfileset src="${excludelib}/retroweaver-rt.jar" prefix=""/>
+            <zipfileset src="${excludelib}/joscar-client.jar" prefix=""/>
+            <zipfileset src="${excludelib}/joscar-common.jar" prefix=""/>
+            <zipfileset src="${excludelib}/joscar-protocol.jar" prefix=""/>
+            <zipfileset src="${excludelib}/retroweaver-rt-2.0Beta2.jar" prefix=""/>
+            <zipfileset src="${excludelib}/jsocks-klea.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1338,13 +1342,13 @@ javax.swing.event, javax.swing.border"/>
                     prefix="net/java/sip/communicator/plugin/splashscreen"/>
             </jar>
         </target>
-	
+
 	<!--BUNDLE-MEDIA-->
     <target name="bundle-plugin-systray">
         <!-- Creates a bundle for the Systray plugin."-->
         <jar
             compress="false" destfile="${bundles.dest}/systray.jar"
-            manifest="src/net/java/sip/communicator/plugin/systray/systray.manifest.mf">            
+            manifest="src/net/java/sip/communicator/plugin/systray/systray.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/systray"
                 prefix="net/java/sip/communicator/plugin/systray"/>
         </jar>

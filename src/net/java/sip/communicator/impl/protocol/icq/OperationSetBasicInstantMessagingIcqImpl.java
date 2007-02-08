@@ -8,9 +8,6 @@ package net.java.sip.communicator.impl.protocol.icq;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.icq.message.common.*;
-import net.java.sip.communicator.impl.protocol.icq.message.imicbm.*;
-import net.java.sip.communicator.impl.protocol.icq.message.offline.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -19,9 +16,11 @@ import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
 import net.kano.joscar.snaccmd.error.*;
 import net.kano.joscar.snaccmd.icbm.*;
+import net.kano.joscar.snaccmd.icq.*;
 import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
+
 
 /**
  * A straightforward implementation of the basic instant messaging operation
@@ -73,14 +72,6 @@ public class OperationSetBasicInstantMessagingIcqImpl
     private OperationSetPersistentPresenceIcqImpl opSetPersPresence = null;
 
     /**
-     * Incoming messages has channels.
-     * joscar and joustsim handle only channel one and two.
-     * This is patch to handle and fourth one.
-     */
-    private ChannelFourCmdFactory channelFourCmdFactory
-        = new ChannelFourCmdFactory();
-
-    /**
      * I do not why but we sometimes receive messages with a date in the future.
      * I've decided to ignore such messages. I draw the line on
      * currentTimeMillis() + ONE_DAY milliseconds. Anything with a date farther
@@ -126,9 +117,6 @@ public class OperationSetBasicInstantMessagingIcqImpl
     {
         this.icqProvider = icqProvider;
         icqProvider.addRegistrationStateChangeListener(providerRegListener);
-
-        channelFourCmdFactory.addCommandHandler
-            (IcbmChannelFourCommand.MTYPE_PLAIN, new PlainMessageHandler());
     }
 
     /**
@@ -207,12 +195,15 @@ public class OperationSetBasicInstantMessagingIcqImpl
     {
         assertConnected();
 
-        if (to.getPresenceStatus().isOnline())
-        {
-            ImConversation imConversation =
+        ImConversation imConversation =
                 icqProvider.getAimConnection().getIcbmService().
                 getImConversation(
                     new Screenname(to.getAddress()));
+
+
+        if (to.getPresenceStatus().isOnline())
+        {
+
 
             //do not add the conversation listener in here. we'll add it
             //inside the icbm listener
@@ -220,8 +211,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
             imConversation.sendMessage(new SimpleMessage(message.getContent()));
         }
         else
-            icqProvider.getAimConnection().getIcbmService().
-                sendSnac(new SendOfflineIm(to.getAddress(), message.getContent()));
+            imConversation.sendMessage(new SimpleMessage(message.getContent()), true);
 
         //temporarily and uglity fire the sent event here.
         /** @todo move elsewhaere */
@@ -242,20 +232,20 @@ public class OperationSetBasicInstantMessagingIcqImpl
     private static int offlineMessageRequestID = 0;
     private void retreiveOfflineMessages()
     {
-        OfflineMsgRequest offlineMsgsReq = new OfflineMsgRequest();
         int requestID = offlineMessageRequestID++;
-        SnacCommand cmd = new ToIcqCmd(
-            Long.parseLong(
-                icqProvider.getAimSession().getScreenname().getNormal()),
-            offlineMsgsReq.getType(),
-            requestID,
-            offlineMsgsReq);
+        OfflineMsgIcqRequest offlineMsgsReq =
+            new OfflineMsgIcqRequest(
+                Long.parseLong(
+                    icqProvider.getAimSession().getScreenname().getNormal()),
+                requestID
+            );
 
         OfflineMessagesRetriever responseRetriever =
             new OfflineMessagesRetriever(requestID);
-        SnacRequest snReq = new SnacRequest(cmd, responseRetriever);
+        SnacRequest snReq = new SnacRequest(offlineMsgsReq, responseRetriever);
 
-        icqProvider.getAimConnection().getInfoService().sendSnacRequest(snReq);
+        icqProvider.getAimConnection().getInfoService().
+            getOscarConnection().sendSnacRequest(snReq);
     }
 
     private class OfflineMessagesRetriever
@@ -274,12 +264,14 @@ public class OperationSetBasicInstantMessagingIcqImpl
             logger.debug("Received a response to our offline message request: " +
                          snac);
 
-            if (snac instanceof OfflineMsgCmd)
+            if (snac instanceof OfflineMsgIcqCmd)
             {
-                OfflineMsgCmd offlineMsgCmd = (OfflineMsgCmd) snac;
-                if (!offlineMsgCmd.isEndOfOfflineMessages())
+                OfflineMsgIcqCmd offlineMsgCmd = (OfflineMsgIcqCmd) snac;
+
+                if (!offlineMsgCmd.getType().
+                    equals(AbstractIcqCmd.CMD_OFFLINE_MSG_DONE))
                 {
-                    String contactUIN = String.valueOf(offlineMsgCmd.getUin());
+                    String contactUIN = String.valueOf(offlineMsgCmd.getFromUIN());
                     Contact sourceContact =
                         opSetPersPresence.findContactByID(contactUIN);
                     if (sourceContact == null)
@@ -315,18 +307,15 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 {
                     logger.debug("send ack to delete offline messages");
 
-                    OfflineMsgDeleteRequest offlineMsgDeleteReq = new
-                        OfflineMsgDeleteRequest();
-                    SnacCommand cmd = new ToIcqCmd(
-                        Long.parseLong(
+                    OfflineMsgIcqAckCmd offlineMsgDeleteReq = new
+                        OfflineMsgIcqAckCmd(
+                            Long.parseLong(
                             icqProvider.getAimSession().getScreenname().
                             getNormal()),
-                        offlineMsgDeleteReq.getType(),
-                        requestID,
-                        offlineMsgDeleteReq);
-
-                    icqProvider.getAimConnection().getInfoService().sendSnac(
-                        cmd);
+                            requestID
+                        );
+                    icqProvider.getAimConnection().getInfoService().
+                        getOscarConnection().sendSnac(offlineMsgDeleteReq);
                 }
             }
             else
@@ -357,17 +346,6 @@ public class OperationSetBasicInstantMessagingIcqImpl
     }
 
     /**
-     * This method is used to provide the factory instance so
-     * othe operations can add their handlers in it, for certain commands.
-     *
-     * @return ChannelFourCmdFactory the factory instance
-     */
-    public ChannelFourCmdFactory getChannelFourFactory()
-    {
-        return channelFourCmdFactory;
-    }
-
-    /**
      * Determines wheter the protocol provider (or the protocol itself) support
      * sending and receiving offline messages. Most often this method would
      * return true for protocols that support offline messages and false for
@@ -384,29 +362,6 @@ public class OperationSetBasicInstantMessagingIcqImpl
     public boolean isOfflineMessagingSupported()
     {
         return true;
-    }
-
-    /**
-     * Fix of issue 142
-     * Some clients send messages through channel 4
-     */
-    private class PlainMessageHandler
-        implements ChFourPacketHandler
-    {
-        public SnacCommand handle(IcbmChannelFourCommand cmd)
-        {
-            return new RecvImIcbm(
-                        cmd.getRequestID(),
-                        cmd.getUserInfo(),
-                        new InstantMessage(cmd.getReason()),
-                        cmd.isAutoResponse(),
-                        cmd.senderWantsIcon(),
-                        cmd.getIconInfo(),
-                        null,
-                        cmd.getFeaturesBlock(),
-                        true);
-        }
-
     }
 
     /**
@@ -437,11 +392,6 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 opSetPersPresence = (OperationSetPersistentPresenceIcqImpl)
                     icqProvider.getSupportedOperationSets()
                         .get(OperationSetPersistentPresence.class.getName());
-
-                // registers the factory handling channel 4 messages
-                icqProvider.getAimConnection().getIcbmService().
-                    getOscarConnection().getSnacProcessor().getCmdFactoryMgr().
-                    getDefaultFactoryList().registerAll(channelFourCmdFactory);
 
                 retreiveOfflineMessages();
 
@@ -535,6 +485,14 @@ public class OperationSetBasicInstantMessagingIcqImpl
         {
             logger.debug("buddy info pudated for " + buddy
                                 + " new info is: " + info);
+        }
+
+        public void sendAutomaticallyFailed(
+            IcbmService service,
+            net.kano.joustsim.oscar.oscar.service.icbm.Message message,
+            Set triedConversations)
+        {
+            logger.debug("sendAutomaticallyFailed message : " + message);
         }
 
     }

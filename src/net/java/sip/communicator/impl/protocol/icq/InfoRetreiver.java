@@ -8,11 +8,13 @@ package net.java.sip.communicator.impl.protocol.icq;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.icq.message.common.*;
-import net.java.sip.communicator.impl.protocol.icq.message.usrinfo.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
+import net.kano.joustsim.*;
+import net.kano.joscar.snaccmd.icq.*;
+import net.java.sip.communicator.service.protocol.*;
+import java.net.*;
 
 /**
  * @author Damian Minkov
@@ -36,6 +38,14 @@ public class InfoRetreiver
 
     // used to generate request id when sending commands for retreiving user info
     private static int requestID = 0;
+
+    /**
+     * As all the Full User Info comes in
+     * sequences of 8 packets acording to the
+     * requestID we keep the stored Info so far.
+     */
+    private static Hashtable retreivedInfo = new Hashtable();
+
 
     protected InfoRetreiver
         (ProtocolProviderServiceIcqImpl icqProvider, String ownerUin)
@@ -107,34 +117,23 @@ public class InfoRetreiver
 
         if(result == null)
         {
+            int reqID = requestID++;
+
             //retreive the details
             long toICQUin = Long.parseLong(uin);
-            FullInfoRequest infoRequest = new FullInfoRequest(toICQUin);
-
-            int reqID = requestID++;
+            MetaFullInfoRequest infoRequest =
+                new MetaFullInfoRequest(
+                    Long.parseLong(ownerUin),
+                    reqID,
+                    toICQUin);
 
             UserInfoResponseRetriever responseRetriever =
                 new UserInfoResponseRetriever(reqID);
 
-            SnacCommand cmd = new ToIcqCmd(
-                Long.parseLong(ownerUin),
-                infoRequest.getType(),
-                reqID,
-                infoRequest);
+            icqProvider.getAimConnection().getInfoService().getOscarConnection()
+                .sendSnacRequest(infoRequest, responseRetriever);
 
-            icqProvider.getAimConnection().getInfoService()
-                .sendSnacRequest(cmd, responseRetriever);
-
-            synchronized(responseRetriever)
-            {
-                try{
-                    responseRetriever.wait(10000);
-                }
-                catch (InterruptedException ex)
-                {
-                    //we don't care
-                }
-            }
+            responseRetriever.waitForLastInfo(10000);
 
             result = responseRetriever.result;
             retreivedDetails.put(uin, result);
@@ -160,20 +159,60 @@ public class InfoRetreiver
         {
             SnacCommand snac = e.getSnacCommand();
 
-            if (snac instanceof FullInfoCmd)
+            if (snac instanceof MetaBasicInfoCmd)
             {
-                FullInfoCmd infoSnac = (FullInfoCmd)snac;
+                readBasicUserInfo((MetaBasicInfoCmd)snac);
+            }
+            else if (snac instanceof MetaMoreInfoCmd)
+            {
+                readMoreUserInfo((MetaMoreInfoCmd)snac);
+            }
+            else if (snac instanceof MetaEmailInfoCmd)
+            {
+                readEmailUserInfo((MetaEmailInfoCmd)snac);
+            }
+            else if (snac instanceof MetaHomepageCategoryInfoCmd)
+            {
+                readHomePageUserInfo((MetaHomepageCategoryInfoCmd)snac);
+            }
+            else if (snac instanceof MetaWorkInfoCmd)
+            {
+                readWorkUserInfo((MetaWorkInfoCmd)snac);
+            }
+            else if (snac instanceof MetaNotesInfoCmd)
+            {
+                readUserAboutInfo((MetaNotesInfoCmd)snac);
+            }
+            else if (snac instanceof MetaInterestsInfoCmd)
+            {
+                readInterestsUserInfo((MetaInterestsInfoCmd)snac);
+            }
+            else if (snac instanceof MetaAffiliationsInfoCmd)
+            {
+                readAffilationsUserInfo((MetaAffiliationsInfoCmd)snac);
 
-                if(infoSnac.isLastOfSequences() &&
-                   infoSnac.getRequestID() == requestID)
+                result =
+                    getInfoForRequest(((MetaAffiliationsInfoCmd)snac).getId());
+                // this is the last packet
+                synchronized(this){this.notifyAll();}
+            }
+        }
+
+        public void waitForLastInfo(long waitFor)
+        {
+            synchronized(this)
+            {
+                try{
+                    wait(waitFor);
+                }
+                catch (InterruptedException ex)
                 {
-                    //get the result
-                    result = infoSnac.getInfo();
-
-                    synchronized(this){this.notifyAll();}
+                    logger.debug(
+                        "Interrupted while waiting for a subscription evt", ex);
                 }
             }
         }
+
     }
 
     /**
@@ -222,16 +261,11 @@ public class InfoRetreiver
                 new ShortInfoResponseRetriever();
 
         long longUin = Long.parseLong(uin);
-        MetaShortInfoRequest req = new MetaShortInfoRequest(longUin);
+        MetaShortInfoRequest req =
+            new MetaShortInfoRequest(Long.parseLong(ownerUin), 2, longUin);
 
-        SnacCommand cmd = new ToIcqCmd(
-                        Long.parseLong(ownerUin),
-                        req.getType(),
-                        2,
-                        req);
-
-        icqProvider.getAimConnection().getInfoService()
-            .sendSnacRequest(cmd, responseRetriever);
+        icqProvider.getAimConnection().getInfoService().getOscarConnection()
+            .sendSnacRequest(req, responseRetriever);
 
         synchronized(responseRetriever)
         {
@@ -245,5 +279,302 @@ public class InfoRetreiver
         }
 
         return responseRetriever.nickname;
+    }
+
+    /**
+     * Metods retrieving data and storing it
+     */
+    /**
+     * Returns the stored info so far on the specified request
+     *
+     * @param requestID int
+     * @return List
+     */
+    private List getInfoForRequest(int requestID)
+    {
+        List res = (List) retreivedInfo.get(new Integer(requestID));
+
+        if (res == null)
+        {
+            // this indicates that the info data
+            // doesn't exists, so this is the first packet
+            // from the sequence (basic info)
+
+            res = new LinkedList();
+            retreivedInfo.put(new Integer(requestID), res);
+        }
+
+        return res;
+    }
+
+    /**
+    * Method for parsing incoming data
+    * Read data in MetaBasicInfoCmd command
+    * @param cmd MetaBasicInfoCmd
+    */
+    private void readBasicUserInfo(MetaBasicInfoCmd cmd)
+    {
+        List infoData = getInfoForRequest(cmd.getId());
+
+        Locale countryCodeLocale =
+            OperationSetServerStoredAccountInfoIcqImpl.getCountry(cmd.getCountryCode());
+        if (countryCodeLocale != null)
+            infoData.add(new ServerStoredDetails.CountryDetail(
+                countryCodeLocale));
+
+        // the following are not used
+        // cmd.getGmtOffset()
+        // cmd.isAuthorization()
+        // cmd.isWebAware()
+        // cmd.isPublishPrimaryEmail()
+
+        // everything is read lets store it
+        String tmp = null;
+        if ((tmp = cmd.getNickname()) != null)
+            infoData.add(new ServerStoredDetails.NicknameDetail(tmp));
+        if ((tmp = cmd.getFirstName()) != null)
+            infoData.add(new ServerStoredDetails.FirstNameDetail(tmp));
+        if ((tmp = cmd.getLastName()) != null)
+            infoData.add(new ServerStoredDetails.LastNameDetail(tmp));
+        if ((tmp = cmd.getEmail()) != null)
+            infoData.add(new ServerStoredDetails.EmailAddressDetail(tmp));
+        if ((tmp = cmd.getHomeCity()) != null)
+            infoData.add(new ServerStoredDetails.CityDetail(tmp));
+        if ((tmp = cmd.getHomeState()) != null)
+            infoData.add(new ServerStoredDetails.ProvinceDetail(tmp));
+        if ((tmp = cmd.getHomePhone()) != null)
+            infoData.add(new ServerStoredDetails.PhoneNumberDetail(tmp));
+        if ((tmp = cmd.getHomeFax()) != null)
+            infoData.add(new ServerStoredDetails.FaxDetail(tmp));
+        if ((tmp = cmd.getHomeAddress()) != null)
+            infoData.add(new ServerStoredDetails.AddressDetail(tmp));
+        if ((tmp = cmd.getCellPhone()) != null)
+            infoData.add(new ServerStoredDetails.MobilePhoneDetail(tmp));
+        if ((tmp = cmd.getHomeZip()) != null)
+            infoData.add(new ServerStoredDetails.PostalCodeDetail(tmp));
+    }
+
+    /**
+     * Method for parsing incoming data
+     * Read data in MoreUserInfo command
+     * @param cmd MetaMoreInfoCmd
+     */
+    private void readMoreUserInfo(MetaMoreInfoCmd cmd)
+    {
+        List infoData = getInfoForRequest(cmd.getId());
+
+        ServerStoredDetails.GenderDetail gender =
+            OperationSetServerStoredAccountInfoIcqImpl.genders[cmd.getGender()];
+        if(gender != null)
+            infoData.add(gender);
+
+        String tmp = null;
+
+        try
+        {
+            if((tmp = cmd.getHomepage()) != null)
+                infoData.add(new ServerStoredDetails.WebPageDetail(new URL(tmp)));
+        }
+        catch (MalformedURLException ex)
+        {}
+
+        Calendar birthDate = Calendar.getInstance();
+        birthDate.setTime(cmd.getBirthDate());
+        infoData.add(new ServerStoredDetails.BirthDateDetail(birthDate));
+
+        Locale spokenLanguage1 =
+            OperationSetServerStoredAccountInfoIcqImpl.
+            getSpokenLanguage(cmd.getSpeakingLanguages()[0]);
+        if(spokenLanguage1 != null)
+            infoData.add(
+                new ServerStoredDetails.SpokenLanguageDetail(spokenLanguage1));
+
+        Locale spokenLanguage2 =
+            OperationSetServerStoredAccountInfoIcqImpl.
+            getSpokenLanguage(cmd.getSpeakingLanguages()[1]);
+        if(spokenLanguage2 != null)
+            infoData.add(
+                new ServerStoredDetails.SpokenLanguageDetail(spokenLanguage2));
+
+        Locale spokenLanguage3 =
+            OperationSetServerStoredAccountInfoIcqImpl.
+            getSpokenLanguage(cmd.getSpeakingLanguages()[2]);
+        if(spokenLanguage3 != null)
+            infoData.add(
+                new ServerStoredDetails.SpokenLanguageDetail(spokenLanguage3));
+
+        if((tmp = cmd.getOriginalCity()) != null)
+            infoData.add(
+            new OperationSetServerStoredAccountInfoIcqImpl.OriginCityDetail(tmp));
+
+        if((tmp = cmd.getOriginalState()) != null)
+            infoData.add(
+            new OperationSetServerStoredAccountInfoIcqImpl.OriginProvinceDetail(tmp));
+
+        Locale originCountryLocale =
+            OperationSetServerStoredAccountInfoIcqImpl.getCountry(cmd.getOriginalCountryCode());
+        if(originCountryLocale != null)
+            infoData.add(
+            new OperationSetServerStoredAccountInfoIcqImpl.
+                OriginCountryDetail(originCountryLocale));
+
+
+        int userGMTOffset = cmd.getTimeZone();
+        TimeZone userTimeZone = null;
+        if(userGMTOffset >= 0)
+            userTimeZone = TimeZone.getTimeZone("GMT+" + userGMTOffset);
+        else
+            userTimeZone = TimeZone.getTimeZone("GMT" + userGMTOffset);
+
+        infoData.add(new ServerStoredDetails.TimeZoneDetail("GMT Offest", userTimeZone));
+    }
+
+    /**
+     * Method for parsing incoming data
+     * Read data in EmailUserInfo command
+     * @param cmd MetaEmailInfoCmd
+     */
+    private void readEmailUserInfo(MetaEmailInfoCmd cmd)
+    {
+        List infoData = getInfoForRequest(cmd.getId());
+
+        String emails[] = cmd.getEmails();
+
+        if(emails == null)
+            return;
+
+        for (int i = 0; i < emails.length; i++)
+        {
+            infoData.add(new ServerStoredDetails.EmailAddressDetail(emails[i]));
+        }
+    }
+
+    /**
+     * Method for parsing incoming data
+     * Read data in HomePageUserInfo command
+     * @param cmd MetaHomepageCategoryInfoCmd
+     */
+    private void readHomePageUserInfo(MetaHomepageCategoryInfoCmd cmd)
+    {
+        List infoData = getInfoForRequest(cmd.getId());
+
+        String tmp = null;
+
+        try
+        {
+            if ((tmp = cmd.getKeywords()) != null)
+                infoData.add(new ServerStoredDetails.WebPageDetail(new URL(tmp)));
+        }
+        catch (MalformedURLException ex)
+        {}
+    }
+
+    /**
+     * Method for parsing incoming data
+     * Read data in WorkUserInfo command
+     * @param cmd MetaWorkInfoCmd
+     */
+    private void readWorkUserInfo(MetaWorkInfoCmd cmd)
+    {
+        List infoData = getInfoForRequest(cmd.getId());
+
+        String tmp = null;
+        if ((tmp = cmd.getWorkCity()) != null)
+            infoData.add(new ServerStoredDetails.WorkCityDetail(tmp));
+        if ((tmp = cmd.getWorkState()) != null)
+            infoData.add(new ServerStoredDetails.WorkProvinceDetail(tmp));
+        if ((tmp = cmd.getWorkPhone()) != null)
+            infoData.add(new ServerStoredDetails.WorkPhoneDetail(tmp));
+        if ((tmp = cmd.getWorkFax()) != null)
+            infoData.add(
+                new OperationSetServerStoredAccountInfoIcqImpl.WorkFaxDetail(tmp));
+        if ((tmp = cmd.getWorkAddress()) != null)
+            infoData.add(new ServerStoredDetails.WorkAddressDetail(tmp));
+        if ((tmp = cmd.getWorkZipCode()) != null)
+            infoData.add(new ServerStoredDetails.WorkPostalCodeDetail(tmp));
+
+        Locale workCountry =
+            OperationSetServerStoredAccountInfoIcqImpl.getCountry(cmd.getWorkCountryCode());
+        if (workCountry != null)
+            infoData.add(new ServerStoredDetails.WorkCountryDetail(workCountry));
+
+        if ((tmp = cmd.getWorkCompany()) != null)
+            infoData.add(new ServerStoredDetails.WorkOrganizationNameDetail(tmp));
+        if ((tmp = cmd.getWorkDepartment()) != null)
+            infoData.add(
+            new OperationSetServerStoredAccountInfoIcqImpl.WorkDepartmentNameDetail(tmp));
+        if ((tmp = cmd.getWorkPosition()) != null)
+            infoData.add(
+            new OperationSetServerStoredAccountInfoIcqImpl.WorkPositionNameDetail(tmp));
+
+        int workOccupationCode = cmd.getWorkOccupationCode();
+        if (workOccupationCode == 99)
+            infoData.add(
+                new OperationSetServerStoredAccountInfoIcqImpl.
+                    WorkOcupationDetail(OperationSetServerStoredAccountInfoIcqImpl.
+                        occupations[OperationSetServerStoredAccountInfoIcqImpl.occupations.length - 1]));
+        else
+            infoData.add(
+            new OperationSetServerStoredAccountInfoIcqImpl.
+                WorkOcupationDetail(
+                    OperationSetServerStoredAccountInfoIcqImpl.occupations[workOccupationCode]));
+
+        try
+        {
+            if ((tmp = cmd.getWorkWebPage()) != null)
+                infoData.add(new ServerStoredDetails.WorkPageDetail(new URL(tmp)));
+        }
+        catch (MalformedURLException ex)
+        {}
+    }
+
+    /**
+     * Method for parsing incoming data
+     * Read data in UserAboutInfo command
+     * @param cmd MetaNotesInfoCmd
+     */
+    private void readUserAboutInfo(MetaNotesInfoCmd cmd)
+    {
+        List infoData = getInfoForRequest(cmd.getId());
+
+        if (cmd.getNotes() != null)
+            infoData.add(
+                new OperationSetServerStoredAccountInfoIcqImpl.NotesDetail(cmd.getNotes()));
+    }
+
+    /**
+     * Method for parsing incoming data
+     * Read data in InterestsUserInfo command
+     * @param cmd MetaInterestsInfoCmd
+     */
+    private void readInterestsUserInfo(MetaInterestsInfoCmd cmd)
+    {
+        List infoData = getInfoForRequest(cmd.getId());
+
+        int[] categories = cmd.getCategories();
+        String[] interests = cmd.getInterests();
+        for (int i = 0; i < interests.length; i++)
+        {
+            int category = categories[i];
+            if (category != 0)
+            {
+                // as the categories are between 100 and 150 we shift them
+                // because their string representations are stored in array
+                category = category - 99;
+            }
+            infoData.add(
+                new OperationSetServerStoredAccountInfoIcqImpl.InterestDetail(
+                    interests[i],
+                    OperationSetServerStoredAccountInfoIcqImpl.interestsCategories[category]));
+        }
+    }
+
+    /**
+     * Not used for now
+     * @param cmd MetaAffiliationsInfoCmd
+     */
+    private void readAffilationsUserInfo(MetaAffiliationsInfoCmd cmd)
+    {
+//        Vector infoData = getInfoForRequest(cmd.getId());
     }
 }

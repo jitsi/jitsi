@@ -291,6 +291,13 @@ public class TestOperationSetTypingNotifications
         public void conversationOpened(Conversation c){}
         public void newConversation(IcbmService service, Conversation conv){}
         public void sentMessage(Conversation c, MessageInfo minfo){}
+
+        public void sendAutomaticallyFailed(
+            IcbmService service,
+            net.kano.joustsim.oscar.oscar.service.icbm.Message message,
+            Set triedConversations)
+        {
+        }
     }
 
 
