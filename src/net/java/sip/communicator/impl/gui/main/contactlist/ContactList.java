@@ -1122,8 +1122,8 @@ public class ContactList
         
         if(listSize > 0 && newListSize > 0)
         {
-            listModel.contentRemoved(newListSize - 1, listSize - 1);
             listModel.contentChanged(0, newListSize - 1);
+            listModel.contentRemoved(newListSize - 1, listSize - 1);            
         }
     }
 

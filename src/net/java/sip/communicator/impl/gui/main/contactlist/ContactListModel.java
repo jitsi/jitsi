@@ -131,6 +131,10 @@ public class ContactListModel
             if (showOffline)
             {
                 size = group.countChildContacts();
+                
+                //count the group itself only if it's not empty
+                if(size > 0)
+                    size++;
             }
             else
             {
@@ -142,8 +146,11 @@ public class ContactListModel
                     if (isContactOnline(contact))
                         size++;
                 }
+          
+                //count the group itself only if it contains any online contacts
+                if(size > 0)
+                    size++;
             }
-            size += group.countSubgroups();
 
             Iterator subgroups = group.getSubgroups();
 
@@ -229,7 +236,6 @@ public class ContactListModel
      */
     private int indexOf(MetaContact contact)
     {
-
         int index = -1;
 
         if (showOffline || isContactOnline(contact))
@@ -259,29 +265,32 @@ public class ContactListModel
      */
     private int indexOf(MetaContactGroup group)
     {
-
         int index = -1;
-        int currentIndex = 0;
-        MetaContactGroup parentGroup = this.contactList
-            .findParentMetaContactGroup(group);
-
-        if (parentGroup != null && !this.isGroupClosed(parentGroup))
+        
+        if (showOffline || containsOnlineContacts(group))
         {
-
-            currentIndex += this.indexOf(parentGroup);
-
-            currentIndex += countChildContacts(parentGroup);
-
-            currentIndex += parentGroup.indexOf(group) + 1;
-
-            for (int i = 0; i < parentGroup.indexOf(group); i++)
+            int currentIndex = 0;
+            MetaContactGroup parentGroup = this.contactList
+                .findParentMetaContactGroup(group);
+    
+            if (parentGroup != null && !this.isGroupClosed(parentGroup))
             {
-                MetaContactGroup subGroup = parentGroup
-                    .getMetaContactSubgroup(i);
-
-                currentIndex += countContactsAndSubgroups(subGroup);
+    
+                currentIndex += this.indexOf(parentGroup);
+    
+                currentIndex += countChildContacts(parentGroup);
+    
+                currentIndex += parentGroup.indexOf(group) + 1;
+    
+                for (int i = 0; i < parentGroup.indexOf(group); i++)
+                {
+                    MetaContactGroup subGroup = parentGroup
+                        .getMetaContactSubgroup(i);
+    
+                    currentIndex += countContactsAndSubgroups(subGroup);
+                }
+                index = currentIndex;
             }
-            index = currentIndex;
         }
         return index;
     }
@@ -375,8 +384,10 @@ public class ContactListModel
                     {
                         MetaContactGroup subgroup = (MetaContactGroup) subgroups
                             .next();
-                        element = getElementAt(subgroup, currentIndex + 1,
-                            searchedIndex);
+                        
+                        if(showOffline || containsOnlineContacts(subgroup))
+                            element = getElementAt(subgroup, currentIndex + 1,
+                                searchedIndex);
 
                         if (element != null)
                             break;
@@ -384,10 +395,13 @@ public class ContactListModel
                         {
                             // if we haven't found the element on this iteration
                             // we update the current index and we continue
-                            if (!isGroupClosed(subgroup))
-                                currentIndex += countChildContacts(subgroup) + 1;
-                            else
-                                currentIndex++;
+                            if (showOffline || containsOnlineContacts(subgroup))
+                            {
+                                if (!isGroupClosed(subgroup))
+                                    currentIndex += countChildContacts(subgroup) + 1;
+                                else
+                                    currentIndex++;
+                            }
                         }
                     }
                 }
@@ -512,5 +526,19 @@ public class ContactListModel
             }
             return count;
         }
+    }
+    
+    private boolean containsOnlineContacts(MetaContactGroup group)
+    {
+        Iterator childContacts = group.getChildContacts();
+        while (childContacts.hasNext())
+        {
+            MetaContact contact = (MetaContact) childContacts.next();
+
+            if (isContactOnline(contact))
+                return true;
+        }
+        
+        return false;
     }
 }
