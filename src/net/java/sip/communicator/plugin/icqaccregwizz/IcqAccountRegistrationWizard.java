@@ -8,8 +8,6 @@ package net.java.sip.communicator.plugin.icqaccregwizz;
 
 import java.util.*;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -31,11 +29,11 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
         = new IcqAccountRegistration();
 
     private WizardContainer wizardContainer;
-    
+
     private ProtocolProviderService protocolProvider;
-    
+
     private boolean isModification;
-    
+
     /**
      * Creates an instance of <tt>IcqAccountRegistrationWizard</tt>.
      * @param wizardContainer the wizard container, where this wizard
@@ -75,9 +73,9 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
     public Iterator getPages() {
         ArrayList pages = new ArrayList();
         firstWizardPage = new FirstWizardPage(registration, wizardContainer);
-        
+
         pages.add(firstWizardPage);
-        
+
         return pages.iterator();
     }
 
@@ -90,6 +88,16 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
         summaryTable.put("UIN", registration.getUin());
         summaryTable.put("Remember password",
                 new Boolean(registration.isRememberPassword()));
+        summaryTable.put(Resources.getString("proxy"),
+        registration.getProxy());
+        summaryTable.put(Resources.getString("proxyPort"),
+                         registration.getProxyPort());
+        summaryTable.put(Resources.getString("proxyType"),
+                         registration.getProxyType());
+        summaryTable.put(Resources.getString("proxyUsername"),
+                         registration.getProxyPort());
+        summaryTable.put(Resources.getString("proxyPassword"),
+                         registration.getProxyType());
 
         return summaryTable.entrySet().iterator();
     }
@@ -99,10 +107,10 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
      */
     public ProtocolProviderService finish() {
         firstWizardPage = null;
-        ProtocolProviderFactory factory 
+        ProtocolProviderFactory factory
             = IcqAccRegWizzActivator.getIcqProtocolProviderFactory();
-      
-        return this.installAccount(factory, 
+
+        return this.installAccount(factory,
                 registration.getUin(), registration.getPassword());
     }
 
@@ -124,19 +132,37 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
         if(registration.isRememberPassword()) {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
-        
+
+        if(registration.getProxyType() != null)
+        {
+            accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
+                registration.getProxy());
+
+            accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
+                registration.getProxyPort());
+
+            accountProperties.put(ProtocolProviderFactory.PROXY_TYPE,
+                registration.getProxyType());
+
+            accountProperties.put(ProtocolProviderFactory.PROXY_USERNAME,
+                registration.getProxyUsername());
+
+            accountProperties.put(ProtocolProviderFactory.PROXY_PASSWORD,
+                registration.getProxyPassword());
+        }
+
         if(isModification) {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;
         }
-        
+
         try {
             AccountID accountID = providerFactory.installAccount(
                     user, accountProperties);
-        
+
             ServiceReference serRef = providerFactory
                 .getProviderForAccount(accountID);
-    
+
             protocolProvider
                 = (ProtocolProviderService) IcqAccRegWizzActivator.bundleContext
                     .getService(serRef);
@@ -146,11 +172,11 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
         }
         catch (IllegalStateException e) {
             new ErrorDialog(null, e.getMessage(), e).showDialog();
-        }       
-        
+        }
+
         return protocolProvider;
     }
-    
+
     /**
      * Fills the UIN and Password fields in this panel with the data comming
      * from the given protocolProvider.
@@ -158,11 +184,11 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
      * data from.
      */
     public void loadAccount(ProtocolProviderService protocolProvider) {
-        
+
         this.protocolProvider = protocolProvider;
-        
+
         this.firstWizardPage.loadAccount(protocolProvider);
-        
+
         this.isModification = true;
     }
 }

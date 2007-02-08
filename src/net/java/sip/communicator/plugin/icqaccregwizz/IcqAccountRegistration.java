@@ -9,16 +9,26 @@ package net.java.sip.communicator.plugin.icqaccregwizz;
 /**
  * The <tt>IcqAccountRegistration</tt> is used to store all user input data
  * through the <tt>IcqAccountRegistrationWizard</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class IcqAccountRegistration {
 
     private String uin;
-    
+
     private String password;
-    
+
     private boolean rememberPassword;
+
+    private String proxyPort;
+
+    private String proxy;
+
+    private String proxyType;
+
+    private String proxyUsername;
+
+    private String proxyPassword;
 
     /**
      * Returns the password of the icq registration account.
@@ -68,4 +78,84 @@ public class IcqAccountRegistration {
     public void setUin(String uin) {
         this.uin = uin;
     }
+
+    /**
+     * Returns the proxy that will be used for this icq account.
+     * @return the proxy that will be used for this icq account.
+     */
+    public String getProxy() {
+        return proxy;
+    }
+
+    /**
+     * Sets the proxy for this icq account.
+     * @param proxy the proxy for this icq account.
+     */
+    public void setProxy(String proxy) {
+        this.proxy = proxy;
+    }
+
+    /**
+     * Returns the proxy port that will be used for this icq account.
+     * @return the proxy port that will be used for this icq account.
+     */
+    public String getProxyPort() {
+        return proxyPort;
+    }
+
+    /**
+     * Sets the proxy port for this icq account.
+     * @param proxyPort the proxy port for this icq account.
+     */
+    public void setProxyPort(String proxyPort) {
+        this.proxyPort = proxyPort;
+    }
+
+    /**
+     * Returns the proxy type that will be used for this icq account.
+     * @return the proxy type that will be used for this icq account.
+     */
+    public String getProxyType() {
+        return proxyType;
+    }
+
+    /**
+     * Sets the proxy type for this icq account.
+     * @param proxyPort the proxy type for this icq account.
+     */
+    public void setProxyType(String proxyType) {
+        this.proxyType = proxyType;
+    }
+
+    /**
+     * Returns the proxy password of the icq registration account.
+     * @return the proxy password of the icq registration account.
+     */
+    public String getProxyPassword() {
+        return proxyPassword;
+    }
+
+    /**
+     * Sets the proxy password of the icq registration account.
+     * @param password the proxy password of the icq registration account.
+     */
+    public void setProxyPassword(String password) {
+        this.proxyPassword = password;
+    }
+
+    /**
+    * Returns the proxy username of the icq registration account.
+    * @return the proxy username of the icq registration account.
+    */
+   public String getProxyUsername() {
+       return proxyUsername;
+   }
+
+   /**
+    * Sets the proxy username of the icq registration account.
+    * @param password the proxy username of the icq registration account.
+    */
+   public void setProxyUsername(String username) {
+       this.proxyUsername = username;
+   }
 }
