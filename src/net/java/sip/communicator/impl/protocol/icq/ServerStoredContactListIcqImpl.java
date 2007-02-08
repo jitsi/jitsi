@@ -870,11 +870,13 @@ public class ServerStoredContactListIcqImpl
                              + joustSimGroup + " found for buddy: " + buddy);
                 return;
             }
-
+            
             if(newContact == null)
             {
                 newContact = new ContactIcqImpl(
                     buddy, ServerStoredContactListIcqImpl.this, true, true);
+                
+                parentGroup.addContact(newContact);
             }
             else
             {
@@ -890,8 +892,6 @@ public class ServerStoredContactListIcqImpl
                     fireResolvedEvent = true;
                 }
             }
-
-            parentGroup.addContact(newContact);
 
             int index = parentGroup.findContactIndex(newContact);
 
