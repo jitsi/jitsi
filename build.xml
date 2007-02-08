@@ -637,6 +637,14 @@
         depends="prepare-single-test,prepare-all-tests,clean-test-reports"
         description="Starts felix and runs selected Service Impl Compatibility Kits.">
 
+        <!-- brefore we run the tests, make sure we copy os-specific bundles
+             from sc-bundles/osname to its parent sc-bundles-->
+        <copy todir="${bundles.dest}">
+            <fileset dir="${bundles.dest.os}">
+                <include name="**/*.jar"/>
+            </fileset>
+        </copy>
+
         <!-- Do the testing itself. Note that we don't fail on error as we need
              to generate an html report before leaving this target.-->
         <java classname="org.apache.felix.main.Main"
