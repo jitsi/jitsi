@@ -1870,6 +1870,17 @@ public class MetaContactListServiceImpl
 
             MetaContactImpl currentMetaContact = (MetaContactImpl)
                                findMetaContactByContact(evt.getSourceContact());
+
+            if(currentMetaContact == null)
+            {
+                logger.warn("Received a move event for a contact that is "
+                            +"not in our contact list."
+                            , new NullPointerException(
+                                    "Received a move event for a contact that "
+                                    +"is not in our contact list."));
+                return;
+            }
+
              //if the move was caused by us (when merging contacts) then chances
             //are that the contact is already in the right group
             MetaContactGroup currentParentGroup
