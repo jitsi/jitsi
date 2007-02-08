@@ -8,13 +8,22 @@
     <property name="jdk.home" value="/usr/java/java"/>
     <property name="dest" value="classes"/>
     <property name="bundles.dest" value="sc-bundles"/>
-    <property name="bundles.dest.macosx" value="${bundles.dest}/os-specific/macosx"/>
-    <property name="bundles.dest.windows" value="${bundles.dest}/os-specific/windows"/>
-    <property name="bundles.dest.linux" value="${bundles.dest}/os-specific/linux"/>
+    <property name="bundles.dest.mac" value="${bundles.dest}/os-specific/macosx"/>
+    <property name="bundles.dest.win" value="${bundles.dest}/os-specific/windows"/>
+    <property name="bundles.dest.lin" value="${bundles.dest}/os-specific/linux"/>
+    <property name="bundles.dest.sol" value="${bundles.dest}/os-specific/solaris"/>
     <property name="doc" value="doc"/>
     <property name="java.doc" value="${doc}/api"/>
     <property name="lib" value="lib"/>
-    <property name="excludelib" value="${lib}/installer-exclude"/>
+    <property name="lib.win" value="${lib}/os-specific/windows"/>
+    <property name="lib.win.noinst" value="${lib}/os-specific/windows/installer-exclude"/>
+    <property name="lib.lin" value="${lib}/os-specific/linux"/>
+    <property name="lib.lin.noinst" value="${lib}/os-specific/linux/installer-exclude"/>
+    <property name="lib.mac" value="${lib}/os-specific/mac"/>
+    <property name="lib.mac.noinst" value="${lib}/os-specific/mac/installer-exclude"/>
+    <property name="lib.sol" value="${lib}/os-specific/solaris"/>
+    <property name="lib.sol.noinst" value="${lib}/os-specific/solaris/installer-exclude"/>
+    <property name="lib.noinst" value="${lib}/installer-exclude"/>
     <property name="native.libs" value="${lib}/native"/>
     <property name="src" value="src"/>
     <property name="src2" value="test"/>
@@ -70,11 +79,15 @@
     <property file="lib/accounts.properties"/>
 
     <!-- windows specific properties -->
-	<condition property="is.running.windows" value="${os.name}">
+    <condition property="is.running.windows" value="${os.name}">
         <os family="windows"/>
     </condition>
 
-	<condition property="os.home" value="${lib}/os-specific/windows">
+    <condition property="os.lib.home" value="${lib.win}">
+        <isset property="is.running.windows"/>
+    </condition>
+
+    <condition property="bundles.dest.os" value="${bundles.dest.win}">
         <isset property="is.running.windows"/>
     </condition>
 
@@ -83,7 +96,7 @@
         <equals arg1="${os.name}" arg2="linux" casesensitive="false" trim="true"/>
     </condition>
 
-    <condition property="os.home" value="${lib}/os-specific/linux">
+    <condition property="os.lib.home" value="${lib.lin}">
         <isset property="is.running.linux"/>
     </condition>
 
@@ -92,16 +105,20 @@
         <isset property="is.running.linux"/>
     </condition>
 
-	<!-- solaris specific properties -->
+    <condition property="bundles.dest.os" value="${bundles.dest.lin}">
+        <isset property="is.running.linux"/>
+    </condition>
+
+    <!-- solaris specific properties -->
     <condition property="is.running.solaris" value="${os.name}">
         <equals arg1="${os.name}" arg2="solaris" casesensitive="false" trim="true"/>
     </condition>
 
-	<condition property="is.running.solaris" value="${os.name}">
+    <condition property="is.running.solaris" value="${os.name}">
         <equals arg1="${os.name}" arg2="SunOS" casesensitive="false" trim="true"/>
     </condition>
 
-    <condition property="os.home" value="${lib}/os-specific/solaris">
+    <condition property="os.lib.home" value="${lib}/os-specific/solaris">
         <isset property="is.running.solaris"/>
     </condition>
 
@@ -110,29 +127,37 @@
         <isset property="is.running.solaris"/>
     </condition>
 
-	<!-- mac specific properties -->
-	<condition property="is.running.macos" value="${os.name}">
-		<os family="mac"/>
+    <condition property="bundles.dest.os" value="${bundles.dest.sol}">
+        <isset property="is.running.solaris"/>
     </condition>
 
-	<condition property="os.home" value="${lib}/os-specific/mac">
+    <!-- mac specific properties -->
+    <condition property="is.running.macos" value="${os.name}">
+        <os family="mac"/>
+    </condition>
+
+    <condition property="os.lib.home" value="${lib}/os-specific/mac">
         <isset property="is.running.macos"/>
     </condition>
 
-	<condition property="dyld.library.path"
-		value="${basedir}/${lib}/native/mac:${system.DYLD_LIBRARY_PATH}">
-		<isset property="is.running.macos"/>
-	</condition>
+    <condition property="dyld.library.path"
+        value="${basedir}/${lib}/native/mac:${system.DYLD_LIBRARY_PATH}">
+        <isset property="is.running.macos"/>
+    </condition>
 
-	<!-- set the os.home here in case it was not set before -->
-    <property name="os.home" value="${lib}"/>
+    <condition property="bundles.dest.os" value="${bundles.dest.mac}">
+        <isset property="is.running.macos"/>
+    </condition>
 
-	<!-- set the jmf.properties here in case they were not set before -->
-    <property name="jmf.jar" value="${os.home}/installer-exclude/jmf.jar"/>
-    <property name="sound.jar" value="${os.home}/installer-exclude/sound.jar"/>
+    <!-- set the os.lib.home here in case it was not set before -->
+    <property name="os.lib.home" value="${lib}"/>
+
+    <!-- set the jmf.properties here in case they were not set before -->
+    <property name="jmf.jar" value="${os.lib.home}/installer-exclude/jmf.jar"/>
+    <property name="sound.jar" value="${os.lib.home}/installer-exclude/sound.jar"/>
     <!-- end jmf.home-->
 
-	<property name="jdic_stub.jar" value="${os.home}/jdic_stub.jar"/>
+    <property name="jdic_stub.jar" value="${os.lib.home}/jdic_stub.jar"/>
 
     <path id="project.source.path">
         <!-- refer to both main and test source files. -->
@@ -150,11 +175,11 @@
         <!-- Include all JAR files found in lib and any of its subdirectories. -->
         <fileset dir="${lib}">
             <include name="*.jar"/>
-        	<include name="installer-exclude/*.jar"/>
-        	<include name="bundles/*.jar"/>
+            <include name="installer-exclude/*.jar"/>
+            <include name="bundles/*.jar"/>
         </fileset>
 
-    	<fileset dir="${os.home}">
+        <fileset dir="${os.lib.home}">
             <include name="**/*.jar"/>
         </fileset>
     </path>
@@ -164,7 +189,7 @@
         <!-- Add all jmf's and jdic's to the compile class path to enable
              cross compilation. -->
         <fileset dir="${lib}">
-        	<include name="os-specific/**/*.jar"/>
+            <include name="os-specific/**/*.jar"/>
         </fileset>
     </path>
 
@@ -324,9 +349,9 @@
 
         <!-- create dirs for os specific bundles -->
         <mkdir dir="${bundles.dest}/os-specific"/>
-        <mkdir dir="${bundles.dest.macosx}"/>
-        <mkdir dir="${bundles.dest.linux}"/>
-        <mkdir dir="${bundles.dest.windows}"/>
+        <mkdir dir="${bundles.dest.mac}"/>
+        <mkdir dir="${bundles.dest.lin}"/>
+        <mkdir dir="${bundles.dest.win}"/>
 
         <mkdir dir="${test.reports.dir}"/>
         <mkdir dir="${test.reports.dir}/html"/>
@@ -404,16 +429,16 @@
                       value="logging.properties"/>
 
         <jarfileset dir=".">
-          	<include name="${lib}/kxml-min.jar" />
-          	<include name="${lib}/felix.jar" />
-          	<include name="${lib}/servicebinder.jar" />
-        	<include name="${lib}/jdic-all.jar" />
-                <include name="${lib}/os-specific/mac/*.jar" />
-          	<include name="${lib}/bundle/*.jar" />
-          	<exclude name="${lib}/bundle/junit.jar" />
-          	<include name="${bundles.dest}/*.jar" />
-          	<include name="${bundles.dest.macosx}/*.jar" />
-          	<exclude name="${bundles.dest}/*-slick.jar" />
+            <include name="${lib}/kxml-min.jar" />
+            <include name="${lib}/felix.jar" />
+            <include name="${lib}/servicebinder.jar" />
+            <include name="${lib}/jdic-all.jar" />
+            <include name="${lib}/os-specific/mac/*.jar" />
+            <include name="${lib}/bundle/*.jar" />
+            <exclude name="${lib}/bundle/junit.jar" />
+            <include name="${bundles.dest}/*.jar" />
+            <include name="${bundles.dest.mac}/*.jar" />
+            <exclude name="${bundles.dest}/*-slick.jar" />
         </jarfileset>
         <javafilelist dir="${macosx.resrc.dir}"
                       files="logging.properties"/>
@@ -514,7 +539,7 @@
       <!-- Put correct version in the sip-communicator executable file -->
       <copy file="${inst.resrc}/debian/sip-communicator.sh.tmpl"
           tofile="${inst.resrc}/debian/sip-communicator.sh"
-   	      overwrite="true"/>
+             overwrite="true"/>
       <replace file="${inst.resrc}/debian/sip-communicator.sh"
           token="_SC_VERSION_"
           value="${sip-communicator.version}"/>
@@ -651,7 +676,7 @@
         <echo message="Generating HTML test reports ..."/>
         <java fork="true"
               classname="org.apache.tools.ant.launch.Launcher"
-              classpath="${java.class.path}:${excludelib}/xalan-2.6.0.jar.ant"
+              classpath="${java.class.path}:${lib.noinst}/xalan-2.6.0.jar.ant"
               failonerror="true"
               output="${test.html.reports.dir}/output.txt">
            <arg value="htmlreport"/>
@@ -689,6 +714,14 @@
     <target name="run"
         description="Starts felix and runs sip-comunicator gui (use latest build).">
 
+        <!-- brefore we run, make sure we copy os-specific bundles from
+             sc-bundles/osname to its parent sc-bundles-->
+        <copy todir="${bundles.dest}">
+            <fileset dir="${bundles.dest.os}">
+                <include name="**/*.jar"/>
+            </fileset>
+        </copy>
+
          <!-- forking prevents from debugging -->
         <java classname="org.apache.felix.main.Main"
             fork="true"
@@ -707,13 +740,13 @@
                 value="lib/logging.properties"/>
 
             <sysproperty key="java.net.preferIPv6Addresses"
-                value="true"/>
+                value="false"/>
 
             <!-- Setting properties necessary for dependencies on native libs.-->
-        	<sysproperty key="java.library.path" value="${ld.library.path}:${path}:${dyld.library.path}"/>
+            <sysproperty key="java.library.path" value="${ld.library.path}:${path}:${dyld.library.path}"/>
             <env key="LD_LIBRARY_PATH" value="${ld.library.path}"/>
             <env key="PATH" value="${path}"/>
-			<env key="DYLD_LIBRARY_PATH" value="${dyld.library.path}"/>
+            <env key="DYLD_LIBRARY_PATH" value="${dyld.library.path}"/>
         </java>
 
     </target>
@@ -794,7 +827,7 @@
         bundle-plugin-yahooaccregwizz,
         bundle-version,bundle-version-impl,bundle-shutdown,
         bundle-growlnotification,bundle-audionotifier,bundle-plugin-splashscreen,
-    	bundle-plugin-systray,bundle-browserlauncher"/>
+        bundle-plugin-systray,bundle-browserlauncher"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -916,25 +949,61 @@
     <target name="bundle-junit">
         <jar compress="true" destfile="lib/bundle/junit.jar"
             manifest="test/junit/junit.manifest.mf">
-            <zipfileset src="${excludelib}/junit.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/junit.jar" prefix=""/>
         </jar>
     </target>
 
     <!--BUNDLE-MEDIA-->
     <target name="bundle-media">
-        <!-- Creates a bundle containing the impl of the media package."-->
+        <!-- Creates a bundle containing the impl of the media package and
+             the win jmf implementation.-->
         <jar
-            compress="false" destfile="${bundles.dest}/media.jar"
+            compress="false" destfile="${bundles.dest.win}/media.jar"
             manifest="src/net/java/sip/communicator/impl/media/media.manifest.mf">
 
             <zipfileset dir="${dest}/net/java/sip/communicator/service/media"
                 prefix="net/java/sip/communicator/service/media"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
                 prefix="net/java/sip/communicator/impl/media"/>
-            <zipfileset src="${jmf.jar}" prefix=""/>
-            <zipfileset src="${excludelib}/nist-sdp-1.0.jar" prefix=""/>
-             <zipfileset src="${excludelib}/jspeex.jar" prefix=""/>
+            <zipfileset src="${lib.win.noinst}/jmf.jar" prefix=""/>
+            <zipfileset src="${lib.win.noinst}/sound.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
         </jar>
+
+        <!-- Creates a bundle containing the impl of the media package and
+             the linux jmf implementation.-->
+        <jar
+            compress="false" destfile="${bundles.dest.lin}/media.jar"
+            manifest="src/net/java/sip/communicator/impl/media/media.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/media"
+                prefix="net/java/sip/communicator/service/media"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
+                prefix="net/java/sip/communicator/impl/media"/>
+            <zipfileset src="${lib.lin.noinst}/jmf.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
+        </jar>
+
+        <!-- Creates a bundle containing the impl of the media package and
+             the mac jmf implementation.-->
+        <jar
+            compress="false" destfile="${bundles.dest.mac}/media.jar"
+            manifest="src/net/java/sip/communicator/impl/media/media.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/media"
+                prefix="net/java/sip/communicator/service/media"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
+                prefix="net/java/sip/communicator/impl/media"/>
+            <zipfileset src="${lib.mac.noinst}/jmf.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
+        </jar>
+
+        <!-- also create a bundle for the operating system that we are
+             currently running and place it inside the sc-bundles directory.-->
+
     </target>
 
     <!--BUNDLE-MEDIA-SLICK-->
@@ -964,7 +1033,7 @@
         <jar compress="true" destfile="lib/bundle/architectureviewer1.1.jar"
             filesetmanifest="merge">
 
-            <zipfileset src="${excludelib}/architectureviewer1.1.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/architectureviewer1.1.jar" prefix=""/>
             <manifest>
                 <attribute name="Import-Package"
                     value="javax.swing,	javax.swing.text,
@@ -983,7 +1052,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/netaddr"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/netaddr"
                 prefix="net/java/sip/communicator/impl/netaddr"/>
-            <zipfileset src="${excludelib}/Stun4J.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/Stun4J.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1023,10 +1092,10 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/sip"
                 prefix="net/java/sip/communicator/impl/protocol/sip"/>
-            <zipfileset src="${excludelib}/JainSipRi1.2.jar" prefix=""/>
-            <zipfileset src="${excludelib}/JainSipApi1.2.jar" prefix=""/>
-            <zipfileset src="${excludelib}/concurrent.jar" prefix=""/>
-            <zipfileset src="${excludelib}/log4j-1.2.8.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/JainSipRi1.2.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/JainSipApi1.2.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/concurrent.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
         </jar>
     </target>
     <target name="bundle-sip-slick">
@@ -1058,11 +1127,11 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/protocol/icq/icq.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/icq"
                 prefix="net/java/sip/communicator/impl/protocol/icq"/>
-            <zipfileset src="${excludelib}/joscar-client.jar" prefix=""/>
-            <zipfileset src="${excludelib}/joscar-common.jar" prefix=""/>
-            <zipfileset src="${excludelib}/joscar-protocol.jar" prefix=""/>
-            <zipfileset src="${excludelib}/retroweaver-rt-2.0Beta2.jar" prefix=""/>
-            <zipfileset src="${excludelib}/jsocks-klea.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/joscar-client.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/joscar-common.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/joscar-protocol.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/retroweaver-rt-2.0Beta2.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jsocks-klea.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1073,11 +1142,11 @@ javax.swing.event, javax.swing.border"/>
             manifest="test/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/icq"
                 prefix="net/java/sip/communicator/slick/protocol/icq"/>
-            <zipfileset src="${excludelib}/joscar-client.jar" prefix=""/>
-            <zipfileset src="${excludelib}/joscar-common.jar" prefix=""/>
-            <zipfileset src="${excludelib}/joscar-protocol.jar" prefix=""/>
-            <zipfileset src="${excludelib}/retroweaver-rt-2.0Beta2.jar" prefix=""/>
-            <zipfileset src="${excludelib}/jsocks-klea.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/joscar-client.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/joscar-common.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/joscar-protocol.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/retroweaver-rt-2.0Beta2.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jsocks-klea.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1098,8 +1167,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/protocol/jabber/jabber.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/jabber"
                 prefix="net/java/sip/communicator/impl/protocol/jabber"/>
-            <zipfileset src="${excludelib}/smack.jar" prefix=""/>
-            <zipfileset src="${excludelib}/smackx.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/smack.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/smackx.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1111,8 +1180,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="test/net/java/sip/communicator/slick/protocol/jabber/jabber.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/jabber"
                 prefix="net/java/sip/communicator/slick/protocol/jabber"/>
-            <zipfileset src="${excludelib}/smack.jar" prefix=""/>
-            <zipfileset src="${excludelib}/smackx.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/smack.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/smackx.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1123,9 +1192,9 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/protocol/msn/msn.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/msn"
                 prefix="net/java/sip/communicator/impl/protocol/msn"/>
-            <zipfileset src="${excludelib}/jml-1.0b1.jar" prefix=""/>
-            <zipfileset src="${excludelib}/cindy.jar" prefix=""/>
-            <zipfileset src="${excludelib}/commons-logging.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jml-1.0b1.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/cindy.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1137,9 +1206,9 @@ javax.swing.event, javax.swing.border"/>
             manifest="test/net/java/sip/communicator/slick/protocol/msn/msn.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/msn"
                 prefix="net/java/sip/communicator/slick/protocol/msn"/>
-            <zipfileset src="${excludelib}/jml-1.0b1.jar" prefix=""/>
-            <zipfileset src="${excludelib}/cindy.jar" prefix=""/>
-            <zipfileset src="${excludelib}/commons-logging.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jml-1.0b1.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/cindy.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1150,7 +1219,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/impl/protocol/yahoo/yahoo.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/yahoo"
                 prefix="net/java/sip/communicator/impl/protocol/yahoo"/>
-            <zipfileset src="${excludelib}/ymsg_network_v0_61.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/ymsg_network_v0_61.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1162,7 +1231,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="test/net/java/sip/communicator/slick/protocol/yahoo/yahoo.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/yahoo"
                 prefix="net/java/sip/communicator/slick/protocol/yahoo"/>
-            <zipfileset src="${excludelib}/ymsg_network_v0_61.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/ymsg_network_v0_61.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1302,7 +1371,7 @@ javax.swing.event, javax.swing.border"/>
     <!--BUNDLE-GROWLNOTIFICATION-->
     <target name="bundle-growlnotification">
         <!-- Creates a bundle for the growlnotification plugin.-->
-        <jar compress="false" destfile="${bundles.dest.macosx}/growlnotification.jar"
+        <jar compress="false" destfile="${bundles.dest.mac}/growlnotification.jar"
             manifest="src/net/java/sip/communicator/impl/growlnotification/growlnotification.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/growlnotification"
                 prefix="net/java/sip/communicator/impl/growlnotification" />
@@ -1343,7 +1412,7 @@ javax.swing.event, javax.swing.border"/>
             </jar>
         </target>
 
-	<!--BUNDLE-MEDIA-->
+    <!--BUNDLE-MEDIA-->
     <target name="bundle-plugin-systray">
         <!-- Creates a bundle for the Systray plugin."-->
         <jar
@@ -1354,7 +1423,7 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-	<!-- BUNDLE-BROWSER LAUNCHER -->
+    <!-- BUNDLE-BROWSER LAUNCHER -->
     <target name="bundle-browserlauncher">
         <!-- Creates a bundle for the browser launcher. .-->
         <jar compress="false" destfile="${bundles.dest}/browserlauncher.jar"
