@@ -65,6 +65,14 @@
                         <exclude name="*slick.jar"/>
                     </fileset>
 		</pack>
+                
+                <pack name="bundles-os-specific" required="yes">
+                    <description>SIP Communicator linux bundles</description>
+                    <fileset  targetdir="$INSTALL_PATH/sc-bundles/os-specific/linux" dir="sc-bundles" override="true">
+                        <include name="*.jar"/>
+                        <exclude name="*slick.jar"/>
+                    </fileset>
+		</pack>
 
 		<!-- The executable files -->
 		<pack name="run" required="yes">
