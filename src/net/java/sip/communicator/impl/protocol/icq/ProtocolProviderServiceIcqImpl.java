@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.icq;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.icq.message.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -21,6 +20,7 @@ import net.kano.joustsim.oscar.State;
 import net.kano.joustsim.oscar.oscar.loginstatus.*;
 import net.kano.joustsim.oscar.oscar.service.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
+import net.kano.joustsim.oscar.proxy.*;
 
 /**
  * An implementation of the protocol provider service over the AIM/ICQ protocol
@@ -176,8 +176,13 @@ public class ProtocolProviderServiceIcqImpl
      * @param authority the security authority that will be used for resolving
      *        any security challenges that may be returned during the
      *        registration or at any moment while wer're registered.
+     *
+     * @throws OperationFailedException with the corresponding code it the
+     *        registration fails for some reason (e.g. a networking error or an
+     *        implementation problem).
      */
     public void register(SecurityAuthority authority)
+        throws OperationFailedException
     {
         if(authority == null)
             throw new IllegalArgumentException(
@@ -236,6 +241,54 @@ public class ProtocolProviderServiceIcqImpl
                 new AimConnectionProperties(
                     new Screenname(getAccountID().getUserID())
                     , password));
+
+            String proxyAddress =
+                (String)getAccountID().getAccountProperties().get(
+                    ProtocolProviderFactory.PROXY_ADDRESS);
+            if(proxyAddress != null && proxyAddress.length() > 0)
+            {
+                String proxyPortStr =
+                    (String)getAccountID().getAccountProperties().get(
+                        ProtocolProviderFactory.PROXY_PORT);
+                int proxyPort;
+                try
+                {
+                    proxyPort = Integer.parseInt(proxyPortStr);
+                }
+                catch (NumberFormatException ex)
+                {
+                    throw new OperationFailedException("Wrong port",
+                        OperationFailedException.INVALID_ACCOUNT_PROPERTIES, ex);
+                }
+
+                String proxyType =
+                    (String)getAccountID().getAccountProperties().get(
+                        ProtocolProviderFactory.PROXY_TYPE);
+
+                if(proxyType == null)
+                    throw new OperationFailedException("Missing proxy type",
+                        OperationFailedException.INVALID_ACCOUNT_PROPERTIES);
+
+                String proxyUsername =
+                    (String)getAccountID().getAccountProperties().get(
+                        ProtocolProviderFactory.PROXY_USERNAME);
+                String proxyPassword =
+                    (String)getAccountID().getAccountProperties().get(
+                        ProtocolProviderFactory.PROXY_PASSWORD);
+
+                if(proxyType.equals("http"))
+                    aimConnection.setProxy(
+                        AimProxyInfo.forHttp(proxyAddress, proxyPort,
+                                             proxyUsername, proxyPassword));
+                else if(proxyType.equals("socks4"))
+                    aimConnection.setProxy(
+                        AimProxyInfo.forSocks4(proxyAddress, proxyPort,
+                                               proxyUsername));
+                else if(proxyType.equals("socks5"))
+                    aimConnection.setProxy(
+                        AimProxyInfo.forSocks5(proxyAddress, proxyPort,
+                                               proxyUsername, proxyPassword));
+            }
 
             aimConnStateListener = new AimConnStateListener();
             aimConnection.addStateListener(aimConnStateListener);
@@ -607,10 +660,12 @@ public class ProtocolProviderServiceIcqImpl
 
                 //set our own cmd factory as we'd like some extra control on
                 //outgoing commands.
-                conn.getInfoService().
-                    getOscarConnection().getSnacProcessor().
-                        getCmdFactoryMgr().getDefaultFactoryList().
-                            registerAll(new DefaultCmdFactory());
+
+                /** @todo  */
+//                conn.getInfoService().
+//                    getOscarConnection().getSnacProcessor().
+//                        getCmdFactoryMgr().getDefaultFactoryList().
+//                            registerAll(new DefaultCmdFactory());
 
                 conn.getInfoService().
                     getOscarConnection().getSnacProcessor().
@@ -696,6 +751,14 @@ public class ProtocolProviderServiceIcqImpl
                                      IcbmBuddyInfo info)
         {
             logger.debug("Got a BuddINFO event");
+        }
+
+        public void sendAutomaticallyFailed(
+            IcbmService service,
+            net.kano.joustsim.oscar.oscar.service.icbm.Message message,
+            Set triedConversations)
+        {
+
         }
     }
 
