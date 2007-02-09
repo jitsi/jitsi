@@ -47,21 +47,26 @@ install: build
 	cp debian/sip-communicator-16.xpm debian/sip-communicator/usr/share/pixmaps/
 	cp debian/sip-communicator.svg debian/sip-communicator/usr/share/pixmaps/
 	cp debian/sip-communicator.desktop debian/sip-communicator/usr/share/applications/
-	cp $(BASEDIR)/lib/kxml-min.jar debian/sip-communicator/usr/share/sip-communicator/lib/
-	cp $(BASEDIR)/lib/jdic-all.jar debian/sip-communicator/usr/share/sip-communicator/lib/
-	cp $(BASEDIR)/lib/felix.jar debian/sip-communicator/usr/share/sip-communicator/lib/
-	cp $(BASEDIR)/lib/servicebinder.jar debian/sip-communicator/usr/share/sip-communicator/lib/
+
+	# Copy all libs 
+	cp $(BASEDIR)/lib/*.jar debian/sip-communicator/usr/share/sip-communicator/lib/
 	cp $(BASEDIR)/resources/install/logging.properties debian/sip-communicator/usr/share/sip-communicator/lib/
 	cp $(BASEDIR)/lib/felix.client.run.properties debian/sip-communicator/usr/share/sip-communicator/lib/
-	cp $(BASEDIR)/lib/os-specific/linux/jdic_stub.jar debian/sip-communicator/usr/share/sip-communicator/lib/
-	cp -r $(BASEDIR)/lib/native/linux debian/sip-communicator/usr/share/sip-communicator/lib/native
-	rm -rf debian/sip-communicator/usr/share/sip-communicator/lib/native/CVS
 	cp $(BASEDIR)/lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar debian/sip-communicator/usr/share/sip-communicator/lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar
+
+	#Copy OS specific and native libs
+	cp $(BASEDIR)/lib/os-specific/linux/*.jar debian/sip-communicator/usr/share/sip-communicator/lib/
+	cp -r $(BASEDIR)/lib/native/linux debian/sip-communicator/usr/share/sip-communicator/lib/native
+
+
+	#Copy SIP Communicator bundles
 	cp $(BASEDIR)/sc-bundles/*.jar debian/sip-communicator/usr/share/sip-communicator/sc-bundles
+	cp $(BASEDIR)/sc-bundles/os-specific/linux/*.jar debian/sip-communicator/usr/share/sip-communicator/sc-bundles
 	install -m 755 debian/sip-communicator.sh debian/sip-communicator/usr/bin/sip-communicator
 
-	# Remove all slicks
+	# Remove all slicks and CVS info.
 	rm debian/sip-communicator/usr/share/sip-communicator/sc-bundles/*-slick.jar
+	rm -rf debian/sip-communicator/usr/share/sip-communicator/lib/native/CVS
 
 	# Make felix deploy its bundles in ~/.felix/sip-communicator.bin
 	sed -i -e "s/felix.cache.profiledir=sip-communicator.bin/felix.cache.profile=sip-communicator.bin/" debian/sip-communicator/usr/share/sip-communicator/lib/felix.client.run.properties
