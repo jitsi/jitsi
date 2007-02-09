@@ -1549,8 +1549,8 @@ public class ProtocolProviderServiceSipImpl
         if(registrarTransport != null && registrarTransport.length() > 0)
         {
             if( ! registrarTransport.equals(ListeningPoint.UDP)
-                || !registrarTransport.equals(ListeningPoint.TCP)
-                || !registrarTransport.equals(ListeningPoint.TLS))
+                && !registrarTransport.equals(ListeningPoint.TCP)
+                && !registrarTransport.equals(ListeningPoint.TLS))
             {
                 throw new IllegalArgumentException(registrarTransport
                     + " is not a valid transport protocol. Transport must be "
