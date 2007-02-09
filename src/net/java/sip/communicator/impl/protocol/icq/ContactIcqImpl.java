@@ -314,7 +314,7 @@ public class ContactIcqImpl
         while(dataToks.hasMoreTokens())
         {
             String data[] = dataToks.nextToken().split("=");
-            if(data[0].equals("nickname"))
+            if(data[0].equals("nickname") && data.length > 1)
             {
                 nickName = data[1];
             }
