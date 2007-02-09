@@ -394,8 +394,16 @@
             token="org.osgi.framework.system.packages="
             value="org.osgi.framework.system.packages= com.growl;"/>
       <echo file="${macosx.resrc.dir}/felix.client.run.properties"
-            append="true">felix.auto.start.70= reference:file:sc-bundles/os-specific/macosx/growlnotification.jar
+            append="true">felix.auto.start.70= reference:file:sc-bundles/growlnotification.jar
       </echo>
+
+      <!-- We copy macosx-specific bundles from 
+           sc-bundles/os-specific/macosx to sc-bundles -->
+      <copy todir="${bundles.dest}">
+            <fileset dir="${bundles.dest.mac}">
+                <include name="**/*.jar"/>
+            </fileset>
+      </copy>
 
       <!-- Delete the old .app if it exists -->
       <delete dir="${macosx.app.dir}/${macosx.app.name}.app"
@@ -420,6 +428,8 @@
         <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
         <javaproperty name="apple.awt.brushMetalRounded" value="true"/>
         <javaproperty name="apple.awt.showGrowBox" value="false"/>
+        <javaproperty name="java.library.path" 
+                      value="${dyld.library.path}"/>
 
         <!-- Tell felix to run sip-communicator -->
         <javaproperty name="felix.config.properties"
@@ -433,11 +443,11 @@
             <include name="${lib}/felix.jar" />
             <include name="${lib}/servicebinder.jar" />
             <include name="${lib}/jdic-all.jar" />
-            <include name="${lib}/os-specific/mac/*.jar" />
+            <include name="${lib.mac}/*.jar" />
             <include name="${lib}/bundle/*.jar" />
             <exclude name="${lib}/bundle/junit.jar" />
+            <include name="${native.libs}/mac/*.jnilib" />
             <include name="${bundles.dest}/*.jar" />
-            <include name="${bundles.dest.mac}/*.jar" />
             <exclude name="${bundles.dest}/*-slick.jar" />
         </jarfileset>
         <javafilelist dir="${macosx.resrc.dir}"
@@ -520,7 +530,7 @@
             if="dpkg.build.present"
             description="Create a .deb package for Debian (needs dpkg utilities)">
 
-      <!-- brefore we build, make sure we copy os-specific bundles from
+      <!-- before we build, make sure we copy os-specific bundles from
            sc-bundles/linux to its parent sc-bundles-->
       <copy todir="${bundles.dest}">
           <fileset dir="${bundles.dest.lin}">
@@ -645,7 +655,7 @@
         depends="prepare-single-test,prepare-all-tests,clean-test-reports"
         description="Starts felix and runs selected Service Impl Compatibility Kits.">
 
-        <!-- brefore we run the tests, make sure we copy os-specific bundles
+        <!-- before we run the tests, make sure we copy os-specific bundles
              from sc-bundles/osname to its parent sc-bundles-->
         <copy todir="${bundles.dest}">
             <fileset dir="${bundles.dest.os}">
@@ -730,7 +740,7 @@
     <target name="run"
         description="Starts felix and runs sip-comunicator gui (use latest build).">
 
-        <!-- brefore we run, make sure we copy os-specific bundles from
+        <!-- before we run, make sure we copy os-specific bundles from
              sc-bundles/osname to its parent sc-bundles-->
         <copy todir="${bundles.dest}">
             <fileset dir="${bundles.dest.os}">
