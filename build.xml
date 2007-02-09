@@ -540,7 +540,7 @@
 
       <!-- Put the current date in the changelog -->
       <tstamp>
-        <format property="date" pattern="EEE, d MMM yyyy HH:mm:ss Z"/>
+        <format property="date" pattern="EEE, d MMM yyyy HH:mm:ss Z" locale="en,US"/>
       </tstamp>
       <replace file="${inst.resrc}/debian/changelog"
           token="_DATE_"
