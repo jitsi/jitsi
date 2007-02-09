@@ -43,7 +43,9 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/sip-communicator.
-	cp debian/sc-logo-32x32.xpm debian/sip-communicator/usr/share/pixmaps/sip-communicator.xpm
+	cp debian/sip-communicator-32.xpm debian/sip-communicator/usr/share/pixmaps/
+	cp debian/sip-communicator-16.xpm debian/sip-communicator/usr/share/pixmaps/
+	cp debian/sip-communicator.svg debian/sip-communicator/usr/share/pixmaps/
 	cp debian/sip-communicator.desktop debian/sip-communicator/usr/share/applications/
 	cp $(BASEDIR)/lib/kxml-min.jar debian/sip-communicator/usr/share/sip-communicator/lib
 	cp $(BASEDIR)/lib/jdic-all.jar debian/sip-communicator/usr/share/sip-communicator/lib

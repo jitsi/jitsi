@@ -1,3 +1,8 @@
-?package(sip-communicator):needs="x11" section="Apps/Net"\
-  title="SIP Communicator" command="/usr/bin/sip-communicator"\
-  icon="/usr/share/pixmaps/sip-communicator.xpm"
+?package(sip-communicator):needs="x11"                   \
+  section="Apps/Net"                                     \
+  title="SIP Communicator"                               \
+  longtitle="SIP Communicator, VoIP and IM client"       \
+  command="/usr/bin/sip-communicator"                    \
+  icon="/usr/share/pixmaps/sip-communicator-32.xpm"      \
+  icon32x32="/usr/share/pixmaps/sip-communicator-32.xpm" \
+  icon16x16="/usr/share/pixmaps/sip-communicator-16.xpm"
