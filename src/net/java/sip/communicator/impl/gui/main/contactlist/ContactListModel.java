@@ -528,6 +528,12 @@ public class ContactListModel
         }
     }
     
+    /**
+     * Checks if the given group contains online contacts.
+     * 
+     * @param group the group to check for online contacts
+     * @return TRUE if the given group contains online contacts, FALSE otherwise
+     */
     private boolean containsOnlineContacts(MetaContactGroup group)
     {
         Iterator childContacts = group.getChildContacts();
