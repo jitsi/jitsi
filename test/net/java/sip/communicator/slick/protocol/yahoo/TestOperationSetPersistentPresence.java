@@ -205,7 +205,7 @@ public class TestOperationSetPersistentPresence
     {
         // first clear the list
         fixture.clearProvidersLists();
-        
+
         waitFor(5000);
 
         logger.trace("testing creation of server stored groups");
@@ -353,8 +353,8 @@ public class TestOperationSetPersistentPresence
     public void prepareContactList()
         throws Exception
     {
-        logger.trace("prepareContactList");        
-        
+        logger.trace("prepareContactList");
+
         fixture.clearProvidersLists();
 
         waitFor(3000);
@@ -445,7 +445,7 @@ public class TestOperationSetPersistentPresence
             }
         }
 
-        waitFor(2000);
+        waitFor(4000);
 
         //store the created contact list for later reference
         YahooSlickFixture.preInstalledBuddyList = contactListToCreate;
