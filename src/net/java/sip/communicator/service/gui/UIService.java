@@ -252,16 +252,16 @@ public interface UIService
     public ApplicationWindow getChatWindow(Contact contact);
     
     /**
-     * Returns the <tt>ConfigurationManager</tt> implementation for this
-     * UIService implementation. The <tt>ConfigurationManager</tt> is a
+     * Returns the <tt>ConfigurationWindow</tt> implementation for this
+     * UIService implementation. The <tt>ConfigurationWindow</tt> is a
      * contianer contianing <tt>ConfigurationForm</tt>s. It is meant to be
      * implemented by the UIService implementation to provide a mechanism
      * for adding and removing configuration forms in the GUI. 
      * 
-     * @return the <tt>ConfigurationManager</tt> implementation for this
+     * @return the <tt>ConfigurationWindow</tt> implementation for this
      * UIService implementation
      */
-    public ConfigurationManager getConfigurationManager();
+    public ConfigurationWindow getConfigurationWindow();
     
     /**
      * Returns an iterator over a set of windowID-s. Each WindowID points to

@@ -24,7 +24,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
 import net.java.sip.communicator.service.gui.ApplicationWindow;
-import net.java.sip.communicator.service.gui.ConfigurationManager;
+import net.java.sip.communicator.service.gui.ConfigurationWindow;
 import net.java.sip.communicator.service.gui.ContactAwareComponent;
 import net.java.sip.communicator.service.gui.ContainerID;
 import net.java.sip.communicator.service.gui.PopupDialog;
@@ -412,12 +412,12 @@ public class UIServiceImpl implements UIService {
     }
 
     /**
-     * Implements the <code>UIService.getConfigurationManager</code>.
-     * Returns the current implementation of the <tt>ConfigurationManager</tt>
+     * Implements the <code>UIService.getConfigurationWindow</code>.
+     * Returns the current implementation of the <tt>ConfigurationWindow</tt>
      * interface.
      * @see UIService#getConfigurationManager()
      */
-    public ConfigurationManager getConfigurationManager() {
+    public ConfigurationWindow getConfigurationWindow() {
         return this.configurationFrame;
     }
 }
