@@ -141,8 +141,8 @@ public abstract class SIPCommFrame extends JFrame
         
         if(widthString != null && heightString != null)
         {   
-            width = new Integer(width).intValue();
-            height = new Integer(height).intValue();
+            width = new Integer(widthString).intValue();
+            height = new Integer(heightString).intValue();
             
             if(width > 0 && height > 0)
                 this.setSize(width, height);
