@@ -975,7 +975,6 @@
     <target name="bundle-media">
         <!-- Creates a bundle containing the impl of the media package and
              the win jmf implementation.-->
-        <echo message="asfd"/>
         <jar
             compress="false" destfile="${bundles.dest.win}/media.jar"
             manifest="src/net/java/sip/communicator/impl/media/media.manifest.mf">
@@ -989,7 +988,7 @@
             <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
         </jar>
-<echo message="asfd"/>
+
         <!-- Creates a bundle containing the impl of the media package and
              the linux jmf implementation.-->
         <jar
@@ -1004,7 +1003,7 @@
             <zipfileset src="${lib.noinst}/nist-sdp-1.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
         </jar>
-<echo message="asfd"/>
+
         <!-- Creates a bundle containing the impl of the media package and
              the mac jmf implementation.-->
         <jar
