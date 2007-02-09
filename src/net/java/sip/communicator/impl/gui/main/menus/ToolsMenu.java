@@ -40,7 +40,7 @@ public class ToolsMenu
     
     private MainFrame parentWindow;
     
-    private ConfigurationManager configDialog;
+    private ConfigurationWindow configDialog;
 
     /**
      * Creates an instance of <tt>FileMenu</tt>.
@@ -71,7 +71,7 @@ public class ToolsMenu
         String itemText = menuItem.getName();
 
         if (itemText.equalsIgnoreCase("config")) {
-            configDialog = GuiActivator.getUIService().getConfigurationManager();
+            configDialog = GuiActivator.getUIService().getConfigurationWindow();
 
             configDialog.showWindow();
         }

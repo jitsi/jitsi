@@ -63,7 +63,7 @@ public class QuickMenu
     private JButton soundButton = new JButton(
         new ImageIcon(ImageLoader.getImage(ImageLoader.QUICK_MENU_SOUND_ON_ICON)));
 
-    private ConfigurationManager configDialog;
+    private ConfigurationWindow configDialog;
 
     private MainFrame mainFrame;
 
@@ -188,7 +188,7 @@ public class QuickMenu
         else if (buttonName.equals("config"))
         {
 
-            configDialog = GuiActivator.getUIService().getConfigurationManager();
+            configDialog = GuiActivator.getUIService().getConfigurationWindow();
 
             configDialog.showWindow();
         }

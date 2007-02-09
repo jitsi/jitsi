@@ -27,7 +27,7 @@ import net.java.sip.communicator.service.gui.*;
  */
 public class ConfigurationFrame
     extends SIPCommDialog
-    implements  ConfigurationManager, 
+    implements  ConfigurationWindow, 
                 MouseListener
 {
     private Vector configContainer = new Vector();
@@ -106,7 +106,7 @@ public class ConfigurationFrame
      * method. Checks if the form contained in the <tt>ConfigurationForm</tt>
      * is an instance of java.awt.Component and if so adds the form in this
      * dialog, otherwise throws a ClassCastException.
-     * @see ConfigurationManager#addConfigurationForm(ConfigurationForm)
+     * @see ConfigurationWindow#addConfigurationForm(ConfigurationForm)
      */
     public void addConfigurationForm(ConfigurationForm configForm) {
 
@@ -142,7 +142,7 @@ public class ConfigurationFrame
      * Implements <code>ConfigurationManager.removeConfigurationForm</code>
      * method. Removes the given <tt>ConfigurationForm</tt> from this
      * dialog.
-     * @see ConfigurationManager#removeConfigurationForm(ConfigurationForm)
+     * @see ConfigurationWindow#removeConfigurationForm(ConfigurationForm)
      */
     public void removeConfigurationForm(ConfigurationForm configForm) {
 
