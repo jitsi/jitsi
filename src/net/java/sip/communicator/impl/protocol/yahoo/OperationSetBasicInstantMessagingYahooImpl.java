@@ -155,22 +155,22 @@ public class OperationSetBasicInstantMessagingYahooImpl
     {
         assertConnected();
 
-        try     
+        try
         {
             String toUserID = ((ContactYahooImpl) to).getID();
             yahooProvider.getYahooSession().sendMessage(
                 toUserID,
                 message.getContent());
-            
+
             MessageDeliveredEvent msgDeliveredEvt
             = new MessageDeliveredEvent(
                 message, to, new Date());
 
             fireMessageEvent(msgDeliveredEvt);
         }
-        catch (IOException ex) 
+        catch (IOException ex)
         {
-            logger.info("Cannot Send Message! " + ex.getMessage());
+            logger.fatal("Cannot Send Message! " + ex.getMessage());
             MessageDeliveryFailedEvent evt =
                 new MessageDeliveryFailedEvent(
                     message,
@@ -276,21 +276,21 @@ public class OperationSetBasicInstantMessagingYahooImpl
         {
             handleNewMessage(ev);
         }
-        
+
         public void offlineMessageReceived(SessionEvent ev)
         {
             handleNewMessage(ev);
         }
-        
+
         private void handleNewMessage(SessionEvent ev)
         {
             logger.debug("Message received : " + ev);
             
             Message newMessage = createMessage(ev.getMessage());
-            
+
             Contact sourceContact = opSetPersPresence.
                 findContactByID(ev.getFrom());
-            
+
              if(sourceContact == null)
             {
                 logger.debug("received a message from an unknown contact: "
@@ -304,7 +304,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
                 = new MessageReceivedEvent(
                     newMessage, sourceContact , new Date() );
 
-            fireMessageEvent(msgReceivedEvt);    
+            fireMessageEvent(msgReceivedEvt);
         }
     }
 }
