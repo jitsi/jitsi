@@ -515,13 +515,10 @@ public class MetaContactGroupImpl
      */
     void addMetaContact(MetaContactImpl metaContact)
     {
-        synchronized (childContacts)
-        {
-            //set this group as a callback in the meta contact
-            metaContact.setParentGroup(this);
+        //set this group as a callback in the meta contact
+        metaContact.setParentGroup(this);
 
-            lightAddMetaContact(metaContact);
-        }
+        lightAddMetaContact(metaContact);
     }
 
     /**
@@ -536,10 +533,13 @@ public class MetaContactGroupImpl
      */
     int lightAddMetaContact(MetaContactImpl metaContact)
     {
-        this.childContacts.add(metaContact);
-        //no need to synch it's not a disaster if s.o. else reads the old copy.
-        childContactsOrderedCopy = new LinkedList(childContacts);
-        return childContactsOrderedCopy.indexOf(metaContact);
+        synchronized(childContacts)
+        {
+            this.childContacts.add(metaContact);
+            //no need to synch it's not a disaster if s.o. else reads the old copy.
+            childContactsOrderedCopy = new LinkedList(childContacts);
+            return childContactsOrderedCopy.indexOf(metaContact);
+        }
     }
 
     /**
@@ -556,9 +556,12 @@ public class MetaContactGroupImpl
       */
     void lightRemoveMetaContact(MetaContactImpl metaContact)
     {
-        this.childContacts.remove(metaContact);
-        //no need to synch it's not a disaster if s.o. else reads the old copy.
-        childContactsOrderedCopy = new LinkedList(childContacts);
+        synchronized(childContacts)
+        {
+            this.childContacts.remove(metaContact);
+            //no need to synch it's not a disaster if s.o. else reads the old copy.
+            childContactsOrderedCopy = new LinkedList(childContacts);
+        }
     }
 
 
@@ -569,11 +572,8 @@ public class MetaContactGroupImpl
      */
     void removeMetaContact(MetaContactImpl metaContact)
     {
-        synchronized (childContacts)
-        {
-            metaContact.unsetParentGroup(this);
-            lightRemoveMetaContact(metaContact);
-        }
+        metaContact.unsetParentGroup(this);
+        lightRemoveMetaContact(metaContact);
     }
 
     /**
