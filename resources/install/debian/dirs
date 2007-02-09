@@ -6,6 +6,5 @@ usr/share/menu
 usr/share/pixmaps
 usr/share/sip-communicator
 usr/share/sip-communicator/lib
-usr/share/sip-communicator/lib/os-specific
 usr/share/sip-communicator/lib/bundle
 usr/share/sip-communicator/sc-bundles
