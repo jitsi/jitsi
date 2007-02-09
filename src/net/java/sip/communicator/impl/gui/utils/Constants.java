@@ -54,12 +54,7 @@ public class Constants {
      * a contact.
      */
     public static boolean REMOVE_GROUP_ASK = true;
-
-    /**
-     * Indicates whether the message automatic popup is enabled.
-     */
-    public static boolean AUTO_POPUP_NEW_MESSAGE = true;
-
+    
     /**
      * Indicates the number of messages to show in the chat area when a new
      * chat is opened.

@@ -12,6 +12,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.callhistory.*;
@@ -90,6 +91,7 @@ public class GuiActivator implements BundleActivator {
 
             logger.info("UI Service ...[REGISTERED]");
             
+            ConfigurationManager.loadGuiConfigurations();
             communicatorMain.showCommunicator(true);
             SwingUtilities.invokeLater(new RunLogin());
         }
