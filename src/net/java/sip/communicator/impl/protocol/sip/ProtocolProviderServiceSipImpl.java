@@ -1544,7 +1544,7 @@ public class ProtocolProviderServiceSipImpl
 
         //registrar transport
         String registrarTransport = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.SERVER_TRANSPORT);
+            .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
 
         if(registrarTransport != null && registrarTransport.length() > 0)
         {
