@@ -15,7 +15,6 @@ import net.java.sip.communicator.util.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
 import net.kano.joscar.snaccmd.error.*;
-import net.kano.joscar.snaccmd.icbm.*;
 import net.kano.joscar.snaccmd.icq.*;
 import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
@@ -268,58 +267,53 @@ public class OperationSetBasicInstantMessagingIcqImpl
             {
                 OfflineMsgIcqCmd offlineMsgCmd = (OfflineMsgIcqCmd) snac;
 
-                if (!offlineMsgCmd.getType().
-                    equals(AbstractIcqCmd.CMD_OFFLINE_MSG_DONE))
+                String contactUIN = String.valueOf(offlineMsgCmd.getFromUIN());
+                Contact sourceContact =
+                    opSetPersPresence.findContactByID(contactUIN);
+                if (sourceContact == null)
                 {
-                    String contactUIN = String.valueOf(offlineMsgCmd.getFromUIN());
-                    Contact sourceContact =
-                        opSetPersPresence.findContactByID(contactUIN);
-                    if (sourceContact == null)
-                    {
-                        logger.debug(
-                            "received a message from a unknown contact: "
-                            + contactUIN);
-                        //create the volatile contact
-                        sourceContact = opSetPersPresence
-                            .createVolatileContact(contactUIN);
-                    }
-
-                    //some messages arrive far away in the future for some
-                    //reason that I currently don't know. Until we find it
-                    //(which may well be never) we are putting in an agly hack
-                    //ignoring messages with a date beyond tomorrow.
-                    long current = System.currentTimeMillis();
-                    long msgDate = offlineMsgCmd.getDate().getTime();
-
-                    if( (current + ONE_DAY) > msgDate )
-                        msgDate = current;
-
-                    MessageReceivedEvent msgReceivedEvt
-                        = new MessageReceivedEvent(
-                            createMessage(offlineMsgCmd.getContents()),
-                            sourceContact,
-                            new Date(msgDate));
-                    logger.debug("fire msg received for : " +
-                                 offlineMsgCmd.getContents());
-                    fireMessageEvent(msgReceivedEvt);
+                    logger.debug(
+                        "received a message from a unknown contact: "
+                        + contactUIN);
+                    //create the volatile contact
+                    sourceContact = opSetPersPresence
+                        .createVolatileContact(contactUIN);
                 }
-                else
-                {
-                    logger.debug("send ack to delete offline messages");
 
-                    OfflineMsgIcqAckCmd offlineMsgDeleteReq = new
-                        OfflineMsgIcqAckCmd(
-                            Long.parseLong(
-                            icqProvider.getAimSession().getScreenname().
-                            getNormal()),
-                            requestID
-                        );
-                    icqProvider.getAimConnection().getInfoService().
-                        getOscarConnection().sendSnac(offlineMsgDeleteReq);
-                }
+                //some messages arrive far away in the future for some
+                //reason that I currently don't know. Until we find it
+                //(which may well be never) we are putting in an agly hack
+                //ignoring messages with a date beyond tomorrow.
+                long current = System.currentTimeMillis();
+                long msgDate = offlineMsgCmd.getDate().getTime();
+
+                if( (current + ONE_DAY) > msgDate )
+                    msgDate = current;
+
+                MessageReceivedEvent msgReceivedEvt
+                    = new MessageReceivedEvent(
+                        createMessage(offlineMsgCmd.getContents()),
+                        sourceContact,
+                        new Date(msgDate));
+                logger.debug("fire msg received for : " +
+                             offlineMsgCmd.getContents());
+                fireMessageEvent(msgReceivedEvt);
             }
-            else
-            if (snac instanceof SnacError)
+            else if (snac instanceof OfflineMsgDoneCmd)
+            {
+                logger.debug("send ack to delete offline messages");
+
+                OfflineMsgIcqAckCmd offlineMsgDeleteReq = new
+                    OfflineMsgIcqAckCmd(
+                        Long.parseLong(
+                        icqProvider.getAimSession().getScreenname().
+                        getNormal()),
+                        requestID
+                    );
+                icqProvider.getAimConnection().getInfoService().
+                    getOscarConnection().sendSnac(offlineMsgDeleteReq);
+            }
+            else if (snac instanceof SnacError)
             {
                 logger.debug("error receiving offline messages");
             }
