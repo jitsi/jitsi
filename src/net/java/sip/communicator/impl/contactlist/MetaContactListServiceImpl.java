@@ -1267,14 +1267,39 @@ public class MetaContactListServiceImpl
      * and the corresponding ProtocolProviderService has only provided a
      * <tt>Contact</tt> as its author.
      *
-     * @return the MetaContact containing the speicified contact or null if no
-     *         such contact is present in this contact list.
      * @param contact the protocol specific <tt>contact</tt> that we're looking
      *  for.
+     *
+     * @return the MetaContact containing the speicified contact or null if no
+     *         such contact is present in this contact list.
      */
     public MetaContact findMetaContactByContact(Contact contact)
     {
         return rootMetaGroup.findMetaContactByContact(contact);
+    }
+
+    /**
+     * Returns the MetaContact containing a contact with an address equald to
+     * <tt>contactAddress</tt> and with a source provider matching
+     * <tt>accountID</tt>, or null if no such MetaContact was found. The method
+     * can be used when for example we
+     * need to find the MetaContact that is the author of an incoming message
+     * and the corresponding ProtocolProviderService has only provided a
+     * <tt>Contact</tt> as its author.
+     *
+     * @param contactAddress the address of the  protocol specific
+     * <tt>contact</tt> that we're looking for.
+     * @param accountID the ID of the account that the contact we're looking for
+     * must belong to.
+     *
+     * @return the MetaContact containing the speicified contact or null if no
+     *         such contact is present in this contact list.
+     */
+    public MetaContact findMetaContactByContact(String contactAddress,
+                                                String accountID)
+    {
+        return rootMetaGroup.findMetaContactByContact(contactAddress
+                                                      , accountID);
     }
 
     /**
@@ -2521,6 +2546,28 @@ public class MetaContactListServiceImpl
                 = (MclStorageManager.StoredProtoContactDescriptor)contactsIter
                     .next();
 
+            if(contactDescriptor.contactAddress.indexOf("238431632") > -1)
+                logger.debug("asdfasdfasdfasdfasdfasdfasdf");
+
+
+            //this contact has already been registered by another meta contact
+            //so we'll ignore it. If this is the only contact in the meta
+            //contact, we'll throw an exception at the end of the method and
+            //cause the mcl storage manager to remove it.
+            MetaContact mc = findMetaContactByContact(
+                contactDescriptor.contactAddress, accountID);
+
+            if(mc != null)
+            {
+                logger.warn("Ignoring duplicate proto contact "
+                            + contactDescriptor
+                            + " accountID=" + accountID
+                            + ". The contact was also present in the "
+                            + "folloing meta contact:" + mc);
+                continue;
+            }
+
+
             Contact protoContact = presenceOpSet.createUnresolvedContact(
                 contactDescriptor.contactAddress,
                 contactDescriptor.persistentData,
@@ -2529,6 +2576,15 @@ public class MetaContactListServiceImpl
                     : contactDescriptor.parentProtoGroup);
 
             newMetaContact.addProtoContact(protoContact);
+        }
+
+        if(newMetaContact.getContactCount() == 0)
+        {
+            logger.error("Found an empty meta contact. Throwing an exception "
+                + "so that the storage manager would remove it.");
+            throw new IllegalArgumentException("MetaContact["
+                + newMetaContact
+                +"] contains no non-duplicating child contacts.");
         }
 
         parentGroup.addMetaContact(newMetaContact);
