@@ -670,29 +670,63 @@ public class MclStorageManager
             if (currentMetaContactNode.getNodeType() != Node.ELEMENT_NODE)
                 continue;
 
-            String uid = XMLUtils.getAttribute(currentMetaContactNode
-                                               , UID_ATTR_NAME);
+            try
+            {
+                String uid = XMLUtils.getAttribute(currentMetaContactNode
+                    , UID_ATTR_NAME);
 
-            Element displayNameNode = XMLUtils.findChild(
-                (Element)currentMetaContactNode
-                , META_CONTACT_DISPLAY_NAME_NODE_NAME);
+                Element displayNameNode = XMLUtils.findChild(
+                    (Element) currentMetaContactNode
+                    , META_CONTACT_DISPLAY_NAME_NODE_NAME);
 
-            String displayName = XMLUtils.getText(displayNameNode);
+                String displayName = XMLUtils.getText(displayNameNode);
 
-            //extract a map of all encapsulated proto contacts
-            List protoContacts
-                = extractProtoContacts((Element)currentMetaContactNode
-                                       , accountID
-                                       , protoGroupsMap);
+                //extract a map of all encapsulated proto contacts
+                List protoContacts
+                    = extractProtoContacts( (Element) currentMetaContactNode
+                                           , accountID
+                                           , protoGroupsMap);
 
-            //if the size of the map is 0 then the meta contact does not contain
-            //any contacts matching the currently parsed account id.
-            if( protoContacts.size() < 1 )
-                continue;
+                //if the size of the map is 0 then the meta contact does not
+                //contain any contacts matching the currently parsed account id.
+                if (protoContacts.size() < 1)
+                    continue;
 
-            //pass the parsed proto contacts to the mcl service
-            mclServiceImpl.loadStoredMetaContact(
-                currentMetaGroup, uid, displayName, protoContacts, accountID);
+                //pass the parsed proto contacts to the mcl service
+                mclServiceImpl.loadStoredMetaContact(
+                    currentMetaGroup, uid, displayName, protoContacts,
+                    accountID);
+            }
+            catch(Throwable thr)
+            {
+                //if we fail parsing a meta contact, we should remove it so that
+                //it stops causing trouble, and let other meta contacts load.
+                logger.warn("Failed to parse meta contact "
+                            + currentMetaContactNode
+                            + ". Will remove and continue with other contacts"
+                            , thr);
+
+                //remove the node so that it doesn't cause us problems again
+                if (currentMetaContactNode != null
+                    && currentMetaContactNode.getParentNode() != null)
+                {
+                    try
+                    {
+                        currentMetaContactNode.getParentNode()
+                            .removeChild(currentMetaContactNode);
+                    }
+                    catch(Throwable throwable)
+                    {
+                        //hmm, failed to remove the faulty node. we must be
+                        //in some kind of serious troble (but i don't see
+                        //what we can do about it)
+                        logger.error("Failed to remove meta contact node "
+                                     + currentMetaContactNode
+                                     , throwable);
+                    }
+                }
+
+            }
         }
 
         //now, last thing that's left to do - go over all subgroups if any
@@ -725,8 +759,30 @@ public class MclStorageManager
             {
                 //catch everything and bravely continue with remaining groups
                 //and contacts
-                logger.error("Failed to process group node " + currentGroupNode
+                logger.error("Failed to process group node "
+                             + currentGroupNode
+                             + ". Removing."
                              , throwable);
+
+                //remove the node so that it doesn't cause us problems again
+                if (currentGroupNode != null
+                    && currentGroupNode.getParentNode() != null)
+                {
+                    try
+                    {
+                        currentGroupNode.getParentNode()
+                            .removeChild(currentGroupNode);
+                    }
+                    catch(Throwable thr)
+                    {
+                        //hmm, failed to remove the faulty node. we must be
+                        //in some kind of serious troble (but i don't see
+                        //what we can do about it)
+                        logger.error("Failed to remove group node "
+                                     + currentGroupNode
+                                     , thr);
+                    }
+                }
             }
         }
     }
@@ -754,6 +810,7 @@ public class MclStorageManager
         List protoContacts = new LinkedList();
 
         NodeList children = metaContactNode.getChildNodes();
+        List duplicates = new LinkedList();
 
         for (int i = 0; i < children.getLength(); i ++)
         {
@@ -772,6 +829,14 @@ public class MclStorageManager
             String contactAddress = XMLUtils.getAttribute(
                 currentNode, PROTO_CONTACT_ADDRESS_ATTR_NAME);
 
+            if (StoredProtoContactDescriptor.findContactInList(
+                    contactAddress, protoContacts) != null)
+            {
+                //this is a duplicate. mark for removal and continue
+                duplicates.add(currentNode);
+                continue;
+            }
+
             String protoGroupUID = XMLUtils.getAttribute(
                                        currentNode, PARENT_PROTO_GROUP_UID_ATTR_NAME);
             Element persistentDataNode = XMLUtils.findChild(
@@ -785,6 +850,13 @@ public class MclStorageManager
                 , (ContactGroup)protoGroups.get(protoGroupUID)));
         }
 
+        //remove all duplicates
+        Iterator duplicatesIter = duplicates.iterator();
+        while(duplicatesIter.hasNext())
+        {
+            Node node = (Node)duplicatesIter.next();
+            metaContactNode.removeChild(node);
+        }
         return protoContacts;
     }
 
@@ -1527,7 +1599,7 @@ public class MclStorageManager
      * Contains details parsed out of the contact list xml file, necessary
      * for creating unresolved contacts.
      */
-    class StoredProtoContactDescriptor
+    static class StoredProtoContactDescriptor
     {
         String contactAddress = null;
         String persistentData = null;
@@ -1540,6 +1612,59 @@ public class MclStorageManager
             this.contactAddress = contactAddress;
             this.persistentData = persistentData;
             this.parentProtoGroup = parentProtoGroup;
+        }
+
+        /**
+         * Returns a string representation of the descriptor.
+         *
+         * @return  a string representation of the descriptor.
+         */
+        public String toString()
+        {
+
+            return "StoredProtocoContactDescriptor[ "
+                + " contactAddress=" + contactAddress
+                + " persistenData=" + persistentData
+                + " parentProtoGroup="
+                +  (( parentProtoGroup == null )
+                        ? ""
+                        : parentProtoGroup.getGroupName())
+                + "]";
+        }
+
+        /**
+         * Utility method that allows us to verify whether a ContactDescriptor
+         * corresponding to a particular contact is already in a descriptor list
+         * and thus eliminate duplicates.
+         *
+         * @param contactAddress the address of the contact whose descriptor
+         * we are looking for.
+         * @param list the <tt>List</tt> of
+         * <tt>StoredProtoContactDescriptor</tt> that we are supposed to search
+         * for <tt>contactAddress</tt>
+         * @return a <tt>StoredProtoContactDescriptor</tt> corresponding to
+         * <tt>contactAddress</tt> or <tt>null</tt> if no such descriptor
+         * exists.
+         */
+        private static StoredProtoContactDescriptor findContactInList(
+                                                        String contactAddress,
+                                                        List list)
+        {
+            if (list == null || list.size() == 0)
+                return null;
+
+            Iterator iter = list.iterator();
+
+            while(iter.hasNext())
+            {
+                StoredProtoContactDescriptor desc
+                    = (StoredProtoContactDescriptor)iter.next();
+
+                if(desc.contactAddress.equals(contactAddress))
+                    return desc;
+            }
+
+            return null;
         }
     }
 }
