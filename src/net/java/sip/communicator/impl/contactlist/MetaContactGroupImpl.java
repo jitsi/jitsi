@@ -460,6 +460,55 @@ public class MetaContactGroupImpl
     }
 
     /**
+     * Returns a meta contact, a child of this group or its subgroups, with
+     * address equald to <tt>contactAddress</tt> and a source protocol provider
+     * with the matching <tt>accountID</tt>. If no such meta contact exists,
+     * the method would return null.
+     *
+     * @param contactAddress the address of the protocol specific contact whose
+     * meta contact we're looking for.
+     * @param accountID the ID of the account that the contact we are looking
+     * for must belong to.
+     *
+     * @return the MetaContactImpl that contains the specified protocol specific
+     * contact.
+     */
+    public MetaContactImpl findMetaContactByContact(String contactAddress,
+                                                    String accountID)
+    {
+        //first go through the contacts that are direct children of this method.
+        Iterator contactsIter = getChildContacts();
+
+        while(contactsIter.hasNext())
+        {
+            MetaContactImpl mContact = (MetaContactImpl)contactsIter.next();
+
+            Contact storedProtoContact = mContact.getContact(
+                contactAddress, accountID);
+
+            if( storedProtoContact != null)
+                return mContact;
+        }
+
+        //if we didn't find it here, let's try in the subougroups
+        Iterator groupsIter = getSubgroups();
+
+        while( groupsIter.hasNext() )
+        {
+            MetaContactGroupImpl mGroup = (MetaContactGroupImpl)groupsIter.next();
+
+            MetaContactImpl mContact = mGroup.findMetaContactByContact(
+                                        contactAddress, accountID);
+
+            if (mContact != null)
+                return mContact;
+        }
+
+        return null;
+    }
+
+
+    /**
      * Returns a meta contact group, encapsulated by this group or its
      * subgroups, that has the specified protocol specific contact. If no such
      * meta contact group exists, the method would return null.
