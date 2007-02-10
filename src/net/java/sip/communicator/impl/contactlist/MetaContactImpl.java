@@ -180,6 +180,38 @@ public class MetaContactImpl
     }
 
     /**
+     * Returns a contact encapsulated by this meta contact, having the specified
+     * contactAddress and coming from a provider with a mathing
+     * <tt>accountID</tt>. The method returns null if no such contact exists.
+     * <p>
+     * @param contactAddress the address of the contact who we're looking for.
+     * @param accountID the identifier of the provider that the contact we're
+     * looking for must belong to.
+     * @return a reference to a <tt>Contact</tt>, encapsulated by this
+     * MetaContact, carrying the specified address and originating from the
+     * ownerProvider carryign <tt>accountID</tt>.
+     */
+    public Contact getContact(String contactAddress,
+                              String accountID)
+    {
+        Iterator contactsIter = protoContacts.iterator();
+
+        while (contactsIter.hasNext())
+        {
+            Contact contact = (Contact)contactsIter.next();
+
+            if(  contact.getProtocolProvider().getAccountID()
+                    .getAccountUniqueID().equals(accountID)
+               && contact.getAddress().equals(contactAddress))
+                return contact;
+        }
+
+        return null;
+
+    }
+
+
+    /**
      * Returns a <tt>java.util.Iterator</tt> over all protocol specific
      * <tt>Contacts</tt> encapsulated by this <tt>MetaContact</tt>.
      * <p>
@@ -321,7 +353,7 @@ public class MetaContactImpl
                 parentGroup.lightRemoveMetaContact(this);
             }
 
-            this.displayName = new String(displayName);
+            this.displayName = new String((displayName==null)?"":displayName);
 
             if (parentGroup != null)
             {
@@ -356,7 +388,7 @@ public class MetaContactImpl
                     || this.displayName.trim().length() == 0)){
                 //be careful not to use setDisplayName() here cause this will
                 //bring us into a deadlock.
-                this.displayName 
+                this.displayName
                     = new String(contact.getDisplayName().getBytes());
             }
 
