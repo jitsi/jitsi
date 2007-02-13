@@ -126,15 +126,13 @@ public class ContactListModel
     {
         int size = 0;
 
-        if (!this.isGroupClosed(group))
+        if (!isGroupClosed(group))
         {
             if (showOffline)
             {
                 size = group.countChildContacts();
-                
-                //count the group itself only if it's not empty
-                if(size > 0)
-                    size++;
+                //count the group itself
+                size++;
             }
             else
             {
@@ -156,9 +154,16 @@ public class ContactListModel
 
             while (subgroups.hasNext())
             {
-                size += getContactListSize((MetaContactGroup) subgroups.next());
+                MetaContactGroup subGroup = (MetaContactGroup) subgroups.next();
+                size += getContactListSize(subGroup);                
             }
         }
+        else
+        {
+            //count the closed group
+            size++;
+        }
+        
         return size;
     }
 
@@ -417,12 +422,15 @@ public class ContactListModel
      */
     public void closeGroup(MetaContactGroup group)
     {
-        if (countContactsAndSubgroups(group) > 0)
+        if (!isGroupClosed(group))
         {
-            contentRemoved(this.indexOf(group.getMetaContact(0)), this
-                .indexOf(group
-                    .getMetaContact(countContactsAndSubgroups(group) - 1)));
-
+            if(showOffline || containsOnlineContacts(group))
+            {
+                contentRemoved(this.indexOf(group.getMetaContact(0)),
+                    this.indexOf(group.getMetaContact(
+                        countContactsAndSubgroups(group) - 1)));
+            }
+            
             this.closedGroups.add(group);
         }
     }
