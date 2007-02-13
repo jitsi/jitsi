@@ -1479,8 +1479,8 @@ public class OperationSetPersistentPresenceIcqImpl
             Contact srcContact = findContactByID(screenname.getFormatted());
 
             authorizationHandler.processAuthorizationResponse(
-                new AuthorizationResponse(AuthorizationResponse.REJECT, reason),
-                srcContact);
+                new AuthorizationResponse(AuthorizationResponse.REJECT, reason)
+                , srcContact);
         }
 
         public void authorizationAccepted(Screenname screenname, String reason)
@@ -1489,8 +1489,8 @@ public class OperationSetPersistentPresenceIcqImpl
             Contact srcContact = findContactByID(screenname.getFormatted());
 
             authorizationHandler.processAuthorizationResponse(
-                new AuthorizationResponse(AuthorizationResponse.REJECT, reason),
-                srcContact);
+                new AuthorizationResponse(AuthorizationResponse.ACCEPT, reason)
+                , srcContact);
         }
 
         public void authorizationRequestReceived(Screenname screenname,
