@@ -246,9 +246,9 @@ public class Wizard extends SIPCommDialog
         //  Show the panel in the dialog.
         
         cardLayout.show(cardPanel, id.toString());
-        wizardModel.getCurrentWizardPage().pageShown();        
+        wizardModel.getCurrentWizardPage().pageShown();
         
-        
+        this.pack();
     }
     
     /**
