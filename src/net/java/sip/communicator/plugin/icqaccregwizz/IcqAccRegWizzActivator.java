@@ -6,13 +6,12 @@
  */
 package net.java.sip.communicator.plugin.icqaccregwizz;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.browserlauncher.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Registers the <tt>IcqAccountRegistrationWizard</tt> in the UI Service.
@@ -24,7 +23,7 @@ public class IcqAccRegWizzActivator implements BundleActivator {
     public static BundleContext bundleContext;
 
     private static Logger logger = Logger.getLogger(
-            IcqAccRegWizzActivator.class.getName());
+        IcqAccRegWizzActivator.class);
     
     private static BrowserLauncherService browserLauncherService;
     
