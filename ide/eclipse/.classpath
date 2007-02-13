@@ -5,40 +5,41 @@
 	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
 	<classpathentry path="lib/bundle/junit.jar" kind="lib"/>
 	<classpathentry path="lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar" kind="lib"/>
-	<classpathentry path="lib/os-specific/windows/jdic_stub.jar" kind="lib"/>
-	<classpathentry path="lib/os-specific/windows/jmf.jar" kind="lib"/>
-	<classpathentry path="lib/os-specific/windows/sound.jar" kind="lib"/>
-	<classpathentry path="lib/AppleJavaExtensions.jar" kind="lib"/>
-	<classpathentry path="lib/bcprov-jdk14-130.jar" kind="lib"/>
-	<classpathentry path="lib/cindy.jar" kind="lib"/>
-	<classpathentry path="lib/commons-logging.jar" kind="lib"/>
-	<classpathentry path="lib/concurrent.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/bcprov-jdk14-130.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/cindy.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/commons-logging.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/concurrent.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/JainSipApi1.2.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/JainSipRi1.2.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/jmf.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/jml-1.0b1.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/joscar-client.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/joscar-common.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/joscar-protocol.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/jsocks-klea.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/jspeex.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/junit.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/log4j-1.2.8.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/nist-sdp-1.0.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/retroweaver-rt-2.0Beta2.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/smack.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/smackx.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/Stun4J.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/ymsg_network_v0_61.jar" kind="lib"/>
 	<classpathentry path="lib/felix.jar" kind="lib"/>
-	<classpathentry path="lib/growl.jar" kind="lib"/>
-	<classpathentry path="lib/JainSipApi1.2.jar" kind="lib"/>
-	<classpathentry path="lib/JainSipRi1.2.jar" kind="lib"/>
 	<classpathentry path="lib/jdic-all.jar" kind="lib"/>
-	<classpathentry path="lib/jmf.jar" kind="lib"/>
-	<classpathentry path="lib/jml-1.0b1.jar" kind="lib"/>
-	<classpathentry path="lib/joscar-0.9.4-cvs-bin.jar" kind="lib"/>
-	<classpathentry path="lib/jspeex.jar" kind="lib"/>
-	<classpathentry path="lib/junit.jar" kind="lib"/>
 	<classpathentry path="lib/kxml-min.jar" kind="lib"/>
-	<classpathentry path="lib/log4j-1.2.8.jar" kind="lib"/>
-	<classpathentry path="lib/nist-sdp-1.0.jar" kind="lib"/>
-	<classpathentry path="lib/oscar-aim.jar" kind="lib"/>
-	<classpathentry path="lib/retroweaver.jar" kind="lib"/>
-	<classpathentry path="lib/retroweaver-rt.jar" kind="lib"/>
 	<classpathentry path="lib/servicebinder.jar" kind="lib"/>
-	<classpathentry path="lib/smack.jar" kind="lib"/>
-	<classpathentry path="lib/smackx.jar" kind="lib"/>
-	<classpathentry path="lib/Stun4J.jar" kind="lib"/>
-	<classpathentry path="lib/ymsg_network_v0_61.jar" kind="lib"/>
+	<classpathentry path="lib/os-specific/linux/installer-exclude/jmf.jar" kind="lib"/>
 	<classpathentry path="lib/os-specific/linux/jdic_stub.jar" kind="lib"/>
-	<classpathentry path="lib/os-specific/linux/jmf.jar" kind="lib"/>
+	<classpathentry path="lib/os-specific/mac/installer-exclude/jmf.jar" kind="lib"/>
+	<classpathentry path="lib/os-specific/mac/AppleJavaExtensions.jar" kind="lib"/>
+	<classpathentry path="lib/os-specific/mac/growl.jar" kind="lib"/>
 	<classpathentry path="lib/os-specific/mac/jdic_stub.jar" kind="lib"/>
-	<classpathentry path="lib/os-specific/mac/jmf.jar" kind="lib"/>
+	<classpathentry path="lib/os-specific/solaris/installer-exclude/jmf.jar" kind="lib"/>
 	<classpathentry path="lib/os-specific/solaris/jdic_stub.jar" kind="lib"/>
-	<classpathentry path="lib/os-specific/solaris/jmf.jar" kind="lib"/>
+	<classpathentry path="lib/os-specific/windows/installer-exclude/jmf.jar" kind="lib"/>
+	<classpathentry path="lib/os-specific/windows/installer-exclude/sound.jar" kind="lib"/>
+	<classpathentry path="lib/os-specific/windows/jdic_stub.jar" kind="lib"/>
 	<classpathentry path="bin" kind="output"/>
 </classpath>
