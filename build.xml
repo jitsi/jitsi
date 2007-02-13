@@ -439,10 +439,7 @@
                       value="logging.properties"/>
 
         <jarfileset dir=".">
-            <include name="${lib}/kxml-min.jar" />
-            <include name="${lib}/felix.jar" />
-            <include name="${lib}/servicebinder.jar" />
-            <include name="${lib}/jdic-all.jar" />
+            <include name="${lib}/*.jar" />
             <include name="${lib.mac}/*.jar" />
             <include name="${lib}/bundle/*.jar" />
             <exclude name="${lib}/bundle/junit.jar" />
