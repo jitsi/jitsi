@@ -118,7 +118,7 @@ public class FirstWizardPage extends JPanel
 
         this.registration = registration;
 
-        this.setPreferredSize(new Dimension(300, 150));
+        this.setPreferredSize(new Dimension(600, 500));
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -380,6 +380,13 @@ public class FirstWizardPage extends JPanel
             .openURL("https://www.icq.com/register/");
     }
 
+    /**
+     * Checks if an acount with the given account already exists.
+     * 
+     * @param accountName the name of the account to check
+     * @return TRUE, if an account with the given name already exists, FALSE -
+     * otherwise
+     */
     private boolean isExistingAccount(String accountName)
     {
         ProtocolProviderFactory factory
