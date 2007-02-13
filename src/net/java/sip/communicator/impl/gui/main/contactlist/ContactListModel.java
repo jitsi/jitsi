@@ -132,7 +132,8 @@ public class ContactListModel
             {
                 size = group.countChildContacts();
                 //count the group itself
-                size++;
+                if(!group.equals(rootGroup))
+                    size++;
             }
             else
             {
@@ -146,7 +147,7 @@ public class ContactListModel
                 }
           
                 //count the group itself only if it contains any online contacts
-                if(size > 0)
+                if(!group.equals(rootGroup) && size > 0)
                     size++;
             }
 
