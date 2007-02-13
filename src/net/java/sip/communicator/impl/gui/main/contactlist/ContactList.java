@@ -1120,10 +1120,27 @@ public class ContactList
         
         int newListSize = listModel.getSize();
         
-        if(listSize > 0 && newListSize > 0)
+        //hide offline users
+        if(!isShowOffline && listSize > 0)
         {
-            listModel.contentChanged(0, newListSize - 1);
-            listModel.contentRemoved(newListSize - 1, listSize - 1);            
+            if(newListSize > 0)
+            {
+                listModel.contentChanged(0, newListSize - 1);
+                listModel.contentRemoved(newListSize - 1, listSize - 1);
+            }
+            else
+                listModel.contentRemoved(0, listSize - 1);
+        }
+        //show offline users
+        else if(isShowOffline && newListSize > 0)
+        {
+            if(listSize > 0)
+            {
+                listModel.contentChanged(0, listSize - 1);
+                listModel.contentAdded(listSize - 1, newListSize - 1);
+            }
+            else
+                listModel.contentAdded(0, newListSize - 1);
         }
     }
 
