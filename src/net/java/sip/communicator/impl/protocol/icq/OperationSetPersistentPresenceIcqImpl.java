@@ -1520,7 +1520,7 @@ public class OperationSetPersistentPresenceIcqImpl
                     authResponse.getReason());
         }
 
-        public boolean authorizationRequired(Screenname screenname)
+        public boolean authorizationRequired(Screenname screenname, Group parentGroup)
         {
             logger.trace("authorizationRequired from " + screenname);
 
@@ -1528,7 +1528,11 @@ public class OperationSetPersistentPresenceIcqImpl
             Contact srcContact = findContactByID(screenname.getFormatted());
 
             if(srcContact == null)
-                srcContact = createVolatileContact(screenname.getFormatted());
+            {
+                ContactGroup parent = ssContactList.findContactGroup(parentGroup);
+                srcContact = 
+                    createUnresolvedContact(screenname.getFormatted(), null, parent);
+            }
 
             AuthorizationRequest authRequest =
                 authorizationHandler.createAuthorizationRequest(

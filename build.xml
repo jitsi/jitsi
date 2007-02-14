@@ -1142,7 +1142,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/joscar-client.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/joscar-common.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/joscar-protocol.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/retroweaver-rt-2.0Beta2.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/retroweaver-rt-2.0Beta4.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jsocks-klea.jar" prefix=""/>
         </jar>
     </target>
@@ -1157,7 +1157,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/joscar-client.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/joscar-common.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/joscar-protocol.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/retroweaver-rt-2.0Beta2.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/retroweaver-rt-2.0Beta4.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jsocks-klea.jar" prefix=""/>
         </jar>
     </target>
