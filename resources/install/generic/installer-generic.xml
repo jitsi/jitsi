@@ -43,9 +43,7 @@
 		<pack name="lib" required="yes">
                     <description>Include all libraries</description>
                     <fileset  targetdir="$INSTALL_PATH/lib" dir="lib" override="true">
-                        <include name="kxml-min.jar"/>
-                        <include name="felix.jar"/>
-                        <include name="servicebinder.jar"/>
+                        <include name="*.jar"/>
                     </fileset>
                     <file targetdir="$INSTALL_PATH/lib/bundle" src="lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar" override="true"/>
                     <file targetdir="$INSTALL_PATH/lib" src="lib/felix.client.run.properties" override="true"/>

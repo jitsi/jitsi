@@ -41,9 +41,9 @@
 		<!-- The lib files -->
 		<pack name="lib" required="yes">
                     <description>Include all libraries</description>
-                    <file targetdir="$INSTALL_PATH/lib" src="lib/kxml-min.jar" override="true"/>
-                    <file targetdir="$INSTALL_PATH/lib" src="lib/felix.jar" override="true"/>
-                    <file targetdir="$INSTALL_PATH/lib" src="lib/servicebinder.jar" override="true"/>
+                    <fileset  targetdir="$INSTALL_PATH/lib" dir="lib" override="true">
+                        <include name="*.jar"/>
+                    </fileset>
                     <fileset  targetdir="$INSTALL_PATH/lib" dir="lib/os-specific/windows" override="true">
                         <include name="*.jar"/>
                         <exclude name="jmf.jar"/>
@@ -70,7 +70,7 @@
                 
                 <pack name="bundles-os-specific" required="yes">
                     <description>SIP Communicator windows bundles</description>
-                    <fileset  targetdir="$INSTALL_PATH/sc-bundles/os-specific/windows" dir="sc-bundles" override="true">
+                    <fileset  targetdir="$INSTALL_PATH/sc-bundles" dir="sc-bundles/os-specific/windows" override="true">
                         <include name="*.jar"/>
                         <exclude name="*slick.jar"/>
                     </fileset>
