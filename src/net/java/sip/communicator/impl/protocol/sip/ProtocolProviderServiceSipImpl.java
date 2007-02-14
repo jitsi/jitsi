@@ -1696,8 +1696,8 @@ public class ProtocolProviderServiceSipImpl
         if (proxyTransport != null && proxyTransport.length() > 0)
         {
             if (!proxyTransport.equals(ListeningPoint.UDP)
-                || !proxyTransport.equals(ListeningPoint.TCP)
-                || !proxyTransport.equals(ListeningPoint.TLS))
+                && !proxyTransport.equals(ListeningPoint.TCP)
+                && !proxyTransport.equals(ListeningPoint.TLS))
             {
                 throw new IllegalArgumentException(proxyTransport
                     + " is not a valid transport protocol. Transport must be "
