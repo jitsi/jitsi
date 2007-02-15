@@ -663,7 +663,8 @@ public class TestOperationSetPresence
                 testerAgentNewStatusLong = FullUserInfo.ICQSTATUS_OCCUPIED;
             }   
             
-            contactPresEvtCollector.collectedEvents.clear();
+            contactPresEvtCollector = new ContactPresenceEventCollector(
+                    fixture.testerAgent.getIcqUIN(), testerAgentNewStatus);
             operationSetPresence.addContactPresenceStatusListener(
                 contactPresEvtCollector);
 
