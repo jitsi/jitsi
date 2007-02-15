@@ -576,6 +576,8 @@ public class OperationSetPersistentPresenceIcqImpl
             return;
         }
 
+        logger.trace("Going to remove contact from ss-list : " + contact);
+        
         MutableGroup joustSimContactGroup = contactGroup.getJoustSimSourceGroup();
 
         joustSimContactGroup.deleteBuddy(contactIcqImpl.getJoustSimBuddy());

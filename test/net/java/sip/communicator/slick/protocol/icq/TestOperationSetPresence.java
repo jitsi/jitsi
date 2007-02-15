@@ -712,6 +712,13 @@ public class TestOperationSetPresence
 
         /** @todo tester agent changes status message we see the new message */
         /** @todo we should see the alias of the tester agent. */
+        
+        Object obj = new Object();
+        synchronized(obj)
+        {
+            logger.debug("wait a moment. give time to server");
+            obj.wait(4000);
+        }
     }
 
     /**
