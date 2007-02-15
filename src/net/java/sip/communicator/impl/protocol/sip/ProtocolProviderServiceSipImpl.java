@@ -1691,7 +1691,7 @@ public class ProtocolProviderServiceSipImpl
 
         //proxy transport
         String proxyTransport = (String) accountID.getAccountProperties()
-            .get(ProtocolProviderFactory.PROXY_TRANSPORT);
+            .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
 
         if (proxyTransport != null && proxyTransport.length() > 0)
         {
