@@ -565,14 +565,9 @@ public class TestOperationSetPresence
             //don't want any more events
             operationSetPresence.removeSubscriptionListener(subEvtCollector);
         }
-
+        
         assertEquals("Subscription event dispatching failed."
                      , 1, subEvtCollector.collectedEvents.size());
-
-        // after the authorization process finished
-        // we must have received two events
-        // the first is created in NotInContactList group
-        // the second one is moved from NotInContactListGroup to the target group
 
         EventObject evt =
             (EventObject)subEvtCollector.collectedEvents.get(0);
@@ -640,6 +635,53 @@ public class TestOperationSetPresence
                 .removeContactPresenceStatusListener(contactPresEvtCollector);
         }
 
+        if(contactPresEvtCollector.collectedEvents.size() == 0)
+        {
+            logger.info("PROBLEM. Authorisation process doesn't have finnished " + 
+                "Server doesn't report us for changing authorization flag! Will try to authorize once again");
+
+            fixture.testerAgent.sendAuthorizationReplay(
+                fixture.icqAccountID.getUserID(), 
+                fixture.testerAgent.getAuthCmdFactory().responseReasonStr,
+                fixture.testerAgent.getAuthCmdFactory().ACCEPT);
+            
+            Object obj = new Object();
+            synchronized(obj)
+            {
+                logger.debug("wait for authorization process to be finnished for second time");
+                obj.wait(10000);
+                logger.debug("Stop waiting!");
+            }
+            
+            testerAgentOldStatus = fixture.testerAgent.getPresneceStatus();
+            testerAgentNewStatusLong = FullUserInfo.ICQSTATUS_FFC;
+
+            //in case we are by any chance already in a FREE_FOR_CHAT status, we'll
+            //be changing to something else
+            if(testerAgentOldStatus.equals(testerAgentNewStatus)){
+                testerAgentNewStatus = IcqStatusEnum.OCCUPIED;
+                testerAgentNewStatusLong = FullUserInfo.ICQSTATUS_OCCUPIED;
+            }   
+            
+            contactPresEvtCollector.collectedEvents.clear();
+            operationSetPresence.addContactPresenceStatusListener(
+                contactPresEvtCollector);
+
+            synchronized (contactPresEvtCollector){
+                if (!fixture.testerAgent.enterStatus(testerAgentNewStatusLong))
+                {
+                    throw new RuntimeException(
+                        "Tester UserAgent Failed to switch to the "
+                        + testerAgentNewStatus.getStatusName() + " state.");
+                }
+                //we may already have the event, but it won't hurt to check.
+                contactPresEvtCollector.waitForEvent(12000);
+                operationSetPresence
+                    .removeContactPresenceStatusListener(contactPresEvtCollector);
+            }
+        }
+
+        
         assertEquals("Presence Notif. event dispatching failed."
                      , 1, contactPresEvtCollector.collectedEvents.size());
         ContactPresenceStatusChangeEvent presEvt =

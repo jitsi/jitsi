@@ -1244,6 +1244,11 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
     {
         conn.sendSnac(new OfflineSnacCmd(buddy, body));
     }
+    
+    void sendAuthorizationReplay(String uin, String reasonStr, boolean isAccpeted)
+    {
+        conn.sendSnac(new AuthReplyCmd(uin, reasonStr, isAccpeted));
+    }
 
     private class OfflineSnacCmd  extends SendImIcbm
     {
@@ -1371,11 +1376,12 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
                 }
 
                 logger.trace("sending authorization " + ACCEPT);
-                conn.sendSnac(
-                    new AuthReplyCmd(
-                        String.valueOf(cmd.uin),
-                        responseReasonStr,
-                        ACCEPT));
+                
+                sendAuthorizationReplay(
+                    String.valueOf(cmd.uin),
+                    responseReasonStr,
+                    ACCEPT);
+                
                 return cmd;
             }
             else if (command == 27) // auth reply
