@@ -44,13 +44,13 @@ public class ContactListPanel
 
     private JPanel treePanel = new JPanel(new BorderLayout());
 
-    private Hashtable chatWindows = new Hashtable();
-
     private TypingTimer typingTimer = new TypingTimer();
 
     private CommonRightButtonMenu commonRightButtonMenu;
     
     private Logger logger = Logger.getLogger(ContactListPanel.class);
+    
+    private ChatWindowManager chatWindowManager;
 
     /**
      * Creates the contactlist scroll panel defining the parent frame.
@@ -61,6 +61,8 @@ public class ContactListPanel
 
         this.mainFrame = mainFrame;
 
+        this.chatWindowManager = mainFrame.getChatWindowManager();
+        
         this.getViewport().add(treePanel);
 
         this.setHorizontalScrollBarPolicy(
@@ -164,171 +166,26 @@ public class ContactListPanel
     public class RunMessageWindow implements Runnable
     {
 
-        private MetaContact contactItem;
+        private MetaContact metaContact;
 
         private Contact protocolContact;
 
-        public RunMessageWindow(MetaContact contactItem)
+        public RunMessageWindow(MetaContact metaContact)
         {
-            this.contactItem = contactItem;
-                        
-            Contact defaultContact = contactItem.getDefaultContact();
-            
-            ProtocolProviderService defaultProvider
-                = defaultContact.getProtocolProvider();
-            
-            OperationSetBasicInstantMessaging
-                defaultIM = (OperationSetBasicInstantMessaging)
-                    defaultProvider.getOperationSet(
-                            OperationSetBasicInstantMessaging.class);
-            
-            ProtocolProviderService protoContactProvider;
-            OperationSetBasicInstantMessaging protoContactIM;
-            
-            if (defaultContact.getPresenceStatus().getStatus() < 1
-                    && (!defaultIM.isOfflineMessagingSupported()
-                            || !defaultProvider.isRegistered()))
-            {  
-                Iterator protoContacts = contactItem.getContacts();
-                
-                while(protoContacts.hasNext())
-                {
-                    Contact contact = (Contact) protoContacts.next();
-                    
-                    protoContactProvider = contact.getProtocolProvider();
-                    
-                    protoContactIM = (OperationSetBasicInstantMessaging)
-                        protoContactProvider.getOperationSet(
-                            OperationSetBasicInstantMessaging.class);
-                    
-                    if(protoContactIM.isOfflineMessagingSupported()
-                            && protoContactProvider.isRegistered())
-                    {
-                        defaultContact = contact;
-                    }
-                }
-            }
-            
-            this.protocolContact = defaultContact;
+            this.metaContact = metaContact;
         }
 
-        public RunMessageWindow(MetaContact contactItem, Contact protocolContact) {
-            this.contactItem = contactItem;
+        public RunMessageWindow(MetaContact metaContact, Contact protocolContact) {
+            this.metaContact = metaContact;
             this.protocolContact = protocolContact;
         }
 
         public void run()
         {
-            PresenceStatus contactStatus = ((ContactListModel) contactList
-                    .getModel()).getMetaContactStatus(this.contactItem);
-
-            ChatWindow chatWindow;
-            if (!Constants.TABBED_CHAT_WINDOW) {
-                // If in mode "open messages in new window"
-                if (chatWindows.containsKey(this.contactItem)) {
-                    /*
-                     * If a chat window for this contact is already opened show
-                     * it.
-                     */
-                    chatWindow = (ChatWindow) chatWindows
-                            .get(this.contactItem);
-
-                    if (chatWindow.isVisible()) {
-                        if(chatWindow.getState() == JFrame.ICONIFIED)
-                            chatWindow.setState(JFrame.NORMAL);
-                        
-                        chatWindow.toFront();
-                    }
-                    else
-                        chatWindow.setVisible(true);
-                }
-                else {
-                    /*
-                     * If there's no chat window for the contact create it and
-                     * show it.
-                     */
-                    chatWindow = new ChatWindow(mainFrame);
-
-                    chatWindows.put(this.contactItem, chatWindow);
-
-                    ChatPanel chatPanel = chatWindow.createChat(
-                            this.contactItem, contactStatus, protocolContact);
-
-                    chatPanel.loadHistory();
-
-                    chatWindow.addChat(chatPanel);
-
-                    chatWindow.pack();
-
-                    chatWindow.setVisible(true);
-
-                    chatWindow.getCurrentChatPanel().requestFocusInWriteArea();
-                }
-            }
-            else {
-                // If in mode "group messages in one chat window"
-                if (chatWindows.isEmpty()) {
-                    // If there's no open chat window
-                    chatWindow = new ChatWindow(mainFrame);
-
-                    chatWindows.put(contactItem, chatWindow);
-                }
-                else {
-                    chatWindow = (ChatWindow)chatWindows.elements().nextElement();
-                }
-                
-                /*
-                 * Get the hashtable containg all tabs and corresponding chat
-                 * panels.
-                 */
-                
-                // If there's no open tab for the given contact.
-                if (!chatWindow.containsContactChat(this.contactItem)) {
-                    ChatPanel chatPanel = chatWindow.createChat(
-                            this.contactItem, contactStatus, protocolContact);
-
-                    chatPanel.loadHistory();
-
-                    chatWindow.addChatTab(chatPanel);
-
-                    if (chatWindow.getTabCount() > 1) {
-                        chatWindow
-                                .setSelectedContactTab(this.contactItem);
-                    }
-
-                    if (chatWindow.isVisible()) {
-                        
-                        if(chatWindow.getState() == JFrame.ICONIFIED)
-                            chatWindow.setState(JFrame.NORMAL);
-                        
-                        chatWindow.toFront();
-                    }
-                    else
-                        chatWindow.setVisible(true);
-
-                    chatWindow.getCurrentChatPanel()
-                            .requestFocusInWriteArea();
-                }
-                else {
-                    // If a tab for the given contact already exists.
-                    if (chatWindow.getTabCount() > 1) {
-                        chatWindow.setSelectedContactTab(this.contactItem);
-                    }
-
-                    if (chatWindow.isVisible()) {
-                        
-                        if(chatWindow.getState() == JFrame.ICONIFIED)
-                            chatWindow.setState(JFrame.NORMAL);
-                        chatWindow.toFront();
-                    }
-                    else
-                        chatWindow.setVisible(true);
-
-                    chatWindow.getCurrentChatPanel()
-                            .requestFocusInWriteArea();
-                }
-            }
-
+            if(protocolContact != null)
+                chatWindowManager.openChat(metaContact, protocolContact, true);
+            else
+                chatWindowManager.openChat(metaContact, true);
         }
     }
 
@@ -353,161 +210,62 @@ public class ContactListPanel
         MetaContact metaContact = mainFrame.getContactList()
                 .findMetaContactByContact(protocolContact);
 
-        PresenceStatus contactStatus = ((ContactListModel) this.contactList
-                .getModel()).getMetaContactStatus(metaContact);
-
-        ChatWindow chatWindow;
         ChatPanel chatPanel;
         
         if (!Constants.TABBED_CHAT_WINDOW) {
             // If in mode "open all messages in new window"
-            if (chatWindows.containsKey(metaContact)) {
+            if (chatWindowManager.containsContactChat(metaContact))
+            {
                 /*
                  * If a chat window for this contact is already opened show it.
                  */
-                chatWindow = (ChatWindow) chatWindows
-                        .get(metaContact);
-
-                chatPanel = chatWindow.getCurrentChatPanel();
+                chatPanel = chatWindowManager.getContactChat(metaContact);
                 
                 chatPanel.processMessage(
                         protocolContact.getDisplayName(), date,
                         Constants.INCOMING_MESSAGE, message.getContent());
-
-                if (chatWindow.getState() == JFrame.ICONIFIED) {
-                    chatWindow.setTitle("*" + chatWindow.getTitle());
-                }
-                
-                if(chatWindow.isVisible())
-                {                    
-                    if (ConfigurationManager.isAutoPopupNewMessage())
-                    {
-                        if(chatWindow.getState() == JFrame.ICONIFIED)
-                            chatWindow.setState(JFrame.NORMAL);
-                        
-                        chatWindow.toFront();
-                    }
-                }
-                else
-                    chatWindow.setVisible(true);
-            
             }
-            else {
-                ChatWindow msgWindow = new ChatWindow(mainFrame);
+            else
+            {   
+                chatPanel = chatWindowManager
+                    .createChat(metaContact, protocolContact);
 
-                chatWindows.put(metaContact, msgWindow);
-
-                chatPanel = msgWindow.createChat(metaContact,
-                        contactStatus, protocolContact);
-
-                chatPanel.loadHistory(message.getMessageUID());
                 chatPanel.processMessage(protocolContact.getDisplayName(),
                         date, Constants.INCOMING_MESSAGE, message.getContent());
-                /*
-                 * If there's no chat window for the contact create it and show
-                 * it.
-                 */
-                if (ConfigurationManager.isAutoPopupNewMessage()) {
-                    msgWindow.addChat(chatPanel);
-
-                    msgWindow.pack();
-
-                    msgWindow.setVisible(true);
-
-                    chatPanel.setCaretToEnd();
-                }
             }
         }
         else {
-            // If in mode "group messages in one chat window"
-            if (chatWindows.isEmpty()) {
-                // If there's no open chat window
-                chatWindow = new ChatWindow(mainFrame);
-                
-                chatWindows.put(metaContact, chatWindow);
-            }
-            else {
-                chatWindow = (ChatWindow) chatWindows.elements().nextElement();
-            }
-            
+                       
             // If there's no open tab for the given contact.
-            if (!chatWindow.containsContactChat(metaContact)) {
+            if (!chatWindowManager.containsContactChat(metaContact)) {
                 
                 logger.trace("MESSAGE RECEIVED: create new chat for contact: "
                     + evt.getSourceContact().getAddress());
                 
-                chatPanel = chatWindow.createChat(metaContact,
-                        contactStatus, protocolContact);
-
-                chatPanel.loadHistory(message.getMessageUID());
+                chatPanel = chatWindowManager
+                    .createChat(metaContact, protocolContact);
                 
                 logger.trace("MESSAGE RECEIVED: process message in chat for contact: "
                     + evt.getSourceContact().getAddress());
                 
                 chatPanel.processMessage(protocolContact.getDisplayName(),
                         date, Constants.INCOMING_MESSAGE, message.getContent());
-                
-                chatWindow.addChatTab(chatPanel);
-                                
-                if(chatWindow.isVisible())
-                {
-                    if (ConfigurationManager.isAutoPopupNewMessage())
-                    {
-                        if(chatWindow.getState() == JFrame.ICONIFIED)
-                            chatWindow.setState(JFrame.NORMAL);
-                        
-                        chatWindow.toFront();
-                    }
-                }
-                else
-                    chatWindow.setVisible(true);
-
-                chatPanel.setCaretToEnd();
-
-                chatWindow.getCurrentChatPanel()
-                        .requestFocusInWriteArea();
-
-                if (chatWindow.getTabCount() > 1) {
-                    chatWindow.highlightTab(metaContact);
-                }
             }
             else {
                 logger.trace("MESSAGE RECEIVED: get existing chat for contact: "
                     + evt.getSourceContact().getAddress());
                 
-                chatPanel = chatWindow.getChatPanel(metaContact);
+                chatPanel = chatWindowManager.getContactChat(metaContact);
 
                 logger.trace("MESSAGE RECEIVED: process message in chat for contact: "
                     + evt.getSourceContact().getAddress());
                 
                 chatPanel.processMessage(protocolContact.getDisplayName(),
-                        date, Constants.INCOMING_MESSAGE, message.getContent());
-
-                if (chatWindow.getState() == JFrame.ICONIFIED) {
-                    if (chatWindow.getTabCount() > 1) {
-                        chatWindow.setSelectedContactTab(metaContact);
-                    }
-
-                    if (!chatWindow.getTitle().startsWith("*")) {
-                        chatWindow.setTitle(
-                                "*" + chatWindow.getTitle());
-                    }
-                }
-                else {
-                    if (chatWindow.getTabCount() > 1) {
-                        chatWindow.highlightTab(metaContact);
-                    }
-                    
-                    if(chatWindow.isVisible())
-                    {
-                        if(ConfigurationManager.isAutoPopupNewMessage())
-                            chatWindow.toFront();
-                    }
-                    else
-                        chatWindow.setVisible(true);
-                }                
+                        date, Constants.INCOMING_MESSAGE, message.getContent());                
             }
         }
+        
+        chatWindowManager.openChat(metaContact, false);
         
         GuiActivator.getAudioNotifier()
             .createAudio(Sounds.INCOMING_MESSAGE).play();
@@ -596,17 +354,17 @@ public class ContactListPanel
             errorMsg = Messages.getI18NString(
                     "msgDeliveryFailedUnknownError").getText();
         }
-               
+        
+        ChatPanel chatPanel;
         ChatWindow chatWindow;
         
         if (!Constants.TABBED_CHAT_WINDOW) {
             // If in mode "open all messages in new window"
-            if (chatWindows.containsKey(metaContact)) {
+            if (chatWindowManager.containsContactChat(metaContact))
+            {   
+                chatPanel = chatWindowManager.getContactChat(metaContact);
                 
-                chatWindow = (ChatWindow) chatWindows
-                        .get(metaContact);
-        
-                ChatPanel chatPanel = chatWindow.getCurrentChatPanel();
+                chatWindow = chatPanel.getChatWindow();
                 
                 chatPanel.refreshWriteArea();
                 
@@ -620,34 +378,13 @@ public class ContactListPanel
                         metaContact.getDisplayName(),
                         new Date(System.currentTimeMillis()),
                         Constants.ERROR_MESSAGE,
-                        errorMsg);
-        
-                if (chatWindow.getState() == JFrame.ICONIFIED) {
-                    chatWindow.setTitle("*" + chatWindow.getTitle());
-                }
-                
-                if(chatWindow.isVisible()) {
-                    
-                    if (ConfigurationManager.isAutoPopupNewMessage())
-                    {
-                        if(chatWindow.getState() == JFrame.ICONIFIED)
-                            chatWindow.setState(JFrame.NORMAL);
-                        
-                        chatWindow.toFront();
-                    }
-                }
-                else
-                    chatWindow.setVisible(true);
+                        errorMsg);        
             }
-            else {
-                ChatWindow msgWindow = new ChatWindow(mainFrame);
-
-                chatWindows.put(metaContact, msgWindow);
-
-                ChatPanel chatPanel = msgWindow.createChat(metaContact,
-                        contactStatus, sourceContact);
-
-                chatPanel.loadHistory();
+            else
+            {   
+                chatPanel = chatWindowManager.createChat(
+                    metaContact, sourceContact);
+                
                 chatPanel.processMessage(
                         metaContact.getDisplayName(),
                         new Date(System.currentTimeMillis()),
@@ -659,36 +396,15 @@ public class ContactListPanel
                         new Date(System.currentTimeMillis()),
                         Constants.ERROR_MESSAGE,
                         errorMsg);
-        
-                /*
-                 * If there's no chat window for the contact create it and show
-                 * it.
-                 */
-                if (ConfigurationManager.isAutoPopupNewMessage()) {
-                    msgWindow.addChat(chatPanel);
-
-                    msgWindow.pack();
-
-                    msgWindow.setVisible(true);
-
-                    chatPanel.setCaretToEnd();
-                }
             }
         }
-        else {
-            //If in mode "group messages in one chat window"
-            if (chatWindows.isEmpty()) {
-                // If there's no open chat window
-                chatWindow = new ChatWindow(mainFrame);
-            }
-            else {
-                chatWindow = (ChatWindow) chatWindows.elements().nextElement();
-            }
-            
-            ChatPanel chatPanel;
-
-            if (chatWindow.containsContactChat(metaContact)) {
-                chatPanel = chatWindow.getChatPanel(metaContact);
+        else
+        {   
+            if (chatWindowManager.containsContactChat(metaContact))
+            {
+                chatPanel = chatWindowManager.getContactChat(metaContact);
+                
+                chatWindow = chatPanel.getChatWindow();
                 
                 chatPanel.refreshWriteArea();
                 chatPanel.processMessage(
@@ -702,33 +418,11 @@ public class ContactListPanel
                         new Date(System.currentTimeMillis()),
                         Constants.ERROR_MESSAGE,
                         errorMsg);
-        
-                if (chatWindow.getState() == JFrame.ICONIFIED) {
-                    if (chatWindow.getTabCount() > 1) {
-                        chatWindow.setSelectedContactTab(metaContact);
-                    }
-        
-                    if (!chatWindow.getTitle().startsWith("*")) {
-                        chatWindow.setTitle(
-                                "*" + chatWindow.getTitle());
-                    }
-                }
-                else {
-                    if (chatWindow.getTabCount() > 1) {
-                        chatWindow.highlightTab(metaContact);
-                    }
-                    
-                    if(chatWindow.isVisible())
-                        chatWindow.toFront();
-                    else
-                        chatWindow.setVisible(true);
-                }
             }
             else {
-                chatPanel = chatWindow.createChat(metaContact,
-                        contactStatus, sourceContact);
+                chatPanel = chatWindowManager.createChat(
+                    metaContact, sourceContact);
 
-                chatPanel.loadHistory();
                 chatPanel.processMessage(
                         metaContact.getDisplayName(),
                         new Date(System.currentTimeMillis()),
@@ -739,33 +433,11 @@ public class ContactListPanel
                         metaContact.getDisplayName(),
                         new Date(System.currentTimeMillis()),
                         Constants.ERROR_MESSAGE,
-                        errorMsg);
-
-                
-                chatWindow.addChatTab(chatPanel);
-
-                if(chatWindow.isVisible()) {
-                    if (ConfigurationManager.isAutoPopupNewMessage())
-                    {
-                        if(chatWindow.getState() == JFrame.ICONIFIED)
-                            chatWindow.setState(JFrame.NORMAL);
-                        
-                        chatWindow.toFront();
-                    }
-                }
-                else
-                    chatWindow.setVisible(true);
-
-                chatPanel.setCaretToEnd();
-
-                chatWindow.getCurrentChatPanel()
-                        .requestFocusInWriteArea();
-
-                if (chatWindow.getTabCount() > 1) {
-                    chatWindow.highlightTab(metaContact);
-                }
+                        errorMsg);                                
             }            
         }
+        
+        chatWindowManager.openChat(metaContact, false);
     }
 
     /**
@@ -827,28 +499,12 @@ public class ContactListPanel
      */
     public void setChatNotificationMsg(MetaContact metaContact,
             String notificationMsg)
-    {
-        ChatWindow chatWindow;
-        
-        if (!Constants.TABBED_CHAT_WINDOW) {
-            // If in mode "open all messages in new window"
-            if (chatWindows.containsKey(metaContact)) {
-                chatWindow = (ChatWindow) chatWindows
-                        .get(metaContact);
-                chatWindow.getChatPanel(metaContact).setStatusMessage(
-                        notificationMsg);
-            }
-        }
-        else if(!chatWindows.isEmpty()){
-            chatWindow
-                = (ChatWindow) chatWindows.elements().nextElement();
-            
-            if (chatWindow.containsContactChat(metaContact)) {
-
-                chatWindow.getChatPanel(metaContact).setStatusMessage(
-                        notificationMsg);
-            }
-        }
+    { 
+        if (chatWindowManager.containsContactChat(metaContact))
+        {
+            chatWindowManager.getContactChat(metaContact)
+                .setStatusMessage(notificationMsg);
+        }        
     }
 
     /**
@@ -864,28 +520,20 @@ public class ContactListPanel
         ContactListModel listModel = (ContactListModel) this.getContactList()
                 .getModel();
         
-        ChatWindow chatWindow;
-        
-        if (!Constants.TABBED_CHAT_WINDOW) {
-            if (chatWindows.containsKey(metaContact)) {
-                chatWindow = (ChatWindow) chatWindows
-                        .get(metaContact);
-                chatWindow.getCurrentChatPanel().updateContactStatus(
-                        metaContact, protoContact);
-            }
-        }
-        else if (!chatWindows.isEmpty()) {
-
-            chatWindow = (ChatWindow) chatWindows.elements().nextElement();
+        if (chatWindowManager.containsContactChat(metaContact))
+        {
+            ChatPanel chatPanel = chatWindowManager.getContactChat(metaContact);
             
-            ChatPanel chatPanel = chatWindow.getChatPanel(metaContact);
-
-            if (chatPanel != null) {
+            chatPanel.updateContactStatus(metaContact, protoContact);
+            
+            if(Constants.TABBED_CHAT_WINDOW)
+            {
+                ChatWindow chatWindow = chatPanel.getChatWindow();
+                
                 if (chatWindow.getTabCount() > 0) {
-                    chatWindow.setTabIcon(metaContact, listModel
+                    chatWindow.setTabIcon(chatPanel, listModel
                             .getMetaContactStatusIcon(metaContact));
                 }
-                chatPanel.updateContactStatus(metaContact, protoContact);
             }
         }
     }
@@ -948,71 +596,9 @@ public class ContactListPanel
             this.metaContact = metaContact;
         }
     }
-
-    /**
-     * Checks if there is an open chat tab or window for the given contact,
-     * depending on the chat mode and if this is the case returns
-     * <code>true</code>, otherwise returns <code>false</code>.
-     * 
-     * @param metaContact The <tt>MetaContact</tt> for which to check.
-     * @return <code>true</code> if there is an open chat tab or chat window
-     *         for the given contact, <code>false</code> otherwise.
-     */
-    public boolean isChatOpenedForContact(MetaContact metaContact)
-    {
-        if (!Constants.TABBED_CHAT_WINDOW) {
-            return chatWindows.containsKey(metaContact);
-        }
-        else {
-            if (!chatWindows.isEmpty()) {
-                ChatWindow chatWindow
-                    = (ChatWindow) chatWindows.elements().nextElement();
-                
-                return chatWindow.containsContactChat(metaContact);
-            }
-            else {
-                return false;
-            }
-        }
-    }
-
-    public ChatPanel getContactChat(MetaContact metaContact)
-    {       
-        ChatWindow chatWindow = getChatWindow(metaContact);
-        
-        if(chatWindow != null)
-            return chatWindow.getChatPanel(metaContact);
-        
-        return null;
-    }
-    
-    public ChatWindow getChatWindow(MetaContact metaContact)
-    {
-        ChatWindow chatWindow;
-        if (!Constants.TABBED_CHAT_WINDOW) {
-            return (ChatWindow) chatWindows.get(metaContact);            
-        }
-        else {
-            if (!chatWindows.isEmpty()) {
-                chatWindow
-                    = (ChatWindow) chatWindows.elements().nextElement();
-                
-                return chatWindow;
-            }
-        }
-        return null;
-    }
     
     public CommonRightButtonMenu getCommonRightButtonMenu()
     {
         return commonRightButtonMenu;
-    }
-    
-    public void removeChatWindow(MetaContact metaContact)
-    {
-        if(Constants.TABBED_CHAT_WINDOW)
-            chatWindows.clear();
-        else
-            chatWindows.remove(metaContact);
-    }
+    }    
 }

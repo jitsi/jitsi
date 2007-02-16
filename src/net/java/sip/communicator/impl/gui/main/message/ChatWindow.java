@@ -9,20 +9,17 @@ package net.java.sip.communicator.impl.gui.main.message;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
-import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.message.menus.*;
 import net.java.sip.communicator.impl.gui.main.message.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -44,8 +41,6 @@ public class ChatWindow
 {
     private Logger logger = Logger.getLogger(ChatWindow.class.getName());
 
-    private ChatPanel currentChatPanel;
-
     private MenusPanel menusPanel;
 
     private MainFrame mainFrame;
@@ -53,15 +48,9 @@ public class ChatWindow
     private String windowTitle = "";
 
     private SIPCommTabbedPane chatTabbedPane = null;
-
-    private Hashtable contactChats = new Hashtable();
-
+    
     private boolean enableTypingNotification = true;
     
-    private int lastSelectedIndex;
-    
-    private boolean isLastIndex;
-
     /**
      * Creates an instance of <tt>ChatWindow</tt>.
      * 
@@ -167,26 +156,6 @@ public class ChatWindow
         return menusPanel.getMainToolBar();
     }
     
-    /**
-     * Creates a <tt>ChatPanel</tt> for the given contact and saves it in the
-     * list ot created <tt>ChatPanel</tt>s.
-     * 
-     * @param contact The MetaContact for this chat.
-     * @param status The current status.
-     * @param protocolContact The protocol contact.
-     * @return The <code>ChatPanel</code> newly created.
-     */
-    public ChatPanel createChat(MetaContact contact, PresenceStatus status,
-        Contact protocolContact)
-    {
-        ChatPanel chatPanel = new ChatPanel(this, contact, protocolContact);
-
-        this.contactChats.put(contact.getMetaUID(), chatPanel);
-
-        // this.sendPanel.addProtocols(contactItem.getProtocolList());
-
-        return chatPanel;
-    }
 
     /**
      * Adds a given <tt>ChatPanel</tt> to this chat window.
@@ -195,11 +164,32 @@ public class ChatWindow
      */
     public void addChat(ChatPanel chatPanel)
     {
+        if(Constants.TABBED_CHAT_WINDOW)
+        {
+            this.addChatTab(chatPanel);
+            this.chatTabbedPane.revalidate();
+            this.chatTabbedPane.repaint();
+        }
+        else
+        {
+            addSimpleChat(chatPanel);
+        }
+        
+        chatPanel.setChatVisible(true);        
+    }
+    
+    /**
+     * Adds a given <tt>ChatPanel</tt> to this chat window.
+     * 
+     * @param chatPanel The <tt>ChatPanel</tt> to add.
+     */
+    private void addSimpleChat(ChatPanel chatPanel)
+    {
         chatPanel.setChatVisible(true);
 
         this.setCurrentChatPanel(chatPanel);
 
-        this.getContentPane().add(this.currentChatPanel, BorderLayout.CENTER);
+        this.getContentPane().add(chatPanel, BorderLayout.CENTER);
 
         this.windowTitle += chatPanel.getMetaContact().getDisplayName() + " ";
 
@@ -212,10 +202,8 @@ public class ChatWindow
      * 
      * @param chatPanel The <tt>ChatPanel</tt> to add.
      */
-    public void addChatTab(ChatPanel chatPanel)
+    private void addChatTab(ChatPanel chatPanel)
     {
-        chatPanel.setChatVisible(true);
-
         String contactName = chatPanel.getMetaContact().getDisplayName();
         PresenceStatus status = chatPanel.getDefaultContactStatus();
 
@@ -229,7 +217,10 @@ public class ChatWindow
                 {
                     int tabIndex = chatTabbedPane.getOverTabIndex();
                     
-                    removeContactTab(tabIndex);
+                    ChatPanel chatPanel
+                        = (ChatPanel) chatTabbedPane.getComponentAt(tabIndex);
+                    
+                    mainFrame.getChatWindowManager().closeChat(chatPanel);
                 }
             });
             
@@ -285,20 +276,11 @@ public class ChatWindow
      * 
      * @param contact The <tt>MetaContact</tt> to select.
      */
-    public void setSelectedContactTab(MetaContact contact)
+    public void setSelectedChatTab(ChatPanel chatPanel)
     {
-
-        if (this.contactChats != null
-            && contactChats.get(contact.getMetaUID()) != null) {
-
-            ChatPanel chatPanel = ((ChatPanel) this.contactChats.get(contact
-                .getMetaUID()));
-
-            this.chatTabbedPane.setSelectedComponent(chatPanel);
-            this.setTitle(chatPanel.getMetaContact().getDisplayName());
-            this.setCurrentChatPanel(chatPanel);
-            chatPanel.requestFocusInWriteArea();
-        }
+        this.chatTabbedPane.setSelectedComponent(chatPanel);
+        this.setCurrentChatPanel(chatPanel);
+        chatPanel.requestFocusInWriteArea();
     }
 
     /**
@@ -306,67 +288,14 @@ public class ChatWindow
      * 
      * @param index The index of the tab to select.
      */
-    public void setSelectedContactTab(int index)
+    public void setSelectedChatTab(int index)
     {
         ChatPanel chatPanel = (ChatPanel) this.chatTabbedPane
             .getComponentAt(index);
 
         this.setCurrentChatPanel(chatPanel);
-        this.chatTabbedPane.setSelectedIndex(index);
-        this.setTitle(chatPanel.getMetaContact().getDisplayName());        
+        this.chatTabbedPane.setSelectedIndex(index);                
         chatPanel.requestFocusInWriteArea();
-    }
-
-    /**
-     * Removes the tab with the given <code>index</code>.
-     * 
-     * @param index The index of the tab to remove.
-     */
-    public void removeContactTab(int index)
-    {
-
-        String title = chatTabbedPane.getTitleAt(index);
-
-        ChatPanel closeChat = (ChatPanel) chatTabbedPane.getComponentAt(index);
-
-        if (title != null) {
-            if (chatTabbedPane.getTabCount() > 1) {
-                this.contactChats.remove(closeChat.getMetaContact()
-                    .getMetaUID());
-
-                chatTabbedPane.removeTabAt(index);
-            }
-
-            if (chatTabbedPane.getTabCount() == 1) {
-
-                String onlyTabtitle = chatTabbedPane.getTitleAt(0);
-
-                ChatPanel chatPanel = (ChatPanel) this.chatTabbedPane
-                    .getComponentAt(0);
-
-                this.getContentPane().remove(chatTabbedPane);
-
-                this.chatTabbedPane.removeAll();
-
-                this.getContentPane().add(chatPanel, BorderLayout.CENTER);
-
-                this.setCurrentChatPanel(chatPanel);
-                
-                chatPanel.requestFocusInWriteArea();
-
-                this.setTitle(onlyTabtitle);
-            }
-        }
-    }
-
-    /**
-     * Removes a given <tt>ChatPanel</tt>, when not in tabbed chat mode.
-     * 
-     * @param chatPanel The <tt>ChatPanel</tt> to remove.
-     */
-    public void removeChat(ChatPanel chatPanel)
-    {
-        this.closeWindow(false);
     }
 
     /**
@@ -376,31 +305,38 @@ public class ChatWindow
      */
     public void removeChatTab(ChatPanel chatPanel)
     {
-        this.chatTabbedPane.remove(chatPanel);
-        this.contactChats.remove(chatPanel.getMetaContact().getMetaUID());
-        this.validate();
-    }
-
-    /**
-     * Returns TRUE if this chat window contains a chat for the given contact,
-     * FALSE otherwise.
-     * @return TRUE if this chat window contains a chat for the given contact,
-     * FALSE otherwise
-     */
-    public boolean containsContactChat(MetaContact metaContact)
-    {
-        return this.contactChats.containsKey(metaContact.getMetaUID());
-    }
+        int index = chatTabbedPane.indexOfComponent(chatPanel);
+     
+        String title = chatTabbedPane.getTitleAt(index);
         
-    /**
-     * Returns TRUE if this chat window contains the given chatPanel,
-     * FALSE otherwise.
-     * @return TRUE if this chat window contains the given chatPanel,
-     * FALSE otherwise
-     */
-    public boolean containsContactChat(ChatPanel chatPanel)
+        if (title != null)
+        {
+            if (chatTabbedPane.getTabCount() > 1)
+                chatTabbedPane.removeTabAt(index);
+            
+            if (chatTabbedPane.getTabCount() == 1) {
+
+                String onlyTabtitle = chatTabbedPane.getTitleAt(0);
+
+                ChatPanel currentChatPanel = (ChatPanel) this.chatTabbedPane
+                    .getComponentAt(0);
+
+                this.getContentPane().remove(chatTabbedPane);
+
+                this.chatTabbedPane.removeAll();
+
+                this.getContentPane().add(currentChatPanel, BorderLayout.CENTER);
+
+                this.setCurrentChatPanel(currentChatPanel);
+                
+                this.setTitle(onlyTabtitle);
+            }
+        }
+    }
+    
+    public void removeChatTab(int index)
     {
-        return this.contactChats.containsValue(chatPanel);
+        this.removeChatTab((ChatPanel)chatTabbedPane.getComponentAt(index));
     }
 
     /**
@@ -410,21 +346,24 @@ public class ChatWindow
      */
     public ChatPanel getCurrentChatPanel()
     {
-        return this.currentChatPanel;
+        if(Constants.TABBED_CHAT_WINDOW && getTabCount() > 1)
+            return (ChatPanel)chatTabbedPane.getSelectedComponent();
+        else
+            return (ChatPanel) getContentPane().getComponent(1);
     }
 
     /**
      * Sets the currently selected chat panel.
      * 
-     * @param currentChatPanel The chat panel which is currently selected.
+     * @param chatPanel The chat panel which is currently selected.
      */
-    public void setCurrentChatPanel(ChatPanel currentChatPanel)
+    public void setCurrentChatPanel(ChatPanel chatPanel)
     {
-        this.currentChatPanel = currentChatPanel;
+        this.setTitle(chatPanel.getMetaContact().getDisplayName());
 
-        this.setTitle(currentChatPanel.getMetaContact().getDisplayName());
-
-        this.getMainToolBar().changeHistoryButtonsState(currentChatPanel);
+        this.getMainToolBar().changeHistoryButtonsState(chatPanel);
+        
+        chatPanel.requestFocusInWriteArea();
     }
 
     /**
@@ -444,9 +383,9 @@ public class ChatWindow
      * @param contact The MetaContact we are searching for.
      * @return int The chat tab index for the given MetaContact.
      */
-    public int getTabInex(MetaContact contact)
+    public int getTabInex(ChatPanel chatPanel)
     {
-        return this.chatTabbedPane.indexOfComponent(getChatPanel(contact));
+        return this.chatTabbedPane.indexOfComponent(chatPanel);
     }
 
     /**
@@ -455,32 +394,21 @@ public class ChatWindow
      * 
      * @param contact The MetaContact to highlight.
      */
-    public void highlightTab(MetaContact contact)
+    public void highlightTab(ChatPanel chatPanel)
     {
-        this.chatTabbedPane.highlightTab(getTabInex(contact));
+        this.chatTabbedPane.highlightTab(
+            chatTabbedPane.indexOfComponent(chatPanel));
     }
-
-    /**
-     * Returns the ChatPanel for the given MetaContact.
-     * 
-     * @param contact The MetaContact.
-     * @return ChatPanel The ChatPanel for the given MetaContact.
-     */
-    public ChatPanel getChatPanel(MetaContact contact)
-    {
-        return (ChatPanel) this.contactChats.get(contact.getMetaUID());
-    }
-
+    
     /**
      * Sets the given icon to the tab opened for the given MetaContact.
      * 
      * @param metaContact The MetaContact.
      * @param icon The icon to set.
      */
-    public void setTabIcon(MetaContact metaContact, Icon icon)
+    public void setTabIcon(ChatPanel chatPanel, Icon icon)
     {
-        int index = this.chatTabbedPane.indexOfComponent(this
-            .getChatPanel(metaContact));
+        int index = this.chatTabbedPane.indexOfComponent(chatPanel);
         this.chatTabbedPane.setIconAt(index, icon);
     }
 
@@ -489,10 +417,9 @@ public class ChatWindow
      * @param metaContact the meta contact
      * @param title the new title of the tab
      */
-    public void setTabTitle(MetaContact metaContact, String title)
+    public void setTabTitle(ChatPanel chatPanel, String title)
     {
-        int index = this.chatTabbedPane.indexOfComponent(this
-                .getChatPanel(metaContact));
+        int index = this.chatTabbedPane.indexOfComponent(chatPanel);
         
         if(index > -1)
             this.chatTabbedPane.setTitleAt(index, title);
@@ -511,10 +438,10 @@ public class ChatWindow
             if (chatTabbedPane != null) {
                 int selectedIndex = chatTabbedPane.getSelectedIndex();
                 if (selectedIndex < chatTabbedPane.getTabCount() - 1) {
-                    setSelectedContactTab(selectedIndex + 1);
+                    setSelectedChatTab(selectedIndex + 1);
                 }
                 else {
-                    setSelectedContactTab(0);
+                    setSelectedChatTab(0);
                 }
             }
         }
@@ -533,10 +460,10 @@ public class ChatWindow
             if (chatTabbedPane != null) {
                 int selectedIndex = chatTabbedPane.getSelectedIndex();
                 if (selectedIndex != 0) {
-                    setSelectedContactTab(selectedIndex - 1);
+                    setSelectedChatTab(selectedIndex - 1);
                 }
                 else {
-                    setSelectedContactTab(chatTabbedPane.getTabCount() - 1);
+                    setSelectedChatTab(chatTabbedPane.getTabCount() - 1);
                 }
             }
         }
@@ -674,70 +601,24 @@ public class ChatWindow
         }
     }
 
-    /**
-     * Closes the current chat, triggering warnings to the user when there are
-     * non-sent messages or a message is received in last 2 seconds.
-     */
-    private void closeWindow(boolean immediately)
-    {
-        if (!getCurrentChatPanel().isWriteAreaEmpty()) {
-            SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
-                .getI18NString("nonEmptyChatWindowClose").getText());
-            int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
-                msgText, Messages.getI18NString("warning").getText(),
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-
-            if (answer == JOptionPane.OK_OPTION) {
-                closeChat(immediately);
-            }
-        }
-        else if (System.currentTimeMillis() - getCurrentChatPanel()
-            .getLastIncomingMsgTimestamp().getTime() < 2 * 1000) {
-            SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
-                .getI18NString("closeChatAfterNewMsg").getText());
-
-            int answer = JOptionPane.showConfirmDialog(ChatWindow.this,
-                msgText, Messages.getI18NString("warning").getText(),
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-
-            if (answer == JOptionPane.OK_OPTION) {
-                closeChat(immediately);
-            }
-        }
-        else {
-            closeChat(immediately);
-        }
-    }
-
-    /**
-     * Closes the selected chat tab or the window if there are no tabs.
-     */
-    private void closeChat(boolean immediately)
-    {
-        if (!immediately && chatTabbedPane.getTabCount() > 1) {
-            removeContactTab(chatTabbedPane.getSelectedIndex());
-        }
-        else {
-            ChatWindow.this.dispose();
-            mainFrame.getContactListPanel().removeChatWindow(null);
-        }
-    }
 
     /**
      * Implements the <tt>SIPCommFrame</tt> close method. We check for an open
      * menu and if there's one we close it, otherwise we close the current chat.
      */
     protected void close(boolean isEscaped)
-    {   
+    {
+        ChatPanel chatPanel = getCurrentChatPanel();
+        
         if(isEscaped) {
-            ChatRightButtonMenu chatRightMenu = currentChatPanel
+            ChatRightButtonMenu chatRightMenu = getCurrentChatPanel()
                 .getChatConversationPanel().getRightButtonMenu();
     
-            WritePanelRightButtonMenu writePanelRightMenu = currentChatPanel
+            WritePanelRightButtonMenu writePanelRightMenu = getCurrentChatPanel()
                 .getChatWritePanel().getRightButtonMenu();
     
             SIPCommMenu selectedMenu = menusPanel.getMainMenuBar().getSelectedMenu();
-            SIPCommMenu contactMenu = currentChatPanel.getChatSendPanel()
+            SIPCommMenu contactMenu = getCurrentChatPanel().getChatSendPanel()
                 .getProtoContactSelectorBox().getMenu();
             
             MenuSelectionManager menuSelectionManager
@@ -758,11 +639,11 @@ public class ChatWindow
                 menuSelectionManager.clearSelectedPath();
             }
             else {            
-                closeWindow(false);
+                mainFrame.getChatWindowManager().closeChat(chatPanel);
             }
         }
         else {
-            closeWindow(true);
+            mainFrame.getChatWindowManager().closeTabbedWindow();
         }
     }    
 }

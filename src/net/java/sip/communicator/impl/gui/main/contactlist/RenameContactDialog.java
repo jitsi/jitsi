@@ -126,7 +126,7 @@ public class RenameContactDialog
                 }.start();
                 
                 ChatPanel chatPanel
-                    = mainFrame.getContactListPanel().getContactChat(metaContact);
+                    = mainFrame.getChatWindowManager().getContactChat(metaContact);
                                 
                 if (chatPanel != null) {
                     chatPanel.renameContact(renameContactPanel.getNewName());

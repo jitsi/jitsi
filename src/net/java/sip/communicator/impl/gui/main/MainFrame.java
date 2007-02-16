@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
+import net.java.sip.communicator.impl.gui.main.message.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -81,17 +82,21 @@ public class MainFrame
 
     private LoginManager loginManager;
 
+    private ChatWindowManager chatWindowManager;
+    
     /**
      * Creates an instance of <tt>MainFrame</tt>.
      */
     public MainFrame()
     {
+        this.chatWindowManager = new ChatWindowManager(this);
+        
         callManager = new CallManager(this);
         tabbedPane = new MainTabbedPane(this);
         quickMenu = new QuickMenu(this);
         statusPanel = new StatusPanel(this);
         menu = new MainMenu(this);
-
+        
         this.addWindowListener(new MainFrameWindowAdapter());
 
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -239,7 +244,7 @@ public class MainFrame
             //Add to all instant messaging operation sets the Message
             //listener implemented in the ContactListPanel, which handles
             //all received messages.
-            im.addMessageListener(this.getContactListPanel());
+            im.addMessageListener(getContactListPanel());
         }
 
         String tnOpSetClassName = OperationSetTypingNotifications
@@ -1092,5 +1097,14 @@ public class MainFrame
     public MainMenu getMainMenu()
     {
         return menu;
+    }
+
+    /**
+     * Returns the <tt>ChatWindowManager</tt>.
+     * @return the <tt>ChatWindowManager</tt>
+     */
+    public ChatWindowManager getChatWindowManager()
+    {
+        return chatWindowManager;
     }
 }

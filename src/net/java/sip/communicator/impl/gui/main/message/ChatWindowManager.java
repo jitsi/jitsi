@@ -1,0 +1,392 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.gui.main.message;
+
+import java.util.*;
+
+import javax.swing.*;
+
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
+
+/**
+ * Manages chat windows and panels.
+ * 
+ * @author Yana Stamcheva
+ */
+public class ChatWindowManager
+{
+    private Logger logger = Logger.getLogger(ChatWindowManager.class);
+    
+    private ChatWindow chatWindow;
+    
+    private Hashtable chats = new Hashtable();
+    
+    private MainFrame mainFrame;
+    
+    private Object syncChat = new Object();
+    
+    public ChatWindowManager(MainFrame mainFrame)
+    {
+        this.mainFrame = mainFrame;
+    }
+    
+    /**
+     * Opens a chat for the given meta contact. If the most connected proto
+     * contact of the meta contact is offline choose the proto contact that
+     * supports offline messaging.
+     * 
+     * @param metaContact the meta contact for the chat
+     */
+    public void openChat(MetaContact metaContact, boolean setSelected)
+    {
+        Contact defaultContact = metaContact.getDefaultContact();
+        
+        ProtocolProviderService defaultProvider
+            = defaultContact.getProtocolProvider();
+        
+        OperationSetBasicInstantMessaging
+            defaultIM = (OperationSetBasicInstantMessaging)
+                defaultProvider.getOperationSet(
+                        OperationSetBasicInstantMessaging.class);
+        
+        ProtocolProviderService protoContactProvider;
+        OperationSetBasicInstantMessaging protoContactIM;
+        
+        if (defaultContact.getPresenceStatus().getStatus() < 1
+                && (!defaultIM.isOfflineMessagingSupported()
+                        || !defaultProvider.isRegistered()))
+        {  
+            Iterator protoContacts = metaContact.getContacts();
+            
+            while(protoContacts.hasNext())
+            {
+                Contact contact = (Contact) protoContacts.next();
+                
+                protoContactProvider = contact.getProtocolProvider();
+                
+                protoContactIM = (OperationSetBasicInstantMessaging)
+                    protoContactProvider.getOperationSet(
+                        OperationSetBasicInstantMessaging.class);
+                
+                if(protoContactIM.isOfflineMessagingSupported()
+                        && protoContactProvider.isRegistered())
+                {
+                    defaultContact = contact;
+                }
+            }
+        }
+        
+        openChat(metaContact, defaultContact, setSelected);
+    }
+    
+    /**
+     * Opens a chat for the given meta contact, by specifying also the proto
+     * contact that will be used to communicate.
+     * 
+     * @param metaContact the meta contact for the chat
+     * @param protoContact the proto contact through which the communication
+     * will be established
+     */
+    public void openChat(MetaContact metaContact, Contact protoContact, boolean setSelected)
+    {
+        synchronized (syncChat)
+        {
+            ChatPanel chatPanel;
+            ChatWindow chatWindow;
+            
+            if (containsContactChat(metaContact))
+            {
+                chatPanel = getContactChat(metaContact);
+
+                chatWindow = chatPanel.getChatWindow();
+                
+                if(!chatPanel.isWindowVisible())
+                    chatWindow.addChat(chatPanel);
+            }
+            else
+            {            
+                chatPanel = createChat(metaContact, protoContact);
+                
+                chatWindow = chatPanel.getChatWindow();
+                
+                chatWindow.addChat(chatPanel);            
+            }
+
+            if (chatWindow.getState() == JFrame.ICONIFIED
+                && !chatWindow.getTitle().startsWith("*"))
+            {
+                chatWindow.setTitle(
+                        "*" + chatWindow.getTitle());            
+            }
+                        
+            if(chatWindow.isVisible())
+            {                    
+                if (ConfigurationManager.isAutoPopupNewMessage() || setSelected)
+                {
+                    if(chatWindow.getState() == JFrame.ICONIFIED)
+                        chatWindow.setState(JFrame.NORMAL);
+                    
+                    chatWindow.toFront();
+                }
+            }
+            else
+                chatWindow.setVisible(true);
+            
+            if(Constants.TABBED_CHAT_WINDOW
+                    && chatWindow.getTabCount() > 1)               
+            {
+                if(setSelected)
+                    chatWindow.setSelectedChatTab(chatPanel);
+                else
+                    chatPanel.getChatWindow().highlightTab(chatPanel);
+            }
+            
+            chatPanel.setCaretToEnd();
+            
+            chatWindow.getCurrentChatPanel().requestFocusInWriteArea();
+        }       
+    }
+    
+    /**
+     * Closes the chat corresponding to the given meta contact.
+     * 
+     * @param metaContact the meta contact
+     */
+    public void closeChat(MetaContact metaContact)
+    {
+        if(containsContactChat(metaContact))
+            closeChat(getContactChat(metaContact));
+    }
+    
+    /**
+     * Closes the given chat panel.
+     * 
+     * @param chatPanel the chat panel to close
+     */
+    public void closeChat(ChatPanel chatPanel)
+    {
+        synchronized (syncChat)
+        {
+            if(containsContactChat(chatPanel))
+            {   
+                ChatWindow chatWindow = chatPanel.getChatWindow();
+                
+                if (!chatPanel.isWriteAreaEmpty())
+                {
+                    SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
+                        .getI18NString("nonEmptyChatWindowClose").getText());
+                    int answer = JOptionPane.showConfirmDialog(chatWindow,
+                        msgText, Messages.getI18NString("warning").getText(),
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                    if (answer == JOptionPane.OK_OPTION) {
+                        closeChatPanel(chatPanel);
+                    }
+                }
+                else if (System.currentTimeMillis() - chatPanel
+                    .getLastIncomingMsgTimestamp().getTime() < 2 * 1000) {
+                    SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
+                        .getI18NString("closeChatAfterNewMsg").getText());
+
+                    int answer = JOptionPane.showConfirmDialog(chatWindow,
+                        msgText, Messages.getI18NString("warning").getText(),
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                    if (answer == JOptionPane.OK_OPTION) {
+                        closeChatPanel(chatPanel);
+                    }
+                }
+                else {
+                    closeChatPanel(chatPanel);
+                }
+            }
+        }
+    }
+    
+    public void closeTabbedWindow()
+    {
+        synchronized (syncChat)
+        {
+            if (!chatWindow.getCurrentChatPanel().isWriteAreaEmpty())
+            {
+                SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
+                    .getI18NString("nonEmptyChatWindowClose").getText());
+                int answer = JOptionPane.showConfirmDialog(chatWindow,
+                    msgText, Messages.getI18NString("warning").getText(),
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                if (answer == JOptionPane.OK_OPTION) {
+                    chatWindow.dispose();
+                    chatWindow = null;
+                    
+                    synchronized (chats)
+                    {
+                        chats.clear();
+                    }
+                }
+            }
+            else if (System.currentTimeMillis() - chatWindow.getCurrentChatPanel()
+                .getLastIncomingMsgTimestamp().getTime() < 2 * 1000) {
+                SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(Messages
+                    .getI18NString("closeChatAfterNewMsg").getText());
+
+                int answer = JOptionPane.showConfirmDialog(chatWindow,
+                    msgText, Messages.getI18NString("warning").getText(),
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                if (answer == JOptionPane.OK_OPTION) {
+                    chatWindow.dispose();
+                    chatWindow = null;
+                    
+                    synchronized (chats)
+                    {
+                        chats.clear();
+                    }
+                }
+            }
+            else {
+                chatWindow.dispose();
+                chatWindow = null;
+                
+                synchronized (chats)
+                {
+                    chats.clear();
+                }
+            }
+        }
+    }
+    
+    /**
+     * Closes the selected chat tab or the window if there are no tabs.
+     */
+    private void closeChatPanel(ChatPanel chatPanel)
+    {
+        if (Constants.TABBED_CHAT_WINDOW)
+        {
+            if (chatWindow.getTabCount() > 0)
+                this.chatWindow.removeChatTab(chatPanel);
+            else
+            {     
+                chatWindow.dispose();
+                chatWindow = null;
+            }
+        }
+        else
+        {
+            chatPanel.getChatWindow().dispose();
+            chatWindow = null;
+        }
+        
+        synchronized (chats)
+        {
+            chats.remove(chatPanel.getMetaContact());
+        }
+    }
+    
+    
+    /**
+     * Creates a <tt>ChatPanel</tt> for the given contact and saves it in the
+     * list ot created <tt>ChatPanel</tt>s.
+     * 
+     * @param contact The MetaContact for this chat.
+     * @param status The current status.
+     * @param protocolContact The protocol contact.
+     * @return The <code>ChatPanel</code> newly created.
+     */
+    public ChatPanel createChat(MetaContact contact, Contact protocolContact)
+    {
+        ChatWindow chatWindow;
+        
+        if(Constants.TABBED_CHAT_WINDOW && this.chatWindow != null)
+            chatWindow = this.chatWindow;
+        else
+        {
+            chatWindow = new ChatWindow(mainFrame);
+            
+            this.chatWindow = chatWindow;
+        }
+        
+        ChatPanel chatPanel = new ChatPanel(chatWindow, contact, protocolContact);
+
+        synchronized (chats)
+        {
+            this.chats.put(contact, chatPanel);
+        }
+        
+        chatPanel.loadHistory();
+
+        return chatPanel;
+    }
+   
+    
+    /**
+     * Returns the chat window corresponding to the given meta contact.
+     * @param metaContact the meta contact
+     * @return the chat window corresponding to the given meta contact
+     */
+    public ChatWindow getChatWindow(MetaContact metaContact)
+    {   
+        if(Constants.TABBED_CHAT_WINDOW)
+            return chatWindow;
+        else if (containsContactChat(metaContact)) {
+            return getContactChat(metaContact).getChatWindow();            
+        }
+        
+        return null;
+    }
+
+    
+    /**
+     * Returns TRUE if this chat window contains a chat for the given contact,
+     * FALSE otherwise.
+     * @return TRUE if this chat window contains a chat for the given contact,
+     * FALSE otherwise
+     */
+    public boolean containsContactChat(MetaContact metaContact)
+    {
+        synchronized (chats)
+        {
+            return chats.containsKey(metaContact);
+        }
+    }
+    
+    
+    /**
+     * Returns TRUE if this chat window contains the given chatPanel,
+     * FALSE otherwise.
+     * @return TRUE if this chat window contains the given chatPanel,
+     * FALSE otherwise
+     */
+    public boolean containsContactChat(ChatPanel chatPanel)
+    {
+        synchronized (chats)
+        {
+            return chats.containsValue(chatPanel);
+        }
+    }
+    
+    /**
+     * Returns the chat panel corresponding to the given meta contact.
+     * 
+     * @param metaContact the meta contact.
+     * @return the chat panel corresponding to the given meta contact
+     */
+    public ChatPanel getContactChat(MetaContact metaContact)
+    {
+        synchronized (chats)
+        {
+            return (ChatPanel) chats.get(metaContact);
+        }
+    }
+
+}

@@ -139,11 +139,11 @@ public class ContactList
 
         Contact contact = evt.getProtoContact();
         MetaContact metaContact = contactList.findMetaContactByContact(contact);
-        ContactListPanel clistPanel = mainFrame.getContactListPanel();
+        ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
 
-        if (clistPanel.isChatOpenedForContact(metaContact))
+        if (chatWindowManager.containsContactChat(metaContact))
         {
-            ChatPanel chatPanel = clistPanel.getContactChat(metaContact);
+            ChatPanel chatPanel = chatWindowManager.getContactChat(metaContact);
             chatPanel.getChatSendPanel().getProtoContactSelectorBox()
                 .addContact(contact);
         }

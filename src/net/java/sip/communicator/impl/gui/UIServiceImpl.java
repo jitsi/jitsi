@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.main.MainFrame;
 import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
+import net.java.sip.communicator.impl.gui.main.message.*;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
 import net.java.sip.communicator.service.gui.ApplicationWindow;
@@ -368,17 +369,22 @@ public class UIServiceImpl implements UIService {
      * otherwise creates a new one.
      * @see UIService#getChatWindow(Contact)
      */
-    public ApplicationWindow getChatWindow(Contact contact) {
-        
+    public ApplicationWindow getChatWindow(Contact contact)
+    {   
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(contact);
         
-        if (contactList.isChatOpenedForContact(metaContact)) {
-            return (ApplicationWindow) contactList.getContactChat(metaContact);
+        ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
+        
+        if (chatWindowManager.containsContactChat(metaContact))
+        {
+            ChatPanel chatPanel = chatWindowManager.getContactChat(metaContact);
+            
+            return (ApplicationWindow) chatPanel;
         }
         else {            
-            return contactList.getChatWindow(metaContact).createChat(
-                    metaContact, contact.getPresenceStatus(), contact);        
+            return (ApplicationWindow) chatWindowManager.createChat(
+                    metaContact, contact);        
         }
     }
 

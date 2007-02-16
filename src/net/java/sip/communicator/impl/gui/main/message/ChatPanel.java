@@ -616,35 +616,18 @@ public class ChatPanel
      * Implements the <code>ApplicationWindow.showWindow</code> method, to 
      * make a chat panel visible.
      */
-    public void showWindow() {
+    public void showWindow()
+    {
         
-        if(Constants.TABBED_CHAT_WINDOW) {
-            if(!chatWindow.containsContactChat(this))
-                this.chatWindow.addChatTab(this);
-            else
-                this.chatWindow.setSelectedContactTab(getMetaContact());
-        }
-        else {
-            if(!chatWindow.containsContactChat(this))
-                this.chatWindow.addChat(this);
-        }
-        
-        this.chatWindow.setVisible(true);
     }
 
     /**
      * Implements the <code>ApplicationWindow.hideWindow</code> method. Hides
      * the chat panel.
      */
-    public void hideWindow() {
-        this.isVisible = false;
+    public void hideWindow()
+    {
         
-        if(Constants.TABBED_CHAT_WINDOW) {
-            this.chatWindow.removeChatTab(this);
-        }
-        else {
-            this.chatWindow.removeChat(this);
-        }
     }
 
     /**
@@ -791,7 +774,7 @@ public class ChatPanel
     {
         chatConferencePanel.renameContact(newName);
         
-        chatWindow.setTabTitle(metaContact, newName);
+        chatWindow.setTabTitle(this, newName);
         
         if(chatWindow.getCurrentChatPanel().equals(this))
         {
@@ -803,5 +786,4 @@ public class ChatPanel
     {
         return chatConferencePanel;
     }
-    
 }
