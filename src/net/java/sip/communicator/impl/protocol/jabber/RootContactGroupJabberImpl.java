@@ -262,6 +262,15 @@ public class RootContactGroupJabberImpl
             if(subGroups.hasNext())
                 buff.append("\n");
         }
+        buff.append(".rootContacts="+countContacts()+":\n");
+        Iterator contactsIter = contacts();
+        while (contactsIter.hasNext())
+        {
+            buff.append(contactsIter.next());
+            if(contactsIter.hasNext())
+                buff.append("\n");
+        }
+        
         return buff.toString();
     }
 

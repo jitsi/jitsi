@@ -129,7 +129,9 @@ public class ContactJabberImpl
     public String toString()
     {
         StringBuffer buff =  new StringBuffer("JabberContact[ id=");
-        buff.append(getAddress()).append("]");
+        buff.append(getAddress()).
+            append(", isPersistent=").append(isPersistent).
+            append(", isResolved=").append(isResolved).append("]");
 
         return buff.toString();
     }
