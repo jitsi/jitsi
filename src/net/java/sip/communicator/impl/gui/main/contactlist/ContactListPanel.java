@@ -182,10 +182,22 @@ public class ContactListPanel
 
         public void run()
         {
-            if(protocolContact != null)
-                chatWindowManager.openChat(metaContact, protocolContact, true);
+            ChatPanel chatPanel;
+            
+            if(chatWindowManager.containsContactChat(metaContact))
+            {
+                chatPanel = chatWindowManager.getContactChat(metaContact);
+            }
             else
-                chatWindowManager.openChat(metaContact, true);
+            {
+                if(protocolContact != null)
+                    chatPanel = chatWindowManager
+                       .createChat(metaContact, protocolContact);
+                else
+                    chatPanel = chatWindowManager.createChat(metaContact);
+            }
+            
+            chatWindowManager.openChat(chatPanel, true);
         }
     }
 
@@ -265,7 +277,7 @@ public class ContactListPanel
             }
         }
         
-        chatWindowManager.openChat(metaContact, false);
+        chatWindowManager.openChat(chatPanel, false);
         
         GuiActivator.getAudioNotifier()
             .createAudio(Sounds.INCOMING_MESSAGE).play();
@@ -437,7 +449,7 @@ public class ContactListPanel
             }            
         }
         
-        chatWindowManager.openChat(metaContact, false);
+        chatWindowManager.openChat(chatPanel, false);
     }
 
     /**

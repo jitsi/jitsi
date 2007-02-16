@@ -39,56 +39,7 @@ public class ChatWindowManager
     {
         this.mainFrame = mainFrame;
     }
-    
-    /**
-     * Opens a chat for the given meta contact. If the most connected proto
-     * contact of the meta contact is offline choose the proto contact that
-     * supports offline messaging.
-     * 
-     * @param metaContact the meta contact for the chat
-     */
-    public void openChat(MetaContact metaContact, boolean setSelected)
-    {
-        Contact defaultContact = metaContact.getDefaultContact();
-        
-        ProtocolProviderService defaultProvider
-            = defaultContact.getProtocolProvider();
-        
-        OperationSetBasicInstantMessaging
-            defaultIM = (OperationSetBasicInstantMessaging)
-                defaultProvider.getOperationSet(
-                        OperationSetBasicInstantMessaging.class);
-        
-        ProtocolProviderService protoContactProvider;
-        OperationSetBasicInstantMessaging protoContactIM;
-        
-        if (defaultContact.getPresenceStatus().getStatus() < 1
-                && (!defaultIM.isOfflineMessagingSupported()
-                        || !defaultProvider.isRegistered()))
-        {  
-            Iterator protoContacts = metaContact.getContacts();
             
-            while(protoContacts.hasNext())
-            {
-                Contact contact = (Contact) protoContacts.next();
-                
-                protoContactProvider = contact.getProtocolProvider();
-                
-                protoContactIM = (OperationSetBasicInstantMessaging)
-                    protoContactProvider.getOperationSet(
-                        OperationSetBasicInstantMessaging.class);
-                
-                if(protoContactIM.isOfflineMessagingSupported()
-                        && protoContactProvider.isRegistered())
-                {
-                    defaultContact = contact;
-                }
-            }
-        }
-        
-        openChat(metaContact, defaultContact, setSelected);
-    }
-    
     /**
      * Opens a chat for the given meta contact, by specifying also the proto
      * contact that will be used to communicate.
@@ -97,31 +48,17 @@ public class ChatWindowManager
      * @param protoContact the proto contact through which the communication
      * will be established
      */
-    public void openChat(MetaContact metaContact, Contact protoContact, boolean setSelected)
+    public void openChat(ChatPanel chatPanel, boolean setSelected)
     {
         synchronized (syncChat)
         {
-            ChatPanel chatPanel;
             ChatWindow chatWindow;
             
-            if (containsContactChat(metaContact))
-            {
-                chatPanel = getContactChat(metaContact);
-
-                chatWindow = chatPanel.getChatWindow();
+            chatWindow = chatPanel.getChatWindow();
                 
-                if(!chatPanel.isWindowVisible())
-                    chatWindow.addChat(chatPanel);
-            }
-            else
-            {            
-                chatPanel = createChat(metaContact, protoContact);
-                
-                chatWindow = chatPanel.getChatWindow();
-                
-                chatWindow.addChat(chatPanel);            
-            }
-
+            if(!chatPanel.isWindowVisible())
+                chatWindow.addChat(chatPanel);
+            
             if (chatWindow.getState() == JFrame.ICONIFIED
                 && !chatWindow.getTitle().startsWith("*"))
             {
@@ -293,6 +230,55 @@ public class ChatWindowManager
         }
     }
     
+    /**
+     * Creates a chat for the given meta contact. If the most connected proto
+     * contact of the meta contact is offline choose the proto contact that
+     * supports offline messaging.
+     * 
+     * @param metaContact the meta contact for the chat
+     */
+    public ChatPanel createChat(MetaContact metaContact)
+    {
+        Contact defaultContact = metaContact.getDefaultContact();
+        
+        ProtocolProviderService defaultProvider
+            = defaultContact.getProtocolProvider();
+        
+        OperationSetBasicInstantMessaging
+            defaultIM = (OperationSetBasicInstantMessaging)
+                defaultProvider.getOperationSet(
+                        OperationSetBasicInstantMessaging.class);
+        
+        ProtocolProviderService protoContactProvider;
+        OperationSetBasicInstantMessaging protoContactIM;
+        
+        if (defaultContact.getPresenceStatus().getStatus() < 1
+                && (!defaultIM.isOfflineMessagingSupported()
+                        || !defaultProvider.isRegistered()))
+        {  
+            Iterator protoContacts = metaContact.getContacts();
+            
+            while(protoContacts.hasNext())
+            {
+                Contact contact = (Contact) protoContacts.next();
+                
+                protoContactProvider = contact.getProtocolProvider();
+                
+                protoContactIM = (OperationSetBasicInstantMessaging)
+                    protoContactProvider.getOperationSet(
+                        OperationSetBasicInstantMessaging.class);
+                
+                if(protoContactIM.isOfflineMessagingSupported()
+                        && protoContactProvider.isRegistered())
+                {
+                    defaultContact = contact;
+                }
+            }
+        }
+        
+        return createChat(metaContact, defaultContact);
+    }
+
     
     /**
      * Creates a <tt>ChatPanel</tt> for the given contact and saves it in the
@@ -305,27 +291,30 @@ public class ChatWindowManager
      */
     public ChatPanel createChat(MetaContact contact, Contact protocolContact)
     {
-        ChatWindow chatWindow;
-        
-        if(Constants.TABBED_CHAT_WINDOW && this.chatWindow != null)
-            chatWindow = this.chatWindow;
-        else
+        synchronized (syncChat)
         {
-            chatWindow = new ChatWindow(mainFrame);
+            ChatWindow chatWindow;
             
-            this.chatWindow = chatWindow;
-        }
-        
-        ChatPanel chatPanel = new ChatPanel(chatWindow, contact, protocolContact);
+            if(Constants.TABBED_CHAT_WINDOW && this.chatWindow != null)
+                chatWindow = this.chatWindow;
+            else
+            {
+                chatWindow = new ChatWindow(mainFrame);
+                
+                this.chatWindow = chatWindow;
+            }
+            
+            ChatPanel chatPanel = new ChatPanel(chatWindow, contact, protocolContact);
 
-        synchronized (chats)
-        {
-            this.chats.put(contact, chatPanel);
-        }
-        
-        chatPanel.loadHistory();
+            synchronized (chats)
+            {
+                this.chats.put(contact, chatPanel);
+            }
+            
+            chatPanel.loadHistory();
 
-        return chatPanel;
+            return chatPanel;
+        }
     }
    
     
