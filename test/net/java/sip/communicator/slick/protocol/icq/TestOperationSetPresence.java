@@ -749,7 +749,7 @@ public class TestOperationSetPresence
         synchronized(subEvtCollector)
         {
             operationSetPresence.unsubscribe(icqTesterAgentContact);
-            subEvtCollector.waitForEvent(10000);
+            subEvtCollector.waitForEvent(40000);
             //don't want any more events
             operationSetPresence.removeSubscriptionListener(subEvtCollector);
         }

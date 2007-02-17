@@ -603,7 +603,7 @@ public class TestOperationSetPresence
 
         synchronized(subEvtCollector){
             operationSetPresence1.unsubscribe(jabberTesterAgentContact);
-            subEvtCollector.waitForEvent(40000);
+            subEvtCollector.waitForEvent(10000);
             //don't want any more events
             operationSetPresence1.removeSubscriptionListener(subEvtCollector);
         }
