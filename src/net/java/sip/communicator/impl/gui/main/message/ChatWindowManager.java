@@ -285,7 +285,6 @@ public class ChatWindowManager
      * list ot created <tt>ChatPanel</tt>s.
      * 
      * @param contact The MetaContact for this chat.
-     * @param status The current status.
      * @param protocolContact The protocol contact.
      * @return The <code>ChatPanel</code> newly created.
      */
@@ -304,7 +303,8 @@ public class ChatWindowManager
                 this.chatWindow = chatWindow;
             }
             
-            ChatPanel chatPanel = new ChatPanel(chatWindow, contact, protocolContact);
+            ChatPanel chatPanel
+                = new ChatPanel(chatWindow, contact, protocolContact);
 
             synchronized (chats)
             {
@@ -317,6 +317,45 @@ public class ChatWindowManager
         }
     }
    
+    /**
+     * Creates a <tt>ChatPanel</tt> for the given contact and saves it in the
+     * list ot created <tt>ChatPanel</tt>s.
+     * 
+     * @param contact The MetaContact for this chat.
+     * @param protocolContact The protocol contact.
+     * @param the message ID of the message that should be excluded from the
+     * history when the last one is loaded in the chat.
+     * @return The <code>ChatPanel</code> newly created.
+     */
+    public ChatPanel createChat(MetaContact contact,
+        Contact protocolContact, String escapedMessageID)
+    {
+        synchronized (syncChat)
+        {
+            ChatWindow chatWindow;
+            
+            if(Constants.TABBED_CHAT_WINDOW && this.chatWindow != null)
+                chatWindow = this.chatWindow;
+            else
+            {
+                chatWindow = new ChatWindow(mainFrame);
+                
+                this.chatWindow = chatWindow;
+            }
+            
+            ChatPanel chatPanel
+                = new ChatPanel(chatWindow, contact, protocolContact);
+
+            synchronized (chats)
+            {
+                this.chats.put(contact, chatPanel);
+            }
+            
+            chatPanel.loadHistory(escapedMessageID);
+
+            return chatPanel;
+        }
+    }
     
     /**
      * Returns the chat window corresponding to the given meta contact.
@@ -365,7 +404,7 @@ public class ChatWindowManager
     }
     
     /**
-     * Returns the chat panel corresponding to the given meta contact.
+     * Returns the chat panel corresponding to the given meta contact
      * 
      * @param metaContact the meta contact.
      * @return the chat panel corresponding to the given meta contact

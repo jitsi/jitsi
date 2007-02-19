@@ -240,7 +240,8 @@ public class ContactListPanel
             else
             {   
                 chatPanel = chatWindowManager
-                    .createChat(metaContact, protocolContact);
+                    .createChat(metaContact, protocolContact,
+                        message.getMessageUID());
 
                 chatPanel.processMessage(protocolContact.getDisplayName(),
                         date, Constants.INCOMING_MESSAGE, message.getContent());
@@ -255,7 +256,8 @@ public class ContactListPanel
                     + evt.getSourceContact().getAddress());
                 
                 chatPanel = chatWindowManager
-                    .createChat(metaContact, protocolContact);
+                    .createChat(metaContact, protocolContact,
+                        message.getMessageUID());
                 
                 logger.trace("MESSAGE RECEIVED: process message in chat for contact: "
                     + evt.getSourceContact().getAddress());
