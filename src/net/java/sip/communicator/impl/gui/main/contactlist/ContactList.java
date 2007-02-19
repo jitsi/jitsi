@@ -542,6 +542,9 @@ public class ContactList
      */
     public void mousePressed(MouseEvent e)
     {
+        // Request the focus in the contact list when user clicks on it.
+        this.requestFocus();
+        
         // Select the contact under the right button click.
         if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
             || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
