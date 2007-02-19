@@ -570,7 +570,8 @@ public class ChatConversationPanel
      */
     public void hyperlinkUpdate(HyperlinkEvent e)
     {   
-        if (e.getEventType() == HyperlinkEvent.EventType.ENTERED) {
+        if (e.getEventType() == HyperlinkEvent.EventType.ENTERED)
+        {
             String href = e.getDescription();
 
             this.chatContainer.setStatusMessage(href);
@@ -592,8 +593,9 @@ public class ChatConversationPanel
              * linkPopup.setVisible(true);
              */
 
-        } else if (e.getEventType() == HyperlinkEvent.EventType.EXITED) {
-
+        }
+        else if (e.getEventType() == HyperlinkEvent.EventType.EXITED)
+        {
             this.chatContainer.setStatusMessage("");
             this.currentHref = "";
             /*
@@ -645,10 +647,13 @@ public class ChatConversationPanel
         SwingUtilities.convertPointToScreen(p, e.getComponent());
 
         if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-                || (e.isControlDown() && !e.isMetaDown())) {
+                || (e.isControlDown() && !e.isMetaDown()))
+        {
             openContextMenu(p);
         }
-        else if((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {            
+        else if((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0
+            && currentHref != null && currentHref != "")
+        {
             GuiActivator.getBrowserLauncher().openURL(currentHref);
         }
     }
