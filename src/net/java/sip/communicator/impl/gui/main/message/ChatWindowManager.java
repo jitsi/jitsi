@@ -290,31 +290,7 @@ public class ChatWindowManager
      */
     public ChatPanel createChat(MetaContact contact, Contact protocolContact)
     {
-        synchronized (syncChat)
-        {
-            ChatWindow chatWindow;
-            
-            if(Constants.TABBED_CHAT_WINDOW && this.chatWindow != null)
-                chatWindow = this.chatWindow;
-            else
-            {
-                chatWindow = new ChatWindow(mainFrame);
-                
-                this.chatWindow = chatWindow;
-            }
-            
-            ChatPanel chatPanel
-                = new ChatPanel(chatWindow, contact, protocolContact);
-
-            synchronized (chats)
-            {
-                this.chats.put(contact, chatPanel);
-            }
-            
-            chatPanel.loadHistory();
-
-            return chatPanel;
-        }
+        return createChat(contact, protocolContact, null);
     }
    
     /**
@@ -351,29 +327,15 @@ public class ChatWindowManager
                 this.chats.put(contact, chatPanel);
             }
             
-            chatPanel.loadHistory(escapedMessageID);
+            if(escapedMessageID != null)
+                chatPanel.loadHistory(escapedMessageID);
+            else
+                chatPanel.loadHistory();
 
             return chatPanel;
         }
     }
-    
-    /**
-     * Returns the chat window corresponding to the given meta contact.
-     * @param metaContact the meta contact
-     * @return the chat window corresponding to the given meta contact
-     */
-    public ChatWindow getChatWindow(MetaContact metaContact)
-    {   
-        if(Constants.TABBED_CHAT_WINDOW)
-            return chatWindow;
-        else if (containsContactChat(metaContact)) {
-            return getContactChat(metaContact).getChatWindow();            
-        }
-        
-        return null;
-    }
-
-    
+       
     /**
      * Returns TRUE if this chat window contains a chat for the given contact,
      * FALSE otherwise.
