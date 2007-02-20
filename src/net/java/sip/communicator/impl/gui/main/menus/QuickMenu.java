@@ -300,6 +300,9 @@ public class QuickMenu
                     .setCurrentContactGroup((MetaContactGroup)selectedValue);
             }
         }
+        
+        this.revalidate();
+        this.repaint();
     }
 
     /**
