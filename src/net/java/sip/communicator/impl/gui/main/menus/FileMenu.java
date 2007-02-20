@@ -40,7 +40,7 @@ public class FileMenu
     
     private I18NString addContactString = Messages.getI18NString("addContact");
     
-    private I18NString closeString = Messages.getI18NString("close");
+    private I18NString closeString = Messages.getI18NString("quit");
     
     private I18NString createGroupString = Messages.getI18NString("createGroup");
     
