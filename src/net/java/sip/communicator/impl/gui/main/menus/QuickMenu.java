@@ -122,8 +122,6 @@ public class QuickMenu
         this.infoButton.setName("info");
         this.soundButton.setName("sound");
         
-        this.initPluginComponents();
-
         this.addButton.addActionListener(this);
         this.configureButton.addActionListener(this);
         this.searchButton.addActionListener(this);
