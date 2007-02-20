@@ -121,6 +121,8 @@ public class QuickMenu
         this.searchButton.setName("search");
         this.infoButton.setName("info");
         this.soundButton.setName("sound");
+        
+        this.initPluginComponents();
 
         this.addButton.addActionListener(this);
         this.configureButton.addActionListener(this);
@@ -166,6 +168,9 @@ public class QuickMenu
                         .setCurrentContactGroup((MetaContactGroup)selectedValue);
                 }
             }
+            
+            this.revalidate();
+            this.repaint();
         }
     }
 
