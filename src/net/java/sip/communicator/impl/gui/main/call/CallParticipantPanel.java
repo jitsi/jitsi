@@ -55,7 +55,7 @@ public class CallParticipantPanel extends JPanel
      */
     public CallParticipantPanel(CallParticipant callParticipant)
     {   
-        this(callParticipant.getDisplayName());
+        this(callParticipant.getAddress());
         this.stateLabel.setText(callParticipant.getState().getStateString());
     }
     
