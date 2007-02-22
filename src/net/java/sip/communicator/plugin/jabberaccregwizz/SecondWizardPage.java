@@ -10,39 +10,49 @@ import javax.swing.*;
 
 import net.java.sip.communicator.service.gui.*;
 
-public class SecondWizardPage extends JPanel
-    implements WizardPage {
+public class SecondWizardPage
+    extends JPanel implements WizardPage
+{
 
     public static final String SECOND_PAGE_IDENTIFIER = "SecondPageIdentifier";
 
-    public Object getIdentifier() {
+    public Object getIdentifier()
+    {
         return SECOND_PAGE_IDENTIFIER;
     }
 
-    public Object getNextPageIdentifier() {
+    public Object getNextPageIdentifier()
+    {
         return FINISH_PAGE_IDENTIFIER;
     }
 
-    public Object getBackPageIdentifier() {
+    public Object getBackPageIdentifier()
+    {
         return FirstWizardPage.FIRST_PAGE_IDENTIFIER;
     }
 
-    public Object getWizardForm() {
+    public Object getWizardForm()
+    {
         return this;
     }
 
-    public void pageHiding() {
+    public void pageHiding()
+    {
     }
 
-    public void pageShown() {
+    public void pageShown()
+    {
     }
 
-    public void pageShowing() {
+    public void pageShowing()
+    {
     }
 
-    public void pageNext() {
+    public void pageNext()
+    {
     }
 
-    public void pageBack() {
+    public void pageBack()
+    {
     }
 }
