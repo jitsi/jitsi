@@ -123,7 +123,6 @@ public abstract class ProtocolProviderFactory
      */
     public static final String PREFERRED_TRANSPORT = "PREFERRED_TRANSPORT";
 
-
     /**
      * Initializaed and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the

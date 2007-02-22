@@ -23,7 +23,7 @@ public class ProtocolProviderFactoryJabberImpl
 {
     private Logger logger = Logger.getLogger(
             ProtocolProviderFactoryJabberImpl.class);
-    
+
     /**
      * The table that we store our accounts in.
      */
@@ -142,7 +142,8 @@ public class ProtocolProviderFactoryJabberImpl
         BundleContext context
             = JabberActivator.getBundleContext();
         if(context == null)
-            throw new NullPointerException("The specified BundleContext was null");
+            throw new NullPointerException(
+                                    "The specified BundleContext was null");
 
         String userIDStr = (String)accountProperties.get(USER_ID);
 
@@ -186,7 +187,7 @@ public class ProtocolProviderFactoryJabberImpl
     {
         //unregister the protocol provider
         ServiceReference serRef = getProviderForAccount(accountID);
-        
+
         ProtocolProviderService protocolProvider
             = (ProtocolProviderService) JabberActivator.getBundleContext()
                 .getService(serRef);
@@ -194,11 +195,11 @@ public class ProtocolProviderFactoryJabberImpl
         try {
             protocolProvider.unregister();
         }
-        catch (OperationFailedException e) {           
+        catch (OperationFailedException exc) {
             logger.error("Failed to unregister protocol provider for account : "
-                    + accountID + " caused by : " + e);
+                    + accountID + " caused by : " + exc);
         }
-        
+
         ServiceRegistration registration
             = (ServiceRegistration)registeredAccounts.remove(accountID);
 

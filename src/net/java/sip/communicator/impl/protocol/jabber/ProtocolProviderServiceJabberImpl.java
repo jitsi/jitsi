@@ -36,7 +36,7 @@ public class ProtocolProviderServiceJabberImpl
     private XMPPConnection connection = null;
 
     /**
-     * indicates whether or not the provider is initialized and ready for use.
+     * Indicates whether or not the provider is initialized and ready for use.
      */
     private boolean isInitialized = false;
 
