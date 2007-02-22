@@ -54,7 +54,7 @@ public class ScLogFormatter
         sb.append(": ");
 
         //caller method
-        inferCaller(record);
+        int lineNumber = inferCaller(record);
         String loggerName = record.getLoggerName();
 
         if(loggerName == null)
@@ -72,7 +72,12 @@ public class ScLogFormatter
         {
             sb.append(".");
             sb.append(record.getSourceMethodName());
-            sb.append("()");
+
+            //include the line number if we have it.
+            if(lineNumber != -1)
+                sb.append("().").append(Integer.toString(lineNumber));
+            else
+                sb.append("()");
         }
         sb.append(" ");
         sb.append(record.getMessage());
@@ -99,11 +104,16 @@ public class ScLogFormatter
      * log statement.
      *
      * @param record the logrecord where class and method name should be stored.
+     *
+     * @return the line number that the call was made from in the caller.
      */
-    private void inferCaller(LogRecord record)
+    private int inferCaller(LogRecord record)
     {
         // Get the stack trace.
         StackTraceElement stack[] = (new Throwable()).getStackTrace();
+
+        //the line number that the caller made the call from
+        int lineNumber = -1;
 
         // First, search back to a method in the SIP Communicator Logger class.
         int ix = 0;
@@ -121,6 +131,7 @@ public class ScLogFormatter
         while (ix < stack.length)
         {
             StackTraceElement frame = stack[ix];
+            lineNumber=stack[ix].getLineNumber();
             String cname = frame.getClassName();
             if (!cname.equals("net.java.sip.communicator.util.Logger"))
             {
@@ -131,5 +142,7 @@ public class ScLogFormatter
             }
             ix++;
         }
+
+        return lineNumber;
     }
 }
