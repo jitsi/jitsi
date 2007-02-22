@@ -73,7 +73,7 @@ public class WelcomeWindow
 
         this.rightsArea.setContentType("text/html");
         this.rightsArea.setText(
-                "<html><font size=3>(c)2003-2006 Copyright <b>sip-communicator.org</b>."
+                "<html><font size=3>(c)2003-2007 Copyright <b>sip-communicator.org</b>."
                 + " All rights reserved. Visit "
                 + "<a href=\"http://sip-communicator.org\">"
                 + "http://sip-communicator.org</a>.</font></html>");
