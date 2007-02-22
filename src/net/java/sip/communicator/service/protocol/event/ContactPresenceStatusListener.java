@@ -26,6 +26,6 @@ public interface ContactPresenceStatusListener
      * change.
      */
     public void contactPresenceStatusChanged(
-        ContactPresenceStatusChangeEvent evt);
+                                    ContactPresenceStatusChangeEvent evt);
 
 }
