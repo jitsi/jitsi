@@ -35,9 +35,9 @@ public class Constants {
             .getName());
 
     public static final String ONLINE_STATUS = "Online";
-    
+
     public static final String OFFLINE_STATUS = "Offline";
-    
+
     /*
      * ===================================================================
      * ------------------------ CONFIG CONSTANTS ---------------------------
@@ -54,13 +54,13 @@ public class Constants {
      * a contact.
      */
     public static boolean REMOVE_GROUP_ASK = true;
-    
+
     /**
      * Indicates the number of messages to show in the chat area when a new
      * chat is opened.
      */
     public static int CHAT_HISTORY_SIZE = 10;
-    
+
     /*
      * ===================================================================
      * ------------------------ MESSAGE TYPES ---------------------------
@@ -234,17 +234,17 @@ public class Constants {
      */
     public static final Color BLUE_GRAY_BORDER_DARKER_COLOR = new Color(131, 149,
             178);
-    
+
     /**
      * Light gray color used in the look and feel.
      */
     public static final Color LIGHT_GRAY_COLOR = new Color(200, 200, 200);
-    
+
     /**
      * Dark blue color used in the About Window.
      */
     public static final Color DARK_BLUE = new Color(23, 65, 125);
-    
+
     /*
      * ======================================================================
      * --------------------------- FONT CONSTANTS ---------------------------
@@ -301,6 +301,12 @@ public class Constants {
      * The Skype protocol.
      */
     public static final String SKYPE = "Skype";
+
+    /**
+     * The Gibberish protocol.
+     */
+    public static final String GIBBERISH = "Gibberish";
+
 
     /**
      * The SIP protocol.
@@ -387,7 +393,11 @@ public class Constants {
         } else if (protocolName.equalsIgnoreCase(Constants.SKYPE)) {
 
             protocolIcon = ImageLoader.getImage(ImageLoader.SKYPE_LOGO);
+        } else if (protocolName.equalsIgnoreCase(Constants.GIBBERISH)) {
+
+            protocolIcon = ImageLoader.getImage(ImageLoader.GIBBERISH_LOGO);
         }
+
 
         return protocolIcon;
     }
@@ -477,23 +487,29 @@ public class Constants {
      * @param status The presence status.
      * @return the image corresponding to the given presence status.
      */
-    public static BufferedImage getStatusIcon(PresenceStatus status) {
-        if(status != null) {
+    public static BufferedImage getStatusIcon(PresenceStatus status)
+    {
+        if(status != null)
+        {
             int connectivity = status.getStatus();
 
-            if(connectivity < 20) {
+            if(connectivity < PresenceStatus.ONLINE_THRESHOLD)
+            {
                 return ImageLoader
                     .getImage(ImageLoader.USER_OFFLINE_ICON);
             }
-            else if(connectivity > 20 && connectivity < 50) {
+            else if(connectivity < PresenceStatus.AVAILABLE_THRESHOLD)
+            {
                 return ImageLoader
                 .getImage(ImageLoader.USER_AWAY_ICON);
             }
-            else if(connectivity > 50 && connectivity < 80) {
+            else if(connectivity
+                        < PresenceStatus.EAGER_TO_COMMUNICATE_THRESSHOLD)
+            {
                 return ImageLoader
                     .getImage(ImageLoader.USER_ONLINE_ICON);
             }
-            else if(connectivity > 80 && connectivity < 100) {
+            else if(connectivity < PresenceStatus.MAX_STATUS_VALUE) {
                 return ImageLoader
                     .getImage(ImageLoader.USER_FFC_ICON);
             }
