@@ -35,16 +35,16 @@ import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessag
  * The <tt>ChatSendPanel</tt> is the panel in the bottom of the chat. It
  * contains the send button, the status panel, where typing notifications are
  * shown and the selector box, where the protocol specific contact is choosen.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatSendPanel
     extends JPanel
     implements ActionListener
 {
-    
+
     private I18NString sendString = Messages.getI18NString("send");
-    
+
     private JButton sendButton = new JButton(sendString.getText());
 
     private JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -59,12 +59,12 @@ public class ChatSendPanel
     private ChatPanel chatPanel;
 
     private ProtocolContactSelectorBox contactSelectorBox;
-    
+
     private MetaContact currentMetaContact;
 
     /**
      * Creates an instance of <tt>ChatSendPanel</tt>.
-     * 
+     *
      * @param chatPanel The parent <tt>ChatPanel</tt>.
      */
     public ChatSendPanel(ChatPanel chatPanel,
@@ -77,7 +77,7 @@ public class ChatSendPanel
 
         contactSelectorBox = new ProtocolContactSelectorBox(
             chatPanel, metaContact, protocolContact);
-        
+
         this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.statusPanel.add(statusLabel);
@@ -95,7 +95,7 @@ public class ChatSendPanel
 
     /**
      * Defines actions when send button is pressed.
-     * 
+     *
      * @param e The <tt>ActionEvent</tt> object.
      */
     public void actionPerformed(ActionEvent e)
@@ -104,7 +104,8 @@ public class ChatSendPanel
             OperationSetBasicInstantMessaging im = this.chatPanel
                 .getImOperationSet();
 
-            Message msg = im.createMessage(chatPanel.getTextFromWriteArea());
+            String body = chatPanel.getTextFromWriteArea();
+            Message msg = im.createMessage(body);
 
             this.chatPanel.getChatWindow().getMainFrame()
                 .getWaitToBeDeliveredMsgs().put(msg.getMessageUID(),
@@ -125,13 +126,13 @@ public class ChatSendPanel
             }
             catch (IllegalStateException ex) {
                 chatPanel.refreshWriteArea();
-                
+
                 chatPanel.processMessage(
                         contact.getDisplayName(),
                         new Date(System.currentTimeMillis()),
                         Constants.OUTGOING_MESSAGE,
                         msg.getContent());
-                
+
                 chatPanel.processMessage(
                         contact.getDisplayName(),
                         new Date(System.currentTimeMillis()),
@@ -144,7 +145,7 @@ public class ChatSendPanel
 
     /**
      * Returns the send button.
-     * 
+     *
      * @return The send button.
      */
     public JButton getSendButton()
@@ -155,7 +156,7 @@ public class ChatSendPanel
     /**
      * Sets the message text to the status panel in the bottom of the chat
      * window. Used to show typing notification messages, links' hrefs, etc.
-     * 
+     *
      * @param statusMessage The message text to be displayed.
      */
     public void setStatusMessage(String statusMessage)
@@ -177,7 +178,7 @@ public class ChatSendPanel
     }
 
     /**
-     * 
+     *
      * @param protoContact
      */
     public void updateContactStatus(Contact protoContact)
@@ -187,7 +188,7 @@ public class ChatSendPanel
 
     /**
      * Returns the protocol contact selector box.
-     * 
+     *
      * @return the protocol contact selector box.
      */
     public ProtocolContactSelectorBox getProtoContactSelectorBox()
@@ -198,7 +199,7 @@ public class ChatSendPanel
     /**
      * Overrides the <code>javax.swing.JComponent.paint()</code> to provide a
      * new round border for the status panel.
-     * 
+     *
      * @param g The Graphics object.
      */
     public void paint(Graphics g)
