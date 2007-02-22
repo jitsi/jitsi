@@ -94,13 +94,13 @@ public class ImageLoader {
      * of a tab.
      */
     public static final ImageID TAB_MIDDLE_BG = new ImageID("TAB_MIDDLE_BG");
-    
+
     /**
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
      * of a tab.
      */
     public static final ImageID TAB_RIGHT_BG = new ImageID("TAB_RIGHT_BG");
-    
+
     /**
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
      * of a selected tab.
@@ -114,14 +114,14 @@ public class ImageLoader {
      */
     public static final ImageID SELECTED_TAB_MIDDLE_BG
         = new ImageID("SELECTED_TAB_MIDDLE_BG");
-    
+
     /**
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
      * of a selected tab.
      */
     public static final ImageID SELECTED_TAB_RIGHT_BG
         = new ImageID("SELECTED_TAB_RIGHT_BG");
-    
+
     /**
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint the background
      * of a closable tab.
@@ -156,13 +156,13 @@ public class ImageLoader {
      * of an option pane warning message.
      */
     public static final ImageID WARNING_ICON = new ImageID("WARNING_ICON");
-    
+
     /**
      * The icon used in the <tt>SIPCommLookAndFeel</tt> to paint the icon
      * of an option pane error message.
      */
     public static final ImageID ERROR_ICON = new ImageID("ERROR_ICON");
-    
+
     /**
      * The icon used in the <tt>SIPCommLookAndFeel</tt> to paint the icon
      * of an option pane info message.
@@ -227,7 +227,7 @@ public class ImageLoader {
      */
     public static final ImageID QUICK_MENU_BUTTON_ROLLOVER_BG
         = new ImageID("QUICK_MENU_BUTTON_ROLLOVER_BG");
-    
+
     /**
      * The call button image.
      */
@@ -467,19 +467,19 @@ public class ImageLoader {
      */
     public static final ImageID ABOUT_WINDOW_BACKGROUND
         = new ImageID("ABOUT_WINDOW_BACKGROUND");
-    
+
     /**
      * The image used for opened groups.
      */
     public static final ImageID OPENED_GROUP
         = new ImageID("OPENED_GROUP");
-    
+
     /**
      * The image used for closed groups.
      */
     public static final ImageID CLOSED_GROUP
         = new ImageID("CLOSED_GROUP");
-    
+
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
     /**
@@ -840,7 +840,7 @@ public class ImageLoader {
      * The Yahoo logo 16x16 icon.
      */
     public static final ImageID YAHOO_LOGO = new ImageID("YAHOO_LOGO");
-    
+
     /**
      * The ICQ "connecting" 16x16 animated icon.
      */
@@ -873,6 +873,11 @@ public class ImageLoader {
     public static final ImageID SKYPE_LOGO = new ImageID("SKYPE_LOGO");
 
     /**
+     * The GIBBERISH logo 16x16 icon.
+     */
+    public static final ImageID GIBBERISH_LOGO = new ImageID("GIBBERISH_LOGO");
+
+    /**
      * The SIP logo 16x16 icon.
      */
     public static final ImageID SIP_LOGO = new ImageID("SIP_LOGO");
@@ -882,13 +887,13 @@ public class ImageLoader {
      */
     public static final ImageID SIP_32x32 = new ImageID("SIP_32x32");
 
-    
+
     /**
      * The SIP "connecting" 16x16 animated icon.
      */
     public static final ImageID SIP_CONNECTING = new ImageID("SIP_CONNECTING");
 
-    
+
     /*
      * =======================================================================
      * ------------------------ USERS' ICONS ---------------------------------
@@ -1038,6 +1043,7 @@ public class ImageLoader {
 
     /**
      * Loads an image from a given image identifier.
+     *
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
@@ -1056,8 +1062,8 @@ public class ImageLoader {
 
                 loadedImages.put(imageID, image);
 
-            } catch (IOException e) {
-                log.error("Failed to load image:" + path, e);
+            } catch (Exception exc) {
+                log.error("Failed to load image:" + path, exc);
             }
         }
 
