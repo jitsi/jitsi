@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.mock;
 
 import java.util.*;
@@ -5,16 +11,44 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
+/**
+ * Instant messaging functionalites for the mock protocol.
+ *
+ * @author Damian Minkov
+ * @author Emil Ivov
+ */
 public class MockBasicInstantMessaging
     implements OperationSetBasicInstantMessaging
 {
+    /**
+     * Currently registered message listeners.
+     */
     private Vector messageListeners = new Vector();
+
+    /**
+     * The currently valid persistent presence operation set..
+     */
     private MockPersistentPresenceOperationSet opSetPersPresence = null;
 
-    public MockBasicInstantMessaging(MockProvider provider,
-                                     MockPersistentPresenceOperationSet opSetPersPresence)
+    /**
+     * The protocol provider that created us.
+     */
+    private MockProvider parentProvider = null;
+
+    /**
+     * Creates an instance of this operation set keeping a reference to the
+     * parent protocol provider and presence operation set.
+     *
+     * @param provider The provider instance that creates us.
+     * @param opSetPersPresence the currently valid
+     * <tt>MockPersistentPresenceOperationSet</tt> instance.
+     */
+    public MockBasicInstantMessaging(
+                    MockProvider                       provider,
+                    MockPersistentPresenceOperationSet opSetPersPresence)
     {
         this.opSetPersPresence = opSetPersPresence;
+        this.parentProvider = provider;
     }
 
     /**
@@ -23,9 +57,6 @@ public class MockBasicInstantMessaging
      * incoming messages..
      *
      * @param listener the <tt>MessageListener</tt> to register.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging
-     *   method
      */
     public void addMessageListener(MessageListener listener)
     {
@@ -42,9 +73,6 @@ public class MockBasicInstantMessaging
      * @param subject a <tt>String</tt> subject or <tt>null</tt> for now
      *   subject.
      * @return the newly created message.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging
-     *   method
      */
     public Message createMessage(byte[] content, String contentType,
                                  String contentEncoding, String subject)
@@ -59,9 +87,6 @@ public class MockBasicInstantMessaging
      *
      * @param messageText the string content of the message.
      * @return Message the newly created message
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging
-     *   method
      */
     public Message createMessage(String messageText)
     {
@@ -75,9 +100,6 @@ public class MockBasicInstantMessaging
      * of incoming messages..
      *
      * @param listener the <tt>MessageListener</tt> to unregister.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging
-     *   method
      */
     public void removeMessageListener(MessageListener listener)
     {
@@ -94,9 +116,6 @@ public class MockBasicInstantMessaging
      *   registered and initialized.
      * @throws IllegalArgumentException if <tt>to</tt> is not an instance
      *   belonging to the underlying implementation.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging
-     *   method
      */
     public void sendInstantMessage(Contact to, Message message) throws
         IllegalStateException, IllegalArgumentException
