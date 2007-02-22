@@ -12,9 +12,10 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
  *
  * @author Yana Stamcheva
  */
-public class JabberAccountRegistration {
+public class JabberAccountRegistration
+{
 
-    private String uin;
+    private String userID;
 
     private String password;
 
@@ -30,7 +31,8 @@ public class JabberAccountRegistration {
      * Returns the password of the jabber registration account.
      * @return the password of the jabber registration account.
      */
-    public String getPassword() {
+    public String getPassword()
+    {
         return password;
     }
 
@@ -38,7 +40,8 @@ public class JabberAccountRegistration {
      * Sets the password of the jabber registration account.
      * @param password the password of the jabber registration account.
      */
-    public void setPassword(String password) {
+    public void setPassword(String password)
+    {
         this.password = password;
     }
 
@@ -46,7 +49,8 @@ public class JabberAccountRegistration {
      * Returns TRUE if password has to remembered, FALSE otherwise.
      * @return TRUE if password has to remembered, FALSE otherwise
      */
-    public boolean isRememberPassword() {
+    public boolean isRememberPassword()
+    {
         return rememberPassword;
     }
 
@@ -55,16 +59,18 @@ public class JabberAccountRegistration {
      * @param rememberPassword TRUE if password has to remembered, FALSE
      * otherwise
      */
-    public void setRememberPassword(boolean rememberPassword) {
+    public void setRememberPassword(boolean rememberPassword)
+    {
         this.rememberPassword = rememberPassword;
     }
 
     /**
-     * Returns the UIN of the jabber registration account.
-     * @return the UIN of the jabber registration account.
+     * Returns the User ID of the jabber registration account.
+     * @return the User ID of the jabber registration account.
      */
-    public String getUin() {
-        return uin;
+    public String getUserID()
+    {
+        return userID;
     }
 
     /**
@@ -95,11 +101,12 @@ public class JabberAccountRegistration {
     }
 
     /**
-     * Sets the UIN of the jabber registration account.
-     * @param uin the UIN of the jabber registration account.
+     * Sets the User ID of the jabber registration account.
+     * @param userID the UIN of the jabber registration account.
      */
-    public void setUin(String uin) {
-        this.uin = uin;
+    public void setUserID(String userID)
+    {
+        this.userID = userID;
     }
 
     /**

@@ -8,12 +8,8 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.util.*;
 
-import javax.swing.*;
-
 import org.osgi.framework.*;
-
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -24,7 +20,9 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Yana Stamcheva
  */
-public class JabberAccountRegistrationWizard implements AccountRegistrationWizard {
+public class JabberAccountRegistrationWizard
+    implements AccountRegistrationWizard
+{
 
     private FirstWizardPage firstWizardPage;
 
@@ -35,16 +33,18 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
 
     private ProtocolProviderService protocolProvider;
 
-    private String propertiesPackage = "net.java.sip.communicator.plugin.jabberaccregwizz";
+    private String propertiesPackage =
+        "net.java.sip.communicator.plugin.jabberaccregwizz";
 
     private boolean isModification;
-    
+
     /**
      * Creates an instance of <tt>JabberAccountRegistrationWizard</tt>.
      * @param wizardContainer the wizard container, where this wizard
      * is added
      */
-    public JabberAccountRegistrationWizard(WizardContainer wizardContainer) {
+    public JabberAccountRegistrationWizard(WizardContainer wizardContainer)
+    {
         this.wizardContainer = wizardContainer;
     }
 
@@ -53,7 +53,8 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
      * Returns the icon to be used for this wizard.
      * @return byte[]
      */
-    public byte[] getIcon() {
+    public byte[] getIcon()
+    {
         return Resources.getImage(Resources.JABBER_LOGO);
     }
 
@@ -62,7 +63,8 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
      * method. Returns the protocol name for this wizard.
      * @return String
      */
-    public String getProtocolName() {
+    public String getProtocolName()
+    {
         return Resources.getString("protocolName");
     }
 
@@ -71,7 +73,8 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
      * </code> method. Returns the description of the protocol for this wizard.
      * @return String
      */
-    public String getProtocolDescription() {
+    public String getProtocolDescription()
+    {
         return Resources.getString("protocolDescription");
     }
 
@@ -79,7 +82,8 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
      * Returns the set of pages contained in this wizard.
      * @return Iterator
      */
-    public Iterator getPages() {
+    public Iterator getPages()
+    {
         ArrayList pages = new ArrayList();
         firstWizardPage = new FirstWizardPage(registration, wizardContainer);
 
@@ -92,12 +96,13 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
-    public Iterator getSummary() {
+    public Iterator getSummary()
+    {
         Hashtable summaryTable = new Hashtable();
 
-        summaryTable.put("UIN", registration.getUin());
+        summaryTable.put("User ID", registration.getUserID());
         summaryTable.put("Remember password",
-                new Boolean(registration.isRememberPassword()));
+                         new Boolean(registration.isRememberPassword()));
 
         return summaryTable.entrySet().iterator();
     }
@@ -106,13 +111,15 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
      * Installs the account created through this wizard.
      * @return ProtocolProviderService
      */
-    public ProtocolProviderService finish() {
+    public ProtocolProviderService finish()
+    {
         firstWizardPage = null;
         ProtocolProviderFactory factory
             = JabberAccRegWizzActivator.getJabberProtocolProviderFactory();
 
         return this.installAccount(factory,
-                registration.getUin(), registration.getPassword());
+                                   registration.getUserID(),
+                                   registration.getPassword());
     }
 
     /**
@@ -124,63 +131,70 @@ public class JabberAccountRegistrationWizard implements AccountRegistrationWizar
      * @return the <tt>ProtocolProviderService</tt> for the new account.
      */
     public ProtocolProviderService installAccount(
-            ProtocolProviderFactory providerFactory,
-            String user,
-            String passwd) {
+        ProtocolProviderFactory providerFactory,
+        String user,
+        String passwd)
+    {
 
         Hashtable accountProperties = new Hashtable();
 
-        if(registration.isRememberPassword()) {
+        if (registration.isRememberPassword())
+        {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
 
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
-                                  registration.getServerAddress());
+                              registration.getServerAddress());
 
         accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
-                                  String.valueOf(registration.getPort()));
+                              String.valueOf(registration.getPort()));
 
         accountProperties.put("SEND_KEEP_ALIVE",
                               String.valueOf(registration.isSendKeepAlive()));
 
-        if(isModification) {
+        if (isModification)
+        {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;
         }
 
-        try {
+        try
+        {
             AccountID accountID = providerFactory.installAccount(
-                        user, accountProperties);
-    
+                user, accountProperties);
+
             ServiceReference serRef = providerFactory
                 .getProviderForAccount(accountID);
-    
+
             protocolProvider = (ProtocolProviderService)
                 JabberAccRegWizzActivator.bundleContext
-                    .getService(serRef);
+                .getService(serRef);
         }
-        catch (IllegalArgumentException e) {
-            new ErrorDialog(null, e.getMessage(), e).showDialog();
+        catch (IllegalArgumentException exc)
+        {
+            new ErrorDialog(null, exc.getMessage(), exc).showDialog();
         }
-        catch (IllegalStateException e) {
-            new ErrorDialog(null, e.getMessage(), e).showDialog();
-        }       
+        catch (IllegalStateException exc)
+        {
+            new ErrorDialog(null, exc.getMessage(), exc).showDialog();
+        }
 
         return protocolProvider;
     }
 
     /**
-     * Fills the UIN and Password fields in this panel with the data comming
+     * Fills the User ID and Password fields in this panel with the data comming
      * from the given protocolProvider.
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
      * data from.
      */
-    public void loadAccount(ProtocolProviderService protocolProvider) {
+    public void loadAccount(ProtocolProviderService protocolProvider)
+    {
 
         this.protocolProvider = protocolProvider;
 
         this.firstWizardPage.loadAccount(protocolProvider);
-        
+
         isModification = true;
     }
 }

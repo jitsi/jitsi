@@ -17,12 +17,14 @@ import net.java.sip.communicator.util.*;
  *
  * @author Yana Stamcheva
  */
-public class JabberAccRegWizzActivator implements BundleActivator {
+public class JabberAccRegWizzActivator
+    implements BundleActivator
+{
 
     public static BundleContext bundleContext;
 
     private static Logger logger = Logger.getLogger(
-            JabberAccRegWizzActivator.class.getName());
+        JabberAccRegWizzActivator.class.getName());
 
     private static ConfigurationService configService;
 
@@ -31,7 +33,9 @@ public class JabberAccRegWizzActivator implements BundleActivator {
      * @param bc BundleContext
      * @throws Exception
      */
-    public void start(BundleContext bc) throws Exception {
+    public void start(BundleContext bc)
+        throws Exception
+    {
 
         bundleContext = bc;
 
@@ -50,26 +54,31 @@ public class JabberAccRegWizzActivator implements BundleActivator {
         wizardContainer.addAccountRegistrationWizard(jabberWizard);
     }
 
-    public void stop(BundleContext bundleContext) throws Exception {
+    public void stop(BundleContext bundleContext)
+        throws Exception
+    {
     }
 
     /**
      * Returns the <tt>ProtocolProviderFactory</tt> for the Jabber protocol.
      * @return the <tt>ProtocolProviderFactory</tt> for the Jabber protocol
      */
-    public static ProtocolProviderFactory getJabberProtocolProviderFactory() {
+    public static ProtocolProviderFactory getJabberProtocolProviderFactory()
+    {
 
         ServiceReference[] serRefs = null;
 
         String osgiFilter = "("
             + ProtocolProviderFactory.PROTOCOL
-            + "="+ProtocolNames.JABBER+")";
+            + "=" + ProtocolNames.JABBER + ")";
 
-        try {
+        try
+        {
             serRefs = bundleContext.getServiceReferences(
                 ProtocolProviderFactory.class.getName(), osgiFilter);
         }
-        catch (InvalidSyntaxException ex){
+        catch (InvalidSyntaxException ex)
+        {
             logger.error("JabberAccRegWizzActivator : " + ex);
         }
 

@@ -11,12 +11,14 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.util.*;
+
 /**
  * The Messages class manages the access to the internationalization
  * properties files.
  * @author Yana Stamcheva
  */
-public class Resources {
+public class Resources
+{
 
     private static Logger log = Logger.getLogger(Resources.class);
 
@@ -24,7 +26,7 @@ public class Resources {
         = "net.java.sip.communicator.plugin.jabberaccregwizz.resources";
 
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-            .getBundle(BUNDLE_NAME);
+        .getBundle(BUNDLE_NAME);
 
     public static ImageID JABBER_LOGO = new ImageID("protocolIcon");
 
@@ -33,11 +35,15 @@ public class Resources {
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
-    public static String getString(String key) {
-        try {
+    public static String getString(String key)
+    {
+        try
+        {
             return RESOURCE_BUNDLE.getString(key);
 
-        } catch (MissingResourceException e) {
+        }
+        catch (MissingResourceException e)
+        {
 
             return '!' + key + '!';
         }
@@ -48,15 +54,19 @@ public class Resources {
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
-    public static byte[] getImage(ImageID imageID) {
+    public static byte[] getImage(ImageID imageID)
+    {
         byte[] image = new byte[100000];
 
         String path = Resources.getString(imageID.getId());
-        try {
+        try
+        {
             Resources.class.getClassLoader()
-                    .getResourceAsStream(path).read(image);
+                .getResourceAsStream(path).read(image);
 
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             log.error("Failed to load image:" + path, e);
         }
 
@@ -66,14 +76,17 @@ public class Resources {
     /**
      * Represents the Image Identifier.
      */
-    public static class ImageID {
+    public static class ImageID
+    {
         private String id;
 
-        private ImageID(String id) {
+        private ImageID(String id)
+        {
             this.id = id;
         }
 
-        public String getId() {
+        public String getId()
+        {
             return id;
         }
     }
