@@ -156,10 +156,10 @@ public class LoginManager
                     .getProtocolProviderLastStatus(protocolProvider);
 
                 if (status == null
-                    || status.equals(Constants.ONLINE_STATUS) 
+                    || status.equals(Constants.ONLINE_STATUS)
                     || ((status instanceof PresenceStatus)
-                        && (((PresenceStatus)status).getStatus() 
-                            > PresenceStatus.ONLINE_THRESHOLD)))
+                        && (((PresenceStatus)status).getStatus()
+                            >= PresenceStatus.ONLINE_THRESHOLD)))
                 {
                     this.login(protocolProvider);
                 }
@@ -204,10 +204,10 @@ public class LoginManager
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
         ProtocolProviderService protocolProvider = evt.getProvider();
-        
+
         logger.trace("Protocol provider: " + protocolProvider
             + " changed its state to: " + evt.getNewState().getStateName());
-        
+
         OperationSetPresence presence = mainFrame
             .getProtocolPresence(protocolProvider);
 
@@ -291,7 +291,7 @@ public class LoginManager
         else if (evt.getNewState().equals(RegistrationState.UNREGISTERED)) {
 
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
-            
+
             if(mainFrame.getCallManager().containsCallAccount(protocolProvider))
             {
                 this.mainFrame.getCallManager()
@@ -395,7 +395,7 @@ public class LoginManager
     {
         logger.trace("The following protocol provider was just added: "
             + protocolProvider.getAccountID().getAccountAddress());
-        
+
         protocolProvider.addRegistrationStateChangeListener(this);
         this.mainFrame.addProtocolProvider(protocolProvider);
 
@@ -403,10 +403,10 @@ public class LoginManager
             .getProtocolProviderLastStatus(protocolProvider);
 
         if (status == null
-            || status.equals(Constants.ONLINE_STATUS) 
+            || status.equals(Constants.ONLINE_STATUS)
             || ((status instanceof PresenceStatus)
-                && (((PresenceStatus)status).getStatus() 
-                    > PresenceStatus.ONLINE_THRESHOLD)))
+                && (((PresenceStatus)status).getStatus()
+                    >= PresenceStatus.ONLINE_THRESHOLD)))
         {
             this.login(protocolProvider);
         }
