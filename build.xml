@@ -289,7 +289,10 @@
         <javadoc author="true" destdir="${java.doc}" package="true"
             version="true" use="true" windowtitle="SIP Communicator API"
             classpathref="compile.class.path" source="1.4+">
-            <fileset dir="${src}"/>
+            <fileset dir="${src}">
+                <exclude name="net/java/sip/communicator/impl/version/**/*.java"/>
+                <include name="**/*.java"/>
+            </fileset>
             <tag name="todo" description="To do:"/>
         </javadoc>
     </target>
@@ -537,7 +540,9 @@
 
       <!-- Put the current date in the changelog -->
       <tstamp>
-        <format property="date" pattern="EEE, d MMM yyyy HH:mm:ss Z" locale="en,US"/>
+        <format property="date"
+                pattern="EEE, d MMM yyyy HH:mm:ss Z"
+                locale="en,US"/>
       </tstamp>
       <replace file="${inst.resrc}/debian/changelog"
           token="_DATE_"
@@ -842,7 +847,8 @@
         bundle-plugin-yahooaccregwizz,
         bundle-version,bundle-version-impl,bundle-shutdown,
         bundle-growlnotification,bundle-audionotifier,bundle-plugin-splashscreen,
-        bundle-plugin-systray,bundle-browserlauncher"/>
+        bundle-plugin-systray,bundle-browserlauncher,bundle-gibberish,
+        bundle-plugin-gibberishaccregwizz"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1224,7 +1230,7 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-        <!-- BUNDLE-YAHOO -->
+    <!-- BUNDLE-YAHOO -->
     <target name="bundle-yahoo">
         <!-- Creates a bundle containing the yahoo impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-yahoo.jar"
@@ -1232,6 +1238,19 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/yahoo"
                 prefix="net/java/sip/communicator/impl/protocol/yahoo"/>
             <zipfileset src="${lib.noinst}/ymsg_network_v0_61.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-GIBBERISH -->
+    <target name="bundle-gibberish">
+        <!-- Creates a bundle containing the Gibberish impl of the protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/protocol-gibberish.jar"
+             manifest="src/net/java/sip/communicator/impl/protocol/gibberish/gibberish.provider.manifest.mf">
+        <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/gibberish"
+                    prefix="net/java/sip/communicator/impl/protocol/gibberish"/>
+        <!-- zipfileset src="${lib.noinst}/gibberish_stack.jar" prefix=""/-->
+        <zipfileset dir="resources/images/gibberish"
+                prefix="resources/images/gibberish"/>
         </jar>
     </target>
 
@@ -1337,6 +1356,17 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/plugin/sipaccregwizz/sipaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sipaccregwizz"
                 prefix="net/java/sip/communicator/plugin/sipaccregwizz"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-GIBBERISHACCREGWIZZ -->
+    <target name="bundle-plugin-gibberishaccregwizz">
+        <!-- Creates a bundle for the plugin Gibberish Account Registration
+             Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/gibberishaccregwizz.jar"
+            manifest="src/net/java/sip/communicator/plugin/gibberishaccregwizz/gibberishaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/gibberishaccregwizz"
+                prefix="net/java/sip/communicator/plugin/gibberishaccregwizz"/>
         </jar>
     </target>
 
