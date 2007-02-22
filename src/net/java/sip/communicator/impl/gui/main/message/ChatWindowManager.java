@@ -67,10 +67,10 @@ public class ChatWindowManager
             }
                         
             if(chatWindow.isVisible())
-            {                    
-                if (ConfigurationManager.isAutoPopupNewMessage() || setSelected)
+            {                   
+                if (ConfigurationManager.isAutoPopupNewMessage())
                 {
-                    if(chatWindow.getState() == JFrame.ICONIFIED)
+                    if(chatWindow.getState() == JFrame.ICONIFIED && setSelected)
                         chatWindow.setState(JFrame.NORMAL);
                     
                     chatWindow.toFront();
