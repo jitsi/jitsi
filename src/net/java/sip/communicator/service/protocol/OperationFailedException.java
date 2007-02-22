@@ -63,6 +63,24 @@ public class OperationFailedException
      */
     public static final int AUTHENTICATION_FAILED = 7;
 
+    /**
+     * Indicates that the user is currently not allowed to perform the operation
+     * that failed.
+     */
+    public static final int FORBIDDEN = 8;
+
+    /**
+     * Indicates that the user is trying to perform the current operation on a
+     * resource that does not exist.
+     */
+    public static final int NOT_FOUND = 9;
+
+    /**
+     * Indicates that the user is trying to perform an operation with an
+     * identifyer that was already in use on the target resource (e.g. a
+     * nickname in a chat room).
+     */
+    public static final int IDENTIFICATION_CONFLICT = 10;
 
     /**
      * The error code of the exception
