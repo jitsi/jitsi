@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.icqaccregwizz;
 import java.util.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.plugin.gibberishaccregwizz.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -21,8 +22,8 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
-public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
-
+public class IcqAccountRegistrationWizard implements AccountRegistrationWizard
+{
     private FirstWizardPage firstWizardPage;
 
     private IcqAccountRegistration registration
@@ -50,7 +51,18 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
     public byte[] getIcon() {
         return Resources.getImage(Resources.ICQ_LOGO);
     }
-
+    
+    /**
+     * Implements the <code>AccountRegistrationWizard.getPageImage</code> method.
+     * Returns the image used to decorate the wizard page
+     * 
+     * @return byte[] the image used to decorate the wizard page
+     */
+    public byte[] getPageImage()
+    {
+        return Resources.getImage(Resources.PAGE_IMAGE);
+    }
+    
     /**
      * Implements the <code>AccountRegistrationWizard.getProtocolName</code>
      * method. Returns the protocol name for this wizard.
@@ -200,5 +212,5 @@ public class IcqAccountRegistrationWizard implements AccountRegistrationWizard {
         this.firstWizardPage.loadAccount(protocolProvider);
 
         this.isModification = true;
-    }
+    }    
 }

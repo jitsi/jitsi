@@ -30,6 +30,8 @@ public class Resources
         .getBundle(BUNDLE_NAME);
 
     public static ImageID GIBBERISH_LOGO = new ImageID("protocolIcon");
+    
+    public static ImageID PAGE_IMAGE = new ImageID("pageImage");
 
     /**
      * Returns an internationalized string corresponding to the given key.

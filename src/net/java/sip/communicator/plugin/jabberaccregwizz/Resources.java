@@ -28,7 +28,9 @@ public class Resources
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
         .getBundle(BUNDLE_NAME);
 
-    public static ImageID JABBER_LOGO = new ImageID("protocolIcon");
+    public static ImageID PROTOCOL_ICON = new ImageID("protocolIcon");
+    
+    public static ImageID PAGE_IMAGE = new ImageID("pageImage");
 
     /**
      * Returns an internationalized string corresponding to the given key.

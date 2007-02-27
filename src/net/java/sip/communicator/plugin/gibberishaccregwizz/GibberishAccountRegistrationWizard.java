@@ -66,6 +66,17 @@ public class GibberishAccountRegistrationWizard
     }
 
     /**
+     * Implements the <code>AccountRegistrationWizard.getPageImage</code> method.
+     * Returns the image used to decorate the wizard page
+     * 
+     * @return byte[] the image used to decorate the wizard page
+     */
+    public byte[] getPageImage()
+    {
+        return Resources.getImage(Resources.PAGE_IMAGE);
+    }
+    
+    /**
      * Implements the <code>AccountRegistrationWizard.getProtocolName</code>
      * method. Returns the protocol name for this wizard.
      * @return String
@@ -185,5 +196,5 @@ public class GibberishAccountRegistrationWizard
         this.firstWizardPage.loadAccount(protocolProvider);
 
         isModification = true;
-    }
+    }    
 }

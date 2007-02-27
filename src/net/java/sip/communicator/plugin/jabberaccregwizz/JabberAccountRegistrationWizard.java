@@ -10,6 +10,7 @@ import java.util.*;
 
 import org.osgi.framework.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.plugin.gibberishaccregwizz.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -55,7 +56,18 @@ public class JabberAccountRegistrationWizard
      */
     public byte[] getIcon()
     {
-        return Resources.getImage(Resources.JABBER_LOGO);
+        return Resources.getImage(Resources.PROTOCOL_ICON);
+    }
+    
+    /**
+     * Implements the <code>AccountRegistrationWizard.getPageImage</code> method.
+     * Returns the image used to decorate the wizard page
+     * 
+     * @return byte[] the image used to decorate the wizard page
+     */
+    public byte[] getPageImage()
+    {
+        return Resources.getImage(Resources.PAGE_IMAGE);
     }
 
     /**
