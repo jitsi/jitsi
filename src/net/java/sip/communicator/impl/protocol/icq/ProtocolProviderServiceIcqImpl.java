@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.icq;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.gibberish.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -16,7 +17,6 @@ import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snaccmd.auth.*;
 import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.*;
-import net.kano.joustsim.oscar.State;
 import net.kano.joustsim.oscar.oscar.loginstatus.*;
 import net.kano.joustsim.oscar.oscar.service.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
@@ -85,6 +85,12 @@ public class ProtocolProviderServiceIcqImpl
      */
     private InfoRetreiver infoRetreiver = null;
 
+    /**
+     * The icon corresponding to the icq protocol.
+     */
+    private ProtocolIconIcqImpl icqIcon
+        = new ProtocolIconIcqImpl();
+    
     /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
@@ -997,5 +1003,14 @@ public class ProtocolProviderServiceIcqImpl
                     return RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
             }
         }
+    }
+
+    /**
+     * Returns the icq protocol icon.
+     * @return the icq protocol icon
+     */
+    public ProtocolIcon getProtocolIcon()
+    {
+        return icqIcon;
     }
 }

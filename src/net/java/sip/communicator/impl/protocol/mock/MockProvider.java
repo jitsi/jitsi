@@ -187,4 +187,13 @@ public class MockProvider
     {
         return accountID;
     }
+
+    /**
+     * Mock implementation of the corresponding ProtocolProviderService method.
+     * We have no icon corresponding to this protocol provider.
+     */
+    public ProtocolIcon getProtocolIcon()
+    {
+        return null;
+    }
 }

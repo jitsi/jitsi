@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.msn;
 import java.nio.channels.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.gibberish.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -65,6 +66,12 @@ public class ProtocolProviderServiceMsnImpl
 
     private OperationSetTypingNotificationsMsnImpl typingNotifications = null;
 
+    /**
+     * The icon corresponding to the msn protocol.
+     */
+    private ProtocolIconMsnImpl msnIcon
+        = new ProtocolIconMsnImpl();
+    
     /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
@@ -526,5 +533,14 @@ public class ProtocolProviderServiceMsnImpl
                 }
             }
         }
+    }
+    
+    /**
+     * Returns the msn protocol icon.
+     * @return the msn protocol icon
+     */
+    public ProtocolIcon getProtocolIcon()
+    {
+        return msnIcon;
     }
 }

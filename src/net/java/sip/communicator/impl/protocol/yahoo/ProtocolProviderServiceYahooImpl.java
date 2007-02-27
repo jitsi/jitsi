@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 import java.io.*;
 import java.util.*;
 import java.nio.channels.*;
+
+import net.java.sip.communicator.impl.protocol.msn.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -62,6 +64,13 @@ public class ProtocolProviderServiceYahooImpl
     private OperationSetPersistentPresenceYahooImpl persistentPresence = null;
 
     private OperationSetTypingNotificationsYahooImpl typingNotifications = null;
+    
+    /**
+     * The logo corresponding to the msn protocol.
+     */
+    private ProtocolIconYahooImpl yahooIcon
+        = new ProtocolIconYahooImpl();
+    
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -492,5 +501,14 @@ public class ProtocolProviderServiceYahooImpl
                     RegistrationState.UNREGISTERED,
                     RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);            
         }
+    }
+    
+    /**
+     * Returns the yahoo protocol icon.
+     * @return the yahoo protocol icon
+     */
+    public ProtocolIcon getProtocolIcon()
+    {           
+        return yahooIcon;
     }
 }

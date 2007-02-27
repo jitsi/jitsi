@@ -11,6 +11,8 @@ import java.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.util.*;
+
+import net.java.sip.communicator.impl.protocol.gibberish.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
@@ -63,6 +65,12 @@ public class ProtocolProviderServiceJabberImpl
 
     private boolean reconnecting = false;
 
+    /**
+     * The icon corresponding to the jabber protocol.
+     */
+    private ProtocolIconJabberImpl jabberIcon
+        = new ProtocolIconJabberImpl();
+    
     /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
@@ -612,5 +620,14 @@ public class ProtocolProviderServiceJabberImpl
             else
                 reconnecting = false;
         }
+    }
+
+    /**
+     * Returns the jabber protocol icon.
+     * @return the jabber protocol icon
+     */
+    public ProtocolIcon getProtocolIcon()
+    {
+        return jabberIcon;
     }
 }

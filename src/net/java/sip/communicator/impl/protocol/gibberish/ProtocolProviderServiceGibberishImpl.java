@@ -54,14 +54,19 @@ public class ProtocolProviderServiceGibberishImpl
     private boolean isInitialized = false;
 
     /**
+     * The logo corresponding to the gibberish protocol.
+     */
+    private ProtocolIconGibberishImpl gibberishIcon
+        = new ProtocolIconGibberishImpl();
+    
+    /**
      * The registration state that we are currently in. Note that in a real
      * world protocol implementation this field won't exist and the registration
      * state would be retrieved from the protocol stack.
      */
     private RegistrationState currentRegistrationState
         = RegistrationState.UNREGISTERED;
-
-
+    
     /**
      * The default constructor for the Gibberish protocol provider.
      */
@@ -69,7 +74,7 @@ public class ProtocolProviderServiceGibberishImpl
     {
         logger.trace("Creating a gibberish provider.");
     }
-
+    
     /**
      * Initializes the service implementation, and puts it in a sate where it
      * could interoperate with other services. It is strongly recomended that
@@ -398,5 +403,14 @@ public class ProtocolProviderServiceGibberishImpl
             , currentRegistrationState
             , RegistrationStateChangeEvent.REASON_USER_REQUEST
             , null);
+    }
+
+    /**
+     * Returns the gibberish protocol icon.
+     * @return the gibberish protocol icon
+     */
+    public ProtocolIcon getProtocolIcon()
+    {           
+        return gibberishIcon;
     }
 }

@@ -21,6 +21,7 @@ import gov.nist.javax.sip.*;
 import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.address.*;
 import gov.nist.javax.sip.message.*;
+import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.impl.protocol.sip.security.*;
 
 /**
@@ -271,6 +272,12 @@ public class ProtocolProviderServiceSipImpl
      */
     private String outboundProxyTransport = null;
 
+    /**
+     * The logo corresponding to the jabber protocol.
+     */
+    private ProtocolIconSipImpl sipIcon
+        = new ProtocolIconSipImpl();
+    
     /**
      * Registers the specified listener with this provider so that it would
      * receive notifications on changes of its state or other properties such
@@ -1993,5 +2000,14 @@ public class ProtocolProviderServiceSipImpl
                     }
                 }
             }
+    }
+    
+    /**
+     * Returns the sip protocol icon.
+     * @return the sip protocol icon
+     */
+    public ProtocolIcon getProtocolIcon()
+    {
+        return sipIcon;
     }
 }
