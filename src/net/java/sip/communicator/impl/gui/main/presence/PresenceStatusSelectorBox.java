@@ -193,8 +193,8 @@ public class PresenceStatusSelectorBox
      * @param images A <tt>BufferedImage</tt> array that contains all images
      * from which to create the animated image indicating the connecting state.
      */
-    public void startConnecting(BufferedImage[] images) {
-
+    public void startConnecting(BufferedImage[] images)
+    {
         this.animatedImageArray = images;
 
         this.setIcon(new ImageIcon(images[0]));

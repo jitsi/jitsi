@@ -1020,10 +1020,11 @@ public class ImageLoader {
 
             reader.setInput(iis);
 
-            final int numImages;
+            int numImages = reader.getNumImages(true);
 
-            numImages = reader.getNumImages(true);
-
+            if(numImages == 0)
+                return null;
+            
             images = new BufferedImage[numImages];
 
             for (int i = 0; i < numImages; ++i) {

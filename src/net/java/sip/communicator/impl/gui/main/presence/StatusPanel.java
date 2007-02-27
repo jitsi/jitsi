@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.util.*;
 import java.util.List;
 
@@ -134,8 +135,14 @@ public class StatusPanel
             = (StatusSelectorBox) protocolStatusCombos
                 .get(protocolProvider);
 
-        selectorBox.startConnecting(ImageLoader.getAnimatedImage(
-                protocolProvider.getProtocolIcon().getConnectingIcon()));
+        BufferedImage[] animatedImage = ImageLoader.getAnimatedImage(
+            protocolProvider.getProtocolIcon().getConnectingIcon());
+        
+        if(animatedImage != null && animatedImage.length > 0)
+            selectorBox.startConnecting(animatedImage);
+        else
+            selectorBox.setSelectedIcon(new ImageIcon(protocolProvider
+                .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));
 
         selectorBox.repaint();
     }
