@@ -1114,6 +1114,8 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/JainSipApi1.2.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/concurrent.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
+        	<zipfileset dir="resources/images/sip"
+        	                prefix="resources/images/sip"/>
         </jar>
     </target>
     <target name="bundle-sip-slick">
