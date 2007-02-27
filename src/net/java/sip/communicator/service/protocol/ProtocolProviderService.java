@@ -49,7 +49,7 @@ public interface ProtocolProviderService
      * (each retry would be on a new random port).
      */
     public static final int BIND_RETRIES_DEFAULT_VALUE = 50;
-
+    
     /**
      * Starts the registration process. Connection details such as
      * registration server, user name/number are provided through the
@@ -99,6 +99,12 @@ public interface ProtocolProviderService
      */
     public String getProtocolName();
 
+    /**
+     * Returns the protocol logo icon.
+     * @return the protocol logo icon
+     */
+    public ProtocolIcon getProtocolIcon();
+    
     /**
      * Registers the specified listener with this provider so that it would
      * receive notifications on changes of its state or other properties such
