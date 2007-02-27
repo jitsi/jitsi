@@ -37,11 +37,11 @@ public class Systray
             public void actionPerformed(ActionEvent e) {
                 if(uiService.isVisible())
                 {
-                    uiService.minimize();
+                    uiService.setVisible(false);
                 }
                 else
                 {
-                    uiService.restore();
+                    uiService.setVisible(true);
                 }
             }
         });
