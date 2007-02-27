@@ -38,6 +38,12 @@ public interface AccountRegistrationWizard {
     public byte[] getIcon();
     
     /**
+     * Returns the image that will be shown on the left of the wizard pages.
+     * @return the image that will be shown on the left of the wizard pages
+     */
+    public byte[] getPageImage();
+    
+    /**
      * Returns the protocol name that will be shown in the list, where user
      * will choose the protocol to register to.
      * 
