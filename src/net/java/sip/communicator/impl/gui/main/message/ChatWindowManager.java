@@ -221,9 +221,8 @@ public class ChatWindowManager
             }
         }
         else
-        {
-            chatPanel.getChatWindow().dispose();
-            chatWindow = null;
+        {            
+            chatPanel.getChatWindow().setVisible(false);
         }
 
         synchronized (chats)

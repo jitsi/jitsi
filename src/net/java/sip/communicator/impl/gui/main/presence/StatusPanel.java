@@ -134,8 +134,8 @@ public class StatusPanel
             = (StatusSelectorBox) protocolStatusCombos
                 .get(protocolProvider);
 
-        selectorBox.startConnecting(Constants
-                .getProtocolAnimatedIcon(protocolProvider.getProtocolName()));
+        selectorBox.startConnecting(ImageLoader.getAnimatedImage(
+                protocolProvider.getProtocolIcon().getConnectingIcon()));
 
         selectorBox.repaint();
     }

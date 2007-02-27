@@ -142,12 +142,14 @@ public class AccountSelectorBox
         else if (pps.isRegistered())
         {
             statusImage
-                = ImageLoader.getImage(ImageLoader.SIP_LOGO);
+                = ImageLoader.getBytesInImage(pps.getProtocolIcon()
+                    .getIcon(ProtocolIcon.ICON_SIZE_16x16));
         }
         else {
             statusImage
                 =  LightGrayFilter.createDisabledImage(
-                    ImageLoader.getImage(ImageLoader.SIP_LOGO));
+                    ImageLoader.getBytesInImage(pps.getProtocolIcon()
+                        .getIcon(ProtocolIcon.ICON_SIZE_16x16)));
         }
         
         int index = callManager.getMainFrame().getProviderIndex(pps);

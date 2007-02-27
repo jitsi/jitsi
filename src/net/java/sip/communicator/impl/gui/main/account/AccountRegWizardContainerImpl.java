@@ -253,7 +253,7 @@ public class AccountRegWizardContainerImpl extends Wizard
         
         try {
             this.setWizzardIcon(
-                ImageIO.read(new ByteArrayInputStream(wizard.getIcon())));
+                ImageIO.read(new ByteArrayInputStream(wizard.getPageImage())));
         }
         catch (IOException e1) {         
             e1.printStackTrace();

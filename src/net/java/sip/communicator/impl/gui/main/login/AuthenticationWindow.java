@@ -82,10 +82,22 @@ public class AuthenticationWindow
 
         this.realm = realm;
 
-        backgroundPanel = new LoginWindowBackground(
-                Constants.getProtocolBigIcon(
-                        protocolProvider.getProtocolName()));
-
+        ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
+        
+        Image logoImage = null;
+        
+        if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_64x64))
+            logoImage = ImageLoader.getBytesInImage(
+                protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
+        else if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_48x48))
+            logoImage = ImageLoader.getBytesInImage(
+                protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
+        
+        if(logoImage != null)
+            backgroundPanel = new LoginWindowBackground(logoImage);
+        else
+            backgroundPanel = new LoginWindowBackground();
+        
         this.backgroundPanel.setPreferredSize(new Dimension(420, 230));
         
         this.backgroundPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -210,21 +222,28 @@ public class AuthenticationWindow
      * the <code>paintComponent</code> method to provide a custom background
      * image for this window.
      */
-    private class LoginWindowBackground extends JPanel {
+    private class LoginWindowBackground extends JPanel
+    {
         private Image bgImage;
-        public LoginWindowBackground(Image bgImage) {
+        public LoginWindowBackground(Image bgImage)
+        {
             this.bgImage = bgImage;
         }
 
-        protected void paintComponent(Graphics g) {
+        public LoginWindowBackground()
+        {
+        }
 
+        protected void paintComponent(Graphics g)
+        {
             super.paintComponent(g);
 
             AntialiasingManager.activateAntialiasing(g);
 
             Graphics2D g2 = (Graphics2D) g;
 
-            g2.drawImage(bgImage, 30, 30, null);
+            if(bgImage != null)
+                g2.drawImage(bgImage, 30, 30, null);
 
             g2.drawImage(ImageLoader.getImage(
                     ImageLoader.AUTH_WINDOW_BACKGROUND),

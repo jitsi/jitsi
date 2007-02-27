@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>AccountRegFirstPage</tt> is the first page of the account
@@ -36,6 +37,7 @@ public class AccountRegFirstPage extends JPanel
                 ListSelectionListener,
                 MouseListener
 {
+    private Logger logger = Logger.getLogger(AccountRegFirstPage.class);
 
     private String nextPageIdentifier;
 
@@ -134,11 +136,22 @@ public class AccountRegFirstPage extends JPanel
             = (AccountRegistrationWizard)event.getSource();
 
         String pName = wizard.getProtocolName();
+        
+        Image protocolImage = null;
+        try
+        {
+            protocolImage
+                = ImageIO.read(new ByteArrayInputStream(wizard.getIcon()));
+        }
+        catch (IOException e)
+        {
+            logger.error("Could not read image.", e);
+        }
 
         final JLabel registrationLabel = new JLabel();
         registrationLabel.setText(pName);
-        registrationLabel.setIcon(
-                new ImageIcon(Constants.getProtocolIcon(pName)));
+
+        registrationLabel.setIcon(new ImageIcon(protocolImage));
 
         this.tableModel.addRow(new Object[]{wizard, registrationLabel,
                         wizard.getProtocolDescription()});
@@ -268,7 +281,7 @@ public class AccountRegFirstPage extends JPanel
 
         try {
             this.wizardContainer.setWizzardIcon(
-                ImageIO.read(new ByteArrayInputStream(wizard.getIcon())));
+                ImageIO.read(new ByteArrayInputStream(wizard.getPageImage())));
         }
         catch (IOException e1) {
             e1.printStackTrace();

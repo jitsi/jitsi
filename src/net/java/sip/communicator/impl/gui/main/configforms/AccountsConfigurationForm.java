@@ -12,6 +12,9 @@ import java.util.List;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+
+import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
@@ -175,10 +178,23 @@ public class AccountsConfigurationForm extends JPanel
                         .getService(serRef);
 
                 String pName = protocolProvider.getProtocolName();
+                
+                Image protocolImage = null;
+                try
+                {
+                    protocolImage
+                        = ImageIO.read(new ByteArrayInputStream(
+                            protocolProvider.getProtocolIcon()
+                                .getIcon(ProtocolIcon.ICON_SIZE_16x16)));
+                }
+                catch (IOException e)
+                {
+                    logger.error("Could not read image.", e);
+                }
+                
                 JLabel protocolLabel = new JLabel();
                 protocolLabel.setText(pName);
-                protocolLabel.setIcon(
-                        new ImageIcon(Constants.getProtocolIcon(pName)));
+                protocolLabel.setIcon(new ImageIcon(protocolImage));
 
                 tableModel.addRow(new Object[]{protocolProvider, protocolLabel,
                         accountID.getUserID()});
@@ -338,10 +354,22 @@ public class AccountsConfigurationForm extends JPanel
         if (event.getType() == ServiceEvent.REGISTERED)
         {
             String pName = pps.getProtocolName();
+            
+            Image protocolImage = null;
+            try
+            {
+                protocolImage = ImageIO.read(
+                    new ByteArrayInputStream(pps.getProtocolIcon()
+                        .getIcon(ProtocolIcon.ICON_SIZE_16x16)));
+            }
+            catch (IOException e)
+            {
+                logger.error("Could not read image.", e);
+            }
+            
             JLabel protocolLabel = new JLabel();
             protocolLabel.setText(pName);
-            protocolLabel.setIcon(
-                    new ImageIcon(Constants.getProtocolIcon(pName)));
+            protocolLabel.setIcon(new ImageIcon(protocolImage));
 
             tableModel.addRow(new Object[]{pps, protocolLabel,
                     pps.getAccountID().getUserID()});

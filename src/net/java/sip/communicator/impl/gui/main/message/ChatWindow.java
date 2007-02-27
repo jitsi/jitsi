@@ -338,6 +338,13 @@ public class ChatWindow
     {
         this.removeChatTab((ChatPanel)chatTabbedPane.getComponentAt(index));
     }
+    
+    public void removeAllTabs()
+    {
+        this.getContentPane().remove(chatTabbedPane);
+
+        this.chatTabbedPane.removeAll();
+    }
 
     /**
      * Returns the currently selected chat panel.

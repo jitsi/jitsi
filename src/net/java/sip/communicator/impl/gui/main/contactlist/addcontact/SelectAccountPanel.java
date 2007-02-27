@@ -9,6 +9,9 @@ package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 import java.util.*;
 
 import java.awt.*;
+import java.io.*;
+
+import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
@@ -17,6 +20,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>SelectAccountPanel</tt> is where the user should select the account,
@@ -24,7 +28,9 @@ import net.java.sip.communicator.service.protocol.*;
  * 
  * @author Yana Stamcheva
  */
-public class SelectAccountPanel extends JPanel {
+public class SelectAccountPanel extends JPanel
+{
+    private Logger logger = Logger.getLogger(SelectAccountPanel.class);
     
     private JScrollPane tablePane = new JScrollPane();
     
@@ -103,10 +109,22 @@ public class SelectAccountPanel extends JPanel {
                 = (ProtocolProviderService)protocolProvidersList.next();
             
             String pName = pps.getProtocolName();
+            
+            Image protocolImage = null;
+            try
+            {
+                protocolImage = ImageIO.read(
+                    new ByteArrayInputStream(pps.getProtocolIcon()
+                        .getIcon(ProtocolIcon.ICON_SIZE_16x16)));
+            }
+            catch (IOException e)
+            {
+                logger.error("Could not read image.", e);
+            }
+            
             JLabel protocolLabel = new JLabel();
             protocolLabel.setText(pName);
-            protocolLabel.setIcon(
-                    new ImageIcon(Constants.getProtocolIcon(pName)));
+            protocolLabel.setIcon(new ImageIcon(protocolImage));
             
             tableModel.addRow(new Object[]{new Boolean(false),
                     pps, protocolLabel});

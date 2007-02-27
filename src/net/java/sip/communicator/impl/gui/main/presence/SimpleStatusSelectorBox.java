@@ -42,12 +42,9 @@ public class SimpleStatusSelectorBox
 
     private ProtocolProviderService protocolProvider;
 
-    private ImageIcon onlineIcon
-        = new ImageIcon(ImageLoader.getImage(ImageLoader.SIP_LOGO));
+    private ImageIcon onlineIcon;
 
-    private ImageIcon offlineIcon
-        =  new ImageIcon(LightGrayFilter.createDisabledImage(
-                ImageLoader.getImage(ImageLoader.SIP_LOGO)));
+    private ImageIcon offlineIcon;
 
     private JMenuItem onlineItem = new JMenuItem(
             Messages.getI18NString("online").getText(),
@@ -77,6 +74,15 @@ public class SimpleStatusSelectorBox
         this.protocolProvider = protocolProvider;
         this.accountIndex = accountIndex;
 
+        this.onlineIcon = new ImageIcon(
+                ImageLoader.getBytesInImage(protocolProvider.getProtocolIcon()
+                        .getIcon(ProtocolIcon.ICON_SIZE_16x16)));
+        
+        this.offlineIcon = new ImageIcon(
+            LightGrayFilter.createDisabledImage(
+                ImageLoader.getBytesInImage(protocolProvider.getProtocolIcon()
+                    .getIcon(ProtocolIcon.ICON_SIZE_16x16))));
+        
         String tooltip = "<html><b>"
             + protocolProvider.getAccountID().getUserID()
             + "</b><br>Offline</html>";

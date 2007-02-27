@@ -32,6 +32,12 @@ public class ImageLoader {
      */
     private static Hashtable loadedImages = new Hashtable();
 
+    /**
+     * The SIP Communicator logo 16x16 icon.
+     */
+    public static final ImageID SIP_COMMUNICATOR_LOGO
+        = new ImageID("SIP_COMMUNICATOR_LOGO");
+
     /*------------------------------------------------------------------------
      * =========================LOOK AND FEEL IMAGES==========================
      * -----------------------------------------------------------------------
@@ -778,122 +784,7 @@ public class ImageLoader {
      * The icon used to indicate a search.
      */
     public static final ImageID SEARCH_ICON = new ImageID("SEARCH_ICON");
-
-    /*
-     * =========================================================================
-     * --------------------- PROTOCOLS STATUS ICONS ---------------------------
-     * ========================================================================
-     */
-    /**
-     * The SIP Communicator logo 16x16 icon.
-     */
-    public static final ImageID SIP_COMMUNICATOR_LOGO
-        = new ImageID("SIP_COMMUNICATOR_LOGO");
-
-    /**
-     * The ICQ logo 32x32 icon.
-     */
-    public static final ImageID ICQ_32x32 = new ImageID("ICQ_32x32");
-
-    /**
-     * The ICQ logo 16x16 icon.
-     */
-    public static final ImageID ICQ_LOGO = new ImageID("ICQ_LOGO");
-
-    /**
-     * The ICQ "connecting" 16x16 animated icon.
-     */
-    public static final ImageID ICQ_CONNECTING = new ImageID("ICQ_CONNECTING");
-
-    /**
-     * The MSN logo 32x32 icon.
-     */
-    public static final ImageID MSN_32x32 = new ImageID("MSN_32x32");
-
-    /**
-     * The MSN logo 16x16 icon.
-     */
-    public static final ImageID MSN_LOGO = new ImageID("MSN_LOGO");
-
-    /**
-     * The MSN "connecting" 16x16 animated icon.
-     */
-    public static final ImageID MSN_CONNECTING = new ImageID("MSN_CONNECTING");
-
-    /**
-     * The AIM logo 32x32 icon.
-     */
-    public static final ImageID AIM_32x32 = new ImageID("AIM_32x32");
-
-
-    /**
-     * The AIM logo 16x16 icon.
-     */
-    public static final ImageID AIM_LOGO = new ImageID("AIM_LOGO");
-
-    /**
-     * The Yahoo logo 32x32 icon.
-     */
-    public static final ImageID YAHOO_32x32 = new ImageID("YAHOO_32x32");
-
-    /**
-     * The Yahoo logo 16x16 icon.
-     */
-    public static final ImageID YAHOO_LOGO = new ImageID("YAHOO_LOGO");
-
-    /**
-     * The ICQ "connecting" 16x16 animated icon.
-     */
-    public static final ImageID YAHOO_CONNECTING = new ImageID("YAHOO_CONNECTING");
-
-    /**
-     * The Jabber logo 32x32 icon.
-     */
-    public static final ImageID JABBER_32x32 = new ImageID("JABBER_32x32");
-
-    /**
-     * The JABBER "connecting" 16x16 animated icon.
-     */
-    public static final ImageID JABBER_CONNECTING = new ImageID("JABBER_CONNECTING");
-
-
-    /**
-     * The Jabber logo 16x16 icon.
-     */
-    public static final ImageID JABBER_LOGO = new ImageID("JABBER_LOGO");
-
-    /**
-     * The Skype logo 32x32 icon.
-     */
-    public static final ImageID SKYPE_32x32 = new ImageID("SKYPE_32x32");
-
-    /**
-     * The Skype logo 16x16 icon.
-     */
-    public static final ImageID SKYPE_LOGO = new ImageID("SKYPE_LOGO");
-
-    /**
-     * The GIBBERISH logo 16x16 icon.
-     */
-    public static final ImageID GIBBERISH_LOGO = new ImageID("GIBBERISH_LOGO");
-
-    /**
-     * The SIP logo 16x16 icon.
-     */
-    public static final ImageID SIP_LOGO = new ImageID("SIP_LOGO");
-
-    /**
-     * The SIP logo 32x32 icon.
-     */
-    public static final ImageID SIP_32x32 = new ImageID("SIP_32x32");
-
-
-    /**
-     * The SIP "connecting" 16x16 animated icon.
-     */
-    public static final ImageID SIP_CONNECTING = new ImageID("SIP_CONNECTING");
-
-
+    
     /*
      * =======================================================================
      * ------------------------ USERS' ICONS ---------------------------------
@@ -1113,12 +1004,8 @@ public class ImageLoader {
      * @param imageID The image identifier.
      * @return A BufferedImage array containing the animated image.
      */
-    public static BufferedImage[] getAnimatedImage(ImageID imageID) {
-
-        String path = Images.getString(imageID.getId());
-
-        URL url = ImageLoader.class.getClassLoader().getResource(path);
-
+    public static BufferedImage[] getAnimatedImage(byte[] animatedImage)
+    {
         Iterator readers = ImageIO.getImageReadersBySuffix("gif");
 
         ImageReader reader = (ImageReader) readers.next();
@@ -1128,7 +1015,8 @@ public class ImageLoader {
         BufferedImage[] images = null;
 
         try {
-            iis = ImageIO.createImageInputStream(url.openStream());
+            iis = ImageIO.createImageInputStream(
+                new ByteArrayInputStream(animatedImage));
 
             reader.setInput(iis);
 
@@ -1143,7 +1031,7 @@ public class ImageLoader {
             }
 
         } catch (IOException e) {
-            log.error("Failed to load image:" + path, e);
+            log.error("Failed to load image.", e);
         } finally {
             log.logExit();
         }
