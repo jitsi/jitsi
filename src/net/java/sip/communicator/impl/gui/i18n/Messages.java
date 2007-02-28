@@ -7,6 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.i18n;
 
+import java.text.*;
 import java.util.*;
 /**
  * The Messages class manages the access to the internationalization
@@ -62,7 +63,7 @@ public class Messages {
      * @return An internationalized string corresponding to the given key,
      * by replacing all occurences of '?' with the given string param.
      */
-    public static I18NString getI18NString(String key, String param) {
+    public static I18NString getI18NString(String key, String[] params) {
         
         I18NString i18nString = new I18NString();
         
@@ -70,8 +71,8 @@ public class Messages {
         
         try {
             resourceString = RESOURCE_BUNDLE.getString(key);
-
-            resourceString = resourceString.replaceAll("\\?", param);
+            
+            resourceString = MessageFormat.format(resourceString, params);
             
             int mnemonicIndex = resourceString.indexOf('&');
             

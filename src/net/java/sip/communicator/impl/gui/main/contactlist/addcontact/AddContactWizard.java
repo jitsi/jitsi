@@ -100,7 +100,7 @@ public class AddContactWizard
                         new ErrorDialog(mainFrame,
                             Messages.getI18NString(
                                     "addContactExistError",
-                                    newContact.getUin()).getText(),
+                                    new String[]{newContact.getUin()}).getText(),
                                     ex,
                             Messages.getI18NString(
                                     "addContactErrorTitle").getText())
@@ -112,7 +112,7 @@ public class AddContactWizard
                     new ErrorDialog(mainFrame,
                         Messages.getI18NString(
                                 "addContactError",
-                                newContact.getUin()).getText(),
+                                new String[]{newContact.getUin()}).getText(),
                                 ex,
                         Messages.getI18NString(
                                 "addContactErrorTitle").getText())
@@ -122,24 +122,24 @@ public class AddContactWizard
                         == MetaContactListException.CODE_NETWORK_ERROR) {
                     
                     new ErrorDialog(mainFrame,
-                            Messages.getI18NString(
-                                    "addContactError",
-                                    newContact.getUin()).getText(),
-                                    ex,
-                            Messages.getI18NString(
-                                    "addContactErrorTitle").getText())
-                                    .showDialog();
+                        Messages.getI18NString(
+                                "addContactError",
+                                new String[]{newContact.getUin()}).getText(),
+                                ex,
+                        Messages.getI18NString(
+                                "addContactErrorTitle").getText())
+                                .showDialog();
                 }
                 else {
                     
                     new ErrorDialog(mainFrame,
-                            Messages.getI18NString(
-                                    "addContactError",
-                                    newContact.getUin()).getText(),
-                                    ex,
-                            Messages.getI18NString(
-                                    "addContactErrorTitle").getText())
-                                    .showDialog();
+                        Messages.getI18NString(
+                                "addContactError",
+                                new String[]{newContact.getUin()}).getText(),
+                                ex,
+                        Messages.getI18NString(
+                                "addContactErrorTitle").getText())
+                                .showDialog();
                 }
             }
         }

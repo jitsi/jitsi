@@ -235,7 +235,8 @@ public class CallManager
                                 new ErrorDialog(this.mainFrame,
                                 Messages.getI18NString(
                                     "contactNotSupportingTelephony",
-                                    contact.getDisplayName()).getText(),
+                                    new String[]{contact.getDisplayName()})
+                                        .getText(),
                                 Messages.getI18NString("warning").getText())
                                 .showDialog();
                             }

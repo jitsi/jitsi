@@ -168,7 +168,7 @@ public class AddContactDialog
                                 new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
                                             "addContactExistError",
-                                            uin).getText(),
+                                            new String[]{uin}).getText(),
                                             ex,
                                     Messages.getI18NString(
                                             "addContactErrorTitle").getText())
@@ -181,7 +181,7 @@ public class AddContactDialog
                                 new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
                                             "addContactError",
-                                            uin).getText(),
+                                            new String[]{uin}).getText(),
                                             ex,
                                     Messages.getI18NString(
                                             "addContactErrorTitle").getText())
@@ -194,7 +194,7 @@ public class AddContactDialog
                                 new ErrorDialog(mainFrame,
                                         Messages.getI18NString(
                                                 "addContactError",
-                                                uin).getText(),
+                                                new String[]{uin}).getText(),
                                                 ex,
                                         Messages.getI18NString(
                                                 "addContactErrorTitle").getText())
@@ -205,7 +205,7 @@ public class AddContactDialog
                                 new ErrorDialog(mainFrame,
                                         Messages.getI18NString(
                                                 "addContactError",
-                                                uin).getText(),
+                                                new String[]{uin}).getText(),
                                                 ex,
                                         Messages.getI18NString(
                                                 "addContactErrorTitle").getText())

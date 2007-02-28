@@ -240,12 +240,14 @@ public class ChatPanel
             metaContact.getDefaultContact().getPresenceStatus());
         
         this.sendPanel.updateContactStatus(protoContact);
+        
         String message = this.conversationPanel.processMessage(
                 this.metaContact.getDisplayName(),
                 new Date(System.currentTimeMillis()),
                 Constants.SYSTEM_MESSAGE,
                 Messages.getI18NString("statusChangedChatMessage",
-                        status.getStatusName()).getText());
+                        new String[]{status.getStatusName()}).getText());
+        
         this.conversationPanel.appendMessageToEnd(message);
     }
     

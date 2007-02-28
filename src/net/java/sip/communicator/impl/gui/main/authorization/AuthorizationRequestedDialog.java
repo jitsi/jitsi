@@ -93,7 +93,7 @@ public class AuthorizationRequestedDialog
         titleLabel.setText(title);
         
         infoTextArea.setText(Messages.getI18NString("authorizationRequestedInfo", 
-                contact.getDisplayName()).getText());
+                new String[]{contact.getDisplayName()}).getText());
         
         this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         this.infoTextArea.setLineWrap(true);

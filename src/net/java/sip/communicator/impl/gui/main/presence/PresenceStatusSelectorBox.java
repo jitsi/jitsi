@@ -239,13 +239,19 @@ public class PresenceStatusSelectorBox
             }
             catch (OperationFailedException e1) {
                 
-                String accountName = protocolProvider.getAccountID().getUserID();
+                String accountUserID
+                    = protocolProvider.getAccountID().getUserID();
+                String accountServerName
+                    = protocolProvider.getAccountID().getService();
                 
                 if (e1.getErrorCode() 
                     == OperationFailedException.GENERAL_ERROR) {
                     String msgText 
-                    = Messages.getI18NString("statusChangeGeneralError",
-                            accountName).getText();
+                        = Messages.getI18NString("statusChangeGeneralError",
+                            new String[]{
+                                accountUserID,
+                                accountServerName
+                            }).getText();
                     
                     new ErrorDialog(null, msgText, e1,
                             Messages.getI18NString("generalError").getText())
@@ -257,7 +263,10 @@ public class PresenceStatusSelectorBox
                     String msgText 
                         = Messages.getI18NString(
                                 "statusChangeNetworkFailure",
-                                accountName).getText();
+                                new String[]{
+                                    accountUserID,
+                                    accountServerName
+                                }).getText();
                     
                     new ErrorDialog(
                         null,
@@ -272,7 +281,10 @@ public class PresenceStatusSelectorBox
                     String msgText 
                         = Messages.getI18NString(
                                 "statusChangeNetworkFailure",
-                                accountName).getText();
+                                new String[]{
+                                    accountUserID,
+                                    accountServerName
+                                }).getText();
                     
                     new ErrorDialog(
                         null,

@@ -137,8 +137,8 @@ public class AuthenticationWindow
         this.realmTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
         this.realmTextArea.setEditable(false);
         this.realmTextArea.setText(
-            Messages.getI18NString("securityAuthorityRealm", this.realm)
-                .getText());
+            Messages.getI18NString("securityAuthorityRealm",
+                new String[]{realm}).getText());
 
         this.uinLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
         this.passwdLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));

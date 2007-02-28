@@ -106,7 +106,8 @@ public class HistoryWindow
         this.metaContact = metaContact;
 
         this.setTitle(Messages.getI18NString(
-                "historyContact", metaContact.getDisplayName()).getText());
+                "historyContact",
+                new String[]{metaContact.getDisplayName()}).getText());
 
         this.datesPanel = new DatesPanel(this);
         this.historyMenu = new HistoryMenu(this);

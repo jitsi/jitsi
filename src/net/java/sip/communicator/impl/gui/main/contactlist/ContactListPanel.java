@@ -479,27 +479,33 @@ public class ContactListPanel
         MetaContact metaContact = mainFrame.getContactList()
                 .findMetaContactByContact(evt.getSourceContact());
 
-        if (typingState == OperationSetTypingNotifications.STATE_TYPING) {
+        if (typingState == OperationSetTypingNotifications.STATE_TYPING)
+        {
             notificationMsg
-                = Messages.getI18NString("contactTyping", contactName).getText();
+                = Messages.getI18NString("contactTyping",
+                    new String[]{contactName}).getText();
             
             typingTimer.setMetaContact(metaContact);
             typingTimer.start();
         }
-        else if (typingState == OperationSetTypingNotifications.STATE_PAUSED) {
+        else if (typingState == OperationSetTypingNotifications.STATE_PAUSED)
+        {
             notificationMsg = Messages.getI18NString("contactPausedTyping",
-                    contactName).getText();
+                new String[]{contactName}).getText();
             typingTimer.setMetaContact(metaContact);
             typingTimer.start();
         }
-        else if (typingState == OperationSetTypingNotifications.STATE_STOPPED) {
+        else if (typingState == OperationSetTypingNotifications.STATE_STOPPED)
+        {
             notificationMsg = "";
         }
-        else if (typingState == OperationSetTypingNotifications.STATE_STALE) {
+        else if (typingState == OperationSetTypingNotifications.STATE_STALE)
+        {
             notificationMsg
                 = Messages.getI18NString("contactTypingStateStale").getText();
         }
-        else if (typingState == OperationSetTypingNotifications.STATE_UNKNOWN) {
+        else if (typingState == OperationSetTypingNotifications.STATE_UNKNOWN)
+        {
             // TODO: Implement state unknown
         }
         this.setChatNotificationMsg(metaContact, notificationMsg);

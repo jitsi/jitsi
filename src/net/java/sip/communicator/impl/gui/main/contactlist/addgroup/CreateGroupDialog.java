@@ -134,7 +134,7 @@ public class CreateGroupDialog
                             new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
                                             "addGroupExistError",
-                                            groupName).getText(),
+                                            new String[]{groupName}).getText(),
                                             ex,
                                     Messages.getI18NString(
                                             "addGroupErrorTitle").getText())
@@ -146,7 +146,7 @@ public class CreateGroupDialog
                             new ErrorDialog(mainFrame,
                                 Messages.getI18NString(
                                         "addGroupLocalError",
-                                        groupName).getText(),
+                                        new String[]{groupName}).getText(),
                                         ex,
                                 Messages.getI18NString(
                                         "addGroupErrorTitle").getText())
@@ -158,7 +158,7 @@ public class CreateGroupDialog
                             new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
                                             "addGroupNetError",
-                                            groupName).getText(),
+                                            new String[]{groupName}).getText(),
                                             ex,
                                     Messages.getI18NString(
                                             "addGroupErrorTitle").getText())
@@ -169,7 +169,7 @@ public class CreateGroupDialog
                             new ErrorDialog(mainFrame,
                                     Messages.getI18NString(
                                             "addGroupError",
-                                            groupName).getText(),
+                                            new String[]{groupName}).getText(),
                                             ex,
                                     Messages.getI18NString(
                                             "addGroupErrorTitle").getText())
