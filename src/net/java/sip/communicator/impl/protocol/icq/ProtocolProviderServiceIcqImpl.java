@@ -440,6 +440,12 @@ public class ProtocolProviderServiceIcqImpl
                 OperationSetWebContactInfo.class.getName(),
                 webContactInfo);
 
+            OperationSetExtendedAuthorizationsIcqImpl extendedAuth =
+                new OperationSetExtendedAuthorizationsIcqImpl(this);
+            supportedOperationSets.put(
+                OperationSetExtendedAuthorizations.class.getName(),
+                extendedAuth);
+            
             isInitialized = true;
         }
     }
@@ -663,15 +669,6 @@ public class ProtocolProviderServiceIcqImpl
             {
                 icbmService = conn.getIcbmService();
                 icbmService.addIcbmListener(aimIcbmListener);
-
-                //set our own cmd factory as we'd like some extra control on
-                //outgoing commands.
-
-                /** @todo  */
-//                conn.getInfoService().
-//                    getOscarConnection().getSnacProcessor().
-//                        getCmdFactoryMgr().getDefaultFactoryList().
-//                            registerAll(new DefaultCmdFactory());
 
                 conn.getInfoService().
                     getOscarConnection().getSnacProcessor().

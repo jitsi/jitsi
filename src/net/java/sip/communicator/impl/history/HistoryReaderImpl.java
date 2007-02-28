@@ -28,8 +28,8 @@ public class HistoryReaderImpl
 
     // regexp used for index of case(in)sensitive impl
     private static String REGEXP_END = ".*$";
-    private static String REGEXP_SENSITIVE_START = "^.*";
-    private static String REGEXP_INSENSITIVE_START = "^(?i).*";
+    private static String REGEXP_SENSITIVE_START = "(?s)^.*";
+    private static String REGEXP_INSENSITIVE_START = "(?si)^.*";
 
     protected HistoryReaderImpl(HistoryImpl historyImpl)
     {
