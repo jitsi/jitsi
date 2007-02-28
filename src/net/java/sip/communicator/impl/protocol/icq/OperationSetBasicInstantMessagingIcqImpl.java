@@ -82,12 +82,12 @@ public class OperationSetBasicInstantMessagingIcqImpl
     /**
      * KeepAlive interval for sending packets
      */
-    private static long KEEPALIVE_INTERVAL = 180000l; // 3 minutes
+    private final static long KEEPALIVE_INTERVAL = 180000l; // 3 minutes
 
     /**
      * The interval after which a packet is considered to be lost
      */
-    private static long KEEPALIVE_WAIT = 20000l;
+    private final static long KEEPALIVE_WAIT = 20000l;
 
     /**
      * The task sending packets
@@ -632,7 +632,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
             }
             catch (Exception ex)
             {
-                logger.error("", ex);
+                logger.error("Failed to start keep alive task.", ex);
             }
         }
     }
@@ -652,11 +652,15 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 // check till we find a correct message
                 // or if NoSuchElementException is thrown
                 // there is no message
-                while(!checkFirstPacket());
+                while(!checkFirstPacket())
+                {}
             }
             catch (Exception ex)
             {
-                fireUnregisterd();
+                logger.error(
+                    "Exception occurred while retrieving keep alive packet."
+                    , ex);
+                fireUnregistered();
             }
         }
 
@@ -671,15 +675,17 @@ public class OperationSetBasicInstantMessagingIcqImpl
             String receivedStr =
                     (String)receivedKeepAlivePackets.removeLast();
 
+            logger.trace("Last keep alive message is: " + receivedStr);
+
             receivedStr = receivedStr.replaceAll(SYS_MSG_PREFIX_TEST, "");
             String[] ss = receivedStr.split("&");
 
             String provHashStr = ss[0].split(":")[1];
             String opsetHashStr = ss[1].split(":")[1];
 
-            if(icqProvider.hashCode() != Integer.parseInt(provHashStr) ||
-                    OperationSetBasicInstantMessagingIcqImpl.this.hashCode() !=
-                    Integer.parseInt(opsetHashStr) )
+            if(icqProvider.hashCode() != Integer.parseInt(provHashStr)
+               || OperationSetBasicInstantMessagingIcqImpl.this.hashCode()
+                    != Integer.parseInt(opsetHashStr) )
             {
                 return false;
             }
@@ -692,16 +698,17 @@ public class OperationSetBasicInstantMessagingIcqImpl
         /**
          * Fire Unregistered event
          */
-        void fireUnregisterd()
+        private void fireUnregistered()
         {
             icqProvider.fireRegistrationStateChanged(
-                icqProvider.getRegistrationState(),
-                RegistrationState.CONNECTION_FAILED,
-                RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);
+                icqProvider.getRegistrationState()
+                , RegistrationState.CONNECTION_FAILED
+                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
+                , "Did not receive last keep alive packet.");
 
             opSetPersPresence.fireProviderPresenceStatusChangeEvent(
-                opSetPersPresence.getPresenceStatus().getStatus(),
-                IcqStatusEnum.OFFLINE.getStatus());
+                opSetPersPresence.getPresenceStatus().getStatus()
+                , IcqStatusEnum.OFFLINE.getStatus());
         }
     }
 }
