@@ -20,6 +20,13 @@ import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+/**
+ * The <tt>ProtocolContactSelectorBox</tt> represents the send via menu in the
+ * chat window. The menu contains all protocol specific contacts for the
+ * currently selected meta contact chat.
+ * 
+ * @author Yana Stamcheva
+ */
 public class ProtocolContactSelectorBox
     extends JMenuBar
     implements ActionListener
@@ -52,13 +59,18 @@ public class ProtocolContactSelectorBox
         while (protocolContacts.hasNext()) {
             Contact contact = (Contact) protocolContacts.next();
 
-            this.addContact(contact);
+            this.addProtoContact(contact);
         }
         
         this.setSelected(protocolContact);
     }
 
-    public void addContact(Contact contact)
+    /**
+     * Adds a protocol contact to the "send via" menu.
+     * 
+     * @param contact the protocol contact to be added
+     */
+    public void addProtoContact(Contact contact)
     {
         Image img = createContactStatusImage(contact);
 
@@ -70,7 +82,20 @@ public class ProtocolContactSelectorBox
         this.contactsTable.put(contact, menuItem);
         this.menu.add(menuItem);
     }
-
+    
+    /**
+     * Removes a protocol contact from the "send via" menu. This method is used
+     * to update the "send via" menu when a proto contact has been removed or
+     * moved in the contact list. 
+     * 
+     * @param contact the proto contact to be removed
+     */
+    public void removeProtoContact(Contact contact)
+    {   
+        this.menu.remove((JMenuItem)contactsTable.get(contact));
+        this.contactsTable.remove(contact);
+    }
+    
     /**
      * The listener of the protocol contact's selector box.
      */
@@ -180,7 +205,14 @@ public class ProtocolContactSelectorBox
         }
     }
 
-    public void setSelected(Contact protoContact, ImageIcon icon)
+    /**
+     * In the "send via" menu selects the given contact and sets the given icon
+     * to the "send via" menu button.
+     * 
+     * @param protoContact
+     * @param icon
+     */
+    private void setSelected(Contact protoContact, ImageIcon icon)
     {
         this.currentProtoContact = protoContact;
         
@@ -217,7 +249,11 @@ public class ProtocolContactSelectorBox
         return menu;
     }
 
-    public Contact getProtocolContact()
+    /**
+     * Returns the currently selected protocol contact.
+     * @return the currently selected protocol contact
+     */
+    public Contact getSelectedProtocolContact()
     {
         return currentProtoContact;
     }

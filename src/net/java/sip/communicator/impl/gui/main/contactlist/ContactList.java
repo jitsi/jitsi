@@ -141,11 +141,11 @@ public class ContactList
         MetaContact metaContact = contactList.findMetaContactByContact(contact);
         ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
 
-        if (chatWindowManager.containsContactChat(metaContact))
+        if (chatWindowManager.isChatOpenedForContact(metaContact))
         {
             ChatPanel chatPanel = chatWindowManager.getContactChat(metaContact);
             chatPanel.getChatSendPanel().getProtoContactSelectorBox()
-                .addContact(contact);
+                .addProtoContact(contact);
         }
     }
 
@@ -164,8 +164,31 @@ public class ContactList
      */
     public void protoContactMoved(ProtoContactEvent evt)
     {
-        this.modifyContact(evt.getOldParent());
-        this.modifyContact(evt.getNewParent());
+        MetaContact oldParentMetaContact = evt.getOldParent();
+        MetaContact newParentMetaContact = evt.getNewParent();
+        
+        this.modifyContact(oldParentMetaContact);
+        this.modifyContact(newParentMetaContact);
+        
+        ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
+
+        if (chatWindowManager.isChatOpenedForContact(oldParentMetaContact))
+        {
+            ChatPanel chatPanel
+                = chatWindowManager.getContactChat(oldParentMetaContact);
+         
+            chatPanel.getChatSendPanel().getProtoContactSelectorBox()
+                .removeProtoContact(evt.getProtoContact());
+        }
+        
+        if (chatWindowManager.isChatOpenedForContact(newParentMetaContact))
+        {
+            ChatPanel chatPanel
+                = chatWindowManager.getContactChat(newParentMetaContact);
+            
+            chatPanel.getChatSendPanel().getProtoContactSelectorBox()
+                .addProtoContact(evt.getProtoContact());
+        }
     }
 
     /**
