@@ -141,8 +141,7 @@ public class GibberishAccountRegistrationWizard
      * Creates an account for the given user and password.
      * @param providerFactory the ProtocolProviderFactory which will create
      * the account
-     * @param user the user identifier
-     * @param passwd the password
+     * @param user the user identifier 
      * @return the <tt>ProtocolProviderService</tt> for the new account.
      */
     public ProtocolProviderService installAccount(

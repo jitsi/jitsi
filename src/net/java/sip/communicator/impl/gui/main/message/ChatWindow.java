@@ -339,7 +339,7 @@ public class ChatWindow
     /**
      * Selects the chat tab which corresponds to the given <tt>MetaContact</tt>.
      * 
-     * @param contact The <tt>MetaContact</tt> to select.
+     * @param chatPanel The <tt>ChatPanel</tt> to select.
      */
     public void setCurrentChatPanel(ChatPanel chatPanel)
     {
@@ -408,10 +408,9 @@ public class ChatWindow
     }
 
     /**
-     * Highlights the corresponding tab when a message from the given
-     * MetaContact is received.
+     * Highlights the corresponding tab for the given chat panel.
      * 
-     * @param contact The MetaContact to highlight.
+     * @param chatPanel the chat panel which corresponds to the tab to highlight
      */
     public void highlightTab(ChatPanel chatPanel)
     {
@@ -420,10 +419,10 @@ public class ChatWindow
     }
     
     /**
-     * Sets the given icon to the tab opened for the given MetaContact.
+     * Sets the given icon to the tab opened for the given chat panel.
      * 
-     * @param metaContact The MetaContact.
-     * @param icon The icon to set.
+     * @param chatPanel the chat panel, which corresponds the tab
+     * @param icon the icon to be set
      */
     public void setTabIcon(ChatPanel chatPanel, Icon icon)
     {
@@ -432,8 +431,8 @@ public class ChatWindow
     }
 
     /**
-     * Sets the given title to the tab opened for the given MetaContact.
-     * @param metaContact the meta contact
+     * Sets the given title to the tab opened for the given chat panel.
+     * @param chatPanel the chat panel
      * @param title the new title of the tab
      */
     public void setTabTitle(ChatPanel chatPanel, String title)

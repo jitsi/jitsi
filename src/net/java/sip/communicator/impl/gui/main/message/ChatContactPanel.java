@@ -98,8 +98,9 @@ public class ChatContactPanel
     /**
      * Creates an instance of <tt>ChatContactPanel</tt>.
      * 
-     * @param contactItem The <tt>MetaContact</tt>.
-     * @param status The contact status.
+     * @param chatPanel the parent chat panel
+     * @param contactItem the meta contact to add to this panel
+     * @param protocolContact the currently selected protocol contact 
      */
     public ChatContactPanel(ChatPanel chatPanel,
             MetaContact contactItem, Contact protocolContact) {

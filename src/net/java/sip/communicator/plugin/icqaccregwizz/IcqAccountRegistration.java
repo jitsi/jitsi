@@ -121,7 +121,7 @@ public class IcqAccountRegistration {
 
     /**
      * Sets the proxy type for this icq account.
-     * @param proxyPort the proxy type for this icq account.
+     * @param proxyType the proxy type for this icq account
      */
     public void setProxyType(String proxyType) {
         this.proxyType = proxyType;
@@ -153,7 +153,7 @@ public class IcqAccountRegistration {
 
    /**
     * Sets the proxy username of the icq registration account.
-    * @param password the proxy username of the icq registration account.
+    * @param username the proxy username of the icq registration account
     */
    public void setProxyUsername(String username) {
        this.proxyUsername = username;

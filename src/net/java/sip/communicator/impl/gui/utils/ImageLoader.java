@@ -1001,8 +1001,8 @@ public class ImageLoader {
 
     /**
      * Loads an animated gif image.
-     * @param imageID The image identifier.
-     * @return A BufferedImage array containing the animated image.
+     * @param animatedImage the animated image buffer
+     * @return a <tt>BufferedImage</tt> array containing the animated image.
      */
     public static BufferedImage[] getAnimatedImage(byte[] animatedImage)
     {

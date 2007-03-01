@@ -67,11 +67,7 @@ public class WindowTransparentBackground
     private int bgHeight;
     
     /**
-     * Creates an instance of <tt>WindowBackground</tt> by specifying
-     * the parent <tt>Window</tt> - this is the window that should be made
-     * transparent.
-     * 
-     * @param window The parent <tt>Window</tt>
+     * Creates an instance of <tt>WindowBackground</tt>.
      */
     public WindowTransparentBackground() {
         

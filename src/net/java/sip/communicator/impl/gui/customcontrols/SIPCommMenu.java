@@ -42,7 +42,7 @@ public class SIPCommMenu
      * Creates an instance of <tt>SIPCommMenu</tt> by specifying the
      * initialy selected item.
      * 
-     * @param selectedItem The item that is initialy selected.
+     * @param text The item that is initialy selected.
      */
     public SIPCommMenu(String text)
     {

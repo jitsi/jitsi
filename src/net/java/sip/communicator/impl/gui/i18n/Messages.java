@@ -59,7 +59,8 @@ public class Messages {
      * Returns an internationalized string corresponding to the given key,
      * by replacing all occurences of '?' with the given string param.
      * @param key The key of the string.
-     * @param param The param, which will replace '?'.
+     * @param params the params, that should replace {1}, {2}, etc. in the
+     * string given by the key parameter 
      * @return An internationalized string corresponding to the given key,
      * by replacing all occurences of '?' with the given string param.
      */
