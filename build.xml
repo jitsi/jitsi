@@ -141,7 +141,7 @@
     </condition>
 
     <condition property="dyld.library.path"
-        value="${basedir}/${lib}/native/mac:${system.DYLD_LIBRARY_PATH}">
+        value="$JAVAROOT/${lib}/native/mac:${system.DYLD_LIBRARY_PATH}">
         <isset property="is.running.macos"/>
     </condition>
 
