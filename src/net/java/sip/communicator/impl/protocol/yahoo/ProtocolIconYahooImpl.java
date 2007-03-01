@@ -32,7 +32,7 @@ public class ProtocolIconYahooImpl
             loadIcon("resources/images/yahoo/yahoo16x16.png"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon("resources/images/yahoo/yahoo16x16.png"));
+            loadIcon("resources/images/yahoo/yahoo64x64.png"));
     }
  
     /**
