@@ -30,9 +30,12 @@ import net.java.sip.communicator.util.*;
  * 
  * @author Yana Stamcheva
  */
-public class ChatWritePanel extends JScrollPane implements
-        UndoableEditListener, KeyListener, MouseListener {
-
+public class ChatWritePanel
+    extends JScrollPane
+    implements  UndoableEditListener,
+                KeyListener,
+                MouseListener 
+{
     private Logger logger = Logger.getLogger(ChatWritePanel.class);
 
     private JEditorPane editorPane = new JEditorPane();
