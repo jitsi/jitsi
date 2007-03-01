@@ -376,16 +376,9 @@ public class UIServiceImpl implements UIService {
         
         ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
         
-        if (chatWindowManager.containsContactChat(metaContact))
-        {
-            ChatPanel chatPanel = chatWindowManager.getContactChat(metaContact);
+        ChatPanel chatPanel = chatWindowManager.getContactChat(metaContact);
             
-            return (ApplicationWindow) chatPanel;
-        }
-        else {            
-            return (ApplicationWindow) chatWindowManager.createChat(
-                    metaContact, contact);        
-        }
+        return (ApplicationWindow) chatPanel;        
     }
 
     /**

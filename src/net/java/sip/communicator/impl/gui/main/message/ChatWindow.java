@@ -68,6 +68,25 @@ public class ChatWindow
 
         menusPanel = new MenusPanel(this);
 
+        //If in mode TABBED_CHAT_WINDOW initialize the tabbed pane
+        if(Constants.TABBED_CHAT_WINDOW)
+        {
+            chatTabbedPane = new SIPCommTabbedPane(true, false);
+
+            chatTabbedPane.addCloseListener(new CloseListener() {
+                public void closeOperation(MouseEvent e)
+                {
+                    int tabIndex = chatTabbedPane.getOverTabIndex();
+                    
+                    ChatPanel chatPanel
+                        = (ChatPanel) chatTabbedPane.getComponentAt(tabIndex);
+                    
+                    ChatWindow.this.mainFrame
+                        .getChatWindowManager().closeChat(chatPanel);
+                }
+            });
+        }
+        
         this.setSizeAndLocation();
 
         this.init();
@@ -156,7 +175,6 @@ public class ChatWindow
         return menusPanel.getMainToolBar();
     }
     
-
     /**
      * Adds a given <tt>ChatPanel</tt> to this chat window.
      * 
@@ -165,15 +183,9 @@ public class ChatWindow
     public void addChat(ChatPanel chatPanel)
     {
         if(Constants.TABBED_CHAT_WINDOW)
-        {
-            this.addChatTab(chatPanel);
-            this.chatTabbedPane.revalidate();
-            this.chatTabbedPane.repaint();
-        }
+            addChatTab(chatPanel);
         else
-        {
             addSimpleChat(chatPanel);
-        }
         
         chatPanel.setChatVisible(true);        
     }
@@ -187,13 +199,7 @@ public class ChatWindow
     {
         chatPanel.setChatVisible(true);
 
-        this.setCurrentChatPanel(chatPanel);
-
         this.getContentPane().add(chatPanel, BorderLayout.CENTER);
-
-        this.windowTitle += chatPanel.getMetaContact().getDisplayName() + " ";
-
-        this.setTitle(this.windowTitle);
     }
 
     /**
@@ -206,44 +212,20 @@ public class ChatWindow
     {
         String contactName = chatPanel.getMetaContact().getDisplayName();
         PresenceStatus status = chatPanel.getDefaultContactStatus();
-
-        if (chatTabbedPane == null) {
-            // Initialize the tabbed pane for the first time
-
-            chatTabbedPane = new SIPCommTabbedPane(true, false);
-
-            chatTabbedPane.addCloseListener(new CloseListener() {
-                public void closeOperation(MouseEvent e)
-                {
-                    int tabIndex = chatTabbedPane.getOverTabIndex();
-                    
-                    ChatPanel chatPanel
-                        = (ChatPanel) chatTabbedPane.getComponentAt(tabIndex);
-                    
-                    mainFrame.getChatWindowManager().closeChat(chatPanel);
-                }
-            });
-            
+        
+        if (getCurrentChatPanel() == null)
+        {  
             this.getContentPane().add(chatPanel, BorderLayout.CENTER);
-
-            this.setTitle(contactName);
-
-            this.setCurrentChatPanel(chatPanel);
         }
-        else {
-            if (chatTabbedPane.getTabCount() > 0) {
-                // The tabbed pane contains already tabs.
-
-                chatTabbedPane.addTab(contactName, new ImageIcon(Constants
-                    .getStatusIcon(status)), chatPanel);
-
-                chatTabbedPane.getParent().validate();
-            }
-            else {
+        else
+        {            
+            if (getChatTabCount() == 0)
+            {                
                 ChatPanel firstChatPanel = getCurrentChatPanel();
-
+                
                 PresenceStatus currentContactStatus = firstChatPanel
                     .getDefaultContactStatus();
+                
                 // Add first two tabs to the tabbed pane.
                 chatTabbedPane.addTab(firstChatPanel.getMetaContact()
                     .getDisplayName(), new ImageIcon(Constants
@@ -260,14 +242,97 @@ public class ChatWindow
                 // conversation area is slightly resized and is made smaller,
                 // which moves the scrollbar up.
                 firstChatPanel.setCaretToEnd();
+                
+                //add the chatTabbedPane to the window
+                this.getContentPane().add(chatTabbedPane, BorderLayout.CENTER);
+                this.getContentPane().validate();
             }
+            else
+            {
+                // The tabbed pane contains already tabs.
 
-            this.getContentPane().add(chatTabbedPane, BorderLayout.CENTER);
-            this.getContentPane().validate();
+                chatTabbedPane.addTab(contactName, new ImageIcon(Constants
+                    .getStatusIcon(status)), chatPanel);
 
-            int chatIndex = chatTabbedPane.getTabCount() - 1;
-            if (chatTabbedPane.getSelectedIndex() == chatIndex)
-                this.setCurrentChatPanel(chatPanel);
+                chatTabbedPane.getParent().validate();
+            }
+        }
+    }
+    
+    /**
+     * Removes a given <tt>ChatPanel</tt> from this chat window.
+     * 
+     * @param chatPanel The <tt>ChatPanel</tt> to remove.
+     */
+    public void removeChat(ChatPanel chatPanel)
+    {
+        logger.debug("Removes chat for contact: "
+                + chatPanel.getMetaContact().getDisplayName());
+        
+        //if there's no tabs remove the chat panel directly from the content
+        //pane and hide the window.
+        if(getChatTabCount() == 0)
+        {
+            this.getContentPane().remove(chatPanel);
+            
+            this.setVisible(false);
+            
+            return;
+        }
+        
+        //in the case of a tabbed chat window
+        int index = chatTabbedPane.indexOfComponent(chatPanel);
+        
+        if (index != -1)
+        {
+            if (chatTabbedPane.getTabCount() > 1)
+                chatTabbedPane.removeTabAt(index);
+            
+            if (chatTabbedPane.getTabCount() == 1)
+            {
+                ChatPanel currentChatPanel = (ChatPanel) this.chatTabbedPane
+                    .getComponentAt(0);
+
+                this.chatTabbedPane.removeAll();
+                
+                this.getContentPane().remove(chatTabbedPane);
+
+                this.getContentPane().add(currentChatPanel, BorderLayout.CENTER);
+
+                this.setCurrentChatPanel(currentChatPanel);
+            }
+        }
+    }
+    
+    /**
+     * Removes the chat at the given index. If there's no tabbed pane
+     * does nothing.
+     * 
+     * @param index the index indicating, which tab to remove
+     */
+    public void removeChat(int index)
+    {
+        if(getChatTabCount() > 0)
+            this.removeChat((ChatPanel)chatTabbedPane.getComponentAt(index));
+    }
+    
+    /**
+     * Removes all tabs in the chat tabbed pane. If not in mode
+     * TABBED_CHAT_WINDOW doesn nothing.
+     */
+    public void removeAllChats()
+    {
+        logger.debug("Remove all tabs from the chat window.");
+        
+        if(getChatTabCount() > 0)
+        {
+            this.chatTabbedPane.removeAll();
+            
+            this.getContentPane().remove(chatTabbedPane);        
+        }
+        else
+        {
+            this.removeChat(getCurrentChatPanel());
         }
     }
 
@@ -276,74 +341,35 @@ public class ChatWindow
      * 
      * @param contact The <tt>MetaContact</tt> to select.
      */
-    public void setSelectedChatTab(ChatPanel chatPanel)
+    public void setCurrentChatPanel(ChatPanel chatPanel)
     {
-        this.chatTabbedPane.setSelectedComponent(chatPanel);
-        this.setCurrentChatPanel(chatPanel);
-        chatPanel.requestFocusInWriteArea();
-    }
-
-    /**
-     * Selects the contact tab given by <code>index</code>.
-     * 
-     * @param index The index of the tab to select.
-     */
-    public void setSelectedChatTab(int index)
-    {
-        ChatPanel chatPanel = (ChatPanel) this.chatTabbedPane
-            .getComponentAt(index);
-
-        this.setCurrentChatPanel(chatPanel);
-        this.chatTabbedPane.setSelectedIndex(index);                
-        chatPanel.requestFocusInWriteArea();
-    }
-
-    /**
-     * Removes a given <tt>ChatPanel</tt> from the tabbed pane.
-     * 
-     * @param chatPanel The <tt>ChatPanel</tt> to remove.
-     */
-    public void removeChatTab(ChatPanel chatPanel)
-    {
-        int index = chatTabbedPane.indexOfComponent(chatPanel);
-     
-        String title = chatTabbedPane.getTitleAt(index);
+        logger.debug("Set current chat panel to: "
+            + chatPanel.getMetaContact().getDisplayName());
         
-        if (title != null)
+        if(getChatTabCount() > 0)
+            this.chatTabbedPane.setSelectedComponent(chatPanel);
+        
+        this.setTitle(chatPanel.getMetaContact().getDisplayName());
+
+        this.getMainToolBar().changeHistoryButtonsState(chatPanel);
+        
+        chatPanel.requestFocusInWriteArea();
+    }
+    
+    /**
+     * Selects the tab given by the index. If there's no tabbed pane does nothing.
+     * @param index the index to select
+     */
+    public void setCurrentChatTab(int index)
+    {   
+        ChatPanel chatPanel = null;
+        if(getChatTabCount() > 0)
         {
-            if (chatTabbedPane.getTabCount() > 1)
-                chatTabbedPane.removeTabAt(index);
-            
-            if (chatTabbedPane.getTabCount() == 1) {
-
-                String onlyTabtitle = chatTabbedPane.getTitleAt(0);
-
-                ChatPanel currentChatPanel = (ChatPanel) this.chatTabbedPane
-                    .getComponentAt(0);
-
-                this.getContentPane().remove(chatTabbedPane);
-
-                this.chatTabbedPane.removeAll();
-
-                this.getContentPane().add(currentChatPanel, BorderLayout.CENTER);
-
-                this.setCurrentChatPanel(currentChatPanel);
-                
-                this.setTitle(onlyTabtitle);
-            }
+            chatPanel = (ChatPanel) this.chatTabbedPane
+                .getComponentAt(index);
+        
+            setCurrentChatPanel(chatPanel);
         }
-    }
-    
-    public void removeChatTab(int index)
-    {
-        this.removeChatTab((ChatPanel)chatTabbedPane.getComponentAt(index));
-    }
-    
-    public void removeAllTabs()
-    {
-        this.getContentPane().remove(chatTabbedPane);
-
-        this.chatTabbedPane.removeAll();
     }
 
     /**
@@ -352,25 +378,22 @@ public class ChatWindow
      * @return the currently selected chat panel.
      */
     public ChatPanel getCurrentChatPanel()
-    {
-        if(Constants.TABBED_CHAT_WINDOW && getTabCount() > 1)
+    {   
+        if(getChatTabCount() > 0)
             return (ChatPanel)chatTabbedPane.getSelectedComponent();
         else
-            return (ChatPanel) getContentPane().getComponent(1);
-    }
-
-    /**
-     * Sets the currently selected chat panel.
-     * 
-     * @param chatPanel The chat panel which is currently selected.
-     */
-    public void setCurrentChatPanel(ChatPanel chatPanel)
-    {
-        this.setTitle(chatPanel.getMetaContact().getDisplayName());
-
-        this.getMainToolBar().changeHistoryButtonsState(chatPanel);
-        
-        chatPanel.requestFocusInWriteArea();
+        {
+            int componentCount = getContentPane().getComponentCount();
+            
+            for (int i = 0; i < componentCount; i ++)
+            {
+                Component c = getContentPane().getComponent(i);
+                
+                if(c instanceof ChatPanel)
+                    return (ChatPanel)c;                
+            }
+        }
+        return null;
     }
 
     /**
@@ -379,20 +402,9 @@ public class ChatWindow
      * 
      * @return int The number of opened tabs.
      */
-    public int getTabCount()
+    public int getChatTabCount()
     {
         return (chatTabbedPane == null) ? 0 : chatTabbedPane.getTabCount();
-    }
-
-    /**
-     * Returns the chat tab index for the given MetaContact.
-     * 
-     * @param contact The MetaContact we are searching for.
-     * @return int The chat tab index for the given MetaContact.
-     */
-    public int getTabInex(ChatPanel chatPanel)
-    {
-        return this.chatTabbedPane.indexOfComponent(chatPanel);
     }
 
     /**
@@ -442,13 +454,13 @@ public class ChatWindow
     {
         public void actionPerformed(ActionEvent e)
         {
-            if (chatTabbedPane != null) {
+            if (getChatTabCount() > 0) {
                 int selectedIndex = chatTabbedPane.getSelectedIndex();
                 if (selectedIndex < chatTabbedPane.getTabCount() - 1) {
-                    setSelectedChatTab(selectedIndex + 1);
+                    setCurrentChatTab(selectedIndex + 1);
                 }
                 else {
-                    setSelectedChatTab(0);
+                    setCurrentChatTab(0);
                 }
             }
         }
@@ -464,13 +476,13 @@ public class ChatWindow
     {
         public void actionPerformed(ActionEvent e)
         {
-            if (chatTabbedPane != null) {
+            if (getChatTabCount() > 0) {
                 int selectedIndex = chatTabbedPane.getSelectedIndex();
                 if (selectedIndex != 0) {
-                    setSelectedChatTab(selectedIndex - 1);
+                    setCurrentChatTab(selectedIndex - 1);
                 }
                 else {
-                    setSelectedChatTab(chatTabbedPane.getTabCount() - 1);
+                    setCurrentChatTab(chatTabbedPane.getTabCount() - 1);
                 }
             }
         }
@@ -608,7 +620,6 @@ public class ChatWindow
         }
     }
 
-
     /**
      * Implements the <tt>SIPCommFrame</tt> close method. We check for an open
      * menu and if there's one we close it, otherwise we close the current chat.
@@ -650,7 +661,7 @@ public class ChatWindow
             }
         }
         else {
-            mainFrame.getChatWindowManager().closeTabbedWindow();
+            mainFrame.getChatWindowManager().closeWindow();
         }
     }    
 }

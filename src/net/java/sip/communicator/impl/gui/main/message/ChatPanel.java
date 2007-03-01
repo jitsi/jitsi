@@ -117,7 +117,7 @@ public class ChatPanel
         
         this.init();
                 
-        addComponentListener(new TabSelectionFocusGainListener());
+        addComponentListener(new TabSelectionComponentListener());
         
         new Thread(){
             public void run(){
@@ -145,7 +145,8 @@ public class ChatPanel
     /**
      * Loads history in another thread.
      */
-    public void loadHistory() {
+    public void loadHistory()
+    {
         new Thread() {
             public void run() {
                 Collection historyList = msgHistory.findLast(
@@ -174,7 +175,8 @@ public class ChatPanel
      * escapedMessageID.
      * @param escapedMessageID The id of the message that should be ignored.
      */
-    public void loadHistory(String escapedMessageID) {
+    public void loadHistory(String escapedMessageID)
+    {        
         Collection historyList = msgHistory.findLast(
                 metaContact, Constants.CHAT_HISTORY_SIZE);
         
@@ -234,7 +236,7 @@ public class ChatPanel
     public void updateContactStatus(MetaContact metaContact, Contact protoContact)
     {
         PresenceStatus status = sendPanel.getProtoContactSelectorBox()
-            .getProtocolContact().getPresenceStatus();
+            .getSelectedProtocolContact().getPresenceStatus();
         
         this.chatConferencePanel.updateContactStatus(
             metaContact.getDefaultContact().getPresenceStatus());
@@ -326,18 +328,14 @@ public class ChatPanel
     }
 
     /**
-     * Returns the chat send panel.
-     * @return ChatSendPanel The chat send panel.
+     * When user select a chat tab clicking with the mouse we change the
+     * currently selected chat panel, thus changing the title of the window,
+     * history buttons states, etc.
      */
-    /*
-    public ChatSendPanel getSendPanel() {
-        return sendPanel;
-    }
-    */
-    private class TabSelectionFocusGainListener 
+    private class TabSelectionComponentListener 
         implements ComponentListener {
 
-        public TabSelectionFocusGainListener() {
+        public TabSelectionComponentListener() {
             super();
         }
 
@@ -347,19 +345,31 @@ public class ChatPanel
         public void componentMoved(ComponentEvent e) {
         }
 
-        public void componentShown(ComponentEvent e) {
+        public void componentShown(ComponentEvent e)
+        {
             Component component = e.getComponent();
             Container parent = component.getParent();
-            if (parent instanceof JTabbedPane) {
+            if (parent instanceof JTabbedPane)
+            {
                 JTabbedPane tabbedPane = (JTabbedPane) parent;
-                if (tabbedPane.getSelectedComponent() == component) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {                           
+                if (tabbedPane.getSelectedComponent() == component)
+                {
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        public void run()
+                        {
+                            String metaContactName
+                                = getMetaContact().getDisplayName();
+                            
+                            if(!chatWindow.getTitle().equals(metaContactName))
+                            {
+                                chatWindow.setTitle(metaContactName);
 
-                            chatWindow.setCurrentChatPanel(ChatPanel.this);
-                           
-                            writeMessagePanel.getEditorPane()
-                                    .requestFocus();                               
+                                chatWindow.getMainToolBar()
+                                    .changeHistoryButtonsState(ChatPanel.this);
+                                
+                                ChatPanel.this.requestFocusInWriteArea();
+                            }
                         }
                     });
                 }
@@ -376,7 +386,7 @@ public class ChatPanel
      */
     public Contact getProtocolContact() {
         return sendPanel.getProtoContactSelectorBox()
-                    .getProtocolContact();
+                    .getSelectedProtocolContact();
     }
     
     /**
@@ -437,10 +447,9 @@ public class ChatPanel
     /**
      * Requests the focus in the write message area.
      */
-    public void requestFocusInWriteArea(){
-        JEditorPane writeMsgPane = this.writeMessagePanel.getEditorPane();
-        
-        writeMsgPane.requestFocus();
+    public void requestFocusInWriteArea()
+    {
+        this.writeMessagePanel.getEditorPane().requestFocus();
     }
     
     /**
