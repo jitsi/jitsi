@@ -48,7 +48,7 @@ public class MediaServiceImpl
     /**
      * Our event dispatcher.
      */
-    private MediaDispatcher mediaDispatcher = new MediaDispatcher();
+    private MediaEventDispatcher mediaDispatcher = new MediaEventDispatcher();
 
     /**
      * Our configuration helper.
