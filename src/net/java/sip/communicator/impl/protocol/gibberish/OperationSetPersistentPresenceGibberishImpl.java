@@ -1,3 +1,4 @@
+
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
@@ -11,6 +12,8 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.impl.protocol.gibberish.OperationSetPersistentPresenceGibberishImpl.*;
+import org.osgi.framework.*;
 
 /**
  * A Gibberish implementation of a persistent presence operation set. In order
@@ -85,6 +88,10 @@ public class OperationSetPersistentPresenceGibberishImpl
     {
         this.parentProvider = provider;
         contactListRoot = new ContactGroupGibberishImpl("RootGroup", provider);
+
+        //add our unregistration listener
+        parentProvider.addRegistrationStateChangeListener(
+            new UnregistrationListener());
     }
 
     /**
@@ -472,11 +479,41 @@ public class OperationSetPersistentPresenceGibberishImpl
 
         parentGibberishGroup.removeContact(gibberishContact);
 
-        ((ContactGroupGibberishImpl)newParent).addContact(gibberishContact);
+        //if this is a volatile contact then we haven't really subscribed to
+        //them so we'd need to do so here
+        if(!gibberishContact.isPersistent())
+        {
+            //first tell everyone that the volatile contact was removed
+            fireSubscriptionEvent(gibberishContact
+                                  , parentGibberishGroup
+                                  , SubscriptionEvent.SUBSCRIPTION_REMOVED);
 
-        fireSubscriptionMovedEvent(contactToMove
-                                   , parentGibberishGroup
-                                   , newParent);
+            try
+            {
+                //now subscribe
+                this.subscribe(newParent, contactToMove.getAddress());
+
+                //now tell everyone that we've added the contact
+                fireSubscriptionEvent(gibberishContact
+                                      , newParent
+                                      , SubscriptionEvent.SUBSCRIPTION_CREATED);
+            }
+            catch (Exception ex)
+            {
+                logger.error("Failed to move contact "
+                             + gibberishContact.getAddress()
+                             , ex);
+            }
+        }
+        else
+        {
+            ( (ContactGroupGibberishImpl) newParent)
+                    .addContact(gibberishContact);
+
+            fireSubscriptionMovedEvent(contactToMove
+                                      , parentGibberishGroup
+                                       , newParent);
+        }
     }
 
     /**
@@ -510,6 +547,25 @@ public class OperationSetPersistentPresenceGibberishImpl
         changePresenceStatusForAllContacts( getServerStoredContactListRoot()
                                             , getPresenceStatus());
 
+        //now check whether we are in someone else's contact list and modify
+        //our status there
+        List contacts = findContactsPointingToUs();
+
+        Iterator contactsIter = contacts.iterator();
+        while (contactsIter.hasNext())
+        {
+            ContactGibberishImpl contact
+                = (ContactGibberishImpl) contactsIter.next();
+
+            PresenceStatus oldStatus = contact.getPresenceStatus();
+            contact.setPresenceStatus(status);
+            contact.getParentPresenceOperationSet()
+                .fireContactPresenceStatusChangeEvent(
+                    contact
+                    , contact.getParentContactGroup()
+                    , oldStatus);
+
+        }
     }
 
 
@@ -555,8 +611,9 @@ public class OperationSetPersistentPresenceGibberishImpl
     }
 
     /**
-     * Sets the presence status of all <tt>contact</tt>s that we have currently
-     * in our contact list and sets their new status to <tt>newStatus</tt>.
+     * Sets the presence status of all <tt>contact</tt>s in our contact list
+     * (except those that  correspond to another provider registered with SC)
+     * to <tt>newStatus</tt>.
      *
      * @param newStatus the new status we'd like to set to <tt>contact</tt>.
      * @param parent the group in which we'd have to update the status of all
@@ -573,6 +630,12 @@ public class OperationSetPersistentPresenceGibberishImpl
             ContactGibberishImpl contact
                 = (ContactGibberishImpl)childContacts.next();
 
+            if(findProviderForGibberishUserID(contact.getAddress()) != null)
+            {
+                //this is a contact corresponding to another SIP Communicator
+                //provider so we won't change it's status here.
+                continue;
+            }
             PresenceStatus oldStatus = contact.getPresenceStatus();
             contact.setPresenceStatus(newStatus);
 
@@ -756,36 +819,135 @@ public class OperationSetPersistentPresenceGibberishImpl
         IllegalArgumentException, IllegalStateException,
         OperationFailedException
     {
-        ContactGibberishImpl contact = new ContactGibberishImpl(contactIdentifier
-                                              , parentProvider);
+        ContactGibberishImpl contact = new ContactGibberishImpl(
+            contactIdentifier
+            , parentProvider);
 
         if(authorizationHandler != null)
         {
-            //first pretend that an authorization is necessary
+            //we require authorizations in gibberish
             AuthorizationRequest request
                 = authorizationHandler.createAuthorizationRequest(contact);
 
-            //now pretend that the remote contact is asking for authorization
-            authorizationHandler.processAuthorisationRequest(
-                request, contact);
 
             //and finally pretend that the remote contact has granted us
             //authorization
             AuthorizationResponse response
-                = new AuthorizationResponse(AuthorizationResponse.ACCEPT
-                                            , "You are welcome!");
+                = deliverAuthorizationRequest(request, contact);
+
             authorizationHandler.processAuthorizationResponse(
                 response, contact);
+
+            //if the request was not accepted - return the contact.
+            if(response.getResponseCode() == AuthorizationResponse.REJECT)
+                return;
         }
         ((ContactGroupGibberishImpl)parent).addContact(contact);
 
         fireSubscriptionEvent(contact,
                               parent,
                               SubscriptionEvent.SUBSCRIPTION_CREATED);
+        //if the newly added contact corresponds to another provider - set their
+        //status accordingly
+        ProtocolProviderServiceGibberishImpl gibProvider
+            = findProviderForGibberishUserID(contactIdentifier);
+        if(gibProvider != null)
+        {
+            OperationSetPersistentPresence opSetPresence
+                = (OperationSetPersistentPresence)gibProvider.getOperationSet(
+                    OperationSetPersistentPresence.class);
 
-        //since we are not a real protocol, we set the contact presence status
-        //ourselves
-        changePresenceStatusForContact( contact, getPresenceStatus());
+            changePresenceStatusForContact(
+                contact
+                , (GibberishStatusEnum)opSetPresence.getPresenceStatus());
+        }
+        else
+        {
+            //otherwise - since we are not a real protocol, we set the contact
+            //presence status ourselves
+            changePresenceStatusForContact(contact, getPresenceStatus());
+        }
+
+        //notify presence listeners for the status change.
+        fireContactPresenceStatusChangeEvent(contact
+                                             , parent
+                                             , GibberishStatusEnum.OFFLINE);
+    }
+
+
+    /**
+     * Depending on whether <tt>contact</tt> corresponds to another protocol
+     * provider installed in sip-communicator, this method would either deliver
+     * it to that provider or simulate a corresponding request from the
+     * destination contact and make return a response after it has received
+     * one If the destination contact matches us, then we'll ask the user to
+     * act upon the request, and return the response.
+     *
+     * @param request the authorization request that we'd like to deliver to the
+     * desination <tt>contact</tt>.
+     * @param contact the <tt>Contact</tt> to notify
+     *
+     * @return the <tt>AuthorizationResponse</tt> that has been given or
+     * generated in response to <tt>request</tt>.
+     */
+    private AuthorizationResponse deliverAuthorizationRequest(
+                AuthorizationRequest request,
+                Contact contact)
+    {
+        String userID = contact.getAddress();
+
+        //if the user id is our own id, then this request is being routed to us
+        //from another instance of the gibberish provider.
+        if (userID.equals(this.parentProvider.getAccountID().getUserID()))
+        {
+            //check who is the provider sending the message
+            String sourceUserID = contact.getProtocolProvider()
+                .getAccountID().getUserID();
+
+            //check whether they are in our contact list
+            Contact from = findContactByID(sourceUserID);
+
+            //and if not - add them there as volatile.
+            if (from == null)
+            {
+                from = createVolatileContact(sourceUserID);
+            }
+
+            //and now handle the request.
+            return authorizationHandler.processAuthorisationRequest(
+                request, from);
+        }
+        else
+        {
+            //if userID is not our own, try a check whether another provider
+            //has that id and if yes - deliver the request to them.
+            ProtocolProviderServiceGibberishImpl gibberishProvider
+                = this.findProviderForGibberishUserID(userID);
+            if (gibberishProvider != null)
+            {
+                OperationSetPersistentPresenceGibberishImpl opSetPersPresence
+                    = (OperationSetPersistentPresenceGibberishImpl)
+                    gibberishProvider.getOperationSet(
+                        OperationSetPersistentPresence.class);
+                return opSetPersPresence
+                    .deliverAuthorizationRequest(request, contact);
+            }
+            else
+            {
+                //if we got here then "to" is simply someone in our contact
+                //list so let's just simulate a reciproce request and generate
+                //a response accordingly.
+
+                //pretend that the remote contact is asking for authorization
+                authorizationHandler.processAuthorisationRequest(
+                    request, contact);
+
+                //and now pretend that the remote contact has granted us
+                //authorization
+                return new AuthorizationResponse(AuthorizationResponse.ACCEPT
+                                                , "You are welcome!");
+            }
+        }
     }
 
     /**
@@ -827,14 +989,15 @@ public class OperationSetPersistentPresenceGibberishImpl
     public void unsubscribe(Contact contact) throws IllegalArgumentException,
         IllegalStateException, OperationFailedException
     {
-        ContactGroupGibberishImpl parentGroup = (ContactGroupGibberishImpl)((ContactGibberishImpl)contact)
+        ContactGroupGibberishImpl parentGroup
+            = (ContactGroupGibberishImpl)((ContactGibberishImpl)contact)
             .getParentContactGroup();
 
         parentGroup.removeContact((ContactGibberishImpl)contact);
 
         fireSubscriptionEvent((ContactGibberishImpl)contact,
-                                       ((ContactGibberishImpl)contact).getParentContactGroup(),
-                                       SubscriptionEvent.SUBSCRIPTION_REMOVED);
+             ((ContactGibberishImpl)contact).getParentContactGroup()
+           , SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
 
     /**
@@ -883,7 +1046,8 @@ public class OperationSetPersistentPresenceGibberishImpl
                                            ContactGroup parent)
     {
         ContactGibberishImpl contact = new ContactGibberishImpl(
-            address, parentProvider);
+            address
+            , parentProvider);
         contact.setResolved(false);
 
         ( (ContactGroupGibberishImpl) parent).addContact(contact);
@@ -906,6 +1070,101 @@ public class OperationSetPersistentPresenceGibberishImpl
     }
 
     /**
+     * Looks for a gibberish protocol provider registered for a user id matching
+     * <tt>gibberishUserID</tt>.
+     *
+     * @param gibberishUserID the ID of the Gibberish user whose corresponding
+     * protocol provider we'd like to find.
+     * @return ProtocolProviderServiceGibberishImpl a gibberish protocol
+     * provider registered for a user with id <tt>gibberishUserID</tt> or null
+     * if there is no such protocol provider.
+     */
+    public ProtocolProviderServiceGibberishImpl
+                        findProviderForGibberishUserID(String gibberishUserID)
+    {
+        BundleContext bc = GibberishActivator.getBundleContext();
+
+        String osgiQuery = "(&"
+                + "(" + ProtocolProviderFactory.PROTOCOL
+                + "=Gibberish)"
+                + "(" + ProtocolProviderFactory.USER_ID
+                + "=" + gibberishUserID + ")"
+                + ")";
+
+        ServiceReference[] refs = null;
+        try
+        {
+            refs = bc.getServiceReferences(
+                ProtocolProviderService.class.getName()
+                ,osgiQuery);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            logger.error("Failed to execute the following osgi query: "
+                         + osgiQuery
+                         , ex);
+        }
+
+        if(refs != null && refs.length > 0)
+        {
+            return (ProtocolProviderServiceGibberishImpl)bc.getService(refs[0]);
+        }
+
+        return null;
+    }
+
+    /**
+     * Looks for gibberish protocol providers that have added us to their
+     * contact list and returns list of all contacts representing us in these
+     * providers.
+     *
+     * @return a list of all contacts in other providers' contact lists that
+     * point to us.
+     */
+    public List findContactsPointingToUs()
+    {
+        List contacts = new LinkedList();
+        BundleContext bc = GibberishActivator.getBundleContext();
+
+        String osgiQuery =
+                "(" + ProtocolProviderFactory.PROTOCOL
+                + "=Gibberish)";
+
+        ServiceReference[] refs = null;
+        try
+        {
+            refs = bc.getServiceReferences(
+                ProtocolProviderService.class.getName()
+                ,osgiQuery);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            logger.error("Failed to execute the following osgi query: "
+                         + osgiQuery
+                         , ex);
+        }
+
+        for (int i =0; refs != null && i < refs.length; i++)
+        {
+            ProtocolProviderServiceGibberishImpl gibProvider
+               = (ProtocolProviderServiceGibberishImpl)bc.getService(refs[i]);
+
+           OperationSetPersistentPresenceGibberishImpl opSetPersPresence
+               = (OperationSetPersistentPresenceGibberishImpl)gibProvider
+                    .getOperationSet(OperationSetPersistentPresence.class);
+
+            Contact contact = opSetPersPresence.findContactByID(
+                parentProvider.getAccountID().getUserID());
+
+            if (contact != null)
+                contacts.add(contact);
+        }
+
+        return contacts;
+    }
+
+
+    /**
      * Creates and returns a unresolved contact group from the specified
      * <tt>address</tt> and <tt>persistentData</tt>. The method will not try
      * to establish a network connection and resolve the newly created
@@ -915,9 +1174,9 @@ public class OperationSetPersistentPresenceGibberishImpl
      *
      * @param groupUID an identifier, returned by ContactGroup's getGroupUID,
      * that the protocol provider may use in order to create the group.
-     * @param persistentData a String returned ContactGroups's getPersistentData()
-     * method during a previous run and that has been persistently stored
-     * locally.
+     * @param persistentData a String returned ContactGroups's
+     * getPersistentData() method during a previous run and that has been
+     * persistently stored locally.
      * @param parentGroup the group under which the new group is to be created
      * or null if this is group directly underneath the root.
      * @return the unresolved <tt>ContactGroup</tt> created from the specified
@@ -927,8 +1186,9 @@ public class OperationSetPersistentPresenceGibberishImpl
         String persistentData, ContactGroup parentGroup)
     {
         ContactGroupGibberishImpl newGroup
-            = new ContactGroupGibberishImpl(ContactGroupGibberishImpl.createNameFromUID(groupUID)
-                                   , parentProvider);
+            = new ContactGroupGibberishImpl(
+                ContactGroupGibberishImpl.createNameFromUID(groupUID)
+                , parentProvider);
         newGroup.setResolved(false);
 
         //if parent is null then we're adding under root.
@@ -942,4 +1202,130 @@ public class OperationSetPersistentPresenceGibberishImpl
 
         return newGroup;
     }
+
+    private class UnregistrationListener
+        implements RegistrationStateChangeListener
+    {
+        /**
+         * The method is called by a ProtocolProvider implementation whenver
+         * a change in the registration state of the corresponding provider had
+         * occurred. The method is particularly interested in events stating
+         * that the gibberish provider has unregistered so that it would fire
+         * status change events for all contacts in our buddy list.
+         *
+         * @param evt ProviderStatusChangeEvent the event describing the status
+         * change.
+         */
+        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        {
+            //send event notifications saying that all our buddies are
+            //offline. The icq protocol does not implement top level buddies
+            //nor subgroups for top level groups so a simple nested loop
+            //would be enough.
+            Iterator groupsIter = getServerStoredContactListRoot()
+                .subgroups();
+            while (groupsIter.hasNext())
+            {
+                ContactGroupGibberishImpl group
+                    = (ContactGroupGibberishImpl) groupsIter.next();
+
+                Iterator contactsIter = group.contacts();
+
+                while (contactsIter.hasNext())
+                {
+                    ContactGibberishImpl contact
+                        = (ContactGibberishImpl) contactsIter.next();
+
+                    PresenceStatus oldContactStatus
+                        = contact.getPresenceStatus();
+
+                    if (!oldContactStatus.isOnline())
+                        continue;
+
+                    contact.setPresenceStatus(GibberishStatusEnum.OFFLINE);
+
+                    fireContactPresenceStatusChangeEvent(
+                        contact
+                        , contact.getParentContactGroup()
+                        , oldContactStatus);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the volatile group or null if this group has not yet been
+     * created.
+     *
+     * @return a volatile group existing in our contact list or <tt>null</tt>
+     * if such a group has not yet been created.
+     */
+    private ContactGroupGibberishImpl getNonPersistentGroup()
+    {
+        for (int i = 0
+             ; i < getServerStoredContactListRoot().countSubgroups()
+             ; i++)
+        {
+            ContactGroupGibberishImpl gr =
+                (ContactGroupGibberishImpl)getServerStoredContactListRoot()
+                    .getGroup(i);
+
+            if(!gr.isPersistent())
+                return gr;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Creates a non persistent contact for the specified address. This would
+     * also create (if necessary) a group for volatile contacts that would not
+     * be added to the server stored contact list. This method would have no
+     * effect on the server stored contact list.
+     *
+     * @param contactAddress the address of the volatile contact we'd like to
+     * create.
+     * @return the newly created volatile contact.
+     */
+    public ContactGibberishImpl createVolatileContact(String contactAddress)
+    {
+        //First create the new volatile contact;
+        ContactGibberishImpl newVolatileContact
+            = new ContactGibberishImpl(contactAddress
+                                       , this.parentProvider);
+        newVolatileContact.setPersistent(false);
+
+
+        //Check whether a volatile group already exists and if not create
+        //one
+        ContactGroupGibberishImpl theVolatileGroup = getNonPersistentGroup();
+
+
+        //if the parent volatile group is null then we create it
+        if (theVolatileGroup == null)
+        {
+            List emptyBuddies = new LinkedList();
+            theVolatileGroup = new ContactGroupGibberishImpl(
+                "NotInContactList"
+                , parentProvider);
+            theVolatileGroup.setResolved(false);
+            theVolatileGroup.setPersistent(false);
+            theVolatileGroup.addContact(newVolatileContact);
+
+            this.contactListRoot.addSubgroup(theVolatileGroup);
+
+            fireServerStoredGroupEvent(theVolatileGroup
+                           , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+        }
+
+        //now add the volatile contact instide it
+        theVolatileGroup.addContact(newVolatileContact);
+        fireSubscriptionEvent(newVolatileContact
+                         , theVolatileGroup
+                         , SubscriptionEvent.SUBSCRIPTION_CREATED);
+
+        return newVolatileContact;
+    }
+
 }
