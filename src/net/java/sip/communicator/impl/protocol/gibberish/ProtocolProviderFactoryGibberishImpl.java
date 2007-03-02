@@ -202,6 +202,8 @@ public class ProtocolProviderFactoryGibberishImpl
         //kill the service
         registration.unregister();
 
+        registeredAccounts.remove(accountID     );
+
         return removeStoredAccount(
             GibberishActivator.getBundleContext()
             , accountID);
@@ -243,6 +245,29 @@ public class ProtocolProviderFactoryGibberishImpl
     {
         return super.loadPassword(GibberishActivator.getBundleContext()
                                   , accountID );
+    }
+
+    /**
+     * Prepares the factory for bundle shutdown.
+     */
+    public void stop()
+    {
+        Enumeration registrations = this.registeredAccounts.elements();
+
+        while(registrations.hasMoreElements())
+        {
+            ServiceRegistration reg
+                = ((ServiceRegistration)registrations.nextElement());
+
+            reg.unregister();
+        }
+
+        Enumeration idEnum = registeredAccounts.keys();
+
+        while(idEnum.hasMoreElements())
+        {
+            registeredAccounts.remove(idEnum.nextElement());
+        }
     }
 
 }
