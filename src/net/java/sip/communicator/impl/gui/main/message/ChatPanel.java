@@ -367,9 +367,9 @@ public class ChatPanel
 
                                 chatWindow.getMainToolBar()
                                     .changeHistoryButtonsState(ChatPanel.this);
-                                
-                                ChatPanel.this.requestFocusInWriteArea();
                             }
+                            
+                            ChatPanel.this.requestFocusInWriteArea();
                         }
                     });
                 }
