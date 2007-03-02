@@ -49,7 +49,7 @@ public class ContactGibberishImpl
      * Determines whether this contact is persistent, i.e. member of the contact
      * list or whether it is here only temporarily.
      */
-    private final boolean isPersistent = true;
+    private boolean isPersistent = true;
 
     /**
      * Determines whether the contact has been resolved (i.e. we have a
@@ -202,6 +202,25 @@ public class ContactGibberishImpl
     }
 
     /**
+     * Specifies whether or not this contact is being stored by the server.
+     * Non persistent contacts are common in the case of simple, non-persistent
+     * presence operation sets. They could however also be seen in persistent
+     * presence operation sets when for example we have received an event
+     * from someone not on our contact list. Non persistent contacts are
+     * volatile even when coming from a persistent presence op. set. They would
+     * only exist until the application is closed and will not be there next
+     * time it is loaded.
+     *
+     * @param isPersistent true if the contact is persistent and false
+     * otherwise.
+     */
+    public void setPersistent(boolean isPersistent)
+    {
+        this.isPersistent = isPersistent;
+    }
+
+
+    /**
      * Returns null as no persistent data is required and the contact address is
      * sufficient for restoring the contact.
      * <p>
@@ -256,5 +275,20 @@ public class ContactGibberishImpl
         ContactGibberishImpl gibberishContact = (ContactGibberishImpl) obj;
 
         return this.getAddress().equals(gibberishContact.getAddress());
+    }
+
+
+    /**
+     * Returns the persistent presence operation set that this contact belongs
+     * to.
+     *
+     * @return the <tt>OperationSetPersistentPresenceGibberishImpl</tt> that
+     * this contact belongs to.
+     */
+    public OperationSetPersistentPresenceGibberishImpl
+                                            getParentPresenceOperationSet()
+    {
+        return (OperationSetPersistentPresenceGibberishImpl)parentProvider
+            .getOperationSet(OperationSetPersistentPresence.class);
     }
 }
