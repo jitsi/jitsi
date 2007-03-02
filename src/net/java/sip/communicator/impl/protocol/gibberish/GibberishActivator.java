@@ -110,6 +110,8 @@ public class GibberishActivator
     public void stop(BundleContext context)
         throws Exception
     {
+        this.gibberishProviderFactory.stop();
+        gibberishPpFactoryServReg.unregister();
         logger.info("Gibberish protocol implementation [STOPPED].");
     }
 }
