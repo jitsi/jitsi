@@ -508,7 +508,18 @@ public class ChatConversationPanel
      */
     private String processNewLines(String message)
     {
-        return message.replaceAll("\n", "</PLAINTEXT><BR><PLAINTEXT>");
+        /*
+         * <br> tags are needed to visualize a new line in the html format, but
+         * when copied to the clipboard they are exported to the plain text
+         * format as ' ' and not as '\n'.
+         * 
+         * See bug N4988885:
+         * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4988885
+         * 
+         * To fix this we need "&#10;" - the HTML-Code for ASCII-Character
+         * No.10 (Line feed).
+         */
+        return message.replaceAll("\n", "</PLAINTEXT><BR>&#10;<PLAINTEXT>");
     }
 
     /**
