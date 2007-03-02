@@ -101,11 +101,14 @@ public class ChatWindowManager
     
     public boolean isChatOpenedForContact(MetaContact metaContact)
     {
-        if(containsContactChat(metaContact)
-            && getContactChat(metaContact).isVisible())
-            return true;
-        
-        return false;
+        synchronized (syncChat)
+        {
+            if(containsChat(metaContact)
+                && getChat(metaContact).isVisible())
+                return true;
+            
+            return false;
+        }
     }
 
     /**
@@ -115,8 +118,8 @@ public class ChatWindowManager
      */
     public void closeChat(MetaContact metaContact)
     {
-        if(containsContactChat(metaContact))
-            closeChat(getContactChat(metaContact));
+        if(containsChat(metaContact))
+            closeChat(getChat(metaContact));
     }
 
     /**
@@ -128,7 +131,7 @@ public class ChatWindowManager
     {
         synchronized (syncChat)
         {
-            if(containsContactChat(chatPanel))
+            if(containsChat(chatPanel))
             {
                 ChatWindow chatWindow = chatPanel.getChatWindow();
 
@@ -222,6 +225,104 @@ public class ChatWindowManager
     }
 
     /**
+     * Returns the chat panel corresponding to the given meta contact
+     *
+     * @param metaContact the meta contact.
+     * @return the chat panel corresponding to the given meta contact
+     */
+    public ChatPanel getContactChat(MetaContact metaContact)
+    {
+        synchronized (syncChat)
+        {
+            if(containsChat(metaContact))
+            {
+                return getChat(metaContact);
+            }
+            else         
+                return createChat(metaContact);
+        }
+    }
+      
+    /**
+     * Returns the chat panel corresponding to the given meta contact
+     *
+     * @param metaContact the meta contact.
+     * @param protocolContact the protocol specific contact
+     * @return the chat panel corresponding to the given meta contact
+     */
+    public ChatPanel getContactChat(MetaContact metaContact,
+        Contact protocolContact)
+    {
+        synchronized (syncChat)
+        {
+            if(containsChat(metaContact))
+            {
+                return getChat(metaContact);                
+            }
+            else         
+                return createChat(metaContact, protocolContact);
+        }
+    }
+    
+    /**
+     * Returns the chat panel corresponding to the given meta contact
+     *
+     * @param metaContact the meta contact.
+     * @param protocolContact the protocol specific contact
+     * @param escapedMessageID the message ID of the message that should be
+     * excluded from the history when the last one is loaded in the chat
+     * @return the chat panel corresponding to the given meta contact
+     */
+    public ChatPanel getContactChat(MetaContact metaContact,
+        Contact protocolContact, String escapedMessageID)
+    {
+        synchronized (syncChat)
+        {
+            if(containsChat(metaContact))
+            {
+                return getChat(metaContact);
+            }
+            else         
+                return createChat(metaContact, protocolContact, escapedMessageID);
+        }
+    }
+        
+    /**
+     * Updates the status of the given metacontact in all opened chats
+     * containing this contact.
+     * 
+     * @param metaContact the contact whose status we will be updating
+     * @param protoContact the protocol specific contact
+     */
+    public void updateChatContactStatus(MetaContact metaContact,
+            Contact protoContact)
+    {
+        synchronized (syncChat)
+        {
+            if(containsChat(metaContact))
+            {
+                ContactListModel listModel
+                    = (ContactListModel) mainFrame.getContactListPanel()
+                        .getContactList().getModel();
+                        
+                ChatPanel chatPanel = getChat(metaContact);
+                
+                chatPanel.updateContactStatus(metaContact, protoContact);
+                
+                if(Constants.TABBED_CHAT_WINDOW)
+                {
+                    ChatWindow chatWindow = chatPanel.getChatWindow();
+                    
+                    if (chatWindow.getChatTabCount() > 0) {
+                        chatWindow.setTabIcon(chatPanel, listModel
+                                .getMetaContactStatusIcon(metaContact));
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
      * Closes the selected chat tab or the window if there are no tabs.
      *
      * @param chatPanel the chat panel to close.
@@ -313,35 +414,32 @@ public class ChatWindowManager
      */
     private ChatPanel createChat(MetaContact contact,
         Contact protocolContact, String escapedMessageID)
-    {
-        synchronized (syncChat)
+    {        
+        ChatWindow chatWindow;
+
+        if(Constants.TABBED_CHAT_WINDOW)
+            chatWindow = this.chatWindow;
+        else
         {
-            ChatWindow chatWindow;
+            chatWindow = new ChatWindow(mainFrame);
 
-            if(Constants.TABBED_CHAT_WINDOW)
-                chatWindow = this.chatWindow;
-            else
-            {
-                chatWindow = new ChatWindow(mainFrame);
-
-                this.chatWindow = chatWindow;
-            }
-
-            ChatPanel chatPanel
-                = new ChatPanel(chatWindow, contact, protocolContact);
-
-            synchronized (chats)
-            {
-                this.chats.put(contact, chatPanel);
-            }
-
-            if(escapedMessageID != null)
-                chatPanel.loadHistory(escapedMessageID);
-            else
-                chatPanel.loadHistory();
-
-            return chatPanel;
+            this.chatWindow = chatWindow;
         }
+
+        ChatPanel chatPanel
+            = new ChatPanel(chatWindow, contact, protocolContact);
+
+        synchronized (chats)
+        {
+            this.chats.put(contact, chatPanel);
+        }
+
+        if(escapedMessageID != null)
+            chatPanel.loadHistory(escapedMessageID);
+        else
+            chatPanel.loadHistory();
+
+        return chatPanel;
     }
 
     /**
@@ -353,14 +451,13 @@ public class ChatWindowManager
      * @return TRUE if this chat window contains a chat for the given contact,
      * FALSE otherwise
      */
-    private boolean containsContactChat(MetaContact metaContact)
+    private boolean containsChat(MetaContact metaContact)
     {
         synchronized (chats)
         {
             return chats.containsKey(metaContact);
         }
     }
-
 
     /**
      * Returns TRUE if this chat window contains the given chatPanel,
@@ -370,111 +467,24 @@ public class ChatWindowManager
      * @return TRUE if this chat window contains the given chatPanel,
      * FALSE otherwise
      */
-    private boolean containsContactChat(ChatPanel chatPanel)
+    private boolean containsChat(ChatPanel chatPanel)
     {
         synchronized (chats)
         {
             return chats.containsValue(chatPanel);
         }
     }
-
-    /**
-     * Returns the chat panel corresponding to the given meta contact
-     *
-     * @param metaContact the meta contact.
-     * @return the chat panel corresponding to the given meta contact
-     */
-    public ChatPanel getContactChat(MetaContact metaContact)
-    {
-        if(containsContactChat(metaContact))
-        {
-            synchronized (chats)
-            {
-                return (ChatPanel) chats.get(metaContact);
-            }
-        }
-        else         
-            return createChat(metaContact);
-    }
-      
-    /**
-     * Returns the chat panel corresponding to the given meta contact
-     *
-     * @param metaContact the meta contact.
-     * @param protocolContact the protocol specific contact
-     * @return the chat panel corresponding to the given meta contact
-     */
-    public ChatPanel getContactChat(MetaContact metaContact,
-        Contact protocolContact)
-    {
-        if(containsContactChat(metaContact))
-        {
-            synchronized (chats)
-            {
-                return (ChatPanel) chats.get(metaContact);
-            }
-        }
-        else         
-            return createChat(metaContact, protocolContact);
-    }
     
     /**
-     * Returns the chat panel corresponding to the given meta contact
-     *
-     * @param metaContact the meta contact.
-     * @param protocolContact the protocol specific contact
-     * @param escapedMessageID the message ID of the message that should be
-     * excluded from the history when the last one is loaded in the chat
-     * @return the chat panel corresponding to the given meta contact
+     * Returns the <tt>ChatPanel</tt> corresponding to the given meta contact.
+     * @param metaContact the <tt>MetaContact</tt> object for the chat
+     * @return the <tt>ChatPanel</tt> corresponding to the given meta contact
      */
-    public ChatPanel getContactChat(MetaContact metaContact,
-        Contact protocolContact, String escapedMessageID)
+    private ChatPanel getChat(MetaContact metaContact)
     {
-        if(containsContactChat(metaContact))
+        synchronized (chats)
         {
-            synchronized (chats)
-            {
-                return (ChatPanel) chats.get(metaContact);
-            }
-        }
-        else         
-            return createChat(metaContact, protocolContact, escapedMessageID);
-    }
-        
-    /**
-     * Updates the status of the given metacontact in all opened chats
-     * containing this contact.
-     * 
-     * @param metaContact the contact whose status we will be updating
-     * @param protoContact the protocol specific contact
-     */
-    public void updateChatContactStatus(MetaContact metaContact,
-            Contact protoContact)
-    {
-        if(containsContactChat(metaContact))
-        {
-            ContactListModel listModel
-                = (ContactListModel) mainFrame.getContactListPanel()
-                    .getContactList().getModel();
-                    
-            ChatPanel chatPanel;
-            
-            synchronized (chats)
-            {
-                chatPanel = (ChatPanel) chats.get(metaContact);
-            }
-            
-            chatPanel.updateContactStatus(metaContact, protoContact);
-            
-            if(Constants.TABBED_CHAT_WINDOW)
-            {
-                ChatWindow chatWindow = chatPanel.getChatWindow();
-                
-                if (chatWindow.getChatTabCount() > 0) {
-                    chatWindow.setTabIcon(chatPanel, listModel
-                            .getMetaContactStatusIcon(metaContact));
-                }
-            }
+            return (ChatPanel) chats.get(metaContact);
         }
     }
 }
