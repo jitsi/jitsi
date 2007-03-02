@@ -10,7 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-
+import net.java.sip.communicator.util.*;
 /**
  * A default implementation of the MetaContact interface.
  * @author Emil Ivov
@@ -18,6 +18,9 @@ import net.java.sip.communicator.service.protocol.*;
 public class MetaContactImpl
     implements MetaContact, Comparable
 {
+    private static final Logger logger
+        = Logger.getLogger(MetaContactImpl.class);
+
     /**
      * A vector containing all protocol specific contacts merged in this
      * MetaContact.
@@ -26,10 +29,9 @@ public class MetaContactImpl
     private Vector protoContacts = new Vector();
 
     /**
-     * The accumulated status index of all proto contacts merged in this
-     * meta contact.
+     * The number of contacts online in this meta contact.
      */
-    private int totalStatus = 0;
+    private int contactsOnline = 0;
 
     /**
      * An id uniquely identifying the meta contact in this contact list.
@@ -286,7 +288,7 @@ public class MetaContactImpl
      * <p>
      * The result of this method is calculated the following way:
      * <p>
-     * (totalStatus - o.totalStatus) * 1 000 000  <br>
+     * (contactsOnline - o.contactsOnline) * 1 000 000  <br>
      * + getDisplayName().compareTo(o.getDisplayName()) * 100 000
      * + getMetaUID().compareTo(o.getMetaUID())<br>
      * <p>
@@ -303,14 +305,21 @@ public class MetaContactImpl
      */
     public int compareTo(Object o)
     {
-        MetaContactImpl target = (MetaContactImpl)o;
+        MetaContactImpl target = (MetaContactImpl) o;
 
-        return ( (PresenceStatus.MAX_STATUS_VALUE - totalStatus)
-                    - (PresenceStatus.MAX_STATUS_VALUE - target.totalStatus))
-               * 1000000
-                + getDisplayName().compareToIgnoreCase(target.getDisplayName())
-                  * 100000
-                + getMetaUID().compareTo(target.getMetaUID());
+        int isOnline
+            = (contactsOnline > 0)
+            ? 1
+            : 0;
+        int targetIsOnline
+            = (target.contactsOnline > 0)
+            ? 1
+            : 0;
+
+        return ( (10 - isOnline) - (10 - targetIsOnline)) * 1000000
+            + getDisplayName().compareToIgnoreCase(target.getDisplayName())
+            * 10000
+            + getMetaUID().compareTo(target.getMetaUID());
     }
 
     /**
@@ -365,7 +374,7 @@ public class MetaContactImpl
     /**
      * Adds the specified protocol specific contact to the list of contacts
      * merged in this meta contact. The method also keeps up to date the
-     * totalStatus field which is used in the compareTo() method.
+     * contactsOnline field which is used in the compareTo() method.
      *
      * @param contact the protocol specific Contact to add.
      */
@@ -377,7 +386,7 @@ public class MetaContactImpl
             {
                 parentGroup.lightRemoveMetaContact(this);
             }
-            this.totalStatus += contact.getPresenceStatus().getStatus();
+            contactsOnline += contact.getPresenceStatus().isOnline() ? 1 : 0;
 
             this.protoContacts.add(contact);
 
@@ -417,7 +426,7 @@ public class MetaContactImpl
                 parentGroup.lightRemoveMetaContact(this);
             }
 
-            this.totalStatus = 0;
+            this.contactsOnline = 0;
             int maxContactStatus = 0;
 
             Iterator protoContacts = this.protoContacts.iterator();
@@ -433,7 +442,8 @@ public class MetaContactImpl
                     maxContactStatus = contactStatus;
                     this.defaultContact = contact;
                 }
-                totalStatus += contactStatus;
+                contact.getPresenceStatus();
+                contactsOnline += contact.getPresenceStatus().isOnline() ? 1 : 0;
             }
             //now readd it and the contact would be automatically placed
             //properly by the containing group
@@ -464,7 +474,7 @@ public class MetaContactImpl
             {
                 parentGroup.lightRemoveMetaContact(this);
             }
-            totalStatus -= contact.getPresenceStatus().getStatus();
+            contactsOnline -= contact.getPresenceStatus().isOnline() ? 1 : 0;
             this.protoContacts.remove(contact);
 
             if (parentGroup != null)
