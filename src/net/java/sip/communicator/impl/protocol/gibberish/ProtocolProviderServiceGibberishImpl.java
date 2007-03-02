@@ -58,7 +58,7 @@ public class ProtocolProviderServiceGibberishImpl
      */
     private ProtocolIconGibberishImpl gibberishIcon
         = new ProtocolIconGibberishImpl();
-    
+
     /**
      * The registration state that we are currently in. Note that in a real
      * world protocol implementation this field won't exist and the registration
@@ -66,7 +66,7 @@ public class ProtocolProviderServiceGibberishImpl
      */
     private RegistrationState currentRegistrationState
         = RegistrationState.UNREGISTERED;
-    
+
     /**
      * The default constructor for the Gibberish protocol provider.
      */
@@ -74,7 +74,7 @@ public class ProtocolProviderServiceGibberishImpl
     {
         logger.trace("Creating a gibberish provider.");
     }
-    
+
     /**
      * Initializes the service implementation, and puts it in a sate where it
      * could interoperate with other services. It is strongly recomended that
@@ -96,7 +96,7 @@ public class ProtocolProviderServiceGibberishImpl
             this.accountID = accountID;
 
             //initialize the presence operationset
-            OperationSetPersistentPresence persistentPresence =
+            OperationSetPersistentPresenceGibberishImpl persistentPresence =
                 new OperationSetPersistentPresenceGibberishImpl(this);
 
             supportedOperationSets.put(
@@ -123,7 +123,8 @@ public class ProtocolProviderServiceGibberishImpl
 
             //initialize the typing notifications operation set
             OperationSetTypingNotifications typingNotifications =
-                new OperationSetTypingNotificationsGibberishImpl(this);
+                new OperationSetTypingNotificationsGibberishImpl(
+                        this, persistentPresence);
 
             supportedOperationSets.put(
                 OperationSetTypingNotifications.class.getName(),
@@ -410,7 +411,7 @@ public class ProtocolProviderServiceGibberishImpl
      * @return the gibberish protocol icon
      */
     public ProtocolIcon getProtocolIcon()
-    {           
+    {
         return gibberishIcon;
     }
 }
