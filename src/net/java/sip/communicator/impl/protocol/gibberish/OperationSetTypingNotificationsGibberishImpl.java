@@ -34,7 +34,13 @@ public class OperationSetTypingNotificationsGibberishImpl
     /**
      * The provider that created us.
      */
-    private ProtocolProviderServiceGibberishImpl gibberishProvider = null;
+    private ProtocolProviderServiceGibberishImpl parentProvider = null;
+
+    /**
+     * The currently valid persistent presence operation set..
+     */
+    private OperationSetPersistentPresenceGibberishImpl opSetPersPresence = null;
+
 
     /**
      * Creates a new instance of this operation set and keeps the parent
@@ -43,11 +49,15 @@ public class OperationSetTypingNotificationsGibberishImpl
      * @param provider a ref to the <tt>ProtocolProviderServiceImpl</tt>
      * that created us and that we'll use for retrieving the underlying aim
      * connection.
+     * @param opSetPersPresence the currently valid
+     * <tt>OperationSetPersistentPresenceGibberishImpl</tt> instance.
      */
     OperationSetTypingNotificationsGibberishImpl(
-        ProtocolProviderServiceGibberishImpl provider)
+        ProtocolProviderServiceGibberishImpl provider,
+        OperationSetPersistentPresenceGibberishImpl opSetPersPresence)
     {
-        this.gibberishProvider = provider;
+        this.parentProvider = provider;
+        this.opSetPersPresence = opSetPersPresence;
     }
 
     /**
@@ -129,6 +139,49 @@ public class OperationSetTypingNotificationsGibberishImpl
     public void sendTypingNotification(Contact notifiedContact, int typingState)
         throws IllegalStateException, IllegalArgumentException
     {
-        this.fireTypingNotificationsEvent(notifiedContact, typingState);
+        String userID = notifiedContact.getAddress();
+
+        //if the user id is owr own id, then this message is being routed to us
+        //from another instance of the gibberish provider.
+        if (userID.equals(this.parentProvider.getAccountID().getUserID()))
+        {
+            //check who is the provider sending the message
+            String sourceUserID = notifiedContact.getProtocolProvider()
+                .getAccountID().getUserID();
+
+            //check whether they are in our contact list
+            Contact from = opSetPersPresence.findContactByID(sourceUserID);
+
+            //and if not - add them there as volatile.
+            if (from == null)
+            {
+                from = opSetPersPresence.createVolatileContact(sourceUserID);
+            }
+
+            //and now fire the message received event.
+            fireTypingNotificationsEvent(from, typingState);
+        }
+        else
+        {
+            //if userID is not our own, try a check whether another provider
+            //has that id and if yes - deliver the message to them.
+            ProtocolProviderServiceGibberishImpl gibberishProvider
+                = this.opSetPersPresence.findProviderForGibberishUserID(userID);
+            if (gibberishProvider != null)
+            {
+                OperationSetTypingNotificationsGibberishImpl opSetTN
+                    = (OperationSetTypingNotificationsGibberishImpl)
+                    gibberishProvider.getOperationSet(
+                        OperationSetTypingNotifications.class);
+                opSetTN.sendTypingNotification(notifiedContact, typingState);
+            }
+            else
+            {
+                //if we got here then "to" is simply someone in our contact
+                //list so let's just echo the message.
+                fireTypingNotificationsEvent(notifiedContact, typingState);
+            }
+        }
     }
+
 }
