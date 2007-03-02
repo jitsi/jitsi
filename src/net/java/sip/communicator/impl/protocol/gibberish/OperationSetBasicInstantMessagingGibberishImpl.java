@@ -125,12 +125,69 @@ public class OperationSetBasicInstantMessagingGibberishImpl
 
         //first fire an event that we've delivered the message.
         //Note that in a real world protocol implementation we would first wait
-        //for a delivery confirmation coming from the protocol.
+        //for a delivery confirmation coming from the protocol stack.
         fireMessageDelivered(message, to);
 
-        //then fire an event saying we've received the same message as if it
-        //has been echoed by the "to" contact.
-        fireMessageReceived(message, to);
+        //now do message delivery.
+        deliverMessage(message, (ContactGibberishImpl)to);
+    }
+
+    /**
+     * In case the to the <tt>to</tt> Contact corresponds to another gibberish
+     * protocol provider registered with SIP Communicator, we deliver
+     * the message to them, in case the <tt>to</tt> Contact represents us, we
+     * fire a <tt>MessageReceivedEvent</tt>, and if <tt>to</tt> is simply
+     * a contact in our contact list, then we simply echo the message.
+     *
+     * @param message the <tt>Message</tt> the message to deliver.
+     * @param to the <tt>Contact</tt> that we should deliver the message to.
+     */
+    private void deliverMessage(Message message, ContactGibberishImpl to)
+    {
+        String userID = to.getAddress();
+
+        //if the user id is owr own id, then this message is being routed to us
+        //from another instance of the gibberish provider.
+        if (userID.equals(this.parentProvider.getAccountID().getUserID()))
+        {
+            //check who is the provider sending the message
+            String sourceUserID
+                = to.getProtocolProvider().getAccountID().getUserID();
+
+            //check whether they are in our contact list
+            Contact from = opSetPersPresence.findContactByID(sourceUserID);
+
+
+            //and if not - add them there as volatile.
+            if(from == null)
+            {
+                from = opSetPersPresence.createVolatileContact(sourceUserID);
+            }
+
+            //and now fire the message received event.
+            fireMessageReceived(message, from);
+        }
+        else
+        {
+            //if userID is not our own, try an check whether another provider
+            //has that id and if yes - deliver the message to them.
+            ProtocolProviderServiceGibberishImpl gibberishProvider
+                = this.opSetPersPresence.findProviderForGibberishUserID(userID);
+            if(gibberishProvider != null)
+            {
+                OperationSetBasicInstantMessagingGibberishImpl opSetIM
+                    = (OperationSetBasicInstantMessagingGibberishImpl)
+                        gibberishProvider.getOperationSet(
+                            OperationSetBasicInstantMessaging.class);
+                opSetIM.deliverMessage(message, to);
+            }
+            else
+            {
+                //if we got here then "to" is simply someone in our contact
+                //list so let's just echo the message.
+                fireMessageReceived(message, to);
+            }
+        }
     }
 
     /**
