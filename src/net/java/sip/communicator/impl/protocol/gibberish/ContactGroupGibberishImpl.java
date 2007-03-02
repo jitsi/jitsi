@@ -429,6 +429,25 @@ public class ContactGroupGibberishImpl
     }
 
     /**
+     * Specifies whether or not this contact group is being stored by the server.
+     * Non persistent contact groups are common in the case of simple,
+     * non-persistent presence operation sets. They could however also be seen
+     * in persistent presence operation sets when for example we have received
+     * an event from someone not on our contact list and the contact that we
+     * associated with that user is placed in a non persistent group. Non
+     * persistent contact groups are volatile even when coming from a persistent
+     * presence op. set. They would only exist until the application is closed
+     * and will not be there next time it is loaded.
+     *
+     * @param isPersistent true if the contact group is to be persistent and
+     * false otherwise.
+     */
+    public void setPersistent(boolean isPersistent)
+    {
+        this.isPersistent = isPersistent;
+    }
+
+    /**
      * Determines whether or not this contact group is being stored by the
      * server. Non persistent contact groups exist for the sole purpose of
      * containing non persistent contacts.
