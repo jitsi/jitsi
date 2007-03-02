@@ -209,11 +209,32 @@ accounts.yahoo.account2.PASSWORD=
 # server for the tested account implementation. The value of the CONTACT_LIST
 # property must be a space separated string containing elements each of which
 # is in the format: GroupName.UIN
-#
-#
+
+
 # VERY IMPORTANT!!! All other users in this contact list will be removed and
 # the contacts and contact groups enumerated beneath will be added instead
 accounts.yahoo.CONTACT_LIST=
 
 # list of yahoo accounts to notify during testing (optional)
 accounts.reporting.YAHOO_REPORT_LIST=
+
+# GIBBERISH Account 1
+# The username to create the first Gibberish account with.
+accounts.gibberish.account1.USER_ID=gibacc1
+
+# A password (the gibberish provider should take any password) necessary to
+# created the Gibberish account.
+accounts.gibberish.account1.PASSWORD=whatever
+
+# GIBBERISH Account 2
+# The username to create the first Gibberish account with.
+accounts.gibberish.account2.USER_ID=gibacc2
+
+# A password (the gibberish provider should take any password) necessary to
+# created the Gibberish account.
+accounts.gibberish.account2.PASSWORD=whatever2
+
+# contact groups enumerated beneath will be added to the contact list of one
+# of the accounts for testing.
+accounts.gibberish.CONTACT_LIST=test-group.user1
+test-group2.user2
