@@ -135,15 +135,18 @@ public class ContactList
      */
     public void protoContactAdded(ProtoContactEvent evt)
     {
-        this.modifyContact(evt.getNewParent());
-
         Contact contact = evt.getProtoContact();
-        MetaContact metaContact = contactList.findMetaContactByContact(contact);
+        MetaContact parentMetaContact = evt.getNewParent();
+        
+        this.modifyContact(parentMetaContact);
+        
         ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
 
-        if (chatWindowManager.isChatOpenedForContact(metaContact))
+        if (chatWindowManager.isChatOpenedForContact(parentMetaContact))
         {
-            ChatPanel chatPanel = chatWindowManager.getContactChat(metaContact);
+            ChatPanel chatPanel
+                = chatWindowManager.getContactChat(parentMetaContact);
+            
             chatPanel.getChatSendPanel().getProtoContactSelectorBox()
                 .addProtoContact(contact);
         }
