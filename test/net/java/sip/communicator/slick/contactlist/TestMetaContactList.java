@@ -166,7 +166,7 @@ public class TestMetaContactList
         ((MockPersistentPresenceOperationSet)fixture.mockPresOpSet)
             .changePresenceStatusForContact(MetaContactListServiceLick
               .mockContactToReorder
-            , MockStatusEnum.MOCK_STATUS_50);
+            , MockStatusEnum.MOCK_STATUS_00);
 
 
         //repeat order tests but this time after changing the display name of a

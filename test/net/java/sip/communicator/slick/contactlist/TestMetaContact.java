@@ -187,7 +187,7 @@ public class TestMetaContact extends TestCase
         Iterator contacts = group.getChildContacts();
 
         MetaContact previousContact = null;
-        int previousContactStatusSum = 0;
+        int previousContactIsOnlineStatus = 0;
 
         while(contacts.hasNext())
         {
@@ -195,25 +195,28 @@ public class TestMetaContact extends TestCase
 
             //calculate the total status for this contact
             Iterator protoContacts = currentContact.getContacts();
-            int currentContactStatusSum = 0;
+            int currentContactIsOnlineStatus = 0;
+
             while(protoContacts.hasNext())
             {
-                currentContactStatusSum
-                    += ((Contact)protoContacts.next()).getPresenceStatus()
-                                                                .getStatus();
+                if (((Contact)protoContacts.next())
+                        .getPresenceStatus().isOnline())
+                {
+                    currentContactIsOnlineStatus = 1;
+                }
             }
 
             if (previousContact != null)
             {
                 assertTrue( previousContact + " with status="
-                        + previousContactStatusSum
+                        + previousContactIsOnlineStatus
                         + " was wrongfully before "
                         + currentContact+ " with status="
-                        + currentContactStatusSum
-                        , previousContactStatusSum >= currentContactStatusSum);
+                        + currentContactIsOnlineStatus
+                        , previousContactIsOnlineStatus >= currentContactIsOnlineStatus);
 
                 //if both were equal then assert alphabetical order.
-                if (previousContactStatusSum == currentContactStatusSum)
+                if (previousContactIsOnlineStatus == currentContactIsOnlineStatus)
                     assertTrue( "The display name: "
                                + previousContact.getDisplayName()
                                + " should be considered less than "
@@ -224,7 +227,7 @@ public class TestMetaContact extends TestCase
                                <= 0);
             }
             previousContact = currentContact;
-            previousContactStatusSum = currentContactStatusSum;
+            previousContactIsOnlineStatus = currentContactIsOnlineStatus;
         }
 
         //now go over the subgroups
