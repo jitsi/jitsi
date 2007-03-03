@@ -35,7 +35,7 @@ import net.java.sip.communicator.util.*;
  * When chat is in mode "open all messages in new window", each ChatPanel
  * corresponds to a ChatWindow. When chat is in mode "group all messages in
  * one chat window", each ChatPanel corresponds to a tab in the ChatWindow.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatPanel
@@ -46,7 +46,7 @@ public class ChatPanel
 
     private static final Logger logger = Logger
         .getLogger(ChatPanel.class.getName());
-    
+
     private JSplitPane topSplitPane = new JSplitPane(
             JSplitPane.HORIZONTAL_SPLIT);
 
@@ -65,22 +65,23 @@ public class ChatPanel
     private OperationSetBasicInstantMessaging imOperationSet;
 
     private OperationSetTypingNotifications tnOperationSet;
-    
+
     private MetaContact metaContact;
-    
+
     private boolean isVisible = false;
-    
+
     private Date firstHistoryMsgTimestamp;
-    
+
     private Date lastHistoryMsgTimestamp;
 
     MessageHistoryService msgHistory
         = GuiActivator.getMsgHistoryService();
-    
+
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
-     * 
+     *
      * @param chatWindow The parent window of this chat panel.
+     * @param metaContact the meta contact that this chat is about.
      * @param protocolContact The subContact which is selected ins
      * the chat.
      */
@@ -97,16 +98,16 @@ public class ChatPanel
                 protocolContact.getProtocolProvider());
         this.tnOperationSet = this.chatWindow.getMainFrame()
                 .getTypingNotifications(protocolContact.getProtocolProvider());
-        
+
         this.conversationPanel = new ChatConversationPanel(this);
-        
+
         this.chatConferencePanel = new ChatConferencePanel(this,
             metaContact, protocolContact);
 
         this.sendPanel = new ChatSendPanel(this, metaContact, protocolContact);
 
         this.writeMessagePanel = new ChatWritePanel(this);
-        
+
         this.topSplitPane.setResizeWeight(1.0D);
         this.messagePane.setResizeWeight(1.0D);
         this.chatConferencePanel.setPreferredSize(new Dimension(120, 100));
@@ -114,11 +115,11 @@ public class ChatPanel
         this.writeMessagePanel.setPreferredSize(new Dimension(500, 100));
         this.writeMessagePanel.setMinimumSize(new Dimension(500, 100));
         this.conversationPanel.setPreferredSize(new Dimension(400, 200));
-        
+
         this.init();
-                
+
         addComponentListener(new TabSelectionComponentListener());
-        
+
         new Thread(){
             public void run(){
                 loadHistoryPeriod();
@@ -151,7 +152,7 @@ public class ChatPanel
             public void run() {
                 Collection historyList = msgHistory.findLast(
                         metaContact, Constants.CHAT_HISTORY_SIZE);
-                
+
                 if(historyList.size() > 0) {
                     class ProcessHistory implements Runnable {
                         Collection historyList;
@@ -169,23 +170,23 @@ public class ChatPanel
             }
         }.start();
     }
-    
+
     /**
      * Loads history messages ignoring the message given by the
      * escapedMessageID.
      * @param escapedMessageID The id of the message that should be ignored.
      */
     public void loadHistory(String escapedMessageID)
-    {        
+    {
         Collection historyList = msgHistory.findLast(
                 metaContact, Constants.CHAT_HISTORY_SIZE);
-        
+
         processHistory(historyList, escapedMessageID);
     }
-        
+
     /**
      * Process history messages.
-     * 
+     *
      * @param historyList The collection of messages coming from history.
      * @param escapedMessageID The incoming message needed to be ignored if
      * contained in history.
@@ -197,14 +198,14 @@ public class ChatPanel
         String historyString = "";
         while (i.hasNext()) {
             Object o = i.next();
-            
-            if(o instanceof MessageDeliveredEvent) {                            
+
+            if(o instanceof MessageDeliveredEvent) {
                 MessageDeliveredEvent evt
                     = (MessageDeliveredEvent)o;
-                
+
                 ProtocolProviderService protocolProvider = evt
                     .getDestinationContact().getProtocolProvider();
-                
+
                 historyString += processHistoryMessage(
                             chatWindow.getMainFrame()
                                 .getAccount(protocolProvider),
@@ -214,12 +215,12 @@ public class ChatPanel
             }
             else if(o instanceof MessageReceivedEvent) {
                 MessageReceivedEvent evt = (MessageReceivedEvent)o;
-                
+
                 if(!evt.getSourceMessage().getMessageUID()
                         .equals(escapedMessageID)) {
                 historyString += processHistoryMessage(
                             evt.getSourceContact().getDisplayName(),
-                            evt.getTimestamp(), 
+                            evt.getTimestamp(),
                             Constants.HISTORY_INCOMING_MESSAGE,
                             evt.getSourceMessage().getContent());
                 }
@@ -227,36 +228,37 @@ public class ChatPanel
         }
         conversationPanel.insertMessageAfterStart(historyString);
     }
-    
+
     /**
      * Updates the contact status in the chat panel.
-     * 
-     * @param protoContact the protocol contact which status to update
+     *
+     * @param metaContact the meta contact that this chat is about.
+     * @param protoContact the protocol contact which status to update.
      */
     public void updateContactStatus(MetaContact metaContact, Contact protoContact)
     {
         PresenceStatus status = sendPanel.getProtoContactSelectorBox()
             .getSelectedProtocolContact().getPresenceStatus();
-        
+
         this.chatConferencePanel.updateContactStatus(
             metaContact.getDefaultContact().getPresenceStatus());
-        
+
         this.sendPanel.updateContactStatus(protoContact);
-        
+
         String message = this.conversationPanel.processMessage(
                 this.metaContact.getDisplayName(),
                 new Date(System.currentTimeMillis()),
                 Constants.SYSTEM_MESSAGE,
                 Messages.getI18NString("statusChangedChatMessage",
                         new String[]{status.getStatusName()}).getText());
-        
+
         this.conversationPanel.appendMessageToEnd(message);
     }
-    
+
     /**
-     * Returns the default contact for the chat. The case of conference 
+     * Returns the default contact for the chat. The case of conference
      * is not yet implemented and for now it returns the first contact.
-     * 
+     *
      * @return The default contact for the chat.
      */
     public MetaContact getMetaContact() {
@@ -266,8 +268,8 @@ public class ChatPanel
     /**
      * Returns the chat window, where this chat panel
      * is located.
-     * 
-     * @return ChatWindow The chat window, where this 
+     *
+     * @return ChatWindow The chat window, where this
      * chat panel is located.
      */
     public ChatWindow getChatWindow() {
@@ -277,19 +279,19 @@ public class ChatPanel
     /**
      * Returns the chat window, where this chat panel
      * is located.
-     * 
-     * @return ChatWindow The chat window, where this 
+     *
+     * @return ChatWindow The chat window, where this
      * chat panel is located.
      */
     public Window getWindow() {
         return chatWindow;
     }
-    
+
     /**
-     * Returns the instant messaging operation set for 
+     * Returns the instant messaging operation set for
      * this chat panel.
-     * 
-     * @return OperationSetBasicInstantMessaging The instant 
+     *
+     * @return OperationSetBasicInstantMessaging The instant
      * messaging operation set for this chat panel.
      */
     public OperationSetBasicInstantMessaging getImOperationSet() {
@@ -297,7 +299,7 @@ public class ChatPanel
     }
 
     /**
-     * Sets the instant messaging operation set for 
+     * Sets the instant messaging operation set for
      * this chat panel.
      * @param imOperationSet The operation set to be set.
      */
@@ -307,9 +309,9 @@ public class ChatPanel
     }
 
     /**
-     * Returns the typing notifications operation set for 
+     * Returns the typing notifications operation set for
      * this chat panel.
-     * 
+     *
      * @return OperationSetTypingNotifications The typing
      * notifications operation set for this chat panel.
      */
@@ -318,7 +320,7 @@ public class ChatPanel
     }
 
     /**
-     * Sets the typing notifications operation set for 
+     * Sets the typing notifications operation set for
      * this chat panel.
      * @param tnOperationSet The operation set to be set.
      */
@@ -332,7 +334,7 @@ public class ChatPanel
      * currently selected chat panel, thus changing the title of the window,
      * history buttons states, etc.
      */
-    private class TabSelectionComponentListener 
+    private class TabSelectionComponentListener
         implements ComponentListener {
 
         public TabSelectionComponentListener() {
@@ -360,7 +362,7 @@ public class ChatPanel
                         {
                             String metaContactName
                                 = getMetaContact().getDisplayName();
-                            
+
                             if(!chatWindow.getTitle().equals(metaContactName))
                             {
                                 chatWindow.setTitle(metaContactName);
@@ -368,14 +370,14 @@ public class ChatPanel
                                 chatWindow.getMainToolBar()
                                     .changeHistoryButtonsState(ChatPanel.this);
                             }
-                            
+
                             ChatPanel.this.requestFocusInWriteArea();
                         }
                     });
                 }
             }
         }
-        
+
         public void componentHidden(ComponentEvent e) {
         }
     }
@@ -388,62 +390,66 @@ public class ChatPanel
         return sendPanel.getProtoContactSelectorBox()
                     .getSelectedProtocolContact();
     }
-    
+
     /**
+     * Sets the currently selected protocol contact to use for sending messages.
+     * @param protocolContact the protocol contact to select.
      */
     public void setProtocolContact(Contact protocolContact) {
         sendPanel.getProtoContactSelectorBox()
                     .setSelected(protocolContact);
     }
 
-    
+
     /**
      * Passes the message to the contained <code>ChatConversationPanel</code>
      * for processing and appends it at the end of the conversationPanel
      * document.
-     * 
+     *
      * @param contactName The name of the contact sending the message.
      * @param date The time at which the message is sent or received.
-     * @param messageType The type of the message. One of OUTGOING_MESSAGE 
-     * or INCOMING_MESSAGE. 
+     * @param messageType The type of the message. One of OUTGOING_MESSAGE
+     * or INCOMING_MESSAGE.
      * @param message The message text.
      */
     public void processMessage(String contactName, Date date,
             String messageType, String message){
         String processedMessage
-            = this.conversationPanel.processMessage(contactName, date, 
-                                            messageType, message);        
+            = this.conversationPanel.processMessage(contactName, date,
+                                            messageType, message);
         this.conversationPanel.appendMessageToEnd(processedMessage);
     }
-    
+
     /**
      * Passes the message to the contained <code>ChatConversationPanel</code>
      * for processing.
-     * 
+     *
      * @param contactName The name of the contact sending the message.
      * @param date The time at which the message is sent or received.
-     * @param messageType The type of the message. One of OUTGOING_MESSAGE 
-     * or INCOMING_MESSAGE. 
+     * @param messageType The type of the message. One of OUTGOING_MESSAGE
+     * or INCOMING_MESSAGE.
      * @param message The message text.
+     *
+     * @return a string containingthe processed message.
      */
     public String processHistoryMessage(String contactName, Date date,
             String messageType, String message){
         String processedMessage
-            = this.conversationPanel.processMessage(contactName, date, 
-                                            messageType, message);        
+            = this.conversationPanel.processMessage(contactName, date,
+                                            messageType, message);
         return processedMessage;
     }
-    
+
     /**
      * Refreshes write area editor pane. Deletes all existing text
      * content.
      */
     public void refreshWriteArea(){
         JEditorPane writeMsgPane = this.writeMessagePanel.getEditorPane();
-        
+
         writeMsgPane.setText("");
     }
-    
+
     /**
      * Requests the focus in the write message area.
      */
@@ -451,75 +457,75 @@ public class ChatPanel
     {
         this.writeMessagePanel.getEditorPane().requestFocus();
     }
-    
+
     /**
      * Sets the message text to the status panel in the bottom of the chat
      * window. Used to show typing notification messages, links' hrefs, etc.
-     * @param statusMessage The message text to be displayed. 
+     * @param statusMessage The message text to be displayed.
      */
     public void setStatusMessage(String statusMessage){
         this.sendPanel.setStatusMessage(statusMessage);
     }
-    
+
     /**
      * Returns the time of the last received message.
-     * 
+     *
      * @return The time of the last received message.
      */
     public Date getLastIncomingMsgTimestamp() {
         return this.conversationPanel.getLastIncomingMsgTimestamp();
     }
-    
+
     /**
      * Checks if the editor contains text.
-     * 
+     *
      * @return TRUE if editor contains text, FALSE otherwise.
      */
     public boolean isWriteAreaEmpty(){
         JEditorPane editorPane = this.writeMessagePanel.getEditorPane();
-        
+
         if (editorPane.getText() == null
                 || editorPane.getText().equals(""))
             return true;
         else
             return false;
     }
-    
+
     /**
      * Adds text to the write area editor.
-     * 
+     *
      * @param text The text to add.
      */
     public void addTextInWriteArea(String text){
         JEditorPane editorPane = this.writeMessagePanel.getEditorPane();
-        
+
         editorPane.setText(editorPane.getText() + text);
     }
-    
+
     /**
      * Returns the text contained in the write area editor.
      * @return The text contained in the write area editor.
      */
     public String getTextFromWriteArea(){
         JEditorPane editorPane = this.writeMessagePanel.getEditorPane();
-        
+
         return editorPane.getText();
     }
-    
+
     /**
      * Stops typing notifications sending.
      */
-    public void stopTypingNotifications(){        
+    public void stopTypingNotifications(){
         this.writeMessagePanel.stopTypingTimer();
     }
-    
+
     /**
      * Cuts the write area selected content to the clipboard.
      */
     public void cut(){
         this.writeMessagePanel.getEditorPane().cut();
     }
-    
+
     /**
      * Copies either the selected write area content or the selected
      * conversation panel content to the clipboard.
@@ -532,7 +538,7 @@ public class ChatPanel
         }
         editorPane.copy();
     }
-    
+
     /**
      * Copies the selected write panel content to the clipboard.
      */
@@ -541,7 +547,7 @@ public class ChatPanel
 
         editorPane.copy();
     }
-    
+
     /**
      * Pastes the content of the clipboard to the write area.
      */
@@ -552,7 +558,7 @@ public class ChatPanel
 
         editorPane.requestFocus();
     }
-    
+
     /**
      * Sends current write area content.
      */
@@ -562,15 +568,15 @@ public class ChatPanel
         sendButton.requestFocus();
         sendButton.doClick();
     }
-    
+
     /**
      * Moves the caret to the end of the conversation panel.
-     * 
-     * Workaround for the following problem:  
+     *
+     * Workaround for the following problem:
      * The scrollbar in the conversation area moves up when the
      * scrollpane is resized. This happens when ChatWindow is in
      * mode "Group messages in one window" and the first chat panel
-     * is added to the tabbed pane. Then the scrollpane in the 
+     * is added to the tabbed pane. Then the scrollpane in the
      * conversation area is slightly resized and is made smaller,
      * which moves the scrollbar up.
      */
@@ -590,31 +596,31 @@ public class ChatPanel
         //Scroll to the last inserted text in the document.
         this.conversationPanel.setCarretToEnd();
     }
-    
+
     /**
      * Opens the selector box containing the protocol contact icons. This is the
      * menu, where user could select the protocol specific contact to
      * communicate through.
      */
     public void openProtocolSelectorBox() {
-        SIPCommMenu contactSelector 
+        SIPCommMenu contactSelector
             = this.sendPanel.getProtoContactSelectorBox().getMenu();
         contactSelector.doClick();
     }
-    
+
     /**
      * Returns the <tt>PresenceStatus</tt> of the default contact for this chat
      * panel.
      * @return the <tt>PresenceStatus</tt> of the default contact for this chat
      * panel.
-     */    
+     */
     public PresenceStatus getDefaultContactStatus() {
         return getMetaContact().getDefaultContact().getPresenceStatus();
     }
-    
+
 
     /**
-     * Implements the <code>ApplicationWindow.isVisible</code> method, to 
+     * Implements the <code>ApplicationWindow.isVisible</code> method, to
      * check whether this chat panel is currently visible.
      * @return <code>true</code> if this chat panel is currently visible,
      * <code>false</code> otherwise.
@@ -624,12 +630,12 @@ public class ChatPanel
     }
 
     /**
-     * Implements the <code>ApplicationWindow.showWindow</code> method, to 
+     * Implements the <code>ApplicationWindow.showWindow</code> method, to
      * make a chat panel visible.
      */
     public void showWindow()
     {
-        
+
     }
 
     /**
@@ -638,7 +644,7 @@ public class ChatPanel
      */
     public void hideWindow()
     {
-        
+
     }
 
     /**
@@ -652,7 +658,7 @@ public class ChatPanel
     }
 
     /**
-     * Implements the <code>ApplicationWindow.moveWindow</code> method. Moves 
+     * Implements the <code>ApplicationWindow.moveWindow</code> method. Moves
      * the chat window to the given x and y coordinates.
      * @param x The <code>x</code> coordinate.
      * @param y The <code>y</code> coordinate.
@@ -683,11 +689,14 @@ public class ChatPanel
      * Sets the chat <code>isVisible</code> variable to <code>true</code> or
      * <code>false</code> to indicate that this chat panel is visible or
      * invisible.
+     *
+     * @param isVisible specifies whether we'd like this chat panel visible or
+     * not.
      */
     public void setChatVisible(boolean isVisible) {
         this.isVisible = isVisible;
     }
-    
+
     /**
      * Returns the chat conversation panel contained in this chat panel.
      * @return the chat conversation panel contained in this chat panel
@@ -696,7 +705,7 @@ public class ChatPanel
     {
         return conversationPanel;
     }
-    
+
     /**
      * Returns the chat write panel contained in this chat panel.
      * @return the chat write panel contained in this chat panel
@@ -705,7 +714,7 @@ public class ChatPanel
     {
         return writeMessagePanel;
     }
-    
+
     /**
      * Returns the chat send panel contained in this chat panel.
      * @return the chat send panel contained in this chat panel
@@ -714,7 +723,7 @@ public class ChatPanel
     {
         return sendPanel;
     }
-    
+
     /**
      * Loads history period dates for the current chat.
      */
@@ -722,44 +731,44 @@ public class ChatPanel
     {
         MessageHistoryService msgHistory
             = GuiActivator.getMsgHistoryService();
-        
+
         Collection firstMessage = msgHistory
             .findFirstMessagesAfter(metaContact, new Date(0), 1);
-        
+
         if(firstMessage.size() > 0) {
-            
+
             Iterator i = firstMessage.iterator();
-            
+
             Object o = i.next();
-                        
-            if(o instanceof MessageDeliveredEvent) {                            
+
+            if(o instanceof MessageDeliveredEvent) {
                 MessageDeliveredEvent evt
                     = (MessageDeliveredEvent)o;
-                
+
                 this.firstHistoryMsgTimestamp = evt.getTimestamp();
             }
             else if(o instanceof MessageReceivedEvent) {
                 MessageReceivedEvent evt = (MessageReceivedEvent)o;
-                
+
                 this.firstHistoryMsgTimestamp = evt.getTimestamp();
             }
-            
+
             Collection lastMessage = msgHistory
                 .findLastMessagesBefore(metaContact, new Date(Long.MAX_VALUE), 1);
-            
+
             Iterator i1 = lastMessage.iterator();
 
             Object o1 = i1.next();
-            
+
             if(o1 instanceof MessageDeliveredEvent) {
                 MessageDeliveredEvent evt
                     = (MessageDeliveredEvent)o1;
-                
+
                 this.lastHistoryMsgTimestamp = evt.getTimestamp();
             }
             else if(o1 instanceof MessageReceivedEvent) {
                 MessageReceivedEvent evt = (MessageReceivedEvent)o1;
-                
+
                 this.lastHistoryMsgTimestamp = evt.getTimestamp();
             }
         }
@@ -776,7 +785,7 @@ public class ChatPanel
     {
         return lastHistoryMsgTimestamp;
     }
-    
+
     /**
      * Updates all occurences of the contact name in the chat.
      * @param newName the new name
@@ -784,10 +793,10 @@ public class ChatPanel
     public void renameContact(String newName)
     {
         chatConferencePanel.renameContact(newName);
-        
+
         chatWindow.setTabTitle(this, newName);
-        
-        if(chatWindow.getCurrentChatPanel().equals(this))
+
+        if( chatWindow.getCurrentChatPanel() == this)
         {
             chatWindow.setTitle(newName);
         }
