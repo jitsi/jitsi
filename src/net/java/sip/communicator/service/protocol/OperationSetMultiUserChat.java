@@ -63,6 +63,8 @@ public interface OperationSetMultiUserChat
      * @throws OperationFailedException if the room couldn't be created for some
      * reason (e.g. room already exists; user already joined to an existant
      * room or user has no permissions to create a chat room).
+     *
+     * @return the newly created <tt>ChatRoom</tt> named <tt>roomName</tt>.
      */
     public ChatRoom createChatRoom(String roomName, Hashtable roomProperties)
         throws OperationFailedException;
@@ -80,10 +82,7 @@ public interface OperationSetMultiUserChat
     /**
      * Informs the sender of an invitation that we decline their invitation.
      *
-     * @param conn the connection to use for sending the rejection.
-     * @param room the room that sent the original invitation.
-     * @param inviter the inviter of the declined invitation.
-     * @param reason the reason why the invitee is declining the invitation.
+     * @param invitation the invitation we are rejecting.
      */
     public void rejectInvitation(ChatRoomInvitation invitation);
 
