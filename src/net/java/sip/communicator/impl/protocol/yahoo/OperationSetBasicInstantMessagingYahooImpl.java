@@ -155,6 +155,12 @@ public class OperationSetBasicInstantMessagingYahooImpl
     {
         assertConnected();
 
+        if( !(to instanceof ContactYahooImpl) )
+           throw new IllegalArgumentException(
+               "The specified contact is not a Yahoo contact."
+               + to);
+
+
         try
         {
             String toUserID = ((ContactYahooImpl) to).getID();
@@ -243,7 +249,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
         {
             listeners = new ArrayList(messageListeners).iterator();
         }
-        
+
         logger.debug("Dispatching  msg evt. Listeners="
                      + messageListeners.size()
                      + " evt=" + evt);
@@ -285,7 +291,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
         private void handleNewMessage(SessionEvent ev)
         {
             logger.debug("Message received : " + ev);
-            
+
             Message newMessage = createMessage(ev.getMessage());
 
             Contact sourceContact = opSetPersPresence.

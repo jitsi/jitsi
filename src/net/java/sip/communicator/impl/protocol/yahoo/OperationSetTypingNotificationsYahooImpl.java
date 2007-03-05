@@ -133,13 +133,14 @@ public class OperationSetTypingNotificationsYahooImpl
 
         if( !(notifiedContact instanceof ContactYahooImpl) )
            throw new IllegalArgumentException(
-               "The specified contact is not an yahoo contact." + notifiedContact);
+               "The specified contact is not an yahoo contact."
+               + notifiedContact);
 
        if(typingState == OperationSetTypingNotifications.STATE_TYPING)
        {
 
            yahooProvider.getYahooSession().
-               keyTyped(notifiedContact.getAddress(), 
+               keyTyped(notifiedContact.getAddress(),
                yahooProvider.getAccountID().getUserID());
        }
        else
@@ -147,7 +148,7 @@ public class OperationSetTypingNotificationsYahooImpl
            typingState == OperationSetTypingNotifications.STATE_PAUSED)
            {
                yahooProvider.getYahooSession().
-                   stopTyping(notifiedContact.getAddress(), 
+                   stopTyping(notifiedContact.getAddress(),
                    yahooProvider.getAccountID().getUserID());
            }
     }
@@ -169,11 +170,11 @@ public class OperationSetTypingNotificationsYahooImpl
                 "The yahoo provider must be signed on the service before "
                 +"being able to communicate.");
     }
-    
+
     private class TypingListener
         extends SessionAdapter
     {
-        public void notifyReceived(SessionNotifyEvent evt) 
+        public void notifyReceived(SessionNotifyEvent evt)
         {
             if(evt.isTyping())
             {
@@ -181,18 +182,18 @@ public class OperationSetTypingNotificationsYahooImpl
 
                 if(typingUserID != null)
                 {
-                    Contact sourceContact = 
+                    Contact sourceContact =
                         opSetPersPresence.findContactByID(typingUserID);
 
                     if(sourceContact == null)
                         return;
-                    
+
                     // typing on
                     if(evt.getMode() == 1)
                         fireTypingNotificationsEvent(sourceContact, STATE_TYPING);
                     else
                         fireTypingNotificationsEvent(sourceContact, STATE_STOPPED);
-                }    
+                }
             }
         }
     }
@@ -221,7 +222,7 @@ public class OperationSetTypingNotificationsYahooImpl
                 opSetPersPresence = (OperationSetPersistentPresenceYahooImpl)
                     yahooProvider.getSupportedOperationSets()
                         .get(OperationSetPersistentPresence.class.getName());
-                
+
                 yahooProvider.getYahooSession().addSessionListener(new TypingListener());
             }
         }

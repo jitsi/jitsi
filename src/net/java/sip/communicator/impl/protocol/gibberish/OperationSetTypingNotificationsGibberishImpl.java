@@ -139,6 +139,12 @@ public class OperationSetTypingNotificationsGibberishImpl
     public void sendTypingNotification(Contact notifiedContact, int typingState)
         throws IllegalStateException, IllegalArgumentException
     {
+        if( !(notifiedContact instanceof ContactGibberishImpl) )
+           throw new IllegalArgumentException(
+               "The specified contact is not a Gibberish contact."
+               + notifiedContact);
+
+
         String userID = notifiedContact.getAddress();
 
         //if the user id is owr own id, then this message is being routed to us

@@ -193,6 +193,12 @@ public class OperationSetTypingNotificationsIcqImpl
     {
         assertConnected();
 
+        if( !(notifiedContact instanceof ContactIcqImpl) )
+           throw new IllegalArgumentException(
+               "The specified contact is not an ICQ contact."
+               + notifiedContact);
+
+
         icqProvider.getAimConnection().getIcbmService().getImConversation(
             new Screenname(notifiedContact.getAddress())).setTypingState(
                 intToTypingState(typingState));

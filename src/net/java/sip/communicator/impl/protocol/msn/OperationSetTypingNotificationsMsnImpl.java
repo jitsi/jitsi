@@ -138,7 +138,8 @@ public class OperationSetTypingNotificationsMsnImpl
 
         if( !(notifiedContact instanceof ContactMsnImpl) )
            throw new IllegalArgumentException(
-               "The specified contact is not an msn contact." + notifiedContact);
+               "The specified contact is not an MSN contact."
+               + notifiedContact);
 
        if(typingState == OperationSetTypingNotifications.STATE_TYPING)
        {

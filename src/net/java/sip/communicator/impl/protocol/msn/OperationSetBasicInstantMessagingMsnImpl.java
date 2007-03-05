@@ -154,6 +154,12 @@ public class OperationSetBasicInstantMessagingMsnImpl
     {
         assertConnected();
 
+        if( !(to instanceof ContactMsnImpl) )
+           throw new IllegalArgumentException(
+               "The specified contact is not an MSN contact."
+               + to);
+
+
         if(to.getPresenceStatus().equals(MsnStatusEnum.OFFLINE))
         {
             MessageDeliveryFailedEvent evt =

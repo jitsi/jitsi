@@ -119,6 +119,11 @@ public class OperationSetBasicInstantMessagingGibberishImpl
     public void sendInstantMessage(Contact to, Message message) throws
         IllegalStateException, IllegalArgumentException
     {
+        if( !(to instanceof ContactGibberishImpl) )
+           throw new IllegalArgumentException(
+               "The specified contact is not a Gibberish contact."
+               + to);
+
         MessageDeliveredEvent msgDeliveredEvt
             = new MessageDeliveredEvent(
                 message, to, new Date());

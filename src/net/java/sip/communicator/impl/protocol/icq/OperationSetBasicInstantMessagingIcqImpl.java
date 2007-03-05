@@ -71,7 +71,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
     private OperationSetPersistentPresenceIcqImpl opSetPersPresence = null;
 
     /**
-     * I do not why but we sometimes receive messages with a date in the future.
+     * I do not why but we sometimes receive messages with a date in the future.sdf
      * I've decided to ignore such messages. I draw the line on
      * currentTimeMillis() + ONE_DAY milliseconds. Anything with a date farther
      * in the future is considered bogus and its date is replaced with current
@@ -87,7 +87,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
     /**
      * The interval after which a packet is considered to be lost
      */
-    private final static long KEEPALIVE_WAIT = 20000l;
+    private final static long KEEPALIVE_WAIT = 20000l; //20 secs
 
     /**
      * The task sending packets
@@ -102,7 +102,11 @@ public class OperationSetBasicInstantMessagingIcqImpl
      */
     private LinkedList receivedKeepAlivePackets = new LinkedList();
 
-    private static String SYS_MSG_PREFIX_TEST = "SIP COMMUNICATOR SYSTEM MESSAGE!";
+    /**
+     * The ping message prefix that we use in our keep alive thread.
+     */
+    private static String SYS_MSG_PREFIX_TEST
+        = "SIP COMMUNICATOR SYSTEM MESSAGE!";
 
 
     /**
@@ -193,6 +197,12 @@ public class OperationSetBasicInstantMessagingIcqImpl
         throws IllegalStateException, IllegalArgumentException
     {
         assertConnected();
+
+        if( !(to instanceof ContactIcqImpl) )
+           throw new IllegalArgumentException(
+               "The specified contact is not a Icq contact."
+               + to);
+
 
         ImConversation imConversation =
                 icqProvider.getAimConnection().getIcbmService().
@@ -657,9 +667,11 @@ public class OperationSetBasicInstantMessagingIcqImpl
             }
             catch (Exception ex)
             {
+
                 logger.error(
                     "Exception occurred while retrieving keep alive packet."
                     , ex);
+
                 fireUnregistered();
             }
         }
