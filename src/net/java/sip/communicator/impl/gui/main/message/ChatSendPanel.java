@@ -65,6 +65,8 @@ public class ChatSendPanel
     /**
      * Creates an instance of <tt>ChatSendPanel</tt>.
      *
+     * @param metaContact the meta contact that this chat panel is about
+     * @param protocolContact the currently selected default protoco contact.
      * @param chatPanel The parent <tt>ChatPanel</tt>.
      */
     public ChatSendPanel(ChatPanel chatPanel,
@@ -100,7 +102,8 @@ public class ChatSendPanel
      */
     public void actionPerformed(ActionEvent e)
     {
-        if (!this.chatPanel.isWriteAreaEmpty()) {
+        if (!this.chatPanel.isWriteAreaEmpty())
+        {
             OperationSetBasicInstantMessaging im = this.chatPanel
                 .getImOperationSet();
 
@@ -114,17 +117,18 @@ public class ChatSendPanel
             Contact contact = (Contact) contactSelectorBox.getMenu()
                 .getSelectedObject();
 
-            if (chatPanel.getTnOperationSet() != null) {
+            if (chatPanel.getTnOperationSet() != null)
+            {
                 // Send TYPING STOPPED event before sending the message
                 chatPanel.stopTypingNotifications();
             }
 
-            chatPanel.requestFocusInWriteArea();
-
-            try {
+            try
+            {
                 im.sendInstantMessage(contact, msg);
             }
-            catch (IllegalStateException ex) {
+            catch (IllegalStateException ex)
+            {
                 chatPanel.refreshWriteArea();
 
                 chatPanel.processMessage(
@@ -141,6 +145,8 @@ public class ChatSendPanel
                             .getText());
             }
         }
+        //make sure the focus goes back to the write area
+        chatPanel.requestFocusInWriteArea();
     }
 
     /**
@@ -179,7 +185,7 @@ public class ChatSendPanel
 
     /**
      *
-     * @param protoContact
+     * @param protoContact the contact whose status we are updating
      */
     public void updateContactStatus(Contact protoContact)
     {
