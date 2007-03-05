@@ -62,10 +62,6 @@ public class ChatPanel
 
     private ChatWindow chatWindow;
 
-    private OperationSetBasicInstantMessaging imOperationSet;
-
-    private OperationSetTypingNotifications tnOperationSet;
-
     private MetaContact metaContact;
 
     private boolean isVisible = false;
@@ -93,11 +89,6 @@ public class ChatPanel
 
         this.chatWindow = chatWindow;
         this.metaContact = metaContact;
-
-        this.imOperationSet = this.chatWindow.getMainFrame().getProtocolIM(
-                protocolContact.getProtocolProvider());
-        this.tnOperationSet = this.chatWindow.getMainFrame()
-                .getTypingNotifications(protocolContact.getProtocolProvider());
 
         this.conversationPanel = new ChatConversationPanel(this);
 
@@ -285,48 +276,6 @@ public class ChatPanel
      */
     public Window getWindow() {
         return chatWindow;
-    }
-
-    /**
-     * Returns the instant messaging operation set for
-     * this chat panel.
-     *
-     * @return OperationSetBasicInstantMessaging The instant
-     * messaging operation set for this chat panel.
-     */
-    public OperationSetBasicInstantMessaging getImOperationSet() {
-        return imOperationSet;
-    }
-
-    /**
-     * Sets the instant messaging operation set for
-     * this chat panel.
-     * @param imOperationSet The operation set to be set.
-     */
-    public void setImOperationSet(
-            OperationSetBasicInstantMessaging imOperationSet) {
-        this.imOperationSet = imOperationSet;
-    }
-
-    /**
-     * Returns the typing notifications operation set for
-     * this chat panel.
-     *
-     * @return OperationSetTypingNotifications The typing
-     * notifications operation set for this chat panel.
-     */
-    public OperationSetTypingNotifications getTnOperationSet() {
-        return tnOperationSet;
-    }
-
-    /**
-     * Sets the typing notifications operation set for
-     * this chat panel.
-     * @param tnOperationSet The operation set to be set.
-     */
-    public void setTnOperationSet(
-            OperationSetTypingNotifications tnOperationSet) {
-        this.tnOperationSet = tnOperationSet;
     }
 
     /**

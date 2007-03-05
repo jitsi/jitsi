@@ -70,10 +70,6 @@ public class MainFrame
 
     private Hashtable protocolProviders = new Hashtable();
 
-    private Hashtable imOperationSets = new Hashtable();
-
-    private Hashtable tnOperationSets = new Hashtable();
-
     private Hashtable webContactInfoOperationSets = new Hashtable();
 
     private MetaContactListService contactList;
@@ -240,7 +236,6 @@ public class MainFrame
                 = (OperationSetBasicInstantMessaging)
                     supportedOperationSets.get(imOpSetClassName);
 
-            this.imOperationSets.put(protocolProvider, im);
             //Add to all instant messaging operation sets the Message
             //listener implemented in the ContactListPanel, which handles
             //all received messages.
@@ -255,8 +250,6 @@ public class MainFrame
             OperationSetTypingNotifications tn
                 = (OperationSetTypingNotifications)
                     supportedOperationSets.get(tnOpSetClassName);
-
-            this.tnOperationSets.put(protocolProvider, tn);
 
             //Add to all typing notification operation sets the Message
             //listener implemented in the ContactListPanel, which handles
@@ -437,46 +430,6 @@ public class MainFrame
 
         if(o != null)
             return (OperationSetPresence) o;
-
-        return null;
-    }
-
-    /**
-     * Returns the basic instant messaging(IM) operation set for the given
-     * protocol provider.
-     *
-     * @param protocolProvider The protocol provider for which the IM
-     * is searched.
-     * @return OperationSetBasicInstantMessaging The IM for the given
-     * protocol provider.
-     */
-    public OperationSetBasicInstantMessaging getProtocolIM(
-            ProtocolProviderService protocolProvider)
-    {
-        Object o = this.imOperationSets.get(protocolProvider);
-
-        if(o != null)
-            return (OperationSetBasicInstantMessaging) o;
-
-        return null;
-    }
-
-    /**
-     * Returns the typing notifications(TN) operation set for the given
-     * protocol provider.
-     *
-     * @param protocolProvider The protocol provider for which the TN
-     * is searched.
-     * @return OperationSetTypingNotifications The TN for the given
-     * protocol provider.
-     */
-    public OperationSetTypingNotifications getTypingNotifications(
-            ProtocolProviderService protocolProvider)
-    {
-        Object o = this.tnOperationSets.get(protocolProvider);
-
-        if(o != null)
-            return (OperationSetTypingNotifications) o;
 
         return null;
     }

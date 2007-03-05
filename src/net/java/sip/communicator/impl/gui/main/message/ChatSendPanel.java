@@ -6,30 +6,17 @@
  */
 package net.java.sip.communicator.impl.gui.main.message;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Date;
-import java.util.Iterator;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.i18n.I18NString;
-import net.java.sip.communicator.impl.gui.i18n.Messages;
-import net.java.sip.communicator.impl.gui.utils.AntialiasingManager;
-import net.java.sip.communicator.impl.gui.utils.Constants;
-import net.java.sip.communicator.impl.gui.utils.GuiUtils;
-import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.service.protocol.Message;
-import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
+import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ChatSendPanel</tt> is the panel in the bottom of the chat. It
@@ -42,7 +29,8 @@ public class ChatSendPanel
     extends JPanel
     implements ActionListener
 {
-
+    private Logger logger = Logger.getLogger(ChatSendPanel.class);
+    
     private I18NString sendString = Messages.getI18NString("send");
 
     private JButton sendButton = new JButton(sendString.getText());
@@ -104,8 +92,16 @@ public class ChatSendPanel
     {
         if (!this.chatPanel.isWriteAreaEmpty())
         {
-            OperationSetBasicInstantMessaging im = this.chatPanel
-                .getImOperationSet();
+            Contact contact = (Contact) contactSelectorBox.getMenu()
+                .getSelectedObject();
+         
+            OperationSetBasicInstantMessaging im
+                = (OperationSetBasicInstantMessaging) contact.getProtocolProvider()
+                    .getOperationSet(OperationSetBasicInstantMessaging.class);
+
+            OperationSetTypingNotifications tn
+            = (OperationSetTypingNotifications) contact.getProtocolProvider()
+                .getOperationSet(OperationSetTypingNotifications.class);
 
             String body = chatPanel.getTextFromWriteArea();
             Message msg = im.createMessage(body);
@@ -114,21 +110,20 @@ public class ChatSendPanel
                 .getWaitToBeDeliveredMsgs().put(msg.getMessageUID(),
                     this.chatPanel);
 
-            Contact contact = (Contact) contactSelectorBox.getMenu()
-                .getSelectedObject();
-
-            if (chatPanel.getTnOperationSet() != null)
+            if (tn != null)
             {
                 // Send TYPING STOPPED event before sending the message
                 chatPanel.stopTypingNotifications();
             }
 
             try
-            {
+            {   
                 im.sendInstantMessage(contact, msg);
             }
             catch (IllegalStateException ex)
             {
+                logger.error("Failed to send message.", ex);
+                
                 chatPanel.refreshWriteArea();
 
                 chatPanel.processMessage(
@@ -142,6 +137,25 @@ public class ChatSendPanel
                         new Date(System.currentTimeMillis()),
                         Constants.ERROR_MESSAGE,
                         Messages.getI18NString("msgSendConnectionProblem")
+                            .getText());
+            }
+            catch (Exception ex)
+            {
+                logger.error("Failed to send message.", ex);
+                
+                chatPanel.refreshWriteArea();
+
+                chatPanel.processMessage(
+                        contact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.OUTGOING_MESSAGE,
+                        msg.getContent());
+
+                chatPanel.processMessage(
+                        contact.getDisplayName(),
+                        new Date(System.currentTimeMillis()),
+                        Constants.ERROR_MESSAGE,
+                        Messages.getI18NString("msgDeliveryInternalError")
                             .getText());
             }
         }

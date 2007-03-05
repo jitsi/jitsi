@@ -102,25 +102,12 @@ public class ProtocolContactSelectorBox
     public void actionPerformed(ActionEvent e) {
         JMenuItem menuItem = (JMenuItem) e.getSource();
 
-        MainFrame mainFrame = chatPanel.getChatWindow().getMainFrame();
-
         Enumeration i = contactsTable.keys();
         while(i.hasMoreElements()) {
             Contact protocolContact = (Contact) i.nextElement();
 
-            if (contactsTable.get(protocolContact).equals(menuItem)) {
-
-                OperationSetBasicInstantMessaging im
-                    = mainFrame.getProtocolIM(
-                                protocolContact.getProtocolProvider());
-
-                OperationSetTypingNotifications tn
-                    = mainFrame.getTypingNotifications(
-                            protocolContact.getProtocolProvider());
-
-                chatPanel.setImOperationSet(im);
-                chatPanel.setTnOperationSet(tn);
-
+            if (contactsTable.get(protocolContact).equals(menuItem))
+            {
                 this.setSelected(protocolContact, (ImageIcon)menuItem.getIcon());
 
                 return;

@@ -125,8 +125,9 @@ public class HistoryWindow
         {
             Contact protoContact = (Contact) protoContacts.next();
             
-            this.mainFrame.getProtocolIM(protoContact.getProtocolProvider())
-                .addMessageListener(this);
+            ((OperationSetBasicInstantMessaging) protoContact.getProtocolProvider()
+                .getOperationSet(OperationSetBasicInstantMessaging.class))
+                    .addMessageListener(this);
         }
     }
 
