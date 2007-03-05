@@ -199,7 +199,8 @@ public class ProtocolProviderServiceMsnImpl
     {
         RegistrationState currRegState = getRegistrationState();
 
-        messenger.logout();
+        if(messenger != null)
+            messenger.logout();
 
         if(fireEvent)
         {
@@ -456,7 +457,7 @@ public class ProtocolProviderServiceMsnImpl
         public void logout(MsnMessenger msnMessenger)
         {
             logger.trace("logout");
-            unregister(false);
+            unregister(true);
 //            if(isRegistered())
 //                fireRegistrationStateChanged(
 //                    getRegistrationState(),
