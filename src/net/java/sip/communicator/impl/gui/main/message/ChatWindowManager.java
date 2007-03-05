@@ -57,44 +57,46 @@ public class ChatWindowManager
         {
             ChatWindow chatWindow = chatPanel.getChatWindow();
 
-            if(!chatPanel.isWindowVisible())
+            boolean isChatVisible = chatPanel.isWindowVisible();
+            
+            if(!isChatVisible)
                 chatWindow.addChat(chatPanel);
 
             if(chatWindow.isVisible())
-            {   
-                if (ConfigurationManager.isAutoPopupNewMessage() || setSelected)
-                {   
+            {
+                if ((ConfigurationManager.isAutoPopupNewMessage()
+                        && chatWindow.getExtendedState() != JFrame.ICONIFIED)
+                    || setSelected)
+                {
                     if(chatWindow.getState() == JFrame.ICONIFIED)
-                        chatWindow.setState(JFrame.NORMAL);
-
+                        chatWindow.setExtendedState(JFrame.NORMAL);
+                    
                     chatWindow.toFront();
+                    chatWindow.setCurrentChatPanel(chatPanel);
                 }
                 else
                 {
                     if (chatWindow.getState() == JFrame.ICONIFIED
-                        && !chatWindow.getTitle().startsWith("*"))
+                            && !chatWindow.getTitle().startsWith("*"))
                     {
-                        chatWindow.setTitle(
-                                "*" + chatWindow.getTitle());
+                            chatWindow.setTitle(
+                                    "*" + chatWindow.getTitle());
                     }
                 }
             }
             else
-            {
-                if(!setSelected)
-                    chatWindow.setCurrentChatPanel(chatPanel);
-                
+            {   
                 chatWindow.setVisible(true);
+                
+                chatWindow.setCurrentChatPanel(chatPanel);
             }
 
             chatPanel.setCaretToEnd();
             
-            if(setSelected)
-                chatWindow.setCurrentChatPanel(chatPanel);
-            else
+            if(!chatWindow.getCurrentChatPanel().equals(chatPanel)
+                && chatWindow.getChatTabCount() > 0)
             {
-                if(chatWindow.getChatTabCount() > 0)
-                    chatPanel.getChatWindow().highlightTab(chatPanel);
+                chatPanel.getChatWindow().highlightTab(chatPanel);
             }
         }
     }
