@@ -64,24 +64,33 @@ public class ChatWindowManager
 
             if(chatWindow.isVisible())
             {
-                if ((ConfigurationManager.isAutoPopupNewMessage()
-                        && chatWindow.getExtendedState() != JFrame.ICONIFIED)
-                    || setSelected)
+                if(chatWindow.getExtendedState() != JFrame.ICONIFIED)
                 {
-                    if(chatWindow.getState() == JFrame.ICONIFIED)
-                        chatWindow.setExtendedState(JFrame.NORMAL);
-                    
-                    chatWindow.toFront();
-                    chatWindow.setCurrentChatPanel(chatPanel);
+                    if(ConfigurationManager.isAutoPopupNewMessage()
+                        || setSelected)
+                        chatWindow.toFront();
                 }
                 else
                 {
-                    if (chatWindow.getState() == JFrame.ICONIFIED
-                            && !chatWindow.getTitle().startsWith("*"))
+                    if(setSelected)
                     {
-                            chatWindow.setTitle(
-                                    "*" + chatWindow.getTitle());
+                        chatWindow.setExtendedState(JFrame.NORMAL);
+                        chatWindow.toFront();
                     }
+                    
+                    if(!chatWindow.getTitle().startsWith("*"))
+                        chatWindow.setTitle(
+                            "*" + chatWindow.getTitle());
+                }
+                
+                if(setSelected)
+                {
+                    chatWindow.setCurrentChatPanel(chatPanel);
+                }
+                else if(!chatWindow.getCurrentChatPanel().equals(chatPanel)
+                    && chatWindow.getChatTabCount() > 0)
+                {
+                    chatPanel.getChatWindow().highlightTab(chatPanel);
                 }
             }
             else
@@ -92,12 +101,6 @@ public class ChatWindowManager
             }
 
             chatPanel.setCaretToEnd();
-            
-            if(!chatWindow.getCurrentChatPanel().equals(chatPanel)
-                && chatWindow.getChatTabCount() > 0)
-            {
-                chatPanel.getChatWindow().highlightTab(chatPanel);
-            }
         }
     }
     
