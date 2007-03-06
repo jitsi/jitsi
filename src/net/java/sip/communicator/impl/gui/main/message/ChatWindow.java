@@ -233,7 +233,11 @@ public class ChatWindow
 
                 chatTabbedPane.addTab(contactName, new ImageIcon(Constants
                     .getStatusIcon(status)), chatPanel);
-
+				
+				//when added to the tabbed pane, the first chat panel should rest
+				//the selected component
+                chatTabbedPane.setSelectedComponent(firstChatPanel);
+                
                 // Workaround for the following problem:
                 // The scrollbar in the conversation area moves up when the
                 // scrollpane is resized. This happens when ChatWindow is in
