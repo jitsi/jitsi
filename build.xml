@@ -38,7 +38,7 @@
     <property name="release.src" value="${release}/install"/>
     <property name="resources" value="resources"/>
     <property name="inst.resrc" value="${resources}/install"/>
-    <property name="path" value="${basedir}/${lib}/native/windows:${system.PATH}"/>
+    <property name="path" value="${basedir}/${lib}/native/windows;${system.PATH}"/>
 
     <!-- set the build label property and make it take the cc bild into account -->
     <condition property="build.label"
@@ -763,10 +763,10 @@
                 value="false"/>
 
             <!-- Setting properties necessary for dependencies on native libs.-->
-            <sysproperty key="java.library.path" value="${ld.library.path}:${path}:${dyld.library.path}"/>
-            <env key="LD_LIBRARY_PATH" value="${ld.library.path}"/>
-            <env key="PATH" value="${path}"/>
-            <env key="DYLD_LIBRARY_PATH" value="${dyld.library.path}"/>
+            <sysproperty key="java.library.path" path="${ld.library.path}:${path}:${dyld.library.path}"/>
+            <env key="LD_LIBRARY_PATH" path="${ld.library.path}"/>
+            <env key="PATH" path="${path}"/>
+            <env key="DYLD_LIBRARY_PATH" path="${dyld.library.path}"/>
         </java>
 
     </target>
