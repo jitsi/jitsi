@@ -646,16 +646,9 @@
 
     <!--RUN-TESTS-->
     <target name="test"
-        depends="prepare-single-test,prepare-all-tests,clean-test-reports"
+        depends="prepare-single-test,prepare-all-tests,clean-test-reports,
+                 -deploy-os-specific-bundles"
         description="Starts felix and runs selected Service Impl Compatibility Kits.">
-
-        <!-- before we run the tests, make sure we copy os-specific bundles
-             from sc-bundles/osname to its parent sc-bundles-->
-        <copy todir="${bundles.dest}">
-            <fileset dir="${bundles.dest.os}">
-                <include name="**/*.jar"/>
-            </fileset>
-        </copy>
 
         <!-- Do the testing itself. Note that we don't fail on error as we need
              to generate an html report before leaving this target.-->
@@ -730,17 +723,9 @@
       </junitreport>
     </target>
 
-    <!--RUN-SIP-COMMUNICATOR - n.b. has NO Dependents!! -->
-    <target name="run"
+    <!--RUN-SIP-COMMUNICATOR -->
+    <target name="run" depends="-deploy-os-specific-bundles"
         description="Starts felix and runs sip-comunicator gui (use latest build).">
-
-        <!-- before we run, make sure we copy os-specific bundles from
-             sc-bundles/osname to its parent sc-bundles-->
-        <copy todir="${bundles.dest}">
-            <fileset dir="${bundles.dest.os}">
-                <include name="**/*.jar"/>
-            </fileset>
-        </copy>
 
          <!-- forking prevents from debugging -->
         <java classname="org.apache.felix.main.Main"
@@ -769,6 +754,17 @@
             <env key="DYLD_LIBRARY_PATH" path="${dyld.library.path}"/>
         </java>
 
+    </target>
+
+    <!-- we run this target before we run SC in order to copy os-specific
+             bundles from sc-bundles/osname to its parent sc-bundles-->
+    <target name="-deploy-os-specific-bundles" if="bundles.dest">
+
+        <copy todir="${bundles.dest}">
+            <fileset dir="${bundles.dest.os}">
+                <include name="**/*.jar"/>
+            </fileset>
+        </copy>
     </target>
 
     <!--CRUISE CONTROL BUILD LOOP target-->
