@@ -402,11 +402,12 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 // run keepalive thread
                 if(keepAliveSendTask == null)
                 {
-                    keepAliveSendTask = new KeepAliveSendTask();
-                    keepAliveTimer = new Timer();
+//Temporarily disable keep alives as they seem to be causing trouble 
+//                    keepAliveSendTask = new KeepAliveSendTask();
+//                    keepAliveTimer = new Timer();
 
-                    keepAliveTimer.scheduleAtFixedRate(
-                        keepAliveSendTask, KEEPALIVE_INTERVAL, KEEPALIVE_INTERVAL);
+//                    keepAliveTimer.scheduleAtFixedRate(
+//                        keepAliveSendTask, KEEPALIVE_INTERVAL, KEEPALIVE_INTERVAL);
                 }
             }
             else
