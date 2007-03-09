@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.gui.main.call.CallManager;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
 /**
  * The <tt>ViewMenu</tt> is a menu in the main application menu bar.
@@ -54,7 +55,14 @@ public class ViewMenu
         
         this.mainFrame = mainFrame;
 
-        this.hideCallPanelItem.setSelected(false);
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+    
+        String isCallPanelShown = configService.getString(
+            "net.java.sip.communicator.impl.gui.showCallPanel");
+
+        this.hideCallPanelItem.setSelected(
+            !new Boolean(isCallPanelShown).booleanValue());
         
         this.add(hideCallPanelItem);
         
