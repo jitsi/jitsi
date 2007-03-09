@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smackx.packet.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 
@@ -86,6 +87,9 @@ public class ContactJabberImpl
 
     public byte[] getImage()
     {
+        if(image == null)
+            image = getAvatar();
+        
         return image;
     }
 
@@ -283,6 +287,22 @@ public class ContactJabberImpl
     RosterEntry getSourceEntry()
     {
         return rosterEntry;
+    }
+    
+    private byte[] getAvatar()
+    {
+        try
+        {
+            VCard card = new VCard();
+            card.load(
+                ssclCallback.getParentProvider().getConnection(), 
+                getAddress());
+            
+            return card.getAvatar();
+        }
+        catch (XMPPException e) {}
+        
+        return null;
     }
 
 }
