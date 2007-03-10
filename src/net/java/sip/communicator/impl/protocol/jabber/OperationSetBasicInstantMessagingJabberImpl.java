@@ -189,6 +189,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
     public void sendInstantMessage(Contact to, Message message)
         throws IllegalStateException, IllegalArgumentException
     {
+        if( !(to instanceof ContactJabberImpl) )
+           throw new IllegalArgumentException(
+               "The specified contact is not a Jabber contact."
+               + to);
+
         try
         {
             assertConnected();
