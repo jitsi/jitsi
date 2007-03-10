@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
-import javax.naming.*;
+import java.text.*;
 
 /**
  * An implementation of the protocol provider service over the Jabber protocol
@@ -70,7 +70,7 @@ public class ProtocolProviderServiceJabberImpl
      */
     private ProtocolIconJabberImpl jabberIcon
         = new ProtocolIconJabberImpl();
-    
+
     /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
@@ -265,7 +265,7 @@ public class ProtocolProviderServiceJabberImpl
                         serverAddress = hosts[0];
                     }
                 }
-                catch (NamingException ex1)
+                catch (ParseException ex1)
                 {
                     logger.error("Domain not resolved " + ex1.getMessage());
                 }
@@ -468,6 +468,15 @@ public class ProtocolProviderServiceJabberImpl
             supportedOperationSets.put(
                 OperationSetTypingNotifications.class.getName(),
                 typingNotifications);
+
+            //initialize the multi user chat operation set
+            OperationSetMultiUserChat multiUserChat =
+                new OperationSetMultiUserChatJabberImpl(this);
+
+            supportedOperationSets.put(
+                OperationSetMultiUserChat.class.getName(),
+                multiUserChat);
+
 
             isInitialized = true;
         }
