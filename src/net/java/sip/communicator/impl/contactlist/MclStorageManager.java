@@ -528,6 +528,9 @@ public class MclStorageManager
             processGroupXmlNode(mclServiceImpl, accountID, root
                                 , null, null);
 
+            //now save the contact list in case it has changed
+            scheduleContactListStorage();
+
             //now that we're done updating the contact list we can start listening
             //again
             this.mclServiceImpl.addMetaContactListListener(this);
