@@ -194,6 +194,7 @@ public class ContactGibberishImpl
      * volatile even when coming from a persistent presence op. set. They would
      * only exist until the application is closed and will not be there next
      * time it is loaded.
+     *
      * @return true if the contact is persistent and false otherwise.
      */
     public boolean isPersistent()
@@ -237,6 +238,7 @@ public class ContactGibberishImpl
      * list that has been stored in a local file until the presence operation
      * set has managed to retrieve all the contact list from the server and has
      * properly mapped contacts to their on-line buddies.
+     *
      * @return true if the contact has been resolved (mapped against a buddy)
      * and false otherwise.
      */
