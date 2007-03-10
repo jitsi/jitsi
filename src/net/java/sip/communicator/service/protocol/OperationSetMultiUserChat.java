@@ -63,11 +63,13 @@ public interface OperationSetMultiUserChat
      * @throws OperationFailedException if the room couldn't be created for some
      * reason (e.g. room already exists; user already joined to an existant
      * room or user has no permissions to create a chat room).
+     * @throws OperationNotSupportedException if chat room creation is not
+     * supported by this server
      *
      * @return the newly created <tt>ChatRoom</tt> named <tt>roomName</tt>.
      */
     public ChatRoom createChatRoom(String roomName, Hashtable roomProperties)
-        throws OperationFailedException;
+        throws OperationFailedException, OperationNotSupportedException;
 
     /**
      * Returns a reference to a chatRoom named <tt>roomName</tt> or null if

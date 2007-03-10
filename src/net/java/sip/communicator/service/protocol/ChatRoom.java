@@ -6,11 +6,8 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.event.ChatRoomPropertyChangeListener;
-import net.java.sip.communicator.service.protocol.event.ChatRoomLocalUserStatusListener;
-import net.java.sip.communicator.service.protocol.event.ChatRoomParticipantStatusListener;
-import java.util.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import java.util.*;
 
 /**
  * Represents a chat channel/room/rendez-vous point/ where multiple chat users
@@ -32,7 +29,6 @@ public interface ChatRoom
      * Joins this chat room with the nickname of the local user so that the
      * user would start receiving events and messages for it.
      *
-     * @param nickname the nickname to use.
      * @throws OperationFailedException with the corresponding code if an error
      * occurs while joining the room.
      */
@@ -72,6 +68,8 @@ public interface ChatRoom
      * OperationFailedException with code IDENTIFICATION_CONFLICT.
      *
      * @param nickname the nickname to use.
+     * @param password a password necessary to authenticate when joining the
+     * room.
      * @throws OperationFailedException with the corresponding code if an error
      * occurs while joining the room.
      */
@@ -157,7 +155,8 @@ public interface ChatRoom
      * method throws an OperationFailedException with the corresponding code.
      *
      * @param nickname the new nickname within the room.
-     * @throws OperationFaileEexception if the setting the new nickname changes
+     *
+     * @throws OperationFailedException if the setting the new nickname changes
      * for some reason.
      */
     public void setNickname(String nickname)
@@ -246,6 +245,37 @@ public interface ChatRoom
      * @param listener the <tt>MessageListener</tt> to remove from this room
      */
     public void removeMessageListener(ChatRoomMessageListener listener);
+
+    /**
+     * Create a Message instance for sending arbitrary MIME-encoding content.
+     *
+     * @param content content value
+     * @param contentType the MIME-type for <tt>content</tt>
+     * @param contentEncoding encoding used for <tt>content</tt>
+     * @param subject a <tt>String</tt> subject or <tt>null</tt> for now subject.
+     * @return the newly created message.
+     */
+    public Message createMessage(byte[] content, String contentType,
+                                 String contentEncoding, String subject);
+
+    /**
+     * Create a Message instance for sending a simple text messages with default
+     * (text/plain) content type and encoding.
+     *
+     * @param messageText the string content of the message.
+     * @return Message the newly created message
+     */
+    public Message createMessage(String messageText);
+
+    /**
+     * Sends the <tt>message</tt> to the destination indicated by the
+     * <tt>to</tt> contact.
+     * @param message the <tt>Message</tt> to send.
+     * @throws java.lang.IllegalStateException if the underlying stack is
+     * not registered or initialized or if the chat room is not joined.
+     */
+    public void sendMessage(Message message)
+        throws IllegalStateException;
 
     //include - roominfo
     /** @todo include room info */

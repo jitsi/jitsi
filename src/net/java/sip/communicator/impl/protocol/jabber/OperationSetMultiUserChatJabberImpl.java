@@ -10,7 +10,11 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import org.jivesoftware.smack.*;
+import net.java.sip.communicator.util.*;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.RoomInfo;
+import org.jivesoftware.smack.packet.*;
 
 /**
  * A jabber implementation of the multi user chat operation set.
@@ -20,6 +24,8 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 public class OperationSetMultiUserChatJabberImpl
     implements OperationSetMultiUserChat
 {
+    private static final Logger logger
+        = Logger.getLogger(OperationSetMultiUserChatJabberImpl.class);
 
     /**
      * The currently valid jabber protocol provider service implementation.
@@ -38,15 +44,26 @@ public class OperationSetMultiUserChatJabberImpl
     private Vector invitationRejectionListeners = new Vector();
 
     /**
+     * A list of the rooms that are currently open by this account. (We have
+     * not necessarily joined these rooms).
+     */
+    private Vector currentlyOpenChatRooms = new Vector();
+
+    /**
      * Instantiates the user operation set with a currently valid instance of
      * the jabber protocol provider.
-     * @param jImpl a currently valid instance of
+     * @param jabberProvider a currently valid instance of
      * ProtocolProviderServiceJabberImpl.
      */
     OperationSetMultiUserChatJabberImpl(
                         ProtocolProviderServiceJabberImpl jabberProvider)
     {
         this.jabberProvider = jabberProvider;
+
+//        throw new RuntimeException("implement invitation listeners");
+        /** @todo implement invitation listeners */
+//        MultiUserChat.addInvitationListener(jabberProvider.getConnection()
+//                                            , this);
     }
 
     /**
@@ -60,6 +77,20 @@ public class OperationSetMultiUserChatJabberImpl
         {
             if (!invitationListeners.contains(listener))
                 invitationListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes <tt>listener</tt> from the list of invitation listeners
+     * registered to receive invitation events.
+     *
+     * @param listener the invitation listener to remove.
+     */
+    public void removeInvitationListener(InvitationListener listener)
+    {
+        synchronized(invitationListeners)
+        {
+            invitationListeners.remove(listener);
         }
     }
 
@@ -78,7 +109,21 @@ public class OperationSetMultiUserChatJabberImpl
             if (!invitationRejectionListeners.contains(listener))
                 invitationRejectionListeners.add(listener);
         }
+    }
 
+    /**
+     * Removes <tt>listener</tt> from the list of invitation listeners
+     * registered to receive invitation rejection events.
+     *
+     * @param listener the invitation listener to remove.
+     */
+    public void removeInvitationRejectionListener(InvitationRejectionListener
+                                                  listener)
+    {
+        synchronized(invitationRejectionListeners)
+        {
+            invitationRejectionListeners.remove(listener);
+        }
     }
 
     /**
@@ -89,16 +134,90 @@ public class OperationSetMultiUserChatJabberImpl
      * @param roomName the name of the <tt>ChatRoom</tt> to create.
      * @param roomProperties properties specifying how the room should be
      *   created.
+     *
      * @throws OperationFailedException if the room couldn't be created for
      *   some reason (e.g. room already exists; user already joined to an
      *   existant room or user has no permissions to create a chat room).
+     * @throws OperationNotSupportedException if chat room creation is not
+     * supported by this server
+     *
      * @return ChatRoom the chat room that we've just created.
      */
     public ChatRoom createChatRoom(String roomName, Hashtable roomProperties)
-        throws OperationFailedException
+        throws OperationFailedException, OperationNotSupportedException
     {
-//        return MultiUserChat.c;
-        return null;
+        if(MultiUserChat.isServiceEnabled(
+            getXmppConnection()
+            , jabberProvider.getAccountID().getUserID()))
+        {
+            throw new OperationNotSupportedException(
+                "Impossible to create chat rooms on server "
+                + jabberProvider.getAccountID().getService()
+                + " for user "
+                + jabberProvider.getAccountID().getUserID());
+        }
+
+        //retrieve room info in order to determine whether the room actually
+        //exists
+//        RoomInfo roomInfo = null;
+//        try
+//        {
+//            roomInfo
+//                = MultiUserChat.getRoomInfo(getXmppConnection(), roomName);
+//            logger.error("RoomInfo=" + roomInfo.toString());
+//        }
+//        catch (XMPPException ex)
+//        {
+//            logger.error("Failed to retrieve room info.", ex);
+//            if(ex.getXMPPError().getCode() == 404)
+//                logger.warn("niama iaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+//            throw new OperationFailedException("Failed to retrieve room info."
+//                      , OperationFailedException.GENERAL_ERROR
+//                      , ex);
+//        }
+//
+        MultiUserChat muc
+            = new MultiUserChat(getXmppConnection(), roomName);
+
+        try
+        {
+            logger.error("MUCI=" + muc.toString());
+            logger.debug("muc.getRoom()=" + muc.getRoom());
+            logger.debug("muc.getConfigurationForm();=" +
+                         muc.getConfigurationForm());
+            logger.debug("muc.getSubject();=" + muc.getSubject());
+            logger.debug("muc.getOwners();=" + muc.getOwners());
+//            muc.is
+        }
+        catch (XMPPException ex2)
+        {
+            ex2.printStackTrace(System.out);
+            throw new OperationFailedException("", 0, ex2);
+        }
+
+
+        try
+        {
+            try
+            {
+                muc.create("kiki");
+            }
+            catch (XMPPException ex1)
+            {
+            }
+            muc.join("kiki");
+            muc.sendMessage("created a room");
+        }
+        catch (XMPPException ex)
+        {
+            logger.error("Failed to create or join a chat room", ex);
+            throw new OperationFailedException(
+                "Failed to create or join a chat room"
+                , OperationFailedException.FORBIDDEN);
+        }
+
+        ChatRoomJabberImpl chatRoom = new ChatRoomJabberImpl(muc);
+        return chatRoom;
     }
 
     /**
@@ -199,33 +318,16 @@ public class OperationSetMultiUserChatJabberImpl
     }
 
     /**
-     * Removes <tt>listener</tt> from the list of invitation listeners
-     * registered to receive invitation events.
+     * Almost all <tt>MultiUserChat</tt> methods require an xmpp connection
+     * param so I added this method only for the sake of utility.
      *
-     * @param listener the invitation listener to remove.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.OperationSetMultiUserChat
-     *   method
+     * @return the XMPPConnection currently in use by the jabber provider or
+     * null if jabber provider has yet to be initialized.
      */
-    public void removeInvitationListener(InvitationListener listener)
+    private XMPPConnection getXmppConnection()
     {
-    }
-
-    /**
-     * Removes <tt>listener</tt> from the list of invitation listeners
-     * registered to receive invitation rejection events.
-     *
-     * @param listener the invitation listener to remove.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.OperationSetMultiUserChat
-     *   method
-     */
-    public void removeInvitationRejectionListener(InvitationRejectionListener
-                                                  listener)
-    {
-    }
-
-    public static void main(String[] args)
-    {
+        return (jabberProvider == null)
+            ? null
+            :jabberProvider.getConnection();
     }
 }

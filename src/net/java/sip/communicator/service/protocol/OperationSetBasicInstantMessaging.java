@@ -35,8 +35,8 @@ public interface OperationSetBasicInstantMessaging
      * @param subject a <tt>String</tt> subject or <tt>null</tt> for now subject.
      * @return the newly created message.
      */
-    Message createMessage(byte[] content,         String contentType,
-                          String contentEncoding, String subject);
+    public Message createMessage(byte[] content,         String contentType,
+                                 String contentEncoding, String subject);
 
     /**
      * Create a Message instance for sending a simple text messages with default
@@ -45,7 +45,7 @@ public interface OperationSetBasicInstantMessaging
      * @param messageText the string content of the message.
      * @return Message the newly created message
      */
-    Message     createMessage(String messageText);
+    public Message createMessage(String messageText);
 
     /**
      * Sends the <tt>message</tt> to the destination indicated by the
