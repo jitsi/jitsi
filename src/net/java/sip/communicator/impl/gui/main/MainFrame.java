@@ -74,8 +74,6 @@ public class MainFrame
 
     private MetaContactListService contactList;
 
-    private Hashtable waitToBeDeliveredMsgs = new Hashtable();
-
     private LoginManager loginManager;
 
     private ChatWindowManager chatWindowManager;
@@ -548,11 +546,6 @@ public class MainFrame
         public void providerStatusMessageChanged(PropertyChangeEvent evt) {
 
         }
-    }
-
-    public Hashtable getWaitToBeDeliveredMsgs()
-    {
-        return waitToBeDeliveredMsgs;
     }
 
     /**

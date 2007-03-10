@@ -262,16 +262,24 @@ public class ContactListPanel
      */
     public void messageDelivered(MessageDeliveredEvent evt)
     {
+        Contact contact = evt.getDestinationContact();
+        
+        MetaContact metaContact = mainFrame.getContactList()
+            .findMetaContactByContact(contact);
+                
         logger.trace("MESSAGE DELIVERED to contact: "
             + evt.getDestinationContact().getAddress());
         
-        Message msg = evt.getSourceMessage();
-        Hashtable waitToBeDelivered = this.mainFrame.getWaitToBeDeliveredMsgs();
-        String msgUID = msg.getMessageUID();
-
-        if (waitToBeDelivered.containsKey(msgUID)) {
-            ChatPanel chatPanel = (ChatPanel) waitToBeDelivered.get(msgUID);
-
+        Message msg = evt.getSourceMessage();        
+        
+        ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
+        ChatPanel chatPanel = null;
+        
+        if(chatWindowManager.isChatOpenedForContact(metaContact))
+            chatPanel = chatWindowManager.getContactChat(metaContact);
+            
+        if (chatPanel != null)
+        {   
             ProtocolProviderService protocolProvider = evt
                     .getDestinationContact().getProtocolProvider();
 

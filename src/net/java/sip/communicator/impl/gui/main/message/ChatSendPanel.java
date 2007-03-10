@@ -105,11 +105,7 @@ public class ChatSendPanel
 
             String body = chatPanel.getTextFromWriteArea();
             Message msg = im.createMessage(body);
-
-            this.chatPanel.getChatWindow().getMainFrame()
-                .getWaitToBeDeliveredMsgs().put(msg.getMessageUID(),
-                    this.chatPanel);
-
+            
             if (tn != null)
             {
                 // Send TYPING STOPPED event before sending the message
