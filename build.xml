@@ -936,6 +936,7 @@
             manifest="src/net/java/sip/communicator/util/util.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/util"
                 prefix="net/java/sip/communicator/util"/>
+            <zipfileset src="${lib.noinst}/dnsjava-2.0.3.jar" prefix=""/>
         </jar>
     </target>
 
