@@ -146,6 +146,12 @@ public class OperationSetTypingNotificationsJabberImpl
     {
         assertConnected();
 
+        if( !(notifiedContact instanceof ContactJabberImpl) )
+           throw new IllegalArgumentException(
+               "The specified contact is not a Jabber contact."
+               + notifiedContact);
+
+
         String packetID =
             (String)packetIDsTable.get(notifiedContact.getAddress());
 
