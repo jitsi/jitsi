@@ -1,4 +1,3 @@
-
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
