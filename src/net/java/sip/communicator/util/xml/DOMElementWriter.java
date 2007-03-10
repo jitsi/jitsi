@@ -111,7 +111,11 @@ public class DOMElementWriter {
         // Write child elements and text
         boolean hasChildren = false;
         NodeList children = element.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
+        for (int i = 0
+             ; element.hasChildNodes()
+               && i < children.getLength()
+             ; i++)
+        {
             Node child = children.item(i);
 
             switch (child.getNodeType()) {
