@@ -8,14 +8,15 @@ package net.java.sip.communicator.util;
 
 import java.net.*;
 import java.util.*;
-import javax.naming.*;
-import javax.naming.directory.*;
+import org.xbill.DNS.*;
+import java.text.*;
 
 /**
  * Utility methods and fields to use when working with network addresses.
  *
  * @author Emil Ivov
  * @author Damian Minkov
+ * @author Vincent Lucas
  */
 public class NetworkUtils
 {
@@ -155,42 +156,56 @@ public class NetworkUtils
      * included).
      * @return an array of Strings containing records returned by the DNS
      * server.
-     * @throws NamingException if the DNS query fails.
+     * @throws ParseException if <tt>domain</tt> is not a valide domain name.
      */
     public static String[] getSRVRecords(String domain)
-        throws NamingException
+        throws ParseException
     {
-        InitialDirContext iDirC = new InitialDirContext();
-        Attributes attributes =
-            iDirC.getAttributes("dns:/" + domain, new String[]{"SRV"});
-        Attribute attributeSRV = attributes.get("SRV");
-
-        // if there is no SRV record
-        if(attributeSRV == null)
-            return null;
-
-        String[][] pvhn = new String[attributeSRV.size()][2];
-        for(int i = 0; i < attributeSRV.size(); i++)
+        Record[] records = null;
+        try
         {
-            pvhn[i] = ("" + attributeSRV.get(i)).split("\\s+");
+            Lookup lookup = new Lookup(domain, Type.SRV);
+            records = lookup.run();
+        }
+        catch (TextParseException tpe)
+        {
+            logger.error("Failed to parse domain="+domain, tpe);
+            throw new ParseException(tpe.getMessage(), 0);
+        }
+        if (records == null)
+        {
+            return null;
         }
 
-        // sort the SRV RRs by RR value (lower is preferred)
+        String[][] pvhn = new String[records.length][4];
+        for (int i = 0; i < records.length; i++)
+        {
+            SRVRecord srvRecord = (SRVRecord) records[i];
+            pvhn[i][0] = "" + srvRecord.getPriority();
+            pvhn[i][1] = "" + srvRecord.getWeight();
+            pvhn[i][2] = "" + srvRecord.getPort();
+            pvhn[i][3] = srvRecord.getTarget().toString();
+            if (pvhn[i][3].endsWith("."))
+            {
+                pvhn[i][3] = pvhn[i][3].substring(0, pvhn[i][3].length() - 1);
+            }
+        }
+
+        /* sort the SRV RRs by RR value (lower is preferred) */
         Arrays.sort(pvhn, new Comparator()
         {
             public int compare(Object o1, Object o2)
             {
-                return ( Integer.parseInt(((String[])o1)[0])
-                       - Integer.parseInt(((String[])o2)[0]));
+                return (Integer.parseInt( ( (String[]) o1)[0])
+                        - Integer.parseInt( ( (String[]) o2)[0]));
             }
         });
 
-        // put sorted host names in an array, get rid of any trailing '.'
+        /* put sorted host names in an array, get rid of any trailing '.' */
         String[] sortedHostNames = new String[pvhn.length];
-        for(int i = 0; i < pvhn.length; i++)
+        for (int i = 0; i < pvhn.length; i++)
         {
-            sortedHostNames[i] = pvhn[i][3].endsWith(".") ?
-                pvhn[i][3].substring(0, pvhn[i][3].length() - 1) : pvhn[i][3];
+            sortedHostNames[i] = pvhn[i][3];
         }
 
         if (logger.isTraceEnabled())
@@ -201,6 +216,7 @@ public class NetworkUtils
                 logger.trace(sortedHostNames[i]);
             }
         }
-       return sortedHostNames;
+        return sortedHostNames;
+
     }
 }
