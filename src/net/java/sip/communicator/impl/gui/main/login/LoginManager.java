@@ -211,7 +211,7 @@ public class LoginManager
             + " changed its state to: " + evt.getNewState().getStateName());
 
         OperationSetPresence presence = mainFrame
-            .getProtocolPresence(protocolProvider);
+            .getProtocolPresenceOpSet(protocolProvider);
 
         if (evt.getNewState().equals(RegistrationState.REGISTERED)) {
 
