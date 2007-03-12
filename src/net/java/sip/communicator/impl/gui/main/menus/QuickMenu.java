@@ -239,7 +239,7 @@ public class QuickMenu
                 while(protocolContacts.hasNext()) {
                     Contact protoContact = (Contact) protocolContacts.next();
                     
-                    wContactInfo = mainFrame.getWebContactInfo(
+                    wContactInfo = mainFrame.getWebContactInfoOpSet(
                         protoContact.getProtocolProvider());
                     
                     if(wContactInfo != null)
