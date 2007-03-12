@@ -320,4 +320,14 @@ public class ContactIcqImpl
             }
         }
     }
+    
+    /**
+     * Used to set the image of the contact if it is updated
+     *
+     * @param nickname String the value
+     */
+    protected void setImage(byte[] image)
+    {
+        this.image = image;
+    }
 }

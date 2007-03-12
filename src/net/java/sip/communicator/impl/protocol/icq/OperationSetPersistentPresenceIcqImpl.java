@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
 import net.java.sip.communicator.service.protocol.AuthorizationResponse.*;
 import net.java.sip.communicator.util.*;
+import net.kano.joscar.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
 import net.kano.joscar.snaccmd.*;
@@ -25,6 +26,7 @@ import net.kano.joustsim.oscar.*;
 import net.kano.joustsim.oscar.oscar.service.bos.*;
 import net.kano.joustsim.oscar.oscar.service.buddy.*;
 import net.kano.joustsim.oscar.oscar.service.ssi.*;
+import net.kano.joustsim.oscar.oscar.service.icon.*;
 
 
 /**
@@ -1240,6 +1242,10 @@ public class OperationSetPersistentPresenceIcqImpl
 //                 contacts and we really need it here ...*/
                 icqProvider.getAimConnection().getBuddyInfoManager()
                     .addGlobalBuddyInfoListener(new GlobalBuddyInfoListener());
+                
+                icqProvider.getAimConnection().getExternalServiceManager().
+                    getIconServiceArbiter().addIconRequestListener(
+                        new IconUpdateListener());
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                  || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
@@ -1561,6 +1567,38 @@ public class OperationSetPersistentPresenceIcqImpl
         public void youWereAdded(Screenname screenname)
         {
             logger.trace("youWereAdded from " + screenname);
+        }
+    }
+    
+    /**
+     * Notified if buddy icon is changed
+     */
+    private class IconUpdateListener
+        implements IconRequestListener
+    {
+        public void buddyIconCleared(IconService iconService, Screenname screenname, ExtraInfoData extraInfoData)
+        {
+            updateBuddyyIcon(screenname, null);
+        }
+
+        public void buddyIconUpdated(IconService iconService, Screenname screenname, ExtraInfoData extraInfoData, ByteBlock byteBlock)
+        {
+            if(byteBlock != null)
+                updateBuddyyIcon(screenname, byteBlock.toByteArray());
+        }
+        
+        /**
+         * Changes the Contact image
+         * @param screenname the contact screenname
+         * @param icon byte array representing the image
+         */
+        private void updateBuddyyIcon(Screenname screenname, byte[] icon)
+        {
+            ContactIcqImpl contact = 
+                ssContactList.findContactByScreenName(screenname.getFormatted());
+            
+            if(contact != null)
+                contact.setImage(icon);
         }
     }
 }
