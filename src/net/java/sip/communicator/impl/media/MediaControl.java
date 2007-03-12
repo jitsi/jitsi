@@ -27,6 +27,7 @@ import java.awt.Dimension;
  * @author Martin Andre
  * @author Emil Ivov
  * @author Damian Minkov
+ * @author Jean Lorchat
  */
 public class MediaControl
 {
@@ -123,7 +124,7 @@ public class MediaControl
      * to use instead of capture devices.
      */
     private static final String DEBUG_DATA_SOURCE_URL_PROPERTY_NAME
-        = "net.java.sip.communicator.impl.media.DEBUG_DATA_SOURCE_URL";
+ 	 = "net.java.sip.communicator.impl.media.DEBUG_DATA_SOURCE_URL";
 
     /**
      *
@@ -134,13 +135,21 @@ public class MediaControl
         "net.java.sip.communicator.impl.media.codec.audio.alaw.DePacketizer",
         "net.java.sip.communicator.impl.media.codec.audio.alaw.Packetizer",
         "net.java.sip.communicator.impl.media.codec.audio.speex.JavaEncoder",
-        "net.java.sip.communicator.impl.media.codec.audio.speex.JavaDecoder"
-        ,"net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaEncoder",
+        "net.java.sip.communicator.impl.media.codec.audio.speex.JavaDecoder",
+        "net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaEncoder",
         "net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaDecoder"
 //        "net.java.sip.communicator.impl.media.codec.audio.g729.JavaDecoder",
 //        "net.java.sip.communicator.impl.media.codec.audio.g729.JavaEncoder",
 //        "net.java.sip.communicator.impl.media.codec.audio.g729.DePacketizer",
 //        "net.java.sip.communicator.impl.media.codec.audio.g729.Packetizer"
+    };
+
+    /**
+     * Custom Packages provided by Sip-Communicator
+     */
+    private static String[] customPackages = new String[]
+    {    // datasource for low latency ALSA input
+	"net.java.sip.communicator.impl"
     };
 
     /**
@@ -163,6 +172,9 @@ public class MediaControl
     {
         this.deviceConfiguration = deviceConfig;
         initializeFormatPreferences();
+	// register our own datasources
+	registerCustomPackages();
+
         String debugDataSourceURL
             = MediaActivator.getConfigurationService().getString(
                 DEBUG_DATA_SOURCE_URL_PROPERTY_NAME);
@@ -1024,4 +1036,25 @@ public class MediaControl
             logger.error("Cannot commit to PlugInManager", ex);
         }
     }
+
+
+    /**
+     * Register in JMF the custom packages we provide
+     */
+    private void registerCustomPackages()
+    {
+	Vector currentPackagePrefix = PackageManager.getProtocolPrefixList();
+	
+        for (int i = 0; i < customPackages.length; i++)
+        {
+            String className = customPackages[i];
+	    currentPackagePrefix.addElement(className);
+	    logger.debug("Adding package  : " + className);
+        }
+
+	PackageManager.setProtocolPrefixList(currentPackagePrefix);
+	PackageManager.commitProtocolPrefixList();
+	logger.debug("Registering new protocol prefix list : " + currentPackagePrefix);
+    }
+
 }
