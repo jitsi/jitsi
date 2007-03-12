@@ -75,7 +75,7 @@ public class PresenceStatusSelectorBox
         this.protocolProvider = protocolProvider;
         this.accountIndex = accountIndex;
         
-        this.presence = mainFrame.getProtocolPresence(protocolProvider);
+        this.presence = mainFrame.getProtocolPresenceOpSet(protocolProvider);
         
         this.statusIterator = this.presence.getSupportedStatusSet();
         
@@ -205,12 +205,12 @@ public class PresenceStatusSelectorBox
     /**
      * Stops the timer that manages the connecting animated icon.
      */
-    public void updateStatus(Object presenceStatus) {
-        
+    public void updateStatus(Object presenceStatus)
+    {     
         PresenceStatus status = (PresenceStatus) presenceStatus;
         
         OperationSetPresence presence = mainFrame
-            .getProtocolPresence(protocolProvider);
+            .getProtocolPresenceOpSet(protocolProvider);
         
         logger.trace("Update status for provider: "
             + protocolProvider.getAccountID().getAccountAddress()
@@ -226,75 +226,10 @@ public class PresenceStatusSelectorBox
         
         this.setSelectedStatus(status);
         
-        if(protocolProvider.isRegistered()) {
-            try {
-                presence.publishPresenceStatus(
-                        status, "");
-            }
-            catch (IllegalArgumentException e1) {
-                logger.error("Error - changing status", e1);
-            }
-            catch (IllegalStateException e1) {
-                logger.error("Error - changing status", e1);
-            }
-            catch (OperationFailedException e1) {
-                
-                String accountUserID
-                    = protocolProvider.getAccountID().getUserID();
-                String accountServerName
-                    = protocolProvider.getAccountID().getService();
-                
-                if (e1.getErrorCode() 
-                    == OperationFailedException.GENERAL_ERROR) {
-                    String msgText 
-                        = Messages.getI18NString("statusChangeGeneralError",
-                            new String[]{
-                                accountUserID,
-                                accountServerName
-                            }).getText();
-                    
-                    new ErrorDialog(null, msgText, e1,
-                            Messages.getI18NString("generalError").getText())
-                            .showDialog();
-                }
-                else if (e1.getErrorCode() 
-                        == OperationFailedException
-                            .NETWORK_FAILURE) {
-                    String msgText 
-                        = Messages.getI18NString(
-                                "statusChangeNetworkFailure",
-                                new String[]{
-                                    accountUserID,
-                                    accountServerName
-                                }).getText();
-                    
-                    new ErrorDialog(
-                        null,
-                        msgText,
-                        e1,
-                        Messages.getI18NString("networkFailure").getText())
-                        .showDialog();
-                } 
-                else if (e1.getErrorCode()
-                        == OperationFailedException
-                            .PROVIDER_NOT_REGISTERED) {
-                    String msgText 
-                        = Messages.getI18NString(
-                                "statusChangeNetworkFailure",
-                                new String[]{
-                                    accountUserID,
-                                    accountServerName
-                                }).getText();
-                    
-                    new ErrorDialog(
-                        null,
-                        msgText,
-                        e1,
-                        Messages.getI18NString("networkFailure").getText())
-                        .showDialog();
-                }
-                logger.error("Error - changing status", e1);
-            }
+        if(protocolProvider.isRegistered()
+                && !presence.getPresenceStatus().equals(status))
+        {
+            new PublishPresenceStatusThread(status);
         }
     }
 

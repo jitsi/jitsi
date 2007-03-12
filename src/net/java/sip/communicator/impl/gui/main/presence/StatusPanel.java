@@ -61,7 +61,7 @@ public class StatusPanel
         StatusSelectorBox protocolStatusCombo;
         
         int providerIndex = this.mainFrame.getProviderIndex(protocolProvider); 
-        if(mainFrame.getProtocolPresence(protocolProvider) != null) {
+        if(mainFrame.getProtocolPresenceOpSet(protocolProvider) != null) {
             protocolStatusCombo
                 = new PresenceStatusSelectorBox(
                         this.mainFrame, protocolProvider,
@@ -196,7 +196,7 @@ public class StatusPanel
         String lastStatus = getLastStatusString(protocolProvider);
         
         OperationSetPresence presence
-            = mainFrame.getProtocolPresence(protocolProvider);
+            = mainFrame.getProtocolPresenceOpSet(protocolProvider);
     
         if(presence == null)
             return null;
