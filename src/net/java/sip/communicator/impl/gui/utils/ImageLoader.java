@@ -485,6 +485,18 @@ public class ImageLoader {
      */
     public static final ImageID CLOSED_GROUP
         = new ImageID("CLOSED_GROUP");
+    
+    /**
+     * The image used for chat rooms.
+     */
+    public static final ImageID CHAT_ROOM_16x16_ICON
+        = new ImageID("CHAT_ROOM_16x16_ICON");
+    
+    /**
+     * The image used for multi user chat servers.
+     */
+    public static final ImageID CHAT_SERVER_16x16_ICON
+        = new ImageID("CHAT_SERVER_16x16_ICON");    
 
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
@@ -784,6 +796,12 @@ public class ImageLoader {
      * The icon used to indicate a search.
      */
     public static final ImageID SEARCH_ICON = new ImageID("SEARCH_ICON");
+        
+    /**
+     * The icon used to indicate a search.
+     */
+    public static final ImageID SEARCH_ICON_16x16
+        = new ImageID("SEARCH_ICON_16x16");
     
     /*
      * =======================================================================
@@ -986,15 +1004,18 @@ public class ImageLoader {
      * @param imageBytes The bytes array to load the image from.
      * @return The image for the given bytes array.
      */
-    public static Image getBytesInImage(byte[] imageBytes) {
-
+    public static Image getBytesInImage(byte[] imageBytes)
+    {
         Image image = null;
-        try {
+        try
+        {
             image = ImageIO.read(
                     new ByteArrayInputStream(imageBytes));
-        }
-        catch (IOException e) {
-            log.error("Failed to convert bytes to image", e);
+            
+        }        
+        catch (Exception e)
+        {
+            log.error("Failed to convert bytes to image.", e);
         }
         return image;
     }
