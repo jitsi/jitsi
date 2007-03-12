@@ -16,8 +16,8 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.message.*;
-import net.java.sip.communicator.impl.gui.main.message.history.HistoryWindow;
+import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -135,21 +135,9 @@ public class ContactList
      */
     public void protoContactAdded(ProtoContactEvent evt)
     {
-        Contact contact = evt.getProtoContact();
         MetaContact parentMetaContact = evt.getNewParent();
         
         this.modifyContact(parentMetaContact);
-        
-        ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
-
-        if (chatWindowManager.isChatOpenedForContact(parentMetaContact))
-        {
-            ChatPanel chatPanel
-                = chatWindowManager.getContactChat(parentMetaContact);
-            
-            chatPanel.getChatSendPanel().getProtoContactSelectorBox()
-                .addProtoContact(contact);
-        }
     }
 
     /**
@@ -172,26 +160,6 @@ public class ContactList
         
         this.modifyContact(oldParentMetaContact);
         this.modifyContact(newParentMetaContact);
-        
-        ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
-
-        if (chatWindowManager.isChatOpenedForContact(oldParentMetaContact))
-        {
-            ChatPanel chatPanel
-                = chatWindowManager.getContactChat(oldParentMetaContact);
-         
-            chatPanel.getChatSendPanel().getProtoContactSelectorBox()
-                .removeProtoContact(evt.getProtoContact());
-        }
-        
-        if (chatWindowManager.isChatOpenedForContact(newParentMetaContact))
-        {
-            ChatPanel chatPanel
-                = chatWindowManager.getContactChat(newParentMetaContact);
-            
-            chatPanel.getChatSendPanel().getProtoContactSelectorBox()
-                .addProtoContact(evt.getProtoContact());
-        }
     }
 
     /**

@@ -17,7 +17,7 @@ import javax.swing.Timer;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.message.*;
+import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -175,7 +175,9 @@ public class ContactListPanel
             this.metaContact = metaContact;
         }
 
-        public RunMessageWindow(MetaContact metaContact, Contact protocolContact) {
+        public RunMessageWindow(MetaContact metaContact, 
+            Contact protocolContact)
+        {
             this.metaContact = metaContact;
             this.protocolContact = protocolContact;
         }
@@ -214,45 +216,19 @@ public class ContactListPanel
 
         MetaContact metaContact = mainFrame.getContactList()
                 .findMetaContactByContact(protocolContact);
-
-        ChatPanel chatPanel;
         
-        if (!Constants.TABBED_CHAT_WINDOW) {
-            // If in mode "open all messages in new window"
-            
-            chatPanel = chatWindowManager.getContactChat(
-                metaContact, protocolContact, message.getMessageUID());
+        ChatPanel chatPanel = chatWindowManager.getContactChat(
+            metaContact, protocolContact, message.getMessageUID());
                 
-            chatPanel.processMessage(
-                        protocolContact.getDisplayName(), date,
-                        Constants.INCOMING_MESSAGE, message.getContent());            
-        }
-        else
-        {       
-            logger.trace("MESSAGE RECEIVED: create new chat for contact: "
-                + evt.getSourceContact().getAddress());
-            
-            chatPanel = chatWindowManager
-                .getContactChat(metaContact, protocolContact,
-                    message.getMessageUID());
-            
-            logger.trace("MESSAGE RECEIVED: process message in chat for contact: "
-                + evt.getSourceContact().getAddress());
-            
-            chatPanel.processMessage(protocolContact.getDisplayName(),
-                    date, Constants.INCOMING_MESSAGE, message.getContent());            
-        }
+        chatPanel.processMessage(protocolContact.getDisplayName(), date,
+            Constants.INCOMING_MESSAGE, message.getContent());            
         
         chatWindowManager.openChat(chatPanel, false);
         
         GuiActivator.getAudioNotifier()
             .createAudio(Sounds.INCOMING_MESSAGE).play();
         
-        if (!chatPanel.getProtocolContact().getProtocolProvider()
-            .equals(protocolContact.getProtocolProvider()))
-        {
-            chatPanel.setProtocolContact(protocolContact);
-        }
+        chatPanel.treatReceivedMessage(protocolContact);
     }
 
     /**
@@ -340,51 +316,23 @@ public class ContactListPanel
             errorMsg = Messages.getI18NString(
                     "msgDeliveryFailedUnknownError").getText();
         }
+                       
+        ChatPanel chatPanel = chatWindowManager
+            .getContactChat(metaContact, sourceContact);
         
-        ChatPanel chatPanel;
-        ChatWindow chatWindow;
+        chatPanel.refreshWriteArea();
         
-        if (!Constants.TABBED_CHAT_WINDOW)
-        {
-            // If in mode "open all messages in new window"               
-            chatPanel = chatWindowManager
-                .getContactChat(metaContact, sourceContact);
-            
-            chatWindow = chatPanel.getChatWindow();
-            
-            chatPanel.refreshWriteArea();
-            
-            chatPanel.processMessage(
-                    metaContact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
-                    Constants.OUTGOING_MESSAGE,
-                    sourceMessage.getContent());
-            
-            chatPanel.processMessage(
-                    metaContact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
-                    Constants.ERROR_MESSAGE,
-                    errorMsg);
-        }
-        else
-        {   
-            chatPanel = chatWindowManager.getContactChat(metaContact, sourceContact);
-                
-            chatWindow = chatPanel.getChatWindow();
-            
-            chatPanel.refreshWriteArea();
-            chatPanel.processMessage(
-                    metaContact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
-                    Constants.OUTGOING_MESSAGE,
-                    sourceMessage.getContent());
-            
-            chatPanel.processMessage(
-                    metaContact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
-                    Constants.ERROR_MESSAGE,
-                    errorMsg);                        
-        }
+        chatPanel.processMessage(
+                metaContact.getDisplayName(),
+                new Date(System.currentTimeMillis()),
+                Constants.OUTGOING_MESSAGE,
+                sourceMessage.getContent());
+        
+        chatPanel.processMessage(
+                metaContact.getDisplayName(),
+                new Date(System.currentTimeMillis()),
+                Constants.ERROR_MESSAGE,
+                errorMsg);
         
         chatWindowManager.openChat(chatPanel, false);
     }

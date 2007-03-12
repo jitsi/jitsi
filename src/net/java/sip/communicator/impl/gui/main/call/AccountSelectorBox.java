@@ -77,10 +77,11 @@ public class AccountSelectorBox
         }
         else {
             OperationSetPresence presence
-                = callManager.getMainFrame().getProtocolPresence(pps);
+                = callManager.getMainFrame().getProtocolPresenceOpSet(pps);
             
             OperationSetPresence selectedPresence
-                = callManager.getMainFrame().getProtocolPresence(selectedProvider);
+                = callManager.getMainFrame()
+                    .getProtocolPresenceOpSet(selectedProvider);
             
             if(presence != null && selectedPresence != null
                 && (selectedPresence.getPresenceStatus().getStatus()
@@ -131,7 +132,7 @@ public class AccountSelectorBox
         Image statusImage;
         
         OperationSetPresence presence
-            = callManager.getMainFrame().getProtocolPresence(pps);
+            = callManager.getMainFrame().getProtocolPresenceOpSet(pps);
         
         if(presence != null)
         {

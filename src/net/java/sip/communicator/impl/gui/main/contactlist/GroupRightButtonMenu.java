@@ -257,7 +257,7 @@ public class GroupRightButtonMenu
         Image statusImage;
         
         OperationSetPresence presence
-            = this.mainFrame.getProtocolPresence(pps);
+            = this.mainFrame.getProtocolPresenceOpSet(pps);
         
         if(presence != null)
         {

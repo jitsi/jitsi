@@ -288,7 +288,7 @@ public class CallManager
                         = call.getProtocolProvider();
                     
                     OperationSetBasicTelephony telephony
-                        = mainFrame.getTelephony(pps);
+                        = mainFrame.getTelephonyOpSet(pps);
                     
                     Iterator participants = call.getCallParticipants();
                     
@@ -421,7 +421,7 @@ public class CallManager
             Contact contact = (Contact)i.next();
 
             OperationSetBasicTelephony telephony
-                = mainFrame.getTelephony(contact.getProtocolProvider());
+                = mainFrame.getTelephonyOpSet(contact.getProtocolProvider());
             
             if(telephony != null)
                 return contact;
@@ -717,7 +717,7 @@ public class CallManager
             
             
             if(selectedCallProvider != null) 
-                telephony = mainFrame.getTelephony(selectedCallProvider);
+                telephony = mainFrame.getTelephonyOpSet(selectedCallProvider);
         }
         
         public CreateCallThread(Vector contacts, CallPanel callPanel)
@@ -726,11 +726,14 @@ public class CallManager
             this.callPanel = callPanel;
             
             if(selectedCallProvider != null) 
-                telephony = mainFrame.getTelephony(selectedCallProvider);
+                telephony = mainFrame.getTelephonyOpSet(selectedCallProvider);
         }
         
         public void run()
         {
+            if(telephony == null)
+                return;
+            
             try {
                 Call createdCall;
                 
@@ -784,7 +787,8 @@ public class CallManager
                 CallParticipant participant
                     = (CallParticipant)participants.next();
                 
-                OperationSetBasicTelephony telephony = mainFrame.getTelephony(pps);
+                OperationSetBasicTelephony telephony
+                    = mainFrame.getTelephonyOpSet(pps);
 
                 try {
                     telephony.answerCallParticipant(participant);

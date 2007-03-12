@@ -19,8 +19,8 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
-import net.java.sip.communicator.impl.gui.main.message.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -273,7 +273,7 @@ public class ContactRightButtonMenu
             this.moveSubcontactMenu.add(contactItem1);
 
             OperationSetWebContactInfo wContactInfo
-                = mainFrame.getWebContactInfo(protocolProvider);
+                = mainFrame.getWebContactInfoOpSet(protocolProvider);
             
             if(wContactInfo == null) {
                 contactItem2.setEnabled(false);
@@ -441,7 +441,7 @@ public class ContactRightButtonMenu
                 = contact.getProtocolProvider();
 
             OperationSetWebContactInfo wContactInfo
-                = mainFrame.getWebContactInfo(contactProvider);
+                = mainFrame.getWebContactInfoOpSet(contactProvider);
 
             GuiActivator.getBrowserLauncher().openURL(
                     wContactInfo.getWebContactInfo(contact)
@@ -741,7 +741,7 @@ public class ContactRightButtonMenu
         Image statusImage;
         
         OperationSetPresence presence
-            = this.mainFrame.getProtocolPresence(pps);
+            = this.mainFrame.getProtocolPresenceOpSet(pps);
         
         if(presence != null)
         {

@@ -1,0 +1,212 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.gui.main.chat.history;
+
+import java.awt.*;
+import java.util.*;
+
+import javax.swing.*;
+import javax.swing.event.*;
+
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.msghistory.*;
+/**
+ * The <tt>DatesPanel</tt> contains the list of history dates for a contact.
+ *
+ * @author Yana Stamcheva
+ */
+public class DatesPanel
+    extends JScrollPane
+    implements ListSelectionListener
+{
+
+    private  JList datesList = new JList();
+
+    private DefaultListModel listModel = new DefaultListModel();
+
+    private DatesListRenderer renderer = new DatesListRenderer();
+
+    private JPanel listPanel = new JPanel(new BorderLayout());
+
+    private MessageHistoryService msgHistory = GuiActivator.getMsgHistoryService();
+
+    private HistoryWindow historyWindow;
+    
+    private int lastSelectedIndex = -1;
+    
+    /**
+     * Creates an instance of <tt>DatesPanel</tt>.
+     *
+     * @param historyWindow the parent <tt>HistoryWindow</tt>, where
+     * this panel is contained.
+     */
+    public DatesPanel(HistoryWindow historyWindow)
+    {
+        this.historyWindow = historyWindow;
+
+        this.setPreferredSize(new Dimension(100, 100));
+        this.datesList.setModel(listModel);
+
+        this.datesList.setCellRenderer(renderer);
+
+        this.datesList.setFont(Constants.FONT.deriveFont(Font.BOLD));
+        
+        this.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(3, 3, 3, 0),
+                SIPCommBorders.getBoldRoundBorder()));
+
+        this.datesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        this.listPanel.add(datesList, BorderLayout.NORTH);
+
+        this.getViewport().add(listPanel);
+
+        this.datesList.addListSelectionListener(this);
+        
+        this.getVerticalScrollBar().setUnitIncrement(30);
+    }
+
+    /**
+     * Returns the number of dates contained in this dates panel.
+     * @return the number of dates contained in this dates panel
+     */
+    public int getDatesNumber()
+    {
+        return listModel.size();
+    }
+
+    /**
+     * Returns the date at the given index.
+     * @param index the index of the date in the list model
+     * @return the date at the given index
+     */
+    public Date getDate(int index)
+    {
+        return (Date)listModel.get(index);
+    }
+
+    /**
+     * Returns the next date in the list.
+     * @param date the date from which to start
+     * @return the next date in the list
+     */
+    public Date getNextDate(Date date)
+    {
+        Date nextDate;
+        int dateIndex = listModel.indexOf(date);
+
+        if(dateIndex < listModel.getSize() - 1) {
+            nextDate = getDate(dateIndex + 1);
+        }
+        else {
+            nextDate = new Date(System.currentTimeMillis());
+        }
+        return nextDate;
+    }
+    
+    /**
+     * Adds the given date to the list of dates.
+     * @param date the date to add
+     */
+    public void addDate(Date date)
+    {
+        int listSize = listModel.size();
+        boolean dateAdded = false;
+        if(listSize > 0) {
+            for(int i = 0; i < listSize; i ++) {
+                Date dateFromList = (Date)listModel.get(i);
+                if(dateFromList.after(date)) {
+                    listModel.add(i, date);
+                    dateAdded = true;
+                    break;
+                }
+            }
+            if(!dateAdded) {
+                listModel.addElement(date);
+            }
+        }
+        else {
+            listModel.addElement(date);
+        }
+    }
+
+    /**
+     * Removes all dates contained in this list.
+     */    
+    public void removeAllDates()
+    {
+        listModel.removeAllElements();
+    }
+
+    /**
+     * Checks whether the given date is contained in the list
+     * of history dates.
+     * @param date the date to search for
+     * @return TRUE if the given date is contained in the list
+     * of history dates, FALSE otherwise
+     */
+    public boolean containsDate(Date date)
+    {
+        return listModel.contains(date);
+    }
+    
+    /**
+     * Implements the <tt>ListSelectionListener.valueChanged</tt>.
+     * Shows all history records for the selected date.
+     */
+    public void valueChanged(ListSelectionEvent e)
+    {   
+        int selectedIndex = this.datesList.getSelectedIndex();
+        
+        if(selectedIndex != -1 && lastSelectedIndex != selectedIndex) {
+            this.setLastSelectedIndex(selectedIndex);
+            Date date = (Date)this.listModel.get(selectedIndex);
+
+            this.historyWindow.showHistoryByPeriod(
+                    date,
+                    historyWindow.getNextDateFromHistory(date));
+        }
+    }
+
+    /**
+     * Selects the cell at the given index.
+     * @param index the index of the cell to select
+     */
+    public void setSelected(int index)
+    {
+        this.datesList.setSelectedIndex(index);
+    }
+
+    /**
+     * Returns the model of the contained list.
+     * @return the model of the contained list
+     */
+    public ListModel getModel()
+    {
+        return this.datesList.getModel();
+    }
+
+    /**
+     * Returns the index that was last selected.
+     * @return the index that was last selected
+     */
+    public int getLastSelectedIndex()
+    {
+        return lastSelectedIndex;
+    }
+
+    /**
+     * Sets the last selected index.
+     * @param lastSelectedIndex the last selected index
+     */
+    public void setLastSelectedIndex(int lastSelectedIndex)
+    {
+        this.lastSelectedIndex = lastSelectedIndex;
+    }
+}

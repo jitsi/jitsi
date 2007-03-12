@@ -70,7 +70,7 @@ public class ContactListCellRenderer extends JPanel
         
         this.nameLabel.setPreferredSize(new Dimension(10, 17));
         
-        this.add(nameLabel, BorderLayout.CENTER);
+        this.add(nameLabel, BorderLayout.CENTER);        
     }
 
     /**
@@ -98,6 +98,23 @@ public class ContactListCellRenderer extends JPanel
             this.nameLabel.setIcon(listModel
                     .getMetaContactStatusIcon(contactItem));
 
+            String oldText = getToolTipText();
+            ToolTipManager toolTipManager = ToolTipManager.sharedInstance();
+            
+            if (toolTipText != null) {
+                if (oldText == null) {
+                        toolTipManager.registerComponent(this);
+                }
+            } else {
+                toolTipManager.unregisterComponent(this);
+            }
+            
+            JToolTip tooltip = new JToolTip();
+            
+            tooltip.setTipText("HOHO");
+            
+            tooltip.setComponent(this);
+            
             this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
             
             this.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -208,8 +225,8 @@ public class ContactListCellRenderer extends JPanel
         }
 
         toolTipText += "</html>";
-        this.setToolTipText(toolTipText);
-        
+        //this.setToolTipText(toolTipText);
+                
         this.isSelected = isSelected;
 
         return this;

@@ -10,6 +10,8 @@ package net.java.sip.communicator.impl.gui.main;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 
 /** 
@@ -27,6 +29,7 @@ public class MainTabbedPane extends SIPCommTabbedPane {
     
     private ContactListPanel contactListPanel;
 
+    private ChatRoomsListPanel chatRoomsListPanel;
     /**
      * Constructs the <tt>MainTabbedPane</tt>.
      * 
@@ -43,12 +46,16 @@ public class MainTabbedPane extends SIPCommTabbedPane {
         callHistoryPanel = new CallListPanel(parent);
         
         dialPanel = new DialPanel(parent);
+        
+        chatRoomsListPanel = new ChatRoomsListPanel(parent);
                 
         this.addTab(Messages.getI18NString("contacts").getText(),
                     contactListPanel);
+        //this.addTab(Messages.getI18NString("chatRooms").getText(),
+        //chatRoomsListPanel);
         this.addTab(Messages.getI18NString("callList").getText(),
                     callHistoryPanel);
-        this.addTab(Messages.getI18NString("dial").getText(), dialPanel);
+        this.addTab(Messages.getI18NString("dial").getText(), dialPanel);        
         
     }
 
@@ -56,10 +63,11 @@ public class MainTabbedPane extends SIPCommTabbedPane {
      * Returns the <tt>ContactListPanel</tt> contained in this tabbed pane.
      * @return the <tt>ContactListPanel</tt> contained in this tabbed pane.
      */
-    public ContactListPanel getContactListPanel() {
+    public ContactListPanel getContactListPanel()
+    {
         return contactListPanel;
     }
-    
+
     /**
      * Returns the <tt>CallListPanel</tt> contained in this tabbed pane.
      * @return the <tt>CallListPanel</tt> contained in this tabbed pane
@@ -67,5 +75,14 @@ public class MainTabbedPane extends SIPCommTabbedPane {
     public CallListPanel getCallListPanel()
     {
         return this.callHistoryPanel;
+    }
+    
+    /**
+     * Returns the <tt>ChatRoomsListPanel</tt> contained in this tabbed pane.
+     * @return the <tt>ChatRoomsListPanel</tt> contained in this tabbed pane
+     */
+    public ChatRoomsListPanel getChatRoomsListPanel()
+    {
+        return this.chatRoomsListPanel;
     }
 }

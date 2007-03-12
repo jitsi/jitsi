@@ -16,7 +16,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.message.*;
+import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 
@@ -123,14 +123,7 @@ public class RenameContactDialog
                         clist.renameMetaContact(
                             metaContact, renameContactPanel.getNewName());
                     }
-                }.start();
-                
-                ChatPanel chatPanel
-                    = mainFrame.getChatWindowManager().getContactChat(metaContact);
-                                
-                if (chatPanel != null) {
-                    chatPanel.renameContact(renameContactPanel.getNewName());
-                }           
+                }.start();                           
             }
         }
                 

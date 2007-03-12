@@ -19,10 +19,12 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
-import net.java.sip.communicator.impl.gui.main.message.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -71,12 +73,16 @@ public class MainFrame
     private Hashtable protocolProviders = new Hashtable();
 
     private Hashtable webContactInfoOperationSets = new Hashtable();
+    
+    private Hashtable multiUserChatOperationSets = new Hashtable();
 
     private MetaContactListService contactList;
 
     private LoginManager loginManager;
 
     private ChatWindowManager chatWindowManager;
+    
+    private MultiUserChatManager multiChatManager;
     
     /**
      * Creates an instance of <tt>MainFrame</tt>.
@@ -86,6 +92,8 @@ public class MainFrame
         this.chatWindowManager = new ChatWindowManager(this);
         
         callManager = new CallManager(this);
+        multiChatManager = new MultiUserChatManager(this);
+        
         tabbedPane = new MainTabbedPane(this);
         quickMenu = new QuickMenu(this);
         statusPanel = new StatusPanel(this);
@@ -206,6 +214,7 @@ public class MainFrame
                                     .class.getName();
         String pOpSetClassName = OperationSetPresence.class.getName();
 
+        // Obtain the presence operation set.
         if (supportedOperationSets.containsKey(ppOpSetClassName)
                 || supportedOperationSets.containsKey(pOpSetClassName)) {
 
@@ -225,6 +234,7 @@ public class MainFrame
                         new GUIContactPresenceStatusListener());
         }
 
+        // Obtain the basic instant messaging operation set.
         String imOpSetClassName = OperationSetBasicInstantMessaging
                                     .class.getName();
 
@@ -240,6 +250,7 @@ public class MainFrame
             im.addMessageListener(getContactListPanel());
         }
 
+        // Obtain the typing notifications operation set.
         String tnOpSetClassName = OperationSetTypingNotifications
                                     .class.getName();
 
@@ -255,6 +266,7 @@ public class MainFrame
             tn.addTypingNotificationsListener(this.getContactListPanel());
         }
 
+        // Obtain the web contact info operation set.
         String wciOpSetClassName = OperationSetWebContactInfo.class.getName();
 
         if (supportedOperationSets.containsKey(wciOpSetClassName)) {
@@ -267,6 +279,7 @@ public class MainFrame
                 .put(protocolProvider, wContactInfo);
         }
 
+        // Obtain the basic telephony operation set.
         String telOpSetClassName = OperationSetBasicTelephony.class.getName();
 
         if (supportedOperationSets.containsKey(telOpSetClassName)) {
@@ -282,6 +295,25 @@ public class MainFrame
 
             this.protocolTelephonySets.put(protocolProvider, telephony);
         }
+        
+        // Obtain the multi user chat operation set.
+        String multiChatClassName = OperationSetMultiUserChat.class.getName();
+
+        if (supportedOperationSets.containsKey(multiChatClassName))
+        {
+            OperationSetMultiUserChat multiUserChat
+                = (OperationSetMultiUserChat)
+                    supportedOperationSets.get(multiChatClassName);
+
+            multiUserChat.addInvitationListener(multiChatManager);
+            multiUserChat.addInvitationRejectionListener(multiChatManager);
+            
+            this.getChatRoomsListPanel()
+                .getChatRoomsList()
+                .addChatServer(protocolProvider, multiUserChat);
+            
+            this.multiUserChatOperationSets.put(protocolProvider, multiUserChat);
+        }
     }
 
     /**
@@ -292,6 +324,16 @@ public class MainFrame
     public Iterator getProtocolProviders()
     {
         return this.protocolProviders.keySet().iterator();
+    }
+    
+    /**
+     * Returns a set of all protocol providers supporting multi user chat.
+     *
+     * @return a set of all protocol providers supporting multi user chat.
+     */
+    public Iterator getPProvidersSupportingMultiUserChat()
+    {
+        return this.multiUserChatOperationSets.keySet().iterator();
     }
 
     /**
@@ -370,7 +412,7 @@ public class MainFrame
         }
                 
         if(!callManager.containsCallAccount(protocolProvider)
-            && getTelephony(protocolProvider) != null) {
+            && getTelephonyOpSet(protocolProvider) != null) {
             callManager.addCallAccount(protocolProvider);
         }
     }
@@ -421,7 +463,7 @@ public class MainFrame
      * presence operation set is searched.
      * @return the presence operation set for the given protocol provider.
      */
-    public OperationSetPresence getProtocolPresence(
+    public OperationSetPresence getProtocolPresenceOpSet(
             ProtocolProviderService protocolProvider)
     {
         Object o = this.protocolPresenceSets.get(protocolProvider);
@@ -441,7 +483,7 @@ public class MainFrame
      * @return OperationSetWebContactInfo The Web Contact Info operation
      * set for the given protocol provider.
      */
-    public OperationSetWebContactInfo getWebContactInfo(
+    public OperationSetWebContactInfo getWebContactInfoOpSet(
             ProtocolProviderService protocolProvider)
     {
         Object o = this.webContactInfoOperationSets.get(protocolProvider);
@@ -456,17 +498,36 @@ public class MainFrame
      * Returns the telephony operation set for the given protocol provider.
      *
      * @param protocolProvider The protocol provider for which the telephony
-     * is searched.
+     * operation set is about.
      * @return OperationSetBasicTelephony The telephony operation
      * set for the given protocol provider.
      */
-    public OperationSetBasicTelephony getTelephony(
+    public OperationSetBasicTelephony getTelephonyOpSet(
             ProtocolProviderService protocolProvider)
     {
         Object o = this.protocolTelephonySets.get(protocolProvider);
 
         if(o != null)
             return (OperationSetBasicTelephony) o;
+
+        return null;
+    }
+    
+    /**
+     * Returns the multi user chat operation set for the given protocol provider.
+     *
+     * @param protocolProvider The protocol provider for which the multi user
+     * chat operation set is about.
+     * @return OperationSetMultiUserChat The telephony operation
+     * set for the given protocol provider.
+     */
+    public OperationSetMultiUserChat getMultiUserChatOpSet(
+            ProtocolProviderService protocolProvider)
+    {
+        Object o = this.multiUserChatOperationSets.get(protocolProvider);
+
+        if(o != null)
+            return (OperationSetMultiUserChat) o;
 
         return null;
     }
@@ -515,12 +576,10 @@ public class MainFrame
             MetaContact metaContact = contactList
                     .findMetaContactByContact(sourceContact);
 
-            if (metaContact != null) {
-                if(evt.getOldStatus() != evt.getNewStatus()) {
-                    clistPanel.getContactList().modifyContact(metaContact);
-                    chatWindowManager.updateChatContactStatus(
-                            metaContact, sourceContact);
-                }
+            if (metaContact != null
+                && (evt.getOldStatus() != evt.getNewStatus()))
+            {
+                clistPanel.getContactList().modifyContact(metaContact);
             }
         }
     }
@@ -536,6 +595,8 @@ public class MainFrame
         public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
         {
             ProtocolProviderService pps = evt.getProvider();
+
+            getStatusPanel().updateStatus(pps);
             
             if(callManager.containsCallAccount(pps))
             {
@@ -627,7 +688,8 @@ public class MainFrame
         String isShowOffline = configService.getString(
             "net.java.sip.communicator.impl.gui.showOffline");
 
-        if(isCallPanelShown != null && isCallPanelShown != "") {
+        if(isCallPanelShown != null && isCallPanelShown != "")
+        {
             callManager.setShown(new Boolean(isCallPanelShown).booleanValue());
         }
         else {
@@ -725,6 +787,15 @@ public class MainFrame
     public ContactListPanel getContactListPanel()
     {
         return this.tabbedPane.getContactListPanel();
+    }
+    
+    /**
+     * Returns the panel containing the chat rooms list.
+     * @return the panel containing the chat rooms list
+     */
+    public ChatRoomsListPanel getChatRoomsListPanel()
+    {
+        return this.tabbedPane.getChatRoomsListPanel();
     }
 
     /**
@@ -950,7 +1021,7 @@ public class MainFrame
     public Object getProtocolProviderLastStatus(
             ProtocolProviderService protocolProvider)
     {
-        if(getProtocolPresence(protocolProvider) != null)
+        if(getProtocolPresenceOpSet(protocolProvider) != null)
             return this.statusPanel
                 .getLastPresenceStatus(protocolProvider);
         else
