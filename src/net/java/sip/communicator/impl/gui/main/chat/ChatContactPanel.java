@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ChatContactPanel</tt> is the panel that appears on the right of the
@@ -44,6 +45,8 @@ public class ChatContactPanel
     implements ActionListener
 {
 
+    private Logger logger = Logger.getLogger(ChatContactPanel.class);
+    
     private SIPCommButton callButton = new SIPCommButton(ImageLoader
             .getImage(ImageLoader.CHAT_CONTACT_CALL_BUTTON), ImageLoader
             .getImage(ImageLoader.CHAT_CONTACT_CALL_ROLLOVER_BUTTON));
@@ -109,7 +112,7 @@ public class ChatContactPanel
         this.buttonsPanel.setOpaque(false);
         
         String chatContactName;
-        
+
         if(metaContact != null)
             chatContactName = metaContact.getDisplayName();
         else
@@ -119,33 +122,7 @@ public class ChatContactPanel
         this.personNameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
         this.personNameLabel.setIcon(new ImageIcon(Constants
                 .getStatusIcon(status)));
-        
-        ImageIcon contactPhoto = null;
-        
-        Iterator i = metaContact.getContacts();
-        while(i.hasNext())
-        {
-            Contact subContact = (Contact) i.next();
-            
-            if(subContact.getImage() != null
-                && subContact.getImage().length > 0)
-            {
-                Image contactImage
-                    = ImageLoader.getBytesInImage(subContact.getImage());
                 
-                contactPhoto = new ImageIcon(
-                    contactImage.getScaledInstance(40, 45, Image.SCALE_SMOOTH));
-                
-                break;
-            }
-        }
-        
-        if(contactPhoto != null)
-        {
-            this.personPhotoLabel.setBorder(new SIPCommBorders.BoldRoundBorder());
-            this.personPhotoLabel.setIcon(contactPhoto);
-        }
-
         this.callButton.setToolTipText(
             Messages.getI18NString("call").getText());
         this.infoButton.setToolTipText(
@@ -172,6 +149,8 @@ public class ChatContactPanel
         // Disabled all unused buttons.
         this.callButton.setEnabled(false);
         this.sendFileButton.setEnabled(false);
+        
+        new LoadContactPhoto(metaContact, protocolContact).start();
         
         this.updateProtocolContact(protocolContact);
     }
@@ -280,5 +259,86 @@ public class ChatContactPanel
     public void renameContact(String newName)
     {
         personNameLabel.setText(newName);
+    }
+    
+    /**
+     * Loads contact photo in a separate thread
+     */
+    private class LoadContactPhoto extends Thread
+    {
+        private MetaContact metaContact;
+        private Contact contact;
+        private ImageIcon contactPhoto;
+        
+        public LoadContactPhoto(MetaContact metaContact, Contact contact)
+        {
+            this.metaContact = metaContact;
+            this.contact = contact;
+        }
+
+        public LoadContactPhoto(MetaContact metaContact)
+        {
+            this.metaContact = metaContact;
+        }
+        
+        public void run()
+        {
+            byte[] image = null;
+            
+            if(metaContact != null)
+            {
+                Iterator i = metaContact.getContacts();
+                
+                while(i.hasNext())
+                {
+                    Contact protoContact = (Contact) i.next();
+                    
+                    try
+                    {
+                        image = protoContact.getImage();
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.error("Failed to load contact photo.", ex);
+                    }
+                    
+                    if(image != null && image.length > 0)
+                        break;
+                }
+            }
+            else if(contact != null)
+            {
+                try
+                {
+                    image = contact.getImage();
+                }
+                catch (Exception ex)
+                {
+                    logger.error("Failed to load contact photo.", ex);
+                }
+            }
+            
+            if(image != null && image.length > 0)
+            {
+                Image contactImage
+                    = ImageLoader.getBytesInImage(image);
+                
+                contactPhoto = new ImageIcon(
+                    contactImage.getScaledInstance(            
+                    40, 45, Image.SCALE_SMOOTH));
+            }    
+            
+            if(contactPhoto == null)
+                return;
+            
+            SwingUtilities.invokeLater(new Runnable(){
+                public void run()
+                {
+                    personPhotoLabel.setBorder(
+                        new SIPCommBorders.BoldRoundBorder());
+                    personPhotoLabel.setIcon(contactPhoto);
+                }
+            });
+        }
     }
 }
