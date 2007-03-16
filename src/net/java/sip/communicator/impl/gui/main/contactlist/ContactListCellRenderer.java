@@ -97,23 +97,6 @@ public class ContactListCellRenderer extends JPanel
 
             this.nameLabel.setIcon(listModel
                     .getMetaContactStatusIcon(contactItem));
-
-            String oldText = getToolTipText();
-            ToolTipManager toolTipManager = ToolTipManager.sharedInstance();
-            
-            if (toolTipText != null) {
-                if (oldText == null) {
-                        toolTipManager.registerComponent(this);
-                }
-            } else {
-                toolTipManager.unregisterComponent(this);
-            }
-            
-            JToolTip tooltip = new JToolTip();
-            
-            tooltip.setTipText("HOHO");
-            
-            tooltip.setComponent(this);
             
             this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
             
@@ -225,7 +208,7 @@ public class ContactListCellRenderer extends JPanel
         }
 
         toolTipText += "</html>";
-        //this.setToolTipText(toolTipText);
+        this.setToolTipText(toolTipText);
                 
         this.isSelected = isSelected;
 
