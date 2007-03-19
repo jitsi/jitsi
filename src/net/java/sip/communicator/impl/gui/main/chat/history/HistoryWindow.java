@@ -81,59 +81,58 @@ public class HistoryWindow
     private Date ignoreProgressDate;
     
     private int lastProgress = 0;
-        
-    public HistoryWindow(MainFrame mainFrame, Object o)
-    {}
     
     /**
      * Creates an instance of the <tt>HistoryWindow</tt>.
      * @param mainFrame the main application window
-     * @param metaContact the <tt>MetaContact</tt> for which to display
-     * a history
+     * @param o the <tt>MetaContact</tt> or the <tt>ChatRoom</tt>
      */
-    public HistoryWindow(MainFrame mainFrame, MetaContact metaContact)
-    {   
-        chatConvPanel = new ChatConversationPanel(this);
-        
-        this.progressBar = new JProgressBar(
-            MessageHistorySearchProgressListener.PROGRESS_MINIMUM_VALUE,
-            MessageHistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
-                
-        this.progressBar.setValue(0);
-        this.progressBar.setStringPainted(true);
-        
-        this.msgHistory = GuiActivator.getMsgHistoryService();
-        this.msgHistory.addSearchProgressListener(this);
-        
-        this.mainFrame = mainFrame;
-        this.metaContact = metaContact;
-
-        this.setTitle(Messages.getI18NString(
-                "historyContact",
-                new String[]{metaContact.getDisplayName()}).getText());
-
-        this.datesPanel = new DatesPanel(this);
-        this.historyMenu = new HistoryMenu(this);
-        this.searchPanel = new SearchPanel(this);
-
-        this.initPanels();
-
-        this.initDates();
-
-        this.addWindowListener(new HistoryWindowAdapter());
-        
-        Iterator protoContacts = metaContact.getContacts();
-        
-        while(protoContacts.hasNext())
+    public HistoryWindow(MainFrame mainFrame, Object o)
+    {
+        if(o instanceof MetaContact)
         {
-            Contact protoContact = (Contact) protoContacts.next();
+            chatConvPanel = new ChatConversationPanel(this);
             
-            ((OperationSetBasicInstantMessaging) protoContact.getProtocolProvider()
-                .getOperationSet(OperationSetBasicInstantMessaging.class))
-                    .addMessageListener(this);
+            this.progressBar = new JProgressBar(
+                MessageHistorySearchProgressListener.PROGRESS_MINIMUM_VALUE,
+                MessageHistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
+                    
+            this.progressBar.setValue(0);
+            this.progressBar.setStringPainted(true);
+            
+            this.msgHistory = GuiActivator.getMsgHistoryService();
+            this.msgHistory.addSearchProgressListener(this);
+            
+            this.mainFrame = mainFrame;
+            this.metaContact = (MetaContact) o;
+
+            this.setTitle(Messages.getI18NString(
+                    "historyContact",
+                    new String[]{metaContact.getDisplayName()}).getText());
+
+            this.datesPanel = new DatesPanel(this);
+            this.historyMenu = new HistoryMenu(this);
+            this.searchPanel = new SearchPanel(this);
+
+            this.initPanels();
+
+            this.initDates();
+
+            this.addWindowListener(new HistoryWindowAdapter());
+            
+            Iterator protoContacts = metaContact.getContacts();
+            
+            while(protoContacts.hasNext())
+            {
+                Contact protoContact = (Contact) protoContacts.next();
+                
+                ((OperationSetBasicInstantMessaging) protoContact.getProtocolProvider()
+                    .getOperationSet(OperationSetBasicInstantMessaging.class))
+                        .addMessageListener(this);
+            }
         }
     }
-
+    
     /**
      * Constructs the window, by adding all components and panels.
      */
