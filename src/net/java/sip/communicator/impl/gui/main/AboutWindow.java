@@ -10,11 +10,13 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
 
 public class AboutWindow
         extends SIPCommDialog
         implements  HyperlinkListener,
-                    ActionListener
+                    ActionListener,
+                    ApplicationWindow
 {
     private WindowBackground mainPanel
         = new WindowBackground();
@@ -174,5 +176,52 @@ public class AboutWindow
     public void actionPerformed(ActionEvent e)
     {
         this.dispose();
+    }
+
+    public WindowID getWindowID()
+    {
+        return ApplicationWindow.ABOUT_WINDOW;
+    }
+
+    public boolean isWindowVisible()
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public void showWindow()
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void hideWindow()
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void resizeWindow(int width, int height)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void moveWindow(int x, int y)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void minimizeWindow()
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void maximizeWindow()
+    {
+        // TODO Auto-generated method stub
+        
     }
 }

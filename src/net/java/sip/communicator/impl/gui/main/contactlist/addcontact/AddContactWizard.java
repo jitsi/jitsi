@@ -13,12 +13,14 @@ import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 public class AddContactWizard
     extends Wizard
-    implements  WizardListener
+    implements  WizardListener,
+                ApplicationWindow
 {
     private Logger logger = Logger.getLogger(AddContactWizard.class.getName());
     
@@ -57,13 +59,6 @@ public class AddContactWizard
         this.registerWizardPage(AddContactWizardPage3.IDENTIFIER, page3);
 
         this.setCurrentPage(AddContactWizardPage1.IDENTIFIER);        
-    }
-    
-    /**
-     * Overrides the Wizard.showModalDialog method.
-     */
-    public void showDialog(boolean modal) {
-        super.showDialog(modal);        
     }
     
     /**
@@ -158,5 +153,43 @@ public class AddContactWizard
                 new CreateContact(pps, newContact).start();                
             }
         }
+    }
+
+    public WindowID getWindowID()
+    {
+        return ApplicationWindow.ADD_CONTACT_WINDOW;
+    }
+
+    public boolean isWindowVisible()
+    {
+        return isVisible();
+    }
+
+    public void showWindow()
+    {
+        this.showDialog(false);
+    }
+
+    public void hideWindow()
+    {
+        this.setVisible(false);
+    }
+
+    public void resizeWindow(int width, int height)
+    {
+        this.setSize(width, height);
+    }
+
+    public void moveWindow(int x, int y)
+    {
+        this.setLocation(x, y);
+    }
+
+    public void minimizeWindow()
+    {   
+    }
+
+    public void maximizeWindow()
+    {   
     }
 }

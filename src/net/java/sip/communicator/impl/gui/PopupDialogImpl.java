@@ -264,5 +264,10 @@ public class PopupDialogImpl extends JOptionPane
     {}
 
     public void maximizeWindow()
-    {}    
+    {}
+
+    public WindowID getWindowID()
+    {
+        return WINDOW_GENERAL_POPUP;
+    }    
 }

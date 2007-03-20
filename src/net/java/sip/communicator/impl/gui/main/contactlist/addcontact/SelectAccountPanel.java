@@ -6,21 +6,24 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
-import java.util.*;
-
 import java.awt.*;
 import java.io.*;
+import java.util.*;
 
 import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>SelectAccountPanel</tt> is where the user should select the account,
@@ -28,7 +31,9 @@ import net.java.sip.communicator.util.*;
  * 
  * @author Yana Stamcheva
  */
-public class SelectAccountPanel extends JPanel
+public class SelectAccountPanel
+    extends JPanel
+    implements ServiceListener
 {
     private Logger logger = Logger.getLogger(SelectAccountPanel.class);
     
@@ -40,8 +45,6 @@ public class SelectAccountPanel extends JPanel
         = new BooleanToCheckTableModel();
     
     private NewContact newContact;
-    
-    private Iterator protocolProvidersList;
     
     private JPanel labelsPanel = new JPanel(new GridLayout(0, 1));
     
@@ -66,13 +69,12 @@ public class SelectAccountPanel extends JPanel
      * <tt>ProtocolProviderServices</tt>, from which the user could select.
      */
     public SelectAccountPanel(NewContact newContact, 
-            Iterator protocolProvidersList) {
+            Iterator protocolProvidersList)
+    {
         super(new BorderLayout());
     
         this.setPreferredSize(new Dimension(500, 200));
         this.newContact = newContact;
-        
-        this.protocolProvidersList = protocolProvidersList;
     
         this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
        
@@ -90,21 +92,24 @@ public class SelectAccountPanel extends JPanel
         
         this.add(rightPanel, BorderLayout.CENTER);
         
-        this.tableInit();
+        this.tableInit(protocolProvidersList);
+        
+        GuiActivator.bundleContext.addServiceListener(this);
     }  
     
     /**
      * Initializes the accounts table.
      */
-    private void tableInit(){
-        
+    private void tableInit(Iterator protocolProvidersList)
+    {   
         accountsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
         
         tableModel.addColumn("");
         tableModel.addColumn(Messages.getI18NString("account").getText());
         tableModel.addColumn(Messages.getI18NString("protocol").getText());
                 
-        while(protocolProvidersList.hasNext()) {
+        while(protocolProvidersList.hasNext())
+        {
             ProtocolProviderService pps 
                 = (ProtocolProviderService)protocolProvidersList.next();
             
@@ -182,6 +187,60 @@ public class SelectAccountPanel extends JPanel
                 if(check.booleanValue()){
                     newContact.addProtocolProvider(
                         (ProtocolProviderService)model.getValueAt(i, 1));
+                }
+            }
+        }
+    }
+    
+
+    public void serviceChanged(ServiceEvent event)
+    {
+        Object sourceService = GuiActivator.bundleContext
+            .getService(event.getServiceReference());
+        
+        // we don't care if the source service is not a protocol provider
+        if (! (sourceService instanceof ProtocolProviderService))
+        {
+            return;
+        }
+
+        ProtocolProviderService sourcePProvider
+            = (ProtocolProviderService) sourceService;
+        
+        if (event.getType() == ServiceEvent.REGISTERED)
+        {
+            String pName = sourcePProvider.getProtocolName();
+            
+            Image protocolImage = null;
+            try
+            {
+                protocolImage = ImageIO.read(
+                    new ByteArrayInputStream(sourcePProvider.getProtocolIcon()
+                        .getIcon(ProtocolIcon.ICON_SIZE_16x16)));
+            }
+            catch (IOException e)
+            {
+                logger.error("Could not read image.", e);
+            }
+            
+            JLabel protocolLabel = new JLabel();
+            protocolLabel.setText(pName);
+            protocolLabel.setIcon(new ImageIcon(protocolImage));
+            
+            tableModel.addRow(new Object[]{new Boolean(false),
+                sourcePProvider, protocolLabel});
+        }
+        else if (event.getType() == ServiceEvent.UNREGISTERING)
+        {
+            for(int i = 0; i < tableModel.getRowCount(); i ++)
+            {
+                ProtocolProviderService protocolProvider
+                    = (ProtocolProviderService) tableModel.getValueAt(i, 1);
+                
+                if(protocolProvider.equals(sourcePProvider))
+                {
+                    tableModel.removeRow(i);
+                    break;
                 }
             }
         }

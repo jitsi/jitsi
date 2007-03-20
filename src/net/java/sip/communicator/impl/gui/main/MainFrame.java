@@ -64,17 +64,17 @@ public class MainFrame
 
     private QuickMenu quickMenu;
 
-    private Hashtable protocolSupportedOperationSets = new Hashtable();
+    private Map protocolSupportedOperationSets = new LinkedHashMap();
 
-    private Hashtable protocolPresenceSets = new Hashtable();
+    private Map protocolPresenceSets = new LinkedHashMap();
 
-    private Hashtable protocolTelephonySets = new Hashtable();
+    private Map protocolTelephonySets = new LinkedHashMap();
 
-    private Hashtable protocolProviders = new Hashtable();
+    private LinkedHashMap protocolProviders = new LinkedHashMap();
 
-    private Hashtable webContactInfoOperationSets = new Hashtable();
+    private Map webContactInfoOperationSets = new LinkedHashMap();
     
-    private Hashtable multiUserChatOperationSets = new Hashtable();
+    private Map multiUserChatOperationSets = new LinkedHashMap();
 
     private MetaContactListService contactList;
 
@@ -323,7 +323,7 @@ public class MainFrame
      */
     public Iterator getProtocolProviders()
     {
-        return this.protocolProviders.keySet().iterator();
+        return ((LinkedHashMap)protocolProviders.clone()).keySet().iterator();
     }
     
     /**
@@ -596,7 +596,7 @@ public class MainFrame
         {
             ProtocolProviderService pps = evt.getProvider();
 
-            getStatusPanel().updateStatus(pps);
+            getStatusPanel().updateStatus(pps, evt.getNewStatus());
             
             if(callManager.containsCallAccount(pps))
             {
@@ -659,19 +659,23 @@ public class MainFrame
             }
         }
 
-        public void windowClosed(WindowEvent e) {
-            try {
-                GuiActivator.bundleContext.getBundle(0).stop();
-            } catch (BundleException ex) {
-                logger.error("Failed to gently shutdown Felix", ex);
-                System.exit(0);
+        public void windowClosed(WindowEvent e)
+        {
+            if(GuiActivator.getUIService().getExitOnMainWindowClose())
+            {
+                try {
+                    GuiActivator.bundleContext.getBundle(0).stop();
+                } catch (BundleException ex) {
+                    logger.error("Failed to gently shutdown Felix", ex);
+                    System.exit(0);
+                }
+                //stopping a bundle doesn't leave the time to the felix thread to
+                //properly end all bundles and call their Activator.stop() methods.
+                //if this causes problems don't uncomment the following line but
+                //try and see why felix isn't exiting (suggesting: is it running
+                //in embedded mode?)
+                //System.exit(0);
             }
-            //stopping a bundle doesn't leave the time to the felix thread to
-            //properly end all bundles and call their Activator.stop() methods.
-            //if this causes problems don't uncomment the following line but
-            //try and see why felix isn't exiting (suggesting: is it running
-            //in embedded mode?)
-            //System.exit(0);
         }
     }
 
@@ -926,11 +930,11 @@ public class MainFrame
             = GuiActivator.getConfigurationService();
 
         int accountIndex = -1;
-        Enumeration pproviders = protocolProviders.keys();
+        Iterator pproviders = protocolProviders.keySet().iterator();
         ProtocolProviderService pps;
 
-        while(pproviders.hasMoreElements()) {
-            pps = (ProtocolProviderService)pproviders.nextElement();
+        while(pproviders.hasNext()) {
+            pps = (ProtocolProviderService)pproviders.next();
 
             if(pps.getProtocolName().equals(
                     protocolProvider.getProtocolName())
@@ -964,13 +968,13 @@ public class MainFrame
 
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
-        Enumeration pproviders = protocolProviders.keys();
+        Iterator pproviders = protocolProviders.keySet().iterator();
         ProtocolProviderService currentProvider = null;
         int sameProtocolProvidersCount = 0;
 
-        while(pproviders.hasMoreElements()) {
+        while(pproviders.hasNext()) {
             ProtocolProviderService pps
-                = (ProtocolProviderService)pproviders.nextElement();
+                = (ProtocolProviderService)pproviders.next();
 
             if(pps.getProtocolName().equals(
                     removedProvider.getProtocolName())) {

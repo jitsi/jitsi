@@ -34,7 +34,7 @@ public class GuiActivator implements BundleActivator {
 
     private static Logger logger = Logger.getLogger(GuiActivator.class.getName());
 
-    private static UIService uiService = null;
+    private static UIServiceImpl uiService = null;
 
     private CommunicatorMain communicatorMain;
     
@@ -94,6 +94,8 @@ public class GuiActivator implements BundleActivator {
             ConfigurationManager.loadGuiConfigurations();
             communicatorMain.showCommunicator(true);
             SwingUtilities.invokeLater(new RunLogin());
+            
+            uiService.registerExportableWindows();
         }
         finally {
             logger.logExit();

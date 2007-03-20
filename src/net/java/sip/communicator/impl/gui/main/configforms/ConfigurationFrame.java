@@ -309,5 +309,10 @@ public class ConfigurationFrame
     {
         this.closeButton.doClick();
     }
+
+    public WindowID getWindowID()
+    {
+        return ApplicationWindow.CONFIGURATION_WINDOW;
+    }
     
 }
