@@ -260,6 +260,24 @@ public class StatusPanel
         }            
         selectorBox.repaint();
     }
+    
+    public void updateStatus(ProtocolProviderService pps, PresenceStatus status)
+    {
+        StatusSelectorBox selectorBox 
+            = (StatusSelectorBox) protocolStatusCombos
+                .get(pps);
+    
+        if(selectorBox == null)
+            return;
+        
+        if(selectorBox instanceof PresenceStatusSelectorBox)
+        {
+            PresenceStatusSelectorBox presenceSelectorBox
+                = (PresenceStatusSelectorBox) selectorBox;
+            
+            presenceSelectorBox.updateStatus(status);
+        }
+    }
 
     /**
      * Checks if the given protocol has already its <tt>StatusSelectorBox</tt>
