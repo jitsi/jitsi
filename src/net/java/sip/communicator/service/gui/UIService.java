@@ -150,13 +150,6 @@ public interface UIService
      * Indicates the right edge of a container.
      */
     public static final String RIGHT = "Right";
-  
-    /*
-     * WindowID-s
-     */    
-    
-    public static final WindowID WINDOW_ADD_CONTACT
-        = new WindowID("AddContactWindow");
     
     /**
      * Returns TRUE if the application is visible and FALSE otherwise.
@@ -213,6 +206,29 @@ public interface UIService
      */
     public void move(int x, int y);
         
+
+    /**
+     * Sets the exitOnClose property. When TRUE, the user could exit the
+     * application by simply closing the main application window (by clicking
+     * the X button or pressing Alt-F4). When set to FALSE the main application
+     * window will be only hidden.
+     * 
+     * @param exitOnClose When TRUE, the user could exit the
+     * application by simply closing the main application window (by clicking
+     * the X button or pressing Alt-F4). When set to FALSE the main application
+     * window will be only hidden.
+     */
+    public void setExitOnMainWindowClose(boolean exitOnClose);
+    
+    /**
+     * Returns TRUE if the application could be exited by closing the main
+     * application window, otherwise returns FALSE.
+     * 
+     * @return Returns TRUE if the application could be exited by closing the
+     * main application window, otherwise returns FALSE
+     */
+    public boolean getExitOnMainWindowClose();
+    
     /**
      * Returns a common application window given by WindowID. This 
      * could be for example an "Add contact" window or any other window within
@@ -275,7 +291,7 @@ public interface UIService
      * @return Iterator An iterator to a set containing windowID-s 
      * representing all windows supported by the current UI implementation.
      */
-    public Iterator getApplicationWindows();
+    public Iterator getSupportedApplicationWindows();
     
     /**
      * Chechks if the application window with the given <tt>WindowID</tt> is
