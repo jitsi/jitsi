@@ -13,8 +13,31 @@ package net.java.sip.communicator.service.gui;
  * 
  * @author Yana Stamcheva
  */
-public interface ApplicationWindow {
-
+public interface ApplicationWindow
+{
+    /*
+     * WindowID-s
+     */    
+    public static final WindowID ADD_CONTACT_WINDOW
+        = new WindowID("AddContactWindow");
+    
+    public static final WindowID ABOUT_WINDOW
+        = new WindowID("AboutWindow");
+    
+    public static final WindowID CHAT_WINDOW
+        = new WindowID("ChatWindow");
+    
+    public static final WindowID CONFIGURATION_WINDOW
+        = new WindowID("ConfigurationWindow");
+    
+    /**
+     * Returns the WindowID corresponding to this window. The window id should
+     * be one of the defined in this class XXX_WINDOW constants.
+     *   
+     * @return the WindowID corresponding to this window
+     */
+    public WindowID getWindowID();
+    
     /**
      * Returns TRUE if the window is visible and FALSE otherwise.
      * 
