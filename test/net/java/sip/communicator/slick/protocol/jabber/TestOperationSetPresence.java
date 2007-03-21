@@ -501,10 +501,24 @@ public class TestOperationSetPresence
 
         operationSetPresence1.removeSubscriptionListener(subEvtCollector);
 
-        assertEquals("Subscription event dispatching failed."
-                     , 1, subEvtCollector.collectedEvents.size());
-        SubscriptionEvent subEvt =
-            (SubscriptionEvent)subEvtCollector.collectedEvents.get(0);
+        
+        assertTrue("Subscription event dispatching failed."
+                     , subEvtCollector.collectedEvents.size() > 0);
+        
+        SubscriptionEvent subEvt = null;
+        
+        Iterator events = subEvtCollector.collectedEvents.iterator();
+        while (events.hasNext())
+        {
+            SubscriptionEvent elem = (SubscriptionEvent) events.next();
+            if(elem.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
+                subEvt = elem;
+        }
+        
+        // it happens that when adding contacts which require authorization
+        // sometimes the collected events are 3 - added, deleted, added
+        // so we get the last one if there is such
+        assertNotNull("Subscription event dispatching failed.", subEvt);
 
         assertEquals("SubscriptionEvent Source:",
                      fixture.userID2,
@@ -1040,7 +1054,7 @@ public class TestOperationSetPresence
                 this.response = response;
 
                 logger.trace("processAuthorizationResponse '" +
-                             response.getResponseCode() + " " +
+                             response.getResponseCode().getCode() + " " +
                              sourceContact);
 
                 notifyAll();
@@ -1052,7 +1066,10 @@ public class TestOperationSetPresence
             synchronized(this)
             {
                 if(isAuthorizationResponseReceived)
+                {
+                    logger.debug("authorization response already received");
                     return;
+                }
                 try{
                     wait(waitFor);
                 }
@@ -1068,7 +1085,11 @@ public class TestOperationSetPresence
         {
             synchronized(this)
             {
-                if(isAuthorizationRequestReceived) return;
+                if(isAuthorizationRequestReceived) 
+                {
+                    logger.debug("authorization request already received");
+                    return;
+                }
                 try{
                     wait(waitFor);
                 }
