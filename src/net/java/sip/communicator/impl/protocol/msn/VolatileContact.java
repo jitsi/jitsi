@@ -1,3 +1,4 @@
+
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
@@ -53,4 +54,6 @@ public class VolatileContact
     public String getOldDisplayName(){return "";}
 
     public MsnUserStatus getOldStatus(){return null;}
+
+    public String getPersonalMessage(){return "";}
 }

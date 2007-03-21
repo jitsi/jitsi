@@ -320,7 +320,7 @@ public class TestOperationSetPresence
     {
         try
         {
-            Thread.currentThread().sleep(1500);
+            Thread.currentThread().sleep(3000);
         }
         catch (InterruptedException ex)
         {
@@ -511,6 +511,14 @@ public class TestOperationSetPresence
         catch (OperationFailedException ex)
         {
             // happens if the user is already subscribed
+        }
+        
+        Object lock = new Object();
+        synchronized(lock)
+        {
+            logger.info("Will wait all subscriptioin events to be received by lib");
+            lock.wait(3000);
+            logger.info("Stopped waiting");
         }
     }
 

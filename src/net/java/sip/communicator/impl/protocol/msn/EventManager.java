@@ -8,12 +8,14 @@ package net.java.sip.communicator.impl.protocol.msn;
 
 import java.util.*;
 
-import net.sf.cindy.*;
 import net.sf.jml.*;
 import net.sf.jml.impl.*;
 import net.sf.jml.protocol.*;
 import net.sf.jml.protocol.incoming.*;
 import net.java.sip.communicator.util.Logger;
+import net.sf.jml.net.Message;
+import net.sf.jml.net.SessionAdapter;
+import net.sf.jml.net.SocketSession;
 
 /**
  * Manager which listens for changing of the contact list
@@ -70,7 +72,7 @@ public class EventManager
      * @param message Message
      * @throws Exception
      */
-    public void messageSent(Session session, Message message) throws Exception
+    public void messageSent(SocketSession session, Message message) throws Exception
     {
         logger.trace(msnMessenger.getOwner().getEmail().getEmailAddress() +
                      " outgoing " + message);
@@ -82,7 +84,7 @@ public class EventManager
      * @param message Message
      * @throws Exception
      */
-    public void messageReceived(Session session, Message message)
+    public void messageReceived(SocketSession session, Message message)
         throws Exception
     {
         MsnIncomingMessage incoming = (MsnIncomingMessage)((WrapperMessage)message)

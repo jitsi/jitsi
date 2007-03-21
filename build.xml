@@ -662,7 +662,7 @@
                  as a test environment-->
             <sysproperty key="felix.config.properties"
                 value="file:./lib/felix.unit.test.properties"/>
-
+                
             <!-- Tell the slick runner where to store test results. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
                 value="${test.reports.dir}"/>
@@ -1214,7 +1214,6 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/msn"
                 prefix="net/java/sip/communicator/impl/protocol/msn"/>
             <zipfileset src="${lib.noinst}/jml-1.0b1.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/cindy.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
             <zipfileset dir="resources/images/msn"
                             prefix="resources/images/msn"/>
@@ -1230,7 +1229,6 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/msn"
                 prefix="net/java/sip/communicator/slick/protocol/msn"/>
             <zipfileset src="${lib.noinst}/jml-1.0b1.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/cindy.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
         </jar>
     </target>
