@@ -347,6 +347,8 @@ public class TestOperationSetPresence
     {
         logger.debug("Testing Subscription and Subscription Event Dispatch.");
 
+        dumplists();
+        
         SubscriptionEventCollector subEvtCollector
             = new SubscriptionEventCollector();
         operationSetPresence1.addSubsciptionListener(subEvtCollector);
@@ -452,8 +454,6 @@ public class TestOperationSetPresence
         {
             // happens if the user is already subscribed
         }
-        
-        dumplists();
     }
 
     /**
@@ -542,12 +542,18 @@ public class TestOperationSetPresence
     {
         logger.debug("Clear the two lists before tests");
 
+        // wait a moment if any event hes left from the previous tests
+        Object o = new Object();
+        synchronized(o)
+        {
+            o.wait(2000);
+        }
+        
         // wait for a moment
         // give time the impl to get the lists
         logger.debug("start clearing");
         fixture.clearProvidersLists();
         
-        Object o = new Object();
         synchronized(o)
         {
             o.wait(3000);

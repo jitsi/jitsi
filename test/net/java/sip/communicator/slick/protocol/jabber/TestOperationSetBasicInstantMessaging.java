@@ -149,6 +149,9 @@ public class TestOperationSetBasicInstantMessaging
                                 "firstTestReceiveMessage"));
         suite.addTest(new TestOperationSetBasicInstantMessaging(
                                 "thenTestSendMessage"));
+        // reporting to be last. we do not care is the message received or not
+        suite.addTest(new TestOperationSetBasicInstantMessaging(
+                                "reportingSendFunMessages"));
 
         return suite;
     }
@@ -318,6 +321,7 @@ public class TestOperationSetBasicInstantMessaging
         assertTrue( "No messages received by the tester agent"
                     , imEvtCollector2.collectedEvents.size() > 0);
         
+        
         assertFalse( "Message was unable to deliver !", 
             imEvtCollector2.collectedEvents.get(0) 
             instanceof MessageDeliveryFailedEvent);
@@ -480,7 +484,7 @@ public class TestOperationSetBasicInstantMessaging
      * A method that would simply send messages to a group of people so that
      * they would get notified that tests are being run.
      */
-    public void testSendFunMessages()
+    public void reportingSendFunMessages()
     {
         String hostname = "";
 
