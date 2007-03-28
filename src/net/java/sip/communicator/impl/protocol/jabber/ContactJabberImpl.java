@@ -21,7 +21,7 @@ public class ContactJabberImpl
 {
     private static final Logger logger = Logger.getLogger(ContactJabberImpl.class);
 
-    
+
     private RosterEntry rosterEntry = null;
     private boolean isLocal = false;
     private byte[] image = null;
@@ -93,7 +93,7 @@ public class ContactJabberImpl
     {
         if(image == null)
             image = getAvatar();
-        
+
         return image;
     }
 
@@ -292,24 +292,25 @@ public class ContactJabberImpl
     {
         return rosterEntry;
     }
-    
+
     private byte[] getAvatar()
     {
         try
         {
             VCard card = new VCard();
             card.load(
-                ssclCallback.getParentProvider().getConnection(), 
+                ssclCallback.getParentProvider().getConnection(),
                 getAddress());
-            
+
             return card.getAvatar();
         }
-        catch (Exception e) 
+        catch (Exception exc)
         {
-            logger.error("Cannot load image for contact " + 
-                this + " : " + e.getMessage());
+            logger.error("Cannot load image for contact "
+                + this + " : " + exc.getMessage()
+                , exc);
         }
-        
+
         return null;
     }
 
