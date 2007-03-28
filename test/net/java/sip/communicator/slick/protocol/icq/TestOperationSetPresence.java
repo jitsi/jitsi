@@ -266,6 +266,7 @@ public class TestOperationSetPresence
         // and wait for the response
         if(statusEventCollector.collectedPresEvents.size() == 0)
         {
+            logger.trace("Will query again status as we haven't received one");
             operationSetPresence.queryContactStatus(fixture.icqAccountID.getUserID());
             statusEventCollector.waitForPresEvent(10000);
         }

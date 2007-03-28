@@ -89,7 +89,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         provider.addRegistrationStateChangeListener(new RegistrationStateListener());
 
         // register the KeepAlive Extension in the smack library
-        ProviderManager.addExtensionProvider(KeepAliveEventProvider.ELEMENT_NAME,
+        ProviderManager.addIQProvider(KeepAliveEventProvider.ELEMENT_NAME,
                                              KeepAliveEventProvider.NAMESPACE,
                                              new KeepAliveEventProvider());
     }
@@ -274,6 +274,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 // run keepalive thread
                 if(keepAliveSendTask == null && keepAliveEnabled)
                 {
+                    jabberProvider.getConnection().addPacketListener(
+                        new KeepalivePacketListener(),
+                        new PacketTypeFilter(
+                            KeepAliveEvent.class));
+                    
                     keepAliveSendTask = new KeepAliveSendTask();
 
                     keepAliveTimer.scheduleAtFixedRate(
@@ -340,17 +345,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
                              + msg.toXML());
             }
 
-            KeepAliveEvent keepAliveEvent =
-                (KeepAliveEvent)packet.getExtension(
-                    KeepAliveEventProvider.ELEMENT_NAME,
-                    KeepAliveEventProvider.NAMESPACE);
-            if(keepAliveEvent != null)
-            {
-                keepAliveEvent.setFromUserID(fromUserID);
-                receivedKeepAlivePackets.addLast(keepAliveEvent);
-                return;
-            }
-
             Message newMessage = createMessage(msg.getBody());
 
             Contact sourceContact =
@@ -400,6 +394,31 @@ public class OperationSetBasicInstantMessagingJabberImpl
             fireMessageEvent(msgReceivedEvt);
         }
     }
+    
+    /**
+     * Receives incoming KeepAlive Packets
+     */ 
+    private class KeepalivePacketListener
+        implements PacketListener
+    {
+        public void processPacket(Packet packet)
+        {
+            if(packet != null &&  !(packet instanceof KeepAliveEvent))
+                return;
+            
+            KeepAliveEvent keepAliveEvent = (KeepAliveEvent)packet;
+            
+            if(logger.isDebugEnabled())
+            {
+                logger.debug("Received keepAliveEvent from "
+                             + keepAliveEvent.getFromUserID()
+                             + " the message : "
+                             + keepAliveEvent.toXML());
+            }
+            
+            receivedKeepAlivePackets.addLast(keepAliveEvent);
+        }
+    }
 
     /**
      * Task sending packets on intervals.
@@ -410,55 +429,32 @@ public class OperationSetBasicInstantMessagingJabberImpl
     {
         public void run()
         {
-            try
+            // if we are not registerd do nothing
+            if(!jabberProvider.isRegistered())
             {
-                // if we are not registerd do nothing
-                if(!jabberProvider.isRegistered())
-                {
-                    logger.trace("provider not registered. "
-                                 +"won't send keep alive. acc.id="
-                                 + jabberProvider.getAccountID()
-                                    .getAccountUniqueID());
-                    return;
-                }
-
-                Chat chat =
-                    jabberProvider.getConnection().
-                    createChat(jabberProvider.getAccountID().getUserID());
-
-                org.jivesoftware.smack.packet.Message msg = chat.createMessage();
-
-                //make the system message unique (emcho: I think some servers "
-                //may be ignoring repetitive messages.)
-                msg.setBody("SYSTEM MESSAGE! ("
-                            + System.currentTimeMillis()
-                            + ")");
-
-                KeepAliveEvent keepAliveEvent = new KeepAliveEvent();
-
-                keepAliveEvent.setSrcOpSetHash(
-                    OperationSetBasicInstantMessagingJabberImpl.this.hashCode());
-                keepAliveEvent.setSrcProviderHash(jabberProvider.hashCode());
-
-                // add keepalive data
-                msg.addExtension(keepAliveEvent);
-
-                // schedule the check task
-                keepAliveTimer.schedule(
-                    new KeepAliveCheckTask(), KEEPALIVE_WAIT);
-
-                logger.trace(
-                    "send keepalive for acc: "
-                    + jabberProvider.getAccountID().getAccountUniqueID());
-                chat.sendMessage(msg);
+                logger.trace("provider not registered. "
+                             +"won't send keep alive. acc.id="
+                             + jabberProvider.getAccountID()
+                                .getAccountUniqueID());
+                return;
             }
-            catch (XMPPException ex)
-            {
-                logger.error(
-                    "Error sending keep alive packet for account"
-                    + jabberProvider.getAccountID().getAccountUniqueID()
-                    , ex);
-            }
+
+            KeepAliveEvent keepAliveEvent = 
+                new KeepAliveEvent(jabberProvider.getConnection().getUser());
+
+            keepAliveEvent.setSrcOpSetHash(
+                OperationSetBasicInstantMessagingJabberImpl.this.hashCode());
+            keepAliveEvent.setSrcProviderHash(jabberProvider.hashCode());
+
+            // schedule the check task
+            keepAliveTimer.schedule(
+                new KeepAliveCheckTask(), KEEPALIVE_WAIT);
+
+            logger.trace(
+                "send keepalive for acc: "
+                + jabberProvider.getAccountID().getAccountUniqueID());
+
+            jabberProvider.getConnection().sendPacket(keepAliveEvent);
         }
     }
 

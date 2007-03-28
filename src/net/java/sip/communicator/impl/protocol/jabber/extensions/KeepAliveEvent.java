@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions;
 
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.util.*;
 
 /**
  * KeepAlive Event. Events are send on specified interval
@@ -18,7 +19,7 @@ import org.jivesoftware.smack.packet.*;
  * @author Damian Minkov
  */
 public class KeepAliveEvent
-    implements PacketExtension
+    extends IQ
 {
     public static final String SOURCE_PROVIDER_HASH = "src-provider-hash";
     public static final String SOURCE_OPSET_HASH = "src-opset-hash";
@@ -26,41 +27,36 @@ public class KeepAliveEvent
     private int srcProviderHash = -1;
     private int srcOpSetHash = -1;
     private String fromUserID = null;
-
+    
     /**
-     * Returns the XML element name of the extension sub-packet root element.
-     * Always returns "x"
-     *
-     * @return the XML element name of the packet extension.
+     * Constructs empty packet
      */
-    public String getElementName()
+    public KeepAliveEvent()
+    {}
+    
+    /**
+     * Construct packet for sending
+     */
+    public KeepAliveEvent(String to) 
     {
-        return KeepAliveEventProvider.ELEMENT_NAME;
+        if (to == null) 
+        {
+            throw new IllegalArgumentException("Parameter cannot be null");
+        }
+        setTo(to);
     }
 
     /**
-     * Returns the XML namespace of the extension sub-packet root element.
-     * The namespace is always "sip-communicator:x:keepalive"
+     * Returns the sub-element XML section of this packet
      *
-     * @return the XML namespace of the packet extension.
+     * @return the packet as XML.
      */
-    public String getNamespace()
-    {
-        return KeepAliveEventProvider.NAMESPACE;
-    }
-
-    /**
-     * Returns the XML reppresentation of the PacketExtension.
-     *
-     * @return the packet extension as XML.
-     * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
-     *   method
-     */
-    public String toXML()
+    public String getChildElementXML()
     {
         StringBuffer buf = new StringBuffer();
-        buf.append("<").append(getElementName()).append(" xmlns=\"").append(getNamespace()).append(
-            "\">");
+        buf.append("<").append(KeepAliveEventProvider.ELEMENT_NAME).
+            append(" xmlns=\"").append(KeepAliveEventProvider.NAMESPACE).
+            append("\">");
 
         buf.append("<").
             append(SOURCE_PROVIDER_HASH).append(">").
@@ -72,8 +68,20 @@ public class KeepAliveEvent
                 append(getSrcOpSetHash()).append("</").
             append(SOURCE_OPSET_HASH).append(">");
 
-        buf.append("</").append(getElementName()).append(">");
+        buf.append("</").append(KeepAliveEventProvider.ELEMENT_NAME).append(">");
         return buf.toString();
+    }
+    
+    /**
+     * The user id sending this packet
+     * @return String user id
+     */
+    public String getFromUserID()
+    {
+        if(getFrom() != null)
+            return StringUtils.parseBareAddress(getFrom());
+        else
+            return null;
     }
 
     /**
@@ -95,15 +103,6 @@ public class KeepAliveEvent
     }
 
     /**
-     * The user id sending this packet
-     * @return String user id
-     */
-    public String getFromUserID()
-    {
-        return fromUserID;
-    }
-
-    /**
      * Sets the hash of the source provider that will send the message
      * @param srcProviderHash int hash of the provider
      */
@@ -119,14 +118,5 @@ public class KeepAliveEvent
     public void setSrcOpSetHash(int srcOpSetHash)
     {
         this.srcOpSetHash = srcOpSetHash;
-    }
-
-    /**
-     * The user id sending this packet
-     * @param fromUserID String user id
-     */
-    public void setFromUserID(String fromUserID)
-    {
-        this.fromUserID = fromUserID;
-    }
+    }  
 }

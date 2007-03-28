@@ -16,10 +16,10 @@ import org.xmlpull.v1.*;
  * @author Damian Minkov
  */
 public class KeepAliveEventProvider
-    implements PacketExtensionProvider
+    implements IQProvider
 {
-    public static final String ELEMENT_NAME = "x";
-    public static final String NAMESPACE = "sip-communicator:x:keepalive";
+    public static final String ELEMENT_NAME = "keepalive";
+    public static final String NAMESPACE = "sip-communicator:iq:keepalive";
 
     /**
      * Creates a new KeepAliveEventProvider.
@@ -30,15 +30,13 @@ public class KeepAliveEventProvider
     {}
 
     /**
-     * Parses a KeepAliveEvent packet (extension sub-packet).
+     * Parses a KeepAliveEvent packet .
      *
      * @param parser an XML parser.
      * @return a new IQ instance.
      * @throws Exception if an error occurs parsing the XML.
-     * @todo Implement this
-     *   org.jivesoftware.smack.provider.PacketExtensionProvider method
      */
-    public PacketExtension parseExtension(XmlPullParser parser)
+    public IQ parseIQ(XmlPullParser parser)
         throws Exception
     {
         KeepAliveEvent result = new KeepAliveEvent();
@@ -64,7 +62,7 @@ public class KeepAliveEventProvider
                 }
                 else if(eventType == XmlPullParser.END_TAG)
                 {
-                    if(parser.getName().equals("x"))
+                    if(parser.getName().equals(ELEMENT_NAME))
                     {
                         done = true;
                     }
