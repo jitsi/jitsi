@@ -260,6 +260,15 @@ public class TestOperationSetPresence
         //test event notification.
         statusEventCollector.waitForPresEvent(10000);
         statusEventCollector.waitForStatMsgEvent(10000);
+        
+        // sometimes we don't get response from the server for the 
+        // changed status. we will query it once again. 
+        // and wait for the response
+        if(statusEventCollector.collectedPresEvents.size() == 0)
+        {
+            operationSetPresence.queryContactStatus(fixture.icqAccountID.getUserID());
+            statusEventCollector.waitForPresEvent(10000);
+        }
 
         operationSetPresence.removeProviderPresenceStatusListener(
             statusEventCollector);
