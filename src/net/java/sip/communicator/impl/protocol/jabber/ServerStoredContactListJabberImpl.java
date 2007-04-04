@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.packet.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -626,7 +627,7 @@ public class ServerStoredContactListJabberImpl
         // first if unfiled exntries will move them in a group
         if(roster.getUnfiledEntryCount() > 0)
         {
-            Iterator iter = roster.getUnfiledEntries();
+            Iterator iter = roster.getUnfiledEntries().iterator();
             while (iter.hasNext())
             {
                 RosterEntry item = (RosterEntry) iter.next();
@@ -651,7 +652,7 @@ public class ServerStoredContactListJabberImpl
 
 
         // fill in root group
-        Iterator iter = roster.getGroups();
+        Iterator iter = roster.getGroups().iterator();
         while (iter.hasNext())
         {
             RosterGroup item = (RosterGroup) iter.next();
@@ -663,7 +664,8 @@ public class ServerStoredContactListJabberImpl
             {
                 // create the group as it doesn't exist
                 ContactGroupJabberImpl newGroup =
-                new ContactGroupJabberImpl(item, item.getEntries(), this, true);
+                new ContactGroupJabberImpl(
+                    item, item.getEntries().iterator(), this, true);
 
                 rootGroup.addSubGroup(newGroup);
 
@@ -778,7 +780,7 @@ public class ServerStoredContactListJabberImpl
                                           true);
 
                 boolean isUnfiledEntry = true;
-                Iterator groupIter = entry.getGroups();
+                Iterator groupIter = entry.getGroups().iterator();
                 while (groupIter.hasNext())
                 {
                     RosterGroup group = (RosterGroup) groupIter.next();
@@ -822,7 +824,7 @@ public class ServerStoredContactListJabberImpl
                 String contactID = (String) iter.next();
                 RosterEntry entry = roster.getEntry(contactID);
 
-                Iterator iter1 = entry.getGroups();
+                Iterator iter1 = entry.getGroups().iterator();
                 while (iter1.hasNext())
                 {
                     RosterGroup gr = (RosterGroup) iter1.next();
@@ -933,7 +935,7 @@ public class ServerStoredContactListJabberImpl
             }
         }
 
-        public void presenceChanged(String XMPPAddress)
+        public void presenceChanged(Presence presence)
         {}
     }
 }

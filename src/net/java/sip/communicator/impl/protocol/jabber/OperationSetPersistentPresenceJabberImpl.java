@@ -78,8 +78,6 @@ public class OperationSetPersistentPresenceJabberImpl
         supportedPresenceStatusSet.add(JabberStatusEnum.AWAY);
         supportedPresenceStatusSet.add(JabberStatusEnum.DO_NOT_DISTURB);
         supportedPresenceStatusSet.add(JabberStatusEnum.FREE_FOR_CHAT);
-        supportedPresenceStatusSet.add(JabberStatusEnum.INVISIBLE);
-        supportedPresenceStatusSet.add(JabberStatusEnum.EXTENDED_AWAY);
         supportedPresenceStatusSet.add(JabberStatusEnum.OFFLINE);
         supportedPresenceStatusSet.add(JabberStatusEnum.AVAILABLE);
     }
@@ -91,17 +89,13 @@ public class OperationSetPersistentPresenceJabberImpl
     private static Map scToJabberModesMappings = new Hashtable();
     static{
         scToJabberModesMappings.put(JabberStatusEnum.AWAY,
-                                  Presence.Mode.AWAY);
+                                  Presence.Mode.away);
         scToJabberModesMappings.put(JabberStatusEnum.DO_NOT_DISTURB,
-                                  Presence.Mode.DO_NOT_DISTURB);
+                                  Presence.Mode.dnd);
         scToJabberModesMappings.put(JabberStatusEnum.FREE_FOR_CHAT,
-                                  Presence.Mode.CHAT);
-        scToJabberModesMappings.put(JabberStatusEnum.INVISIBLE,
-                                  Presence.Mode.INVISIBLE);
-        scToJabberModesMappings.put(JabberStatusEnum.EXTENDED_AWAY,
-                                  Presence.Mode.EXTENDED_AWAY);
+                                  Presence.Mode.chat);
         scToJabberModesMappings.put(JabberStatusEnum.AVAILABLE,
-                                  Presence.Mode.AVAILABLE);
+                                  Presence.Mode.available);
     }
 
     /**
@@ -414,12 +408,12 @@ public class OperationSetPersistentPresenceJabberImpl
         Presence presence = null;
         if(((JabberStatusEnum)status).equals(JabberStatusEnum.OFFLINE))
         {
-            presence = new Presence(Presence.Type.UNAVAILABLE);
+            presence = new Presence(Presence.Type.unavailable);
             jabberProvider.unregister();
         }
         else
         {
-            presence = new Presence(Presence.Type.AVAILABLE);
+            presence = new Presence(Presence.Type.available);
             presence.setMode(presenceStatusToJabberMode((JabberStatusEnum)status));
 
             presence.setStatus(statusMessage);
@@ -665,18 +659,14 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     private JabberStatusEnum jabberStatusToPresenceStatus(Presence.Mode mode)
     {
-        if(mode.equals(Presence.Mode.AVAILABLE))
+        if(mode.equals(Presence.Mode.available))
             return JabberStatusEnum.AVAILABLE;
-        else if(mode.equals(Presence.Mode.AWAY))
+        else if(mode.equals(Presence.Mode.away))
             return JabberStatusEnum.AWAY;
-        else if(mode.equals(Presence.Mode.CHAT))
+        else if(mode.equals(Presence.Mode.chat))
             return JabberStatusEnum.FREE_FOR_CHAT;
-        else if(mode.equals(Presence.Mode.DO_NOT_DISTURB))
+        else if(mode.equals(Presence.Mode.dnd))
             return JabberStatusEnum.DO_NOT_DISTURB;
-        else if(mode.equals(Presence.Mode.EXTENDED_AWAY))
-            return JabberStatusEnum.EXTENDED_AWAY;
-        else if(mode.equals(Presence.Mode.INVISIBLE))
-            return JabberStatusEnum.INVISIBLE;
         else return JabberStatusEnum.OFFLINE;
     }
 
@@ -1011,11 +1001,11 @@ public class OperationSetPersistentPresenceJabberImpl
         public void entriesDeleted(Collection addresses)
         {}
 
-        public void presenceChanged(String XMPPAddress)
+        public void presenceChanged(Presence presence)
         {
             try
             {
-                String userID = StringUtils.parseBareAddress(XMPPAddress);
+                String userID = StringUtils.parseBareAddress(presence.getFrom());
 
                 logger.debug("Received a status update for buddy=" +
                              userID);
@@ -1071,7 +1061,7 @@ public class OperationSetPersistentPresenceJabberImpl
         {
             Presence presence = (Presence)packet;
 
-            if (presence != null && presence.getType() == Presence.Type.SUBSCRIBE)
+            if (presence != null && presence.getType() == Presence.Type.subscribe)
             {
                 logger.trace(presence.getFrom() + " wants to add you to its contact list");
                 // buddy want to add you to its roster
@@ -1086,21 +1076,21 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 if(response != null && response.getResponseCode().equals(AuthorizationResponse.ACCEPT))
                 {
-                    Presence responsePacket = new Presence(Presence.Type.SUBSCRIBED);
+                    Presence responsePacket = new Presence(Presence.Type.subscribed);
                     responsePacket.setTo(fromID);
                     logger.info("Sending Accepted Subscription");
                     jabberProvider.getConnection().sendPacket(responsePacket);
                 }
                 else
                 {
-                    Presence responsePacket = new Presence(Presence.Type.UNSUBSCRIBED);
+                    Presence responsePacket = new Presence(Presence.Type.unsubscribed);
                     responsePacket.setTo(fromID);
                     logger.info("Sending Rejected Subscription");
                     jabberProvider.getConnection().sendPacket(responsePacket);
                 }
 
             }
-            else if (presence != null && presence.getType() == Presence.Type.UNSUBSCRIBED)
+            else if (presence != null && presence.getType() == Presence.Type.unsubscribed)
             {
                 logger.trace(presence.getFrom() + " does not allow your subscription");
                 ContactJabberImpl contact =
@@ -1115,7 +1105,7 @@ public class OperationSetPersistentPresenceJabberImpl
                     ssContactList.removeContact(contact);
                 }
             }
-            else if (presence != null && presence.getType() == Presence.Type.SUBSCRIBED)
+            else if (presence != null && presence.getType() == Presence.Type.subscribed)
             {
                 ContactJabberImpl contact =
                     ssContactList.findContactById(presence.getFrom());

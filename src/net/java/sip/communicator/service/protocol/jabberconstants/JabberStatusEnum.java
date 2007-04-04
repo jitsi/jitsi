@@ -45,32 +45,12 @@ public class JabberStatusEnum
                 loadIcon("resources/images/jabber/jabber16x16-online.png"));
 
     /**
-     * The Invisible status. Indicates that the user has connectivity even
-     * though it may appear otherwise to others, to whom she would appear to be
-     * offline.
-     */
-    public static final JabberStatusEnum INVISIBLE
-        = new JabberStatusEnum(45, "Invisible",
-                loadIcon("resources/images/jabber/jabber16x16-invisible.png"));
-
-    /**
      * The Away  status. Indicates that the user has connectivity but might
      * not be able to immediately act upon initiation of communication.
      */
     public static final JabberStatusEnum AWAY
         = new JabberStatusEnum(40, "Away",
                 loadIcon("resources/images/jabber/jabber16x16-away.png"));
-
-
-    /**
-     * The Not Available status. Indicates that the user has connectivity
-     * but might not be able to immediately act (i.e. even less immediately than
-     * when in an Away status ;-P ) upon initiation of communication.
-     *
-     */
-    public static final JabberStatusEnum EXTENDED_AWAY
-        = new JabberStatusEnum(35, "Extended Away",
-                loadIcon("resources/images/jabber/jabber16x16-na.png"));
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers
@@ -95,9 +75,7 @@ public class JabberStatusEnum
     static{
             jabberStatusSet.add(FREE_FOR_CHAT);
             jabberStatusSet.add(AVAILABLE);
-            jabberStatusSet.add(INVISIBLE);
             jabberStatusSet.add(AWAY);
-            jabberStatusSet.add(EXTENDED_AWAY);
             jabberStatusSet.add(DO_NOT_DISTURB);
             jabberStatusSet.add(OFFLINE);
     }

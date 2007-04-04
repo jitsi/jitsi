@@ -441,7 +441,7 @@ public class ContactGroupJabberImpl
 
         this.rosterGroup = source;
 
-        Iterator iter = source.getEntries();
+        Iterator iter = source.getEntries().iterator();
         while (iter.hasNext())
         {
             RosterEntry item = (RosterEntry) iter.next();
@@ -501,7 +501,7 @@ public class ContactGroupJabberImpl
         // clear current buddies . new entries will be added
         buddies.clear();
 
-        Iterator iter = newGroup.getEntries();
+        Iterator iter = newGroup.getEntries().iterator();
         while (iter.hasNext())
         {
             RosterEntry item = (RosterEntry) iter.next();

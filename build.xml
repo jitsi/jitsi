@@ -662,7 +662,7 @@
                  as a test environment-->
             <sysproperty key="felix.config.properties"
                 value="file:./lib/felix.unit.test.properties"/>
-                
+
             <!-- Tell the slick runner where to store test results. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
                 value="${test.reports.dir}"/>
@@ -1147,7 +1147,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/joscar-client.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/joscar-common.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/joscar-protocol.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/retroweaver-rt-2.0Beta4.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/retroweaver-rt-2.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jsocks-klea.jar" prefix=""/>
             <zipfileset dir="resources/images/icq"
                             prefix="resources/images/icq"/>
@@ -1164,7 +1164,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/joscar-client.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/joscar-common.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/joscar-protocol.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/retroweaver-rt-2.0Beta4.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/retroweaver-rt-2.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jsocks-klea.jar" prefix=""/>
         </jar>
     </target>
@@ -1188,6 +1188,9 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/impl/protocol/jabber"/>
             <zipfileset src="${lib.noinst}/smack.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/smackx.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/smackx-jingle.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/retroweaver-rt-2.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/backport-util-concurrent.jar" prefix=""/>
             <zipfileset dir="resources/images/jabber"
                             prefix="resources/images/jabber"/>
         </jar>
@@ -1203,6 +1206,9 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/slick/protocol/jabber"/>
             <zipfileset src="${lib.noinst}/smack.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/smackx.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/smackx-jingle.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/retroweaver-rt-2.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/backport-util-concurrent.jar" prefix=""/>
         </jar>
     </target>
 

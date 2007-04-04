@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.event.MessageListener;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
@@ -89,7 +90,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         provider.addRegistrationStateChangeListener(new RegistrationStateListener());
 
         // register the KeepAlive Extension in the smack library
-        ProviderManager.addIQProvider(KeepAliveEventProvider.ELEMENT_NAME,
+        ProviderManager.getInstance().addIQProvider(KeepAliveEventProvider.ELEMENT_NAME,
                                              KeepAliveEventProvider.NAMESPACE,
                                              new KeepAliveEventProvider());
     }
@@ -198,11 +199,19 @@ public class OperationSetBasicInstantMessagingJabberImpl
         {
             assertConnected();
 
-            Chat chat =
-            jabberProvider.getConnection().
-                createChat(to.getAddress());
+            org.jivesoftware.smack.MessageListener msgListener = 
+                new org.jivesoftware.smack.MessageListener() {
+				public void processMessage(Chat arg0, org.jivesoftware.smack.packet.Message arg1) {
+				}
+            };
 
-            org.jivesoftware.smack.packet.Message msg = chat.createMessage();
+            Chat chat = jabberProvider.getConnection().getChatManager().createChat(
+            		to.getAddress(), msgListener
+            );
+            
+            org.jivesoftware.smack.packet.Message msg = 
+            	new org.jivesoftware.smack.packet.Message();
+            
             msg.setBody(message.getContent());
             msg.addExtension(new Version());
 
@@ -350,7 +359,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             Contact sourceContact =
                 opSetPersPresence.findContactByID(fromUserID);
 
-            if(msg.getType() == org.jivesoftware.smack.packet.Message.Type.ERROR)
+            if(msg.getType() == org.jivesoftware.smack.packet.Message.Type.error)
             {
                 logger.info("Message error received from " + fromUserID);
 

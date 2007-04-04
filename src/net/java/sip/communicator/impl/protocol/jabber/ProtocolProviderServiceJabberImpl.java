@@ -270,14 +270,19 @@ public class ProtocolProviderServiceJabberImpl
                     logger.error("Domain not resolved " + ex1.getMessage());
                 }
 
-                Roster.setDefaultSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
+                Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
 
                 try
                 {
-                    connection = new XMPPConnection(
-                        serverAddress,
-                        Integer.parseInt(serverPort),
-                        serviceName);
+                    ConnectionConfiguration confConn = 
+                	new ConnectionConfiguration(
+                			serverAddress,
+                			Integer.parseInt(serverPort), 
+                			serviceName
+                    );
+                    connection = new XMPPConnection(confConn);
+                    
+                    connection.connect();
                 }
                 catch (XMPPException exc)
                 {
@@ -310,7 +315,7 @@ public class ProtocolProviderServiceJabberImpl
                     this.reconnecting = false;
 
                     connection.getRoster().
-                        setSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
+                        setSubscriptionMode(Roster.SubscriptionMode.manual);
 
                     fireRegistrationStateChanged(
                         getRegistrationState(),
@@ -352,7 +357,7 @@ public class ProtocolProviderServiceJabberImpl
         RegistrationState currRegState = getRegistrationState();
 
         if(connection != null)
-            connection.close();
+            connection.disconnect();
 
         if(fireEvent)
         {
@@ -490,7 +495,7 @@ public class ProtocolProviderServiceJabberImpl
     public void shutdown()
     {
         synchronized(initializationLock){
-            connection.close();
+            connection.disconnect();
             connection = null;
             isInitialized = false;
         }
@@ -628,6 +633,21 @@ public class ProtocolProviderServiceJabberImpl
                 reregister();
             else
                 reconnecting = false;
+        }
+
+        public void reconnectingIn(int i)
+        {
+            logger.info("reconnectingIn " + i);
+        }
+
+        public void reconnectionSuccessful()
+        {
+            logger.info("reconnectionSuccessful");
+        }
+
+        public void reconnectionFailed(Exception exception)
+        {
+            logger.info("reconnectionFailed ", exception);
         }
     }
 

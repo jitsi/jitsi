@@ -188,17 +188,6 @@ public class TestOperationSetPresence
     }
 
     /**
-     * Verify that changing state to NOT_AVAILABLE works as supposed to and that it
-     * generates the corresponding event.
-     * @throws Exception in case a failure occurs while the operation set
-     * is switching to the new state.
-     */
-    public void testChangingStateToNotAvailable() throws Exception
-    {
-        subtestStateTransition(JabberStatusEnum.EXTENDED_AWAY);
-    }
-
-    /**
      * Verify that changing state to DND works as supposed to and that it
      * generates the corresponding event.
      * @throws Exception in case a failure occurs while the operation set
@@ -207,17 +196,6 @@ public class TestOperationSetPresence
     public void testChangingStateToDnd() throws Exception
     {
         subtestStateTransition(JabberStatusEnum.DO_NOT_DISTURB);
-    }
-
-    /**
-     * Verify that changing state to INVISIBLE works as supposed to and that it
-     * generates the corresponding event.
-     * @throws Exception in case a failure occurs while the operation set
-     * is switching to the new state.
-     */
-    public void testChangingStateToInvisible() throws Exception
-    {
-        subtestStateTransition(JabberStatusEnum.INVISIBLE);
     }
 
     /**
@@ -357,11 +335,6 @@ public class TestOperationSetPresence
         subtestQueryContactStatus(JabberStatusEnum.AWAY,
                                   JabberStatusEnum.AWAY);
 
-        // --- NA ---
-        logger.debug("Will Query an NA contact.");
-        subtestQueryContactStatus(JabberStatusEnum.EXTENDED_AWAY,
-                                  JabberStatusEnum.EXTENDED_AWAY);
-
         // --- DND ---
         logger.debug("Will Query a DND contact.");
         subtestQueryContactStatus(JabberStatusEnum.DO_NOT_DISTURB,
@@ -371,11 +344,6 @@ public class TestOperationSetPresence
         logger.debug("Will Query a Free For Chat contact.");
         subtestQueryContactStatus(JabberStatusEnum.FREE_FOR_CHAT,
                                   JabberStatusEnum.FREE_FOR_CHAT);
-
-        // --- INVISIBLE ---
-        logger.debug("Will Query an Invisible contact.");
-        subtestQueryContactStatus(JabberStatusEnum.INVISIBLE,
-                                  JabberStatusEnum.INVISIBLE);
 
         // --- Online ---
         logger.debug("Will Query an Online contact.");

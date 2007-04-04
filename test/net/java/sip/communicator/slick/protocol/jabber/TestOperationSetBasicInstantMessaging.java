@@ -190,9 +190,10 @@ public class TestOperationSetBasicInstantMessaging
             // the contact already exist its OK
         }
 
+        logger.info("will wait till the list prepare is completed");
         synchronized(o)
         {
-            o.wait(2000);
+            o.wait(4000);
         }
     }
 
