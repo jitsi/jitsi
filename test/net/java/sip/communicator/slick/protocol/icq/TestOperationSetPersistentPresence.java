@@ -141,7 +141,8 @@ public class TestOperationSetPersistentPresence
             // the sever creates a group NotInContactList,
             // beacuse the buddy we are sending message to is not in
             // the contactlist. So this group must be ignored
-            if(!group.getGroupName().equals("NotInContactList"))
+            // all not persistent groups must be ignored
+            if(group.isPersistent())
             {
                 assertNotNull("Group " + group.getGroupName() +
                               " was returned by "

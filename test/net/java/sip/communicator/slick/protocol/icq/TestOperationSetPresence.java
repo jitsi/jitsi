@@ -575,12 +575,27 @@ public class TestOperationSetPresence
             //don't want any more events
             operationSetPresence.removeSubscriptionListener(subEvtCollector);
         }
-        
-        assertEquals("Subscription event dispatching failed."
-                     , 1, subEvtCollector.collectedEvents.size());
 
-        EventObject evt =
-            (EventObject)subEvtCollector.collectedEvents.get(0);
+        // after adding awaitingAuthorization group here are catched 3 events
+        // 1 - creating unresolved contact
+        // 2 - move of the contact to awaitingAuthorization group 
+        // 3 - move of the contact from awaitingAuthorization group to original group
+        assertTrue("Subscription event dispatching failed."
+                     , subEvtCollector.collectedEvents.size() > 0);
+
+        EventObject evt = null;
+        
+        Iterator events = subEvtCollector.collectedEvents.iterator();
+        while (events.hasNext())
+        {
+            Object elem = events.next();
+            if(elem instanceof SubscriptionEvent)
+            {
+                if(((SubscriptionEvent)elem).getEventID() 
+                    == SubscriptionEvent.SUBSCRIPTION_CREATED)
+                    evt = (SubscriptionEvent)elem;
+            }
+        }
 
         Object source = null;
         Contact srcContact = null;

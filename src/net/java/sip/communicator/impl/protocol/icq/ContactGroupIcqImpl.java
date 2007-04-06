@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.kano.joustsim.oscar.oscar.service.ssi.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The ICQ implementation of the ContactGroup interface. Intances of this class
@@ -88,6 +89,9 @@ public class ContactGroupIcqImpl
 
         for (int i = 0; i < groupMembers.size(); i++)
         {
+            // here we are not checking for AwaitingAuthorization buddies
+            // as we are creating group with list of buddies
+            // these checks must have been made already
             addContact( new ContactIcqImpl((Buddy)groupMembers.get(i),
                                            ssclCallback, true, true) );
         }
@@ -529,6 +533,13 @@ public class ContactGroupIcqImpl
         while(serverBuddiesIter.hasNext())
         {
             Buddy buddy = (Buddy)serverBuddiesIter.next();
+
+            if(buddy.isAwaitingAuthorization())
+            {
+                ssclCallback.addAwaitingAuthorizationContact(buddy);
+                continue;
+            }
+            
             ContactIcqImpl contact
                 = findContact(buddy.getScreenname().getFormatted());
 

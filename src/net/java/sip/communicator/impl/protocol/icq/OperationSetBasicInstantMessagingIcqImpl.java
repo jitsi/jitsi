@@ -365,7 +365,10 @@ public class OperationSetBasicInstantMessagingIcqImpl
      */
     public boolean isOfflineMessagingSupported()
     {
-        return true;
+        if(icqProvider.USING_ICQ)
+            return true;
+        else
+            return false;
     }
 
     /**
@@ -397,7 +400,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
                     icqProvider.getSupportedOperationSets()
                         .get(OperationSetPersistentPresence.class.getName());
 
-                retreiveOfflineMessages();
+                if(icqProvider.USING_ICQ)
+                    retreiveOfflineMessages();
 
                 // run keepalive thread
                 if(keepAliveSendTask == null)

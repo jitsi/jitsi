@@ -92,6 +92,11 @@ public class ProtocolProviderServiceIcqImpl
         = new ProtocolIconIcqImpl();
     
     /**
+     *  Property whether we are using AIM or ICQ service
+     */
+    boolean USING_ICQ = true;
+    
+    /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
      * currently in or null in case it is in a unknown state.
@@ -238,7 +243,7 @@ public class ProtocolProviderServiceIcqImpl
             // we must trim such passwords to 8 characters
             if(password.length() > 8)
                 password = password.substring(0, 8);
-
+            
             //init the necessary objects
             session = new DefaultAppSession();
             aimSession = session.openAimSession(
@@ -247,7 +252,7 @@ public class ProtocolProviderServiceIcqImpl
                 new AimConnectionProperties(
                     new Screenname(getAccountID().getUserID())
                     , password));
-
+                    
             String proxyAddress =
                 (String)getAccountID().getAccountProperties().get(
                     ProtocolProviderFactory.PROXY_ADDRESS);
@@ -382,6 +387,15 @@ public class ProtocolProviderServiceIcqImpl
         {
             this.accountID = accountID;
 
+            try
+            {
+                Long.parseLong(accountID.getUserID());
+            } catch (NumberFormatException ex)
+            {
+                // if its icq its number can be parsed
+                USING_ICQ = false;
+            }
+            
             //initialize the presence operationset
             OperationSetPersistentPresence persistentPresence =
                 new OperationSetPersistentPresenceIcqImpl(this, screenname);
@@ -409,42 +423,45 @@ public class ProtocolProviderServiceIcqImpl
             supportedOperationSets.put(
                 OperationSetTypingNotifications.class.getName(),
                 typingNotifications);
+            
+            if(USING_ICQ)
+            {
+                this.infoRetreiver = new InfoRetreiver(this, screenname);
 
-            this.infoRetreiver = new InfoRetreiver(this, screenname);
+                OperationSetServerStoredContactInfo serverStoredContactInfo =
+                    new OperationSetServerStoredContactInfoIcqImpl(infoRetreiver);
 
-            OperationSetServerStoredContactInfo serverStoredContactInfo =
-                new OperationSetServerStoredContactInfoIcqImpl(infoRetreiver);
-
-            supportedOperationSets.put(
-                OperationSetServerStoredContactInfo.class.getName(),
-                serverStoredContactInfo);
+                supportedOperationSets.put(
+                    OperationSetServerStoredContactInfo.class.getName(),
+                    serverStoredContactInfo);
 
 
-            OperationSetServerStoredAccountInfo serverStoredAccountInfo =
-                new OperationSetServerStoredAccountInfoIcqImpl
-                    (infoRetreiver, screenname, this);
+                OperationSetServerStoredAccountInfo serverStoredAccountInfo =
+                    new OperationSetServerStoredAccountInfoIcqImpl
+                        (infoRetreiver, screenname, this);
 
-            supportedOperationSets.put(
-                OperationSetServerStoredAccountInfo.class.getName(),
-                serverStoredAccountInfo);
+                supportedOperationSets.put(
+                    OperationSetServerStoredAccountInfo.class.getName(),
+                    serverStoredAccountInfo);
 
-            OperationSetWebAccountRegistration webAccountRegistration =
-                new OperationSetWebAccountRegistrationIcqImpl();
-            supportedOperationSets.put(
-                OperationSetWebAccountRegistration.class.getName(),
-                webAccountRegistration);
+                OperationSetWebAccountRegistration webAccountRegistration =
+                    new OperationSetWebAccountRegistrationIcqImpl();
+                supportedOperationSets.put(
+                    OperationSetWebAccountRegistration.class.getName(),
+                    webAccountRegistration);
 
-            OperationSetWebContactInfo webContactInfo =
-                new OperationSetWebContactInfoIcqImpl();
-            supportedOperationSets.put(
-                OperationSetWebContactInfo.class.getName(),
-                webContactInfo);
-
-            OperationSetExtendedAuthorizationsIcqImpl extendedAuth =
-                new OperationSetExtendedAuthorizationsIcqImpl(this);
-            supportedOperationSets.put(
-                OperationSetExtendedAuthorizations.class.getName(),
-                extendedAuth);
+                OperationSetWebContactInfo webContactInfo =
+                    new OperationSetWebContactInfoIcqImpl();
+                supportedOperationSets.put(
+                    OperationSetWebContactInfo.class.getName(),
+                    webContactInfo);
+            
+                OperationSetExtendedAuthorizationsIcqImpl extendedAuth =
+                    new OperationSetExtendedAuthorizationsIcqImpl(this);
+                supportedOperationSets.put(
+                    OperationSetExtendedAuthorizations.class.getName(),
+                    extendedAuth);
+            }
             
             isInitialized = true;
         }
