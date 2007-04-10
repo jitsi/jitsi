@@ -16,10 +16,12 @@ public class IcqActivator
     implements BundleActivator
 {
     private        ServiceRegistration  icqPpFactoryServReg   = null;
+    private        ServiceRegistration  aimPpFactoryServReg   = null;
     private static BundleContext        bundleContext         = null;
     private static ConfigurationService configurationService  = null;
 
     private static ProtocolProviderFactoryIcqImpl icqProviderFactory = null;
+    private static ProtocolProviderFactoryIcqImpl aimProviderFactory = null;
 
     /**
      * Called when this bundle is started so the Framework can perform the
@@ -34,19 +36,31 @@ public class IcqActivator
     public void start(BundleContext context) throws Exception
     {
         this.bundleContext = context;
-        Hashtable hashtable = new Hashtable();
-        hashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.ICQ);
+        Hashtable icqHashtable = new Hashtable();
+        icqHashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.ICQ);
+        
+        Hashtable aimHashtable = new Hashtable();
+        aimHashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.AIM);
 
-        icqProviderFactory = new ProtocolProviderFactoryIcqImpl();
+        icqProviderFactory = new ProtocolProviderFactoryIcqImpl(false);
+        aimProviderFactory = new ProtocolProviderFactoryIcqImpl(true);
 
         //load all icq providers
         icqProviderFactory.loadStoredAccounts();
 
+        //load all aim providers
+        aimProviderFactory.loadStoredAccounts();
+        
         //reg the icq account man.
         icqPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),
                     icqProviderFactory,
-                    hashtable);
+                    icqHashtable);
+        
+        aimPpFactoryServReg =  context.registerService(
+                    ProtocolProviderFactory.class.getName(),
+                    aimProviderFactory,
+                    aimHashtable);
     }
 
     /**
@@ -82,13 +96,24 @@ public class IcqActivator
 
     /**
      * Retrurns a reference to the protocol provider factory that we have
-     * registered.
+     * registered for icq accounts.
      * @return a reference to the <tt>ProtocolProviderFactoryIcqImpl</tt>
      * instance that we have registered from this package.
      */
-    static ProtocolProviderFactoryIcqImpl getProtocolProviderFactory()
+    static ProtocolProviderFactoryIcqImpl getIcqProtocolProviderFactory()
     {
         return icqProviderFactory;
+    }
+
+    /**
+     * Retrurns a reference to the protocol provider factory that we have
+     * registered for aim accounts.
+     * @return a reference to the <tt>ProtocolProviderFactoryIcqImpl</tt>
+     * instance that we have registered from this package.
+     */
+    static ProtocolProviderFactoryIcqImpl getAimProtocolProviderFactory()
+    {
+        return aimProviderFactory;
     }
 
     /**
@@ -105,5 +130,7 @@ public class IcqActivator
     {
         icqProviderFactory.stop();
         icqPpFactoryServReg.unregister();
+        
+        aimPpFactoryServReg.unregister();
     }
 }

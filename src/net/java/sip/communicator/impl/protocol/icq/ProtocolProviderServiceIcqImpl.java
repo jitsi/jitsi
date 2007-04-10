@@ -202,9 +202,15 @@ public class ProtocolProviderServiceIcqImpl
 
         synchronized(initializationLock)
         {
+            ProtocolProviderFactoryIcqImpl protocolProviderFactory = null;
+            
+            if(USING_ICQ)
+                protocolProviderFactory = IcqActivator.getIcqProtocolProviderFactory();
+            else
+                protocolProviderFactory = IcqActivator.getAimProtocolProviderFactory();
+            
             //verify whether a password has already been stored for this account
-            String password = IcqActivator.getProtocolProviderFactory()
-                .loadPassword(getAccountID());
+            String password = protocolProviderFactory.loadPassword(getAccountID());
 
             //decode
             if( password == null )
@@ -214,7 +220,7 @@ public class ProtocolProviderServiceIcqImpl
                 credentials.setUserName(this.getAccountID().getUserID());
 
                 //request a password from the user
-                credentials = authority.obtainCredentials(ProtocolNames.ICQ
+                credentials = authority.obtainCredentials(getProtocolName()
                                                           , credentials);
                 //extract the password the user passed us.
                 char[] pass = credentials.getPassword();
@@ -233,7 +239,7 @@ public class ProtocolProviderServiceIcqImpl
 
                 if (credentials.isPasswordPersistent())
                 {
-                    IcqActivator.getProtocolProviderFactory()
+                    protocolProviderFactory
                         .storePassword(getAccountID(), password);
                 }
             }
@@ -337,7 +343,10 @@ public class ProtocolProviderServiceIcqImpl
      */
     public String getProtocolName()
     {
-        return ProtocolNames.ICQ;
+        if(USING_ICQ)
+            return ProtocolNames.ICQ;
+        else
+            return ProtocolNames.AIM;
     }
 
     /**
@@ -387,14 +396,8 @@ public class ProtocolProviderServiceIcqImpl
         {
             this.accountID = accountID;
 
-            try
-            {
-                Long.parseLong(accountID.getUserID());
-            } catch (NumberFormatException ex)
-            {
-                // if its icq its number can be parsed
-                USING_ICQ = false;
-            }
+            if(IcqAccountID.isAIM(accountID.getAccountProperties()))
+                    USING_ICQ = false;
             
             //initialize the presence operationset
             OperationSetPersistentPresence persistentPresence =
@@ -726,8 +729,12 @@ public class ProtocolProviderServiceIcqImpl
             if(reasonCode == RegistrationStateChangeEvent
                 .REASON_AUTHENTICATION_FAILED)
             {
-                IcqActivator.getProtocolProviderFactory().storePassword(
-                    getAccountID(), null);
+                if(USING_ICQ)
+                    IcqActivator.getIcqProtocolProviderFactory().storePassword(
+                        getAccountID(), null);
+                else
+                    IcqActivator.getAimProtocolProviderFactory().storePassword(
+                        getAccountID(), null);
             }
 
             //now tell all interested parties about what happened.

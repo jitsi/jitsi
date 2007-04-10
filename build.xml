@@ -840,7 +840,7 @@
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
-        bundle-plugin-yahooaccregwizz,
+        bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
         bundle-version,bundle-version-impl,bundle-shutdown,
         bundle-growlnotification,bundle-audionotifier,bundle-plugin-splashscreen,
         bundle-plugin-systray,bundle-browserlauncher,bundle-gibberish,
@@ -1338,6 +1338,18 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/icqaccregwizz"/>
             <zipfileset dir="resources/images/icq"
                             prefix="resources/images/icq"/>
+        </jar>
+    </target>
+    
+    <!-- BUNDLE-PLUGIN-AIMACCREGWIZZ -->
+    <target name="bundle-plugin-aimaccregwizz">
+        <!-- Creates a bundle for the plugin Aim Account Registration Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/aimaccregwizz.jar"
+            manifest="src/net/java/sip/communicator/plugin/aimaccregwizz/aimaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/aimaccregwizz"
+                prefix="net/java/sip/communicator/plugin/aimaccregwizz"/>
+            <zipfileset dir="resources/images/aim"
+                            prefix="resources/images/aim"/>
         </jar>
     </target>
 

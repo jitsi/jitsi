@@ -323,11 +323,7 @@ public class OperationSetPersistentPresenceIcqImpl
         // Fixed order of status checking
         // The order does matter, as the icqStatus consists of more than one
         // status for example DND = OCCUPIED | DND | AWAY
-        if (icqStatus == -1)
-        {
-            return IcqStatusEnum.OFFLINE;
-        }
-        else if ( (icqStatus & FullUserInfo.ICQSTATUS_INVISIBLE ) != 0)
+        if ( (icqStatus & FullUserInfo.ICQSTATUS_INVISIBLE ) != 0)
         {
             return IcqStatusEnum.INVISIBLE;
         }
@@ -1358,13 +1354,19 @@ public class OperationSetPersistentPresenceIcqImpl
                     if(presenceQueryTimer == null)
                         presenceQueryTimer = new Timer();
                     else
+                    {
+                        // cancel any previous jobs and create new timer
                         presenceQueryTimer.cancel();
+                        presenceQueryTimer = new Timer();
+                    }
 
                     AwaitingAuthorizationContactsPresenceTimer
                         queryTask = new AwaitingAuthorizationContactsPresenceTimer();
 
+                    // start after 15 seconds. wait for login to be completed and 
+                    // list and statuses to be gathered
                     presenceQueryTimer.scheduleAtFixedRate(
-                            queryTask, PRESENCE_QUERY_INTERVAL, PRESENCE_QUERY_INTERVAL);
+                            queryTask, 15000, PRESENCE_QUERY_INTERVAL);
                 }
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED

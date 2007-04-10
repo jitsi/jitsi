@@ -297,9 +297,15 @@ public class ContactJabberImpl
     {
         try
         {
+            XMPPConnection connection = 
+                ssclCallback.getParentProvider().getConnection();
+            
+            if(connection == null || !connection.isAuthenticated())
+                return null;
+            
             VCard card = new VCard();
             card.load(
-                ssclCallback.getParentProvider().getConnection(),
+                connection,
                 getAddress());
 
             return card.getAvatar();
@@ -313,5 +319,4 @@ public class ContactJabberImpl
 
         return null;
     }
-
 }

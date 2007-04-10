@@ -27,12 +27,19 @@ public class ProtocolProviderFactoryIcqImpl
      * The table that we store our accounts in.
      */
     private Hashtable registeredAccounts = new Hashtable();
+    
+    /**
+     * Is this factory is created for aim or icq accounts
+     */
+    private boolean isAimFactory = false;
 
     /**
      * Creates an instance of the ProtocolProviderFactoryIcqImpl.
+     * @param isAimFactory whether its an aim factory
      */
-    protected ProtocolProviderFactoryIcqImpl()
+    protected ProtocolProviderFactoryIcqImpl(boolean isAimFactory)
     {
+        this.isAimFactory = isAimFactory;
     }
 
     /**
@@ -93,6 +100,10 @@ public class ProtocolProviderFactoryIcqImpl
         if (accountProperties == null)
             throw new NullPointerException("The specified property map was null");
 
+        // we are installing new aim account from the wizzard, so mark it as aim
+        if(isAimFactory)
+            accountProperties.put(IcqAccountID.IS_AIM, "true");
+        
         AccountID accountID = new IcqAccountID(userIDStr, accountProperties);
 
         //make sure we haven't seen this account id before.
@@ -129,6 +140,13 @@ public class ProtocolProviderFactoryIcqImpl
         if(context == null)
             throw new NullPointerException("The specified BundleContext was null");
 
+        // there are two factories - one for icq accounts and one for aim ones.
+        // if we are trying to load an icq account in aim factory - skip it
+        // and the same for aim accounts in icq factory
+        if((IcqAccountID.isAIM(accountProperties) && !isAimFactory) ||
+            (!IcqAccountID.isAIM(accountProperties) && isAimFactory))
+                return null;
+        
         String userIDStr = (String)accountProperties.get(USER_ID);
 
         AccountID accountID = new IcqAccountID(userIDStr, accountProperties);
@@ -136,15 +154,15 @@ public class ProtocolProviderFactoryIcqImpl
         //get a reference to the configuration service and register whatever
         //properties we have in it.
 
-        Hashtable properties = new Hashtable();
-        properties.put(PROTOCOL, ProtocolNames.ICQ);
-        properties.put(USER_ID, userIDStr);
-
         ProtocolProviderServiceIcqImpl icqProtocolProvider
             = new ProtocolProviderServiceIcqImpl();
 
         icqProtocolProvider.initialize(userIDStr, accountID);
-
+        
+        Hashtable properties = new Hashtable();
+        properties.put(PROTOCOL, icqProtocolProvider.getProtocolName());
+        properties.put(USER_ID, userIDStr);
+        
         ServiceRegistration registration
             = context.registerService( ProtocolProviderService.class.getName(),
                                        icqProtocolProvider,
