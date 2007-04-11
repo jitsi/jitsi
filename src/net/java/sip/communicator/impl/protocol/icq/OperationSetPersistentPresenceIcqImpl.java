@@ -305,10 +305,6 @@ public class OperationSetPersistentPresenceIcqImpl
                 //we don't care
             }
         }
-        
-        // icq status is not set so it must be Offline
-        if(responseRetriever.status == -1)
-            return IcqStatusEnum.OFFLINE;
 
         return icqStatusLongToPresenceStatus(responseRetriever.status);
     }
@@ -327,7 +323,11 @@ public class OperationSetPersistentPresenceIcqImpl
         // Fixed order of status checking
         // The order does matter, as the icqStatus consists of more than one
         // status for example DND = OCCUPIED | DND | AWAY
-        if ( (icqStatus & FullUserInfo.ICQSTATUS_INVISIBLE ) != 0)
+        if(icqStatus == -1)
+        {
+            return IcqStatusEnum.OFFLINE;
+        }
+        else if ( (icqStatus & FullUserInfo.ICQSTATUS_INVISIBLE ) != 0)
         {
             return IcqStatusEnum.INVISIBLE;
         }
@@ -870,10 +870,6 @@ public class OperationSetPersistentPresenceIcqImpl
      */
     public PresenceStatus getPresenceStatus()
     {
-        // if status is not set its offline
-        if(currentIcqStatus == -1)
-            return IcqStatusEnum.OFFLINE;
-        
         return icqStatusLongToPresenceStatus(currentIcqStatus);
     }
 
