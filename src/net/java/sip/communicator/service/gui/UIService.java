@@ -30,18 +30,13 @@ import net.java.sip.communicator.service.protocol.*;
  * getPopupDialog method and then one of the showXXX methods, which corresponds
  * best to the required dialog. 
  * <p>
- * Certain application windows within the GUI, like "AddContact" for example,
+ * Certain components within the GUI, like "AddContact" window for example,
  * could be also shown from outside the ui. To make one of
- * these windows showable, the <tt>UIService</tt> implementation should attach
- * to it a <tt>WindowID</tt>. A window then could be shown, by
- * invoking <code>getApplicationWindow(WindowID)</code> and then 
- * <code>show</code>. The <tt>WindowID</tt> above should be one of the exported
- * <tt>WindowID</tt>s obtained from <code>getApplicationWindows</code>.
- * <p>
- * Each <code>UIService</code> implementation should implement the method
- * <code>getChatWindow(Contact contact)</code>, which is meant to provide an
- * access to the chat component for the given contact in the form of 
- * <code>ApplicationWindow</code>.
+ * these component exportable, the <tt>UIService</tt> implementation should attach
+ * to it an <tt>WindowID</tt>. A window then could be shown, by invoking
+ * <code>getExportedWindow(WindowID)</code> and then 
+ * <code>show</code>. The <tt>WindowID</tt> above should be obtained from
+ * <code>getSupportedExportedWindows</code>.
  * 
  * @author Yana Stamcheva
  */
@@ -230,20 +225,19 @@ public interface UIService
     public boolean getExitOnMainWindowClose();
     
     /**
-     * Returns a common application window given by WindowID. This 
-     * could be for example an "Add contact" window or any other window within
-     * the application, which could be simply shown without need of additional
-     * arguments. The <tt>windowID</tt> SHOULD be one of the WINDOW_XXX obtained
-     * by the getApplicationWindows method.
+     * Returns an exported window given by the <tt>WindowID</tt>.
+     * This could be for example the "Add contact" window or any other window
+     * within the application. The <tt>windowID</tt> should be one of the
+     * WINDOW_XXX obtained by the <tt>getSupportedExportedWindows</tt> method.
      *  
      * @param windowID One of the WINDOW_XXX WindowID-s.
      * @throws IllegalArgumentException if the specified <tt>windowID</tt>
      * is not recognized by the implementation (note that implementations
      * MUST properly handle all WINDOW_XXX ID-s.
      * @return the window to be shown
-     * @see #getApplicationWindows()
+     * @see #getSupportedExportedWindows()
      */
-    public ApplicationWindow getApplicationWindow(WindowID windowID)
+    public ExportedWindow getExportedWindow(WindowID windowID)
         throws IllegalArgumentException;
     
     /**
@@ -257,15 +251,32 @@ public interface UIService
     public PopupDialog getPopupDialog();
          
     /**
-     * Returns the <tt>ApplicationWindow</tt> corresponding to the component
-     * representing the chat for the given contact. Meant to be used from other
-     * bundles to allow them to check the visibility of a chat, hide it or show
-     * it.
-     * @param contact
-     * @return The <tt>ApplicationWindow</tt> corresponding to the component
-     * representing the chat for the given contact.
+     * Returns the <tt>Chat</tt> corresponding to the given <tt>Contact</tt>.
+     * 
+     * @param contact the <tt>Contact</tt> for which the searched chat is about.
+     * @return the <tt>Chat</tt> corresponding to the given <tt>Contact</tt>.
      */
-    public ApplicationWindow getChatWindow(Contact contact);
+    public Chat getChat(Contact contact);
+    
+    /**
+     * Returns an <tt>ExportableComponent</tt> that corresponds to an
+     * authentication window for the given protocol provider and user
+     * inromation. Initially this method is meant to be used by the
+     * <tt>SystrayService</tt> in order to show a login window when user tries
+     * to connect using the systray menu.
+     *     
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> for which
+     * the authentication window is about.
+     * @param realm the realm
+     * @param userCredentials the <tt>UserCredentials</tt>, where the username
+     * and password details are stored
+     * @return an <tt>ExportableComponent</tt> that corresponds to an
+     * authentication window for the given protocol provider and user information.
+     */
+    public ExportedWindow getAuthenticationWindow(
+        ProtocolProviderService protocolProvider,
+        String realm,
+        UserCredentials userCredentials);
     
     /**
      * Returns the <tt>ConfigurationWindow</tt> implementation for this
@@ -280,29 +291,31 @@ public interface UIService
     public ConfigurationWindow getConfigurationWindow();
     
     /**
-     * Returns an iterator over a set of windowID-s. Each WindowID points to
-     * a common window in the current UI implementation. Each WindowID in the
-     * set is one of the WINDOW_XXX constants. The method is meant to be used
-     * by bundles that would like to show common windows like "Add contact" per
-     * example. Before showing any window they should use this method to obtain
-     * all possible windows, which could be shown for the current ui
-     * implementation.  
+     * Returns an iterator over a set of windowID-s. Each <tt>WindowID</tt>
+     * points to a window in the current UI implementation. Each
+     * <tt>WindowID</tt> in the set is one of the constants in the
+     * <tt>ExportedWindow</tt> interface. The method is meant to be used by
+     * bundles that would like to have access to some windows in the gui
+     * - for example the "Add contact" window, the "Settings" window, the
+     * "Chat window", etc.
      *       
-     * @return Iterator An iterator to a set containing windowID-s 
-     * representing all windows supported by the current UI implementation.
+     * @return Iterator An iterator to a set containing WindowID-s 
+     * representing all exported windows supported by the current UI
+     * implementation.
      */
-    public Iterator getSupportedApplicationWindows();
+    public Iterator getSupportedExportedWindows();
     
     /**
-     * Chechks if the application window with the given <tt>WindowID</tt> is
-     * contained in the current UI implementation.
+     * Chechks if a window with the given <tt>WindowID</tt> is contained in the
+     * current UI implementation.
      * 
-     * @param windowID One of the WINDOW_XXX WindowID-s. 
-     * @return <code>true</code> if the application window with the given 
-     * <tt>WindowID</tt> is exported from the current UI implementation,
+     * @param windowID one of the <tt>WindowID</tt>-s, defined in the
+     * <tt>ExportedWindow</tt> interface. 
+     * @return <code>true</code> if the component with the given
+     * <tt>WindowID</tt> is contained in the current UI implementation,
      * <code>false</code> otherwise.
      */
-    public boolean containsApplicationWindow(WindowID windowID);
+    public boolean isExportedWindowSupported(WindowID windowID);
     
     /**
      * Returns the <tt>AccountRegistrationWizardContainer</tt> for the current

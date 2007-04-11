@@ -13,7 +13,7 @@ package net.java.sip.communicator.service.gui;
  * 
  * @author Yana Stamcheva
  */
-public interface ApplicationWindow
+public interface ExportedWindow
 {
     /*
      * WindowID-s
@@ -30,31 +30,42 @@ public interface ApplicationWindow
     public static final WindowID CONFIGURATION_WINDOW
         = new WindowID("ConfigurationWindow");
     
+    public static final WindowID AUTHENTICATION_WINDOW
+        = new WindowID("AuthenticationWindow");
+
     /**
      * Returns the WindowID corresponding to this window. The window id should
      * be one of the defined in this class XXX_WINDOW constants.
      *   
      * @return the WindowID corresponding to this window
      */
-    public WindowID getWindowID();
+    public WindowID getIdentifier();
     
     /**
-     * Returns TRUE if the window is visible and FALSE otherwise.
+     * Returns TRUE if the component is visible and FALSE otherwise.
      * 
-     * @return <code>true</code> if the window is visible and
+     * @return <code>true</code> if the component is visible and
      * <code>false</code> otherwise.
      */
-    public boolean isWindowVisible();
+    public boolean isVisible();
     
     /**
-     * Shows the window.
+     * Returns TRUE if this component is currently the focused component,
+     * FALSE - otherwise.
+     * @return TRUE if this component is currently the focused component,
+     * FALSE - otherwise.
      */
-    public void showWindow();
+    public boolean isFocused();
     
     /**
-     * Hides the window.
+     * Shows or hides this component.
      */
-    public void hideWindow();
+    public void setVisible(boolean isVisible);
+    
+    /**
+     * Brings the focus to this window.
+     */
+    public void bringToFront();
     
     /**
      * Resizes the window with the given width and height.
@@ -62,7 +73,7 @@ public interface ApplicationWindow
      * @param width The new width.
      * @param height The new height.
      */
-    public void resizeWindow(int width, int height);
+    public void setSize(int width, int height);
     
     /**
      * Moves the window to the given coordinates.
@@ -70,15 +81,15 @@ public interface ApplicationWindow
      * @param x The x coordinate.
      * @param y The y coordinate.
      */
-    public void moveWindow(int x, int y);
+    public void setLocation(int x, int y);
     
     /**
      * Minimizes the window.
      */
-    public void minimizeWindow();
+    public void minimize();
     
     /**
      * Maximizes the window.
      */
-    public void maximizeWindow();
+    public void maximize();
 }

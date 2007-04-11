@@ -19,7 +19,7 @@ package net.java.sip.communicator.service.gui;
  * 
  * @author Yana Stamcheva
  */
-public interface PopupDialog extends ApplicationWindow
+public interface PopupDialog extends ExportedWindow
 {
     public static final WindowID WINDOW_GENERAL_POPUP
         = new WindowID("GeneralPopupWindow");
