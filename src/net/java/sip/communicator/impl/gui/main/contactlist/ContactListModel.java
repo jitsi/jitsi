@@ -7,6 +7,10 @@
 
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.util.*;
 
 import javax.swing.*;
@@ -36,7 +40,14 @@ public class ContactListModel
     private MetaContactGroup rootGroup;
 
     private Vector closedGroups = new Vector();
-
+    
+    /**
+     * A list of all contacts that are currently "active". An "active" contact
+     * is a contact that has been sent a message. The list is used to indicate
+     * these contacts with a special icon. 
+     */
+    private Vector activeContacts = new Vector();
+    
     private boolean showOffline = true;
 
     /**
@@ -207,8 +218,32 @@ public class ContactListModel
      */
     public ImageIcon getMetaContactStatusIcon(MetaContact contact)
     {
-        return new ImageIcon(Constants.getStatusIcon(this
-            .getMetaContactStatus(contact)));
+        BufferedImage statusImage = Constants.getStatusIcon(this
+                .getMetaContactStatus(contact));
+     
+        WritableRaster raster = statusImage.copyData( null );
+        BufferedImage statusImageCopy = new BufferedImage(
+                statusImage.getColorModel(),
+                raster,
+                statusImage.isAlphaPremultiplied(), null );
+        
+        Graphics g = statusImageCopy.getGraphics();
+        
+        g.drawImage(statusImage, 0, 0, null);
+        
+        if(activeContacts.contains(contact))
+        {   
+            Image msgReceivedImage
+                = ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
+            
+            g.drawImage(msgReceivedImage, 0,
+                5,
+                null);
+        }
+        
+        ImageIcon statusIcon = new ImageIcon(statusImageCopy);
+        
+        return statusIcon;
     }
 
     /**
@@ -555,5 +590,46 @@ public class ContactListModel
         }
 
         return false;
+    }
+    
+    /**
+     * Adds the given <tt>MetaContact</tt> to the list of active contacts.
+     * 
+     * @param metaContact the <tt>MetaContact</tt> to add.
+     */
+    public void addActiveContact(MetaContact metaContact)
+    {
+        synchronized (activeContacts)
+        {
+            this.activeContacts.add(metaContact);
+        }
+    }
+    
+    /**
+     * Removes the given <tt>MetaContact</tt> from the list of active contacts.
+     * 
+     * @param metaContact the <tt>MetaContact</tt> to remove.
+     */
+    public void removeActiveContact(MetaContact metaContact)
+    {
+        synchronized (activeContacts)
+        {
+            this.activeContacts.remove(metaContact);
+        }
+    }
+    
+    /**
+     * Checks if the given contact is currently active.
+     * 
+     * @param metaContact the <tt>MetaContact</tt> to verify
+     * @return TRUE if the given <tt>MetaContact</tt> is active, FALSE -
+     * otherwise
+     */
+    public boolean isContactActive(MetaContact metaContact)
+    {
+        synchronized (activeContacts)
+        {
+            return this.activeContacts.contains(metaContact);
+        }
     }
 }

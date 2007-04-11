@@ -1195,5 +1195,5 @@ public class ContactList
     public void removeHistoryWindowForContact(MetaContact contact)
     {
         contactHistory.remove(contact);
-    }
+    }   
 }

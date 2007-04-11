@@ -217,18 +217,30 @@ public class ContactListPanel
         MetaContact metaContact = mainFrame.getContactList()
                 .findMetaContactByContact(protocolContact);
         
-        ChatPanel chatPanel = chatWindowManager.getContactChat(
-            metaContact, protocolContact, message.getMessageUID());
-                
-        chatPanel.processMessage(protocolContact.getDisplayName(), date,
-            Constants.INCOMING_MESSAGE, message.getContent());            
-        
-        chatWindowManager.openChat(chatPanel, false);
-        
-        GuiActivator.getAudioNotifier()
-            .createAudio(Sounds.INCOMING_MESSAGE).play();
-        
-        chatPanel.treatReceivedMessage(protocolContact);
+        if(metaContact != null)
+        {
+            ContactListModel clistModel = (ContactListModel) contactList.getModel();
+            clistModel.addActiveContact(metaContact);
+            contactList.modifyContact(metaContact);
+            
+            ChatPanel chatPanel = chatWindowManager.getContactChat(
+                metaContact, protocolContact, message.getMessageUID());
+                    
+            chatPanel.processMessage(protocolContact.getDisplayName(), date,
+                Constants.INCOMING_MESSAGE, message.getContent());            
+            
+            chatWindowManager.openChat(chatPanel, false);
+            
+            GuiActivator.getAudioNotifier()
+                .createAudio(Sounds.INCOMING_MESSAGE).play();
+            
+            chatPanel.treatReceivedMessage(protocolContact);
+        }
+        else
+        {
+            logger.trace("MetaContact not found for protocol contact: "
+                    + protocolContact + ".");
+        }
     }
 
     /**
