@@ -258,6 +258,13 @@ public class CallManager
                     createCall(stringContact);
                 }
             }
+            else if (selectedPanel != null
+                        && selectedPanel instanceof DialPanel)
+            {
+                String stringContact = 
+                        phoneNumberCombo.getEditor().getItem().toString();
+                createCall(stringContact);
+            }
         }
         else if (buttonName.equalsIgnoreCase("hangup")) {
             
