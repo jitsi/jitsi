@@ -305,6 +305,10 @@ public class OperationSetPersistentPresenceIcqImpl
                 //we don't care
             }
         }
+        
+        // icq status is not set so it must be Offline
+        if(responseRetriever.status == -1)
+            return IcqStatusEnum.OFFLINE;
 
         return icqStatusLongToPresenceStatus(responseRetriever.status);
     }
@@ -866,6 +870,10 @@ public class OperationSetPersistentPresenceIcqImpl
      */
     public PresenceStatus getPresenceStatus()
     {
+        // if status is not set its offline
+        if(currentIcqStatus == -1)
+            return IcqStatusEnum.OFFLINE;
+        
         return icqStatusLongToPresenceStatus(currentIcqStatus);
     }
 
