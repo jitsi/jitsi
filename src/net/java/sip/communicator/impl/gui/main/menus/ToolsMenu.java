@@ -73,7 +73,7 @@ public class ToolsMenu
         if (itemText.equalsIgnoreCase("config")) {
             configDialog = GuiActivator.getUIService().getConfigurationWindow();
 
-            configDialog.showWindow();
+            configDialog.setVisible(true);
         }
     }
 }

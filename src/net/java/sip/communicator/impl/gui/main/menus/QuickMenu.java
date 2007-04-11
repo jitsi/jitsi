@@ -193,7 +193,7 @@ public class QuickMenu
 
             configDialog = GuiActivator.getUIService().getConfigurationWindow();
 
-            configDialog.showWindow();
+            configDialog.setVisible(true);
         }
         else if (buttonName.equals("search"))
         {

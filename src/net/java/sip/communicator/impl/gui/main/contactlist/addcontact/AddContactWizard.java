@@ -17,10 +17,16 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+/**
+ * The <tt>AddContactWizard</tt> is the wizard the guides the user through the
+ * process of adding a contact.
+ * 
+ * @author Yana Stamcheva
+ */
 public class AddContactWizard
     extends Wizard
     implements  WizardListener,
-                ApplicationWindow
+                ExportedWindow
 {
     private Logger logger = Logger.getLogger(AddContactWizard.class.getName());
     
@@ -155,41 +161,46 @@ public class AddContactWizard
         }
     }
 
-    public WindowID getWindowID()
+    /**
+     * Invokes the <tt>Wizard.showDialog</tt> method in order to perform
+     * additional operations when visualizing this component.
+     */
+    public void setVisible(boolean isVisible)
     {
-        return ApplicationWindow.ADD_CONTACT_WINDOW;
+        if(isVisible)
+            showDialog(false);
+        else
+            super.setVisible(false);
     }
 
-    public boolean isWindowVisible()
+    /**
+     * Implements the <tt>ExportedWindow.getIdentifier()</tt> method.
+     */
+    public WindowID getIdentifier()
     {
-        return isVisible();
+        return ExportedWindow.ADD_CONTACT_WINDOW;
     }
 
-    public void showWindow()
+    /**
+     * This dialog could not be minimized.
+     */
+    public void minimize()
     {
-        this.showDialog(false);
     }
 
-    public void hideWindow()
-    {
-        this.setVisible(false);
-    }
-
-    public void resizeWindow(int width, int height)
-    {
-        this.setSize(width, height);
-    }
-
-    public void moveWindow(int x, int y)
-    {
-        this.setLocation(x, y);
-    }
-
-    public void minimizeWindow()
+    /**
+     * This dialog could not be maximized.
+     */
+    public void maximize()
     {   
     }
-
-    public void maximizeWindow()
-    {   
+    
+    /**
+     * Implements the <tt>ExportedWindow.bringToFront()</tt> method. Brings this
+     * window to front.
+     */
+    public void bringToFront()
+    {
+        this.toFront();
     }
 }

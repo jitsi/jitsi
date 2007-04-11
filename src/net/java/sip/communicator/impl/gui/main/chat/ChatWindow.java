@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -39,6 +40,7 @@ import net.java.sip.communicator.util.*;
  */
 public class ChatWindow
     extends SIPCommFrame
+    implements ExportedWindow
 {
     private Logger logger = Logger.getLogger(ChatWindow.class.getName());
 
@@ -167,7 +169,7 @@ public class ChatWindow
         else
             addSimpleChat(chatPanel);
         
-        chatPanel.setChatVisible(true);        
+        chatPanel.setShown(true);
     }
     
     /**
@@ -176,9 +178,7 @@ public class ChatWindow
      * @param chatPanel The <tt>ChatPanel</tt> to add.
      */
     private void addSimpleChat(ChatPanel chatPanel)
-    {
-        chatPanel.setChatVisible(true);
-
+    {   
         this.getContentPane().add(chatPanel, BorderLayout.CENTER);
     }
 
@@ -194,8 +194,8 @@ public class ChatWindow
         PresenceStatus status = chatPanel.getChatStatus();
         
         if (getCurrentChatPanel() == null)
-        {  
-            this.getContentPane().add(chatPanel, BorderLayout.CENTER);
+        {   
+            this.getContentPane().add(chatPanel, BorderLayout.CENTER);            
         }
         else
         {
@@ -213,9 +213,9 @@ public class ChatWindow
 
                 chatTabbedPane.addTab(chatName, new ImageIcon(Constants
                     .getStatusIcon(status)), chatPanel);
-				
-				//when added to the tabbed pane, the first chat panel should rest
-				//the selected component
+                
+                //when added to the tabbed pane, the first chat panel should rest
+                //the selected component
                 chatTabbedPane.setSelectedComponent(firstChatPanel);
                 
                 // Workaround for the following problem:
@@ -647,5 +647,44 @@ public class ChatWindow
         else {
             mainFrame.getChatWindowManager().closeWindow();
         }
+    }
+
+    /**
+     * Implements the <tt>ExportedWindow.getIdentifier()</tt> method.
+     * Returns the identifier of this window, which will 
+     */
+    public WindowID getIdentifier()
+    {   
+        return ExportedWindow.CHAT_WINDOW;
+    }
+
+    /**
+     * Implements the <tt>ExportedWindow.minimize()</tt> method. Minimizes this
+     * window.
+     */
+    public void minimize()
+    {
+        this.setExtendedState(JFrame.ICONIFIED);
+    }
+
+    /**
+     * Implements the <tt>ExportedWindow.maximize()</tt> method. Maximizes this
+     * window.
+     */
+    public void maximize()
+    {   
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+    }
+
+    /**
+     * Implements the <tt>ExportedWindow.bringToFront()</tt> method. Brings
+     * this window to front.
+     */
+    public void bringToFront()
+    {
+        if(getExtendedState() == JFrame.ICONIFIED)
+            setExtendedState(JFrame.NORMAL);
+        
+        this.toFront();
     }
 }

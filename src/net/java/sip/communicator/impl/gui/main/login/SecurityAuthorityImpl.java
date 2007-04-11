@@ -40,13 +40,13 @@ public class SecurityAuthorityImpl implements SecurityAuthority {
      * its password.
      */
     public UserCredentials obtainCredentials(String realm,
-            UserCredentials userCredentials) {
-
+            UserCredentials userCredentials)
+    {
         AuthenticationWindow loginWindow = new AuthenticationWindow(
                 mainFrame, protocolProvider, realm, userCredentials);
         
-        UserCredentials uc = loginWindow.showWindow();
+        loginWindow.setVisible(true);
         
-        return uc;
+        return userCredentials;
     }
 }

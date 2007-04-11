@@ -95,7 +95,7 @@ public class GuiActivator implements BundleActivator {
             communicatorMain.showCommunicator(true);
             SwingUtilities.invokeLater(new RunLogin());
             
-            uiService.registerExportableWindows();
+            uiService.initExportedWindows();
         }
         finally {
             logger.logExit();
@@ -279,7 +279,7 @@ public class GuiActivator implements BundleActivator {
      * Returns the current implementation of the <tt>UIService</tt>.
      * @return the current implementation of the <tt>UIService</tt>
      */
-    public static UIService getUIService() {
+    public static UIServiceImpl getUIService() {
         return uiService;
     }
 }

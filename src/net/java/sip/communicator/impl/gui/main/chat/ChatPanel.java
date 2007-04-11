@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.io.*;
 import java.util.*;
 
@@ -15,8 +16,12 @@ import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -34,7 +39,7 @@ import net.java.sip.communicator.util.*;
  */
 public abstract class ChatPanel
     extends JPanel
-    implements  ApplicationWindow,
+    implements  Chat,
                 ChatConversationContainer
 {
     private static final Logger logger = Logger
@@ -55,8 +60,6 @@ public abstract class ChatPanel
 
     private ChatWindow chatWindow;
     
-    private boolean isChatVisible;
-    
     public static final int TYPING_NOTIFICATION_SUCCESSFULLY_SENT = 1;
     
     public static final int TYPING_NOTIFICATION_SEND_FAILED = 0;
@@ -64,6 +67,10 @@ public abstract class ChatPanel
     private Date beginLastPageTimeStamp; 
     
     protected static final int MESSAGES_PER_PAGE = 20;
+    
+    private boolean isShown = false;
+    
+    private Vector focusListeners = new Vector();
     
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
@@ -74,7 +81,7 @@ public abstract class ChatPanel
      * chat
      */
     public ChatPanel(ChatWindow chatWindow)
-    {
+    {   
         super(new BorderLayout());
         
         this.chatWindow = chatWindow;
@@ -106,7 +113,14 @@ public abstract class ChatPanel
         this.add(messagePane, BorderLayout.CENTER);
         this.add(sendPanel, BorderLayout.SOUTH);
         
-        addComponentListener(new TabSelectionComponentListener());
+        this.addComponentListener(new TabSelectionComponentListener());
+        
+        KeyboardFocusManager focusManager =
+            KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        
+        focusManager.addPropertyChangeListener(
+            new FocusPropertyChangeListener()
+        );
     }
   
 
@@ -234,7 +248,7 @@ public abstract class ChatPanel
         public void componentHidden(ComponentEvent e) {
         }
     }
-
+    
     /**
      * Moves the caret to the end of the conversation panel, contained in the
      * given chat panel.
@@ -459,93 +473,170 @@ public abstract class ChatPanel
         sendButton.requestFocus();
         sendButton.doClick();
     }
-
-    /**
-     * Implements the <code>ApplicationWindow.isVisible</code> method, to
-     * check whether this chat panel is currently visible.
-     * @return <code>true</code> if this chat panel is currently visible,
-     * <code>false</code> otherwise.
-     */
-    public boolean isWindowVisible() {
-        return isChatVisible;
-    }
-
-    /**
-     * Implements the <code>ApplicationWindow.showWindow</code> method, to
-     * make a chat panel visible.
-     */
-    public void showWindow()
-    {
-        //TODO: Implement the showWindow method coming from Application Window
-    }
-
-    /**
-     * Implements the <code>ApplicationWindow.hideWindow</code> method. Hides
-     * the chat panel.
-     */
-    public void hideWindow()
-    {
-        //TODO: Implement the hideWindow method coming from Application Window
-    }
-
-    /**
-     * Implements the <code>ApplicationWindow.resizeWindow</code> method.
-     * Resizes the chat window to the given width and height.
-     * @param width The new width to set.
-     * @param height The new height to set.
-     */
-    public void resizeWindow(int width, int height) {
-        getChatWindow().setSize(width, height);
-    }
-
-    /**
-     * Implements the <code>ApplicationWindow.moveWindow</code> method. Moves
-     * the chat window to the given x and y coordinates.
-     * @param x The <code>x</code> coordinate.
-     * @param y The <code>y</code> coordinate.
-     */
-    public void moveWindow(int x, int y) {
-        getChatWindow().setLocation(x, y);
-    }
-
-    /**
-     * Implements the <code>ApplicationWindow.minimizeWindow</code> method.
-     * Minimizes the chat window.
-     */
-    public void minimizeWindow()
-    {
-        getChatWindow().setState(JFrame.ICONIFIED);
-    }
-
-    /**
-     * Implements the <code>ApplicationWindow.maximizeWindow</code> method.
-     * Maximizes the chat window.
-     */
-    public void maximizeWindow()
-    {
-        getChatWindow().setState(JFrame.MAXIMIZED_BOTH);
-    }
-
-    /**
-     * Sets the chat <code>isVisible</code> variable to <code>true</code> or
-     * <code>false</code> to indicate that this chat panel is visible or
-     * invisible.
-     *
-     * @param isVisible specifies whether we'd like this chat panel visible or
-     * not.
-     */
-    public void setChatVisible(boolean isVisible) {
-        this.isChatVisible = isVisible;
-    }
     
+    /**
+     * Seys the first date from the last page in the chat.
+     * 
+     * @param pageFirstMsgTimestamp the fist date from the last page of the chat
+     */
     public void setBeginLastPageTimeStamp(Date pageFirstMsgTimestamp)
     {
         this.beginLastPageTimeStamp = pageFirstMsgTimestamp;
     }
 
-
+    /**
+     * Returns the first date from the last chat page.
+     * 
+     * @return the first date from the last chat page
+     */
     public Date getBeginLastPageTimeStamp()
     {
         return beginLastPageTimeStamp;
+    }    
+
+    /**
+     * Returns TRUE if this chat panel is added to a container (window or
+     * tabbed pane), which is shown on the screen, FALSE - otherwise.
+     * 
+     * @return TRUE if this chat panel is added to a container (window or
+     * tabbed pane), which is shown on the screen, FALSE - otherwise
+     */
+    public boolean isShown()
+    {
+        return isShown;
+    }
+
+    /**
+     * Marks this chat panel as shown or hidden.
+     * 
+     * @param isShown TRUE to mark this chat panel as shown, FALSE - otherwise
+     */
+    public void setShown(boolean isShown)
+    {
+        this.isShown = isShown;
+    }
+    
+    /**
+     * Implements the <tt>Chat.isChatFocused</tt> method. Returns TRUE if this
+     * chat panel is the currently selected panel and if the chat window, where
+     * it's contained is active.
+     */
+    public boolean isChatFocused()
+    {
+        ChatPanel currentChatPanel = chatWindow.getCurrentChatPanel();
+        
+        if(currentChatPanel != null
+                && currentChatPanel.equals(this)
+                && chatWindow.isActive())
+            return true;
+        
+        return false;
+    }
+
+    /**
+     * The <tt>FocusPropertyChangeListener</tt> listens for events triggered
+     * when the "focusOwner" property has changed. It is used to change the
+     * state of a contact from active (we have non read messages from this
+     * contact) to inactive, when user has opened a chat.
+     */
+    private class FocusPropertyChangeListener implements PropertyChangeListener
+    {
+        public void propertyChange(PropertyChangeEvent e)
+        {
+            String prop = e.getPropertyName();
+            if ((prop.equals("focusOwner")) &&
+                  (e.getNewValue() != null) &&
+                  (e.getNewValue() instanceof Component) &&
+                  ((Component)e.getNewValue())
+                      .getFocusCycleRootAncestor() instanceof ChatWindow)
+            {
+                ChatWindow chatWindow = (ChatWindow)((Component)e
+                        .getNewValue()).getFocusCycleRootAncestor();
+                
+                ChatPanel chatPanel
+                    = chatWindow.getCurrentChatPanel();
+                
+                if(chatPanel instanceof MetaContactChatPanel)
+                {
+                    MetaContact selectedMetaContact
+                        = ((MetaContactChatPanel)chatPanel).getMetaContact();
+                    
+                    ContactList clist
+                        = chatWindow.getMainFrame()
+                            .getContactListPanel().getContactList();
+                    ContactListModel clistModel
+                        = (ContactListModel) clist.getModel();
+                    
+                    if(clistModel.isContactActive(selectedMetaContact))
+                    {
+                        clistModel.removeActiveContact(selectedMetaContact);
+                        clist.modifyContact(selectedMetaContact);
+                    }
+                    
+                    fireChatFocusEvent(ChatFocusEvent.FOCUS_GAINED);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Implements <tt>Chat.addChatFocusListener</tt> method. Adds the given
+     * <tt>ChatFocusListener</tt> to the list of listeners.
+     */
+    public void addChatFocusListener(ChatFocusListener l)
+    {
+        synchronized (focusListeners)
+        {
+            focusListeners.add(l);
+        }
+    }
+    
+    /**
+     * Implements <tt>Chat.removeChatFocusListener</tt> method. Removes the given
+     * <tt>ChatFocusListener</tt> from the list of listeners.
+     */
+    public void removeChatFocusListener(ChatFocusListener l)
+    {
+        synchronized (focusListeners)
+        {
+            focusListeners.remove(l);
+        }
+    }
+    
+    /**
+     * Informs all <tt>ChatFocusListener</tt>s that a <tt>ChatFocusEvent</tt>
+     * has been triggered.
+     * 
+     * @param eventID the type of the <tt>ChatFocusEvent</tt>
+     */
+    private void fireChatFocusEvent(int eventID)
+    {
+        ChatFocusEvent evt = new ChatFocusEvent(this, eventID);
+        
+        logger.trace("Will dispatch the following chat event: " + evt);
+
+        Iterator listeners = null;
+        synchronized (focusListeners)
+        {
+            listeners = new ArrayList(focusListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            ChatFocusListener listener
+                = (ChatFocusListener) listeners.next();
+
+            switch (evt.getEventID())
+            {
+            case ChatFocusEvent.FOCUS_GAINED:
+                listener.chatFocusGained(evt);
+                break;
+            case ChatFocusEvent.FOCUS_LOST:
+                listener.chatFocusLost(evt);
+                break;
+            default:
+                logger.error("Unknown event type " + evt.getEventID());
+            }
+        }
     }
 }

@@ -334,9 +334,4 @@ public class ConferenceChatPanel
     {
         
     }
-
-    public WindowID getWindowID()
-    {
-        return ApplicationWindow.CHAT_WINDOW;
-    }
 }

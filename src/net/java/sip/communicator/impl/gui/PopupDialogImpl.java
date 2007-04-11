@@ -218,56 +218,44 @@ public class PopupDialogImpl extends JOptionPane
         return showConfirmDialog(parentWindow, message, title,
                 optType, msgType);
     }
-
+    
     /**
-     * Implements the <tt>PopupDialog.isWindowVisible</tt> method.
-     * @return <code>true</code> if the dialog is visible, <code>false</code>
-     * otherwise.
+     * Implements the <tt>ExportedWindow.getIdentifier()</tt> method.
      */
-    public boolean isWindowVisible() {
-        return this.isVisible();
-    }
-
-    /**
-     * Implements the <tt>PopupDialog.showWindow</tt> method.
-     * Shows this <tt>JOptionPane</tt>.
-     */
-    public void showWindow() {
-        this.setVisible(true);
-    }
-
-    /**
-     * Implements the <tt>PopupDialog.hideWindow</tt> method.
-     * Hides this <tt>JOptionPane</tt>.
-     */
-    public void hideWindow() {
-        this.setVisible(false);
-    }
-
-    /**
-     * Implements the <tt>PopupDialog.resizeWindow</tt> method.
-     * Resizes this <tt>JOptionPane</tt>.
-     */
-    public void resizeWindow(int width, int height) {
-        this.setSize(width, height);
-    }
-
-    /**
-     * Implements the <tt>PopupDialog.moveWindow</tt> method.
-     * Moves this <tt>JOptionPane</tt>.
-     */
-    public void moveWindow(int x, int y) {
-        this.setLocation(x, y);
-    }
-
-    public void minimizeWindow()
-    {}
-
-    public void maximizeWindow()
-    {}
-
-    public WindowID getWindowID()
+    public WindowID getIdentifier()
     {
         return WINDOW_GENERAL_POPUP;
-    }    
+    }
+
+    /**
+     * Implements the <tt>ExportedWindow.isFocused()</tt> method. Returns TRUE
+     * if this dialog is the focus owner, FALSE - otherwise.
+     */
+    public boolean isFocused()
+    {
+        return super.isFocusOwner();
+    }
+
+    /**
+     * Implements the <tt>ExportedWindow.bringToFront()</tt> method. Brings this
+     * window to front.
+     */
+    public void bringToFront()
+    {
+        this.requestFocusInWindow();
+    }
+    
+    /**
+     * This dialog could not be minimized.
+     */
+    public void minimize()
+    {
+    }
+
+    /**
+     * This dialog could not be maximized.
+     */
+    public void maximize()
+    {   
+    }
 }

@@ -20,7 +20,6 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -646,8 +645,8 @@ public class MetaContactChatPanel
         }
     }
 
-    public WindowID getWindowID()
+    public MetaContact getMetaContact()
     {
-        return ApplicationWindow.CHAT_WINDOW;
+        return metaContact;
     }
 }

@@ -230,89 +230,74 @@ public class ConfigurationFrame
     }
 
     /**
-     * Implements <code>ApplicationWindow.isWindowVisible</code> method.
-     * @see net.java.sip.communicator.service.gui.ApplicationWindow#isWindowVisible()
+     * Implements <code>ApplicationWindow.show</code> method.
+     * @see net.java.sip.communicator.service.gui.ExportedWindow#showWindow()
      */
-    public boolean isWindowVisible() {
-        return this.isVisible();
-    }
-
-    /**
-     * Implements <code>ApplicationWindow.showWindow</code> method.
-     * @see net.java.sip.communicator.service.gui.ApplicationWindow#showWindow()
-     */
-    public void showWindow() {
-        
-        ConfigurationForm configForm 
-            = (ConfigurationForm) this.configContainer.get(0);
-        
-        this.formScrollPane.getViewport().removeAll();
-
-        this.formScrollPane.getViewport()
-            .add((Component)configForm.getForm());
-
-        this.titlePanel.removeAll();
-        
-        this.titlePanel.setTitleText(configForm.getTitle());
-
-        this.centerPanel.remove(titlePanel);
-
-        this.centerPanel.add(titlePanel, BorderLayout.NORTH);
-        
-        this.setVisible(true);
-        
-        this.closeButton.requestFocus();
-    }
-
-    /**
-     * Implements <code>ApplicationWindow.hideWindow</code> method.
-     * @see net.java.sip.communicator.service.gui.ApplicationWindow#hideWindow()
-     */
-    public void hideWindow() {
-        this.setVisible(false);
-    }
-
-    /**
-     * Implements <code>ApplicationWindow.resizeWindow</code> method.
-     * @see net.java.sip.communicator.service.gui.ApplicationWindow#resizeWindow(int, int)
-     */
-    public void resizeWindow(int width, int height) {
-        this.setSize(width, height);
-    }
-
-    /**
-     * Implements <code>ApplicationWindow.moveWindow</code> method.
-     * @see net.java.sip.communicator.service.gui.ApplicationWindow#moveWindow(int, int)
-     */
-    public void moveWindow(int x, int y) {
-        this.setLocation(x, y);
+    public void setVisible(boolean isVisible)
+    {
+        if(isVisible)
+        {
+            ConfigurationForm configForm 
+                = (ConfigurationForm) this.configContainer.get(0);
+            
+            this.formScrollPane.getViewport().removeAll();
+    
+            this.formScrollPane.getViewport()
+                .add((Component)configForm.getForm());
+    
+            this.titlePanel.removeAll();
+            
+            this.titlePanel.setTitleText(configForm.getTitle());
+    
+            this.centerPanel.remove(titlePanel);
+    
+            this.centerPanel.add(titlePanel, BorderLayout.NORTH);
+            
+            super.setVisible(true);
+            
+            this.closeButton.requestFocus();
+        }
+        else
+            super.setVisible(false);
     }
 
     /**
      * Implements <code>ApplicationWindow.minimizeWindow</code> method.
-     * @see net.java.sip.communicator.service.gui.ApplicationWindow#minimizeWindow()
+     * @see net.java.sip.communicator.service.gui.ExportedWindow#minimizeWindow()
      */
-    public void minimizeWindow()
+    public void minimize()
     {}
 
     /**
      * Implements <code>ApplicationWindow.maximizeWindow</code> method.
-     * @see net.java.sip.communicator.service.gui.ApplicationWindow#maximizeWindow()
+     * @see net.java.sip.communicator.service.gui.ExportedWindow#maximizeWindow()
      */
-    public void maximizeWindow()
+    public void maximize()
     {}
     
     /**
-     * Implements <tt>SIPCommFrame</tt> close method.
+     * Implements <tt>SIPCommFrame.close()</tt> method. Performs a click on the
+     * close button.
      */
     protected void close(boolean isEscaped)
     {
         this.closeButton.doClick();
     }
 
-    public WindowID getWindowID()
+    /**
+     * Returns the identifier of this <tt>ExportedWindow</tt>.
+     */
+    public WindowID getIdentifier()
     {
-        return ApplicationWindow.CONFIGURATION_WINDOW;
-    }
+        return ExportedWindow.CONFIGURATION_WINDOW;
+    } 
     
+    /**
+     * Implements the <tt>ExportedWindow.bringToFront</tt> method. Brings this
+     * window to front.
+     */
+    public void bringToFront()
+    {
+        this.toFront();
+    }
 }

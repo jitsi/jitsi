@@ -10,6 +10,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -39,8 +40,6 @@ public class ChatWindowManager
     public ChatWindowManager(MainFrame mainFrame)
     {
         this.mainFrame = mainFrame;
-        
-        this.chatWindow = new ChatWindow(mainFrame);
     }
 
     /**
@@ -57,7 +56,7 @@ public class ChatWindowManager
         {
             ChatWindow chatWindow = chatPanel.getChatWindow();
 
-            boolean isChatVisible = chatPanel.isWindowVisible();
+            boolean isChatVisible = chatPanel.isShown();
             
             if(!isChatVisible)
                 chatWindow.addChat(chatPanel);
@@ -278,8 +277,10 @@ public class ChatWindowManager
             {
                 return getChat(metaContact);
             }
-            else         
+            else
+            {
                 return createChat(metaContact);
+            }
         }
     } 
     
@@ -442,7 +443,17 @@ public class ChatWindowManager
         ChatWindow chatWindow;
 
         if(Constants.TABBED_CHAT_WINDOW)
+        {
+            if(this.chatWindow == null)
+            {
+                this.chatWindow = new ChatWindow(mainFrame);
+                
+                GuiActivator.getUIService()
+                    .registerExportedWindow(this.chatWindow);
+            }
+            
             chatWindow = this.chatWindow;
+        }
         else
         {
             chatWindow = new ChatWindow(mainFrame);
@@ -482,7 +493,8 @@ public class ChatWindowManager
         else
         {
             chatWindow = new ChatWindow(mainFrame);
-
+            GuiActivator.getUIService().registerExportedWindow(chatWindow);
+            
             this.chatWindow = chatWindow;
         }
 

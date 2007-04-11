@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>LoginWindow</tt> is the window where the user should type his
@@ -24,7 +25,8 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class AuthenticationWindow
     extends SIPCommFrame
-    implements ActionListener
+    implements  ActionListener,
+                ExportedWindow
 {
 
     private JTextArea realmTextArea = new JTextArea();
@@ -279,21 +281,56 @@ public class AuthenticationWindow
      * Shows this modal dialog.
      * @return the result code, which shows what was the choice of the user
      */
-    public UserCredentials showWindow() {
-        this.setVisible(true);
-
-        this.passwdField.requestFocus();
+    public void setVisible(boolean isVisible)
+    {
+        this.setName("AUTHENTICATION");
         
-        synchronized (lock) {
-            try {                    
-                lock.wait();
-            }
-            catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+        super.setVisible(isVisible);
+
+        if(isVisible)
+        {
+            this.passwdField.requestFocus();
+            
+            synchronized (lock) {
+                try {                    
+                    lock.wait();
+                }
+                catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         }
-        
-        return userCredentials;
+    }
+
+    /**
+     * Implements the <tt>ExportedWindow.getIdentifier()</tt> method.
+     */
+    public WindowID getIdentifier()
+    {
+         return ExportedWindow.AUTHENTICATION_WINDOW;
+    }
+
+    /**
+     * This dialog could not be minimized.
+     */
+    public void minimize()
+    {   
+    }
+
+    /**
+     * This dialog could not be maximized.
+     */
+    public void maximize()
+    {   
+    }
+    
+    /**
+     * Implements the <tt>ExportedWindow.bringToFront()</tt> method. Brings this
+     * window to front.
+     */
+    public void bringToFront()
+    {
+        this.toFront();
     }
 }

@@ -16,7 +16,7 @@ public class AboutWindow
         extends SIPCommDialog
         implements  HyperlinkListener,
                     ActionListener,
-                    ApplicationWindow
+                    ExportedWindow
 {
     private WindowBackground mainPanel
         = new WindowBackground();
@@ -178,50 +178,34 @@ public class AboutWindow
         this.dispose();
     }
 
-    public WindowID getWindowID()
+    /**
+     * Implements the <tt>ExportedWindow.getIdentifier()</tt> method.
+     */
+    public WindowID getIdentifier()
     {
-        return ApplicationWindow.ABOUT_WINDOW;
+        return ExportedWindow.ABOUT_WINDOW;
     }
 
-    public boolean isWindowVisible()
+    /**
+     * This dialog could not be minimized.
+     */
+    public void minimize()
     {
-        // TODO Auto-generated method stub
-        return false;
     }
 
-    public void showWindow()
+    /**
+     * This dialog could not be maximized.
+     */
+    public void maximize()
+    {   
+    }    
+    
+    /**
+     * Implements the <tt>ExportedWindow.bringToFront()</tt> method. Brings this
+     * window to front.
+     */
+    public void bringToFront()
     {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void hideWindow()
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void resizeWindow(int width, int height)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void moveWindow(int x, int y)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void minimizeWindow()
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void maximizeWindow()
-    {
-        // TODO Auto-generated method stub
-        
+        this.toFront();
     }
 }

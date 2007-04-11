@@ -23,18 +23,12 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
+import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.gui.AccountRegistrationWizardContainer;
-import net.java.sip.communicator.service.gui.ApplicationWindow;
-import net.java.sip.communicator.service.gui.ConfigurationWindow;
-import net.java.sip.communicator.service.gui.ContactAwareComponent;
-import net.java.sip.communicator.service.gui.ContainerID;
-import net.java.sip.communicator.service.gui.PopupDialog;
-import net.java.sip.communicator.service.gui.UIService;
-import net.java.sip.communicator.service.gui.WindowID;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.PluginComponentEvent;
 import net.java.sip.communicator.service.gui.event.PluginComponentListener;
-import net.java.sip.communicator.service.protocol.Contact;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger;
 
 /**
@@ -44,8 +38,7 @@ import net.java.sip.communicator.util.Logger;
  * @author Yana Stamcheva
  */
 public class UIServiceImpl
-    implements
-    UIService
+    implements UIService
 {
 
     private static final Logger logger = Logger.getLogger(UIServiceImpl.class);
@@ -397,27 +390,31 @@ public class UIServiceImpl
     }
 
     /**
-     * Adds all exportable <tt>ApplicationWindow</tt>s to the list of
-     * application windows, which could be used from other bundles. Once
-     * registered in the UIService this window could be obtained through the
-     * <tt>getApplicationWindow(WindowID)</tt> method and could be shown,
+     * Adds all <tt>ExportedWindow</tt>s to the list of application windows,
+     * which could be used from other bundles. Once registered in the
+     * <tt>UIService</tt> this window could be obtained through the
+     * <tt>getExportedWindow(WindowID)</tt> method and could be shown,
      * hidden, resized, moved, etc.
-     */
-    /**
-     * Adds all exportable <tt>ApplicationWindow</tt>s to the list of application
-     * windows, which could be used from other bundles. Once registered in the
-     * UIService this window could be obtained through the
-     * <tt>getApplicationWindow(WindowID)</tt> method and could be shown,
-     * hidden, resized, moved, etc.
-     */
-    public void registerExportableWindows()
+     */   
+    public void initExportedWindows()
     {
         AboutWindow aboutWindow = new AboutWindow(mainFrame);
         AddContactWizard addContactWizard = new AddContactWizard(mainFrame);
         
-        exportedWindows.put(aboutWindow.getWindowID(), aboutWindow);
-        exportedWindows.put(configurationFrame.getWindowID(), configurationFrame);
-        exportedWindows.put(addContactWizard.getWindowID(), addContactWizard);
+        exportedWindows.put(aboutWindow.getIdentifier(), aboutWindow);
+        exportedWindows.put(configurationFrame.getIdentifier(), configurationFrame);
+        exportedWindows.put(addContactWizard.getIdentifier(), addContactWizard);
+    }
+    
+    /**
+     * Registers the given <tt>ExportedWindow</tt> to the list of windows that
+     * could be accessed from other bundles.
+     * 
+     * @param window the window to be exported
+     */
+    public void registerExportedWindow(ExportedWindow window)
+    {
+        exportedWindows.put(window.getIdentifier(), window);
     }
     
     /**
@@ -446,31 +443,43 @@ public class UIServiceImpl
     }
     
     /**
-     * Implements <code>getApplicationWindows</code> in the UIService
-     * interface. Returns an iterator over a set of all windows exported by this
-     * implementation.
+     * Implements <code>getSupportedExportedWindows</code> in the UIService
+     * interface. Returns an iterator over a set of all windows exported by
+     * this implementation.
      * 
-     * @see UIService#getApplicationWindows()
+     * @see UIService#getSupportedExportedWindows()
      */
-    public Iterator getSupportedApplicationWindows()
+    public Iterator getSupportedExportedWindows()
     {
         return Collections.unmodifiableMap(exportedWindows).keySet().iterator();
     }
 
     /**
-     * Implements <code>getApplicationWindow</code> in the UIService
+     * Implements the <code>getExportedWindow</code> in the UIService
      * interface. Returns the window corresponding to the given
      * <tt>WindowID</tt>.
      * 
-     * @see UIService#getApplicationWindow(WindowID)
+     * @see UIService#getExportableComponent(WindowID)
      */
-    public ApplicationWindow getApplicationWindow(WindowID windowID)
+    public ExportedWindow getExportedWindow(WindowID windowID)
     {
         if (exportedWindows.containsKey(windowID))
         {
-            return (ApplicationWindow) exportedWindows.get(windowID);
+            return (ExportedWindow) exportedWindows.get(windowID);
         }
         return null;
+    }
+    
+    /**
+     * Implements the <code>UIService.isExportedWindowSupported</code> method.
+     * Checks if there's an exported component for the given
+     * <tt>WindowID</tt>.
+     * 
+     * @see UIService#isExportedWindowSupported(WindowID)
+     */
+    public boolean isExportedWindowSupported(WindowID windowID)
+    {
+        return exportedWindows.containsKey(windowID);
     }
 
     /**
@@ -486,13 +495,13 @@ public class UIServiceImpl
     }
 
     /**
-     * Implements <code>getChatDialog</code> in the UIService interface. If a
-     * chat dialog for the given contact exists already returns it, otherwise
+     * Implements <code>getChat</code> in the UIService interface. If a
+     * chat for the given contact exists already - returns it, otherwise
      * creates a new one.
      * 
-     * @see UIService#getChatWindow(Contact)
+     * @see UIService#getChat(Contact)
      */
-    public ApplicationWindow getChatWindow(Contact contact)
+    public Chat getChat(Contact contact)
     {
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(contact);
@@ -501,19 +510,8 @@ public class UIServiceImpl
 
         ChatPanel chatPanel = chatWindowManager.getContactChat(metaContact);
 
-        return (ApplicationWindow) chatPanel;
-    }
-
-    /**
-     * Implements the <code>UIService.containsApplicationWindow</code> method.
-     * Checks if there's an exported window for the given <tt>WindowID</tt>.
-     * 
-     * @see UIService#containsApplicationWindow(WindowID)
-     */
-    public boolean containsApplicationWindow(WindowID windowID)
-    {
-        return exportedWindows.containsKey(windowID);
-    }
+        return chatPanel;
+    }   
 
     /**
      * Implements the <code>UIService.isContainerSupported</code> method.
@@ -549,5 +547,13 @@ public class UIServiceImpl
     public ConfigurationWindow getConfigurationWindow()
     {
         return this.configurationFrame;
+    }
+
+    public ExportedWindow getAuthenticationWindow(
+        ProtocolProviderService protocolProvider,
+        String realm, UserCredentials userCredentials)
+    {
+        return new AuthenticationWindow(mainFrame, protocolProvider,
+            realm, userCredentials);
     }
 }

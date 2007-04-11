@@ -496,8 +496,16 @@ public class ImageLoader {
      * The image used for multi user chat servers.
      */
     public static final ImageID CHAT_SERVER_16x16_ICON
-        = new ImageID("CHAT_SERVER_16x16_ICON");    
-
+        = new ImageID("CHAT_SERVER_16x16_ICON");
+    
+    /**
+     * The image used to indicate in the contact list that a message is received
+     * from a certain contact.
+     */
+    public static final ImageID MESSAGE_RECEIVED_ICON
+        = new ImageID("MESSAGE_RECEIVED_ICON");
+    
+    
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
     /**
