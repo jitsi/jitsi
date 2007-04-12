@@ -212,7 +212,9 @@ public abstract class SIPCommDialog extends JDialog
     {   
         if(isVisible) {
             this.pack();
-            this.setSizeAndLocation();
+            
+            if(isSaveSizeAndLocation)
+                this.setSizeAndLocation();
             
             JButton button = this.getRootPane().getDefaultButton();
             

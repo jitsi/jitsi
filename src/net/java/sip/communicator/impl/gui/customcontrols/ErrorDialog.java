@@ -7,10 +7,7 @@
 
 package net.java.sip.communicator.impl.gui.customcontrols;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Frame;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -61,9 +58,9 @@ public class ErrorDialog
 
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JPanel messagePanel = new JPanel(new BorderLayout(5, 5));
+    private JPanel messagePanel = new JPanel(new BorderLayout(20, 15));
 
-    private JPanel mainPanel = new JPanel(new BorderLayout());
+    private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
     
     public static final int WARNING = 1;
     
@@ -80,7 +77,7 @@ public class ErrorDialog
         
         this.setTitle(Messages.getI18NString("removeContact").getText());
 
-        this.messagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+        this.mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
         
         this.stackTraceScrollPane.setBorder(new SIPCommBorders.BoldRoundBorder());
         this.stackTraceScrollPane.setHorizontalScrollBarPolicy(
@@ -224,6 +221,12 @@ public class ErrorDialog
     public void showDialog()
     {
         this.pack();
+        
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        
+        this.setLocation(screenSize.width/2 - this.getWidth()/2,
+                screenSize.height/2 - this.getHeight()/2);
+        
         this.setVisible(true);
     }
     
