@@ -508,7 +508,22 @@ public class LoginManager
                             protocolProvider.getAccountID().getUserID(),
                             protocolProvider.getAccountID().getService()
                         }).getText(),
+                    ex,
                     Messages.getI18NString("error").getText()).showDialog();
+
+                mainFrame.getStatusPanel().updateStatus(protocolProvider);
+            }
+            catch (Throwable ex)
+            {
+                logger.error("Failed to register protocol provider. ", ex);
+                
+                new ErrorDialog(mainFrame,
+                        Messages.getI18NString("loginNotSucceeded",
+                            new String[]{
+                                protocolProvider.getAccountID().getUserID(),
+                                protocolProvider.getAccountID().getService()
+                            }).getText(),
+                        Messages.getI18NString("error").getText()).showDialog();
 
                 mainFrame.getStatusPanel().updateStatus(protocolProvider);
             }
