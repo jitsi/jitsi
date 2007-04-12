@@ -10,6 +10,7 @@ import java.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smackx.packet.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -58,6 +59,11 @@ public class ServerStoredContactListJabberImpl
      * names or other properties, removal or creation of groups.
      */
     private Vector serverStoredGroupListeners = new Vector();
+    
+    /**
+     *  Thread retreiving images for contacts
+     */
+    private ImageRetriever imageRetriever = null;
 
     /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
@@ -746,6 +752,23 @@ public class ServerStoredContactListJabberImpl
         parentOperationSet.fireSubscriptionEvent(
             SubscriptionEvent.SUBSCRIPTION_RESOLVED, contact, parentGroup);
     }
+    
+    /**
+     * when there is no image for contact we must retreive it 
+     * add contacts for image update
+     *
+     * @param c ContactJabberImpl
+     */
+    protected void addContactForImageUpdate(ContactJabberImpl c)
+    {
+        if(imageRetriever == null)
+        {
+            imageRetriever = new ImageRetriever();
+            imageRetriever.start();
+        }
+        
+        imageRetriever.addContact(c);
+    }
 
     private class ChangeListener
         implements RosterListener
@@ -937,5 +960,96 @@ public class ServerStoredContactListJabberImpl
 
         public void presenceChanged(Presence presence)
         {}
+    }
+    
+    private class ImageRetriever
+        extends Thread
+    {
+        /**
+         * list with the accounts with missing image
+         */
+        private Vector contactsForUpdate = new Vector();
+
+        public void run()
+        {
+            try
+            {
+                Collection copyContactsForUpdate = null;
+                while (true)
+                {
+                    synchronized(contactsForUpdate){
+
+                        if(contactsForUpdate.isEmpty())
+                            contactsForUpdate.wait();
+
+                        copyContactsForUpdate = new Vector(contactsForUpdate);
+                        contactsForUpdate.clear();
+                    }
+
+                    Iterator iter = copyContactsForUpdate.iterator();
+                    while (iter.hasNext())
+                    {
+                        ContactJabberImpl contact = (ContactJabberImpl) iter.next();
+                        
+                        byte[] imgBytes = getAvatar(contact);
+                        
+                        if(imgBytes != null)
+                        {
+                            contact.setImage(imgBytes);
+                            
+                            parentOperationSet.fireContactPropertyChangeEvent(
+                                ContactPropertyChangeEvent.PROPERTY_IMAGE, 
+                                contact, null, imgBytes);
+                        }
+                    }
+                }
+            }
+            catch (InterruptedException ex)
+            {
+                logger.error("NickRetriever error waiting will stop now!", ex);
+            }
+        }
+
+        /**
+         * Add contact for retreiving
+         * if the provider is register notify the retreiver to get the nicks
+         * if we are not registered add a listener to wiat for registering
+         *
+         * @param contact ContactJabberImpl
+         */
+        synchronized void addContact(ContactJabberImpl contact)
+        {
+            synchronized(contactsForUpdate){
+                if (!contactsForUpdate.contains(contact))
+                {
+                    contactsForUpdate.add(contact);
+                    contactsForUpdate.notifyAll();
+                }
+            }
+        }
+
+        private byte[] getAvatar(ContactJabberImpl contact)
+        {
+            try
+            {
+                XMPPConnection connection = jabberProvider.getConnection();
+
+                if(connection == null || !connection.isAuthenticated())
+                    return null;
+
+                VCard card = new VCard();
+                card.load(connection, contact.getAddress());
+
+                return card.getAvatar();
+            }
+            catch (Exception exc)
+            {
+                logger.error("Cannot load image for contact "
+                    + this + " : " + exc.getMessage()
+                    , exc);
+            }
+
+            return null;
+        }
     }
 }

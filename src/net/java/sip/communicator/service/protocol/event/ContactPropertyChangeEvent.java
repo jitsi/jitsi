@@ -17,6 +17,12 @@ public class ContactPropertyChangeEvent
      * contact.
      */
     public static final String PROPERTY_DISPLAY_NAME = "DisplayName";
+    
+     /**
+     * Indicates that a change has occurred in the image of the source
+     * contact.
+     */
+    public static final String PROPERTY_IMAGE = "Image";
 
     /**
      * Creates a ContactPropertyChangeEvent indicating that a change has

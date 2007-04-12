@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smackx.packet.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
@@ -89,12 +88,23 @@ public class ContactJabberImpl
         return isLocal;
     }
 
+    /**
+     *  Returns the image of the contact or null if absent
+     */
     public byte[] getImage()
     {
         if(image == null)
-            image = getAvatar();
+            ssclCallback.addContactForImageUpdate(this);
 
         return image;
+    }
+    
+    /**
+     *  Set the image of the contact
+     */
+    void setImage(byte[] imgBytes)
+    {
+        this.image = imgBytes;
     }
 
     /**
@@ -291,32 +301,5 @@ public class ContactJabberImpl
     RosterEntry getSourceEntry()
     {
         return rosterEntry;
-    }
-
-    private byte[] getAvatar()
-    {
-        try
-        {
-            XMPPConnection connection = 
-                ssclCallback.getParentProvider().getConnection();
-            
-            if(connection == null || !connection.isAuthenticated())
-                return null;
-            
-            VCard card = new VCard();
-            card.load(
-                connection,
-                getAddress());
-
-            return card.getAvatar();
-        }
-        catch (Exception exc)
-        {
-            logger.error("Cannot load image for contact "
-                + this + " : " + exc.getMessage()
-                , exc);
-        }
-
-        return null;
     }
 }

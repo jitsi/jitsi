@@ -298,11 +298,7 @@ public class ProtocolProviderServiceJabberImpl
                 {
                     logger.error("Failed to establish a Jabber connection for "
                         + getAccountID().getAccountUniqueID(), exc);
-                    fireRegistrationStateChanged(
-                        getRegistrationState()
-                        , RegistrationState.CONNECTION_FAILED
-                        , OperationFailedException.NETWORK_FAILURE
-                        , null);
+                    
                     throw new OperationFailedException(
                         "Failed to establish a Jabber connection for "
                         + getAccountID().getAccountUniqueID()
