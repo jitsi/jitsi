@@ -456,7 +456,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 getPresence(contactIdentifier);
 
         if(presence != null)
-            return jabberStatusToPresenceStatus(presence.getMode());
+            return jabberStatusToPresenceStatus(presence);
         else
             return JabberStatusEnum.OFFLINE;
     }
@@ -657,8 +657,19 @@ public class OperationSetPersistentPresenceJabberImpl
      * @return a PresenceStatus instance representation of the Jabber Status
      * parameter. The returned result is one of the JabberStatusEnum fields.
      */
-    private JabberStatusEnum jabberStatusToPresenceStatus(Presence.Mode mode)
+    private JabberStatusEnum jabberStatusToPresenceStatus(Presence presence)
     {
+        // fixing issue: 336
+        // from the smack api : 
+        // A null presence mode value is interpreted to be the same thing 
+        // as Presence.Mode.available.
+        if(presence.getMode() == null && presence.isAvailable())
+            return JabberStatusEnum.AVAILABLE;
+        else if(presence.getMode() == null && !presence.isAvailable())
+            return JabberStatusEnum.OFFLINE;
+        
+        Presence.Mode mode = presence.getMode();
+        
         if(mode.equals(Presence.Mode.available))
             return JabberStatusEnum.AVAILABLE;
         else if(mode.equals(Presence.Mode.away))
@@ -1021,9 +1032,8 @@ public class OperationSetPersistentPresenceJabberImpl
                 PresenceStatus oldStatus
                     = sourceContact.getPresenceStatus();
 
-                PresenceStatus newStatus
-                    = queryContactStatus(userID);
-
+                PresenceStatus newStatus = jabberStatusToPresenceStatus(presence);
+           
                 // when old and new status are the same do nothing
                 // no change
                 if(oldStatus.equals(newStatus))
@@ -1037,10 +1047,6 @@ public class OperationSetPersistentPresenceJabberImpl
                 logger.debug("Will Dispatch the contact status event.");
                 fireContactPresenceStatusChangeEvent(sourceContact, parent,
                     oldStatus, newStatus);
-            }
-            catch (OperationFailedException ex)
-            {
-                logger.error("Failed changing status", ex);
             }
             catch (IllegalStateException ex)
             {
