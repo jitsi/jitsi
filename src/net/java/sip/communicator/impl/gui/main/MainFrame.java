@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
@@ -128,6 +129,14 @@ public class MainFrame
         this.mainPanel.add(quickMenu, BorderLayout.NORTH);
         this.mainPanel.add(contactListPanel, BorderLayout.CENTER);
         this.mainPanel.add(statusPanel, BorderLayout.SOUTH);
+        
+        this.mainPanel.getActionMap().put("runChat",
+                new RunMessageWindowAction());
+
+        InputMap imap = this.getRootPane().getInputMap(
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "runChat");
         
         this.getContentPane().add(mainPanel);
     }
@@ -1128,4 +1137,33 @@ public class MainFrame
     {
         return chatWindowManager;
     }
+    
+    /**
+     * Opens chat window when the selected value is a MetaContact and opens a
+     * group when the selected value is a MetaContactGroup.
+     */
+    private class RunMessageWindowAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            ContactList clist = getContactListPanel().getContactList();
+            Object selectedValue = clist.getSelectedValue();
+            
+            if (selectedValue instanceof MetaContact) {
+                MetaContact contact = (MetaContact) selectedValue;
+
+                SwingUtilities.invokeLater(
+                        getContactListPanel().new RunMessageWindow(contact));
+            }
+            else if (selectedValue instanceof MetaContactGroup) {
+                MetaContactGroup group = (MetaContactGroup) selectedValue;
+
+                ContactListModel model = (ContactListModel) clist.getModel();
+
+                if (model.isGroupClosed(group)) {
+                    model.openGroup(group);
+                }
+            }
+        }
+    };
 }
