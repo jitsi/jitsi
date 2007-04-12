@@ -62,10 +62,15 @@ public class CreateChatRoomWizard
     }
     
     /**
-     * Overrides the Wizard.showModalDialog method.
+     * Invokes the <tt>Wizard.showDialog</tt> method in order to perform
+     * additional operations when visualizing this component.
      */
-    public void showDialog(boolean modal) {
-        super.showDialog(modal);        
+    public void setVisible(boolean isVisible)
+    {
+        if(isVisible)
+            showDialog(false);
+        else
+            super.setVisible(false);
     }
     
     /**

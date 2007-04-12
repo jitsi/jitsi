@@ -80,7 +80,7 @@ public class CommonRightButtonMenu extends JPopupMenu
         else if(itemName.equals("addContact")) {
             AddContactWizard wizard = new AddContactWizard(mainFrame);
             
-            wizard.showDialog(false);
+            wizard.setVisible(true);
         }
     }
 }

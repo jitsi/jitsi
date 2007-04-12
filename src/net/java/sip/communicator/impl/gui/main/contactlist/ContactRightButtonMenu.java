@@ -388,15 +388,18 @@ public class ContactRightButtonMenu
                 dialog.setVisible(true);
             }
         }
-        else if (itemName.equalsIgnoreCase("sendMessage")) {
+        else if (itemName.equalsIgnoreCase("sendMessage"))
+        {
             ContactListPanel clistPanel = mainFrame.getContactListPanel();
             SwingUtilities.invokeLater(clistPanel.new RunMessageWindow(
                     contactItem));
         }
-        else if (itemName.equalsIgnoreCase("sendFile")) {
+        else if (itemName.equalsIgnoreCase("sendFile"))
+        {
             // disabled
         }
-        else if (itemName.equalsIgnoreCase("renameContact")) {
+        else if (itemName.equalsIgnoreCase("renameContact"))
+        {
             RenameContactDialog dialog = new RenameContactDialog(
                     mainFrame, contactItem);
 

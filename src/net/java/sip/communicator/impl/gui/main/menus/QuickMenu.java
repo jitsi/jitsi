@@ -183,10 +183,9 @@ public class QuickMenu
 
         if (buttonName.equals("add"))
         {
-
             AddContactWizard wizard = new AddContactWizard(mainFrame);
             
-            wizard.showDialog(false);
+            wizard.setVisible(true);
         }
         else if (buttonName.equals("config"))
         {

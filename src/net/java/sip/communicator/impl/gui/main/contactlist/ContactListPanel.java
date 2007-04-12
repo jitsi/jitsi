@@ -103,15 +103,7 @@ public class ContactListPanel
         this.treePanel.add(contactList, BorderLayout.NORTH);
 
         this.treePanel.setBackground(Color.WHITE);
-        this.contactList.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-
-        this.getRootPane().getActionMap().put("runChat",
-                new RunMessageWindowAction());
-
-        InputMap imap = this.getRootPane().getInputMap(
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "runChat");
+        this.contactList.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));        
     }
 
     /**
@@ -165,7 +157,6 @@ public class ContactListPanel
      */
     public class RunMessageWindow implements Runnable
     {
-
         private MetaContact metaContact;
 
         private Contact protocolContact;
@@ -195,6 +186,7 @@ public class ContactListPanel
             chatWindowManager.openChat(chatPanel, true);
         }
     }
+    
 
     /**
      * When a message is received determines whether to open a new chat window
@@ -419,35 +411,7 @@ public class ContactListPanel
             chatWindowManager.getContactChat(metaContact)
                 .setStatusMessage(notificationMsg);                
     }
-
-    /**
-     * Opens chat window when the selected value is a MetaContact and opens a
-     * group when the selected value is a MetaContactGroup.
-     */
-    private class RunMessageWindowAction extends AbstractAction
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            Object selectedValue = getContactList().getSelectedValue();
-
-            if (selectedValue instanceof MetaContact) {
-                MetaContact contact = (MetaContact) selectedValue;
-
-                SwingUtilities.invokeLater(new RunMessageWindow(contact));
-            }
-            else if (selectedValue instanceof MetaContactGroup) {
-                MetaContactGroup group = (MetaContactGroup) selectedValue;
-
-                ContactListModel model = (ContactListModel) contactList
-                        .getModel();
-
-                if (model.isGroupClosed(group)) {
-                    model.openGroup(group);
-                }
-            }
-        }
-    };
-
+    
     /**
      * The TypingTimer is started after a PAUSED typing notification is
      * received. It waits 5 seconds and if no other typing event occurs removes

@@ -119,7 +119,7 @@ public class ChatRoomsListRightButtonMenu
             CreateChatRoomWizard createChatRoomWizard
                 = new CreateChatRoomWizard(mainFrame);
             
-            createChatRoomWizard.showDialog(false);
+            createChatRoomWizard.setVisible(true);
         }
         else if (itemName.equals("searchForChatRooms"))
         {
