@@ -12,6 +12,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.kano.joscar.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
 import net.kano.joscar.snaccmd.error.*;
@@ -402,7 +403,12 @@ public class OperationSetBasicInstantMessagingIcqImpl
 
                 if(icqProvider.USING_ICQ)
                     retreiveOfflineMessages();
-
+                
+                String customMessageEncoding = null;
+                if((customMessageEncoding = 
+                    System.getProperty("icq.custom.message.charset")) != null)
+                    OscarTools.setDefaultCharset(customMessageEncoding);
+                
                 // run keepalive thread
                 if(keepAliveSendTask == null)
                 {

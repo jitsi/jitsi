@@ -417,6 +417,14 @@ public class TestOperationSetPresence
             // remove it
             operationSetPresence1.unsubscribe(subEvt.getSourceContact());
             
+            // wait remove to be finished
+            Object lock = new Object();
+            synchronized(lock){
+                try{
+                    lock.wait(3000);
+                }catch (Exception e){}
+            }
+            
             // add it
             operationSetPresence1.addSubsciptionListener(subEvtCollector);
             subEvtCollector.collectedEvents.clear();
