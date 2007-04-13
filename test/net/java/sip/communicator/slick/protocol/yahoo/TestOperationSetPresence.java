@@ -408,6 +408,40 @@ public class TestOperationSetPresence
                 .removeContactPresenceStatusListener(contactPresEvtCollector);
         }
 
+        // something happened. the friend is not added correctly will 
+        // try to remove it and add it again
+        if(contactPresEvtCollector.collectedEvents.size() == 0)
+        {
+            logger.info("ATTENTION: Yahoo friend not added correctly will remove and add him again");
+            
+            // remove it
+            operationSetPresence1.unsubscribe(subEvt.getSourceContact());
+            
+            // add it
+            operationSetPresence1.addSubsciptionListener(subEvtCollector);
+            subEvtCollector.collectedEvents.clear();
+            synchronized (subEvtCollector){
+                operationSetPresence1.subscribe(fixture.userID2);
+                //we may already have the event, but it won't hurt to check.
+                subEvtCollector.waitForEvent(10000);
+                operationSetPresence1.removeSubscriptionListener(subEvtCollector);
+            }
+            subEvtCollector.collectedEvents.clear();
+            
+            // query it again for the status
+            contactPresEvtCollector.collectedEvents.clear();
+            operationSetPresence1.addContactPresenceStatusListener(
+                contactPresEvtCollector);
+
+            synchronized (contactPresEvtCollector){
+                operationSetPresence2.publishPresenceStatus(newStatus, "new status");
+                //we may already have the event, but it won't hurt to check.
+                contactPresEvtCollector.waitForEvent(10000);
+                operationSetPresence1
+                    .removeContactPresenceStatusListener(contactPresEvtCollector);
+            }
+        }
+        
         assertEquals("Presence Notif. event dispatching failed."
                      , 1, contactPresEvtCollector.collectedEvents.size());
         ContactPresenceStatusChangeEvent presEvt =
