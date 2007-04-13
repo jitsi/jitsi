@@ -159,7 +159,7 @@ public class Wizard extends SIPCommDialog
             this.setModal(true);
         
         this.pack();
-        this.setVisible(true);
+        super.setVisible(true);
     }
     
     /**
