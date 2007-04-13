@@ -26,6 +26,9 @@ import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jdesktop.jdic.tray.*;
+import org.jdesktop.jdic.tray.SystemTray;
+import org.jdesktop.jdic.tray.TrayIcon;
+
 import org.osgi.framework.*;
 
 /**
@@ -136,14 +139,18 @@ public class SystrayServiceJdicImpl
         {
             public void actionPerformed(ActionEvent e) 
             {
-                if(uiService.isVisible())
-                {
-                    uiService.setVisible(false);
-                }
-                else
-                {
-                    uiService.setVisible(true);
-                }
+                boolean isVisible;
+                
+                isVisible = ! uiService.isVisible();
+                
+                uiService.setVisible(isVisible);
+                
+                ConfigurationService configService
+                    = SystrayActivator.getConfigurationService();
+                
+                configService.setProperty(
+                        "net.java.sip.communicator.impl.systray.showApplication",
+                        new Boolean(isVisible));
             }
         });
         
@@ -353,12 +360,8 @@ public class SystrayServiceJdicImpl
     public void saveStatusInformation(ProtocolProviderService protocolProvider,
             String statusName)
     {
-        ServiceReference configReference = SystrayActivator.bundleContext
-            .getServiceReference(ConfigurationService.class.getName());
-    
         ConfigurationService configService
-            = (ConfigurationService) SystrayActivator.bundleContext
-                .getService(configReference);
+            = SystrayActivator.getConfigurationService();
     
         if(configService != null)
         {
