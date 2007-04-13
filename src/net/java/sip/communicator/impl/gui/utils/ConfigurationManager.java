@@ -16,32 +16,74 @@ public class ConfigurationManager
      */
     private static boolean autoPopupNewMessage;
 
+    private static boolean isCallPanelShown;
+    
+    private static boolean isShowOffline;
+    
+    private static boolean isApplicationVisible;
+    
+    private static ConfigurationService configService
+        = GuiActivator.getConfigurationService();
+    
     public static void loadGuiConfigurations()
-    {
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
-        
+    {   
         String autoPopup = configService.getString(
             "net.java.sip.communicator.impl.gui.autoPopupNewMessage");
+        
+        String callPanelShown = configService.getString(
+            "net.java.sip.communicator.impl.gui.showCallPanel");
+    
+        String showOffline = configService.getString(
+            "net.java.sip.communicator.impl.gui.showOffline");
+        
+        String isVisible = configService.getString(
+            "net.java.sip.communicator.impl.systray.showApplication");
     
         if(autoPopup == null || autoPopup.equalsIgnoreCase("yes"))
             autoPopupNewMessage = true;
         else
             autoPopupNewMessage = false;
+        
+        if(callPanelShown != null && callPanelShown != "")
+        {
+            isCallPanelShown = new Boolean(callPanelShown).booleanValue();
+        }
+        
+        if(showOffline != null && showOffline != "")
+        {
+            isShowOffline = new Boolean(showOffline).booleanValue();
+        }
+
+        if(isVisible != null && isVisible != "")
+        {
+            isApplicationVisible = new Boolean(isVisible).booleanValue();
+        }
     }
     
     public static boolean isAutoPopupNewMessage()
     {
         return autoPopupNewMessage;
     }
+    
+    public static boolean isCallPanelShown()
+    {
+        return isCallPanelShown;
+    }
+    
+    public static boolean isShowOffline()
+    {
+        return isShowOffline;
+    }
+    
+    public static boolean isApplicationVisible()
+    {
+        return isApplicationVisible;
+    }
 
     public static void setAutoPopupNewMessage(boolean autoPopupNewMessage)
     {
         ConfigurationManager.autoPopupNewMessage = autoPopupNewMessage;
-        
-        ConfigurationService configService
-                = GuiActivator.getConfigurationService();
-            
+          
         if(autoPopupNewMessage)
             configService.setProperty(
                     "net.java.sip.communicator.impl.gui.autoPopupNewMessage",
@@ -50,5 +92,32 @@ public class ConfigurationManager
             configService.setProperty(
                     "net.java.sip.communicator.impl.gui.autoPopupNewMessage",
                     "no");
+    }
+    
+    public static void setShowOffline(boolean isShowOffline)
+    {
+        ConfigurationManager.isShowOffline = isShowOffline;
+        
+        configService.setProperty(
+                "net.java.sip.communicator.impl.gui.showOffline",
+                new Boolean(isShowOffline));
+    }
+    
+    public static void setShowCallPanel(boolean isCallPanelShown)
+    {
+        ConfigurationManager.isCallPanelShown = isCallPanelShown;
+            
+        configService.setProperty(
+                "net.java.sip.communicator.impl.gui.showCallPanel",
+                new Boolean(isCallPanelShown));
+    }
+    
+    public static void setApplicationVisible(boolean isVisible)
+    {
+        isApplicationVisible = isVisible;
+            
+        configService.setProperty(
+                "net.java.sip.communicator.impl.systray.showApplication",
+                new Boolean(isVisible));
     }
 }

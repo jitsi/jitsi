@@ -72,9 +72,12 @@ public class SettingsMenu extends SIPCommMenu
             = GuiActivator.getConfigurationService();
         
         String messageCommand = configService.getString(
-                "net.java.sip.communicator.impl.gui.sendMessageCommand");
+            "net.java.sip.communicator.impl.gui.sendMessageCommand");
         
         String autoPopup = configService.getString(
+            "net.java.sip.communicator.impl.gui.autoPopupNewMessage");
+
+        String typingNotif = configService.getString(
             "net.java.sip.communicator.impl.gui.autoPopupNewMessage");
 
         if(messageCommand == null || messageCommand.equalsIgnoreCase("enter"))

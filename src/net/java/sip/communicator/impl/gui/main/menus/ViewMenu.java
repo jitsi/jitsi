@@ -55,14 +55,8 @@ public class ViewMenu
         
         this.mainFrame = mainFrame;
 
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
-    
-        String isCallPanelShown = configService.getString(
-            "net.java.sip.communicator.impl.gui.showCallPanel");
-
         this.hideCallPanelItem.setSelected(
-            !new Boolean(isCallPanelShown).booleanValue());
+            !ConfigurationManager.isCallPanelShown());
         
         this.add(hideCallPanelItem);
         
@@ -90,12 +84,7 @@ public class ViewMenu
         if (itemName.equals("hideCallPanel")) {
             CallManager callManager = mainFrame.getCallManager();
             
-            if (hideCallPanelItem.isSelected()) {
-                callManager.hideCallPanel();
-            }
-            else {
-                callManager.showCallPanel();
-            }
+            callManager.setCallPanelVisible(!hideCallPanelItem.isSelected());        
         }
     }
 

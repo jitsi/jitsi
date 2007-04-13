@@ -63,6 +63,8 @@ public class GuiActivator implements BundleActivator {
 
         GuiActivator.bundleContext = bundleContext;
         
+        ConfigurationManager.loadGuiConfigurations();
+        
         this.communicatorMain = new CommunicatorMain();
 
         MainFrame mainFrame = communicatorMain.getMainFrame();
@@ -91,8 +93,9 @@ public class GuiActivator implements BundleActivator {
 
             logger.info("UI Service ...[REGISTERED]");
             
-            ConfigurationManager.loadGuiConfigurations();
-            communicatorMain.showCommunicator(true);
+            if(ConfigurationManager.isApplicationVisible())
+                mainFrame.setVisible(true);
+            
             SwingUtilities.invokeLater(new RunLogin());
             
             uiService.initExportedWindows();

@@ -84,8 +84,6 @@ public class CallManager
 
     private Hashtable activeCalls = new Hashtable();
     
-    private boolean isShown;
-    
     private boolean isCallMetaContact;
     
     private Hashtable removeCallTimers = new Hashtable();
@@ -148,7 +146,9 @@ public class CallManager
         
         this.hangupButton.setEnabled(false);
 
-        this.add(minimizeButtonPanel, BorderLayout.SOUTH);        
+        this.add(minimizeButtonPanel, BorderLayout.SOUTH);
+        
+        this.setCallPanelVisible(ConfigurationManager.isCallPanelShown());
     }
 
     
@@ -319,7 +319,7 @@ public class CallManager
             if(!hideCallPanelItem.isSelected())
                 hideCallPanelItem.setSelected(true);
             
-            this.hideCallPanel();
+            this.setCallPanelVisible(false);
         }
         else if (buttonName.equalsIgnoreCase("restore")) {
             
@@ -329,43 +329,42 @@ public class CallManager
             if(hideCallPanelItem.isSelected())
                 hideCallPanelItem.setSelected(false);
             
-            this.showCallPanel();
+            this.setCallPanelVisible(true);
         }
     }
     
     /**
      * Hides the panel containing call and hangup buttons.
      */
-    public void hideCallPanel()
+    public void setCallPanelVisible(boolean isVisible)
     {
-        this.remove(comboPanel);
-        this.remove(buttonsPanel);
+        if(isVisible)
+        {
+            this.add(comboPanel, BorderLayout.NORTH);
+            this.add(buttonsPanel, BorderLayout.CENTER);
 
-        this.minimizeButtonPanel.removeAll();
-        this.minimizeButtonPanel.add(restoreButton);
-        this.isShown = false;
+            this.minimizeButtonPanel.removeAll();
+            this.minimizeButtonPanel.add(minimizeButton);
+        }
+        else
+        {
+            this.remove(comboPanel);
+            this.remove(buttonsPanel);
+
+            this.minimizeButtonPanel.removeAll();
+            this.minimizeButtonPanel.add(restoreButton);
+            
+            if(mainFrame.isVisible())
+                this.mainFrame.getContactListPanel()
+                    .getContactList().requestFocus();
+        }
         
-        this.mainFrame.getContactListPanel()
-            .getContactList().requestFocus();
-
+        if(ConfigurationManager.isCallPanelShown() != isVisible)
+            ConfigurationManager.setShowCallPanel(isVisible);
+        
         this.mainFrame.validate();
     }
     
-    /**
-     * Shows the panel containing call and hangup buttons.
-     */
-    public void showCallPanel()
-    {
-        this.add(comboPanel, BorderLayout.NORTH);
-        this.add(buttonsPanel, BorderLayout.CENTER);
-
-        this.minimizeButtonPanel.removeAll();
-        this.minimizeButtonPanel.add(minimizeButton);
-        this.isShown = true;
-
-        this.mainFrame.validate();
-    }
-
     /**
      * Adds the given call account to the list of call via accounts.
      * @param pps the protocol provider service corresponding to the account
@@ -468,7 +467,7 @@ public class CallManager
         
         activeCalls.put(sourceCall, callPanel);
         
-        this.showCallPanel();
+        this.setCallPanelVisible(true);
     }
 
     /**
@@ -617,34 +616,6 @@ public class CallManager
         return phoneNumberCombo;
     }
 
-    /**
-     * Returns TRUE if this panel is visible, FALSE otherwise.
-     * @return TRUE if this panel is visible, FALSE otherwise
-     */
-    public boolean isShown()
-    {
-        return this.isShown;
-    }
-
-    /**
-     * When TRUE shows this panel, when FALSE hides it.
-     * @param isShown
-     */
-    public void setShown(boolean isShown)
-    {
-        this.isShown = isShown;
-
-        if(isShown) {
-            this.add(comboPanel, BorderLayout.NORTH);
-            this.add(buttonsPanel, BorderLayout.CENTER);
-
-            this.minimizeButtonPanel.add(minimizeButton);
-        }
-        else {
-            this.minimizeButtonPanel.add(restoreButton);
-        }
-    }
-    
     /** 
      * Answers the given call.
      * @param call the call to answer

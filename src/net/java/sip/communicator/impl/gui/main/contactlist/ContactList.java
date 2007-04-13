@@ -16,8 +16,8 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -75,7 +75,6 @@ public class ContactList
      */
     public ContactList(MainFrame mainFrame)
     {
-
         this.mainFrame = mainFrame;
 
         this.contactList = mainFrame.getContactList();
@@ -109,6 +108,8 @@ public class ContactList
             }
         });
 
+        this.setShowOffline(ConfigurationManager.isShowOffline());
+       
         new ContactListRefresh().start();
     }
 
@@ -1094,16 +1095,6 @@ public class ContactList
     }
 
     /**
-     * Returns TRUE if the list shows offline contacts, FALSE otherwise.
-     * 
-     * @return TRUE if the list shows offline contacts, FALSE otherwise
-     */
-    public boolean isShowOffline()
-    {
-        return listModel.isShowOffline();
-    }
-
-    /**
      * Sets the showOffline property.
      * 
      * @param isShowOffline TRUE to show all offline users, FALSE to hide
@@ -1114,6 +1105,8 @@ public class ContactList
         int listSize = listModel.getSize();
         
         listModel.setShowOffline(isShowOffline);
+        
+        ConfigurationManager.setShowOffline(isShowOffline);
         
         int newListSize = listModel.getSize();
         
@@ -1138,7 +1131,7 @@ public class ContactList
             }
             else
                 listModel.contentAdded(0, newListSize - 1);
-        }
+        }   
     }
 
     /**

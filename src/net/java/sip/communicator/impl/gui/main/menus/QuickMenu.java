@@ -196,7 +196,6 @@ public class QuickMenu
         }
         else if (buttonName.equals("search"))
         {
-
             ContactList contactList = mainFrame.getContactListPanel()
                 .getContactList();
 
@@ -209,8 +208,8 @@ public class QuickMenu
                 selectedObject
                     = listModel.getElementAt(currentlySelectedIndex);
             }
-
-            contactList.setShowOffline(!contactList.isShowOffline());
+            
+            contactList.setShowOffline(!ConfigurationManager.isShowOffline());
             
             if (selectedObject != null) {
                 if (selectedObject instanceof MetaContact) {

@@ -57,18 +57,6 @@ public class CommunicatorMain {
             logger.error("The provided Look & Feel is not supported.", e);
         }
     }
-
-    /**
-     * Shows or hides the main application window.
-     * 
-     * @param isVisible <code>true</code> to show the main application
-     * window, <code>false</code> to hide it.
-     */
-    public void showCommunicator(boolean isVisible) {
-        
-        this.mainFrame.loadConfigurationSettings();
-        this.mainFrame.setVisible(isVisible);
-    }
     
     /**
      * Returns the main application window.

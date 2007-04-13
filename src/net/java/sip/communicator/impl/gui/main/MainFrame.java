@@ -102,7 +102,7 @@ public class MainFrame
         
         this.addWindowListener(new MainFrameWindowAdapter());
 
-        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        //this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setInitialBounds();
 
         this.setTitle(Messages.getI18NString("sipCommunicator").getText());
@@ -645,29 +645,15 @@ public class MainFrame
      * through the <tt>ConfigurationService</tt>.
      */
     public class MainFrameWindowAdapter extends WindowAdapter
-    {
-        public void windowClosing(WindowEvent e) {
-            ConfigurationService configService
-                = GuiActivator.getConfigurationService();
-
-            try {
-                configService.setProperty(
-                        "net.java.sip.communicator.impl.gui.showCallPanel",
-                        new Boolean(callManager.isShown()));
-
-
-                configService.setProperty(
-                    "net.java.sip.communicator.impl.gui.showOffline",
-                    new Boolean(getContactListPanel()
-                        .getContactList().isShowOffline()));
-
-            }
-            catch (PropertyVetoException e1) {
-                logger.error("The proposed property change "
-                        + "represents an unacceptable value");
+    {   
+        public void windowClosing(WindowEvent e)
+        {
+            if(!GuiActivator.getUIService().getExitOnMainWindowClose())
+            {   
+                ConfigurationManager.setApplicationVisible(false);
             }
         }
-
+        
         public void windowClosed(WindowEvent e)
         {
             if(GuiActivator.getUIService().getExitOnMainWindowClose())
@@ -685,33 +671,6 @@ public class MainFrame
                 //in embedded mode?)
                 //System.exit(0);
             }
-        }
-    }
-
-    /**
-     * Sets the window size and position.
-     */
-    public void loadConfigurationSettings() {
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
-
-        String isCallPanelShown = configService.getString(
-            "net.java.sip.communicator.impl.gui.showCallPanel");
-
-        String isShowOffline = configService.getString(
-            "net.java.sip.communicator.impl.gui.showOffline");
-
-        if(isCallPanelShown != null && isCallPanelShown != "")
-        {
-            callManager.setShown(new Boolean(isCallPanelShown).booleanValue());
-        }
-        else {
-            callManager.setShown(true);
-        }
-
-        if(isShowOffline != null && isShowOffline != "") {
-            getContactListPanel().getContactList()
-                .setShowOffline(new Boolean(isShowOffline).booleanValue());
         }
     }
 

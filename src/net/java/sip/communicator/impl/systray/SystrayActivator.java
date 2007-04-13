@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.systray;
 
 import net.java.sip.communicator.impl.systray.jdic.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
@@ -26,6 +27,8 @@ public class SystrayActivator
     public static BundleContext bundleContext;
 
     public static UIService uiService;
+    
+    private static ConfigurationService configService;
     
     private static Logger logger = Logger.getLogger(
             SystrayActivator.class.getName());
@@ -59,5 +62,25 @@ public class SystrayActivator
      *   release all services used by the bundle.
      */
     public void stop(BundleContext bc) throws Exception {
+    }
+    
+
+    /**
+     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>ConfigurationService</tt> obtained from the bundle
+     * context
+     */
+    public static ConfigurationService getConfigurationService() 
+    {
+        if(configService == null) {
+            ServiceReference configReference = bundleContext
+                .getServiceReference(ConfigurationService.class.getName());
+
+            configService = (ConfigurationService) bundleContext
+                .getService(configReference);
+        }
+
+        return configService;
     }
 }
