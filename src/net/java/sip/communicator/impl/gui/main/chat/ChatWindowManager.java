@@ -144,17 +144,6 @@ public class ChatWindowManager
     }
 
     /**
-     * Closes the chat corresponding to the given meta contact.
-     *
-     * @param metaContact the meta contact
-     */
-    public void closeChat(MetaContact metaContact)
-    {
-        if(containsChat(metaContact))
-            closeChat(getChat(metaContact));
-    }
-
-    /**
      * Closes the given chat panel.
      *
      * @param chatPanel the chat panel to close

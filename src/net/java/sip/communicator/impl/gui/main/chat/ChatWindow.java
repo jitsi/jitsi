@@ -289,18 +289,6 @@ public class ChatWindow
     }
     
     /**
-     * Removes the chat at the given index. If there's no tabbed pane
-     * does nothing.
-     * 
-     * @param index the index indicating, which tab to remove
-     */
-    public void removeChat(int index)
-    {
-        if(getChatTabCount() > 0)
-            this.removeChat((ChatPanel)chatTabbedPane.getComponentAt(index));
-    }
-    
-    /**
      * Removes all tabs in the chat tabbed pane. If not in mode
      * TABBED_CHAT_WINDOW doesn nothing.
      */
