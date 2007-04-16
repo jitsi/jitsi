@@ -133,7 +133,7 @@ public class MainFrame
         this.mainPanel.getActionMap().put("runChat",
                 new RunMessageWindowAction());
 
-        InputMap imap = this.getRootPane().getInputMap(
+        InputMap imap = mainPanel.getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "runChat");
