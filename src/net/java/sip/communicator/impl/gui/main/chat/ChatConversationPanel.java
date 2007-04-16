@@ -385,13 +385,15 @@ public class ChatConversationPanel
             Element firstHeaderElement = this.document.getElement("header");
             Element firstMessageElement = this.document.getElement("message");
             try {
-                this.document.remove(firstHeaderElement.getStartOffset(),
-                    firstHeaderElement.getEndOffset()
-                        - firstHeaderElement.getStartOffset());
+                if(firstHeaderElement != null)
+                    this.document.remove(firstHeaderElement.getStartOffset(),
+                            firstHeaderElement.getEndOffset()
+                                - firstHeaderElement.getStartOffset());
                 
-                this.document.remove(firstMessageElement.getStartOffset(),
-                    firstMessageElement.getEndOffset()
-                        - firstMessageElement.getStartOffset());
+                if(firstMessageElement != null)
+                    this.document.remove(firstMessageElement.getStartOffset(),
+                            firstMessageElement.getEndOffset()
+                                - firstMessageElement.getStartOffset());
             }
             catch (BadLocationException e) {
                 LOGGER.error("Error removing messages from chat: ", e);
