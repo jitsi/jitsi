@@ -809,6 +809,9 @@ public class OperationSetPersistentPresenceJabberImpl
                 jabberProvider.getConnection().getRoster().addRosterListener(
                     new ContactChangesListener());
 
+                fireProviderPresenceStatusChangeEvent(currentStatus,
+                    JabberStatusEnum.AVAILABLE);
+                
                 // init ssList
                 ssContactList.init();
             }
