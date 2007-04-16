@@ -113,6 +113,11 @@ public class SelectAccountPanel
             ProtocolProviderService pps 
                 = (ProtocolProviderService)protocolProvidersList.next();
             
+            OperationSet opSet = pps.getOperationSet(OperationSetPresence.class);
+            
+            if(opSet == null)
+                continue;
+            
             String pName = pps.getProtocolName();
             
             Image protocolImage = null;
