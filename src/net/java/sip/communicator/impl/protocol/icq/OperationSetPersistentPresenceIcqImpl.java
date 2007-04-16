@@ -1494,9 +1494,9 @@ public class OperationSetPersistentPresenceIcqImpl
                 //that we're very much online so make sure we change accordingly
                 if (currentIcqStatus == -1 )
                     currentIcqStatus = ICQ_ONLINE_MASK;
-                
+
                 //only notify of an event change if there was really one.
-                if( oldStatus != userInfo.getIcqStatus() )
+                if( oldStatus !=  currentIcqStatus)
                     fireProviderPresenceStatusChangeEvent(oldStatus,
                                                         currentIcqStatus);
             }

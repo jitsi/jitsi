@@ -229,7 +229,7 @@ public class PresenceStatusSelectorBox
         if(protocolProvider.isRegistered()
                 && !presence.getPresenceStatus().equals(status))
         {
-            new PublishPresenceStatusThread(status);
+            new PublishPresenceStatusThread(status).start();
         }
     }
 
