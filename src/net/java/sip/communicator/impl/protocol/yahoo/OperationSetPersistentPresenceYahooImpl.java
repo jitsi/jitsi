@@ -1057,7 +1057,10 @@ public class OperationSetPersistentPresenceYahooImpl
 
         // when old and new status are the same do nothing - no change
         if(oldStatus.equals(newStatus))
+        {
+            logger.debug("old(" + oldStatus + ") and new("+ newStatus + ") statuses are the same!");
             return;
+        }
 
         sourceContact.updatePresenceStatus(newStatus);
 
