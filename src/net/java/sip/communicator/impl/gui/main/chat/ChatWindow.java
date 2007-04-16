@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -286,6 +287,27 @@ public class ChatWindow
                 this.getContentPane().add(currentChatPanel, BorderLayout.CENTER);
 
                 this.setCurrentChatPanel(currentChatPanel);
+            }
+        }
+        
+        // If this is a MetaContactChatPanel remove it from presence operation
+        // set status listeners.
+        if(chatPanel instanceof MetaContactChatPanel)
+        {
+            MetaContactChatPanel metaContactChatPanel
+                = (MetaContactChatPanel) chatPanel;
+            
+            MetaContact metaContact = metaContactChatPanel.getMetaContact();
+            
+            Iterator protocolContacts = metaContact.getContacts();
+            
+            while(protocolContacts.hasNext())
+            {
+                Contact subContact = (Contact) protocolContacts.next();
+                
+                getMainFrame()
+                    .getProtocolPresenceOpSet(subContact.getProtocolProvider())
+                    .removeContactPresenceStatusListener(metaContactChatPanel);
             }
         }
     }
