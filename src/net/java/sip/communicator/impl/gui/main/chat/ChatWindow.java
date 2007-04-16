@@ -258,6 +258,8 @@ public class ChatWindow
         if(getChatTabCount() == 0)
         {
             this.getContentPane().remove(chatPanel);
+            this.getContentPane().validate();
+            this.getContentPane().repaint();
             
             this.setVisible(false);
             
