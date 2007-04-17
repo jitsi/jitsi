@@ -210,7 +210,7 @@ public class ChatWindowManager
                 if (answer == JOptionPane.OK_OPTION)
                 {
                     chatWindow.removeAllChats();
-                    chatWindow.setVisible(false);
+                    chatWindow.dispose();
 
                     synchronized (chats)
                     {
@@ -231,7 +231,7 @@ public class ChatWindowManager
                 if (answer == JOptionPane.OK_OPTION)
                 {
                     chatWindow.removeAllChats();
-                    chatWindow.setVisible(false);
+                    chatWindow.dispose();
 
                     synchronized (chats)
                     {
@@ -242,7 +242,7 @@ public class ChatWindowManager
             else
             {
                 chatWindow.removeAllChats();
-                chatWindow.setVisible(false);
+                chatWindow.dispose();
 
                 synchronized (chats)
                 {

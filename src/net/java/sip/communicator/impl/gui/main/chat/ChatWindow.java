@@ -195,7 +195,7 @@ public class ChatWindow
         PresenceStatus status = chatPanel.getChatStatus();
         
         if (getCurrentChatPanel() == null)
-        {   
+        {
             this.getContentPane().add(chatPanel, BorderLayout.CENTER);            
         }
         else
@@ -259,10 +259,8 @@ public class ChatWindow
         if(getChatTabCount() == 0)
         {
             this.getContentPane().remove(chatPanel);
-            this.getContentPane().validate();
-            this.getContentPane().repaint();
             
-            this.setVisible(false);
+            this.dispose();
             
             return;
         }
@@ -324,7 +322,7 @@ public class ChatWindow
         {
             this.chatTabbedPane.removeAll();
             
-            this.getContentPane().remove(chatTabbedPane);        
+            this.getContentPane().remove(chatTabbedPane);
         }
         else
         {
