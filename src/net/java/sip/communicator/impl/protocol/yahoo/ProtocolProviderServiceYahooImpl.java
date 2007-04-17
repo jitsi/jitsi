@@ -494,6 +494,16 @@ public class ProtocolProviderServiceYahooImpl
         
         public void inputExceptionThrown(SessionExceptionEvent ev)
         {
+            if(ev.getException() instanceof YMSG9BadFormatException)
+            {
+                logger.error("Yahoo protocol exception occured exception",
+                    ev.getException());
+                logger.error("Yahoo protocol exception occured exception cause", 
+                    ((YMSG9BadFormatException)ev.getException().getCause()));
+            }
+            else
+                logger.error("Yahoo protocol exception occured", ev.getException());
+
             unregister(false);
             if(isRegistered())
                 fireRegistrationStateChanged(
