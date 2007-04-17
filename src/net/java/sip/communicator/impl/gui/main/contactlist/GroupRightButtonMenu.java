@@ -83,8 +83,7 @@ public class GroupRightButtonMenu
             
             String protocolName = pps.getProtocolName();
             
-            JMenuItem menuItem = new JMenuItem(pps.getAccountID()
-                    .getUserID(),
+            AccountMenuItem menuItem = new AccountMenuItem(pps,
                     new ImageIcon(createAccountStatusImage(pps)));
             
             menuItem.setName(protocolName);
@@ -146,12 +145,13 @@ public class GroupRightButtonMenu
         String itemText = item.getText();
         String itemName = item.getName();
         
-        if(itemName.equals("removeGroup")) {
-            
+        if(itemName.equals("removeGroup"))
+        {   
             if(group != null) 
                 new RemoveGroupThread(group).start();                
         }
-        else if(itemName.equals("renameGroup")) {
+        else if(itemName.equals("renameGroup"))
+        {
             
             RenameGroupDialog dialog = new RenameGroupDialog(
                     mainFrame, group);
@@ -167,9 +167,10 @@ public class GroupRightButtonMenu
             
             dialog.requestFocusInFiled();
         }
-        else if(mainFrame.getProtocolProviderForAccount(itemText) != null) {
+        else if(item instanceof AccountMenuItem)
+        {
             ProtocolProviderService pps 
-                = mainFrame.getProtocolProviderForAccount(itemText);
+                = ((AccountMenuItem)item).getProtocolProvider();
             
             AddContactDialog dialog = new AddContactDialog(
                     mainFrame, group, pps);
@@ -302,5 +303,26 @@ public class GroupRightButtonMenu
             img = statusImage;
         }
         return img;
+    }
+ 
+    /**
+     * The <tt>AccountMenuItem</tt> is a <tt>JMenuItem</tt> that stores a
+     * <tt>ProtocolProviderService</tt> in it.
+     */
+    private class AccountMenuItem extends JMenuItem
+    {
+        private ProtocolProviderService pps;
+        
+        public AccountMenuItem(ProtocolProviderService pps, Icon icon)
+        {
+            super(pps.getAccountID().getUserID(), icon);
+            
+            this.pps = pps;
+        }
+        
+        public ProtocolProviderService getProtocolProvider()
+        {
+            return pps;
+        }
     }
 }
