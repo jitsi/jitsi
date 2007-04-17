@@ -118,15 +118,14 @@ public class SimpleStatusSelectorBox
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
-        if(itemName.equals(Constants.ONLINE_STATUS)) {
+        if(itemName.equals(Constants.ONLINE_STATUS))
+        {
             if(!protocolProvider.isRegistered()) {
                 this.mainFrame.getLoginManager().login(protocolProvider);
             }
-            
-            mainFrame.saveStatusInformation(
-                protocolProvider, Constants.ONLINE_STATUS);
         }
-        else {
+        else
+        {
             if(    !protocolProvider.getRegistrationState()
                             .equals(RegistrationState.UNREGISTERED)
                 && !protocolProvider.getRegistrationState()
@@ -143,10 +142,10 @@ public class SimpleStatusSelectorBox
                             + " due to the following exception: " + e1);
                 }
             }
-            
-            mainFrame.saveStatusInformation(
-                protocolProvider, Constants.OFFLINE_STATUS);
         }
+        
+        saveStatusInformation(
+                protocolProvider, Constants.OFFLINE_STATUS);
     }
 
 

@@ -23,13 +23,11 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.configuration.PropertyVetoException;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -146,8 +144,8 @@ public class MainFrame
      */
     private void setInitialBounds()
     {
-        this.setSize(200, 450);
-        this.contactListPanel.setPreferredSize(new Dimension(300, 600));
+    	this.setSize(200, 450);
+	    this.contactListPanel.setPreferredSize(new Dimension(300, 600));
         this.contactListPanel.setMinimumSize(new Dimension(80, 200));
 
         this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width
@@ -576,8 +574,8 @@ public class MainFrame
             ContactPresenceStatusListener
     {
         public void contactPresenceStatusChanged(
-                ContactPresenceStatusChangeEvent evt) {
-
+                ContactPresenceStatusChangeEvent evt)
+        {
             ContactListPanel clistPanel = tabbedPane.getContactListPanel();
 
             Contact sourceContact = evt.getSourceContact();
@@ -672,62 +670,7 @@ public class MainFrame
                 //System.exit(0);
             }
         }
-    }
-
-    /**
-     * Saves the last status for all accounts. This information is used
-     * on loging. Each time user logs in he's logged with the same status
-     * as he was the last time before closing the application.
-     */
-    public void saveStatusInformation(ProtocolProviderService protocolProvider,
-            String statusName)
-    {
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
-
-        String prefix = "net.java.sip.communicator.impl.gui.accounts";
-
-        List accounts = configService
-                .getPropertyNamesByPrefix(prefix, true);
-
-        boolean savedAccount = false;
-        Iterator accountsIter = accounts.iterator();
-
-        while(accountsIter.hasNext()) {
-            String accountRootPropName
-                = (String) accountsIter.next();
-
-            String accountUID
-                = configService.getString(accountRootPropName);
-
-            if(accountUID.equals(protocolProvider
-                    .getAccountID().getAccountUniqueID())) {
-
-                configService.setProperty(
-                        accountRootPropName + ".lastAccountStatus",
-                        statusName);
-
-                savedAccount = true;
-            }
-        }
-
-        if(!savedAccount) {
-            String accNodeName
-                = "acc" + Long.toString(System.currentTimeMillis());
-
-            String accountPackage
-                = "net.java.sip.communicator.impl.gui.accounts."
-                        + accNodeName;
-
-            configService.setProperty(accountPackage,
-                    protocolProvider.getAccountID().getAccountUniqueID());
-
-            configService.setProperty(
-                    accountPackage+".lastAccountStatus",
-                    statusName);
-        }
-
-    }
+    }    
 
     /**
      * Returns the class that manages user login.

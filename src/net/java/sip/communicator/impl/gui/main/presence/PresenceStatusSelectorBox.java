@@ -176,7 +176,7 @@ public class PresenceStatusSelectorBox
                             }
                         }
                         
-                        mainFrame.saveStatusInformation(
+                        saveStatusInformation(
                                 protocolProvider, status.getStatusName());
                         
                         break;
