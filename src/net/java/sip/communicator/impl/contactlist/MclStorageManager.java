@@ -350,8 +350,10 @@ public class MclStorageManager
                      + isModified);
         if(isStarted())
         {
+            OutputStream stream = new FileOutputStream(contactlistFile);
             XMLUtils.indentedWriteXML(contactListDocument
-                                      , new FileOutputStream(contactlistFile));
+                                      , stream);
+            stream.close();
         }
     }
 

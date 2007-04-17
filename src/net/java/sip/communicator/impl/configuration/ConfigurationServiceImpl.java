@@ -517,8 +517,10 @@ public class ConfigurationServiceImpl
                                   newlyAddedProperties);
 
         //write the file.
+        OutputStream stream = new FileOutputStream(getConfigurationFile());
         XMLUtils.indentedWriteXML(
-            propertiesDocument, new FileOutputStream(getConfigurationFile()));
+            propertiesDocument, stream);
+        stream.close();
     }
 
     /**
