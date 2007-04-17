@@ -234,7 +234,7 @@ public class ChatWritePanel
             if (undo.canRedo())
                 redo();
         }
-        else if (chatPanel.getChatWindow().isTypingNotificationEnabled()
+        else if (ConfigurationManager.isSendTypingNotifications()
                 && e.getKeyCode() != KeyEvent.VK_ESCAPE)
         {   
             if (typingState != OperationSetTypingNotifications.STATE_TYPING)

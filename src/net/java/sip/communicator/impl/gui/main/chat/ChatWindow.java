@@ -51,8 +51,6 @@ public class ChatWindow
 
     private SIPCommTabbedPane chatTabbedPane = null;
     
-    private boolean enableTypingNotification = true;
-    
     /**
      * Creates an instance of <tt>ChatWindow</tt> by passing to it an instance
      * of the main application window.
@@ -116,27 +114,6 @@ public class ChatWindow
             KeyEvent.CTRL_DOWN_MASK), new CloseAction());
 
         this.addWindowListener(new ChatWindowAdapter());
-    }
-
-    /**
-     * Changes the Ctrl+Enter message command with Enter or vice versa.
-     */
-    public void changeSendCommand(boolean isEnter) 
-    {
-        this.getCurrentChatPanel().getChatWritePanel()
-            .changeSendCommand(isEnter);
-        
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
-        
-        if(isEnter)
-            configService.setProperty(
-                    "net.java.sip.communicator.impl.gui.sendMessageCommand",
-                    "Enter");
-        else
-            configService.setProperty(
-                    "net.java.sip.communicator.impl.gui.sendMessageCommand",
-                    "CtrlEnter");
     }
     
     /**
@@ -573,30 +550,7 @@ public class ChatWindow
         return chatPanel.getChatConversationPanel()
             .getLastIncomingMsgTimestamp();
     }
-    
-
-    /**
-     * Enables typing notifications.
-     * 
-     * @param enable <code>true</code> to enable typing notifications,
-     *            <code>false</code> to disable them.
-     */
-    public void enableTypingNotification(boolean enable)
-    {
-        this.enableTypingNotification = enable;
-    }
-
-    /**
-     * Checks whether typing notifications are enabled or not.
-     * 
-     * @return <code>true</code> if typing notifications are enabled,
-     *         <code>false</code> otherwise.
-     */
-    public boolean isTypingNotificationEnabled()
-    {
-        return enableTypingNotification;
-    }
-
+      
     /**
      * Before closing the chat window saves the current size and position
      * through the <tt>ConfigurationService</tt>.
