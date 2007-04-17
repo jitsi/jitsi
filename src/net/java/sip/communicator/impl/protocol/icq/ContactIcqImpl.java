@@ -4,6 +4,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
+import net.java.sip.communicator.service.protocol.aimconstants.*;
 import net.kano.joustsim.oscar.oscar.service.ssi.*;
 
 /**
@@ -16,7 +17,7 @@ public class ContactIcqImpl
     Buddy joustSimBuddy = null;
     private boolean isLocal = false;
     private byte[] image = null;
-    private PresenceStatus icqStatus = IcqStatusEnum.OFFLINE;
+    private PresenceStatus icqStatus = null;
     private ServerStoredContactListIcqImpl ssclCallback = null;
     private boolean isPersistent = false;
     private boolean isResolved = false;
@@ -169,7 +170,15 @@ public class ContactIcqImpl
      */
     public PresenceStatus getPresenceStatus()
     {
-        return icqStatus;
+        if(icqStatus == null)
+        {
+            if(ssclCallback.getParentProvider().USING_ICQ)
+                return IcqStatusEnum.OFFLINE;
+            else
+                return AimStatusEnum.OFFLINE;
+        }
+        else
+            return icqStatus;
     }
 
     /**

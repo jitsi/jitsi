@@ -433,7 +433,7 @@ public class ContactGroupIcqImpl
         {
             ContactIcqImpl item = (ContactIcqImpl) contacts.next();
             if(item.getJoustSimBuddy().getScreenname().getFormatted()
-                .equals(screenName))
+                .equalsIgnoreCase(screenName))
                 return item;
         }
         return null;
