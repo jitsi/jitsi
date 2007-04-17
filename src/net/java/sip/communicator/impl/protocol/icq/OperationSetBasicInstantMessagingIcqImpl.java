@@ -20,7 +20,7 @@ import net.kano.joscar.snaccmd.icq.*;
 import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
-
+import net.java.sip.communicator.service.protocol.aimconstants.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation
@@ -729,9 +729,15 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
                 , "Did not receive last keep alive packet.");
 
-            opSetPersPresence.fireProviderPresenceStatusChangeEvent(
-                opSetPersPresence.getPresenceStatus().getStatus()
-                , IcqStatusEnum.OFFLINE.getStatus());
+            if(icqProvider.USING_ICQ)
+                opSetPersPresence.fireProviderPresenceStatusChangeEvent(
+                    opSetPersPresence.getPresenceStatus().getStatus()
+                    , IcqStatusEnum.OFFLINE.getStatus());
+            else
+                opSetPersPresence.fireProviderPresenceStatusChangeEvent(
+                    opSetPersPresence.getPresenceStatus().getStatus()
+                    , AimStatusEnum.OFFLINE.getStatus());
+
         }
     }
 }

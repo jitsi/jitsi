@@ -12,6 +12,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.icqconstants.*;
+import net.java.sip.communicator.service.protocol.aimconstants.*;
 import net.java.sip.communicator.service.protocol.AuthorizationResponse.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joscar.*;
@@ -173,6 +174,18 @@ public class OperationSetPersistentPresenceIcqImpl
 
     }
     
+    private static Map scToAimStatusMappings = new Hashtable();
+    static{
+
+        scToAimStatusMappings.put(AimStatusEnum.AWAY,
+                                  new Long(FullUserInfo.ICQSTATUS_AWAY));
+        scToAimStatusMappings.put(AimStatusEnum.INVISIBLE,
+                                  new Long(FullUserInfo.ICQSTATUS_INVISIBLE));
+        scToAimStatusMappings.put(AimStatusEnum.ONLINE,
+                                  new Long(ICQ_ONLINE_MASK));
+
+    }
+    
     /**
      * The server stored contact list that will be encapsulating joustsim's
      * buddy list.
@@ -306,7 +319,7 @@ public class OperationSetPersistentPresenceIcqImpl
             }
         }
 
-        return icqStatusLongToPresenceStatus(responseRetriever.status);
+        return statusLongToPresenceStatus(responseRetriever.status);
     }
 
     /**
@@ -318,54 +331,74 @@ public class OperationSetPersistentPresenceIcqImpl
      * @return a PresenceStatus instance representation of the "long" icqStatus
      * parameter. The returned result is one of the IcqStatusEnum fields.
      */
-    private IcqStatusEnum icqStatusLongToPresenceStatus(long icqStatus)
+    private PresenceStatus statusLongToPresenceStatus(long icqStatus)
     {
-        // Fixed order of status checking
-        // The order does matter, as the icqStatus consists of more than one
-        // status for example DND = OCCUPIED | DND | AWAY
-        if(icqStatus == -1)
+        if(icqProvider.USING_ICQ)
         {
-            return IcqStatusEnum.OFFLINE;
-        }
-        else if ( (icqStatus & FullUserInfo.ICQSTATUS_INVISIBLE ) != 0)
-        {
-            return IcqStatusEnum.INVISIBLE;
-        }
-        else if ( (icqStatus & FullUserInfo.ICQSTATUS_DND ) != 0)
-        {
-            return IcqStatusEnum.DO_NOT_DISTURB;
-        }
-        else if ( (icqStatus & FullUserInfo.ICQSTATUS_OCCUPIED ) != 0)
-        {
-            return IcqStatusEnum.OCCUPIED;
-        }
-        else if ( (icqStatus & FullUserInfo.ICQSTATUS_NA ) != 0)
-        {
-            return IcqStatusEnum.NOT_AVAILABLE;
-        }
-        else if ( (icqStatus & FullUserInfo.ICQSTATUS_AWAY ) != 0)
-        {
-            return IcqStatusEnum.AWAY;
-        }
-        else if ( (icqStatus & FullUserInfo.ICQSTATUS_FFC ) != 0)
-        {
-            return IcqStatusEnum.FREE_FOR_CHAT;
-        }
+            // Fixed order of status checking
+            // The order does matter, as the icqStatus consists of more than one
+            // status for example DND = OCCUPIED | DND | AWAY
+            if(icqStatus == -1)
+            {
+                return IcqStatusEnum.OFFLINE;
+            }
+            else if ( (icqStatus & FullUserInfo.ICQSTATUS_INVISIBLE ) != 0)
+            {
+                return IcqStatusEnum.INVISIBLE;
+            }
+            else if ( (icqStatus & FullUserInfo.ICQSTATUS_DND ) != 0)
+            {
+                return IcqStatusEnum.DO_NOT_DISTURB;
+            }
+            else if ( (icqStatus & FullUserInfo.ICQSTATUS_OCCUPIED ) != 0)
+            {
+                return IcqStatusEnum.OCCUPIED;
+            }
+            else if ( (icqStatus & FullUserInfo.ICQSTATUS_NA ) != 0)
+            {
+                return IcqStatusEnum.NOT_AVAILABLE;
+            }
+            else if ( (icqStatus & FullUserInfo.ICQSTATUS_AWAY ) != 0)
+            {
+                return IcqStatusEnum.AWAY;
+            }
+            else if ( (icqStatus & FullUserInfo.ICQSTATUS_FFC ) != 0)
+            {
+                return IcqStatusEnum.FREE_FOR_CHAT;
+            }
 
-        // FIXED:  Issue 70
-        // Incomplete status information in ICQ
+            // FIXED:  Issue 70
+            // Incomplete status information in ICQ
 
-        // if none of the statuses is satisfied
-        // then the default is Online
-        // there is no such status send from the server as Offline
-        // when received error from server, after a query
-        // the status is -1 so Offline
-//        else if ((icqStatus & ICQ_ONLINE_MASK) == 0 )
-//        {
-//            return IcqStatusEnum.OFFLINE;
-//        }
+            // if none of the statuses is satisfied
+            // then the default is Online
+            // there is no such status send from the server as Offline
+            // when received error from server, after a query
+            // the status is -1 so Offline
+//            else if ((icqStatus & ICQ_ONLINE_MASK) == 0 )
+//            {
+//                return IcqStatusEnum.OFFLINE;
+//            }
 
-        return IcqStatusEnum.ONLINE;
+            return IcqStatusEnum.ONLINE;
+        }
+        else
+        {
+            if(icqStatus == -1)
+            {
+                return AimStatusEnum.OFFLINE;
+            }
+            else if ( (icqStatus & FullUserInfo.ICQSTATUS_INVISIBLE ) != 0)
+            {
+                return AimStatusEnum.INVISIBLE;
+            }
+            else if ( (icqStatus & FullUserInfo.ICQSTATUS_AWAY ) != 0)
+            {
+                return AimStatusEnum.AWAY;
+            }
+
+            return AimStatusEnum.ONLINE;
+        }
     }
 
     /**
@@ -377,9 +410,12 @@ public class OperationSetPersistentPresenceIcqImpl
      * @return a PresenceStatus instance representation of the "long" icqStatus
      * parameter. The returned result is one of the IcqStatusEnum fields.
      */
-    private long presenceStatusToIcqStatusLong(IcqStatusEnum status)
+    private long presenceStatusToStatusLong(PresenceStatus status)
     {
-        return ((Long)scToIcqStatusMappings.get(status)).longValue();
+        if(icqProvider.USING_ICQ)
+            return ((Long)scToIcqStatusMappings.get(status)).longValue();
+        else
+            return ((Long)scToAimStatusMappings.get(status)).longValue();
     }
 
     /**
@@ -657,40 +693,38 @@ public class OperationSetPersistentPresenceIcqImpl
     {
         assertConnected();
 
-        if (!(status instanceof IcqStatusEnum))
+        if (!(status instanceof IcqStatusEnum || status instanceof AimStatusEnum))
             throw new IllegalArgumentException(
-                            status + " is not a valid ICQ status");
+                            status + " is not a valid ICQ/AIM status");
         
-        long icqStatus = presenceStatusToIcqStatusLong((IcqStatusEnum)status);
-
-        logger.debug("Will set status: " + status + " long=" + icqStatus);
-
+        logger.debug("Will set status: " + status);
+        
         MainBosService bosService
             = icqProvider.getAimConnection().getBosService();
         
         if(!icqProvider.USING_ICQ)
         {
-            if(status.equals(IcqStatusEnum.AWAY))
+            if(status.equals(AimStatusEnum.AWAY))
             {
-                if(getPresenceStatus().equals(IcqStatusEnum.INVISIBLE))
+                if(getPresenceStatus().equals(AimStatusEnum.INVISIBLE))
                     bosService.setVisibleStatus(true);
                 
                 bosService.getOscarConnection().sendSnac(new SetInfoCmd(
                     new InfoData(null, "I'm away!", null, null)));
             }
-            else if(status.equals(IcqStatusEnum.INVISIBLE))
+            else if(status.equals(AimStatusEnum.INVISIBLE))
             {
-                if(getPresenceStatus().equals(IcqStatusEnum.AWAY))
+                if(getPresenceStatus().equals(AimStatusEnum.AWAY))
                     bosService.getOscarConnection().sendSnac(new SetInfoCmd(
                         new InfoData(null, InfoData.NOT_AWAY, null, null)));
                 
                 bosService.setVisibleStatus(false);
             }
-            else if(status.equals(IcqStatusEnum.ONLINE))
+            else if(status.equals(AimStatusEnum.ONLINE))
             {
-                if(getPresenceStatus().equals(IcqStatusEnum.INVISIBLE))
+                if(getPresenceStatus().equals(AimStatusEnum.INVISIBLE))
                     bosService.setVisibleStatus(true);
-                else if(getPresenceStatus().equals(IcqStatusEnum.AWAY))
+                else if(getPresenceStatus().equals(AimStatusEnum.AWAY))
                 {
                     bosService.getOscarConnection().sendSnac(new SetInfoCmd(
                         new InfoData(null, InfoData.NOT_AWAY, null, null)));
@@ -699,6 +733,10 @@ public class OperationSetPersistentPresenceIcqImpl
         }
         else
         {
+            long icqStatus = presenceStatusToStatusLong((IcqStatusEnum)status);
+
+            logger.debug("Will set status: " + status + " long=" + icqStatus);
+
             bosService.getOscarConnection().sendSnac(new SetExtraInfoCmd(icqStatus));
             bosService.setStatusMessage(statusMessage);
         }
@@ -870,7 +908,7 @@ public class OperationSetPersistentPresenceIcqImpl
      */
     public PresenceStatus getPresenceStatus()
     {
-        return icqStatusLongToPresenceStatus(currentIcqStatus);
+        return statusLongToPresenceStatus(currentIcqStatus);
     }
 
     /**
@@ -884,19 +922,24 @@ public class OperationSetPersistentPresenceIcqImpl
     {
         if(supportedPresenceStatusSet.size() == 0)
         {
-            supportedPresenceStatusSet.add(IcqStatusEnum.ONLINE);
-            
             if(icqProvider.USING_ICQ)
             {
+                supportedPresenceStatusSet.add(IcqStatusEnum.ONLINE);
                 supportedPresenceStatusSet.add(IcqStatusEnum.DO_NOT_DISTURB);
                 supportedPresenceStatusSet.add(IcqStatusEnum.FREE_FOR_CHAT);
                 supportedPresenceStatusSet.add(IcqStatusEnum.NOT_AVAILABLE);
-                supportedPresenceStatusSet.add(IcqStatusEnum.OCCUPIED);                
+                supportedPresenceStatusSet.add(IcqStatusEnum.OCCUPIED);
+                supportedPresenceStatusSet.add(IcqStatusEnum.AWAY);
+                supportedPresenceStatusSet.add(IcqStatusEnum.INVISIBLE);
+                supportedPresenceStatusSet.add(IcqStatusEnum.OFFLINE);
             }
-            
-            supportedPresenceStatusSet.add(IcqStatusEnum.AWAY);
-            supportedPresenceStatusSet.add(IcqStatusEnum.INVISIBLE);
-            supportedPresenceStatusSet.add(IcqStatusEnum.OFFLINE);
+            else
+            {
+                supportedPresenceStatusSet.add(AimStatusEnum.ONLINE);
+                supportedPresenceStatusSet.add(AimStatusEnum.AWAY);
+                supportedPresenceStatusSet.add(AimStatusEnum.INVISIBLE);
+                supportedPresenceStatusSet.add(AimStatusEnum.OFFLINE);
+            }
         }
         
         return supportedPresenceStatusSet.iterator();
@@ -1082,8 +1125,8 @@ public class OperationSetPersistentPresenceIcqImpl
     void fireProviderPresenceStatusChangeEvent(
                         long oldStatusL, long newStatusL)
     {
-        PresenceStatus oldStatus = icqStatusLongToPresenceStatus(oldStatusL);
-        PresenceStatus newStatus = icqStatusLongToPresenceStatus(newStatusL);
+        PresenceStatus oldStatus = statusLongToPresenceStatus(oldStatusL);
+        PresenceStatus newStatus = statusLongToPresenceStatus(newStatusL);
 
         if(oldStatus.equals(newStatus)){
             logger.debug("Ignored prov stat. change evt. old==new = "
@@ -1415,12 +1458,24 @@ public class OperationSetPersistentPresenceIcqImpl
                         if(!oldContactStatus.isOnline())
                             continue;
 
-                        contact.updatePresenceStatus(IcqStatusEnum.OFFLINE);
+                        if(icqProvider.USING_ICQ)
+                        {
+                            contact.updatePresenceStatus(IcqStatusEnum.OFFLINE);
 
-                        fireContactPresenceStatusChangeEvent(
-                              contact
-                            , contact.getParentContactGroup()
-                            , oldContactStatus, IcqStatusEnum.OFFLINE);
+                            fireContactPresenceStatusChangeEvent(
+                                  contact
+                                , contact.getParentContactGroup()
+                                , oldContactStatus, IcqStatusEnum.OFFLINE);
+                        }
+                        else
+                        {
+                            contact.updatePresenceStatus(AimStatusEnum.OFFLINE);
+
+                            fireContactPresenceStatusChangeEvent(
+                                  contact
+                                , contact.getParentContactGroup()
+                                , oldContactStatus, AimStatusEnum.OFFLINE);
+                        }
                     }
                 }
             }
@@ -1504,7 +1559,7 @@ public class OperationSetPersistentPresenceIcqImpl
             {
                 if(userInfo.getAwayStatus() != null && userInfo.getAwayStatus().equals(Boolean.TRUE))
                 {
-                    currentIcqStatus = presenceStatusToIcqStatusLong(IcqStatusEnum.AWAY);
+                    currentIcqStatus = presenceStatusToStatusLong(AimStatusEnum.AWAY);
                 }
                 else if(userInfo.getIcqStatus() != -1)
                 {
@@ -1559,12 +1614,12 @@ public class OperationSetPersistentPresenceIcqImpl
             {
                 Boolean awayStatus = info.getAwayStatus();
                 if(awayStatus == null || awayStatus.equals(Boolean.FALSE))
-                    newStatus = IcqStatusEnum.ONLINE;
+                    newStatus = AimStatusEnum.ONLINE;
                 else
-                    newStatus = IcqStatusEnum.AWAY;
+                    newStatus = AimStatusEnum.AWAY;
             }
             else
-                newStatus = icqStatusLongToPresenceStatus(info.getIcqStatus());
+                newStatus = statusLongToPresenceStatus(info.getIcqStatus());
             
             sourceContact.updatePresenceStatus(newStatus);
 
@@ -1611,7 +1666,12 @@ public class OperationSetPersistentPresenceIcqImpl
 
             PresenceStatus oldStatus
                 = sourceContact.getPresenceStatus();
-            PresenceStatus newStatus = IcqStatusEnum.OFFLINE;
+            PresenceStatus newStatus = null;
+            
+            if(icqProvider.USING_ICQ)
+                newStatus = IcqStatusEnum.OFFLINE;
+            else
+                newStatus = AimStatusEnum.OFFLINE;
 
             sourceContact.updatePresenceStatus(newStatus);
 

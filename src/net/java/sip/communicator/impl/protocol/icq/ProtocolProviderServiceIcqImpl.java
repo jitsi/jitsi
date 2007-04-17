@@ -92,6 +92,12 @@ public class ProtocolProviderServiceIcqImpl
         = new ProtocolIconIcqImpl();
     
     /**
+     * The icon corresponding to the aim protocol.
+     */
+    private ProtocolIconAimImpl aimIcon
+        = new ProtocolIconAimImpl();
+    
+    /**
      *  Property whether we are using AIM or ICQ service
      */
     boolean USING_ICQ = true;
@@ -1038,11 +1044,14 @@ public class ProtocolProviderServiceIcqImpl
     }
 
     /**
-     * Returns the icq protocol icon.
-     * @return the icq protocol icon
+     * Returns the icq/aim protocol icon.
+     * @return the icq/aim protocol icon
      */
     public ProtocolIcon getProtocolIcon()
     {
-        return icqIcon;
+        if(USING_ICQ)
+            return icqIcon;
+        else
+            return aimIcon;
     }
 }

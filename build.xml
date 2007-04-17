@@ -1151,6 +1151,8 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/jsocks-klea.jar" prefix=""/>
             <zipfileset dir="resources/images/icq"
                             prefix="resources/images/icq"/>
+            <zipfileset dir="resources/images/aim"
+                            prefix="resources/images/aim"/>
         </jar>
     </target>
 
