@@ -1,7 +1,7 @@
 <installation version="1.0">
 	<info>
 		<appname>sip-communicator</appname>
-		<appversion>1.0.draft</appversion>
+		<appversion>@VERSION@</appversion>
 		<authors>
 			<author name="SIP Communicator" email="sc@sip-communicator.org" />
 		</authors>
@@ -10,8 +10,8 @@
 		<uninstaller/>
 	</info>
 	<variables>
-		<variable name="app-version" value="1.0.draft"/>
-		<variable name="released-on" value="01/08/2006"/>
+		<variable name="app-version" value="@VERSION@"/>
+		<variable name="released-on" value="@BUILDDATE@"/>
 	</variables>
 
 	<guiprefs height="600" resizable="yes" width="800"/>
@@ -23,6 +23,7 @@
             <res id="InfoPanel.info" src="resources/install/doc/readme.txt" parse="yes"/>
             <res id="LicencePanel.licence" src="resources/install/doc/License.txt"/>
             <res src="resources/install/windows/windows_shortcut_specification.xml" id="shortcutSpec.xml"/>
+            <res id="Installer.image.0" src="resources/install/doc/welcome.png" />
 	</resources>
 
 	<native type="izpack" name="ShellLink.dll"/>

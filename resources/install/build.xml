@@ -78,8 +78,17 @@
 
     <target name="build-installation-generic"
             depends="clean-install-generic,define-izpack-task,version">
+                
+        <filter token="VERSION" value="${sip-communicator.version}" />
+        <filter token="BUILDDATE" value="${build.date}" />
+        <copy 
+            tofile="${generic.app.dir}/tmp-installer-generic.xml" 
+            file="${basedir}/${inst.resrc}/generic/installer-generic.xml" 
+            filtering="yes" 
+        />
+
         <izpack
-               input="${basedir}/${inst.resrc}/generic/installer-generic.xml"
+               input="${generic.app.dir}/tmp-installer-generic.xml"
                output="${generic.app.dir}/sip-communicator-${sip-communicator.version}.jar"
                installerType="standard"
                izPackDir="${izpack.dir}/"
@@ -106,8 +115,17 @@
                 <include name="**/*"/>
             </fileset>
     </copy>
+    
+        <filter token="VERSION" value="${sip-communicator.version}" />
+        <filter token="BUILDDATE" value="${build.date}" />
+        <copy 
+            tofile="${linux.app.dir}/tmp/tmp-installer-linux.xml" 
+            file="${basedir}/${inst.resrc}/linux/installer-linux.xml" 
+            filtering="yes" 
+        />
+    
         <!-- create izpack installer jar file -->
-        <izpack input="${basedir}/${inst.resrc}/linux/installer-linux.xml"
+        <izpack input="${linux.app.dir}/tmp/tmp-installer-linux.xml"
                 output="${linux.app.dir}/tmp/sip-communicator-${sip-communicator.version}-linux.jar"
                 installerType="standard"
                 basedir="${basedir}"
@@ -153,8 +171,16 @@
         <copy file="${windows.jre.file}"
               tofile="${windows.app.dir}/tmp/jre/jre-windows.exe"/>
 
+        <filter token="VERSION" value="${sip-communicator.version}" />
+        <filter token="BUILDDATE" value="${build.date}" />
+        <copy 
+            tofile="${windows.app.dir}/tmp/tmp-installer-windows.xml" 
+            file="${basedir}/${inst.resrc}/windows/installer-windows.xml" 
+            filtering="yes" 
+        />
+              
         <izpack
-               input="${basedir}/${inst.resrc}/windows/installer-windows.xml"
+               input="${windows.app.dir}/tmp/tmp-installer-windows.xml"
                output="${windows.app.dir}/tmp/sip-communicator-windows.jar"
                installerType="standard"
                basedir="${basedir}"

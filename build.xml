@@ -158,6 +158,10 @@
     <!-- end jmf.home-->
 
     <property name="jdic_stub.jar" value="${os.lib.home}/jdic_stub.jar"/>
+    
+    <tstamp>
+        <format property="build.date" pattern="dd-MM-yyyy"/>
+    </tstamp>
 
     <path id="project.source.path">
         <!-- refer to both main and test source files. -->

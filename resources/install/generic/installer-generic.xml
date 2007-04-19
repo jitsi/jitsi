@@ -1,7 +1,7 @@
 <installation version="1.0">
 	<info>
-		<appname>SIPCommunicator</appname>
-		<appversion>1.0.cvs</appversion>
+		<appname>sip-communicator</appname>
+		<appversion>@VERSION@</appversion>
 		<authors>
 			<author name="SIP Communicator" email="sc@sip-communicator.org" />
 		</authors>
@@ -10,8 +10,8 @@
 		<uninstaller/>
 	</info>
 	<variables>
-		<variable name="app-version" value="1.0.cvs"/>
-		<variable name="released-on" value="01/08/2006"/>
+		<variable name="app-version" value="@VERSION@"/>
+		<variable name="released-on" value="@BUILDDATE@"/>
 	</variables>
 
 	<guiprefs height="600" resizable="yes" width="800"/>
@@ -24,6 +24,7 @@
             <res id="LicencePanel.licence" src="resources/install/doc/License.txt"/>
             <res src="resources/install/windows/windows_shortcut_specification.xml" id="shortcutSpec.xml"/>\
             <res src="resources/install/linux/linux_shortcut_specification.xml" id="Unix_shortcutSpec.xml"/>
+            <res id="Installer.image.0" src="resources/install/doc/welcome.png" />
 	</resources>
 
 	<native type="izpack" name="ShellLink.dll"/>
@@ -59,7 +60,7 @@
 		<!-- The executable files -->
 		<pack name="run" required="yes">
                     <description>Exceutable</description>
-                    <file targetdir="$INSTALL_PATH" src="resources/install/linux/run.sh" os="linux" override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/generic/run.sh" os="linux" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/linux/sc-logo.png" os="linux" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/run.bat" os="windows" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/sc-logo.ico" os="windows" override="true"/>
