@@ -16,6 +16,7 @@ import net.sf.jml.protocol.incoming.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.sf.jml.net.Message;
 
 
 /**
