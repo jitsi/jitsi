@@ -10,12 +10,13 @@ import java.util.*;
 
 import net.sf.jml.*;
 import net.sf.jml.impl.*;
+import net.sf.jml.net.*;
 import net.sf.jml.protocol.*;
 import net.sf.jml.protocol.incoming.*;
-import net.java.sip.communicator.util.Logger;
-import net.sf.jml.net.Message;
-import net.sf.jml.net.SessionAdapter;
-import net.sf.jml.net.SocketSession;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+
 
 /**
  * Manager which listens for changing of the contact list
@@ -32,11 +33,18 @@ public class EventManager
     private Vector listeners = new Vector();
 
     /**
+     * The provider that is on top of us.
+     */
+    private ProtocolProviderServiceMsnImpl msnProvider = null;
+    
+    /**
      * Creates the manager
      * @param msnMessenger BasicMessenger the messanger
      */
-    public EventManager(BasicMessenger msnMessenger)
+    public EventManager(ProtocolProviderServiceMsnImpl msnProvider, 
+        BasicMessenger msnMessenger)
     {
+        this.msnProvider = msnProvider;
         this.msnMessenger = msnMessenger;
 
         msnMessenger.addSessionListener(this);
@@ -200,6 +208,34 @@ public class EventManager
             if(incomingOUT.isLoggingFromOtherLocation())
                 fireLoggingFromOtherLocation();
         }
+        else if(incoming instanceof IncomingQNG)
+        {
+            IncomingQNG incomingQNG  = (IncomingQNG)incoming;
+            
+            connected = true;
+        }
+    }
+    
+    private boolean connected = false;
+    private Timer connectionTimer = new Timer();
+            
+    public void sessionTimeout(SocketSession socketSession) throws Exception
+    {
+        connectionTimer.schedule(new TimerTask()
+        {
+            public void run()
+            {
+                if(!connected)
+                {
+                    msnProvider.unregister(false);
+                    msnProvider.fireRegistrationStateChanged(
+                        msnProvider.getRegistrationState(),
+                        RegistrationState.CONNECTION_FAILED,
+                        RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+                }
+            }
+        }, 20000);
+        connected = false;
     }
 
     /**

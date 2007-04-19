@@ -1194,7 +1194,8 @@ public class ServerStoredContactListMsnImpl
     {
         this.messenger = messenger;
 
-        contactListModManager = new EventManager((BasicMessenger)messenger);
+        contactListModManager = 
+            new EventManager(msnProvider, (BasicMessenger)messenger);
 
         contactListModManager.
             addModificationListener(contactListModListenerImpl);
