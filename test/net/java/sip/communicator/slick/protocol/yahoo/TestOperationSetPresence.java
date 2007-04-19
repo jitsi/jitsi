@@ -436,6 +436,12 @@ public class TestOperationSetPresence
             }
             subEvtCollector.collectedEvents.clear();
             
+            if(newStatus.equals(YahooStatusEnum.BUSY)){
+                newStatus = YahooStatusEnum.OUT_TO_LUNCH;
+            }
+            else
+                newStatus = YahooStatusEnum.BUSY;
+            
             // query it again for the status
             contactPresEvtCollector.collectedEvents.clear();
             operationSetPresence1.addContactPresenceStatusListener(
