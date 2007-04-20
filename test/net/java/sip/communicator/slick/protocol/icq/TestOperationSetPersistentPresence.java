@@ -438,7 +438,10 @@ public class TestOperationSetPersistentPresence
             synchronized(this)
             {
                 if(collectedEvents.size() > 0)
+                {
+                    logger.trace("ServerStoredGroupEvent already received. " + collectedEvents);
                     return;
+                }
 
                 try{
                     wait(waitFor);
