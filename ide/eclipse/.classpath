@@ -3,12 +3,16 @@
 	<classpathentry path="src" kind="src"/>
 	<classpathentry path="test" kind="src"/>
 	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
-	<classpathentry path="lib/bundle/junit.jar" kind="lib"/>
-	<classpathentry path="lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar" kind="lib"/>
+	<classpathentry path="lib/felix.jar" kind="lib"/>
+	<classpathentry path="lib/jdic-all.jar" kind="lib"/>
+	<classpathentry path="lib/kxml-min.jar" kind="lib"/>
+	<classpathentry path="lib/servicebinder.jar" kind="lib"/>
+	<classpathentry path="sip-communicator.bin/bundle1/version0.0/embedded/kxml2-2.2.2.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/backport-util-concurrent.jar" kind="lib"/>
 	<classpathentry path="lib/installer-exclude/bcprov-jdk14-130.jar" kind="lib"/>
-	<classpathentry path="lib/installer-exclude/cindy.jar" kind="lib"/>
 	<classpathentry path="lib/installer-exclude/commons-logging.jar" kind="lib"/>
 	<classpathentry path="lib/installer-exclude/concurrent.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/dnsjava-2.0.3.jar" kind="lib"/>
 	<classpathentry path="lib/installer-exclude/JainSipApi1.2.jar" kind="lib"/>
 	<classpathentry path="lib/installer-exclude/JainSipRi1.2.jar" kind="lib"/>
 	<classpathentry path="lib/installer-exclude/jmf.jar" kind="lib"/>
@@ -21,17 +25,12 @@
 	<classpathentry path="lib/installer-exclude/junit.jar" kind="lib"/>
 	<classpathentry path="lib/installer-exclude/log4j-1.2.8.jar" kind="lib"/>
 	<classpathentry path="lib/installer-exclude/nist-sdp-1.0.jar" kind="lib"/>
-	<classpathentry path="lib/installer-exclude/retroweaver-rt-2.0Beta2.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/retroweaver-rt-2.0.jar" kind="lib"/>
 	<classpathentry path="lib/installer-exclude/smack.jar" kind="lib"/>
 	<classpathentry path="lib/installer-exclude/smackx.jar" kind="lib"/>
+	<classpathentry path="lib/installer-exclude/smackx-jingle.jar" kind="lib"/>
 	<classpathentry path="lib/installer-exclude/Stun4J.jar" kind="lib"/>
 	<classpathentry path="lib/installer-exclude/ymsg_network_v0_61.jar" kind="lib"/>
-	<classpathentry path="lib/felix.jar" kind="lib"/>
-	<classpathentry path="lib/jdic-all.jar" kind="lib"/>
-	<classpathentry path="lib/kxml-min.jar" kind="lib"/>
-	<classpathentry path="lib/servicebinder.jar" kind="lib"/>
-	<classpathentry path="lib/os-specific/linux/installer-exclude/jmf.jar" kind="lib"/>
-	<classpathentry path="lib/os-specific/linux/jdic_stub.jar" kind="lib"/>
 	<classpathentry path="lib/os-specific/mac/installer-exclude/jmf.jar" kind="lib"/>
 	<classpathentry path="lib/os-specific/mac/AppleJavaExtensions.jar" kind="lib"/>
 	<classpathentry path="lib/os-specific/mac/growl.jar" kind="lib"/>
@@ -39,7 +38,11 @@
 	<classpathentry path="lib/os-specific/solaris/installer-exclude/jmf.jar" kind="lib"/>
 	<classpathentry path="lib/os-specific/solaris/jdic_stub.jar" kind="lib"/>
 	<classpathentry path="lib/os-specific/windows/installer-exclude/jmf.jar" kind="lib"/>
-	<classpathentry path="lib/os-specific/windows/installer-exclude/sound.jar" kind="lib"/>
 	<classpathentry path="lib/os-specific/windows/jdic_stub.jar" kind="lib"/>
+	<classpathentry path="lib/os-specific/windows/installer-exclude/sound.jar" kind="lib"/>
+	<classpathentry path="lib/bundle/junit.jar" kind="lib"/>
+	<classpathentry path="lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar" kind="lib"/>
+	<classpathentry path="lib/os-specific/linux/installer-exclude/jmf.jar" kind="lib"/>
+	<classpathentry path="lib/os-specific/linux/jdic_stub.jar" kind="lib"/>
 	<classpathentry path="bin" kind="output"/>
 </classpath>
