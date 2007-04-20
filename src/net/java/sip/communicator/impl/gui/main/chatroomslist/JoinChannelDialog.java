@@ -106,6 +106,9 @@ public class JoinChannelDialog
                 try
                 {
                     chatRoom.join();
+                    
+                    mainFrame.getChatRoomsListPanel().getChatRoomsList()
+                        .addChatRoom(chatRoom);
                 }
                 catch (OperationFailedException ex)
                 {
