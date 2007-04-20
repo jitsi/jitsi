@@ -29,7 +29,7 @@ public class ChatRoomsListPanel
      
     private JPanel treePanel = new JPanel(new BorderLayout());
 
-    private ChatRoomsListRightButtonMenu rightButtonMenu;
+    private ChatRoomServerRightButtonMenu rightButtonMenu;
         
     /**
      * Creates the scroll panel containing the chat rooms list.
@@ -45,25 +45,7 @@ public class ChatRoomsListPanel
         this.treePanel.add(chatRoomsList, BorderLayout.NORTH);
         
         this.treePanel.setBackground(Color.WHITE);
-        
-        this.treePanel.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e)
-            {
-                if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
-                {
-                    rightButtonMenu = new ChatRoomsListRightButtonMenu(mainFrame);
-
-                    rightButtonMenu.setInvoker(treePanel);
-
-                    rightButtonMenu.setLocation(e.getX()
-                            + mainFrame.getX() + 5, e.getY() + mainFrame.getY()
-                            + 105);
-
-                    rightButtonMenu.setVisible(true);
-                }
-            }
-        });
-        
+                
         this.getViewport().add(treePanel);
         
         this.setHorizontalScrollBarPolicy(

@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.main.chatroomslist.chatroomwizard.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>ChatRoomsListRightButtonMenu</tt> is the menu, opened when user clicks
@@ -28,7 +29,7 @@ import net.java.sip.communicator.service.gui.event.*;
  *
  * @author Yana Stamcheva
  */
-public class ChatRoomsListRightButtonMenu
+public class ChatRoomServerRightButtonMenu
     extends JPopupMenu
     implements  ActionListener,
                 PluginComponentListener
@@ -36,27 +37,32 @@ public class ChatRoomsListRightButtonMenu
     private I18NString createChatRoomString
         = Messages.getI18NString("createChatRoom");
     
-    private I18NString searchForChatRoomsString
-        = Messages.getI18NString("searchForChatRooms");
+    private I18NString joinChannelString
+        = Messages.getI18NString("joinChatRoom");
     
     private JMenuItem createChatRoomItem = new JMenuItem(
         createChatRoomString.getText(),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
 
-    private JMenuItem searchForChatRoomsItem = new JMenuItem(
-        searchForChatRoomsString.getText(),
+    private JMenuItem joinChannelItem = new JMenuItem(
+        joinChannelString.getText(),
         new ImageIcon(ImageLoader.getImage(ImageLoader.SEARCH_ICON_16x16)));
 
     private MainFrame mainFrame;
+    
+    private ProtocolProviderService protocolProvider;
         
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
      */
-    public ChatRoomsListRightButtonMenu(MainFrame mainFrame)
+    public ChatRoomServerRightButtonMenu(MainFrame mainFrame,
+            ProtocolProviderService protocolProvider)
     {
         super();
 
         this.mainFrame = mainFrame;
+     
+        this.protocolProvider = protocolProvider;
         
         this.setLocation(getLocation());
 
@@ -69,20 +75,20 @@ public class ChatRoomsListRightButtonMenu
     private void init()
     {
         this.add(createChatRoomItem);
-        this.add(searchForChatRoomsItem);
+        this.add(joinChannelItem);
         
         this.initPluginComponents();
 
         this.createChatRoomItem.setName("createChatRoom");
-        this.searchForChatRoomsItem.setName("searchForChatRooms");
+        this.joinChannelItem.setName("joinChatRoom");
         
         this.createChatRoomItem
             .setMnemonic(createChatRoomString.getMnemonic());
-        this.searchForChatRoomsItem
-            .setMnemonic(searchForChatRoomsString.getMnemonic());
+        this.joinChannelItem
+            .setMnemonic(joinChannelString.getMnemonic());
         
         this.createChatRoomItem.addActionListener(this);
-        this.searchForChatRoomsItem.addActionListener(this);
+        this.joinChannelItem.addActionListener(this);
     }
     
     /**
@@ -121,9 +127,13 @@ public class ChatRoomsListRightButtonMenu
             
             createChatRoomWizard.setVisible(true);
         }
-        else if (itemName.equals("searchForChatRooms"))
+        else if (itemName.equals("joinChatRoom"))
         {
-        
+            JoinChannelDialog joinChannelDialog
+                = new JoinChannelDialog(mainFrame, protocolProvider);
+            
+            joinChannelDialog.pack();
+            joinChannelDialog.setVisible(true);
         }
     }   
     

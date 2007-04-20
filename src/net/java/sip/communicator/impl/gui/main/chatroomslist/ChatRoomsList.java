@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
@@ -25,7 +26,8 @@ import net.java.sip.communicator.util.*;
  */
 public class ChatRoomsList
     extends JList
-    implements  ListSelectionListener
+    implements  ListSelectionListener,
+                MouseListener
 {
     private Logger logger = Logger.getLogger(ChatRoomsList.class);
     
@@ -47,6 +49,8 @@ public class ChatRoomsList
         this.setModel(listModel);
         this.setCellRenderer(new ChatRoomsListCellRenderer());
         this.addListSelectionListener(this);
+        
+        this.addMouseListener(this);
     }
     
     /**
@@ -124,6 +128,51 @@ public class ChatRoomsList
             ChatPanel chatPanel = chatWindowManager.getChatRoom(chatRoom);
             
             chatWindowManager.openChat(chatPanel, true);
+        }        
+    }
+
+    public void mouseClicked(MouseEvent e)
+    {}
+
+    public void mouseEntered(MouseEvent e)
+    {}
+
+    public void mouseExited(MouseEvent e)
+    {}
+
+    public void mousePressed(MouseEvent e)
+    {
+        // Select the contact under the right button click.
+        if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
+            || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+            || (e.isControlDown() && !e.isMetaDown()))
+        {
+            this.setSelectedIndex(locationToIndex(e.getPoint()));
+        }
+
+        Object selectedValue = this.getSelectedValue();
+
+        if(selectedValue instanceof ProtocolProviderService)
+        {
+            ProtocolProviderService pps
+                = (ProtocolProviderService) selectedValue;
+            
+            if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
+            {
+                ChatRoomServerRightButtonMenu rightButtonMenu
+                    = new ChatRoomServerRightButtonMenu(mainFrame, pps);
+
+                rightButtonMenu.setInvoker(this);
+
+                rightButtonMenu.setLocation(e.getX()
+                        + mainFrame.getX() + 5, e.getY() + mainFrame.getY()
+                        + 105);
+
+                rightButtonMenu.setVisible(true);       
+            }
         }
     }
+
+    public void mouseReleased(MouseEvent e)
+    {}
 }
