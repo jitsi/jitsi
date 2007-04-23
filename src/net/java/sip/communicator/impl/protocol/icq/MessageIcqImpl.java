@@ -52,21 +52,30 @@ public class MessageIcqImpl
      * @param contentEncoding a MIME String indicating the content encoding of
      * the <tt>content</tt> String.
      * @param subject the subject of the message or null for empty.
+     * @param messageUID an UID in case we'd like to set our own or null for an
+     * automatically generated one.
      */
     public MessageIcqImpl(String content,
                           String contentType,
                           String contentEncoding,
-                          String subject)
+                          String subject,
+                          String messageUID)
     {
         this.textContent = content;
         this.contentType = contentType;
         this.contentEncoding = contentEncoding;
         this.subject = subject;
 
-        //generate the uid
-        this.messageUID = String.valueOf( System.currentTimeMillis())
-                          + String.valueOf(hashCode());
-
+        if(messageUID == null)
+        {
+            //generate the uid
+            this.messageUID = String.valueOf(System.currentTimeMillis())
+                + String.valueOf(hashCode());
+        }
+        else
+        {
+            this.messageUID = messageUID;
+        }
     }
 
     /**
