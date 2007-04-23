@@ -719,7 +719,7 @@ public class ServerStoredContactListMsnImpl
      * resolves our contact list
      */
     private class ContactListListener
-        implements MsnContactListListener
+        implements net.sf.jml.event.MsnContactListListener
     {
         public void contactListSyncCompleted(MsnMessenger messenger)
         {

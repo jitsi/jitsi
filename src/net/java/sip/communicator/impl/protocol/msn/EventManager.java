@@ -53,9 +53,9 @@ public class EventManager
 
     /**
      * Adds listener of the modification fired events
-     * @param listener EventListener
+     * @param listener the modifification listener we're adding
      */
-    public void addModificationListener(EventListener listener)
+    public void addModificationListener(MsnContactListEventListener listener)
     {
         synchronized(listeners)
         {
@@ -67,7 +67,7 @@ public class EventManager
      * Removes listener of the modification fired events
      * @param listener EventListener
      */
-    public void removeModificationListener(EventListener listener)
+    public void removeModificationListener(MsnContactListEventListener listener)
     {
         synchronized(listeners)
         {
@@ -246,7 +246,7 @@ public class EventManager
             Iterator iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ((EventListener)iter.next()).
+                ((MsnContactListEventListener)iter.next()).
                     messageDelivered(transactionID);
             }
         }
@@ -262,7 +262,7 @@ public class EventManager
             Iterator iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ((EventListener)iter.next()).
+                ((MsnContactListEventListener)iter.next()).
                     messageDeliveredFailed(transactionID);
             }
         }
@@ -278,7 +278,7 @@ public class EventManager
             Iterator iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ((EventListener)iter.next()).contactAdded(contact);
+                ((MsnContactListEventListener)iter.next()).contactAdded(contact);
             }
         }
     }
@@ -294,7 +294,7 @@ public class EventManager
             Iterator iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ((EventListener)iter.next()).
+                ((MsnContactListEventListener)iter.next()).
                     contactAddedInGroup(contact, group);
             }
         }
@@ -310,7 +310,7 @@ public class EventManager
             Iterator iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ((EventListener)iter.next()).contactRemoved(contact);
+                ((MsnContactListEventListener)iter.next()).contactRemoved(contact);
             }
         }
     }
@@ -326,7 +326,7 @@ public class EventManager
             Iterator iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ((EventListener)iter.next()).
+                ((MsnContactListEventListener)iter.next()).
                     contactRemovedFromGroup(contact, group);
             }
         }
@@ -342,7 +342,7 @@ public class EventManager
             Iterator iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ((EventListener)iter.next()).groupAdded(group);
+                ((MsnContactListEventListener)iter.next()).groupAdded(group);
             }
         }
     }
@@ -357,7 +357,7 @@ public class EventManager
             Iterator iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ((EventListener)iter.next()).groupRenamed(group);
+                ((MsnContactListEventListener)iter.next()).groupRenamed(group);
             }
         }
     }
@@ -372,7 +372,7 @@ public class EventManager
             Iterator iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ((EventListener)iter.next()).groupRemoved(id);
+                ((MsnContactListEventListener)iter.next()).groupRemoved(id);
             }
         }
     }
@@ -387,7 +387,8 @@ public class EventManager
             Iterator iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ( (EventListener) iter.next()).loggingFromOtherLocation();
+                ( (MsnContactListEventListener) iter.next())
+                    .loggingFromOtherLocation();
             }
         }
     }
