@@ -15,7 +15,7 @@ import net.sf.jml.*;
  * @author Damian Minkov
  */
 public class EventAdapter
-        implements EventListener
+        implements MsnContactListEventListener
 {
     /**
      * Message is successfully delivered
