@@ -147,7 +147,7 @@ public interface ChatRoom
      * @return the nickname currently being used by the local user in the
      * context of the local chat room.
      */
-    public String getNickname();
+    public String getUserNickname();
 
     /**
      * Changes the the local user's nickname in the context of this chatroom.
@@ -187,7 +187,7 @@ public interface ChatRoom
     * @param listener a participant status listener.
     */
     public void addParticipantStatusListener(
-                                    ChatRoomParticipantStatusListener listener);
+                                    ChatRoomMemberListener listener);
 
    /**
     * Removes a listener that was being notified of changes in the status of
@@ -197,7 +197,7 @@ public interface ChatRoom
     * @param listener a participant status listener.
     */
     public void removeParticipantStatusListener(
-                                    ChatRoomParticipantStatusListener listener);
+                                    ChatRoomMemberListener listener);
 
     /**
      * Invites another user to this room.
@@ -214,11 +214,11 @@ public interface ChatRoom
     public void invite(String userAddress, String reason);
 
     /**
-     * Returns a <tt>List</tt> of <tt>Contact</tt>s corresponding to all
+     * Returns a <tt>List</tt> of <tt>ChatRoomMember</tt>s corresponding to all
      * members currently participating in this room.
      *
-     * @return a <tt>List</tt> of <tt>Contact</tt> corresponding to all room
-     * members.
+     * @return a <tt>List</tt> of <tt>ChatRoomMember</tt> instances
+     * corresponding to all room members.
      * @throws OperationFailedException if we fail retrieving the list of room
      * participants.
      */
@@ -271,11 +271,20 @@ public interface ChatRoom
      * Sends the <tt>message</tt> to the destination indicated by the
      * <tt>to</tt> contact.
      * @param message the <tt>Message</tt> to send.
-     * @throws java.lang.IllegalStateException if the underlying stack is
-     * not registered or initialized or if the chat room is not joined.
+     * @throws OperationFailedException if sending the message fails for some
+     * reason.
      */
     public void sendMessage(Message message)
-        throws IllegalStateException;
+        throws OperationFailedException;
+
+
+    /**
+     * Returns a reference to the provider that created this room.
+     *
+     * @return a reference to the <tt>ProtocolProviderService</tt> instance
+     * that created this room.
+     */
+    public ProtocolProviderService getParentProvider();
 
     //include - roominfo
     /** @todo include room info */
