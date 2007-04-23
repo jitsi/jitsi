@@ -10,6 +10,9 @@ import net.java.sip.communicator.util.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 import java.util.*;
+import net.java.sip.communicator.service.protocol.event.
+    ChatRoomMemberEvent;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Creates a chat room on the server, then tries to make both users join the
@@ -54,7 +57,32 @@ public class TestOperationSetMultiUserChat
      */
     public static Test suite()
     {
-        TestSuite suite = new TestSuite(TestOperationSetMultiUserChat.class);
+        TestSuite suite = new TestSuite();
+
+        //make sure tests are executed in the right order as we need to first
+        //create and join the room before actually being able to send and/or
+        //receive messages and participant events.
+        suite.addTest(
+            new TestOperationSetMultiUserChat("testCreateChatRoom"));
+        suite.addTest(
+            new TestOperationSetMultiUserChat("testGetExistingChatRooms"));
+        suite.addTest(
+            new TestOperationSetMultiUserChat("testFindRoom"));
+        suite.addTest(
+            new TestOperationSetMultiUserChat("testOurJoin"));
+        suite.addTest(
+            new TestOperationSetMultiUserChat("testGetMembersAfterJoin"));
+        suite.addTest(
+            new TestOperationSetMultiUserChat("testParticipantJoin"));
+        suite.addTest(
+            new TestOperationSetMultiUserChat("testSendAndReceiveMessages"));
+        suite.addTest(
+            new TestOperationSetMultiUserChat("testParticipantLeave"));
+        suite.addTest(
+            new TestOperationSetMultiUserChat(
+                                       "testGetMembersAfterParticipantLeave"));
+        suite.addTest(
+            new TestOperationSetMultiUserChat("testOurLeave"));
 
         return suite;
     }
@@ -155,11 +183,173 @@ public class TestOperationSetMultiUserChat
     public void testCreateChatRoom()
         throws Exception
     {
-        ChatRoom chatRoom1
-            = opSetMultiChat1.createChatRoom("mychatroom@conference.voipgw.u-strasbg.fr", new Hashtable());
+        //create room
+        ChatRoom testChatRoom = opSetMultiChat1
+            .createChatRoom(fixture.chatRoomName, new Hashtable());
 
-        chatRoom1.join();
-        try{ Thread.currentThread().wait(100000); }catch (InterruptedException ex){}
-//        chatRoom1.
+        //get available rooms
+        assertNotNull("createChatRoom() returned null", testChatRoom);
+
+        assertEquals("The name of the chat room that was "
+                     +"created did not match the name that we wanted to have"
+                     , fixture.chatRoomName, testChatRoom.getName());
+
+        assertSame(
+            "The newly created chat room did not had a properly set provider."
+            , fixture.provider1
+            , testChatRoom.getParentProvider());
+    }
+
+    /**
+     * Retrieves existing chat room from the protocol provider and makes sure
+     * that the room we created in previous tests is in there.
+     *
+     * @throws Exception if an exception is thrown while retrieving existing
+     * chat rooms.
+     */
+    public void testGetExistingChatRooms()
+        throws Exception
+    {
+        List existingChatRooms = opSetMultiChat1.getExistingChatRooms();
+
+        assertTrue (
+            "No chat rooms found on the server, even after we "
+            +"have created one. "
+            , existingChatRooms.size() > 0);
+
+        logger.info("Server returned the following list of chat rooms: "
+            + existingChatRooms);
+
+        boolean testRoomFound = false;
+
+        Iterator roomsIter = existingChatRooms.iterator();
+
+        while(roomsIter.hasNext())
+        {
+            String roomName = (String)roomsIter.next();
+
+            if (roomName.equals(fixture.chatRoomName))
+                testRoomFound = true;
+        }
+
+        assertTrue("The room we created in previous tests "
+                   +fixture.chatRoomName
+                   +" was not among the existing rooms list returned by "
+                   +"the provider."
+                   , testRoomFound);
+    }
+
+    /**
+     * Tries to find the test room we created previously and makes sure it looks
+     * as expected.
+     * @throws Exception if we fail finding the chat room.
+     */
+    public void testFindRoom()
+        throws Exception
+    {
+        ChatRoom testChatRoom = opSetMultiChat1.findRoom(fixture.chatRoomName);
+
+        assertNotNull("Could not find the test chat room on the server"
+                      , testChatRoom);
+
+        String roomName = testChatRoom.getName();
+
+        assertEquals("Name of the test chat room did not match the name of the "
+                     +"room we created"
+                     , fixture.chatRoomName, roomName);
+    }
+
+    /**
+     * Join the chat room and verify that we are among its members
+     * @throws Exception
+     */
+    public void testOurJoin()
+        throws Exception
+    {
+        ChatRoom testChatRoom1
+            = opSetMultiChat1.findRoom(fixture.chatRoomName);
+
+//        testChatRoom1.addParticipantStatusListener();
+
+        testChatRoom1.join();
+
+        /** @todo add event handlers for us joining the room for our status */
+
+
+        testChatRoom1.getParentProvider();
+        testChatRoom1.getUserNickname();
+
+        testChatRoom1.isJoined();
+
+    }
+
+    public void testGetMembersAfterJoin()
+    {
+        //member count > 0
+        //are we among the members?
+    }
+
+    public void testParticipantJoin()
+        throws Exception
+    {
+        /** @todo join provider 2 */
+        /** @todo make sure there was an event delivered to provider 1 saying
+         * that provider 2 has joined. */
+    }
+
+    public void testSendAndReceiveMessages()
+        throws Exception
+    {
+        ChatRoom testChatRoom = opSetMultiChat1.findRoom(fixture.chatRoomName);
+
+        testChatRoom.sendMessage(testChatRoom.createMessage("opla"));
+
+        /** @todo make sure there is a message at BOTH provider 1 & 2 saying
+         * that  the message was delivered  */
+        /** @todo make sure there is a message at BOTH provider 1 & 2 saying
+         * that  the message was delivered  */
+    }
+
+    public void testParticipantLeave()
+    {
+
+    }
+
+    public void testGetMembersAfterParticipantLeave()
+    {
+        //are we not among the members?
+    }
+
+    public void testOurLeave()
+    {
+        //are we not among the members?
+    }
+
+    private class ParticipantStatusEventCollector
+        implements ChatRoomMemberListener
+    {
+
+        /**
+         * Stores the received event and notifies all waiting on this object
+         *
+         * @param event the event containing the source call.
+         */
+        public void memberStatusChanged(
+                        ChatRoomMemberEvent evt)
+        {
+            synchronized(this)
+            {
+//                logger.debug(
+//                    "Collected evt("+collectedEvents.size()+")= "+event);
+//
+//                if(((CallState)event.getNewValue()).equals(awaitedState))
+//                {
+//                    this.collectedEvents.add(event);
+//                    notifyAll();
+//                }
+            }
+        }
+
+
     }
 }

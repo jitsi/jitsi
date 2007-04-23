@@ -43,6 +43,14 @@ public class JabberProtocolProviderServiceLick
         = "accounts.jabber.DISABLE_ONLINE_TESTING";
 
     /**
+     * The name of the chat room that we will create and use for multi user
+     * chat testing.
+     */
+    public static final String CHAT_ROOM_NAME
+        = "accounts.jabber.CHAT_ROOM_NAME";
+
+
+    /**
      * The name of the property the value of which is a formatted string that
      * contains the contact list that.
      */
@@ -85,6 +93,8 @@ public class JabberProtocolProviderServiceLick
             addTest(TestOperationSetBasicInstantMessaging.suite());
 
             addTest(TestOperationSetTypingNotifications.suite());
+            /** @todo UNCOMMENT */
+//            addTest(TestOperationSetMultiUserChat.suite());
         }
 
 

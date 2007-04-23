@@ -59,6 +59,13 @@ public class JabberSlickFixture
      */
     public String userID2 = null;
 
+    /**
+     * The name of the chat room that we are using for testing of multi user
+     * chatting.
+     */
+    public String chatRoomName = null;
+
+
 
     /**
      * The tested protocol provider factory.
@@ -119,15 +126,20 @@ public class JabberSlickFixture
         //Keep the reference for later usage.
         providerFactory = (ProtocolProviderFactory)bc.getService(serRefs[0]);
 
-        userID1 =
-            System.getProperty(
+        userID1
+            = System.getProperty(
                 JabberProtocolProviderServiceLick.ACCOUNT_1_PREFIX
                 + ProtocolProviderFactory.USER_ID);
 
-        userID2 =
-            System.getProperty(
+        userID2
+           = System.getProperty(
                 JabberProtocolProviderServiceLick.ACCOUNT_2_PREFIX
                 + ProtocolProviderFactory.USER_ID);
+
+        chatRoomName
+            = System.getProperty(
+                JabberProtocolProviderServiceLick.CHAT_ROOM_NAME);
+
 
         //find the protocol providers exported for the two accounts
         ServiceReference[] jabberProvider1Refs
