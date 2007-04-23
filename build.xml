@@ -1346,7 +1346,7 @@ javax.swing.event, javax.swing.border"/>
                             prefix="resources/images/icq"/>
         </jar>
     </target>
-    
+
     <!-- BUNDLE-PLUGIN-AIMACCREGWIZZ -->
     <target name="bundle-plugin-aimaccregwizz">
         <!-- Creates a bundle for the plugin Aim Account Registration Wizard.-->
@@ -1504,7 +1504,7 @@ javax.swing.event, javax.swing.border"/>
             </jar>
         </target>
 
-	<!--BUNDLE-SYSTRAY-->
+    <!--BUNDLE-SYSTRAY-->
     <target name="bundle-systray">
         <!-- Creates a bundle for the Systray plugin."-->
         <jar
@@ -1516,10 +1516,10 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/impl/systray"/>
         </jar>
     </target>
-	
+
     <!-- BUNDLE-BROWSER LAUNCHER -->
     <target name="bundle-browserlauncher">
-        <!-- Creates a bundle for the browser launcher. .-->
+        <!-- Creates a bundle for the browser launcher.-->
         <jar compress="false" destfile="${bundles.dest}/browserlauncher.jar"
             manifest="src/net/java/sip/communicator/impl/browserlauncher/browserlauncher.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/browserlauncher"
