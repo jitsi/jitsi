@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ChatRoomsList</tt> is the list containing all chat rooms.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatRoomsList
@@ -30,32 +30,32 @@ public class ChatRoomsList
                 MouseListener
 {
     private Logger logger = Logger.getLogger(ChatRoomsList.class);
-    
+
     private MainFrame mainFrame;
-    
+
     private DefaultListModel listModel = new DefaultListModel();
-    
+
     /**
      * Creates an instance of the <tt>ChatRoomsList</tt>.
-     * 
+     *
      * @param mainFrame The main application window.
      */
     public ChatRoomsList(MainFrame mainFrame)
     {
         this.mainFrame = mainFrame;
-        
+
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        
+
         this.setModel(listModel);
         this.setCellRenderer(new ChatRoomsListCellRenderer());
         this.addListSelectionListener(this);
-        
+
         this.addMouseListener(this);
     }
-    
+
     /**
      * Adds a chat server and all its existing chat rooms.
-     * 
+     *
      * @param pps the <tt>ProtocolProviderService</tt> corresponding to the chat
      * server
      * @param multiUserChatOperationSet the <tt>OperationSetMultiUserChat</tt>
@@ -65,24 +65,30 @@ public class ChatRoomsList
         OperationSetMultiUserChat multiUserChatOperationSet)
     {
         listModel.addElement(pps);
-        
+
         try
-        {   
+        {
             List existingChatRooms
                 = multiUserChatOperationSet.getExistingChatRooms();
-            
+
             if(existingChatRooms == null)
                 return;
-                
+
             Iterator i = existingChatRooms.iterator();
-            
+
             while(i.hasNext())
             {
                 ChatRoom chatRoom = (ChatRoom) i.next();
-                
+
                 listModel.addElement(chatRoom);
             }
-            
+
+        }
+        catch (OperationNotSupportedException ex)
+        {
+            logger.error(
+                "Failed to obtain existing chat rooms for the following server: "
+                + pps.getAccountID().getService(), ex);
         }
         catch (OperationFailedException ex)
         {
@@ -90,21 +96,22 @@ public class ChatRoomsList
                 "Failed to obtain existing chat rooms for the following server: "
                 + pps.getAccountID().getService(), ex);
         }
+
     }
-    
+
 
     /**
      * Adds a chat room to this list.
-     * 
+     *
      * @param chatRoom the <tt>ChatRoom</tt> to add
      */
     public void addChatRoom(ChatRoom chatRoom)
     {
-        listModel.addElement(chatRoom);        
+        listModel.addElement(chatRoom);
     }
-    
+
     /**
-     * 
+     *
      * @param pps
      * @return
      */
@@ -119,16 +126,16 @@ public class ChatRoomsList
     public void valueChanged(ListSelectionEvent e)
     {
         Object o = this.getSelectedValue();
-        
+
         if(o instanceof ChatRoom)
-        {            
+        {
             ChatRoom chatRoom = (ChatRoom) o;
             ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
-            
+
             ChatPanel chatPanel = chatWindowManager.getChatRoom(chatRoom);
-            
+
             chatWindowManager.openChat(chatPanel, true);
-        }        
+        }
     }
 
     public void mouseClicked(MouseEvent e)
@@ -156,7 +163,7 @@ public class ChatRoomsList
         {
             ProtocolProviderService pps
                 = (ProtocolProviderService) selectedValue;
-            
+
             if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
             {
                 ChatRoomServerRightButtonMenu rightButtonMenu
@@ -168,7 +175,7 @@ public class ChatRoomsList
                         + mainFrame.getX() + 5, e.getY() + mainFrame.getY()
                         + 105);
 
-                rightButtonMenu.setVisible(true);       
+                rightButtonMenu.setVisible(true);
             }
         }
     }

@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
 /**
  * The <tt>ConferenceChatPanel</tt> is the chat panel corresponding to a
  * multi user chat.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ConferenceChatPanel
@@ -31,14 +31,14 @@ public class ConferenceChatPanel
                 ChatRoomParticipantStatusListener
 {
     private Logger logger = Logger.getLogger(ConferenceChatPanel.class);
-    
+
     private ChatRoom chatRoom;
-    
+
     private ChatWindowManager chatWindowManager;
-   
+
     /**
      * Creates an instance of <tt>ConferenceChatPanel</tt>.
-     * 
+     *
      * @param chatWindow the <tt>ChatWindow</tt> that contains this chat panel
      * @param chatRoom the <tt>ChatRoom</tt> object, which provides us the multi
      * user chat functionality
@@ -46,27 +46,28 @@ public class ConferenceChatPanel
     public ConferenceChatPanel(ChatWindow chatWindow, ChatRoom chatRoom)
     {
         super(chatWindow);
-    
+
         this.chatWindowManager = chatWindow.getMainFrame().getChatWindowManager();
-        
+
         this.chatRoom = chatRoom;
-        
+
         List membersList = chatRoom.getMembers();
-        
+
         for (int i = 0; i < membersList.size(); i ++)
         {
             getChatContactListPanel().addContact((Contact)membersList.get(i));
         }
-        
+
         this.chatRoom.addMessageListener(this);
         this.chatRoom.addChatRoomPropertyChangeListener(this);
         this.chatRoom.addLocalUserStatusListener(this);
-        this.chatRoom.addParticipantStatusListener(this);
+/** @todo uncomment when the listener is fully implemented */
+//        this.chatRoom.addParticipantStatusListener(this);
     }
-    
+
     /**
      * Implements the <tt>ChatPanel.getChatName</tt> method.
-     *  
+     *
      * @return the name of the chat room.
      */
     public String getChatName()
@@ -76,7 +77,7 @@ public class ConferenceChatPanel
 
     /**
      * Implements the <tt>ChatPanel.getChatIdentifier</tt> method.
-     *  
+     *
      * @return the <tt>ChatRoom</tt>
      */
     public Object getChatIdentifier()
@@ -86,7 +87,7 @@ public class ConferenceChatPanel
 
     /**
      * Implements the <tt>ChatPanel.getChatStatus</tt> method.
-     *  
+     *
      * @return the status of this chat room
      */
     public PresenceStatus getChatStatus()
@@ -96,28 +97,28 @@ public class ConferenceChatPanel
 
     /**
      * Implements the <tt>ChatPanel.loadHistory</tt> method.
-     * <br> 
+     * <br>
      * Loads the history for this chat room.
      */
     public void loadHistory()
     {
-                
+
     }
 
     /**
      * Implements the <tt>ChatPanel.loadHistory(escapedMessageID)</tt> method.
-     * <br> 
+     * <br>
      * Loads the history for this chat room and escapes the last message
      * received.
      */
     public void loadHistory(String escapedMessageID)
     {
-        // TODO Auto-generated method stub        
+        // TODO Auto-generated method stub
     }
 
     /**
      * Implements the <tt>ChatPanel.loadPreviousFromHistory</tt> method.
-     * <br> 
+     * <br>
      * Loads the previous "page" in the history.
      */
     public void loadPreviousFromHistory()
@@ -127,7 +128,7 @@ public class ConferenceChatPanel
 
     /**
      * Implements the <tt>ChatPanel.loadNextFromHistory</tt> method.
-     * <br> 
+     * <br>
      * Loads the next "page" in the history.
      */
     public void loadNextFromHistory()
@@ -137,25 +138,25 @@ public class ConferenceChatPanel
 
     /**
      * Implements the <tt>ChatPanel.sendMessage</tt> method.
-     * <br> 
+     * <br>
      * Sends a message to the chat room.
      */
     protected void sendMessage()
-    {   
+    {
     }
 
     /**
      * Implements the <tt>ChatPanel.treatReceivedMessage</tt> method.
-     * <br> 
+     * <br>
      * Treats a received message from the given contact.
      */
     public void treatReceivedMessage(Contact sourceContact)
-    {   
+    {
     }
 
     /**
      * Implements the <tt>ChatPanel.sendTypingNotification</tt> method.
-     * <br> 
+     * <br>
      * Sends a typing notification.
      */
     public int sendTypingNotification(int typingState)
@@ -181,75 +182,75 @@ public class ConferenceChatPanel
 
     /**
      * Implements the <tt>ChatRoomMessageListener.messageReceived</tt> method.
-     * <br> 
+     * <br>
      * Obtains the corresponding <tt>ChatPanel</tt> and proccess the message
      * there.
      */
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
     {
         ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
-        
+
         if(!sourceChatRoom.equals(chatRoom))
             return;
-        
+
         logger.trace("MESSAGE RECEIVED from contact: "
             + evt.getSourceContact().getAddress());
-        
+
         Contact sourceContact = evt.getSourceContact();
         Date date = evt.getTimestamp();
         Message message = evt.getSourceMessage();
-        
+
         ChatRoom chatRoom = (ChatRoom) evt.getSource();
 
         ChatPanel chatPanel = chatWindowManager.getChatRoom(chatRoom);
-                
+
         chatPanel.processMessage(
                 sourceContact.getDisplayName(), date,
-                Constants.INCOMING_MESSAGE, message.getContent());            
-        
+                Constants.INCOMING_MESSAGE, message.getContent());
+
         chatWindowManager.openChat(chatPanel, false);
-        
+
         GuiActivator.getAudioNotifier()
             .createAudio(Sounds.INCOMING_MESSAGE).play();
-        
+
         chatPanel.treatReceivedMessage(sourceContact);
     }
 
     /**
      * Implements the <tt>ChatRoomMessageListener.messageDelivered</tt> method.
-     * <br> 
+     * <br>
      * Shows the message in the conversation area and clears the write message
      * area.
      */
     public void messageDelivered(ChatRoomMessageDeliveredEvent evt)
     {
         ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
-        
+
         if(!sourceChatRoom.equals(chatRoom))
             return;
-        
+
         logger.trace("MESSAGE DELIVERED to contact: "
             + evt.getDestinationContact().getAddress());
-        
+
         Message msg = evt.getSourceMessage();
-        
+
         ChatPanel chatPanel = null;
-        
+
         if(chatWindowManager.isChatOpenedForChatRoom(sourceChatRoom))
             chatPanel = chatWindowManager.getChatRoom(sourceChatRoom);
-            
+
         if (chatPanel != null)
         {
             ProtocolProviderService protocolProvider = evt
                     .getDestinationContact().getProtocolProvider();
-    
+
             logger.trace("MESSAGE DELIVERED: process message to chat for contact: "
                     + evt.getDestinationContact().getAddress());
-            
+
             chatPanel.processMessage(getChatWindow().getMainFrame()
                     .getAccount(protocolProvider), evt.getTimestamp(),
                     Constants.OUTGOING_MESSAGE, msg.getContent());
-    
+
             chatPanel.refreshWriteArea();
         }
     }
@@ -257,23 +258,23 @@ public class ConferenceChatPanel
     /**
      * Implements the <tt>ChatRoomMessageListener.messageDeliveryFailed</tt>
      * method.
-     * <br> 
+     * <br>
      * In the conversation area show an error message, explaining the problem.
      */
     public void messageDeliveryFailed(ChatRoomMessageDeliveryFailedEvent evt)
     {
         ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
-        
+
         if(!sourceChatRoom.equals(chatRoom))
             return;
-        
+
         String errorMsg = null;
-        
+
         Message sourceMessage = (Message) evt.getSource();
-        
+
         Contact sourceContact = evt.getDestinationContact();
-        
-        if (evt.getErrorCode() 
+
+        if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
 
             errorMsg = Messages.getI18NString(
@@ -281,7 +282,7 @@ public class ConferenceChatPanel
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.NETWORK_FAILURE) {
-            
+
             errorMsg = Messages.getI18NString("msgNotDelivered").getText();
         }
         else if (evt.getErrorCode()
@@ -292,7 +293,7 @@ public class ConferenceChatPanel
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.INTERNAL_ERROR) {
-            
+
             errorMsg = Messages.getI18NString(
                     "msgDeliveryInternalError").getText();
         }
@@ -300,24 +301,24 @@ public class ConferenceChatPanel
             errorMsg = Messages.getI18NString(
                     "msgDeliveryFailedUnknownError").getText();
         }
-                       
+
         ChatPanel chatPanel = chatWindowManager
             .getChatRoom(chatRoom);
-        
+
         chatPanel.refreshWriteArea();
-        
+
         chatPanel.processMessage(
                 sourceContact.getDisplayName(),
                 new Date(System.currentTimeMillis()),
                 Constants.OUTGOING_MESSAGE,
                 sourceMessage.getContent());
-        
+
         chatPanel.processMessage(
                 sourceContact.getDisplayName(),
                 new Date(System.currentTimeMillis()),
                 Constants.ERROR_MESSAGE,
                 errorMsg);
-        
+
         chatWindowManager.openChat(chatPanel, false);
     }
 
@@ -327,11 +328,11 @@ public class ConferenceChatPanel
 
     public void localUserStatusChanged(ChatRoomLocalUserStatusChangeEvent evt)
     {
-        
+
     }
 
     public void localUserStatusChanged(ChatRoomParticipantStatusChangeEvent evt)
     {
-        
+
     }
 }
