@@ -109,6 +109,23 @@ public class ProtocolProviderServiceMsnImpl
 
         connectAndLogin(authority);
     }
+    
+    /**
+     * Reconnects if fails fire connection failed.
+     */
+    void reconnect()
+    {
+        try
+        {
+            connectAndLogin(authority);
+        } catch (OperationFailedException ex)
+        {
+            fireRegistrationStateChanged(
+                getRegistrationState(),
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+        }
+    }
 
     /**
      * Connects and logins to the server

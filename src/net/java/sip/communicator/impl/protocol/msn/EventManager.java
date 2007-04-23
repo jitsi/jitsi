@@ -216,7 +216,7 @@ public class EventManager
             connected = true;
         }
     }
-    
+
     private boolean connected = false;
     private Timer connectionTimer = new Timer();
             
@@ -226,13 +226,10 @@ public class EventManager
         {
             public void run()
             {
-                if(!connected)
+                if(!connected && msnProvider.isRegistered())
                 {
                     msnProvider.unregister(false);
-                    msnProvider.fireRegistrationStateChanged(
-                        msnProvider.getRegistrationState(),
-                        RegistrationState.CONNECTION_FAILED,
-                        RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+                    msnProvider.reconnect();
                 }
             }
         }, 20000);
