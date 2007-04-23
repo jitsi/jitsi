@@ -72,6 +72,12 @@ public class OperationSetBasicInstantMessagingIcqImpl
     private OperationSetPersistentPresenceIcqImpl opSetPersPresence = null;
 
     /**
+     * The maximum message length allowed by the icq protocol as reported by
+     * Pavel Tankov.
+     */
+    private static final int MAX_MSG_LEN = 2047;
+
+    /**
      * I do not why but we sometimes receive messages with a date in the future.sdf
      * I've decided to ignore such messages. I draw the line on
      * currentTimeMillis() + ONE_DAY milliseconds. Anything with a date farther
@@ -167,7 +173,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                                  String contentEncoding, String subject)
     {
         return new MessageIcqImpl(new String(content), contentType
-                                  , contentEncoding, subject);
+                                  , contentEncoding, subject, null);
     }
 
     /**
@@ -180,7 +186,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
     public Message createMessage(String messageText)
     {
         return new MessageIcqImpl(messageText, DEFAULT_MIME_TYPE
-                                  , DEFAULT_MIME_ENCODING, null);
+                                  , DEFAULT_MIME_ENCODING, null, null);
     }
 
     /**
@@ -210,27 +216,55 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 getImConversation(
                     new Screenname(to.getAddress()));
 
+        //split the message in multiple parts in case it is bigger than the
+        //max message length
+        LinkedList messageParts = new LinkedList();
+        String messageContent = message.getContent();
 
-        if (to.getPresenceStatus().isOnline())
+        while (messageContent.length() > MAX_MSG_LEN)
         {
-
-
-            //do not add the conversation listener in here. we'll add it
-            //inside the icbm listener
-
-            imConversation.sendMessage(new SimpleMessage(message.getContent()));
+            messageParts.add(messageContent.substring(0, MAX_MSG_LEN));
+            messageContent = messageContent.substring(MAX_MSG_LEN);
         }
-        else
-            imConversation.sendMessage(new SimpleMessage(message.getContent()), true);
 
-        //temporarily and uglity fire the sent event here.
-        /** @todo move elsewhaere */
-        MessageDeliveredEvent msgDeliveredEvt
-            = new MessageDeliveredEvent(
-                message, to, new Date());
+        if (messageContent.length() > 0)
+            messageParts.add(messageContent);
 
-        fireMessageEvent(msgDeliveredEvt);
+        //now send the all the parts
+        for(int i = 0; i < messageParts.size(); i++)
+        {
+            String messageSegment = (String)messageParts.get(i);
+            if (to.getPresenceStatus().isOnline())
+            {
+                //do not add the conversation listener in here. we'll add it
+                //inside the icbm listener
+                imConversation.sendMessage(new SimpleMessage(messageSegment));
+            }
+            else
+            {
+                imConversation.sendMessage(new SimpleMessage(messageSegment)
+                                           , true);
+            }
 
+            //temporarily and uglity fire the sent event here.
+            /** @todo move elsewhere */
+            //in case we have a multi part message, make sure that at least
+            //the first message delivered event is for a message with the same
+            //uid as the one that was passed to us.
+            MessageDeliveredEvent msgDeliveredEvt
+                = new MessageDeliveredEvent(
+                    new MessageIcqImpl(messageSegment
+                                       , message.getContentType()
+                                       , message.getEncoding()
+                                       , message.getSubject()
+                                       , (i == 0)
+                                           ? message.getMessageUID()
+                                           : null)
+                        , to
+                        , new Date());
+
+            fireMessageEvent(msgDeliveredEvt);
+        }
     }
 
     /**
@@ -412,7 +446,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 // run keepalive thread
                 if(keepAliveSendTask == null)
                 {
-//Temporarily disable keep alives as they seem to be causing trouble 
+//Temporarily disable keep alives as they seem to be causing trouble
 //                    keepAliveSendTask = new KeepAliveSendTask();
 //                    keepAliveTimer = new Timer();
 
