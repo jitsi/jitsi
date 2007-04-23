@@ -221,7 +221,7 @@ public class ProtocolProviderServiceJabberImpl
                         RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
                     return;
                 }
-                
+
                 //extract the password the user passed us.
                 char[] pass = credentials.getPassword();
 
@@ -284,21 +284,21 @@ public class ProtocolProviderServiceJabberImpl
 
                 try
                 {
-                    ConnectionConfiguration confConn = 
-                	new ConnectionConfiguration(
-                			serverAddress,
-                			Integer.parseInt(serverPort), 
-                			serviceName
+                    ConnectionConfiguration confConn =
+                    new ConnectionConfiguration(
+                            serverAddress,
+                            Integer.parseInt(serverPort),
+                            serviceName
                     );
                     connection = new XMPPConnection(confConn);
-                    
+
                     connection.connect();
                 }
                 catch (XMPPException exc)
                 {
                     logger.error("Failed to establish a Jabber connection for "
                         + getAccountID().getAccountUniqueID(), exc);
-                    
+
                     throw new OperationFailedException(
                         "Failed to establish a Jabber connection for "
                         + getAccountID().getAccountUniqueID()
@@ -481,13 +481,13 @@ public class ProtocolProviderServiceJabberImpl
                 typingNotifications);
 
             //initialize the multi user chat operation set
-            OperationSetMultiUserChat multiUserChat =
-                new OperationSetMultiUserChatJabberImpl(this);
-
-            supportedOperationSets.put(
-                OperationSetMultiUserChat.class.getName(),
-                multiUserChat);
-
+/** @todo uncomment these when you want to use multi chat. */
+//            OperationSetMultiUserChat multiUserChat =
+//                new OperationSetMultiUserChatJabberImpl(this);
+//
+//            supportedOperationSets.put(
+//                OperationSetMultiUserChat.class.getName(),
+//                multiUserChat);
 
             isInitialized = true;
         }
