@@ -42,6 +42,12 @@ public class OperationFailedException
     public static final int INTERNAL_ERROR = 4;
 
     /**
+     * Set when an operation fails for an error that has occurred on the server
+     * side.
+     */
+    public static final int INTERNAL_SERVER_ERROR = 500;
+
+    /**
      * Indicates that a user has tried to subscribe to a contact that already
      * had an active subscription.
      */
@@ -50,35 +56,36 @@ public class OperationFailedException
     /**
      * Indicates that a user has tried to create a group that already exist.
      */
-    public static final int CONTACT_GROUP_ALREADY_EXISTS = 5;
+    public static final int CONTACT_GROUP_ALREADY_EXISTS = 6;
 
     /**
      * Indicates that a user has entered wrong account properties, like wrong
      * port for example.
      */
-    public static final int INVALID_ACCOUNT_PROPERTIES = 6;
+    public static final int INVALID_ACCOUNT_PROPERTIES = 7;
 
     /**
      * Indicates that authentication with a server has failed.
      */
-    public static final int AUTHENTICATION_FAILED = 7;
+    public static final int AUTHENTICATION_FAILED = 401;
 
     /**
      * Indicates that the user is currently not allowed to perform the operation
      * that failed.
      */
-    public static final int FORBIDDEN = 8;
+    public static final int FORBIDDEN = 403;
 
     /**
      * Indicates that the user is trying to perform the current operation on a
      * resource that does not exist.
      */
-    public static final int NOT_FOUND = 9;
+    public static final int NOT_FOUND = 404;
 
     /**
      * Indicates that the user is trying to perform an operation with an
-     * identifyer that was already in use on the target resource (e.g. a
-     * nickname in a chat room).
+     * identifyer that was already in use on the target resource (e.g. log with
+     * a nickname that is already in use in a chat room, or create a chat room
+     * on a server that already contains a room with the same ID).
      */
     public static final int IDENTIFICATION_CONFLICT = 10;
 
