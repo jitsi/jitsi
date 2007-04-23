@@ -283,6 +283,7 @@ public class XMLUtils
                 wri.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+lSep);
                 (new DOMElementWriter()).write(rootElement, wri, 0, "  ");
                 wri.flush();
+                wri.close();
             }
             catch (IOException exc)
             {
