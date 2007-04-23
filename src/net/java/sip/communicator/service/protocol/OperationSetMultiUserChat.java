@@ -16,20 +16,24 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Emil Ivov
  */
 public interface OperationSetMultiUserChat
+    extends OperationSet
 {
     /**
-     * Returns the <tt>List</tt> of <tt>ChatRoom</tt>s currently available on
-     * the server that this protocol provider is connected to.
-     *
-     * @return a <tt>java.util.List</tt> of <tt>ChatRoom</tt>s that are
+     * Returns the <tt>List</tt> of <tt>String</tt>s indicating chat rooms
      * currently available on the server that this protocol provider is
      * connected to.
      *
+     * @return a <tt>java.util.List</tt> of the name <tt>String</tt>s for chat
+     * rooms that are currently available on the server that this protocol
+     * provider is connected to.
+     *
      * @throws OperationFailedException if we faile retrieving this list from
      * the server.
+     * @throws OperationNotSupportedException if the server does not support
+     * multi user chat
      */
     public List getExistingChatRooms()
-        throws OperationFailedException;
+        throws OperationFailedException, OperationNotSupportedException;
 
     /**
      * Returns a list of the chat rooms that we have joined and are currently
@@ -47,8 +51,14 @@ public interface OperationSetMultiUserChat
      * @param contact the contact whose current ChatRooms we will be querying.
      * @return a list of the chat rooms that <tt>contact</tt> has joined and is
      * currently active in.
+     *
+     * @throws OperationFailedException if an error occurs while trying to
+     * discover the room on the server.
+     * @throws OperationNotSupportedException if the server does not support
+     * multi user chat
      */
-    public List getCurrentlyJoinedChatRooms(Contact contact);
+    public List getCurrentlyJoinedChatRooms(Contact contact)
+        throws OperationFailedException, OperationNotSupportedException;
 
     /**
      * Creates a room with the named <tt>roomName</tt> and according to the
@@ -78,8 +88,14 @@ public interface OperationSetMultiUserChat
      * @param roomName the name of the <tt>ChatRoom</tt> that we're looking for.
      * @return the <tt>ChatRoom</tt> named <tt>roomName</tt> or null if no such
      * room exists on the server that this provider is currently connected to.
+     *
+     * @throws OperationFailedException if an error occurs while trying to
+     * discover the room on the server.
+     * @throws OperationNotSupportedException if the server does not support
+     * multi user chat
      */
-    public ChatRoom findRoom(String roomName);
+    public ChatRoom findRoom(String roomName)
+        throws OperationFailedException, OperationNotSupportedException;
 
     /**
      * Informs the sender of an invitation that we decline their invitation.
