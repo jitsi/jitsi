@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.service.protocol.icqconstants;
 
 import java.io.*;
@@ -20,7 +26,7 @@ import net.java.sip.communicator.util.*;
 public class IcqStatusEnum
     extends PresenceStatus
 {
-    
+
     private static Logger logger = Logger.getLogger(IcqStatusEnum.class);
 
     /**
@@ -116,7 +122,7 @@ public class IcqStatusEnum
     {
         super(status, statusName, statusIcon);
     }
-    
+
     /**
      * Loads an image from a given image path.
      * @param imagePath The identifier of the image.
@@ -125,7 +131,7 @@ public class IcqStatusEnum
     public static byte[] loadIcon(String imagePath) {
         InputStream is = IcqStatusEnum.class.getClassLoader()
             .getResourceAsStream(imagePath);
-        
+
         byte[] icon = null;
         try {
             icon = new byte[is.available()];
