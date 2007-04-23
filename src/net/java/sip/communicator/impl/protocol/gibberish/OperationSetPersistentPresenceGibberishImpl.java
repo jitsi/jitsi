@@ -11,7 +11,6 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.impl.protocol.gibberish.OperationSetPersistentPresenceGibberishImpl.*;
 import org.osgi.framework.*;
 
 /**
@@ -1217,6 +1216,13 @@ public class OperationSetPersistentPresenceGibberishImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
+            if (! evt.getNewState().equals(RegistrationState.UNREGISTERED)
+                && !evt.getNewState().equals(RegistrationState.AUTHENTICATION_FAILED)
+                && !evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
+            {
+                return;
+            }
+
             //send event notifications saying that all our buddies are
             //offline. The icq protocol does not implement top level buddies
             //nor subgroups for top level groups so a simple nested loop
