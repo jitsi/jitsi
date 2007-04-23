@@ -277,7 +277,7 @@ public class ProtocolProviderServiceSipImpl
      */
     private ProtocolIconSipImpl sipIcon
         = new ProtocolIconSipImpl();
-    
+
     /**
      * Registers the specified listener with this provider so that it would
      * receive notifications on changes of its state or other properties such
@@ -607,6 +607,18 @@ public class ProtocolProviderServiceSipImpl
             this.supportedOperationSets.put(
                 OperationSetBasicTelephony.class.getName()
                 , opSetBasicTelephony);
+
+            //init presence op set.
+            OperationSetPersistentPresence opSetPersPresence
+                = new OperationSetPersistentPresenceSipImpl(this);
+            this.supportedOperationSets.put(
+                OperationSetPersistentPresence.class.getName()
+                , opSetPersPresence);
+            //also register with standard presence
+            this.supportedOperationSets.put(
+                OperationSetPresence.class.getName()
+                , opSetPersPresence);
+
 
             //create our own address.
             String ourUserID = (String)accountID.getAccountProperties()
@@ -2001,7 +2013,7 @@ public class ProtocolProviderServiceSipImpl
                 }
             }
     }
-    
+
     /**
      * Returns the sip protocol icon.
      * @return the sip protocol icon
