@@ -46,7 +46,7 @@ public class ChatRoomJabberImpl
      * Listeners that will be notified of changes in our status in the
      * room such as us being kicked, banned, or granted admin permissions.
      */
-    private Vector participantStatusListeners = new Vector();
+    private Vector memberListeners = new Vector();
 
     /**
      * The protocol provider that created us
@@ -196,13 +196,12 @@ public class ChatRoomJabberImpl
      *
      * @param listener a participant status listener.
      */
-    public void addParticipantStatusListener(
-                    ChatRoomMemberListener listener)
+    public void addMemberListener(ChatRoomMemberListener listener)
     {
-        synchronized(participantStatusListeners)
+        synchronized(memberListeners)
         {
-            if (!participantStatusListeners.contains(listener))
-                participantStatusListeners.add(listener);
+            if (!memberListeners.contains(listener))
+                memberListeners.add(listener);
         }
     }
 
@@ -213,12 +212,11 @@ public class ChatRoomJabberImpl
      *
      * @param listener a participant status listener.
      */
-    public void removeParticipantStatusListener(
-        ChatRoomMemberListener listener)
+    public void removeMemberListener(ChatRoomMemberListener listener)
     {
-        synchronized(participantStatusListeners)
+        synchronized(memberListeners)
         {
-            participantStatusListeners.remove(listener);
+            memberListeners.remove(listener);
         }
 
     }

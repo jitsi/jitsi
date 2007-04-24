@@ -186,8 +186,7 @@ public interface ChatRoom
     *
     * @param listener a participant status listener.
     */
-    public void addParticipantStatusListener(
-                                    ChatRoomMemberListener listener);
+    public void addMemberListener(ChatRoomMemberListener listener);
 
    /**
     * Removes a listener that was being notified of changes in the status of
@@ -196,7 +195,7 @@ public interface ChatRoom
     *
     * @param listener a participant status listener.
     */
-    public void removeParticipantStatusListener(
+    public void removeMemberListener(
                                     ChatRoomMemberListener listener);
 
     /**
