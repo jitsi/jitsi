@@ -478,7 +478,17 @@ public class ChatWindowManager
         ChatWindow chatWindow;
 
         if(Constants.TABBED_CHAT_WINDOW)
+        {
+            if(this.chatWindow == null)
+            {
+                this.chatWindow = new ChatWindow(mainFrame);
+                
+                GuiActivator.getUIService()
+                    .registerExportedWindow(this.chatWindow);
+            }
+            
             chatWindow = this.chatWindow;
+        }
         else
         {
             chatWindow = new ChatWindow(mainFrame);
