@@ -210,62 +210,30 @@ public class OperationSetBasicInstantMessagingIcqImpl
                "The specified contact is not a Icq contact."
                + to);
 
-
         ImConversation imConversation =
                 icqProvider.getAimConnection().getIcbmService().
                 getImConversation(
                     new Screenname(to.getAddress()));
 
-        //split the message in multiple parts in case it is bigger than the
-        //max message length
-        LinkedList messageParts = new LinkedList();
-        String messageContent = message.getContent();
-
-        while (messageContent.length() > MAX_MSG_LEN)
+        if (to.getPresenceStatus().isOnline())
         {
-            messageParts.add(messageContent.substring(0, MAX_MSG_LEN));
-            messageContent = messageContent.substring(MAX_MSG_LEN);
+            //do not add the conversation listener in here. we'll add it
+            //inside the icbm listener
+            imConversation.sendMessage(new SimpleMessage(message.getContent()));
         }
+        else
+            imConversation.sendMessage(new SimpleMessage(message.getContent())
+                                       , true);
 
-        if (messageContent.length() > 0)
-            messageParts.add(messageContent);
+        //temporarily and uglity fire the sent event here.
+        /** @todo move elsewhaere */
+        MessageDeliveredEvent msgDeliveredEvt
+            = new MessageDeliveredEvent(
+                message, to, new Date());
 
-        //now send the all the parts
-        for(int i = 0; i < messageParts.size(); i++)
-        {
-            String messageSegment = (String)messageParts.get(i);
-            if (to.getPresenceStatus().isOnline())
-            {
-                //do not add the conversation listener in here. we'll add it
-                //inside the icbm listener
-                imConversation.sendMessage(new SimpleMessage(messageSegment));
-            }
-            else
-            {
-                imConversation.sendMessage(new SimpleMessage(messageSegment)
-                                           , true);
-            }
-
-            //temporarily and uglity fire the sent event here.
-            /** @todo move elsewhere */
-            //in case we have a multi part message, make sure that at least
-            //the first message delivered event is for a message with the same
-            //uid as the one that was passed to us.
-            MessageDeliveredEvent msgDeliveredEvt
-                = new MessageDeliveredEvent(
-                    new MessageIcqImpl(messageSegment
-                                       , message.getContentType()
-                                       , message.getEncoding()
-                                       , message.getSubject()
-                                       , (i == 0)
-                                           ? message.getMessageUID()
-                                           : null)
-                        , to
-                        , new Date());
-
-            fireMessageEvent(msgDeliveredEvt);
-        }
+        fireMessageEvent(msgDeliveredEvt);
     }
+
 
     /**
      * Retreives all offline Messages If any.
@@ -437,12 +405,12 @@ public class OperationSetBasicInstantMessagingIcqImpl
 
                 if(icqProvider.USING_ICQ)
                     retreiveOfflineMessages();
-                
+
                 String customMessageEncoding = null;
-                if((customMessageEncoding = 
+                if((customMessageEncoding =
                     System.getProperty("icq.custom.message.charset")) != null)
                     OscarTools.setDefaultCharset(customMessageEncoding);
-                
+
                 // run keepalive thread
                 if(keepAliveSendTask == null)
                 {
