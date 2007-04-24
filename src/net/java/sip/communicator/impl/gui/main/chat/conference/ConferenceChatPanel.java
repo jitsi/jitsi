@@ -12,7 +12,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -28,7 +27,7 @@ public class ConferenceChatPanel
     implements  ChatRoomMessageListener,
                 ChatRoomPropertyChangeListener,
                 ChatRoomLocalUserStatusListener,
-                ChatRoomParticipantStatusListener
+                ChatRoomMemberListener
 {
     private Logger logger = Logger.getLogger(ConferenceChatPanel.class);
 
@@ -61,8 +60,7 @@ public class ConferenceChatPanel
         this.chatRoom.addMessageListener(this);
         this.chatRoom.addChatRoomPropertyChangeListener(this);
         this.chatRoom.addLocalUserStatusListener(this);
-/** @todo uncomment when the listener is fully implemented */
-//        this.chatRoom.addParticipantStatusListener(this);
+        this.chatRoom.addMemberListener(this);
     }
 
     /**
@@ -142,7 +140,34 @@ public class ConferenceChatPanel
      * Sends a message to the chat room.
      */
     protected void sendMessage()
-    {
+
+    {    
+        String body = this.getTextFromWriteArea();
+        Message msg = chatRoom.createMessage(body);
+        
+        try
+        {   
+            chatRoom.sendMessage(msg);
+        }
+        catch (Exception ex)
+        {
+            logger.error("Failed to send message.", ex);
+            
+            this.refreshWriteArea();
+    
+            this.processMessage(
+                    chatRoom.getName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.OUTGOING_MESSAGE,
+                    msg.getContent());
+    
+            this.processMessage(
+                    chatRoom.getName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.ERROR_MESSAGE,
+                    Messages.getI18NString("msgDeliveryInternalError")
+                        .getText());
+        }
     }
 
     /**
@@ -322,17 +347,15 @@ public class ConferenceChatPanel
         chatWindowManager.openChat(chatPanel, false);
     }
 
-    public void chatRoomChanged(ChatRoomPropertyChangeEvent evt)
-    {
+    public void chatRoomChanged(ChatRoomPropertyChangeEvent event)
+    {   
     }
 
     public void localUserStatusChanged(ChatRoomLocalUserStatusChangeEvent evt)
-    {
-
+    {   
     }
 
-    public void localUserStatusChanged(ChatRoomParticipantStatusChangeEvent evt)
-    {
-
+    public void memberStatusChanged(ChatRoomMemberEvent evt)
+    {   
     }
 }
