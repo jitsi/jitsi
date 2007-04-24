@@ -122,10 +122,10 @@ public class ChatRoomServerRightButtonMenu
 
         if (itemName.equals("createChatRoom"))
         {
-            CreateChatRoomWizard createChatRoomWizard
-                = new CreateChatRoomWizard(mainFrame);
+            CreateChatRoomDialog createChatRoomDialog
+                = new CreateChatRoomDialog(mainFrame, protocolProvider);
             
-            createChatRoomWizard.setVisible(true);
+            createChatRoomDialog.setVisible(true);
         }
         else if (itemName.equals("joinChatRoom"))
         {

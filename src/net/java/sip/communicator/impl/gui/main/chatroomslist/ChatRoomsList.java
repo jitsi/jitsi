@@ -109,7 +109,35 @@ public class ChatRoomsList
     {
         listModel.addElement(chatRoom);
     }
+    
+    /**
+     * Adds a chat room to this list.
+     *
+     * @param chatRoom the <tt>ChatRoom</tt> to add
+     * @param parentProvider the <tt>ProtocolProviderService</tt>, which is the
+     * parent of the given <tt>ChatRoom</tt>.
+     */
+    public void addChatRoom(ChatRoom chatRoom,
+            ProtocolProviderService parentProvider)
+    {
+        int parentIndex = listModel.indexOf(parentProvider);
+        
+        if(parentIndex != -1)
+            listModel.add(parentIndex + 1, chatRoom);
+    }
 
+    /**
+     * Verifies if the given <tt>ChatRoom</tt> is contained in the list.
+     * 
+     * @param chatRoom the <tt>ChatRoom</tt> to search.
+     * @return TRUE if the given <tt>ChatRoom</tt> is contained in the list,
+     * FALSE - otherwise.
+     */
+    public boolean containsChatRoom(ChatRoom chatRoom)
+    {
+        return listModel.contains(chatRoom);
+    }
+    
     /**
      *
      * @param pps
@@ -182,4 +210,19 @@ public class ChatRoomsList
 
     public void mouseReleased(MouseEvent e)
     {}
+    
+    public ChatRoom getChatRoomFromList(String chatRoomName)
+    {
+        for(int i=0; i<listModel.getSize(); i++)
+        {
+            Object o = listModel.getElementAt(i);
+           
+            if(o instanceof ChatRoom)
+            {
+                if((((ChatRoom) o).getName()).equalsIgnoreCase(chatRoomName))
+                    return ((ChatRoom)(o));
+            }
+        }
+        return null;
+    }
 }

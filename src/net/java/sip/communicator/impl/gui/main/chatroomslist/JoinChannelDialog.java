@@ -116,9 +116,16 @@ public class JoinChannelDialog
             }
             catch (Exception ex)
             {
-                /** @todo handle exceptions being thrown here. */
-                logger.error("Failed to find room " + chatRoomName
-                             , ex);
+                logger.error("Failed to find chat room.", ex);
+                
+                new ErrorDialog(mainFrame,
+                    Messages.getI18NString(
+                        "findChatRoomError",
+                        new String[]{chatRoomName}).getText(),
+                        ex,
+                    Messages.getI18NString(
+                        "error").getText())
+                        .showDialog();
             }
 
             if(chatRoom != null)
@@ -127,8 +134,12 @@ public class JoinChannelDialog
                 {
                     chatRoom.join();
 
-                    mainFrame.getChatRoomsListPanel().getChatRoomsList()
-                        .addChatRoom(chatRoom);
+                    ChatRoomsList chatRoomsList
+                        = mainFrame.getChatRoomsListPanel().getChatRoomsList();
+                    
+                    if(!chatRoomsList.containsChatRoom(chatRoom))
+                        mainFrame.getChatRoomsListPanel().getChatRoomsList()
+                            .addChatRoom(chatRoom);
                 }
                 catch (OperationFailedException ex)
                 {
