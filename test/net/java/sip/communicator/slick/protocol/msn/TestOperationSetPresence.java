@@ -302,9 +302,11 @@ public class TestOperationSetPresence
             newStatus,
             operationSetPresence1.getPresenceStatus());
 
+        logger.trace("will query for contact(" + fixture.userID1 + ") status!");
+        
         MsnStatusEnum actualStatus = (MsnStatusEnum)
             operationSetPresence2.queryContactStatus(fixture.userID1);
-
+        
         assertEquals("The underlying implementation did not switch to the "
                      +"requested presence status.",
                      newStatus,
@@ -386,6 +388,7 @@ public class TestOperationSetPresence
 
         pauseAfterStateChanges();
 
+        logger.trace("will query for contact("+ fixture.userID2 + ") status!");
         PresenceStatus actualReturn
             = operationSetPresence1.queryContactStatus(fixture.userID2);
         assertEquals("Querying a "
