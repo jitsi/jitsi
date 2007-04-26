@@ -848,7 +848,8 @@
         bundle-version,bundle-version-impl,bundle-shutdown,
         bundle-growlnotification,bundle-audionotifier,bundle-plugin-splashscreen,
         bundle-systray,bundle-browserlauncher,bundle-gibberish,
-        bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz"/>
+        bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
+    	bundle-pluginmanager"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1526,6 +1527,16 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/browserlauncher"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/browserlauncher"
                 prefix="net/java/sip/communicator/impl/browserlauncher"/>
+        </jar>
+    </target>
+	
+	<!-- BUNDLE-PLUGIN MANAGER -->
+    <target name="bundle-pluginmanager">
+        <!-- Creates a bundle for the plugin manager plugin.-->
+        <jar compress="false" destfile="${bundles.dest}/pluginmanager.jar"
+            manifest="src/net/java/sip/communicator/plugin/pluginmanager/pluginmanager.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/pluginmanager"
+                prefix="net/java/sip/communicator/plugin/pluginmanager"/>
         </jar>
     </target>
 </project>
