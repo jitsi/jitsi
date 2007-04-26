@@ -27,6 +27,10 @@ public class AimAccRegWizzActivator implements BundleActivator {
     
     private static BrowserLauncherService browserLauncherService;
     
+    private static UIService uiService;
+    
+    private static AimAccountRegistrationWizard aimWizard;
+    
     /**
      * Starts this bundle.
      */
@@ -37,19 +41,20 @@ public class AimAccRegWizzActivator implements BundleActivator {
         ServiceReference uiServiceRef = bundleContext
             .getServiceReference(UIService.class.getName());
 
-        UIService uiService
-            = (UIService) bundleContext.getService(uiServiceRef);
+        uiService = (UIService) bundleContext.getService(uiServiceRef);
 
         AccountRegistrationWizardContainer wizardContainer
             = uiService.getAccountRegWizardContainer();
 
-        AimAccountRegistrationWizard aimWizard
-            = new AimAccountRegistrationWizard(wizardContainer);
+        aimWizard = new AimAccountRegistrationWizard(wizardContainer);
 
         wizardContainer.addAccountRegistrationWizard(aimWizard);
     }
 
-    public void stop(BundleContext bundleContext) throws Exception {
+    public void stop(BundleContext bundleContext) throws Exception
+    {
+        uiService.getAccountRegWizardContainer()
+            .removeAccountRegistrationWizard(aimWizard);
     }
 
     /**

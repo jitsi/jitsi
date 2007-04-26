@@ -6,11 +6,12 @@
  */
 package net.java.sip.communicator.plugin.yahooaccregwizz;
 
-import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Registers the <tt>YahooAccountRegistrationWizard</tt> in the UI Service.
@@ -26,6 +27,10 @@ public class YahooAccRegWizzActivator implements BundleActivator {
 
     private static ConfigurationService configService;
 
+    private static AccountRegistrationWizardContainer wizardContainer;
+    
+    private static YahooAccountRegistrationWizard yahooWizard;
+    
     /**
      * Starts this bundle.
      * @param bc BundleContext
@@ -41,16 +46,16 @@ public class YahooAccRegWizzActivator implements BundleActivator {
         UIService uiService
             = (UIService) bundleContext.getService(uiServiceRef);
 
-        AccountRegistrationWizardContainer wizardContainer
-            = uiService.getAccountRegWizardContainer();
+        wizardContainer = uiService.getAccountRegWizardContainer();
 
-        YahooAccountRegistrationWizard yahooWizard
-            = new YahooAccountRegistrationWizard(wizardContainer);
+        yahooWizard = new YahooAccountRegistrationWizard(wizardContainer);
 
         wizardContainer.addAccountRegistrationWizard(yahooWizard);
     }
 
-    public void stop(BundleContext bundleContext) throws Exception {
+    public void stop(BundleContext bundleContext) throws Exception
+    {
+        wizardContainer.removeAccountRegistrationWizard(yahooWizard);
     }
 
     /**

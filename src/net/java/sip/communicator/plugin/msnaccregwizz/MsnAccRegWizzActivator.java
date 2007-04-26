@@ -26,6 +26,10 @@ public class MsnAccRegWizzActivator implements BundleActivator {
 
     private static ConfigurationService configService;
 
+    private static AccountRegistrationWizardContainer wizardContainer;
+    
+    private static MsnAccountRegistrationWizard msnWizard;
+    
     /**
      * Starts this bundle.
      * @param bc BundleContext
@@ -41,16 +45,16 @@ public class MsnAccRegWizzActivator implements BundleActivator {
         UIService uiService
             = (UIService) bundleContext.getService(uiServiceRef);
 
-        AccountRegistrationWizardContainer wizardContainer
-            = uiService.getAccountRegWizardContainer();
+        wizardContainer = uiService.getAccountRegWizardContainer();
 
-        MsnAccountRegistrationWizard msnWizard
-            = new MsnAccountRegistrationWizard(wizardContainer);
+        msnWizard = new MsnAccountRegistrationWizard(wizardContainer);
 
         wizardContainer.addAccountRegistrationWizard(msnWizard);
     }
 
-    public void stop(BundleContext bundleContext) throws Exception {
+    public void stop(BundleContext bundleContext) throws Exception
+    {
+        wizardContainer.removeAccountRegistrationWizard(msnWizard);
     }
 
     /**

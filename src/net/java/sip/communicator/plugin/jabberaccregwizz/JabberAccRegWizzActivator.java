@@ -28,6 +28,10 @@ public class JabberAccRegWizzActivator
 
     private static ConfigurationService configService;
 
+    private static AccountRegistrationWizardContainer wizardContainer;
+    
+    private static JabberAccountRegistrationWizard jabberWizard;
+    
     /**
      * Starts this bundle.
      * @param bc BundleContext
@@ -45,11 +49,9 @@ public class JabberAccRegWizzActivator
         UIService uiService
             = (UIService) bundleContext.getService(uiServiceRef);
 
-        AccountRegistrationWizardContainer wizardContainer
-            = uiService.getAccountRegWizardContainer();
+        wizardContainer = uiService.getAccountRegWizardContainer();
 
-        JabberAccountRegistrationWizard jabberWizard
-            = new JabberAccountRegistrationWizard(wizardContainer);
+        jabberWizard = new JabberAccountRegistrationWizard(wizardContainer);
 
         wizardContainer.addAccountRegistrationWizard(jabberWizard);
     }
@@ -57,6 +59,7 @@ public class JabberAccRegWizzActivator
     public void stop(BundleContext bundleContext)
         throws Exception
     {
+        wizardContainer.removeAccountRegistrationWizard(jabberWizard);
     }
 
     /**

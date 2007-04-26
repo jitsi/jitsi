@@ -26,6 +26,10 @@ public class SIPAccRegWizzActivator implements BundleActivator {
 
     private static ConfigurationService configService;
 
+    private static AccountRegistrationWizardContainer wizardContainer;
+    
+    private static SIPAccountRegistrationWizard sipWizard;
+    
     /**
      * Starts this bundle.
      * @param bc BundleContext
@@ -41,16 +45,16 @@ public class SIPAccRegWizzActivator implements BundleActivator {
         UIService uiService
             = (UIService) bundleContext.getService(uiServiceRef);
 
-        AccountRegistrationWizardContainer wizardContainer
-            = uiService.getAccountRegWizardContainer();
+        wizardContainer = uiService.getAccountRegWizardContainer();
 
-        SIPAccountRegistrationWizard sipWizard
-            = new SIPAccountRegistrationWizard(wizardContainer);
+        sipWizard = new SIPAccountRegistrationWizard(wizardContainer);
 
         wizardContainer.addAccountRegistrationWizard(sipWizard);
     }
 
-    public void stop(BundleContext bundleContext) throws Exception {
+    public void stop(BundleContext bundleContext) throws Exception
+    {
+        wizardContainer.removeAccountRegistrationWizard(sipWizard);
     }
 
     /**

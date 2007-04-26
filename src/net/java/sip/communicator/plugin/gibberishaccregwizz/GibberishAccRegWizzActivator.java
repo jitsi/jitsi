@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.gibberishaccregwizz;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -32,6 +33,10 @@ public class GibberishAccRegWizzActivator
      * A currently valid reference to the configuration service.
      */
     private static ConfigurationService configService;
+    
+    private static AccountRegistrationWizardContainer wizardContainer;
+    
+    private static GibberishAccountRegistrationWizard gibberishWizard;
 
     /**
      * Starts this bundle.
@@ -46,13 +51,11 @@ public class GibberishAccRegWizzActivator
         ServiceReference uiServiceRef = bundleContext
             .getServiceReference(UIService.class.getName());
 
-        UIService uiService
-            = (UIService) bundleContext.getService(uiServiceRef);
+        UIService uiService = (UIService) bundleContext.getService(uiServiceRef);
 
-        AccountRegistrationWizardContainer wizardContainer
-            = uiService.getAccountRegWizardContainer();
+        wizardContainer = uiService.getAccountRegWizardContainer();
 
-        GibberishAccountRegistrationWizard gibberishWizard
+        gibberishWizard
             = new GibberishAccountRegistrationWizard(wizardContainer);
 
         wizardContainer.addAccountRegistrationWizard(gibberishWizard);
@@ -66,11 +69,11 @@ public class GibberishAccRegWizzActivator
      *
      * @param context The execution context of the bundle being stopped.
      */
-    public void stop(BundleContext context)
+    public void stop(BundleContext bundleContext) throws Exception
     {
-
+        wizardContainer.removeAccountRegistrationWizard(gibberishWizard);
     }
-
+    
     /**
      * Returns the <tt>ProtocolProviderFactory</tt> for the Gibberish protocol.
      * @return the <tt>ProtocolProviderFactory</tt> for the Gibberish protocol

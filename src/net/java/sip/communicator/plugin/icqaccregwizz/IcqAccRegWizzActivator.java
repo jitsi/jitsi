@@ -27,6 +27,10 @@ public class IcqAccRegWizzActivator implements BundleActivator {
     
     private static BrowserLauncherService browserLauncherService;
     
+    private static AccountRegistrationWizardContainer wizardContainer;
+    
+    private static IcqAccountRegistrationWizard icqWizard;
+    
     /**
      * Starts this bundle.
      */
@@ -40,16 +44,16 @@ public class IcqAccRegWizzActivator implements BundleActivator {
         UIService uiService
             = (UIService) bundleContext.getService(uiServiceRef);
 
-        AccountRegistrationWizardContainer wizardContainer
-            = uiService.getAccountRegWizardContainer();
+        wizardContainer = uiService.getAccountRegWizardContainer();
 
-        IcqAccountRegistrationWizard icqWizard
-            = new IcqAccountRegistrationWizard(wizardContainer);
+        icqWizard = new IcqAccountRegistrationWizard(wizardContainer);
 
         wizardContainer.addAccountRegistrationWizard(icqWizard);
     }
 
-    public void stop(BundleContext bundleContext) throws Exception {
+    public void stop(BundleContext bundleContext) throws Exception
+    {
+        wizardContainer.removeAccountRegistrationWizard(icqWizard);
     }
 
     /**
