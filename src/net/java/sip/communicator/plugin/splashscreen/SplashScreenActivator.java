@@ -52,6 +52,8 @@ public class SplashScreenActivator
 
     public void bundleChanged(BundleEvent evt)
     {
-        welcomeWindow.setBundle(evt.getBundle().getHeaders().get("Bundle-Name").toString());
+        if(welcomeWindow != null && welcomeWindow.isShowing())
+            welcomeWindow.setBundle(evt.getBundle().getHeaders()
+                .get("Bundle-Name").toString());
     }            
 }
