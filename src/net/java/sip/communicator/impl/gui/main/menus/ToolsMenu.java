@@ -9,17 +9,16 @@ package net.java.sip.communicator.impl.gui.main.menus;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
-
-import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.util.*;
 /**
  * The <tt>FileMenu</tt> is a menu in the main application menu bar that
@@ -28,8 +27,9 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class ToolsMenu
-    extends SIPCommMenu 
-    implements ActionListener
+    extends SIPCommMenu
+    implements  ActionListener,
+                PluginComponentListener
 {
 
     private Logger logger = Logger.getLogger(ToolsMenu.class.getName());
@@ -60,8 +60,32 @@ public class ToolsMenu
         
         this.setMnemonic(Messages.getI18NString("tools").getMnemonic());
         this.configMenuItem.setMnemonic(settingsString.getMnemonic());
+        
+        this.initPluginComponents();
     }
 
+    /**
+     * Initialize plugin components already registered for this container.
+     */
+    private void initPluginComponents()
+    {   
+        Iterator pluginComponents = GuiActivator.getUIService()
+            .getComponentsForContainer(
+                UIService.CONTAINER_TOOLS_MENU);
+        
+        if(pluginComponents.hasNext())
+            this.addSeparator();
+        
+        while (pluginComponents.hasNext())
+        {
+            Component o = (Component)pluginComponents.next();
+            
+            this.add(o);
+        }
+        
+        GuiActivator.getUIService().addPluginComponentListener(this);
+    }
+    
     /**
      * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
      */
@@ -75,5 +99,22 @@ public class ToolsMenu
 
             configDialog.setVisible(true);
         }
+    }
+
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+        
+        this.add(c);
+        
+        this.revalidate();
+        this.repaint();
+    }
+
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+        
+        this.remove(c);
     }
 }

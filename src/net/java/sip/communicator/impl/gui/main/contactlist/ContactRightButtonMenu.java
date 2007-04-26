@@ -343,6 +343,8 @@ public class ContactRightButtonMenu
             if (o instanceof ContactAwareComponent)
                 ((ContactAwareComponent)o).setCurrentContact(contactItem);
         }
+        
+        GuiActivator.getUIService().addPluginComponentListener(this);
     }
     
     private void initMnemonics()
