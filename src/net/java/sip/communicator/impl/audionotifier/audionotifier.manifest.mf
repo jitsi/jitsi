@@ -1,5 +1,5 @@
 Bundle-Activator: net.java.sip.communicator.impl.audionotifier.AudioNotifierActivator
-Bundle-Name: Audio Notifier Service Provider Implementation
+Bundle-Name: Audio Notifier
 Bundle-Description: An implementation of the AudioNotifier service.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
