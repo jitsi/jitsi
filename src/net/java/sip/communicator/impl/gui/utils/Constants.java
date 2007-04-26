@@ -31,8 +31,7 @@ import net.java.sip.communicator.util.*;
 
 public class Constants {
 
-    private static Logger logger = Logger.getLogger(CommunicatorMain.class
-            .getName());
+    private static Logger logger = Logger.getLogger(Constants.class);
 
     public static final String ONLINE_STATUS = "Online";
 
