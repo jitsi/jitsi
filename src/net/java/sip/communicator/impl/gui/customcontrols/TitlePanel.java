@@ -93,9 +93,12 @@ public class TitlePanel extends JPanel {
      * Sets the title String.
      * @param title The title String.
      */
-    public void setTitleText(String title) {
+    public void setTitleText(String title)
+    {
+        this.removeAll();
+        
         this.titleLabel.setText(title);
-
+        
         this.add(titleLabel);
     }
 }

@@ -27,14 +27,9 @@ import net.java.sip.communicator.service.gui.*;
  */
 public class ConfigurationFrame
     extends SIPCommDialog
-    implements  ConfigurationWindow, 
-                MouseListener
+    implements  ConfigurationWindow
 {
-    private Vector configContainer = new Vector();
-
-    private JScrollPane formScrollPane = new JScrollPane();
-
-    private SIPCommList configList = new SIPCommList();
+    private ConfigFormList configList;
 
     private TitlePanel titlePanel = new TitlePanel();
 
@@ -60,14 +55,14 @@ public class ConfigurationFrame
         super(mainFrame);
        
         this.mainFrame = mainFrame;
+        
+        this.configList = new ConfigFormList(this);
 
         this.setTitle(Messages.getI18NString("configuration").getText());
         
         this.getContentPane().setLayout(new BorderLayout());
 
         this.addDefaultForms();
-
-        this.centerPanel.add(formScrollPane, BorderLayout.CENTER);
 
         this.mainPanel.add(centerPanel, BorderLayout.CENTER);
 
@@ -94,11 +89,10 @@ public class ConfigurationFrame
      * Some configuration forms constructed from the ui implementation itself
      * are added here in the configuration dialog.
      */
-    public void addDefaultForms() {
-        //this.addConfigurationForm(new GeneralConfigurationForm());
-        //this.addConfigurationForm(new AppearanceConfigurationForm());
+    public void addDefaultForms()
+    {
         this.addConfigurationForm(
-                new AccountsConfigurationForm(mainFrame));
+                new AccountsConfigurationForm(mainFrame));        
     }
 
     /**
@@ -110,26 +104,12 @@ public class ConfigurationFrame
      */
     public void addConfigurationForm(ConfigurationForm configForm) {
 
-        if(configForm.getForm() instanceof Component) {
-            this.configContainer.add(configForm);
+        if(configForm.getForm() instanceof Component)
+        {
+            this.configList.addConfigForm(configForm);
     
-            this.recalculateSize();
+//            this.recalculateSize();
             
-            Icon image = null;
-            try {
-                image = new ImageIcon(ImageIO.read(
-                        new ByteArrayInputStream(configForm.getIcon())));
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            
-            ConfigMenuItemPanel configItem = new ConfigMenuItemPanel(configForm
-                    .getTitle(), image);
-    
-            configItem.addMouseListener(this);
-    
-            this.configList.addCell(configItem);
         }
         else {
             throw new ClassCastException("ConfigurationFrame :"
@@ -144,90 +124,54 @@ public class ConfigurationFrame
      * dialog.
      * @see ConfigurationWindow#removeConfigurationForm(ConfigurationForm)
      */
-    public void removeConfigurationForm(ConfigurationForm configForm) {
-
-        this.configContainer.remove(configForm);
+    public void removeConfigurationForm(ConfigurationForm configForm)
+    {
+        this.configList.removeConfigForm(configForm);
     }
 
+    public void showFormContent(ConfigurationForm configForm)
+    {
+        this.centerPanel.removeAll();
+        
+        this.titlePanel.setTitleText(configForm.getTitle());
+
+        this.centerPanel.add(titlePanel, BorderLayout.NORTH);
+
+        this.centerPanel.add((Component)configForm.getForm(),
+                BorderLayout.CENTER);
+        
+        this.centerPanel.revalidate();
+        this.centerPanel.repaint();
+     
+    }
+    
+    
     /**
      * Calculates the size of the frame depending on the size of the largest
      * contained form.
      */
-    public void recalculateSize()
-    {
-        double width = 0;
-
-        double height = 0;
-
-        for (int i = 0; i < configContainer.size(); i++) {
-
-            ConfigurationForm configForm = (ConfigurationForm) configContainer
-                    .get(i);
-            
-            Component form = (Component)configForm.getForm();
-            if (width < form.getPreferredSize().getWidth())
-                width = form.getPreferredSize().getWidth();
-
-            if (height < form.getPreferredSize().getHeight())
-                height = form.getPreferredSize().getHeight();
-        }
-     
-        this.mainPanel.setPreferredSize(new Dimension(
-            (int) width + 150, (int) height + 100));
-    }
-
-    /**
-     * Handles the <tt>MouseEvent</tt> triggered when user clicks on the left
-     * configuration dialog menu. Here we display the corresponding
-     * configuration form.
-     */
-    public void mouseClicked(MouseEvent e) {
-
-        ConfigMenuItemPanel configItemPanel = (ConfigMenuItemPanel) e
-                .getSource();
-
-        this.configList.refreshCellStatus(configItemPanel);
-
-        if ((e.getModifiers() & InputEvent.BUTTON1_MASK) 
-                == InputEvent.BUTTON1_MASK) {
-
-            for (int i = 0; i < this.configContainer.size(); i++) {
-
-                ConfigurationForm configForm 
-                    = (ConfigurationForm) this.configContainer.get(i);
-
-                if (configItemPanel.getText().equals(configForm.getTitle())) {
-
-                    this.formScrollPane.getViewport().removeAll();
-
-                    this.formScrollPane.getViewport()
-                        .add((Component)configForm.getForm());
-
-                    this.titlePanel.removeAll();
-
-                    this.titlePanel.setTitleText(configForm.getTitle());
-
-                    this.centerPanel.remove(titlePanel);
-
-                    this.centerPanel.add(titlePanel, BorderLayout.NORTH);
-
-                    this.validate();
-                }
-            }
-        }
-    }
-
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    public void mouseExited(MouseEvent e) {
-    }
-
-    public void mousePressed(MouseEvent e) {
-    }
-
-    public void mouseReleased(MouseEvent e) {
-    }
+//    public void recalculateSize()
+//    {
+//        double width = 0;
+//
+//        double height = 0;
+//
+//        for (int i = 0; i < configList.getSize(); i++)
+//        {
+//            ConfigurationForm configForm = (ConfigurationForm) configContainer
+//                    .get(i);
+//            
+//            Component form = (Component)configForm.getForm();
+//            if (width < form.getPreferredSize().getWidth())
+//                width = form.getPreferredSize().getWidth();
+//
+//            if (height < form.getPreferredSize().getHeight())
+//                height = form.getPreferredSize().getHeight();
+//        }
+//     
+//        this.mainPanel.setPreferredSize(new Dimension(
+//            (int) width + 150, (int) height + 100));
+//    }
 
     /**
      * Implements <code>ApplicationWindow.show</code> method.
@@ -237,21 +181,7 @@ public class ConfigurationFrame
     {
         if(isVisible)
         {
-            ConfigurationForm configForm 
-                = (ConfigurationForm) this.configContainer.get(0);
-            
-            this.formScrollPane.getViewport().removeAll();
-    
-            this.formScrollPane.getViewport()
-                .add((Component)configForm.getForm());
-    
-            this.titlePanel.removeAll();
-            
-            this.titlePanel.setTitleText(configForm.getTitle());
-    
-            this.centerPanel.remove(titlePanel);
-    
-            this.centerPanel.add(titlePanel, BorderLayout.NORTH);
+            this.configList.setSelectedIndex(0);
             
             super.setVisible(true);
             
