@@ -223,7 +223,7 @@ public class ConferenceChatPanel
 
         Contact sourceContact = evt.getSourceContact();
         Date date = evt.getTimestamp();
-        Message message = evt.getSourceMessage();
+        Message message = evt.getMessage();
 
         ChatRoom chatRoom = (ChatRoom) evt.getSource();
 
@@ -257,7 +257,7 @@ public class ConferenceChatPanel
         logger.trace("MESSAGE DELIVERED to contact: "
             + evt.getDestinationContact().getAddress());
 
-        Message msg = evt.getSourceMessage();
+        Message msg = evt.getMessage();
 
         ChatPanel chatPanel = null;
 

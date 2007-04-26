@@ -64,9 +64,9 @@ public class ChatRoomMessageDeliveryFailedEvent
      private Date timestamp = null;
 
      /**
-      * The name/id of the chat room where the message was delivered.
+      * The received <tt>Message</tt>.
       */
-     private String chatRoomID = null;
+     private Message message = null;
 
      /**
       * Creates a <tt>MessageDeliveryFailedEvent</tt> indicating failure of
@@ -78,21 +78,20 @@ public class ChatRoomMessageDeliveryFailedEvent
       * @param errorCode an errorCode indicating the reason of the failure.
       * @param timestamp the exacte Date when it was determined that delivery
       * had failed.
-      * @param chatRoomID the name/id of the chat room that the failed message
-      * was destined to.
+      * @param message the received <tt>Message</tt>.
       */
-     public ChatRoomMessageDeliveryFailedEvent(Message source,
+     public ChatRoomMessageDeliveryFailedEvent(ChatRoom source,
                                                Contact to,
                                                int errorCode,
                                                Date timestamp,
-                                               String chatRoomID)
+                                               Message message)
      {
          super(source);
 
          this.to = to;
          this.errorCode = errorCode;
          this.timestamp = timestamp;
-         this.chatRoomID = chatRoomID;
+         this.message = message;
      }
      /**
       * Returns a reference to the <tt>Contact</tt> that the source (failed)
@@ -104,6 +103,15 @@ public class ChatRoomMessageDeliveryFailedEvent
      public Contact getDestinationContact()
      {
          return to;
+     }
+     
+     /**
+      * Returns the received message.
+      * @return the <tt>Message</tt> that triggered this event.
+      */
+     public Message getMessage()
+     {
+         return message;
      }
 
      /**
@@ -130,13 +138,11 @@ public class ChatRoomMessageDeliveryFailedEvent
      }
 
      /**
-      * Returns the name of the chat room where this message was meant to be
-      * delivered.
-      * @return the name of the chat room where this message was meant to be
-      * delivered.
+      * Returns the <tt>ChatRoom</tt> that triggered this event.
+      * @return the <tt>ChatRoom</tt> that triggered this event.
       */
-     public String getChatRoomID()
+     public ChatRoom getSourceChatRoom()
      {
-         return chatRoomID;
+         return (ChatRoom) getSource();
      }
 }
