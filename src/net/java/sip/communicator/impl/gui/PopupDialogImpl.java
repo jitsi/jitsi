@@ -16,17 +16,15 @@ import net.java.sip.communicator.service.gui.*;
  * 
  * @author Yana Stamcheva
  */
-public class PopupDialogImpl extends JOptionPane
-    implements PopupDialog {
-
-    private MainFrame parentWindow;
-    
+public class PopupDialogImpl
+    extends JOptionPane
+    implements PopupDialog
+{    
     /**
      * Creates an instance of <tt>PopupDialogImpl</tt>.
-     * @param parentWindow The main application window.
      */
-    public PopupDialogImpl(MainFrame parentWindow) {
-        this.parentWindow = parentWindow;
+    public PopupDialogImpl()
+    {
     }
     
     /**
@@ -34,7 +32,7 @@ public class PopupDialogImpl extends JOptionPane
      * Invokes the corresponding <tt>JOptionPane.showInputDialog</tt> method.
      */
     public String showInputPopupDialog(Object message) {
-        return showInputDialog(parentWindow, message);
+        return showInputDialog(message);
     }
     
     /**
@@ -44,8 +42,7 @@ public class PopupDialogImpl extends JOptionPane
      */
     public String showInputPopupDialog(Object message, 
             String initialSelectionValue) {
-        return showInputDialog(parentWindow, message, 
-                initialSelectionValue);
+        return showInputDialog(message, initialSelectionValue);
     }    
     
     /**
@@ -72,8 +69,7 @@ public class PopupDialogImpl extends JOptionPane
         else {
             type = JOptionPane.PLAIN_MESSAGE;
         }
-        return (String)showInputDialog(parentWindow, message,
-                title, type);
+        return (String)showInputDialog(null, message, title, type);
     }
 
     /**
@@ -103,7 +99,7 @@ public class PopupDialogImpl extends JOptionPane
             type = JOptionPane.PLAIN_MESSAGE;
         }
         
-       return showInputDialog(parentWindow, message, title, type, 
+       return showInputDialog(null, message, title, type, 
                null, selectionValues, initialSelectionValue);
     }
 
@@ -113,7 +109,7 @@ public class PopupDialogImpl extends JOptionPane
      * <tt>JOptionPane.showMessageDialog</tt> method.
      */
     public void showMessagePopupDialog(Object message) {
-        showMessageDialog(parentWindow, message);
+        showMessageDialog(null, message);
     }
 
     /**
@@ -140,7 +136,7 @@ public class PopupDialogImpl extends JOptionPane
             type = JOptionPane.PLAIN_MESSAGE;
         }
         
-        showMessageDialog(parentWindow, message, title, type);
+        showMessageDialog(null, message, title, type);
     }
 
     /**
@@ -149,7 +145,7 @@ public class PopupDialogImpl extends JOptionPane
      * <tt>JOptionPane.showConfirmDialog</tt> method.
      */
     public int showConfirmPopupDialog(Object message) {
-        return showConfirmDialog(parentWindow, message);
+        return showConfirmDialog(null, message);
     }
 
     /**
@@ -173,7 +169,7 @@ public class PopupDialogImpl extends JOptionPane
             type = JOptionPane.DEFAULT_OPTION;
         }
         
-        return showConfirmDialog(parentWindow, message, title, type);
+        return showConfirmDialog(null, message, title, type);
     }
 
     /**
@@ -215,7 +211,7 @@ public class PopupDialogImpl extends JOptionPane
             msgType = JOptionPane.PLAIN_MESSAGE;
         }
         
-        return showConfirmDialog(parentWindow, message, title,
+        return showConfirmDialog(null, message, title,
                 optType, msgType);
     }
     

@@ -15,8 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.swing.*;
 import javax.swing.JFrame;
 
+import net.java.sip.communicator.impl.gui.GuiActivator.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.AccountRegWizardContainerImpl;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -24,6 +27,7 @@ import net.java.sip.communicator.impl.gui.main.configforms.ConfigurationFrame;
 import net.java.sip.communicator.impl.gui.main.contactlist.ContactListPanel;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.PluginComponentEvent;
@@ -57,12 +61,15 @@ public class UIServiceImpl
         supportedContainers.add(UIService.CONTAINER_MAIN_TOOL_BAR);
         supportedContainers.add(UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
         supportedContainers.add(UIService.CONTAINER_GROUP_RIGHT_BUTTON_MENU);
+        supportedContainers.add(UIService.CONTAINER_TOOLS_MENU);
     }
 
     private static final Hashtable exportedWindows = new Hashtable();
 
     private MainFrame mainFrame;
 
+    private LoginManager loginManager;
+    
     private ContactListPanel contactListPanel;
 
     private ConfigurationFrame configurationFrame;
@@ -74,17 +81,36 @@ public class UIServiceImpl
      * 
      * @param mainFrame The main application window.
      */
-    public UIServiceImpl(MainFrame mainFrame)
+    public UIServiceImpl()
+    {}
+    
+    /**
+     * Initializes all frames and panels and shows the gui.
+     */
+    public void loadApplicationGui()
     {
-        this.mainFrame = mainFrame;
+        this.setDefaultThemePack();
+        
+        this.mainFrame = new MainFrame();
+        
+        this.loginManager = new LoginManager(mainFrame);
         
         this.contactListPanel = mainFrame.getContactListPanel();
 
-        this.popupDialog = new PopupDialogImpl(mainFrame);
+        this.popupDialog = new PopupDialogImpl();
 
         this.wizardContainer = new AccountRegWizardContainerImpl(mainFrame);
 
-        this.configurationFrame = new ConfigurationFrame(mainFrame);        
+        this.configurationFrame = new ConfigurationFrame(mainFrame);
+        
+        mainFrame.setContactList(GuiActivator.getMetaContactListService());
+        
+        if(ConfigurationManager.isApplicationVisible())
+            SwingUtilities.invokeLater(new RunApplicationGui());
+        
+        SwingUtilities.invokeLater(new RunLoginGui());
+        
+        this.initExportedWindows();
     }
 
     /**
@@ -100,10 +126,8 @@ public class UIServiceImpl
     public void addComponent(ContainerID containerID, Object component)
         throws ClassCastException, IllegalArgumentException
     {
-
         if (!supportedContainers.contains(containerID))
         {
-
             throw new IllegalArgumentException(
                 "The constraint that you specified is not"
                     + " supported by this UIService implementation.");
@@ -116,15 +140,12 @@ public class UIServiceImpl
         }
         else
         {
-
             if (registeredPlugins.containsKey(containerID))
             {
-
                 ((Vector) registeredPlugins.get(containerID)).add(component);
             }
             else
             {
-
                 Vector plugins = new Vector();
                 plugins.add(component);
                 registeredPlugins.put(containerID, plugins);
@@ -132,7 +153,6 @@ public class UIServiceImpl
             this.firePluginEvent(component, containerID,
                 PluginComponentEvent.PLUGIN_COMPONENT_ADDED);
         }
-
     }
 
     /**
@@ -556,4 +576,63 @@ public class UIServiceImpl
         return new AuthenticationWindow(mainFrame, protocolProvider,
             realm, userCredentials);
     }
+
+    /**
+     * Returns the LoginManager.
+     * @return the LoginManager
+     */
+    public LoginManager getLoginManager()
+    {
+        return loginManager;
+    }
+
+    /**
+     * Returns the <tt>MainFrame</tt>. This is the class defining the main
+     * application window.
+     * 
+     * @return the <tt>MainFrame</tt>
+     */
+    public MainFrame getMainFrame()
+    {
+        return mainFrame;
+    }
+    
+    /**
+     * The <tt>RunLogin</tt> implements the Runnable interface and is used to
+     * shows the login windows in a seperate thread.
+     */
+    private class RunLoginGui implements Runnable {
+        public void run() {
+            loginManager.runLogin(mainFrame);
+        }
+    }
+    
+    /**
+     * The <tt>RunApplication</tt> implements the Runnable interface and is used to
+     * shows the main application window in a separate thread.
+     */
+    private class RunApplicationGui implements Runnable {
+        public void run() {
+            mainFrame.setVisible(true);
+        }
+    }
+
+    /**
+     * Sets the look&feel and the theme.
+     */
+    private void setDefaultThemePack() {
+
+        SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
+        SIPCommLookAndFeel.setCurrentTheme(new SIPCommDefaultTheme());
+
+        // we need to set the UIDefaults class loader so that it may access
+        // resources packed inside OSGI bundles
+        UIManager.put("ClassLoader", getClass().getClassLoader());
+        try {
+            UIManager.setLookAndFeel(lf);
+        } catch (UnsupportedLookAndFeelException e) {
+            logger.error("The provided Look & Feel is not supported.", e);
+        }
+    }
+
 }

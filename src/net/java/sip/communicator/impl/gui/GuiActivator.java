@@ -35,16 +35,14 @@ public class GuiActivator implements BundleActivator {
     private static Logger logger = Logger.getLogger(GuiActivator.class.getName());
 
     private static UIServiceImpl uiService = null;
-
-    private CommunicatorMain communicatorMain;
     
-    private LoginManager loginManager;
-
     public static BundleContext bundleContext;
 
     private static ConfigurationService configService;
     
     private static MessageHistoryService msgHistoryService;
+    
+    private static MetaContactListService metaCListService;
     
     private static CallHistoryService callHistoryService;
     
@@ -64,41 +62,21 @@ public class GuiActivator implements BundleActivator {
         GuiActivator.bundleContext = bundleContext;
         
         ConfigurationManager.loadGuiConfigurations();
-        
-        this.communicatorMain = new CommunicatorMain();
-
-        MainFrame mainFrame = communicatorMain.getMainFrame();
-
-        this.loginManager = new LoginManager(mainFrame);
-
+       
         try {
-            ServiceReference clistReference = bundleContext
-                .getServiceReference(MetaContactListService.class.getName());
-
-            MetaContactListService contactListService
-                = (MetaContactListService) bundleContext
-                    .getService(clistReference);
-
-            mainFrame.setContactList(contactListService);
-            
-            logger.logEntry();
-
-            //Create the ui service
-            this.uiService = new UIServiceImpl(mainFrame);
+            // Create the ui service
+            this.uiService = new UIServiceImpl();
 
             logger.info("UI Service...[  STARTED ]");
 
             bundleContext.registerService(UIService.class.getName(),
                     this.uiService, null);
-
+            
             logger.info("UI Service ...[REGISTERED]");
+
+            this.uiService.loadApplicationGui();
             
-            if(ConfigurationManager.isApplicationVisible())
-                mainFrame.setVisible(true);
-            
-            SwingUtilities.invokeLater(new RunLogin());
-            
-            uiService.initExportedWindows();
+            logger.logEntry();
         }
         finally {
             logger.logExit();
@@ -117,16 +95,6 @@ public class GuiActivator implements BundleActivator {
      */
     public void stop(BundleContext bundleContext) throws Exception {
         logger.info("UI Service ...[STOPPED]");
-    }
-
-    /**
-     * The <tt>RunLogin</tt> implements the Runnable interface and is used to
-     * shows the login windows in new thread.
-     */
-    private class RunLogin implements Runnable {
-        public void run() {
-            loginManager.runLogin(communicatorMain.getMainFrame());
-        }
     }
 
     /**
@@ -222,6 +190,24 @@ public class GuiActivator implements BundleActivator {
         }
 
         return msgHistoryService;
+    }
+    
+    /**
+     * Returns the <tt>MetaContactListService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>MetaContactListService</tt> obtained from the bundle
+     * context
+     */
+    public static MetaContactListService getMetaContactListService() {
+        if (metaCListService == null) {
+            ServiceReference clistReference = bundleContext
+                .getServiceReference(MetaContactListService.class.getName());
+    
+            metaCListService = (MetaContactListService) bundleContext
+                    .getService(clistReference);
+        }
+
+        return metaCListService;
     }
     
     /**

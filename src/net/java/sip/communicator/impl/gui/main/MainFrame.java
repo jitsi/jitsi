@@ -18,6 +18,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
@@ -100,13 +101,16 @@ public class MainFrame
         
         this.addWindowListener(new MainFrameWindowAdapter());
 
-        //this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setInitialBounds();
 
         this.setTitle(Messages.getI18NString("sipCommunicator").getText());
 
         this.setIconImage(
             ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
+        
+        // In order to have the same icon when using option panes
+        JOptionPane.getRootFrame().setIconImage(
+                ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
 
         this.init();
     }
@@ -138,7 +142,7 @@ public class MainFrame
         
         this.getContentPane().add(mainPanel);
     }
-
+    
     /**
      * Sets frame size and position.
      */
