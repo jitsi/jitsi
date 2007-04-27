@@ -20,9 +20,9 @@ public class ChatRoomMessageDeliveryFailedEvent
     extends EventObject
 {
     /**
-      * The contact that this message has been sent to.
+      * The chat room member that this message has been sent to.
       */
-     private Contact to = null;
+     private ChatRoomMember to = null;
 
      /**
       * Set when no other error code can describe the exception that occurred.
@@ -74,14 +74,14 @@ public class ChatRoomMessageDeliveryFailedEvent
       * contact.
       *
       * @param source the <tt>Message</tt> whose delivery this event represents.
-      * @param to the <tt>Contact</tt> that this message was sent to.
+      * @param to the <tt>ChatRoomMember</tt> that this message was sent to.
       * @param errorCode an errorCode indicating the reason of the failure.
       * @param timestamp the exacte Date when it was determined that delivery
       * had failed.
       * @param message the received <tt>Message</tt>.
       */
      public ChatRoomMessageDeliveryFailedEvent(ChatRoom source,
-                                               Contact to,
+                                               ChatRoomMember to,
                                                int errorCode,
                                                Date timestamp,
                                                Message message)
@@ -94,13 +94,13 @@ public class ChatRoomMessageDeliveryFailedEvent
          this.message = message;
      }
      /**
-      * Returns a reference to the <tt>Contact</tt> that the source (failed)
-      * <tt>Message</tt> was sent to.
+      * Returns a reference to the <tt>ChatRoomMember</tt> that the source
+      * (failed) <tt>Message</tt> was sent to.
       *
-      * @return a reference to the <tt>Contact</tt> that the source failed
-      * <tt>Message</tt> wwas sent to.
+      * @return a reference to the <tt>ChatRoomMember</tt> that the source failed
+      * <tt>Message</tt> was sent to.
       */
-     public Contact getDestinationContact()
+     public ChatRoomMember getDestinationChatRoomMember()
      {
          return to;
      }

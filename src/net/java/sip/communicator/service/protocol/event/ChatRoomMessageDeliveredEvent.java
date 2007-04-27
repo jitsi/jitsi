@@ -20,9 +20,9 @@ public class ChatRoomMessageDeliveredEvent
     extends EventObject
 {
     /**
-      * The contact that has sent this message.
+      * The chat room member that has sent this message.
       */
-     private Contact to = null;
+     private ChatRoomMember to = null;
 
      /**
       * A timestamp indicating the exact date when the event occurred.
@@ -39,14 +39,14 @@ public class ChatRoomMessageDeliveredEvent
       * <tt>source</tt> message to the specified <tt>to</tt> contact.
       *
       * @param source the <tt>ChatRoom</tt> which triggered this event.
-      * @param to the <tt>Contact</tt> that this message was sent to.
+      * @param to the <tt>ChatRoomMember</tt> that this message was sent to.
       * @param timestamp a date indicating the exact moment when the event
       * ocurred
       * @param chatRoomID the name/id of the chatroom where this message was
       * delivered.
       */
      public ChatRoomMessageDeliveredEvent(ChatRoom source,
-                                          Contact to,
+                                          ChatRoomMember to,
                                           Date timestamp,
                                           Message message)
      {
@@ -58,13 +58,13 @@ public class ChatRoomMessageDeliveredEvent
      }
 
      /**
-      * Returns a reference to the <tt>Contact</tt> that <tt>Message</tt> was
-      * sent to.
+      * Returns a reference to the <tt>ChatRoomMember</tt> that <tt>Message</tt>
+      * was sent to.
       *
       * @return a reference to the <tt>Contact</tt> that has send the
       * <tt>Message</tt> whose reception this event represents.
       */
-     public Contact getDestinationContact()
+     public ChatRoomMember getDestinationChatRoomMember()
      {
          return to;
      }

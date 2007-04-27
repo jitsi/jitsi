@@ -218,10 +218,11 @@ public class ConferenceChatPanel
         if(!sourceChatRoom.equals(chatRoom))
             return;
 
+        ChatRoomMember sourceMember = evt.getSourceChatRoomMember();
+        
         logger.trace("MESSAGE RECEIVED from contact: "
-            + evt.getSourceContact().getAddress());
-
-        Contact sourceContact = evt.getSourceContact();
+            + sourceMember.getContactAddress());
+        
         Date date = evt.getTimestamp();
         Message message = evt.getMessage();
 
@@ -230,15 +231,13 @@ public class ConferenceChatPanel
         ChatPanel chatPanel = chatWindowManager.getChatRoom(chatRoom);
 
         chatPanel.processMessage(
-                sourceContact.getDisplayName(), date,
+                sourceMember.getName(), date,
                 Constants.INCOMING_MESSAGE, message.getContent());
 
         chatWindowManager.openChat(chatPanel, false);
 
         GuiActivator.getAudioNotifier()
             .createAudio(Sounds.INCOMING_MESSAGE).play();
-
-        chatPanel.treatReceivedMessage(sourceContact);
     }
 
     /**
@@ -254,8 +253,10 @@ public class ConferenceChatPanel
         if(!sourceChatRoom.equals(chatRoom))
             return;
 
+        ChatRoomMember destMember = evt.getDestinationChatRoomMember();
+        
         logger.trace("MESSAGE DELIVERED to contact: "
-            + evt.getDestinationContact().getAddress());
+            + destMember.getContactAddress());
 
         Message msg = evt.getMessage();
 
@@ -266,11 +267,11 @@ public class ConferenceChatPanel
 
         if (chatPanel != null)
         {
-            ProtocolProviderService protocolProvider = evt
-                    .getDestinationContact().getProtocolProvider();
+            ProtocolProviderService protocolProvider
+                = destMember.getProtocolProvider();
 
             logger.trace("MESSAGE DELIVERED: process message to chat for contact: "
-                    + evt.getDestinationContact().getAddress());
+                    + destMember.getContactAddress());
 
             chatPanel.processMessage(getChatWindow().getMainFrame()
                     .getAccount(protocolProvider), evt.getTimestamp(),
@@ -297,7 +298,7 @@ public class ConferenceChatPanel
 
         Message sourceMessage = (Message) evt.getSource();
 
-        Contact sourceContact = evt.getDestinationContact();
+        ChatRoomMember destMember = evt.getDestinationChatRoomMember();
 
         if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
@@ -333,13 +334,13 @@ public class ConferenceChatPanel
         chatPanel.refreshWriteArea();
 
         chatPanel.processMessage(
-                sourceContact.getDisplayName(),
+                destMember.getName(),
                 new Date(System.currentTimeMillis()),
                 Constants.OUTGOING_MESSAGE,
                 sourceMessage.getContent());
 
         chatPanel.processMessage(
-                sourceContact.getDisplayName(),
+                destMember.getName(),
                 new Date(System.currentTimeMillis()),
                 Constants.ERROR_MESSAGE,
                 errorMsg);

@@ -19,9 +19,9 @@ public class ChatRoomMessageReceivedEvent
     extends EventObject
 {
     /**
-     * The contact that has sent this message.
+     * The chat room member that has sent this message.
      */
-    private Contact from = null;
+    private ChatRoomMember from = null;
 
     /**
      * A timestamp indicating the exact date when the event occurred.
@@ -39,12 +39,12 @@ public class ChatRoomMessageReceivedEvent
      * contact.
      *
      * @param source the <tt>ChatRoom</tt> for which the message is received.
-     * @param from the <tt>Contact</tt> that has sent this message.
+     * @param from the <tt>ChatRoomMember</tt> that has sent this message.
      * @param timestamp the exact date when the event ocurred.
      * @param message the received <tt>Message</tt>.
      */
     public ChatRoomMessageReceivedEvent(ChatRoom source,
-                                        Contact from,
+                                        ChatRoomMember from,
                                         Date timestamp,
                                         Message message)
     {
@@ -56,13 +56,13 @@ public class ChatRoomMessageReceivedEvent
     }
 
     /**
-     * Returns a reference to the <tt>Contact</tt> that has send the
+     * Returns a reference to the <tt>ChatRoomMember</tt> that has send the
      * <tt>Message</tt> whose reception this event represents.
      *
-     * @return a reference to the <tt>Contact</tt> that has send the
+     * @return a reference to the <tt>ChatRoomMember</tt> that has send the
      * <tt>Message</tt> whose reception this event represents.
      */
-    public Contact getSourceContact()
+    public ChatRoomMember getSourceChatRoomMember()
     {
         return from;
     }
