@@ -62,6 +62,7 @@ public class UIServiceImpl
         supportedContainers.add(UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
         supportedContainers.add(UIService.CONTAINER_GROUP_RIGHT_BUTTON_MENU);
         supportedContainers.add(UIService.CONTAINER_TOOLS_MENU);
+        supportedContainers.add(UIService.CONTAINER_CHAT_TOOL_BAR);
     }
 
     private static final Hashtable exportedWindows = new Hashtable();

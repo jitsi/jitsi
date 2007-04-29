@@ -13,11 +13,15 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 
 /**
  * The <tt>MainToolBar</tt> is a <tt>JToolBar</tt> which contains buttons
@@ -30,7 +34,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
  */
 public class MainToolBar
     extends SIPCommToolBar
-    implements ActionListener
+    implements  ActionListener,
+                PluginComponentListener
 {
 
     private ChatToolbarButton copyButton = new ChatToolbarButton(ImageLoader
@@ -173,6 +178,8 @@ public class MainToolBar
         this.printButton.setEnabled(false);
         this.sendFileButton.setEnabled(false);
         this.fontButton.setEnabled(false);
+        
+        this.initPluginComponents();
     }
 
     /**
@@ -300,4 +307,54 @@ public class MainToolBar
             nextButton.setEnabled(false);
         }
     }
+    
+    private void initPluginComponents()
+    {
+        Iterator pluginComponents = GuiActivator.getUIService()
+            .getComponentsForContainer(
+                UIService.CONTAINER_CHAT_TOOL_BAR);
+        
+        if(pluginComponents.hasNext())
+            this.addSeparator();
+        
+        while (pluginComponents.hasNext())
+        {
+            Component c = (Component)pluginComponents.next();
+            
+            this.add(c);
+            
+            this.revalidate();
+            this.repaint();
+        }
+        
+        GuiActivator.getUIService().addPluginComponentListener(this);
+    }
+
+
+    /**
+     * Implements the <code>PluginComponentListener.pluginComponentAdded</code>
+     * method.
+     */
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+        
+        this.addSeparator();
+        this.add(c);
+        
+        this.revalidate();
+        this.repaint();
+    }
+
+    /**
+     * Implements the <code>PluginComponentListener.pluginComponentRemoved</code>
+     * method.
+     */
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+        
+        this.remove(c);
+    }
+
 }
