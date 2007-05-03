@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -18,9 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -42,7 +39,7 @@ import net.java.sip.communicator.util.*;
  */
 public class ChatContactPanel
     extends JPanel
-    implements ActionListener
+    implements  ActionListener
 {
 
     private Logger logger = Logger.getLogger(ChatContactPanel.class);
@@ -67,58 +64,40 @@ public class ChatContactPanel
 
     private JPanel mainPanel = new JPanel(new BorderLayout());
     
-    private Contact protocolContact;
+    private ImageIcon contactPhotoIcon;
+    
+    private ChatContact chatContact;
     
     private PresenceStatus status;
     
     private ChatPanel chatPanel;
 
-    /**
-     * Creates an instance of the <tt>ChatContactPanel</tt>.
-     * 
-     * @param chatPanel
-     * @param protocolContact
-     */
-    public ChatContactPanel(ChatPanel chatPanel, Contact protocolContact)
-    {
-        this(chatPanel, null, protocolContact);
-    }
-    
+        
     /**
      * Creates an instance of the <tt>ChatContactPanel</tt>.
      * 
      * @param chatPanel the <tt>ChatPanel</tt>, to which this
      * <tt>ChatContactPanel</tt> belongs to.
-     * @param metaContact
-     * @param protocolContact
+     * @param chatContact the chat contact
      */
-    public ChatContactPanel(ChatPanel chatPanel,
-            MetaContact metaContact, Contact protocolContact)
+    public ChatContactPanel(ChatPanel chatPanel, ChatContact contact)
     {
         super(new BorderLayout(10, 5));
 
-        this.protocolContact = protocolContact;
+        this.chatContact = contact;
         
         this.setPreferredSize(new Dimension(100, 60));
-
+        
         this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
-        this.status = protocolContact.getPresenceStatus();
+        this.status = chatContact.getPresenceStatus();
         this.chatPanel = chatPanel;
 
         this.setOpaque(false);
         this.mainPanel.setOpaque(false);
-        //this.contactNamePanel.setOpaque(false);
         this.buttonsPanel.setOpaque(false);
-        
-        String chatContactName;
-
-        if(metaContact != null)
-            chatContactName = metaContact.getDisplayName();
-        else
-            chatContactName = protocolContact.getDisplayName();
-        
-        this.personNameLabel.setText(chatContactName);
+                
+        this.personNameLabel.setText(chatContact.getName());
         this.personNameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
         this.personNameLabel.setIcon(new ImageIcon(Constants
                 .getStatusIcon(status)));
@@ -150,9 +129,40 @@ public class ChatContactPanel
         this.callButton.setEnabled(false);
         this.sendFileButton.setEnabled(false);
         
-        new LoadContactPhoto(metaContact, protocolContact).start();
+        //Load the contact photo.
+        new Thread()
+        {
+            public void run()
+            {   
+                contactPhotoIcon = chatContact.getImage();
+                
+                SwingUtilities.invokeLater(new Runnable(){
+                    public void run()
+                    {
+                        if(contactPhotoIcon != null)
+                        {
+                            personPhotoLabel.setBorder(
+                                    new SIPCommBorders.BoldRoundBorder());
+                            personPhotoLabel.setIcon(contactPhotoIcon);
+                        }
+                    }
+                });
+                
+            }
+        }.start();
+
+        ProtocolProviderService pps
+            = chatContact.getProtocolProvider();
+    
+        Object contactInfoOpSet
+            = pps.getOperationSet(OperationSetWebContactInfo.class);
         
-        this.updateProtocolContact(protocolContact);
+        if(contactInfoOpSet == null)
+            infoButton.setEnabled(false);
+        else
+            infoButton.setEnabled(true);
+        
+        this.setStatusIcon(chatContact.getPresenceStatus());
     }
 
     /**
@@ -199,31 +209,7 @@ public class ChatContactPanel
         this.personNameLabel.setIcon(new ImageIcon(Constants
                 .getStatusIcon(newStatus)));
     }
-    
-    /**
-     * Disables or enables the contact info button depending on the selected 
-     * protocol contact.
-     * 
-     * @param protocolContact the selected protocol contact 
-     */
-    public void updateProtocolContact(Contact protocolContact)
-    {   
-        MainFrame mainFrame = chatPanel.getChatWindow().getMainFrame();
         
-        ProtocolProviderService pps
-            = protocolContact.getProtocolProvider();
-
-        OperationSetWebContactInfo wContactInfo
-            = mainFrame.getWebContactInfoOpSet(pps);
-        
-        if(wContactInfo == null)
-            infoButton.setEnabled(false);
-        else
-            infoButton.setEnabled(true);
-        
-        this.setStatusIcon(protocolContact.getPresenceStatus());
-    }
-    
     /**
      * 
      */
@@ -231,22 +217,22 @@ public class ChatContactPanel
     {
         JButton button = (JButton) e.getSource();
         
-        MainFrame mainFrame = chatPanel.getChatWindow().getMainFrame();
-        
-        if(button.getName().equals("call")) {
-            
+        if(button.getName().equals("call"))
+        {
+            //TODO: Implement the call functionality
         }
         else if(button.getName().equals("info"))
         {
             ProtocolProviderService pps
-                = protocolContact.getProtocolProvider();
+                = chatContact.getProtocolProvider();
 
-            OperationSetWebContactInfo wContactInfo
-                = mainFrame.getWebContactInfoOpSet(pps);
+            Object contactInfoOpSet
+                = pps.getOperationSet(OperationSetWebContactInfo.class);
 
-            if(wContactInfo != null) {
+            if(contactInfoOpSet != null) {
                 GuiActivator.getBrowserLauncher().openURL(
-                    wContactInfo.getWebContactInfo(protocolContact)
+                    ((OperationSetWebContactInfo)contactInfoOpSet)
+                        .getWebContactInfo(chatContact.getAddress())
                         .toString());
             }            
         }
@@ -262,83 +248,17 @@ public class ChatContactPanel
     }
     
     /**
-     * Loads contact photo in a separate thread
+     * Sets the given <tt>ImageIcon</tt> to be the photo shown on the left of
+     * the contact name.
+     * 
+     * @param contactPhoto the image to show as a contact photo
      */
-    private class LoadContactPhoto extends Thread
-    {
-        private MetaContact metaContact;
-        private Contact contact;
-        private ImageIcon contactPhoto;
-        
-        public LoadContactPhoto(MetaContact metaContact, Contact contact)
-        {
-            this.metaContact = metaContact;
-            this.contact = contact;
-        }
-
-        public LoadContactPhoto(MetaContact metaContact)
-        {
-            this.metaContact = metaContact;
-        }
-        
-        public void run()
-        {
-            byte[] image = null;
-            
-            if(metaContact != null)
-            {
-                Iterator i = metaContact.getContacts();
+    public void setContactPhoto(ImageIcon contactPhoto)
+    {        
+        contactPhotoIcon = contactPhoto;
                 
-                while(i.hasNext())
-                {
-                    Contact protoContact = (Contact) i.next();
-                    
-                    try
-                    {
-                        image = protoContact.getImage();
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.error("Failed to load contact photo.", ex);
-                    }
-                    
-                    if(image != null && image.length > 0)
-                        break;
-                }
-            }
-            else if(contact != null)
-            {
-                try
-                {
-                    image = contact.getImage();
-                }
-                catch (Exception ex)
-                {
-                    logger.error("Failed to load contact photo.", ex);
-                }
-            }
-            
-            if(image != null && image.length > 0)
-            {
-                Image contactImage
-                    = ImageLoader.getBytesInImage(image);
-                
-                contactPhoto = new ImageIcon(
-                    contactImage.getScaledInstance(            
-                    40, 45, Image.SCALE_SMOOTH));
-            }    
-            
-            if(contactPhoto == null)
-                return;
-            
-            SwingUtilities.invokeLater(new Runnable(){
-                public void run()
-                {
-                    personPhotoLabel.setBorder(
-                        new SIPCommBorders.BoldRoundBorder());
-                    personPhotoLabel.setIcon(contactPhoto);
-                }
-            });
-        }
+        personPhotoLabel.setBorder(
+                new SIPCommBorders.BoldRoundBorder());
+        personPhotoLabel.setIcon(contactPhotoIcon);                
     }
 }

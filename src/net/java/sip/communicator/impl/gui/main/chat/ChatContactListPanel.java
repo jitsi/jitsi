@@ -14,8 +14,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>ChatContactListPanel</tt> is the panel added on the right of the
@@ -44,7 +42,7 @@ public class ChatContactListPanel
     
     private JPanel contactsPanel = new JPanel();
     
-    private Hashtable contacts = new Hashtable(); 
+    private Hashtable chatContacts = new Hashtable(); 
     
     private ChatPanel chatPanel;
     
@@ -62,46 +60,6 @@ public class ChatContactListPanel
         
         this.setMinimumSize(new Dimension(150, 100));
 
-        this.init();
-    }
-    
-    /**
-     * Adds a simple <tt>Contact</tt> to the list of contacts contained in the
-     * chat.
-     * 
-     * @param contact the <tt>Contact</tt> to be added
-     */
-    public void addContact(Contact contact)
-    {
-        ChatContactPanel chatContactPanel = new ChatContactPanel(
-            chatPanel, contact);
-
-        this.contactsPanel.add(chatContactPanel);
-        
-        this.contacts.put(contact, chatContactPanel);
-    }
-    
-    /**
-     * Adds a <tt>MetaContact</tt> to the list of contacts contained in the chat.
-     *  
-     * @param metaContact the <tt>MetaContact</tt> to be added
-     * @param contact the subcontact which is initially selected
-     */
-    public void addContact(MetaContact metaContact, Contact contact)
-    {
-        ChatContactPanel chatContactPanel = new ChatContactPanel(
-            chatPanel, metaContact, contact);
-
-        this.contactsPanel.add(chatContactPanel);
-        
-        this.contacts.put(metaContact, chatContactPanel);
-    }
-
-    /**
-     * Constructs the <tt>ChatContactListPanel</tt>.
-     */
-    private void init()
-    {
         this.contactsPanel.setLayout(new BoxLayout(this.contactsPanel,
                 BoxLayout.Y_AXIS));
 
@@ -116,90 +74,60 @@ public class ChatContactListPanel
         // Disable all unused buttons.
         this.addToChatButton.setEnabled(false);
     }
-
+    
     /**
-     * Updates the status icon of the contact in this
-     * <tt>ChatContactListPanel</tt>.
-     * @param contact the <tt>Contact</tt>, which should be updated
-     */
-    public void updateContactStatus(Contact contact)
-    {
-        ChatContactPanel chatContactPanel = null;
-        if(contacts.containsKey(contact))
-        {
-            chatContactPanel = (ChatContactPanel)contacts.get(contact);
-        
-            chatContactPanel.setStatusIcon(contact.getPresenceStatus());        
-        }
-    }
-
-    /**
-     * Updates the status icon of the contact in this
-     * <tt>ChatContactListPanel</tt>.
-     * @param metaContact the <tt>MetaContact</tt>, which should be updated
-     */
-    public void updateContactStatus(MetaContact metaContact)
-    {
-        ChatContactPanel chatContactPanel = null;        
-        if(contacts.containsKey(metaContact))
-        {
-            chatContactPanel = (ChatContactPanel)contacts.get(metaContact);
-        
-            chatContactPanel.setStatusIcon(
-                metaContact.getDefaultContact().getPresenceStatus());        
-        }
-    }
-
-    /**
-     * Updates the given protocol contact chat panel in the list. Disables or
-     * enable buttons, according to the functionalities supported by this
-     * contact.
+     * Adds a <tt>ChatContact</tt> to the list of contacts contained in the
+     * chat.
      * 
-     * @param contact the <tt>Contact</tt>, which chat contact panel to update
+     * @param chatContact the <tt>ChatContact</tt> to add
      */
-    public void updateProtocolContact(Contact contact)
-    {   
-        ChatContactPanel chatContactPanel = null;
-        if(contacts.containsKey(contact))
-        {
-            chatContactPanel = (ChatContactPanel)contacts.get(contact);
+    public void addContact(ChatContact chatContact)
+    {                
+        ChatContactPanel chatContactPanel = new ChatContactPanel(
+            chatPanel, chatContact);
+
+        this.contactsPanel.add(chatContactPanel);
         
-            chatContactPanel.updateProtocolContact(contact);
-        }
+        this.chatContacts.put(chatContact, chatContactPanel);
     }
 
     /**
      * In the corresponding <tt>ChatContactPanel</tt> changes the name of the
      * given <tt>Contact</tt>.
      * 
-     * @param contact the <tt>Contact</tt>, which has been renamed
+     * @param chatContact the <tt>ChatContact</tt> to be renamed
      */
-    public void renameContact(Contact contact)
+    public void renameContact(ChatContact chatContact)
     {
         ChatContactPanel chatContactPanel = null;
-        if(contacts.containsKey(contact))
+        if(chatContacts.containsKey(chatContact))
         {
-            chatContactPanel = (ChatContactPanel)contacts.get(contact);
+            chatContactPanel = (ChatContactPanel)chatContacts.get(chatContact);
         
-            chatContactPanel.renameContact(contact.getDisplayName());
+            chatContactPanel.renameContact(chatContact.getName());
         }        
     }
- 
+
     /**
-     * In the corresponding <tt>ChatContactPanel</tt> changes the name of the
-     * given <tt>MetaContact</tt>.
-     * 
-     * @param contact the <tt>MetaContact</tt>, which has been renamed
+     * Returns the list of <tt>ChatContacts</tt> contained in this container. 
+     * @return the list of <tt>ChatContacts</tt> contained in this container
      */
-    public void renameContact(MetaContact contact)
+    public Enumeration getChatContacts()
     {
-        ChatContactPanel chatContactPanel = null;
-        if(contacts.containsKey(contact))
-        {
-            chatContactPanel = (ChatContactPanel)contacts.get(contact);
-        
-            chatContactPanel.renameContact(contact.getDisplayName());
-        }        
+        return chatContacts.keys();
+    }
+    
+    /**
+     * Returns the <tt>ChatContactPanel</tt> corresponding to the given
+     * <tt>ChatContact</tt>.
+     *  
+     * @param chatContact the <tt>ChatContact</tt> to search for.
+     * @return the <tt>ChatContactPanel</tt> corresponding to the given
+     * <tt>ChatContact</tt>
+     */
+    public ChatContactPanel getChatContactPanel(ChatContact chatContact)
+    {
+        return (ChatContactPanel) chatContacts.get(chatContact);
     }
 }
 

@@ -54,7 +54,11 @@ public class ConferenceChatPanel
 
         for (int i = 0; i < membersList.size(); i ++)
         {
-            getChatContactListPanel().addContact((Contact)membersList.get(i));
+            ChatContact chatContact
+                = new ChatContact((ChatRoomMember)membersList.get(i));
+            
+            getChatContactListPanel()
+                .addContact(chatContact);
         }
 
         this.chatRoom.addMessageListener(this);

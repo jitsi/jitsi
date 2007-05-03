@@ -16,7 +16,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
@@ -35,7 +34,8 @@ import net.java.sip.communicator.util.*;
 public class MetaContactChatPanel
     extends ChatPanel
     implements  ContactPresenceStatusListener,
-                MetaContactListListener
+                MetaContactListListener,
+                SubscriptionListener
 {
 
     private static final Logger logger = Logger
@@ -72,8 +72,10 @@ public class MetaContactChatPanel
 
         this.metaContact = metaContact;
 
-        //Add the contact to the list of contacts contained in this panel
-        getChatContactListPanel().addContact(metaContact, protocolContact);
+        ChatContact chatContact = new ChatContact(metaContact, protocolContact);
+        
+        //Add the contact to the list of contacts contained in this panel        
+        getChatContactListPanel().addContact(chatContact);
         
         //Load the history period, to initialize the firstMessageTimestamp and
         //the lastMessageTimeStamp variables. Used to disable/enable history
@@ -93,9 +95,17 @@ public class MetaContactChatPanel
         {
             Contact subContact = (Contact) protocolContacts.next();
             
-            chatWindow.getMainFrame()
-                .getProtocolPresenceOpSet(subContact.getProtocolProvider())
-                .addContactPresenceStatusListener(this);
+            Object opSet = subContact.getProtocolProvider()
+                .getOperationSet(OperationSetPersistentPresence.class);
+            
+            if(opSet != null)
+            {
+                ((OperationSetPersistentPresence)opSet)
+                    .addContactPresenceStatusListener(this);
+                
+                ((OperationSetPersistentPresence)opSet)
+                    .addSubsciptionListener(this);
+            }
         }
         
         //Obtains the MetaContactListService and adds itself to it as a
@@ -274,23 +284,39 @@ public class MetaContactChatPanel
         ContactPresenceStatusChangeEvent evt)
     {   
         Contact sourceContact = evt.getSourceContact();
-    
-        MainFrame mainFrame = getChatWindow().getMainFrame();
         
-        MetaContact sourceMetaContact = mainFrame
-            .getContactList().findMetaContactByContact(sourceContact);
+        MetaContact sourceMetaContact = GuiActivator.getMetaContactListService()
+            .findMetaContactByContact(sourceContact);
     
         if (sourceMetaContact != null && metaContact.equals(sourceMetaContact))
         {   
+            // Update the status of the given contact in the "send via" selector
+            // box.
             contactSelectorBox.updateContactStatus(sourceContact);
+            
+            // Update the status of the source meta contact in the contact details
+            // panel on the right.
+            
+            if(sourceMetaContact != null
+                    && sourceMetaContact.getDefaultContact().equals(sourceContact))
+            {
+                ChatContact chatContact
+                    = findChatContactByMetaContact(sourceMetaContact);
+            
+                ChatContactPanel chatContactPanel
+                    = getChatContactListPanel()
+                        .getChatContactPanel(chatContact);
+                
+                chatContactPanel.setStatusIcon(
+                    chatContact.getPresenceStatus());
+            }
             
             PresenceStatus status = contactSelectorBox
                 .getSelectedProtocolContact().getPresenceStatus();
 
-            getChatContactListPanel().updateContactStatus(metaContact);
-
+            // Show a status message to the user.
             String message = getChatConversationPanel().processMessage(
-                this.metaContact.getDisplayName(),
+                sourceContact.getAddress(),
                 new Date(System.currentTimeMillis()),
                 Constants.SYSTEM_MESSAGE,
                 Messages.getI18NString("statusChangedChatMessage",
@@ -393,7 +419,10 @@ public class MetaContactChatPanel
         
         if(evt.getSourceMetaContact().equals(metaContact))
         {
-            getChatContactListPanel().renameContact(evt.getSourceMetaContact());
+            ChatContact chatContact
+                = findChatContactByMetaContact(evt.getSourceMetaContact());
+            
+            getChatContactListPanel().renameContact(chatContact);
 
             getChatWindow().setTabTitle(this, newName);
 
@@ -645,8 +674,111 @@ public class MetaContactChatPanel
         }
     }
 
+    /**
+     * Returns the <tt>MetaContact</tt> corresponding to the chat.
+     * 
+     * @return the <tt>MetaContact</tt> corresponding to the chat.
+     */
     public MetaContact getMetaContact()
     {
         return metaContact;
+    }
+    
+    public void subscriptionCreated(SubscriptionEvent evt)
+    {}
+
+    public void subscriptionFailed(SubscriptionEvent evt)
+    {}
+
+    public void subscriptionRemoved(SubscriptionEvent evt)
+    {}
+
+    public void subscriptionMoved(SubscriptionMovedEvent evt)
+    {}
+
+    public void subscriptionResolved(SubscriptionEvent evt)
+    {}
+
+    /**
+     * Change the contact avatar image when contact details were updated.
+     */
+    public void contactModified(ContactPropertyChangeEvent evt)
+    {
+        Contact sourceContact = evt.getSourceContact();
+        
+        ChatContact chatContact = findChatContactByContact(sourceContact);
+        
+        if(chatContact != null)
+        {
+            ChatContactPanel chatContactPanel
+                = getChatContactListPanel().getChatContactPanel(chatContact);
+     
+            chatContactPanel.setContactPhoto(chatContact.getImage());
+        }
+    }
+    
+    /**
+     * Returns the <tt>ChatContact</tt> corresponding to the given
+     * <tt>MetaContact</tt>.
+     * 
+     * @param metaContact the <tt>MetaContact</tt> to search for
+     * @return the <tt>ChatContact</tt> corresponding to the given
+     * <tt>MetaContact</tt>.
+     */
+    private ChatContact findChatContactByMetaContact(MetaContact metaContact)
+    {
+        Enumeration chatContacts
+            = getChatContactListPanel().getChatContacts();
+            
+        while(chatContacts.hasMoreElements())
+        {
+            ChatContact chatContact
+                = (ChatContact) chatContacts.nextElement();
+            
+            Object chatSourceContact = chatContact.getSourceContact();
+            
+            if(chatSourceContact instanceof Contact)
+            {
+                MetaContact parentMetaContact
+                    = GuiActivator.getMetaContactListService()
+                        .findMetaContactByContact((Contact)chatSourceContact);
+                
+                if(parentMetaContact != null
+                        && parentMetaContact.equals(metaContact))
+                    return chatContact;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Returns the <tt>ChatContact</tt> corresponding to the given
+     * <tt>Contact</tt>.
+     * 
+     * @param metaContact the <tt>MetaContact</tt> to search for
+     * @return the <tt>ChatContact</tt> corresponding to the given
+     * <tt>Contact</tt>.
+     */
+    private ChatContact findChatContactByContact(Contact contact)
+    {
+        Enumeration chatContacts
+            = getChatContactListPanel().getChatContacts();
+            
+        while(chatContacts.hasMoreElements())
+        {
+            ChatContact chatContact
+                = (ChatContact) chatContacts.nextElement();
+            
+            Object chatSourceContact = chatContact.getSourceContact();
+            
+            if(chatSourceContact instanceof Contact
+                    && chatSourceContact.equals(contact))
+            {
+                return chatContact;
+            }
+        }
+        
+        return null;
     }
 }

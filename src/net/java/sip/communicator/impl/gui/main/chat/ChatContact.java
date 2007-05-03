@@ -1,0 +1,213 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.gui.main.chat;
+
+import java.awt.*;
+import java.util.*;
+
+import javax.swing.*;
+
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
+
+/**
+ * The <tt>ChatContact</tt> is a wrapping class for the <tt>Contact</tt> and
+ * <tt>ChatRoomMember</tt> interface.
+ * 
+ * @author Yana Stamcheva
+ */
+public class ChatContact
+{
+    private Logger logger = Logger.getLogger(ChatContact.class);
+    
+    private String name;
+     
+    private String address;
+    
+    private ImageIcon image;
+    
+    private ProtocolProviderService protocolProvider;
+    
+    private PresenceStatus presenceStatus;
+    
+    private boolean isMultiChatContact;
+    
+    private Object sourceContact;
+    
+    /**
+     * Creates an instance of <tt>ChatContact</tt> by passing to it the
+     * <tt>Contact</tt> for which it is created.
+     * 
+     * @param contact the <tt>Contact</tt> for which this <tt>ChatContact</tt>
+     * is created
+     */
+    public ChatContact(Contact contact)
+    {
+        this(null, contact);
+    }
+    
+    /**
+     * Creates an instance of <tt>ChatContact</tt> by passing to it the
+     * corresponding <tt>MetaContact</tt> and <tt>Contact</tt>.
+     * 
+     * @param metaContact the <tt>MetaContact</tt> encapsulating the given
+     * <tt>Contact</tt>
+     * @param contact the <tt>Contact</tt> for which this <tt>ChatContact</tt>
+     * is created
+     */
+    public ChatContact(MetaContact metaContact, Contact contact)
+    {
+        this.sourceContact = contact;
+        this.address = contact.getAddress();
+        this.isMultiChatContact = false;
+        this.protocolProvider = contact.getProtocolProvider();
+        
+        if(metaContact != null)
+            name = metaContact.getDisplayName();
+        else
+            name = contact.getDisplayName();
+        
+    }
+    
+    /**
+     * Creates an instance of <tt>ChatContact</tt> by passing to it the
+     * <tt>ChatRoomMember</tt> for which it is created.
+     * 
+     * @param chatRoomMember the <tt>ChatRoomMember</tt> for which this
+     * <tt>ChatContact</tt> is created.
+     */
+    public ChatContact(ChatRoomMember chatRoomMember)
+    {
+        this.sourceContact = chatRoomMember;
+        this.name = chatRoomMember.getName();
+        this.address = chatRoomMember.getContactAddress();
+        this.isMultiChatContact = true;
+        this.protocolProvider = chatRoomMember.getProtocolProvider();
+    }
+
+    /**
+     * Returns the contact identifier.
+     * 
+     * @return the contact identifier
+     */
+    public String getAddress()
+    {
+        return address;
+    }
+
+    /**
+     * Returns the contact name.
+     * 
+     * @return the contact name
+     */  
+    public String getName()
+    {
+        return name;
+    }
+    
+    /**
+     * Returns the current presence status for single user chat contacts and
+     * null for multi user chat contacts.
+     * 
+     * @return the current presence status for single user chat contacts and
+     * null for multi user chat contacts
+     */
+    public PresenceStatus getPresenceStatus()
+    {
+        if(!isMultiChatContact)
+            return ((Contact)sourceContact).getPresenceStatus();
+        
+        return null;
+    }
+    
+    /**
+     * Returns the <tt>ProtocolProviderService</tt> of the contact.
+     * 
+     * @return the <tt>ProtocolProviderService</tt> of the contact
+     */
+    public ProtocolProviderService getProtocolProvider()
+    {
+        return protocolProvider;
+    }
+    
+    /**
+     * Returns the source contact. It could be an instance of <tt>Contact</tt>
+     * or <tt>ChatRoomMember</tt> interface.
+     * 
+     * @return the source contact
+     */
+    public Object getSourceContact()
+    {
+        return sourceContact;
+    }
+    
+    /**
+     * Returns the avatar image corresponding to the source contact. In the case
+     * of multi user chat contact returns null.
+     * 
+     * @return the avatar image corresponding to the source contact. In the case
+     * of multi user chat contact returns null
+     */
+    public ImageIcon getImage()
+    {
+        byte[] contactImage = null;
+        
+        if(!(sourceContact instanceof Contact))
+            return null;
+        
+        Contact contact = (Contact)sourceContact;
+        
+        MetaContact metaContact = GuiActivator.getMetaContactListService()
+            .findMetaContactByContact(contact);
+        
+        if(metaContact != null)
+        {
+            Iterator i = metaContact.getContacts();
+            
+            while(i.hasNext())
+            {
+                Contact protoContact = (Contact) i.next();
+                
+                try
+                {
+                    contactImage = protoContact.getImage();
+                }
+                catch (Exception ex)
+                {
+                    logger.error("Failed to load contact photo.", ex);
+                }
+                
+                if(contactImage != null && contactImage.length > 0)
+                    break;
+            }
+        }
+        else if(contact != null)
+        {
+            try
+            {
+                contactImage = contact.getImage();
+            }
+            catch (Exception ex)
+            {
+                logger.error("Failed to load contact photo.", ex);
+            }
+        }
+        
+        if(contactImage != null)
+        {
+            Image image = ImageLoader.getBytesInImage(contactImage);
+            
+            return new ImageIcon(image.getScaledInstance(            
+                            40, 45, Image.SCALE_SMOOTH));
+        }
+        else
+            return null;
+    }
+}
