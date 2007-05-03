@@ -100,7 +100,7 @@ public class ConfigurationManager
                 .getPropertyNamesByPrefix(prefix, true);
 
         Iterator chatRoomIter = chatRooms.iterator();
-
+            
         while(chatRoomIter.hasNext())
         {
             String chatRoomRootPropName
@@ -109,7 +109,7 @@ public class ConfigurationManager
             String chatRoomID
                 = configService.getString(chatRoomRootPropName);
 
-            chatRooms.add(chatRoomID);
+            chatRoomsList.add(chatRoomID);
         }
     }
 
