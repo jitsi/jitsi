@@ -105,16 +105,22 @@ public class ToolsMenu
     {
         Component c = (Component) event.getSource();
         
-        this.add(c);
-        
-        this.revalidate();
-        this.repaint();
+        if(event.getContainerID().equals(UIService.CONTAINER_TOOLS_MENU))
+        {
+            this.add(c);
+            
+            this.revalidate();
+            this.repaint();
+        }
     }
 
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
         Component c = (Component) event.getSource();
         
-        this.remove(c);
+        if(event.getContainerID().equals(UIService.CONTAINER_TOOLS_MENU))
+        {
+            this.remove(c);
+        }
     }
 }

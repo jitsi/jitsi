@@ -19,7 +19,6 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 
@@ -336,14 +335,17 @@ public class MainToolBar
      * method.
      */
     public void pluginComponentAdded(PluginComponentEvent event)
-    {
+    {   
         Component c = (Component) event.getSource();
         
-        this.addSeparator();
-        this.add(c);
-        
-        this.revalidate();
-        this.repaint();
+        if(event.getContainerID().equals(UIService.CONTAINER_CHAT_TOOL_BAR))
+        {
+            this.addSeparator();
+            this.add(c);
+            
+            this.revalidate();
+            this.repaint();
+        }
     }
 
     /**
@@ -354,7 +356,10 @@ public class MainToolBar
     {
         Component c = (Component) event.getSource();
         
-        this.remove(c);
+        if(event.getContainerID().equals(UIService.CONTAINER_CHAT_TOOL_BAR))
+        {
+            this.remove(c);
+        }
     }
 
 }

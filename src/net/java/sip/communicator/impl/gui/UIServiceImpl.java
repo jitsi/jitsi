@@ -44,7 +44,6 @@ import net.java.sip.communicator.util.Logger;
 public class UIServiceImpl
     implements UIService
 {
-
     private static final Logger logger = Logger.getLogger(UIServiceImpl.class);
 
     private PopupDialogImpl popupDialog;

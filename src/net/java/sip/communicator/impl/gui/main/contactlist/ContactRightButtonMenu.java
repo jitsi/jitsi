@@ -717,22 +717,30 @@ public class ContactRightButtonMenu
     {
         Component c = (Component) event.getSource();
         
-        this.add(c);
-        
-        if (c instanceof ContactAwareComponent)
-        {   
-            ((ContactAwareComponent)c)
-                .setCurrentContact(contactItem);
+        if(event.getContainerID()
+                .equals(UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU))
+        {
+            this.add(c);
+            
+            if (c instanceof ContactAwareComponent)
+            {   
+                ((ContactAwareComponent)c)
+                    .setCurrentContact(contactItem);
+            }
+            
+            this.repaint();
         }
-        
-        this.repaint();
     }
 
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
         Component c = (Component) event.getSource();
         
-        this.remove(c);
+        if(event.getContainerID()
+                .equals(UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU))
+        {
+            this.remove(c);
+        }
     }
     
     /**

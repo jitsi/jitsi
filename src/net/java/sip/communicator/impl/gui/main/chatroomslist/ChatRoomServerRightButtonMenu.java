@@ -31,8 +31,7 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class ChatRoomServerRightButtonMenu
     extends JPopupMenu
-    implements  ActionListener,
-                PluginComponentListener
+    implements  ActionListener
 {
     private I18NString createChatRoomString
         = Messages.getI18NString("createChatRoom");
@@ -77,8 +76,6 @@ public class ChatRoomServerRightButtonMenu
         this.add(createChatRoomItem);
         this.add(joinChannelItem);
         
-        this.initPluginComponents();
-
         this.createChatRoomItem.setName("createChatRoom");
         this.joinChannelItem.setName("joinChatRoom");
         
@@ -89,26 +86,6 @@ public class ChatRoomServerRightButtonMenu
         
         this.createChatRoomItem.addActionListener(this);
         this.joinChannelItem.addActionListener(this);
-    }
-    
-    /**
-     * Adds all already registered plugin components to this menu.
-     */
-    private void initPluginComponents()
-    {
-        Iterator pluginComponents = GuiActivator.getUIService()
-            .getComponentsForContainer(
-                UIService.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
-        
-        if(pluginComponents.hasNext())
-            this.addSeparator();
-        
-        while (pluginComponents.hasNext())
-        {
-            Component o = (Component)pluginComponents.next();
-            
-            this.add(o);
-        }
     }
     
     /**
@@ -141,29 +118,5 @@ public class ChatRoomServerRightButtonMenu
                 );
             joinChannelDialog.setVisible(true);
         }
-    }   
-    
-    /**
-     * Implements the <tt>PluginComponentListener.pluginComponentAdded</tt>
-     * method, in order to add the given plugin component in this container.
-     */
-    public void pluginComponentAdded(PluginComponentEvent event)
-    {
-        Component c = (Component) event.getSource();
-        
-        this.add(c);
-                
-        this.repaint();
-    }
-
-    /**
-     * Implements the <tt>PluginComponentListener.pluginComponentRemoved</tt>
-     * method, in order to remove the given component from this container.
-     */
-    public void pluginComponentRemoved(PluginComponentEvent event)
-    {
-        Component c = (Component) event.getSource();
-        
-        this.remove(c);
     }
 }

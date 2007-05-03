@@ -280,8 +280,15 @@ public class QuickMenu
      * Implements the <code>PluginComponentListener.pluginComponentAdded</code>
      * method.
      */
-    public void pluginComponentAdded(PluginComponentEvent event) {
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
         Component c = (Component) event.getSource();
+        
+        // If the container id doesn't correspond to the id of the plugin
+        // container we're not interested.
+        if(!event.getContainerID()
+                .equals(UIService.CONTAINER_MAIN_TOOL_BAR))
+            return;
         
         this.add(c);
         
@@ -313,7 +320,13 @@ public class QuickMenu
     public void pluginComponentRemoved(PluginComponentEvent event) {
         Component c = (Component) event.getSource();
         
-        this.remove(c);
+        // If the container id doesn't correspond to the id of the plugin
+        // container we're not interested.
+        if(!event.getContainerID()
+                .equals(UIService.CONTAINER_MAIN_TOOL_BAR))
+            return;
+        
+        this.remove(c);    
     }
 
     public void componentHidden(ComponentEvent e)

@@ -15,7 +15,8 @@ import net.java.sip.communicator.service.gui.*;
  * @author Yana Stamcheva
  */
 public class PluginComponentEvent
-    extends EventObject{
+    extends EventObject
+{
 
     private int eventID = -1;
 
@@ -32,6 +33,12 @@ public class PluginComponentEvent
     public static final int PLUGIN_COMPONENT_REMOVED = 2;
 
     /**
+     * The identifier of the container to which or from which the plugin
+     * component is added or removed.
+     */
+    private ContainerID containerID;
+    
+    /**
      * Creates a new PluginComponentEvent according to the specified
      * parameters.
      * @param source The pluginComponent that is added to the container.
@@ -40,9 +47,12 @@ public class PluginComponentEvent
      * @param eventID one of the PLUGIN_COMPONENT_XXX static fields indicating
      * the nature of the event.
      */
-    public PluginComponentEvent(Object source, ContainerID containerID, int eventID) {
+    public PluginComponentEvent(Object source, ContainerID containerID,
+            int eventID)
+    {
         super(source);
         this.eventID = eventID;
+        this.containerID = containerID;
     }
     
     /**
@@ -52,5 +62,16 @@ public class PluginComponentEvent
      */
     public int getEventID(){
         return eventID;
+    }
+
+    /**
+     * Returns the identifier of the container, where the plugin component, which
+     * is the source of this event is added or removed.
+     * 
+     * @return the identifier of the plugin container
+     */
+    public ContainerID getContainerID()
+    {
+        return containerID;
     }
 }
