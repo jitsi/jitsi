@@ -8,18 +8,20 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 public class JoinChannelDialog
     extends SIPCommDialog
-    implements ActionListener
+    implements  ActionListener
 {
     private static final Logger logger
         = Logger.getLogger(JoinChannelDialog.class);
@@ -40,12 +42,16 @@ public class JoinChannelDialog
 
     private JTextField channelTextField = new JTextField();
 
-    private JButton okButton
-        = new JButton(Messages.getI18NString("ok").getText());
+    private JButton joinButton
+        = new JButton(Messages.getI18NString("join").getText());
 
     private JButton cancelButton
         = new JButton(Messages.getI18NString("cancel").getText());
 
+    private JScrollPane channelsListScrollPane = new JScrollPane();
+    
+    private JList channelsList;
+    
     private MainFrame mainFrame;
 
     private ProtocolProviderService protocolProvider;
@@ -53,9 +59,9 @@ public class JoinChannelDialog
     public JoinChannelDialog (MainFrame mainFrame,
             ProtocolProviderService protocolProvider)
     {
-        super(mainFrame);
+        super(mainFrame, false);
 
-        this.setSize(400, 300);
+        this.mainPanel.setPreferredSize(new Dimension(500, 150));
 
         this.mainFrame = mainFrame;
 
@@ -65,7 +71,7 @@ public class JoinChannelDialog
 
         this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
-        buttonsPanel.add(okButton);
+        buttonsPanel.add(joinButton);
 
         buttonsPanel.add(cancelButton);
 
@@ -81,35 +87,34 @@ public class JoinChannelDialog
 
         southPanel.add(channelListButton);
 
-        channelTextField.setText("#");
-
-        okButton.setName("ok");
+        joinButton.setName("ok");
         cancelButton.setName("cancel");
         channelListButton.setName("channelList");
 
-        okButton.addActionListener(this);
+        joinButton.addActionListener(this);
         cancelButton.addActionListener(this);
         channelListButton.addActionListener(this);
     }
-
-    protected void close(boolean isEscaped)
-    {
-    }
-
+    
     public void actionPerformed(ActionEvent e)
     {
         JButton button = (JButton) e.getSource();
         String buttonName = button.getName();
 
+        OperationSetMultiUserChat multiChatOpSet
+            = (OperationSetMultiUserChat) protocolProvider.getOperationSet(
+                    OperationSetMultiUserChat.class);
+        
         if(buttonName.equals("ok"))
         {
-            OperationSetMultiUserChat multiChatOpSet
-                = (OperationSetMultiUserChat) protocolProvider.getOperationSet(
-                        OperationSetMultiUserChat.class);
-
-            String chatRoomName = channelTextField.getText();
-
             ChatRoom chatRoom = null;
+            String chatRoomName;
+            
+            if(channelsList != null && channelsList.getSelectedValue() != null)
+                chatRoomName = (String) channelsList.getSelectedValue();
+            else
+                chatRoomName = channelTextField.getText();
+            
             try
             {
                 chatRoom = multiChatOpSet.findRoom(chatRoomName);
@@ -127,12 +132,14 @@ public class JoinChannelDialog
                         "error").getText())
                         .showDialog();
             }
-
+            
             if(chatRoom != null)
             {
                 try
                 {
                     chatRoom.join();
+                    
+                    ConfigurationManager.saveChatRoom(chatRoom);
 
                     ChatRoomsList chatRoomsList
                         = mainFrame.getChatRoomsListPanel().getChatRoomsList();
@@ -143,9 +150,11 @@ public class JoinChannelDialog
                 }
                 catch (OperationFailedException ex)
                 {
+                    logger.error("Failed to join chat room. ", ex);
+                    
                     new ErrorDialog(mainFrame,
                             Messages.getI18NString("failedToJoinChannel",
-                                    new String[]{chatRoomName}).getText(),
+                                    new String[]{chatRoom.getName()}).getText(),
                             ex,
                             Messages.getI18NString("error").getText())
                             .showDialog();
@@ -155,7 +164,7 @@ public class JoinChannelDialog
             {
                 new ErrorDialog(mainFrame,
                         Messages.getI18NString("chatRoomNotExist",
-                                new String[]{chatRoomName,
+                                new String[]{chatRoom.getName(),
                                 protocolProvider.getAccountID().getService()})
                             .getText(),
                         Messages.getI18NString("error").getText()).showDialog();
@@ -167,8 +176,35 @@ public class JoinChannelDialog
         }
         else if(buttonName.equals("channelList"))
         {
-
+            List list = null;
+            try
+            {
+                list = multiChatOpSet.getExistingChatRooms();
+            }
+            catch (OperationFailedException ex)
+            {
+                logger.error("Could not obtain existing chat rooms.", ex);
+            }
+            catch (OperationNotSupportedException ex)
+            {
+                logger.error("Could not obtain existing chat rooms.", ex);
+            }
+     
+            if(list != null && list.size() > 0)
+            {
+                channelsList = new JList(list.toArray());
+                channelsListScrollPane.getViewport().add(channelsList);
+                
+                mainPanel.add(channelsListScrollPane, BorderLayout.SOUTH);
+                
+                mainPanel.revalidate();
+                mainPanel.repaint();
+            }
         }
+    }
+    
+    protected void close(boolean isEscaped)
+    {
     }
 }
 

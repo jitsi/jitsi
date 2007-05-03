@@ -133,6 +133,12 @@ public class ChatRoomServerRightButtonMenu
                 = new JoinChannelDialog(mainFrame, protocolProvider);
             
             joinChannelDialog.pack();
+            joinChannelDialog.setLocation(
+                Toolkit.getDefaultToolkit().getScreenSize().width/2
+                    - joinChannelDialog.getWidth()/2,
+                Toolkit.getDefaultToolkit().getScreenSize().height/2
+                    - joinChannelDialog.getHeight()/2
+                );
             joinChannelDialog.setVisible(true);
         }
     }   

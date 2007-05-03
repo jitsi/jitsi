@@ -15,8 +15,10 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.authorization.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -65,38 +67,6 @@ public class ChatRoomsList
         OperationSetMultiUserChat multiUserChatOperationSet)
     {
         listModel.addElement(pps);
-
-        try
-        {
-            List existingChatRooms
-                = multiUserChatOperationSet.getExistingChatRooms();
-
-            if(existingChatRooms == null)
-                return;
-
-            Iterator i = existingChatRooms.iterator();
-
-            while(i.hasNext())
-            {
-                ChatRoom chatRoom = (ChatRoom) i.next();
-
-                listModel.addElement(chatRoom);
-            }
-
-        }
-        catch (OperationNotSupportedException ex)
-        {
-            logger.error(
-                "Failed to obtain existing chat rooms for the following server: "
-                + pps.getAccountID().getService(), ex);
-        }
-        catch (OperationFailedException ex)
-        {
-            logger.error(
-                "Failed to obtain existing chat rooms for the following server: "
-                + pps.getAccountID().getService(), ex);
-        }
-
     }
 
 
