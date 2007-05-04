@@ -443,7 +443,8 @@ public class TestOperationSetPresence
                 newStatus = YahooStatusEnum.BUSY;
             
             // query it again for the status
-            contactPresEvtCollector.collectedEvents.clear();
+            contactPresEvtCollector = new ContactPresenceEventCollector(
+                    fixture.userID2, newStatus);
             operationSetPresence1.addContactPresenceStatusListener(
                 contactPresEvtCollector);
 
@@ -725,7 +726,10 @@ public class TestOperationSetPresence
             synchronized(this)
             {
                 if(collectedEvents.size() > 0)
+                {
+                    logger.trace("Event already received. " + collectedEvents);
                     return;
+                }
 
                 try{
                     wait(waitFor);

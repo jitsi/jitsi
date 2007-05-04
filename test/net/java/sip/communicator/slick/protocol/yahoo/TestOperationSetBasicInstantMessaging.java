@@ -199,6 +199,16 @@ public class TestOperationSetBasicInstantMessaging
      */
     public void firstTestReceiveMessage()
     {
+        ContactGroup rootGroup
+            = ((OperationSetPersistentPresence)opSetPresence2).getServerStoredContactListRoot();
+
+        logger.debug("=========== Server Stored Contact List =================");
+
+        logger.debug("rootGroup="+rootGroup.getGroupName()
+                     +" rootGroup.childContacts="+rootGroup.countContacts()
+                     + "rootGroup.childGroups="+rootGroup.countSubgroups()
+                     + "Printing rootGroupContents=\n"+rootGroup.toString());
+        
         String body = "This is an IM coming from the tester agent"
             + " on " + new Date().toString();
 
@@ -434,7 +444,10 @@ public class TestOperationSetBasicInstantMessaging
             {
 
                 if(collectedEvents.size() > 0)
+                {
+                    logger.trace("ImEvent already received. " + collectedEvents);
                     return;
+                }
 
                 try{
                     wait(waitFor);

@@ -271,18 +271,29 @@ public class TestOperationSetPresence
         //events have been generated.
         PresenceStatusEventCollector statusEventCollector
             = new PresenceStatusEventCollector();
+        ContactPresenceEventCollector contactStatusEventCollector
+            = new ContactPresenceEventCollector(fixture.userID1, newStatus);
         operationSetPresence1.addProviderPresenceStatusListener(
             statusEventCollector);
+        operationSetPresence2.addContactPresenceStatusListener(
+            contactStatusEventCollector);
 
         //change the status
         operationSetPresence1.publishPresenceStatus(newStatus, null);
         pauseAfterStateChanges();
 
-        //test event notification.
+        //test provider event notification.
         statusEventCollector.waitForPresEvent(10000);
+        
+        // wait for status change in other provider
+        // as later its not actually queryed but the last received 
+        // status is returned
+        contactStatusEventCollector.waitForEvent(10000);
 
         operationSetPresence1.removeProviderPresenceStatusListener(
             statusEventCollector);
+        operationSetPresence2.removeContactPresenceStatusListener(
+            contactStatusEventCollector);
 
         assertEquals("Events dispatched during an event transition.",
                      1, statusEventCollector.collectedPresEvents.size());
@@ -743,7 +754,10 @@ public class TestOperationSetPresence
             synchronized(this)
             {
                 if(collectedEvents.size() > 0)
+                {
+                    logger.trace("Change already received. " + collectedEvents);
                     return;
+                }
 
                 try{
                     wait(waitFor);
