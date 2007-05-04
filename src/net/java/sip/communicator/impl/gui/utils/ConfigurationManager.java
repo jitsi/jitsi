@@ -94,23 +94,23 @@ public class ConfigurationManager
         }
         
         // Load the list of visited chat rooms.      
-        String prefix = "net.java.sip.communicator.impl.gui.chatRooms";
-
-        List chatRooms = configService
-                .getPropertyNamesByPrefix(prefix, true);
-
-        Iterator chatRoomIter = chatRooms.iterator();
-            
-        while(chatRoomIter.hasNext())
-        {
-            String chatRoomRootPropName
-                = (String) chatRoomIter.next();
-
-            String chatRoomID
-                = configService.getString(chatRoomRootPropName);
-
-            chatRoomsList.add(chatRoomID);
-        }
+//        String prefix = "net.java.sip.communicator.impl.gui.chatRooms";
+//
+//        List chatRooms = configService
+//                .getPropertyNamesByPrefix(prefix, true);
+//
+//        Iterator chatRoomIter = chatRooms.iterator();
+//            
+//        while(chatRoomIter.hasNext())
+//        {
+//            String chatRoomRootPropName
+//                = (String) chatRoomIter.next();
+//
+//            String chatRoomID
+//                = configService.getString(chatRoomRootPropName);
+//
+//            chatRoomsList.add(chatRoomID);
+//        }
     }
 
     /**
