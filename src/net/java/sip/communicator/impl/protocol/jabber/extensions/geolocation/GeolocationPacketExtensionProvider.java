@@ -1,0 +1,177 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.protocol.jabber.extensions.geolocation;
+
+import net.java.sip.communicator.util.Logger;
+
+import org.jivesoftware.smack.packet.PacketExtension;
+import org.jivesoftware.smack.provider.PacketExtensionProvider;
+import org.xmlpull.v1.XmlPullParser;
+
+/**
+ * This class parses incoming messages and extracts the geolocation parameters
+ * from the raw XML messages.
+ *
+ * @author Guillaume Schreiner
+ */
+public class GeolocationPacketExtensionProvider
+    implements PacketExtensionProvider
+{
+
+    private static final Logger logger =
+        Logger.getLogger(GeolocationPacketExtensionProvider.class);
+
+    /**
+     * The name of the XML element used for transport of geolocation parameters.
+     */
+    public static final String ELEMENT_NAME = "geoloc";
+
+    /**
+     * The names XMPP space that the geolocation elements belong to.
+     */
+    public static final String NAMESPACE = "http://jabber.org/protocol/geoloc";
+
+    /**
+     * Creates a new GeolocationPacketExtensionProvider.
+     * ProviderManager requires that every PacketExtensionProvider has a public,
+     * no-argument constructor
+     */
+    public GeolocationPacketExtensionProvider()
+    {}
+
+    /**
+     * Parses a GeolocationPacketExtension packet (extension sub-packet).
+     *
+     * @param parser an XML parser.
+     * @return a new GeolocationPacketExtension instance.
+     * @throws Exception if an error occurs parsing the XML.
+     * @todo Implement this
+     *   org.jivesoftware.smack.provider.PacketExtensionProvider method
+     */
+    public PacketExtension parseExtension(XmlPullParser parser)
+        throws Exception
+    {
+
+        GeolocationPacketExtension result = new GeolocationPacketExtension();
+
+        logger.trace("Trying to map XML Geolocation Extension");
+
+        boolean done = false;
+        while (!done)
+        {
+            try
+            {
+                int eventType = parser.next();
+                if (eventType == XmlPullParser.START_TAG)
+                {
+                    if (parser.getName().equals(GeolocationPacketExtension.ALT))
+                    {
+                        result.setAlt(Float.parseFloat(parser.nextText()));
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.AREA))
+                    {
+                        result.setArea(parser.nextText());
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.BEARING))
+                    {
+                        result.setBearing(Float.parseFloat(parser.nextText()));
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.BUILDING))
+                    {
+                        result.setBuilding(parser.nextText());
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.COUNTRY))
+                    {
+                        result.setCountry(parser.nextText());
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.DATUM))
+                    {
+                        result.setDatum(parser.nextText());
+                    }
+                    if (parser.getName().equals(GeolocationPacketExtension.
+                                                DESCRIPTION))
+                    {
+                        result.setDescription(parser.nextText());
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.ERROR))
+                    {
+                        result.setError(Float.parseFloat(parser.nextText()));
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.FLOOR))
+                    {
+                        result.setFloor(parser.nextText());
+                    }
+                    if (parser.getName().equals(GeolocationPacketExtension.LAT))
+                    {
+                        result.setLat(Float.parseFloat(parser.nextText()));
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.LOCALITY))
+                    {
+                        result.setLocality(parser.nextText());
+                    }
+                    if (parser.getName().equals(GeolocationPacketExtension.LON))
+                    {
+                        result.setLon(Float.parseFloat(parser.nextText()));
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.POSTALCODE))
+                    {
+                        result.setPostalCode(parser.nextText());
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.REGION))
+                    {
+                        result.setRegion(parser.nextText());
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.ROOM))
+                    {
+                        result.setRoom(parser.nextText());
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.STREET))
+                    {
+                        result.setStreet(parser.nextText());
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.TEXT))
+                    {
+                        result.setText(parser.nextText());
+                    }
+                    if (parser.getName()
+                            .equals(GeolocationPacketExtension.TIMESTAMP))
+                    {
+                        result.setText(parser.nextText());
+                    }
+                }
+                else if (eventType == XmlPullParser.END_TAG)
+                {
+                    if (parser.getName().equals(
+                            GeolocationPacketExtensionProvider.ELEMENT_NAME))
+                    {
+                        done = true;
+                        logger.trace("Parsing finish");
+                    }
+                }
+            }
+            catch (NumberFormatException ex)
+            {
+                ex.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+}
