@@ -653,23 +653,23 @@ public class OperationSetPersistentPresenceJabberImpl
      * Converts the specified jabber status to one of the status fields of the
      * JabberStatusEnum class.
      *
-     * @param mode the Jabber Status
+     * @param presence the Jabber Status
      * @return a PresenceStatus instance representation of the Jabber Status
      * parameter. The returned result is one of the JabberStatusEnum fields.
      */
-    private JabberStatusEnum jabberStatusToPresenceStatus(Presence presence)
+    public static JabberStatusEnum jabberStatusToPresenceStatus(Presence presence)
     {
         // fixing issue: 336
-        // from the smack api : 
-        // A null presence mode value is interpreted to be the same thing 
+        // from the smack api :
+        // A null presence mode value is interpreted to be the same thing
         // as Presence.Mode.available.
         if(presence.getMode() == null && presence.isAvailable())
             return JabberStatusEnum.AVAILABLE;
         else if(presence.getMode() == null && !presence.isAvailable())
             return JabberStatusEnum.OFFLINE;
-        
+
         Presence.Mode mode = presence.getMode();
-        
+
         if(mode.equals(Presence.Mode.available))
             return JabberStatusEnum.AVAILABLE;
         else if(mode.equals(Presence.Mode.away))
@@ -688,7 +688,8 @@ public class OperationSetPersistentPresenceJabberImpl
      * @param status the jabberStatus
      * @return a PresenceStatus instance
      */
-    private Presence.Mode presenceStatusToJabberMode(JabberStatusEnum status)
+    public static Presence.Mode presenceStatusToJabberMode(
+                                                       JabberStatusEnum status)
     {
         return (Presence.Mode)scToJabberModesMappings.get(status);
     }
@@ -811,7 +812,7 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 fireProviderPresenceStatusChangeEvent(currentStatus,
                     JabberStatusEnum.AVAILABLE);
-                
+
                 // init ssList
                 ssContactList.init();
             }
@@ -1001,7 +1002,7 @@ public class OperationSetPersistentPresenceJabberImpl
             listener.contactPresenceStatusChanged(evt);
         }
     }
-    
+
     /**
      * Notify all subscription listeners of the corresponding contact property
      * change event.
@@ -1076,7 +1077,7 @@ public class OperationSetPersistentPresenceJabberImpl
                     = sourceContact.getPresenceStatus();
 
                 PresenceStatus newStatus = jabberStatusToPresenceStatus(presence);
-           
+
                 // when old and new status are the same do nothing
                 // no change
                 if(oldStatus.equals(newStatus))
