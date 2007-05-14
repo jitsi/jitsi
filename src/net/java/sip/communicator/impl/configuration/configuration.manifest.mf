@@ -5,7 +5,6 @@ Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,
- org.apache.xml.serializer,
  org.xml.sax,
  org.w3c.dom,
  javax.xml.transform,

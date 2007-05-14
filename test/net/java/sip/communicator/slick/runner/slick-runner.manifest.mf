@@ -18,5 +18,4 @@ Import-Package: net.java.sip.communicator.service.configuration,
  javax.xml.transform,
  javax.xml.transform.dom,
  javax.xml.transform.stream,
- org.apache.xml.serializer,
  net.java.sip.communicator.util
