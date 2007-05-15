@@ -21,6 +21,8 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.event.MessageListener;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation

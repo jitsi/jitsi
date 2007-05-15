@@ -1,4 +1,4 @@
-package net.java.sip.communicator.impl.protocol.jabber.extensions;
+package net.java.sip.communicator.impl.protocol.jabber.extensions.version;
 
 import org.jivesoftware.smack.packet.*;
 
