@@ -12,7 +12,6 @@ import javax.xml.parsers.*;
 
 import org.osgi.framework.*;
 import org.w3c.dom.*;
-import org.xml.sax.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
@@ -301,13 +300,25 @@ public class MclStorageManager
             }
             else
             {
-                contactListDocument = builder.parse(contactlistFile);
+                try
+                {
+                    contactListDocument = builder.parse(contactlistFile);
+                }
+                catch (Throwable ex)
+                {
+                    logger.error("Error parsing configuration file", ex);
+                    logger.error("Creating replacement file");
+
+                    //re-create and re-init the new document
+                    contactlistFile.delete();
+                    contactlistFile.createNewFile();
+                    contactListDocument = builder.newDocument();
+                    initVirginDocument(mclServiceImpl, contactListDocument);
+
+                    //write the contact list so that it is there for the parser
+                    storeContactList0();
+                }
             }
-        }
-        catch (SAXException ex)
-        {
-            logger.error("Error parsing configuration file", ex);
-            throw new XMLException(ex.getMessage(), ex);
         }
         catch (ParserConfigurationException ex)
         {
@@ -1410,31 +1421,34 @@ public class MclStorageManager
         switch (evt.getEventID())
         {
             case MetaContactGroupEvent.CONTACT_GROUP_REMOVED_FROM_META_GROUP:
-                Element protoGroupNode
-                    = XMLUtils.locateElement(
-                        mcGroupNode
-                        , PROTO_GROUP_NODE_NAME
-                        , UID_ATTR_NAME, evt.getSourceProtoGroup().getUID());
-
-                //remove the proto group from the node containing all proto
-                //groups for the corresponding meta contact group.
-                if(protoGroupNode != null)
-                    protoGroupNode.getParentNode().removeChild(protoGroupNode);
-                else
-                    logger.error("Hm ... strange ...");
-                break;
             case MetaContactGroupEvent.CONTACT_GROUP_ADDED_TO_META_GROUP:
-                Element newProtoGroupNode
-                    = createProtoContactGroupNode(evt.getSourceProtoGroup());
+                //the fact that a contact group was added or removed to a
+                //meta group may imply substantial changes in the child contacts
+                //and the layout of any possible subgroups, so
+                //to make things simple, we'll remove the existing meta contact
+                //group node and re-create it according to its current state.
+                Element parentNode = (Element)mcGroupNode.getParentNode();
 
-                Element protoGroupsNode = XMLUtils.findChild(
-                    mcGroupNode, PROTO_GROUPS_NODE_NAME);
-                //add the proto group to the node containing all proto
-                //groups for the corresponding meta contact group.
-                if(protoGroupsNode != null)
-                    protoGroupsNode.appendChild(newProtoGroupNode);
-                else
-                    logger.error("Hm ... strange ...");
+                parentNode.removeChild(mcGroupNode);
+
+                Element newGroupElement = createMetaContactGroupNode(
+                    evt.getSourceMetaContactGroup());
+
+                parentNode.appendChild(newGroupElement);
+
+                try
+                {
+                    scheduleContactListStorage();
+                }
+                catch (IOException ex)
+                {
+                    /**given we're being invoked from an event dispatch thread
+                     * that was proberly triggerred by a net operation - we
+                     * could not do much. so ... log and @todo one day we'll
+                     * have a global error dispatcher */
+                    logger.error("Writing CL failed after adding contact "
+                                 + evt.getSourceMetaContactGroup(), ex);
+                }
                 break;
             case MetaContactGroupEvent.META_CONTACT_GROUP_RENAMED:
                 mcGroupNode.setAttribute(
