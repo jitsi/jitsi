@@ -316,7 +316,7 @@ public class MetaContactImpl
             ? 1
             : 0;
 
-        return ( (10 - isOnline) - (10 - targetIsOnline)) * 1000000
+        return ( (10 - isOnline) - (10 - targetIsOnline)) * 100000000
             + getDisplayName().compareToIgnoreCase(target.getDisplayName())
             * 10000
             + getMetaUID().compareTo(target.getMetaUID());
