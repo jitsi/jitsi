@@ -72,6 +72,9 @@ public class XMLUtils
      */
     public static void setText(Element parentNode, String data)
     {
+        if(data == null)
+            return;
+
         Text txt = getTextNode(parentNode);
 
         if (txt != null)
@@ -91,6 +94,9 @@ public class XMLUtils
      */
     public static void setCData(Element element, String data)
     {
+        if(data == null)
+            return;
+
         CDATASection txt = getCDataNode(element);
         if (txt != null)
             txt.setData(data);
