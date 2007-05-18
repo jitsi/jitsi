@@ -192,13 +192,13 @@ public class XMLUtils
     public static void writeXML(Document document, File out)
         throws java.io.IOException
     {
-        indentedWriteXML(document, new FileOutputStream(out));
-//        writeXML(document
-//                 , new StreamResult(
-//                        new OutputStreamWriter(
-//                                new FileOutputStream(out), "UTF-8"))
-//                 , null
-//                 , null);
+//        indentedWriteXML(document, new FileOutputStream(out));
+        writeXML(document
+                 , new StreamResult(
+                        new OutputStreamWriter(
+                                new FileOutputStream(out), "UTF-8"))
+                 , null
+                 , null);
     }
 
     /**
@@ -274,16 +274,21 @@ public class XMLUtils
      */
     public static void indentedWriteXML(Document doc, OutputStream out)
     {
-        Element rootElement = doc.getDocumentElement();
         if (out != null)
         {
             try
             {
-                Writer wri = new OutputStreamWriter(out, "UTF-8");
-                wri.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+lSep);
-                (new DOMElementWriter()).write(rootElement, wri, 0, "  ");
-                wri.flush();
-                wri.close();
+//                Writer wri = new OutputStreamWriter(out, "UTF-8");
+//                wri.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+lSep);
+//                (new DOMElementWriter()).write(rootElement, wri, 0, "  ");
+//                wri.flush();
+//                wri.close();
+                writeXML(doc
+                 , new StreamResult(
+                        out)
+                 , null
+                 , null);
+                out.close();
             }
             catch (IOException exc)
             {
