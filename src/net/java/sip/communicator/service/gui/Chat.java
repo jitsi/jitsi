@@ -27,6 +27,13 @@ public interface Chat
     public boolean isChatFocused();
     
     /**
+     * 
+     * @return
+     */
+    public String getMessage();
+    
+    
+    /**
      * Adds the given <tt>ChatFocusListener</tt> to this <tt>Chat</tt>.
      * The <tt>ChatFocusListener</tt> is used to inform other bundles when a
      * chat has changed its focus state.

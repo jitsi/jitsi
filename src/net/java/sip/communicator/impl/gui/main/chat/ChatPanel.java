@@ -19,7 +19,6 @@ import javax.swing.text.html.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -601,6 +600,14 @@ public abstract class ChatPanel
         {
             focusListeners.remove(l);
         }
+    }
+    
+    /**
+     * 
+     */
+    public String getMessage()
+    {
+        return writeMessagePanel.getEditorPane().getText();
     }
     
     /**

@@ -527,6 +527,18 @@ public class UIServiceImpl
     }   
 
     /**
+     * Returns the selected <tt>Chat</tt>.
+     * 
+     * @return the selected <tt>Chat</tt>.
+     */
+    public Chat getCurrentChat()
+    {
+        ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
+        
+        return chatWindowManager.getSelectedChat();
+    }
+    
+    /**
      * Implements the <code>UIService.isContainerSupported</code> method.
      * Checks if the plugable container with the given ContainerID is supported
      * by this implementation.

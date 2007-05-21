@@ -317,6 +317,14 @@ public class ChatWindowManager
         }
     }
     
+    public ChatPanel getSelectedChat()
+    {
+        synchronized (syncChat)
+        {
+            return chatWindow.getCurrentChatPanel();
+        }
+    }
+    
     /**
      * Returns the chat panel corresponding to the given chat room.
      *

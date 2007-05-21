@@ -265,6 +265,13 @@ public interface UIService
     public Chat getChat(Contact contact);
     
     /**
+     * Returns the selected <tt>Chat</tt>.
+     * 
+     * @return the selected <tt>Chat</tt>.
+     */
+    public Chat getCurrentChat();
+    
+    /**
      * Returns an <tt>ExportableComponent</tt> that corresponds to an
      * authentication window for the given protocol provider and user
      * inromation. Initially this method is meant to be used by the
