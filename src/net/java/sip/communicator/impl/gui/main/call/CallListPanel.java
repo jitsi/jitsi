@@ -19,6 +19,8 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.callhistory.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 
 /**
  * The <tt>CallListPanel</tt> is the panel that contains the call list.
@@ -27,9 +29,10 @@ import net.java.sip.communicator.service.callhistory.*;
  */
 public class CallListPanel
     extends JPanel
-    implements ActionListener
+    implements  ActionListener,
+                PluginComponentListener
 {
-    private JPanel searchPanel = new JPanel(new BorderLayout());
+    private JPanel searchPanel = new JPanel(new BorderLayout(5, 5));
     
     private JLabel searchLabel = new JLabel(
         Messages.getI18NString("search").getText() + ": ");
@@ -39,6 +42,8 @@ public class CallListPanel
     private CallList callList = new CallList();
     
     private JScrollPane scrollPane = new JScrollPane();
+    
+    private JPanel pluginPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
     
     private CallHistoryService callHistory;
     
@@ -66,6 +71,8 @@ public class CallListPanel
         new LoadLastCallsFromHistory().start();
         
         this.initPanels();
+        
+        this.initPluginComponents();
     }
     
     /**
@@ -78,11 +85,31 @@ public class CallListPanel
         this.searchPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.searchPanel.add(searchLabel, BorderLayout.WEST);
         this.searchPanel.add(searchComboBox, BorderLayout.CENTER);
+        this.searchPanel.add(pluginPanel, BorderLayout.NORTH);
         
         this.add(searchPanel, BorderLayout.NORTH);
         this.add(scrollPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Initiates plugin components.
+     */
+    private void initPluginComponents()
+    {
+        Iterator pluginComponents = GuiActivator.getUIService()
+            .getComponentsForContainer(
+                UIService.CONTAINER_CALL_HISTORY);
+        
+        while (pluginComponents.hasNext())
+        {
+            Component o = (Component)pluginComponents.next();
+            
+            this.pluginPanel.add((Component)o);
+        }
+        
+        GuiActivator.getUIService().addPluginComponentListener(this);
+    }
+    
     /**
      * Loads last n (NUMBER_OF_CALLS) number of calls from history and initiates
      * the call list and the combo box.    
@@ -323,5 +350,34 @@ public class CallListPanel
         
         this.addToCallComboBox(participantName);
         this.addToSearchComboBox(participantName);
+    }
+
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+        
+        // If the container id doesn't correspond to the id of the plugin
+        // container we're not interested.
+        if(!event.getContainerID()
+                .equals(UIService.CONTAINER_CALL_HISTORY))
+            return;
+        
+        this.pluginPanel.add(c);
+ 
+        this.revalidate();
+        this.repaint();
+    }
+
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        Component c = (Component) event.getSource();
+        
+        // If the container id doesn't correspond to the id of the plugin
+        // container we're not interested.
+        if(!event.getContainerID()
+                .equals(UIService.CONTAINER_CALL_HISTORY))
+            return;
+        
+        this.pluginPanel.remove(c);
     }
 }

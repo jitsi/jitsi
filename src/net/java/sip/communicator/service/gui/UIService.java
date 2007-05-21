@@ -117,7 +117,13 @@ public interface UIService
      */
     public static final ContainerID CONTAINER_CHAT_HELP_MENU 
         = new ContainerID("ChatHelpMenu");
-        
+      
+    /**
+     * Call history panel container.
+     */
+    public static final ContainerID CONTAINER_CALL_HISTORY
+        = new ContainerID("CallHistoryPanel");
+    
     /*
      * Constraints
      */
