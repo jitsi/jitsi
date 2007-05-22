@@ -27,11 +27,18 @@ public interface Chat
     public boolean isChatFocused();
     
     /**
+     * Returns the message written by user in the chat write area.
      * 
-     * @return
+     * @return the message written by user in the chat write area
      */
     public String getMessage();
     
+    /**
+     * Sets the given message as a message in the chat write area.
+     * 
+     * @param message the text that would be set to the chat write area 
+     */
+    public void setMessage(String message);
     
     /**
      * Adds the given <tt>ChatFocusListener</tt> to this <tt>Chat</tt>.

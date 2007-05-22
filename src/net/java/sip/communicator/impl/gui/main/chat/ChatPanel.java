@@ -603,11 +603,23 @@ public abstract class ChatPanel
     }
     
     /**
+     * Returns the message written by user in the chat write area.
      * 
+     * @return the message written by user in the chat write area
      */
     public String getMessage()
     {
         return writeMessagePanel.getEditorPane().getText();
+    }
+    
+    /**
+     * Sets the given message as a message in the chat write area.
+     * 
+     * @param message the text that would be set to the chat write area 
+     */
+    public void setMessage(String message)
+    {
+        writeMessagePanel.getEditorPane().setText(message);
     }
     
     /**
