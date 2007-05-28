@@ -619,6 +619,12 @@ public class ProtocolProviderServiceSipImpl
                 OperationSetPresence.class.getName()
                 , opSetPersPresence);
 
+            // init instant messaging
+            OperationSetBasicInstantMessaging opSetBasicIM =
+                new OperationSetBasicInstantMessagingSipImpl(this);
+            this.supportedOperationSets.put(
+                OperationSetBasicInstantMessaging.class.getName(),
+                opSetBasicIM);
 
             //create our own address.
             String ourUserID = (String)accountID.getAccountProperties()
