@@ -9,16 +9,14 @@ package net.java.sip.communicator.impl.gui.main.configforms;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
-import java.util.*;
 
-import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The implementation of the <tt>ConfigurationManager</tt> interface.
@@ -29,6 +27,8 @@ public class ConfigurationFrame
     extends SIPCommDialog
     implements  ConfigurationWindow
 {
+    private Logger logger = Logger.getLogger(ConfigurationFrame.class);
+    
     private ConfigFormList configList;
 
     private TitlePanel titlePanel = new TitlePanel();
@@ -102,20 +102,12 @@ public class ConfigurationFrame
      * dialog, otherwise throws a ClassCastException.
      * @see ConfigurationWindow#addConfigurationForm(ConfigurationForm)
      */
-    public void addConfigurationForm(ConfigurationForm configForm) {
+    public void addConfigurationForm(ConfigurationForm configForm)
+    {
+        ConfigFormDescriptor descriptor = new ConfigFormDescriptor(configForm);
 
-        if(configForm.getForm() instanceof Component)
-        {
-            this.configList.addConfigForm(configForm);
-    
-//            this.recalculateSize();
-            
-        }
-        else {
-            throw new ClassCastException("ConfigurationFrame :"
-            + configForm.getForm().getClass()
-            + " is not a class supported by this ui implementation");
-        }
+        if(descriptor != null)
+            configList.addConfigForm(descriptor);
     }
 
     /**
@@ -129,22 +121,27 @@ public class ConfigurationFrame
         this.configList.removeConfigForm(configForm);
     }
 
-    public void showFormContent(ConfigurationForm configForm)
+    /**
+     * Shows on the right the configuration form given by the given
+     * <tt>ConfigFormDescriptor</tt>.
+     * 
+     * @param configFormDescriptor
+     */
+    public void showFormContent(ConfigFormDescriptor configFormDescriptor)
     {
         this.centerPanel.removeAll();
         
-        this.titlePanel.setTitleText(configForm.getTitle());
+        this.titlePanel.setTitleText(configFormDescriptor.getConfigFormTitle());
 
         this.centerPanel.add(titlePanel, BorderLayout.NORTH);
 
-        this.centerPanel.add((Component)configForm.getForm(),
+        this.centerPanel.add(configFormDescriptor.getConfigFormPanel(),
                 BorderLayout.CENTER);
         
         this.centerPanel.revalidate();
         this.centerPanel.repaint();
      
     }
-    
     
     /**
      * Calculates the size of the frame depending on the size of the largest

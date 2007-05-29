@@ -12,7 +12,7 @@ import java.awt.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ContactListCellRenderer</tt> is the custom cell renderer used in the
@@ -25,6 +25,8 @@ import net.java.sip.communicator.service.gui.*;
 public class ConfigFormListCellRenderer extends JPanel 
     implements ListCellRenderer
 {
+    private Logger logger = Logger.getLogger(ConfigFormListCellRenderer.class);
+    
     /**
      * The size of the gradient used for painting the selected background of
      * some components.
@@ -84,15 +86,13 @@ public class ConfigFormListCellRenderer extends JPanel
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus)
     {
-        ConfigurationForm configForm = (ConfigurationForm) value;
+        ConfigFormDescriptor cfDescriptor = (ConfigFormDescriptor) value;
         
-        byte[] configFormIcon = configForm.getIcon();
+        if(cfDescriptor.getConfigFormIcon() != null)            
+            iconLabel.setIcon(cfDescriptor.getConfigFormIcon());
         
-        if(configFormIcon != null)            
-            iconLabel.setIcon(new ImageIcon(ImageLoader.getBytesInImage(
-                    configFormIcon)));
-        
-        textLabel.setText(configForm.getTitle());
+        if(cfDescriptor.getConfigFormTitle() != null)
+            textLabel.setText(cfDescriptor.getConfigFormTitle());
         
         this.isSelected = isSelected;
 
@@ -109,7 +109,8 @@ public class ConfigFormListCellRenderer extends JPanel
      * to provide a custom look for this panel. A gradient background is
      * painted when the panel is selected and when the mouse is over it.
      */
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g)
+    {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;

@@ -42,7 +42,7 @@ public class ConfigFormList
      * Adds a new <tt>ConfigurationForm</tt> to this list. 
      * @param configForm The <tt>ConfigurationForm</tt> to add.
      */
-    public void addConfigForm(ConfigurationForm configForm)
+    public void addConfigForm(ConfigFormDescriptor configForm)
     {
         listModel.addElement(configForm);
     }
@@ -53,17 +53,28 @@ public class ConfigFormList
      */
     public void removeConfigForm(ConfigurationForm configForm)
     {
-        listModel.removeElement(configForm);
+        for(int i = 0; i < listModel.getSize(); i ++)
+        {
+            ConfigFormDescriptor descriptor
+                = (ConfigFormDescriptor) listModel.get(i);
+            
+            if(descriptor.getConfigForm().equals(configForm))
+                listModel.removeElement(descriptor);
+        }
     }
 
+    /**
+     * Called when user selects a component in the list of configuration forms.
+     */
     public void valueChanged(ListSelectionEvent e)
     {
         if(!e.getValueIsAdjusting())
         {
-            ConfigurationForm configForm
-                = (ConfigurationForm) this.getSelectedValue();
+            ConfigFormDescriptor configFormDescriptor
+                = (ConfigFormDescriptor) this.getSelectedValue();
             
-            configFrame.showFormContent(configForm);
+            if(configFormDescriptor != null)
+                configFrame.showFormContent(configFormDescriptor);
         }
     }
 }
