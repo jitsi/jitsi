@@ -146,7 +146,9 @@ public class ConfigurationServiceImpl
         if (property == null)
         {
             properties.remove(propertyName);
-
+            
+            fileExtractedProperties.remove(propertyName);
+            
             if (isSystem)
             {
                 //we can't remove or nullset a sys prop so let's "empty" it.
