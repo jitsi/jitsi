@@ -25,6 +25,10 @@ public class JabberAccountRegistration
 
     private int port;
 
+	private String resource;
+
+	private int priority;
+
     private boolean sendKeepAlive;
 
     /**
@@ -135,4 +139,24 @@ public class JabberAccountRegistration
     {
         this.sendKeepAlive = sendKeepAlive;
     }
+
+    public String getResource()
+    {
+        return resource;
+    }
+
+    public void setResource(String resource)
+	{
+		this.resource = resource;
+	}
+
+    public int getPriority()
+    {
+        return priority;
+    }
+
+    public void setPriority(int priority)
+	{
+		this.priority = priority;
+	}
 }

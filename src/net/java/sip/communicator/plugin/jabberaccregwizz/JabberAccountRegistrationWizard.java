@@ -6,13 +6,16 @@
  */
 package net.java.sip.communicator.plugin.jabberaccregwizz;
 
+import java.awt.*;
 import java.util.*;
 
-import org.osgi.framework.*;
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.plugin.gibberishaccregwizz.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>JabberAccountRegistrationWizard</tt> is an implementation of the
@@ -46,7 +49,7 @@ public class JabberAccountRegistrationWizard
      */
     public JabberAccountRegistrationWizard(WizardContainer wizardContainer)
     {
-        this.wizardContainer = wizardContainer;
+        this.wizardContainer = wizardContainer;        
     }
 
     /**
@@ -121,6 +124,7 @@ public class JabberAccountRegistrationWizard
 
     /**
      * Installs the account created through this wizard.
+     * 
      * @return ProtocolProviderService
      */
     public ProtocolProviderService finish()
@@ -136,6 +140,7 @@ public class JabberAccountRegistrationWizard
 
     /**
      * Creates an account for the given user and password.
+     * 
      * @param providerFactory the ProtocolProviderFactory which will create
      * the account
      * @param user the user identifier
@@ -163,6 +168,12 @@ public class JabberAccountRegistrationWizard
 
         accountProperties.put("SEND_KEEP_ALIVE",
                               String.valueOf(registration.isSendKeepAlive()));
+
+        accountProperties.put("RESOURCE",
+                              registration.getResource());
+
+        accountProperties.put("PRIORITY",
+                              String.valueOf(registration.getPriority()));
 
         if (isModification)
         {
@@ -202,11 +213,11 @@ public class JabberAccountRegistrationWizard
      */
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
-
         this.protocolProvider = protocolProvider;
 
         this.firstWizardPage.loadAccount(protocolProvider);
 
         isModification = true;
     }
+
 }

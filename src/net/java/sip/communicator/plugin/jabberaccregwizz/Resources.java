@@ -39,18 +39,56 @@ public class Resources
      */
     public static String getString(String key)
     {
+        String resourceString;
         try
         {
-            return RESOURCE_BUNDLE.getString(key);
+            resourceString = RESOURCE_BUNDLE.getString(key);
+            
+            int mnemonicIndex = resourceString.indexOf('&');
+            
+            if(mnemonicIndex > -1)
+            {                
+                String firstPart = resourceString.substring(0, mnemonicIndex);
+                String secondPart = resourceString.substring(mnemonicIndex + 1);
+                
+                resourceString = firstPart.concat(secondPart);
+            }
+        }        
+        catch (MissingResourceException e)
+        {
+            resourceString = '!' + key + '!';
+        }
+        
+        return resourceString;
+    }
+
+    /**
+     * Returns an internationalized string corresponding to the given key.
+     * @param key The key of the string.
+     * @return An internationalized string corresponding to the given key.
+     */
+    public static char getMnemonic(String key)
+    {
+        String resourceString;
+        try {
+            resourceString = RESOURCE_BUNDLE.getString(key);
+            
+            int mnemonicIndex = resourceString.indexOf('&');
+            
+            if(mnemonicIndex > -1)
+            {
+                return resourceString.charAt(mnemonicIndex + 1);
+            }
 
         }
         catch (MissingResourceException e)
-        {
-
-            return '!' + key + '!';
+        {            
+            return '!';
         }
+        
+        return '!';
     }
-
+    
     /**
      * Loads an image from a given image identifier.
      * @param imageID The identifier of the image.

@@ -107,6 +107,8 @@ public class OperationSetPersistentPresenceJabberImpl
 
     private JabberSubscriptionListener subscribtionPacketListener = null;
 
+    private int resourcePriority = 10;
+    
     public OperationSetPersistentPresenceJabberImpl(
         ProtocolProviderServiceJabberImpl provider)
     {
@@ -416,7 +418,7 @@ public class OperationSetPersistentPresenceJabberImpl
         {
             presence = new Presence(Presence.Type.available);
             presence.setMode(presenceStatusToJabberMode((JabberStatusEnum)status));
-
+            presence.setPriority(resourcePriority);
             presence.setStatus(statusMessage);
             presence.addExtension(new Version());
 
@@ -1166,5 +1168,25 @@ public class OperationSetPersistentPresenceJabberImpl
                 handler.processAuthorizationResponse(response, contact);
             }
         }
+    }
+    
+    /**
+     * Returns the jabber account resource priority property value.
+     * 
+     * @return the jabber account resource priority property value
+     */
+    public int getResourcePriority()
+    {
+        return resourcePriority;
+    }
+
+    /**
+     * Updates the jabber account resource priority property value.
+     * 
+     * @param resourcePriority the new priority to set
+     */
+    public void setResourcePriority(int resourcePriority)
+    {
+        this.resourcePriority = resourcePriority;
     }
 }

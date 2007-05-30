@@ -11,6 +11,7 @@ import java.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smack.packet.*;
 
 import net.java.sip.communicator.impl.protocol.gibberish.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -261,6 +262,10 @@ public class ProtocolProviderServiceJabberImpl
                     getAccountProperties().get(
                             ProtocolProviderFactory.SERVER_PORT);
 
+				String accountResource = (String)getAccountID().
+                    getAccountProperties().get(
+                            ProtocolProviderFactory.RESOURCE);
+
                 // check to see is there SRV records for this server domain
                 try
                 {
@@ -314,7 +319,11 @@ public class ProtocolProviderServiceJabberImpl
                         , RegistrationState.REGISTERING
                         , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
                         , null);
-                connection.login(userID, password, "sip-comm");
+
+                if(accountResource == null || accountResource == "")
+                    accountResource = "sip-comm";
+                
+                connection.login(userID, password, accountResource);
 
                 if(connection.isAuthenticated())
                 {
@@ -447,10 +456,19 @@ public class ProtocolProviderServiceJabberImpl
             String keepAliveStrValue = (String)accountID.getAccountProperties().
                                 get("SEND_KEEP_ALIVE");
 
+            String resourcePriority = (String)accountID.getAccountProperties().
+                get(ProtocolProviderFactory.RESOURCE_PRIORITY);
+
             //initialize the presence operationset
-            OperationSetPersistentPresence persistentPresence =
+            OperationSetPersistentPresenceJabberImpl persistentPresence =
                 new OperationSetPersistentPresenceJabberImpl(this);
 
+            if(resourcePriority != null)
+            {
+                persistentPresence.setResourcePriority(
+                    new Integer(resourcePriority).intValue());
+            }
+            
             supportedOperationSets.put(
                 OperationSetPersistentPresence.class.getName(),
                 persistentPresence);

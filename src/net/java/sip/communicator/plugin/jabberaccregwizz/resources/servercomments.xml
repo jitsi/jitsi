@@ -1,0 +1,5 @@
+<!-- This file lists the open Jabber servers registered with the XMPP Federation. The format of this file is defined by the Service Discovery protocol: http://www.xmpp.org/extensions/xep-0030.html ... To add your server to the list, register at https://www.xmpp.net/ -->
+
+<query xmlns='http://jabber.org/protocol/disco#items'>
+  <item jid='jabber.org' comment='Jabber Software Foundation Server'/>
+</query>

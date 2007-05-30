@@ -751,6 +751,9 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="false"/>
 
+        	<!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+        	        	                value="${user.home}"/-->
+        	
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path" path="${ld.library.path}:${path}:${dyld.library.path}"/>
             <env key="LD_LIBRARY_PATH" path="${ld.library.path}"/>
@@ -1367,6 +1370,11 @@ javax.swing.event, javax.swing.border"/>
             manifest="src/net/java/sip/communicator/plugin/jabberaccregwizz/jabberaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/jabberaccregwizz"
                 prefix="net/java/sip/communicator/plugin/jabberaccregwizz"/>
+			<zipfileset src="${lib.noinst}/smack.jar" prefix=""/>
+			<zipfileset src="${lib.noinst}/smackx.jar" prefix=""/>
+			<zipfileset src="${lib.noinst}/smackx-jingle.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/retroweaver-rt-2.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/backport-util-concurrent.jar" prefix=""/>
             <zipfileset dir="resources/images/jabber"
                             prefix="resources/images/jabber"/>
         </jar>
