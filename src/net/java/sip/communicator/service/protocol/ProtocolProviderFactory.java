@@ -107,9 +107,6 @@ public abstract class ProtocolProviderFactory
     */
    public static final String PROXY_PASSWORD = "PROXY_PASSWORD";
 
-
-
-
     /**
      * The name of the property under which we store the name of the transport
      * protocol that needs to be used to access the proxy.
@@ -123,6 +120,17 @@ public abstract class ProtocolProviderFactory
      */
     public static final String PREFERRED_TRANSPORT = "PREFERRED_TRANSPORT";
 
+    /**
+     * The name of the property under which we store resources such as the jabber
+     * resource property.
+     */
+    public static final String RESOURCE = "RESOURCE";
+    
+    /**
+     * The name of the property under which we store resource priority.
+     */
+    public static final String RESOURCE_PRIORITY = "RESOURCE_PRIORITY";
+    
     /**
      * Initializaed and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
