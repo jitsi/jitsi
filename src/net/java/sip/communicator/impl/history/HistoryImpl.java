@@ -258,7 +258,6 @@ public class HistoryImpl implements History {
      *
      * @param file File the file trying to fix
      * @return Document the fixed doc
-     * @throws Exception
      */
     public Document getFixedDocument(File file)
     {

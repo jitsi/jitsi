@@ -51,6 +51,23 @@ public class HistoryServiceImpl implements HistoryService {
 
     private boolean cacheEnabled = false;
 
+    /**
+     *  Characters and their replacement in created folder names
+     */
+    private final static String[][] ESCAPE_SEQUENCES = new String[][]
+    {
+        {"&", "&_amp"},
+        {"/", "&_sl"},
+        {"\\\\", "&_bs"},   // the char \
+        {":", "&_co"},
+        {"\\*", "&_as"},    // the char *
+        {"\\?", "&_qm"},    // the char ?
+        {"\"", "&_pa"},     // the char "
+        {"<", "&_lt"},
+        {">", "&_gt"},
+        {"\\|", "&_pp"}     // the char |
+    };
+
     public HistoryServiceImpl()
         throws Exception
     {
@@ -227,6 +244,10 @@ public class HistoryServiceImpl implements HistoryService {
             dirs[0] = userSetDataDirectory;
         else
             dirs[0] = DATA_DIRECTORY;
+        
+        // escape chars in direcotory names
+        escapeCharacters(idComponents);
+        
         System.arraycopy(idComponents, 0, dirs, 1, dirs.length - 1);
 
         File directory = null;
@@ -370,5 +391,27 @@ public class HistoryServiceImpl implements HistoryService {
                 tmp.delete();
         }
         dir.delete();
+    }
+    
+    /**
+     * Replacing the characters that we must escape
+     * used for the created filename.
+     * 
+     * @param ids Ids - folder names as we are using 
+     *          FileSystem for storing files.
+     */
+    private void escapeCharacters(String[] ids)
+    {
+        for (int i = 0; i < ids.length; i++)
+        {
+            String currId = ids[i];
+            
+            for (int j = 0; j < ESCAPE_SEQUENCES.length; j++)
+            {
+                currId = currId.
+                    replaceAll(ESCAPE_SEQUENCES[j][0], ESCAPE_SEQUENCES[j][1]);
+            }
+            ids[i] = currId;
+        }
     }
 }
