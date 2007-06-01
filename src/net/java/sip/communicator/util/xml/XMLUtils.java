@@ -249,6 +249,13 @@ public class XMLUtils
         {
            DOMSource domSource = new DOMSource(document);
            TransformerFactory tf = TransformerFactory.newInstance();
+           
+           // not working for jdk 1.4
+           try
+           {
+                tf.setAttribute("indent-number", new Integer(4));
+           }catch(Exception e){}
+           
            Transformer serializer = tf.newTransformer();
            if(doctypeSystem != null)
                    serializer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM,
@@ -256,6 +263,9 @@ public class XMLUtils
             if(doctypePublic != null)
                    serializer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC,
                                                 doctypePublic);
+           // not working for jdk 1.5
+           serializer.setOutputProperty("{http://xml.apache.org/xalan}indent-amount", "4");
+           
            serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
            serializer.setOutputProperty(OutputKeys.INDENT, "yes");
            serializer.transform(domSource, streamResult);
