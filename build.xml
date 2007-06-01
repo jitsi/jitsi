@@ -852,6 +852,7 @@
         bundle-growlnotification,bundle-audionotifier,bundle-plugin-splashscreen,
         bundle-systray,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
+        bundle-rss,bundle-plugin-rssaccregwizz,
     	bundle-pluginmanager"/>
 
     <!--BUNDLE-HISTORY-->
@@ -1535,13 +1536,43 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 	
-	<!-- BUNDLE-PLUGIN MANAGER -->
+    <!-- BUNDLE-PLUGIN MANAGER -->
     <target name="bundle-pluginmanager">
         <!-- Creates a bundle for the plugin manager plugin.-->
         <jar compress="false" destfile="${bundles.dest}/pluginmanager.jar"
             manifest="src/net/java/sip/communicator/plugin/pluginmanager/pluginmanager.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/pluginmanager"
                 prefix="net/java/sip/communicator/plugin/pluginmanager"/>
+        </jar>
+    </target>
+    
+    <!-- BUNDLE-RSS -->
+    <target name="bundle-rss">
+        <!-- Creates a bundle containing the Rss impl of the protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/protocol-rss.jar"
+             manifest="src/net/java/sip/communicator/impl/protocol/rss/rss.provider.manifest.mf">
+        <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/rss"
+                    prefix="net/java/sip/communicator/impl/protocol/rss"/>
+        
+        <!-- LIBRARIES FOR RSS PROTOCOL, INCLUDING JDOM-1.0 AND ROME-0.9/-->
+        <zipfileset src="${lib.noinst}/jdom.jar" prefix=""/>
+        <zipfileset src="${lib.noinst}/rome-0.9.jar" prefix=""/>
+        
+        <zipfileset dir="resources/images/rss"
+                prefix="resources/images/rss"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-RSSACCREGWIZZ -->
+    <target name="bundle-plugin-rssaccregwizz">
+        <!-- Creates a bundle for the plugin Rss Account Registration
+             Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/rssaccregwizz.jar"
+            manifest="src/net/java/sip/communicator/plugin/rssaccregwizz/rssaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/rssaccregwizz"
+                prefix="net/java/sip/communicator/plugin/rssaccregwizz"/>
+            <zipfileset dir="resources/images/rss"
+                            prefix="resources/images/rss"/>
         </jar>
     </target>
 </project>
