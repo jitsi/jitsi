@@ -1,0 +1,13 @@
+Bundle-Name: Smack Lib Provider
+Bundle-Description: Smack Lib Provider
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: javax.net.ssl
+Export-Package: org.jivesoftware.smack,
+ org.jivesoftware.smack.packet,
+ org.jivesoftware.smack.provider,
+ org.jivesoftware.smack.util,
+ org.jivesoftware.smack.filter,
+ org.jivesoftware.smackx,
+ org.jivesoftware.smackx.muc,
+ org.jivesoftware.smackx.packet

@@ -130,7 +130,6 @@ public class ProtocolProviderServiceMsnImpl
     /**
      * Connects and logins to the server
      * @param authority SecurityAuthority
-     * @throws XMPPException if we cannot connect to the server - network problem
      * @throws  OperationFailedException if login parameters
      *          as server port are not correct
      */

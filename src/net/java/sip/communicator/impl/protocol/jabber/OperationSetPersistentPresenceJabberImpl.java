@@ -17,7 +17,6 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.filter.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 
 /**

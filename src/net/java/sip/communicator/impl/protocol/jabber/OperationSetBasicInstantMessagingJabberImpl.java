@@ -14,7 +14,6 @@ import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
