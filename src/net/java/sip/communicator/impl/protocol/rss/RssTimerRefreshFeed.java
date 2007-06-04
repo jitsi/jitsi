@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.rss;
 
 import java.util.TimerTask;
+import net.java.sip.communicator.util.*;
 
 /**
  * Instant messaging functionalites for the Rss protocol.
@@ -17,6 +18,9 @@ import java.util.TimerTask;
 public class RssTimerRefreshFeed
     extends TimerTask
 {
+    private static final Logger logger
+        = Logger.getLogger(RssTimerRefreshFeed.class);
+
     private OperationSetBasicInstantMessagingRssImpl opSet;
 
     /**
@@ -37,6 +41,7 @@ public class RssTimerRefreshFeed
      */
     public void run()
     {
+        logger.trace("Starting a periodic rss check.");
         this.opSet.refreshRssFeed();
     }
 }
