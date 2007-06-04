@@ -18,7 +18,8 @@ import net.java.sip.communicator.util.*;
  * @author Jean-Albert Vescovo
  */
 public class OperationSetBasicInstantMessagingRssImpl
-    implements OperationSetBasicInstantMessaging
+    implements OperationSetBasicInstantMessaging,
+               RegistrationStateChangeListener
 {
     private static final Logger logger
         = Logger.getLogger(OperationSetBasicInstantMessagingRssImpl.class);
@@ -62,6 +63,13 @@ public class OperationSetBasicInstantMessagingRssImpl
     {
         this.opSetPersPresence = opSetPersPresence;
         this.parentProvider = provider;
+
+        if(parentProvider.isRegistered())
+        {
+            createTimer();
+        }
+
+        parentProvider.addRegistrationStateChangeListener(this);
     }
 
     /**
@@ -249,9 +257,12 @@ public class OperationSetBasicInstantMessagingRssImpl
      */
     public void createTimer()
     {
+        logger.trace("Creating rss timer and task.");
         RssTimerRefreshFeed refresh = new RssTimerRefreshFeed(this);
         this.timer = new Timer();
         this.timer.scheduleAtFixedRate(refresh, 100, PERIOD_REFRESH_RSS);
+
+        logger.trace("Done.");
     }
 
      /**
@@ -368,7 +379,7 @@ public class OperationSetBasicInstantMessagingRssImpl
      */
     public boolean isOfflineMessagingSupported()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -393,4 +404,29 @@ public class OperationSetBasicInstantMessagingRssImpl
     {
         return this.opSetPersPresence;
     }
+
+    /**
+     * The method is called by the ProtocolProvider whenver a change in the
+     * registration state of the corresponding provider has occurred. We use
+     * it to start and stop the timer that periodically checks for rss updates.
+     *
+     * @param evt ProviderStatusChangeEvent the event describing the status
+     * change.
+     */
+    public void registrationStateChanged(RegistrationStateChangeEvent evt)
+    {
+        if (evt.getNewState().equals(RegistrationState.REGISTERED))
+        {
+            if (timer == null)
+            {
+                createTimer();
+            }
+       }
+       else if(timer != null)
+       {
+            timer.cancel();
+            timer = null;
+       }
+    }
+
 }
