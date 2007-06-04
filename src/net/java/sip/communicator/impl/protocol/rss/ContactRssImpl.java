@@ -10,6 +10,7 @@ import java.util.*;
 import java.text.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import java.net.*;
 
 /**
  * An implementation of a rss Contact.
@@ -22,17 +23,17 @@ public class ContactRssImpl
     private String lastDate = null;
     private Date date = null;
     private String nickName = null;
-    
+
     private static final Logger logger
         = Logger.getLogger(ContactRssImpl.class);
 
-    private static SimpleDateFormat DATE_FORMATTER = 
+    private static SimpleDateFormat DATE_FORMATTER =
         new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss");
-    
+
     /**
-     * The id of the contact.
+     * The source flow for this contact.
      */
-    private String contactID = null;
+    private URL contactID = null;
 
     /**
      * The provider that created us.
@@ -62,18 +63,27 @@ public class ContactRssImpl
     private boolean isResolved = false;
 
     /**
+     * The feed reader that we'll be using to retrieve the rss flow associated
+     * with this contact.
+     */
+    private RssFeedReader rssFeedReader = null;
+
+    /**
      * Creates an instance of a meta contact with the specified string used
      * as a name and identifier.
      *
-     * @param id the identifier of this contact (also used as a name).
+     * @param rssURL the URL of the rss feed that this contact will be wrapping.
+     * @param rssFeedReader the feed reader that we'll be using to retrieve
+     * the rss flow associated with this contact.
      * @param parentProvider the provider that created us.
      */
-    public ContactRssImpl(
-                String id,
-                ProtocolProviderServiceRssImpl parentProvider)
+    public ContactRssImpl(URL rssURL,
+                          RssFeedReader rssFeedReader,
+                          ProtocolProviderServiceRssImpl parentProvider)
     {
-        this.contactID = id;
+        this.contactID = rssURL;
         this.parentProvider = parentProvider;
+        this.rssFeedReader = rssFeedReader;
     }
 
     /**
@@ -96,6 +106,16 @@ public class ContactRssImpl
      */
     public String getAddress()
     {
+        return contactID.toString();
+    }
+
+    /**
+     * Returns the URL that this contact is encapsulating.
+     *
+     * @return the URL of the RSS flow that this contact represents.
+     */
+    public URL getRssURL()
+    {
         return contactID;
     }
 
@@ -108,14 +128,20 @@ public class ContactRssImpl
      */
     public String getDisplayName()
     {
-        if(nickName == null) return contactID;
-        else  return nickName;
+        if(nickName == null)
+        {
+            return contactID.toExternalForm();
+        }
+        else
+        {
+            return nickName;
+        }
     }
 
     public void setDisplayName(String nickName){
         this.nickName = nickName;
     }
-    
+
     /**
      * Returns a Date corresponding to the date of the last query
      * on this rss contact.
@@ -127,7 +153,7 @@ public class ContactRssImpl
     {
         return this.date;
     }
-    
+
     /**
      * This method is only called when a new date is found after a query
      * on the feed corresponding to this contact
@@ -139,11 +165,11 @@ public class ContactRssImpl
     {
         this.date = date;
         this.lastDate = convertDateToString(this.date);
-    }    
+    }
 
     /**
      * Updating the lastDate in String format of the contact
-     * 
+     *
      * @param lastDate the <tt>String</tt> that is now
      * the last update date of the <tt>ContactRssImpl</tt>
      */
@@ -151,7 +177,7 @@ public class ContactRssImpl
     {
         this.lastDate = lastDate;
     }
-    
+
     /**
      * Returns a String corresponding to the date of the last query
      * on this rss contact.
@@ -161,9 +187,9 @@ public class ContactRssImpl
      */
     public String getLastDate()
     {
-        return this.lastDate; 
+        return this.lastDate;
     }
-    
+
     /**
      * Returns a String corresponding to a date after a conversion
      * from a Date
@@ -176,7 +202,7 @@ public class ContactRssImpl
     {
         return DATE_FORMATTER.format(date);
     }
-    
+
     /**
      * This method is called when a the contact is restored and a
      * previous saved lastDate is found as persistent-data: this
@@ -195,28 +221,7 @@ public class ContactRssImpl
             logger.error("Cannot parse Date", ex);
         }
     }
-    
-    /**
-     * Returns an array of String corresponding to a date bursted in multiple
-     * fields as this:
-     * ddd mmm DD HH:mm:ss ZZZZ YYYY
-     *
-     * @return an Array of String
-     */
-    private String[] getToken(String param1, String param2)
-    {
-        int i = 0;
-        String data[] = new String[8];
-        StringTokenizer tmp = new StringTokenizer(param1, param2);
 
-        while(tmp.hasMoreTokens())
-        {
-            data[i] = tmp.nextToken();
-            i++;
-        }
-        return data;
-    }
-    
     /**
      * Returns a byte array containing an image (most often a photo or an
      * avatar) that the contact uses as a representation.
@@ -329,7 +334,7 @@ public class ContactRssImpl
     {
         this.isPersistent = isPersistent;
     }
-    
+
     /**
      * Returns null as no persistent data is required and the contact address is
      * sufficient for restoring the contact.
@@ -344,14 +349,14 @@ public class ContactRssImpl
         else
             return null;
     }
-     
+
     public void setPersistentData(String persistentData)
     {
         if(persistentData == null)
         {
             return;
         }
-        
+
         StringTokenizer dataToks = new StringTokenizer(persistentData, ";");
         while(dataToks.hasMoreTokens())
         {
@@ -363,7 +368,7 @@ public class ContactRssImpl
             }
         }
     }
-     
+
     /**
      * Determines whether or not this contact has been resolved against the
      * server. Unresolved contacts are used when initially loading a contact
@@ -424,5 +429,17 @@ public class ContactRssImpl
     {
         return (OperationSetPersistentPresenceRssImpl)parentProvider
             .getOperationSet(OperationSetPersistentPresence.class);
+    }
+
+    /**
+     * Returns the rss feed reader that we are using to retrieve flows
+     * associated with this contact.
+     *
+     * @return a reference to the <tt>RssFeedReader</tt> that we are using to
+     * retrieve the flow associated with this contact.
+     */
+    public RssFeedReader getRssFeedReader()
+    {
+        return rssFeedReader;
     }
 }
