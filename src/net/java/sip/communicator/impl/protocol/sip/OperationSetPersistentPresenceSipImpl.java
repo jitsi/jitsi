@@ -875,9 +875,10 @@ public class OperationSetPersistentPresenceSipImpl
      *   subscribing fails due to errors experienced during network
      *   communication
      */
-    public void subscribe(String contactIdentifier) throws
-        IllegalArgumentException, IllegalStateException,
-        OperationFailedException
+    public void subscribe(String contactIdentifier)
+        throws IllegalArgumentException,
+               IllegalStateException,
+               OperationFailedException
     {
         subscribe(contactListRoot, contactIdentifier);
 
