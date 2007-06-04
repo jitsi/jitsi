@@ -57,6 +57,13 @@ public class SipProtocolProviderServiceLick
         //This must remain second as that's where the protocol would be
         //made to login/authenticate/signon its service provider.
         addTestSuite(TestProtocolProviderServiceSipImpl.class);
+        
+        //The following test may suffer from a problem in a specific
+        //situation. It is possible for an authenticated message to being
+        //resend after some time (and to be re-handled). As two tests are
+        //launched the second, may received this resent message and fail.
+        //Uncomment to activate it.
+        //addTest(TestOperationSetBasicInstantMessaging.suite());
 
         addTestSuite(TestOperationSetBasicTelephonySipImpl.class);
 
