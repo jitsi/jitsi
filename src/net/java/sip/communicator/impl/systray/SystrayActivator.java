@@ -20,19 +20,19 @@ import org.osgi.framework.*;
  */
 public class SystrayActivator
     implements BundleActivator
-{ 
+{
     /**
      * A currently valid bundle context.
      */
     public static BundleContext bundleContext;
 
     public static UIService uiService;
-    
+
     private static ConfigurationService configService;
-    
+
     private static Logger logger = Logger.getLogger(
             SystrayActivator.class.getName());
-    
+
     /**
      * Called when this bundle is started.
      *
@@ -47,8 +47,8 @@ public class SystrayActivator
             .getServiceReference(UIService.class.getName());
 
         uiService = (UIService) bundleContext.getService(uiServiceRef);
-        
-        SystrayServiceJdicImpl systray = new SystrayServiceJdicImpl(uiService);               
+
+        SystrayServiceJdicImpl systray = new SystrayServiceJdicImpl(uiService);
     }
 
     /**
@@ -63,7 +63,7 @@ public class SystrayActivator
      */
     public void stop(BundleContext bc) throws Exception {
     }
-    
+
 
     /**
      * Returns the <tt>ConfigurationService</tt> obtained from the bundle
@@ -71,7 +71,7 @@ public class SystrayActivator
      * @return the <tt>ConfigurationService</tt> obtained from the bundle
      * context
      */
-    public static ConfigurationService getConfigurationService() 
+    public static ConfigurationService getConfigurationService()
     {
         if(configService == null) {
             ServiceReference configReference = bundleContext

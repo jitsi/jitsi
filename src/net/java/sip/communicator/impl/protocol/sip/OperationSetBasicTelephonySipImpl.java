@@ -228,9 +228,9 @@ public class OperationSetBasicTelephonySipImpl
             ((CallSipImpl)callParticipant.getCall())
                 .setMediaCallSession(callSession);
 
-            //if possible try to indicate the address of the callee so that the
-            //media service can choose the most proper local address to
-            //advertise.
+            //if possible try to indicate the address of the callee so
+            //that the media service can choose the most proper local
+            //address to advertise.
             javax.sip.address.URI calleeURI = calleeAddress.getURI();
             InetAddress intendedDestination = null;
             if(calleeURI.isSipURI())
