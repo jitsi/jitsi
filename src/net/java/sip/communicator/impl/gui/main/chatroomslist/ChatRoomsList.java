@@ -79,7 +79,7 @@ public class ChatRoomsList
     {
         listModel.addElement(chatRoom);
     }
-    
+
     /**
      * Adds a chat room to this list.
      *
@@ -91,14 +91,14 @@ public class ChatRoomsList
             ProtocolProviderService parentProvider)
     {
         int parentIndex = listModel.indexOf(parentProvider);
-        
+
         if(parentIndex != -1)
             listModel.add(parentIndex + 1, chatRoom);
     }
 
     /**
      * Verifies if the given <tt>ChatRoom</tt> is contained in the list.
-     * 
+     *
      * @param chatRoom the <tt>ChatRoom</tt> to search.
      * @return TRUE if the given <tt>ChatRoom</tt> is contained in the list,
      * FALSE - otherwise.
@@ -107,11 +107,12 @@ public class ChatRoomsList
     {
         return listModel.contains(chatRoom);
     }
-    
+
     /**
+     * Determines if the chat server is closed.
      *
-     * @param pps
-     * @return
+     * @param pps the protocol provider service that we'll be checking
+     * @return true if the chat server is closed and false otherwise.
      */
     public boolean isChatServerClosed(ProtocolProviderService pps)
     {
@@ -120,15 +121,19 @@ public class ChatRoomsList
 
     /**
      * A chat room was selected. Opens the chat room in the chat window.
+     *
+     * @param evt a <tt>ListSelectionEvent</tt> instance containing details of
+     * the event that has just occurred.
      */
-    public void valueChanged(ListSelectionEvent e)
+    public void valueChanged(ListSelectionEvent evt)
     {
-        Object o = this.getSelectedValue();
+        Object obj = this.getSelectedValue();
 
-        if(o instanceof ChatRoom)
+        if(obj instanceof ChatRoom)
         {
-            ChatRoom chatRoom = (ChatRoom) o;
-            ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
+            ChatRoom chatRoom = (ChatRoom) obj;
+            ChatWindowManager chatWindowManager
+                = mainFrame.getChatWindowManager();
 
             ChatPanel chatPanel = chatWindowManager.getChatRoom(chatRoom);
 
@@ -136,23 +141,23 @@ public class ChatRoomsList
         }
     }
 
-    public void mouseClicked(MouseEvent e)
+    public void mouseClicked(MouseEvent evt)
     {}
 
-    public void mouseEntered(MouseEvent e)
+    public void mouseEntered(MouseEvent evt)
     {}
 
-    public void mouseExited(MouseEvent e)
+    public void mouseExited(MouseEvent evt)
     {}
 
-    public void mousePressed(MouseEvent e)
+    public void mousePressed(MouseEvent evt)
     {
         // Select the contact under the right button click.
-        if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
-            || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-            || (e.isControlDown() && !e.isMetaDown()))
+        if ((evt.getModifiers() & InputEvent.BUTTON2_MASK) != 0
+            || (evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+            || (evt.isControlDown() && !evt.isMetaDown()))
         {
-            this.setSelectedIndex(locationToIndex(e.getPoint()));
+            this.setSelectedIndex(locationToIndex(evt.getPoint()));
         }
 
         Object selectedValue = this.getSelectedValue();
@@ -162,15 +167,15 @@ public class ChatRoomsList
             ProtocolProviderService pps
                 = (ProtocolProviderService) selectedValue;
 
-            if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
+            if ((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
             {
                 ChatRoomServerRightButtonMenu rightButtonMenu
                     = new ChatRoomServerRightButtonMenu(mainFrame, pps);
 
                 rightButtonMenu.setInvoker(this);
 
-                rightButtonMenu.setLocation(e.getX()
-                        + mainFrame.getX() + 5, e.getY() + mainFrame.getY()
+                rightButtonMenu.setLocation(evt.getX()
+                        + mainFrame.getX() + 5, evt.getY() + mainFrame.getY()
                         + 105);
 
                 rightButtonMenu.setVisible(true);
@@ -178,19 +183,19 @@ public class ChatRoomsList
         }
     }
 
-    public void mouseReleased(MouseEvent e)
+    public void mouseReleased(MouseEvent evt)
     {}
-    
+
     public ChatRoom getChatRoomFromList(String chatRoomName)
     {
         for(int i=0; i<listModel.getSize(); i++)
         {
             Object o = listModel.getElementAt(i);
-           
+
             if(o instanceof ChatRoom)
             {
                 if((((ChatRoom) o).getName()).equalsIgnoreCase(chatRoomName))
-                    return ((ChatRoom)(o));
+                    return (ChatRoom)o;
             }
         }
         return null;
