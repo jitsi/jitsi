@@ -5,13 +5,12 @@
  * See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.rss;
- 
+
 import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
-import java.awt.*;
-import java.awt.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Instant messaging functionalites for the Rss protocol.
@@ -20,7 +19,9 @@ import java.awt.event.*;
  */
 public class OperationSetBasicInstantMessagingRssImpl
     implements OperationSetBasicInstantMessaging
-{    
+{
+    private static final Logger logger
+        = Logger.getLogger(OperationSetBasicInstantMessagingRssImpl.class);
     /**
      * Currently registered message listeners.
      */
@@ -35,18 +36,18 @@ public class OperationSetBasicInstantMessagingRssImpl
      * The protocol provider that created us.
      */
     private ProtocolProviderServiceRssImpl parentProvider = null;
-    
+
     /**
      * The timer used in order to refresh one or more rss feeds
      */
     private Timer timer = null;
-    
+
     /**
-     * The value corresponding to the time in ms 
+     * The value corresponding to the time in ms
      * of the rss refreshing period (here 10min)
      */
     final int PERIOD_REFRESH_RSS = 600000;
-            
+
     /**
      * Creates an instance of this operation set keeping a reference to the
      * parent protocol provider and presence operation set.
@@ -101,8 +102,8 @@ public class OperationSetBasicInstantMessagingRssImpl
      * @return Message the newly created message
      */
     public Message createMessage(String messageText)
-    {                    
-        
+    {
+
         return new MessageRssImpl(messageText, DEFAULT_MIME_TYPE
                                         , DEFAULT_MIME_ENCODING, null);
     }
@@ -120,61 +121,67 @@ public class OperationSetBasicInstantMessagingRssImpl
     }
 
     /**
-     * Looks for a RSS feed specified as contact
+     * Updates the rss feed associated with rssContact. If the update has been
+     * requested by the user the method would fire a message received event
+     * even if there are no new items.
      *
      * @param rssContact the <tt>contact</tt> to send query
-     * @param newContact the <tt>boolean</tt> to now if it's a new feed/contact
-     * @param aloneUpdate the <tt>boolean</tt> to know if it's 
-     *          a query just for one feed/contact
+     * @param userRequestedUpdate indicates whether the query is triggered by
+     * the user or by a scheduled timer task.
      */
-    private void submitRssQuery(ContactRssImpl rssContact, 
-                                boolean newContact, 
-                                boolean aloneUpdate)
+    private void submitRssQuery(ContactRssImpl rssContact,
+                                boolean userRequestedUpdate)
     {
         Message msg;
         boolean newName = false;
         boolean newDate = false;
         boolean update = false;
-        Date lastQueryDate = null;        
+        Date lastQueryDate = null;
         String newDisplayName = new String();
         String oldDisplayName = new String();
-        
-        //we instantiate a new RssFeedReader which will contain the feed retrieved
-        RssFeedReader rssFeed = new RssFeedReader(rssContact.getAddress());        
-        
-        //we parse the feed/contact
-        rssFeed.recupFlux();                
-        
+
+        RssFeedReader rssFeed = rssContact.getRssFeedReader();
+        try
+        {
+            rssFeed.retrieveFlow();
+        }
+        catch (OperationFailedException ex)
+        {
+            logger.error("Failed to retrieve RSS flow. Error was: "
+                         + ex.getMessage()
+                         , ex);
+            return;
+        }
+
         if(rssFeed.getFeed() == null)
         {
-            msg = createMessage("No RSS feed available at URL "+ rssContact.getAddress());
-        }else
+            msg = createMessage("No RSS feed available at URL "
+                                + rssContact.getAddress());
+        }
+        else
         {
-            //we recover the feed's old name 
-            if(newContact)
-                oldDisplayName = rssContact.getDisplayName();
-            else
-                oldDisplayName = rssFeed.getTitle();
-            
-            //we change the contact's displayName according to the feed's title            
+            //we recover the feed's old name
+            oldDisplayName = rssContact.getDisplayName();
+
+            //we change the contact's displayName according to the feed's title
             newDisplayName = rssFeed.getTitle();
             if(!(newDisplayName.equals(oldDisplayName)))
             {
-                newName = true;                
+                newName = true;
             }
             rssContact.setDisplayName(newDisplayName);
-            
-            //Looking for a date representing the last item retrieved on this feed
-            //we look after a date saving in the contact's parameters (i.e. in the
-            // file contactlist.xml)
+
+            //Looking for a date representing the last item retrieved on this
+            //feed we look after a date saving in the contact's parameters (i.e.
+            //in the file contactlist.xml)
             if(rssContact.getDate() != null)
                 lastQueryDate = rssContact.getDate();
-            
+
             //we create the message containing the new items retrieved
-            msg = createMessage(rssFeed.getPrintedFeed(lastQueryDate));            
-                               
-            //if a newer date is avalaible for the current feed/contact looking the
-            // date of each item of the feed retrieved, we update this date
+            msg = createMessage(rssFeed.getPrintedFeed(lastQueryDate));
+
+            //if a newer date is avalaible for the current feed/contact looking
+            //the date of each item of the feed retrieved, we update this date
             if(rssFeed.getUltimateItemDate() != null)
             {
                 if(lastQueryDate != null)
@@ -195,22 +202,23 @@ public class OperationSetBasicInstantMessagingRssImpl
             }
             else
                 update = true;
-           
-            //if we have a new date or a new name on this feed/contact, we fire that
-            // the contact has his properties modified in order to save it
+
+            //if we have a new date or a new name on this feed/contact, we fire
+            //that the contact has his properties modified in order to save it
             if(newName || newDate)
                 this.opSetPersPresence.fireContactPropertyChangeEvent(
                                 ContactPropertyChangeEvent.
                                 PROPERTY_DISPLAY_NAME, rssContact,
                                 oldDisplayName, newDisplayName);
         }
-        
-        //if the feed has been updated or if the user made a request on a specific
-        //feed/contact, we fire a new message containing the new items to the user
-        if(update || aloneUpdate)
+
+        //if the feed has been updated or if the user made a request on a
+        //specific feed/contact, we fire a new message containing the new items
+        //to the user
+        if(update || userRequestedUpdate)
             fireMessageReceived(msg, rssContact);
     }
-      
+
     /**
      * To refresh all rss feeds registered as contacts
      */
@@ -222,22 +230,18 @@ public class OperationSetBasicInstantMessagingRssImpl
          Iterator rssContact = rssContactList.iterator();
          while(rssContact.hasNext())
          {
-            submitRssQuery((ContactRssImpl)rssContact.next(), false, false);
+            submitRssQuery((ContactRssImpl)rssContact.next(), false);
          }
     }
-    
+
     /**
-     * To refresh a specific rss feed specified as param
+     * To refresh a specific rss feed specified as param.
      *
      * @param rssURL the <tt>contact</tt> to be refreshed
-     * @param newContact 
-     * @param aloneUpdate 
      */
-    public void refreshRssFeed( ContactRssImpl rssURL, 
-                                boolean newContact, 
-                                boolean aloneUpdate)
+    public void refreshRssFeed( ContactRssImpl rssURL)
     {
-        submitRssQuery(rssURL, newContact, aloneUpdate);
+        submitRssQuery(rssURL, true);
     }
 
     /**
@@ -247,26 +251,27 @@ public class OperationSetBasicInstantMessagingRssImpl
     {
         RssTimerRefreshFeed refresh = new RssTimerRefreshFeed(this);
         this.timer = new Timer();
-        this.timer.scheduleAtFixedRate(refresh, 0, PERIOD_REFRESH_RSS);
-    }  
-    
+        this.timer.scheduleAtFixedRate(refresh, 100, PERIOD_REFRESH_RSS);
+    }
+
      /**
      * Cancel the timer if the user switch to the OFFLINE status
      */
     public void stopTimer(){
         this.timer.cancel();
-    }  
-    
+    }
+
     /**
      * Retrieve the feeds for a new Rss Feed just added as persistent contact
      *
      * @param contact the <tt>Contact</tt> added
      */
-    public void newContact(ContactRssImpl contact)
+    public void threadedContactFeedUpdate(ContactRssImpl contact)
     {
-        RssThread rssThr = new RssThread(this,contact, true, true);
+        RssThread rssThr = new RssThread(this, contact);
+        rssThr.start();
     }
-    
+
     /**
      * Sends the <tt>message</tt> to the destination indicated by the
      * <tt>to</tt> contact.
@@ -278,80 +283,20 @@ public class OperationSetBasicInstantMessagingRssImpl
      * @throws IllegalArgumentException if <tt>to</tt> is not an instance
      *   belonging to the underlying implementation.
      */
-    public void sendInstantMessage(Contact to, Message message) 
-        throws  IllegalStateException, 
+    public void sendInstantMessage(Contact to, Message message)
+        throws  IllegalStateException,
                 IllegalArgumentException
     {
         if( !(to instanceof ContactRssImpl) )
            throw new IllegalArgumentException(
                "The specified contact is not a Rss contact."
                + to);
-        
-        MessageDeliveredEvent msgDeliveredEvt
-            = new MessageDeliveredEvent(message, to, new Date());
 
-        //refresh the present rssFeed "to"        
+        //refresh the present rssFeed "to"
         fireMessageDelivered(message,to);
-        RssThread rssThr = new RssThread(this, (ContactRssImpl)to, false, true);
+        threadedContactFeedUpdate((ContactRssImpl)to);
     }
-    
-    /**
-     * In case the to the <tt>to</tt> Contact corresponds to another rss
-     * protocol provider registered with SIP Communicator, we deliver
-     * the message to them, in case the <tt>to</tt> Contact represents us, we
-     * fire a <tt>MessageReceivedEvent</tt>, and if <tt>to</tt> is simply
-     * a contact in our contact list, then we simply echo the message.
-     *
-     * @param message the <tt>Message</tt> the message to deliver.
-     * @param to the <tt>Contact</tt> that we should deliver the message to.
-     */
-    private void deliverMessage(Message message, ContactRssImpl to)
-    {
-        String userID = to.getAddress();
 
-        //if the user id is owr own id, then this message is being routed to us
-        //from another instance of the rss provider.
-        if (userID.equals(this.parentProvider.getAccountID().getUserID()))
-        {
-            //check who is the provider sending the message
-            String sourceUserID
-                = to.getProtocolProvider().getAccountID().getUserID();
-
-            //check whether they are in our contact list
-            Contact from = opSetPersPresence.findContactByID(sourceUserID);
-
-
-            //and if not - add them there as volatile.
-            if(from == null)
-            {
-                from = opSetPersPresence.createVolatileContact(sourceUserID);
-            }
-
-            //and now fire the message received event.
-            fireMessageReceived(message, from);
-        }
-        else
-        {
-            //if userID is not our own, try an check whether another provider
-            //has that id and if yes - deliver the message to them.
-            ProtocolProviderServiceRssImpl rssProvider
-                = this.opSetPersPresence.findProviderForRssUserID(userID);
-            if(rssProvider != null)
-            {
-                OperationSetBasicInstantMessagingRssImpl opSetIM
-                    = (OperationSetBasicInstantMessagingRssImpl)
-                        rssProvider.getOperationSet(
-                            OperationSetBasicInstantMessaging.class);
-                opSetIM.deliverMessage(message, to);
-            }
-            else
-            {
-                //if we got here then "to" is simply someone in our contact
-                //list so let's just echo the message.
-                fireMessageReceived(message, to);
-            }
-        }
-    }
 
     /**
      * Notifies all registered message listeners that a message has been
@@ -379,7 +324,7 @@ public class OperationSetBasicInstantMessagingRssImpl
             listener.messageDelivered(evt);
         }
     }
-    
+
     /**
      * Notifies all registered message listeners that a message has been
      * received.
@@ -425,12 +370,27 @@ public class OperationSetBasicInstantMessagingRssImpl
     {
         return true;
     }
-    
-    public ProtocolProviderServiceRssImpl getParentProvider(){
+
+    /**
+     * Returns the protocol provider that this operation set belongs to.
+     *
+     * @return a reference to the <tt>ProtocolProviderServiceRssImpl</tt>
+     * instance that this operation set belongs to.
+     */
+    public ProtocolProviderServiceRssImpl getParentProvider()
+    {
         return this.parentProvider;
     }
-    
-    public OperationSetPersistentPresenceRssImpl getOpSetPersPresence(){
+
+    /**
+     * Returns a reference to the presence operation set instance used by our
+     * source provider.
+     *
+     * @return a reference to the <tt>OperationSetPersistentPresenceRssImpl</tt>
+     * instance used by this provider.
+     */
+    public OperationSetPersistentPresenceRssImpl getOpSetPersPresence()
+    {
         return this.opSetPersPresence;
     }
 }
