@@ -90,6 +90,13 @@ public class OperationFailedException
     public static final int IDENTIFICATION_CONFLICT = 10;
 
     /**
+     * Indicates that the exception was thrown because a method has been
+     * passed an illegal or inappropriate argument.
+     */
+    public static final int ILLEGAL_ARGUMENT = 11;
+
+
+    /**
      * The error code of the exception
      */
     private int errorCode = GENERAL_ERROR;
