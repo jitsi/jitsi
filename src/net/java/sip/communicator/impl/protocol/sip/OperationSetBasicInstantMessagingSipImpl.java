@@ -54,6 +54,11 @@ public class OperationSetBasicInstantMessagingSipImpl
      * Hashtable containing the CSeq of each discussion
      */
     private Hashtable cseqs = null;
+    
+    /**
+     * Hashtable containing the message sent
+     */
+    private Hashtable sentMsg = null;
 
     /**
      * Creates an instance of this operation set.
@@ -66,6 +71,7 @@ public class OperationSetBasicInstantMessagingSipImpl
     {
         this.sipProvider = provider;
         this.cseqs = new Hashtable();
+        this.sentMsg = new Hashtable(3);
         provider.addRegistrationStateChangeListener(new
             RegistrationStateListener());
     }
@@ -175,6 +181,7 @@ public class OperationSetBasicInstantMessagingSipImpl
         // no offline message
         if (to.getPresenceStatus().equals(SipStatusEnum.OFFLINE))
         {
+            logger.debug("trying to send a message to an offline contact");
             MessageDeliveryFailedEvent evt =
                 new MessageDeliveryFailedEvent(
                     message,
@@ -206,7 +213,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             fireMessageEvent(evt);
             return;
         }
-
+        
         //Transaction
         ClientTransaction messageTransaction;
         SipProvider jainSipProvider
@@ -231,7 +238,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             fireMessageEvent(evt);
             return;
         }
-
+        
         // send the message
         try
         {
@@ -252,6 +259,12 @@ public class OperationSetBasicInstantMessagingSipImpl
             fireMessageEvent(evt);
             return;
         }
+        
+        // we register the reference to this message to retrieve it when
+        // we'll receive the response message
+        Integer key = new Integer(to.hashCode() + ((Long) this.cseqs.get(to))
+                .intValue() - 1);
+        this.sentMsg.put(key, message);
     }
 
     /**
@@ -306,7 +319,7 @@ public class OperationSetBasicInstantMessagingSipImpl
         long seqN = 1;
         if (this.cseqs.containsKey(to))
         {
-            seqN = ( (Long)this.cseqs.get(to)).longValue();
+            seqN = ((Long)this.cseqs.get(to)).longValue();
             this.cseqs.put(to, new Long(seqN + 1));
         }
         else
@@ -664,19 +677,17 @@ public class OperationSetBasicInstantMessagingSipImpl
                 return;
             }
 
-            Contact from = opSetPersPresence.findContactByID(
+            Contact from = resolveContact(
                 fromHeader.getAddress().getURI().toString());
             Message newMessage = createMessage(content);
 
-            // first message
-            if (from == null)
-            {
+            if (from == null) {
                 logger.debug("received a message from an unknown contact: "
-                             + from);
+                             + fromHeader.getAddress().getURI().toString());
                 //create the volatile contact
                 from = opSetPersPresence
                     .createVolatileContact(fromHeader.getAddress().getURI()
-                                           .toString());
+                                           .toString().substring(4));
             }
 
             // answer ok
@@ -736,26 +747,80 @@ public class OperationSetBasicInstantMessagingSipImpl
                 logger.debug("failed to convert the message charset");
                 content = new String(req.getRawContent());
             }
-
-            // who sent the original message ?
-            FromHeader fromHeader = (FromHeader)
-                req.getHeader(FromHeader.NAME);
-
-            if (fromHeader == null)
+            
+            // to who did we send the original message ?
+            ToHeader toHeader = (ToHeader)
+                req.getHeader(ToHeader.NAME);
+            
+            if (toHeader == null)
             {
-                logger.error("received a response without a from header");
+                // should never happen
+                logger.error("send a request without a to header");
                 return;
             }
-
-            Contact from = opSetPersPresence.findContactByID(
-                fromHeader.getAddress().getURI().toString());
-            Message newMessage = createMessage(content);
-
-            if (from == null)
-            {
+            
+            Contact to = resolveContact(toHeader.getAddress()
+                    .getURI().toString());
+            
+            if (to == null) {
                 logger.error(
-                    "Error received a response from an unknown contact : "
-                    + responseEvent.getResponse().getReasonPhrase());
+                        "Error received a response from an unknown contact : "
+                        + toHeader.getAddress().getURI().toString() + " : "
+                        + responseEvent.getResponse().getReasonPhrase());
+                
+                // error for delivering the message
+                MessageDeliveryFailedEvent evt =
+                    new MessageDeliveryFailedEvent(
+                        // we don't know what message it concerns
+                        createMessage(content),
+                        to,
+                        MessageDeliveryFailedEvent.INTERNAL_ERROR,
+                        new Date());
+                fireMessageEvent(evt);
+                
+                return;
+            }
+            
+            // we retrive the original message
+            long seqNum = ((CSeqHeader) req.getHeader(CSeqHeader.NAME))
+                                .getSeqNumber();
+            
+            Integer key = new Integer(to.hashCode() + (int) seqNum);
+            
+            if (key == null) {
+                // should never happen
+                logger.error("Couldn't create the key to find the message" +
+                        " sent");
+                
+                // error for delivering the message
+                MessageDeliveryFailedEvent evt =
+                    new MessageDeliveryFailedEvent(
+                        // we don't know what message it is
+                        createMessage(content),
+                        to,
+                        MessageDeliveryFailedEvent.INTERNAL_ERROR,
+                        new Date());
+                fireMessageEvent(evt);
+                
+                return;
+            }
+            
+            Message newMessage = (Message) sentMsg.get(key);
+            
+            if (newMessage == null) {
+                // should never happen
+                logger.error("Couldn't find the message sent");
+                
+                // error for delivering the message
+                MessageDeliveryFailedEvent evt =
+                    new MessageDeliveryFailedEvent(
+                        // we don't know what message it is
+                        createMessage(content),
+                        to,
+                        MessageDeliveryFailedEvent.INTERNAL_ERROR,
+                        new Date());
+                fireMessageEvent(evt);
+                
                 return;
             }
 
@@ -770,10 +835,11 @@ public class OperationSetBasicInstantMessagingSipImpl
                 MessageDeliveryFailedEvent evt =
                     new MessageDeliveryFailedEvent(
                         newMessage,
-                        from,
-                        MessageDeliveryFailedEvent.INTERNAL_ERROR,
+                        to,
+                        MessageDeliveryFailedEvent.NETWORK_FAILURE,
                         new Date());
                 fireMessageEvent(evt);
+                sentMsg.remove(key);
             }
             else if (status == 401 || status == 407)
             {
@@ -799,12 +865,17 @@ public class OperationSetBasicInstantMessagingSipImpl
                     MessageDeliveryFailedEvent evt =
                         new MessageDeliveryFailedEvent(
                             newMessage,
-                            from,
-                            MessageDeliveryFailedEvent.INTERNAL_ERROR,
+                            to,
+                            MessageDeliveryFailedEvent.NETWORK_FAILURE,
                             new Date());
                     fireMessageEvent(evt);
+                    sentMsg.remove(key);
                 }
-
+                
+                // we are incrementing the CSeq, so we move the message
+                // in the hashtable
+                sentMsg.remove(key);
+                sentMsg.put(new Integer(key.intValue() + 1), newMessage);
             }
             else if (status >= 200)
             {
@@ -815,10 +886,60 @@ public class OperationSetBasicInstantMessagingSipImpl
                 // we delivered the message
                 MessageDeliveredEvent msgDeliveredEvt
                     = new MessageDeliveredEvent(
-                        newMessage, from, new Date());
+                        newMessage, to, new Date());
 
                 fireMessageEvent(msgDeliveredEvt);
+                
+                // we don't need this message anymore
+                sentMsg.remove(key);
             }
+            
+            // we close the transaction to avoid some retransmit
+            try {
+                responseEvent.getClientTransaction().terminate();
+            } catch (ObjectInUseException e) {
+                // should never happer (we don't user Dialogs)
+                logger.debug("transaction in use while trying to close it");
+            }
+        }
+        
+        /**
+         * Try to find a contact registered using a string to identify him.
+         * 
+         * @param contactID A string with which the contact may have
+         *  been registered
+         * @return A valid contact if it has been found, null otherwise
+         */
+        private Contact resolveContact(String contactID) {
+            Contact res = opSetPersPresence.findContactByID(contactID);
+            
+            if (res == null) {
+                // we try to resolve the conflict by removing "sip:" from the id 
+                if (contactID.startsWith("sip:")) {
+                    res = opSetPersPresence.findContactByID(
+                            contactID.substring(4));
+                }
+            
+                if (res == null) {
+                    // we try to remove the part after the '@'
+                    if (contactID.indexOf('@') > -1) {
+                        res = opSetPersPresence.findContactByID(
+                                contactID.substring(0,
+                                    contactID.indexOf('@')));
+                        
+                        if (res == null) {
+                            // try the same thing without sip:
+                            if (contactID.startsWith("sip:")) {
+                                res = opSetPersPresence.findContactByID(
+                                        contactID.substring(4,
+                                            contactID.indexOf('@')));
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return res;
         }
 
         /**
