@@ -86,9 +86,9 @@ public class CallPanel
         int contactsCount = contacts.size();
 
         if(contactsCount > 0) {
-            String firstContact = (String) contacts.get(0);
+            Contact firstContact = (Contact) contacts.get(0);
             
-            this.title = firstContact;
+            this.title = firstContact.getDisplayName();
 
             if(contactsCount < 2) {
                 this.mainPanel.setLayout(new BorderLayout());
@@ -102,9 +102,9 @@ public class CallPanel
         Iterator i = contacts.iterator();
 
         while(i.hasNext()) {
-            String contact = (String)i.next();
+            Contact contact = (Contact)i.next();
         
-            this.addCallParticipant(contact, callType);
+            this.addCallParticipant(contact.getDisplayName(), callType);
         }
         
         this.getViewport().add(mainPanel);
