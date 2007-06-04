@@ -334,7 +334,7 @@ public class ChatRoomJabberImpl
 
     /**
      * Returns true if the local user is currently in the multi user chat
-     * (after calling one of the {@link #join(String)} methods).
+     * (after calling one of the {@link #join()} methods).
      *
      * @return true if currently we're currently in this chat room and false
      *   otherwise.

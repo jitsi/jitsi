@@ -78,7 +78,7 @@ public interface ChatRoom
 
     /**
      * Returns true if the local user is currently in the multi user chat
-     * (after calling one of the {@link #join(String)} methods).
+     * (after calling one of the {@link #join()} methods).
      *
      * @return true if currently we're currently in this chat room and false
      * otherwise.
@@ -119,7 +119,7 @@ public interface ChatRoom
      * <p>
      * To be notified every time the room's subject change you should add a
      * <tt>ChatRoomChangelistener</tt> to this room.
-     * {@link #addChatRoomChaneListener(ChatRoomChangeListener)}<p>
+     * {@link #addChatRoomChangeListener(ChatRoomChangeListener)}<p>
      *
      * To change the room's subject use {@link #setSubject(String)}.
      *
@@ -137,7 +137,7 @@ public interface ChatRoom
      * @param subject the new subject that we'd like this room to have
      * @throws OperationFailedException
      */
-    public void setSubject(final String subject)
+    public void setSubject(String subject)
         throws OperationFailedException;
 
     /**
