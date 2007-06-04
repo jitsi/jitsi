@@ -14,14 +14,14 @@ import java.util.TimerTask;
  * @author Jean-Albert Vescovo
  */
 
-public class RssTimerRefreshFeed 
+public class RssTimerRefreshFeed
     extends TimerTask
 {
     private OperationSetBasicInstantMessagingRssImpl opSet;
-    
+
     /**
-     * Creates an instance of timer used to seeking periodically the rss feeds registered
-     * as contacts.
+     * Creates an instance of timer used to seeking periodically the rss feeds
+     * registered as contacts.
      * @param opSet the OperationSetBasicInstantMessagingRssImpl instance that
      * is managing the rss protocol.
      */
@@ -29,13 +29,14 @@ public class RssTimerRefreshFeed
     {
         this.opSet = opSet;
     }
-    
+
     /**
      * What the timer is supposed to do each time the PERIOD_REFRESH_RSS expire.
-     * In facts, it launch a new thread responsible for starting one or more rss queries
+     * In facts, it launch a new thread responsible for starting one or more
+     * rss queries
      */
     public void run()
     {
-        RssThread rssThr = new RssThread(this.opSet);
+        this.opSet.refreshRssFeed();
     }
 }
