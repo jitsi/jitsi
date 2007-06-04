@@ -2,7 +2,15 @@ Bundle-Name: Smack Lib Provider
 Bundle-Description: Smack Lib Provider
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
-Import-Package: javax.net.ssl
+Import-Package: javax.net.ssl,
+ javax.xml.parsers,
+ javax.xml.transform,
+ javax.xml.transform.dom,
+ javax.xml.transform.stream,
+ org.w3c.dom,
+ org.xml.sax,
+ org.xml.sax.helpers,
+ org.apache.xml.serialize
 Export-Package: org.jivesoftware.smack,
  org.jivesoftware.smack.packet,
  org.jivesoftware.smack.provider,
@@ -10,4 +18,6 @@ Export-Package: org.jivesoftware.smack,
  org.jivesoftware.smack.filter,
  org.jivesoftware.smackx,
  org.jivesoftware.smackx.muc,
- org.jivesoftware.smackx.packet
+ org.jivesoftware.smackx.packet,
+ org.xmlpull.v1,
+ org.xmlpull.mxp1
