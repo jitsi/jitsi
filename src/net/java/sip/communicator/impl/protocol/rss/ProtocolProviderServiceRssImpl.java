@@ -61,11 +61,11 @@ public class ProtocolProviderServiceRssImpl
 
     /**
      * A reference to the IM operation set
-     */            
+     */
     private OperationSetBasicInstantMessagingRssImpl basicInstantMessaging;
-    
+
     private boolean start = false;
-    
+
     /**
      * The registration state that we are currently in. Note that in a real
      * world protocol implementation this field won't exist and the registration
@@ -81,7 +81,7 @@ public class ProtocolProviderServiceRssImpl
     {
         logger.trace("Creating a rss provider.");
     }
-        
+
     /**
      * Initializes the service implementation, and puts it in a state where it
      * could interoperate with other services. It is strongly recomended that
@@ -118,7 +118,7 @@ public class ProtocolProviderServiceRssImpl
                                         persistentPresence);
 
             //initialize the IM operation set
-            //OperationSetBasicInstantMessagingRssImpl 
+            //OperationSetBasicInstantMessagingRssImpl
                     basicInstantMessaging
                 = new OperationSetBasicInstantMessagingRssImpl(
                     this
@@ -129,15 +129,6 @@ public class ProtocolProviderServiceRssImpl
                 OperationSetBasicInstantMessaging.class.getName(),
                 basicInstantMessaging);
 
-            //initialize the typing notifications operation set
-            OperationSetTypingNotifications typingNotifications =
-                new OperationSetTypingNotificationsRssImpl(
-                        this, persistentPresence);
-
-            supportedOperationSets.put(
-                OperationSetTypingNotifications.class.getName(),
-                typingNotifications);            
-            
             isInitialized = true;
         }
     }
@@ -214,7 +205,7 @@ public class ProtocolProviderServiceRssImpl
 
             listener.registrationStateChanged(event);
         }
-        
+
         /* If Timer isn't started, we launch a new timer for sending periodic
          * rss feeds' refresh taks.
          * If yes, we stop it.
@@ -227,7 +218,7 @@ public class ProtocolProviderServiceRssImpl
             this.basicInstantMessaging.stopTimer();
             start = false;
         }
-        
+
         logger.trace("Done.");
     }
 
@@ -435,7 +426,7 @@ public class ProtocolProviderServiceRssImpl
     {
         return rssIcon;
     }
-    
+
     /**
      * Returns the IM set
      * @return the IM set
