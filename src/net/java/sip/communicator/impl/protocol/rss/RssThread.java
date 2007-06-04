@@ -15,59 +15,33 @@ import net.java.sip.communicator.service.protocol.event.*;
  *
  * @author Jean-Albert Vescovo
  */
-public class RssThread 
+public class RssThread
     extends Thread
 {
      private OperationSetBasicInstantMessagingRssImpl opSet;
-     private ContactRssImpl rssFeed = null;
-     private boolean newContact = false;
-     private boolean aloneUpdate = false;
-     
-    /** Creates a new instance of RssThread 
+     private ContactRssImpl rssContact = null;
+
+    /**
+     * Creates a new instance of RssThread
+     *
      * @param opSet the OperationSetBasicInstantMessagingRssImpl instance that
      * is managing the rss protocol.
-     */
-    public RssThread(OperationSetBasicInstantMessagingRssImpl opSet) 
-    {
-        this.opSet = opSet;
-        this.start();
-    }
-    
-    /** Creates a new instance of RssThread 
-     * @param opSet the OperationSetBasicInstantMessagingRssImpl instance that
-     * is managing the rss protocol.
-     * @param rssFeed the contact that the thread is going to do a query
-     * @param newContact newContact
-     * @param aloneUpdate aloneUpdate
+     * @param rssContact the contact that the thread is going to do a query
      */
     public RssThread(OperationSetBasicInstantMessagingRssImpl opSet,
-                     ContactRssImpl rssFeed,
-                     boolean newContact,
-                     boolean aloneUpdate)
+                     ContactRssImpl rssContact)
     {
         this.opSet = opSet;
-        this.rssFeed = rssFeed;
-        this.newContact = newContact;
-        this.aloneUpdate = aloneUpdate;
-        this.start();
+        this.rssContact = rssContact;
     }
-     
+
     /**
-     * The task executed by the thread
-     * If no rss contact given as parameter, the query is launched for all contacts
+     * The task executed by the thread.
+     * If no rss contact given as parameter, the query is launched for all
+     * contacts
      */
     public void run()
     {
-        try
-        {
-            if(this.rssFeed == null)
-                this.opSet.refreshRssFeed();
-            else
-                this.opSet.refreshRssFeed(this.rssFeed,this.newContact,this.aloneUpdate);
-        }
-        catch(Exception exc)
-        {
-            exc.printStackTrace();
-        }
+        this.opSet.refreshRssFeed(this.rssContact);
     }
 }
