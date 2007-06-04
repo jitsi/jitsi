@@ -6,6 +6,10 @@
  */
 package net.java.sip.communicator.slick.protocol.sip;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Vector;
+
 import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -190,5 +194,110 @@ public class SipSlickFixture
         return null;
     }
 
-
+    public void clearProvidersLists()
+    throws Exception
+    {
+        Map supportedOperationSets1 = provider1.getSupportedOperationSets();
+    
+        if ( supportedOperationSets1 == null
+            || supportedOperationSets1.size() < 1)
+            throw new NullPointerException(
+                "No OperationSet implementations are supported by "
+                +"this Sip implementation. ");
+    
+        //get the operation set presence here.
+        OperationSetPersistentPresence opSetPersPresence1 =
+            (OperationSetPersistentPresence)supportedOperationSets1.get(
+                OperationSetPersistentPresence.class.getName());
+    
+        //if still null then the implementation doesn't offer a presence
+        //operation set which is unacceptable for Sip.
+        if (opSetPersPresence1 == null)
+            throw new NullPointerException(
+                "An implementation of the Sip service must provide an "
+                + "implementation of at least the one of the Presence "
+                + "Operation Sets");
+    
+        // lets do it once again for the second provider
+        Map supportedOperationSets2 = provider2.getSupportedOperationSets();
+    
+        if (supportedOperationSets2 == null
+            || supportedOperationSets2.size() < 1)
+            throw new NullPointerException(
+                "No OperationSet implementations are supported by "
+                + "this Jabber implementation. ");
+    
+        //get the operation set presence here.
+        OperationSetPersistentPresence opSetPersPresence2 =
+            (OperationSetPersistentPresence) supportedOperationSets2.get(
+                OperationSetPersistentPresence.class.getName());
+    
+        //if still null then the implementation doesn't offer a presence
+        //operation set which is unacceptable for Sip.
+        if (opSetPersPresence2 == null)
+            throw new NullPointerException(
+                "An implementation of the Sip service must provide an "
+                + "implementation of at least the one of the Presence "
+                + "Operation Sets");
+    
+        ContactGroup rootGroup1 = opSetPersPresence1.getServerStoredContactListRoot();
+    
+        // first delete the groups
+        Vector groupsToRemove = new Vector();
+        Iterator iter = rootGroup1.subgroups();
+        while (iter.hasNext())
+        {
+            groupsToRemove.add(iter.next());
+        }
+    
+        iter = groupsToRemove.iterator();
+        while (iter.hasNext())
+        {
+            ContactGroup item = (ContactGroup) iter.next();
+            opSetPersPresence1.removeServerStoredContactGroup(item);
+        }
+    
+        //then delete contacts if any in root list
+        Vector contactsToRemove = new Vector();
+        iter = rootGroup1.contacts();
+        while (iter.hasNext())
+        {
+            contactsToRemove.add(iter.next());
+        }
+        iter = contactsToRemove.iterator();
+        while (iter.hasNext())
+        {
+            opSetPersPresence1.unsubscribe((Contact)iter.next());
+        }
+    
+        ContactGroup rootGroup2 = opSetPersPresence2.getServerStoredContactListRoot();
+    
+        // delete groups
+        groupsToRemove = new Vector();
+        iter = rootGroup2.subgroups();
+        while (iter.hasNext())
+        {
+            groupsToRemove.add(iter.next());
+        }
+    
+        iter = groupsToRemove.iterator();
+        while (iter.hasNext())
+        {
+            ContactGroup item = (ContactGroup) iter.next();
+            opSetPersPresence2.removeServerStoredContactGroup(item);
+        }
+    
+        //then delete contacts if any in root list
+        contactsToRemove = new Vector();
+        iter = rootGroup2.contacts();
+        while (iter.hasNext())
+        {
+            contactsToRemove.add(iter.next());
+        }
+        iter = contactsToRemove.iterator();
+        while (iter.hasNext())
+        {
+            opSetPersPresence2.unsubscribe( (Contact) iter.next());
+        }
+    }
 }
