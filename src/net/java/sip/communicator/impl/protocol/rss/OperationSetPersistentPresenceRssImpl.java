@@ -11,7 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import org.osgi.framework.*;
+import java.net.*;
 
 /**
  * A Rss implementation of a persistent presence operation set. In order
@@ -20,13 +20,15 @@ import org.osgi.framework.*;
  * implementation would save it on a server using methods provided by the
  * protocol stack.
  *
- * @author Emil Ivov/Jean-Albert Vescovo
+ * @author Jean-Albert Vescovo
+ * @author Emil Ivov
  */
 public class OperationSetPersistentPresenceRssImpl
     implements OperationSetPersistentPresence
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetPersistentPresenceRssImpl.class);
+
     /**
      * A list of listeners registered for <tt>SubscriptionEvent</tt>s.
      */
@@ -74,7 +76,7 @@ public class OperationSetPersistentPresenceRssImpl
      * authorization requests to for approval.
      */
     private AuthorizationHandler authorizationHandler = null;
-    
+
     /**
      * Creates an instance of this operation set keeping a reference to the
      * specified parent <tt>provider</tt>.
@@ -500,7 +502,7 @@ public class OperationSetPersistentPresenceRssImpl
     public ContactGroupRssImpl getContactListRoot(){
         return this.contactListRoot;
     }
-    
+
     /**
      * Removes the specified contact from its current parent and places it
      * under <tt>newParent</tt>.
@@ -587,26 +589,6 @@ public class OperationSetPersistentPresenceRssImpl
         //ourselves and make them have the same status as ours.
         changePresenceStatusForAllContacts( getServerStoredContactListRoot()
                                             , getPresenceStatus());
-
-        //now check whether we are in someone else's contact list and modify
-        //our status there
-        List contacts = findContactsPointingToUs();
-
-        Iterator contactsIter = contacts.iterator();
-        while (contactsIter.hasNext())
-        {
-            ContactRssImpl contact
-                = (ContactRssImpl) contactsIter.next();
-
-            PresenceStatus oldStatus = contact.getPresenceStatus();
-            contact.setPresenceStatus(status);
-            contact.getParentPresenceOperationSet()
-                .fireContactPresenceStatusChangeEvent(
-                    contact
-                    , contact.getParentContactGroup()
-                    , oldStatus);
-
-        }
     }
 
 
@@ -671,12 +653,6 @@ public class OperationSetPersistentPresenceRssImpl
             ContactRssImpl contact
                 = (ContactRssImpl)childContacts.next();
 
-            if(findProviderForRssUserID(contact.getAddress()) != null)
-            {
-                //this is a contact corresponding to another SIP Communicator
-                //provider so we won't change it's status here.
-                continue;
-            }
             PresenceStatus oldStatus = contact.getPresenceStatus();
             contact.setPresenceStatus(newStatus);
 
@@ -818,7 +794,7 @@ public class OperationSetPersistentPresenceRssImpl
         ((ContactGroupRssImpl)group).setGroupName(newName);
 
         this.fireServerStoredGroupEvent(
-            (ContactGroupRssImpl)group, 
+            (ContactGroupRssImpl)group,
             ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
     }
 
@@ -829,12 +805,12 @@ public class OperationSetPersistentPresenceRssImpl
      *   authorization requests coming from other users requesting
      *   permission add us to their contact list.
      */
-    
+
     public void setAuthorizationHandler(AuthorizationHandler handler)
     {
         this.authorizationHandler = handler;
     }
-    
+
 
     /**
      * Persistently adds a subscription for the presence status of the
@@ -855,120 +831,55 @@ public class OperationSetPersistentPresenceRssImpl
      *   subscribing fails due to errors experienced during network
      *   communication
      */
-    public void subscribe(ContactGroup parent, String contactIdentifier) 
-        throws  IllegalArgumentException, 
+    public void subscribe(ContactGroup parent, String contactIdentifier)
+        throws  IllegalArgumentException,
                 IllegalStateException,
                 OperationFailedException
     {
+        URL rssURL = null;
+        try
+        {
+            rssURL = new URL(contactIdentifier);
+        }
+        catch (MalformedURLException ex)
+        {
+            throw new IllegalArgumentException(
+                "failed to create a URL for address "
+                + contactIdentifier
+                + ". Error was: "
+                + ex.getMessage());
+        }
+
+        //we instantiate a new RssFeedReader which will contain the feed
+        //associated with the contact. It is important to try and connect here
+        //in order to report failure if there is a problem with the feed.
+        RssFeedReader rssFeedReader = new RssFeedReader(rssURL);
+
+        //we parse the feed/contact here so that we could be notified of any
+        //failures
+        rssFeedReader.retrieveFlow();
+
         ContactRssImpl contact = new ContactRssImpl(
-            contactIdentifier
+            rssURL
+            , rssFeedReader
             , parentProvider);
-        
+
         ((ContactGroupRssImpl)parent).addContact(contact);
 
-        
+
         fireSubscriptionEvent(contact,
                               parent,
-                              SubscriptionEvent.SUBSCRIPTION_CREATED);       
-        
-        //if the newly added contact corresponds to another provider - set their
-        //status accordingly
-        ProtocolProviderServiceRssImpl rssProvider
-            = findProviderForRssUserID(contactIdentifier);
-        if(rssProvider != null)
-        {
-            OperationSetPersistentPresence opSetPresence
-                = (OperationSetPersistentPresence)rssProvider.getOperationSet(
-                    OperationSetPersistentPresence.class);
+                              SubscriptionEvent.SUBSCRIPTION_CREATED);
 
-            changePresenceStatusForContact(
-                contact
-                , (RssStatusEnum)opSetPresence.getPresenceStatus());
-        }
-        else
-        {
-            //otherwise - since we are not a real protocol, we set the contact
-            //presence status ourselves
-            changePresenceStatusForContact(contact, getPresenceStatus());
-        }
-        //just after inscription of the new contact, looking for the feed
-        this.parentProvider.getBasicInstantMessaging().newContact(contact);
+        //since we are not a real protocol, we set the contact
+        //presence status ourselves
+        changePresenceStatusForContact(contact, getPresenceStatus());
+
+        //now update the flow for the first time.
+        parentProvider.getBasicInstantMessaging()
+            .threadedContactFeedUpdate(contact);
     }
 
-    /**
-     * Depending on whether <tt>contact</tt> corresponds to another protocol
-     * provider installed in sip-communicator, this method would either deliver
-     * it to that provider or simulate a corresponding request from the
-     * destination contact and make return a response after it has received
-     * one If the destination contact matches us, then we'll ask the user to
-     * act upon the request, and return the response.
-     *
-     * @param request the authorization request that we'd like to deliver to the
-     * desination <tt>contact</tt>.
-     * @param contact the <tt>Contact</tt> to notify
-     *
-     * @return the <tt>AuthorizationResponse</tt> that has been given or
-     * generated in response to <tt>request</tt>.
-     */
-    private AuthorizationResponse deliverAuthorizationRequest(
-                AuthorizationRequest request,
-                Contact contact)
-    {
-        String userID = contact.getAddress();
-
-        //if the user id is our own id, then this request is being routed to us
-        //from another instance of the rss provider.
-        if (userID.equals(this.parentProvider.getAccountID().getUserID()))
-        {
-            //check who is the provider sending the message
-            String sourceUserID = contact.getProtocolProvider()
-                .getAccountID().getUserID();
-
-            //check whether they are in our contact list
-            Contact from = findContactByID(sourceUserID);
-
-            //and if not - add them there as volatile.
-            if (from == null)
-            {
-                from = createVolatileContact(sourceUserID);
-            }
-
-            //and now handle the request.
-            return authorizationHandler.processAuthorisationRequest(
-                request, from);
-        }
-        else
-        {
-            //if userID is not our own, try a check whether another provider
-            //has that id and if yes - deliver the request to them.
-            ProtocolProviderServiceRssImpl rssProvider
-                = this.findProviderForRssUserID(userID);
-            if (rssProvider != null)
-            {
-                OperationSetPersistentPresenceRssImpl opSetPersPresence
-                    = (OperationSetPersistentPresenceRssImpl)
-                    rssProvider.getOperationSet(
-                        OperationSetPersistentPresence.class);
-                return opSetPersPresence
-                    .deliverAuthorizationRequest(request, contact);
-            }
-            else
-            {
-                //if we got here then "to" is simply someone in our contact
-                //list so let's just simulate a reciproce request and generate
-                //a response accordingly.
-
-                //pretend that the remote contact is asking for authorization
-                authorizationHandler.processAuthorisationRequest(
-                    request, contact);
-
-                //and now pretend that the remote contact has granted us
-                //authorization
-                return new AuthorizationResponse(AuthorizationResponse.ACCEPT
-                                                , "You are welcome!");
-            }
-        }
-    }
 
     /**
      * Adds a subscription for the presence status of the contact
@@ -989,7 +900,6 @@ public class OperationSetPersistentPresenceRssImpl
         OperationFailedException
     {
         subscribe(contactListRoot, contactIdentifier);
-
     }
 
     /**
@@ -1016,7 +926,7 @@ public class OperationSetPersistentPresenceRssImpl
         parentGroup.removeContact((ContactRssImpl)contact);
 
         fireSubscriptionEvent((ContactRssImpl)contact,
-             ((ContactRssImpl)contact).getParentContactGroup(), 
+             ((ContactRssImpl)contact).getParentContactGroup(),
              SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
 
@@ -1038,8 +948,8 @@ public class OperationSetPersistentPresenceRssImpl
     public Contact createUnresolvedContact(String address,
                                            String persistentData)
     {
-        return createUnresolvedContact( address, 
-                                        persistentData, 
+        return createUnresolvedContact( address,
+                                        persistentData,
                                         getServerStoredContactListRoot());
     }
 
@@ -1060,13 +970,31 @@ public class OperationSetPersistentPresenceRssImpl
      *
      * @return the unresolved <tt>Contact</tt> created from the specified
      * <tt>address</tt> and <tt>persistentData</tt>
+     * @throws IllegalArgumentException if the status requested is not a
+     *   valid PresenceStatus supported by this provider.
      */
     public Contact createUnresolvedContact(String address,
                                            String persistentData,
                                            ContactGroup parent)
+        throws IllegalArgumentException
     {
+        URL rssURL = null;
+        try
+        {
+            rssURL = new URL(address);
+        }
+        catch (MalformedURLException ex)
+        {
+            throw new IllegalArgumentException(
+                "failed to create a URL for address "
+                + address
+                + ". Error was: "
+                + ex.getMessage());
+        }
+
         ContactRssImpl contact = new ContactRssImpl(
-            address
+            rssURL
+            , new RssFeedReader(rssURL)
             , parentProvider);
         contact.setResolved(false);
 
@@ -1079,6 +1007,7 @@ public class OperationSetPersistentPresenceRssImpl
         //since we don't have any server, we'll simply resolve the contact
         //ourselves as if we've just received an event from the server telling
         //us that it has been resolved.
+        contact.setResolved(true);
         fireSubscriptionEvent(
             contact, parent, SubscriptionEvent.SUBSCRIPTION_RESOLVED);
 
@@ -1089,100 +1018,9 @@ public class OperationSetPersistentPresenceRssImpl
         //we retrieve if exists the persistent data for this contact
         //which represents the date of the last item seen by the user
         contact.setPersistentData(persistentData);
-        
+
         return contact;
     }
-
-    /**
-     * Looks for a rss protocol provider registered for a user id matching
-     * <tt>rssUserID</tt>.
-     *
-     * @param rssUserID the ID of the Rss user whose corresponding
-     * protocol provider we'd like to find.
-     * @return ProtocolProviderServiceRssImpl a rss protocol
-     * provider registered for a user with id <tt>rssUserID</tt> or null
-     * if there is no such protocol provider.
-     */
-    public ProtocolProviderServiceRssImpl
-                        findProviderForRssUserID(String rssUserID)
-    {
-        BundleContext bc = RssActivator.getBundleContext();
-
-        String osgiQuery =  "(&"+ 
-                            "(" + ProtocolProviderFactory.PROTOCOL + "=Rss)" + 
-                            "(" + ProtocolProviderFactory.USER_ID + 
-                            "=" + rssUserID + "))";
-
-        ServiceReference[] refs = null;
-        try
-        {
-            refs = bc.getServiceReferences(
-                ProtocolProviderService.class.getName(),
-                osgiQuery);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            logger.error("Failed to execute the following osgi query: "
-                         + osgiQuery
-                         , ex);
-        }
-
-        if(refs != null && refs.length > 0)
-        {
-            return (ProtocolProviderServiceRssImpl)bc.getService(refs[0]);
-        }
-
-        return null;
-    }
-
-    /**
-     * Looks for rss protocol providers that have added us to their
-     * contact list and returns list of all contacts representing us in these
-     * providers.
-     *
-     * @return a list of all contacts in other providers' contact lists that
-     * point to us.
-     */
-    public List findContactsPointingToUs()
-    {
-        List contacts = new LinkedList();
-        BundleContext bc = RssActivator.getBundleContext();
-
-        String osgiQuery =
-                "(" + ProtocolProviderFactory.PROTOCOL
-                + "=Rss)";
-
-        ServiceReference[] refs = null;
-        try
-        {
-            refs = bc.getServiceReferences(
-                ProtocolProviderService.class.getName(), osgiQuery);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            logger.error("Failed to execute the following osgi query: " + 
-                        osgiQuery, ex);
-        }
-
-        for (int i =0; refs != null && i < refs.length; i++)
-        {
-            ProtocolProviderServiceRssImpl gibProvider
-               = (ProtocolProviderServiceRssImpl)bc.getService(refs[i]);
-
-           OperationSetPersistentPresenceRssImpl opSetPersPresence
-               = (OperationSetPersistentPresenceRssImpl)gibProvider
-                    .getOperationSet(OperationSetPersistentPresence.class);
-
-            Contact contact = opSetPersPresence.findContactByID(
-                parentProvider.getAccountID().getUserID());
-
-            if (contact != null)
-                contacts.add(contact);
-        }
-
-        return contacts;
-    }
-
 
     /**
      * Creates and returns a unresolved contact group from the specified
@@ -1278,80 +1116,5 @@ public class OperationSetPersistentPresenceRssImpl
                 }
             }
         }
-    }
-
-    /**
-     * Returns the volatile group or null if this group has not yet been
-     * created.
-     *
-     * @return a volatile group existing in our contact list or <tt>null</tt>
-     * if such a group has not yet been created.
-     */
-    private ContactGroupRssImpl getNonPersistentGroup()
-    {
-        for (int i = 0
-             ; i < getServerStoredContactListRoot().countSubgroups()
-             ; i++)
-        {
-            ContactGroupRssImpl gr =
-                (ContactGroupRssImpl)getServerStoredContactListRoot()
-                    .getGroup(i);
-
-            if(!gr.isPersistent())
-                return gr;
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Creates a non persistent contact for the specified address. This would
-     * also create (if necessary) a group for volatile contacts that would not
-     * be added to the server stored contact list. This method would have no
-     * effect on the server stored contact list.
-     *
-     * @param contactAddress the address of the volatile contact we'd like to
-     * create.
-     * @return the newly created volatile contact.
-     */
-    public ContactRssImpl createVolatileContact(String contactAddress)
-    {
-        //First create the new volatile contact;
-        ContactRssImpl newVolatileContact
-            = new ContactRssImpl(contactAddress
-                                       , this.parentProvider);
-        newVolatileContact.setPersistent(false);
-
-
-        //Check whether a volatile group already exists and if not create
-        //one
-        ContactGroupRssImpl theVolatileGroup = getNonPersistentGroup();
-
-
-        //if the parent volatile group is null then we create it
-        if (theVolatileGroup == null)
-        {
-            List emptyBuddies = new LinkedList();
-            theVolatileGroup = new ContactGroupRssImpl(
-                "NotInContactList"
-                , parentProvider);
-            theVolatileGroup.setResolved(false);
-            theVolatileGroup.setPersistent(false);
-            theVolatileGroup.addContact(newVolatileContact);
-
-            this.contactListRoot.addSubgroup(theVolatileGroup);
-
-            fireServerStoredGroupEvent(theVolatileGroup, 
-                ServerStoredGroupEvent.GROUP_CREATED_EVENT);
-        }
-
-        //now add the volatile contact instide it
-        theVolatileGroup.addContact(newVolatileContact);
-        fireSubscriptionEvent(newVolatileContact, 
-                            theVolatileGroup, 
-                            SubscriptionEvent.SUBSCRIPTION_CREATED);
-
-        return newVolatileContact;
     }
 }
