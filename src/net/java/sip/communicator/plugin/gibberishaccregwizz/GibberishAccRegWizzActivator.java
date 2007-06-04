@@ -33,9 +33,9 @@ public class GibberishAccRegWizzActivator
      * A currently valid reference to the configuration service.
      */
     private static ConfigurationService configService;
-    
+
     private static AccountRegistrationWizardContainer wizardContainer;
-    
+
     private static GibberishAccountRegistrationWizard gibberishWizard;
 
     /**
@@ -67,13 +67,13 @@ public class GibberishAccRegWizzActivator
      * Called when this bundle is stopped so the Framework can perform the
      * bundle-specific activities necessary to stop the bundle.
      *
-     * @param context The execution context of the bundle being stopped.
+     * @param bundleContext The execution context of the bundle being stopped.
      */
-    public void stop(BundleContext bundleContext) throws Exception
+    public void stop(BundleContext bundleContext)
     {
         wizardContainer.removeAccountRegistrationWizard(gibberishWizard);
     }
-    
+
     /**
      * Returns the <tt>ProtocolProviderFactory</tt> for the Gibberish protocol.
      * @return the <tt>ProtocolProviderFactory</tt> for the Gibberish protocol

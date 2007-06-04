@@ -30,12 +30,12 @@ public class FirstWizardPage
     private JPanel userPassPanel = new JPanel(new BorderLayout(10, 10));
 
     private JPanel labelsPanel = new JPanel();
-    
-    private JLabel existingAccountLabel = 
+
+    private JLabel existingAccountLabel =
         new JLabel("RSS account already exists !");
 
-    private JLabel creatingAccountLabel = 
-        new JLabel("Press next to creat your RSS account...");
+    private JLabel creatingAccountLabel =
+        new JLabel("Press next to create your RSS account...");
 
     private JTextField userIDField = new JTextField();
 
@@ -87,7 +87,7 @@ public class FirstWizardPage
         this.creatingAccountLabel.setForeground(Color.BLUE);
 
         labelsPanel.add(creatingAccountLabel);
-        
+
         if(!isExistingAccount("rss")){
             labelsPanel.remove(existingAccountLabel);
             labelsPanel.add(creatingAccountLabel);
@@ -98,7 +98,7 @@ public class FirstWizardPage
             labelsPanel.add(existingAccountLabel);
             setNextButtonAccordingToUserID(false);
         }
-        
+
         userPassPanel.add(labelsPanel, BorderLayout.CENTER);
 
         userPassPanel.setBorder(BorderFactory
@@ -175,6 +175,9 @@ public class FirstWizardPage
     /**
      * Enables or disables the "Next" wizard button according to whether the
      * User ID field is empty.
+     *
+     * @param newOne true if the Next/Finish button should be enabled and false
+     * otherwise.
      */
     private void setNextButtonAccordingToUserID(boolean newOne)
     {

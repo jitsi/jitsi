@@ -27,7 +27,7 @@ public class ChatSendPanel
     implements ActionListener
 {
     private Logger logger = Logger.getLogger(ChatSendPanel.class);
-    
+
     private I18NString sendString = Messages.getI18NString("send");
 
     private JButton sendButton = new JButton(sendString.getText());
@@ -43,8 +43,6 @@ public class ChatSendPanel
     /**
      * Creates an instance of <tt>ChatSendPanel</tt>.
      *
-     * @param metaContact the meta contact that this chat panel is about
-     * @param protocolContact the currently selected default protoco contact.
      * @param chatPanel The parent <tt>ChatPanel</tt>.
      */
     public ChatSendPanel(ChatPanel chatPanel)
@@ -52,13 +50,13 @@ public class ChatSendPanel
         super(new BorderLayout(5, 5));
 
         this.chatPanel = chatPanel;
-        
+
         this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.statusPanel.add(statusLabel);
 
         this.sendPanel.add(sendButton, BorderLayout.EAST);
-        
+
         this.add(statusPanel, BorderLayout.CENTER);
         this.add(sendPanel, BorderLayout.EAST);
 
@@ -69,9 +67,9 @@ public class ChatSendPanel
     /**
      * Defines actions when send button is pressed.
      *
-     * @param e The <tt>ActionEvent</tt> object.
+     * @param evt The <tt>ActionEvent</tt> object.
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent evt)
     {
         if (!chatPanel.isWriteAreaEmpty())
         {
@@ -114,7 +112,7 @@ public class ChatSendPanel
         }
         statusLabel.setText(statusMessage);
     }
-    
+
     /**
      * Overrides the <code>javax.swing.JComponent.paint()</code> to provide a
      * new round border for the status panel.

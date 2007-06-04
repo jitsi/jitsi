@@ -65,7 +65,7 @@ public class OperationSetPersistentPresenceGibberishImpl
     private String statusMessage = "Default Status Message";
 
     /**
-     * Our default presence status.
+     * Our presence status.
      */
     private PresenceStatus presenceStatus = GibberishStatusEnum.OFFLINE;
 

@@ -30,7 +30,7 @@ import net.java.sip.communicator.util.*;
 /**
  * An implementation of the <tt>UIService</tt> that gives access to other
  * bundles to this particular swing ui implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class UIServiceImpl
@@ -62,7 +62,7 @@ public class UIServiceImpl
     private MainFrame mainFrame;
 
     private LoginManager loginManager;
-    
+
     private ContactListPanel contactListPanel;
 
     private ConfigurationFrame configurationFrame;
@@ -71,23 +71,21 @@ public class UIServiceImpl
 
     /**
      * Creates an instance of <tt>UIServiceImpl</tt>.
-     * 
-     * @param mainFrame The main application window.
      */
     public UIServiceImpl()
     {}
-    
+
     /**
      * Initializes all frames and panels and shows the gui.
      */
     public void loadApplicationGui()
     {
         this.setDefaultThemePack();
-        
+
         this.mainFrame = new MainFrame();
-        
+
         this.loginManager = new LoginManager(mainFrame);
-        
+
         this.contactListPanel = mainFrame.getContactListPanel();
 
         this.popupDialog = new PopupDialogImpl();
@@ -95,14 +93,14 @@ public class UIServiceImpl
         this.wizardContainer = new AccountRegWizardContainerImpl(mainFrame);
 
         this.configurationFrame = new ConfigurationFrame(mainFrame);
-        
+
         mainFrame.setContactList(GuiActivator.getMetaContactListService());
-        
+
         if(ConfigurationManager.isApplicationVisible())
             SwingUtilities.invokeLater(new RunApplicationGui());
-        
+
         SwingUtilities.invokeLater(new RunLoginGui());
-        
+
         this.initExportedWindows();
     }
 
@@ -110,11 +108,16 @@ public class UIServiceImpl
      * Implements addComponent in UIService interface. Stores a plugin component
      * and fires a PluginComponentEvent to inform all interested listeners that
      * a plugin component has been added.
-     * 
+     *
      * @param containerID The <tt>ContainerID</tt> of the plugable container.
      * @param component The component to add.
-     * 
+     *
      * @see UIService#addComponent(ContainerID, Object)
+     *
+     * @throws java.lang.ClassCastException if <tt>component</tt> is not an
+     * instance of a java.awt.Component
+     * @throws java.lang.IllegalArgumentException if no component exists for
+     * the specified container id.
      */
     public void addComponent(ContainerID containerID, Object component)
         throws ClassCastException, IllegalArgumentException
@@ -152,8 +155,17 @@ public class UIServiceImpl
      * Implements <code>UIService.addComponent(ContainerID, String, Object)
      * </code>.
      * For now this method only invokes addComponent(containerID, component).
-     * 
+     *
+     * @param containerID The <tt>ContainerID</tt> of the plugable container.
+     * @param constraint a constraint indicating how the component should be
+     * added to the container.
+     * @param component the component we are adding.
+     *
      * @see UIService#addComponent(ContainerID, String, Object)
+     * @throws java.lang.ClassCastException if <tt>component</tt> is not an
+     * instance of a java.awt.Component
+     * @throws java.lang.IllegalArgumentException if no component exists for
+     * the specified container id.
      */
     public void addComponent(ContainerID containerID, String constraint,
         Object component) throws ClassCastException, IllegalArgumentException
@@ -162,7 +174,17 @@ public class UIServiceImpl
     }
 
     /**
-     * 
+     * Implements <code>UIService.addComponent(ContainerID, String, Object)
+     * </code>.
+     * For now this method only invokes addComponent(containerID, component).
+     *
+     * @param containerID The <tt>ContainerID</tt> of the plugable container.
+     * @param component the component we are adding.
+     *
+     * @throws java.lang.ClassCastException if <tt>component</tt> is not an
+     * instance of a java.awt.Component
+     * @throws java.lang.IllegalArgumentException if no component exists for
+     * the specified container id.
      */
     public void addComponent(ContainerID containerID,
         ContactAwareComponent component) throws ClassCastException,
@@ -179,7 +201,19 @@ public class UIServiceImpl
     }
 
     /**
-     * 
+     * Implements <code>UIService.addComponent(ContainerID, String, Object)
+     * </code>.
+     * For now this method only invokes addComponent(containerID, component).
+     *
+     * @param containerID The <tt>ContainerID</tt> of the plugable container.
+     * @param constraint a constraint indicating how the component should be
+     * added to the container.
+     * @param component the component we are adding.
+     *
+     * @throws java.lang.ClassCastException if <tt>component</tt> is not an
+     * instance of a java.awt.Component
+     * @throws java.lang.IllegalArgumentException if no component exists for
+     * the specified container id.
      */
     public void addComponent(ContainerID containerID, String constraint,
         ContactAwareComponent component) throws ClassCastException,
@@ -191,8 +225,9 @@ public class UIServiceImpl
     /**
      * Implements <code>UISercie.getSupportedContainers</code>. Returns the
      * list of supported containers by this implementation .
-     * 
+     *
      * @see UIService#getSupportedContainers()
+     * @return an Iterator over all supported containers.
      */
     public Iterator getSupportedContainers()
     {
@@ -201,8 +236,16 @@ public class UIServiceImpl
 
     /**
      * Implements getComponentsForConstraint in UIService interface.
-     * 
+     *
+     * @param containerID the id of the container whose components we'll be
+     * retrieving.
      * @see UIService#getComponentsForContainer(ContainerID)
+     *
+     * @return an iterator over all components added in the container with ID
+     * <tt>containerID</tt>
+     *
+     * @throws java.lang.IllegalArgumentException if containerID does not
+     * correspond to a container used in this implementation.
      */
     public Iterator getComponentsForContainer(ContainerID containerID)
         throws IllegalArgumentException
@@ -227,8 +270,14 @@ public class UIServiceImpl
 
     /**
      * Not yet implemented.
-     * 
+     *
+     * @param containerID the ID of the container whose constraints we'll be
+     * retrieving.
+     *
      * @see UIService#getConstraintsForContainer(ContainerID)
+     *
+     * @return Iterator an <tt>Iterator</tt> for all constraintes supported by
+     * the container corresponding to containerID.
      */
     public Iterator getConstraintsForContainer(ContainerID containerID)
     {
@@ -239,7 +288,7 @@ public class UIServiceImpl
      * Creates the corresponding PluginComponentEvent and notifies all
      * <tt>ContainerPluginListener</tt>s that a plugin component is added or
      * removed from the container.
-     * 
+     *
      * @param pluginComponent the plugin component that is added to the
      *            container.
      * @param containerID the containerID that corresponds to the container
@@ -283,7 +332,7 @@ public class UIServiceImpl
     /**
      * Implements <code>isVisible</code> in the UIService interface. Checks if
      * the main application window is visible.
-     * 
+     *
      * @return <code>true</code> if main application window is visible,
      *         <code>false</code> otherwise
      * @see UIService#isVisible()
@@ -305,7 +354,10 @@ public class UIServiceImpl
      * Implements <code>setVisible</code> in the UIService interface. Shows or
      * hides the main application window depending on the parameter
      * <code>visible</code>.
-     * 
+     *
+     * @param visible true if we are to show the main application frame and
+     * false otherwise.
+     *
      * @see UIService#setVisible(boolean)
      */
     public void setVisible(boolean visible)
@@ -316,7 +368,7 @@ public class UIServiceImpl
     /**
      * Implements <code>minimize</code> in the UIService interface. Minimizes
      * the main application window.
-     * 
+     *
      * @see UIService#minimize()
      */
     public void minimize()
@@ -327,7 +379,7 @@ public class UIServiceImpl
     /**
      * Implements <code>maximize</code> in the UIService interface. Maximizes
      * the main application window.
-     * 
+     *
      * @see UIService#maximize()
      */
     public void maximize()
@@ -338,7 +390,7 @@ public class UIServiceImpl
     /**
      * Implements <code>restore</code> in the UIService interface. Restores
      * the main application window.
-     * 
+     *
      * @see UIService#restore()
      */
     public void restore()
@@ -358,7 +410,10 @@ public class UIServiceImpl
     /**
      * Implements <code>resize</code> in the UIService interface. Resizes the
      * main application window.
-     * 
+     *
+     * @param height the new height of tha main application frame.
+     * @param width the new width of the main application window.
+     *
      * @see UIService#resize(int, int)
      */
     public void resize(int width, int height)
@@ -369,7 +424,10 @@ public class UIServiceImpl
     /**
      * Implements <code>move</code> in the UIService interface. Moves the main
      * application window to the point with coordinates - x, y.
-     * 
+     *
+     * @param x the value of X where the main application frame is to be placed.
+     * @param y the value of Y where the main application frame is to be placed.
+     *
      * @see UIService#move(int, int)
      */
     public void move(int x, int y)
@@ -381,6 +439,9 @@ public class UIServiceImpl
      * Implements the <code>UIService.setExitOnMainWindowClose</code>. Sets a
      * boolean property, which indicates whether the application should be
      * exited when the main application window is closed.
+     *
+     * @param exitOnClose specifies if closing the main application window
+     * should also be exiting the application.
      */
     public void setExitOnMainWindowClose(boolean exitOnClose)
     {
@@ -396,6 +457,9 @@ public class UIServiceImpl
      * Implements the <code>UIService.getExitOnMainWindowClose</code>.
      * Returns the boolean property, which indicates whether the application
      * should be exited when the main application window is closed.
+     *
+     * @return determines whether the UI impl would exit the application when
+     * the main application window is closed.
      */
     public boolean getExitOnMainWindowClose()
     {
@@ -408,37 +472,37 @@ public class UIServiceImpl
      * <tt>UIService</tt> this window could be obtained through the
      * <tt>getExportedWindow(WindowID)</tt> method and could be shown,
      * hidden, resized, moved, etc.
-     */   
+     */
     public void initExportedWindows()
     {
         AboutWindow aboutWindow = new AboutWindow(mainFrame);
         AddContactWizard addContactWizard = new AddContactWizard(mainFrame);
-        
+
         exportedWindows.put(aboutWindow.getIdentifier(), aboutWindow);
         exportedWindows.put(configurationFrame.getIdentifier(), configurationFrame);
         exportedWindows.put(addContactWizard.getIdentifier(), addContactWizard);
     }
-    
+
     /**
      * Registers the given <tt>ExportedWindow</tt> to the list of windows that
      * could be accessed from other bundles.
-     * 
+     *
      * @param window the window to be exported
      */
     public void registerExportedWindow(ExportedWindow window)
     {
         exportedWindows.put(window.getIdentifier(), window);
     }
-    
+
     /**
      * Sets the contact list service to this UI Service implementation.
      * @param contactList the MetaContactList service
      */
     public void setContactList(MetaContactListService contactList)
     {
-        this.mainFrame.setContactList(contactList);        
+        this.mainFrame.setContactList(contactList);
     }
-    
+
     public void addPluginComponentListener(PluginComponentListener l)
     {
         synchronized (pluginComponentListeners)
@@ -454,12 +518,15 @@ public class UIServiceImpl
             pluginComponentListeners.remove(l);
         }
     }
-    
+
     /**
      * Implements <code>getSupportedExportedWindows</code> in the UIService
      * interface. Returns an iterator over a set of all windows exported by
      * this implementation.
-     * 
+     *
+     * @return an Iterator over all windows exported by this implementation of
+     * the UI service.
+     *
      * @see UIService#getSupportedExportedWindows()
      */
     public Iterator getSupportedExportedWindows()
@@ -471,8 +538,12 @@ public class UIServiceImpl
      * Implements the <code>getExportedWindow</code> in the UIService
      * interface. Returns the window corresponding to the given
      * <tt>WindowID</tt>.
-     * 
-     * @see UIService#getExportableComponent(WindowID)
+     *
+     * @param windowID the id of the window we'd like to retrieve.
+     *
+     * @return a reference to the <tt>ExportedWindow</tt> instance corresponding
+     * to <tt>windowID</tt>.
+     * @see UIService#getExportedWindow(WindowID)
      */
     public ExportedWindow getExportedWindow(WindowID windowID)
     {
@@ -482,12 +553,17 @@ public class UIServiceImpl
         }
         return null;
     }
-    
+
     /**
      * Implements the <code>UIService.isExportedWindowSupported</code> method.
      * Checks if there's an exported component for the given
      * <tt>WindowID</tt>.
-     * 
+     *
+     * @param windowID the id of the window that we're making the query for.
+     *
+     * @return true if a window with the corresponding windowID is exported by
+     * the UI service implementation and false otherwise.
+     *
      * @see UIService#isExportedWindowSupported(WindowID)
      */
     public boolean isExportedWindowSupported(WindowID windowID)
@@ -499,7 +575,10 @@ public class UIServiceImpl
      * Implements <code>getPopupDialog</code> in the UIService interface.
      * Returns a <tt>PopupDialog</tt> that could be used to show simple
      * messages, warnings, errors, etc.
-     * 
+     *
+     * @return a <tt>PopupDialog</tt> that could be used to show simple
+     * messages, warnings, errors, etc.
+     *
      * @see UIService#getPopupDialog()
      */
     public PopupDialog getPopupDialog()
@@ -511,7 +590,11 @@ public class UIServiceImpl
      * Implements <code>getChat</code> in the UIService interface. If a
      * chat for the given contact exists already - returns it, otherwise
      * creates a new one.
-     * 
+     *
+     * @param contact the contact that we'd like to retrieve a chat window for.
+     *
+     * @return a Chat corresponding to the specified contact.
+     *
      * @see UIService#getChat(Contact)
      */
     public Chat getChat(Contact contact)
@@ -524,25 +607,31 @@ public class UIServiceImpl
         ChatPanel chatPanel = chatWindowManager.getContactChat(metaContact);
 
         return chatPanel;
-    }   
+    }
 
     /**
      * Returns the selected <tt>Chat</tt>.
-     * 
+     *
      * @return the selected <tt>Chat</tt>.
      */
     public Chat getCurrentChat()
     {
         ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
-        
+
         return chatWindowManager.getSelectedChat();
     }
-    
+
     /**
      * Implements the <code>UIService.isContainerSupported</code> method.
      * Checks if the plugable container with the given ContainerID is supported
      * by this implementation.
-     * 
+     *
+     * @param containderID the id of the container that we're making the query
+     * for.
+     *
+     * @return true if the container with the specified id is exported by the
+     * implementation of the UI service and false otherwise.
+     *
      * @see UIService#isContainerSupported(ContainerID)
      */
     public boolean isContainerSupported(ContainerID containderID)
@@ -554,8 +643,11 @@ public class UIServiceImpl
      * Implements the <code>UIService.getAccountRegWizardContainer</code>
      * method. Returns the current implementation of the
      * <tt>AccountRegistrationWizardContainer</tt>.
-     * 
+     *
      * @see UIService#getAccountRegWizardContainer()
+     *
+     * @return a reference to the currently valid instance of
+     * <tt>AccountRegistrationWizardContainer</tt>.
      */
     public AccountRegistrationWizardContainer getAccountRegWizardContainer()
     {
@@ -566,8 +658,11 @@ public class UIServiceImpl
      * Implements the <code>UIService.getConfigurationWindow</code>. Returns
      * the current implementation of the <tt>ConfigurationWindow</tt>
      * interface.
-     * 
+     *
      * @see UIService#getConfigurationWindow()
+     *
+     * @return a reference to the currently valid instance of
+     * <tt>ConfigurationWindow</tt>.
      */
     public ConfigurationWindow getConfigurationWindow()
     {
@@ -594,14 +689,14 @@ public class UIServiceImpl
     /**
      * Returns the <tt>MainFrame</tt>. This is the class defining the main
      * application window.
-     * 
+     *
      * @return the <tt>MainFrame</tt>
      */
     public MainFrame getMainFrame()
     {
         return mainFrame;
     }
-    
+
     /**
      * The <tt>RunLogin</tt> implements the Runnable interface and is used to
      * shows the login windows in a seperate thread.
@@ -611,7 +706,7 @@ public class UIServiceImpl
             loginManager.runLogin(mainFrame);
         }
     }
-    
+
     /**
      * The <tt>RunApplication</tt> implements the Runnable interface and is used to
      * shows the main application window in a separate thread.
