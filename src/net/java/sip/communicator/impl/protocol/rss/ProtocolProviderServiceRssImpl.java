@@ -15,7 +15,8 @@ import net.java.sip.communicator.util.*;
 /**
  * A Rss implementation of the ProtocolProviderService.
  *
- * @author Emil Ivov/Jean-Albert Vescovo
+ * @author Jean-Albert Vescovo
+ * @author Emil Ivov
  */
 public class ProtocolProviderServiceRssImpl
     implements ProtocolProviderService
@@ -205,20 +206,6 @@ public class ProtocolProviderServiceRssImpl
 
             listener.registrationStateChanged(event);
         }
-
-        /* If Timer isn't started, we launch a new timer for sending periodic
-         * rss feeds' refresh taks.
-         * If yes, we stop it.
-         */
-        if(!start){
-            this.basicInstantMessaging.createTimer();
-            start = true;
-        }
-        else{
-            this.basicInstantMessaging.stopTimer();
-            start = false;
-        }
-
         logger.trace("Done.");
     }
 
@@ -312,48 +299,6 @@ public class ProtocolProviderServiceRssImpl
     public void register(SecurityAuthority authority)
         throws OperationFailedException
     {
-        //we don't really need a password here since there's no server in
-        //Rss but nevertheless we'll behave as if we did.
-
-        //verify whether a password has already been stored for this account
-        String password = RssActivator.
-            getProtocolProviderFactory().loadPassword(getAccountID());
-
-        //if we don't - retrieve it from the user through the security authority
-        if (password == null)
-        {
-            //create a default credentials object
-            UserCredentials credentials = new UserCredentials();
-            credentials.setUserName(getAccountID().getUserID());
-
-            //request a password from the user
-            credentials = authority.obtainCredentials("Rss"
-                                                      , credentials);
-
-            //extract the password the user passed us.
-            char[] pass = credentials.getPassword();
-
-            // the user didn't provide us a password (canceled the operation)
-            if (pass == null)
-            {
-                fireRegistrationStateChanged(
-                    getRegistrationState(),
-                    RegistrationState.UNREGISTERED,
-                    RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
-                return;
-            }
-            password = new String(pass);
-
-            //if the user indicated that the password should be saved, we'll ask
-            //the proto provider factory to store it for us.
-            if (credentials.isPasswordPersistent())
-            {
-                RssActivator.getProtocolProviderFactory()
-                    .storePassword(getAccountID(), password);
-            }
-        }
-
-
         RegistrationState oldState = currentRegistrationState;
         currentRegistrationState = RegistrationState.REGISTERED;
 
