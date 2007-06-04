@@ -42,8 +42,7 @@ public class ChatRoomMessageDeliveredEvent
       * @param to the <tt>ChatRoomMember</tt> that this message was sent to.
       * @param timestamp a date indicating the exact moment when the event
       * ocurred
-      * @param chatRoomID the name/id of the chatroom where this message was
-      * delivered.
+      * @param message the message that triggered this event.
       */
      public ChatRoomMessageDeliveredEvent(ChatRoom source,
                                           ChatRoomMember to,

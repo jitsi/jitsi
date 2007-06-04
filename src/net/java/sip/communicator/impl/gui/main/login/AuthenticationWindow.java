@@ -42,9 +42,9 @@ public class AuthenticationWindow
     private JPasswordField passwdField = new JPasswordField(15);
 
     private I18NString okString = Messages.getI18NString("ok");
-    
+
     private I18NString cancelString = Messages.getI18NString("cancel");
-    
+
     private JButton loginButton = new JButton(okString.getText());
 
     private JButton cancelButton = new JButton(cancelString.getText());
@@ -65,7 +65,7 @@ public class AuthenticationWindow
     private UserCredentials userCredentials;
 
     private Object lock = new Object();
-    
+
     private String realm;
 
     /**
@@ -85,34 +85,34 @@ public class AuthenticationWindow
         this.realm = realm;
 
         ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
-        
+
         Image logoImage = null;
-        
+
         if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_64x64))
             logoImage = ImageLoader.getBytesInImage(
                 protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
         else if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_48x48))
             logoImage = ImageLoader.getBytesInImage(
                 protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
-        
+
         if(logoImage != null)
             backgroundPanel = new LoginWindowBackground(logoImage);
         else
             backgroundPanel = new LoginWindowBackground();
-        
+
         this.backgroundPanel.setPreferredSize(new Dimension(420, 230));
-        
+
         this.backgroundPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
         this.backgroundPanel.setBorder(
                 BorderFactory.createEmptyBorder(20, 5, 5, 5));
-        
+
         this.getContentPane().setLayout(new BorderLayout());
 
         this.init();
 
         this.getContentPane().add(backgroundPanel, BorderLayout.CENTER);
-        
+
         this.setResizable(false);
 
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -150,7 +150,7 @@ public class AuthenticationWindow
         this.labelsPanel.add(new JLabel());
 
         this.rememberPassCheckBox.setOpaque(false);
-        
+
         this.textFieldsPanel.add(uinValueLabel);
         this.textFieldsPanel.add(passwdField);
         this.textFieldsPanel.add(rememberPassCheckBox);
@@ -167,7 +167,7 @@ public class AuthenticationWindow
 
         this.loginButton.setName("ok");
         this.cancelButton.setName("cancel");
-        
+
         this.loginButton.setMnemonic(okString.getMnemonic());
         this.cancelButton.setMnemonic(cancelString.getMnemonic());
 
@@ -196,10 +196,12 @@ public class AuthenticationWindow
      * Handles the <tt>ActionEvent</tt> triggered when one of the buttons is
      * clicked. When "Login" button is choosen installs a new account from
      * the user input and logs in.
+     *
+     * @param evt the action event that has just occurred.
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent evt) {
 
-        JButton button = (JButton) e.getSource();
+        JButton button = (JButton) evt.getSource();
         String buttonName = button.getName();
 
         if (buttonName.equals("ok")) {
@@ -215,7 +217,7 @@ public class AuthenticationWindow
         synchronized (lock) {
             lock.notify();
         }
-        
+
         this.dispose();
     }
 
@@ -276,23 +278,25 @@ public class AuthenticationWindow
     {
         this.cancelButton.doClick();
     }
-    
+
     /**
      * Shows this modal dialog.
-     * @return the result code, which shows what was the choice of the user
+     *
+     * @param isVisible specifies whether we should be showing or hiding the
+     * window.
      */
     public void setVisible(boolean isVisible)
     {
         this.setName("AUTHENTICATION");
-        
+
         super.setVisible(isVisible);
 
         if(isVisible)
         {
             this.passwdField.requestFocus();
-            
+
             synchronized (lock) {
-                try {                    
+                try {
                     lock.wait();
                 }
                 catch (InterruptedException e) {
@@ -305,6 +309,8 @@ public class AuthenticationWindow
 
     /**
      * Implements the <tt>ExportedWindow.getIdentifier()</tt> method.
+     *
+     * @return the <tt>WindowID</tt> of this authentication window.
      */
     public WindowID getIdentifier()
     {
@@ -315,16 +321,16 @@ public class AuthenticationWindow
      * This dialog could not be minimized.
      */
     public void minimize()
-    {   
+    {
     }
 
     /**
      * This dialog could not be maximized.
      */
     public void maximize()
-    {   
+    {
     }
-    
+
     /**
      * Implements the <tt>ExportedWindow.bringToFront()</tt> method. Brings this
      * window to front.

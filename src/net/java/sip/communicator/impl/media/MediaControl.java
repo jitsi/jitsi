@@ -124,7 +124,7 @@ public class MediaControl
      * to use instead of capture devices.
      */
     private static final String DEBUG_DATA_SOURCE_URL_PROPERTY_NAME
- 	 = "net.java.sip.communicator.impl.media.DEBUG_DATA_SOURCE_URL";
+      = "net.java.sip.communicator.impl.media.DEBUG_DATA_SOURCE_URL";
 
     /**
      *
@@ -149,7 +149,7 @@ public class MediaControl
      */
     private static String[] customPackages = new String[]
     {    // datasource for low latency ALSA input
-	"net.java.sip.communicator.impl"
+    "net.java.sip.communicator.impl"
     };
 
     /**
@@ -172,8 +172,9 @@ public class MediaControl
     {
         this.deviceConfiguration = deviceConfig;
         initializeFormatPreferences();
-	// register our own datasources
-	registerCustomPackages();
+
+        // register our own datasources
+        registerCustomPackages();
 
         String debugDataSourceURL
             = MediaActivator.getConfigurationService().getString(
@@ -1043,18 +1044,18 @@ public class MediaControl
      */
     private void registerCustomPackages()
     {
-	Vector currentPackagePrefix = PackageManager.getProtocolPrefixList();
-	
+    Vector currentPackagePrefix = PackageManager.getProtocolPrefixList();
+
         for (int i = 0; i < customPackages.length; i++)
         {
             String className = customPackages[i];
-	    currentPackagePrefix.addElement(className);
-	    logger.debug("Adding package  : " + className);
+        currentPackagePrefix.addElement(className);
+        logger.debug("Adding package  : " + className);
         }
 
-	PackageManager.setProtocolPrefixList(currentPackagePrefix);
-	PackageManager.commitProtocolPrefixList();
-	logger.debug("Registering new protocol prefix list : " + currentPackagePrefix);
+    PackageManager.setProtocolPrefixList(currentPackagePrefix);
+    PackageManager.commitProtocolPrefixList();
+    logger.debug("Registering new protocol prefix list : " + currentPackagePrefix);
     }
 
 }

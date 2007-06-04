@@ -22,6 +22,8 @@ public class Utils
      * @param byteArray a byte array
      * @param offset which byte to start from
      * @param length how many bytes to convert
+     * @param little specifies whether the result should be using little endian
+     * order or not.
      *
      * @return a short array, or <code>null</code> if byteArray is of zero
      *    length
@@ -67,10 +69,11 @@ public class Utils
     /**
      * The result array must be twice as the input one. Since a byte is 8-bits,
      * and a short is 16-bits.
-     * @param in short[]
-     * @param res byte[]
-     * @param little boolean
-     * @return byte[]
+     * @param in the short[] array that we'll be transforming.
+     * @param res the byte[] arrays where we'll be setting the converted short
+     * values.
+     * @param little specifies whether the result should be using little endian
+     * order or not.
      */
     public static void shortArrToByteArr(short[] in, byte[] res, boolean little)
     {
@@ -87,9 +90,10 @@ public class Utils
 
     /**
      * Get a pair of bytes representing a short value.
-     * @param v short
-     * @param little boolean
-     * @return byte[]
+     * @param v the short value to convert.
+     * @param little specifies whether the result should be using little endian
+     * order or no.
+     * @return a byte[] array containing the result.
      */
     public static byte[] shortToBytes(short v, boolean little)
     {
