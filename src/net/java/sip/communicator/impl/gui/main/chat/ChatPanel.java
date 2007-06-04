@@ -46,45 +46,42 @@ public abstract class ChatPanel
 
     private JSplitPane topSplitPane = new JSplitPane(
             JSplitPane.HORIZONTAL_SPLIT);
-    
+
     private JSplitPane messagePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-    
+
     private ChatConversationPanel conversationPanel;
-    
+
     private ChatWritePanel writeMessagePanel;
-    
+
     private ChatContactListPanel chatContactListPanel;
-    
+
     private ChatSendPanel sendPanel;
 
     private ChatWindow chatWindow;
-    
+
     public static final int TYPING_NOTIFICATION_SUCCESSFULLY_SENT = 1;
-    
+
     public static final int TYPING_NOTIFICATION_SEND_FAILED = 0;
-    
-    private Date beginLastPageTimeStamp; 
-    
+
+    private Date beginLastPageTimeStamp;
+
     protected static final int MESSAGES_PER_PAGE = 20;
-    
+
     private boolean isShown = false;
-    
+
     private Vector focusListeners = new Vector();
-    
+
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
      *
      * @param chatWindow The parent window of this chat panel.
-     * @param metaContacts the list of meta contacts contained in this chat
-     * @param protocolContacts the list of selected protocol contacts in this
-     * chat
      */
     public ChatPanel(ChatWindow chatWindow)
-    {   
+    {
         super(new BorderLayout());
-        
+
         this.chatWindow = chatWindow;
-        
+
         this.conversationPanel = new ChatConversationPanel(this);
 
         this.chatContactListPanel = new ChatContactListPanel(this);
@@ -100,9 +97,9 @@ public abstract class ChatPanel
         this.writeMessagePanel.setPreferredSize(new Dimension(500, 100));
         this.writeMessagePanel.setMinimumSize(new Dimension(500, 100));
         this.conversationPanel.setPreferredSize(new Dimension(400, 200));
-        
+
         this.topSplitPane.setOneTouchExpandable(true);
-        
+
         topSplitPane.setLeftComponent(conversationPanel);
         topSplitPane.setRightComponent(chatContactListPanel);
 
@@ -111,45 +108,45 @@ public abstract class ChatPanel
 
         this.add(messagePane, BorderLayout.CENTER);
         this.add(sendPanel, BorderLayout.SOUTH);
-        
+
         this.addComponentListener(new TabSelectionComponentListener());
-        
+
         KeyboardFocusManager focusManager =
             KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        
+
         focusManager.addPropertyChangeListener(
             new FocusPropertyChangeListener()
         );
     }
-  
+
 
     public abstract Object getChatIdentifier();
-    
+
     public abstract String getChatName();
-    
+
     public abstract PresenceStatus getChatStatus();
-        
+
     public abstract void loadHistory();
-    
+
     public abstract void loadHistory(String escapedMessageID);
-    
+
     public abstract void loadPreviousFromHistory();
-    
+
     public abstract void loadNextFromHistory();
-    
+
     protected abstract void sendMessage();
-    
+
     public abstract void treatReceivedMessage(Contact sourceContact);
-    
+
     public abstract int sendTypingNotification(int typingState);
-    
+
     public abstract Date getFirstHistoryMsgTimestamp();
 
     public abstract Date getLastHistoryMsgTimestamp();
-    
+
     public ChatWindow getChatWindow()
     {
-        return chatWindow;    
+        return chatWindow;
     }
 
     /**
@@ -164,7 +161,7 @@ public abstract class ChatPanel
     public Window getConversationContainerWindow() {
         return chatWindow;
     }
-    
+
     /**
      * Sets the message text to the status panel in the bottom of the chat
      * window. Used to show typing notification messages, links' hrefs, etc.
@@ -178,22 +175,22 @@ public abstract class ChatPanel
     {
         return this.conversationPanel;
     }
-    
+
     public ChatWritePanel getChatWritePanel()
     {
         return this.writeMessagePanel;
     }
-    
+
     public ChatContactListPanel getChatContactListPanel()
     {
         return this.chatContactListPanel;
     }
-    
+
     public ChatSendPanel getChatSendPanel()
     {
         return this.sendPanel;
-    }    
-    
+    }
+
     /**
      * When user select a chat tab clicking with the mouse we change the
      * currently selected chat panel, thus changing the title of the window,
@@ -206,25 +203,25 @@ public abstract class ChatPanel
             super();
         }
 
-        public void componentResized(ComponentEvent e) {
+        public void componentResized(ComponentEvent evt) {
         }
 
-        public void componentMoved(ComponentEvent e) {
+        public void componentMoved(ComponentEvent evt) {
         }
 
-        public void componentShown(ComponentEvent e)
+        public void componentShown(ComponentEvent evt)
         {
-            Component component = e.getComponent();
+            Component component = evt.getComponent();
             Container parent = component.getParent();
-            
+
             if (!(parent instanceof JTabbedPane))
                 return;
-            
+
             JTabbedPane tabbedPane = (JTabbedPane) parent;
-            
+
             if (tabbedPane.getSelectedComponent() != component)
                 return;
-            
+
             SwingUtilities.invokeLater(new Runnable()
             {
                 public void run()
@@ -241,13 +238,13 @@ public abstract class ChatPanel
 
                     ChatPanel.this.requestFocusInWriteArea();
                 }
-            });            
+            });
         }
 
-        public void componentHidden(ComponentEvent e) {
+        public void componentHidden(ComponentEvent evt) {
         }
     }
-    
+
     /**
      * Moves the caret to the end of the conversation panel, contained in the
      * given chat panel.
@@ -264,19 +261,19 @@ public abstract class ChatPanel
     {
         ChatConversationPanel chatConversationPanel
             = getChatConversationPanel();
-        
+
         HTMLDocument doc = (HTMLDocument) chatConversationPanel
             .getChatEditorPane().getDocument();
-        
+
         Element root = doc.getDefaultRootElement();
 
         try {
             doc.insertAfterEnd(root
                     .getElement(root.getElementCount() - 1), "<br>");
-        } catch (BadLocationException e) {
-            logger.error("Insert in the HTMLDocument failed.", e);
-        } catch (IOException e) {
-            logger.error("Insert in the HTMLDocument failed.", e);
+        } catch (BadLocationException exc) {
+            logger.error("Insert in the HTMLDocument failed.", exc);
+        } catch (IOException exc) {
+            logger.error("Insert in the HTMLDocument failed.", exc);
         }
         //Scroll to the last inserted text in the document.
         chatConversationPanel.setCarretToEnd();
@@ -289,7 +286,7 @@ public abstract class ChatPanel
     {
         getChatWritePanel().getEditorPane().requestFocus();
     }
-    
+
     /**
      * Checks if the editor contains text.
      *
@@ -316,10 +313,10 @@ public abstract class ChatPanel
     public void processHistory(Collection historyList,
             String escapedMessageID)
     {
-        Iterator i = historyList.iterator();
+        Iterator iterator = historyList.iterator();
         String historyString = "";
-        while (i.hasNext()) {
-            Object o = i.next();
+        while (iterator.hasNext()) {
+            Object o = iterator.next();
 
             if(o instanceof MessageDeliveredEvent) {
                 MessageDeliveredEvent evt
@@ -350,7 +347,7 @@ public abstract class ChatPanel
         }
         conversationPanel.insertMessageAfterStart(historyString);
     }
-    
+
     /**
      * Passes the message to the contained <code>ChatConversationPanel</code>
      * for processing and appends it at the end of the conversationPanel
@@ -368,7 +365,7 @@ public abstract class ChatPanel
         String processedMessage
             = this.conversationPanel.processMessage(contactName, date,
                                             messageType, message);
-        this.conversationPanel.appendMessageToEnd(processedMessage);        
+        this.conversationPanel.appendMessageToEnd(processedMessage);
     }
 
     /**
@@ -400,7 +397,7 @@ public abstract class ChatPanel
 
         writeMsgPane.setText("");
     }
-    
+
     /**
      * Adds text to the write area editor.
      *
@@ -421,7 +418,7 @@ public abstract class ChatPanel
 
         return editorPane.getText();
     }
-    
+
     /**
      * Cuts the write area selected content to the clipboard.
      */
@@ -461,7 +458,7 @@ public abstract class ChatPanel
 
         editorPane.requestFocus();
     }
-    
+
     /**
      * Sends current write area content.
      */
@@ -472,10 +469,10 @@ public abstract class ChatPanel
         sendButton.requestFocus();
         sendButton.doClick();
     }
-    
+
     /**
      * Seys the first date from the last page in the chat.
-     * 
+     *
      * @param pageFirstMsgTimestamp the fist date from the last page of the chat
      */
     public void setBeginLastPageTimeStamp(Date pageFirstMsgTimestamp)
@@ -485,18 +482,18 @@ public abstract class ChatPanel
 
     /**
      * Returns the first date from the last chat page.
-     * 
+     *
      * @return the first date from the last chat page
      */
     public Date getBeginLastPageTimeStamp()
     {
         return beginLastPageTimeStamp;
-    }    
+    }
 
     /**
      * Returns TRUE if this chat panel is added to a container (window or
      * tabbed pane), which is shown on the screen, FALSE - otherwise.
-     * 
+     *
      * @return TRUE if this chat panel is added to a container (window or
      * tabbed pane), which is shown on the screen, FALSE - otherwise
      */
@@ -507,28 +504,30 @@ public abstract class ChatPanel
 
     /**
      * Marks this chat panel as shown or hidden.
-     * 
+     *
      * @param isShown TRUE to mark this chat panel as shown, FALSE - otherwise
      */
     public void setShown(boolean isShown)
     {
         this.isShown = isShown;
     }
-    
+
     /**
      * Implements the <tt>Chat.isChatFocused</tt> method. Returns TRUE if this
      * chat panel is the currently selected panel and if the chat window, where
      * it's contained is active.
+     *
+     * @return true if this chat panel has the focus and false otherwise.
      */
     public boolean isChatFocused()
     {
         ChatPanel currentChatPanel = chatWindow.getCurrentChatPanel();
-        
+
         if(currentChatPanel != null
                 && currentChatPanel.equals(this)
                 && chatWindow.isActive())
             return true;
-        
+
         return false;
     }
 
@@ -540,98 +539,102 @@ public abstract class ChatPanel
      */
     private class FocusPropertyChangeListener implements PropertyChangeListener
     {
-        public void propertyChange(PropertyChangeEvent e)
+        public void propertyChange(PropertyChangeEvent evt)
         {
-            String prop = e.getPropertyName();
+            String prop = evt.getPropertyName();
             if ((prop.equals("focusOwner")) &&
-                  (e.getNewValue() != null) &&
-                  (e.getNewValue() instanceof Component) &&
-                  ((Component)e.getNewValue())
+                  (evt.getNewValue() != null) &&
+                  (evt.getNewValue() instanceof Component) &&
+                  ((Component)evt.getNewValue())
                       .getFocusCycleRootAncestor() instanceof ChatWindow)
             {
-                ChatWindow chatWindow = (ChatWindow)((Component)e
+                ChatWindow chatWindow = (ChatWindow)((Component)evt
                         .getNewValue()).getFocusCycleRootAncestor();
-                
+
                 ChatPanel chatPanel
                     = chatWindow.getCurrentChatPanel();
-                
+
                 if(chatPanel instanceof MetaContactChatPanel)
                 {
                     MetaContact selectedMetaContact
                         = ((MetaContactChatPanel)chatPanel).getMetaContact();
-                    
+
                     ContactList clist
                         = chatWindow.getMainFrame()
                             .getContactListPanel().getContactList();
                     ContactListModel clistModel
                         = (ContactListModel) clist.getModel();
-                    
+
                     if(clistModel.isContactActive(selectedMetaContact))
                     {
                         clistModel.removeActiveContact(selectedMetaContact);
                         clist.modifyContact(selectedMetaContact);
                     }
-                    
+
                     fireChatFocusEvent(ChatFocusEvent.FOCUS_GAINED);
                 }
             }
         }
     }
-    
+
     /**
      * Implements <tt>Chat.addChatFocusListener</tt> method. Adds the given
      * <tt>ChatFocusListener</tt> to the list of listeners.
+     *
+     * @param listener the listener that we'll be adding.
      */
-    public void addChatFocusListener(ChatFocusListener l)
+    public void addChatFocusListener(ChatFocusListener listener)
     {
         synchronized (focusListeners)
         {
-            focusListeners.add(l);
+            focusListeners.add(listener);
         }
     }
-    
+
     /**
      * Implements <tt>Chat.removeChatFocusListener</tt> method. Removes the given
      * <tt>ChatFocusListener</tt> from the list of listeners.
+     *
+     * @param listener the listener to remove.
      */
-    public void removeChatFocusListener(ChatFocusListener l)
+    public void removeChatFocusListener(ChatFocusListener listener)
     {
         synchronized (focusListeners)
         {
-            focusListeners.remove(l);
+            focusListeners.remove(listener);
         }
     }
-    
+
     /**
      * Returns the message written by user in the chat write area.
-     * 
+     *
      * @return the message written by user in the chat write area
      */
     public String getMessage()
     {
         return writeMessagePanel.getEditorPane().getText();
     }
-    
+
     /**
      * Sets the given message as a message in the chat write area.
-     * 
-     * @param message the text that would be set to the chat write area 
+     *
+     * @param message the text that would be set to the chat write area
      */
     public void setMessage(String message)
     {
         writeMessagePanel.getEditorPane().setText(message);
     }
-    
+
     /**
      * Informs all <tt>ChatFocusListener</tt>s that a <tt>ChatFocusEvent</tt>
      * has been triggered.
-     * 
+     *
      * @param eventID the type of the <tt>ChatFocusEvent</tt>
      */
     private void fireChatFocusEvent(int eventID)
     {
         ChatFocusEvent evt = new ChatFocusEvent(this, eventID);
-        
+
         logger.trace("Will dispatch the following chat event: " + evt);
 
         Iterator listeners = null;
