@@ -59,10 +59,15 @@ public class MessageDeliveryFailedEvent
      private int errorCode = UNKNOWN_ERROR;
 
      /**
+      * Contains a human readable message indicating the reason for the failure
+      * or null if the reason is unknown.
+      */
+     private String reasonPhrase = null;
+
+     /**
       * A timestamp indicating the exact date when the event occurred.
       */
      private Date timestamp = null;
-
 
      /**
       * Creates a <tt>MessageDeliveryFailedEvent</tt> indicating failure of
@@ -80,13 +85,34 @@ public class MessageDeliveryFailedEvent
                                        int errorCode,
                                        Date timestamp )
      {
+         this(source, to, errorCode, timestamp, null);
+     }
+
+     /**
+      * Creates a <tt>MessageDeliveryFailedEvent</tt> indicating failure of
+      * delivery of the <tt>source</tt> message to the specified <tt>to</tt>
+      * contact.
+      *
+      * @param source the <tt>Message</tt> whose delivery this event represents.
+      * @param to the <tt>Contact</tt> that this message was sent to.
+      * @param errorCode an errorCode indicating the reason of the failure.
+      * @param timestamp the exacte Date when it was determined that delivery
+      * had failed.
+      * @param reason a human readable message indicating the reason for the
+      * failure or null if the reason is unknown.
+      */
+     public MessageDeliveryFailedEvent(Message source,
+                                       Contact to,
+                                       int errorCode,
+                                       Date timestamp,
+                                       String reason )
+     {
          super(source);
 
          this.to = to;
-
          this.errorCode = errorCode;
-
          this.timestamp = timestamp;
+         this.reasonPhrase = reason;
      }
      /**
       * Returns a reference to the <tt>Contact</tt> that the source (failed)
@@ -118,9 +144,20 @@ public class MessageDeliveryFailedEvent
       * has failed).
       * @return a Date indicating when the event ocurred.
       */
-     public Date getTimestamp()
-     {
-         return timestamp;
-     }
+    public Date getTimestamp()
+    {
+        return timestamp;
+    }
 
+    /**
+     * Returns a human readable message indicating the reason for the failure
+     * or null if the reason is unknown.
+     *
+     * @return a human readable message indicating the reason for the failure
+     * or null if the reason is unknown.
+     */
+    public String getReason()
+    {
+        return reasonPhrase;
+    }
 }
