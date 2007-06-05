@@ -402,6 +402,34 @@ public class TestOperationSetPresence
         logger.trace("will query for contact("+ fixture.userID2 + ") status!");
         PresenceStatus actualReturn
             = operationSetPresence1.queryContactStatus(fixture.userID2);
+        
+        // sometimes happens that no status are received
+        // will change the status and try again
+        if(!actualReturn.equals(expectedReturn))
+        {
+            logger.info("subtestQueryContactStatus for " + status + 
+                " Failed - trying again!");
+            
+            PresenceStatus tempStatus;
+            if(status.equals(MsnStatusEnum.ONLINE))
+                tempStatus = MsnStatusEnum.AWAY;
+            else
+                tempStatus = MsnStatusEnum.ONLINE;
+            
+            // reset the status so we can change it once again
+            operationSetPresence2.publishPresenceStatus(status, "status message");
+            
+            pauseAfterStateChanges();
+            
+            // now try again
+            operationSetPresence2.publishPresenceStatus(status, "status message");
+
+            pauseAfterStateChanges();
+            
+            actualReturn
+                = operationSetPresence1.queryContactStatus(fixture.userID2);
+        }
+        
         assertEquals("Querying a "
                      + expectedReturn.getStatusName()
                      + " state did not return as expected"
