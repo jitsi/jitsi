@@ -25,13 +25,13 @@ public class ConfigurationManager
     
     private static String sendMessageCommand;
 
-    private static boolean isCallPanelShown;
+    private static boolean isCallPanelShown = true;
     
-    private static boolean isShowOffline;
+    private static boolean isShowOffline = true;
     
-    private static boolean isApplicationVisible;
+    private static boolean isApplicationVisible = true;
     
-    private static boolean isSendTypingNotifications;
+    private static boolean isSendTypingNotifications = true;
     
     private static LinkedList chatRoomsList;
     
