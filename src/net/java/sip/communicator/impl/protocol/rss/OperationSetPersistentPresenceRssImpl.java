@@ -1047,7 +1047,7 @@ public class OperationSetPersistentPresenceRssImpl
             = new ContactGroupRssImpl(
                 ContactGroupRssImpl.createNameFromUID(groupUID)
                 , parentProvider);
-        newGroup.setResolved(false);
+        newGroup.setResolved(true);
 
         //if parent is null then we're adding under root.
         if(parentGroup == null)

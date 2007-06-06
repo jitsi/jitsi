@@ -150,7 +150,8 @@ public class ProtocolProviderFactoryRssImpl
         //properties we have in it.
 
         Hashtable properties = new Hashtable();
-        properties.put(PROTOCOL, "Rss");
+        properties.put(PROTOCOL
+                       , ProtocolProviderServiceRssImpl.RSS_PROTOCOL_NAME);
         properties.put(USER_ID, userIDStr);
 
         ProtocolProviderServiceRssImpl rssProtocolProvider
@@ -185,11 +186,11 @@ public class ProtocolProviderFactoryRssImpl
             = (ProtocolProviderService) RssActivator.getBundleContext()
                 .getService(serRef);
 
-        try 
+        try
         {
             protocolProvider.unregister();
         }
-        catch (OperationFailedException exc) 
+        catch (OperationFailedException exc)
         {
             logger.error("Failed to unregister protocol provider for account : "
                     + accountID + " caused by : " + exc);
@@ -224,8 +225,8 @@ public class ProtocolProviderFactoryRssImpl
     public void storePassword(AccountID accountID, String passwd)
         throws IllegalArgumentException
     {
-        super.storePassword(RssActivator.getBundleContext(), 
-                            accountID, 
+        super.storePassword(RssActivator.getBundleContext(),
+                            accountID,
                             passwd);
     }
 

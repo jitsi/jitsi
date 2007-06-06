@@ -27,7 +27,7 @@ public class ProtocolProviderServiceRssImpl
     /**
      * The name of this protocol.
      */
-    public static final String RSS_PROTOCOL_NAME = "Rss";
+    public static final String RSS_PROTOCOL_NAME = "RSS";
 
     /**
      * The id of the account that this protocol provider represents.

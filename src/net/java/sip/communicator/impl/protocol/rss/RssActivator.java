@@ -59,7 +59,7 @@ public class RssActivator
         this.bundleContext = context;
 
         Hashtable hashtable = new Hashtable();
-        hashtable.put(ProtocolProviderFactory.PROTOCOL, "Rss");
+        hashtable.put(ProtocolProviderFactory.PROTOCOL, "RSS");
 
         rssProviderFactory = new ProtocolProviderFactoryRssImpl();
 
@@ -72,7 +72,7 @@ public class RssActivator
                     rssProviderFactory,
                     hashtable);
         
-        logger.info("Rss protocol implementation [STARTED].");
+        logger.info("RSS protocol implementation [STARTED].");
     }
 
     /**
@@ -111,6 +111,6 @@ public class RssActivator
     {
         this.rssProviderFactory.stop();
         rssPpFactoryServReg.unregister();
-        logger.info("Rss protocol implementation [STOPPED].");
+        logger.info("RSS protocol implementation [STOPPED].");
     }
 }

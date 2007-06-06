@@ -42,6 +42,6 @@ public class RssTimerRefreshFeed
     public void run()
     {
         logger.trace("Starting a periodic rss check.");
-        this.opSet.refreshRssFeed();
+        this.opSet.refreshAllRssFeeds();
     }
 }

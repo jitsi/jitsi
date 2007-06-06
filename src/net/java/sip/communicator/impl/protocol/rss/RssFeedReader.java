@@ -42,7 +42,7 @@ public class RssFeedReader
     /**
      * The last update date of this feed.
      */
-    private Date ultimateItemDate = null;
+    private Date lastItemPubDate = new Date(0l);
 
     /**
      * An array of SyndEntry which will contain all the items retrieved from
@@ -105,8 +105,22 @@ public class RssFeedReader
                                .toArray(new SyndEntry[0]));
         sortItems();
 
-        //we retrieve the date of the most recent item
-        this.ultimateItemDate = findUltimateItemDate();
+        //if we don't understand the date format we don't want to handle
+        //this feed
+        if( items[items.length -1].getPublishedDate() == null)
+        {
+            throw new OperationFailedException(
+                "We can't retrieve dates for RSS flow \""
+                + title
+                + "\" ("
+                +rssURL
+                +")"
+                , OperationFailedException.GENERAL_ERROR);
+        }
+
+
+        //store the date of the most recent item
+        setLastItemPubDate( items[items.length -1].getPublishedDate() );
     }
 
     /**
@@ -123,64 +137,46 @@ public class RssFeedReader
      * We signal to the user ("Send anything to refresh this feed...") that he
      * can send anything to refresh the present contact/feed.
      *</p>
-     * @param lastQueryDate the date to compare with that of the items
+     * @param latestRetrievedItemDate the date to compare with that of the items
      * retrieved.
      *
      * @return a String containing all messages published on this rss source
      * since lastQueryDate or a message stating lack of new messages.
      */
-    public String getPrintedFeed(Date lastQueryDate)
+    public synchronized String feedToString(Date latestRetrievedItemDate)
     {
-        boolean more = true;
-        int i = 0;
-        int nbNewItem = 0;
-        String printedFeed = new String();
+        StringBuffer printedFeed = new StringBuffer();
 
-        if(items.length > 0)
+        if (items.length == 0)
+            return "No items currently available for this feed !";
+
+        //go through the items list in reverse order so that we could stop
+        //as soon as we reach items that we've already shown to the user.
+        for (int i = items.length - 1; i >= 0; i--)
         {
-            while((i<items.length) && more)
+            if (items[i].getPublishedDate()
+                .compareTo(latestRetrievedItemDate) > 0)
             {
-                if((items[i].getPublishedDate() != null)
-                   && (lastQueryDate != null))
-                {
-                    if(items[i].getPublishedDate().compareTo(lastQueryDate)>0)
-                    {
-                        printedFeed += "\nAt " + items[i].getPublishedDate()
-                                    + " - " + items[i].getTitle()
-                                    + "\nLink: " + items[i].getLink() + "\n\n";
-                        nbNewItem++;
-                    }
-                    else{
-                        more = false;
-                        if(nbNewItem == 0)
-                        {
-                            printedFeed +=
-                                ("\n\nNo new articles in your feed since"
-                                +" last update.");
-                        }
-                    }
-                }
-                else{
-                    if(items[i].getPublishedDate() != null)
-                        printedFeed += "\nAt " + items[i].getPublishedDate();
-
-                    printedFeed += "\n" + items[i].getTitle() +
-                        "\nLink: "+items[i].getLink()+"\n\n";
-
-                    if(i == 10)
-                    {
-                        more = false;
-                    }
-                }
-                i++;
+                printedFeed.insert(
+                    0
+                    , "\nAt " + items[i].getPublishedDate()
+                    + " - " + items[i].getTitle()
+                    + "\nLink: " + items[i].getLink() + "\n\n");
             }
-            printedFeed += ("\n\nSend anything to refresh this feed...");
+            else
+            {
+                if (i == items.length - 1)
+                {
+                    printedFeed
+                        .append("\n\nNo new articles in your feed since"
+                                + " last update.");
+                }
+                break;
+            }
         }
-        else
-        {
-            printedFeed += "No items found on this feed !";
-        }
-        return printedFeed;
+
+        printedFeed.append ("\n\nSend anything to refresh this feed...");
+        return printedFeed.toString();
     }
 
     /**
@@ -199,9 +195,9 @@ public class RssFeedReader
      * @return the feed's Date representing the nearest item's date never
      * retrieved on this feed.
      */
-    public Date getUltimateItemDate()
+    public Date getLastItemPubDate()
     {
-        return this.ultimateItemDate;
+        return this.lastItemPubDate;
     }
 
     /**
@@ -211,13 +207,12 @@ public class RssFeedReader
      * This method just gives the date of the first element of the array of
      * ItemIF previously sorted.
      *
-     * @return a Date representing the nearest item's date.
+     * @param date the publish date of the latest item retrieved with this
+     * reader.
      */
-    private Date findUltimateItemDate()
+    private void setLastItemPubDate(Date date)
     {
-        if (items[0].getPublishedDate() != null)
-            this.ultimateItemDate = items[0].getPublishedDate();
-        return this.ultimateItemDate;
+        this.lastItemPubDate = date;
     }
 
 

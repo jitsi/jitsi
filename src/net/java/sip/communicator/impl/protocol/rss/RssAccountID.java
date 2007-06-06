@@ -24,9 +24,9 @@ public class RssAccountID
      */
     RssAccountID(String userID, Map accountProperties)
     {
-        super(  userID, 
-                accountProperties, 
-                "Rss", 
+        super(  userID,
+                accountProperties,
+                ProtocolProviderServiceRssImpl.RSS_PROTOCOL_NAME,
                 "rss.org");
     }
 }

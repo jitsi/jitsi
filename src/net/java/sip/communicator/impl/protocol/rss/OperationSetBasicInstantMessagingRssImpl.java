@@ -45,9 +45,9 @@ public class OperationSetBasicInstantMessagingRssImpl
 
     /**
      * The value corresponding to the time in ms
-     * of the rss refreshing period (here 10min)
+     * of the rss refreshing period (here 5min)
      */
-    final int PERIOD_REFRESH_RSS = 600000;
+    final int PERIOD_REFRESH_RSS = 300000;
 
     /**
      * Creates an instance of this operation set keeping a reference to the
@@ -64,12 +64,11 @@ public class OperationSetBasicInstantMessagingRssImpl
         this.opSetPersPresence = opSetPersPresence;
         this.parentProvider = provider;
 
+        parentProvider.addRegistrationStateChangeListener(this);
         if(parentProvider.isRegistered())
         {
             createTimer();
         }
-
-        parentProvider.addRegistrationStateChangeListener(this);
     }
 
     /**
@@ -144,7 +143,6 @@ public class OperationSetBasicInstantMessagingRssImpl
         boolean newName = false;
         boolean newDate = false;
         boolean update = false;
-        Date lastQueryDate = null;
         String newDisplayName = new String();
         String oldDisplayName = new String();
 
@@ -161,64 +159,38 @@ public class OperationSetBasicInstantMessagingRssImpl
             return;
         }
 
-        if(rssFeed.getFeed() == null)
+
+        //we recover the feed's old name
+        oldDisplayName = rssContact.getDisplayName();
+
+        //we change the contact's displayName according to the feed's title
+        newDisplayName = rssFeed.getTitle();
+        if (! (newDisplayName.equals(oldDisplayName)))
         {
-            msg = createMessage("No RSS feed available at URL "
-                                + rssContact.getAddress());
+            newName = true;
         }
-        else
+        rssContact.setDisplayName(newDisplayName);
+
+        //we create the message containing the new items retrieved
+        msg = createMessage(rssFeed.feedToString(rssContact.getLastItemDate()));
+
+        //if a newer date is avalaible for the current feed/contact looking
+        //the date of each item of the feed retrieved, we update this date
+        if (rssFeed.getLastItemPubDate()
+                .compareTo(rssContact.getLastItemDate()) > 0)
         {
-            //we recover the feed's old name
-            oldDisplayName = rssContact.getDisplayName();
-
-            //we change the contact's displayName according to the feed's title
-            newDisplayName = rssFeed.getTitle();
-            if(!(newDisplayName.equals(oldDisplayName)))
-            {
-                newName = true;
-            }
-            rssContact.setDisplayName(newDisplayName);
-
-            //Looking for a date representing the last item retrieved on this
-            //feed we look after a date saving in the contact's parameters (i.e.
-            //in the file contactlist.xml)
-            if(rssContact.getDate() != null)
-                lastQueryDate = rssContact.getDate();
-
-            //we create the message containing the new items retrieved
-            msg = createMessage(rssFeed.getPrintedFeed(lastQueryDate));
-
-            //if a newer date is avalaible for the current feed/contact looking
-            //the date of each item of the feed retrieved, we update this date
-            if(rssFeed.getUltimateItemDate() != null)
-            {
-                if(lastQueryDate != null)
-                {
-                    if(rssFeed.getUltimateItemDate().compareTo(lastQueryDate)>0)
-                    {
-                        rssContact.setDate(rssFeed.getUltimateItemDate());
-                        newDate = true;
-                        update = true;
-                    }
-                }
-                else
-                {
-                    rssContact.setDate(rssFeed.getUltimateItemDate());
-                    newDate = true;
-                    update = true;
-                }
-            }
-            else
-                update = true;
-
-            //if we have a new date or a new name on this feed/contact, we fire
-            //that the contact has his properties modified in order to save it
-            if(newName || newDate)
-                this.opSetPersPresence.fireContactPropertyChangeEvent(
-                                ContactPropertyChangeEvent.
-                                PROPERTY_DISPLAY_NAME, rssContact,
-                                oldDisplayName, newDisplayName);
+            rssContact.setDate(rssFeed.getLastItemPubDate());
+            newDate = true;
+            update = true;
         }
+
+        //if we have a new date or a new name on this feed/contact, we fire
+        //that the contact has his properties modified in order to save it
+        if (newName || newDate)
+            this.opSetPersPresence.fireContactPropertyChangeEvent(
+                ContactPropertyChangeEvent.
+                PROPERTY_DISPLAY_NAME, rssContact,
+                oldDisplayName, newDisplayName);
 
         //if the feed has been updated or if the user made a request on a
         //specific feed/contact, we fire a new message containing the new items
@@ -230,7 +202,7 @@ public class OperationSetBasicInstantMessagingRssImpl
     /**
      * To refresh all rss feeds registered as contacts
      */
-    public void refreshRssFeed()
+    public void refreshAllRssFeeds()
     {
          Vector rssContactList = new Vector();
          rssContactList = opSetPersPresence.getContactListRoot().
@@ -257,6 +229,9 @@ public class OperationSetBasicInstantMessagingRssImpl
      */
     public void createTimer()
     {
+        if (timer != null )
+            return;
+
         logger.trace("Creating rss timer and task.");
         RssTimerRefreshFeed refresh = new RssTimerRefreshFeed(this);
         this.timer = new Timer();

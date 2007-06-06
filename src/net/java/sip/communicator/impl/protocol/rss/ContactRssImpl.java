@@ -20,8 +20,8 @@ import java.net.*;
 public class ContactRssImpl
     implements Contact
 {
-    private String lastDate = null;
-    private Date date = null;
+    private String  lastDate = null;
+    private Date date = new Date(0l);
     private String nickName = null;
 
     private static final Logger logger
@@ -149,7 +149,7 @@ public class ContactRssImpl
      * @return a Date in order to compare with a new one obtained via
      * a query on the feed.
      */
-    public Date getDate()
+    public Date getLastItemDate()
     {
         return this.date;
     }
@@ -165,29 +165,6 @@ public class ContactRssImpl
     {
         this.date = date;
         this.lastDate = convertDateToString(this.date);
-    }
-
-    /**
-     * Updating the lastDate in String format of the contact
-     *
-     * @param lastDate the <tt>String</tt> that is now
-     * the last update date of the <tt>ContactRssImpl</tt>
-     */
-    public void setLastDate(String lastDate)
-    {
-        this.lastDate = lastDate;
-    }
-
-    /**
-     * Returns a String corresponding to the date of the last query
-     * on this rss contact.
-     *
-     * @return a String representing a Date in order to compare with
-     * a new one obtained via a query on the feed.
-     */
-    public String getLastDate()
-    {
-        return this.lastDate;
     }
 
     /**

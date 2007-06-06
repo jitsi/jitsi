@@ -54,7 +54,7 @@ public class OperationSetBasicInstantMessagingSipImpl
      * Hashtable containing the CSeq of each discussion
      */
     private Hashtable cseqs = null;
-    
+
     /**
      * Hashtable containing the message sent
      */
@@ -213,7 +213,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             fireMessageEvent(evt);
             return;
         }
-        
+
         //Transaction
         ClientTransaction messageTransaction;
         SipProvider jainSipProvider
@@ -238,7 +238,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             fireMessageEvent(evt);
             return;
         }
-        
+
         // send the message
         try
         {
@@ -259,7 +259,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             fireMessageEvent(evt);
             return;
         }
-        
+
         // we register the reference to this message to retrieve it when
         // we'll receive the response message
         Integer key = new Integer(to.hashCode() + ((Long) this.cseqs.get(to))
@@ -747,27 +747,27 @@ public class OperationSetBasicInstantMessagingSipImpl
                 logger.debug("failed to convert the message charset");
                 content = new String(req.getRawContent());
             }
-            
+
             // to who did we send the original message ?
             ToHeader toHeader = (ToHeader)
                 req.getHeader(ToHeader.NAME);
-            
+
             if (toHeader == null)
             {
                 // should never happen
                 logger.error("send a request without a to header");
                 return;
             }
-            
+
             Contact to = resolveContact(toHeader.getAddress()
                     .getURI().toString());
-            
+
             if (to == null) {
                 logger.error(
                         "Error received a response from an unknown contact : "
                         + toHeader.getAddress().getURI().toString() + " : "
                         + responseEvent.getResponse().getReasonPhrase());
-                
+
                 // error for delivering the message
                 MessageDeliveryFailedEvent evt =
                     new MessageDeliveryFailedEvent(
@@ -777,21 +777,21 @@ public class OperationSetBasicInstantMessagingSipImpl
                         MessageDeliveryFailedEvent.INTERNAL_ERROR,
                         new Date());
                 fireMessageEvent(evt);
-                
+
                 return;
             }
-            
+
             // we retrive the original message
             long seqNum = ((CSeqHeader) req.getHeader(CSeqHeader.NAME))
                                 .getSeqNumber();
-            
+
             Integer key = new Integer(to.hashCode() + (int) seqNum);
-            
+
             if (key == null) {
                 // should never happen
                 logger.error("Couldn't create the key to find the message" +
                         " sent");
-                
+
                 // error for delivering the message
                 MessageDeliveryFailedEvent evt =
                     new MessageDeliveryFailedEvent(
@@ -801,16 +801,16 @@ public class OperationSetBasicInstantMessagingSipImpl
                         MessageDeliveryFailedEvent.INTERNAL_ERROR,
                         new Date());
                 fireMessageEvent(evt);
-                
+
                 return;
             }
-            
+
             Message newMessage = (Message) sentMsg.get(key);
-            
+
             if (newMessage == null) {
                 // should never happen
                 logger.error("Couldn't find the message sent");
-                
+
                 // error for delivering the message
                 MessageDeliveryFailedEvent evt =
                     new MessageDeliveryFailedEvent(
@@ -820,7 +820,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                         MessageDeliveryFailedEvent.INTERNAL_ERROR,
                         new Date());
                 fireMessageEvent(evt);
-                
+
                 return;
             }
 
@@ -871,7 +871,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                     fireMessageEvent(evt);
                     sentMsg.remove(key);
                 }
-                
+
                 // we are incrementing the CSeq, so we move the message
                 // in the hashtable
                 sentMsg.remove(key);
@@ -889,11 +889,11 @@ public class OperationSetBasicInstantMessagingSipImpl
                         newMessage, to, new Date());
 
                 fireMessageEvent(msgDeliveredEvt);
-                
+
                 // we don't need this message anymore
                 sentMsg.remove(key);
             }
-            
+
             // we close the transaction to avoid some retransmit
             try {
                 responseEvent.getClientTransaction().terminate();
@@ -902,31 +902,31 @@ public class OperationSetBasicInstantMessagingSipImpl
                 logger.debug("transaction in use while trying to close it");
             }
         }
-        
+
         /**
          * Try to find a contact registered using a string to identify him.
-         * 
+         *
          * @param contactID A string with which the contact may have
          *  been registered
          * @return A valid contact if it has been found, null otherwise
          */
         private Contact resolveContact(String contactID) {
             Contact res = opSetPersPresence.findContactByID(contactID);
-            
+
             if (res == null) {
-                // we try to resolve the conflict by removing "sip:" from the id 
+                // we try to resolve the conflict by removing "sip:" from the id
                 if (contactID.startsWith("sip:")) {
                     res = opSetPersPresence.findContactByID(
                             contactID.substring(4));
                 }
-            
+
                 if (res == null) {
                     // we try to remove the part after the '@'
                     if (contactID.indexOf('@') > -1) {
                         res = opSetPersPresence.findContactByID(
                                 contactID.substring(0,
                                     contactID.indexOf('@')));
-                        
+
                         if (res == null) {
                             // try the same thing without sip:
                             if (contactID.startsWith("sip:")) {
@@ -938,7 +938,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                     }
                 }
             }
-            
+
             return res;
         }
 
