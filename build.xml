@@ -743,7 +743,7 @@
             <!-- Tell felix to run sip-communicator-->
             <sysproperty key="felix.config.properties"
                 value="file:./lib/felix.client.run.properties"/>
-                
+
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
                 value="lib/logging.properties"/>
@@ -751,8 +751,8 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="false"/>
 
-        	<!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-        	        	                value="${user.home}"/-->
+        	<sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+        	        	                value="${user.home}/schome"/>
         	
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path" path="${ld.library.path}:${path}:${dyld.library.path}"/>
@@ -852,6 +852,7 @@
         bundle-growlnotification,bundle-audionotifier,bundle-plugin-splashscreen,
         bundle-systray,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
+    	bundle-plugin-extended-callhistory-search,
         bundle-rss,bundle-plugin-rssaccregwizz,
     	bundle-pluginmanager"/>
 
@@ -1545,6 +1546,17 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/pluginmanager"/>
         </jar>
     </target>
+	
+	<!-- BUNDLE-PLUGIN-EXTENDED CALL HISTORY SEARCH -->
+	<target name="bundle-plugin-extended-callhistory-search">
+	    <!-- Creates a bundle for a extended callhistory search-->
+	    <jar compress="false" destfile="${bundles.dest}/extendedcallhistorysearch.jar"
+	        manifest="src/net/java/sip/communicator/plugin/extendedcallhistorysearch/extendedcallhistorysearch.manifest.mf">
+	        <zipfileset dir="${dest}/net/java/sip/communicator/plugin/extendedcallhistorysearch"
+	            prefix="net/java/sip/communicator/plugin/extendedcallhistorysearch"/>
+	        <zipfileset src="${lib.noinst}/jcalendar-1.3.2.jar" prefix=""/>
+	    </jar>
+	</target>
     
     <!-- BUNDLE-RSS -->
     <target name="bundle-rss">
