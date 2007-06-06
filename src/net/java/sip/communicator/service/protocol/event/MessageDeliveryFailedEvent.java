@@ -114,6 +114,7 @@ public class MessageDeliveryFailedEvent
          this.timestamp = timestamp;
          this.reasonPhrase = reason;
      }
+
      /**
       * Returns a reference to the <tt>Contact</tt> that the source (failed)
       * <tt>Message</tt> was sent to.
