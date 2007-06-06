@@ -20,6 +20,8 @@ public class CallList
     extends JList
     implements MouseListener
 {
+    CallListModel listModel = new CallListModel();
+    
     public CallList()
     {
         this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
@@ -29,7 +31,7 @@ public class CallList
 
         this.setCellRenderer(new CallListCellRenderer());
         
-        this.setModel(new CallListModel());
+        this.setModel(listModel);
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         
@@ -38,17 +40,32 @@ public class CallList
     
     public void addItem(Object item)
     {
-        ((CallListModel)this.getModel()).addElement(item);
+        listModel.addElement(item);
     }
     
     public void addItem(Object item, int index)
     {
-        ((CallListModel)this.getModel()).addElement(index, item);
+        listModel.addElement(index, item);
+    }
+    
+    public void removeItem(GuiCallParticipantRecord record)
+    {
+        listModel.removeElement(record);
     }
     
     public void removeAll()
     {
-        ((CallListModel)this.getModel()).removeAll();
+        listModel.removeAll();
+    }
+    
+    public int getLength()
+    {
+        return listModel.getSize();
+    }
+    
+    public Object getItem(int index)
+    {
+        return listModel.getElementAt(index);
     }
     
     /**
