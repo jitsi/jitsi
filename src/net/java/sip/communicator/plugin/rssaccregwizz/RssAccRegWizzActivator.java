@@ -57,7 +57,7 @@ public class RssAccRegWizzActivator
 
         wizardContainer.addAccountRegistrationWizard(rssWizard);
 
-        logger.info("Rss account registration wizard [STARTED].");
+        logger.info("RSS account registration wizard [STARTED].");
     }
 
     /**
@@ -82,7 +82,7 @@ public class RssAccRegWizzActivator
 
         String osgiFilter = "("
             + ProtocolProviderFactory.PROTOCOL
-            + "=" + "Rss" + ")";
+            + "=" + "RSS" + ")";
 
         try
         {

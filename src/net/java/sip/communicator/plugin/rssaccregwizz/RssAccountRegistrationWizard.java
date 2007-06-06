@@ -68,14 +68,14 @@ public class RssAccountRegistrationWizard
     /**
      * Implements the <code>AccountRegistrationWizard.getPageImage</code> method.
      * Returns the image used to decorate the wizard page
-     * 
+     *
      * @return byte[] the image used to decorate the wizard page
      */
     public byte[] getPageImage()
     {
         return Resources.getImage(Resources.PAGE_IMAGE);
     }
-    
+
     /**
      * Implements the <code>AccountRegistrationWizard.getProtocolName</code>
      * method. Returns the protocol name for this wizard.
@@ -141,7 +141,7 @@ public class RssAccountRegistrationWizard
      * Creates an account for the given user and password.
      * @param providerFactory the ProtocolProviderFactory which will create
      * the account
-     * @param user the user identifier 
+     * @param user the user identifier
      * @return the <tt>ProtocolProviderService</tt> for the new account.
      */
     public ProtocolProviderService installAccount(
@@ -150,12 +150,6 @@ public class RssAccountRegistrationWizard
     {
 
         Hashtable accountProperties = new Hashtable();
-
-        if (registration.isRememberPassword())
-        {
-            accountProperties.put(ProtocolProviderFactory.PASSWORD
-                                  , registration.getPassword());
-        }
 
         try
         {
@@ -187,12 +181,12 @@ public class RssAccountRegistrationWizard
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
      * data from.
      */
-    
+
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
 
         this.protocolProvider = protocolProvider;
 
         isModification = true;
-    }    
+    }
 }

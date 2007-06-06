@@ -157,7 +157,7 @@ public class FirstWizardPage
      */
     public void pageShowing()
     {
-        if(isExistingAccount("Rss")) setNextButtonAccordingToUserID(false);
+        if(isExistingAccount("RSS")) setNextButtonAccordingToUserID(false);
         else setNextButtonAccordingToUserID(true);
     }
 
@@ -168,8 +168,7 @@ public class FirstWizardPage
     {
         nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
         userPassPanel.remove(existingAccountLabel);
-        registration.setUserID("Rss");
-        registration.setPassword("rss");
+        registration.setUserID("RSS");
     }
 
     /**
