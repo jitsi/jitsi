@@ -119,7 +119,8 @@ public interface ChatRoom
      * <p>
      * To be notified every time the room's subject change you should add a
      * <tt>ChatRoomChangelistener</tt> to this room.
-     * {@link #addChatRoomChangeListener(ChatRoomChangeListener)}<p>
+     * {@link #addChatRoomPropertyChangeListener(
+     *  ChatRoomPropertyChangeListener)}<p>
      *
      * To change the room's subject use {@link #setSubject(String)}.
      *
