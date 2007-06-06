@@ -18,7 +18,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
@@ -190,6 +189,8 @@ public class MainFrame
         clistPanel.addKeyListener(keyListener);
 
         clistPanel.getContactList().addKeyListener(keyListener);
+
+        clistPanel.getContactList().addListSelectionListener(callManager);
     }
 
 
