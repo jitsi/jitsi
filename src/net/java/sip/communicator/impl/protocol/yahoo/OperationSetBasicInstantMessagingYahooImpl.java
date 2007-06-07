@@ -129,9 +129,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
 
     /**
      * Create a Message instance for sending a simple text messages with
-     * default (html) content type and encoding.
-     * As no indications in the protocol is it html or not. No harm
-     * to set all messages html - doesn't affect the appearance of the gui
+     * default (text/plain) content type and encoding.
      * 
      * @param messageText the string content of the message.
      * @return Message the newly created message
@@ -139,8 +137,8 @@ public class OperationSetBasicInstantMessagingYahooImpl
     public Message createMessage(String messageText)
     {
         return new MessageYahooImpl(
-            new MessageDecoder().decodeToHTML(messageText), 
-            "html", 
+            messageText, 
+            DEFAULT_MIME_TYPE, 
             DEFAULT_MIME_ENCODING, null);
     }
 
@@ -296,8 +294,14 @@ public class OperationSetBasicInstantMessagingYahooImpl
         private void handleNewMessage(SessionEvent ev)
         {
             logger.debug("Message received : " + ev);
-
-            Message newMessage = createMessage(ev.getMessage());
+            
+            //As no indications in the protocol is it html or not. No harm
+            //to set all messages html - doesn't affect the appearance of the gui
+            Message newMessage = createMessage(
+                new MessageDecoder().decodeToHTML(ev.getMessage()).getBytes(),
+                "html",
+                DEFAULT_MIME_ENCODING,
+                null);
 
             Contact sourceContact = opSetPersPresence.
                 findContactByID(ev.getFrom());

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.yahoo;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.yahooconstants.*;
 import ymsg.network.*;
 
@@ -17,6 +18,9 @@ import ymsg.network.*;
 public class ContactYahooImpl
     implements Contact
 {
+    private static final Logger logger = 
+        Logger.getLogger(ContactYahooImpl.class);
+    
     private YahooUser contact = null;
     private byte[] image = null;
     private PresenceStatus status = YahooStatusEnum.OFFLINE;
@@ -137,7 +141,29 @@ public class ContactYahooImpl
 
     public byte[] getImage()
     {
+        try
+        {
+            YahooSession ses = ssclCallback.getParentProvider().
+                getYahooSession();
+            if(image == null && ses != null)
+                ses.requestPicture(id);
+        }
+        catch (Exception e)
+        {
+            logger.warn("Error requesting image!", e);
+        }
+        
         return image;
+    }
+    
+    /**
+     * Used to set the image of the contact if it is updated
+     *
+     * @param image a photo/avatar associated with this contact.
+     */
+    protected void setImage(byte[] image)
+    {
+        this.image = image;
     }
 
     /**

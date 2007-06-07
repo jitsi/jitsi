@@ -805,6 +805,7 @@ public class ServerStoredContactListYahooImpl
          * Successfully added a friend
          * friend - YahooUser of friend
          * group - name of group added to
+         * @param ev fired event
          */
         public void friendAddedReceived(SessionFriendEvent ev)
         {
@@ -927,6 +928,7 @@ public class ServerStoredContactListYahooImpl
          * Successfully removed a friend
          * friend - YahooUser of friend
          * group - name of group removed from
+         * @param ev fired event
          */
         public void friendRemovedReceived(SessionFriendEvent ev)
         {
@@ -977,6 +979,7 @@ public class ServerStoredContactListYahooImpl
          * to - the target (us!)
          * from - the user who wants to add us
          * message - the request message text
+         * @param ev fired event
          */
         public void contactRequestReceived(SessionEvent ev)
         {
@@ -1010,6 +1013,7 @@ public class ServerStoredContactListYahooImpl
          * Someone has rejected our attempts to add them to our friends list
          * from - the user who rejected us
          * message - rejection message text
+         * @param ev fired event
          */
         public void contactRejectionReceived(SessionEvent ev)
         {
@@ -1023,6 +1027,24 @@ public class ServerStoredContactListYahooImpl
             AuthorizationResponse resp = 
                 new AuthorizationResponse(AuthorizationResponse.REJECT, ev.getMessage());
             handler.processAuthorizationResponse(resp, contact);
+        }
+        
+        /**
+         * Invoked on picture received.
+         * @param ev fired event
+         */
+        public void pictureReceived(SessionPictureEvent ev)
+        {
+            ContactYahooImpl contact = findContactById(ev.getFrom());
+            
+            if(contact == null)
+                return;
+            
+            contact.setImage(ev.getPictureData());
+            
+            parentOperationSet.fireContactPropertyChangeEvent(
+                                ContactPropertyChangeEvent.PROPERTY_IMAGE, 
+                                contact, null, ev.getPictureData());
         }
     }
 
