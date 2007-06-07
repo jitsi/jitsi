@@ -320,7 +320,7 @@ public class MetaContactChatPanel
                 new Date(System.currentTimeMillis()),
                 Constants.SYSTEM_MESSAGE,
                 Messages.getI18NString("statusChangedChatMessage",
-                        new String[]{status.getStatusName()}).getText());
+                        new String[]{status.getStatusName()}).getText(), "text");
 
             getChatConversationPanel().appendMessageToEnd(message);
             
@@ -375,14 +375,15 @@ public class MetaContactChatPanel
                     contact.getDisplayName(),
                     new Date(System.currentTimeMillis()),
                     Constants.OUTGOING_MESSAGE,
-                    msg.getContent());
+                    msg.getContent(),
+                    msg.getContentType());
     
             this.processMessage(
                     contact.getDisplayName(),
                     new Date(System.currentTimeMillis()),
                     Constants.ERROR_MESSAGE,
                     Messages.getI18NString("msgSendConnectionProblem")
-                        .getText());
+                        .getText(), "text");
         }
         catch (Exception ex)
         {
@@ -394,14 +395,14 @@ public class MetaContactChatPanel
                     contact.getDisplayName(),
                     new Date(System.currentTimeMillis()),
                     Constants.OUTGOING_MESSAGE,
-                    msg.getContent());
+                    msg.getContent(), msg.getContentType());
     
             this.processMessage(
                     contact.getDisplayName(),
                     new Date(System.currentTimeMillis()),
                     Constants.ERROR_MESSAGE,
                     Messages.getI18NString("msgDeliveryInternalError")
-                        .getText());
+                        .getText(), "text");
         }
     }
 

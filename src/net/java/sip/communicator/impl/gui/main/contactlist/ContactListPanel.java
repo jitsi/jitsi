@@ -219,7 +219,8 @@ public class ContactListPanel
                 metaContact, protocolContact, message.getMessageUID());
                     
             chatPanel.processMessage(protocolContact.getDisplayName(), date,
-                Constants.INCOMING_MESSAGE, message.getContent());            
+                Constants.INCOMING_MESSAGE, message.getContent(),
+                message.getContentType());
             
             chatWindowManager.openChat(chatPanel, false);
             
@@ -268,7 +269,8 @@ public class ContactListPanel
             
             chatPanel.processMessage(this.mainFrame
                     .getAccount(protocolProvider), evt.getTimestamp(),
-                    Constants.OUTGOING_MESSAGE, msg.getContent());
+                    Constants.OUTGOING_MESSAGE, msg.getContent(),
+                    msg.getContentType());
 
             chatPanel.refreshWriteArea();
         }
@@ -290,9 +292,6 @@ public class ContactListPanel
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(sourceContact);
         
-        PresenceStatus contactStatus = ((ContactListModel) this.contactList
-                .getModel()).getMetaContactStatus(metaContact);
-                
         if (evt.getErrorCode() 
                 == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
 
@@ -330,13 +329,15 @@ public class ContactListPanel
                 metaContact.getDisplayName(),
                 new Date(System.currentTimeMillis()),
                 Constants.OUTGOING_MESSAGE,
-                sourceMessage.getContent());
+                sourceMessage.getContent(),
+                sourceMessage.getContentType());
         
         chatPanel.processMessage(
                 metaContact.getDisplayName(),
                 new Date(System.currentTimeMillis()),
                 Constants.ERROR_MESSAGE,
-                errorMsg);
+                errorMsg,
+                "text");
         
         chatWindowManager.openChat(chatPanel, false);
     }

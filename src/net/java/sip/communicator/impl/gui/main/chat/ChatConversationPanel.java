@@ -201,7 +201,7 @@ public class ChatConversationPanel
      * @return the formatted message
      */
     public String processMessage(String contactName, Date date,
-            String messageType, String message)
+            String messageType, String message, String contentType)
     {
         if(!isHistory
             && (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE)
@@ -228,6 +228,20 @@ public class ChatConversationPanel
         String startDivTag = "<DIV id=\"message\">";
         String startHistoryDivTag = "<DIV id=\"message\" style=\"color:#707070;\">";
         String endDivTag = "</DIV>";
+
+        String startPlainTextTag;
+        String endPlainTextTag;
+
+        if(contentType.equals("html"))
+        {
+            startPlainTextTag = "";
+            endPlainTextTag = "";
+        }
+        else
+        {
+            startPlainTextTag = "<PLAINTEXT>";
+            endPlainTextTag = "</PLAINTEXT>";
+        }
         
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -244,9 +258,11 @@ public class ChatConversationPanel
 
             chatString += timeString + contactName + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag
-                + startDivTag + "<PLAINTEXT>"
-                + processSmilies(processNewLines(processLinks(message)))
-                + "</PLAINTEXT>" + endDivTag;
+                + startDivTag
+                + startPlainTextTag
+                + formatMessage(message, contentType)
+                + endPlainTextTag
+                + endDivTag;
         }
         else if (messageType.equals(Constants.OUTGOING_MESSAGE)){
             chatString = "<h3 id=\"header\" date=\"" + dateString + "\">";
@@ -255,9 +271,11 @@ public class ChatConversationPanel
             chatString += timeString + Messages.getI18NString("me").getText()
                 + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag
-                + startDivTag + "<PLAINTEXT>"
-                + processSmilies(processNewLines(processLinks(message)))
-                + "</PLAINTEXT>" + endDivTag;
+                + startDivTag
+                + startPlainTextTag
+                + formatMessage(message, contentType)
+                + endPlainTextTag
+                + endDivTag;
         }
         else if (messageType.equals(Constants.SYSTEM_MESSAGE)) {
             chatString = "<h4 id=\"header\" date=\"" + dateString + "\">";
@@ -285,9 +303,11 @@ public class ChatConversationPanel
 
             chatString += timeString + contactName + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag
-                + startHistoryDivTag + "<PLAINTEXT>"
-                + processSmilies(processNewLines(processLinks(message)))
-                + "</PLAINTEXT>" + endDivTag;
+                + startHistoryDivTag
+                + startPlainTextTag
+                + formatMessage(message, contentType)
+                + endPlainTextTag
+                + endDivTag;
         }
         else if (messageType.equals(Constants.HISTORY_OUTGOING_MESSAGE)) {
             chatString = "<h3 id=\"header\" date=\"" + dateString + "\">";
@@ -296,9 +316,11 @@ public class ChatConversationPanel
             chatString += timeString + Messages.getI18NString("me").getText()
                 + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag
-                + startHistoryDivTag + "<PLAINTEXT>"
-                + processSmilies(processNewLines(processLinks(message)))
-                + "</PLAINTEXT>" + endDivTag;
+                + startHistoryDivTag
+                + startPlainTextTag
+                + formatMessage(message, contentType)
+                + endPlainTextTag
+                + endDivTag;
         }
         
         messagesPerPage++;
@@ -316,15 +338,15 @@ public class ChatConversationPanel
      * @param message The message text.
      */
     public String processMessage(String contactName, Date date,
-            String messageType, String message, String keyword)
+            String messageType, String message, String contentType, String keyword)
     {
         String formattedMessage = message;
 
         if(keyword != null && keyword != "") {
-            formattedMessage = processKeyword(message, keyword);
+            formattedMessage = processKeyword(message, contentType, keyword);
         }
         return this.processMessage(contactName, date,
-                    messageType, formattedMessage);
+                    messageType, formattedMessage, contentType);
     }
     
     /**
@@ -433,8 +455,23 @@ public class ChatConversationPanel
      * @param keyword the searched keyword
      * @return the formatted message
      */
-    private String processKeyword(String message, String keyword)
+    private String processKeyword(String message,
+        String contentType, String keyword)
     {
+        String startPlainTextTag;
+        String endPlainTextTag;
+
+        if(contentType.equals("html"))
+        {
+            startPlainTextTag = "";
+            endPlainTextTag = "";
+        }
+        else
+        {
+            startPlainTextTag = "<PLAINTEXT>";
+            endPlainTextTag = "</PLAINTEXT>";
+        }
+        
         Pattern p = Pattern.compile(keyword, Pattern.CASE_INSENSITIVE);
 
         Matcher m = p.matcher(message);
@@ -449,8 +486,8 @@ public class ChatConversationPanel
 
             String matchGroup = m.group().trim();
 
-            String replacement = "</PLAINTEXT><I>" + matchGroup
-                                + "</I><PLAINTEXT>";
+            String replacement = endPlainTextTag + "<I>" + matchGroup
+                                + "</I>" + startPlainTextTag;
 
             m.appendReplacement(msgBuffer,
                     GuiUtils.replaceSpecialRegExpChars(replacement));
@@ -461,13 +498,44 @@ public class ChatConversationPanel
     }
 
     /**
+     * Formats the given message. Processes all smilies chars, new lines and all
+     * the links.
+     * 
+     * @return the formatted message
+     */
+    private String formatMessage(String message, String contentType)
+    {
+        String linkProcessedString
+            = processLinks(message, contentType);
+        
+        String newLinesProcessedString
+            = processNewLines(linkProcessedString, contentType);
+        
+        return processSmilies(newLinesProcessedString, contentType);
+    }
+    
+    /**
      * Formats all links in the given message.
      *
      * @param message The source message string.
      * @return The message string with properly formatted links.
      */
-    private String processLinks(String message)
+    private String processLinks(String message, String contentType)
     {
+        String startPlainTextTag;
+        String endPlainTextTag;
+
+        if(contentType.equals("html"))
+        {
+            startPlainTextTag = "";
+            endPlainTextTag = "";
+        }
+        else
+        {
+            startPlainTextTag = "<PLAINTEXT>";
+            endPlainTextTag = "</PLAINTEXT>";
+        }
+
         String wwwURL = "(\\bwww\\.\\S+\\.\\S+/*[?#]*(\\w+[&=;?]\\w+)*\\b)";
         String protocolURL = "(\\b\\w+://\\S+/*[?#]*(\\w+[&=;?]\\w+)*\\b)";
         String url = "(" + wwwURL + "|" + protocolURL + ")";
@@ -488,13 +556,15 @@ public class ChatConversationPanel
             String replacement;
 
             if (matchGroup.startsWith("www")) {
-                replacement = "</PLAINTEXT><A href=\"" + "http://"
+                replacement = endPlainTextTag + "<A href=\"" + "http://"
                         + matchGroup + "\">"
-                        + matchGroup + "</A><PLAINTEXT>";
+                        + matchGroup + "</A>"
+                        + startPlainTextTag;
             } else {
-                replacement = "</PLAINTEXT><A href=\"" + matchGroup + "\">"
+                replacement = endPlainTextTag + "<A href=\"" + matchGroup + "\">"
                         + matchGroup
-                        + "</A><PLAINTEXT>";
+                        + "</A>"
+                        + startPlainTextTag;
             }
             m.appendReplacement(msgBuffer, replacement);
         }
@@ -509,8 +579,22 @@ public class ChatConversationPanel
      * @param message The source message string.
      * @return The message string with properly formatted new lines.
      */
-    private String processNewLines(String message)
+    private String processNewLines(String message, String contentType)
     {
+        String startPlainTextTag;
+        String endPlainTextTag;
+
+        if(contentType.equals("html"))
+        {
+            startPlainTextTag = "";
+            endPlainTextTag = "";
+        }
+        else
+        {
+            startPlainTextTag = "<PLAINTEXT>";
+            endPlainTextTag = "</PLAINTEXT>";
+        }
+        
         /*
          * <br> tags are needed to visualize a new line in the html format, but
          * when copied to the clipboard they are exported to the plain text
@@ -522,7 +606,8 @@ public class ChatConversationPanel
          * To fix this we need "&#10;" - the HTML-Code for ASCII-Character
          * No.10 (Line feed).
          */
-        return message.replaceAll("\n", "</PLAINTEXT><BR>&#10;<PLAINTEXT>");
+        return message.replaceAll("\n",
+            endPlainTextTag + "<BR>&#10;" + startPlainTextTag);
     }
 
     /**
@@ -531,8 +616,22 @@ public class ChatConversationPanel
      * @param message The source message string.
      * @return The message string with properly formated smilies.
      */
-    private String processSmilies(String message)
+    private String processSmilies(String message, String contentType)
     {
+        String startPlainTextTag;
+        String endPlainTextTag;
+
+        if(contentType.equals("html"))
+        {
+            startPlainTextTag = "";
+            endPlainTextTag = "";
+        }
+        else
+        {
+            startPlainTextTag = "<PLAINTEXT>";
+            endPlainTextTag = "</PLAINTEXT>";
+        }
+
         ArrayList smiliesList = ImageLoader.getDefaultSmiliesPack();
 
         String regexp = "";
@@ -565,9 +664,9 @@ public class ChatConversationPanel
 
             String matchGroup = m.group().trim();
 
-            String replacement = "</PLAINTEXT><IMG SRC='"
+            String replacement = endPlainTextTag + "<IMG SRC='"
                     + ImageLoader.getSmiley(matchGroup).getImagePath()
-                    + "' ALT='" + matchGroup + "'></IMG><PLAINTEXT>";
+                    + "' ALT='" + matchGroup + "'></IMG>" + startPlainTextTag;
 
             m.appendReplacement(msgBuffer,
                     GuiUtils.replaceSpecialRegExpChars(replacement));

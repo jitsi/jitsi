@@ -163,14 +163,15 @@ public class ConferenceChatPanel
                     chatRoom.getName(),
                     new Date(System.currentTimeMillis()),
                     Constants.OUTGOING_MESSAGE,
-                    msg.getContent());
+                    msg.getContent(),
+                    msg.getContentType());
     
             this.processMessage(
                     chatRoom.getName(),
                     new Date(System.currentTimeMillis()),
                     Constants.ERROR_MESSAGE,
                     Messages.getI18NString("msgDeliveryInternalError")
-                        .getText());
+                        .getText(), "text");
         }
     }
 
@@ -236,7 +237,9 @@ public class ConferenceChatPanel
 
         chatPanel.processMessage(
                 sourceMember.getName(), date,
-                Constants.INCOMING_MESSAGE, message.getContent());
+                Constants.INCOMING_MESSAGE,
+                message.getContent(),
+                message.getContentType());
 
         chatWindowManager.openChat(chatPanel, false);
 
@@ -279,7 +282,8 @@ public class ConferenceChatPanel
 
             chatPanel.processMessage(getChatWindow().getMainFrame()
                     .getAccount(protocolProvider), evt.getTimestamp(),
-                    Constants.OUTGOING_MESSAGE, msg.getContent());
+                    Constants.OUTGOING_MESSAGE, msg.getContent(),
+                    msg.getContentType());
 
             chatPanel.refreshWriteArea();
         }
@@ -341,13 +345,14 @@ public class ConferenceChatPanel
                 destMember.getName(),
                 new Date(System.currentTimeMillis()),
                 Constants.OUTGOING_MESSAGE,
-                sourceMessage.getContent());
+                sourceMessage.getContent(),
+                sourceMessage.getContentType());
 
         chatPanel.processMessage(
                 destMember.getName(),
                 new Date(System.currentTimeMillis()),
                 Constants.ERROR_MESSAGE,
-                errorMsg);
+                errorMsg, "text");
 
         chatWindowManager.openChat(chatPanel, false);
     }

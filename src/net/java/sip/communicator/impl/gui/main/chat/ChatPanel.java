@@ -330,7 +330,8 @@ public abstract class ChatPanel
                                 .getAccount(protocolProvider),
                             evt.getTimestamp(),
                             Constants.HISTORY_OUTGOING_MESSAGE,
-                            evt.getSourceMessage().getContent());
+                            evt.getSourceMessage().getContent(),
+                            evt.getSourceMessage().getContentType());
             }
             else if(o instanceof MessageReceivedEvent) {
                 MessageReceivedEvent evt = (MessageReceivedEvent)o;
@@ -341,7 +342,8 @@ public abstract class ChatPanel
                             evt.getSourceContact().getDisplayName(),
                             evt.getTimestamp(),
                             Constants.HISTORY_INCOMING_MESSAGE,
-                            evt.getSourceMessage().getContent());
+                            evt.getSourceMessage().getContent(),
+                            evt.getSourceMessage().getContentType());
                 }
             }
         }
@@ -360,11 +362,11 @@ public abstract class ChatPanel
      * @param message The message text.
      */
     public void processMessage(String contactName, Date date,
-            String messageType, String message)
+            String messageType, String message, String contentType)
     {
         String processedMessage
             = this.conversationPanel.processMessage(contactName, date,
-                                            messageType, message);
+                                            messageType, message, contentType);
         this.conversationPanel.appendMessageToEnd(processedMessage);
     }
 
@@ -381,10 +383,10 @@ public abstract class ChatPanel
      * @return a string containingthe processed message.
      */
     public String processHistoryMessage(String contactName, Date date,
-            String messageType, String message){
+            String messageType, String message, String contentType){
         String processedMessage
             = this.conversationPanel.processMessage(contactName, date,
-                                            messageType, message);
+                                            messageType, message, contentType);
         return processedMessage;
     }
 
