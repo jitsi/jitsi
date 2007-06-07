@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.yahooconstants.*;
 import net.java.sip.communicator.util.*;
 
+import ymsg.support.*;
 import ymsg.network.*;
 import ymsg.network.event.*;
 
@@ -128,15 +129,19 @@ public class OperationSetBasicInstantMessagingYahooImpl
 
     /**
      * Create a Message instance for sending a simple text messages with
-     * default (text/plain) content type and encoding.
-     *
+     * default (html) content type and encoding.
+     * As no indications in the protocol is it html or not. No harm
+     * to set all messages html - doesn't affect the appearance of the gui
+     * 
      * @param messageText the string content of the message.
      * @return Message the newly created message
      */
     public Message createMessage(String messageText)
     {
-        return new MessageYahooImpl(messageText, DEFAULT_MIME_TYPE
-                                  , DEFAULT_MIME_ENCODING, null);
+        return new MessageYahooImpl(
+            new MessageDecoder().decodeToHTML(messageText), 
+            "html", 
+            DEFAULT_MIME_ENCODING, null);
     }
 
     /**
