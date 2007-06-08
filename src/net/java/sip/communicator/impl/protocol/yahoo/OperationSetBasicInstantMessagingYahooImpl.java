@@ -299,7 +299,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
             //to set all messages html - doesn't affect the appearance of the gui
             Message newMessage = createMessage(
                 new MessageDecoder().decodeToHTML(ev.getMessage()).getBytes(),
-                "html",
+                "text/html",
                 DEFAULT_MIME_ENCODING,
                 null);
 
