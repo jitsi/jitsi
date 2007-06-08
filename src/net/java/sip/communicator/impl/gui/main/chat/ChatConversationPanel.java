@@ -92,6 +92,8 @@ public class ChatConversationPanel
     private int messagesPerPage = 0;
     
     private boolean isHistory = false;
+
+    private static final String HTML_CONTENT_TYPE = "text/html";
     
     /**
      * Creates an instance of <tt>ChatConversationPanel</tt>.
@@ -232,7 +234,7 @@ public class ChatConversationPanel
         String startPlainTextTag;
         String endPlainTextTag;
 
-        if(contentType.equals("html"))
+        if(contentType.equals(HTML_CONTENT_TYPE))
         {
             startPlainTextTag = "";
             endPlainTextTag = "";
@@ -461,7 +463,7 @@ public class ChatConversationPanel
         String startPlainTextTag;
         String endPlainTextTag;
 
-        if(contentType.equals("html"))
+        if(contentType.equals(HTML_CONTENT_TYPE))
         {
             startPlainTextTag = "";
             endPlainTextTag = "";
@@ -525,7 +527,7 @@ public class ChatConversationPanel
         String startPlainTextTag;
         String endPlainTextTag;
 
-        if(contentType.equals("html"))
+        if(contentType.equals(HTML_CONTENT_TYPE))
         {
             startPlainTextTag = "";
             endPlainTextTag = "";
@@ -584,7 +586,7 @@ public class ChatConversationPanel
         String startPlainTextTag;
         String endPlainTextTag;
 
-        if(contentType.equals("html"))
+        if(contentType.equals(HTML_CONTENT_TYPE))
         {
             startPlainTextTag = "";
             endPlainTextTag = "";
@@ -621,7 +623,7 @@ public class ChatConversationPanel
         String startPlainTextTag;
         String endPlainTextTag;
 
-        if(contentType.equals("html"))
+        if(contentType.equals(HTML_CONTENT_TYPE))
         {
             startPlainTextTag = "";
             endPlainTextTag = "";
