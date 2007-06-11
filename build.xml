@@ -854,6 +854,7 @@
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
     	bundle-plugin-extended-callhistory-search,
         bundle-rss,bundle-plugin-rssaccregwizz,
+        bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,
     	bundle-pluginmanager"/>
 
     <!--BUNDLE-HISTORY-->
@@ -1585,6 +1586,31 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/rssaccregwizz"/>
             <zipfileset dir="resources/images/rss"
                             prefix="resources/images/rss"/>
+        </jar>
+    </target>
+    
+    <!-- BUNDLE-ZEROCONF -->
+    <target name="bundle-zeroconf">
+        <!-- Creates a bundle containing the Zeroconf impl of the protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/protocol-zeroconf.jar"
+            manifest="src/net/java/sip/communicator/impl/protocol/zeroconf/zeroconf.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/zeroconf"
+                prefix="net/java/sip/communicator/impl/protocol/zeroconf"/>
+            <zipfileset dir="resources/images/zeroconf"
+                            prefix="resources/images/zeroconf"/>
+        </jar>
+    </target>
+        
+  
+    <!-- BUNDLE-PLUGIN-ZEROCONFACCREGWIZZ -->
+    <target name="bundle-plugin-zeroconfaccregwizz">
+        <!-- Creates a bundle for the plugin Zeroconf Account Registration Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/zeroconfaccregwizz.jar"
+            manifest="src/net/java/sip/communicator/plugin/zeroconfaccregwizz/zeroconfaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/zeroconfaccregwizz"
+                prefix="net/java/sip/communicator/plugin/zeroconfaccregwizz"/>
+            <zipfileset dir="resources/images/zeroconf"
+                            prefix="resources/images/zeroconf"/>
         </jar>
     </target>
 </project>

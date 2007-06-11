@@ -65,4 +65,8 @@ public interface ProtocolNames
      */
     public static final String SIP_COMMUNICATOR_MOCK  = "sip-communicator-mock";
 
+    /**
+     * The Zeroconf protcool.
+     */
+    public static final String ZEROCONF  = "Zeroconf";
 }
