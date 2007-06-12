@@ -1320,22 +1320,18 @@ public class ProtocolProviderServiceSipImpl
     {
         if(this.genericContactHeader == null)
         {
-                genericContactHeader = headerFactory.createContactHeader(
-                    ourSipAddress);
-                try
-                {
-                    genericContactHeader.getAddress()
-                        .setDisplayName(getOurDisplayName());
-                }
-                catch (ParseException ex)
-                {
-                    logger.error(
-                        "Failed to set a display name on a Contact header."
-                        , ex);
-                }
-                logger.debug("generated contactHeader:"
-                             + genericContactHeader);
-
+            try
+            {
+                genericContactHeader = getContactHeader( 
+                    sipRegistrarConnection.getRegistrarAddress(),  
+                    sipRegistrarConnection.getRegistrarListeningPoint());
+            }
+            catch(OperationFailedException ex)
+            {
+                logger.error("Failed to create Contact header.", ex);
+            }
+            logger.debug("generated contactHeader:"
+                         + genericContactHeader);
         }
         return genericContactHeader;
     }
@@ -1344,7 +1340,7 @@ public class ProtocolProviderServiceSipImpl
      * Retrns a Contact header containing a sip URI base on a localhost address
      * and thereforeusable in REGISTER requests only.
      *
-     * @param registrarAddress the address of the registrar that this contact
+     * @param targetAddress the address of the registrar that this contact
      * header is meant for.
      * @param srcListeningPoint the listening point that will be used when
      * accessing the registrar.
@@ -1353,8 +1349,8 @@ public class ProtocolProviderServiceSipImpl
      * @throws OperationFailedException if we fail constructing the contact
      * header.
      */
-    ContactHeader getRegistrationContactHeader(InetAddress registrarAddress,
-                                               ListeningPoint srcListeningPoint)
+    ContactHeader getContactHeader(InetAddress targetAddress,
+                                   ListeningPoint srcListeningPoint)
         throws OperationFailedException
     {
         ContactHeader registrationContactHeader = null;
@@ -1362,7 +1358,7 @@ public class ProtocolProviderServiceSipImpl
         {
             InetSocketAddress localAddress = SipActivator
                 .getNetworkAddressManagerService()
-                    .getPublicAddressFor(registrarAddress
+                    .getPublicAddressFor(targetAddress
                                          , srcListeningPoint.getPort());
 
             SipURI contactURI = addressFactory.createSipURI(

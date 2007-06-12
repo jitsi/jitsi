@@ -301,7 +301,7 @@ public class SipRegistrarConnection
 
         //Contact Header (should contain IP)
         ContactHeader contactHeader
-            = sipProvider.getRegistrationContactHeader(
+            = sipProvider.getContactHeader(
                 registrarAddress, getRegistrarListeningPoint());
 
         //add expires in the contact header as well in case server likes it
@@ -737,7 +737,7 @@ public class SipRegistrarConnection
      * @return the listening point that should be used for communiction with our
      * current registrar.
      */
-    private ListeningPoint getRegistrarListeningPoint()
+    ListeningPoint getRegistrarListeningPoint()
     {
         return sipProvider.getListeningPoint(registrarURI.getTransportParam());
     }
