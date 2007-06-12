@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.*;
 public class ClientThread 
     extends Thread
 {
-    private static final Logger logger = Logger.getLogger(BonjourService.class);
+    private static final Logger logger = Logger.getLogger(ClientThread.class);
     
     private OperationSetBasicInstantMessagingZeroconfImpl opSetBasicIM;
     private OperationSetTypingNotificationsZeroconfImpl opSetTyping;
@@ -71,7 +71,6 @@ public class ClientThread
             return this.streamState;
         }
     }
-    
     
     /**
      * Creates a new instance of ClientThread reponsible 
@@ -203,13 +202,17 @@ public class ClientThread
         
         logger.debug("ZEROCONF: received message ["+temp+"]");
         
-        int MessageType = MessageZeroconfImpl.MESSAGE;
+        int messageType = MessageZeroconfImpl.MESSAGE;
         
         if ((str.indexOf("<id>") >= 0) && (str.indexOf("</id>") >= 0))
-            MessageType = MessageZeroconfImpl.TYPING;
+            messageType = MessageZeroconfImpl.TYPING;
         
         MessageZeroconfImpl msg = 
-            new MessageZeroconfImpl(temp, null, MessageType);
+            new MessageZeroconfImpl(
+                    temp, 
+                    null, 
+                    OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE, 
+                    messageType);
         
         return msg;
     }
@@ -261,8 +264,6 @@ public class ClientThread
                 else if (contact.getClientThread() == null)
                     contact.setClientThread(this);
                 
-                MessageReceivedEvent msgReceivedEvt = 
-                    new MessageReceivedEvent(msg, (Contact)contact, new Date());
                 opSetBasicIM.fireMessageReceived(msg, contact);
                 
                 opSetTyping.

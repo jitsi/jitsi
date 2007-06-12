@@ -553,10 +553,10 @@ public class ContactGroupZeroconfImpl
         ContactGroupZeroconfImpl zeroconfGroup
             = (ContactGroupZeroconfImpl)obj;
 
-        if(    ! zeroconfGroup.getGroupName().equals(getGroupName())
-            || ! zeroconfGroup.getUID().equals(getUID())
-            || zeroconfGroup.countContacts() != countContacts()
-            || zeroconfGroup.countSubgroups() != countSubgroups())
+        if(!zeroconfGroup.getGroupName().equals(getGroupName()) || 
+            !zeroconfGroup.getUID().equals(getUID()) ||
+            zeroconfGroup.countContacts() != countContacts() ||
+            zeroconfGroup.countSubgroups() != countSubgroups())
             return false;
 
         //traverse child contacts

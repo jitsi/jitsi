@@ -23,9 +23,8 @@ import net.java.sip.communicator.util.*;
 public class OperationSetBasicInstantMessagingZeroconfImpl
     implements OperationSetBasicInstantMessaging
 {
-    
       private static final Logger logger
-        = Logger.getLogger(ContactGroupZeroconfImpl.class);
+        = Logger.getLogger(OperationSetBasicInstantMessagingZeroconfImpl.class);
     
     /**
      * Currently registered message listeners.
@@ -85,7 +84,8 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
                                  String contentEncoding, String subject)
     {
         return new MessageZeroconfImpl(new String(content), 
-                                  contentEncoding, MessageZeroconfImpl.MESSAGE);
+                                  contentEncoding, contentType, 
+                                  MessageZeroconfImpl.MESSAGE);
     }
 
     /**
@@ -98,7 +98,9 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
     public Message createMessage(String messageText)
     {
         return new MessageZeroconfImpl(messageText, 
-                            DEFAULT_MIME_ENCODING, MessageZeroconfImpl.MESSAGE);
+                            DEFAULT_MIME_ENCODING, 
+                            DEFAULT_MIME_TYPE,
+                            MessageZeroconfImpl.MESSAGE);
     }
 
     /**
@@ -132,8 +134,8 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
                "The specified contact is not a Zeroconf contact."
                + to);
         
-        MessageZeroconfImpl msg = new MessageZeroconfImpl(message.getContent(), 
-                null, MessageZeroconfImpl.MESSAGE);
+        MessageZeroconfImpl msg = 
+            (MessageZeroconfImpl)createMessage(message.getContent());
         
         MessageDeliveredEvent msgDeliveredEvt
             = new MessageDeliveredEvent(

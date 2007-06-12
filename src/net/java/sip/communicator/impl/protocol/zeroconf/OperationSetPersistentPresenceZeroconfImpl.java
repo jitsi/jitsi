@@ -953,19 +953,18 @@ public class OperationSetPersistentPresenceZeroconfImpl
     {
         BundleContext bc = ZeroconfActivator.getBundleContext();
 
-        String osgiQuery = "(&"
-                + "(" + ProtocolProviderFactory.PROTOCOL
-                + "=Zeroconf)"
-                + "(" + ProtocolProviderFactory.USER_ID
-                + "=" + zeroconfUserID + ")"
-                + ")";
+        String osgiQuery = "(&" +
+                "(" + ProtocolProviderFactory.PROTOCOL +
+                "=" + ProtocolNames.ZEROCONF + ")" +
+                "(" + ProtocolProviderFactory.USER_ID +
+                "=" + zeroconfUserID + "))";
 
         ServiceReference[] refs = null;
         try
         {
             refs = bc.getServiceReferences(
-                ProtocolProviderService.class.getName()
-                ,osgiQuery);
+                ProtocolProviderService.class.getName(),
+                osgiQuery);
         }
         catch (InvalidSyntaxException ex)
         {
@@ -981,57 +980,6 @@ public class OperationSetPersistentPresenceZeroconfImpl
 
         return null;
     }
-
-    /**
-     * Looks for zeroconf protocol providers that have added us to their
-     * contact list and returns list of all contacts representing us in these
-     * providers.
-     *
-     * @return a list of all contacts in other providers' contact lists that
-     * point to us.
-     */
-    public List findContactsPointingToUs()
-    {
-        List contacts = new LinkedList();
-        BundleContext bc = ZeroconfActivator.getBundleContext();
-
-        String osgiQuery =
-                "(" + ProtocolProviderFactory.PROTOCOL
-                + "=Zeroconf)";
-
-        ServiceReference[] refs = null;
-        try
-        {
-            refs = bc.getServiceReferences(
-                ProtocolProviderService.class.getName()
-                ,osgiQuery);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            logger.error("Failed to execute the following osgi query: "
-                         + osgiQuery
-                         , ex);
-        }
-
-        for (int i =0; refs != null && i < refs.length; i++)
-        {
-            ProtocolProviderServiceZeroconfImpl gibProvider
-               = (ProtocolProviderServiceZeroconfImpl)bc.getService(refs[i]);
-
-           OperationSetPersistentPresenceZeroconfImpl opSetPersPresence
-               = (OperationSetPersistentPresenceZeroconfImpl)gibProvider
-                    .getOperationSet(OperationSetPersistentPresence.class);
-
-            Contact contact = opSetPersPresence.findContactByID(
-                parentProvider.getAccountID().getUserID());
-
-            if (contact != null)
-                contacts.add(contact);
-        }
-
-        return contacts;
-    }
-
 
     /**
      * Creates and returns a unresolved contact group from the specified
@@ -1140,9 +1088,9 @@ public class OperationSetPersistentPresenceZeroconfImpl
      */
     public ContactGroupZeroconfImpl getNonPersistentGroup()
     {
-        for (int i = 0
-             ; i < getServerStoredContactListRoot().countSubgroups()
-             ; i++)
+        for (int i = 0;
+             i < getServerStoredContactListRoot().countSubgroups();
+             i++)
         {
             ContactGroupZeroconfImpl gr =
                 (ContactGroupZeroconfImpl)getServerStoredContactListRoot()

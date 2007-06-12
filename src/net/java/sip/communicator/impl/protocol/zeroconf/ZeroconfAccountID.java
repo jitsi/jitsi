@@ -18,9 +18,9 @@ public class ZeroconfAccountID
     extends AccountID
 {
     /* Firstname, lastname, mail address */
-    String first = null;
-    String last = null;
-    String mail = null;
+    private String first = null;
+    private String last = null;
+    private String mail = null;
     
     private boolean rememberContacts = false;
     
@@ -32,10 +32,10 @@ public class ZeroconfAccountID
      */
     ZeroconfAccountID(String userID, Map accountProperties)
     {
-        super(userID
-              , accountProperties
-              , "Zeroconf"
-              , "zeroconf.org");
+        super(userID, 
+              accountProperties, 
+              ProtocolNames.ZEROCONF,
+              "zeroconf.org");
         
         first = (String)accountProperties.get("first");
         last = (String)accountProperties.get("last");

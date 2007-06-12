@@ -758,7 +758,9 @@ public abstract class DNSRecord extends DNSEntry
     public String toString(String other)
     {
         return toString("record", ttl + "/" + 
-            getRemainingTTL(System.currentTimeMillis()) + "," + other);
+            getRemainingTTL(System.currentTimeMillis()) 
+//            + "," + other
+            );
     }
 }
 

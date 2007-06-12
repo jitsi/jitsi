@@ -24,7 +24,7 @@ public class MessageZeroconfImpl
     private String textContent = null;
 
     /**
-     * The content type of the message. (text/plain if null)
+     * The content type of the message.
      */
     private String contentType = null;
 
@@ -106,20 +106,38 @@ public class MessageZeroconfImpl
      * Creates a message instance according to the specified parameters.
      * @param type Type of message
      * @param content the message body
+     * @param contentType of the message
+     * @param contentEncoding message encoding or null for UTF8
+     */
+    public MessageZeroconfImpl(String content,
+                               String contentEncoding,
+                               String contentType,
+                               int type)
+    {
+        this.textContent = content;
+        this.contentEncoding = contentEncoding;
+        this.contentType = contentType;
+        this.type = type;
+
+        //generate the uid
+        this.messageUID = String.valueOf(System.currentTimeMillis())
+            + String.valueOf(hashCode());
+    }
+    
+    /**
+     * Creates a message instance according to the specified parameters.
+     * @param type Type of message
+     * @param content the message body
      * @param contentEncoding message encoding or null for UTF8
      */
     public MessageZeroconfImpl(String content,
                                String contentEncoding,
                                int type)
     {
-        this.textContent = content;
-        this.contentEncoding = contentEncoding;
-        this.type = type;
-
-        //generate the uid
-        this.messageUID = String.valueOf(System.currentTimeMillis())
-            + String.valueOf(hashCode());
-
+        this(content, 
+            contentEncoding, 
+            OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE, 
+            type);
     }
 
     /**
