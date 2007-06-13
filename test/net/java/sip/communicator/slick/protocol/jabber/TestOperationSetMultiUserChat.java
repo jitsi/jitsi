@@ -6,13 +6,12 @@
  */
 package net.java.sip.communicator.slick.protocol.jabber;
 
-import net.java.sip.communicator.util.*;
+import java.util.*;
+
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import java.util.*;
-import net.java.sip.communicator.service.protocol.event.
-    ChatRoomMemberEvent;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Creates a chat room on the server, then tries to make both users join the
@@ -326,7 +325,7 @@ public class TestOperationSetMultiUserChat
     }
 
     private class ParticipantStatusEventCollector
-        implements ChatRoomMemberListener
+        implements ChatRoomMemberPresenceListener
     {
 
         /**
@@ -334,8 +333,8 @@ public class TestOperationSetMultiUserChat
          *
          * @param event the event containing the source call.
          */
-        public void memberStatusChanged(
-                        ChatRoomMemberEvent evt)
+        public void memberPresenceChanged(
+                        ChatRoomMemberPresenceChangeEvent evt)
         {
             synchronized(this)
             {

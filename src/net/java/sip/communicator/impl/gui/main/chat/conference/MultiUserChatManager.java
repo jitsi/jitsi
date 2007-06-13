@@ -16,8 +16,8 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Yana Stamcheva
  */
 public class MultiUserChatManager
-    implements  InvitationListener,
-                InvitationRejectionListener
+    implements  ChatRoomInvitationListener,
+                ChatRoomInvitationRejectionListener
 {
     private MainFrame mainFrame;
     
@@ -32,13 +32,15 @@ public class MultiUserChatManager
         this.mainFrame = mainFrame;
     }
     
-    public void invitationReceived(InvitationReceivedEvent evt)
+    public void invitationReceived(ChatRoomInvitationReceivedEvent evt)
     {
+        // TODO Auto-generated method stub
         
     }
 
-    public void invitationRejected(InvitationRejectedEvent evt)
+    public void invitationRejected(ChatRoomInvitationRejectedEvent evt)
     {
-    
+        // TODO Auto-generated method stub
+        
     }    
 }

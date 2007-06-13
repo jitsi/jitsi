@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+
 import org.jivesoftware.smack.*;
 import net.java.sip.communicator.util.*;
 import org.jivesoftware.smackx.muc.MultiUserChat;
@@ -72,7 +73,7 @@ public class OperationSetMultiUserChatJabberImpl
      *
      * @param listener an invitation listener.
      */
-    public void addInvitationListener(InvitationListener listener)
+    public void addInvitationListener(ChatRoomInvitationListener listener)
     {
         synchronized(invitationListeners)
         {
@@ -87,7 +88,7 @@ public class OperationSetMultiUserChatJabberImpl
      *
      * @param listener the invitation listener to remove.
      */
-    public void removeInvitationListener(InvitationListener listener)
+    public void removeInvitationListener(ChatRoomInvitationListener listener)
     {
         synchronized(invitationListeners)
         {
@@ -103,7 +104,7 @@ public class OperationSetMultiUserChatJabberImpl
      * rejection events.
      */
     public void addInvitationRejectionListener(
-                                        InvitationRejectionListener listener)
+                                ChatRoomInvitationRejectionListener listener)
     {
         synchronized(invitationRejectionListeners)
         {
@@ -118,8 +119,8 @@ public class OperationSetMultiUserChatJabberImpl
      *
      * @param listener the invitation listener to remove.
      */
-    public void removeInvitationRejectionListener(InvitationRejectionListener
-                                                  listener)
+    public void removeInvitationRejectionListener(
+                                ChatRoomInvitationRejectionListener listener)
     {
         synchronized(invitationRejectionListeners)
         {
@@ -562,5 +563,11 @@ public class OperationSetMultiUserChatJabberImpl
     public ChatRoomJabberImpl getChatRoom(String chatRoomName)
     {
         return (ChatRoomJabberImpl)this.chatRoomCache.get(chatRoomName);
+    }
+
+    public List getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
+        throws OperationFailedException, OperationNotSupportedException
+    {
+        return null;
     }
 }

@@ -102,7 +102,7 @@ public class ChatRoomJabberImpl
      * @param listener the <tt>ChatRoomChangeListener</tt> that is to be
      * registered for <tt>ChatRoomChangeEvent</tt>-s.
      */
-    public void addChatRoomPropertyChangeListener(
+    public void addPropertyChangeListener(
         ChatRoomPropertyChangeListener listener)
     {
         synchronized(chatRoomPropertyChangeListeners)
@@ -118,7 +118,7 @@ public class ChatRoomJabberImpl
      *
      * @param listener the <tt>ChatRoomChangeListener</tt> to remove.
      */
-    public void removeChatRoomPropertyChangeListener(
+    public void removePropertyChangeListener(
         ChatRoomPropertyChangeListener listener)
     {
         synchronized(chatRoomPropertyChangeListeners)
@@ -133,8 +133,8 @@ public class ChatRoomJabberImpl
      *
      * @param listener a local user status listener.
      */
-    public void addLocalUserStatusListener(
-                            ChatRoomLocalUserStatusListener listener)
+    public void addLocalUserPresenceListener(
+                            ChatRoomLocalUserPresenceListener listener)
     {
         synchronized(localUserStatusListeners)
         {
@@ -150,8 +150,8 @@ public class ChatRoomJabberImpl
      *
      * @param listener a local user status listener.
      */
-    public void removeLocalUserStatusListener(ChatRoomLocalUserStatusListener
-                                              listener)
+    public void removeLocalUserPresenceListener(
+            ChatRoomLocalUserPresenceListener listener)
     {
         synchronized(localUserStatusListeners)
         {
@@ -196,7 +196,8 @@ public class ChatRoomJabberImpl
      *
      * @param listener a participant status listener.
      */
-    public void addMemberListener(ChatRoomMemberListener listener)
+    public void addMemberPresenceListener(
+        ChatRoomMemberPresenceListener listener)
     {
         synchronized(memberListeners)
         {
@@ -212,7 +213,8 @@ public class ChatRoomJabberImpl
      *
      * @param listener a participant status listener.
      */
-    public void removeMemberListener(ChatRoomMemberListener listener)
+    public void removeMemberPresenceListener(
+        ChatRoomMemberPresenceListener listener)
     {
         synchronized(memberListeners)
         {
@@ -795,5 +797,75 @@ public class ChatRoomJabberImpl
         {
             /** @todo implement ownershipGranted() */
         }
+    }
+
+    public void addLocalUserRoleListener(
+        ChatRoomLocalUserRoleListener listener)
+    {   
+    }
+
+    public void removelocalUserRoleListener(
+        ChatRoomLocalUserRoleListener listener)
+    {   
+    }
+
+    public void addMemberRoleListener(ChatRoomMemberRoleListener listener)
+    {   
+    }
+
+    public void removeMemberRoleListener(ChatRoomMemberRoleListener listener)
+    {   
+    }
+
+    public void setPassword(String password)
+        throws OperationFailedException
+    {   
+    }
+
+    public String getPassword()
+    {
+        return null;
+    }
+
+    public void addBanMask(String banMask) throws OperationFailedException
+    {   
+    }
+
+    public void removeBanMask(String banMask) throws OperationFailedException
+    {   
+    }
+
+    public void setUserLimit(int userLimit) throws OperationFailedException
+    {   
+    }
+
+    public int getUserLimit()
+    {
+        return 0;
+    }
+
+    public void addConfigParam(ChatRoomConfigParam configParam)
+        throws OperationFailedException
+    {   
+    }
+
+    public void removeConfigParam(ChatRoomConfigParam configParam)
+        throws OperationFailedException
+    {   
+    }
+
+    public Iterator getSupportedConfigParams()
+    {
+        return null;
+    }
+
+    public Iterator getConfiguration()
+    {
+        return null;
+    }
+
+    public Iterator getBanList()
+    {
+        return null;
     }
 }
