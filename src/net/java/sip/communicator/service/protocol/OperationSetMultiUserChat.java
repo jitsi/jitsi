@@ -45,19 +45,20 @@ public interface OperationSetMultiUserChat
     public List getCurrentlyJoinedChatRooms();
 
     /**
-     * Returns a list of the chat rooms that <tt>contact</tt> has joined and is
-     * currently active in.
+     * Returns a list of the chat rooms that <tt>chatRoomMember</tt> has joined
+     * and is currently active in.
      *
-     * @param contact the contact whose current ChatRooms we will be querying.
-     * @return a list of the chat rooms that <tt>contact</tt> has joined and is
-     * currently active in.
+     * @param chatRoomMember the chatRoomMember whose current ChatRooms we will
+     * be querying.
+     * @return a list of the chat rooms that <tt>chatRoomMember</tt> has
+     * joined and is currently active in.
      *
      * @throws OperationFailedException if an error occurs while trying to
      * discover the room on the server.
      * @throws OperationNotSupportedException if the server does not support
      * multi user chat
      */
-    public List getCurrentlyJoinedChatRooms(Contact contact)
+    public List getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
         throws OperationFailedException, OperationNotSupportedException;
 
     /**
@@ -82,8 +83,8 @@ public interface OperationSetMultiUserChat
         throws OperationFailedException, OperationNotSupportedException;
 
     /**
-     * Returns a reference to a chatRoom named <tt>roomName</tt> or null if
-     * no such room exists.
+     * Returns a reference to a chatRoom named <tt>roomName</tt> or null if no
+     * such room exists.
      * <p>
      * @param roomName the name of the <tt>ChatRoom</tt> that we're looking for.
      * @return the <tt>ChatRoom</tt> named <tt>roomName</tt> or null if no such
@@ -95,7 +96,7 @@ public interface OperationSetMultiUserChat
      * multi user chat
      */
     public ChatRoom findRoom(String roomName)
-        throws OperationFailedException, OperationNotSupportedException;
+    	throws OperationFailedException, OperationNotSupportedException;
 
     /**
      * Informs the sender of an invitation that we decline their invitation.
@@ -110,7 +111,7 @@ public interface OperationSetMultiUserChat
      *
      * @param listener an invitation listener.
      */
-    public void addInvitationListener(InvitationListener listener);
+    public void addInvitationListener(ChatRoomInvitationListener listener);
 
     /**
      * Removes <tt>listener</tt> from the list of invitation listeners
@@ -118,7 +119,7 @@ public interface OperationSetMultiUserChat
      *
      * @param listener the invitation listener to remove.
      */
-    public void removeInvitationListener(InvitationListener listener);
+    public void removeInvitationListener(ChatRoomInvitationListener listener);
 
     /**
      * Adds a listener to invitation notifications. The listener will be fired
@@ -127,7 +128,7 @@ public interface OperationSetMultiUserChat
      * @param listener an invitation listener.
      */
     public void addInvitationRejectionListener(
-                                        InvitationRejectionListener listener);
+                                ChatRoomInvitationRejectionListener listener);
 
     /**
      * Removes <tt>listener</tt> from the list of invitation listeners
@@ -136,7 +137,7 @@ public interface OperationSetMultiUserChat
      * @param listener the invitation listener to remove.
      */
     public void removeInvitationRejectionListener(
-                                        InvitationRejectionListener listener);
+                                ChatRoomInvitationRejectionListener listener);
 
     /**
      * Returns true if <tt>contact</tt> supports multi user chat sessions.
