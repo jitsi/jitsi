@@ -234,7 +234,7 @@ public class ChatConversationPanel
         String startPlainTextTag;
         String endPlainTextTag;
 
-        if(contentType.equals(HTML_CONTENT_TYPE))
+        if(contentType != null && contentType.equals(HTML_CONTENT_TYPE))
         {
             startPlainTextTag = "";
             endPlainTextTag = "";
@@ -463,7 +463,7 @@ public class ChatConversationPanel
         String startPlainTextTag;
         String endPlainTextTag;
 
-        if(contentType.equals(HTML_CONTENT_TYPE))
+        if(contentType != null && contentType.equals(HTML_CONTENT_TYPE))
         {
             startPlainTextTag = "";
             endPlainTextTag = "";
@@ -527,7 +527,7 @@ public class ChatConversationPanel
         String startPlainTextTag;
         String endPlainTextTag;
 
-        if(contentType.equals(HTML_CONTENT_TYPE))
+        if(contentType != null && contentType.equals(HTML_CONTENT_TYPE))
         {
             startPlainTextTag = "";
             endPlainTextTag = "";
@@ -586,7 +586,7 @@ public class ChatConversationPanel
         String startPlainTextTag;
         String endPlainTextTag;
 
-        if(contentType.equals(HTML_CONTENT_TYPE))
+        if(contentType != null && contentType.equals(HTML_CONTENT_TYPE))
         {
             startPlainTextTag = "";
             endPlainTextTag = "";
@@ -623,7 +623,7 @@ public class ChatConversationPanel
         String startPlainTextTag;
         String endPlainTextTag;
 
-        if(contentType.equals(HTML_CONTENT_TYPE))
+        if(contentType != null && contentType.equals(HTML_CONTENT_TYPE))
         {
             startPlainTextTag = "";
             endPlainTextTag = "";
