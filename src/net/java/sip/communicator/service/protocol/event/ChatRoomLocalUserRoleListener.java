@@ -13,7 +13,7 @@ import java.util.*;
  * user participant in a particular chat room. Changes could be us being granted
  * any of the roles defined in <tt>ChatRoomMemberRole</tt>.
  * 
- * @see ChatRoomMemberRole
+ * @see @see net.java.sip.communicator.service.protocol.ChatRoomMemberRole
  * 
  * @author Stephane Remy
  */
