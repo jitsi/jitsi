@@ -482,6 +482,9 @@ public class CallManager
         if (mainFrame.getState() == JFrame.ICONIFIED)
             mainFrame.setState(JFrame.NORMAL);
 
+        if(!mainFrame.isVisible())
+            mainFrame.setVisible(true);
+
         mainFrame.toFront();
 
         this.callButton.setEnabled(true);
