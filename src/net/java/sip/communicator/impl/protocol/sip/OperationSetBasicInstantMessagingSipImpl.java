@@ -6,12 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.text.ParseException;
-import java.util.*;
 import java.io.*;
-
+import java.net.*;
+import java.text.*;
+import java.util.*;
 import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.header.*;
@@ -53,7 +51,7 @@ public class OperationSetBasicInstantMessagingSipImpl
     /**
      * Hashtable containing the CSeq of each discussion
      */
-    private Hashtable cseqs = null;
+    private long seqN = hashCode();
 
     /**
      * Hashtable containing the message sent
@@ -70,10 +68,12 @@ public class OperationSetBasicInstantMessagingSipImpl
         ProtocolProviderServiceSipImpl provider)
     {
         this.sipProvider = provider;
-        this.cseqs = new Hashtable();
         this.sentMsg = new Hashtable(3);
         provider.addRegistrationStateChangeListener(new
             RegistrationStateListener());
+
+        sipProvider.registerMethodProcessor(Request.MESSAGE,
+                                            new SipMessageListener());
     }
 
     /**
@@ -262,8 +262,9 @@ public class OperationSetBasicInstantMessagingSipImpl
 
         // we register the reference to this message to retrieve it when
         // we'll receive the response message
-        Integer key = new Integer(to.hashCode() + ((Long) this.cseqs.get(to))
-                .intValue() - 1);
+        String key = ((CallIdHeader)mes.getHeader(CallIdHeader.NAME))
+            .getCallId();
+
         this.sentMsg.put(key, message);
     }
 
@@ -315,22 +316,11 @@ public class OperationSetBasicInstantMessagingSipImpl
         //CSeq
         CSeqHeader cSeqHeader = null;
 
-        // find the next CSeq value for this contact
-        long seqN = 1;
-        if (this.cseqs.containsKey(to))
-        {
-            seqN = ((Long)this.cseqs.get(to)).longValue();
-            this.cseqs.put(to, new Long(seqN + 1));
-        }
-        else
-        {
-            this.cseqs.put(to, new Long(seqN + 1));
-        }
 
         try
         {
             cSeqHeader = this.sipProvider.getHeaderFactory()
-                .createCSeqHeader(seqN, Request.MESSAGE);
+                .createCSeqHeader(seqN++, Request.MESSAGE);
         }
         catch (InvalidArgumentException ex)
         {
@@ -508,12 +498,12 @@ public class OperationSetBasicInstantMessagingSipImpl
     /**
      * Parses the content type of a message and return the type
      *
-     * @param m the Message to scan
+     * @param msg the Message to scan
      * @return the type of the message
      */
-    private String getType(Message m)
+    private String getType(Message msg)
     {
-        String type = m.getContentType();
+        String type = msg.getContentType();
 
         return type.substring(0, type.indexOf('/'));
     }
@@ -521,12 +511,12 @@ public class OperationSetBasicInstantMessagingSipImpl
     /**
      * Parses the content type of a message and return the subtype
      *
-     * @param m the Message to scan
+     * @param msg the Message to scan
      * @return the subtype of the message
      */
-    private String getSubType(Message m)
+    private String getSubType(Message msg)
     {
-        String subtype = m.getContentType();
+        String subtype = msg.getContentType();
 
         return subtype.substring(subtype.indexOf('/') + 1);
     }
@@ -574,9 +564,6 @@ public class OperationSetBasicInstantMessagingSipImpl
                 opSetPersPresence = (OperationSetPersistentPresenceSipImpl)
                     sipProvider.getSupportedOperationSets()
                     .get(OperationSetPersistentPresence.class.getName());
-
-                sipProvider.registerMethodProcessor(Request.MESSAGE,
-                    new SipMessageListener());
             }
         }
     }
@@ -638,9 +625,87 @@ public class OperationSetBasicInstantMessagingSipImpl
             // nothing to do
         }
 
+        /**
+         *
+         * @param timeoutEvent TimeoutEvent
+         */
         public void processTimeout(TimeoutEvent timeoutEvent)
         {
-            /** @todo implement a retransmit ?? */
+            // this is normaly handled by the SIP stack
+            logger.error("Timeout event thrown : " + timeoutEvent.toString());
+
+            if (timeoutEvent.isServerTransaction()) {
+                logger.warn("The sender has probably not received our OK");
+                return;
+            }
+
+            Request req = timeoutEvent.getClientTransaction().getRequest();
+
+            // get the content
+            String content = null;
+            try
+            {
+                content = new String(
+                    req.getRawContent()
+                    , req.getContentEncoding()
+                        .getEncoding());
+            }
+            catch (UnsupportedEncodingException ex)
+            {
+                logger.warn("failed to convert the message charset", ex);
+                content = new String(req.getRawContent());
+            }
+
+            // to who this request has been sent ?
+            ToHeader toHeader = (ToHeader) req.getHeader(ToHeader.NAME);
+
+            if (toHeader == null)
+            {
+                logger.error("received a request without a to header");
+                return;
+            }
+
+            Contact to = resolveContact(
+                    toHeader.getAddress().getURI().toString());
+
+            Message failedMessage = null;
+
+            if (to == null) {
+                logger.error(
+                        "timeout on a message sent to an unknown contact : "
+                        + toHeader.getAddress().getURI().toString());
+
+                //we don't know what message it concerns, so create a new
+                //one
+                failedMessage = createMessage(content);
+            }
+            else
+            {
+                // try to retrieve the original message
+                String key = ((CallIdHeader)req.getHeader(CallIdHeader.NAME))
+                    .getCallId();
+                failedMessage = (Message) sentMsg.get(key);
+
+                if (failedMessage == null)
+                {
+                    // should never happen
+                    logger.error("Couldn't find the sent message.");
+
+                    // we don't know what the message is so create a new one
+                    //based on the content of the failed request.
+                    failedMessage = createMessage(content);
+                }
+            }
+
+            // error for delivering the message
+            MessageDeliveryFailedEvent evt =
+                new MessageDeliveryFailedEvent(
+                    // we don't know what message it concerns
+                    failedMessage,
+                    to,
+                    MessageDeliveryFailedEvent.INTERNAL_ERROR,
+                    new Date());
+            fireMessageEvent(evt);
         }
 
         /**
@@ -693,26 +758,28 @@ public class OperationSetBasicInstantMessagingSipImpl
             // answer ok
             try
             {
-                Response ack = sipProvider.getMessageFactory()
+                Response ok = sipProvider.getMessageFactory()
                     .createResponse(Response.OK, requestEvent.getRequest());
                 SipProvider jainSipProvider = (SipProvider) requestEvent.
                     getSource();
                 jainSipProvider.getNewServerTransaction(
-                    requestEvent.getRequest()).sendResponse(ack);
+                    requestEvent.getRequest()).sendResponse(ok);
             }
-            catch (ParseException ex)
+            catch (ParseException exc)
             {
-                logger.error("failed to build the response");
+                logger.error("failed to build the response", exc);
             }
             catch (SipException exc)
             {
                 logger.error("failed to send the response : "
-                             + exc.getMessage());
+                             + exc.getMessage(),
+                             exc);
             }
-            catch (InvalidArgumentException exc1)
+            catch (InvalidArgumentException exc)
             {
                 logger.debug("Invalid argument for createResponse : "
-                             + exc1.getMessage());
+                             + exc.getMessage(),
+                             exc);
             }
 
             // fire an event
@@ -742,9 +809,9 @@ public class OperationSetBasicInstantMessagingSipImpl
                     req.getContentEncoding()
                     .getEncoding());
             }
-            catch (UnsupportedEncodingException ex)
+            catch (UnsupportedEncodingException exc)
             {
-                logger.debug("failed to convert the message charset");
+                logger.debug("failed to convert the message charset", exc);
                 content = new String(req.getRawContent());
             }
 
@@ -781,29 +848,9 @@ public class OperationSetBasicInstantMessagingSipImpl
                 return;
             }
 
-            // we retrive the original message
-            long seqNum = ((CSeqHeader) req.getHeader(CSeqHeader.NAME))
-                                .getSeqNumber();
-
-            Integer key = new Integer(to.hashCode() + (int) seqNum);
-
-            if (key == null) {
-                // should never happen
-                logger.error("Couldn't create the key to find the message" +
-                        " sent");
-
-                // error for delivering the message
-                MessageDeliveryFailedEvent evt =
-                    new MessageDeliveryFailedEvent(
-                        // we don't know what message it is
-                        createMessage(content),
-                        to,
-                        MessageDeliveryFailedEvent.INTERNAL_ERROR,
-                        new Date());
-                fireMessageEvent(evt);
-
-                return;
-            }
+            // we retrieve the original message
+            String key = ((CallIdHeader)req.getHeader(CallIdHeader.NAME))
+                .getCallId();
 
             Message newMessage = (Message) sentMsg.get(key);
 
@@ -827,7 +874,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             // status 401/407 = proxy authentification
             if (status >= 400 && status != 401 && status != 407)
             {
-                logger.error(
+                logger.info(
                     "Error received from the network : "
                     + responseEvent.getResponse().getReasonPhrase());
 
@@ -837,7 +884,8 @@ public class OperationSetBasicInstantMessagingSipImpl
                         newMessage,
                         to,
                         MessageDeliveryFailedEvent.NETWORK_FAILURE,
-                        new Date());
+                        new Date(),
+                        responseEvent.getResponse().getReasonPhrase());
                 fireMessageEvent(evt);
                 sentMsg.remove(key);
             }
@@ -867,15 +915,11 @@ public class OperationSetBasicInstantMessagingSipImpl
                             newMessage,
                             to,
                             MessageDeliveryFailedEvent.NETWORK_FAILURE,
-                            new Date());
+                            new Date(),
+                            ex.getMessage());
                     fireMessageEvent(evt);
                     sentMsg.remove(key);
                 }
-
-                // we are incrementing the CSeq, so we move the message
-                // in the hashtable
-                sentMsg.remove(key);
-                sentMsg.put(new Integer(key.intValue() + 1), newMessage);
             }
             else if (status >= 200)
             {
@@ -892,14 +936,6 @@ public class OperationSetBasicInstantMessagingSipImpl
 
                 // we don't need this message anymore
                 sentMsg.remove(key);
-            }
-
-            // we close the transaction to avoid some retransmit
-            try {
-                responseEvent.getClientTransaction().terminate();
-            } catch (ObjectInUseException e) {
-                // should never happer (we don't user Dialogs)
-                logger.debug("transaction in use while trying to close it");
             }
         }
 
