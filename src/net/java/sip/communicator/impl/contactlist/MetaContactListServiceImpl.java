@@ -405,6 +405,12 @@ public class MetaContactListServiceImpl
                 , ex
                 , MetaContactListException.CODE_CONTACT_ALREADY_EXISTS_ERROR);
             }
+
+            throw new MetaContactListException(
+                "failed to create contact" + contactID
+                , ex
+                , MetaContactListException.CODE_NETWORK_ERROR);
+
         }
         catch (Exception ex)
         {
