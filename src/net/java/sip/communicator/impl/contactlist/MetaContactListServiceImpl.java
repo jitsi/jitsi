@@ -705,14 +705,32 @@ public class MetaContactListServiceImpl
      *             reason.
      */
     public void createMetaContactGroup(MetaContactGroup parent,
-                                       String groupName) throws
-        MetaContactListException
+                                       String groupName)
+        throws MetaContactListException
     {
         if (! (parent instanceof MetaContactGroupImpl))
         {
-            throw new IllegalArgumentException(parent
-                                               +
-                                               " is not an instance of MetaContactGroupImpl");
+            throw new IllegalArgumentException(
+                parent
+                + " is not an instance of MetaContactGroupImpl");
+        }
+
+        //make sure that "parent" does not already contain a subgroup called
+        //"groupName"
+        Iterator subgroups = parent.getSubgroups();
+
+        while(subgroups.hasNext())
+        {
+            MetaContactGroup group = (MetaContactGroup)subgroups.next();
+
+            if(group.getGroupName().equals(groupName))
+            {
+                throw new MetaContactListException(
+                    "Parent " + parent.getGroupName() + " already contains a "
+                    + "group called " + groupName,
+                    new CloneNotSupportedException("just testing nested exc-s"),
+                    MetaContactListException.CODE_GROUP_ALREADY_EXISTS_ERROR);
+            }
         }
 
         // we only have to create the meta contact group here.
