@@ -35,12 +35,18 @@ public class MetaContactListException
      */
     public static final int CODE_CONTACT_ALREADY_EXISTS_ERROR  = 3;
 
+    /**
+     * Indicates that the exception was caused by the fact that we tried to
+     * add to our contact list a group that was already in there.
+     */
+    public static final int CODE_GROUP_ALREADY_EXISTS_ERROR  = 4;
+
 
     /**
      * Indicates that the error which caused the exception was either unknown
      * or did not correspond to any of the other error codes
      */
-    public static final int CODE_UNKNOWN_ERROR  = 4;
+    public static final int CODE_UNKNOWN_ERROR  = 5;
 
     /**
      * An error code indicating the nature of this excepiton.
@@ -60,6 +66,20 @@ public class MetaContactListException
         super(message, cause);
         this.errCode = code;
     }
+
+    /**
+     * Creates a MetaContactListException with the specified message error code.
+     *
+     * @param message a human readable message describing the exception.
+     * @param code one of the statuc CODE_XXX variable, describing the nature
+     * of the exception.
+     */
+    public MetaContactListException(String message, int code)
+    {
+        super(message);
+        this.errCode = code;
+    }
+
 
     /**
      * Returns an int describing the nature of the exception.
