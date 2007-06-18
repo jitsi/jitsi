@@ -47,6 +47,8 @@ public class GrowlNotificationServiceImpl
      * it in order to avoid compilation errors on non mac platforms.
      */
     private Method notifyMethod = null;
+    private Method setAllowedNotifMethod = null;
+    private Method setDefaultNotifMethod = null;
 
     /* All Growl Notifications and the default ones */
     private String [] allNotif =
@@ -86,15 +88,26 @@ public class GrowlNotificationServiceImpl
                                 {String.class, String.class});
             notifier = (Growl)constructor.newInstance(
                     new Object[]{"SIP Communicator", sipIconPath});
-            notifier.setAllowedNotifications(allNotif);
-            notifier.setDefaultNotifications(defaultNotif);
-            notifier.register();
+
+            //init the setAllowedNotifications method
+            setAllowedNotifMethod = Growl.class.getMethod(
+                    "setAllowedNotifications"
+                    , new Class[]{String[].class});
+
+            //init the setDefaultNotifications method
+            setDefaultNotifMethod = Growl.class.getMethod(
+                    "setDefaultNotifications"
+                    , new Class[]{String[].class});
 
             //init the notifyGrowlOf method
             notifyMethod = Growl.class.getMethod(
                     "notifyGrowlOf"
                     , new Class[]{String.class, String.class, 
                                   String.class, String.class});
+
+            setAllowedNotifications(allNotif);
+            setDefaultNotifications(defaultNotif);
+            notifier.register();
 
             notifyGrowlOf("SIP Communicator Started"
                           , sipIconPath
@@ -189,6 +202,21 @@ public class GrowlNotificationServiceImpl
      */
     public void messageReceived(MessageReceivedEvent evt)
     {
+//        byte[] contactImage = null;
+//       NSData NSContactImage = null;
+
+//        try
+//        {
+//            contactImage = evt.getSourceContact().getImage();
+//        }
+//       catch (Exception ex)
+//        {
+//            logger.error("Failed to load contact photo for Growl", ex);
+//        }
+
+//        if (contactImage != null)
+//            NSContactImage = new NSData(contactImage);
+
         try
         {
             notifyGrowlOf("Message Received"
@@ -355,6 +383,19 @@ public class GrowlNotificationServiceImpl
         notifyMethod.invoke(
             notifier, new Object[]{inNotificationName, inImagePath, 
                                    inTitle, inDescription});
+    }
+    
+    public void setAllowedNotifications(String [] inAllNotes)
+        throws Exception
+    {
+        setAllowedNotifMethod.invoke(
+            notifier, new Object[]{inAllNotes});
+    }
+    public void setDefaultNotifications(String [] inDefNotes)
+        throws Exception
+    {
+        setDefaultNotifMethod.invoke(
+            notifier, new Object[]{inDefNotes});
     }
 
 }
