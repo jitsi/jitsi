@@ -46,6 +46,7 @@ public class CreateGroupPanel
     
     private JPanel rightPanel = new JPanel(new BorderLayout());
     
+    private JLabel errorLabel = new JLabel();    
     
     /**
      * Creates and initializes the <tt>CreateGroupPanel</tt>.
@@ -70,9 +71,12 @@ public class CreateGroupPanel
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);        
         this.labelsPanel.add(dataPanel);
+        this.labelsPanel.add(errorLabel);
         
         this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
-        
+        errorLabel.setForeground(Color.red);
+        errorLabel.setVisible(false);
+                
         this.add(iconLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
     }
@@ -86,7 +90,20 @@ public class CreateGroupPanel
         return textField.getText();
     }
     
-    public void requestFocusInField() {
+    public void requestFocusInField()
+    {
         this.textField.requestFocus();
     }
+    
+    /**
+     * Shows an error message below the create group text field.
+     * 
+     * @param msg the message to show
+     */
+    public void showErrorMessage(String msg)
+    {
+        errorLabel.setText("*" + msg);
+        
+        errorLabel.setVisible(true);
+    }    
 }

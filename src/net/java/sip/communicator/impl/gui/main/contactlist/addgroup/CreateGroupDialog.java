@@ -57,9 +57,7 @@ public class CreateGroupDialog
         
         this.mainFrame = mainFrame;
         this.clist = mainFrame.getContactList();
-        
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        
+
         this.setSize(520, 250);
                 
         this.init();
@@ -92,15 +90,20 @@ public class CreateGroupDialog
         this.getContentPane().add(mainPanel);
     }
     
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JButton button = (JButton)e.getSource();
         String name = button.getName();
         
-        if (name.equals("create")) {
+        if (name.equals("create"))
+        {
             new CreateGroup(clist, groupPanel.getGroupName()).start();
         }
-        
-        this.dispose();
+        else if(name.equals("cancel"))
+        {
+            dispose();
+        }
+            
     }
     
     /**
@@ -110,70 +113,69 @@ public class CreateGroupDialog
         MetaContactListService mcl;
         String groupName;
         
-        CreateGroup(MetaContactListService mcl,
-                String groupName) {
+        CreateGroup(MetaContactListService mcl, String groupName)
+        {
             this.mcl = mcl;
             this.groupName = groupName;
         }
         
-        public void run() {
-            new Thread() {
-                public void run() {
-                    try {
+        public void run()
+        {
+            new Thread()
+            {
+                public void run()
+                {
+                    try
+                    {
                         mcl.createMetaContactGroup(
                             mcl.getRoot(), groupName);
+
+                        dispose();
                     }
-                    catch (MetaContactListException ex) {
+                    catch (MetaContactListException ex)
+                    {
                         logger.error(ex);
                         int errorCode = ex.getErrorCode();
-                        
+                                                
                         if (errorCode
                                 == MetaContactListException
-                                    .CODE_CONTACT_ALREADY_EXISTS_ERROR) {
-                                
-                            new ErrorDialog(mainFrame,
+                                    .CODE_GROUP_ALREADY_EXISTS_ERROR)
+                        {
+                            groupPanel.showErrorMessage(
                                     Messages.getI18NString(
                                             "addGroupExistError",
-                                            new String[]{groupName}).getText(),
-                                            ex,
+                                            new String[]{groupName}).getText());
+                            
+                            return;
+                        }
+                        else if (errorCode
+                            == MetaContactListException.CODE_LOCAL_IO_ERROR)
+                        {                               
+                            groupPanel.showErrorMessage(
                                     Messages.getI18NString(
-                                            "addGroupErrorTitle").getText())
-                                            .showDialog();
+                                            "addGroupLocalError",
+                                            new String[]{groupName}).getText());
+                            
+                            return;
                         }
                         else if (errorCode
-                            == MetaContactListException.CODE_LOCAL_IO_ERROR) {
-                            
-                            new ErrorDialog(mainFrame,
-                                Messages.getI18NString(
-                                        "addGroupLocalError",
-                                        new String[]{groupName}).getText(),
-                                        ex,
-                                Messages.getI18NString(
-                                        "addGroupErrorTitle").getText())
-                                        .showDialog();
-                        }
-                        else if (errorCode
-                                == MetaContactListException.CODE_NETWORK_ERROR) {
-                            
-                            new ErrorDialog(mainFrame,
+                                == MetaContactListException.CODE_NETWORK_ERROR)
+                        {   
+                            groupPanel.showErrorMessage(
                                     Messages.getI18NString(
                                             "addGroupNetError",
-                                            new String[]{groupName}).getText(),
-                                            ex,
-                                    Messages.getI18NString(
-                                            "addGroupErrorTitle").getText())
-                                            .showDialog();
-                        }
-                        else {
+                                            new String[]{groupName}).getText());
                             
-                            new ErrorDialog(mainFrame,
+                            return;
+                        }
+                        else
+                        {                            
+                            groupPanel.showErrorMessage(
                                     Messages.getI18NString(
                                             "addGroupError",
-                                            new String[]{groupName}).getText(),
-                                            ex,
-                                    Messages.getI18NString(
-                                            "addGroupErrorTitle").getText())
-                                            .showDialog();
+                                            new String[]{groupName}).getText());
+                                                        
+                            return;
                         }
                     }
                 }
