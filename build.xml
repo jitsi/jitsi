@@ -422,7 +422,7 @@
                   shortname="SIP Communicator"
                   signature="sipc"
                   mainclass="org.apache.felix.main.Main"
-                  icon="src/net/java/sip/communicator/impl/gui/resources/common/logo/sc_logo_128x128.icns"
+                  icon="resources/images/logo/sc_logo_128x128.icns"
                   jvmversion="1.4+"
                   version="${sip-communicator.version}"
                   build="draft"
@@ -453,6 +453,7 @@
             <include name="lib/native/mac/*.jnilib" />
             <include name="${bundles.dest}/*.jar" />
             <exclude name="${bundles.dest}/*-slick.jar" />
+            <include name="resources/images/logo/sc_logo_128x128.icns" />
         </jarfileset>
         <javafilelist dir="${macosx.resrc.dir}"
                       files="logging.properties"/>

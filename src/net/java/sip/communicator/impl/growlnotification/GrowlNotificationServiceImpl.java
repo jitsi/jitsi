@@ -59,6 +59,12 @@ public class GrowlNotificationServiceImpl
         new String[] { "SIP Communicator Started",
                        "Message Received" };
 
+    /** 
+     * The path to the SIP Communicator icon used in Growl's configuration 
+     * menu and protocol events messages
+     */
+    private String sipIconPath = "resources/images/logo/sc_logo_128x128.icns";
+
     /**
      * starts the service. Creates a Growl notifier, and check the current
      * registerd protocol providers which supports BasicIM and adds message
@@ -77,17 +83,21 @@ public class GrowlNotificationServiceImpl
         try
         {
             Constructor constructor = Growl.class.getConstructor(new Class[]
-                                {String.class, String[].class, String[].class});
+                                {String.class, String.class});
             notifier = (Growl)constructor.newInstance(
-                    new Object[]{"SIP Communicator", allNotif, defaultNotif});
+                    new Object[]{"SIP Communicator", sipIconPath});
+            notifier.setAllowedNotifications(allNotif);
+            notifier.setDefaultNotifications(defaultNotif);
             notifier.register();
 
             //init the notifyGrowlOf method
             notifyMethod = Growl.class.getMethod(
                     "notifyGrowlOf"
-                    , new Class[]{String.class, String.class, String.class});
+                    , new Class[]{String.class, String.class, 
+                                  String.class, String.class});
 
             notifyGrowlOf("SIP Communicator Started"
+                          , sipIconPath
                           , "Welcome to SIP Communicator"
                           , "http://www.sip-communicator.org");
         }
@@ -182,6 +192,7 @@ public class GrowlNotificationServiceImpl
         try
         {
             notifyGrowlOf("Message Received"
+                          , sipIconPath
                           , evt.getSourceContact().getDisplayName()
                           , evt.getSourceMessage().getContent());
         }
@@ -200,6 +211,7 @@ public class GrowlNotificationServiceImpl
         try
         {
             notifyGrowlOf("Message Sent"
+                          , sipIconPath
                           , "Me"
                           , evt.getSourceMessage().getContent());
         }
@@ -275,6 +287,7 @@ public class GrowlNotificationServiceImpl
             try
             {
                 notifyGrowlOf("Protocol events"
+                              , sipIconPath
                               , "New Protocol Registered"
                               , provider.getProtocolName() + " registered");
             }
@@ -308,6 +321,7 @@ public class GrowlNotificationServiceImpl
             try
             {
                 notifyGrowlOf("Protocol events"
+                              , sipIconPath
                               , "Protocol deregistered"
                               , provider.getProtocolName()
                               + " deregistered");
@@ -333,12 +347,14 @@ public class GrowlNotificationServiceImpl
      * @throws Exception When a notification is not known
      */
     public void notifyGrowlOf(String inNotificationName,
+                              String inImagePath,
                               String inTitle,
                               String inDescription)
         throws Exception
     {
         notifyMethod.invoke(
-            notifier, new Object[]{inNotificationName, inTitle, inDescription});
+            notifier, new Object[]{inNotificationName, inImagePath, 
+                                   inTitle, inDescription});
     }
 
 }
