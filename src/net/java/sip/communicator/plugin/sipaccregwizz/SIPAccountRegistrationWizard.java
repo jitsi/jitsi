@@ -10,12 +10,11 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.plugin.msnaccregwizz.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.osgi.framework.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>SIPAccountRegistrationWizard</tt> is an implementation of the
@@ -24,7 +23,8 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
-public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
+public class SIPAccountRegistrationWizard implements AccountRegistrationWizard
+{
 
     private FirstWizardPage firstWizardPage;
 
@@ -37,8 +37,11 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
 
     private String propertiesPackage
         = "net.java.sip.communicator.plugin.sipaccregwizz";
-    
+
     private boolean isModification;
+
+    private static final Logger logger
+        = Logger.getLogger(SIPAccountRegistrationWizard.class);
 
     /**
      * Creates an instance of <tt>SIPAccountRegistrationWizard</tt>.
@@ -57,11 +60,11 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
     public byte[] getIcon() {
         return Resources.getImage(Resources.SIP_LOGO);
     }
-    
+
     /**
      * Implements the <code>AccountRegistrationWizard.getPageImage</code> method.
      * Returns the image used to decorate the wizard page
-     * 
+     *
      * @return byte[] the image used to decorate the wizard page
      */
     public byte[] getPageImage()
@@ -107,10 +110,10 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
      */
     public Iterator getSummary() {
         Hashtable summaryTable = new Hashtable();
-        
+
         boolean rememberPswd = new Boolean(registration.isRememberPassword())
             .booleanValue();
-        
+
         String rememberPswdString;
         if(rememberPswd)
             rememberPswdString = Resources.getString("yes");
@@ -148,7 +151,7 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
         if (factory != null)
             pps = this.installAccount(factory,
                 registration.getUin(), registration.getPassword());
-        
+
         return pps;
     }
 
@@ -179,10 +182,10 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
 
         accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
                 registration.getProxy());
-        
+
         accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
                 registration.getProxyPort());
-        
+
         accountProperties.put(ProtocolProviderFactory.PREFERRED_TRANSPORT,
                 registration.getPreferredTransport());
 
@@ -197,19 +200,18 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
 
             ServiceReference serRef = providerFactory
                 .getProviderForAccount(accountID);
-    
+
             protocolProvider
                 = (ProtocolProviderService) SIPAccRegWizzActivator.bundleContext
                     .getService(serRef);
 
         }
-        catch (IllegalArgumentException e) {
-            new ErrorDialog(null, e.getMessage(), e).showDialog();
+        catch (Exception exc)
+        {
+            logger.error(exc.getMessage(), exc);
+            throw new RuntimeException(exc.getMessage(), exc);
         }
-        catch (IllegalStateException e) {
-            new ErrorDialog(null, e.getMessage(), e).showDialog();
-        }   
-        
+
         return protocolProvider;
     }
 
@@ -224,7 +226,7 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard {
         this.protocolProvider = protocolProvider;
 
         this.firstWizardPage.loadAccount(protocolProvider);
-        
+
         this.isModification = true;
     }
 }
