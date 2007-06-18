@@ -43,8 +43,9 @@ public class GrowlNotificationServiceImpl
     private Growl notifier;
 
     /**
-     * The noifyGrowlOf method of the growl class. We use reflection to access
-     * it in order to avoid compilation errors on non mac platforms.
+     * The noifyGrowlOf/setAllowedNotifications/setDefaultNotifications 
+     * methods of the growl class. We use reflection to access them
+     * in order to avoid compilation errors on non mac platforms.
      */
     private Method notifyMethod = null;
     private Method setAllowedNotifMethod = null;
@@ -385,17 +386,30 @@ public class GrowlNotificationServiceImpl
                                    inTitle, inDescription});
     }
     
+    /**
+     * Convenience method that defers to notifier.setAllowedNotifications() 
+     * using reflection without referencing it directly. The purpose of this 
+     * method is to allow the class to compile on non-mac systems.
+     *
+     * @param inAllNotes The list of allowed Notifications
+     */
     public void setAllowedNotifications(String [] inAllNotes)
         throws Exception
     {
-        setAllowedNotifMethod.invoke(
-            notifier, new Object[]{inAllNotes});
+        setAllowedNotifMethod.invoke(notifier, new Object[]{inAllNotes});
     }
+
+    /**
+     * Convenience method that defers to notifier.setDefaultNotifications() 
+     * using reflection without referencing it directly. The purpose of this 
+     * method is to allow the class to compile on non-mac systems.
+     *
+     * @param inDefNotes The list of default Notifications
+     */
     public void setDefaultNotifications(String [] inDefNotes)
         throws Exception
     {
-        setDefaultNotifMethod.invoke(
-            notifier, new Object[]{inDefNotes});
+        setDefaultNotifMethod.invoke(notifier, new Object[]{inDefNotes});
     }
 
 }
