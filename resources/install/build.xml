@@ -32,7 +32,7 @@
 
     <!-- Load installer properties -->
     <!-- USERS NEED TO UPDATE THIS FILE -->
-    <property file="${basedir}/${inst.resrc}/installers.properties"/>
+    <property file="${inst.resrc}/installers.properties"/>
 
     <!-- define the izpack task in a separate target so that we don't get an
          error when izpack properties are not set-->
@@ -42,11 +42,11 @@
     </target>
 
     <!-- Put here the Windows release directory -->
-    <property name="windows.app.dir" value="${basedir}/${release}/windows"/>
+    <property name="windows.app.dir" value="${sc.basedir}/${release}/windows"/>
     <!-- Put here the Linux release directory -->
-    <property name="linux.app.dir" value="${basedir}/${release}/linux"/>
+    <property name="linux.app.dir" value="${sc.basedir}/${release}/linux"/>
     <!-- Put here the Generic release directory -->
-    <property name="generic.app.dir" value="${basedir}/${release}/generic"/>
+    <property name="generic.app.dir" value="${sc.basedir}/${release}/generic"/>
 
     <!-- change the 7zip executable corresponding the OS
          7-zip is used to create windows self-extract installer binary
@@ -83,7 +83,7 @@
         <filter token="BUILDDATE" value="${build.date}" />
         <copy 
             tofile="${generic.app.dir}/tmp-installer-generic.xml" 
-            file="${basedir}/${inst.resrc}/generic/installer-generic.xml" 
+            file="${inst.resrc}/generic/installer-generic.xml" 
             filtering="yes" 
         />
 
@@ -92,7 +92,7 @@
                output="${generic.app.dir}/sip-communicator-${sip-communicator.version}.jar"
                installerType="standard"
                izPackDir="${izpack.dir}/"
-               basedir="${basedir}"/>
+               basedir="${sc.basedir}"/>
     </target>
 
     <target name="clean-install-linux">
@@ -104,7 +104,7 @@
     <target name="build-installation-linux"
             depends="clean-install-linux,define-izpack-task,version">
         <copy todir="${linux.app.dir}/tmp">
-            <fileset dir="${basedir}/${inst.resrc}/linux">
+            <fileset dir="${inst.resrc}/linux">
                 <include name="setup.sh"/>
                 <include name="inst_path"/>
             </fileset>
@@ -120,7 +120,7 @@
         <filter token="BUILDDATE" value="${build.date}" />
         <copy 
             tofile="${linux.app.dir}/tmp/tmp-installer-linux.xml" 
-            file="${basedir}/${inst.resrc}/linux/installer-linux.xml" 
+            file="${inst.resrc}/linux/installer-linux.xml" 
             filtering="yes" 
         />
     
@@ -128,7 +128,7 @@
         <izpack input="${linux.app.dir}/tmp/tmp-installer-linux.xml"
                 output="${linux.app.dir}/tmp/sip-communicator-${sip-communicator.version}-linux.jar"
                 installerType="standard"
-                basedir="${basedir}"
+                basedir="${sc.basedir}"
                 izPackDir="${izpack.dir}/"/>
 
         <!-- Create self extract linux binary-->
@@ -138,7 +138,7 @@
               src="${linux.app.dir}/tmp/install.tar"/>
         <concat destfile="${linux.app.dir}/sip-communicator-${sip-communicator.version}-linux.bin"
                 binary="true">
-            <fileset dir="${basedir}/${inst.resrc}/linux/">
+            <fileset dir="${inst.resrc}/linux/">
                 <include name="sfx-header"/>
             </fileset>
             <fileset dir="${linux.app.dir}/tmp">
@@ -161,7 +161,7 @@
     <target name="build-installation-windows"
             depends="clean-install-windows,define-izpack-task,version">
         <copy todir="${windows.app.dir}/tmp">
-            <fileset dir="${basedir}/${inst.resrc}/windows">
+            <fileset dir="${inst.resrc}/windows">
                 <include name="launcher.ini"/>
                 <include name="setup-sip-communicator.exe"/>
             </fileset>
@@ -175,7 +175,7 @@
         <filter token="BUILDDATE" value="${build.date}" />
         <copy 
             tofile="${windows.app.dir}/tmp/tmp-installer-windows.xml" 
-            file="${basedir}/${inst.resrc}/windows/installer-windows.xml" 
+            file="${inst.resrc}/windows/installer-windows.xml" 
             filtering="yes" 
         />
               
@@ -183,7 +183,7 @@
                input="${windows.app.dir}/tmp/tmp-installer-windows.xml"
                output="${windows.app.dir}/tmp/sip-communicator-windows.jar"
                installerType="standard"
-               basedir="${basedir}"
+               basedir="${sc.basedir}"
                izPackDir="${izpack.dir}/"/>
 
         <zip destfile="${windows.app.dir}/sip-communicator-${sip-communicator.version}-windows.zip"
@@ -195,10 +195,10 @@
 
         <concat destfile="${windows.app.dir}/setup-sip-communicator-${sip-communicator.version}.exe"
                 binary="true">
-            <fileset dir="${basedir}/${inst.resrc}/windows">
+            <fileset dir="${inst.resrc}/windows">
                 <include name="7zS.sfx"/>
             </fileset>
-            <fileset dir="${basedir}/${inst.resrc}/windows">
+            <fileset dir="${inst.resrc}/windows">
                 <include name="7zip.conf"/>
             </fileset>
             <fileset dir="${windows.app.dir}/tmp">

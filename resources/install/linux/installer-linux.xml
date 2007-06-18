@@ -18,7 +18,34 @@
 
 	<locale>
 		<langpack iso3="eng"/>
+		<langpack iso3="fra"/> 
+		<langpack iso3="deu"/> 
+		<langpack iso3="ita"/> 
+		<langpack iso3="spa"/>
+		<langpack iso3="por"/>		
+		<langpack iso3="rus"/> 
+		<langpack iso3="cat"/>
+		<langpack iso3="cze"/> 
+		<langpack iso3="ind"/> 
+		<langpack iso3="jpn"/> 
+		<langpack iso3="mys"/> 
+		<langpack iso3="nor"/> 
+		<langpack iso3="hun"/> 
+		<langpack iso3="swe"/> 
+		<langpack iso3="dan"/>
+		<langpack iso3="ukr"/>
+		<langpack iso3="ned"/> 
+		<langpack iso3="pol"/> 
+		<langpack iso3="rom"/> 
+		<langpack iso3="chn"/> 
+		<langpack iso3="ell"/> 
+		<langpack iso3="fin"/> 
+		<langpack iso3="kor"/> 
+		<langpack iso3="scg"/> 
+		<langpack iso3="svk"/> 
+		<langpack iso3="tur"/>
 	</locale>
+	
 	<resources>
             <res id="InfoPanel.info" src="resources/install/doc/readme.txt" parse="yes"/>
             <res id="LicencePanel.licence" src="resources/install/doc/License.txt"/>
