@@ -1311,6 +1311,8 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/gui"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
+        	<zipfileset dir="resources/images"
+        	                prefix="resources/images"/>
         </jar>
     </target>
 
