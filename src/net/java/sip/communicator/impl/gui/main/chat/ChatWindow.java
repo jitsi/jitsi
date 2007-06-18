@@ -13,14 +13,12 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.customcontrols.events.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -63,9 +61,6 @@ public class ChatWindow
         this.mainFrame = mainFrame;
 
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-        this.setIconImage(ImageLoader
-            .getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
 
         menusPanel = new MenusPanel(this);
 

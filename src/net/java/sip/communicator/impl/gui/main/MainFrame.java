@@ -104,13 +104,6 @@ public class MainFrame
 
         this.setTitle(Messages.getI18NString("sipCommunicator").getText());
 
-        this.setIconImage(
-            ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
-        
-        // In order to have the same icon when using option panes
-        JOptionPane.getRootFrame().setIconImage(
-                ImageLoader.getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
-
         this.init();
     }
 
