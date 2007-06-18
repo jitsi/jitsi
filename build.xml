@@ -446,11 +446,11 @@
                       value="logging.properties"/>
 
         <jarfileset dir=".">
-            <include name="${lib}/*.jar" />
-            <include name="${lib.mac}/*.jar" />
-            <include name="${lib}/bundle/*.jar" />
-            <exclude name="${lib}/bundle/junit.jar" />
-            <include name="${native.libs}/mac/*.jnilib" />
+            <include name="lib/*.jar" />
+            <include name="lib/os-specific/mac/*.jar" />
+            <include name="lib/bundle/*.jar" />
+            <exclude name="lib/bundle/junit.jar" />
+            <include name="lib/native/mac/*.jnilib" />
             <include name="${bundles.dest}/*.jar" />
             <exclude name="${bundles.dest}/*-slick.jar" />
         </jarfileset>
