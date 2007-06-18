@@ -26,9 +26,9 @@ public class JmDNS
      * The version of JmDNS.
      */
     public static String VERSION = "2.0";
- 
+
     /**
-     * This is the multicast group, we are listening to for 
+     * This is the multicast group, we are listening to for
      * multicast DNS messages.
      */
     private InetAddress group;
@@ -36,13 +36,13 @@ public class JmDNS
      * This is our multicast socket.
      */
     private MulticastSocket socket;
-    
+
     /**
      * Used to fix live lock problem on unregester.
      */
-    
+
     protected boolean closed = false;
-    
+
     /**
      * Holds instances of JmDNS.DNSListener.
      * Must by a synchronized collection, because it is updated from
@@ -59,13 +59,13 @@ public class JmDNS
      * Holds instances of ServiceTypeListener's.
      */
     private List typeListeners;
-    
-    
+
+
     /**
      * Cache for DNSEntry's.
      */
     private DNSCache cache;
-    
+
     /**
      * This hashtable holds the services that have been registered.
      * Keys are instances of String which hold an all lower-case version of the
@@ -73,7 +73,7 @@ public class JmDNS
      * Values are instances of ServiceInfo.
      */
     Map services;
-    
+
     /**
      * This hashtable holds the service types that have been registered or
      * that have been received in an incoming datagram.
@@ -86,14 +86,14 @@ public class JmDNS
      * This is the shutdown hook, we registered with the java runtime.
      */
     private Thread shutdown;
-    
+
     /**
      * Handle on the local host
      */
     HostInfo localHost;
-    
+
     private Thread incomingListener = null;
-    
+
     /**
      * Throttle count.
      * This is used to count the overall number of probes sent by JmDNS.
@@ -104,27 +104,27 @@ public class JmDNS
      * Last throttle increment.
      */
     private long lastThrottleIncrement;
-    
+
     /**
      * The timer is used to dispatch all outgoing messages of JmDNS.
      * It is also used to dispatch maintenance tasks for the DNS cache.
      */
     private Timer timer;
-    
+
     /**
      * The source for random values.
      * This is used to introduce random delays in responses. This reduces the
      * potential for collisions on the network.
      */
     private final static Random random = new Random();
-    
+
     /**
      * This lock is used to coordinate processing of incoming and outgoing
      * messages. This is needed, because the Rendezvous Conformance Test
      * does not forgive race conditions.
      */
     private Object ioLock = new Object();
-    
+
     /**
      * If an incoming package which needs an answer is truncated, we store it
      * here. We add more incoming DNSRecords to it, until the JmDNS.Responder
@@ -133,7 +133,7 @@ public class JmDNS
      * that came in from different clients.
      */
     private DNSIncoming plannedAnswer;
-    
+
     // State machine
     /**
      * The state of JmDNS.
@@ -142,14 +142,14 @@ public class JmDNS
      * changed only using methods advanceState(), revertState() and cancel().
      */
     private DNSState state = DNSState.PROBING_1;
-    
+
     /**
      * Timer task associated to the host name.
      * This is used to prevent from having multiple tasks associated to the host
      * name at the same time.
      */
     TimerTask task;
-    
+
     /**
      * This hashtable is used to maintain a list of service types being collected
      * by this JmDNS instance.
@@ -159,38 +159,38 @@ public class JmDNS
      * @see #list
      */
     private HashMap serviceCollectors = new HashMap();
-    
+
     /**
      * Create an instance of JmDNS.
-     * @throws java.io.IOException 
+     * @throws java.io.IOException
      */
-    public JmDNS() 
+    public JmDNS()
         throws IOException
     {
         String SLevel = System.getProperty("jmdns.debug");
         if (SLevel == null) SLevel = "INFO";
-        logger.setLevel(Level.parse(SLevel)); 
-        
+        logger.setLevel(Level.parse(SLevel));
+
         logger.finer("JmDNS instance created");
         try
         {
             InetAddress addr = InetAddress.getLocalHost();
             // [PJYF Oct 14 2004] Why do we disallow the loopback address?
-            init(addr.isLoopbackAddress() ? null : addr, addr.getHostName()); 
+            init(addr.isLoopbackAddress() ? null : addr, addr.getHostName());
         }
         catch (IOException e)
         {
             init(null, "computer");
         }
     }
-    
+
     /**
      * Create an instance of JmDNS and bind it to a
      * specific network interface given its IP-address.
-     * @param addr 
-     * @throws java.io.IOException 
+     * @param addr
+     * @throws java.io.IOException
      */
-    public JmDNS(InetAddress addr) 
+    public JmDNS(InetAddress addr)
         throws IOException
     {
         try
@@ -202,7 +202,7 @@ public class JmDNS
             init(null, "computer");
         }
     }
-    
+
     /**
      * Initialize everything.
      *
@@ -211,7 +211,7 @@ public class JmDNS
      */
     private void init(InetAddress address, String name) throws IOException
     {
-        // A host name with "." is illegal. 
+        // A host name with "." is illegal.
         // so strip off everything and append .local.
         int idx = name.indexOf(".");
         if (idx > 0)
@@ -221,31 +221,29 @@ public class JmDNS
         name += ".local.";
         // localHost to IP address binding
         localHost = new HostInfo(address, name);
-        
+
         cache = new DNSCache(100);
-        
+
         listeners = Collections.synchronizedList(new ArrayList());
         serviceListeners = new HashMap();
         typeListeners = new ArrayList();
-        
+
         services = new Hashtable(20);
         serviceTypes = new Hashtable(20);
-        
+
         // REMIND: If I could pass in a name for the Timer thread,
         //         I would pass 'JmDNS.Timer'.
         timer = new Timer();
         new RecordReaper().start();
-        shutdown = new Thread(new Shutdown(), "JmDNS.Shutdown");
-        Runtime.getRuntime().addShutdownHook(shutdown);
-        
+
         incomingListener = new Thread(
             new SocketListener(), "JmDNS.SocketListener");
-        
+
         // Bind to multicast socket
         openMulticastSocket(localHost);
         start(services.values());
     }
-    
+
     private void start(Collection serviceInfos)
     {
         state = DNSState.PROBING_1;
@@ -259,12 +257,12 @@ public class JmDNS
             }
             catch (Exception exception)
             {
-                logger.log(Level.WARNING, 
+                logger.log(Level.WARNING,
                     "start() Registration exception ", exception);
             }
         }
     }
-    
+
     private void openMulticastSocket(HostInfo hostInfo) throws IOException
     {
         if (group == null)
@@ -283,7 +281,7 @@ public class JmDNS
         socket.setTimeToLive(255);
         socket.joinGroup(group);
     }
-    
+
     private void closeMulticastSocket()
     {
         logger.finer("closeMulticastSocket()");
@@ -301,13 +299,13 @@ public class JmDNS
             }
             catch (Exception exception)
             {
-                logger.log(Level.WARNING, 
+                logger.log(Level.WARNING,
                     "closeMulticastSocket() Close socket exception ", exception);
             }
             socket = null;
         }
     }
-    
+
     // State machine
     /**
      * Sets the state and notifies all objects that wait on JmDNS.
@@ -317,7 +315,7 @@ public class JmDNS
         state = state.advance();
         notifyAll();
     }
-    
+
     /**
      * Sets the state and notifies all objects that wait on JmDNS.
      */
@@ -326,7 +324,7 @@ public class JmDNS
         state = state.revert();
         notifyAll();
     }
-    
+
     /**
      * Sets the state and notifies all objects that wait on JmDNS.
      */
@@ -335,7 +333,7 @@ public class JmDNS
         state = DNSState.CANCELED;
         notifyAll();
     }
-    
+
     /**
      * Returns the current state of this info.
      */
@@ -343,8 +341,8 @@ public class JmDNS
     {
         return state;
     }
-    
-    
+
+
     /**
      * Return the DNSCache associated with the cache variable
      */
@@ -352,7 +350,7 @@ public class JmDNS
     {
         return cache;
     }
-    
+
     /**
      * Return the HostName associated with this JmDNS instance.
      * Note: May not be the same as what started.  The host name is subject to
@@ -363,25 +361,25 @@ public class JmDNS
     {
         return localHost.getName();
     }
-    
+
     public HostInfo getLocalHost()
     {
         return localHost;
     }
-    
+
     /**
      * Return the address of the interface to which this instance of JmDNS is
      * bound.
-     * @return Return the address of the interface to which this instance 
+     * @return Return the address of the interface to which this instance
      *      of JmDNS is bound.
-     * @throws java.io.IOException 
+     * @throws java.io.IOException
      */
-    public InetAddress getInterface() 
+    public InetAddress getInterface()
         throws IOException
     {
         return socket.getInterface();
     }
-    
+
     /**
      * Get service information. If the information is not cached, the method
      * will block until updated information is received.
@@ -389,7 +387,7 @@ public class JmDNS
      * Usage note: Do not call this method from the AWT event dispatcher thread.
      * You will make the user interface unresponsive.
      *
-     * @param type fully qualified service type, 
+     * @param type fully qualified service type,
      *      such as <code>_http._tcp.local.</code> .
      * @param name unqualified service name, such as <code>foobar</code> .
      * @return null if the service information cannot be obtained
@@ -398,7 +396,7 @@ public class JmDNS
     {
         return getServiceInfo(type, name, 3 * 1000);
     }
-    
+
     /**
      * Get service information. If the information is not cached, the method
      * will block for the given timeout until updated information is received.
@@ -406,7 +404,7 @@ public class JmDNS
      * Usage note: If you call this method from the AWT event dispatcher thread,
      * use a small timeout, or you will make the user interface unresponsive.
      *
-     * @param type    full qualified service type, 
+     * @param type    full qualified service type,
      *      such as <code>_http._tcp.local.</code> .
      * @param name    unqualified service name, such as <code>foobar</code> .
      * @param timeout timeout in milliseconds
@@ -423,7 +421,7 @@ public class JmDNS
             long delay;
             synchronized (info)
             {
-                while (!info.hasData() && 
+                while (!info.hasData() &&
                         (delay = end - System.currentTimeMillis()) > 0)
                 {
                     info.wait(delay);
@@ -434,10 +432,10 @@ public class JmDNS
         {
             // empty
         }
-        
+
         return (info.hasData()) ? info : null;
     }
-    
+
     /**
      * Request service information. The information about the service is
      * requested and the ServiceListener.resolveService method is called as soon
@@ -446,7 +444,7 @@ public class JmDNS
      * Usage note: Do not call this method from the AWT event dispatcher thread.
      * You will make the user interface unresponsive.
      *
-     * @param type full qualified service type, 
+     * @param type full qualified service type,
      *      such as <code>_http._tcp.local.</code> .
      * @param name unqualified service name, such as <code>foobar</code> .
      */
@@ -454,13 +452,13 @@ public class JmDNS
     {
         requestServiceInfo(type, name, 3 * 1000);
     }
-    
+
     /**
-     * Request service information. The information about the service 
-     * is requested and the ServiceListener.resolveService method is 
+     * Request service information. The information about the service
+     * is requested and the ServiceListener.resolveService method is
      * called as soon as it is available.
      *
-     * @param type    full qualified service type, 
+     * @param type    full qualified service type,
      *      such as <code>_http._tcp.local.</code> .
      * @param name    unqualified service name, such as <code>foobar</code> .
      * @param timeout timeout in milliseconds
@@ -470,14 +468,14 @@ public class JmDNS
         registerServiceType(type);
         ServiceInfo info = new ServiceInfo(type, name);
         new ServiceInfoResolver(info).start();
-        
+
         try
         {
             long end = System.currentTimeMillis() + timeout;
             long delay;
             synchronized (info)
             {
-                while (!info.hasData() && 
+                while (!info.hasData() &&
                     (delay = end - System.currentTimeMillis()) > 0)
                 {
                     info.wait(delay);
@@ -489,13 +487,13 @@ public class JmDNS
             // empty
         }
     }
-    
+
     void handleServiceResolved(ServiceInfo info)
     {
         List list = (List) serviceListeners.get(info.type.toLowerCase());
         if (list != null)
         {
-            ServiceEvent event = 
+            ServiceEvent event =
                 new ServiceEvent(this, info.type, info.getName(), info);
             // Iterate on a copy in case listeners will modify it
             final ArrayList listCopy = new ArrayList(list);
@@ -505,14 +503,14 @@ public class JmDNS
             }
         }
     }
-    
+
     /**
      * Listen for service types.
      *
      * @param listener listener for service types
-     * @throws java.io.IOException 
+     * @throws java.io.IOException
      */
-    public void addServiceTypeListener(ServiceTypeListener listener) 
+    public void addServiceTypeListener(ServiceTypeListener listener)
         throws IOException
     {
         synchronized (this)
@@ -520,18 +518,18 @@ public class JmDNS
             typeListeners.remove(listener);
             typeListeners.add(listener);
         }
-        
+
         // report cached service types
-        for (Iterator iterator = serviceTypes.values().iterator(); 
+        for (Iterator iterator = serviceTypes.values().iterator();
             iterator.hasNext();)
         {
             listener.serviceTypeAdded(
                 new ServiceEvent(this, (String) iterator.next(), null, null));
         }
-        
+
         new TypeResolver().start();
     }
-    
+
     /**
      * Remove listener for service types.
      *
@@ -544,12 +542,12 @@ public class JmDNS
             typeListeners.remove(listener);
         }
     }
-    
+
     /**
-     * Listen for services of a given type. The type has to be a fully 
+     * Listen for services of a given type. The type has to be a fully
      * qualified type name such as <code>_http._tcp.local.</code>.
      *
-     * @param type     full qualified service type, 
+     * @param type     full qualified service type,
      *      such as <code>_http._tcp.local.</code>.
      * @param listener listener for service updates
      */
@@ -568,11 +566,11 @@ public class JmDNS
             }
             list.add(listener);
         }
-        
+
         // report cached service types
         for (Iterator i = cache.iterator(); i.hasNext();)
         {
-            for (DNSCache.CacheNode n = 
+            for (DNSCache.CacheNode n =
                 (DNSCache.CacheNode) i.next(); n != null; n = n.next())
             {
                 DNSRecord rec = (DNSRecord) n.getValue();
@@ -582,9 +580,9 @@ public class JmDNS
                     {
                         listener.serviceAdded(
                             new ServiceEvent(
-                                this, 
-                                type, 
-                                toUnqualifiedName(type, rec.name), 
+                                this,
+                                type,
+                                toUnqualifiedName(type, rec.name),
                                 null));
                     }
                 }
@@ -592,7 +590,7 @@ public class JmDNS
         }
         new ServiceResolver(type).start();
     }
-    
+
     /**
      * Remove listener for services of a given type.
      *
@@ -615,28 +613,28 @@ public class JmDNS
             }
         }
     }
-    
+
     /**
-     * Register a service. The service is registered 
+     * Register a service. The service is registered
      * for access by other jmdns clients.
      * The name of the service may be changed to make it unique.
      * @param info of service
-     * @throws java.io.IOException 
+     * @throws java.io.IOException
      */
     public void registerService(ServiceInfo info) throws IOException
     {
         registerServiceType(info.type);
-        
+
         // bind the service to this address
         info.server = localHost.getName();
         info.addr = localHost.getAddress();
-        
+
         synchronized (this)
         {
             makeServiceNameUnique(info);
             services.put(info.getQualifiedName().toLowerCase(), info);
         }
-        
+
         new /*Service*/Prober().start();
         try
         {
@@ -654,7 +652,7 @@ public class JmDNS
         }
         logger.fine("registerService() JmDNS registered service as " + info);
     }
-    
+
     /**
      * Unregister a service. The service should have been registered.
      * @param info of service
@@ -666,7 +664,7 @@ public class JmDNS
             services.remove(info.getQualifiedName().toLowerCase());
         }
         info.cancel();
-        
+
         // Note: We use this lock object to synchronize on it.
         //       Synchronizing on another object (e.g. the ServiceInfo) does
         //       not make sense, because the sole purpose of the lock is to
@@ -676,7 +674,7 @@ public class JmDNS
         //       what we want!
         Object lock = new Object();
         new Canceler(info, lock).start();
-        
+
         // Remind: We get a deadlock here, if the Canceler does not run!
         try
         {
@@ -690,7 +688,7 @@ public class JmDNS
             // empty
         }
     }
-    
+
     /**
      * Unregister all services.
      */
@@ -701,7 +699,7 @@ public class JmDNS
         {
             return;
         }
-        
+
         Collection list;
         synchronized (this)
         {
@@ -712,8 +710,8 @@ public class JmDNS
         {
             ((ServiceInfo) iterator.next()).cancel();
         }
-        
-        
+
+
         Object lock = new Object();
         new Canceler(list, lock).start();
         // Remind: We get a livelock here, if the Canceler does not run!
@@ -731,13 +729,13 @@ public class JmDNS
         {
             // empty
         }
-        
-        
+
+
     }
-    
+
     /**
      * Register a service type. If this service type was not already known,
-     * all service listeners will be notified of the new service type. 
+     * all service listeners will be notified of the new service type.
      * Service types are automatically registered as they are discovered.
      * @param type of service
      */
@@ -746,7 +744,7 @@ public class JmDNS
         String name = type.toLowerCase();
         if (serviceTypes.get(name) == null)
         {
-            if ((type.indexOf("._mdns._udp.") < 0) && 
+            if ((type.indexOf("._mdns._udp.") < 0) &&
                 !type.endsWith(".in-addr.arpa."))
             {
                 Collection list;
@@ -764,7 +762,7 @@ public class JmDNS
             }
         }
     }
-    
+
     /**
      * Generate a possibly unique name for a host using the information we
      * have in the cache.
@@ -775,16 +773,16 @@ public class JmDNS
     {
         String originalName = host.getName();
         long now = System.currentTimeMillis();
-        
+
         boolean collision;
         do
         {
             collision = false;
-            
+
             // Check for collision in cache
             for (DNSCache.CacheNode j = cache.find(
-                                host.getName().toLowerCase()); 
-                j != null; 
+                                host.getName().toLowerCase());
+                j != null;
                 j = j.next())
             {
                 DNSRecord a = (DNSRecord) j.getValue();
@@ -797,7 +795,7 @@ public class JmDNS
             }
         }
         while (collision);
-        
+
         if (originalName.equals(host.getName()))
         {
             return false;
@@ -807,7 +805,7 @@ public class JmDNS
             return true;
         }
     }
-    
+
     /**
      * Generate a possibly unique name for a service using the information we
      * have in the cache.
@@ -818,16 +816,16 @@ public class JmDNS
     {
         String originalQualifiedName = info.getQualifiedName();
         long now = System.currentTimeMillis();
-        
+
         boolean collision;
         do
         {
             collision = false;
-            
+
             // Check for collision in cache
             for (DNSCache.CacheNode j = cache.find(
-                                    info.getQualifiedName().toLowerCase()); 
-                j != null; 
+                                    info.getQualifiedName().toLowerCase());
+                j != null;
                 j = j.next())
             {
                 DNSRecord a = (DNSRecord) j.getValue();
@@ -836,10 +834,10 @@ public class JmDNS
                     DNSRecord.Service s = (DNSRecord.Service) a;
                     if (s.port != info.port || !s.server.equals(localHost.getName()))
                     {
-                        logger.finer("makeServiceNameUnique() " + 
-                            "JmDNS.makeServiceNameUnique srv collision:" + 
-                            a + " s.server=" + s.server + " " + 
-                            localHost.getName() + " equals:" + 
+                        logger.finer("makeServiceNameUnique() " +
+                            "JmDNS.makeServiceNameUnique srv collision:" +
+                            a + " s.server=" + s.server + " " +
+                            localHost.getName() + " equals:" +
                             (s.server.equals(localHost.getName())));
                         info.setName(incrementName(info.getName()));
                         collision = true;
@@ -847,9 +845,9 @@ public class JmDNS
                     }
                 }
             }
-            
+
             // Check for collision with other service infos published by JmDNS
-            Object selfService = 
+            Object selfService =
                 services.get(info.getQualifiedName().toLowerCase());
             if (selfService != null && selfService != info)
             {
@@ -858,10 +856,10 @@ public class JmDNS
             }
         }
         while (collision);
-        
+
         return !(originalQualifiedName.equals(info.getQualifiedName()));
     }
-    
+
     String incrementName(String name)
     {
         try
@@ -870,7 +868,7 @@ public class JmDNS
             int r = name.lastIndexOf(')');
             if ((l >= 0) && (l < r))
             {
-                name = name.substring(0, l) + "(" + 
+                name = name.substring(0, l) + "(" +
                     (Integer.parseInt(name.substring(l + 1, r)) + 1) + ")";
             }
             else
@@ -884,7 +882,7 @@ public class JmDNS
         }
         return name;
     }
-    
+
     /**
      * Add a listener for a question. The listener will receive updates
      * of answers to the question as they arrive, or from the cache if they
@@ -895,18 +893,18 @@ public class JmDNS
     public void addListener(DNSListener listener, DNSQuestion question)
     {
         long now = System.currentTimeMillis();
-        
+
         // add the new listener
         synchronized (this)
         {
             listeners.add(listener);
         }
-        
+
         // report existing matched records
         if (question != null)
         {
-            for (DNSCache.CacheNode i = cache.find(question.name); 
-                i != null; 
+            for (DNSCache.CacheNode i = cache.find(question.name);
+                i != null;
                 i = i.next())
             {
                 DNSRecord c = (DNSRecord) i.getValue();
@@ -917,9 +915,9 @@ public class JmDNS
             }
         }
     }
-    
+
     /**
-     * Remove a listener from all outstanding questions. 
+     * Remove a listener from all outstanding questions.
      * The listener will no longer receive any updates.
      */
     void removeListener(DNSListener listener)
@@ -929,36 +927,36 @@ public class JmDNS
             listeners.remove(listener);
         }
     }
-    
-    
+
+
     // Remind: Method updateRecord should receive a better name.
     /**
      * Notify all listeners that a record was updated.
      */
     void updateRecord(long now, DNSRecord rec)
     {
-        // We do not want to block the entire DNS 
+        // We do not want to block the entire DNS
         // while we are updating the record for each listener (service info)
         List listenerList = null;
         synchronized (this)
         {
             listenerList = new ArrayList(listeners);
         }
-        
+
         //System.out.println("OUT OF MUTEX!!!!!");
-        
+
         for (Iterator iterator = listenerList.iterator(); iterator.hasNext();)
         {
             DNSListener listener = (DNSListener) iterator.next();
             listener.updateRecord(this, now, rec);
         }
-        if (rec.type == DNSConstants.TYPE_PTR || 
+        if (rec.type == DNSConstants.TYPE_PTR ||
             rec.type == DNSConstants.TYPE_SRV)
         {
             List serviceListenerList = null;
             synchronized (this)
             {
-                serviceListenerList = 
+                serviceListenerList =
                     (List) serviceListeners.get(rec.name.toLowerCase());
                 // Iterate on a copy in case listeners will modify it
                 if (serviceListenerList != null)
@@ -975,13 +973,13 @@ public class JmDNS
                 if (!expired)
                 {
                     // new record
-                    ServiceEvent event = 
+                    ServiceEvent event =
                         new ServiceEvent(
-                            this, 
-                            type, 
-                            toUnqualifiedName(type, name), 
+                            this,
+                            type,
+                            toUnqualifiedName(type, name),
                             null);
-                    for (Iterator iterator = serviceListenerList.iterator(); 
+                    for (Iterator iterator = serviceListenerList.iterator();
                         iterator.hasNext();)
                     {
                         ((ServiceListener) iterator.next()).serviceAdded(event);
@@ -990,13 +988,13 @@ public class JmDNS
                 else
                 {
                     // expire record
-                    ServiceEvent event = 
+                    ServiceEvent event =
                         new ServiceEvent(
-                            this, 
-                            type, 
-                            toUnqualifiedName(type, name), 
+                            this,
+                            type,
+                            toUnqualifiedName(type, name),
                             null);
-                    for (Iterator iterator = serviceListenerList.iterator(); 
+                    for (Iterator iterator = serviceListenerList.iterator();
                         iterator.hasNext();)
                     {
                         ((ServiceListener) iterator.next()).
@@ -1006,20 +1004,20 @@ public class JmDNS
             }
         }
     }
-    
+
     /**
      * Handle an incoming response. Cache answers, and pass them on to
      * the appropriate questions.
      */
-    private void handleResponse(DNSIncoming msg) 
+    private void handleResponse(DNSIncoming msg)
         throws IOException
     {
         long now = System.currentTimeMillis();
-        
+
         boolean hostConflictDetected = false;
         boolean serviceConflictDetected = false;
-        
-        logger.finest("JMDNS/handleResponse received " + 
+
+        logger.finest("JMDNS/handleResponse received " +
             msg.answers.size()+ " messages");
         for (Iterator i = msg.answers.iterator(); i.hasNext();)
         { DNSRecord rec = (DNSRecord)i.next();
@@ -1032,15 +1030,15 @@ public class JmDNS
             boolean isInformative = false;
             DNSRecord rec = (DNSRecord) i.next();
             boolean expired = rec.isExpired(now);
-            
+
             logger.finest("JMDNS received : " + rec + " expired: "+expired);
-            
+
             // update the cache
             DNSRecord c = (DNSRecord) cache.get(rec);
             if (c != null)
             {
                 logger.finest("JMDNS has found "+rec+" in cache");
-                if (expired) 
+                if (expired)
                 {
                     isInformative = true;
                     cache.remove(c);
@@ -1048,33 +1046,33 @@ public class JmDNS
                 else
                 {
                     /* Special case for SIP Communicator.
-                     * We want to be informed if a cache entry is modified 
+                     * We want to be informed if a cache entry is modified
                      */
-//                    if ((c.isUnique() 
-//                      && c.getType() == DNSConstants.TYPE_TXT 
+//                    if ((c.isUnique()
+//                      && c.getType() == DNSConstants.TYPE_TXT
 //                      && ((c.getClazz() & DNSConstants.CLASS_IN) != 0)))
 //                            isInformative = true;
 //                    c.resetTTL(rec);
 //                    rec = c;
                     logger.fine(
-                        new Boolean(c.isUnique()).toString() + 
-                        c.getType()+c.getClazz() + "/" + 
+                        new Boolean(c.isUnique()).toString() +
+                        c.getType()+c.getClazz() + "/" +
                         DNSConstants.TYPE_TXT + " "+DNSConstants.CLASS_IN);
-                    
-                    if ((rec.isUnique()                                                                                                                                
-                      && ((rec.getType() & DNSConstants.TYPE_TXT) != 0)                                                                                                
-                      && ((rec.getClazz() & DNSConstants.CLASS_IN) != 0)))                                                                                             
-                    {                                                                                                                                                  
-                        System.out.println("UPDATING CACHE !! ");                                                                                                      
-                        isInformative = true;                                                                                                                          
-                        cache.remove(c);                                                                                                                               
-                        cache.add(rec);                                                                                                                                
-                    }                                                                                                                                                  
-                    else                                                                                                                                               
-                    {                                                                                                                                                  
-                        c.resetTTL(rec);                                                                                                                               
-                        rec = c;                                                                                                                                       
-                    }                 
+
+                    if ((rec.isUnique()
+                      && ((rec.getType() & DNSConstants.TYPE_TXT) != 0)
+                      && ((rec.getClazz() & DNSConstants.CLASS_IN) != 0)))
+                    {
+                        System.out.println("UPDATING CACHE !! ");
+                        isInformative = true;
+                        cache.remove(c);
+                        cache.add(rec);
+                    }
+                    else
+                    {
+                        c.resetTTL(rec);
+                        rec = c;
+                    }
                 }
             }
             else
@@ -1092,7 +1090,7 @@ public class JmDNS
                     // handle _mdns._udp records
                     if (rec.getName().indexOf("._mdns._udp.") >= 0)
                     {
-                        if (!expired && 
+                        if (!expired &&
                             rec.name.startsWith("_services._mdns._udp."))
                         {
                             isInformative = true;
@@ -1103,9 +1101,9 @@ public class JmDNS
                     registerServiceType(rec.name);
                     break;
             }
-            
-            
-            if ((rec.getType() == DNSConstants.TYPE_A) || 
+
+
+            if ((rec.getType() == DNSConstants.TYPE_A) ||
                 (rec.getType() == DNSConstants.TYPE_AAAA))
             {
                 hostConflictDetected |= rec.handleResponse(this);
@@ -1120,44 +1118,44 @@ public class JmDNS
             {
                 updateRecord(now, rec);
             }
-            
+
 
         }
-        
+
         if (hostConflictDetected || serviceConflictDetected)
         {
             new Prober().start();
         }
     }
-    
+
     /**
      * Handle an incoming query. See if we can answer any part of it
      * given our service infos.
      */
-    private void handleQuery(DNSIncoming in, InetAddress addr, int port) 
+    private void handleQuery(DNSIncoming in, InetAddress addr, int port)
         throws IOException
     {
         // Track known answers
         boolean hostConflictDetected = false;
         boolean serviceConflictDetected = false;
-        long expirationTime = System.currentTimeMillis() + 
+        long expirationTime = System.currentTimeMillis() +
             DNSConstants.KNOWN_ANSWER_TTL;
         for (Iterator i = in.answers.iterator(); i.hasNext();)
         {
             DNSRecord answer = (DNSRecord) i.next();
-            if ((answer.getType() == DNSConstants.TYPE_A) || 
+            if ((answer.getType() == DNSConstants.TYPE_A) ||
                 (answer.getType() == DNSConstants.TYPE_AAAA))
             {
-                hostConflictDetected |= 
+                hostConflictDetected |=
                     answer.handleQuery(this, expirationTime);
             }
             else
             {
-                serviceConflictDetected |= 
+                serviceConflictDetected |=
                     answer.handleQuery(this, expirationTime);
             }
         }
-        
+
         if (plannedAnswer != null)
         {
             plannedAnswer.append(in);
@@ -1168,25 +1166,25 @@ public class JmDNS
             {
                 plannedAnswer = in;
             }
-            
+
             new Responder(in, addr, port).start();
         }
-        
+
         if (hostConflictDetected || serviceConflictDetected)
         {
             new Prober().start();
         }
     }
-    
+
     /**
      * Add an answer to a question. Deal with the case when the
      * outgoing packet overflows
      */
     DNSOutgoing addAnswer(DNSIncoming in,
-                          InetAddress addr, 
-                          int port, 
-                          DNSOutgoing out, 
-                          DNSRecord rec) 
+                          InetAddress addr,
+                          int port,
+                          DNSOutgoing out,
+                          DNSRecord rec)
         throws IOException
     {
         if (out == null)
@@ -1204,15 +1202,15 @@ public class JmDNS
             out.id = in.id;
             out.finish();
             send(out);
-            
+
             out = new DNSOutgoing(
                 DNSConstants.FLAGS_QR_RESPONSE | DNSConstants.FLAGS_AA);
             out.addAnswer(in, rec);
         }
         return out;
     }
-    
-    
+
+
     /**
      * Send an outgoing multicast DNS message.
      */
@@ -1221,10 +1219,10 @@ public class JmDNS
         out.finish();
         if (!out.isEmpty())
         {
-            DatagramPacket packet = 
+            DatagramPacket packet =
                 new DatagramPacket(
                     out.data, out.off, group, DNSConstants.MDNS_PORT);
-            
+
             try
             {
                 DNSIncoming msg = new DNSIncoming(packet);
@@ -1232,14 +1230,14 @@ public class JmDNS
             }
             catch (IOException e)
             {
-                logger.throwing(getClass().toString(), 
-                    "send(DNSOutgoing) - JmDNS can not parse what it sends!!!", 
+                logger.throwing(getClass().toString(),
+                    "send(DNSOutgoing) - JmDNS can not parse what it sends!!!",
                     e);
             }
             socket.send(packet);
         }
     }
-    
+
     /**
      * Listen for multicast packets.
      */
@@ -1265,19 +1263,19 @@ public class JmDNS
                         {
                             continue;
                         }
-                        
+
                         DNSIncoming msg = new DNSIncoming(packet);
-                        logger.finest("SocketListener.run() JmDNS in:" + 
+                        logger.finest("SocketListener.run() JmDNS in:" +
                             msg.print(true));
-                        
+
                         synchronized (ioLock)
                         {
                             if (msg.isQuery())
                             {
                                 if (packet.getPort() != DNSConstants.MDNS_PORT)
                                 {
-                                    handleQuery(msg, 
-                                                packet.getAddress(), 
+                                    handleQuery(msg,
+                                                packet.getAddress(),
                                                 packet.getPort());
                                 }
                                 handleQuery(msg, group, DNSConstants.MDNS_PORT);
@@ -1304,8 +1302,8 @@ public class JmDNS
             }
         }
     }
-    
-    
+
+
     /**
      * Periodicaly removes expired entries from the cache.
      */
@@ -1313,11 +1311,11 @@ public class JmDNS
     {
         public void start()
         {
-            timer.schedule( this, 
-                            DNSConstants.RECORD_REAPER_INTERVAL, 
+            timer.schedule( this,
+                            DNSConstants.RECORD_REAPER_INTERVAL,
                             DNSConstants.RECORD_REAPER_INTERVAL);
         }
-        
+
         public void run()
         {
             synchronized (JmDNS.this)
@@ -1327,7 +1325,7 @@ public class JmDNS
                     return;
                 }
                 logger.finest("run() JmDNS reaping cache");
-                
+
                 // Remove expired answers from the cache
                 // -------------------------------------
                 // To prevent race conditions, we defensively copy all cache
@@ -1337,8 +1335,8 @@ public class JmDNS
                 {
                     for (Iterator i = cache.iterator(); i.hasNext();)
                     {
-                        for (DNSCache.CacheNode n = (DNSCache.CacheNode) i.next(); 
-                            n != null; 
+                        for (DNSCache.CacheNode n = (DNSCache.CacheNode) i.next();
+                            n != null;
                             n = n.next())
                         {
                             list.add(n.getValue());
@@ -1359,17 +1357,17 @@ public class JmDNS
             }
         }
     }
-    
-    
+
+
     /**
      * The Prober sends three consecutive probes for all service infos
      * that needs probing as well as for the host name.
-     * The state of each service info of the host name is advanced, 
+     * The state of each service info of the host name is advanced,
      * when a probe has been sent for it.
      * When the prober has run three times, it launches an Announcer.
      * <p/>
-     * If a conflict during probes occurs, the affected service 
-     * infos (and affected host name) are taken away from the prober. 
+     * If a conflict during probes occurs, the affected service
+     * infos (and affected host name) are taken away from the prober.
      * This eventually causes the prober tho cancel itself.
      */
     private class Prober extends TimerTask
@@ -1378,7 +1376,7 @@ public class JmDNS
          * The state of the prober.
          */
         DNSState taskState = DNSState.PROBING_1;
-        
+
         public Prober()
         {
             // Associate the host name to this, if it needs probing
@@ -1389,7 +1387,7 @@ public class JmDNS
             // Associate services to this, if they need probing
             synchronized (JmDNS.this)
             {
-                for (Iterator iterator = services.values().iterator(); 
+                for (Iterator iterator = services.values().iterator();
                     iterator.hasNext();)
                 {
                     ServiceInfo info = (ServiceInfo) iterator.next();
@@ -1400,12 +1398,12 @@ public class JmDNS
                 }
             }
         }
-        
-        
+
+
         public void start()
         {
             long now = System.currentTimeMillis();
-            if (now - lastThrottleIncrement < 
+            if (now - lastThrottleIncrement <
                 DNSConstants.PROBE_THROTTLE_COUNT_INTERVAL)
             {
                 throttle++;
@@ -1415,22 +1413,22 @@ public class JmDNS
                 throttle = 1;
             }
             lastThrottleIncrement = now;
-            
-            if (state == DNSState.ANNOUNCED && 
+
+            if (state == DNSState.ANNOUNCED &&
                 throttle < DNSConstants.PROBE_THROTTLE_COUNT)
             {
-                timer.schedule(this, 
-                           random.nextInt(1 + DNSConstants.PROBE_WAIT_INTERVAL), 
+                timer.schedule(this,
+                           random.nextInt(1 + DNSConstants.PROBE_WAIT_INTERVAL),
                            DNSConstants.PROBE_WAIT_INTERVAL);
             }
             else
             {
-                timer.schedule(this, 
-                           DNSConstants.PROBE_CONFLICT_INTERVAL, 
+                timer.schedule(this,
+                           DNSConstants.PROBE_CONFLICT_INTERVAL,
                            DNSConstants.PROBE_CONFLICT_INTERVAL);
             }
         }
-        
+
         public boolean cancel()
         {
             // Remove association from host name to this
@@ -1438,7 +1436,7 @@ public class JmDNS
             {
                 task = null;
             }
-            
+
             // Remove associations from services to this
             synchronized (JmDNS.this)
             {
@@ -1451,10 +1449,10 @@ public class JmDNS
                     }
                 }
             }
-            
+
             return super.cancel();
         }
-        
+
         public void run()
         {
             synchronized (ioLock)
@@ -1471,8 +1469,8 @@ public class JmDNS
                         }
                         out.addQuestion(
                             new DNSQuestion(
-                                localHost.getName(), 
-                                DNSConstants.TYPE_ANY, 
+                                localHost.getName(),
+                                DNSConstants.TYPE_ANY,
                                 DNSConstants.CLASS_IN));
                         DNSRecord answer = localHost.getDNS4AddressRecord();
                         if (answer != null)
@@ -1498,36 +1496,36 @@ public class JmDNS
                     for (Iterator i = list.iterator(); i.hasNext();)
                     {
                         ServiceInfo info = (ServiceInfo) i.next();
-                        
+
                         synchronized (info)
                         {
-                            if (info.getState() == taskState && 
+                            if (info.getState() == taskState &&
                                 info.task == this)
                             {
                                 info.advanceState();
-                                logger.fine("run() JmDNS probing " + 
-                                    info.getQualifiedName() + " state " + 
+                                logger.fine("run() JmDNS probing " +
+                                    info.getQualifiedName() + " state " +
                                     info.getState());
-                                
+
                                 if (out == null)
                                 {
                                     out = new DNSOutgoing(
                                         DNSConstants.FLAGS_QR_QUERY);
                                     out.addQuestion(
                                         new DNSQuestion(
-                                            info.getQualifiedName(), 
-                                            DNSConstants.TYPE_ANY, 
+                                            info.getQualifiedName(),
+                                            DNSConstants.TYPE_ANY,
                                             DNSConstants.CLASS_IN));
                                 }
                                 out.addAuthorativeAnswer(
                                     new DNSRecord.Service(
-                                        info.getQualifiedName(), 
-                                        DNSConstants.TYPE_SRV, 
-                                        DNSConstants.CLASS_IN, 
-                                        DNSConstants.DNS_TTL, 
-                                        info.priority, 
-                                        info.weight, 
-                                        info.port, 
+                                        info.getQualifiedName(),
+                                        DNSConstants.TYPE_SRV,
+                                        DNSConstants.CLASS_IN,
+                                        DNSConstants.DNS_TTL,
+                                        info.priority,
+                                        info.weight,
+                                        info.port,
                                         localHost.getName()));
                             }
                         }
@@ -1539,7 +1537,7 @@ public class JmDNS
                     }
                     else
                     {
-                        // If we have nothing to send, another timer taskState 
+                        // If we have nothing to send, another timer taskState
                         // ahead of us has done the job for us. We can cancel.
                         cancel();
                         return;
@@ -1550,23 +1548,23 @@ public class JmDNS
                     logger.log(Level.WARNING, "run() exception ", e);
                     recover();
                 }
-                
+
                 taskState = taskState.advance();
                 if (!taskState.isProbing())
                 {
                     cancel();
-                    
+
                     new Announcer().start();
                 }
             }
         }
-        
+
     }
-    
+
     /**
      * The Announcer sends an accumulated query of all announces, and advances
      * the state of all serviceInfos, for which it has sent an announce.
-     * The Announcer also sends announcements and advances the state of JmDNS 
+     * The Announcer also sends announcements and advances the state of JmDNS
      * itself.
      * <p/>
      * When the announcer has run two times, it finishes.
@@ -1577,7 +1575,7 @@ public class JmDNS
          * The state of the announcer.
          */
         DNSState taskState = DNSState.ANNOUNCING_1;
-        
+
         public Announcer()
         {
             // Associate host to this, if it needs announcing
@@ -1598,14 +1596,14 @@ public class JmDNS
                 }
             }
         }
-        
+
         public void start()
         {
-            timer.schedule(this, 
-                DNSConstants.ANNOUNCE_WAIT_INTERVAL, 
+            timer.schedule(this,
+                DNSConstants.ANNOUNCE_WAIT_INTERVAL,
                 DNSConstants.ANNOUNCE_WAIT_INTERVAL);
         }
-        
+
         public boolean cancel()
         {
             // Remove association from host to this
@@ -1613,7 +1611,7 @@ public class JmDNS
             {
                 task = null;
             }
-            
+
             // Remove associations from services to this
             synchronized (JmDNS.this)
             {
@@ -1626,10 +1624,10 @@ public class JmDNS
                     }
                 }
             }
-            
+
             return super.cancel();
         }
-        
+
         public void run()
         {
             DNSOutgoing out = null;
@@ -1672,39 +1670,39 @@ public class JmDNS
                         if (info.getState() == taskState && info.task == this)
                         {
                             info.advanceState();
-                            logger.finer("run() JmDNS announcing " + 
-                                info.getQualifiedName() + 
+                            logger.finer("run() JmDNS announcing " +
+                                info.getQualifiedName() +
                                 " state " + info.getState());
-                            
+
                             if (out == null)
                             {
                                 out = new DNSOutgoing(
-                                    DNSConstants.FLAGS_QR_RESPONSE | 
+                                    DNSConstants.FLAGS_QR_RESPONSE |
                                     DNSConstants.FLAGS_AA);
                             }
                             out.addAnswer(
                                 new DNSRecord.Pointer(
-                                    info.type, 
-                                    DNSConstants.TYPE_PTR, 
-                                    DNSConstants.CLASS_IN, 
-                                    DNSConstants.DNS_TTL, 
+                                    info.type,
+                                    DNSConstants.TYPE_PTR,
+                                    DNSConstants.CLASS_IN,
+                                    DNSConstants.DNS_TTL,
                                     info.getQualifiedName()), 0);
                             out.addAnswer(
                                 new DNSRecord.Service(
-                                    info.getQualifiedName(), 
-                                    DNSConstants.TYPE_SRV, 
-                                    DNSConstants.CLASS_IN, 
-                                    DNSConstants.DNS_TTL, 
-                                    info.priority, 
-                                    info.weight, 
-                                    info.port, 
+                                    info.getQualifiedName(),
+                                    DNSConstants.TYPE_SRV,
+                                    DNSConstants.CLASS_IN,
+                                    DNSConstants.DNS_TTL,
+                                    info.priority,
+                                    info.weight,
+                                    info.port,
                                     localHost.getName()), 0);
                             out.addAnswer(
                                 new DNSRecord.Text(
-                                    info.getQualifiedName(), 
-                                    DNSConstants.TYPE_TXT, 
-                                    DNSConstants.CLASS_IN, 
-                                    DNSConstants.DNS_TTL, 
+                                    info.getQualifiedName(),
+                                    DNSConstants.TYPE_TXT,
+                                    DNSConstants.CLASS_IN,
+                                    DNSConstants.DNS_TTL,
                                     info.text), 0);
                         }
                     }
@@ -1726,19 +1724,19 @@ public class JmDNS
                 logger.log(Level.WARNING, "run() exception ", e);
                 recover();
             }
-            
+
             taskState = taskState.advance();
             if (!taskState.isAnnouncing())
             {
                 cancel();
-                
+
                 new Renewer().start();
             }
         }
     }
-    
+
     /**
-     * The Renewer is there to send renewal announcment 
+     * The Renewer is there to send renewal announcment
      * when the record expire for ours infos.
      */
     private class Renewer extends TimerTask
@@ -1747,7 +1745,7 @@ public class JmDNS
          * The state of the announcer.
          */
         DNSState taskState = DNSState.ANNOUNCED;
-        
+
         public Renewer()
         {
             // Associate host to this, if it needs renewal
@@ -1768,14 +1766,14 @@ public class JmDNS
                 }
             }
         }
-        
+
         public void start()
         {
-            timer.schedule(this, 
-                DNSConstants.ANNOUNCED_RENEWAL_TTL_INTERVAL, 
+            timer.schedule(this,
+                DNSConstants.ANNOUNCED_RENEWAL_TTL_INTERVAL,
                 DNSConstants.ANNOUNCED_RENEWAL_TTL_INTERVAL);
         }
-        
+
         public boolean cancel()
         {
             // Remove association from host to this
@@ -1783,7 +1781,7 @@ public class JmDNS
             {
                 task = null;
             }
-            
+
             // Remove associations from services to this
             synchronized (JmDNS.this)
             {
@@ -1796,10 +1794,10 @@ public class JmDNS
                     }
                 }
             }
-            
+
             return super.cancel();
         }
-        
+
         public void run()
         {
             DNSOutgoing out = null;
@@ -1842,38 +1840,38 @@ public class JmDNS
                         if (info.getState() == taskState && info.task == this)
                         {
                             info.advanceState();
-                            logger.finer("run() JmDNS announced " + 
+                            logger.finer("run() JmDNS announced " +
                                 info.getQualifiedName() + " state " + info.getState());
-                            
+
                             if (out == null)
                             {
                                 out = new DNSOutgoing(
-                                    DNSConstants.FLAGS_QR_RESPONSE | 
+                                    DNSConstants.FLAGS_QR_RESPONSE |
                                     DNSConstants.FLAGS_AA);
                             }
                             out.addAnswer(
                                 new DNSRecord.Pointer(
-                                    info.type, 
-                                    DNSConstants.TYPE_PTR, 
-                                    DNSConstants.CLASS_IN, 
-                                    DNSConstants.DNS_TTL, 
+                                    info.type,
+                                    DNSConstants.TYPE_PTR,
+                                    DNSConstants.CLASS_IN,
+                                    DNSConstants.DNS_TTL,
                                     info.getQualifiedName()), 0);
                             out.addAnswer(
                                 new DNSRecord.Service(
-                                    info.getQualifiedName(), 
-                                    DNSConstants.TYPE_SRV, 
-                                    DNSConstants.CLASS_IN, 
-                                    DNSConstants.DNS_TTL, 
-                                    info.priority, 
-                                    info.weight, 
-                                    info.port, 
+                                    info.getQualifiedName(),
+                                    DNSConstants.TYPE_SRV,
+                                    DNSConstants.CLASS_IN,
+                                    DNSConstants.DNS_TTL,
+                                    info.priority,
+                                    info.weight,
+                                    info.port,
                                     localHost.getName()), 0);
                             out.addAnswer(
                                 new DNSRecord.Text(
-                                info.getQualifiedName(), 
-                                DNSConstants.TYPE_TXT, 
-                                DNSConstants.CLASS_IN, 
-                                DNSConstants.DNS_TTL, 
+                                info.getQualifiedName(),
+                                DNSConstants.TYPE_TXT,
+                                DNSConstants.CLASS_IN,
+                                DNSConstants.DNS_TTL,
                                 info.text), 0);
                         }
                     }
@@ -1895,16 +1893,16 @@ public class JmDNS
                 logger.log(Level.WARNING, "run() exception ", e);
                 recover();
             }
-            
+
             taskState = taskState.advance();
             if (!taskState.isAnnounced())
             {
                 cancel();
-                
+
             }
         }
     }
-    
+
     /**
      * The Responder sends a single answer for the specified service infos
      * and for the host name.
@@ -1914,14 +1912,14 @@ public class JmDNS
         private DNSIncoming in;
         private InetAddress addr;
         private int port;
-        
+
         public Responder(DNSIncoming in, InetAddress addr, int port)
         {
             this.in = in;
             this.addr = addr;
             this.port = port;
         }
-        
+
         public void start()
         {
             // According to draft-cheshire-dnsext-multicastdns.txt
@@ -1933,7 +1931,7 @@ public class JmDNS
             // According to draft-cheshire-dnsext-multicastdns.txt
             // chapter "7.2 Multi-Packet Known Answer Suppression":
             // We respond after 20-120 ms if the query is truncated.
-            
+
             boolean iAmTheOnlyOne = true;
             for (Iterator i = in.questions.iterator(); i.hasNext();)
             {
@@ -1954,12 +1952,12 @@ public class JmDNS
                     }
                 }
             }
-            int delay = (iAmTheOnlyOne && !in.isTruncated()) ? 
-                0 : 
-                DNSConstants.RESPONSE_MIN_WAIT_INTERVAL + 
+            int delay = (iAmTheOnlyOne && !in.isTruncated()) ?
+                0 :
+                DNSConstants.RESPONSE_MIN_WAIT_INTERVAL +
                     random.nextInt(
-                        DNSConstants.RESPONSE_MAX_WAIT_INTERVAL - 
-                        DNSConstants.RESPONSE_MIN_WAIT_INTERVAL + 1) - 
+                        DNSConstants.RESPONSE_MAX_WAIT_INTERVAL -
+                        DNSConstants.RESPONSE_MIN_WAIT_INTERVAL + 1) -
                     in.elapseSinceArrival();
             if (delay < 0)
             {
@@ -1968,7 +1966,7 @@ public class JmDNS
             logger.finest("start() Responder chosen delay=" + delay);
             timer.schedule(this, delay);
         }
-        
+
         public void run()
         {
             synchronized (ioLock)
@@ -1977,13 +1975,13 @@ public class JmDNS
                 {
                     plannedAnswer = null;
                 }
-                
+
                 // We use these sets to prevent duplicate records
                 // FIXME - This should be moved into DNSOutgoing
                 HashSet questions = new HashSet();
                 HashSet answers = new HashSet();
-                
-                
+
+
                 if (state == DNSState.ANNOUNCED)
                 {
                     try
@@ -1991,35 +1989,35 @@ public class JmDNS
                         long now = System.currentTimeMillis();
                         long expirationTime = now + 1; //=now+DNSConstants.KNOWN_ANSWER_TTL;
                         boolean isUnicast = (port != DNSConstants.MDNS_PORT);
-                        
-                        
+
+
                         // Answer questions
-                        for (Iterator iterator = in.questions.iterator(); 
+                        for (Iterator iterator = in.questions.iterator();
                             iterator.hasNext();)
                         {
                             DNSEntry entry = (DNSEntry) iterator.next();
                             if (entry instanceof DNSQuestion)
                             {
                                 DNSQuestion q = (DNSQuestion) entry;
-                                
-                                // for unicast responses the question 
+
+                                // for unicast responses the question
                                 // must be included
                                 if (isUnicast)
                                 {
                                     //out.addQuestion(q);
                                     questions.add(q);
                                 }
-                                
+
                                 int type = q.type;
-                                if (type == DNSConstants.TYPE_ANY || 
+                                if (type == DNSConstants.TYPE_ANY ||
                                     type == DNSConstants.TYPE_SRV)
-                                { // I ama not sure of why there is a special 
+                                { // I ama not sure of why there is a special
                                   // case here [PJYF Oct 15 2004]
                                     if (localHost.getName().
                                         equalsIgnoreCase(q.getName()))
                                     {
                                         // type = DNSConstants.TYPE_A;
-                                        DNSRecord answer = 
+                                        DNSRecord answer =
                                             localHost.getDNS4AddressRecord();
                                         if (answer != null)
                                         {
@@ -2041,14 +2039,14 @@ public class JmDNS
                                         }
                                     }
                                 }
-                                
+
                                 switch (type)
                                 {
                                     case DNSConstants.TYPE_A:
                                     {
                                         // Answer a query for a domain name
                                         //out = addAnswer( in, addr, port, out, host );
-                                        DNSRecord answer = 
+                                        DNSRecord answer =
                                             localHost.getDNS4AddressRecord();
                                         if (answer != null)
                                         {
@@ -2059,7 +2057,7 @@ public class JmDNS
                                     case DNSConstants.TYPE_AAAA:
                                     {
                                         // Answer a query for a domain name
-                                        DNSRecord answer = 
+                                        DNSRecord answer =
                                             localHost.getDNS6AddressRecord();
                                         if (answer != null)
                                         {
@@ -2070,25 +2068,25 @@ public class JmDNS
                                     case DNSConstants.TYPE_PTR:
                                     {
                                         // Answer a query for services of a given type
-                                        
+
                                         // find matching services
-                                        for (Iterator serviceIterator = 
-                                                    services.values().iterator(); 
+                                        for (Iterator serviceIterator =
+                                                    services.values().iterator();
                                             serviceIterator.hasNext();)
                                         {
-                                            ServiceInfo info = 
+                                            ServiceInfo info =
                                                 (ServiceInfo) serviceIterator.next();
                                             if (info.getState() == DNSState.ANNOUNCED)
                                             {
                                                 if (q.name.equalsIgnoreCase(info.type))
                                                 {
-                                                    DNSRecord answer = 
+                                                    DNSRecord answer =
                                                         localHost.getDNS4AddressRecord();
                                                     if (answer != null)
                                                     {
                                                         answers.add(answer);
                                                     }
-                                                    answer = 
+                                                    answer =
                                                         localHost.getDNS6AddressRecord();
                                                     if (answer != null)
                                                     {
@@ -2096,42 +2094,42 @@ public class JmDNS
                                                     }
                                                     answers.add(
                                                         new DNSRecord.Pointer(
-                                                            info.type, 
-                                                            DNSConstants.TYPE_PTR, 
-                                                            DNSConstants.CLASS_IN, 
-                                                            DNSConstants.DNS_TTL, 
+                                                            info.type,
+                                                            DNSConstants.TYPE_PTR,
+                                                            DNSConstants.CLASS_IN,
+                                                            DNSConstants.DNS_TTL,
                                                             info.getQualifiedName()));
                                                     answers.add(
                                                         new DNSRecord.Service(
-                                                            info.getQualifiedName(), 
-                                                            DNSConstants.TYPE_SRV, 
-                                                            DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE, 
-                                                            DNSConstants.DNS_TTL, 
-                                                            info.priority, 
-                                                            info.weight, 
-                                                            info.port, 
+                                                            info.getQualifiedName(),
+                                                            DNSConstants.TYPE_SRV,
+                                                            DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE,
+                                                            DNSConstants.DNS_TTL,
+                                                            info.priority,
+                                                            info.weight,
+                                                            info.port,
                                                             localHost.getName()));
                                                     answers.add(
                                                         new DNSRecord.Text(
-                                                            info.getQualifiedName(), 
-                                                            DNSConstants.TYPE_TXT, 
-                                                            DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE, 
-                                                            DNSConstants.DNS_TTL, 
+                                                            info.getQualifiedName(),
+                                                            DNSConstants.TYPE_TXT,
+                                                            DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE,
+                                                            DNSConstants.DNS_TTL,
                                                             info.text));
                                                 }
                                             }
                                         }
                                         if (q.name.equalsIgnoreCase("_services._mdns._udp.local."))
                                         {
-                                            for (Iterator serviceTypeIterator = serviceTypes.values().iterator(); 
+                                            for (Iterator serviceTypeIterator = serviceTypes.values().iterator();
                                                 serviceTypeIterator.hasNext();)
                                             {
                                                 answers.add(
                                                     new DNSRecord.Pointer(
-                                                        "_services._mdns._udp.local.", 
-                                                        DNSConstants.TYPE_PTR, 
-                                                        DNSConstants.CLASS_IN, 
-                                                        DNSConstants.DNS_TTL, 
+                                                        "_services._mdns._udp.local.",
+                                                        DNSConstants.TYPE_PTR,
+                                                        DNSConstants.CLASS_IN,
+                                                        DNSConstants.DNS_TTL,
                                                         (String) serviceTypeIterator.next()));
                                             }
                                         }
@@ -2141,18 +2139,18 @@ public class JmDNS
                                     case DNSConstants.TYPE_ANY:
                                     case DNSConstants.TYPE_TXT:
                                     {
-                                        ServiceInfo info = 
+                                        ServiceInfo info =
                                             (ServiceInfo) services.get(q.name.toLowerCase());
-                                        if (info != null && 
+                                        if (info != null &&
                                             info.getState() == DNSState.ANNOUNCED)
                                         {
-                                            DNSRecord answer = 
+                                            DNSRecord answer =
                                                 localHost.getDNS4AddressRecord();
                                             if (answer != null)
                                             {
                                                 answers.add(answer);
                                             }
-                                            answer = 
+                                            answer =
                                                 localHost.getDNS6AddressRecord();
                                             if (answer != null)
                                             {
@@ -2160,27 +2158,27 @@ public class JmDNS
                                             }
                                             answers.add(
                                                 new DNSRecord.Pointer(
-                                                    info.type, 
-                                                    DNSConstants.TYPE_PTR, 
-                                                    DNSConstants.CLASS_IN, 
-                                                    DNSConstants.DNS_TTL, 
+                                                    info.type,
+                                                    DNSConstants.TYPE_PTR,
+                                                    DNSConstants.CLASS_IN,
+                                                    DNSConstants.DNS_TTL,
                                                     info.getQualifiedName()));
                                             answers.add(
                                                 new DNSRecord.Service(
-                                                    info.getQualifiedName(), 
-                                                    DNSConstants.TYPE_SRV, 
-                                                    DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE, 
-                                                    DNSConstants.DNS_TTL, 
-                                                    info.priority, 
-                                                    info.weight, 
-                                                    info.port, 
+                                                    info.getQualifiedName(),
+                                                    DNSConstants.TYPE_SRV,
+                                                    DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE,
+                                                    DNSConstants.DNS_TTL,
+                                                    info.priority,
+                                                    info.weight,
+                                                    info.port,
                                                     localHost.getName()));
                                             answers.add(
                                                 new DNSRecord.Text(
-                                                    info.getQualifiedName(), 
-                                                    DNSConstants.TYPE_TXT, 
-                                                    DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE, 
-                                                    DNSConstants.DNS_TTL, 
+                                                    info.getQualifiedName(),
+                                                    DNSConstants.TYPE_TXT,
+                                                    DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE,
+                                                    DNSConstants.DNS_TTL,
                                                     info.text));
                                         }
                                         break;
@@ -2193,22 +2191,22 @@ public class JmDNS
                                 }
                             }
                         }
-                        
-                        
+
+
                         // remove known answers, if the ttl is at least half of
                         // the correct value. (See Draft Cheshire chapter 7.1.).
                         for (Iterator i = in.answers.iterator(); i.hasNext();)
                         {
                             DNSRecord knownAnswer = (DNSRecord) i.next();
-                            if (knownAnswer.ttl > DNSConstants.DNS_TTL / 2 && 
+                            if (knownAnswer.ttl > DNSConstants.DNS_TTL / 2 &&
                                 answers.remove(knownAnswer))
                             {
-                                logger.log(Level.FINER, 
+                                logger.log(Level.FINER,
                                     "JmDNS Responder Known Answer Removed");
                             }
                         }
-                        
-                        
+
+
                         // responde if we have answers
                         if (answers.size() != 0)
                         {
@@ -2217,17 +2215,17 @@ public class JmDNS
                             if (isUnicast)
                             {
                                 out = new DNSOutgoing(
-                                    DNSConstants.FLAGS_QR_RESPONSE | DNSConstants.FLAGS_AA, 
+                                    DNSConstants.FLAGS_QR_RESPONSE | DNSConstants.FLAGS_AA,
                                     false);
                             }
-                            
+
                             for (Iterator i = questions.iterator(); i.hasNext();)
                             {
                                 out.addQuestion((DNSQuestion) i.next());
                             }
                             for (Iterator i = answers.iterator(); i.hasNext();)
                             {
-                                out = addAnswer(in, addr, port, out, 
+                                out = addAnswer(in, addr, port, out,
                                     (DNSRecord) i.next());
                             }
                             send(out);
@@ -2243,7 +2241,7 @@ public class JmDNS
             }
         }
     }
-    
+
     /**
      * Helper class to resolve service types.
      * <p/>
@@ -2256,16 +2254,16 @@ public class JmDNS
     {
         public void start()
         {
-            timer.schedule(this, 
-                           DNSConstants.QUERY_WAIT_INTERVAL, 
+            timer.schedule(this,
+                           DNSConstants.QUERY_WAIT_INTERVAL,
                            DNSConstants.QUERY_WAIT_INTERVAL);
         }
-        
+
         /**
          * Counts the number of queries that were sent.
          */
         int count = 0;
-        
+
         public void run()
         {
             try
@@ -2275,22 +2273,22 @@ public class JmDNS
                     if (count++ < 3)
                     {
                         logger.finer("run() JmDNS querying type");
-                        DNSOutgoing out = 
+                        DNSOutgoing out =
                             new DNSOutgoing(DNSConstants.FLAGS_QR_QUERY);
                         out.addQuestion(
                             new DNSQuestion(
-                                "_services._mdns._udp.local.", 
-                                DNSConstants.TYPE_PTR, 
+                                "_services._mdns._udp.local.",
+                                DNSConstants.TYPE_PTR,
                                 DNSConstants.CLASS_IN));
-                        for (Iterator iterator = serviceTypes.values().iterator(); 
+                        for (Iterator iterator = serviceTypes.values().iterator();
                             iterator.hasNext();)
                         {
                             out.addAnswer(
                                 new DNSRecord.Pointer(
-                                    "_services._mdns._udp.local.", 
-                                    DNSConstants.TYPE_PTR, 
-                                    DNSConstants.CLASS_IN, 
-                                    DNSConstants.DNS_TTL, 
+                                    "_services._mdns._udp.local.",
+                                    DNSConstants.TYPE_PTR,
+                                    DNSConstants.CLASS_IN,
+                                    DNSConstants.DNS_TTL,
                                     (String) iterator.next()), 0);
                         }
                         send(out);
@@ -2316,7 +2314,7 @@ public class JmDNS
             }
         }
     }
-    
+
     /**
      * The ServiceResolver queries three times consecutively for services of
      * a given type, and then removes itself from the timer.
@@ -2332,19 +2330,19 @@ public class JmDNS
          */
         int count = 0;
         private String type;
-        
+
         public ServiceResolver(String type)
         {
             this.type = type;
         }
-        
+
         public void start()
         {
-            timer.schedule(this, 
-                           DNSConstants.QUERY_WAIT_INTERVAL, 
+            timer.schedule(this,
+                           DNSConstants.QUERY_WAIT_INTERVAL,
                            DNSConstants.QUERY_WAIT_INTERVAL);
         }
-        
+
         public void run()
         {
             try
@@ -2355,12 +2353,12 @@ public class JmDNS
                     {
                         logger.finer("run() JmDNS querying service");
                         long now = System.currentTimeMillis();
-                        DNSOutgoing out = 
+                        DNSOutgoing out =
                             new DNSOutgoing(DNSConstants.FLAGS_QR_QUERY);
                         out.addQuestion(
                             new DNSQuestion(
-                                type, 
-                                DNSConstants.TYPE_PTR, 
+                                type,
+                                DNSConstants.TYPE_PTR,
                                 DNSConstants.CLASS_IN));
                         for (Iterator s = services.values().iterator(); s.hasNext();)
                         {
@@ -2369,10 +2367,10 @@ public class JmDNS
                             {
                                 out.addAnswer(
                                     new DNSRecord.Pointer(
-                                        info.type, 
-                                        DNSConstants.TYPE_PTR, 
-                                        DNSConstants.CLASS_IN, 
-                                        DNSConstants.DNS_TTL, 
+                                        info.type,
+                                        DNSConstants.TYPE_PTR,
+                                        DNSConstants.CLASS_IN,
+                                        DNSConstants.DNS_TTL,
                                         info.getQualifiedName()), now);
                             }
                             catch (IOException ee)
@@ -2403,7 +2401,7 @@ public class JmDNS
             }
         }
     }
-    
+
     /**
      * The ServiceInfoResolver queries up to three times consecutively for
      * a service info, and then removes itself from the timer.
@@ -2419,25 +2417,25 @@ public class JmDNS
          */
         int count = 0;
         private ServiceInfo info;
-        
+
         public ServiceInfoResolver(ServiceInfo info)
         {
             this.info = info;
             info.dns = JmDNS.this;
-            addListener(info, 
+            addListener(info,
                 new DNSQuestion(
-                    info.getQualifiedName(), 
-                    DNSConstants.TYPE_ANY, 
+                    info.getQualifiedName(),
+                    DNSConstants.TYPE_ANY,
                     DNSConstants.CLASS_IN));
         }
-        
+
         public void start()
         {
-            timer.schedule(this, 
-                           DNSConstants.QUERY_WAIT_INTERVAL, 
+            timer.schedule(this,
+                           DNSConstants.QUERY_WAIT_INTERVAL,
                            DNSConstants.QUERY_WAIT_INTERVAL);
         }
-        
+
         public void run()
         {
             try
@@ -2447,39 +2445,39 @@ public class JmDNS
                     if (count++ < 3 && !info.hasData())
                     {
                         long now = System.currentTimeMillis();
-                        DNSOutgoing out = 
+                        DNSOutgoing out =
                             new DNSOutgoing(DNSConstants.FLAGS_QR_QUERY);
                         out.addQuestion(
                             new DNSQuestion(
-                                info.getQualifiedName(), 
-                                DNSConstants.TYPE_SRV, 
+                                info.getQualifiedName(),
+                                DNSConstants.TYPE_SRV,
                                 DNSConstants.CLASS_IN));
                         out.addQuestion(
                             new DNSQuestion(
-                                info.getQualifiedName(), 
-                                DNSConstants.TYPE_TXT, 
+                                info.getQualifiedName(),
+                                DNSConstants.TYPE_TXT,
                                 DNSConstants.CLASS_IN));
                         if (info.server != null)
                         {
                             out.addQuestion(
                                 new DNSQuestion(
-                                    info.server, 
-                                    DNSConstants.TYPE_A, 
-                                    DNSConstants.CLASS_IN));  
+                                    info.server,
+                                    DNSConstants.TYPE_A,
+                                    DNSConstants.CLASS_IN));
                         }
                         out.addAnswer((DNSRecord) cache.get(
-                            info.getQualifiedName(), 
-                            DNSConstants.TYPE_SRV, 
+                            info.getQualifiedName(),
+                            DNSConstants.TYPE_SRV,
                             DNSConstants.CLASS_IN), now);
                         out.addAnswer((DNSRecord) cache.get(
-                            info.getQualifiedName(), 
-                            DNSConstants.TYPE_TXT, 
+                            info.getQualifiedName(),
+                            DNSConstants.TYPE_TXT,
                             DNSConstants.CLASS_IN), now);
                         if (info.server != null)
                         {
                             out.addAnswer((DNSRecord) cache.get(
-                                info.server, 
-                                DNSConstants.TYPE_A, 
+                                info.server,
+                                DNSConstants.TYPE_A,
                                 DNSConstants.CLASS_IN), now);
                         }
                         send(out);
@@ -2507,7 +2505,7 @@ public class JmDNS
             }
         }
     }
-    
+
     /**
      * The Canceler sends two announces with TTL=0 for the specified services.
      */
@@ -2515,7 +2513,7 @@ public class JmDNS
      *  run() uses the (misleading) ++count < 3 (while all other tasks use count++ < 3)
      *  and the comment in the else block in run() says: "After three successful..."
      */
-    private class Canceler extends TimerTask
+    public class Canceler extends TimerTask
     {
         /**
          * Counts the number of announces being sent.
@@ -2540,36 +2538,36 @@ public class JmDNS
          */
         private Object lock;
         int ttl = 0;
-        
+
         public Canceler(ServiceInfo info, Object lock)
         {
             this.infos = new ServiceInfo[]{info};
             this.lock = lock;
-            addListener(info, 
+            addListener(info,
                         new DNSQuestion(
-                            info.getQualifiedName(), 
-                            DNSConstants.TYPE_ANY, 
+                            info.getQualifiedName(),
+                            DNSConstants.TYPE_ANY,
                             DNSConstants.CLASS_IN));
         }
-        
+
         public Canceler(ServiceInfo[] infos, Object lock)
         {
             this.infos = infos;
             this.lock = lock;
         }
-        
+
         public Canceler(Collection infos, Object lock)
         {
-            this.infos = 
+            this.infos =
                 (ServiceInfo[]) infos.toArray(new ServiceInfo[infos.size()]);
             this.lock = lock;
         }
-        
+
         public void start()
         {
             timer.schedule(this, 0, DNSConstants.ANNOUNCE_WAIT_INTERVAL);
         }
-        
+
         public void run()
         {
             try
@@ -2579,7 +2577,7 @@ public class JmDNS
                     logger.finer("run() JmDNS canceling service");
                     // announce the service
                     //long now = System.currentTimeMillis();
-                    DNSOutgoing out = 
+                    DNSOutgoing out =
                         new DNSOutgoing(
                             DNSConstants.FLAGS_QR_RESPONSE | DNSConstants.FLAGS_AA);
                     for (int i = 0; i < infos.length; i++)
@@ -2587,27 +2585,27 @@ public class JmDNS
                         ServiceInfo info = infos[i];
                         out.addAnswer(
                             new DNSRecord.Pointer(
-                                info.type, 
-                                DNSConstants.TYPE_PTR, 
-                                DNSConstants.CLASS_IN, 
-                                ttl, 
+                                info.type,
+                                DNSConstants.TYPE_PTR,
+                                DNSConstants.CLASS_IN,
+                                ttl,
                                 info.getQualifiedName()), 0);
                         out.addAnswer(
                             new DNSRecord.Service(
-                                info.getQualifiedName(), 
-                                DNSConstants.TYPE_SRV, 
-                                DNSConstants.CLASS_IN, 
-                                ttl, 
-                                info.priority, 
-                                info.weight, 
-                                info.port, 
+                                info.getQualifiedName(),
+                                DNSConstants.TYPE_SRV,
+                                DNSConstants.CLASS_IN,
+                                ttl,
+                                info.priority,
+                                info.weight,
+                                info.port,
                                 localHost.getName()), 0);
                         out.addAnswer(
                             new DNSRecord.Text(
-                                info.getQualifiedName(), 
-                                DNSConstants.TYPE_TXT, 
-                                DNSConstants.CLASS_IN, 
-                                ttl, 
+                                info.getQualifiedName(),
+                                DNSConstants.TYPE_TXT,
+                                DNSConstants.CLASS_IN,
+                                ttl,
                                 info.text), 0);
                         DNSRecord answer = localHost.getDNS4AddressRecord();
                         if (answer != null)
@@ -2640,20 +2638,7 @@ public class JmDNS
             }
         }
     }
-    
-    // REMIND: Why is this not an anonymous inner class?
-    /**
-     * Shutdown operations.
-     */
-    private class Shutdown implements Runnable
-    {
-        public void run()
-        {
-            shutdown = null;
-            close();
-        }
-    }
-    
+
     /**
      * Recover jmdns when there is an error.
      */
@@ -2670,10 +2655,10 @@ public class JmDNS
                 logger.finer("recover() Cleanning up");
                 // Stop JmDNS
                 state = DNSState.CANCELED; // This protects against recursive calls
-                
+
                 // We need to keep a copy for reregistration
                 Collection oldServiceInfos = new ArrayList(services.values());
-                
+
                 // Cancel all services
                 unregisterAllServices();
                 disposeServiceCollectors();
@@ -2693,14 +2678,14 @@ public class JmDNS
                 }
                 catch (Exception exception)
                 {
-                    logger.log(Level.WARNING, 
+                    logger.log(Level.WARNING,
                         "recover() Start services exception ", exception);
                 }
                 logger.log(Level.WARNING, "recover() We are back!");
             }
         }
     }
-    
+
     /**
      * Close down jmdns. Release all resources and unregister all services.
      */
@@ -2712,26 +2697,19 @@ public class JmDNS
             { // Synchronize only if we are not already in process to prevent dead locks
                 // Stop JmDNS
                 state = DNSState.CANCELED; // This protects against recursive calls
-                
+
                 unregisterAllServices();
                 disposeServiceCollectors();
-                
+
                 // close socket
                 closeMulticastSocket();
-                
+
                 // Stop the timer
                 timer.cancel();
-                
-                // remove the shutdown hook
-                if (shutdown != null)
-                {
-                    Runtime.getRuntime().removeShutdownHook(shutdown);
-                }
-                
             }
         }
     }
-    
+
     /**
      * List cache entries, for debugging only.
      */
@@ -2741,17 +2719,17 @@ public class JmDNS
         cache.print();
         logger.info("\n");
     }
-    
+
     /**
      * List Services and serviceTypes.
      * Debugging Only
      */
-    
+
     public void printServices()
     {
         logger.info(toString());
     }
-    
+
     public String toString()
     {
         StringBuffer aLog = new StringBuffer();
@@ -2785,7 +2763,7 @@ public class JmDNS
                 for (Iterator k = serviceCollectors.keySet().iterator(); k.hasNext();)
                 {
                     Object key = k.next();
-                    aLog.append("\n\t\tService Collector: " + key + ": " + 
+                    aLog.append("\n\t\tService Collector: " + key + ": " +
                         serviceCollectors.get(key));
                 }
                 serviceCollectors.clear();
@@ -2793,7 +2771,7 @@ public class JmDNS
         }
         return aLog.toString();
     }
-    
+
     /**
      * Returns a list of service infos of the specified type.
      *
@@ -2809,9 +2787,9 @@ public class JmDNS
         // for a given type is slow, and 2) we spawn a ServiceCollector
         // instance for each service type which increases network traffic a
         // little.
-        
+
         ServiceCollector collector;
-        
+
         boolean newCollectorCreated;
         synchronized (serviceCollectors)
         {
@@ -2828,7 +2806,7 @@ public class JmDNS
                 newCollectorCreated = false;
             }
         }
-        
+
         // After creating a new ServiceCollector, we collect service infos for
         // 200 milliseconds. This should be enough time, to get some service
         // infos from the network.
@@ -2842,10 +2820,10 @@ public class JmDNS
             {
             }
         }
-        
+
         return collector.list();
     }
-    
+
     /**
      * This method disposes all ServiceCollector instances which have been
      * created by calls to method <code>list(type)</code>.
@@ -2865,7 +2843,7 @@ public class JmDNS
             serviceCollectors.clear();
         }
     }
-    
+
     /**
      * Instances of ServiceCollector are used internally to speed up the
      * performance of method <code>list(type)</code>.
@@ -2874,24 +2852,24 @@ public class JmDNS
      */
     private static class ServiceCollector implements ServiceListener
     {
-        private static Logger logger = 
+        private static Logger logger =
             Logger.getLogger(ServiceCollector.class.toString());
         /**
          * A set of collected service instance names.
          */
         private Map infos = Collections.synchronizedMap(new HashMap());
-        
+
         public String type;
-        
+
         public ServiceCollector(String type)
         {
             String SLevel = System.getProperty("jmdns.debug");
             if (SLevel == null) SLevel = "INFO";
-            logger.setLevel(Level.parse(SLevel)); 
-        
+            logger.setLevel(Level.parse(SLevel));
+
             this.type = type;
         }
-        
+
         /**
          * A service has been added.
          */
@@ -2903,7 +2881,7 @@ public class JmDNS
                     event.getType(), event.getName(), 0);
             }
         }
-        
+
         /**
          * A service has been removed.
          */
@@ -2914,7 +2892,7 @@ public class JmDNS
                 infos.remove(event.getName());
             }
         }
-        
+
         /**
          * A service hase been resolved. Its details are now available in the
          * ServiceInfo record.
@@ -2926,11 +2904,11 @@ public class JmDNS
                 infos.put(event.getName(), event.getInfo());
             }
         }
-        
+
         /**
          * Returns an array of all service infos which have been collected by this
          * ServiceCollector.
-         * @return 
+         * @return
          */
         public ServiceInfo[] list()
         {
@@ -2940,7 +2918,7 @@ public class JmDNS
                     toArray(new ServiceInfo[infos.size()]);
             }
         }
-        
+
         public String toString()
         {
             StringBuffer aLog = new StringBuffer();
@@ -2955,12 +2933,12 @@ public class JmDNS
             return aLog.toString();
         }
     };
-    
+
     private static String toUnqualifiedName(String type, String qualifiedName)
     {
         if (qualifiedName.endsWith(type))
         {
-            return qualifiedName.substring(0, 
+            return qualifiedName.substring(0,
                 qualifiedName.length() - type.length() - 1);
         }
         else
@@ -2968,43 +2946,43 @@ public class JmDNS
             return qualifiedName;
         }
     }
-    
+
     /**
-     * SC-Bonjour Implementation : Method used to update the corresponding DNS 
-     * entry in the cache of JmDNS with the new information in this ServiceInfo. 
-     * A call to getLocalService must first be issued to get the 
-     * ServiceInfo object to be modified. 
+     * SC-Bonjour Implementation : Method used to update the corresponding DNS
+     * entry in the cache of JmDNS with the new information in this ServiceInfo.
+     * A call to getLocalService must first be issued to get the
+     * ServiceInfo object to be modified.
      * THIS METHOD MUST BE USED INSTEAD OF ANY DIRECT ACCESS TO JMDNS' CACHE!!
-     * This is used in the implementation of Zeroconf in SIP Communicator 
+     * This is used in the implementation of Zeroconf in SIP Communicator
      * to be able to change fields declared by the local contact (status, etc).
-     * @param info Updated service data to be used to replace the old 
+     * @param info Updated service data to be used to replace the old
      *  stuff contained in JmDNS' cache
      * @param old info bytes
      */
     public void updateInfos(ServiceInfo info, byte[] old)
     {
-        
+
         DNSOutgoing out, out2;
         synchronized (JmDNS.this)
         {
             //list = new ArrayList(services.values());
             services.put(info.getQualifiedName().toLowerCase(), info);
         }
-        
+
         synchronized (info)
         {
-            logger.finer("updateInfos() JmDNS updating " + 
-                info.getQualifiedName() + " state " + 
+            logger.finer("updateInfos() JmDNS updating " +
+                info.getQualifiedName() + " state " +
                 info.getState());
-            
+
             out = new DNSOutgoing(
                 /*DNSConstants.FLAGS_QR_RESPONSE*/
                 DNSConstants.FLAGS_RA | DNSConstants.FLAGS_AA);
             out2 = new DNSOutgoing(
                 /*DNSConstants.FLAGS_QR_RESPONSE*/
                 DNSConstants.FLAGS_RA | DNSConstants.FLAGS_AA);
-            
-            
+
+
             try
             {
                 //out.addAnswer(new DNSRecord.Pointer(info.type, DNSConstants.TYPE_PTR, DNSConstants.CLASS_IN, DNSConstants.DNS_TTL, info.getQualifiedName()), 0);
@@ -3012,36 +2990,36 @@ public class JmDNS
                 //out.addAnswer(new DNSRecord.Service(info.getQualifiedName(), DNSConstants.TYPE_SRV, DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE, DNSConstants.DNS_TTL, info.priority, info.weight, info.port, localHost.getName()), 0);
 //                out.addAnswer(
 //                    new DNSRecord.Text(
-//                        info.getQualifiedName(), 
-//                        DNSConstants.TYPE_TXT, 
-//                        DNSConstants.CLASS_IN , 
-//                        DNSConstants.DNS_TTL, 
+//                        info.getQualifiedName(),
+//                        DNSConstants.TYPE_TXT,
+//                        DNSConstants.CLASS_IN ,
+//                        DNSConstants.DNS_TTL,
 //                        info.text), 0);
                 out.addAnswer(
                     new DNSRecord.Text(
-                        info.getQualifiedName(), 
-                        DNSConstants.TYPE_TXT, 
-                        DNSConstants.CLASS_IN , 
-                        0, 
+                        info.getQualifiedName(),
+                        DNSConstants.TYPE_TXT,
+                        DNSConstants.CLASS_IN ,
+                        0,
                         old), 0);
                 out.addAnswer(
                     new DNSRecord.Text(
-                        info.getQualifiedName(), 
-                        DNSConstants.TYPE_TXT, 
-                        DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE, 
-                        DNSConstants.DNS_TTL, 
+                        info.getQualifiedName(),
+                        DNSConstants.TYPE_TXT,
+                        DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE,
+                        DNSConstants.DNS_TTL,
                         info.text), 0);
-                
+
                 out2.addAnswer(
                     new DNSRecord.Text(
-                        info.getQualifiedName(), 
-                        DNSConstants.TYPE_TXT, 
-                        DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE, 
-                        DNSConstants.DNS_TTL, 
+                        info.getQualifiedName(),
+                        DNSConstants.TYPE_TXT,
+                        DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE,
+                        DNSConstants.DNS_TTL,
                         info.text), 0);
-                
+
                 logger.finer("updateInfos() JmDNS updated infos for "+info);
-                
+
                 send(out);
                 Thread.sleep(1000);
                 send(out2);
@@ -3049,13 +3027,13 @@ public class JmDNS
                 send(out2);
             }
             catch( Exception e)
-            { 
+            {
                 logger.log(Level.WARNING, "", e);
             }
         }
     }
-    
-    
+
+
     /**
      * SC-Bonjour Implementation: Method to retrieve the DNS Entry corresponding to a service
      * that has been declared and return it as a ServiceInfo structure.
