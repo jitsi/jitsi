@@ -28,7 +28,6 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/junit.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/nist-sdp-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/pircbot.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/retroweaver-rt-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/rome-0.9.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smack.jar"/>
