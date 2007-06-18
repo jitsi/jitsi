@@ -1,0 +1,16 @@
+Bundle-Activator: net.java.sip.communicator.impl.protocol.rss.RssActivator
+Bundle-Name: Rss Protocol Provider
+Bundle-Description: A bundle providing support for the Rss protocol.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+Import-Package: org.osgi.framework,
+ org.xml.sax,
+ org.xml.sax.helpers,
+ org.w3c.dom,
+ javax.xml.parsers,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.configuration.event,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.event
+
