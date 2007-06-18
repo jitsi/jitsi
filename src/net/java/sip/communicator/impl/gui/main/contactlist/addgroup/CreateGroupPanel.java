@@ -8,14 +8,12 @@
 package net.java.sip.communicator.impl.gui.main.contactlist.addgroup;
 
 import java.awt.*;
+
 import javax.swing.*;
-import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.gui.WizardContainer;
 
 /**
  * The <tt>CreateGroupPanel</tt> is the form for creating a group.
