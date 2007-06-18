@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created by Emil Ivov on Jul 6, 2005 8:30:22 PM-->
 
-<project default="ant-usage" name="sip-communicator-1.0">
+<project default="ant-usage" name="sip-communicator">
 
-    <dirname property="basedir" file="${ant.file}"/>
+    <dirname property="sc.basedir" file="${ant.file.sip-communicator}"/>
     <property environment="system"/>
     <property name="jdk.home" value="/usr/java/java"/>
     <property name="dest" value="classes"/>
@@ -14,7 +14,7 @@
     <property name="bundles.dest.sol" value="${bundles.dest}/os-specific/solaris"/>
     <property name="doc" value="doc"/>
     <property name="java.doc" value="${doc}/api"/>
-    <property name="lib" value="lib"/>
+    <property name="lib" value="${sc.basedir}/lib"/>
     <property name="lib.win" value="${lib}/os-specific/windows"/>
     <property name="lib.win.noinst" value="${lib}/os-specific/windows/installer-exclude"/>
     <property name="lib.lin" value="${lib}/os-specific/linux"/>
@@ -25,8 +25,8 @@
     <property name="lib.sol.noinst" value="${lib}/os-specific/solaris/installer-exclude"/>
     <property name="lib.noinst" value="${lib}/installer-exclude"/>
     <property name="native.libs" value="${lib}/native"/>
-    <property name="src" value="src"/>
-    <property name="src2" value="test"/>
+    <property name="src" value="${sc.basedir}/src"/>
+    <property name="src2" value="${sc.basedir}/test"/>
     <property name="testsrc" value="${src2}"/>
     <property name="home" value="${system.HOME}"/>
     <property name="bin" value="sip-communicator.bin"/>
@@ -36,9 +36,9 @@
     <property name="release" value="release"/>
     <property name="log" value="log"/>
     <property name="release.src" value="${release}/install"/>
-    <property name="resources" value="resources"/>
+    <property name="resources" value="${sc.basedir}/resources"/>
     <property name="inst.resrc" value="${resources}/install"/>
-    <property name="path" value="${basedir}/${lib}/native/windows;${system.PATH}"/>
+    <property name="path" value="${lib}/native/windows;${system.PATH}"/>
 
     <!-- set the build label property and make it take the cc bild into account -->
     <condition property="build.label"
@@ -67,7 +67,7 @@
     </condition>
 
     <!-- load properties needed for running the automated tests (e.g. test.list)-->
-    <property file="${basedir}/lib/testing.properties"/>
+    <property file="${lib}/testing.properties"/>
 
     <!-- The following file contains a list of protocol account initialization
          properties, such as SIP server addresses and usernames, ICQ uin-s and
@@ -76,7 +76,7 @@
          login problems and cause testing to fail. You could create the file
          yourself using the lib/account.properties.template and setting all
          fields as indicated. -->
-    <property file="lib/accounts.properties"/>
+    <property file="${lib}/accounts.properties"/>
 
     <!-- windows specific properties -->
     <condition property="is.running.windows" value="${os.name}">
@@ -101,7 +101,7 @@
     </condition>
 
     <condition property="ld.library.path"
-              value="${basedir}/${lib}/native/linux:${system.LD_LIBRARY_PATH}">
+              value="${lib}/native/linux:${system.LD_LIBRARY_PATH}">
         <isset property="is.running.linux"/>
     </condition>
 
@@ -123,7 +123,7 @@
     </condition>
 
     <condition property="ld.library.path"
-              value="${basedir}/${lib}/native/solaris:${system.LD_LIBRARY_PATH}">
+              value="${lib}/native/solaris:${system.LD_LIBRARY_PATH}">
         <isset property="is.running.solaris"/>
     </condition>
 
@@ -141,7 +141,7 @@
     </condition>
 
     <condition property="dyld.library.path"
-        value="$JAVAROOT/${lib}/native/mac:${system.DYLD_LIBRARY_PATH}">
+        value="${lib}/native/mac:${system.DYLD_LIBRARY_PATH}">
         <isset property="is.running.macos"/>
     </condition>
 
@@ -158,7 +158,7 @@
     <!-- end jmf.home-->
 
     <property name="jdic_stub.jar" value="${os.lib.home}/jdic_stub.jar"/>
-    
+
     <tstamp>
         <format property="build.date" pattern="dd-MM-yyyy"/>
     </tstamp>
@@ -742,18 +742,18 @@
 
             <!-- Tell felix to run sip-communicator-->
             <sysproperty key="felix.config.properties"
-                value="file:./lib/felix.client.run.properties"/>
+                value="file:${lib}/felix.client.run.properties"/>
 
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
-                value="lib/logging.properties"/>
+                value="${lib}/logging.properties"/>
 
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="false"/>
 
-        	<!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-        	        	                value="${user.home}"/-->
-        	
+            <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                                        value="${user.home}"/-->
+
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path" path="${ld.library.path}:${path}:${dyld.library.path}"/>
             <env key="LD_LIBRARY_PATH" path="${ld.library.path}"/>
@@ -810,7 +810,7 @@
             <!-- The following two configure felix telling it that it's running
                  as a test environment-->
             <sysproperty key="felix.config.properties"
-                value="file:./lib/felix.unit.test.properties"/>
+                value="file:${lib}/felix.unit.test.properties"/>
 
             <!-- Tell the slick runner where to store test results. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
@@ -826,7 +826,7 @@
 
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
-                value="lib/logging.properties"/>
+                value="${lib}/logging.properties"/>
 
         </java>
     </target>
@@ -852,15 +852,15 @@
         bundle-growlnotification,bundle-audionotifier,bundle-plugin-splashscreen,
         bundle-systray,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
-    	bundle-plugin-extended-callhistory-search,
+        bundle-plugin-extended-callhistory-search,
         bundle-rss,bundle-plugin-rssaccregwizz,
         bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,
-    	bundle-pluginmanager"/>
+        bundle-pluginmanager"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
         <jar compress="false" destfile="${bundles.dest}/history.jar"
-            manifest="src/net/java/sip/communicator/impl/history/history.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/history/history.manifest.mf">
 
             <zipfileset dir="${dest}/net/java/sip/communicator/service/history"
                 prefix="net/java/sip/communicator/service/history"/>
@@ -872,7 +872,7 @@
     <!--BUNDLE-HISTORY-SLICK-->
     <target name="bundle-history-slick">
         <jar compress="false" destfile="${bundles.dest}/history-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/history/history.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/history/history.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/history"
                 prefix="net/java/sip/communicator/slick/history"/>
         </jar>
@@ -881,7 +881,7 @@
     <!--BUNDLE-MESSAGEHISTORY-->
     <target name="bundle-messagehistory">
         <jar compress="false" destfile="${bundles.dest}/msghistory.jar"
-            manifest="src/net/java/sip/communicator/impl/msghistory/msghistory.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/msghistory/msghistory.manifest.mf">
 
             <zipfileset dir="${dest}/net/java/sip/communicator/service/msghistory"
                 prefix="net/java/sip/communicator/service/msghistory"/>
@@ -893,7 +893,7 @@
     <!--BUNDLE-MESSAGEHISTORY-SLICK-->
     <target name="bundle-msghistory-slick">
         <jar compress="false" destfile="${bundles.dest}/msghistory-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/msghistory/msghistory.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/msghistory/msghistory.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/msghistory"
                 prefix="net/java/sip/communicator/slick/msghistory"/>
         </jar>
@@ -902,7 +902,7 @@
     <!--BUNDLE-CALLHISTORY-->
     <target name="bundle-callhistory">
         <jar compress="false" destfile="${bundles.dest}/callhistory.jar"
-            manifest="src/net/java/sip/communicator/impl/callhistory/callhistory.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/callhistory/callhistory.manifest.mf">
 
             <zipfileset dir="${dest}/net/java/sip/communicator/service/callhistory"
                 prefix="net/java/sip/communicator/service/callhistory"/>
@@ -914,7 +914,7 @@
     <!--BUNDLE-CALLEHISTORY-SLICK-->
     <target name="bundle-callhistory-slick">
         <jar compress="false" destfile="${bundles.dest}/callhistory-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/callhistory/callhistory.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/callhistory/callhistory.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/callhistory"
                 prefix="net/java/sip/communicator/slick/callhistory"/>
         </jar>
@@ -923,7 +923,7 @@
     <!--BUNDLE-FILEACCESS-->
     <target name="bundle-fileaccess">
         <jar compress="false" destfile="${bundles.dest}/fileaccess.jar"
-            manifest="src/net/java/sip/communicator/impl/fileaccess/fileaccess.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/fileaccess/fileaccess.manifest.mf">
 
             <zipfileset dir="${dest}/net/java/sip/communicator/service/fileaccess"
                 prefix="net/java/sip/communicator/service/fileaccess"/>
@@ -935,7 +935,7 @@
     <!--BUNDLE-FILEACCESS-SLICK-->
     <target name="bundle-fileaccess-slick">
         <jar compress="false" destfile="${bundles.dest}/fileaccess-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/fileaccess/fileaccess.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/fileaccess/fileaccess.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/fileaccess"
                 prefix="net/java/sip/communicator/slick/fileaccess"/>
         </jar>
@@ -944,7 +944,7 @@
     <!--BUNDLE-UTIL-->
     <target name="bundle-util">
         <jar compress="false" destfile="${bundles.dest}/util.jar"
-            manifest="src/net/java/sip/communicator/util/util.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/util/util.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/util"
                 prefix="net/java/sip/communicator/util"/>
             <zipfileset src="${lib.noinst}/dnsjava-2.0.3.jar" prefix=""/>
@@ -956,7 +956,7 @@
         <jar
             compress="false"
             destfile="${bundles.dest}/configuration.jar"
-            manifest="src/net/java/sip/communicator/impl/configuration/configuration.manifest.mf" >
+            manifest="${src}/net/java/sip/communicator/impl/configuration/configuration.manifest.mf" >
 
             <zipfileset dir="${dest}/net/java/sip/communicator/service/configuration"
                 prefix="net/java/sip/communicator/service/configuration"/>
@@ -968,7 +968,7 @@
     <!--BUNDLE-CONFIGURATION-SLICK-->
     <target name="bundle-configuration-slick">
         <jar compress="false" destfile="${bundles.dest}/configuration-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/configuration/configuration.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/configuration/configuration.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/configuration"
                 prefix="net/java/sip/communicator/slick/configuration"/>
         </jar>
@@ -977,7 +977,7 @@
     <!--BUNDLE-JUNIT -->
     <target name="bundle-junit">
         <jar compress="true" destfile="lib/bundle/junit.jar"
-            manifest="test/junit/junit.manifest.mf">
+            manifest="${testsrc}/junit/junit.manifest.mf">
             <zipfileset src="${lib.noinst}/junit.jar" prefix=""/>
         </jar>
     </target>
@@ -988,7 +988,7 @@
              the win jmf implementation.-->
         <jar
             compress="false" destfile="${bundles.dest.win}/media.jar"
-            manifest="src/net/java/sip/communicator/impl/media/media.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/media/media.manifest.mf">
 
             <zipfileset dir="${dest}/net/java/sip/communicator/service/media"
                 prefix="net/java/sip/communicator/service/media"/>
@@ -1004,7 +1004,7 @@
              the linux jmf implementation.-->
         <jar
             compress="false" destfile="${bundles.dest.lin}/media.jar"
-            manifest="src/net/java/sip/communicator/impl/media/media.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/media/media.manifest.mf">
 
             <zipfileset dir="${dest}/net/java/sip/communicator/service/media"
                 prefix="net/java/sip/communicator/service/media"/>
@@ -1019,7 +1019,7 @@
              the mac jmf implementation.-->
         <jar
             compress="false" destfile="${bundles.dest.mac}/media.jar"
-            manifest="src/net/java/sip/communicator/impl/media/media.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/media/media.manifest.mf">
 
             <zipfileset dir="${dest}/net/java/sip/communicator/service/media"
                 prefix="net/java/sip/communicator/service/media"/>
@@ -1036,7 +1036,7 @@
     <target name="bundle-media-slick">
         <!-- Creates a bundle containing the slick for the media package."-->
         <jar compress="false" destfile="${bundles.dest}/media-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/media/media.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/media/media.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/media"
                 prefix="net/java/sip/communicator/slick/media"/>
         </jar>
@@ -1073,7 +1073,7 @@ javax.swing.event, javax.swing.border"/>
     <!--BUNDLE-NETADDR -->
     <target name="bundle-netaddr">
         <jar compress="false" destfile="${bundles.dest}/netaddr.jar"
-            manifest="src/net/java/sip/communicator/impl/netaddr/netaddr.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/netaddr/netaddr.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/netaddr"
                 prefix="net/java/sip/communicator/service/netaddr"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/netaddr"
@@ -1085,7 +1085,7 @@ javax.swing.event, javax.swing.border"/>
     <!--BUNDLE-NETADDR-SLICK -->
     <target name="bundle-netaddr-slick">
         <jar compress="false" destfile="${bundles.dest}/netaddr-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/netaddr/netaddr.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/netaddr/netaddr.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/netaddr"
                 prefix="net/java/sip/communicator/slick/netaddr"/>
         </jar>
@@ -1095,7 +1095,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-slickless">
         <!--internal-target- Runs all tests which do not belong to a service implementation and don't therefore need a running OSGI framework -->
         <jar compress="false" destfile="${bundles.dest}/slickless.jar"
-            manifest="test/net/java/sip/communicator/slick/slickless/slickless.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/slickless/slickless.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/slickless"
                 prefix="net/java/sip/communicator/slick/slickless"/>
         </jar>
@@ -1105,7 +1105,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-slick-runner">
         <!--internal-target- Creates a bundle that runs all SLICKs that currently exist in sip-com -->
         <jar compress="false" destfile="${bundles.dest}/slick-runner.jar"
-            manifest="test/net/java/sip/communicator/slick/runner/slick-runner.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/runner/slick-runner.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/runner"
                 prefix="net/java/sip/communicator/slick/runner"/>
         </jar>
@@ -1115,14 +1115,14 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-sip">
         <!--internal-target- Creates a bundle containing the sip implementation of the protocol provider package -->
         <jar compress="false" destfile="${bundles.dest}/protocol-sip.jar"
-            manifest="src/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/sip"
                 prefix="net/java/sip/communicator/impl/protocol/sip"/>
             <zipfileset src="${lib.noinst}/JainSipRi1.2.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/JainSipApi1.2.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/concurrent.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
-            <zipfileset dir="resources/images/sip"
+            <zipfileset dir="${resources}/images/sip"
                             prefix="resources/images/sip"/>
         </jar>
     </target>
@@ -1130,7 +1130,7 @@ javax.swing.event, javax.swing.border"/>
         <!--internal-target- Creates a bundle containing the all tests for the
             sip implementation of the protocol provider package -->
         <jar compress="false" destfile="${bundles.dest}/protocol-sip-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/protocol/sip/sip.provider.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/protocol/sip/sip.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/sip"
                 prefix="net/java/sip/communicator/slick/protocol/sip"/>
         </jar>
@@ -1140,14 +1140,14 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-protocol">
         <!-- Creates a bundle containing the protocol provider interfaces.-->
         <jar compress="false" destfile="${bundles.dest}/protocol.jar"
-            manifest="src/net/java/sip/communicator/service/protocol/protocol.provider.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/service/protocol/protocol.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
                 prefix="net/java/sip/communicator/service/protocol"/>
-            <zipfileset dir="resources/images"
+            <zipfileset dir="${resources}/images"
                 prefix="resources/images"/>
         </jar>
     </target>
-    
+
     <target name="bundle-smacklib">
         <!-- Creates a bundle containing the smack lib.-->
         <jar compress="false" destfile="${bundles.dest}/smacklib.jar"
@@ -1164,7 +1164,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-icq">
         <!-- Creates a bundle containing the icq impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-icq.jar"
-            manifest="src/net/java/sip/communicator/impl/protocol/icq/icq.provider.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/protocol/icq/icq.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/icq"
                 prefix="net/java/sip/communicator/impl/protocol/icq"/>
             <zipfileset src="${lib.noinst}/joscar-client.jar" prefix=""/>
@@ -1172,9 +1172,9 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/joscar-protocol.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/retroweaver-rt-2.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jsocks-klea.jar" prefix=""/>
-            <zipfileset dir="resources/images/icq"
+            <zipfileset dir="${resources}/images/icq"
                             prefix="resources/images/icq"/>
-            <zipfileset dir="resources/images/aim"
+            <zipfileset dir="${resources}/images/aim"
                             prefix="resources/images/aim"/>
         </jar>
     </target>
@@ -1183,7 +1183,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-icq-slick">
         <!-- Creates a bundle containing the slick for the ICQ protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-icq-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/icq"
                 prefix="net/java/sip/communicator/slick/protocol/icq"/>
             <zipfileset src="${lib.noinst}/joscar-client.jar" prefix=""/>
@@ -1198,7 +1198,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-mock">
         <!--internal-target- Creates a bundle containing the mock implementation of the protocol provider package -->
         <jar compress="false" destfile="${bundles.dest}/protocol-mock.jar"
-            manifest="src/net/java/sip/communicator/impl/protocol/mock/mock.provider.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/protocol/mock/mock.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/mock"
                 prefix="net/java/sip/communicator/impl/protocol/mock"/>
         </jar>
@@ -1208,10 +1208,10 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-jabber">
         <!-- Creates a bundle containing the jabber impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-jabber.jar"
-            manifest="src/net/java/sip/communicator/impl/protocol/jabber/jabber.provider.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/protocol/jabber/jabber.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/jabber"
                 prefix="net/java/sip/communicator/impl/protocol/jabber"/>
-            <zipfileset dir="resources/images/jabber"
+            <zipfileset dir="${resources}/images/jabber"
                             prefix="resources/images/jabber"/>
         </jar>
     </target>
@@ -1221,7 +1221,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-jabber-slick">
 
         <jar compress="false" destfile="${bundles.dest}/protocol-jabber-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/protocol/jabber/jabber.provider.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/protocol/jabber/jabber.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/jabber"
                 prefix="net/java/sip/communicator/slick/protocol/jabber"/>
         </jar>
@@ -1231,12 +1231,12 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-msn">
         <!-- Creates a bundle containing the msn impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-msn.jar"
-            manifest="src/net/java/sip/communicator/impl/protocol/msn/msn.provider.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/protocol/msn/msn.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/msn"
                 prefix="net/java/sip/communicator/impl/protocol/msn"/>
             <zipfileset src="${lib.noinst}/jml-1.0b1.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
-            <zipfileset dir="resources/images/msn"
+            <zipfileset dir="${resources}/images/msn"
                             prefix="resources/images/msn"/>
         </jar>
     </target>
@@ -1246,7 +1246,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-msn-slick">
 
         <jar compress="false" destfile="${bundles.dest}/protocol-msn-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/protocol/msn/msn.provider.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/protocol/msn/msn.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/msn"
                 prefix="net/java/sip/communicator/slick/protocol/msn"/>
             <zipfileset src="${lib.noinst}/jml-1.0b1.jar" prefix=""/>
@@ -1258,11 +1258,11 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-yahoo">
         <!-- Creates a bundle containing the yahoo impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-yahoo.jar"
-            manifest="src/net/java/sip/communicator/impl/protocol/yahoo/yahoo.provider.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/protocol/yahoo/yahoo.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/yahoo"
                 prefix="net/java/sip/communicator/impl/protocol/yahoo"/>
             <zipfileset src="${lib.noinst}/ymsg_network_v0_61.jar" prefix=""/>
-            <zipfileset dir="resources/images/yahoo"
+            <zipfileset dir="${resources}/images/yahoo"
                             prefix="resources/images/yahoo"/>
         </jar>
     </target>
@@ -1271,7 +1271,7 @@ javax.swing.event, javax.swing.border"/>
     <!-- Creates a bundle containing the slick for the Yahoo protocol provider.-->
     <target name="bundle-yahoo-slick">
         <jar compress="false" destfile="${bundles.dest}/protocol-yahoo-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/protocol/yahoo/yahoo.provider.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/protocol/yahoo/yahoo.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/yahoo"
                 prefix="net/java/sip/communicator/slick/protocol/yahoo"/>
             <zipfileset src="${lib.noinst}/ymsg_network_v0_61.jar" prefix=""/>
@@ -1282,11 +1282,11 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-gibberish">
         <!-- Creates a bundle containing the Gibberish impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-gibberish.jar"
-             manifest="src/net/java/sip/communicator/impl/protocol/gibberish/gibberish.provider.manifest.mf">
+             manifest="${src}/net/java/sip/communicator/impl/protocol/gibberish/gibberish.provider.manifest.mf">
         <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/gibberish"
                     prefix="net/java/sip/communicator/impl/protocol/gibberish"/>
         <!-- zipfileset src="${lib.noinst}/gibberish_stack.jar" prefix=""/-->
-        <zipfileset dir="resources/images/gibberish"
+        <zipfileset dir="${resources}/images/gibberish"
                 prefix="resources/images/gibberish"/>
         </jar>
     </target>
@@ -1296,7 +1296,7 @@ javax.swing.event, javax.swing.border"/>
          provider.-->
     <target name="bundle-gibberish-slick">
         <jar compress="false" destfile="${bundles.dest}/protocol-gibberish-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/protocol/gibberish/gibberish.provider.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/protocol/gibberish/gibberish.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/gibberish"
                 prefix="net/java/sip/communicator/slick/protocol/gibberish"/>
         </jar>
@@ -1306,7 +1306,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-swing-ui">
         <!-- Bundle sip-communicator's UI.-->
         <jar compress="false" destfile="${bundles.dest}/swing-ui.jar"
-            manifest="src/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/gui"
                 prefix="net/java/sip/communicator/service/gui"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
@@ -1318,7 +1318,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-contactlist">
         <!-- Creates a bundle containing the contactlist interfaces.-->
         <jar compress="false" destfile="${bundles.dest}/contactlist.jar"
-            manifest="src/net/java/sip/communicator/service/contactlist/contactlist.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/service/contactlist/contactlist.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/contactlist"
                 prefix="net/java/sip/communicator/service/contactlist"/>
         </jar>
@@ -1328,7 +1328,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="meta-contactlist">
         <!-- Creates the meta contact list bundle.-->
         <jar compress="false" destfile="${bundles.dest}/meta-cl.jar"
-            manifest="src/net/java/sip/communicator/impl/contactlist/meta.cl.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/contactlist/meta.cl.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/contactlist"
                 prefix="net/java/sip/communicator/impl/contactlist"/>
         </jar>
@@ -1338,7 +1338,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="meta-contactlist-slick">
         <!-- Creates a bundle for the meta contact list SLICK.-->
         <jar compress="false" destfile="${bundles.dest}/meta-cl-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/contactlist/meta.cl.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/contactlist/meta.cl.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/contactlist"
                 prefix="net/java/sip/communicator/slick/contactlist"/>
         </jar>
@@ -1348,10 +1348,10 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-plugin-icqaccregwizz">
         <!-- Creates a bundle for the plugin Icq Account Registration Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/icqaccregwizz.jar"
-            manifest="src/net/java/sip/communicator/plugin/icqaccregwizz/icqaccregwizz.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/plugin/icqaccregwizz/icqaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/icqaccregwizz"
                 prefix="net/java/sip/communicator/plugin/icqaccregwizz"/>
-            <zipfileset dir="resources/images/icq"
+            <zipfileset dir="${resources}/images/icq"
                             prefix="resources/images/icq"/>
         </jar>
     </target>
@@ -1360,10 +1360,10 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-plugin-aimaccregwizz">
         <!-- Creates a bundle for the plugin Aim Account Registration Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/aimaccregwizz.jar"
-            manifest="src/net/java/sip/communicator/plugin/aimaccregwizz/aimaccregwizz.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/plugin/aimaccregwizz/aimaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/aimaccregwizz"
                 prefix="net/java/sip/communicator/plugin/aimaccregwizz"/>
-            <zipfileset dir="resources/images/aim"
+            <zipfileset dir="${resources}/images/aim"
                             prefix="resources/images/aim"/>
         </jar>
     </target>
@@ -1372,10 +1372,10 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-plugin-jabberaccregwizz">
         <!-- Creates a bundle for the plugin Jabber Account Registration Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/jabberaccregwizz.jar"
-            manifest="src/net/java/sip/communicator/plugin/jabberaccregwizz/jabberaccregwizz.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/plugin/jabberaccregwizz/jabberaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/jabberaccregwizz"
                 prefix="net/java/sip/communicator/plugin/jabberaccregwizz"/>
-            <zipfileset dir="resources/images/jabber"
+            <zipfileset dir="${resources}/images/jabber"
                             prefix="resources/images/jabber"/>
         </jar>
     </target>
@@ -1384,10 +1384,10 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-plugin-msnaccregwizz">
         <!-- Creates a bundle for the plugin Msn Account Registration Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/msnaccregwizz.jar"
-            manifest="src/net/java/sip/communicator/plugin/msnaccregwizz/msnaccregwizz.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/plugin/msnaccregwizz/msnaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/msnaccregwizz"
                 prefix="net/java/sip/communicator/plugin/msnaccregwizz"/>
-            <zipfileset dir="resources/images/msn"
+            <zipfileset dir="${resources}/images/msn"
                             prefix="resources/images/msn"/>
         </jar>
     </target>
@@ -1396,10 +1396,10 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-plugin-yahooaccregwizz">
         <!-- Creates a bundle for the plugin Yahoo Account Registration Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/yahooaccregwizz.jar"
-            manifest="src/net/java/sip/communicator/plugin/yahooaccregwizz/yahooaccregwizz.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/plugin/yahooaccregwizz/yahooaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/yahooaccregwizz"
                 prefix="net/java/sip/communicator/plugin/yahooaccregwizz"/>
-            <zipfileset dir="resources/images/yahoo"
+            <zipfileset dir="${resources}/images/yahoo"
                             prefix="resources/images/yahoo"/>
         </jar>
     </target>
@@ -1408,10 +1408,10 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-plugin-sipaccregwizz">
         <!-- Creates a bundle for the plugin SIP Account Registration Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/sipaccregwizz.jar"
-            manifest="src/net/java/sip/communicator/plugin/sipaccregwizz/sipaccregwizz.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/plugin/sipaccregwizz/sipaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sipaccregwizz"
                 prefix="net/java/sip/communicator/plugin/sipaccregwizz"/>
-            <zipfileset dir="resources/images/sip"
+            <zipfileset dir="${resources}/images/sip"
                             prefix="resources/images/sip"/>
         </jar>
     </target>
@@ -1421,10 +1421,10 @@ javax.swing.event, javax.swing.border"/>
         <!-- Creates a bundle for the plugin Gibberish Account Registration
              Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/gibberishaccregwizz.jar"
-            manifest="src/net/java/sip/communicator/plugin/gibberishaccregwizz/gibberishaccregwizz.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/plugin/gibberishaccregwizz/gibberishaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/gibberishaccregwizz"
                 prefix="net/java/sip/communicator/plugin/gibberishaccregwizz"/>
-            <zipfileset dir="resources/images/gibberish"
+            <zipfileset dir="${resources}/images/gibberish"
                             prefix="resources/images/gibberish"/>
         </jar>
     </target>
@@ -1433,7 +1433,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-version">
         <!-- Creates a bundle for the version service.-->
         <jar compress="false" destfile="${bundles.dest}/version.jar"
-            manifest="src/net/java/sip/communicator/service/version/version.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/service/version/version.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/version"
                 prefix="net/java/sip/communicator/service/version"/>
         </jar>
@@ -1443,7 +1443,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-version-impl">
         <!-- Creates a bundle for the version service impl.-->
         <jar compress="false" destfile="${bundles.dest}/version-impl.jar"
-            manifest="src/net/java/sip/communicator/impl/version/version.impl.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/version/version.impl.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/version"
                 prefix="net/java/sip/communicator/impl/version"/>
         </jar>
@@ -1453,7 +1453,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-version-slick">
         <!-- Creates a bundle for the version service slick.-->
         <jar compress="false" destfile="${bundles.dest}/version-slick.jar"
-            manifest="test/net/java/sip/communicator/slick/version/version.slick.manifest.mf">
+            manifest="${testsrc}/net/java/sip/communicator/slick/version/version.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/version"
                 prefix="net/java/sip/communicator/slick/version"/>
         </jar>
@@ -1463,7 +1463,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-shutdown">
         <!-- Creates a bundle for the shutdown plugin.-->
         <jar compress="false" destfile="${bundles.dest}/shutdown.jar"
-            manifest="src/net/java/sip/communicator/impl/shutdown/shutdown.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/shutdown/shutdown.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/shutdown"
                 prefix="net/java/sip/communicator/impl/shutdown"/>
         </jar>
@@ -1473,7 +1473,7 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-growlnotification">
         <!-- Creates a bundle for the growlnotification plugin.-->
         <jar compress="false" destfile="${bundles.dest.mac}/growlnotification.jar"
-            manifest="src/net/java/sip/communicator/impl/growlnotification/growlnotification.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/growlnotification/growlnotification.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/growlnotification"
                 prefix="net/java/sip/communicator/impl/growlnotification" />
         </jar>
@@ -1483,12 +1483,12 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-audionotifier">
         <!-- Creates a bundle for the audio notifier service.-->
         <jar compress="false" destfile="${bundles.dest}/audionotifier.jar"
-            manifest="src/net/java/sip/communicator/impl/audionotifier/audionotifier.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/audionotifier/audionotifier.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
                             prefix="net/java/sip/communicator/service/audionotifier"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/audionotifier"
                 prefix="net/java/sip/communicator/impl/audionotifier" />
-            <zipfileset dir="resources/sounds"
+            <zipfileset dir="${resources}/sounds"
                             prefix="resources/sounds"/>
         </jar>
     </target>
@@ -1497,7 +1497,7 @@ javax.swing.event, javax.swing.border"/>
         <target name="bundle-plugin-exampleplugin">
             <!-- Creates a bundle for the plugin SIP Account Registration Wizard.-->
             <jar compress="false" destfile="${bundles.dest}/exampleplugin.jar"
-                manifest="src/net/java/sip/communicator/plugin/exampleplugin/exampleplugin.manifest.mf">
+                manifest="${src}/net/java/sip/communicator/plugin/exampleplugin/exampleplugin.manifest.mf">
                 <zipfileset dir="${dest}/net/java/sip/communicator/plugin/exampleplugin"
                     prefix="net/java/sip/communicator/plugin/exampleplugin"/>
             </jar>
@@ -1507,7 +1507,7 @@ javax.swing.event, javax.swing.border"/>
         <target name="bundle-plugin-splashscreen">
             <!-- Creates a bundle for the Splash Screen plugin.-->
             <jar compress="false" destfile="${bundles.dest}/splashscreen.jar"
-                manifest="src/net/java/sip/communicator/plugin/splashscreen/splashscreen.manifest.mf">
+                manifest="${src}/net/java/sip/communicator/plugin/splashscreen/splashscreen.manifest.mf">
                 <zipfileset dir="${dest}/net/java/sip/communicator/plugin/splashscreen"
                     prefix="net/java/sip/communicator/plugin/splashscreen"/>
             </jar>
@@ -1518,7 +1518,7 @@ javax.swing.event, javax.swing.border"/>
         <!-- Creates a bundle for the Systray plugin."-->
         <jar
             compress="false" destfile="${bundles.dest}/systray.jar"
-            manifest="src/net/java/sip/communicator/impl/systray/systray.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/systray/systray.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/systray"
                 prefix="net/java/sip/communicator/service/systray"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/systray"
@@ -1530,48 +1530,48 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-browserlauncher">
         <!-- Creates a bundle for the browser launcher.-->
         <jar compress="false" destfile="${bundles.dest}/browserlauncher.jar"
-            manifest="src/net/java/sip/communicator/impl/browserlauncher/browserlauncher.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/browserlauncher/browserlauncher.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/browserlauncher"
                 prefix="net/java/sip/communicator/service/browserlauncher"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/browserlauncher"
                 prefix="net/java/sip/communicator/impl/browserlauncher"/>
         </jar>
     </target>
-	
+
     <!-- BUNDLE-PLUGIN MANAGER -->
     <target name="bundle-pluginmanager">
         <!-- Creates a bundle for the plugin manager plugin.-->
         <jar compress="false" destfile="${bundles.dest}/pluginmanager.jar"
-            manifest="src/net/java/sip/communicator/plugin/pluginmanager/pluginmanager.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/plugin/pluginmanager/pluginmanager.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/pluginmanager"
                 prefix="net/java/sip/communicator/plugin/pluginmanager"/>
         </jar>
     </target>
-	
-	<!-- BUNDLE-PLUGIN-EXTENDED CALL HISTORY SEARCH -->
-	<target name="bundle-plugin-extended-callhistory-search">
-	    <!-- Creates a bundle for a extended callhistory search-->
-	    <jar compress="false" destfile="${bundles.dest}/extendedcallhistorysearch.jar"
-	        manifest="src/net/java/sip/communicator/plugin/extendedcallhistorysearch/extendedcallhistorysearch.manifest.mf">
-	        <zipfileset dir="${dest}/net/java/sip/communicator/plugin/extendedcallhistorysearch"
-	            prefix="net/java/sip/communicator/plugin/extendedcallhistorysearch"/>
-	        <zipfileset src="${lib.noinst}/jcalendar-1.3.2.jar" prefix=""/>
-	    </jar>
-	</target>
-    
+
+    <!-- BUNDLE-PLUGIN-EXTENDED CALL HISTORY SEARCH -->
+    <target name="bundle-plugin-extended-callhistory-search">
+        <!-- Creates a bundle for a extended callhistory search-->
+        <jar compress="false" destfile="${bundles.dest}/extendedcallhistorysearch.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/extendedcallhistorysearch/extendedcallhistorysearch.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/extendedcallhistorysearch"
+                prefix="net/java/sip/communicator/plugin/extendedcallhistorysearch"/>
+            <zipfileset src="${lib.noinst}/jcalendar-1.3.2.jar" prefix=""/>
+        </jar>
+    </target>
+
     <!-- BUNDLE-RSS -->
     <target name="bundle-rss">
         <!-- Creates a bundle containing the Rss impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-rss.jar"
-             manifest="src/net/java/sip/communicator/impl/protocol/rss/rss.provider.manifest.mf">
+             manifest="${src}/net/java/sip/communicator/impl/protocol/rss/rss.provider.manifest.mf">
         <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/rss"
                     prefix="net/java/sip/communicator/impl/protocol/rss"/>
-        
+
         <!-- LIBRARIES FOR RSS PROTOCOL, INCLUDING JDOM-1.0 AND ROME-0.9/-->
         <zipfileset src="${lib.noinst}/jdom.jar" prefix=""/>
         <zipfileset src="${lib.noinst}/rome-0.9.jar" prefix=""/>
-        
-        <zipfileset dir="resources/images/rss"
+
+        <zipfileset dir="${resources}/images/rss"
                 prefix="resources/images/rss"/>
         </jar>
     </target>
@@ -1581,35 +1581,35 @@ javax.swing.event, javax.swing.border"/>
         <!-- Creates a bundle for the plugin Rss Account Registration
              Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/rssaccregwizz.jar"
-            manifest="src/net/java/sip/communicator/plugin/rssaccregwizz/rssaccregwizz.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/plugin/rssaccregwizz/rssaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/rssaccregwizz"
                 prefix="net/java/sip/communicator/plugin/rssaccregwizz"/>
-            <zipfileset dir="resources/images/rss"
+            <zipfileset dir="${resources}/images/rss"
                             prefix="resources/images/rss"/>
         </jar>
     </target>
-    
+
     <!-- BUNDLE-ZEROCONF -->
     <target name="bundle-zeroconf">
         <!-- Creates a bundle containing the Zeroconf impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-zeroconf.jar"
-            manifest="src/net/java/sip/communicator/impl/protocol/zeroconf/zeroconf.provider.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/protocol/zeroconf/zeroconf.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/zeroconf"
                 prefix="net/java/sip/communicator/impl/protocol/zeroconf"/>
-            <zipfileset dir="resources/images/zeroconf"
+            <zipfileset dir="${resources}/images/zeroconf"
                             prefix="resources/images/zeroconf"/>
         </jar>
     </target>
-        
-  
+
+
     <!-- BUNDLE-PLUGIN-ZEROCONFACCREGWIZZ -->
     <target name="bundle-plugin-zeroconfaccregwizz">
         <!-- Creates a bundle for the plugin Zeroconf Account Registration Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/zeroconfaccregwizz.jar"
-            manifest="src/net/java/sip/communicator/plugin/zeroconfaccregwizz/zeroconfaccregwizz.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/plugin/zeroconfaccregwizz/zeroconfaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/zeroconfaccregwizz"
                 prefix="net/java/sip/communicator/plugin/zeroconfaccregwizz"/>
-            <zipfileset dir="resources/images/zeroconf"
+            <zipfileset dir="${resources}/images/zeroconf"
                             prefix="resources/images/zeroconf"/>
         </jar>
     </target>
