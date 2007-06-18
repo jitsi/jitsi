@@ -36,21 +36,6 @@ public class ChatRoomConfigParam
 
     /**
      * This constant contains the String representation of the
-     * CHAT_ROOM_NOT_VISIBLE configuration parameter.
-     * <p>
-     * This constant has the String value "Not Visible".
-     */
-    protected static final String _CHAT_ROOM_NOT_VISIBLE = "Not Visible";
-
-    /**
-     * The not visible configuration parameter. Indicates that the associated
-     * chat room isn't visible.
-     */    
-    public static final ChatRoomConfigParam CHAT_ROOM_NOT_VISIBLE
-        = new ChatRoomConfigParam(_CHAT_ROOM_NOT_VISIBLE);
-
-    /**
-     * This constant contains the String representation of the
      * CHAT_ROOM_PASSWORD_REQUIRED configuration parameter.
      * <p>
      * This constant has the String value "Password Required".

@@ -41,7 +41,7 @@ public class ChatRoomPropertyChangeEvent
      * Indicates that this event was triggered as a result of the source
      * chat room state changed.
      */
-    public static final String PROPERTY_STATE_CHANGED = "StateChanged";
+    public static final String PROPERTY_CONFIG_CHANGED = "ConfigChanged";
     
     /**
      * Indicates that this event was triggered as a result of the source
