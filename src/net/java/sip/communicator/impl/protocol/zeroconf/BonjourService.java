@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.impl.protocol.zeroconf.jmdns.*;
 
 /**
- * Class dealing with JmDNS and treating all the 
+ * Class dealing with JmDNS and treating all the
  * incoming connections on the bonjour port
  * @author Christian Vincenot
  */
@@ -24,9 +24,9 @@ public class BonjourService extends Thread
     implements  ServiceListener,
                 DNSListener
 {
-    private static final Logger logger = 
+    private static final Logger logger =
         Logger.getLogger(BonjourService.class);
-    
+
     private int port = 5298;
     private ServerSocket sock=null;
     private String id;
@@ -34,17 +34,17 @@ public class BonjourService extends Thread
     private Hashtable props;
     private ServiceInfo service;
     private boolean dead = false;
-    
+
     private Vector contacts = new Vector();
-    
+
     private ProtocolProviderServiceZeroconfImpl pps;
     OperationSetPersistentPresenceZeroconfImpl opSetPersPresence;
-    
+
     private ZeroconfAccountID acc;
-    
+
     /* Should maybe better get the status directly from OperationSetPresence */
-    private PresenceStatus status = ZeroconfStatusEnum.OFFLINE; 
-    
+    private PresenceStatus status = ZeroconfStatusEnum.OFFLINE;
+
     /**
      * Returns the corresponding ProtocolProviderService
      * @return corresponding ProtocolProviderService
@@ -53,36 +53,36 @@ public class BonjourService extends Thread
     {
         return pps;
     }
-    
+
     /**
-     * Returns the id of this service. 
+     * Returns the id of this service.
      * @return returns the id of this service.
      */
     String getID()
     {
         return id;
     }
-    
+
     /**
      * Creates a new instance of the Bonjour service thread
      * @param port TCP Port number on which to try to start the Bonjour service
-     * @param pps ProtocolProviderService instance 
+     * @param pps ProtocolProviderService instance
      *      which is creating this BonjourService
      */
-    public BonjourService(int port, 
+    public BonjourService(int port,
                           ProtocolProviderServiceZeroconfImpl pps)
     {
         this.acc = (ZeroconfAccountID) pps.getAccountID();
         this.port = port;
         this.id = acc.getUserID();
         this.pps = pps;
-        
+
         opSetPersPresence = (OperationSetPersistentPresenceZeroconfImpl)
             pps.getSupportedOperationSets()
                 .get(OperationSetPersistentPresence.class.getName());
-        
+
         props = new Hashtable();
-        
+
         // Gaim
         props.put("1st", acc.getFirst());
         props.put("email", (acc.getMail() == null)? "":acc.getMail());
@@ -90,7 +90,7 @@ public class BonjourService extends Thread
         props.put("last", (acc.getLast() == null)?"":acc.getLast());
         props.put("msg", opSetPersPresence.getCurrentStatusMessage());
         props.put("status", "avail");
-        
+
         //iChat
         props.put("phsh","000");
         //props.put("status","avail");
@@ -98,46 +98,46 @@ public class BonjourService extends Thread
         props.put("vc", "C!");
         //props.put("1st", "John");
         props.put("txtvers","1");
-        
+
         //XEP-0174 (Final paper)
         props.put("ext","");
         props.put("nick", acc.getFirst());
         props.put("ver", "1");
         props.put("node", "SIP Communicator");
-        
+
         //Ours
         props.put("client", "SIP Communicator");
-        
+
         changeStatus(opSetPersPresence.getPresenceStatus());
-        
+
         sock = createSocket(port);
         if (sock == null) return;
-        
+
         port = sock.getLocalPort();
-        
+
         logger.debug("ZEROCONF: ServerSocket bound to port "+port);
-        
+
         props.put("port.p2pj", Integer.toString(port));
-        
+
         this.start();
     }
-    
-    /* TODO: Better exception checking to avoid sudden exit and bonjour 
+
+    /* TODO: Better exception checking to avoid sudden exit and bonjour
      * service shutdown */
-    
+
     /**
      * Walk?
      */
     public void run()
     {
         logger.debug("ZEROCONF: Bonjour Service Thread up and running!");
-        
-        /* Put jmDNS in DEBUD Mode : 
+
+        /* Put jmDNS in DEBUD Mode :
          * Following verbosity levels can be chosen :
          * "INFO" , "WARNING", "SEVERE", "ALL", "FINE", "FINER", "FINEST", etc
          */
         //System.setProperty("jmdns.debug", "0");
-        
+
         while (dead == false)
         {
             if (sock == null || sock.isClosed())
@@ -152,12 +152,12 @@ public class BonjourService extends Thread
             try
             {
                 Socket connexion = sock.accept();
-                ContactZeroconfImpl contact = getContact(null, 
+                ContactZeroconfImpl contact = getContact(null,
                                                     connexion.getInetAddress());
                 /*if (status.equals(ZeroconfStatusEnum.OFFLINE)
                 || status.equals(ZeroconfStatusEnum.INVISIBLE) */
                 if (dead == true) break;
-                
+
                 if  ((contact == null)
                   || (contact.getClientThread() != null))
                 {
@@ -180,27 +180,28 @@ public class BonjourService extends Thread
                 logger.error(e);
             }
         }
-        
+
         logger.debug("ZEROCONF: Going Offline - "
                           +"BonjourService Thread exiting!");
     }
-    
+
     /**
      * Might be used for shutdown...
      */
     public void shutdown()
     {
         logger.debug("ZEROCONF: Shutdown!");
-        
+
         dead = true;
         try
         {   sock.close();   }
         catch (Exception ex)
         {   logger.error(ex);  }
-        
+
         changeStatus(ZeroconfStatusEnum.OFFLINE);
+        jmdns.close();
     }
-    
+
     private ServerSocket createSocket(int port)
     {
         ServerSocket sock=null;
@@ -222,10 +223,10 @@ public class BonjourService extends Thread
                                   +"Couldn't bind to a port!!", ex);
             }
         }
-        
+
         return sock;
     }
-    
+
     /**
      * Changes the status of the local user.
      * @param stat New presence status
@@ -234,7 +235,7 @@ public class BonjourService extends Thread
     {
         /* [old_status == new_status ?] => NOP */
         if (stat.equals(status)) return;
-        
+
         /* [new_status == OFFLINE ?] => clean up everything */
         if (stat.equals(ZeroconfStatusEnum.OFFLINE))
         {
@@ -244,11 +245,11 @@ public class BonjourService extends Thread
             jmdns.close();
             jmdns=null;
             //dead = true;
-            
+
             // Erase all contacts by putting them OFFLINE
-            opSetPersPresence.changePresenceStatusForAllContacts( 
+            opSetPersPresence.changePresenceStatusForAllContacts(
                     opSetPersPresence.getServerStoredContactListRoot(), stat);
-            
+
             try
             {
                 sleep(1000);
@@ -257,57 +258,57 @@ public class BonjourService extends Thread
                 logger.error(ex);
             }
         }
-        
+
         /* [old_status == OFFLINE ?] => register service */
         else if (status.equals(ZeroconfStatusEnum.OFFLINE))
         {
             logger.debug("ZEROCONF: Getting out of OFFLINE state");
             props.put("status", stat.getStatusName());
-            service = new ServiceInfo("_presence._tcp.local.", id, 
+            service = new ServiceInfo("_presence._tcp.local.", id,
                                       port, 0, 0, props);
-            
+
             try
             {
                 jmdns = new JmDNS();
                 jmdns.registerServiceType("_presence._tcp.local.");
                 jmdns.addServiceListener("_presence._tcp.local.", this);
                 jmdns.registerService(service);
-                
-                /* In case the ID had to be changed */                                                                                                                 
+
+                /* In case the ID had to be changed */
                 id = service.getName();
             }
             catch (Exception ex)
             {   logger.error(ex);   }
-            
+
             //dead = false;
-            
+
             /* Normal status change */
         }
         else
         {
             logger.debug("ZEROCONF : Changing status");
-        
+
             props.put("status", stat.getStatusName());
-            
-            /* FIXME: Not totally race condition free since the 3 calls aren't 
-             * atomic, but that's not really critical since there's little 
-             * change chance of concurrent local contact change, and this 
+
+            /* FIXME: Not totally race condition free since the 3 calls aren't
+             * atomic, but that's not really critical since there's little
+             * change chance of concurrent local contact change, and this
              * wouldn't have big consequences.
              */
-            ServiceInfo info = 
+            ServiceInfo info =
                jmdns.getLocalService(id.toLowerCase()+"._presence._tcp.local.");
             if (info == null)
                logger.error("ZEROCONF/JMDNS: PROBLEM GETTING "
                                  +"LOCAL SERVICEINFO !!");
-            
+
             byte[] old = info.getTextBytes();
             info.setProps(props);
             jmdns.updateInfos(info, old);
         }
-        
+
         status = stat;
     }
-    
+
     private class AddThread extends Thread
     {
         private String type, name;
@@ -317,7 +318,7 @@ public class BonjourService extends Thread
             this.name = name;
             this.start();
         }
-        
+
         public void run()
         {
             ServiceInfo service = null;
@@ -325,7 +326,7 @@ public class BonjourService extends Thread
             && !status.equals(ZeroconfStatusEnum.OFFLINE))
             {
                 service = jmdns.getServiceInfo(type, name, 10000);
-                if (service == null) 
+                if (service == null)
                     logger.error("BONJOUR: ERROR - Service Info of "
                                       + name +" not found in cache!!");
                 try
@@ -342,9 +343,9 @@ public class BonjourService extends Thread
             //} else handleResolvedService(name, type, service);
         }
     }
-    
+
     /* Service Listener Implementation */
-    
+
     /**
      * A service has been added.
      *
@@ -354,15 +355,15 @@ public class BonjourService extends Thread
     public void serviceAdded(ServiceEvent event)
     {
         /* WARNING: DONT PUT ANY BLOCKING CALLS OR FLAWED LOOPS IN THIS METHOD.
-         * JmDNS calls this method without creating a new thread, so if this 
+         * JmDNS calls this method without creating a new thread, so if this
          * method doesn't return, jmDNS will hang !!
          */
-        
+
         String name = event.getName();
         String type = event.getType();
-        
+
         if (name.equals(id)) return;
-        
+
         logger.debug("BONJOUR: "+name
                           +"["+type+"] detected! Trying to get information...");
         try
@@ -373,14 +374,14 @@ public class BonjourService extends Thread
         {
             logger.error(ex);
         }
-        
+
         jmdns.printServices();
-        
+
         new AddThread(type, name);
     }
-    
-    
-    
+
+
+
     /**
      * A service has been removed.
      *
@@ -391,22 +392,22 @@ public class BonjourService extends Thread
     {
         String name = event.getName();
         if (name.equals(id)) return;
-        
+
         ContactZeroconfImpl contact = getContact(name, null);
-        
-        opSetPersPresence.changePresenceStatusForContact(contact, 
+
+        opSetPersPresence.changePresenceStatusForContact(contact,
                                             ZeroconfStatusEnum.OFFLINE);
         logger.debug("BONJOUR: Received announcement that "
                           +name+" went offline!");
-        
+
     }
-    
+
     /**
      * A service has been resolved. Its details are now available in the
      * ServiceInfo record.
      *
      * @param event The ServiceEvent providing the name, the fully qualified
-     *              type of the service, and the service info record, 
+     *              type of the service, and the service info record,
      *              or null if the service could not be resolved.
      */
     public void serviceResolved(ServiceEvent event)
@@ -414,29 +415,29 @@ public class BonjourService extends Thread
         String contactID = event.getName();
         String type = event.getType();
         ServiceInfo info = event.getInfo();
-        
+
         logger.debug("BONJOUR:    Information about "
                           +contactID+" discovered");
-        
+
         handleResolvedService(contactID, type, info);
     }
-    
-    private void handleResolvedService(String contactID, 
-                                       String type, 
+
+    private void handleResolvedService(String contactID,
+                                       String type,
                                        ServiceInfo info)
-    {   
-        if (contactID.equals(id)) 
+    {
+        if (contactID.equals(id))
             return;
 
-        if (info.getAddress().toString().length() > 15) 
+        if (info.getAddress().toString().length() > 15)
         {
               logger.debug("ZEROCONF: Temporarily ignoring IPv6 addresses!");
               return;
         }
-           
+
         ContactZeroconfImpl newFriend;
-        
-        synchronized(this) 
+
+        synchronized(this)
         {
             if (getContact(contactID, info.getAddress()) != null)
             {
@@ -444,40 +445,40 @@ public class BonjourService extends Thread
                               +contactID+" already in contact list! Skipping.");
                 return;
             };
-            logger.debug("ZEROCNF: ContactID " + contactID + 
+            logger.debug("ZEROCNF: ContactID " + contactID +
                 " Address " + info.getAddress());
-        
+
             logger.debug("            Address=>"+info.getAddress()
                           +":"+info.getPort());
-        
-            for (Enumeration names = info.getPropertyNames() ; 
+
+            for (Enumeration names = info.getPropertyNames() ;
                 names.hasMoreElements() ; )
             {
                 String prop = (String)names.nextElement();
                 logger.debug("            "+prop+"=>"
                               +info.getPropertyString(prop));
             }
-        
+
             /* Creating the contact */
             String name = info.getPropertyString("1st");
-            if (info.getPropertyString("last") != null) 
+            if (info.getPropertyString("last") != null)
                 name += " "+ info.getPropertyString("last");
-        
+
             int port = Integer.valueOf(
                 info.getPropertyString("port.p2pj")).intValue();
-            
+
             if (port < 1)
             {
                 logger.error("ZEROCONF: Flawed contact announced himself"
                               +"without necessary parameters : "+contactID);
                 return;
             }
-        
+
             logger.debug("ZEROCONF: Detected client "+name);
-        
-            newFriend = 
+
+            newFriend =
                     opSetPersPresence.createVolatileContact(
-                        contactID, this, name, 
+                        contactID, this, name,
                         info.getAddress(), port);
         }
         /* Try to detect which client type it is */
@@ -486,60 +487,60 @@ public class BonjourService extends Thread
                 && info.getPropertyString("client").
                 compareToIgnoreCase("SIP Communicator") == 0)
                     clientType = ContactZeroconfImpl.SIPCOM;
-        
-        else if ((info.getPropertyString("jid") != null) 
+
+        else if ((info.getPropertyString("jid") != null)
               && (info.getPropertyString("node") == null))
                     clientType = ContactZeroconfImpl.GAIM;
-        
+
         else if (info.getPropertyString("jid") == null)
             clientType = ContactZeroconfImpl.ICHAT;
-        
+
         newFriend.setClientType(clientType);
         logger.debug("ZEROCONF: CLIENT TYPE "+clientType);
-        
-        ZeroconfStatusEnum status = 
+
+        ZeroconfStatusEnum status =
                 ZeroconfStatusEnum.statusOf(info.getPropertyString("status"));
         opSetPersPresence.
-                changePresenceStatusForContact(newFriend, 
+                changePresenceStatusForContact(newFriend,
                                status == null?ZeroconfStatusEnum.ONLINE:status);
-        
+
         // Listening for changes
-        jmdns.addListener(this, new DNSQuestion(info.getQualifiedName(), 
-                                                DNSConstants.TYPE_SRV, 
+        jmdns.addListener(this, new DNSQuestion(info.getQualifiedName(),
+                                                DNSConstants.TYPE_SRV,
                                                 DNSConstants.CLASS_UNIQUE));
     }
-    
+
     /**
-     * Callback called by JmDNS to inform the 
+     * Callback called by JmDNS to inform the
      * BonjourService of a potential status change of some contacts.
      * @param jmdns JmDNS instance responsible for this
      * @param now Timestamp
      * @param record DNSRecord which changed
      */
-    public synchronized void updateRecord(  JmDNS jmdns, 
-                                            long now, 
+    public synchronized void updateRecord(  JmDNS jmdns,
+                                            long now,
                                             DNSRecord record)
     {
         logger.debug("ZEROCONF/JMDNS: Received record update for "+record);
-        
+
         int clazz = record.getClazz();
         int type = record.getType();
-        
+
         /* Check the info returned by JmDNS since we can't really trust its
          * filtering. */
         if (!(((type & DNSConstants.TYPE_TXT) != 0) &&
                 ((clazz & DNSConstants.CLASS_IN) != 0) &&
-                record.isUnique() && 
-                record.getName().endsWith("_presence._tcp.local."))) 
+                record.isUnique() &&
+                record.getName().endsWith("_presence._tcp.local.")))
             return;
-        
+
         String name = record.getName().replaceAll("._presence._tcp.local.","");
         ContactZeroconfImpl contact;
 
-        synchronized(this) 
+        synchronized(this)
         {
             contact = getContact(name, null);
-        
+
             if (contact == null) { //return;
                 logger.error("ZEROCONF: BUG in jmDNS => Received update without "
                         +"previous contact annoucement. Trying to add contact");
@@ -547,18 +548,18 @@ public class BonjourService extends Thread
                 return;
             }
         }
-        
-        logger.debug("ZEROCONF: "+ name 
+
+        logger.debug("ZEROCONF: "+ name
                          + " changed status. Requesting fresh data!");
-        
-        /* Since a record was updated, we can be sure that we can do a blocking 
-         * getServiceInfo without risk. (Still, we use the method with timeout 
-         * to avoid bad surprises). If some problems of status change refresh 
+
+        /* Since a record was updated, we can be sure that we can do a blocking
+         * getServiceInfo without risk. (Still, we use the method with timeout
+         * to avoid bad surprises). If some problems of status change refresh
          * appear, we'll have to fall back on the method with callback as we've
          * done for "ServiceAdded".
          */
-        
-        ServiceInfo info = jmdns.getServiceInfo("_presence._tcp.local.", name, 
+
+        ServiceInfo info = jmdns.getServiceInfo("_presence._tcp.local.", name,
                                                 1000);
         if (info == null)
         {
@@ -567,17 +568,17 @@ public class BonjourService extends Thread
                               +"BonjourService.java:updateRecord !!");
                 return;
         }
-        
+
         /* Let's change what we can : status, message, etc */
-        ZeroconfStatusEnum status = 
+        ZeroconfStatusEnum status =
                 ZeroconfStatusEnum.statusOf(info.getPropertyString("status"));
 
         opSetPersPresence.
-                changePresenceStatusForContact(contact, 
+                changePresenceStatusForContact(contact,
                            status == null ? ZeroconfStatusEnum.ONLINE:status);
-        
+
     }
-    
+
     /**
      * Returns an Iterator over all contacts.
      *
@@ -587,14 +588,14 @@ public class BonjourService extends Thread
     {
         return contacts.iterator();
     }
-    
+
     /**
      * Adds a contact to the locally stored list of contacts
-     * @param contact Zeroconf Contact to add to the local list 
+     * @param contact Zeroconf Contact to add to the local list
      */
-    public void addContact(ContactZeroconfImpl contact) 
+    public void addContact(ContactZeroconfImpl contact)
     {
-        synchronized(contacts) 
+        synchronized(contacts)
         {
             contacts.add(contact);
         }
@@ -610,20 +611,20 @@ public class BonjourService extends Thread
     public ContactZeroconfImpl getContact(String id, InetAddress ip)
     {
         if (id == null && ip == null) return null;
-            
-        synchronized(contacts) 
+
+        synchronized(contacts)
         {
             Iterator contactsIter = contacts();
-        
+
             while (contactsIter.hasNext())
             {
-                ContactZeroconfImpl contact = 
+                ContactZeroconfImpl contact =
                     (ContactZeroconfImpl)contactsIter.next();
                 //System.out.println("ZEROCNF: Comparing "+id+ " "+ip+
                 //" with "+ contact.getAddress()+ " " + contact.getIpAddress());
                 if (((contact.getAddress().equals(id)) || (id == null))
                  && ((contact.getIpAddress().equals(ip)) || (ip == null))
-                 && (contact != null)) 
+                 && (contact != null))
                     return contact;
 
             }
@@ -635,25 +636,25 @@ public class BonjourService extends Thread
 
     /**
      * Removes the <tt>Contact</tt> with the specified identifier or IP address.
-     * 
-     * 
+     *
+     *
      * @param id the identifier of the <tt>Contact</tt> we are
      *   looking for.
      * @param ip the IP address of the <tt>Contact</tt> we are looking for.
      */
     public void removeContact(String id, InetAddress ip)
     {
-        synchronized(contacts) 
+        synchronized(contacts)
         {
             Iterator contactsIter = contacts();
             while (contactsIter.hasNext())
             {
-                ContactZeroconfImpl contact = 
+                ContactZeroconfImpl contact =
                     (ContactZeroconfImpl)contactsIter.next();
                 if (((contact.getAddress().equals(id)) || (id == null))
-                  &&((contact.getIpAddress().equals(ip)) || (ip == null))) 
+                  &&((contact.getIpAddress().equals(ip)) || (ip == null)))
                 {
-                     if (contact.getClientThread() != null) 
+                     if (contact.getClientThread() != null)
                          contact.getClientThread().cleanThread();
                      contacts.remove(contact);
                      return;

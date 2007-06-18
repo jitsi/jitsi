@@ -112,7 +112,7 @@ public class ProtocolProviderFactoryZeroconfImpl
 
         accountProperties.put(USER_ID, userIDStr);
 
-        AccountID accountID = 
+        AccountID accountID =
             new ZeroconfAccountID(userIDStr, accountProperties);
 
         //make sure we haven't seen this account id before.
@@ -151,7 +151,7 @@ public class ProtocolProviderFactoryZeroconfImpl
 
         String userIDStr = (String)accountProperties.get(USER_ID);
 
-        AccountID accountID = 
+        AccountID accountID =
             new ZeroconfAccountID(userIDStr, accountProperties);
 
         //get a reference to the configuration service and register whatever
@@ -170,9 +170,9 @@ public class ProtocolProviderFactoryZeroconfImpl
             = context.registerService( ProtocolProviderService.class.getName(),
                                        zeroconfProtocolProvider,
                                        properties);
-        
+
         registeredAccounts.put(accountID, registration);
-        
+
         return accountID;
     }
 
@@ -194,12 +194,12 @@ public class ProtocolProviderFactoryZeroconfImpl
             = (ProtocolProviderService) ZeroconfActivator.getBundleContext()
                 .getService(serRef);
         if (protocolProvider == null) logger.error("ProtocolProviderService = null !!");
-        
-        try 
+
+        try
         {
             protocolProvider.unregister();
         }
-        catch (OperationFailedException exc) 
+        catch (OperationFailedException exc)
         {
             logger.error("Failed to unregister protocol provider for account : "
                     + accountID + " caused by : " + exc);
@@ -271,15 +271,18 @@ public class ProtocolProviderFactoryZeroconfImpl
             ServiceRegistration reg
                 = ((ServiceRegistration)registrations.nextElement());
 
+            ProtocolProviderServiceZeroconfImpl provider
+               = (ProtocolProviderServiceZeroconfImpl) ZeroconfActivator
+                   .getBundleContext().getService(reg.getReference());
+
+           //do an attempt to kill the provider
+           provider.shutdown();
+
+
             reg.unregister();
         }
 
-        Enumeration idEnum = registeredAccounts.keys();
-
-        while(idEnum.hasMoreElements())
-        {
-            registeredAccounts.remove(idEnum.nextElement());
-        }
+        registeredAccounts.clear();
     }
 
 }
