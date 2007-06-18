@@ -124,12 +124,14 @@ public class ProtocolProviderFactorySipImpl
         {
             accountID = loadAccount(accountProperties);
         }
-        finally
+        catch(RuntimeException exc)
         {
             //it might happen that load-ing the account fails because of a bad
             //initialization. if this is the case, make sure we remove it.
             this.removeStoredAccount(SipActivator.getBundleContext(),
                                      accountID);
+
+            throw exc;
         }
 
         return accountID;
