@@ -43,7 +43,7 @@ public class GrowlNotificationServiceImpl
     private Growl notifier;
 
     /**
-     * The noifyGrowlOf/setAllowedNotifications/setDefaultNotifications 
+     * The notifyGrowlOf/setAllowedNotifications/setDefaultNotifications 
      * methods of the growl class. We use reflection to access them
      * in order to avoid compilation errors on non mac platforms.
      */
@@ -203,20 +203,15 @@ public class GrowlNotificationServiceImpl
      */
     public void messageReceived(MessageReceivedEvent evt)
     {
-//        byte[] contactImage = null;
-//       NSData NSContactImage = null;
-
-//        try
-//        {
-//            contactImage = evt.getSourceContact().getImage();
-//        }
-//       catch (Exception ex)
-//        {
-//            logger.error("Failed to load contact photo for Growl", ex);
-//        }
-
-//        if (contactImage != null)
-//            NSContactImage = new NSData(contactImage);
+        //byte[] contactImage = null;
+        //try
+        //{
+        //    contactImage = evt.getSourceContact().getImage();
+        //}
+        //catch (Exception ex)
+        //{
+        //    logger.error("Failed to load contact photo for Growl", ex);
+        //}
 
         try
         {
