@@ -120,7 +120,17 @@ public class ProtocolProviderFactorySipImpl
             SipActivator.getBundleContext()
             , accountID);
 
-        accountID = loadAccount(accountProperties);
+        try
+        {
+            accountID = loadAccount(accountProperties);
+        }
+        finally
+        {
+            //it might happen that load-ing the account fails because of a bad
+            //initialization. if this is the case, make sure we remove it.
+            this.removeStoredAccount(SipActivator.getBundleContext(),
+                                     accountID);
+        }
 
         return accountID;
     }
@@ -257,7 +267,8 @@ public class ProtocolProviderFactorySipImpl
                 = ((ServiceRegistration)registrations.nextElement());
 
             ProtocolProviderServiceSipImpl provider
-                = (ProtocolProviderServiceSipImpl) SipActivator.getBundleContext().getService(reg.getReference());
+                = (ProtocolProviderServiceSipImpl) SipActivator
+                    .getBundleContext().getService(reg.getReference());
 
             //do an attempt to kill the provider
             provider.shutdown();
@@ -266,11 +277,7 @@ public class ProtocolProviderFactorySipImpl
         }
 
         Enumeration idEnum = registeredAccounts.keys();
-
-        while(idEnum.hasMoreElements())
-        {
-            registeredAccounts.remove(idEnum.nextElement());
-        }
+        registeredAccounts.clear();
     }
 
     /**
