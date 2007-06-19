@@ -570,7 +570,7 @@ public abstract class ChatPanel
                     if(clistModel.isContactActive(selectedMetaContact))
                     {
                         clistModel.removeActiveContact(selectedMetaContact);
-                        clist.modifyContact(selectedMetaContact);
+                        clist.refreshContact(selectedMetaContact);
                     }
 
                     fireChatFocusEvent(ChatFocusEvent.FOCUS_GAINED);

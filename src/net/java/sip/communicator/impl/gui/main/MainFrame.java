@@ -584,7 +584,7 @@ public class MainFrame
             if (metaContact != null
                 && (evt.getOldStatus() != evt.getNewStatus()))
             {
-                clistPanel.getContactList().modifyContact(metaContact);
+                clistPanel.getContactList().refreshContact(metaContact);
             }
         }
     }

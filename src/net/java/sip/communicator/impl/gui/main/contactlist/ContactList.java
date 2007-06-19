@@ -127,7 +127,7 @@ public class ContactList
      */
     public void metaContactRenamed(MetaContactRenamedEvent evt)
     {
-        this.modifyContact(evt.getSourceMetaContact());
+        this.refreshContact(evt.getSourceMetaContact());
     }
 
     /**
@@ -138,7 +138,7 @@ public class ContactList
     {
         MetaContact parentMetaContact = evt.getNewParent();
         
-        this.modifyContact(parentMetaContact);
+        this.refreshContact(parentMetaContact);
     }
 
     /**
@@ -147,7 +147,7 @@ public class ContactList
      */
     public void protoContactRemoved(ProtoContactEvent evt)
     {
-        this.modifyContact(evt.getOldParent());
+        this.refreshContact(evt.getOldParent());
     }
 
     /**
@@ -159,8 +159,8 @@ public class ContactList
         MetaContact oldParentMetaContact = evt.getOldParent();
         MetaContact newParentMetaContact = evt.getNewParent();
         
-        this.modifyContact(oldParentMetaContact);
-        this.modifyContact(newParentMetaContact);
+        this.refreshContact(oldParentMetaContact);
+        this.refreshContact(newParentMetaContact);
     }
 
     /**
@@ -1004,7 +1004,7 @@ public class ContactList
      * 
      * @param contact the meta contact to refresh
      */
-    public void modifyContact(MetaContact contact)
+    public void refreshContact(MetaContact contact)
     {
         synchronized (contentToRefresh)
         {

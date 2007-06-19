@@ -318,7 +318,7 @@ public class MetaContactChatPanel
             String message = getChatConversationPanel().processMessage(
                 sourceContact.getAddress(),
                 new Date(System.currentTimeMillis()),
-                Constants.SYSTEM_MESSAGE,
+                Constants.STATUS_MESSAGE,
                 Messages.getI18NString("statusChangedChatMessage",
                         new String[]{status.getStatusName()}).getText(), "text");
 
