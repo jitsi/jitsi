@@ -1316,7 +1316,6 @@ public class OperationSetPersistentPresenceGibberishImpl
                 , parentProvider);
             theVolatileGroup.setResolved(false);
             theVolatileGroup.setPersistent(false);
-            theVolatileGroup.addContact(newVolatileContact);
 
             this.contactListRoot.addSubgroup(theVolatileGroup);
 
