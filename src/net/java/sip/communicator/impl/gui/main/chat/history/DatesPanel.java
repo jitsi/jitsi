@@ -78,7 +78,10 @@ public class DatesPanel
      */
     public int getDatesNumber()
     {
-        return listModel.size();
+        synchronized (listModel)
+        {
+            return listModel.size();
+        }
     }
 
     /**
@@ -88,7 +91,10 @@ public class DatesPanel
      */
     public Date getDate(int index)
     {
-        return (Date)listModel.get(index);
+        synchronized (listModel)
+        {
+            return (Date)listModel.get(index);
+        }
     }
 
     /**
@@ -98,16 +104,19 @@ public class DatesPanel
      */
     public Date getNextDate(Date date)
     {
-        Date nextDate;
-        int dateIndex = listModel.indexOf(date);
+        synchronized (listModel)
+        {
+            Date nextDate;
+            int dateIndex = listModel.indexOf(date);
 
-        if(dateIndex < listModel.getSize() - 1) {
-            nextDate = getDate(dateIndex + 1);
+            if(dateIndex < listModel.getSize() - 1) {
+                nextDate = getDate(dateIndex + 1);
+            }
+            else {
+                nextDate = new Date(System.currentTimeMillis());
+            }
+            return nextDate;
         }
-        else {
-            nextDate = new Date(System.currentTimeMillis());
-        }
-        return nextDate;
     }
     
     /**
@@ -116,23 +125,26 @@ public class DatesPanel
      */
     public void addDate(Date date)
     {
-        int listSize = listModel.size();
-        boolean dateAdded = false;
-        if(listSize > 0) {
-            for(int i = 0; i < listSize; i ++) {
-                Date dateFromList = (Date)listModel.get(i);
-                if(dateFromList.after(date)) {
-                    listModel.add(i, date);
-                    dateAdded = true;
-                    break;
+        synchronized (listModel)
+        {
+            int listSize = listModel.size();
+            boolean dateAdded = false;
+            if(listSize > 0) {
+                for(int i = 0; i < listSize; i ++) {
+                    Date dateFromList = (Date)listModel.get(i);
+                    if(dateFromList.after(date)) {
+                        listModel.add(i, date);
+                        dateAdded = true;
+                        break;
+                    }
+                }
+                if(!dateAdded) {
+                    listModel.addElement(date);
                 }
             }
-            if(!dateAdded) {
+            else {
                 listModel.addElement(date);
             }
-        }
-        else {
-            listModel.addElement(date);
         }
     }
 
@@ -141,7 +153,10 @@ public class DatesPanel
      */    
     public void removeAllDates()
     {
-        listModel.removeAllElements();
+        synchronized (listModel)
+        {
+            listModel.removeAllElements();
+        }
     }
 
     /**
@@ -153,7 +168,10 @@ public class DatesPanel
      */
     public boolean containsDate(Date date)
     {
-        return listModel.contains(date);
+        synchronized (listModel)
+        {
+            return listModel.contains(date);
+        }
     }
     
     /**
