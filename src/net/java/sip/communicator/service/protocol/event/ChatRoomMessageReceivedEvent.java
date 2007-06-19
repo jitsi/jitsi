@@ -147,10 +147,9 @@ public class ChatRoomMessageReceivedEvent
 
     /**
      * Returns the type of message event represented by this event instance.
-     * Message event types are generally one of the values of the
-     * XXX_MESSAGE_RECEIVED fields of this class.
-     * @return one of the values of the XXX_MESSAGE_RECEIVED fields of this
-     * class indicating the type of message received event received.
+     * Message event type is one of the XXX_MESSAGE_RECEIVED fields of this class.
+     * @return one of the XXX_MESSAGE_RECEIVED fields of this
+     * class indicating the type of this event.
      */
     public int getEventType()
     {
