@@ -71,8 +71,6 @@ public abstract class ChatPanel
 
     private Vector focusListeners = new Vector();
     
-    private Vector keyListeners = new Vector();
-
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
      *
