@@ -7,7 +7,7 @@ package net.java.sip.communicator.impl.protocol.zeroconf.jmdns;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.logging.*;
+import net.java.sip.communicator.util.*;
 
 // REMIND: multiple IP addresses
 
@@ -20,7 +20,8 @@ import java.util.logging.*;
  */
 public class JmDNS
 {
-    private static Logger logger = Logger.getLogger(JmDNS.class.toString());
+    private static final Logger logger
+        = Logger.getLogger(JmDNS.class);
 
     /**
      * The version of JmDNS.
@@ -168,18 +169,17 @@ public class JmDNS
         throws IOException
     {
         String SLevel = System.getProperty("jmdns.debug");
-        if (SLevel == null) SLevel = "INFO";
-        logger.setLevel(Level.parse(SLevel));
 
-        logger.finer("JmDNS instance created");
+        logger.debug("JmDNS instance created");
         try
         {
             InetAddress addr = InetAddress.getLocalHost();
             // [PJYF Oct 14 2004] Why do we disallow the loopback address?
             init(addr.isLoopbackAddress() ? null : addr, addr.getHostName());
         }
-        catch (IOException e)
+        catch (IOException exc)
         {
+            logger.error("Failed to get a reference to localhost", exc);
             init(null, "computer");
         }
     }
@@ -284,7 +284,7 @@ public class JmDNS
 
     private void closeMulticastSocket()
     {
-        logger.finer("closeMulticastSocket()");
+        logger.debug("closeMulticastSocket()");
         if (socket != null)
         {
             // close socket
@@ -694,7 +694,7 @@ public class JmDNS
      */
     public void unregisterAllServices()
     {
-        logger.finer("unregisterAllServices()");
+        logger.debug("unregisterAllServices()");
         if (services.size() == 0)
         {
             return;
@@ -834,7 +834,7 @@ public class JmDNS
                     DNSRecord.Service s = (DNSRecord.Service) a;
                     if (s.port != info.port || !s.server.equals(localHost.getName()))
                     {
-                        logger.finer("makeServiceNameUnique() " +
+                        logger.debug("makeServiceNameUnique() " +
                             "JmDNS.makeServiceNameUnique srv collision:" +
                             a + " s.server=" + s.server + " " +
                             localHost.getName() + " equals:" +
@@ -1532,7 +1532,7 @@ public class JmDNS
                     }
                     if (out != null)
                     {
-                        logger.finer("run() JmDNS probing #" + taskState);
+                        logger.debug("run() JmDNS probing #" + taskState);
                         send(out);
                     }
                     else
@@ -1670,7 +1670,7 @@ public class JmDNS
                         if (info.getState() == taskState && info.task == this)
                         {
                             info.advanceState();
-                            logger.finer("run() JmDNS announcing " +
+                            logger.debug("run() JmDNS announcing " +
                                 info.getQualifiedName() +
                                 " state " + info.getState());
 
@@ -1709,7 +1709,7 @@ public class JmDNS
                 }
                 if (out != null)
                 {
-                    logger.finer("run() JmDNS announcing #" + taskState);
+                    logger.debug("run() JmDNS announcing #" + taskState);
                     send(out);
                 }
                 else
@@ -1840,7 +1840,7 @@ public class JmDNS
                         if (info.getState() == taskState && info.task == this)
                         {
                             info.advanceState();
-                            logger.finer("run() JmDNS announced " +
+                            logger.debug("run() JmDNS announced " +
                                 info.getQualifiedName() + " state " + info.getState());
 
                             if (out == null)
@@ -1878,7 +1878,7 @@ public class JmDNS
                 }
                 if (out != null)
                 {
-                    logger.finer("run() JmDNS announced");
+                    logger.debug("run() JmDNS announced");
                     send(out);
                 }
                 else
@@ -2201,7 +2201,7 @@ public class JmDNS
                             if (knownAnswer.ttl > DNSConstants.DNS_TTL / 2 &&
                                 answers.remove(knownAnswer))
                             {
-                                logger.log(Level.FINER,
+                                logger.log(Level.debug,
                                     "JmDNS Responder Known Answer Removed");
                             }
                         }
@@ -2210,7 +2210,7 @@ public class JmDNS
                         // responde if we have answers
                         if (answers.size() != 0)
                         {
-                            logger.finer("run() JmDNS responding");
+                            logger.debug("run() JmDNS responding");
                             DNSOutgoing out = null;
                             if (isUnicast)
                             {
@@ -2272,7 +2272,7 @@ public class JmDNS
                 {
                     if (count++ < 3)
                     {
-                        logger.finer("run() JmDNS querying type");
+                        logger.debug("run() JmDNS querying type");
                         DNSOutgoing out =
                             new DNSOutgoing(DNSConstants.FLAGS_QR_QUERY);
                         out.addQuestion(
@@ -2351,7 +2351,7 @@ public class JmDNS
                 {
                     if (count++ < 3)
                     {
-                        logger.finer("run() JmDNS querying service");
+                        logger.debug("run() JmDNS querying service");
                         long now = System.currentTimeMillis();
                         DNSOutgoing out =
                             new DNSOutgoing(DNSConstants.FLAGS_QR_QUERY);
@@ -2574,7 +2574,7 @@ public class JmDNS
             {
                 if (++count < 3)
                 {
-                    logger.finer("run() JmDNS canceling service");
+                    logger.debug("run() JmDNS canceling service");
                     // announce the service
                     //long now = System.currentTimeMillis();
                     DNSOutgoing out =
@@ -2644,7 +2644,7 @@ public class JmDNS
      */
     protected void recover()
     {
-        logger.finer("recover()");
+        logger.debug("recover()");
         // We have an IO error so lets try to recover if anything happens lets close it.
         // This should cover the case of the IP address changing under our feet
         if (DNSState.CANCELED != state)
@@ -2652,7 +2652,7 @@ public class JmDNS
             synchronized (this)
             { // Synchronize only if we are not already in process to prevent dead locks
                 //
-                logger.finer("recover() Cleanning up");
+                logger.debug("recover() Cleanning up");
                 // Stop JmDNS
                 state = DNSState.CANCELED; // This protects against recursive calls
 
@@ -2667,7 +2667,7 @@ public class JmDNS
                 closeMulticastSocket();
                 //
                 cache.clear();
-                logger.finer("recover() All is clean");
+                logger.debug("recover() All is clean");
                 //
                 // All is clear now start the services
                 //
@@ -2832,7 +2832,7 @@ public class JmDNS
      */
     private void disposeServiceCollectors()
     {
-        logger.finer("disposeServiceCollectors()");
+        logger.debug("disposeServiceCollectors()");
         synchronized (serviceCollectors)
         {
             for (Iterator i = serviceCollectors.values().iterator(); i.hasNext();)
@@ -2971,7 +2971,7 @@ public class JmDNS
 
         synchronized (info)
         {
-            logger.finer("updateInfos() JmDNS updating " +
+            logger.debug("updateInfos() JmDNS updating " +
                 info.getQualifiedName() + " state " +
                 info.getState());
 
@@ -3018,7 +3018,7 @@ public class JmDNS
                         DNSConstants.DNS_TTL,
                         info.text), 0);
 
-                logger.finer("updateInfos() JmDNS updated infos for "+info);
+                logger.debug("updateInfos() JmDNS updated infos for "+info);
 
                 send(out);
                 Thread.sleep(1000);
