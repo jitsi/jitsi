@@ -389,7 +389,7 @@ public class HistoryWindow
                         }
                         //Initializes the conversation panel with the data of the
                         //last conversation.
-                        int lastDateIndex = datesPanel.getModel().getSize() - 1;
+                        int lastDateIndex = datesPanel.getDatesNumber() - 1;
                         datesPanel.setSelected(lastDateIndex);                        
                     }
                 };
@@ -504,8 +504,7 @@ public class HistoryWindow
                         if(date != null) {
                             ignoreProgressDate = date;
                         }
-                        datesPanel.setSelected(
-                                datesPanel.getModel().getSize() - 1);
+                        datesPanel.setSelected(datesPanel.getDatesNumber() - 1);
                     }
                     else {
                         chatConvPanel.setDefaultContent();
@@ -598,7 +597,7 @@ public class HistoryWindow
         
         if(containedContact != null)
         {
-            int lastDateIndex = datesPanel.getModel().getSize() - 1;
+            int lastDateIndex = datesPanel.getDatesNumber() - 1;
             
             Date lastDate = datesPanel.getDate(lastDateIndex);
             

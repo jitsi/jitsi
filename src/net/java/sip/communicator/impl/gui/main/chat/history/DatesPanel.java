@@ -180,15 +180,18 @@ public class DatesPanel
      */
     public void valueChanged(ListSelectionEvent e)
     {   
-        int selectedIndex = this.datesList.getSelectedIndex();
-        
-        if(selectedIndex != -1 && lastSelectedIndex != selectedIndex) {
-            this.setLastSelectedIndex(selectedIndex);
-            Date date = (Date)this.listModel.get(selectedIndex);
+        synchronized (listModel)
+        {
+            int selectedIndex = this.datesList.getSelectedIndex();
+            
+            if(selectedIndex != -1 && lastSelectedIndex != selectedIndex) {
+                this.setLastSelectedIndex(selectedIndex);
+                Date date = (Date)this.listModel.get(selectedIndex);
 
-            this.historyWindow.showHistoryByPeriod(
-                    date,
-                    historyWindow.getNextDateFromHistory(date));
+                this.historyWindow.showHistoryByPeriod(
+                        date,
+                        historyWindow.getNextDateFromHistory(date));
+            }
         }
     }
 
