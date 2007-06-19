@@ -257,8 +257,7 @@ public class JmDNS
             }
             catch (Exception exception)
             {
-                logger.log(Level.WARNING,
-                    "start() Registration exception ", exception);
+                logger.warn("start() Registration exception ", exception);
             }
         }
     }
@@ -299,8 +298,8 @@ public class JmDNS
             }
             catch (Exception exception)
             {
-                logger.log(Level.WARNING,
-                    "closeMulticastSocket() Close socket exception ", exception);
+                logger.warn("closeMulticastSocket() Close socket exception ",
+                            exception);
             }
             socket = null;
         }
@@ -648,9 +647,9 @@ public class JmDNS
         }
         catch (InterruptedException e)
         {
-            //empty
+            logger.error(e.getMessage(), e);
         }
-        logger.fine("registerService() JmDNS registered service as " + info);
+        logger.debug("registerService() JmDNS registered service as " + info);
     }
 
     /**
@@ -1017,11 +1016,11 @@ public class JmDNS
         boolean hostConflictDetected = false;
         boolean serviceConflictDetected = false;
 
-        logger.finest("JMDNS/handleResponse received " +
+        logger.trace("JMDNS/handleResponse received " +
             msg.answers.size()+ " messages");
         for (Iterator i = msg.answers.iterator(); i.hasNext();)
         { DNSRecord rec = (DNSRecord)i.next();
-          logger.finest("PRINT: "+ rec);
+          logger.trace("PRINT: "+ rec);
           //cache.add(rec);
         }
 
@@ -1031,13 +1030,13 @@ public class JmDNS
             DNSRecord rec = (DNSRecord) i.next();
             boolean expired = rec.isExpired(now);
 
-            logger.finest("JMDNS received : " + rec + " expired: "+expired);
+            logger.trace("JMDNS received : " + rec + " expired: "+expired);
 
             // update the cache
             DNSRecord c = (DNSRecord) cache.get(rec);
             if (c != null)
             {
-                logger.finest("JMDNS has found "+rec+" in cache");
+                logger.trace("JMDNS has found "+rec+" in cache");
                 if (expired)
                 {
                     isInformative = true;
@@ -1054,7 +1053,7 @@ public class JmDNS
 //                            isInformative = true;
 //                    c.resetTTL(rec);
 //                    rec = c;
-                    logger.fine(
+                    logger.trace(
                         new Boolean(c.isUnique()).toString() +
                         c.getType()+c.getClazz() + "/" +
                         DNSConstants.TYPE_TXT + " "+DNSConstants.CLASS_IN);
@@ -1080,7 +1079,7 @@ public class JmDNS
                 if (!expired)
                 {
                     isInformative = true;
-                    logger.finest("Adding "+rec+" to the cache");
+                    logger.trace("Adding "+rec+" to the cache");
                     cache.add(rec);
                 }
             }
@@ -1226,13 +1225,13 @@ public class JmDNS
             try
             {
                 DNSIncoming msg = new DNSIncoming(packet);
-                logger.finest("send() JmDNS out:" + msg.print(true));
+                logger.trace("send() JmDNS out:" + msg.print(true));
             }
-            catch (IOException e)
+            catch (IOException exc)
             {
-                logger.throwing(getClass().toString(),
+                logger.error(
                     "send(DNSOutgoing) - JmDNS can not parse what it sends!!!",
-                    e);
+                    exc);
             }
             socket.send(packet);
         }
@@ -1265,7 +1264,7 @@ public class JmDNS
                         }
 
                         DNSIncoming msg = new DNSIncoming(packet);
-                        logger.finest("SocketListener.run() JmDNS in:" +
+                        logger.trace("SocketListener.run() JmDNS in:" +
                             msg.print(true));
 
                         synchronized (ioLock)
@@ -1288,7 +1287,7 @@ public class JmDNS
                     }
                     catch (IOException e)
                     {
-                        logger.log(Level.WARNING, "run() exception ", e);
+                        logger.warn( "run() exception ", e);
                     }
                 }
             }
@@ -1296,7 +1295,7 @@ public class JmDNS
             {
                 if (state != DNSState.CANCELED)
                 {
-                    logger.log(Level.WARNING, "run() exception ", e);
+                    logger.warn( "run() exception ", e);
                     recover();
                 }
             }
@@ -1324,7 +1323,7 @@ public class JmDNS
                 {
                     return;
                 }
-                logger.finest("run() JmDNS reaping cache");
+                logger.trace("run() JmDNS reaping cache");
 
                 // Remove expired answers from the cache
                 // -------------------------------------
@@ -1503,7 +1502,7 @@ public class JmDNS
                                 info.task == this)
                             {
                                 info.advanceState();
-                                logger.fine("run() JmDNS probing " +
+                                logger.debug("run() JmDNS probing " +
                                     info.getQualifiedName() + " state " +
                                     info.getState());
 
@@ -1545,7 +1544,7 @@ public class JmDNS
                 }
                 catch (Throwable e)
                 {
-                    logger.log(Level.WARNING, "run() exception ", e);
+                    logger.warn( "run() exception ", e);
                     recover();
                 }
 
@@ -1721,7 +1720,7 @@ public class JmDNS
             }
             catch (Throwable e)
             {
-                logger.log(Level.WARNING, "run() exception ", e);
+                logger.warn( "run() exception ", e);
                 recover();
             }
 
@@ -1890,7 +1889,7 @@ public class JmDNS
             }
             catch (Throwable e)
             {
-                logger.log(Level.WARNING, "run() exception ", e);
+                logger.warn( "run() exception ", e);
                 recover();
             }
 
@@ -1939,7 +1938,7 @@ public class JmDNS
                 if (entry instanceof DNSQuestion)
                 {
                     DNSQuestion q = (DNSQuestion) entry;
-                    logger.finest("start() question=" + q);
+                    logger.trace("start() question=" + q);
                     iAmTheOnlyOne &= (q.type == DNSConstants.TYPE_SRV
                             || q.type == DNSConstants.TYPE_TXT
                             || q.type == DNSConstants.TYPE_A
@@ -1963,7 +1962,7 @@ public class JmDNS
             {
                 delay = 0;
             }
-            logger.finest("start() Responder chosen delay=" + delay);
+            logger.trace("start() Responder chosen delay=" + delay);
             timer.schedule(this, delay);
         }
 
@@ -2201,7 +2200,7 @@ public class JmDNS
                             if (knownAnswer.ttl > DNSConstants.DNS_TTL / 2 &&
                                 answers.remove(knownAnswer))
                             {
-                                logger.log(Level.debug,
+                                logger.debug(
                                     "JmDNS Responder Known Answer Removed");
                             }
                         }
@@ -2234,7 +2233,7 @@ public class JmDNS
                     }
                     catch (Throwable e)
                     {
-                        logger.log(Level.WARNING, "run() exception ", e);
+                        logger.warn( "run() exception ", e);
                         close();
                     }
                 }
@@ -2309,7 +2308,7 @@ public class JmDNS
             }
             catch (Throwable e)
             {
-                logger.log(Level.WARNING, "run() exception ", e);
+                logger.warn( "run() exception ", e);
                 recover();
             }
         }
@@ -2396,7 +2395,7 @@ public class JmDNS
             }
             catch (Throwable e)
             {
-                logger.log(Level.WARNING, "run() exception ", e);
+                logger.warn( "run() exception ", e);
                 recover();
             }
         }
@@ -2500,7 +2499,7 @@ public class JmDNS
             }
             catch (Throwable e)
             {
-                logger.log(Level.WARNING, "run() exception ", e);
+                logger.warn( "run() exception ", e);
                 recover();
             }
         }
@@ -2633,7 +2632,7 @@ public class JmDNS
             }
             catch (Throwable e)
             {
-                logger.log(Level.WARNING, "run() exception ", e);
+                logger.warn( "run() exception ", e);
                 recover();
             }
         }
@@ -2678,10 +2677,10 @@ public class JmDNS
                 }
                 catch (Exception exception)
                 {
-                    logger.log(Level.WARNING,
+                    logger.warn(
                         "recover() Start services exception ", exception);
                 }
-                logger.log(Level.WARNING, "recover() We are back!");
+                logger.warn( "recover() We are back!");
             }
         }
     }
@@ -2863,10 +2862,6 @@ public class JmDNS
 
         public ServiceCollector(String type)
         {
-            String SLevel = System.getProperty("jmdns.debug");
-            if (SLevel == null) SLevel = "INFO";
-            logger.setLevel(Level.parse(SLevel));
-
             this.type = type;
         }
 
@@ -3028,7 +3023,7 @@ public class JmDNS
             }
             catch( Exception e)
             {
-                logger.log(Level.WARNING, "", e);
+                logger.warn( "", e);
             }
         }
     }
