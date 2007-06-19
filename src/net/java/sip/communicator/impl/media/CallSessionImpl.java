@@ -582,7 +582,10 @@ public class CallSessionImpl
     {
         try
         {
-            String globalConnectionAddress = globalConnParam.getAddress();
+            String globalConnectionAddress = null;
+
+            if (globalConnParam != null)
+                  globalConnectionAddress = globalConnParam.getAddress();
 
             Iterator mediaDescsIter = mediaDescriptions.iterator();
             while (mediaDescsIter.hasNext())
@@ -594,7 +597,19 @@ public class CallSessionImpl
                 int port = mediaDescription.getMedia().getMediaPort();
                 String type = mediaDescription.getMedia().getMediaType();
 
-                String address = globalConnectionAddress;
+                // If there\u2019s a global address, we use it.
+                // If there isn\u2019t a global address, we get the address from
+                // the media Description
+                // Fix by Pablo L. - Telefonica
+                String address;
+                if (globalConnectionAddress != null)
+                {
+                    address = globalConnectionAddress;
+                }
+                else
+                {
+                    address = mediaDescription.getConnection().getAddress();
+                }
 
                 //check if we have a media level address
                 Connection mediaLevelConnection = mediaDescription.
