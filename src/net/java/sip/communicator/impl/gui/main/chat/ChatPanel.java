@@ -70,6 +70,8 @@ public abstract class ChatPanel
     private boolean isShown = false;
 
     private Vector focusListeners = new Vector();
+    
+    private Vector keyListeners = new Vector();
 
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
@@ -608,6 +610,30 @@ public abstract class ChatPanel
     }
 
     /**
+     * Adds the given {@link KeyListener} to this <tt>Chat</tt>.
+     * The <tt>KeyListener</tt> is used to inform other bundles when a user has
+     * typed in the chat editor area.
+     * 
+     * @param l the <tt>KeyListener</tt> to add
+     */
+    public void addChatEditorKeyListener(KeyListener l)
+    {
+        this.getChatWritePanel().getEditorPane().addKeyListener(l);
+    }
+    
+    /**
+     * Removes the given {@link KeyListener} from this <tt>Chat</tt>.
+     * The <tt>KeyListener</tt> is used to inform other bundles when a user has
+     * typed in the chat editor area.
+     * 
+     * @param l the <tt>ChatFocusListener</tt> to remove
+     */
+    public void removeChatEditorKeyListener(KeyListener l)
+    {
+        this.getChatWritePanel().getEditorPane().removeKeyListener(l);
+    }
+    
+    /**
      * Returns the message written by user in the chat write area.
      *
      * @return the message written by user in the chat write area
@@ -626,7 +652,7 @@ public abstract class ChatPanel
     {
         writeMessagePanel.getEditorPane().setText(message);
     }
-
+    
     /**
      * Informs all <tt>ChatFocusListener</tt>s that a <tt>ChatFocusEvent</tt>
      * has been triggered.

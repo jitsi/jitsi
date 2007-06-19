@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.gui;
 
+import java.awt.event.*;
+
 import net.java.sip.communicator.service.gui.event.*;
 
 /**
@@ -57,4 +59,22 @@ public interface Chat
      * @param l the <tt>ChatFocusListener</tt> to remove
      */
     public void removeChatFocusListener(ChatFocusListener l);
+    
+    /**
+     * Adds the given {@link KeyListener} to this <tt>Chat</tt>.
+     * The <tt>KeyListener</tt> is used to inform other bundles when a user has
+     * typed in the chat editor area.
+     * 
+     * @param l the <tt>KeyListener</tt> to add
+     */
+    public void addChatEditorKeyListener(KeyListener l);
+    
+    /**
+     * Removes the given {@link KeyListener} from this <tt>Chat</tt>.
+     * The <tt>KeyListener</tt> is used to inform other bundles when a user has
+     * typed in the chat editor area.
+     * 
+     * @param l the <tt>ChatFocusListener</tt> to remove
+     */
+    public void removeChatEditorKeyListener(KeyListener l);
 }
