@@ -1,9 +1,8 @@
 /*
- * ClientThread.java
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Created on 17 mars 2007, 22:04
- *
- * @author: Christian Vincenot
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.zeroconf;
 
@@ -11,20 +10,19 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Class creating a thread responsible for handling the chat 
+ * Class creating a thread responsible for handling the chat
  * with the remote user on the other end of the socket
- * 
+ *
  * @author Christian Vincenot
  */
-public class ClientThread 
+public class ClientThread
     extends Thread
 {
     private static final Logger logger = Logger.getLogger(ClientThread.class);
-    
+
     private OperationSetBasicInstantMessagingZeroconfImpl opSetBasicIM;
     private OperationSetTypingNotificationsZeroconfImpl opSetTyping;
     private Socket sock;
@@ -34,9 +32,9 @@ public class ClientThread
     private BonjourService bonjourService;
     private ContactZeroconfImpl contact=null;
     private boolean streamState = false;
-    
+
     private String messagesQueue=null;
-    
+
     /**
      * Sets the contact with which we're chatting in this ClientThread
      * @param contact Zeroconf contact with which we're chatting
@@ -45,9 +43,9 @@ public class ClientThread
     {
         this.contact = contact;
     }
-    
+
     /**
-     * Set the stream as opened. This means that the 
+     * Set the stream as opened. This means that the
      * conversation with the client is really opened
      * from now on (the XML greetings are over)
      */
@@ -58,9 +56,9 @@ public class ClientThread
             this.streamState = true;
         }
     }
-    
+
     /**
-     * Says if the stream between the local user and the remote user 
+     * Says if the stream between the local user and the remote user
      * is in an opened state (greetings are over and we can chat)
      * @return Returns true if the stream is "opened" (ie, ready for chat)
      */
@@ -71,9 +69,9 @@ public class ClientThread
             return this.streamState;
         }
     }
-    
+
     /**
-     * Creates a new instance of ClientThread reponsible 
+     * Creates a new instance of ClientThread reponsible
      * for handling the conversation with the remote user.
      * @param sock Socket created for chatting
      * @param bonjourService BonjourService which spawned this ClientThread
@@ -84,10 +82,10 @@ public class ClientThread
         this.remoteIPAddress = sock.getInetAddress();
         this.bonjourService = bonjourService;
         this.opSetBasicIM = (OperationSetBasicInstantMessagingZeroconfImpl)
-            
+
         bonjourService.getPPS().getSupportedOperationSets()
             .get(OperationSetBasicInstantMessaging.class.getName());
-        
+
         this.opSetTyping = (OperationSetTypingNotificationsZeroconfImpl)
             bonjourService.getPPS().getSupportedOperationSets()
                 .get(OperationSetTypingNotifications.class.getName());
@@ -103,10 +101,10 @@ public class ClientThread
             //System.exit(1);
             return;
         }
-        
+
         this.start();
     }
-    
+
     /*
      * Read a message from the socket.
      * TODO: clean the code a bit and optimize it.
@@ -115,28 +113,28 @@ public class ClientThread
     {
         String line;
         byte[] bytes = new byte[10];
-        
+
         try
         {
             int i=0;
-            
+
             while (i < 9)
             {
                 i += in.read(bytes,0,9-i);
             }
-            
+
             line = new String(bytes);
             bytes = new byte[1];
-            if ((line.getBytes())[0] == '\n') 
+            if ((line.getBytes())[0] == '\n')
                 line = line.substring(1);
-            
+
             if (line.startsWith("<message"))
             {
                 while (true)
                 {
                     bytes[0] = in.readByte();
                     line += new String(bytes);
-                    
+
                     if ((line.endsWith("</message>"))
                         || (line.endsWith("stream>")))
                         return line;
@@ -144,12 +142,11 @@ public class ClientThread
             }
             else
             {
-                
                 while (true)
                 {
                     bytes[0] = in.readByte();
                     line += new String(bytes);
-                    if ( ">".compareTo(new String(bytes)) == 0 ) 
+                    if ( ">".compareTo(new String(bytes)) == 0 )
                         return line;
                 }
             }
@@ -159,10 +156,10 @@ public class ClientThread
             logger.error("Couldn't get I/O for the connection", e);
             //System.exit(1);
         }
-        
+
         return null;
     }
-    
+
     /*
      * Parse the payload and extract the information.
      * TODO: If needed, fill in the remaining fields of MessageZeroconfImpl
@@ -170,56 +167,55 @@ public class ClientThread
      */
     private MessageZeroconfImpl parseMessage(String str)
     {
-        //System.out.println("MESSAGE : "+str+" !!!!!!");
         if (str.startsWith("<?xml") || str.startsWith("<stream"))
             return new MessageZeroconfImpl
                 (null, null, MessageZeroconfImpl.STREAM_OPEN);
-        
+
         if (str.endsWith("stream>"))
             return new MessageZeroconfImpl
                 (null, null, MessageZeroconfImpl.STREAM_CLOSE);
-        
+
         if ((str.indexOf("<delivered/>") > 0) && (str.indexOf("<body>") < 0))
             return new MessageZeroconfImpl
                 (null, null, MessageZeroconfImpl.DELIVERED);
-        
+
         if (!str.startsWith("<message"))
             return new MessageZeroconfImpl
                 (null, null, MessageZeroconfImpl.UNDEF);
-        
+
         /* TODO: Parse Enconding (& contact id to be able to double-check
          * the source of a message)
          *
          * TODO: Check that the fields are outside of <body>..</body>
          */
-        
+
         if ((str.indexOf("<body>") < 0) || (str.indexOf("</body>") < 0))
             return new MessageZeroconfImpl
                 (null, null, MessageZeroconfImpl.UNDEF);
-        
+
         String temp =
                 str.substring(str.indexOf("<body>")+6, str.indexOf("</body>"));
-        
+
         logger.debug("ZEROCONF: received message ["+temp+"]");
-        
+
         int messageType = MessageZeroconfImpl.MESSAGE;
-        
+
         if ((str.indexOf("<id>") >= 0) && (str.indexOf("</id>") >= 0))
             messageType = MessageZeroconfImpl.TYPING;
-        
-        MessageZeroconfImpl msg = 
+
+        MessageZeroconfImpl msg =
             new MessageZeroconfImpl(
-                    temp, 
-                    null, 
-                    OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE, 
+                    temp,
+                    null,
+                    OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE,
                     messageType);
-        
+
         return msg;
     }
-    
+
     private int handleMessage(MessageZeroconfImpl msg)
     {
-        
+
         switch(msg.getType())
         {
             /* STREAM INIT */
@@ -237,10 +233,10 @@ public class ClientThread
                     messagesQueue = null;
                 }
                 break;
-                
+
                 /* ACK */
             case MessageZeroconfImpl.DELIVERED : break;
-            
+
                 /* NORMAL MESSAGE */
             case MessageZeroconfImpl.MESSAGE:
                 if (!isStreamOpened())
@@ -250,7 +246,7 @@ public class ClientThread
                 if (contact == null)
                     //TODO: Parse contact id to double-check
                     contact = bonjourService.getContact(null, remoteIPAddress);
-                
+
                 /* TODO: If we want to implement invisible status, we'll have to
                  * make this test less restrictive to handle messages from
                  * unannounced clients.
@@ -263,14 +259,14 @@ public class ClientThread
                 }
                 else if (contact.getClientThread() == null)
                     contact.setClientThread(this);
-                
+
                 opSetBasicIM.fireMessageReceived(msg, contact);
-                
+
                 opSetTyping.
                         fireTypingNotificationsEvent((Contact)contact,
                         opSetTyping.STATE_STOPPED);
                 break;
-                
+
             case MessageZeroconfImpl.TYPING:
                 if (!isStreamOpened())
                     logger.debug("ZEROCONF: client on the other side "
@@ -282,30 +278,30 @@ public class ClientThread
                 opSetTyping.
                         fireTypingNotificationsEvent((Contact)contact,
                         opSetTyping.STATE_TYPING);
-                
+
                 /* TODO: code a private runnable class to be used as timeout
                  * to set the typing state to STATE_PAUSED when a few seconds
                  * without news have passed.
                  */
-                
+
                 break;
-                
+
             case MessageZeroconfImpl.STREAM_CLOSE:
                 sendBye();
                 contact.setClientThread(null);
                 return 1;
-                
+
             case MessageZeroconfImpl.UNDEF:
                 logger.error("ZEROCONF: received strange message. SKIPPING!");
                 break;
         }
-        
+
         //System.out.println("RECEIVED MESSAGE "+ msg.getContent()+
         //" from "+contact.getAddress() + "!!!!!!!!!!!!!!");
         return 0;
     }
-    
-    
+
+
     private void write(String string)
     {
         //System.out.println("Writing " + string + "!!!!!!!!!");
@@ -318,7 +314,11 @@ public class ClientThread
         catch (IOException e)
         {
             logger.error("Couldn't get I/O for the connection");
-            if (contact != null) contact.setClientThread(null);
+            if (contact != null)
+            {
+                contact.setClientThread(null);
+            }
+
             try
             {
                 sock.close();
@@ -327,10 +327,10 @@ public class ClientThread
             {
                 logger.error(ex);
             }
-            
+
         }
     }
-    
+
     /**
      * Say hello :)
      */
@@ -354,17 +354,17 @@ public class ClientThread
                         +"version='1.0'>\n");
                 break;
         }
-        
+
         /* Legacy: OLD XMPP (XEP-0174 Draft) */
         //write("<stream:stream to='"+sock.getInetAddress().getHostAddress()
         //+"' xmlns='jabber:client' stream='http://etherx.jabber.org/streams'>");
     }
-    
+
     private void sendBye()
     {
         write("</stream:stream>\n");
     }
-    
+
     private String toXHTML(MessageZeroconfImpl msg)
     {
         switch(contact.getClientType())
@@ -375,18 +375,18 @@ public class ClientThread
                         +bonjourService.getID()+"'>"
                         + "<body>"+msg.getContent()+"</body>"
                         + "</message>\n");
-                
+
             case ContactZeroconfImpl.SIPCOM:
-                
+
             case ContactZeroconfImpl.ICHAT:
                 return new String(
-                    "<message to='"+sock.getInetAddress().getHostAddress() 
+                    "<message to='"+sock.getInetAddress().getHostAddress()
                     +"' type='chat' id='"+bonjourService.getID()+"'>"
                     + "<body>"+msg.getContent()+"</body>"
                     + "<html xmlns='http://www.w3.org/1999/xhtml'>"
                     + "<body ichatballooncolor='#7BB5EE' "
                     + "ichattextcolor='#000000'>"
-                    + "<font face='Helvetica' ABSZ='12' color='#000000'>" 
+                    + "<font face='Helvetica' ABSZ='12' color='#000000'>"
                     + msg.getContent()
                     + "</font>"
                     + "</body>"
@@ -398,7 +398,7 @@ public class ClientThread
                     + (msg.getType()==MessageZeroconfImpl.TYPING?"<id></id>":"")
                     + "</x>"
                     + "</message>");
-                
+
             case ContactZeroconfImpl.GAIM:
             default:
                 return new String(
@@ -412,8 +412,8 @@ public class ClientThread
                     + "</x></message>\n");
         }
     }
-    
-    
+
+
     /**
      * Send a message to the remote user
      * @param msg Message to send
@@ -431,7 +431,7 @@ public class ClientThread
         }
         else write(toXHTML(msg));
     }
-    
+
     /**
      * Walk?
      */
@@ -442,23 +442,21 @@ public class ClientThread
                 +" / "+sock.getInetAddress().getHostAddress());
         String input;
         MessageZeroconfImpl msg=null;
-        
-        
+
+
         input = readMessage();
         msg = parseMessage(input);
-        //System.out.println("echo ["+msg.getContent()+"] :" + input);
-        
+
         while (handleMessage(msg) == 0 && !sock.isClosed())
         {
             input = readMessage();
             msg = parseMessage(input);
-            //System.out.println("echo ["+msg.getContent()+"] :" + input);
         }
-        
+
         logger.debug("ZEROCONF : OUT OF LOOP !! Closed chat.");
         cleanThread();
     }
-    
+
     /**
      * Clean-up the thread to exit
      */

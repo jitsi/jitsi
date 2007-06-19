@@ -190,10 +190,17 @@ public class ProtocolProviderFactoryZeroconfImpl
         //unregister the protocol provider
         ServiceReference serRef = getProviderForAccount(accountID);
 
+        if(serRef != null)
+            return false;
+
         ProtocolProviderService protocolProvider
             = (ProtocolProviderService) ZeroconfActivator.getBundleContext()
                 .getService(serRef);
-        if (protocolProvider == null) logger.error("ProtocolProviderService = null !!");
+        if (protocolProvider == null)
+        {
+            logger.error("ProtocolProviderService = null !!");
+            return false;
+        }
 
         try
         {

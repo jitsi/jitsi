@@ -1,10 +1,8 @@
 /*
- * ServerThread.java
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Created on 17 mars 2007, 21:54
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.zeroconf;
 
@@ -111,7 +109,8 @@ public class BonjourService extends Thread
         changeStatus(opSetPersPresence.getPresenceStatus());
 
         sock = createSocket(port);
-        if (sock == null) return;
+        if (sock == null)
+            return;
 
         port = sock.getLocalPort();
 
@@ -151,9 +150,9 @@ public class BonjourService extends Thread
             }
             try
             {
-                Socket connexion = sock.accept();
+                Socket connection = sock.accept();
                 ContactZeroconfImpl contact = getContact(null,
-                                                    connexion.getInetAddress());
+                                                    connection.getInetAddress());
                 /*if (status.equals(ZeroconfStatusEnum.OFFLINE)
                 || status.equals(ZeroconfStatusEnum.INVISIBLE) */
                 if (dead == true) break;
@@ -164,16 +163,16 @@ public class BonjourService extends Thread
                     if (contact == null)
                         logger.error("ZEROCONF: Connexion from "
                                 + "unknown contact ["
-                                + connexion.getInetAddress()
+                                + connection.getInetAddress()
                                 +"]. REJECTING!");
                     else if (contact.getClientThread() == null)
                         logger.error("ZEROCONF: Redundant chat "
                                 + "channel ["
                                 + contact
                                 +"]. REJECTING!");
-                    connexion.close();
+                    connection.close();
                 }
-                else new ClientThread(connexion, this);
+                else new ClientThread(connection, this);
             }
             catch(Exception e)
             {
@@ -234,7 +233,8 @@ public class BonjourService extends Thread
     public void changeStatus(PresenceStatus stat)
     {
         /* [old_status == new_status ?] => NOP */
-        if (stat.equals(status)) return;
+        if (stat.equals(status))
+            return;
 
         /* [new_status == OFFLINE ?] => clean up everything */
         if (stat.equals(ZeroconfStatusEnum.OFFLINE))
