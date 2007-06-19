@@ -205,6 +205,7 @@ public class ContactListPanel
         Contact protocolContact = evt.getSourceContact();
         Date date = evt.getTimestamp();
         Message message = evt.getSourceMessage();
+        int eventType = evt.getEventType();
 
         MetaContact metaContact = mainFrame.getContactList()
                 .findMetaContactByContact(protocolContact);
@@ -213,20 +214,34 @@ public class ContactListPanel
         {
             ContactListModel clistModel = (ContactListModel) contactList.getModel();
             clistModel.addActiveContact(metaContact);
-            contactList.modifyContact(metaContact);
+            contactList.refreshContact(metaContact);
             
             ChatPanel chatPanel = chatWindowManager.getContactChat(
                 metaContact, protocolContact, message.getMessageUID());
-                    
-            chatPanel.processMessage(protocolContact.getDisplayName(), date,
-                Constants.INCOMING_MESSAGE, message.getContent(),
-                message.getContentType());
             
+            // Distinguish the message type, depending on the type of event that
+            // we have received.
+
+            String messageType = null;
+
+            if(eventType == MessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED)
+            {
+                messageType = Constants.INCOMING_MESSAGE;                
+            }
+            else if(eventType == MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED)
+            {
+                messageType = Constants.SYSTEM_MESSAGE;
+            }
+
+            chatPanel.processMessage(protocolContact.getDisplayName(), date,
+                messageType, message.getContent(),
+                message.getContentType());
+
             chatWindowManager.openChat(chatPanel, false);
             
             GuiActivator.getAudioNotifier()
                 .createAudio(Sounds.INCOMING_MESSAGE).play();
-            
+
             chatPanel.treatReceivedMessage(protocolContact);
         }
         else
