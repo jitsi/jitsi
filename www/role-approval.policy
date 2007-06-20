@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rules>
+  <!--
+    The following rule says automatically approve an observer
+    request role to the project.
+  -->
+  <rule role="Observer" action="approve" />
+  
+  <!--
+    The following rule says automatically deny a project owner
+    and developer role requests.
+    
+    The text in the tag will be sent to the requester,
+    as a part of the e-mail from the java.net system.
+  -->
+  <rule role="Project Owner, Developer, Content Developer" action="deny"><![CDATA[
+	  Developer roles in the SIP Communicator project are only granted to team members and confirmed contributors. This means that you'll first have to participate in mailing list discussions and submit some fixes, patches, or other contributions before being accepted as a developer in the project. 
+	  You can start by applying for the Observer role ( https://sip-communicator.dev.java.net/servlets/ProjectMembershipRequest ).
+]]></rule>
+</rules>
