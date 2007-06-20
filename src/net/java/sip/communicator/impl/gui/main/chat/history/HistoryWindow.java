@@ -599,6 +599,10 @@ public class HistoryWindow
         {
             int lastDateIndex = datesPanel.getDatesNumber() - 1;
             
+            // If dates aren't yet loaded we don't process the message.
+            if(lastDateIndex < 0)
+                return;
+            
             Date lastDate = datesPanel.getDate(lastDateIndex);
             
             if(lastDate != null
