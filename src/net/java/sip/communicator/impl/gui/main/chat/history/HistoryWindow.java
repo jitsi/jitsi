@@ -126,9 +126,10 @@ public class HistoryWindow
             {
                 Contact protoContact = (Contact) protoContacts.next();
                 
-                ((OperationSetBasicInstantMessaging) protoContact.getProtocolProvider()
-                    .getOperationSet(OperationSetBasicInstantMessaging.class))
-                        .addMessageListener(this);
+                ((OperationSetBasicInstantMessaging) protoContact
+                    .getProtocolProvider().getOperationSet(
+                        OperationSetBasicInstantMessaging.class))
+                            .addMessageListener(this);
             }
         }
     }
@@ -230,7 +231,9 @@ public class HistoryWindow
                     processedMessage = chatConvPanel.processMessage(
                             this.mainFrame.getAccount(protocolProvider),
                             evt.getTimestamp(), Constants.OUTGOING_MESSAGE,
-                            evt.getSourceMessage().getContent(), searchKeyword);                    
+                            evt.getSourceMessage().getContent(),
+                            evt.getSourceMessage().getContentType(),
+                            searchKeyword);                    
                 }
                 else if(o instanceof MessageReceivedEvent) {
                     MessageReceivedEvent evt = (MessageReceivedEvent)o;
@@ -238,7 +241,9 @@ public class HistoryWindow
                     processedMessage = chatConvPanel.processMessage(
                             evt.getSourceContact().getDisplayName(),
                             evt.getTimestamp(), Constants.INCOMING_MESSAGE,
-                            evt.getSourceMessage().getContent(), searchKeyword);
+                            evt.getSourceMessage().getContent(),
+                            evt.getSourceMessage().getContentType(),
+                            searchKeyword);
                 }
                 chatConvPanel.appendMessageToEnd(processedMessage);
             }
@@ -563,7 +568,9 @@ public class HistoryWindow
         Contact sourceContact = evt.getSourceContact();
         
         this.processMessage(sourceContact, evt.getTimestamp(),
-            Constants.INCOMING_MESSAGE, evt.getSourceMessage().getContent());
+            Constants.INCOMING_MESSAGE,
+            evt.getSourceMessage().getContent(),
+            evt.getSourceMessage().getContentType());
     }
 
     /**
@@ -575,7 +582,9 @@ public class HistoryWindow
         Contact destContact = evt.getDestinationContact();
         
         this.processMessage(destContact, evt.getTimestamp(),
-            Constants.OUTGOING_MESSAGE, evt.getSourceMessage().getContent());
+            Constants.OUTGOING_MESSAGE,
+            evt.getSourceMessage().getContent(),
+            evt.getSourceMessage().getContentType());
     }
     
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
@@ -590,7 +599,7 @@ public class HistoryWindow
      * @param messageContent the content text of the message
      */
     private void processMessage(Contact contact, Date timestamp,
-        String messageType, String messageContent)
+        String messageType, String messageContent, String messageContentType)
     {
         Contact containedContact = metaContact.getContact(
             contact.getAddress(), contact.getProtocolProvider());
@@ -616,7 +625,9 @@ public class HistoryWindow
                     String processedMessage = chatConvPanel.processMessage(
                         contact.getDisplayName(),
                         timestamp, messageType,
-                        messageContent, searchKeyword);
+                        messageContent,
+                        messageContentType,
+                        searchKeyword);
             
                     this.appendMessageToDocument(document, processedMessage);
                 }
