@@ -29,7 +29,18 @@ public class OperationSetBasicInstantMessagingYahooImpl
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetBasicInstantMessagingYahooImpl.class);
+    
+    /**
+     * HTML content type
+     */
+    private static final String CONTENT_TYPE_HTML = "text/html";
 
+    /**
+     * Yahoo has limit of message length. If exceeded 
+     * message is not delivered and no notification is received for that.
+     */
+    private static int MAX_MESSAGE_LENGTH = 800; // 949
+    
     /**
      * A list of listeneres registered for message events.
      */
@@ -110,6 +121,22 @@ public class OperationSetBasicInstantMessagingYahooImpl
     {
         return true;
     }
+    
+    /**
+     * Determines wheter the protocol supports the supplied content type
+     *
+     * @param contentType the type we want to check
+     * @return <tt>true</tt> if the protocol supports it and
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isContentTypeSupported(String contentType)
+    {
+        if(contentType.equals(DEFAULT_MIME_TYPE) || 
+           contentType.equals(CONTENT_TYPE_HTML))
+            return true;
+        else
+           return false;
+    }
 
     /**
      * Create a Message instance for sending arbitrary MIME-encoding content.
@@ -167,15 +194,44 @@ public class OperationSetBasicInstantMessagingYahooImpl
         try
         {
             String toUserID = ((ContactYahooImpl) to).getID();
-            yahooProvider.getYahooSession().sendMessage(
-                toUserID,
-                message.getContent());
 
-            MessageDeliveredEvent msgDeliveredEvt
-            = new MessageDeliveredEvent(
-                message, to, new Date());
+            byte[] msgBytesToBeSent = message.getContent().getBytes();            
+            
+            // split the message in parts with max allowed length
+            // and send them all
+            do
+            {
+                if(msgBytesToBeSent.length > MAX_MESSAGE_LENGTH)
+                {
+                    byte[] tmp1 = new byte[MAX_MESSAGE_LENGTH];
+                    System.arraycopy(msgBytesToBeSent, 
+                        0, tmp1, 0, MAX_MESSAGE_LENGTH);
+                    
+                    byte[] tmp2 = 
+                        new byte[msgBytesToBeSent.length - MAX_MESSAGE_LENGTH];
+                    System.arraycopy(msgBytesToBeSent, 
+                        MAX_MESSAGE_LENGTH, tmp2, 0, tmp2.length);
+                    
+                    msgBytesToBeSent = tmp2;
+                    
+                    yahooProvider.getYahooSession().sendMessage(
+                        toUserID,
+                        new String(tmp1));
+                }
+                else
+                {
+                    yahooProvider.getYahooSession().sendMessage(
+                        toUserID,
+                        new String(msgBytesToBeSent));
+                }
+                
+                MessageDeliveredEvent msgDeliveredEvt
+                    = new MessageDeliveredEvent(
+                        message, to, new Date());
 
-            fireMessageEvent(msgDeliveredEvt);
+                fireMessageEvent(msgDeliveredEvt);
+            }
+            while(msgBytesToBeSent.length > MAX_MESSAGE_LENGTH);
         }
         catch (IOException ex)
         {
@@ -299,7 +355,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
             //to set all messages html - doesn't affect the appearance of the gui
             Message newMessage = createMessage(
                 new MessageDecoder().decodeToHTML(ev.getMessage()).getBytes(),
-                "text/html",
+                CONTENT_TYPE_HTML,
                 DEFAULT_MIME_ENCODING,
                 null);
 

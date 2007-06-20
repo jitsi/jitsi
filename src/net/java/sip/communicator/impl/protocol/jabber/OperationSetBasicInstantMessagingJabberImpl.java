@@ -178,6 +178,21 @@ public class OperationSetBasicInstantMessagingJabberImpl
     }
 
     /**
+     * Determines wheter the protocol supports the supplied content type
+     *
+     * @param contentType the type we want to check
+     * @return <tt>true</tt> if the protocol supports it and
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isContentTypeSupported(String contentType)
+    {
+        if(contentType.equals(DEFAULT_MIME_TYPE))
+            return true;
+        else
+           return false;
+    }
+    
+    /**
      * Sends the <tt>message</tt> to the destination indicated by the
      * <tt>to</tt> contact.
      *

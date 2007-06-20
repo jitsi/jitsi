@@ -150,6 +150,21 @@ public class MockBasicInstantMessaging
     {
         return true;
     }
+    
+    /**
+     * Determines wheter the protocol supports the supplied content type
+     *
+     * @param contentType the type we want to check
+     * @return <tt>true</tt> if the protocol supports it and
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isContentTypeSupported(String contentType)
+    {
+        if(contentType.equals(DEFAULT_MIME_TYPE))
+            return true;
+        else
+           return false;
+    }
 
     /**
      * Methods for manipulating mock operation set as

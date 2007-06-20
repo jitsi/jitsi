@@ -44,7 +44,9 @@ public class Version
         buf.append("<").append(getElementName()).
             append(" xmlns=\"").append(getNamespace()).append("\"").
             append(" node=\"http://sip-communicator.org/caps\"").
-            append(" ver=\"1.0-alpha1\"/>");
+            append(" ver=\"").
+            append(System.getProperty("sip-communicator.version")).
+            append("\"/>");
 
         return buf.toString();
     }

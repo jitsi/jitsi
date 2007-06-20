@@ -32,9 +32,13 @@ import net.java.sip.communicator.service.protocol.aimconstants.*;
 public class OperationSetBasicInstantMessagingIcqImpl
     implements OperationSetBasicInstantMessaging
 {
-
     private static final Logger logger =
         Logger.getLogger(OperationSetBasicInstantMessagingIcqImpl.class);
+    
+    /**
+     * HTML content type
+     */
+    private static final String CONTENT_TYPE_HTML = "text/html";
 
     /**
      * A list of listeneres registered for message events.
@@ -373,6 +377,22 @@ public class OperationSetBasicInstantMessagingIcqImpl
         else
             return false;
     }
+    
+    /**
+     * Determines wheter the protocol supports the supplied content type
+     *
+     * @param contentType the type we want to check
+     * @return <tt>true</tt> if the protocol supports it and
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isContentTypeSupported(String contentType)
+    {
+        if(contentType.equals(DEFAULT_MIME_TYPE) || 
+           (contentType.equals(CONTENT_TYPE_HTML) && !icqProvider.USING_ICQ) )
+            return true;
+        else
+           return false;
+    }
 
     /**
      * Our listener that will tell us when we're registered to icq and joust
@@ -533,6 +553,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
         public void gotMessage(Conversation conversation, MessageInfo minfo)
         {
             String msgBody = minfo.getMessage().getMessageBody();
+
             if(logger.isDebugEnabled())
                 logger.debug("Received from "
                              + conversation.getBuddy()
@@ -547,7 +568,13 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 return;
             }
 
-            Message newMessage = createMessage(msgBody);
+            Message newMessage = null;
+            
+            if(icqProvider.USING_ICQ)
+                newMessage = createMessage(msgBody);
+            else
+                newMessage = createMessage(msgBody.getBytes(), 
+                    CONTENT_TYPE_HTML, DEFAULT_MIME_ENCODING, null);
 
             Contact sourceContact =
                 opSetPersPresence.findContactByID( conversation.getBuddy()
