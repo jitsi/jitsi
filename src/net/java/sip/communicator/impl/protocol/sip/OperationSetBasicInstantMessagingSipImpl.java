@@ -924,6 +924,8 @@ public class OperationSetBasicInstantMessagingSipImpl
                 }
                 catch (OperationFailedException ex)
                 {
+                    logger.error("can't solve the challenge", ex);
+                    
                     // error for delivering the message
                     MessageDeliveryFailedEvent evt =
                         new MessageDeliveryFailedEvent(

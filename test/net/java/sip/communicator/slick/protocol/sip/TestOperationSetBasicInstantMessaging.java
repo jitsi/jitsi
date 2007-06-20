@@ -285,6 +285,17 @@ public class TestOperationSetBasicInstantMessaging
         assertEquals("message content type"
                 , OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE
                 , evt.getSourceMessage().getContentType());
+        
+        // ensure that we received every messages event
+        try {
+            synchronized (this) {
+                wait(5000);
+            }
+        } catch (InterruptedException e) {
+            // just log and continue
+            logger.debug("the first test's wait has been interrupted, the "
+                    + "second test may fail", e);
+        }
     }
 
     /**
@@ -344,6 +355,17 @@ public class TestOperationSetBasicInstantMessaging
             ((MessageReceivedEvent)imEvtCollector2.collectedEvents
                                .get(0)).getSourceMessage().getContent();
         assertEquals("received message body", msg.getContent(), receivedBody);
+        
+        // ensure that we received every messages event
+        try {
+            synchronized (this) {
+                wait(5000);
+            }
+        } catch (InterruptedException e) {
+            // just log and continue
+            logger.debug("the second test's wait has been interrupted, the "
+                    + "following test may fail", e);
+        }
     }
 
     /**
