@@ -259,11 +259,9 @@ public class ConferenceChatPanel
 
         if(!sourceChatRoom.equals(chatRoom))
             return;
-
-        ChatRoomMember destMember = evt.getDestinationChatRoomMember();
         
-        logger.trace("MESSAGE DELIVERED to contact: "
-            + destMember.getContactAddress());
+        logger.trace("MESSAGE DELIVERED to chat room: "
+            + sourceChatRoom.getName());
 
         Message msg = evt.getMessage();
 
@@ -273,15 +271,10 @@ public class ConferenceChatPanel
             chatPanel = chatWindowManager.getChatRoom(sourceChatRoom);
 
         if (chatPanel != null)
-        {
-            ProtocolProviderService protocolProvider
-                = destMember.getProtocolProvider();
-
-            logger.trace("MESSAGE DELIVERED: process message to chat for contact: "
-                    + destMember.getContactAddress());
-
-            chatPanel.processMessage(getChatWindow().getMainFrame()
-                    .getAccount(protocolProvider), evt.getTimestamp(),
+        {            
+            chatPanel.processMessage(
+                    chatRoom.getParentProvider().getAccountID().getUserID(),
+                    evt.getTimestamp(),
                     Constants.OUTGOING_MESSAGE, msg.getContent(),
                     msg.getContentType());
 
