@@ -131,8 +131,8 @@ public interface OperationSetMultiUserChat
                                 ChatRoomInvitationRejectionListener listener);
 
     /**
-     * Removes <tt>listener</tt> from the list of invitation listeners
-     * registered to receive invitation rejection events.
+     * Removes the given listener from the list of invitation listeners
+     * registered to receive events every time an invitation has been rejected.
      *
      * @param listener the invitation listener to remove.
      */

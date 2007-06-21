@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.protocol;
 
 import net.java.sip.communicator.service.protocol.event.*;
+
 import java.util.*;
 
 /**
@@ -585,6 +586,22 @@ public interface ChatRoom
     public void removePropertyChangeListener(
         ChatRoomPropertyChangeListener listener);
 
+    /**
+     * Adds a listener to join notifications. The listener will be fired
+     * anytime a <tt>ChatRoom</tt> has been joined.
+     *
+     * @param listener a join listener.
+     */
+    public void addJoinListener(ChatRoomJoinListener listener);
+    
+    /**
+     * Removes the given listener from the list of join listeners registered to
+     * receive events every time when a <tt>ChatRoom</tt> has been joined.
+     * 
+     * @param listener the join listener to remove
+     */
+    public void removeJoinListener(ChatRoomJoinListener listener);
+    
     /**
      * Invites another user to this room.
      * <p>

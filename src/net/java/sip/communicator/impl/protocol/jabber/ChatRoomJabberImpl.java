@@ -1073,4 +1073,14 @@ public class ChatRoomJabberImpl
         /** @todo implement getAdvancedConfigurationSet() */
         return null;
     }
+
+    public void addJoinListener(ChatRoomJoinListener listener)
+    {
+        /** @todo implement addJoinListener() */
+    }
+
+    public void removeJoinListener(ChatRoomJoinListener listener)
+    {
+        /** @todo implement removeJoinListener() */
+    }
 }
