@@ -801,71 +801,276 @@ public class ChatRoomJabberImpl
 
     public void addLocalUserRoleListener(
         ChatRoomLocalUserRoleListener listener)
-    {   
+    {
+        /** @todo implement addLocalUserRoleListener() */
     }
 
     public void removelocalUserRoleListener(
         ChatRoomLocalUserRoleListener listener)
-    {   
+    {
+        /** @todo implement removeLocalUserRoleListener() */
     }
 
     public void addMemberRoleListener(ChatRoomMemberRoleListener listener)
-    {   
+    {
+        /** @todo implement addMemberRoleListener() */
     }
 
     public void removeMemberRoleListener(ChatRoomMemberRoleListener listener)
-    {   
+    {
+        /** @todo implement removeMemberRoleListener() */
     }
 
     public void setPassword(String password)
         throws OperationFailedException
-    {   
+    {
+        /** @todo implement setPassword */
     }
 
     public String getPassword()
     {
+        /** @todo implement getPassword */
         return null;
     }
 
     public void addBanMask(String banMask) throws OperationFailedException
-    {   
+    {
+        /** @todo implement addBanMask */
     }
 
     public void removeBanMask(String banMask) throws OperationFailedException
-    {   
+    {
+        /** @todo implement removeBanMask */
     }
 
     public void setUserLimit(int userLimit) throws OperationFailedException
-    {   
+    {
+        /** @todo implement setUserLimit */
     }
 
     public int getUserLimit()
     {
+        /** @todo implement getUserLimit */
         return 0;
-    }
-
-    public void addConfigParam(ChatRoomConfigParam configParam)
-        throws OperationFailedException
-    {   
-    }
-
-    public void removeConfigParam(ChatRoomConfigParam configParam)
-        throws OperationFailedException
-    {   
-    }
-
-    public Iterator getSupportedConfigParams()
-    {
-        return null;
-    }
-
-    public Iterator getConfiguration()
-    {
-        return null;
     }
 
     public Iterator getBanList()
     {
+        /** @todo implement getBanList */
+        return null;
+    }
+
+    public void setUserNickname(String nickname) throws OperationFailedException
+    {
+        /** @todo implement setUserNickname */
+    }
+
+    public boolean isVisible()
+    {
+        return true;
+    }
+
+    public void setVisible(boolean isVisible)
+    {
+        /** @todo implement setVisible */
+    }
+
+    public boolean isPasswordRequired()
+    {
+        return false;
+    }
+
+    public void setPasswordRequired(boolean isPasswordRequired)
+    {
+        /** @todo implement setPasswordRequired */
+    }
+
+    public boolean isInvitationRequired()
+    {
+        return false;
+    }
+
+    public void setInvitationRequired(boolean isInvitationRequired)
+    {
+        /** @todo implement setInvitationRequired */
+    }
+
+    public boolean isMemberNumberLimited()
+    {
+        return false;
+    }
+
+    public void setMemberNumberLimited(boolean isMemberNumberLimited)
+    {
+        /** @todo implement setMemberNumberLimited */
+    }
+
+    public boolean isMute()
+    {
+        return false;
+    }
+
+    public void setMute(boolean isMute)
+    {
+        /** @todo implement setMute */
+    }
+
+    public boolean isAllowExternalMessages()
+    {
+        return false;
+    }
+
+    public void setAllowExternalMessages(boolean isAllowExternalMessages)
+    {
+        /** @todo implement setAllowExternalMessages */
+    }
+
+    public boolean isRegistered()
+    {
+        return false;
+    }
+
+    public void setRegistered(boolean isRegistered)
+    {
+        /** @todo implement setRegistered */
+    }
+
+    public boolean isSubjectLocked()
+    {
+        return false;
+    }
+
+    public void setSubjectLocked(boolean isSubjectLocked)
+    {
+        /** @todo implement setSubjectLocked */
+    }
+
+    public boolean isAllowMessageFormatting()
+    {
+        return true;
+    }
+
+    public void setAllowMessageFormatting(boolean isAllowMessageFormatting)
+    {
+        /** @todo implement setAllowMessageFormatting */
+    }
+
+    public boolean isFilterMessageFormatting()
+    {
+        return false;
+    }
+
+    public void setFilterMessageFormatting(boolean isFilterMessageFormatting)
+    {
+        /** @todo implement setFilterMessageFormatting */
+    }
+
+    public boolean isJoinTimeLimited()
+    {
+        return false;
+    }
+
+    public void setJoinTimeLimited(boolean isJoinTimeLimited)
+    {
+        /** @todo implement setJoinTimeLimited */
+    }
+
+    public boolean isAllowInvitationSend()
+    {
+        return true;
+    }
+
+    public void setAllowInvitationSend(boolean isAllowInvitationSend)
+    {
+        /** @todo implement setAllowInvitationSend */
+    }
+
+    public boolean isAllowInvitationReceive()
+    {
+        return true;
+    }
+
+    public void setAllowInvitationReceive(boolean isAllowInvitationReceive)
+    {
+        /** @todo implement setAllowInvitationReceive */
+    }
+
+    public boolean isUserRedirected()
+    {
+        return false;
+    }
+
+    public void setUserRedirected(boolean isRedirected)
+    {   
+        /** @todo implement setUserRedirected */
+    }
+
+    public boolean isUserNicknameLocked()
+    {
+        return false;
+    }
+
+    public void setUserNicknameLocked(boolean isUserNicknameLocked)
+    {   
+        /** @todo implement setUserNicknameLocked */
+    }
+
+    public boolean isAllowKick()
+    {
+        return false;
+    }
+
+    public void setAllowKick(boolean isAllowKick)
+    {   
+        /** @todo implement setAllowKick */
+    }
+
+    public boolean isRegisteredUserOnly()
+    {
+        return false;
+    }
+
+    public void setRegisteredUserOnly(boolean isRegisteredUserOnly)
+    {
+        /** @todo implement setRegisteredUserOnly*/
+    }
+
+    public boolean isAllowSpecialMessage()
+    {
+        return false;
+    }
+
+    public void setAllowSpecialMessage(boolean isAllowSpecialMessage)
+    {   
+        /** @todo implement setAllowSpecialMessage() */
+    }
+
+    public boolean isNicknameListVisible()
+    {
+        return true;
+    }
+
+    public void setNicknameListVisible(boolean isNicknameListVisible)
+    {   
+        /** @todo implement setNicknameListVisible() */
+    }
+
+    public void addAdvancedConfigProperty(String propertyName,
+        String propertyValue)
+        throws OperationFailedException
+    {
+        /** @todo implement addAdvancedConfigProperty() */
+    }
+
+    public void removeAdvancedConfigProperty(String propertyName)
+        throws OperationFailedException
+    {   
+        /** @todo implement removeAdvancedConfigProperty() */
+    }
+
+    public Map getAdvancedConfigurationSet()
+    {
+        /** @todo implement getAdvancedConfigurationSet() */
         return null;
     }
 }
