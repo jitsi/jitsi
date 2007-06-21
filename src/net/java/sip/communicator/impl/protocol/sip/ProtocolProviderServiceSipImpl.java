@@ -519,8 +519,8 @@ public class ProtocolProviderServiceSipImpl
                 + SipActivator.getConfigurationService().getScHomeDirName()
                 + System.getProperty("file.separator");
 
-            NSPVALUE_DEBUG_LOG = logDir + NSPNAME_DEBUG_LOG;
-            NSPVALUE_SERVER_LOG = logDir + NSPNAME_SERVER_LOG;
+            NSPVALUE_DEBUG_LOG = logDir + NSPVALUE_DEBUG_LOG;
+            NSPVALUE_SERVER_LOG = logDir + NSPVALUE_SERVER_LOG;
 
             this.accountID = accountID;
 
