@@ -24,5 +24,5 @@ public interface LocalUserChatRoomPresenceListener
      * @param evt the <tt>LocalUserChatRoomPresenceListener</tt> instance
      * containing the chat room and the type, and reason of the change
      */
-    public void providerPresenceChanged(LocalUserChatRoomPresenceListener evt);
+    public void localUserPresenceChanged(LocalUserChatRoomPresenceListener evt);
 }
