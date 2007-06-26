@@ -66,6 +66,10 @@ public class MockProvider
         this.supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),
                 mockBImOpSet);
+        
+        this.supportedOperationSets.put(
+                OperationSetMultiUserChat.class.getName(),
+                new MockMultiUserChat(this));
 
         MockOperationSetBasicTelephony mockTelphonyOpSet =
             new MockOperationSetBasicTelephony(this);

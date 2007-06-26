@@ -77,7 +77,7 @@ public class MockBasicInstantMessaging
     public Message createMessage(byte[] content, String contentType,
                                  String contentEncoding, String subject)
     {
-        return new MessageImpl(new String(content), contentType
+        return new MockMessage(new String(content), contentType
                                   , contentEncoding, subject);
     }
 
@@ -90,7 +90,7 @@ public class MockBasicInstantMessaging
      */
     public Message createMessage(String messageText)
     {
-        return new MessageImpl(messageText, DEFAULT_MIME_TYPE,
+        return new MockMessage(messageText, DEFAULT_MIME_TYPE,
                                DEFAULT_MIME_ENCODING, null);
     }
 
@@ -185,71 +185,6 @@ public class MockBasicInstantMessaging
         {
             MessageListener listener = (MessageListener)iter.next();
             listener.messageReceived(msgReceivedEvt);
-        }
-    }
-
-    public class MessageImpl
-        implements Message
-    {
-        private String textContent = null;
-
-        private String contentType = null;
-
-        private String contentEncoding = null;
-
-        private String messageUID = null;
-
-        private String subject = null;
-
-        public MessageImpl(String content,
-                              String contentType,
-                              String contentEncoding,
-                              String subject)
-        {
-            this.textContent = content;
-            this.contentType = contentType;
-            this.contentEncoding = contentEncoding;
-            this.subject = subject;
-
-            //generate the uid
-            this.messageUID = String.valueOf( System.currentTimeMillis())
-                              + String.valueOf(hashCode());
-
-        }
-
-        public String getContent()
-        {
-            return textContent;
-        }
-
-        public String getContentType()
-        {
-            return contentType;
-        }
-
-        public String getEncoding()
-        {
-            return contentEncoding;
-        }
-
-        public String getMessageUID()
-        {
-            return messageUID;
-        }
-
-        public byte[] getRawData()
-        {
-            return getContent().getBytes();
-        }
-
-        public int getSize()
-        {
-            return getContent().length();
-        }
-
-        public String getSubject()
-        {
-            return subject;
         }
     }
 }

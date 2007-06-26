@@ -34,6 +34,8 @@ public class TestMsgHistoryService
     private static final Logger logger = Logger.getLogger(TestMsgHistoryService.class);
 
     static final String TEST_CONTACT_NAME = "Mincho_Penchev";
+    
+    static final String TEST_ROOM_NAME = "test_room";
 
     /**
      * The provider that we use to make a dummy server-stored contactlist
@@ -46,6 +48,7 @@ public class TestMsgHistoryService
      */
     public static MockPersistentPresenceOperationSet mockPresOpSet = null;
     public static MockBasicInstantMessaging mockBImOpSet = null;
+    public static MockMultiUserChat mockMultiChat = null;
 
     private static ServiceReference msgHistoryServiceRef = null;
     public static MessageHistoryService msgHistoryService = null;
@@ -82,6 +85,10 @@ public class TestMsgHistoryService
         suite.addTest(
             new TestMsgHistoryService("readRecords"));
         suite.addTest(
+            new TestMsgHistoryService("writeRecordsToMultiChat"));
+        suite.addTest(
+            new TestMsgHistoryService("readRecordsFromMultiChat"));
+        suite.addTest(
             new TestMsgHistoryService("testPurgeLocalContactListCopy"));
 
         return suite;
@@ -114,6 +121,10 @@ public class TestMsgHistoryService
         mockBImOpSet =
             (MockBasicInstantMessaging) supportedOperationSets.get(
                 OperationSetBasicInstantMessaging.class.getName());
+        
+        mockMultiChat =
+            (MockMultiUserChat) supportedOperationSets.get(
+                OperationSetMultiUserChat.class.getName());
 
         msgHistoryServiceRef =
             MsgHistoryServiceLick.bc.
@@ -367,6 +378,231 @@ public class TestMsgHistoryService
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[2].getContent()));
     }
+    
+    public void writeRecordsToMultiChat()
+    {
+        try
+        {
+            ChatRoom room = mockMultiChat.createChatRoom("test_room", null);
+            room.join();  
+
+//            ChatRoom room = mockMultiChat.findRoom(TEST_ROOM_NAME);
+//            room.joinAs(TEST_CONTACT_NAME);
+            
+            // First deliver message, so they are stored by the message history service
+            room.sendMessage(messagesToSend[0]);
+
+            this.controlDate1 = new Date();
+
+            Object lock = new Object();
+            synchronized (lock)
+            {
+                // wait a moment
+                try
+                {
+                    lock.wait(200);
+                }
+                catch (InterruptedException ex)
+                {
+                }
+            }
+
+            room.sendMessage(messagesToSend[1]);
+
+            room.sendMessage(messagesToSend[2]);
+
+            this.controlDate2 = new Date();
+            synchronized (lock)
+            {
+                // wait a moment
+                try
+                {
+                    lock.wait(200);
+                }
+                catch (InterruptedException ex)
+                {
+                }
+            }
+
+            room.sendMessage(messagesToSend[3]);
+
+            room.sendMessage(messagesToSend[4]);
+        }
+        catch(OperationFailedException ex)
+        {
+            fail("Failed to create room : " + ex.getMessage());
+            logger.error("Failed to create room", ex);
+        }
+        catch(OperationNotSupportedException ex)
+        {
+            fail("Failed to create room : " + ex.getMessage());
+            logger.error("Failed to create room", ex);
+        }
+    }
+    
+    /**
+     * tests all read methods (finders)
+     */
+    public void readRecordsFromMultiChat()
+    {
+        ChatRoom room = null;
+    
+        try
+        {
+            room = mockMultiChat.findRoom(TEST_ROOM_NAME);
+            
+        }catch(Exception ex)
+        {
+            fail("Cannot find room!" + ex.getMessage());
+        }
+
+        /**
+         * This matches all written messages, they are minimum 5
+         */
+        Collection rs = msgHistoryService.findByKeyword(room, "test");
+
+        assertTrue("Nothing found findByKeyword ", !rs.isEmpty());
+
+        Vector msgs = getChatMessages(rs);
+
+        assertTrue("Messages too few - findByKeyword", msgs.size() >= 5);
+
+        /**
+         * Will test case sernsitive and insensitive search
+         */
+        rs = msgHistoryService.findByKeyword(room, "Test", false);
+
+        assertTrue("Nothing found findByKeyword caseINsensitive search", !rs.isEmpty());
+
+        msgs = getChatMessages(rs);
+
+        assertTrue("Messages too few - findByKeyword", msgs.size() >= 5);
+
+        rs = msgHistoryService.findByKeyword(room, "Test", true);
+
+        assertFalse("Something found by findByKeyword casesensitive search", !rs.isEmpty());
+
+        /**
+         * This must match also many messages, as tests are run many times
+         * but the minimum is 3
+         */
+        rs = msgHistoryService.findByEndDate(room, controlDate2);
+
+        assertTrue("Nothing found findByEndDate", !rs.isEmpty());
+
+        msgs = getChatMessages(rs);
+
+        assertTrue("Messages too few - findByEndDate", msgs.size() >= 3);
+
+        /**
+         * This must find also many messages but atleast one
+         */
+        rs = msgHistoryService.findByKeywords(
+            room,
+            new String[]{"test", "word2"});
+
+        assertTrue("Nothing found findByKeywords", !rs.isEmpty());
+        msgs = getChatMessages(rs);
+        assertTrue("Messages too few - findByKeywords", msgs.size() >= 1);
+
+        /**
+         * Nothing to be found
+         */
+        rs = msgHistoryService.findByKeywords(
+            room,
+            new String[]{"test1", "word2"});
+
+        assertFalse("Something found findByKeywords", !rs.isEmpty());
+
+        /**
+         * must find 2 messages
+         */
+        rs = msgHistoryService.findByPeriod(
+            room, controlDate1, controlDate2);
+
+        assertTrue("Nothing found findByPeriod", !rs.isEmpty());
+
+        msgs = getChatMessages(rs);
+
+        assertEquals("Messages must be 2", msgs.size(), 2);
+
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[1].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[2].getContent()));
+
+        /**
+         * must find 1 record
+         */
+        rs = msgHistoryService.findByPeriod(
+            room, controlDate1, controlDate2, new String[]{"word2"});
+
+        assertTrue("Nothing found findByPeriod", !rs.isEmpty());
+
+        msgs = getChatMessages(rs);
+
+        assertEquals("Messages must be 1", msgs.size(), 1);
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[1].getContent()));
+
+        /**
+         * must find 2 records
+         */
+        rs = msgHistoryService.findByStartDate(room, controlDate2);
+
+        assertTrue("Nothing found findByStartDate", !rs.isEmpty());
+        msgs = getChatMessages(rs);
+        assertEquals("Messages must be 2", msgs.size(), 2);
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[3].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[4].getContent()));
+
+        /**
+         * Must return exactly the last 3 messages
+         */
+        rs = msgHistoryService.findLast(room, 3);
+
+        assertTrue("Nothing found 8", !rs.isEmpty());
+        msgs = getChatMessages(rs);
+        assertEquals("Messages must be 3", msgs.size(), 3);
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[2].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[3].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[4].getContent()));
+
+        /**
+         * Must return exactly the 3 messages after controlDate1
+         */
+        rs = msgHistoryService.findFirstMessagesAfter(room, controlDate1, 3);
+
+        assertTrue("Nothing found 9", !rs.isEmpty());
+        msgs = getChatMessages(rs);
+        assertEquals("Messages must be 3", msgs.size(), 3);
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[1].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[2].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[3].getContent()));
+
+        /**
+         * Must return exactly the 3 messages before controlDate2
+         */
+        rs = msgHistoryService.findLastMessagesBefore(room, controlDate2, 3);
+
+        assertTrue("Nothing found 10", !rs.isEmpty());
+        msgs = getChatMessages(rs);
+        assertEquals("Messages must be 3", msgs.size(), 3);
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[0].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[1].getContent()));
+        assertTrue("Message no found",
+                   msgs.contains(messagesToSend[2].getContent()));
+    }
 
     /**
      * Removes the locally stored contact list copy. The purpose of this is to
@@ -383,12 +619,31 @@ public class TestMsgHistoryService
         Iterator iter = rs.iterator();
         while (iter.hasNext())
         {
-            Object item = (Object) iter.next();
+            Object item = iter.next();
             if(item instanceof MessageDeliveredEvent)
                 result.add(((MessageDeliveredEvent)item).getSourceMessage().getContent());
             else
                 if(item instanceof MessageReceivedEvent)
                     result.add(((MessageReceivedEvent)item).getSourceMessage().getContent());
+        }
+
+        return result;
+    }
+    
+    private Vector getChatMessages(Collection rs)
+    {
+        Vector result = new Vector();
+        Iterator iter = rs.iterator();
+        while (iter.hasNext())
+        {
+            Object item = iter.next();
+            if(item instanceof ChatRoomMessageDeliveredEvent)
+                result.add(((ChatRoomMessageDeliveredEvent)item).
+                    getMessage().getContent());
+            else
+                if(item instanceof ChatRoomMessageReceivedEvent)
+                    result.add(((ChatRoomMessageReceivedEvent)item).
+                        getMessage().getContent());
         }
 
         return result;

@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.msghistory;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.msghistory.event.*;
 
@@ -189,4 +190,164 @@ public interface MessageHistoryService
     * @param listener HistorySearchProgressListener
     */
    public void removeSearchProgressListener(MessageHistorySearchProgressListener listener);
+   
+   /**
+     * Returns all the messages exchanged in the supplied 
+     * chat room after the given date
+     *
+     * @param room The chat room
+     * @param startDate Date the start date of the conversations
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByStartDate(ChatRoom room, Date startDate)
+        throws RuntimeException;
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room before the given date
+     *
+     * @param room The chat room
+     * @param endDate Date the end date of the conversations
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByEndDate(ChatRoom room, Date endDate)
+        throws RuntimeException;
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room between the given dates
+     *
+     * @param room The chat room
+     * @param startDate Date the start date of the conversations
+     * @param endDate Date the end date of the conversations
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByPeriod(ChatRoom room, Date startDate, Date endDate)
+        throws RuntimeException;
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room between the given dates and having the given
+     * keywords
+     *
+     * @param room The chat room
+     * @param startDate Date the start date of the conversations
+     * @param endDate Date the end date of the conversations
+     * @param keywords array of keywords
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByPeriod(ChatRoom room, 
+            Date startDate, Date endDate, String[] keywords)
+        throws RuntimeException;
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room between the given dates and having the given
+     * keywords
+     *
+     * @param room The chat room
+     * @param startDate Date the start date of the conversations
+     * @param endDate Date the end date of the conversations
+     * @param keywords array of keywords
+     * @param caseSensitive is keywords search case sensitive
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByPeriod(ChatRoom room, Date startDate, Date endDate,
+                            String[] keywords, boolean caseSensitive)
+        throws RuntimeException;
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied room having the given keyword
+     *
+     * @param room The Chat room
+     * @param keyword keyword
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByKeyword(ChatRoom room, String keyword)
+        throws RuntimeException;
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room having the given keyword
+     *
+     * @param room The chat room
+     * @param keyword keyword
+     * @param caseSensitive is keywords search case sensitive
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    Collection findByKeyword(ChatRoom room, String keyword, 
+            boolean caseSensitive)
+        throws RuntimeException;
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room having the given keywords
+     *
+     * @param room The chat room
+     * @param keywords keyword
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByKeywords(ChatRoom room, String[] keywords)
+        throws RuntimeException;
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room having the given keywords
+     *
+     * @param room The chat room
+     * @param keywords keyword
+     * @param caseSensitive is keywords search case sensitive
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByKeywords(ChatRoom room, String[] keywords, 
+            boolean caseSensitive)
+        throws RuntimeException;
+
+    /**
+     * Returns the supplied number of recent messages exchanged 
+     * in the supplied chat room
+     *
+     * @param room The chat room
+     * @param count messages count
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findLast(ChatRoom room, int count)
+        throws RuntimeException;
+
+    /**
+     * Returns the supplied number of recent messages after the given date
+     * exchanged in the supplied chat room
+     *
+     * @param room The chat room
+     * @param date messages after date
+     * @param count messages count
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findFirstMessagesAfter(ChatRoom room, Date date, int count)
+        throws RuntimeException;
+
+    /**
+     * Returns the supplied number of recent messages before the given date
+     * exchanged in the supplied chat room
+     *
+     * @param room The chat room
+     * @param date messages before date
+     * @param count messages count
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findLastMessagesBefore(ChatRoom room, Date date, int count)
+        throws RuntimeException;
 }

@@ -33,7 +33,9 @@ import net.java.sip.communicator.util.*;
 public class MessageHistoryServiceImpl
     implements  MessageHistoryService,
                 MessageListener,
-                ServiceListener
+                ChatRoomMessageListener,
+                ServiceListener,
+                LocalUserChatRoomPresenceListener
 {
     /**
      * The logger for this class.
@@ -213,7 +215,6 @@ public class MessageHistoryServiceImpl
         throws RuntimeException
     {
         return findByPeriod(contact, startDate, endDate, keywords, false);
-
     }
 
     /**
@@ -341,7 +342,6 @@ public class MessageHistoryServiceImpl
             startIndex = 0;
 
         return resultAsList.subList(startIndex, resultAsList.size());
-
     }
 
     /**
@@ -424,6 +424,71 @@ public class MessageHistoryServiceImpl
 
         return retVal;
     }
+    
+    /**
+     * Returns the history by specified local contact
+     * (if is null the default is used) 
+     * and by the chat room
+     *
+     * @param room The chat room
+     * @return History the history - created if not existing
+     * @throws IOException
+     */
+    private History getHistoryForMultiChat(
+                        Contact localContact,
+                        ChatRoom room)
+        throws IOException 
+    {
+        AccountID account = room.getParentProvider().getAccountID();
+
+        return this.getHistoryForMultiChat(
+            null, 
+            account.getAccountUniqueID(),
+            account.getService(),
+            room.getName());
+    }
+    
+    /**
+     * Returns the history by specified local contact
+     * (if is null the default is used) 
+     * and by accountUniqueID, channel and server
+     * used by the multichat account.
+     *
+     * @param localContact Contact
+     * @param account The account UniqueID
+     * @param server the server used by the account
+     * @param channel the channel history we are searching for
+     * @return History the history - created if not existing
+     * @throws IOException
+     */
+    private History getHistoryForMultiChat(
+                        Contact localContact,
+                        String account,
+                        String server,
+                        String channel)
+        throws IOException 
+    {
+        History retVal = null;
+
+        String localId = localContact == null ? "default" : localContact
+                .getAddress();
+
+        HistoryID historyId = HistoryID.createFromID(
+            new String[] { "messages",
+                            localId, 
+                            account, 
+                            channel + "@" + server });
+
+        if (this.historyService.isHistoryExisting(historyId))
+        {
+            retVal = this.historyService.getHistory(historyId);
+        } else {
+            retVal = this.historyService.createHistory(historyId,
+                    recordStructure);
+        }
+
+        return retVal;
+    }
 
     /**
      * Used to convert HistoryRecord in MessageDeliveredEvent or MessageReceivedEvent
@@ -465,6 +530,56 @@ public class MessageHistoryServiceImpl
                         msg,
                         contact,
                         timestamp);
+    }
+    
+    /**
+     * Used to convert HistoryRecord in ChatRoomMessageDeliveredEvent or 
+     * ChatRoomMessageReceivedEvent
+     * which are returned by the finder methods
+     *
+     * @param hr HistoryRecord
+     * @param contact Contact
+     * @return Object
+     */
+    private Object convertHistoryRecordToMessageEvent(
+        HistoryRecord hr, ChatRoom room)
+    {
+        MessageImpl msg = new MessageImpl(hr);
+        Date timestamp = null;
+
+        // if there is value for date of receiving the message
+        // this is the event timestamp (this is the date that had came from protocol)
+        // the HistoryRecord timestamp is the timestamp when the record was written
+        if(msg.getMessageReceivedDate() != null)
+        {
+            if(msg.getMessageReceivedDate().after(hr.getTimestamp()) &&
+                (msg.getMessageReceivedDate().getTime() -
+                 hr.getTimestamp().getTime()) > 86400000) // 24*60*60*1000
+                timestamp = hr.getTimestamp();
+            else
+                timestamp = msg.getMessageReceivedDate();
+        }
+        else
+            timestamp = hr.getTimestamp();
+        
+        // 5 is the index of the subject in the structure
+        String fromStr = hr.getPropertyValues()[5];
+        
+        ChatRoomMember from = new ChatRoomMemberImpl(fromStr, room, null);
+
+        if(msg.isOutgoing)
+        {
+            return new ChatRoomMessageDeliveredEvent(
+                    room,
+                    timestamp,
+                    msg);
+        }
+        else
+            return new ChatRoomMessageReceivedEvent(
+                        room,
+                        from,
+                        timestamp,
+                        msg);
     }
 
     /**
@@ -571,13 +686,52 @@ public class MessageHistoryServiceImpl
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
     {
     }
+        
+    // //////////////////////////////////////////////////////////////////////////
+    // ChatRoomMessageListener implementation methods
+    
+    public void messageReceived(ChatRoomMessageReceivedEvent evt)
+    {
+        try 
+        {
+            History history = this.getHistoryForMultiChat(
+                null, 
+                evt.getSourceChatRoom());
+            
+            writeMessage(history, "in", evt.getSourceChatRoomMember(), 
+                evt.getMessage(), evt.getTimestamp());
+        } catch (IOException e)
+        {
+            logger.error("Could not add message to history", e);
+        }
+    }
 
+    public void messageDelivered(ChatRoomMessageDeliveredEvent evt)
+    {
+        try 
+        {
+            History history = this.
+                getHistoryForMultiChat(
+                null, 
+                evt.getSourceChatRoom());
+            
+            writeMessage(history, "out", evt.getMessage(), evt.getTimestamp());
+        } catch (IOException e)
+        {
+            logger.error("Could not add message to history", e);
+        }
+    }
+
+    public void messageDeliveryFailed(ChatRoomMessageDeliveryFailedEvent evt)
+    {
+    }
+    
     /**
-     *
-     * @param direction String
-     * @param source Contact
-     * @param destination Contact
-     * @param message Message
+     * Writes message to the history
+     * @param direction String direction of the message
+     * @param source The source Contact 
+     * @param destination The destiantion Contact
+     * @param message Message message to be written
      * @param messageTimestamp Date this is the timestamp when was message received
      *                          that came from the protocol provider
      */
@@ -586,6 +740,25 @@ public class MessageHistoryServiceImpl
     {
         try {
             History history = this.getHistory(source, destination);
+            
+            writeMessage(history, direction, message, messageTimestamp);
+        } catch (IOException e)
+        {
+            logger.error("Could not add message to history", e);
+        }
+    }
+    
+    /**
+     * Writes message to the history
+     * @param history The history to which will write the message
+     * @param message Message
+     * @param messageTimestamp Date this is the timestamp when was message received
+     *                          that came from the protocol provider
+     */
+    private void writeMessage(History history, String direction,
+            Message message, Date messageTimestamp)
+    {
+        try {
             HistoryWriter historyWriter = history.getWriter();
             historyWriter.addRecord(new String[] { direction,
                     message.getContent(), message.getContentType(),
@@ -597,6 +770,32 @@ public class MessageHistoryServiceImpl
             logger.error("Could not add message to history", e);
         }
     }
+    
+    /**
+     * Writes message to the history
+     * @param history The history to which will write the message
+     * @param message Message
+     * @param messageTimestamp Date this is the timestamp when was message received
+     *                          that came from the protocol provider
+     */
+    private void writeMessage(History history, String direction,
+            ChatRoomMember from,
+            Message message, Date messageTimestamp)
+    {
+        try {
+            HistoryWriter historyWriter = history.getWriter();
+            historyWriter.addRecord(new String[] { direction,
+                    message.getContent(), message.getContentType(),
+                    message.getEncoding(), message.getMessageUID(),
+                    from.getContactAddress(), 
+                    String.valueOf(messageTimestamp.getTime()) },
+                    new Date()); // this date is when the history record is written
+        } catch (IOException e)
+        {
+            logger.error("Could not add message to history", e);
+        }
+    }
+    
     // //////////////////////////////////////////////////////////////////////////
 
     /**
@@ -691,6 +890,29 @@ public class MessageHistoryServiceImpl
         {
             logger.trace("Service did not have a im op. set.");
         }
+        
+        OperationSetMultiUserChat opSetMultiUChat
+            = (OperationSetMultiUserChat) provider
+            .getSupportedOperationSets().get(
+                OperationSetMultiUserChat.class.getName());
+
+        if (opSetMultiUChat != null)
+        {
+            Iterator iter = 
+                opSetMultiUChat.getCurrentlyJoinedChatRooms().iterator();
+
+            while(iter.hasNext())
+            {
+                ChatRoom room =  (ChatRoom)iter.next();
+                room.addMessageListener(this);
+            }
+            
+            opSetMultiUChat.addPresenceListener(this);
+        }
+        else
+        {
+            logger.trace("Service did not have a multi im op. set.");
+        }
     }
 
     /**
@@ -709,6 +931,43 @@ public class MessageHistoryServiceImpl
         if (opSetIm != null)
         {
             opSetIm.removeMessageListener(this);
+        }
+        
+         OperationSetMultiUserChat opSetMultiUChat
+            = (OperationSetMultiUserChat) provider
+            .getSupportedOperationSets().get(
+                OperationSetMultiUserChat.class.getName());
+
+        if (opSetMultiUChat != null)
+        {
+            Iterator iter = 
+                opSetMultiUChat.getCurrentlyJoinedChatRooms().iterator();
+            
+            while(iter.hasNext())
+            {
+                ChatRoom room =  (ChatRoom)iter.next();
+                room.removeMessageListener(this);
+            }
+        }
+    }
+    
+    /**
+     * Called to notify interested parties that a change in our presence in
+     * a chat room has occured. Changes may include us being kicked, join,
+     * left.
+     * @param evt the <tt>LocalUserChatRoomPresenceChangeEvent</tt> instance
+     * containing the chat room and the type, and reason of the change
+     */
+    public void localUserPresenceChanged(LocalUserChatRoomPresenceChangeEvent evt)
+    {
+        if(evt.getEventType() == 
+            LocalUserChatRoomPresenceChangeEvent.CHAT_ROOM_JOINED)
+        {
+            evt.getChatRoom().addMessageListener(this);
+        }
+        else
+        {
+            evt.getChatRoom().removeMessageListener(this);
         }
     }
 
@@ -951,6 +1210,422 @@ public class MessageHistoryServiceImpl
         }
         return readers;
     }
+    
+    /**
+     * Returns all the messages exchanged in the supplied 
+     * chat room after the given date
+     *
+     * @param room The chat room
+     * @param startDate Date the start date of the conversations
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByStartDate(ChatRoom room, Date startDate)
+        throws RuntimeException
+    {
+        TreeSet result = new TreeSet(new ChatRoomMessageEventComparator());
+        try
+        {
+            // get the readers for this room
+            HistoryReader reader = 
+                this.getHistoryForMultiChat(null, room).getReader();
+
+            // add the progress listeners
+            addHistorySearchProgressListeners(reader, 1);
+
+            Iterator recs = reader.findByStartDate(startDate);
+            while (recs.hasNext())
+            {
+                result.add(convertHistoryRecordToMessageEvent(
+                    (HistoryRecord)recs.next(), room));
+            }
+
+            removeHistorySearchProgressListeners(reader);
+        } catch (IOException e)
+        {
+            logger.error("Could not read history", e);
+        }
+        
+        return result;
+    }
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room before the given date
+     *
+     * @param room The chat room
+     * @param endDate Date the end date of the conversations
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByEndDate(ChatRoom room, Date endDate)
+        throws RuntimeException
+    {
+        TreeSet result = new TreeSet(new ChatRoomMessageEventComparator());
+        try
+        {
+            // get the readers for this room
+            HistoryReader reader = 
+                this.getHistoryForMultiChat(null, room).getReader();
+
+            // add the progress listeners
+            addHistorySearchProgressListeners(reader, 1);
+
+            Iterator recs = reader.findByEndDate(endDate);
+            while (recs.hasNext())
+            {
+                result.add(convertHistoryRecordToMessageEvent(
+                    (HistoryRecord)recs.next(), room));
+            }
+
+            removeHistorySearchProgressListeners(reader);
+        } catch (IOException e)
+        {
+            logger.error("Could not read history", e);
+        }
+
+        return result;
+    }
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room between the given dates
+     *
+     * @param room The chat room
+     * @param startDate Date the start date of the conversations
+     * @param endDate Date the end date of the conversations
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByPeriod(ChatRoom room, Date startDate, Date endDate)
+        throws RuntimeException
+    {
+        TreeSet result = new TreeSet(new ChatRoomMessageEventComparator());
+        try
+        {
+            // get the readers for this room
+            HistoryReader reader = 
+                this.getHistoryForMultiChat(null, room).getReader();
+
+            // add the progress listeners
+            addHistorySearchProgressListeners(reader, 1);
+
+            Iterator recs = reader.findByPeriod(startDate, endDate);
+            while (recs.hasNext())
+            {
+                result.add(convertHistoryRecordToMessageEvent(
+                    (HistoryRecord)recs.next(), room));
+            }
+
+            removeHistorySearchProgressListeners(reader);
+        } catch (IOException e)
+        {
+            logger.error("Could not read history", e);
+        }
+        
+        return result;
+    }
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room between the given dates and having the given
+     * keywords
+     *
+     * @param room The chat room
+     * @param startDate Date the start date of the conversations
+     * @param endDate Date the end date of the conversations
+     * @param keywords array of keywords
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByPeriod(ChatRoom room, 
+            Date startDate, Date endDate, String[] keywords)
+        throws RuntimeException
+    {
+        return findByPeriod(room, startDate, endDate, keywords, false);
+    }
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room between the given dates and having the given
+     * keywords
+     *
+     * @param room The chat room
+     * @param startDate Date the start date of the conversations
+     * @param endDate Date the end date of the conversations
+     * @param keywords array of keywords
+     * @param caseSensitive is keywords search case sensitive
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByPeriod(ChatRoom room, Date startDate, Date endDate,
+                            String[] keywords, boolean caseSensitive)
+        throws RuntimeException
+    {
+        TreeSet result = new TreeSet(new ChatRoomMessageEventComparator());
+        try
+        {
+            // get the readers for this room
+            HistoryReader reader = 
+                this.getHistoryForMultiChat(null, room).getReader();
+
+            // add the progress listeners
+            addHistorySearchProgressListeners(reader, 1);
+
+            Iterator recs = reader.findByPeriod(startDate, endDate, keywords,
+                                                SEARCH_FIELD, caseSensitive);
+            while (recs.hasNext())
+            {
+                result.add(convertHistoryRecordToMessageEvent(
+                    (HistoryRecord)recs.next(), room));
+            }
+
+            removeHistorySearchProgressListeners(reader);
+        } catch (IOException e)
+        {
+            logger.error("Could not read history", e);
+        }
+        
+        return result;
+    }
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied room having the given keyword
+     *
+     * @param room The Chat room
+     * @param keyword keyword
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByKeyword(ChatRoom room, String keyword)
+        throws RuntimeException
+    {
+        return findByKeyword(room, keyword, false);
+    }
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room having the given keyword
+     *
+     * @param room The chat room
+     * @param keyword keyword
+     * @param caseSensitive is keywords search case sensitive
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByKeyword(ChatRoom room, String keyword, 
+            boolean caseSensitive)
+        throws RuntimeException
+    {
+        TreeSet result = new TreeSet(new ChatRoomMessageEventComparator());
+        try
+        {
+            // get the readers for this room
+            HistoryReader reader = 
+                this.getHistoryForMultiChat(null, room).getReader();
+
+            // add the progress listeners
+            addHistorySearchProgressListeners(reader, 1);
+
+            Iterator recs = reader.
+                findByKeyword(keyword, SEARCH_FIELD, caseSensitive);
+            while (recs.hasNext())
+            {
+                result.add(convertHistoryRecordToMessageEvent(
+                    (HistoryRecord)recs.next(), room));
+            }
+
+            removeHistorySearchProgressListeners(reader);
+        } catch (IOException e)
+        {
+            logger.error("Could not read history", e);
+        }
+
+        return result;
+    }
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room having the given keywords
+     *
+     * @param room The chat room
+     * @param keywords keyword
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByKeywords(ChatRoom room, String[] keywords)
+        throws RuntimeException
+    {
+        return findByKeywords(room, keywords, false);
+    }
+
+    /**
+     * Returns all the messages exchanged 
+     * in the supplied chat room having the given keywords
+     *
+     * @param room The chat room
+     * @param keywords keyword
+     * @param caseSensitive is keywords search case sensitive
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findByKeywords(ChatRoom room, String[] keywords, 
+            boolean caseSensitive)
+        throws RuntimeException
+    {
+        TreeSet result = new TreeSet(new ChatRoomMessageEventComparator());
+        try
+        {
+            // get the readers for this room
+            HistoryReader reader = 
+                this.getHistoryForMultiChat(null, room).getReader();
+
+            // add the progress listeners
+            addHistorySearchProgressListeners(reader, 1);
+
+            Iterator recs = reader.
+                findByKeywords(keywords, SEARCH_FIELD, caseSensitive);
+            while (recs.hasNext())
+            {
+                result.add(convertHistoryRecordToMessageEvent(
+                    (HistoryRecord)recs.next(), room));
+            }
+
+            removeHistorySearchProgressListeners(reader);
+        } catch (IOException e)
+        {
+            logger.error("Could not read history", e);
+        }
+        
+        return result;
+    }
+
+    /**
+     * Returns the supplied number of recent messages exchanged 
+     * in the supplied chat room
+     *
+     * @param room The chat room
+     * @param count messages count
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findLast(ChatRoom room, int count)
+        throws RuntimeException
+    {
+        TreeSet result = new TreeSet(new ChatRoomMessageEventComparator());
+        
+        try
+        {
+            // get the readers for this room
+            HistoryReader reader = 
+                this.getHistoryForMultiChat(null, room).getReader();            
+            Iterator recs = reader.findLast(count);
+            while (recs.hasNext())
+            {
+                result.add(
+                    convertHistoryRecordToMessageEvent(
+                        (HistoryRecord)recs.next(),
+                        room));
+
+            }
+        } catch (IOException e)
+        {
+            logger.error("Could not read history", e);
+        }
+        
+        LinkedList resultAsList = new LinkedList(result);
+        int startIndex = resultAsList.size() - count;
+
+        if(startIndex < 0)
+            startIndex = 0;
+
+        return resultAsList.subList(startIndex, resultAsList.size());
+    }
+
+    /**
+     * Returns the supplied number of recent messages after the given date
+     * exchanged in the supplied chat room
+     *
+     * @param room The chat room
+     * @param date messages after date
+     * @param count messages count
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findFirstMessagesAfter(ChatRoom room, Date date, int count)
+        throws RuntimeException
+    {
+        TreeSet result = new TreeSet(new ChatRoomMessageEventComparator());
+
+        try
+        {
+            HistoryReader reader = 
+                this.getHistoryForMultiChat(null, room).getReader();
+            Iterator recs = reader.findFirstRecordsAfter(date, count);
+            while (recs.hasNext())
+            {
+                result.add(
+                    convertHistoryRecordToMessageEvent(
+                        (HistoryRecord)recs.next(),
+                        room));
+
+            }
+        } catch (IOException e)
+        {
+            logger.error("Could not read history", e);
+        }
+
+        LinkedList resultAsList = new LinkedList(result);
+        int startIndex = resultAsList.size() - count;
+
+        if(startIndex < 0)
+            startIndex = 0;
+
+        return resultAsList.subList(startIndex, resultAsList.size());
+    }
+
+    /**
+     * Returns the supplied number of recent messages before the given date
+     * exchanged in the supplied chat room
+     *
+     * @param room The chat room
+     * @param date messages before date
+     * @param count messages count
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    public Collection findLastMessagesBefore(ChatRoom room, Date date, int count)
+        throws RuntimeException
+    {
+        TreeSet result = new TreeSet(new ChatRoomMessageEventComparator());
+
+        try
+        {
+            HistoryReader reader = 
+                this.getHistoryForMultiChat(null, room).getReader();
+            Iterator recs = reader.findLastRecordsBefore(date, count);
+            while (recs.hasNext())
+            {
+                result.add(
+                    convertHistoryRecordToMessageEvent(
+                        (HistoryRecord)recs.next(),
+                        room));
+
+            }
+        } catch (IOException e)
+        {
+            logger.error("Could not read history", e);
+        }
+
+        LinkedList resultAsList = new LinkedList(result);
+        int startIndex = resultAsList.size() - count;
+
+        if(startIndex < 0)
+            startIndex = 0;
+
+        return resultAsList.subList(startIndex, resultAsList.size());
+    }
 
     /**
      * A wrapper around HistorySearchProgressListener
@@ -1143,6 +1818,81 @@ public class MessageHistoryServiceImpl
                 return 0;
 
             return date1.compareTo(date2);
+        }
+    }
+    
+    /**
+     * Used to compare ChatRoomMessageDeliveredEvent 
+     * or ChatRoomMessageReceivedEvent
+     * and to be ordered in TreeSet according their timestamp
+     */
+    private class ChatRoomMessageEventComparator
+        implements Comparator
+    {
+        public int compare(Object o1, Object o2)
+        {
+            Date date1 = null;
+            Date date2 = null;
+            
+            if(o1 instanceof ChatRoomMessageDeliveredEvent)
+                date1 = ((ChatRoomMessageDeliveredEvent)o1).getTimestamp();
+            else if(o1 instanceof ChatRoomMessageReceivedEvent)
+                date1 = ((ChatRoomMessageReceivedEvent)o1).getTimestamp();
+            else
+                return 0;
+
+            if(o2 instanceof ChatRoomMessageDeliveredEvent)
+                date2 = ((ChatRoomMessageDeliveredEvent)o2).getTimestamp();
+            else if(o2 instanceof ChatRoomMessageReceivedEvent)
+                date2 = ((ChatRoomMessageReceivedEvent)o2).getTimestamp();
+            else
+                return 0;
+
+            return date1.compareTo(date2);
+        }
+    }
+    
+    /**
+     * Simple ChatRoomMember implementation.
+     */
+    class ChatRoomMemberImpl
+        implements ChatRoomMember
+    {
+        private ChatRoom chatRoom;
+        private String name;
+        private ChatRoomMemberRole role;
+
+        public ChatRoomMemberImpl(String name, ChatRoom chatRoom, 
+            ChatRoomMemberRole role)
+        {
+            this.chatRoom = chatRoom;
+            this.name =  name;
+            this.role = role;
+        }
+
+        public ChatRoom getChatRoom()
+        {
+            return chatRoom;
+        }
+
+        public ProtocolProviderService getProtocolProvider()
+        {
+            return chatRoom.getParentProvider();
+        }
+
+        public String getContactAddress()
+        {
+            return name;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public ChatRoomMemberRole getRole()
+        {
+            return role;
         }
     }
 }
