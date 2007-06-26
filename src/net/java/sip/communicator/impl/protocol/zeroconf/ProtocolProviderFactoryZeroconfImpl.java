@@ -190,7 +190,7 @@ public class ProtocolProviderFactoryZeroconfImpl
         //unregister the protocol provider
         ServiceReference serRef = getProviderForAccount(accountID);
 
-        if(serRef != null)
+        if(serRef == null)
             return false;
 
         ProtocolProviderService protocolProvider
