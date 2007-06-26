@@ -496,24 +496,6 @@ public interface ChatRoom
      * chat room should be visible.
      */
     public void setNicknameListVisible(boolean isNicknameListVisible);
-    
-    /**
-     * Adds a listener that will be notified of changes in our participation in
-     * the room such as us being kicked, join, left.
-     *
-     * @param listener a local user participation listener.
-     */
-    public void addLocalUserPresenceListener(
-        ChatRoomLocalUserPresenceListener listener);
-
-    /**
-     * Removes a listener that was being notified of changes in our
-     * participation in the room such as us being kicked, join, left...
-     * 
-     * @param listener a local user participation listener.
-     */
-    public void removeLocalUserPresenceListener(
-        ChatRoomLocalUserPresenceListener listener);
 
     /**
      * Adds a listener that will be notified of changes in our participation in

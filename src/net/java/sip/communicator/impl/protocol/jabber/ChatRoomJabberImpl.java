@@ -40,12 +40,6 @@ public class ChatRoomJabberImpl
      * Listeners that will be notified of changes in our status in the
      * room such as us being kicked, banned, or granted admin permissions.
      */
-    private Vector localUserStatusListeners = new Vector();
-
-    /**
-     * Listeners that will be notified of changes in our status in the
-     * room such as us being kicked, banned, or granted admin permissions.
-     */
     private Vector memberListeners = new Vector();
 
     /**
@@ -124,38 +118,6 @@ public class ChatRoomJabberImpl
         synchronized(chatRoomPropertyChangeListeners)
         {
             chatRoomPropertyChangeListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Adds a listener that will be notified of changes in our status in the
-     * room such as us being kicked, banned, or granted admin permissions.
-     *
-     * @param listener a local user status listener.
-     */
-    public void addLocalUserPresenceListener(
-                            ChatRoomLocalUserPresenceListener listener)
-    {
-        synchronized(localUserStatusListeners)
-        {
-            if (!localUserStatusListeners.contains(listener))
-                localUserStatusListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes a listener that was being notified of changes in our status in
-     * the room such as us being kicked, banned, or granted admin
-     * permissions.
-     *
-     * @param listener a local user status listener.
-     */
-    public void removeLocalUserPresenceListener(
-            ChatRoomLocalUserPresenceListener listener)
-    {
-        synchronized(localUserStatusListeners)
-        {
-            localUserStatusListeners.remove(listener);
         }
     }
 

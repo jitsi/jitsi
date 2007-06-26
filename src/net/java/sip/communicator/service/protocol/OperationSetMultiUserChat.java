@@ -147,4 +147,23 @@ public interface OperationSetMultiUserChat
      * @return a boolean indicating whether <tt>contact</tt> supports chatrooms.
      */
     public boolean isMultiChatSupportedByContact(Contact contact);
+    
+    /**
+     * Adds a listener that will be notified of changes in our participation in
+     * a chat room such as us being kicked, joined, left.
+     *
+     * @param listener a local user participation listener.
+     */
+    public void addPresenceListener(
+        LocalUserChatRoomPresenceListener listener);
+
+    /**
+     * Removes a listener that was being notified of changes in our
+     * participation in a room such as us being kicked, joined, left.
+     * 
+     * @param listener a local user participation listener.
+     */
+    public void removePresenceListener(
+        LocalUserChatRoomPresenceListener listener);
+
 }

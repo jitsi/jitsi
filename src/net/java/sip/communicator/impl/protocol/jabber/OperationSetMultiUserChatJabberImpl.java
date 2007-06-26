@@ -45,6 +45,13 @@ public class OperationSetMultiUserChatJabberImpl
      */
     private Vector invitationRejectionListeners = new Vector();
 
+
+    /**
+     * Listeners that will be notified of changes in our status in the
+     * room such as us being kicked, banned, or granted admin permissions.
+     */
+    private Vector presenceListeners = new Vector();
+
     /**
      * A list of the rooms that are currently open by this account. Note that
      * we have not necessarily joined these rooms, we might have simply been
@@ -93,6 +100,36 @@ public class OperationSetMultiUserChatJabberImpl
         synchronized(invitationListeners)
         {
             invitationListeners.remove(listener);
+        }
+    }
+    
+    /**
+     * Adds a listener that will be notified of changes in our status in a chat
+     * room such as us being kicked, banned or dropped.
+     *
+     * @param listener the <tt>LocalUserChatRoomPresenceListener</tt>.
+     */
+    public void addPresenceListener(LocalUserChatRoomPresenceListener listener)
+    {
+        synchronized(presenceListeners)
+        {
+            if (!presenceListeners.contains(listener))
+                presenceListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes a listener that was being notified of changes in our status in
+     * a room such as us being kicked, banned or dropped.
+     *
+     * @param listener the <tt>LocalUserChatRoomPresenceListener</tt>.
+     */
+    public void removePresenceListener(
+        LocalUserChatRoomPresenceListener listener)
+    {
+        synchronized(presenceListeners)
+        {
+            presenceListeners.remove(listener);
         }
     }
 

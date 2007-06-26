@@ -17,35 +17,40 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Emil Ivov
  * @author Stephane Remy
  */
-public class ChatRoomLocalUserPresenceChangeEvent
+public class LocalUserChatRoomPresenceChangeEvent
     extends EventObject
 {
     /**
      * Indicates that this event was triggered as a result of the local
-     * participant joining the source chat room.
+     * participant joining a chat room.
      */
-    public static final String LOCAL_USER_JOINED = "LocalUserJoined";
+    public static final String CHAT_ROOM_JOINED = "ChatRoomJoined";
 
     /**
      * Indicates that this event was triggered as a result of the local
-     * participant leaving the chat room.
+     * participant leaving a chat room.
      */
-    public static final String LOCAL_USER_LEFT = "LocalUserLeft";
+    public static final String CHAT_ROOM_LEFT = "ChatRoomLeft";
 
    /**
     * Indicates that this event was triggered as a result of the local
-    * participant being kicked from the source chat room.
+    * participant being kicked from a chat room.
     */
-    public static final String LOCAL_USER_KICKED = "LocalUserKicked";
+    public static final String USER_KICKED = "UserKicked";
     
     /**
      * Indicates that this event was triggered as a result of the local
      * participant beeing disconnected from the server brutally, or ping timeout.
      */
-     public static final String LOCAL_USER_QUIT = "LocalUserQuit";
+    public static final String USER_DROPPED = "UserDropped";
 
     /**
-     * The type of this event. Values can be any of the LOCAL_USER_XXX fields.
+     * The <tt>ChatRoom</tt> to which the change is related.
+     */
+    public ChatRoom chatRoom = null;
+    
+    /**
+     * The type of this event.
      */
     private String eventType = null;
 
@@ -55,35 +60,49 @@ public class ChatRoomLocalUserPresenceChangeEvent
      */
     private String reason = null;
 
-
     /**
      * Creates a <tt>ChatRoomLocalUserPresenceChangeEvent</tt> representing that
      * a change in local participant presence in the source chat room has
      * occured.
      * 
-     * @param sourceRoom the <tt>ChatRoom</tt> that produced this event
-     * @param eventType the type of this event. One of the LOCAL_USER_XXX
-     * constants
+     * @param source the <tt>OperationSetMultiUserChat</tt>, which produced this
+     * event
+     * @param chatRoom the <tt>ChatRoom</tt> that this event is about
+     * @param eventType the type of this event.
      * @param reason the reason explaining why this event might have occurred
      */
-    public ChatRoomLocalUserPresenceChangeEvent(ChatRoom sourceRoom,
+    public LocalUserChatRoomPresenceChangeEvent(OperationSetMultiUserChat source,
+                                                ChatRoom chatRoom,
                                                 String eventType,
                                                 String reason)
     {
-        super(sourceRoom);
+        super(source);
         
+        this.chatRoom = chatRoom;
         this.eventType = eventType;
         this.reason = reason;
     }
 
     /**
-     * Returns the <tt>ChatRoom</tt>, where this event has occurred.
+     * Returns the <tt>OperationSetMultiUserChat</tt>, where this event has
+     * occurred.
      *
-     * @return the <tt>ChatRoom</tt>, where this event has occurred
+     * @return the <tt>OperationSetMultiUserChat</tt>, where this event has
+     * occurred
+     */
+    public OperationSetMultiUserChat getMultiUserChatOpSet()
+    {
+        return (OperationSetMultiUserChat) getSource();
+    }
+    
+    /**
+     * Returns the <tt>ChatRoom</tt>, that this event is about.
+     *
+     * @return the <tt>ChatRoom</tt>, that this event is about
      */
     public ChatRoom getChatRoom()
     {
-        return (ChatRoom) getSource();
+        return this.chatRoom;
     }
 
     /**

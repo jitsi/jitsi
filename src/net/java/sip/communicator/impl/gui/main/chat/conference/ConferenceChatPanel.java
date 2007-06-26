@@ -26,7 +26,6 @@ public class ConferenceChatPanel
     extends ChatPanel
     implements  ChatRoomMessageListener,
                 ChatRoomPropertyChangeListener,
-                ChatRoomLocalUserPresenceListener,
                 ChatRoomMemberPresenceListener
 {
     private Logger logger = Logger.getLogger(ConferenceChatPanel.class);
@@ -63,7 +62,6 @@ public class ConferenceChatPanel
 
         this.chatRoom.addMessageListener(this);
         this.chatRoom.addPropertyChangeListener(this);
-        this.chatRoom.addLocalUserPresenceListener(this);
         this.chatRoom.addMemberPresenceListener(this);
     }
 
@@ -352,12 +350,6 @@ public class ConferenceChatPanel
 
     public void chatRoomChanged(ChatRoomPropertyChangeEvent event)
     {   
-    }
-
-    public void localUserPresenceChanged(ChatRoomLocalUserPresenceChangeEvent evt)
-    {
-        // TODO Auto-generated method stub
-        
     }
 
     public void memberPresenceChanged(ChatRoomMemberPresenceChangeEvent evt)
