@@ -11,12 +11,12 @@ import net.java.sip.communicator.util.*;
 import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
-import net.java.sip.communicator.impl.gui.*;
 /**
  * Loads the Rss provider factory and registers its services in the OSGI
  * bundle context.
  *
- * @author Emil Ivov
+ * @author Jean-Albert Vescovo
+ * @author Mihai Balan
  */
 public class RssActivator
     implements BundleActivator
@@ -71,8 +71,15 @@ public class RssActivator
                     ProtocolProviderFactory.class.getName(),
                     rssProviderFactory,
                     hashtable);
-        
+
         logger.info("RSS protocol implementation [STARTED].");
+
+        System.setProperty(
+            "http.agent",
+            System.getProperty("sip-communicator.application.name")
+            + "/"
+            + System.getProperty("sip-communicator.version"));
+        logger.debug("User-Agent set to " + System.getProperty("http.agent"));
     }
 
     /**
