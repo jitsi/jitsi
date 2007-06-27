@@ -107,6 +107,15 @@ public interface Version extends Comparable
     public boolean equals(Object version);
 
     /**
+     * Returns the name of the application that we're currently running. Default
+     * MUST be SIP Communicator.
+     *
+     * @return the name of the application that we're currently running. Default
+     * MUST be SIP Communicator.
+     */
+    public String getApplicationName();
+
+    /**
      * Returns a String representation of this Version instance. If you'd just
      * like to obtain the version of SIP Communicator so that you could display
      * it (e.g. in a Help->About dialog) then all you need is calling this

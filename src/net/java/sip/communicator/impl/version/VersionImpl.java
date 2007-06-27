@@ -20,7 +20,7 @@ public class VersionImpl
      * number changes when a relatively extensive set of new features and
      * possibly rearchitecturing have been applied to the SIP Communicator.
      */
-    public static final int     VERSION_MAJOR           = 1;
+    public static final int VERSION_MAJOR = 1;
 
     /**
      * The version major of the current SIP Communicator version. In an
@@ -28,7 +28,7 @@ public class VersionImpl
      * number changes when a relatively extensive set of new features and
      * possibly rearchitecturing have been applied to the SIP Communicator.
      */
-    public static final int     VERSION_MINOR           = 0;
+    public static final int VERSION_MINOR = 0;
 
     /**
      * Indicates whether this version represents a prerelease (i.e. a
@@ -42,7 +42,7 @@ public class VersionImpl
      * and version revisions are exclusive, so in case this version is a pre-
      * release the revision will bereturn null.
      */
-    public static final String  PRE_RELEASE_ID          = "alpha2";
+    public static final String PRE_RELEASE_ID = "alpha2";
 
     /**
      * Returns the version revision number of the current SIP Communicator
@@ -50,13 +50,18 @@ public class VersionImpl
      * The version revision number number changes after applying bug fixes and
      * possible some small enhancements to a given SIP Communicator version.
      */
-    public static final int     VERSION_REVISION        = 0;
+    public static final int VERSION_REVISION = 0;
 
     /**
      * Indicates if this SIP Communicator version corresponds to a nightly build
      * of a repository snapshot or to an official SIP Communicator release.
      */
-    public static final boolean IS_NIGHTLY_BUILD        = true;
+    public static final boolean IS_NIGHTLY_BUILD = true;
+
+    /**
+     * The name of this application.
+     */
+    public static final String APPLICATION_NAME = "SIP Communicator";
 
     /**
      * Returns the VersionImpl instance describing the current version of
@@ -269,5 +274,17 @@ public class VersionImpl
     public static final VersionImpl currentVersion()
     {
         return CURRENT_VERSION;
+    }
+
+    /**
+     * Returns the name of the application that we're currently running. Default
+     * MUST be SIP Communicator.
+     *
+     * @return the name of the application that we're currently running. Default
+     * MUST be SIP Communicator.
+     */
+    public String getApplicationName()
+    {
+        return APPLICATION_NAME;
     }
 }

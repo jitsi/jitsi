@@ -59,6 +59,12 @@ public class VersionActivator
             "sip-communicator.version"
             , VersionImpl.currentVersion().toString()
             , true);
+
+        getConfigurationService().setProperty(
+            "sip-communicator.application.name"
+            , VersionImpl.currentVersion().getApplicationName()
+            , true);
+
     }
 
     /**
