@@ -8,11 +8,12 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import org.jivesoftware.smack.*;
-import org.jivesoftware.smackx.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smackx.muc.*;
 
 /**
  * Implements chat rooms for jabber. The class encapsulates instances of the
@@ -120,7 +121,7 @@ public class ChatRoomJabberImpl
             chatRoomPropertyChangeListeners.remove(listener);
         }
     }
-
+    
     /**
      * Registers <tt>listener</tt> so that it would receive events every time
      * a new message is received on this chat room.
@@ -259,6 +260,17 @@ public class ChatRoomJabberImpl
         return multiUserChat.getRoom();
     }
 
+    /**
+     * Returns the identifier of this <tt>ChatRoom</tt>.
+     *
+     * @return a <tt>String</tt> containing the identifier of this
+     *   <tt>ChatRoom</tt>.
+     */
+    public String getIdentifier()
+    {
+        return multiUserChat.getRoom();
+    }
+    
     /**
      * Returns the local user's nickname in the context of this chat room or
      * <tt>null</tt> if not currently joined.
@@ -937,22 +949,22 @@ public class ChatRoomJabberImpl
         /** @todo implement setJoinTimeLimited */
     }
 
-    public boolean isAllowInvitationSend()
+    public boolean isAllowInvitation()
     {
         return true;
     }
 
-    public void setAllowInvitationSend(boolean isAllowInvitationSend)
+    public void setAllowInvitation(boolean isAllowInvitation)
     {
         /** @todo implement setAllowInvitationSend */
     }
 
-    public boolean isAllowInvitationReceive()
+    public boolean isAllowInvitationRequest()
     {
         return true;
     }
 
-    public void setAllowInvitationReceive(boolean isAllowInvitationReceive)
+    public void setAllowInvitationRequest(boolean isAllowInvitationRequest)
     {
         /** @todo implement setAllowInvitationReceive */
     }
@@ -1034,15 +1046,5 @@ public class ChatRoomJabberImpl
     {
         /** @todo implement getAdvancedConfigurationSet() */
         return null;
-    }
-
-    public void addJoinListener(ChatRoomJoinListener listener)
-    {
-        /** @todo implement addJoinListener() */
-    }
-
-    public void removeJoinListener(ChatRoomJoinListener listener)
-    {
-        /** @todo implement removeJoinListener() */
     }
 }

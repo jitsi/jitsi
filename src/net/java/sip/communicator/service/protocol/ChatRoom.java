@@ -25,6 +25,16 @@ public interface ChatRoom
      * @return a <tt>String</tt> containing the name of this <tt>ChatRoom</tt>.
      */
     public String getName();
+    
+    /**
+     * Returns the identifier of this <tt>ChatRoom</tt>. The identifier of the
+     * chat room would have the following syntax:
+     * [chatRoomName]@[chatRoomServer]@[accountID]
+     *
+     * @return a <tt>String</tt> containing the identifier of this
+     * <tt>ChatRoom</tt>.
+     */
+    public String getIdentifier();
 
     /**
      * Joins this chat room with the nickname of the local user so that the
@@ -358,34 +368,34 @@ public interface ChatRoom
      * @return <code>true</code> if user is allowed to send invitation request
      * from this <tt>ChatRoom</tt>, otherwise - <code>false</code>
      */
-    public boolean isAllowInvitationSend();
+    public boolean isAllowInvitation();
     
     /**
-     * Sets the property indicating if sending invitation request is allowed in
+     * Sets the property indicating if sending invitation is allowed in
      * this <tt>ChatRoom</tt>.
      * 
      * @param isAllowInvitationSend indicates if sending invitation request is
      * allowed in this <tt>ChatRoom</tt>
      */
-    public void setAllowInvitationSend(boolean isAllowInvitationSend);
+    public void setAllowInvitation(boolean isAllowInvitation);
     
     /**
-     * Indicates if receiving invitation request is allowed in this
+     * Indicates if sending an invitation request is allowed for this
      * <tt>ChatRoom</tt>.
      * 
      * @return <code>true</code> if user is allowed to receive invitation request
      * in this <tt>ChatRoom</tt>, otherwise - <code>false</code>
      */
-    public boolean isAllowInvitationReceive();
+    public boolean isAllowInvitationRequest();
     
     /**
-     * Sets the property indicating if receiving invitation request is allowed
-     * in this <tt>ChatRoom</tt>.
+     * Sets the property indicating if sending invitation request is allowed
+     * for this <tt>ChatRoom</tt>.
      * 
      * @param isAllowInvitationReceive indicates if receiving invitation request
      * is allowed in this <tt>ChatRoom</tt>
      */
-    public void setAllowInvitationReceive(boolean isAllowInvitationReceive);
+    public void setAllowInvitationRequest(boolean isInvitationRequestAllowed);
     
     /**
      * Indicates if users which join this <tt>ChatRoom</tt> are redirected to
@@ -567,22 +577,6 @@ public interface ChatRoom
      */
     public void removePropertyChangeListener(
         ChatRoomPropertyChangeListener listener);
-
-    /**
-     * Adds a listener to join notifications. The listener will be fired
-     * anytime a <tt>ChatRoom</tt> has been joined.
-     *
-     * @param listener a join listener.
-     */
-    public void addJoinListener(ChatRoomJoinListener listener);
-    
-    /**
-     * Removes the given listener from the list of join listeners registered to
-     * receive events every time when a <tt>ChatRoom</tt> has been joined.
-     * 
-     * @param listener the join listener to remove
-     */
-    public void removeJoinListener(ChatRoomJoinListener listener);
     
     /**
      * Invites another user to this room.
