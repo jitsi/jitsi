@@ -62,12 +62,6 @@ public class MockChatRoom
      */
     private Vector messageListeners = new Vector();
     
-    /**
-     * Currently registered join chatroom listeners.
-     */
-    private Vector chatRoomJoinListeners = new Vector();
-    
-    
     public MockChatRoom(
         MockProvider provider, 
         MockMultiUserChat parentOpSet, 
@@ -158,18 +152,6 @@ public class MockChatRoom
         
         members.add(newMember);
         
-        ChatRoomJoinedEvent event = 
-            new ChatRoomJoinedEvent(this);
-        
-        Iterator iter = chatRoomJoinListeners.iterator();
-        while(iter.hasNext())
-        {
-            ChatRoomJoinListener elem = 
-                (ChatRoomJoinListener)iter.next();
-            
-            elem.chatRoomJoined(event);
-        }
-
         LocalUserChatRoomPresenceChangeEvent evt = 
                 new LocalUserChatRoomPresenceChangeEvent(
                         parentOpSet, 
@@ -633,6 +615,7 @@ public class MockChatRoom
      * deliver(receive) messageop
      *
      * @param msg the message that we are to deliver.
+     * @param from delivered from
      */
     public void deliverMessage(Message msg, String from)
     {
@@ -953,42 +936,42 @@ public class MockChatRoom
      * @return <code>true</code> if user is allowed to send invitation request
      * from this <tt>ChatRoom</tt>, otherwise - <code>false</code>
      */
-    public boolean isAllowInvitationSend()
+    public boolean isAllowInvitation()
     {
         return false;
     }
 
     /**
-     * Sets the property indicating if sending invitation request is allowed in
+     * Sets the property indicating if sending invitation is allowed in
      * this <tt>ChatRoom</tt>.
      * 
-     * @param isAllowInvitationSend indicates if sending invitation request is
+     * @param isAllowInvitation indicates if sending invitation request is
      * allowed in this <tt>ChatRoom</tt>
      */
-    public void setAllowInvitationSend(boolean isAllowInvitationSend)
+    public void setAllowInvitation(boolean isAllowInvitation)
     {
     }
 
     /**
-     * Indicates if receiving invitation request is allowed in this
+     * Indicates if ??????? invitation request is allowed in this
      * <tt>ChatRoom</tt>.
      * 
      * @return <code>true</code> if user is allowed to receive invitation request
      * in this <tt>ChatRoom</tt>, otherwise - <code>false</code>
      */
-    public boolean isAllowInvitationReceive()
+    public boolean isAllowInvitationRequest()
     {
         return false;
     }
 
     /**
-     * Sets the property indicating if receiving invitation request is allowed
-     * in this <tt>ChatRoom</tt>.
+     * Sets the property indicating if sending invitation request is allowed
+     * for this <tt>ChatRoom</tt>.
      * 
-     * @param isAllowInvitationReceive indicates if receiving invitation request
+     * @param isAllowInvitationRequest indicates if receiving invitation request
      * is allowed in this <tt>ChatRoom</tt>
      */
-    public void setAllowInvitationReceive(boolean isAllowInvitationReceive)
+    public void setAllowInvitationRequest(boolean isAllowInvitationRequest)
     {
     }
 
@@ -1181,25 +1164,15 @@ public class MockChatRoom
     }
 
     /**
-     * Adds a listener to join notifications. The listener will be fired
-     * anytime a <tt>ChatRoom</tt> has been joined.
+     * Returns the identifier of this <tt>ChatRoom</tt>. The identifier of the
+     * chat room would have the following syntax:
+     * [chatRoomName]@[chatRoomServer]@[accountID]
      *
-     * @param listener a join listener.
+     * @return a <tt>String</tt> containing the identifier of this
+     * <tt>ChatRoom</tt>.
      */
-    public void addJoinListener(ChatRoomJoinListener listener)
+    public String getIdentifier()
     {
-        if(!chatRoomJoinListeners.contains(listener))
-            chatRoomJoinListeners.add(listener);
-    }
-
-    /**
-     * Removes the given listener from the list of join listeners registered to
-     * receive events every time when a <tt>ChatRoom</tt> has been joined.
-     * 
-     * @param listener the join listener to remove
-     */
-    public void removeJoinListener(ChatRoomJoinListener listener)
-    {
-        chatRoomJoinListeners.remove(listener);
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

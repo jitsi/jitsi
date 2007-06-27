@@ -15,8 +15,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Damian Minkov
  */
 public class MockMultiUserChat
-    implements OperationSetMultiUserChat,
-               ChatRoomJoinListener
+    implements OperationSetMultiUserChat
 {
     /**
      * The protocol provider that created us.
@@ -141,7 +140,6 @@ public class MockMultiUserChat
     {
         MockChatRoom room = new MockChatRoom(provider, this, roomName);
         existingChatRooms.add(room);
-        room.addJoinListener(this);
         return room;
     }
     
@@ -255,20 +253,6 @@ public class MockMultiUserChat
     public boolean isMultiChatSupportedByContact(Contact contact)
     {
         throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    /**
-     * Indicates that a new
-     * {@link net.java.sip.communicator.service.protocol.ChatRoom} has been
-     * joined.
-     *  
-     * @param event the <tt>ChatRoomJoinedEvent</tt> containing the
-     * <tt>ChatRoom</tt> that has been joined
-     */
-    public void chatRoomJoined(ChatRoomJoinedEvent event)
-    {
-        joinedChatRooms.add(event.getSourceChatRoom());
-        existingChatRooms.add(event.getSourceChatRoom());
     }
 
     /**
