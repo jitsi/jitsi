@@ -459,7 +459,7 @@ public class ServerStoredDetails
     /**
      * A detail containing any contact related images.
      */
-    public static class ImageDetail extends GenericDetail
+    public static class ImageDetail extends BinaryDetail
     {
         public ImageDetail(String detailDisplayName, byte[] image)
         {
