@@ -83,6 +83,11 @@ public class ConfigurationServiceImpl
      * corresponding node in the XMLDocument object.
      */
     private Map fileExtractedProperties = new Hashtable();
+    
+    /**
+     * Indicates whether the service is started or stopped.
+     */
+    private boolean started = false;
 
     /**
      * Sets the property with the specified name to the specified value. Calling
@@ -352,6 +357,14 @@ public class ConfigurationServiceImpl
         changeEventDispatcher.removeVetoableChangeListener(propertyName,
             listener);
     }
+    
+    /**
+     * Called on service stop.
+     */
+    void stop()
+    {
+        this.started = false;
+    }
 
     /**
      * Initializes the configuration service impl and makes it load an initial
@@ -359,6 +372,8 @@ public class ConfigurationServiceImpl
      */
     void start()
     {
+        this.started = true;
+        
         try
         {
             debugPrintSystemProperties();
@@ -445,11 +460,10 @@ public class ConfigurationServiceImpl
         }
     }
 
-    public void storeConfiguration()
+    public synchronized void storeConfiguration()
         throws IOException
     {
         storeConfiguration(getConfigurationFile());
-
     }
 
     private Document createPropertiesDocument()
@@ -483,6 +497,9 @@ public class ConfigurationServiceImpl
     private void storeConfiguration(File file)
         throws IOException
     {
+        if(!started)
+            throw new IllegalStateException("Service is stopped or has not been started");
+        
         //resolve the properties that were initially in the file - back to
         //the document.
 

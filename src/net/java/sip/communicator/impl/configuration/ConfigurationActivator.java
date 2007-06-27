@@ -50,6 +50,7 @@ public class ConfigurationActivator
     public void stop(BundleContext bundlecontext) throws Exception
     {
         logger.logEntry();
+        impl.stop();
         logger.info("The ConfigurationService stop method has been called.");
     }
 }
