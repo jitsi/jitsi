@@ -46,5 +46,6 @@
 	<classpathentry kind="lib" path="lib/os-specific/windows/installer-exclude/jmf.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/windows/installer-exclude/sound.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/windows/jdic_stub.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.apache.ant_1.6.5/lib/ant.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
