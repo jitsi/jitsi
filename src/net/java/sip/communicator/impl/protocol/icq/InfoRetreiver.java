@@ -72,7 +72,7 @@ public class InfoRetreiver
         Iterator iter = details.iterator();
         while (iter.hasNext())
         {
-            Object item = (Object) iter.next();
+            Object item = iter.next();
             if(detailClass.isInstance(item))
                 result.add(item);
         }
@@ -96,7 +96,7 @@ public class InfoRetreiver
         Iterator iter = details.iterator();
         while (iter.hasNext())
         {
-            Object item = (Object) iter.next();
+            Object item = iter.next();
             if(detailClass.equals(item.getClass()))
                 result.add(item);
         }

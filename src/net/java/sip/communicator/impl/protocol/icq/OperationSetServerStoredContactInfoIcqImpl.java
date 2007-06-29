@@ -35,6 +35,14 @@ public class OperationSetServerStoredContactInfoIcqImpl
      */
     public Iterator getDetailsAndDescendants(Contact contact, Class detailClass)
     {
+        if(detailClass.equals(ServerStoredDetails.ImageDetail.class) && 
+            contact.getImage() != null)
+        {
+            Vector res = new Vector();
+            res.add(new ServerStoredDetails.ImageDetail(
+                "Image", contact.getImage()));
+            return res.iterator();    
+        }
         return infoRetreiver.getDetailsAndDescendants(contact.getAddress(), detailClass);
     }
 
@@ -48,6 +56,14 @@ public class OperationSetServerStoredContactInfoIcqImpl
      */
     public Iterator getDetails(Contact contact, Class detailClass)
     {
+        if(detailClass.equals(ServerStoredDetails.ImageDetail.class) && 
+            contact.getImage() != null)
+        {
+            Vector res = new Vector();
+            res.add(new ServerStoredDetails.ImageDetail(
+                "Image", contact.getImage()));
+            return res.iterator();    
+        }
         return infoRetreiver.getDetails(contact.getAddress(), detailClass);
     }
 
@@ -60,6 +76,14 @@ public class OperationSetServerStoredContactInfoIcqImpl
      */
     public Iterator getAllDetailsForContact(Contact contact)
     {
-        return infoRetreiver.getContactDetails(contact.getAddress()).iterator();
+        List res = infoRetreiver.getContactDetails(contact.getAddress());
+        
+        if(contact.getImage() != null)
+        {
+            res.add(new ServerStoredDetails.ImageDetail(
+                "Image", contact.getImage()));
+        }
+
+        return res.iterator();
     }
 }
