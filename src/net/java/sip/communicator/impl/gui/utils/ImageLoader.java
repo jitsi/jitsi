@@ -188,6 +188,12 @@ public class ImageLoader {
     /**
      * The icon on the "Add contact" button in the <tt>QuickMenu</tt>.
      */
+    public static final ImageID ACCOUNT_ICON
+        = new ImageID("ACCOUNT_ICON");
+
+    /**
+     * The icon on the "Add contact" button in the <tt>QuickMenu</tt>.
+     */
     public static final ImageID QUICK_MENU_ADD_ICON
         = new ImageID("QUICK_MENU_ADD_ICON");
 
