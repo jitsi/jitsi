@@ -36,7 +36,7 @@ public class ConfigurationFrame
 
     private JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
 
-    private JPanel centerPanel = new JPanel(new BorderLayout());
+    private JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
 
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
@@ -155,33 +155,6 @@ public class ConfigurationFrame
         this.centerPanel.repaint();
 
     }
-
-    /**
-     * Calculates the size of the frame depending on the size of the largest
-     * contained form.
-     */
-//    public void recalculateSize()
-//    {
-//        double width = 0;
-//
-//        double height = 0;
-//
-//        for (int i = 0; i < configList.getSize(); i++)
-//        {
-//            ConfigurationForm configForm = (ConfigurationForm) configContainer
-//                    .get(i);
-//
-//            Component form = (Component)configForm.getForm();
-//            if (width < form.getPreferredSize().getWidth())
-//                width = form.getPreferredSize().getWidth();
-//
-//            if (height < form.getPreferredSize().getHeight())
-//                height = form.getPreferredSize().getHeight();
-//        }
-//
-//        this.mainPanel.setPreferredSize(new Dimension(
-//            (int) width + 150, (int) height + 100));
-//    }
 
     /**
      * Implements <code>ApplicationWindow.show</code> method.
