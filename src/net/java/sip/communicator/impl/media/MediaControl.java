@@ -452,6 +452,18 @@ public class MediaControl
                     , MediaException.INTERNAL_ERROR
                     , ex);
             }
+
+            //Changing buffer size. The default buffer size (for javasound) 
+            //is 125 milliseconds - 1/8 sec. On MacOS this leeds to exception and 
+            // no audio capture. 130 value of buffer fix the problem.
+            Control ctl = (Control)
+                dataSource.getControl("javax.media.control.BufferControl");
+
+            if(ctl != null) 
+            {
+                ((BufferControl)ctl).setBufferLength(130);//buffers in 
+            }
+
             sourceProcessor = Manager.createProcessor(dataSource);
             processorUtility.waitForState(sourceProcessor
                                           , Processor.Configured);
