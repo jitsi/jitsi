@@ -15,6 +15,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
@@ -33,7 +34,7 @@ public class ConfigurationFrame
 
     private TitlePanel titlePanel = new TitlePanel();
 
-    private JPanel mainPanel = new JPanel(new BorderLayout());
+    private JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
 
     private JPanel centerPanel = new JPanel(new BorderLayout());
 
@@ -64,6 +65,8 @@ public class ConfigurationFrame
 
         this.addDefaultForms();
 
+        this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        
         this.mainPanel.add(centerPanel, BorderLayout.CENTER);
 
         this.mainPanel.add(configList, BorderLayout.WEST);
@@ -80,6 +83,10 @@ public class ConfigurationFrame
             }
         });
 
+        buttonsPanel.setBorder(
+            BorderFactory.createMatteBorder(1, 0, 0, 0,
+                Constants.BLUE_GRAY_BORDER_COLOR));
+        
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         this.getContentPane().add(mainPanel);

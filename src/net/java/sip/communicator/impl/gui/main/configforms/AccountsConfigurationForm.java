@@ -216,7 +216,7 @@ public class AccountsConfigurationForm extends JPanel
      */
     public byte[] getIcon() {
         return ImageLoader.getImageInBytes(
-                ImageLoader.QUICK_MENU_ADD_ICON);
+                ImageLoader.ACCOUNT_ICON);
     }
 
     /**

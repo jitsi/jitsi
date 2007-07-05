@@ -22,7 +22,8 @@ import net.java.sip.communicator.util.*;
  * 
  * @author Yana Stamcheva
  */
-public class ConfigFormListCellRenderer extends JPanel 
+public class ConfigFormListCellRenderer
+    extends JPanel 
     implements ListCellRenderer
 {
     private Logger logger = Logger.getLogger(ConfigFormListCellRenderer.class);
@@ -60,11 +61,11 @@ public class ConfigFormListCellRenderer extends JPanel
 
         this.setOpaque(true);
         
-        this.setPreferredSize(new Dimension(80, 50));
+        this.setPreferredSize(new Dimension(100, 65));
 
-        this.setLayout(new GridLayout(0, 1));
+        this.setLayout(new BorderLayout(0, 0));
 
-        this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        this.setBorder(BorderFactory.createEmptyBorder(3, 3, 5, 3));
 
         this.textLabel.setFont(this.getFont().deriveFont(Font.BOLD, 10));
         
@@ -72,9 +73,9 @@ public class ConfigFormListCellRenderer extends JPanel
         
         this.textLabel.setHorizontalAlignment(JLabel.CENTER);
         
-        this.add(iconLabel);
+        this.add(iconLabel, BorderLayout.CENTER);
 
-        this.add(textLabel);
+        this.add(textLabel, BorderLayout.SOUTH);
     }
 
     /**

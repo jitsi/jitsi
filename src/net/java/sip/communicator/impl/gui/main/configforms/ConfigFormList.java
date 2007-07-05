@@ -7,9 +7,12 @@
 
 package net.java.sip.communicator.impl.gui.main.configforms;
 
+import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**
@@ -36,6 +39,9 @@ public class ConfigFormList
         this.setModel(listModel);
         
         this.addListSelectionListener(this);
+        
+        this.setBorder(BorderFactory
+            .createLineBorder(Constants.BLUE_GRAY_BORDER_COLOR));
     }
 
     /**
