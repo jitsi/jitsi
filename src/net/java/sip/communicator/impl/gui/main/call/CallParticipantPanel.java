@@ -71,8 +71,7 @@ public class CallParticipantPanel extends JPanel
         this.participantName = participantName;
         
         this.nameLabel.setText(participantName);
-                
-        this.startDate = new Date(System.currentTimeMillis());
+        
         this.timer = new Timer(1000, new CallTimerListener());
         this.timer.setRepeats(true);
         
@@ -108,7 +107,8 @@ public class CallParticipantPanel extends JPanel
      */
     public void startCallTimer()
     {
-        timer.start();
+        this.startDate = new Date(System.currentTimeMillis());
+        this.timer.start();
     }
     
     /**
@@ -116,7 +116,7 @@ public class CallParticipantPanel extends JPanel
      */
     public void stopCallTimer()
     {
-        timer.stop();
+        this.timer.stop();
     }
 
     /**
