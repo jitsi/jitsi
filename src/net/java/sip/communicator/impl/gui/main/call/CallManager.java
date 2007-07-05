@@ -36,11 +36,10 @@ import net.java.sip.communicator.util.*;
 
 public class CallManager
     extends JPanel
-    implements
-    ActionListener,
-    CallListener,
-    ListSelectionListener,
-    ChangeListener
+    implements  ActionListener,
+                CallListener,
+                ListSelectionListener,
+                ChangeListener
 {
     private Logger logger = Logger.getLogger(CallManager.class.getName());
 
@@ -171,7 +170,8 @@ public class CallManager
             // call button is pressed over an already open call panel
             if (selectedPanel != null
                 && selectedPanel instanceof CallPanel
-                && ((CallPanel) selectedPanel).getCall().getCallState() == CallState.CALL_INITIALIZATION)
+                && ((CallPanel) selectedPanel).getCall()
+                    .getCallState() == CallState.CALL_INITIALIZATION)
             {
 
                 GuiActivator.getAudioNotifier().createAudio(Sounds.BUSY).stop();
@@ -185,8 +185,8 @@ public class CallManager
 
                 while (participantPanels.hasNext())
                 {
-                    CallParticipantPanel panel = (CallParticipantPanel) participantPanels
-                        .next();
+                    CallParticipantPanel panel
+                        = (CallParticipantPanel) participantPanels.next();
 
                     panel.setState("Connecting");
                 }
