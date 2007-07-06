@@ -90,26 +90,26 @@ public class CallListCellRenderer extends JPanel
         
         if (value instanceof GuiCallParticipantRecord) {
 
-            GuiCallParticipantRecord participant
+            GuiCallParticipantRecord callRecord
                 = (GuiCallParticipantRecord) value;
             
-            this.direction = participant.getDirection();
+            this.direction = callRecord.getDirection();
             
             if(direction.equals(GuiCallParticipantRecord.INCOMING_CALL))
                     iconLabel.setIcon(incomingIcon);
             else
                     iconLabel.setIcon(outgoingIcon);
             
-            this.nameLabel.setText(participant.getParticipantName());
+            this.nameLabel.setText(callRecord.getParticipantName());
             
             this.timeLabel.setText(
                     Messages.getI18NString("at").getText() + " " + 
                     GuiUtils.formatTime(
-                    participant.getStartTime()));
+                        callRecord.getStartTime()));
            
             this.durationLabel.setText(
                     Messages.getI18NString("duration").getText() + " " +
-                    GuiUtils.formatTime(participant.getCallTime()));
+                    GuiUtils.formatTime(callRecord.getDuration()));
             
             //this.nameLabel.setIcon(listModel
             //        .getMetaContactStatusIcon(contactItem));

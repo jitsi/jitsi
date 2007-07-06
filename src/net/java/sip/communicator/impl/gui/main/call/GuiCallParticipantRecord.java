@@ -30,12 +30,12 @@ public class GuiCallParticipantRecord
     
     private Date startTime;
     
-    private Date callTime;    
+    private Date callDuration;
     
     public GuiCallParticipantRecord(String participantName,
             String direction,
             Date startTime,
-            Date callTime)
+            Date callDuration)
     {
         this.direction = direction;
         
@@ -43,7 +43,7 @@ public class GuiCallParticipantRecord
         
         this.startTime = startTime;
         
-        this.callTime = callTime;
+        this.callDuration = callDuration;
     }
     
     public GuiCallParticipantRecord(CallParticipantRecord participantRecord,
@@ -55,7 +55,7 @@ public class GuiCallParticipantRecord
         
         this.startTime = participantRecord.getStartTime();
         
-        this.callTime = GuiUtils.substractDates(
+        this.callDuration = GuiUtils.substractDates(
                 participantRecord.getEndTime(), startTime);
     }
     
@@ -64,9 +64,14 @@ public class GuiCallParticipantRecord
         return direction;
     }
     
-    public Date getCallTime()
+    /**
+     * Returns the duration of the contained participant call.
+     * 
+     * @return the duration of the contained participant call
+     */
+    public Date getDuration()
     {
-        return callTime;
+        return callDuration;
     }
 
     public String getParticipantName()

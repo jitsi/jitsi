@@ -204,8 +204,9 @@ public class CallManager
 
                 CallListPanel callListPanel = (CallListPanel) selectedPanel;
 
-                GuiCallParticipantRecord callRecord = (GuiCallParticipantRecord) callListPanel
-                    .getCallList().getSelectedValue();
+                GuiCallParticipantRecord callRecord
+                    = (GuiCallParticipantRecord) callListPanel
+                        .getCallList().getSelectedValue();
 
                 String stringContact = callRecord.getParticipantName();
 
@@ -515,7 +516,6 @@ public class CallManager
 
         if (activeCalls.get(sourceCall) != null)
         {
-
             CallPanel callPanel = (CallPanel) activeCalls.get(sourceCall);
 
             this.removeCallPanelWait(callPanel);
@@ -766,38 +766,76 @@ public class CallManager
         {
             if (telephony == null)
                 return;
+            
+            Call createdCall = null;
 
-            try
+            if (contacts != null)
             {
-                Call createdCall;
-
-                if (contacts != null)
-                {
-                    // in the future here we will have the posibility to call
-                    // more than one contact
-                    Contact contact = (Contact) contacts.get(0);
-
-                    createdCall = telephony.createCall(contact);
+                Contact contact = (Contact) contacts.get(0);
+                
+                // NOTE: The multi user call is not yet implemented!
+                // We just get the first contact and create a call for him.
+                try
+                {   
+                    createdCall = telephony.createCall(contact);                        
                 }
-                else
-                    createdCall = telephony.createCall(stringContact);
+                catch (OperationFailedException e)
+                {
+                    logger.error("The call could not be created: " + e);
 
+                    callPanel.getParticipantPanel(contact.getDisplayName())
+                        .setState(e.getMessage());
+                    
+                    removeCallPanelWait(callPanel);
+                }
+                
+                // If the call is successfully created we set the created
+                // Call instance to the already existing CallPanel and we
+                // add this call to the active calls.
                 if (createdCall != null)
                 {
                     callPanel.setCall(createdCall,
                         GuiCallParticipantRecord.OUTGOING_CALL);
 
                     activeCalls.put(createdCall, callPanel);
+                }                                    
+            }
+            else
+            {
+                try
+                {
+                    createdCall = telephony.createCall(stringContact);    
                 }
-            }
-            catch (OperationFailedException e)
-            {
-                logger.error("The call could not be created: " + e);
-            }
-            catch (ParseException e)
-            {
-                logger.error("The call could not be created: " + e);
-            }
+                catch (ParseException e)
+                {
+                    logger.error("The call could not be created: " + e);
+
+                    callPanel.getParticipantPanel(stringContact)
+                        .setState(e.getMessage());
+
+                    removeCallPanelWait(callPanel);
+                }
+                catch (OperationFailedException e)
+                {
+                    logger.error("The call could not be created: " + e);
+                    
+                    callPanel.getParticipantPanel(stringContact)
+                        .setState(e.getMessage());
+
+                    removeCallPanelWait(callPanel);
+                }
+                
+                // If the call is successfully created we set the created
+                // Call instance to the already existing CallPanel and we
+                // add this call to the active calls.
+                if (createdCall != null)
+                {   
+                    callPanel.setCall(createdCall,
+                        GuiCallParticipantRecord.OUTGOING_CALL);
+
+                    activeCalls.put(createdCall, callPanel);
+                }
+            }                    
         }
     }
 

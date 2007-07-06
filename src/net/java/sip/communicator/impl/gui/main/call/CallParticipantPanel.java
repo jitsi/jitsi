@@ -38,9 +38,11 @@ public class CallParticipantPanel extends JPanel
     private JLabel photoLabel = new JLabel(new ImageIcon(
             ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)));
     
-    private Date startDate;
+    private Date callStartTime;
     
-    private Date callTime;
+    private Date conversationStartTime;
+    
+    private Date callDuration;
     
     private Timer timer;
     
@@ -68,6 +70,11 @@ public class CallParticipantPanel extends JPanel
     {
         super(new BorderLayout());
         
+        // Initialize the call start time. This date is meant to be used in
+        // the GuiCallParticipantRecord, which is added to the CallList after
+        // a call.
+        this.callStartTime = new Date(System.currentTimeMillis());
+        
         this.participantName = participantName;
         
         this.nameLabel.setText(participantName);
@@ -80,7 +87,7 @@ public class CallParticipantPanel extends JPanel
         //hour is intialized to 1.
         Calendar c = Calendar.getInstance();
         c.set(0, 0, 0, 0, 0, 0);
-        this.callTime = c.getTime();
+        this.callDuration = c.getTime();
         
         namePanel.add(nameLabel);
         namePanel.add(stateLabel);
@@ -107,7 +114,7 @@ public class CallParticipantPanel extends JPanel
      */
     public void startCallTimer()
     {
-        this.startDate = new Date(System.currentTimeMillis());
+        this.conversationStartTime = new Date(System.currentTimeMillis());
         this.timer.start();
     }
     
@@ -129,32 +136,47 @@ public class CallParticipantPanel extends JPanel
         {
             Date time = GuiUtils.substractDates(
                     new Date(System.currentTimeMillis()),
-                    startDate);
+                    conversationStartTime);
             
-            callTime.setTime(time.getTime());
+            callDuration.setTime(time.getTime());
             
             timeLabel.setText(GuiUtils.formatTime(time));
         }
     }
 
     /**
-     * Returns the start time of the contained participant call.
+     * Returns the start time of the conversation. If no conversation was made
+     * will return null.
      * 
-     * @return the start time of the contained participant call
+     * @return the start time of the conversation
      */
-    public Date getStartTime()
+    public Date getConversationStartTime()
     {        
-        return startDate;
+        return conversationStartTime;
     }
     
     /**
-     * Returns the start time of the contained participant call.
+     * Returns the start time of the contained participant call. Note that the
+     * start time of the call is different from the conversation start time.
+     * For example if we receive a call, the call start time is when the call
+     * is received and the conversation start time would be when we accept the
+     * call.
      * 
      * @return the start time of the contained participant call
      */
-    public Date getTime()
+    public Date getCallStartTime()
+    {        
+        return callStartTime;
+    }
+    
+    /**
+     * Returns the duration of the contained participant call.
+     * 
+     * @return the duration of the contained participant call
+     */
+    public Date getCallDuration()
     {
-        return callTime;
+        return callDuration;
     }
     
     /**
@@ -164,17 +186,29 @@ public class CallParticipantPanel extends JPanel
      */
     public String getCallType()
     {
-        if(callTime != null)
+        if(callDuration != null)
             return callType;
         else
             return GuiCallParticipantRecord.INCOMING_CALL;
     }
     
+    /**
+     * Sets the type of the call. Call type could be
+     * <tt>GuiCallParticipantRecord.INCOMING_CALL</tt> or
+     * <tt>GuiCallParticipantRecord.INCOMING_CALL</tt>.
+     * 
+     * @param callType the type of call to set
+     */
     public void setCallType(String callType)
     {
         this.callType = callType;
     }
     
+    /**
+     * Returns the name of the participant, contained in this panel.
+     * 
+     * @return the name of the participant, contained in this panel
+     */
     public String getParticipantName()
     {
         return participantName;
