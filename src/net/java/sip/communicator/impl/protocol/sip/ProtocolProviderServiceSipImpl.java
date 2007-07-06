@@ -162,6 +162,19 @@ public class ProtocolProviderServiceSipImpl
      * The default name of a server log file for the jain-sip RI.
      */
     private static String NSPVALUE_SERVER_LOG  = "log/sc-jainsipserver.log";
+    
+    /**
+     * The name of the property under which jain-sip will know if it must 
+     * deliver some unsolicited notify.
+     */
+    private static final String NSPNAME_DELIVER_UNSOLICITED_NOTIFY =
+        "gov.nist.javax.sip.DELIVER_UNSOLICITED_NOTIFY";
+    
+    /**
+     * The value of the property under which jain-sip will know if it must 
+     * deliver some unsolicited notify.
+     */
+    private static final String NSPVALUE_DELIVER_UNSOLICITED_NOTIFY = "true";
 
     /**
      * A random generator we use to generate tags.
@@ -545,6 +558,10 @@ public class ProtocolProviderServiceSipImpl
 
             // Log level
             properties.setProperty(NSPNAME_TRACE_LEVEL, NSPVALUE_TRACE_LEVEL);
+            
+            // deliver unsolicited NOTIFY
+            properties.setProperty(NSPNAME_DELIVER_UNSOLICITED_NOTIFY,
+                    NSPVALUE_DELIVER_UNSOLICITED_NOTIFY);
 
             try
             {
@@ -610,7 +627,7 @@ public class ProtocolProviderServiceSipImpl
 
             //init presence op set.
             OperationSetPersistentPresence opSetPersPresence
-                = new OperationSetPersistentPresenceSipImpl(this);
+                = new OperationSetPresenceSipImpl(this);
             this.supportedOperationSets.put(
                 OperationSetPersistentPresence.class.getName()
                 , opSetPersPresence);

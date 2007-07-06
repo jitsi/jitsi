@@ -112,10 +112,10 @@ public class TestAccountUninstallation
         collector2.waitForEvent(10000);
 
         assertEquals("Provider did not distribute unregister events"
-                     , 1
+                     , 2
                      , collector1.collectedNewStates.size());
         assertEquals("Provider did not distribute unregister events"
-                     , 1
+                     , 2
                      , collector1.collectedNewStates.size());
 
         //make sure both providers are now unregistered.

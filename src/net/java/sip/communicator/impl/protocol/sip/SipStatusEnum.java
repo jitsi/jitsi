@@ -42,6 +42,16 @@ public class SipStatusEnum
             30
             , "Do Not Disturb",
             loadIcon("resources/images/sip/sip16x16-dnd.png"));
+    
+    /**
+     * The Away  status. Indicates that the user has connectivity but might
+     * not be able to immediately act upon initiation of communication.
+     */
+    public static final SipStatusEnum AWAY
+        = new SipStatusEnum(
+            40,
+            "Away",
+            loadIcon("resources/images/sip/sip16x16-dnd.png"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -52,6 +62,15 @@ public class SipStatusEnum
             65
             , "Online"
             , loadIcon("resources/images/sip/sip16x16-online.png"));
+    
+    /**
+     * The Unknown status. Indicate that we don't know if the user is present
+     * or not.
+     */
+    public static final SipStatusEnum UNKNOWN = new SipStatusEnum(
+            1,
+            "Unknown",
+            loadIcon("resources/images/sip/sip16x16-offline.png"));
 
     /**
      * Initialize the list of supported status states.
@@ -60,6 +79,7 @@ public class SipStatusEnum
     static
     {
         supportedStatusSet.add(OFFLINE);
+        supportedStatusSet.add(AWAY);
         supportedStatusSet.add(DO_NOT_DISTURB);
         supportedStatusSet.add(ONLINE);
     }

@@ -476,6 +476,9 @@ public class SipRegistrarConnection
                 "Could not find the initial register request."
                 , OperationFailedException.INTERNAL_ERROR);
         }
+        
+        setRegistrationState(RegistrationState.UNREGISTERING,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
 
         //We are apparently registered so send a un-Register request.
         Request unregisterRequest = (Request) registerRequest.clone();

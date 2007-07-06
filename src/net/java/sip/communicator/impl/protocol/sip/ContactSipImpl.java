@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.protocol.sip;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import javax.sip.*;
+
 /**
  * A simple, straightforward implementation of a SIP Contact. Since
  * the SIP protocol is not a real one, we simply store all contact details
@@ -18,6 +20,7 @@ import net.java.sip.communicator.util.*;
  * consulting the encapsulated object.
  *
  * @author Emil Ivov
+ * @author Benoit Pradelle
  */
 public class ContactSipImpl
     implements Contact
@@ -55,8 +58,24 @@ public class ContactSipImpl
      * Determines whether the contact has been resolved (i.e. we have a
      * confirmation that it is still on the server contact list).
      */
-    private boolean isResolved = true;
-
+    private boolean isResolved = false;
+    
+    /**
+     * Determines whether this contact can be resolved or if he will be
+     * never resolved (for example if he doesn't support SIMPLE)
+     */
+    private boolean isResolvable = true;
+    
+    /**
+     * Stores the dialog used for receiving the contact status
+     */
+    private Dialog clientDialog = null;
+    
+    /**
+     * Stores the dialog used for communicate our status to this contact
+     */
+    private Dialog serverDialog = null;
+    
     /**
      * Creates an instance of a meta contact with the specified string used
      * as a name and identifier.
@@ -231,6 +250,50 @@ public class ContactSipImpl
     {
         return null;
     }
+    
+    /**
+     * Sets the client dialog associated with this contact.
+     * The client dialog is the dialog we use to retrieve the presence
+     * state of this contact.
+     * 
+     * @param clientDialog the new clientDialog to use
+     */
+    public void setClientDialog(Dialog clientDialog) {
+        this.clientDialog = clientDialog;
+    }
+    
+    /**
+     * Returns the client dialog associated with this contact.
+     * The client dialog is the dialog we use to retrieve the presence
+     * state of this contact.
+     * 
+     * @return the clientDialog associated with the contact
+     */
+    public Dialog getClientDialog() {
+        return this.clientDialog;
+    }
+    
+    /**
+     * Sets the server dialog associated with this contact.
+     * The server dialog is the dialog we use to send our presence status
+     * to this contact.
+     * 
+     * @param serverDialog the new clientDialog to use
+     */
+    public void setServerDialog(Dialog serverDialog) {
+        this.serverDialog = serverDialog;
+    }
+    
+    /**
+     * Returns the server dialog associated with this contact.
+     * The server dialog is the dialog we use to send our presence status
+     * to this contact.
+     * 
+     * @return the clientDialog associated with the contact
+     */
+    public Dialog getServerDialog() {
+        return this.serverDialog;
+    }
 
     /**
      * Determines whether or not this contact has been resolved against the
@@ -244,7 +307,7 @@ public class ContactSipImpl
      */
     public boolean isResolved()
     {
-        return isResolved;
+        return this.isResolved;
     }
 
     /**
@@ -256,6 +319,29 @@ public class ContactSipImpl
     public void setResolved(boolean resolved)
     {
         this.isResolved = resolved;
+    }
+    
+    /**
+     * Determines whether or not this contact can be resolved against the
+     * server.
+     *
+     * @return true if the contact can be resolved (mapped against a buddy)
+     * and false otherwise.
+     */
+    public boolean isResolvable()
+    {
+        return this.isResolvable;
+    }
+
+    /**
+     * Makes the contact resolvable or unresolvable.
+     *
+     * @param resolvable  true to make the contact resolvable; false to
+     * make it unresolvable
+     */
+    public void setResolvable(boolean resolvable)
+    {
+        this.isResolvable = resolvable;
     }
 
     /**

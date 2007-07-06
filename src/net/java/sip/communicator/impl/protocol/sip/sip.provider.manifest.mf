@@ -4,6 +4,7 @@ Bundle-Description: A bundle that implements the Protocol Provider package over 
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 Import-Package: org.osgi.framework,
+ org.w3c.dom,
  net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.configuration.event,
@@ -12,4 +13,8 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.netaddr,
  net.java.sip.communicator.service.media,
  net.java.sip.communicator.service.media.event,
- javax.net.ssl
+ javax.net.ssl,
+ javax.xml.parsers,
+ javax.xml.transform,
+ javax.xml.transform.dom,
+ javax.xml.transform.stream

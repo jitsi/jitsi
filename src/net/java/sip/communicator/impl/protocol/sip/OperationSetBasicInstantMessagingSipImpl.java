@@ -46,7 +46,7 @@ public class OperationSetBasicInstantMessagingSipImpl
      * A reference to the persistent presence operation set that we use
      * to match incoming messages to <tt>Contact</tt>s and vice versa.
      */
-    private OperationSetPersistentPresenceSipImpl opSetPersPresence = null;
+    private OperationSetPresenceSipImpl opSetPersPresence = null;
 
     /**
      * Hashtable containing the CSeq of each discussion
@@ -576,7 +576,7 @@ public class OperationSetBasicInstantMessagingSipImpl
 
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                opSetPersPresence = (OperationSetPersistentPresenceSipImpl)
+                 opSetPersPresence = (OperationSetPresenceSipImpl)
                     sipProvider.getSupportedOperationSets()
                     .get(OperationSetPersistentPresence.class.getName());
             }
