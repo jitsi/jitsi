@@ -24,8 +24,8 @@ import org.w3c.dom.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.protocol.jabberconstants.JabberStatusEnum;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.xml.*;
 
 /**
  * Sip presence implementation (SIMPLE).
@@ -3167,11 +3167,11 @@ public class OperationSetPresenceSipImpl
                  
                  Element contact = (Element) contactNode;
                  ContactSipImpl sipcontact = (ContactSipImpl)
-                     resolveContactID(contact.getTextContent());
+                     resolveContactID(getTextContent(contact));
                  
                  if (sipcontact == null) {
                      logger.debug("no contact found for id: " +
-                             contact.getTextContent());
+                             getTextContent(contact));
                      continue;
                  }
                  
@@ -3232,7 +3232,7 @@ public class OperationSetPresenceSipImpl
                  
                  Element basic = (Element) basicNode;
 
-                 if (basic.getTextContent().equalsIgnoreCase(ONLINE_STATUS)) {
+                 if (getTextContent(basic).equalsIgnoreCase(ONLINE_STATUS)) {
                      // search for a <note> that can define a more precise
                      // status this is not recommended by RFC3863 but some im 
                      // clients use this.
@@ -3249,7 +3249,7 @@ public class OperationSetPresenceSipImpl
                          
                          Element note = (Element) noteNode;
                          
-                         String state = note.getTextContent();
+                         String state = getTextContent(note);
                          
                          // away ?
                          if (state.equalsIgnoreCase(SipStatusEnum.AWAY
@@ -3265,7 +3265,7 @@ public class OperationSetPresenceSipImpl
                          changePresenceStatusForContact(sipcontact,
                              SipStatusEnum.ONLINE);
                      }
-                 } else if (basic.getTextContent().equalsIgnoreCase(
+                 } else if (getTextContent(basic).equalsIgnoreCase(
                          OFFLINE_STATUS))
                  {
                      changePresenceStatusForContact(sipcontact,
@@ -3273,6 +3273,24 @@ public class OperationSetPresenceSipImpl
                  }
              }
          }
+     }
+     
+     /**
+      * Secured call to XMLUtils.getText (no null returned but an empty string)
+      * 
+      * @param node the node with which call <tt>XMLUtils.getText()</tt>
+      * 
+      * @return the string contained in the node or an empty string if there is
+      * no text information in the node.
+      */
+     private String getTextContent(Element node) {
+         String res = XMLUtils.getText(node);
+         
+         if (res == null) {
+             return "";
+         }
+         
+         return res;
      }
      
      /**
