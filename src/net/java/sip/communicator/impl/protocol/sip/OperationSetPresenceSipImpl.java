@@ -3217,7 +3217,7 @@ public class OperationSetPresenceSipImpl
                  index = basicList.getLength() - 1;
                  Node basicNode = null;
                  do {
-                     Node temp = statusList.item(index);
+                     Node temp = basicList.item(index);
                      if (temp.getNodeType() == Node.ELEMENT_NODE) {
                          basicNode = temp;
                          break;
@@ -3287,6 +3287,7 @@ public class OperationSetPresenceSipImpl
          String res = XMLUtils.getText(node);
          
          if (res == null) {
+             logger.warn("no text for element '" + node.getNodeName() + "'");
              return "";
          }
          
