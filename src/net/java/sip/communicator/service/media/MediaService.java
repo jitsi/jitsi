@@ -61,9 +61,11 @@ public interface MediaService
      * data. A CallSession would autodestroy when the <tt>Call</tt> it
      * encapsulates enters the CALL_ENDED <tt>CallState</tt>.
      * <p>
+     *
      * @param call the Call that we'll be encapsulating in the newly created
      * session.
      * @return a <tt>CallSession</tt> encapsulating <tt>call</tt>.
+     *
      * @throws MediaException with code IO_ERROR if we fail allocating ports.
      */
     public CallSession createCallSession(Call call)
