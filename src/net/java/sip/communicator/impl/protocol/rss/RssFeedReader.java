@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
  * The class used for using the Informa Library into the RSS protocol
  *
  * @author Jean-Albert Vescovo
+ * @author Mihai Balan
  */
 public class RssFeedReader
 {
@@ -65,7 +66,7 @@ public class RssFeedReader
     {
         this.rssURL = contactRssURL;
 
-        /** @todo should retrieve this from a resource file.*/
+        /* TODO should retrieve this from a resource file.*/
         this.title = "No feed avalaible !";
     }
 
@@ -103,7 +104,8 @@ public class RssFeedReader
         //chronological order
         items = (SyndEntry[]) (this.feed.getEntries()
                                .toArray(new SyndEntry[0]));
-        sortItems();
+        //sort items
+        Arrays.sort(items, syndEntryComparator);
 
         //if we don't understand the date format we don't want to handle
         //this feed
@@ -145,10 +147,13 @@ public class RssFeedReader
      */
     public synchronized String feedToString(Date latestRetrievedItemDate)
     {
+        String newsAbstract = null;
         StringBuffer printedFeed = new StringBuffer();
 
+        /* TODO move this in a resources file.*/
         if (items.length == 0)
-            return "No items currently available for this feed !";
+            return "<b>No items currently available for this feed !</b><br>";
+
 
         //go through the items list in reverse order so that we could stop
         //as soon as we reach items that we've already shown to the user.
@@ -157,35 +162,30 @@ public class RssFeedReader
             if (items[i].getPublishedDate()
                 .compareTo(latestRetrievedItemDate) > 0)
             {
-                printedFeed.insert(
-                    0
-                    , "\nAt " + items[i].getPublishedDate()
-                    + " - " + items[i].getTitle()
-                    + "\nLink: " + items[i].getLink() + "\n\n");
+                // Get the abstract of the news.
+                newsAbstract = items[i].getDescription().getValue();
+                // Forge the news to be displayed.
+                printedFeed.insert(0, "At "
+                    + items[i].getPublishedDate()
+                    + "<br><strong>"+ items[i].getTitle() + "</strong>"
+                    + " <a href=\""+items[i].getLink()+"\">Link</a><br>");
             }
             else
             {
                 if (i == items.length - 1)
                 {
                     printedFeed
-                        .append("\n\nNo new articles in your feed since"
-                                + " last update.");
+                        .append("<strong>No new articles in your feed since"
+                                + " last update.</strong><br>");
+
                 }
                 break;
             }
         }
 
-        printedFeed.append ("\n\nSend anything to refresh this feed...");
+        printedFeed
+            .append ("<em>Send anything to refresh this feed...</em><br>\n");
         return printedFeed.toString();
-    }
-
-    /**
-     * Sorts the items retrieved from the rss contact/feed associated with this
-     * reader. The method uses a bubble sort algorithm.
-     */
-    private void sortItems()
-    {
-        Arrays.sort(items, syndEntryComparator);
     }
 
     /**

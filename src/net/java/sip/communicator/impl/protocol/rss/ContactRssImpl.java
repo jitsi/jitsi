@@ -12,10 +12,17 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import java.net.*;
 
+import com.ctreber.aclib.image.ico.*;
+import java.io.*;
+import java.awt.*;
+import javax.imageio.*;
+import java.awt.image.*;
+
 /**
  * An implementation of a rss Contact.
  *
  * @author Jean-Albert Vescovo
+ * @author Mihai Balan
  */
 public class ContactRssImpl
     implements Contact
@@ -29,6 +36,11 @@ public class ContactRssImpl
 
     private static SimpleDateFormat DATE_FORMATTER =
         new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss");
+
+    /**
+     * The path within the bundle for the default RSS 64x64 icon.
+     */
+    private String defaultIconPath = "resources/images/rss/rss64x64.png";
 
     /**
      * The source flow for this contact.
@@ -200,14 +212,124 @@ public class ContactRssImpl
     }
 
     /**
-     * Returns a byte array containing an image (most often a photo or an
-     * avatar) that the contact uses as a representation.
+     * Returns a byte array containing an image to represent the feed. This is
+     * acquired either via the <tt>favicon.ico</tt> file on the server where the
+     * feed resides, either a default standard RSS icon is returned.
      *
-     * @return byte[] an image representing the contact.
+     * @return byte[] the binary representation of the best available image in
+     * the icon, or null in case the image is invalid or inexistent.
      */
     public byte[] getImage()
     {
-        return null;
+        Image selectedIcon;
+
+        //we use these to get the best possible icon in case our favicon is a
+        //multi-page icon.
+        int maxWidth = 0;
+        int maxColors = 0;
+        int crtDescriptor = -1;
+
+        //used for ICO to PNG translation. Uses PNG as it's the "safest" choice.
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] result = null;
+
+        URL feedLocation = getRssURL();
+
+        //TODO: Fix aclico log4j-related errors
+
+        try
+        {
+            URL location = new URL(feedLocation.getProtocol() + "://"
+                    + feedLocation.getHost() + "/favicon.ico");
+            ICOFile favicon = new ICOFile(location);
+
+            logger.trace("Icon has " + favicon.getImageCount() + " pages");
+
+            for (int i = 0; i < favicon.getDescriptors().size(); i++)
+            {
+                BitmapDescriptor bmpDesc = favicon.getDescriptor(i);
+                if ((maxWidth < bmpDesc.getWidth()))
+                {
+                    maxWidth = bmpDesc.getWidth();
+                    maxColors = bmpDesc.getColorCount();
+                    crtDescriptor = i;
+                }
+
+                if ((maxColors < bmpDesc.getColorCount()))
+                {
+                    maxWidth = bmpDesc.getWidth();
+                    maxColors = bmpDesc.getColorCount();
+                    crtDescriptor = i;
+                }
+            }
+
+            //if icons is either invalid or contains no data, return the default
+            // RSS icon.
+            if (crtDescriptor == -1)
+            {
+                return getDefaultRssIcon();
+            }
+
+            selectedIcon = favicon.getDescriptor(crtDescriptor).getImageRGB();
+
+            //decode ICO as a PNG and return the result
+            ImageIO.write((BufferedImage)selectedIcon, "PNG", output);
+            result =  output.toByteArray();
+
+            logger.trace("Result has " + result.length + " bytes");
+            logger.trace("Icon is " + maxWidth + " px X " + maxWidth + " px @ "
+                    + maxColors + " colors");
+
+            output.close();
+            return result;
+        }
+        catch (MalformedURLException murlex)
+        {
+            //this shouldn't happen. Ever.
+            logger.error("Malformed URL " + murlex,
+                         murlex);
+        }
+        catch (IOException ioex)
+        {
+            logger.error("I/O Error on favicon retrieval. " + ioex,
+                         ioex);
+        }
+        return getDefaultRssIcon();
+    }
+
+    /**
+     * Returns the default icon in case the feed has no favicon on the server.
+     * Uses the <tt>defaultIconPath</tt> to locate the default icon to be
+     * displayed.
+     *
+     * @return binary representation of the default icon
+     */
+    private byte[] getDefaultRssIcon()
+    {
+        logger.trace("Loading default icon at " + defaultIconPath);
+
+        InputStream is = ContactRssImpl.class.getClassLoader()
+                .getResourceAsStream(defaultIconPath);
+
+        byte[] result = null;
+
+        //if something happened and the resource isn't at the specified location
+        //(messed jar-s, wrong filename, etc.) just return now
+        if (is == null)
+            return result;
+        try
+        {
+            logger.trace("Icon is "+is.available() + " bytes long");
+            result = new byte[is.available()];
+            is.read(result);
+        }
+        catch (IOException ioex)
+        {
+            logger.error("Error loading default icon at" + defaultIconPath,
+                         ioex);
+        }
+        return result;
+
     }
 
     /**
@@ -234,7 +356,7 @@ public class ContactRssImpl
     /**
      * Returns a reference to the protocol provider that created the contact.
      *
-     * @return a refererence to an instance of the ProtocolProviderService
+     * @return a reference to an instance of the ProtocolProviderService
      */
     public ProtocolProviderService getProtocolProvider()
     {

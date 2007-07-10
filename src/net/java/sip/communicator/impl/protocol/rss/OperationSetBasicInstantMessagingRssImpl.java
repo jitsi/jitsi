@@ -16,6 +16,7 @@ import net.java.sip.communicator.util.*;
  * Instant messaging functionalites for the Rss protocol.
  *
  * @author Jean-Albert Vescovo
+ * @author Mihai Balan
  */
 public class OperationSetBasicInstantMessagingRssImpl
     implements OperationSetBasicInstantMessaging,
@@ -97,8 +98,10 @@ public class OperationSetBasicInstantMessagingRssImpl
     public Message createMessage(byte[] content, String contentType,
                                  String contentEncoding, String subject)
     {
-        return new MessageRssImpl(new String(content), contentType
-                                       , contentEncoding, subject);
+        return new MessageRssImpl(new String(content),
+                                  contentType,
+                                  contentEncoding,
+                                  subject);
     }
 
     /**
@@ -110,9 +113,10 @@ public class OperationSetBasicInstantMessagingRssImpl
      */
     public Message createMessage(String messageText)
     {
-
-        return new MessageRssImpl(messageText, DEFAULT_MIME_TYPE
-                                        , DEFAULT_MIME_ENCODING, null);
+        return new MessageRssImpl(messageText,
+                                  "text/html",
+                                  DEFAULT_MIME_ENCODING,
+                                  null);
     }
 
     /**
@@ -356,9 +360,9 @@ public class OperationSetBasicInstantMessagingRssImpl
     {
         return false;
     }
-    
+
     /**
-     * Determines wheter the protocol supports the supplied content type
+     * Determines whether the protocol supports the supplied content type
      *
      * @param contentType the type we want to check
      * @return <tt>true</tt> if the protocol supports it and
@@ -367,6 +371,8 @@ public class OperationSetBasicInstantMessagingRssImpl
     public boolean isContentTypeSupported(String contentType)
     {
         if(contentType.equals(DEFAULT_MIME_TYPE))
+            return true;
+        else if(contentType.equals("text/html"))
             return true;
         else
            return false;
