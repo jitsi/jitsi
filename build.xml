@@ -170,9 +170,11 @@
     </path>
 
     <path id="project.class.path">
-        <pathelement location="${dest}"/>
-        <pathelement location="${lib}"/>
+		<pathelement location="${lib}"/>
 
+        <!-- Add this bundle to the global class path as we need
+             the ScLogFormatter there-->
+		<pathelement location="${bundles.dest}/util.jar"/>
         <!-- for mac specific plugins -->
         <pathelement location="/System/Library/Java"/>
 
@@ -190,6 +192,7 @@
 
     <path id="compile.class.path">
         <path refid="project.class.path"/>
+        <pathelement location="${dest}"/>
         <!-- Add all jmf's and jdic's to the compile class path to enable
              cross compilation. -->
         <fileset dir="${lib}">
@@ -753,10 +756,12 @@
                 value="false"/>
 
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-                                        value="${user.home}"/-->
+			                                        value="${user.home}"/-->
+
 
             <!-- Setting properties necessary for dependencies on native libs.-->
-            <sysproperty key="java.library.path" path="${ld.library.path}:${path}:${dyld.library.path}"/>
+            <sysproperty key="java.library.path"
+                path="${ld.library.path}:${path}:${dyld.library.path}"/>
             <env key="LD_LIBRARY_PATH" path="${ld.library.path}"/>
             <env key="PATH" path="${path}"/>
             <env key="DYLD_LIBRARY_PATH" path="${dyld.library.path}"/>
@@ -1312,8 +1317,8 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/gui"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
-        	<zipfileset dir="resources/images"
-        	                prefix="resources/images"/>
+            <zipfileset dir="resources/images"
+                            prefix="resources/images"/>
         </jar>
     </target>
 
@@ -1573,7 +1578,10 @@ javax.swing.event, javax.swing.border"/>
         <!-- LIBRARIES FOR RSS PROTOCOL, INCLUDING JDOM-1.0 AND ROME-0.9/-->
         <zipfileset src="${lib.noinst}/jdom.jar" prefix=""/>
         <zipfileset src="${lib.noinst}/rome-0.9.jar" prefix=""/>
+        <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
 
+        <!-- LIBRARY FOR FAVICON SUPPORT -->
+        <zipfileset src="${lib.noinst}/aclibico-2.1.jar" prefix=""/>
         <zipfileset dir="${resources}/images/rss"
                 prefix="resources/images/rss"/>
         </jar>
@@ -1604,7 +1612,6 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-
     <!-- BUNDLE-PLUGIN-ZEROCONFACCREGWIZZ -->
     <target name="bundle-plugin-zeroconfaccregwizz">
         <!-- Creates a bundle for the plugin Zeroconf Account Registration Wizard.-->
@@ -1614,6 +1621,18 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/zeroconfaccregwizz"/>
             <zipfileset dir="${resources}/images/zeroconf"
                             prefix="resources/images/zeroconf"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-LOG4J -->
+    <target name="bundle-log4j">
+        <jar compress="true" destfile="lib/bundle/log4j.jar"
+            filesetmanifest="merge">
+
+            <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
+            <manifest>
+                <attribute name="Export-Package" value="org.apache.log4j"/>
+            </manifest>
         </jar>
     </target>
 </project>
