@@ -13,14 +13,23 @@ import javax.sip.message.*;
  * rfc3261 suggests keeping callId->credentials mapping where as we map
  * realm->credentials. This is done to avoid asking the user for a password
  * before each call.
- * @author Emil Ivov <emcho@dev.java.net>
+ *
+ * @author Emil Ivov
+ * @author Nie Pin
  * @version 1.0
  */
 
 class CredentialsCache
 {
-    //Contains call->realms mappings
+    /**
+     * Contains call->realms mappings
+     */
     private Hashtable authenticatedRealms = new Hashtable();
+
+    /**
+     * Contains callid->authorization header mappings
+     */
+    private Hashtable authenticatedCalls =  new Hashtable();
 
     /**
      * Cache credentials for the specified call and realm
@@ -67,4 +76,32 @@ class CredentialsCache
     {
         authenticatedRealms.clear();
     }
+
+    /**
+     * Cache the bindings of call-id and authorization header.
+     *
+     * @param callid the id of the call that the <tt>authorization</tt> header
+     * belongs to.
+     * @param authorization the authorization header that we'd like to cache.
+     */
+    void cacheAuthorizationHeader(String callid,
+                                  AuthorizationHeader authorization)
+    {
+        authenticatedCalls.put(callid, authorization);
+    }
+
+    /**
+     * Returns an authorization header cached for the specified call id and null
+     * if no authorization header has been previously cached for this call.
+     *
+     * @param callid the call id that we'd like to retrive a cached
+     * authorization header for.
+     *
+     * @return authorization header corresponding to the specified callid
+     */
+    AuthorizationHeader getCachedAuthorizationHeader(String callid)
+    {
+        return (AuthorizationHeader)this.authenticatedCalls.get(callid);
+    }
+
 }
