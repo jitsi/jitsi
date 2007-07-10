@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.media;
 
 
-import java.net.*;
 import java.util.*;
 import javax.sdp.*;
 
@@ -44,6 +43,17 @@ public class MediaServiceImpl
      * to be used.
      */
     private boolean isStarted = false;
+
+    /**
+     * A flag indicating whether the media service implementation is currently
+     * in the process of being started.
+     */
+    private boolean isStarting = false;
+
+    /**
+     * The lock object that we use for synchronization during startup.
+     */
+    private Object startingLock = new Object();
 
     /**
      * Our event dispatcher.
@@ -86,9 +96,10 @@ public class MediaServiceImpl
     public CallSession createCallSession(Call call)
         throws MediaException
     {
-        CallSessionImpl callSession = new CallSessionImpl(call, this);
+        waitUntilStarted();
+        assertStarted();
 
-        callSession.initialize();
+        CallSessionImpl callSession = new CallSessionImpl(call, this);
 
         activeCallSessions.put(call, callSession);
 
@@ -122,15 +133,8 @@ public class MediaServiceImpl
      * could interoperate with other services.
      */
     public void start()
-        throws MediaException
     {
-        deviceConfiguration.initialize();
-        mediaControl.initialize(deviceConfiguration);
-
-        sdpFactory = SdpFactory.getInstance();
-
-        /** @todo fire media state change event. */
-        isStarted = true;
+        new DeviceConfigurationThread().run();
     }
 
     /**
@@ -147,7 +151,6 @@ public class MediaServiceImpl
             logger.error("Failed to properly close capture devices.", ex);
         }
         isStarted = false;
-        /** @todo fire media state change event. */
     }
 
     /**
@@ -156,7 +159,8 @@ public class MediaServiceImpl
      *
      * @return true if the media manager is initialized and false otherwise.
      */
-    public boolean isStarted() {
+    public boolean isStarted()
+    {
         return isStarted;
     }
 
@@ -247,12 +251,83 @@ public class MediaServiceImpl
         return deviceConfiguration;
     }
 
+    /**
+     * We use this thread to detect, initialize and configure all capture
+     * devices.
+     */
+    private class DeviceConfigurationThread
+        extends Thread
+    {
+        /**
+         * Sets a thread name and gives the thread a daemon status.
+         */
+        public DeviceConfigurationThread()
+        {
+            super("DeviceConfigurationThread");
+            setDaemon(true);
+        }
+
+        /**
+         * Initializes device configuration.
+         */
+        public void run()
+        {
+            synchronized(startingLock)
+            {
+                isStarting = true;
+
+                try
+                {
+                    deviceConfiguration.initialize();
+                    mediaControl.initialize(deviceConfiguration);
+                    sdpFactory = SdpFactory.getInstance();
+                    isStarted = true;
+                }
+                catch (Exception ex)
+                {
+                    logger.error("Failed to initialize media control", ex);
+                    isStarted = false;
+                }
+
+                isStarting = false;
+                startingLock.notifyAll();
+            }
+        }
+    }
+
+    /**
+     * A utility method that would block until the media service has been
+     * started or, in case it already is started, return immediately.
+     */
+    private void waitUntilStarted()
+    {
+        synchronized(startingLock)
+        {
+            if(!isStarting)
+            {
+                return;
+            }
+
+            try
+            {
+                startingLock.wait();
+            }
+            catch (InterruptedException ex)
+            {
+                logger.warn("Interrupted while waiting for the stack to start",
+                            ex);
+            }
+        }
+    }
 
 //------------------ main method for testing ---------------------------------
     /**
      * This method is here most probably only temporarily for the sache of
      * testing. @todo remove main method.
+     *
      * @param args String[]
+     *
+     * @throws java.lang.Throwable if it doesn't feel like executing today.
      */
     public static void main(String[] args)
         throws Throwable
