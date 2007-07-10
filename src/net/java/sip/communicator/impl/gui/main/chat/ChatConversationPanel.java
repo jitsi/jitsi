@@ -239,6 +239,8 @@ public class ChatConversationPanel
         String startDivTag = "<DIV id=\"message\">";
         String startHistoryDivTag
             = "<DIV id=\"message\" style=\"color:#707070;\">";
+        String startSystemDivTag
+            = "<DIV id=\"message\" style=\"color:#627EB7;\">";
         String endDivTag = "</DIV>";
 
         String startPlainTextTag;
@@ -297,7 +299,7 @@ public class ChatConversationPanel
         }
         else if (messageType.equals(Constants.SYSTEM_MESSAGE))
         {
-            chatString += startDivTag
+            chatString += startSystemDivTag
                 + startPlainTextTag
                 + formatMessage(message, contentType)
                 + endPlainTextTag
@@ -537,12 +539,19 @@ public class ChatConversationPanel
      */
     private String formatMessage(String message, String contentType)
     {
-        String linkProcessedString = processLinks(message, contentType);
+        String processedString = message;
+        
+        // If the message content type is HTML we won't process links and
+        // new lines, but only the smilies.
+        if (contentType == null || !contentType.equals(HTML_CONTENT_TYPE))
+        {   
+            String linkProcessedString = processLinks(message, contentType);
+            
+            processedString = processNewLines(linkProcessedString,
+                contentType);
+        }
 
-        String newLinesProcessedString = processNewLines(linkProcessedString,
-            contentType);
-
-        return processSmilies(newLinesProcessedString, contentType);
+        return processSmilies(processedString, contentType);
     }
 
     /**
@@ -553,19 +562,8 @@ public class ChatConversationPanel
      */
     private String processLinks(String message, String contentType)
     {
-        String startPlainTextTag;
-        String endPlainTextTag;
-
-        if (contentType != null && contentType.equals(HTML_CONTENT_TYPE))
-        {
-            startPlainTextTag = "";
-            endPlainTextTag = "";
-        }
-        else
-        {
-            startPlainTextTag = "<PLAINTEXT>";
-            endPlainTextTag = "</PLAINTEXT>";
-        }
+        String startPlainTextTag = "<PLAINTEXT>";
+        String endPlainTextTag = "</PLAINTEXT>";
 
         String wwwURL = "(\\bwww\\.\\S+\\.\\S+/*[?#]*(\\w+[&=;?]\\w+)*\\b)";
         String protocolURL = "(\\b\\w+://\\S+/*[?#]*(\\w+[&=;?]\\w+)*\\b)";
@@ -613,20 +611,9 @@ public class ChatConversationPanel
      */
     private String processNewLines(String message, String contentType)
     {
-        String startPlainTextTag;
-        String endPlainTextTag;
-
-        if (contentType != null && contentType.equals(HTML_CONTENT_TYPE))
-        {
-            startPlainTextTag = "";
-            endPlainTextTag = "";
-        }
-        else
-        {
-            startPlainTextTag = "<PLAINTEXT>";
-            endPlainTextTag = "</PLAINTEXT>";
-        }
-
+        String startPlainTextTag = "<PLAINTEXT>";
+        String endPlainTextTag = "</PLAINTEXT>";
+        
         /*
          * <br> tags are needed to visualize a new line in the html format, but
          * when copied to the clipboard they are exported to the plain text
@@ -650,20 +637,9 @@ public class ChatConversationPanel
      */
     private String processSmilies(String message, String contentType)
     {
-        String startPlainTextTag;
-        String endPlainTextTag;
-
-        if (contentType != null && contentType.equals(HTML_CONTENT_TYPE))
-        {
-            startPlainTextTag = "";
-            endPlainTextTag = "";
-        }
-        else
-        {
-            startPlainTextTag = "<PLAINTEXT>";
-            endPlainTextTag = "</PLAINTEXT>";
-        }
-
+        String startPlainTextTag = "<PLAINTEXT>";
+        String endPlainTextTag = "</PLAINTEXT>";
+        
         ArrayList smiliesList = ImageLoader.getDefaultSmiliesPack();
 
         String regexp = "";
