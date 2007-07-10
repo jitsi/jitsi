@@ -238,7 +238,7 @@ public class JmDNS
 
         incomingListener = new Thread(
             new SocketListener(), "JmDNS.SocketListener");
-
+        incomingListener.setDaemon(true);
         // Bind to multicast socket
         openMulticastSocket(localHost);
         start(services.values());
@@ -1062,7 +1062,7 @@ public class JmDNS
                       && ((rec.getType() & DNSConstants.TYPE_TXT) != 0)
                       && ((rec.getClazz() & DNSConstants.CLASS_IN) != 0)))
                     {
-                        System.out.println("UPDATING CACHE !! ");
+                        logger.trace("UPDATING CACHE !! ");
                         isInformative = true;
                         cache.remove(c);
                         cache.add(rec);
