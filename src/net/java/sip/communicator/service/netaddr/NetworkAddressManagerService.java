@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.netaddr;
 
 import java.net.*;
+import java.io.*;
 
 /**
  * The NetworkAddressManagerService takes care of problems such as
@@ -53,22 +54,35 @@ public interface NetworkAddressManagerService
      * @param intendedDestination the destination that we'd like to use this
      * address with.
      * @param port the port whose mapping we are interested in.
+     *
      * @return a public address corresponding to the specified port or null if
      * all attempts to retrieve such an address have failed.
+     *
+     * @throws IOException if an error occurs while the underlying resolve lib
+     * is using sockets.
+     * @throws BindException if the port is already in use.
      */
     public InetSocketAddress getPublicAddressFor(
                                             InetAddress intendedDestination,
-                                            int         port);
+                                            int port)
+        throws IOException,
+               BindException;
 
     /**
      * Tries to obtain a mapped/public address for the specified port (possibly
      * by executing a STUN query).
      *
      * @param port the port whose mapping we are interested in.
+     *
      * @return a public address corresponding to the specified port or null
      *   if all attempts to retrieve such an address have failed.
+     *
+     * @throws IOException if an error occurs while stun4j is using sockets.
+     * @throws BindException if the port is already in use.
      */
-    public InetSocketAddress getPublicAddressFor(int port);
+    public InetSocketAddress getPublicAddressFor(int port)
+        throws IOException,
+               BindException;
 
     /**
       * Initializes the network address manager service implementation and
