@@ -14,7 +14,6 @@ package net.java.sip.communicator.service.audionotifier;
  * could be used.
  *
  * @author Yana Stamcheva
- * @author Emil Ivov
  */
 public interface AudioNotifierService
 {
