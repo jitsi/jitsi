@@ -251,10 +251,6 @@ public class OperationSetBasicTelephonySipImpl
                                 , ex);
                 }
             }
-
-            invite.setContent(
-                callSession.createSdpOffer(intendedDestination)
-                , contentTypeHeader);
         }
         catch (ParseException ex)
         {
