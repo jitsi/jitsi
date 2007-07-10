@@ -51,11 +51,11 @@ public class SIPCommTabbedPane
         
         this.setUI(new SIPCommTabbedPaneEnhancedUI());
 
-        if(!closingTabs)
-            this.setCloseIcon(false);
+        if(closingTabs)
+            this.setCloseIcon(true);
         
-        if(!maximizingTabs)
-            this.setMaxIcon(false);
+        if(maximizingTabs)
+            this.setMaxIcon(true);
         
         this.addChangeListener(this);
     }

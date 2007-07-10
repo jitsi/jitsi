@@ -91,9 +91,9 @@ public class SIPCommTabbedPaneUI extends BasicTabbedPaneUI {
 
     private boolean mousePressed = false;
 
-    private boolean isCloseButtonEnabled = true;
+    private boolean isCloseButtonEnabled = false;
 
-    private boolean isMaxButtonEnabled = true;
+    private boolean isMaxButtonEnabled = false;
 
     protected JPopupMenu actionPopupMenu;
 
