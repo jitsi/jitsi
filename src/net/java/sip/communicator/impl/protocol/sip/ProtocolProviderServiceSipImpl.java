@@ -21,7 +21,6 @@ import gov.nist.javax.sip.*;
 import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.address.*;
 import gov.nist.javax.sip.message.*;
-import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.impl.protocol.sip.security.*;
 
 /**
@@ -162,16 +161,16 @@ public class ProtocolProviderServiceSipImpl
      * The default name of a server log file for the jain-sip RI.
      */
     private static String NSPVALUE_SERVER_LOG  = "log/sc-jainsipserver.log";
-    
+
     /**
-     * The name of the property under which jain-sip will know if it must 
+     * The name of the property under which jain-sip will know if it must
      * deliver some unsolicited notify.
      */
     private static final String NSPNAME_DELIVER_UNSOLICITED_NOTIFY =
         "gov.nist.javax.sip.DELIVER_UNSOLICITED_NOTIFY";
-    
+
     /**
-     * The value of the property under which jain-sip will know if it must 
+     * The value of the property under which jain-sip will know if it must
      * deliver some unsolicited notify.
      */
     private static final String NSPVALUE_DELIVER_UNSOLICITED_NOTIFY = "true";
@@ -229,7 +228,6 @@ public class ProtocolProviderServiceSipImpl
     private static final String DEFAULT_TRANSPORT
         = "net.java.sip.communicator.impl.protocol.sip.DEFAULT_TRANSPORT";
 
-
     /**
      * Default number of times that our requests can be forwarded.
      */
@@ -249,7 +247,6 @@ public class ProtocolProviderServiceSipImpl
      * The header that we use to identify ourselves.
      */
     private UserAgentHeader userAgentHeader = null;
-
 
     /**
      * The sip address that we're currently behind (the one that corresponds to
@@ -503,7 +500,6 @@ public class ProtocolProviderServiceSipImpl
         sipSecurityManager.setSecurityAuthority(null);
     }
 
-
     /**
      * Initializes the service implementation, and puts it in a state where it
      * could interoperate with other services.
@@ -558,7 +554,7 @@ public class ProtocolProviderServiceSipImpl
 
             // Log level
             properties.setProperty(NSPNAME_TRACE_LEVEL, NSPVALUE_TRACE_LEVEL);
-            
+
             // deliver unsolicited NOTIFY
             properties.setProperty(NSPNAME_DELIVER_UNSOLICITED_NOTIFY,
                     NSPVALUE_DELIVER_UNSOLICITED_NOTIFY);
@@ -642,6 +638,12 @@ public class ProtocolProviderServiceSipImpl
             this.supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),
                 opSetBasicIM);
+
+            // init DTMF (from JM Heitz)
+            OperationSetDTMF opSetDTMF = new OperationSetDTMFSipImpl(this);
+            this.supportedOperationSets.put(
+                OperationSetDTMF.class.getName(), opSetDTMF);
+
 
             //create our own address.
             String ourUserID = (String)accountID.getAccountProperties()
@@ -1339,8 +1341,8 @@ public class ProtocolProviderServiceSipImpl
         {
             try
             {
-                genericContactHeader = getContactHeader( 
-                    sipRegistrarConnection.getRegistrarAddress(),  
+                genericContactHeader = getContactHeader(
+                    sipRegistrarConnection.getRegistrarAddress(),
                     sipRegistrarConnection.getRegistrarListeningPoint());
             }
             catch(OperationFailedException ex)
@@ -1373,17 +1375,16 @@ public class ProtocolProviderServiceSipImpl
         ContactHeader registrationContactHeader = null;
         try
         {
-            InetSocketAddress localAddress = SipActivator
-                .getNetworkAddressManagerService()
-                    .getPublicAddressFor(targetAddress
-                                         , srcListeningPoint.getPort());
+            //find the address to use with the target
+            InetAddress localAddress = SipActivator
+                .getNetworkAddressManagerService().getLocalHost(targetAddress);
 
             SipURI contactURI = addressFactory.createSipURI(
                 ((SipURI)ourSipAddress.getURI()).getUser()
-                , localAddress.getAddress().getHostAddress());
+                , localAddress.getHostAddress() );
 
             contactURI.setTransportParam(srcListeningPoint.getTransport());
-            contactURI.setPort(localAddress.getPort());
+            contactURI.setPort(srcListeningPoint.getPort());
             Address contactAddress = addressFactory.createAddress( contactURI );
 
             if (ourDisplayName != null)
