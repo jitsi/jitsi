@@ -3,6 +3,7 @@ package net.java.sip.communicator.impl.netaddr;
 import net.java.stun4j.*;
 import net.java.stun4j.message.*;
 import net.java.stun4j.stack.*;
+import java.io.*;
 
 /**
  * A utility used to flatten the multithreaded architecture of the Stack
@@ -74,7 +75,7 @@ class BlockingRequestSender
     public synchronized StunMessageEvent sendRequestAndWaitForResponse(
                                                     Request request,
                                                     StunAddress serverAddress)
-            throws StunException
+            throws StunException, IOException, IllegalArgumentException
     {
         stunProvider.sendRequest(request, serverAddress, apDescriptor,
                                  BlockingRequestSender.this);

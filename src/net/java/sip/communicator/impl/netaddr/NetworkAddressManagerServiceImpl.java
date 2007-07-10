@@ -15,6 +15,7 @@ import net.java.sip.communicator.util.*;
 import net.java.stun4j.*;
 import net.java.stun4j.client.*;
 import java.util.*;
+import java.io.*;
 
 
 /**
@@ -56,12 +57,12 @@ public class NetworkAddressManagerServiceImpl
      * The name of the property containing the stun server address.
      */
     private static final String PROP_STUN_SERVER_ADDRESS
-                            = "net.java.sip.communicator.STUN_SERVER_ADDRESS";
+                = "net.java.sip.communicator.impl.netaddr.STUN_SERVER_ADDRESS";
     /**
      * The port number of the stun server to use for NAT traversal
      */
     private static final String PROP_STUN_SERVER_PORT
-                            = "net.java.sip.communicator.STUN_SERVER_PORT";
+                = "net.java.sip.communicator.impl.netaddr.STUN_SERVER_PORT";
 
     /**
      * A stun4j address resolver
@@ -71,7 +72,7 @@ public class NetworkAddressManagerServiceImpl
     /**
      * Specifies whether or not STUN should be used for NAT traversal
      */
-    private boolean useStun = true;
+    private boolean useStun = false;
 
     /**
      * The address of the stun server that we're currently using.
@@ -136,53 +137,59 @@ public class NetworkAddressManagerServiceImpl
          String portStr = NetaddrActivator.getConfigurationService().getString(
              PROP_STUN_SERVER_PORT);
 
-         //we use the default stun server address only for chosing a public
-         //route and not for stun queries.
-         stunServerAddress = new StunAddress(DEFAULT_STUN_SERVER_ADDRESS
-                                             , DEFAULT_STUN_SERVER_PORT);
+         this.localHostFinderSocket = initRandomPortSocket();
 
          if (stunAddressStr == null
              || portStr == null)
          {
              useStun = false;
+             //we use the default stun server address only for chosing a public
+            //route and not for stun queries.
+            stunServerAddress = new StunAddress(DEFAULT_STUN_SERVER_ADDRESS
+                                               , DEFAULT_STUN_SERVER_PORT);
+            logger.info("Stun server address("
+                        +stunAddressStr+")/port("
+                        +portStr
+                        +") not set (or invalid). Disabling STUN.");
+
          }
          else
          {
-
-             port = Integer.valueOf(portStr).intValue();
+            try
+            {
+                port = Integer.valueOf(portStr).intValue();
+            }
+            catch (NumberFormatException ex)
+            {
+                logger.error(portStr + " is not a valid port number. "
+                             +"Defaulting to 3478",
+                             ex);
+                port = 3478;
+            }
 
              stunServerAddress = new StunAddress(stunAddressStr, port);
              detector = new SimpleAddressDetector(stunServerAddress);
 
              if (logger.isDebugEnabled())
+             {
                  logger.debug(
                      "Created a STUN Address detector for the following "
                      + "STUN server: "
                      + stunAddressStr + ":" + port);
-
-             try
-             {
-                 detector.start();
-                 logger.debug("STUN server started;");
              }
-             catch (StunException ex)
-             {
-                 logger.error(
-                     "Failed to start the STUN Address Detector. " +
-                     detector.toString(), ex);
-                 logger.debug("Disabling stun and continuing bravely!");
-                 detector = null;
-                 useStun = false;
-             }
+             detector.start();
+             logger.debug("STUN server detector started;");
 
              //make sure that someone doesn't set invalid stun address and port
              NetaddrActivator.getConfigurationService().addVetoableChangeListener(
                  PROP_STUN_SERVER_ADDRESS, this);
              NetaddrActivator.getConfigurationService().addVetoableChangeListener(
                  PROP_STUN_SERVER_PORT, this);
-         }
 
-         initializeLocalHostFinderSocket();
+             //now start a thread query to the stun server and only set the
+             //useStun flag to true if it succeeds.
+             launchStunServerTest();
+         }
      }
 
      /**
@@ -229,15 +236,18 @@ public class NetworkAddressManagerServiceImpl
      * @return an InetAddress instance representing the local host, and that
      * a socket can bind upon or distribute to peers as a contact address.
      */
-    public InetAddress getLocalHost(InetAddress intendedDestination)
+    public synchronized InetAddress getLocalHost(InetAddress intendedDestination)
     {
         //no point in making sure that the localHostFinderSocket is initialized.
         //better let it through a NullPointerException.
+        InetAddress localHost = null;
+System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4bb4bb");
         localHostFinderSocket.connect(intendedDestination
                                       , this.RANDOM_ADDR_DISC_PORT);
-        InetAddress localHost = localHostFinderSocket.getLocalAddress();
+System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4c4c");
+        localHost = localHostFinderSocket.getLocalAddress();
         localHostFinderSocket.disconnect();
-
+System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4d4d");
         //windows socket implementations return the any address so we need to
         //find something else here ... InetAddress.getLocalHost seems to work
         //better on windows so lets hope it'll do the trick.
@@ -246,7 +256,7 @@ public class NetworkAddressManagerServiceImpl
             try
             {
                 //all that's inside the if is an ugly IPv6 hack
-                //(good ol' IPv6 - always causing more problems that it solves.)
+                //(good ol' IPv6 - always causing more problems than it solves.)
                 if (intendedDestination instanceof Inet6Address)
                 {
                     //return the first globally routable ipv6 address we find
@@ -287,6 +297,7 @@ public class NetworkAddressManagerServiceImpl
             }
         }
 
+System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4e4e");
         return localHost;
     }
 
@@ -297,33 +308,57 @@ public class NetworkAddressManagerServiceImpl
      * port)
      * @return StunAddress the address returned by the stun server or null
      * if an error occurred or no address was returned
+     *
+     * @throws IOException if an error occurs while stun4j is using sockets.
+     * @throws BindException if the port is already in use.
      */
     private StunAddress queryStunServer(int port)
+        throws IOException, BindException
     {
-
-        try{
-            logger.logEntry();
-            StunAddress mappedAddress = null;
-            if (detector != null && useStun) {
-                try {
-                    mappedAddress = detector.getMappingFor(port);
-                    if (logger.isDebugEnabled())
-                        logger.debug("For port:"
-                                     + port + "a Stun server returned the "
-                                     +"following mapping [" + mappedAddress);
-                }
-                catch (StunException ex) {
-                    logger.error(
-                        "Failed to retrive mapped address port:" +port, ex);
-                    mappedAddress = null;
-                }
-            }
-            return mappedAddress;
+        StunAddress mappedAddress = null;
+        if (detector != null && useStun)
+        {
+            mappedAddress = detector.getMappingFor(port);
+            if (logger.isDebugEnabled())
+                logger.debug("For port:"
+                             + port + "a Stun server returned the "
+                             + "following mapping [" + mappedAddress);
         }
-        finally{
-            logger.logExit();
-        }
+        return mappedAddress;
     }
+
+    /**
+     * The method queries a Stun server for a binding for the port and address
+     * that <tt>sock</tt> is bound on.
+     * @param sock the socket whose port and address we'dlike to resolve (the
+     * stun message gets sent trhough that socket)
+     *
+     * @return StunAddress the address returned by the stun server or null
+     * if an error occurred or no address was returned
+     *
+     * @throws IOException if an error occurs while stun4j is using sockets.
+     * @throws BindException if the port is already in use.
+     */
+    private StunAddress queryStunServer(DatagramSocket sock)
+        throws IOException, BindException
+    {
+        StunAddress mappedAddress = null;
+        if (detector != null && useStun)
+        {
+            mappedAddress = detector.getMappingFor(sock);
+            if (logger.isTraceEnabled())
+            {
+                logger.trace("For socket with address "
+                             + sock.getLocalAddress().getHostAddress()
+                             + " and port "
+                             + sock.getLocalPort()
+                             + " the stun server returned the "
+                             + "following mapping [" + mappedAddress + "]");
+            }
+        }
+        return mappedAddress;
+    }
+
 
     /**
      * Tries to obtain a mapped/public address for the specified port (possibly
@@ -333,37 +368,49 @@ public class NetworkAddressManagerServiceImpl
      * @param port the port whose mapping we are interested in.
      * @return a public address corresponding to the specified port or null
      *   if all attempts to retrieve such an address have failed.
+     *
+     * @throws IOException if an error occurs while stun4j is using sockets.
+     * @throws BindException if the port is already in use.
      */
     public InetSocketAddress getPublicAddressFor(InetAddress dst, int port)
+        throws IOException, BindException
     {
-        try {
-            logger.logEntry();
-            if (!useStun) {
-                logger.debug(
-                    "Stun is disabled, skipping mapped address recovery.");
-                return new InetSocketAddress(getLocalHost(dst), port);
-            }
-            StunAddress mappedAddress = queryStunServer(port);
-            InetSocketAddress result = null;
-            if (mappedAddress != null)
-                result = mappedAddress.getSocketAddress();
-            else {
-                //Apparently STUN failed. Let's try to temporarily disble it
-                //and use algorithms in getLocalHost(). ... We should probably
-                //eveng think about completely disabling stun, and not only
-                //temporarily.
-                //Bug report - John J. Barton - IBM
-                InetAddress localHost = getLocalHost(dst);
-                result = new InetSocketAddress(localHost, port);
-            }
-            if (logger.isDebugEnabled())
-                logger.debug("Returning mapping for port:"
-                             + port +" as follows: " + result);
-            return result;
+        if (!useStun || (dst instanceof Inet6Address))
+        {
+            logger.debug(
+                "Stun is disabled for destination "
+                + dst
+                +", skipping mapped address recovery (useStun="
+                +useStun
+                +", IPv6@="
+                +(dst instanceof Inet6Address)
+                +").");
+            //we'll still try to bind though so that we could notify the caller
+            //if the port has been taken already.
+            DatagramSocket bindTestSocket = new DatagramSocket(port);
+            bindTestSocket.close();
+
+            //if we're here then the port was free.
+            return new InetSocketAddress(getLocalHost(dst), port);
         }
-        finally {
-            logger.logExit();
+        StunAddress mappedAddress = queryStunServer(port);
+        InetSocketAddress result = null;
+        if (mappedAddress != null)
+            result = mappedAddress.getSocketAddress();
+        else
+        {
+            //Apparently STUN failed. Let's try to temporarily disble it
+            //and use algorithms in getLocalHost(). ... We should probably
+            //eveng think about completely disabling stun, and not only
+            //temporarily.
+            //Bug report - John J. Barton - IBM
+            InetAddress localHost = getLocalHost(dst);
+            result = new InetSocketAddress(localHost, port);
         }
+        if (logger.isDebugEnabled())
+            logger.debug("Returning mapping for port:"
+                         + port +" as follows: " + result);
+        return result;
     }
 
     /**
@@ -371,10 +418,16 @@ public class NetworkAddressManagerServiceImpl
      * by executing a STUN query).
      *
      * @param port the port whose mapping we are interested in.
+     *
      * @return a public address corresponding to the specified port or null
      *   if all attempts to retrieve such an address have failed.
+     *
+     * @throws IOException if an error occurs while stun4j is using sockets.
+     * @throws BindException if the port is already in use.
      */
     public InetSocketAddress getPublicAddressFor(int port)
+        throws IOException,
+               BindException
     {
         return getPublicAddressFor(
                     this.stunServerAddress.getSocketAddress().getAddress()
@@ -481,12 +534,15 @@ public class NetworkAddressManagerServiceImpl
     }
 
     /**
-     * Initializes and binds the socket that we use when selecting local host
-     * address. The method would try to bind on a random port and retry 5 times
-     * until a free port is found.
+     * Initializes and binds a socket that on a random port number. The method
+     * would try to bind on a random port and retry 5 times until a free port
+     * is found.
+     *
+     * @return the socket that we have initialized on a randomport number.
      */
-    private void initializeLocalHostFinderSocket()
+    private DatagramSocket initRandomPortSocket()
     {
+        DatagramSocket resultSocket = null;
         String bindRetriesStr
             = NetaddrActivator.getConfigurationService().getString(
                 BIND_RETRIES_PROPERTY_NAME);
@@ -516,7 +572,7 @@ public class NetworkAddressManagerServiceImpl
         {
             try
             {
-                localHostFinderSocket = new DatagramSocket(currentlyTriedPort);
+                resultSocket = new DatagramSocket(currentlyTriedPort);
                 //we succeeded - break so that we don't try to bind again
                 break;
             }
@@ -526,8 +582,8 @@ public class NetworkAddressManagerServiceImpl
                 {
                     logger.fatal("An exception occurred while trying to create"
                                  + "a local host discovery socket.", exc);
-                    localHostFinderSocket = null;
-                    return;
+                    resultSocket = null;
+                    return null;
                 }
                 //port seems to be taken. try another one.
                 logger.debug("Port " + currentlyTriedPort
@@ -538,5 +594,64 @@ public class NetworkAddressManagerServiceImpl
                              + currentlyTriedPort);
             }
         }
+
+        return resultSocket;
+    }
+
+    /**
+     * Runs a test query agains the stun server. If it works we set useStun to
+     * true, otherwise we set it to false.
+     */
+    private void launchStunServerTest()
+    {
+        Thread stunServerTestThread
+            = new Thread("StunServerTestThread")
+        {
+            public void run()
+            {
+                DatagramSocket randomSocket = initRandomPortSocket();
+                try
+                {
+                    StunAddress stunAddress
+                        = detector.getMappingFor(randomSocket);
+                    randomSocket.disconnect();
+                    System.out.println(
+                        "heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeh1");
+                    if (stunAddress != null)
+                    {
+                        useStun = true;
+                        logger.trace(
+                            "StunServer check succeeded for server: "
+                            + detector.getServerAddress()
+                            + " and local port: "
+                            + randomSocket.getLocalPort());
+                    }
+                    else
+                    {
+                        useStun = false;
+                        logger.trace(
+                            "StunServer check failed for server: "
+                            + detector.getServerAddress()
+                            + " and local port: "
+                            + randomSocket.getLocalPort()
+                            + ". No address returned by server.");
+                    }
+                }
+                catch (Throwable ex)
+                {
+                    logger.error("Failed to run a stun query against "
+                                 + "server :" + detector.getServerAddress(),
+                                 ex);
+                    System.out.println(
+                        "heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeh2");
+                    if (randomSocket.isConnected())
+                        randomSocket.disconnect();
+                    useStun = false;
+                }
+            }
+        };
+        stunServerTestThread.setDaemon(true);
+        stunServerTestThread.start();
+
     }
 }

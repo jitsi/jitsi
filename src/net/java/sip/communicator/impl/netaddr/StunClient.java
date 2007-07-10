@@ -139,20 +139,20 @@ public class StunClient
      */
     public void shutDown()
     {
-        try
-        {
-            stunStack.removeNetAccessPoint(apDescriptor);
-        }
-        catch (StunException ex)
-        {
-            logger.warn("Failed to remove NetAP: "+apDescriptor.toString(), ex);
-        }
-        stunStack = null;
-        stunProvider = null;
-        apDescriptor = null;
-        requestSender = null;
-
-        this.started = false;
+//        try
+//        {
+//            stunStack.removeNetAccessPoint(apDescriptor);
+//        }
+//        catch (StunException ex)
+//        {
+//            logger.warn("Failed to remove NetAP: "+apDescriptor.toString(), ex);
+//        }
+//        stunStack = null;
+//        stunProvider = null;
+//        apDescriptor = null;
+//        requestSender = null;
+//
+//        this.started = false;
 
     }
 
@@ -162,16 +162,16 @@ public class StunClient
      */
     public void start() throws StunException
     {
-        stunStack = StunStack.getInstance();
-        stunStack.start();
-
-        stunStack.installNetAccessPoint(apDescriptor);
-
-        stunProvider = stunStack.getProvider();
-
-        requestSender = new BlockingRequestSender(stunProvider, apDescriptor);
-
-        started = true;
+//        stunStack = StunStack.getInstance();
+//        //stunStack.start();
+//
+//        stunStack.installNetAccessPoint(apDescriptor);
+//
+//        stunProvider = stunStack.getProvider();
+//
+//        requestSender = new BlockingRequestSender(stunProvider, apDescriptor);
+//
+//        started = true;
     }
 
     /**
@@ -192,8 +192,8 @@ public class StunClient
             CHANGE_REQUEST);
         changeRequest.setChangeIpFlag(false);
         changeRequest.setChangePortFlag(false);
-        StunMessageEvent evt =
-            requestSender.sendRequestAndWaitForResponse(request, serverAddress);
+        StunMessageEvent evt = null;
+//            requestSender.sendRequestAndWaitForResponse(request, serverAddress);
 
         return evt;
     }
@@ -217,8 +217,8 @@ public class StunClient
         changeRequest.setChangeIpFlag(true);
         changeRequest.setChangePortFlag(true);
 
-        StunMessageEvent evt =
-            requestSender.sendRequestAndWaitForResponse(request, serverAddress);
+        StunMessageEvent evt = null;
+//            requestSender.sendRequestAndWaitForResponse(request, serverAddress);
 
         return evt;
     }
@@ -241,8 +241,8 @@ public class StunClient
         changeRequest.setChangeIpFlag(false);
         changeRequest.setChangePortFlag(true);
 
-        StunMessageEvent evt =
-            requestSender.sendRequestAndWaitForResponse(request, serverAddress);
+        StunMessageEvent evt = null;
+//            requestSender.sendRequestAndWaitForResponse(request, serverAddress);
 
         return evt;
     }
