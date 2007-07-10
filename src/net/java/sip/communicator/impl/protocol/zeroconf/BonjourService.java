@@ -117,7 +117,7 @@ public class BonjourService extends Thread
         logger.debug("ZEROCONF: ServerSocket bound to port "+port);
 
         props.put("port.p2pj", Integer.toString(port));
-
+        this.setDaemon(true);
         this.start();
     }
 
@@ -198,7 +198,8 @@ public class BonjourService extends Thread
         {   logger.error(ex);  }
 
         changeStatus(ZeroconfStatusEnum.OFFLINE);
-        jmdns.close();
+        if(jmdns != null)
+            jmdns.close();
     }
 
     private ServerSocket createSocket(int port)
@@ -314,6 +315,7 @@ public class BonjourService extends Thread
         private String type, name;
         public AddThread(String type, String name)
         {
+            this.setDaemon(true);
             this.type = type;
             this.name = name;
             this.start();
@@ -362,7 +364,8 @@ public class BonjourService extends Thread
         String name = event.getName();
         String type = event.getType();
 
-        if (name.equals(id)) return;
+        if (name.equals(id))
+            return;
 
         logger.debug("BONJOUR: "+name
                           +"["+type+"] detected! Trying to get information...");
