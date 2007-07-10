@@ -227,6 +227,7 @@ public class SipRegistrarConnection
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
         }
+
         //Via Headers
          ArrayList viaHeaders = sipProvider.getLocalViaHeaders(
                 registrarAddress, getRegistrarListeningPoint());
@@ -308,6 +309,7 @@ public class SipRegistrarConnection
         //better there.
         try
         {
+
             contactHeader.setExpires(registrationsExpiration);
         }
         catch (InvalidArgumentException exc)
@@ -323,9 +325,9 @@ public class SipRegistrarConnection
         //Transaction
         try
         {
-            sipProvider.getJainSipStack().getSipProviders();
             regTrans = getRegistrarJainSipProvider().getNewClientTransaction(
                 request);
+
         }
         catch (TransactionUnavailableException ex)
         {
@@ -559,6 +561,21 @@ public class SipRegistrarConnection
                 setRegistrationState(
                     RegistrationState.UNREGISTERED
                     , RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+
+                //check whether there's a cached authorization header for this
+                //call id and if so - attach it to the request.
+                // add authorization header
+                CallIdHeader call = (CallIdHeader)unregisterRequest
+                    .getHeader(CallIdHeader.NAME);
+                String callid = call.getCallId();
+
+                AuthorizationHeader authorization = sipProvider
+                    .getSipSecurityManager()
+                        .getCachedAuthorizationHeader(callid);
+
+                if(authorization != null)
+                    unregisterRequest.addHeader(authorization);
+
 
                 //kill the registration tran in case it is still active
                 if (regTrans != null
@@ -964,7 +981,10 @@ public class SipRegistrarConnection
         setRegistrationState(
             RegistrationState.CONNECTION_FAILED
             , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
-            , "An error occurred while trying to connect to the server.");
+            , "An error occurred while trying to connect to the server."
+              + "[" + exceptionEvent.getHost() + "]:"
+              + exceptionEvent.getPort() + "/"
+              + exceptionEvent.getTransport());
     }
 
     /**
