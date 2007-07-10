@@ -41,7 +41,7 @@ public class ZeroconfStatusEnum
     public static final ZeroconfStatusEnum DO_NOT_DISTURB
         = new ZeroconfStatusEnum(
             30
-            ,"dnd",//, "Do Not Disturb",
+            ,"Do Not Disturb",//, "Do Not Disturb",
             loadIcon("resources/images/zeroconf/zeroconf-dnd.png"));
 
     /**
@@ -62,7 +62,7 @@ public class ZeroconfStatusEnum
     public static final ZeroconfStatusEnum ONLINE
         = new ZeroconfStatusEnum(
             65
-            ,"avail"//, "Online"
+            ,"Available"//, "Online"
             , loadIcon("resources/images/zeroconf/zeroconf-online.png"));
 
 
@@ -75,10 +75,10 @@ public class ZeroconfStatusEnum
         supportedStatusSet.add(OFFLINE);
         supportedStatusSet.add(DO_NOT_DISTURB);
 
-        /* INVISIBLE STATUS could be supported by unregistering JmDNS and 
+        /* INVISIBLE STATUS could be supported by unregistering JmDNS and
          * accepting unknown contacts' messages */
         //supportedStatusSet.add(INVISIBLE);
-        
+
         supportedStatusSet.add(ONLINE);
     }
 
@@ -111,18 +111,18 @@ public class ZeroconfStatusEnum
      * @param status String representation of the status
      * @return ZeroconfStatusEnum corresponding the supplied String value
      */
-    static ZeroconfStatusEnum statusOf(String status) 
+    static ZeroconfStatusEnum statusOf(String status)
     {
         Iterator statusIter = supportedStatusSet();
         while (statusIter.hasNext())
         {
             ZeroconfStatusEnum state = (ZeroconfStatusEnum)statusIter.next();
-            if (state.statusName.equalsIgnoreCase(status)) 
+            if (state.statusName.equalsIgnoreCase(status))
                 return state;
         }
         return null;
     }
-    
+
     /**
      * Loads an image from a given image path.
      * @param imagePath The path to the image resource.
