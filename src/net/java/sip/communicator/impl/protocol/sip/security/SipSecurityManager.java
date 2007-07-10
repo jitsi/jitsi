@@ -259,6 +259,17 @@ public class SipSecurityManager
             logger.debug("Created authorization header: " +
                          authorization.toString());
 
+            // get the unique Call-ID
+            CallIdHeader call = (CallIdHeader)reoriginatedRequest
+                .getHeader(CallIdHeader.NAME);
+
+            if(call != null)
+            {
+                String callid = call.getCallId();
+                cachedCredentials
+                    .cacheAuthorizationHeader (callid, authorization);
+            }
+
             reoriginatedRequest.addHeader(authorization);
         }
 
@@ -491,6 +502,20 @@ public class SipSecurityManager
         ccEntry.userCredentials.setPassword(password.toCharArray());
 
         return ccEntry;
+    }
+
+    /**
+     * Returns an authorization header cached against the specified
+     * <tt>callID</tt> or <tt>null</tt> if no auth. header has been previously
+     * cached for this callID.
+     *
+     * @param callID the ID of the call that we'd like to reString
+     * @return the <tt>AuthorizationHeader</tt> cached against the specified
+     * call ID or null if no such header has been cached.
+     */
+    public AuthorizationHeader getCachedAuthorizationHeader(String callID)
+    {
+        return this.cachedCredentials.getCachedAuthorizationHeader(callID);
     }
 
 }
