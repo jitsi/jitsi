@@ -82,9 +82,21 @@ public class CallSessionImpl
     private SessionAddress audioSessionAddress = null;
 
     /**
+     * The public address returned by the net address manager for the audio
+     * session address.
+     */
+    private InetSocketAddress audioPublicAddress = null;
+
+    /**
      * The session address that is used for video communication in this call.
      */
     private SessionAddress videoSessionAddress = null;
+
+    /**
+     * The public address returned by the net address manager for the video
+     * session address.
+     */
+    private InetSocketAddress videoPublicAddress = null;
 
     /**
      * The rtpManager that handles audio streams in this session.
@@ -104,12 +116,12 @@ public class CallSessionImpl
     /**
      * The minimum port number that we'd like our rtp managers to bind upon.
      */
-    private int minPortNumber = 5000;
+    private static int minPortNumber = 5000;
 
     /**
      * The maximum port number that we'd like our rtp managers to bind upon.
      */
-    private int maxPortNumber = 6000;
+    private static int maxPortNumber = 6000;
 
     /**
      * The name of the property indicating the length of our receive buffer.
@@ -140,6 +152,8 @@ public class CallSessionImpl
     {
         this.call = call;
         this.mediaServCallback = mediaServCallback;
+        call.addCallChangeListener(this);
+        initializePortNumbers();
     }
 
     /**
@@ -706,10 +720,6 @@ public class CallSessionImpl
             NetworkAddressManagerService netAddressManager
                 = MediaActivator.getNetworkAddressManagerService();
 
-            InetSocketAddress publicVideoAddress = null;
-
-            InetSocketAddress publicAudioAddress = null;
-
             if(offer != null)
             {
                 Connection c = offer.getConnection();
@@ -724,38 +734,22 @@ public class CallSessionImpl
                     {
                         logger.warn("error reading remote sdp. "
                                     + c.toString()
-                                    + " is not a valid connection parameter.");
+                                    + " is not a valid connection parameter.",
+                                    ex);
                     }
                     catch (UnknownHostException ex)
                     {
                         logger.warn("error reading remote sdp. "
                                     + c.toString()
-                                    + " does not contain a valid address.");
+                                    + " does not contain a valid address.",
+                                    ex);
                     }
                 }
             }
 
-            //in case we have managed to find out the intended destination,
-            //use it for selecting a local address.
-            if(intendedDestination != null)
-            {
-                publicVideoAddress
-                    = netAddressManager.getPublicAddressFor(
-                        intendedDestination, getVideoPort());
-                publicAudioAddress
-                    = netAddressManager.getPublicAddressFor(
-                        intendedDestination, getAudioPort());
-            }
-            else
-            {
-                //otherwise just try to get a default one.
-                publicVideoAddress
-                    = netAddressManager.getPublicAddressFor(getVideoPort());
-                publicAudioAddress
-                    = netAddressManager.getPublicAddressFor(getAudioPort());
+            allocateMediaPorts(intendedDestination);
 
-            }
-            InetAddress publicIpAddress = publicAudioAddress.getAddress();
+            InetAddress publicIpAddress = audioPublicAddress.getAddress();
 
             String addrType
                 = publicIpAddress instanceof Inet6Address
@@ -801,8 +795,8 @@ public class CallSessionImpl
 
             Vector mediaDescs
                 = createMediaDescriptions(offeredMediaDescriptions
-                                        , publicAudioAddress
-                                        , publicVideoAddress);
+                                        , audioPublicAddress
+                                        , videoPublicAddress);
 
             sessDescr.setMediaDescriptions(mediaDescs);
 
@@ -1100,12 +1094,14 @@ public class CallSessionImpl
 
     /**
      * Create the RTP managers and bind them on some ports.
-     *
-     * @throws MediaException if we fail to initialize rtp manager.
      */
-    public void initialize()
-        throws MediaException
+    private void initializePortNumbers()
     {
+        //first reset to default values
+        minPortNumber = 5000;
+        maxPortNumber = 6000;
+
+        //then set to anything the user might have specified.
         String minPortNumberStr = MediaActivator.getConfigurationService()
             .getString(MediaService.MIN_PORT_NUMBER_PROPERTY_NAME);
 
@@ -1130,37 +1126,79 @@ public class CallSessionImpl
             }catch (NumberFormatException ex){
                 logger.warn(maxPortNumberStr
                             + " is not a valid max port number value. "
-                            +"using max port " + maxPortNumber);
+                            +"using max port " + maxPortNumber,
+                            ex);
             }
         }
-
-        audioSessionAddress = initializeRtpManager(audioRtpManager);
-        logger.debug("Bound audio rtp manager on port "
-                     + audioSessionAddress.getDataPort());
-
-        videoSessionAddress = initializeRtpManager(videoRtpManager);
-        logger.debug("Bound video rtp manager on port "
-                     + videoSessionAddress.getDataPort());
-
-        call.addCallChangeListener(this);
     }
 
     /**
-     * Allocates a local port for the RTP manager and calls its initialize
-     * method.
+     * Allocates a local port for the RTP manager, tries to obtain a public
+     * address for it and after succeeding makes the network address manager
+     * protect the address until we are ready to bind on it.
      *
-     * @param rtpManager the RTPManager to initialize.
-     * @return the SessionAddress address that <tt>rtpManager</tt> was bound
-     * upon.
+     * @param intendedDestination a destination that the rtp manager would be
+     * communicating with.
+     * @param sessionAddress the sessionAddress that we're locally bound on.
+     * @param bindRetries the number of times that we need to retry a bind.
+     *
+     * @return the SocketAddress the public address that the network address
+     * manager returned for the session address that we're bound on.
+     *
      * @throws MediaException if we fail to initialize rtp manager.
      */
-    private SessionAddress initializeRtpManager(RTPManager rtpManager)
+    private InetSocketAddress allocatePort(InetAddress intendedDestination,
+                                           SessionAddress sessionAddress,
+                                           int bindRetries)
         throws MediaException
     {
-        int port = minPortNumber;
-        //augment min port number so that no one else tries to bind here.
-        minPortNumber += 2;
+        InetSocketAddress publicAddress = null;
+        boolean initialized = false;
 
+        NetworkAddressManagerService netAddressManager
+                    = MediaActivator.getNetworkAddressManagerService();
+
+
+
+        //try to initialize a public address for the rtp manager.
+        for (int i = bindRetries; i > 0; i--)
+        {
+            //first try to obtain a binding for the address.
+            try
+            {
+                publicAddress = netAddressManager
+                    .getPublicAddressFor(intendedDestination,
+                                         sessionAddress.getDataPort());
+                initialized =true;
+                break;
+            }
+            catch (IOException ex)
+            {
+                logger.warn("Retrying a bind because of a failure. "
+                            + "Failed Address is: "
+                            + sessionAddress.toString(), ex);
+
+                //reinit the session address we tried with and prepare to retry.
+                sessionAddress
+                    .setDataPort(sessionAddress.getDataPort()+2);
+                sessionAddress
+                    .setControlPort(sessionAddress.getControlPort()+2);
+            }
+
+        }
+
+        if(!initialized)
+            throw new MediaException("Failed to bind to a local port in "
+                                     + Integer.toString(bindRetries)
+                                     + " tries."
+                                     , MediaException.INTERNAL_ERROR);
+
+        return publicAddress;
+    }
+
+    private void allocateMediaPorts(InetAddress intendedDestination)
+        throws MediaException
+    {
         InetAddress inAddrAny = null;
 
         try
@@ -1168,10 +1206,6 @@ public class CallSessionImpl
             //create an ipv4 any address since it also works when accepting
             //ipv6 connections.
             inAddrAny = InetAddress.getByName(NetworkUtils.IN_ADDR_ANY);
-
-
-            /** @todo temp hack */
-            //inAddrAny = InetAddress.getLocalHost();
         }
         catch (UnknownHostException ex)
         {
@@ -1200,39 +1234,60 @@ public class CallSessionImpl
                         , ex);
         }
 
-        //try to initialize the rtp manager.
-        boolean initialized = false;
-        SessionAddress address = null;
-        for (int i = bindRetries; i > 0; i--)
+        //initialize audio rtp manager.
+        audioSessionAddress = new SessionAddress(inAddrAny, minPortNumber);
+        audioPublicAddress = allocatePort(intendedDestination,
+                                          audioSessionAddress,
+                                          bindRetries);
+
+        //augment min port number so that no one else tries to bind here.
+        minPortNumber = audioSessionAddress.getDataPort() + 2;
+
+        //initialize video rtp manager.
+        videoSessionAddress = new SessionAddress(inAddrAny, minPortNumber);
+        videoPublicAddress = allocatePort(intendedDestination,
+                                          videoSessionAddress,
+                                          bindRetries);
+
+        //augment min port number so that no one else tries to bind here.
+        minPortNumber = videoSessionAddress.getDataPort() + 2;
+
+        //if we have reached the max port number - reinit.
+        if(minPortNumber > maxPortNumber -2)
+            initializePortNumbers();
+
+        //now init the rtp managers and make them bind
+        initializeRtpManager(audioRtpManager, audioSessionAddress);
+        initializeRtpManager(videoRtpManager, videoSessionAddress);
+    }
+
+    /**
+     * Initializes the rtp manager so taht it would start listening on the
+     * <tt>address</tt> session address. The method also initializes the rtp
+     * manager buffer control.
+     *
+     * @param rtpManager the <tt>RTPManager</tt> to initialize.
+     * @param bindAddress the <tt>SessionAddress</tt> to use when initializing the
+     * RTPManager.
+     *
+     * @throws MediaException if we fail to initialize the rtp manager.
+     */
+    private void initializeRtpManager(RTPManager rtpManager,
+                                      SessionAddress bindAddress)
+        throws MediaException
+    {
+        try
         {
-            address = new SessionAddress(inAddrAny, port);
-            try
-            {
-                rtpManager.initialize(address);
-                initialized = true;
-                break;
-            }
-            catch (InvalidSessionAddressException exc)
-            {
-                logger.info("port " + port + " seemed busy. "
-                            +"Will retry with another port", exc);
-                //get a pair port number between minPortNumber and
-                //maxPortNumber.
-                port +=2;
-            }
-            catch (IOException exc)
-            {
-                logger.error("Failed to init an RTP manager.", exc);
-                throw new MediaException("Failed to init an RTP manager."
-                                         , MediaException.IO_ERROR
-                                         , exc);
-            }
+            rtpManager.initialize(bindAddress);
+        }
+        catch (Exception exc)
+        {
+            logger.error("Failed to init an RTP manager.", exc);
+            throw new MediaException("Failed to init an RTP manager."
+                                     , MediaException.IO_ERROR
+                                     , exc);
         }
 
-        if(!initialized)
-            throw new MediaException("Failed to bind to a local port in "
-                                     + bindRetriesStr + " tries."
-                                     , MediaException.INTERNAL_ERROR);
 
         //it appears that if we don't do this managers don't play
         // You can try out some other buffer size to see
@@ -1266,9 +1321,6 @@ public class CallSessionImpl
         rtpManager.addReceiveStreamListener(this);
         rtpManager.addSendStreamListener(this);
         rtpManager.addSessionListener(this);
-
-        return address;
-
     }
 
     /**
@@ -1322,6 +1374,15 @@ public class CallSessionImpl
 
             //remove ourselves as listeners from the call
             evt.getSourceCall().removeCallChangeListener(this);
+
+            RTPManager audioRtpMan = getAudioRtpManager();
+
+            if(audioRtpMan != null)
+                audioRtpMan.dispose();
+
+            RTPManager videoRtpMan = getVideoRtpManager();
+            if(videoRtpMan != null)
+                videoRtpMan.dispose();
         }
     }
 
@@ -1573,6 +1634,7 @@ if(vc != null)
     frame.setVisible(true);
     videoFrames.add(frame);
 }
+
         }
         if (ce instanceof StartEvent) {
             logger.debug("Received a StartEvent");
