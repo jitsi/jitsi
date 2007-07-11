@@ -793,6 +793,11 @@ public class CallSessionImpl
             if(offer != null)
                 offeredMediaDescriptions = offer.getMediaDescriptions(false);
 
+            logger.debug("Will create media descs with: audio public address="
+                         + audioPublicAddress
+                         + " and video public address="
+                         + videoPublicAddress);
+
             Vector mediaDescs
                 = createMediaDescriptions(offeredMediaDescriptions
                                         , audioPublicAddress
@@ -1239,6 +1244,9 @@ public class CallSessionImpl
         audioPublicAddress = allocatePort(intendedDestination,
                                           audioSessionAddress,
                                           bindRetries);
+
+        logger.debug("AudioSessionAddress="+audioSessionAddress);
+        logger.debug("AudioPublicAddress="+audioPublicAddress);
 
         //augment min port number so that no one else tries to bind here.
         minPortNumber = audioSessionAddress.getDataPort() + 2;
