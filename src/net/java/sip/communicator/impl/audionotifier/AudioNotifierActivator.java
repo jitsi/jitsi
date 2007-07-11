@@ -19,7 +19,7 @@ import org.osgi.framework.*;
  */
 public class AudioNotifierActivator implements BundleActivator
 {
-    private AudioNotifierImpl audioNotifier;
+    private AudioNotifierServiceImpl audioNotifier;
     
     private ConfigurationService configService;
     
@@ -35,7 +35,7 @@ public class AudioNotifierActivator implements BundleActivator
     {
         try {
             //Create the audio notifier service
-            audioNotifier = new AudioNotifierImpl();
+            audioNotifier = new AudioNotifierServiceImpl();
 
             ServiceReference configReference = bundleContext
                 .getServiceReference(ConfigurationService.class.getName());
