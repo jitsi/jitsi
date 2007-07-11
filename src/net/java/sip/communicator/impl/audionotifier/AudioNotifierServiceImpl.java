@@ -13,27 +13,27 @@ import net.java.sip.communicator.service.audionotifier.*;
 
 /**
  * The implementation of the AudioNotifierService.
- * 
+ *
  * @author Yana Stamcheva
  */
-public class AudioNotifierImpl
+public class AudioNotifierServiceImpl
     implements AudioNotifierService
 {
-    
+
     private static Map audioClips = new HashMap();
-    
+
     private boolean isMute;
-   
+
     /**
-     * Creates an SCAudioClip from the given uri and adds it to the list of 
+     * Creates an SCAudioClip from the given uri and adds it to the list of
      * available audios.
-     * 
+     *
      * @param uri the path where the audio file could be found
      */
     public SCAudioClip createAudio(String uri)
     {
         SCAudioClip audioClip;
-        
+
         synchronized (audioClips)
         {
             if(audioClips.containsKey(uri))
@@ -42,21 +42,21 @@ public class AudioNotifierImpl
             }
             else
             {
-                URL url = AudioNotifierImpl.class.getClassLoader()
+                URL url = AudioNotifierServiceImpl.class.getClassLoader()
                     .getResource(uri);
-                
+
                 audioClip = new SCAudioClipImpl(url, this);
-                
-                audioClips.put(uri, audioClip);            
-            }            
+
+                audioClips.put(uri, audioClip);
+            }
         }
-        
+
         return audioClip;
     }
 
     /**
-     * Removes the given audio from the list of available audio clips. 
-     * 
+     * Removes the given audio from the list of available audio clips.
+     *
      * @param audioClip the audio to destroy
      */
     public void destroyAudio(SCAudioClip audioClip)
@@ -68,24 +68,24 @@ public class AudioNotifierImpl
 
     /**
      * Enables or disables the sound in the application. If FALSE, we try to
-     * restore all looping sounds if any. 
-     * 
-     * @param isMute when TRUE disables the sound, otherwise enables the sound. 
+     * restore all looping sounds if any.
+     *
+     * @param isMute when TRUE disables the sound, otherwise enables the sound.
      */
     public void setMute(boolean isMute)
     {
         this.isMute = isMute;
-        
+
         Iterator audios = audioClips.entrySet().iterator();
-            
+
         while (audios.hasNext())
         {
             SCAudioClipImpl audioClip
                 = (SCAudioClipImpl) ((Map.Entry) audios.next()).getValue();
-            
+
             if (isMute)
             {
-                audioClip.internalStop();                
+                audioClip.internalStop();
             }
             else
             {
@@ -96,7 +96,7 @@ public class AudioNotifierImpl
             }
         }
     }
-    
+
     /**
      * Returns TRUE if the sound is currently disabled, FALSE otherwise.
      * @return TRUE if the sound is currently disabled, FALSE otherwise
@@ -104,5 +104,5 @@ public class AudioNotifierImpl
     public boolean isMute()
     {
         return isMute;
-    }    
+    }
 }
