@@ -107,7 +107,6 @@ public class NetworkAddressManagerServiceImpl
     public static final String BIND_RETRIES_PROPERTY_NAME
         = "net.java.sip.communicator.service.netaddr.BIND_RETRIES";
 
-
     /**
      * Default STUN server address.
      */
@@ -241,13 +240,10 @@ public class NetworkAddressManagerServiceImpl
         //no point in making sure that the localHostFinderSocket is initialized.
         //better let it through a NullPointerException.
         InetAddress localHost = null;
-System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4bb4bb");
         localHostFinderSocket.connect(intendedDestination
                                       , this.RANDOM_ADDR_DISC_PORT);
-System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4c4c");
         localHost = localHostFinderSocket.getLocalAddress();
         localHostFinderSocket.disconnect();
-System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4d4d");
         //windows socket implementations return the any address so we need to
         //find something else here ... InetAddress.getLocalHost seems to work
         //better on windows so lets hope it'll do the trick.
@@ -297,7 +293,6 @@ System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             }
         }
 
-System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4e4e");
         return localHost;
     }
 
@@ -615,8 +610,6 @@ System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     StunAddress stunAddress
                         = detector.getMappingFor(randomSocket);
                     randomSocket.disconnect();
-                    System.out.println(
-                        "heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeh1");
                     if (stunAddress != null)
                     {
                         useStun = true;
@@ -642,8 +635,6 @@ System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     logger.error("Failed to run a stun query against "
                                  + "server :" + detector.getServerAddress(),
                                  ex);
-                    System.out.println(
-                        "heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeh2");
                     if (randomSocket.isConnected())
                         randomSocket.disconnect();
                     useStun = false;
