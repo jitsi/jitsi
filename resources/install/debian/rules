@@ -52,22 +52,22 @@ install: build
 	cp $(BASEDIR)/lib/*.jar debian/sip-communicator/usr/share/sip-communicator/lib/
 	cp $(BASEDIR)/resources/install/logging.properties debian/sip-communicator/usr/share/sip-communicator/lib/
 	cp $(BASEDIR)/lib/felix.client.run.properties debian/sip-communicator/usr/share/sip-communicator/lib/
-	cp $(BASEDIR)/lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar debian/sip-communicator/usr/share/sip-communicator/lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar
-	cp $(BASEDIR)/lib/bundle/log4j.jar debian/sip-communicator/usr/share/sip-communicator/lib/bundle/log4j.jar
+	cp -r $(BASEDIR)/lib/bundle debian/sip-communicator/usr/share/sip-communicator/lib/
 
-	#Copy OS specific and native libs
+	# Copy OS specific and native libs
 	cp $(BASEDIR)/lib/os-specific/linux/*.jar debian/sip-communicator/usr/share/sip-communicator/lib/
 	cp -r $(BASEDIR)/lib/native/linux debian/sip-communicator/usr/share/sip-communicator/lib/native
 
-
-	#Copy SIP Communicator bundles
+	# Copy SIP Communicator bundles
 	cp $(BASEDIR)/sc-bundles/*.jar debian/sip-communicator/usr/share/sip-communicator/sc-bundles
 	cp $(BASEDIR)/sc-bundles/os-specific/linux/*.jar debian/sip-communicator/usr/share/sip-communicator/sc-bundles
 	install -m 755 debian/sip-communicator.sh debian/sip-communicator/usr/bin/sip-communicator
 
-	# Remove all slicks and CVS info.
+	# Remove all slicks, CVS info and unnecessary librairies.
 	rm debian/sip-communicator/usr/share/sip-communicator/sc-bundles/*-slick.jar
 	rm -rf debian/sip-communicator/usr/share/sip-communicator/lib/native/CVS
+	rm -rf debian/sip-communicator/usr/share/sip-communicator/lib/bundle/CVS
+	rm debian/sip-communicator/usr/share/sip-communicator/lib/bundle/junit.jar
 
 	# Make felix deploy its bundles in ~/.felix/sip-communicator.bin
 	sed -i -e "s/felix.cache.profiledir=sip-communicator.bin/felix.cache.profile=sip-communicator.bin/" debian/sip-communicator/usr/share/sip-communicator/lib/felix.client.run.properties
