@@ -756,7 +756,7 @@
                 value="false"/>
 
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-			                                        value="${user.home}"/-->
+                    value="${user.home}"/-->
 
 
             <!-- Setting properties necessary for dependencies on native libs.-->

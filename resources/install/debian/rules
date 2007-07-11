@@ -53,6 +53,7 @@ install: build
 	cp $(BASEDIR)/resources/install/logging.properties debian/sip-communicator/usr/share/sip-communicator/lib/
 	cp $(BASEDIR)/lib/felix.client.run.properties debian/sip-communicator/usr/share/sip-communicator/lib/
 	cp $(BASEDIR)/lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar debian/sip-communicator/usr/share/sip-communicator/lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar
+	cp $(BASEDIR)/lib/bundle/log4j.jar debian/sip-communicator/usr/share/sip-communicator/lib/bundle/log4j.jar
 
 	#Copy OS specific and native libs
 	cp $(BASEDIR)/lib/os-specific/linux/*.jar debian/sip-communicator/usr/share/sip-communicator/lib/
