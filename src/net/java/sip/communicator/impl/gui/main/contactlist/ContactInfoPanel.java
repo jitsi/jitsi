@@ -20,8 +20,10 @@ import net.java.sip.communicator.service.contactlist.*;
  * 
  * @author Yana Stamcheva
  */
-public class ContactInfoPanel extends JDialog 
-    implements WindowFocusListener {
+public class ContactInfoPanel
+    extends JDialog
+    implements WindowFocusListener
+{
 
     private JPanel protocolsPanel = new JPanel(new GridLayout(0, 1));
 
@@ -31,10 +33,12 @@ public class ContactInfoPanel extends JDialog
 
     /**
      * Creates an instance of the <tt>ContactInfoPanel</tt>.
+     * 
      * @param owner The frame owner of this dialog.
      * @param contactItem The <tt>MetaContact</tt> for the info.
      */
-    public ContactInfoPanel(Frame owner, MetaContact contactItem) {
+    public ContactInfoPanel(Frame owner, MetaContact contactItem)
+    {
         super(owner);
 
         this.contactItem = contactItem;
@@ -68,7 +72,8 @@ public class ContactInfoPanel extends JDialog
     /**
      * Initializes the <tt>ContactInfoPanel</tt>.
      */
-    private void init() {
+    private void init()
+    {
         /*
          * String[] protocolList = this.contactItem.getC();
          * 
@@ -89,20 +94,24 @@ public class ContactInfoPanel extends JDialog
      * 
      * @return the panel containing all contact protocols' information.
      */
-    public JPanel getProtocolsPanel() {
+    public JPanel getProtocolsPanel()
+    {
         return protocolsPanel;
     }
 
-    public void windowGainedFocus(WindowEvent e) {
+    public void windowGainedFocus(WindowEvent e)
+    {
 
     }
 
-    public void windowLostFocus(WindowEvent e) {
+    public void windowLostFocus(WindowEvent e)
+    {
         this.setVisible(false);
         this.dispose();
     }
 
-    public void setPopupLocation(int x, int y) {
+    public void setPopupLocation(int x, int y)
+    {
         this.setLocation(x, y);
 
         this.bg.updateBackground(x, y);

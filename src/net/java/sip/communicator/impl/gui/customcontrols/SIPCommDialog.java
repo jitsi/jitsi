@@ -210,7 +210,8 @@ public abstract class SIPCommDialog extends JDialog
      */
     public void setVisible(boolean isVisible)
     {   
-        if(isVisible) {
+        if(isVisible)
+        {
             this.pack();
             
             if(isSaveSizeAndLocation)
