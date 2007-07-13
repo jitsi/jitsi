@@ -6,15 +6,17 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="210mm"
    height="297mm"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.42.2"
-   sodipodi:docbase="/home/yana"
-   sodipodi:docname="dialNumbers.svg">
+   inkscape:version="0.45"
+   sodipodi:docbase="/home/yana/workspace/DtmfGui4Sc/src/net/java/sip/communicator/impl/gui/resources/buttons/src"
+   sodipodi:docname="dialNumbers.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   sodipodi:modified="true">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -76,11 +78,11 @@
          sodipodi:role="line"
          id="tspan2055"
          x="217.97327"
-         y="387.20770"
+         y="387.2077"
          style="font-size:10.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1.0000000;font-family:Bitstream Vera Sans">xyz</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:12.000000px;font-style:normal;font-weight:normal;line-height:125.00000%;fill:#4c4c4c;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;line-height:125.00000%;fill:#ac9393;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="60.989277"
        y="257.87888"
        id="text2783"
@@ -92,7 +94,7 @@
          id="tspan2785"
          x="60.989277"
          y="257.87888"
-         style="font-size:16.000000px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#4c4c4c;fill-opacity:1.0000000;font-family:Bitstream Vera Sans">1</tspan></text>
+         style="font-size:16.000000px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#ac9393;fill-opacity:1.0000000;font-family:Bitstream Vera Sans">1</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;line-height:125.00000%;fill:#4c4c4c;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
@@ -165,7 +167,7 @@
        inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan2809"
-         x="56.881020"
+         x="56.88102"
          y="322.71796"
          style="font-size:16.000000px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#4c4c4c;fill-opacity:1.0000000;font-family:Bitstream Vera Sans">4</tspan></text>
     <text
@@ -181,7 +183,7 @@
          sodipodi:role="line"
          id="tspan2813"
          x="68.912621"
-         y="322.24670"
+         y="322.2467"
          style="font-size:10.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1.0000000;font-family:Bitstream Vera Sans">ghi</tspan></text>
     <text
        xml:space="preserve"
@@ -195,7 +197,7 @@
        inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan2817"
-         x="56.452370"
+         x="56.45237"
          y="385.87946"
          style="font-size:16.000000px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#4c4c4c;fill-opacity:1.0000000;font-family:Bitstream Vera Sans">7</tspan></text>
     <text
@@ -211,7 +213,7 @@
          sodipodi:role="line"
          id="tspan2821"
          x="66.483986"
-         y="385.40820"
+         y="385.4082"
          style="font-size:10.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#080505;fill-opacity:1.0000000;font-family:Bitstream Vera Sans">pqrs</tspan></text>
     <text
        xml:space="preserve"
@@ -226,7 +228,7 @@
          sodipodi:role="line"
          id="tspan2825"
          x="193.40056"
-         y="262.10880"
+         y="262.1088"
          style="font-size:16.000000px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#4c4c4c;fill-opacity:1.0000000;font-family:Bitstream Vera Sans">3</tspan></text>
     <text
        xml:space="preserve"

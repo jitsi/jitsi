@@ -45,7 +45,7 @@ public class MainTabbedPane extends SIPCommTabbedPane {
 
         callHistoryPanel = new CallListPanel(parent);
         
-        dialPanel = new DialPanel(parent);
+        dialPanel = new DialPanel(parent.getCallManager());
         
         chatRoomsListPanel = new ChatRoomsListPanel(parent);
                 
@@ -55,8 +55,7 @@ public class MainTabbedPane extends SIPCommTabbedPane {
         //chatRoomsListPanel);
         this.addTab(Messages.getI18NString("callList").getText(),
                     callHistoryPanel);
-        this.addTab(Messages.getI18NString("dial").getText(), dialPanel);        
-        
+        this.addTab(Messages.getI18NString("dial").getText(), dialPanel);
     }
 
     /**

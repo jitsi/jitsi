@@ -606,6 +606,19 @@ public class CallManager
     public void stateChanged(ChangeEvent e)
     {
         this.updateButtonsStateAccordingToSelectedPanel();
+        
+        Component selectedPanel = mainFrame.getSelectedTab();
+        if (selectedPanel == null || !(selectedPanel instanceof CallPanel))
+        {
+            Iterator callPanels = activeCalls.values().iterator();
+            
+            while(callPanels.hasNext())
+            {
+                CallPanel callPanel = (CallPanel) callPanels.next();
+                
+                callPanel.removeDialogs();
+            }
+        }
     }
 
     /**

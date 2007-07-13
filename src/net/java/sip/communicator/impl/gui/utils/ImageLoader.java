@@ -355,6 +355,12 @@ public class ImageLoader {
         = new ImageID("DIEZ_DIAL_BUTTON");
 
     /**
+     * A dial button icon. The icon shown in the CallParticipant panel. 
+     */
+    public static final ImageID DIAL_BUTTON
+        = new ImageID("DIAL_BUTTON");
+
+    /**
      * The image used, when a contact has no photo specified.
      */
     public static final ImageID DEFAULT_USER_PHOTO

@@ -147,10 +147,14 @@ public class CallPanel
         if(participantPanel == null)
         {
             participantPanel
-                = new CallParticipantPanel(participantName);
+                = new CallParticipantPanel(callManager, participantName);
     
             this.mainPanel.add(participantPanel);
             
+            // The participant panel should know when it is removed in order
+            // to hide all related open dialogs.
+            this.mainPanel.addContainerListener(participantPanel);
+
             participantPanel.setCallType(callType);
             
             this.participantsPanels.put(
@@ -176,9 +180,13 @@ public class CallPanel
         if(participantPanel == null)
         {
             participantPanel
-                = new CallParticipantPanel(participant);
+                = new CallParticipantPanel(callManager, participant);
     
             this.mainPanel.add(participantPanel);
+            
+            // The participant panel should know when it is removed in order
+            // to hide all related open dialogs.
+            this.mainPanel.addContainerListener(participantPanel);
             
             participantPanel.setCallType(callType);
             
@@ -367,6 +375,7 @@ public class CallPanel
         // Remove all previously added participant panels, because they do not
         // correspond to real participants.
         this.mainPanel.removeAll();
+        this.participantsPanels.clear();
         
         Iterator participants = call.getCallParticipants();
         
@@ -416,7 +425,7 @@ public class CallPanel
 
             //remove the participant panel from the list of panels
             participantsPanels.remove(participantWrapper);
-        }        
+        }
     }
 
     /**
@@ -427,6 +436,22 @@ public class CallPanel
     public Iterator getParticipantsPanels()
     {
         return participantsPanels.values().iterator();
+    }
+    
+    /**
+     * Removes all participant panels and related dialogs.
+     */
+    public void removeDialogs()
+    {
+        Iterator i = getParticipantsPanels();
+        
+        while(i.hasNext())
+        {
+            CallParticipantPanel participantPanel
+                = (CallParticipantPanel) i.next();
+            
+            participantPanel.removeDialogs();
+        }
     }
     
     /**
@@ -507,5 +532,5 @@ public class CallPanel
         }
         
         return null;
-    }    
+    }
 }

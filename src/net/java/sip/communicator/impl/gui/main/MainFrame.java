@@ -729,7 +729,11 @@ public class MainFrame
      */
     public void removeCallPanel(CallPanel callPanel)
     {
-        this.tabbedPane.remove(callPanel);
+        // Should remove all participant panels explicetly, thus removing also
+        // all related dialogs (like dialpad for example).
+        callPanel.removeDialogs();
+        
+        tabbedPane.remove(callPanel);
 
         Component c = getSelectedTab();
 
