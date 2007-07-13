@@ -243,7 +243,8 @@ public class CallManager
                                     Messages.getI18NString(
                                         "contactNotSupportingTelephony",
                                         new String[]
-                                        { contact.getDisplayName() }).getText(),
+                                        { ((MetaContact) o).getDisplayName() })
+                                            .getText(),
                                     Messages.getI18NString("warning").getText())
                                     .showDialog();
                             }
