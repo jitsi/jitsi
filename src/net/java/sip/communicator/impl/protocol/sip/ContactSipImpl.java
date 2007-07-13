@@ -10,6 +10,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import javax.sip.*;
+import java.util.*;
 
 /**
  * A simple, straightforward implementation of a SIP Contact. Since
@@ -75,6 +76,19 @@ public class ContactSipImpl
      * Stores the dialog used for communicate our status to this contact
      */
     private Dialog serverDialog = null;
+    
+    /**
+     * The task which will send a final NOTIFY when a timeout occur in the
+     * subscription of this contact. If the contact isn't subscribed at us,
+     * this will remain null.
+     */
+    private TimerTask timeoutTask = null;
+    
+    /**
+     * The task which will refresh the subscription we've made with this
+     * contact. If we didn't subscribe to this contact, it will remain null.
+     */
+    private TimerTask resfreshTask = null;
     
     /**
      * Creates an instance of a meta contact with the specified string used
@@ -250,7 +264,43 @@ public class ContactSipImpl
     {
         return null;
     }
+
+    /**
+     * Returns the current timeout task associated with this contact.
+     * 
+     * @return the current timeout task of this contact
+     */
+    public TimerTask getTimeoutTask() {
+        return this.timeoutTask;
+    }
     
+    /**
+     * Sets the timeout task associated with this contact
+     * 
+     * @param timeoutTask The timeout task to set
+     */
+    public void setTimeoutTask(TimerTask timeoutTask) {
+        this.timeoutTask = timeoutTask;
+    }
+
+    /**
+     * Returns the current refresh task associated with this contact.
+     * 
+     * @return The resfresh task
+     */
+    public TimerTask getResfreshTask() {
+        return this.resfreshTask;
+    }
+    
+    /**
+     * Changes the current refresh task of this contact.
+     * 
+     * @param resfreshTask The resfresh task to set
+     */
+    public void setResfreshTask(TimerTask resfreshTask) {
+        this.resfreshTask = resfreshTask;
+    }
+
     /**
      * Sets the client dialog associated with this contact.
      * The client dialog is the dialog we use to retrieve the presence
