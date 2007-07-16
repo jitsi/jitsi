@@ -284,7 +284,6 @@ public class ProtocolProviderFactorySipImpl
             reg.unregister();
         }
 
-        Enumeration idEnum = registeredAccounts.keys();
         registeredAccounts.clear();
     }
 
