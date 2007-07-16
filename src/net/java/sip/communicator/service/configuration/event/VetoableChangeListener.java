@@ -30,9 +30,9 @@ public interface VetoableChangeListener
      * This method gets called when a constrained property is about to change.
      * Note that the method only warns about the change and in case none of
      * the interested listeners vetos it (i.e. no PropertyVetoException
-     * is thrown) the propedrtyChange method will be called next to indicate
+     * is thrown) the propertyChange method will be called next to indicate
      * that the change has taken place. In case you don't want to be notified
-     * for pending changes over constained properties you should provide
+     * for pending changes over constrained properties you should provide
      * an empty implementation of the method.
      *
      * @param     evt a <tt>PropertyChangeEvent</tt> object describing the
