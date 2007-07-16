@@ -193,6 +193,22 @@ public class OperationSetPresenceSipImpl
     private static final String BASIC_ELEMENT   = "basic";
     private static final String CONTACT_ELEMENT = "contact";
     private static final String NOTE_ELEMENT    = "note";
+    
+    // rpid elements and attributes
+    private static final String RPID_NS_ELEMENT = "xmlns:rpid";
+    private static final String RPID_NS_VALUE   = 
+                                            "urn:ietf:params:xml:ns:pidf:rpid";
+    private static final String DM_NS_ELEMENT   = "xmlns:dm";
+    private static final String DM_NS_VALUE     = 
+                                    "urn:ietf:params:xml:ns:pidf:data-model";
+    private static final String PERSON_ELEMENT  = "person";
+    private static final String NS_PERSON_ELT   = "dm:person";
+    private static final String ACTIVITY_ELEMENT= "activities";
+    private static final String NS_ACTIVITY_ELT = "rpid:activities";
+    private static final String AWAY_ELEMENT    = "away";
+    private static final String NS_AWAY_ELT     = "rpid:away";
+    private static final String BUSY_ELEMENT    = "busy";
+    private static final String NS_BUSY_ELT     = "rpid:busy";
 
     /**
      * Creates an instance of this operation set keeping a reference to the
@@ -3309,9 +3325,29 @@ public class OperationSetPresenceSipImpl
          // <presence>
          Element presence = doc.createElement(PRESENCE_ELEMENT);
          presence.setAttribute(NS_ELEMENT, NS_VALUE);
+         presence.setAttribute(RPID_NS_ELEMENT, RPID_NS_VALUE);
+         presence.setAttribute(DM_NS_ELEMENT, DM_NS_VALUE);
          presence.setAttribute(ENTITY_ATTRIBUTE, contactUri);
          doc.appendChild(presence);
-
+         
+         // <person>
+         Element person = doc.createElement(NS_PERSON_ELT);
+         person.setAttribute(ID_ATTRIBUTE, "p" + String.valueOf(tupleid++));
+         presence.appendChild(person);
+         
+         // <activities>
+         Element activities = doc.createElement(NS_ACTIVITY_ELT);
+         person.appendChild(activities);
+         
+         // the correct activity
+         if (getPresenceStatus().equals(SipStatusEnum.AWAY)) {
+             Element away = doc.createElement(NS_AWAY_ELT);
+             activities.appendChild(away);
+         } else if (getPresenceStatus().equals(SipStatusEnum.DO_NOT_DISTURB)) {
+             Element busy = doc.createElement(NS_BUSY_ELT);
+             activities.appendChild(busy);
+         }
+         
          // <tuple>
          Element tuple = doc.createElement(TUPLE_ELEMENT);
          tuple.setAttribute(ID_ATTRIBUTE, String
@@ -3389,7 +3425,60 @@ public class OperationSetPresenceSipImpl
              return;
          }
          Element presence = (Element) presNode;
-
+         
+         // RPID area
+         
+         // due to a lot of changes in the past years to this functionality, 
+         // the namespace used by servers and clients are often wrong so we just
+         // ignore namespaces here
+         
+         SipStatusEnum personStatus = null;
+         NodeList personList = presence.getElementsByTagName(PERSON_ELEMENT);
+         
+         if (personList.getLength() > 1) {
+             logger.error("more than one person in this document");
+             return;
+         }
+         
+         if (personList.getLength() > 0) {
+             Node personNode = personList.item(0);
+             if (personNode.getNodeType() != Node.ELEMENT_NODE) {
+                 logger.error("the person node is not and element");
+                 return;
+             }
+             Element person = (Element) personNode;
+             
+             NodeList activityList = 
+                 person.getElementsByTagName(ACTIVITY_ELEMENT);
+             if (activityList.getLength() > 0) {
+                 Element activity = null;
+                 // find the first correct activity
+                 for (int i = 0; i < activityList.getLength(); i++) {
+                     Node activityNode = activityList.item(i);
+                     
+                     if (activityNode.getNodeType() != Node.ELEMENT_NODE) {
+                         continue;
+                     }
+                     
+                     if (activityNode.getNodeName().equals(AWAY_ELEMENT)
+                         || activityNode.getNodeName().equals(BUSY_ELEMENT))
+                     {
+                         activity = (Element) activityNode;
+                         break;
+                     }
+                 }
+                 
+                 // convert the activity in a SC status
+                 if (activity != null) {
+                     if (activity.getNodeName().equals(AWAY_ELEMENT)) {
+                         personStatus = SipStatusEnum.AWAY;
+                     } else if (activity.getNodeName().equals(BUSY_ELEMENT)) {
+                         personStatus = SipStatusEnum.DO_NOT_DISTURB;
+                     }
+                 }
+             }
+         }
+         
          // <tuple>
          NodeList tupleList = presence.getElementsByTagName(TUPLE_ELEMENT);
          for (int i = 0; i < tupleList.getLength(); i++) {
@@ -3420,6 +3509,12 @@ public class OperationSetPresenceSipImpl
                  if (sipcontact == null) {
                      logger.debug("no contact found for id: " +
                              getTextContent(contact));
+                     continue;
+                 }
+                 
+                 // if we use RPID, simply ignore the standard PIDF status
+                 if (personStatus != null) {
+                     changePresenceStatusForContact(sipcontact, personStatus);
                      continue;
                  }
 
@@ -3480,44 +3575,53 @@ public class OperationSetPresenceSipImpl
 
                  Element basic = (Element) basicNode;
 
-                 if (getTextContent(basic).equalsIgnoreCase(ONLINE_STATUS)) {
-                     // search for a <note> that can define a more precise
-                     // status this is not recommended by RFC3863 but some im
-                     // clients use this.
-                     NodeList noteList = tuple.getElementsByTagName(
-                             NOTE_ELEMENT);
+                 // search for a <note> that can define a more precise
+                 // status this is not recommended by RFC3863 but some im
+                 // clients use this.
+                 NodeList noteList = tuple.getElementsByTagName(NOTE_ELEMENT);
 
-                     boolean changed = false;
-                     for (int k = 0; k < noteList.getLength(); k++) {
-                         Node noteNode = noteList.item(k);
+                 boolean changed = false;
+                 for (int k = 0; k < noteList.getLength() && !changed; k++)
+                 {
+                     Node noteNode = noteList.item(k);
 
-                         if (noteNode.getNodeType() != Node.ELEMENT_NODE) {
-                             continue;
-                         }
-
-                         Element note = (Element) noteNode;
-
-                         String state = getTextContent(note);
-
-                         // away ?
-                         if (state.equalsIgnoreCase(SipStatusEnum.AWAY
-                                 .getStatusName()))
-                         {
-                             changed = true;
-                             changePresenceStatusForContact(sipcontact,
-                                     SipStatusEnum.AWAY);
-                         }
+                     if (noteNode.getNodeType() != Node.ELEMENT_NODE) {
+                         continue;
                      }
 
-                     if (changed == false) {
+                     Element note = (Element) noteNode;
+
+                     String state = getTextContent(note);
+
+                     // away ?
+                     if (state.equalsIgnoreCase(SipStatusEnum.AWAY
+                             .getStatusName()))
+                     {
+                         changed = true;
+                         changePresenceStatusForContact(sipcontact,
+                                 SipStatusEnum.AWAY);
+                     }
+                     // do not disturb ?
+                     else if (state.equalsIgnoreCase(
+                             SipStatusEnum.DO_NOT_DISTURB.getStatusName()))
+                     {
+                         changed = true;
+                         changePresenceStatusForContact(sipcontact,
+                                 SipStatusEnum.DO_NOT_DISTURB);
+                     }
+                 }
+
+                 if (changed == false) {
+                     if (getTextContent(basic).equalsIgnoreCase(ONLINE_STATUS))
+                     {
                          changePresenceStatusForContact(sipcontact,
                              SipStatusEnum.ONLINE);
-                     }
-                 } else if (getTextContent(basic).equalsIgnoreCase(
-                         OFFLINE_STATUS))
-                 {
-                     changePresenceStatusForContact(sipcontact,
+                     } else if (getTextContent(basic).equalsIgnoreCase(
+                             OFFLINE_STATUS))
+                     {
+                         changePresenceStatusForContact(sipcontact,
                              SipStatusEnum.OFFLINE);
+                     }
                  }
              }
          }
@@ -3773,10 +3877,7 @@ public class OperationSetPresenceSipImpl
                      
                      // if this contact hasn't to be polled
                      if (!contact.isResolvable()
-                         || (!contact.getPresenceStatus()
-                                 .equals(SipStatusEnum.UNKNOWN)
-                             && !contact.getPresenceStatus()
-                                 .equals(SipStatusEnum.OFFLINE)))
+                         || contact.getClientDialog() != null)
                      {
                          continue;
                      }
