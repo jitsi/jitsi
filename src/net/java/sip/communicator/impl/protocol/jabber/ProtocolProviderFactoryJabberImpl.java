@@ -235,16 +235,18 @@ public class ProtocolProviderFactoryJabberImpl
             ServiceRegistration reg
                 = ((ServiceRegistration)registrations.nextElement());
 
+            ProtocolProviderServiceJabberImpl provider
+                = (ProtocolProviderServiceJabberImpl) JabberActivator
+                    .getBundleContext().getService(reg.getReference());
+
+            //do an attempt to kill the provider
+            provider.shutdown();
             reg.unregister();
         }
 
-        Enumeration idEnum = registeredAccounts.keys();
-
-        while(idEnum.hasMoreElements())
-        {
-            registeredAccounts.remove(idEnum.nextElement());
-        }
+        registeredAccounts.clear();
     }
+
 
     /**
      * Returns the configuraiton service property name prefix that we use to
