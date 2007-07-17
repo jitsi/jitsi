@@ -30,7 +30,7 @@ import net.java.sip.communicator.util.xml.*;
 /**
  * Sip presence implementation (SIMPLE).
  *
- * Compliant with rfc3261, rfc3265, rfc3856, rfc3863 and rfc3903
+ * Compliant with rfc3261, rfc3265, rfc3856, rfc3863, rfc4480 and rfc3903
  *
  * @author Benoit Pradelle
  */
@@ -120,12 +120,12 @@ public class OperationSetPresenceSipImpl
     /**
      * The default expiration value of a PUBLISH request
      */
-    private static final int PUBLISH_DEFAULT_EXPIRE = 600;
+    private static final int PUBLISH_DEFAULT_EXPIRE = 3600;
 
     /**
      * The default expiration value of a SUBSCRIBE request
      */
-    private static final int SUBSCRIBE_DEFAULT_EXPIRE = 600;
+    private static final int SUBSCRIBE_DEFAULT_EXPIRE = 3600;
 
     /**
      * The minimal Expires value for a SUBSCRIBE
@@ -553,7 +553,7 @@ public class OperationSetPresenceSipImpl
 
         // now inform our distant presence agent if we have one
         if (this.useDistantPA) {
-            Request req = createPublish(PUBLISH_DEFAULT_EXPIRE);
+            Request req = createPublish(PUBLISH_DEFAULT_EXPIRE, true);
 
             if (status.equals(SipStatusEnum.OFFLINE)) {
                 // remember the callid to be sure that the publish arrived
@@ -678,12 +678,14 @@ public class OperationSetPresenceSipImpl
      * agent.
      *
      * @param expires the expires value to send
+     * @param insertPresDoc if a presence document has to be added (typically
+     * = false when refreshing a publication)
      *
      * @return a valid <tt>Request</tt> containing the PUBLISH
      *
      * @throws OperationFailedException if something goes wrong
      */
-    private Request createPublish(int expires)
+    private Request createPublish(int expires, boolean insertPresDoc)
         throws OperationFailedException
     {
         // Address
@@ -745,8 +747,15 @@ public class OperationSetPresenceSipImpl
             .getMaxForwardsHeader();
 
         // Content params
-        byte[] doc = getPidfPresenceStatus((ContactSipImpl)
-                this.getLocalContact());
+        byte[] doc = null;
+        
+        if (insertPresDoc) {
+            doc = getPidfPresenceStatus((ContactSipImpl)
+                    this.getLocalContact());
+        } else {
+            doc = new byte[0];
+        }
+        
         ContentTypeHeader contTypeHeader;
         ContentLengthHeader contLengthHeader;
         try
@@ -1005,7 +1014,7 @@ public class OperationSetPresenceSipImpl
     {
         logger.debug("let's subscribe " + contactIdentifier);
 
-        //if the contact is already in the contact list and is resolved
+        //if the contact is already in the contact list
         ContactSipImpl contact = (ContactSipImpl) 
             resolveContactID(contactIdentifier);
 
@@ -1800,7 +1809,7 @@ public class OperationSetPresenceSipImpl
                     }
                 }
             // every error cause the subscription to be removed
-            // as recommended for some cases in rfc3265
+            // as recommended in rfc3265
             } else {
                 logger.debug("error received from the network" + response);
 
@@ -1837,6 +1846,7 @@ public class OperationSetPresenceSipImpl
                 SIPETagHeader etHeader = (SIPETagHeader)
                     response.getHeader(SIPETagHeader.NAME);
 
+                // must be one (rfc3903)
                 if (etHeader == null) {
                     logger.debug("can't find the ETag header");
                     return;
@@ -1893,7 +1903,7 @@ public class OperationSetPresenceSipImpl
                 // send a new publish with the new expires value
                 Request req = null;
                 try {
-                    req = createPublish(min.getExpires());
+                    req = createPublish(min.getExpires(), true);
                 } catch (OperationFailedException e) {
                     logger.error("can't create the new publish request", e);
                     return;
@@ -2197,6 +2207,8 @@ public class OperationSetPresenceSipImpl
         {
             // we are not concerned by this request, perhaps another
             // listener is ?
+            
+            // don't send a 489 / Bad event answer here
             return;
         }
 
@@ -2396,7 +2408,7 @@ public class OperationSetPresenceSipImpl
             }
             
             // interval too brief
-            if (expires < SUBSCRIBE_MIN_EXPIRE && expires != 0)
+            if (expires < SUBSCRIBE_MIN_EXPIRE && expires > 0 && expires < 3600)
             {
                 // send him a 423
                 Response response = null;
@@ -2430,7 +2442,7 @@ public class OperationSetPresenceSipImpl
             }
             
             // is it a subscription refresh ? (no need for synchronize the
-            // access to ourWatchers)
+            // access to ourWatchers: read only operation)
             if (this.ourWatchers.contains(contact)) {
                 contact.getTimeoutTask().cancel();
                 
@@ -3832,7 +3844,13 @@ public class OperationSetPresenceSipImpl
          public void run() {
              Request req = null;
              try {
-                 req = createPublish(PUBLISH_DEFAULT_EXPIRE);
+                 if (distantPAET != null) { 
+                     req = createPublish(PUBLISH_DEFAULT_EXPIRE, false);
+                 } else {
+                     // if the last publication failed for any reason, send a
+                     // new publication, not a refresh
+                     req = createPublish(PUBLISH_DEFAULT_EXPIRE, true);
+                 }
              } catch (OperationFailedException e) {
                  logger.error("can't create a new PUBLISH message", e);
                  return;
@@ -4000,7 +4018,7 @@ public class OperationSetPresenceSipImpl
               } else if (evt.getNewState().equals(
                       RegistrationState.REGISTERED))
               {
-                 logger.debug("enter register state");
+                 logger.debug("enter registered state");
 
                   // send a subscription for every contact
                   Iterator groupsIter = getServerStoredContactListRoot()
@@ -4085,6 +4103,7 @@ public class OperationSetPresenceSipImpl
                       }
                   }
 
+                  // is this needed ?
                   PresenceStatus oldStatus = getPresenceStatus();
                   presenceStatus = SipStatusEnum.ONLINE;
                   fireProviderStatusChangeEvent(oldStatus);
