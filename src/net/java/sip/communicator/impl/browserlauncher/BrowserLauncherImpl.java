@@ -57,7 +57,7 @@ public class BrowserLauncherImpl
                 }
                 else
                 {
-                   String[] browsers = {"firefox", "icedove", "opera", "konqueror",
+                   String[] browsers = {"firefox", "iceweasel", "opera", "konqueror",
                        "epiphany", "mozilla", "netscape" };
                    
                    String browser = null;
