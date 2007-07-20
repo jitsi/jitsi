@@ -178,7 +178,7 @@ public class OperationSetBasicInstantMessagingRssImpl
         //we create the message containing the new items retrieved
         msg = createMessage(rssFeed.feedToString(rssContact.getLastItemDate()));
 
-        //if a newer date is avalaible for the current feed/contact looking
+        //if a newer date is available for the current feed/contact looking
         //the date of each item of the feed retrieved, we update this date
         if (rssFeed.getLastItemPubDate()
                 .compareTo(rssContact.getLastItemDate()) > 0)
@@ -283,7 +283,11 @@ public class OperationSetBasicInstantMessagingRssImpl
                + to);
 
         //refresh the present rssFeed "to"
-        fireMessageDelivered(message,to);
+        Message msg = new MessageRssImpl("Refreshing feed...",
+            DEFAULT_MIME_TYPE, DEFAULT_MIME_ENCODING, null);
+        
+        fireMessageDelivered(msg,to);
+            
         threadedContactFeedUpdate((ContactRssImpl)to);
     }
 
