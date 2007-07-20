@@ -15,7 +15,7 @@ import com.sun.syndication.io.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The class used for using the Informa Library into the RSS protocol
+ * The class used for using the ROME Library into the RSS protocol.
  *
  * @author Jean-Albert Vescovo
  * @author Mihai Balan
@@ -163,12 +163,15 @@ public class RssFeedReader
                 .compareTo(latestRetrievedItemDate) > 0)
             {
                 // Get the abstract of the news.
-                newsAbstract = items[i].getDescription().getValue();
+                newsAbstract = getNewsAbstract(items[i]);
                 // Forge the news to be displayed.
-                printedFeed.insert(0, "At "
-                    + items[i].getPublishedDate()
-                    + "<br><strong>"+ items[i].getTitle() + "</strong>"
-                    + " <a href=\""+items[i].getLink()+"\">Link</a><br>");
+                printedFeed.insert(0,
+                    "<a href=\""+items[i].getLink()+"\">"
+                    + "<strong>"+ items[i].getTitle() + "</strong>"
+                    + "</a>"
+                    + "<br>"
+                    + newsAbstract
+                    + "<hr>");
             }
             else
             {
@@ -186,6 +189,43 @@ public class RssFeedReader
         printedFeed
             .append ("<em>Send anything to refresh this feed...</em><br>\n");
         return printedFeed.toString();
+    }
+    
+    /**
+     * The function retrieves the abstract (textual description) of a feed item
+     * or an empty string otherwise. It takes care of all format specific data
+     * returns a format-agnostic, nicely formatted <tt>String</tt>
+     * 
+     * @param syndEntry - Feed entry for which to retrieve the abstract (text)
+     * @return String representation of the news abstract or an empty string if
+     * no such data could be found.
+     */
+    private String getNewsAbstract(SyndEntry syndEntry)
+    {
+        StringBuffer newsAbstract = new StringBuffer();
+        List contents;
+
+        contents = syndEntry.getContents();
+        if (!contents.isEmpty())
+        {
+            Iterator it = contents.iterator();
+            while (it.hasNext())
+            {
+                newsAbstract.append(((SyndContent)it.next()).getValue());
+            }
+        }
+    
+        if (newsAbstract.toString().length() != 0)
+            return newsAbstract.toString();
+        else
+        {
+            if (syndEntry.getDescription() != null)
+            {
+                if(syndEntry.getDescription().getValue() != null)
+                    newsAbstract.append(syndEntry.getDescription().getValue());
+            }
+        }
+        return newsAbstract.toString();
     }
 
     /**
@@ -241,7 +281,7 @@ public class RssFeedReader
     }
 
     /**
-     * Returns a String used as a displayname.
+     * Returns a String used as a display name.
      *
      * @return a String title representing the feed/contact.
      */
@@ -267,13 +307,13 @@ public class RssFeedReader
         /**
          * Compares its two items for order.  Returns a negative integer,
          * zero, or a positive integer as the first argument has a date
-         * which preceeds, is equal or is greater the second.
+         * which precedes, is equal or is greater the second.
          * <p>
          * @param o1 the first item to be compared.
          * @param o2 the second item to be compared.
          * @return a negative integer, zero, or a positive integer as the
          *         first item has a date that is before is equal to or is
-         *         after the swcond.
+         *         after the second.
          * @throws ClassCastException if one of the objects is not a
          *         SyndEntry instance.
          */
