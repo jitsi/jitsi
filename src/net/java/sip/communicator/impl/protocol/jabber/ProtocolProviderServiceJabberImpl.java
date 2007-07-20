@@ -517,10 +517,14 @@ public class ProtocolProviderServiceJabberImpl
      * shutdown/garbage collection.
      */
     public void shutdown()
-    {
-        synchronized(initializationLock){
-            connection.disconnect();
-            connection = null;
+    {   
+        synchronized(initializationLock)
+        {
+            if(connection != null)
+            {
+                connection.disconnect();
+                connection = null;
+            }
             isInitialized = false;
         }
     }
