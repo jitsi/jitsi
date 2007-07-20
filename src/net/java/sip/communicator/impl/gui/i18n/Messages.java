@@ -73,7 +73,8 @@ public class Messages {
         try {
             resourceString = RESOURCE_BUNDLE.getString(key);
             
-            resourceString = MessageFormat.format(resourceString, params);
+            resourceString = MessageFormat.format(
+                resourceString, (Object[]) params);
             
             int mnemonicIndex = resourceString.indexOf('&');
             
