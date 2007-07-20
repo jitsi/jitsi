@@ -94,6 +94,8 @@ public class ChatConversationPanel
 
     private static final String HTML_CONTENT_TYPE = "text/html";
 
+    private static final String TEXT_CONTENT_TYPE = "text/plain";
+    
     /**
      * Creates an instance of <tt>ChatConversationPanel</tt>.
      * 
@@ -550,7 +552,15 @@ public class ChatConversationPanel
             processedString = processNewLines(linkProcessedString,
                 contentType);
         }
-
+        // If the message content is HTML, we process br and img tags.
+        else if(contentType.equals(HTML_CONTENT_TYPE))
+        {
+            processedString = processBrTags(message,
+                contentType);
+            processedString = processImgTags(processedString,
+                contentType);
+        }
+         
         return processSmilies(processedString, contentType);
     }
 
@@ -637,12 +647,24 @@ public class ChatConversationPanel
      */
     private String processSmilies(String message, String contentType)
     {
-        String startPlainTextTag = "<PLAINTEXT>";
-        String endPlainTextTag = "</PLAINTEXT>";
-        
+        String startPlainTextTag;
+        String endPlainTextTag;
+        if (contentType == null
+            || contentType.equals(TEXT_CONTENT_TYPE)
+            || "".equals(contentType))
+        {
+            startPlainTextTag = "<PLAINTEXT>";
+            endPlainTextTag = "</PLAINTEXT>";
+        }
+        else
+        {
+            startPlainTextTag = "";
+            endPlainTextTag = "";
+        }
+
         ArrayList smiliesList = ImageLoader.getDefaultSmiliesPack();
 
-        String regexp = "";
+        StringBuffer regexp = new StringBuffer();
 
         for (int i = 0; i < smiliesList.size(); i++)
         {
@@ -653,13 +675,13 @@ public class ChatConversationPanel
 
             for (int j = 0; j < smileyStrings.length; j++)
             {
-                regexp += GuiUtils.replaceSpecialRegExpChars(smileyStrings[j])
-                    + "|";
+                regexp.append(GuiUtils.replaceSpecialRegExpChars(
+                    smileyStrings[j])).append("|");
             }
         }
-        regexp = regexp.substring(0, regexp.length() - 1);
+        regexp = regexp.deleteCharAt(regexp.length() - 1);
 
-        Pattern p = Pattern.compile(regexp);
+        Pattern p = Pattern.compile(regexp.toString());
 
         Matcher m = p.matcher(message);
 
@@ -926,5 +948,111 @@ public class ChatConversationPanel
     public Date getPageLastMsgTimestamp()
     {
         return pageLastMsgTimestamp;
+    }
+    
+    /**
+     * Formats HTML tags &lt;br/&gt; to &lt;br&gt; or &lt;BR/&gt; to &lt;BR&gt;.
+     * The reason of this function is that the ChatPanel does not support
+     * &lt;br /&gt; closing tags (XHTML syntax), thus we have to remove every
+     * slash from each &lt;br /&gt; tags.
+     * @param message The source message string.
+     * @return The message string with properly formatted &lt;br&gt; tags.
+     */
+    private String processBrTags(String message, String contentType)
+    {
+        // The resulting message after being processed by this function.
+        StringBuffer processedMessage;
+
+        // This is an HTML message.
+        if (contentType != null && contentType.equals(HTML_CONTENT_TYPE))
+        {
+            processedMessage = new StringBuffer();
+
+            // Compile the regex to match something like <br .. /> or <BR .. />.
+            // This regex is case sensitive and keeps the style or other
+            // attributes of the <br> tag.
+            Pattern p = Pattern.compile("<\\s*[bB][rR](.*?)(/\\s*>)");
+            Matcher m = p.matcher(message);
+            int slash_index;
+            int start = 0;
+
+            // while we find some <br /> closing tags with a slash inside.
+            while(m.find())
+            {
+                // First, we have to copy all the message preceding the <br> tag.
+                processedMessage.append(message.substring(start, m.start()));
+                // Then, we find the position of the slash inside the tag.
+                slash_index = m.group().lastIndexOf("/");
+                // We copy the <br> tag till the slash exclude.
+                processedMessage.append(m.group().substring(0, slash_index));
+                // We copy all the end of the tag following the slash exclude.
+                processedMessage.append(m.group().substring(slash_index+1));
+                start = m.end();
+            }
+            // Finally, we have to add the end of the message following the last
+            // <br> tag, or the whole message if there is no <br> tag.
+            processedMessage.append(message.substring(start));
+        }
+        // This is a plain text message.
+        else
+        {
+            // Nothing to do, just copy the whole message.
+            processedMessage = new StringBuffer(message);
+        }
+        return processedMessage.toString();
+    }
+    
+    /**
+     * Formats HTML tags &lt;img ... /&gt; to &lt; img ... &gt;&lt;/img&gt; or
+     * &lt;IMG ... /&gt; to &lt;IMG&gt;&lt;/IMG&gt;.
+     * The reason of this function is that the ChatPanel does not support
+     * &lt;img /&gt; tags (XHTML syntax).
+     * Thus, we remove every slash from each &lt;img /&gt; and close it with a
+     * separate closing tag.
+     * @param message The source message string.
+     * @return The message string with properly formatted &lt;img&gt; tags.
+     */
+    private String processImgTags(String message, String contentType)
+    {
+        // The resulting message after being processed by this function.
+        StringBuffer processedMessage;
+
+        // This is an HTML message.
+        if (contentType != null && contentType.equals(HTML_CONTENT_TYPE))
+        {
+            processedMessage = new StringBuffer();
+            // Compile the regex to match something like <img ... /> or
+            // <IMG ... />. This regex is case sensitive and keeps the style,
+            // src or other attributes of the <img> tag.
+            Pattern p = Pattern.compile("<\\s*[iI][mM][gG](.*?)(/\\s*>)");
+            Matcher m = p.matcher(message);
+            int slash_index;
+            int start = 0;
+
+            // while we find some <img /> self-closing tags with a slash inside.
+            while(m.find()){
+                // First, we have to copy all the message preceding the <img> tag.
+                processedMessage.append(message.substring(start, m.start()));
+                // Then, we find the position of the slash inside the tag.
+                slash_index = m.group().lastIndexOf("/");
+                // We copy the <img> tag till the slash exclude.
+                processedMessage.append(m.group().substring(0, slash_index));
+                // We copy all the end of the tag following the slash exclude.
+                processedMessage.append(m.group().substring(slash_index+1));
+                // We close the tag with a separate closing tag.
+                processedMessage.append("</img>");
+                start = m.end();
+            }
+            // Finally, we have to add the end of the message following the last
+            // <img> tag, or the whole message if there is no <img> tag.
+            processedMessage.append(message.substring(start));
+        }
+        // This is a plain text message.
+        else
+        {
+            // Nothing to do, just copy the whole message.
+            processedMessage = new StringBuffer(message);
+        }
+        return processedMessage.toString();
     }
 }
