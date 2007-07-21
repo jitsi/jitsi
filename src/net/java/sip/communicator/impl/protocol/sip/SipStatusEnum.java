@@ -75,13 +75,13 @@ public class SipStatusEnum
     /**
      * Initialize the list of supported status states.
      */
-    private static List supportedStatusSet = new LinkedList();
+    public static List supportedStatusSet = new LinkedList();
     static
     {
-        supportedStatusSet.add(OFFLINE);
-        supportedStatusSet.add(AWAY);
-        supportedStatusSet.add(DO_NOT_DISTURB);
         supportedStatusSet.add(ONLINE);
+        supportedStatusSet.add(DO_NOT_DISTURB);
+        supportedStatusSet.add(AWAY);
+        supportedStatusSet.add(OFFLINE);
     }
 
     /**
