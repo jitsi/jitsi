@@ -60,6 +60,12 @@ public class SipSlickFixture
      * The tested protocol provider factory.
      */
     public ProtocolProviderFactory providerFactory = null;
+    
+    /**
+     * Indicates whether the user has requested for online tests not to be run.
+     * (e.g. due to lack of network connectivity or ... time constraints ;)).
+     */
+    public static boolean onlineTestingDisabled = false;
 
     /**
      * A reference to the bundle containing the tested pp implementation. This
@@ -67,6 +73,16 @@ public class SipSlickFixture
      * the account uninstallation persistence testing.
      */
     public static Bundle providerBundle = null;
+    
+    /**
+     * A Hashtable containing group names mapped against array lists of buddy
+     * screen names. This is a snapshot of the server stored buddy list for
+     * the account that is going to be used by the tested implementation.
+     * It is filled in by the tester agent who'd login with that account
+     * and initialise the ss contact list before the tested implementation has
+     * actually done so.
+     */
+    public static Hashtable preInstalledBuddyList  = null;
 
     /**
      * Initializes protocol provider references and whatever else there is to
@@ -254,6 +270,7 @@ public class SipSlickFixture
         {
             ContactGroup item = (ContactGroup) iter.next();
             opSetPersPresence1.removeServerStoredContactGroup(item);
+            iter = rootGroup1.subgroups();
         }
 
         //then delete contacts if any in root list
@@ -261,6 +278,7 @@ public class SipSlickFixture
         while (iter.hasNext())
         {
             opSetPersPresence1.unsubscribe((Contact)iter.next());
+            iter = rootGroup1.contacts();
         }
 
         ContactGroup rootGroup2
@@ -280,6 +298,7 @@ public class SipSlickFixture
         while (iter.hasNext())
         {
             opSetPersPresence2.unsubscribe( (Contact) iter.next());
+            iter = rootGroup2.contacts();
         }
     }
 }

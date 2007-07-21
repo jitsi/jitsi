@@ -34,6 +34,20 @@ public class SipProtocolProviderServiceLick
      */
     public static final String ACCOUNT_2_PREFIX
         = "accounts.sip.account2.";
+    
+    /**
+     * The name of the property that indicates whether the user would like to
+     * only run the offline tests.
+     */
+    public static final String DISABLE_ONLINE_TESTS_PROPERTY_NAME
+        = "accounts.sip.DISABLE_ONLINE_TESTING";
+    
+    /**
+     * The name of the property the value of which is a formatted string that
+     * contains the contact list that.
+     */
+    public static final String CONTACT_LIST_PROPERTY_NAME
+        = "accounts.gibberish.CONTACT_LIST";
 
     /**
      * Initializes and registers all tests that we'll run as a part of this
@@ -49,6 +63,13 @@ public class SipProtocolProviderServiceLick
         properties.put("service.pid", getName());
 
         SipSlickFixture.bc = context;
+        
+        // verify whether the user wants to avoid online testing
+        String offlineMode = System.getProperty(
+            DISABLE_ONLINE_TESTS_PROPERTY_NAME, null);
+
+        if (offlineMode != null && offlineMode.equalsIgnoreCase("true"))
+            SipSlickFixture.onlineTestingDisabled = true;
 
         //First test account installation so that the service that has
         //been installed by it gets tested by the rest of the tests.
@@ -58,10 +79,21 @@ public class SipProtocolProviderServiceLick
         //made to login/authenticate/signon its service provider.
         addTestSuite(TestProtocolProviderServiceSipImpl.class);
         
-        //IM test
-        addTest(TestOperationSetBasicInstantMessaging.suite());
+        // presence tests
+        addTest(TestOperationSetPresence.suite());
 
-        addTestSuite(TestOperationSetBasicTelephonySipImpl.class);
+        // only in online mode
+        if (!SipSlickFixture.onlineTestingDisabled) {
+            
+            // persistent presence
+            addTest(TestOperationSetPersistentPresence.suite());
+            
+            //IM test
+            addTest(TestOperationSetBasicInstantMessaging.suite());
+    
+            // telephony
+            addTestSuite(TestOperationSetBasicTelephonySipImpl.class);
+        }
 
         //This must remain after all other tests using the accounts
         //are done since it tests account uninstallation and the
