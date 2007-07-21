@@ -569,7 +569,7 @@ public class OperationSetPresenceSipImpl
                 transac = this.parentProvider
                     .getDefaultJainSipProvider().getNewClientTransaction(req);
             } catch (TransactionUnavailableException e) {
-                logger.debug("can't create the client transaction", e);
+                logger.error("can't create the client transaction", e);
                 throw new OperationFailedException(
                         "can't create the client transaction",
                         OperationFailedException.NETWORK_FAILURE);
@@ -578,7 +578,7 @@ public class OperationSetPresenceSipImpl
             try {
                 transac.sendRequest();
             } catch (SipException e) {
-                logger.debug("can't send the PUBLISH request");
+                logger.error("can't send the PUBLISH request");
                 throw new OperationFailedException(
                         "can't send the PUBLISH request",
                         OperationFailedException.NETWORK_FAILURE);
@@ -618,14 +618,14 @@ public class OperationSetPresenceSipImpl
                                         SubscriptionStateHeader.ACTIVE, null);
                         }
                     } catch (OperationFailedException e) {
-                        logger.debug("failed to create the new notify", e);
+                        logger.error("failed to create the new notify", e);
                         return;
                     }
 
                     try {
                         contact.getServerDialog().sendRequest(transac);
                     } catch (Exception e) {
-                        logger.debug("Can't send the request");
+                        logger.error("Can't send the request", e);
                         return;
                     }
                 }
@@ -963,7 +963,14 @@ public class OperationSetPresenceSipImpl
                IllegalStateException,
                OperationFailedException
     {
-        return resolveContactID(contactIdentifier).getPresenceStatus();
+        Contact contact = resolveContactID(contactIdentifier);
+        
+        if (contact == null) {
+            throw new IllegalArgumentException("contact " + contactIdentifier
+                    + " unknown");
+        }
+        
+        return contact.getPresenceStatus();
     }
 
     /**
@@ -3315,10 +3322,12 @@ public class OperationSetPresenceSipImpl
          person.appendChild(activities);
          
          // the correct activity
-         if (getPresenceStatus().equals(SipStatusEnum.AWAY)) {
+         if (contact.getPresenceStatus().equals(SipStatusEnum.AWAY)) {
              Element away = doc.createElement(NS_AWAY_ELT);
              activities.appendChild(away);
-         } else if (getPresenceStatus().equals(SipStatusEnum.DO_NOT_DISTURB)) {
+         } else if (contact.getPresenceStatus()
+                 .equals(SipStatusEnum.DO_NOT_DISTURB))
+         {
              Element busy = doc.createElement(NS_BUSY_ELT);
              activities.appendChild(busy);
          }
@@ -3335,7 +3344,7 @@ public class OperationSetPresenceSipImpl
 
          // <basic>
          Element basic = doc.createElement(BASIC_ELEMENT);
-         if (this.getPresenceStatus().equals(SipStatusEnum.OFFLINE)) {
+         if (contact.getPresenceStatus().equals(SipStatusEnum.OFFLINE)) {
              basic.appendChild(doc.createTextNode(OFFLINE_STATUS));
          } else {
              basic.appendChild(doc.createTextNode(ONLINE_STATUS));
@@ -3352,7 +3361,7 @@ public class OperationSetPresenceSipImpl
          // used for automatic parsing but some (bad) IM clients do this...
          // we don't use xml:lang here because it's not really revelant
          Element noteNodeEl = doc.createElement(NOTE_ELEMENT);
-         noteNodeEl.appendChild(doc.createTextNode(this.getPresenceStatus()
+         noteNodeEl.appendChild(doc.createTextNode(contact.getPresenceStatus()
                  .getStatusName()));
          tuple.appendChild(noteNodeEl);
 

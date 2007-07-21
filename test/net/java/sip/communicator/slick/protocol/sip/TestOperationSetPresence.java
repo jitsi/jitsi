@@ -411,6 +411,8 @@ public class TestOperationSetPresence
         if(oldStatus.equals(newStatus)){
             newStatus = getSampleStatus2();
         }
+        
+        logger.debug("trying to set status " + newStatus + " for contact 2");
 
         //now do the actual status notification testing
         ContactPresenceEventCollector contactPresEvtCollector
