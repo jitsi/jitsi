@@ -103,7 +103,7 @@ public class OperationSetPresenceSipImpl
     private Vector waitedCallIds = new Vector();
 
     /**
-     * Do we have to use a distant presence agent
+     * Do we have to use a distant presence agent (default initial value)
      */
     private boolean useDistantPA = false;
 
@@ -518,7 +518,7 @@ public class OperationSetPresenceSipImpl
      *
      * @param status the PresenceStatus as returned by
      *   getRequestableStatusSet
-     * @param statusMessage the message that should be set as the reason to
+     * @param statusMsg the message that should be set as the reason to
      *   enter that status
      * @throws IllegalArgumentException if the status requested is not a
      *   valid PresenceStatus supported by this provider.
@@ -578,7 +578,7 @@ public class OperationSetPresenceSipImpl
             try {
                 transac.sendRequest();
             } catch (SipException e) {
-                logger.error("can't send the PUBLISH request");
+                logger.error("can't send the PUBLISH request", e);
                 throw new OperationFailedException(
                         "can't send the PUBLISH request",
                         OperationFailedException.NETWORK_FAILURE);
@@ -1001,7 +1001,7 @@ public class OperationSetPresenceSipImpl
      * that it should be added to the specified group of the server stored
      * contact list.
      *
-     * @param parent the parent group of the server stored contact list
+     * @param parentGroup the parent group of the server stored contact list
      *   where the contact should be added. <p>
      * @param contactIdentifier the contact whose status updates we are
      *   subscribing for.
@@ -1048,8 +1048,8 @@ public class OperationSetPresenceSipImpl
         catch (OperationFailedException ex)
         {
             logger.error(
-                "Failed to create the subcription"
-                , ex);
+                "Failed to create the subcription",
+                ex);
 
             throw new OperationFailedException(
                     "Failed to create the subscription",
@@ -1069,8 +1069,8 @@ public class OperationSetPresenceSipImpl
         {
             logger.error(
                 "Failed to create subscriptionTransaction.\n"
-                + "This is most probably a network connection error."
-                , ex);
+                + "This is most probably a network connection error.",
+                ex);
 
             throw new OperationFailedException(
                     "Failed to create the subscription transaction",
@@ -1090,8 +1090,8 @@ public class OperationSetPresenceSipImpl
         catch (SipException ex)
         {
             logger.error(
-                "Failed to send the message."
-                , ex);
+                "Failed to send the message.",
+                ex);
 
             // this contact will never been accepted or rejected
             this.subscribedContacts.remove(idheader.getCallId());
@@ -1277,7 +1277,7 @@ public class OperationSetPresenceSipImpl
             accept = this.parentProvider.getHeaderFactory()
                 .createAcceptHeader("application", PIDF_XML);
         } catch (ParseException e) {
-            logger.error("wrong accept header");
+            logger.error("wrong accept header", e);
             throw new OperationFailedException(
                     "An unexpected error occurred while"
                     + "constructing the AcceptHeader",
@@ -1292,7 +1292,7 @@ public class OperationSetPresenceSipImpl
             expHeader = this.parentProvider.getHeaderFactory()
                 .createExpiresHeader(expires);
         } catch (InvalidArgumentException e) {
-            logger.debug("Invalid expires value: "  + expires, e);
+            logger.error("Invalid expires value: "  + expires, e);
             throw new OperationFailedException(
                     "An unexpected error occurred while"
                     + "constructing the ExpiresHeader",
@@ -1324,7 +1324,7 @@ public class OperationSetPresenceSipImpl
         try {
             req = dialog.createRequest(Request.SUBSCRIBE);
         } catch (SipException e) {
-            logger.debug("Can't create the SUBSCRIBE message");
+            logger.error("Can't create the SUBSCRIBE message", e);
             throw new OperationFailedException(
                     "An unexpected error occurred while"
                     + "constructing the SUBSCRIBE request"
@@ -1398,7 +1398,7 @@ public class OperationSetPresenceSipImpl
             expHeader = this.parentProvider.getHeaderFactory()
                 .createExpiresHeader(expires);
         } catch (InvalidArgumentException e) {
-            logger.debug("Invalid expires value: "  + expires, e);
+            logger.error("Invalid expires value: "  + expires, e);
             throw new OperationFailedException(
                     "An unexpected error occurred while"
                     + "constructing the ExpiresHeader",
@@ -1438,7 +1438,7 @@ public class OperationSetPresenceSipImpl
         ArrayList viaHeaders = this.parentProvider.getLocalViaHeaders(
             destinationInetAddress,
             this.parentProvider.getDefaultListeningPoint());
-        req.addHeader((Header) viaHeaders.get(0));
+        req.setHeader((Header) viaHeaders.get(0));
 
         return transac;
     }
@@ -1667,7 +1667,7 @@ public class OperationSetPresenceSipImpl
                         processAuthenticationChallenge(clientTransaction,
                                 response, sourceProvider);
                     } catch (OperationFailedException e) {
-                        logger.error("can't handle the challenge");
+                        logger.error("can't handle the challenge", e);
                     }
                 } else  if (response.getStatusCode() != Response.OK
                         && response.getStatusCode() != Response.ACCEPTED)
@@ -1741,7 +1741,7 @@ public class OperationSetPresenceSipImpl
                     processAuthenticationChallenge(clientTransaction,
                             response, sourceProvider);
                 } catch (OperationFailedException e) {
-                    logger.error("can't handle the challenge");
+                    logger.error("can't handle the challenge", e);
 
                     // we probably won't be able to communicate with the contact
                     changePresenceStatusForContact(contact,
@@ -1809,7 +1809,7 @@ public class OperationSetPresenceSipImpl
                     processAuthenticationChallenge(clientTransaction,
                             response, sourceProvider);
                 } catch (OperationFailedException e) {
-                    logger.error("can't handle the challenge");
+                    logger.error("can't handle the challenge", e);
 
                     // don't try to tell him anything more
                     String contactAddress = ((FromHeader)
@@ -1890,8 +1890,8 @@ public class OperationSetPresenceSipImpl
                     this.timer.schedule(this.republishTask,
                             (expires.getExpires() - REFRESH_MARGIN) * 1000);
                 } catch (IllegalArgumentException e) {
-                    logger.debug("the expires value seems to be less than a " +
-                            "minute, let's assume it");
+                    logger.error("the expires value seems to be less than a " +
+                            "minute, let's assume it", e);
                     
                     this.timer.schedule(this.republishTask,
                             expires.getExpires() * 1000);
@@ -1906,7 +1906,7 @@ public class OperationSetPresenceSipImpl
                     processAuthenticationChallenge(clientTransaction,
                             response, sourceProvider);
                 } catch (OperationFailedException e) {
-                    logger.error("can't handle the challenge");
+                    logger.error("can't handle the challenge", e);
                     return;
                 }
             // INTERVAL TOO BRIEF (423)
@@ -1948,10 +1948,27 @@ public class OperationSetPresenceSipImpl
                 }
                 
             // with every other error, we consider that we have to start a new
-            // communication
+            // communication.
+            // Enter p2p mode if the distant PA mode fails 
             } else {
                 logger.debug("error received from the network" + response);
                 this.distantPAET = null;
+                
+                if (this.useDistantPA == false) {
+                    return;
+                }
+                
+                logger.debug("we enter into the peer to peer mode as the "
+                        + "distant PA mode fails");
+                this.useDistantPA = false;
+                
+                if (this.republishTask != null) {
+                    this.republishTask.cancel();
+                }
+                
+                // if we are there, we don't have any watcher so no need to
+                // republish our presence state
+
             }
         }
     }
@@ -1999,7 +2016,7 @@ public class OperationSetPresenceSipImpl
      */
     private void terminateSubscription(ContactSipImpl contact) {
         if (contact == null) {
-            logger.debug("null contact provided, can't terminate" +
+            logger.error("null contact provided, can't terminate" +
                     " subscription");
             return;
         }
@@ -2044,7 +2061,7 @@ public class OperationSetPresenceSipImpl
         try {
             req = dialog.createRequest(Request.NOTIFY);
         } catch (SipException e) {
-            logger.debug("Can't create the NOTIFY message");
+            logger.error("Can't create the NOTIFY message", e);
             throw new OperationFailedException("Can't create the NOTIFY" +
                     " message", OperationFailedException.INTERNAL_ERROR, e);
         }
@@ -2084,7 +2101,7 @@ public class OperationSetPresenceSipImpl
             maxForwards = this.parentProvider
                 .getMaxForwardsHeader();
         } catch (OperationFailedException e) {
-            logger.debug("cant retrive the via headers or the max forward",
+            logger.error("cant retrive the via headers or the max forward",
                     e);
             throw new OperationFailedException("Can't create the NOTIFY" +
                     " message", OperationFailedException.INTERNAL_ERROR);
@@ -2119,7 +2136,7 @@ public class OperationSetPresenceSipImpl
             }
         } catch (ParseException e) {
             // should never happen
-            logger.debug("can't create the Subscription-State header", e);
+            logger.error("can't create the Subscription-State header", e);
             throw new OperationFailedException("Can't create the " +
                     "Subscription-State header",
                     OperationFailedException.INTERNAL_ERROR, e);
@@ -2133,7 +2150,7 @@ public class OperationSetPresenceSipImpl
                     PIDF_XML);
         } catch (ParseException e) {
             // should never happen
-            logger.debug("can't create the Content-Type header", e);
+            logger.error("can't create the Content-Type header", e);
             throw new OperationFailedException("Can't create the " +
                     "Content-type header",
                     OperationFailedException.INTERNAL_ERROR, e);
@@ -2158,21 +2175,21 @@ public class OperationSetPresenceSipImpl
         {
             logger.error(
                 "Failed to create subscriptionTransaction.\n"
-                + "This is most probably a network connection error."
-                , ex);
+                + "This is most probably a network connection error.",
+                ex);
 
             throw new OperationFailedException("Can't create the " +
                     "Content-length header",
                     OperationFailedException.NETWORK_FAILURE, ex);
         }
 
-        req.addHeader((Header) viaHeaders.get(0));
+        req.setHeader((Header) viaHeaders.get(0));
 
         // add the content
         try {
             req.setContent(doc, cTypeHeader);
         } catch (ParseException e) {
-            logger.debug("Failed to add the presence document", e);
+            logger.error("Failed to add the presence document", e);
             throw new OperationFailedException("Can't add the presence " +
                     "document to the request",
                     OperationFailedException.INTERNAL_ERROR, e);
@@ -2290,17 +2307,17 @@ public class OperationSetPresenceSipImpl
                             Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST,
                             request);
                 } catch (ParseException e) {
-                    logger.debug("failed to create the 481 response", e);
+                    logger.error("failed to create the 481 response", e);
                     return;
                 }
 
                 try {
                     serverTransaction.sendResponse(response);
                 } catch (SipException e) {
-                    logger.debug("failed to send the response", e);
+                    logger.error("failed to send the response", e);
                 } catch (InvalidArgumentException e) {
                     // should not happen
-                    logger.debug("invalid argument provided while trying" +
+                    logger.error("invalid argument provided while trying" +
                             " to send the response", e);
                 }
 
@@ -2320,7 +2337,7 @@ public class OperationSetPresenceSipImpl
                         .createResponse(Response.UNSUPPORTED_MEDIA_TYPE,
                                 request);
                 } catch (ParseException e) {
-                    logger.debug("failed to create the OK response", e);
+                    logger.error("failed to create the OK response", e);
                     return;
                 }
 
@@ -2332,7 +2349,7 @@ public class OperationSetPresenceSipImpl
                             "application", PIDF_XML);
                 } catch (ParseException e) {
                     // should not happen
-                    logger.debug("failed to create the accept header", e);
+                    logger.error("failed to create the accept header", e);
                     return;
                 }
                 response.setHeader(acceptHeader);
@@ -2340,10 +2357,10 @@ public class OperationSetPresenceSipImpl
                 try {
                     serverTransaction.sendResponse(response);
                 } catch (SipException e) {
-                    logger.debug("failed to send the response", e);
+                    logger.error("failed to send the response", e);
                 } catch (InvalidArgumentException e) {
                     // should not happen
-                    logger.debug("invalid argument provided while trying" +
+                    logger.error("invalid argument provided while trying" +
                             " to send the response", e);
                 }
             }
@@ -2372,17 +2389,17 @@ public class OperationSetPresenceSipImpl
                 response = this.parentProvider.getMessageFactory()
                     .createResponse(Response.OK, request);
             } catch (ParseException e) {
-                logger.debug("failed to create the OK response", e);
+                logger.error("failed to create the OK response", e);
                 return;
             }
 
             try {
                 serverTransaction.sendResponse(response);
             } catch (SipException e) {
-                logger.debug("failed to send the response", e);
+                logger.error("failed to send the response", e);
             } catch (InvalidArgumentException e) {
                 // should not happen
-                logger.debug("invalid argument provided while trying" +
+                logger.error("invalid argument provided while trying" +
                         " to send the response", e);
             }
 
@@ -2397,6 +2414,16 @@ public class OperationSetPresenceSipImpl
         // SUBSCRIBE
         } else if (request.getMethod().equals(Request.SUBSCRIBE)) {
             FromHeader from = (FromHeader) request.getHeader(FromHeader.NAME);
+            
+            // if we received a subscribe, our network probably doesn't have
+            // a distant PA
+            if (this.useDistantPA) {
+                this.useDistantPA = false;
+                
+                if (this.republishTask != null) {
+                    this.republishTask.cancel();
+                }
+            }
 
             // try to find which contact is concerned
             ContactSipImpl contact = (ContactSipImpl) resolveContactID(from
@@ -2436,7 +2463,7 @@ public class OperationSetPresenceSipImpl
                     response = this.parentProvider.getMessageFactory()
                         .createResponse(Response.INTERVAL_TOO_BRIEF, request);
                 } catch (Exception e) {
-                    logger.debug("Error while creating the response 423", e);
+                    logger.error("Error while creating the response 423", e);
                     return;
                 }
                 MinExpiresHeader min = null;
@@ -2477,7 +2504,7 @@ public class OperationSetPresenceSipImpl
                     response = this.parentProvider.getMessageFactory()
                         .createResponse(Response.OK, request);
                 } catch (Exception e) {
-                    logger.debug("Error while creating the response 200", e);
+                    logger.error("Error while creating the response 200", e);
                     return;
                 }
                 
@@ -2521,7 +2548,7 @@ public class OperationSetPresenceSipImpl
                     response = this.parentProvider.getMessageFactory()
                         .createResponse(Response.OK, request);
                 } catch (Exception e) {
-                    logger.debug("Error while creating the response 200", e);
+                    logger.error("Error while creating the response 200", e);
                     return;
                 }
 
@@ -2530,7 +2557,7 @@ public class OperationSetPresenceSipImpl
                     expHeader = this.parentProvider.getHeaderFactory()
                         .createExpiresHeader(0);
                 } catch (InvalidArgumentException e) {
-                    logger.error("Can't create the expires header");
+                    logger.error("Can't create the expires header", e);
                     return;
                 }
                 response.setHeader(expHeader);
@@ -2551,14 +2578,14 @@ public class OperationSetPresenceSipImpl
                             SubscriptionStateHeader.TERMINATED,
                             SubscriptionStateHeader.TIMEOUT);
                 } catch (OperationFailedException e) {
-                    logger.debug("failed to create the new notify", e);
+                    logger.error("failed to create the new notify", e);
                     return;
                 }
 
                 try {
                     dialog.sendRequest(transac);
                 } catch (Exception e) {
-                    logger.debug("Can't send the request");
+                    logger.error("Can't send the request", e);
                     return;
                 }
 
@@ -2575,7 +2602,7 @@ public class OperationSetPresenceSipImpl
                 response = this.parentProvider.getMessageFactory()
                     .createResponse(Response.OK, request);
             } catch (Exception e) {
-                logger.debug("Error while creating the response 200", e);
+                logger.error("Error while creating the response 200", e);
                 return;
             }
 
@@ -2584,7 +2611,7 @@ public class OperationSetPresenceSipImpl
                 expHeader = this.parentProvider.getHeaderFactory()
                     .createExpiresHeader(expires);
             } catch (InvalidArgumentException e) {
-                logger.error("Can't create the expires header");
+                logger.error("Can't create the expires header", e);
                 return;
             }
             response.setHeader(expHeader);
@@ -2605,7 +2632,7 @@ public class OperationSetPresenceSipImpl
                         SubscriptionStateHeader.ACTIVE,
                         null);
             } catch (OperationFailedException e) {
-                logger.debug("failed to create the new notify", e);
+                logger.error("failed to create the new notify", e);
                 return;
             }
 
@@ -2625,6 +2652,28 @@ public class OperationSetPresenceSipImpl
             watcherTimeoutTask timeout = new watcherTimeoutTask(contact);
             contact.setTimeoutTask(timeout);
             this.timer.schedule(timeout, expires * 1000);
+            
+        // PUBLISH
+        } else if (request.getMethod().equals(Request.PUBLISH)) {
+            // we aren't supposed to receive a publish so just say "not
+            // implemented". This behavior is usefull for SC to SC communication
+            // with the PA auto detection feature and a server which proxy the
+            // PUBLISH requests
+            Response response = null;
+            try {
+                response = this.parentProvider.getMessageFactory()
+                    .createResponse(Response.NOT_IMPLEMENTED, request);
+            } catch (Exception e) {
+                logger.error("Error while creating the response 501", e);
+                return;
+            }
+
+            try {
+                serverTransaction.sendResponse(response);
+            } catch (Exception e) {
+                logger.error("Error while sending the response 501", e);
+                return;
+            }
         }
     }
 
@@ -2707,9 +2756,9 @@ public class OperationSetPresenceSipImpl
                          exc);
 
             throw new OperationFailedException("Failed to authenticate"
-                + "a message request"
-                , OperationFailedException.INTERNAL_ERROR
-                , exc);
+                + "a message request",
+                OperationFailedException.INTERNAL_ERROR,
+                exc);
         }
     }
 
@@ -3300,7 +3349,7 @@ public class OperationSetPresenceSipImpl
                  .getURI().toString();
          } catch (ParseException e) {
              // should not happen
-             logger.debug("failed to parse the contact id", e);
+             logger.error("failed to parse the contact id", e);
              return null;
          }
 
@@ -3688,7 +3737,7 @@ public class OperationSetPresenceSipImpl
                      try {
                          dialog.sendRequest(transac);
                      } catch (Exception e) {
-                         logger.debug("Can't send the request");
+                         logger.error("Can't send the request", e);
                          return;
                      }
 
@@ -3879,7 +3928,7 @@ public class OperationSetPresenceSipImpl
                          subscription = createSubscription(contact,
                                  SUBSCRIBE_DEFAULT_EXPIRE);
                      } catch (OperationFailedException e) {
-                         logger.debug("can't create a new subscription", e);
+                         logger.error("can't create a new subscription", e);
                          return;
                      }
                      
@@ -3897,8 +3946,8 @@ public class OperationSetPresenceSipImpl
                          logger.error(
                              "Failed to create subscriptionTransaction.\n"
                              + "This is most probably a network connection"
-                             + " error."
-                             , ex);
+                             + " error.",
+                             ex);
 
                          return;
                      }
@@ -3919,8 +3968,8 @@ public class OperationSetPresenceSipImpl
                      catch (SipException ex)
                      {
                          logger.error(
-                             "Failed to send the message."
-                             , ex);
+                             "Failed to send the message.",
+                             ex);
                          
                          // this contact will never been accepted or rejected
                          subscribedContacts.remove(idheader.getCallId());
@@ -4007,10 +4056,8 @@ public class OperationSetPresenceSipImpl
                           catch (OperationFailedException ex)
                           {
                               logger.error(
-                                  "Failed to create the subcription"
-                                  , ex);
-
-                              return;
+                                  "Failed to create the subcription", ex);
+                                  return;
                           }
 
                           //Transaction
@@ -4027,8 +4074,8 @@ public class OperationSetPresenceSipImpl
                               logger.error(
                                   "Failed to create subscriptionTransaction.\n"
                                   + "This is most probably a network"
-                                  + " connection error."
-                                  , ex);
+                                  + " connection error.",
+                                  ex);
 
                               return;
                           }
@@ -4061,10 +4108,6 @@ public class OperationSetPresenceSipImpl
                       }
                   }
 
-                  PresenceStatus oldStatus = getPresenceStatus();
-                  presenceStatus = SipStatusEnum.ONLINE;
-                  fireProviderStatusChangeEvent(oldStatus);
-                  
                   // create a new Timer (the last one has been cancelled)
                   timer = new Timer(true);
                   
