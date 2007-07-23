@@ -101,6 +101,12 @@ public class OperationSetPresenceSipImpl
      * Content : String
      */
     private Vector waitedCallIds = new Vector();
+    
+    /**
+     * Hashtable of the pending NOTIFY requests (NOTIFY received before a OK)
+     * index : String, Content : RequestEvent
+     */
+    private Hashtable pendingNotify = new Hashtable();
 
     /**
      * Do we have to use a distant presence agent (default initial value)
@@ -2280,11 +2286,9 @@ public class OperationSetPresenceSipImpl
             {
                 logger.debug("contact still pending while NOTIFY received");
                 
-                // simply ignore it and wait the OK, don't answer to force a
-                // timeout
+
                 // can't finalize the subscription here : the client dialog is
                 // null until the reception of a OK
-                return;
             }
 
             // see if the notify correspond to an existing subscription
@@ -2374,6 +2378,14 @@ public class OperationSetPresenceSipImpl
                     terminateSubscription(contact);
                     this.subscribedContacts.remove(serverTransaction.getDialog()
                         .getCallId().getCallId());
+                    
+                    // if the reason is "deactivated", we immediatly resubscribe
+                    // to the contact
+                    if (sstateHeader.getReasonCode().equals(
+                            SubscriptionStateHeader.DEACTIVATED))
+                    {
+                        forcePollContact(contact);
+                    }
                 }
                 
                 // try to remove the callid from the list if we were excpeting
@@ -2652,7 +2664,7 @@ public class OperationSetPresenceSipImpl
             watcherTimeoutTask timeout = new watcherTimeoutTask(contact);
             contact.setTimeoutTask(timeout);
             this.timer.schedule(timeout, expires * 1000);
-            
+           
         // PUBLISH
         } else if (request.getMethod().equals(Request.PUBLISH)) {
             // we aren't supposed to receive a publish so just say "not
@@ -3678,6 +3690,79 @@ public class OperationSetPresenceSipImpl
 
          return res;
      }
+     
+     /**
+      * Forces the poll of a contact to update its current state.
+      * 
+      * @param contact the contact to poll
+      */
+     public void forcePollContact(ContactSipImpl contact) {
+         // if we are already subscribed to this contact, just return
+         if (contact.getClientDialog() != null || !contact.isResolvable())
+         {
+             return;
+         }
+         
+         // create the subscription
+         Request subscription;
+         try
+         {
+             subscription = createSubscription(contact,
+                     SUBSCRIBE_DEFAULT_EXPIRE);
+         }
+         catch (OperationFailedException ex)
+         {
+             logger.error(
+                 "Failed to create the subcription", ex);
+                 return;
+         }
+
+         //Transaction
+         ClientTransaction subscribeTransaction;
+         SipProvider jainSipProvider
+             = this.parentProvider.getDefaultJainSipProvider();
+         try
+         {
+             subscribeTransaction = jainSipProvider
+                 .getNewClientTransaction(subscription);
+         }
+         catch (TransactionUnavailableException ex)
+         {
+             logger.error(
+                 "Failed to create subscriptionTransaction.\n"
+                 + "This is most probably a network"
+                 + " connection error.",
+                 ex);
+
+             return;
+         }
+
+         // we register the contact to find him when the OK
+         // will arrive
+         CallIdHeader idheader = (CallIdHeader)
+             subscription.getHeader(CallIdHeader.NAME);
+         this.subscribedContacts.put(idheader.getCallId(), contact);
+         logger.debug("added a contact at :"
+                 + idheader.getCallId());
+
+         // send the message
+         try
+         {
+             subscribeTransaction.sendRequest();
+         }
+         catch (SipException ex)
+         {
+             logger.error(
+                 "Failed to send the message.",
+                 ex);
+
+             // this contact will never been accepted or
+             // rejected
+             this.subscribedContacts.remove(idheader.getCallId());
+
+             return;
+         }
+     }
 
      /**
       * Unsubscribe to every contact.
@@ -3915,67 +4000,8 @@ public class OperationSetPresenceSipImpl
                      ContactSipImpl contact = (ContactSipImpl)
                          contactsIter.next();
                      
-                     // if this contact hasn't to be polled
-                     if (!contact.isResolvable()
-                         || contact.getClientDialog() != null)
-                     {
-                         continue;
-                     }
-                     
-                     // send a new subscribe to this contact
-                     Request subscription = null;
-                     try {
-                         subscription = createSubscription(contact,
-                                 SUBSCRIBE_DEFAULT_EXPIRE);
-                     } catch (OperationFailedException e) {
-                         logger.error("can't create a new subscription", e);
-                         return;
-                     }
-                     
-                     //Transaction
-                     ClientTransaction subscribeTransaction;
-                     SipProvider jainSipProvider 
-                         = parentProvider.getDefaultJainSipProvider();
-                     try
-                     {
-                         subscribeTransaction = jainSipProvider
-                             .getNewClientTransaction(subscription);
-                     }
-                     catch (TransactionUnavailableException ex)
-                     {
-                         logger.error(
-                             "Failed to create subscriptionTransaction.\n"
-                             + "This is most probably a network connection"
-                             + " error.",
-                             ex);
-
-                         return;
-                     }
-                     
-                     // we register the contact to find him when the OK will
-                     // arrive
-                     CallIdHeader idheader = (CallIdHeader)
-                         subscription.getHeader(CallIdHeader.NAME);
-                     subscribedContacts.put(idheader.getCallId(), contact);
-                     
-                     logger.debug("polling " + contact);
-                     
-                     // send the message
-                     try
-                     {
-                         subscribeTransaction.sendRequest();
-                     }
-                     catch (SipException ex)
-                     {
-                         logger.error(
-                             "Failed to send the message.",
-                             ex);
-                         
-                         // this contact will never been accepted or rejected
-                         subscribedContacts.remove(idheader.getCallId());
-
-                         return;
-                     }
+                     // poll this contact
+                     forcePollContact(contact);
                  }
              }
          }
@@ -4009,10 +4035,24 @@ public class OperationSetPresenceSipImpl
                       logger.error("can't set the offline mode", e);
                   }
 
-                  // start a thread for waiting all the reponses
-                  Thread t = new Thread(new unregisteringThread());
-                  t.setDaemon(false);
-                  t.start();
+                  // we wait for every SUBSCRIBE, NOTIFY and PUBLISH transaction
+                  // to finish before continuing the unsubscription
+                  for (byte i = 0; i < 10; i++) {   // wait 5 s. max
+                      synchronized (waitedCallIds) {
+                          if (waitedCallIds.size() == 0) {
+                              break;
+                          }
+                      }
+
+                      synchronized (this) {
+                          try {
+                              wait(500);
+                          } catch (InterruptedException e) {
+                              logger.debug("abnormal behavior, may cause " +
+                                    "unnecessary CPU use", e);
+                          }
+                      }
+                  }
 
                   // since we are disconnected, we won't receive any further
                   // status updates so we need to change by ourselves our own
@@ -4046,65 +4086,8 @@ public class OperationSetPresenceSipImpl
                               continue;
                           }
 
-                          //create the subscription
-                          Request subscription;
-                          try
-                          {
-                              subscription = createSubscription(contact,
-                                      SUBSCRIBE_DEFAULT_EXPIRE);
-                          }
-                          catch (OperationFailedException ex)
-                          {
-                              logger.error(
-                                  "Failed to create the subcription", ex);
-                                  return;
-                          }
-
-                          //Transaction
-                          ClientTransaction subscribeTransaction;
-                          SipProvider jainSipProvider
-                              = parentProvider.getDefaultJainSipProvider();
-                          try
-                          {
-                              subscribeTransaction = jainSipProvider
-                                  .getNewClientTransaction(subscription);
-                          }
-                          catch (TransactionUnavailableException ex)
-                          {
-                              logger.error(
-                                  "Failed to create subscriptionTransaction.\n"
-                                  + "This is most probably a network"
-                                  + " connection error.",
-                                  ex);
-
-                              return;
-                          }
-
-                          // we register the contact to find him when the OK
-                          // will arrive
-                          CallIdHeader idheader = (CallIdHeader)
-                              subscription.getHeader(CallIdHeader.NAME);
-                          subscribedContacts.put(idheader.getCallId(), contact);
-                          logger.debug("added a contact at :"
-                                  + idheader.getCallId());
-
-                          // send the message
-                          try
-                          {
-                              subscribeTransaction.sendRequest();
-                          }
-                          catch (SipException ex)
-                          {
-                              logger.error(
-                                  "Failed to send the message.",
-                                  ex);
-
-                              // this contact will never been accepted or
-                              // rejected
-                              subscribedContacts.remove(idheader.getCallId());
-
-                              return;
-                          }
+                          // try to subscribe to this contact
+                          forcePollContact(contact);
                       }
                   }
 
@@ -4119,30 +4102,6 @@ public class OperationSetPresenceSipImpl
                           POLLING_TASK_PERIOD);
               }
          }
-          
-          protected class unregisteringThread implements Runnable
-          {
-              public void run() {
-                  // we wait for every SUBSCRIBE, NOTIFY and PUBLISH transaction
-                  // to finish before continuing the unsubscription
-                  for (byte i = 0; i < 10; i++) {   // wait 5 s. max
-                      synchronized (waitedCallIds) {
-                          if (waitedCallIds.size() == 0) {
-                              break;
-                          }
-                      }
-
-                      synchronized (this) {
-                          try {
-                              wait(500);
-                          } catch (InterruptedException e) {
-                              logger.debug("abnormal behavior, may cause " +
-                                    "unnecessary CPU use", e);
-                          }
-                      }
-                  }
-              }
-          }
      }
 }
 

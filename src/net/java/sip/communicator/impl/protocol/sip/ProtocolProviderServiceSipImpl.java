@@ -1149,77 +1149,91 @@ public class ProtocolProviderServiceSipImpl
         {
             return;
         }
-        logger.trace("Killing the SIP Protocol Provider.");
-        //kill all active calls
-        OperationSetBasicTelephonySipImpl telephony
-            = (OperationSetBasicTelephonySipImpl)getOperationSet(
-                OperationSetBasicTelephony.class);
-        telephony.shutdown();
+        
+        // launch the shutdown process in a thread to free the GUI as soon
+        // as possible even if the SIP unregistration process may take time
+        // especially for ending SIMPLE
+        Thread t = new Thread(new ShutdownThread());
+        t.setDaemon(false);
+        t.run();
 
-        if(isRegistered())
-        {
+    }
+    
+    protected class ShutdownThread implements Runnable
+    {
+        public void run() {
+            logger.trace("Killing the SIP Protocol Provider.");
+            //kill all active calls
+            OperationSetBasicTelephonySipImpl telephony
+                = (OperationSetBasicTelephonySipImpl)getOperationSet(
+                    OperationSetBasicTelephony.class);
+            telephony.shutdown();
+
+            if(isRegistered())
+            {
+                try
+                {
+                    //create a listener that would notify us when unregistration
+                    //has completed.
+                    ShutdownUnregistrationBlockListener listener
+                        = new ShutdownUnregistrationBlockListener();
+                    addRegistrationStateChangeListener(listener);
+
+                    //do the unregistration
+                    unregister();
+
+                    //leave ourselves time to complete unregistration (may include
+                    //2 REGISTER requests in case notification is needed.)
+                    listener.waitForEvent(5000);
+                }
+                catch (OperationFailedException ex)
+                {
+                    //we're shutting down so we need to silence the exception here
+                    logger.error(
+                        "Failed to properly unregister before shutting down. "
+                        + getAccountID()
+                        , ex);
+                }
+            }
+
             try
             {
-                //create a listener that would notify us when unregistration
-                //has completed.
-                ShutdownUnregistrationBlockListener listener
-                    = new ShutdownUnregistrationBlockListener();
-                addRegistrationStateChangeListener(listener);
-
-                //do the unregistration
-                unregister();
-
-                //leave ourselves time to complete unregistration (may include
-                //2 REGISTER requests in case notification is needed.)
-                listener.waitForEvent(5000);
+                udpJainSipProvider.removeListeningPoint(udpListeningPoint);
+                tcpJainSipProvider.removeListeningPoint(tcpListeningPoint);
+                tlsJainSipProvider.removeListeningPoint(tlsListeningPoint);
             }
-            catch (OperationFailedException ex)
+            catch (ObjectInUseException ex)
             {
-                //we're shutting down so we need to silence the exception here
-                logger.error(
-                    "Failed to properly unregister before shutting down. "
-                    + getAccountID()
-                    , ex);
+                logger.info("An exception occurred while ", ex);
             }
-        }
 
-        try
-        {
-            udpJainSipProvider.removeListeningPoint(udpListeningPoint);
-            tcpJainSipProvider.removeListeningPoint(tcpListeningPoint);
-            tlsJainSipProvider.removeListeningPoint(tlsListeningPoint);
-        }
-        catch (ObjectInUseException ex)
-        {
-            logger.info("An exception occurred while ", ex);
-        }
+            try
+            {
+//                this.jainSipStack.stop();
+            }
+            catch (Exception ex)
+            {
+                //catch anything the stack can throw at us here so that we could
+                //peacefully finish our shutdown.
+                logger.error("Failed to properly stop the stack!", ex);
+            }
 
-        try
-        {
-//            this.jainSipStack.stop();
+            udpListeningPoint = null;
+            tcpListeningPoint = null;
+            tlsListeningPoint = null;
+            udpJainSipProvider = null;
+            tcpJainSipProvider = null;
+            tlsJainSipProvider = null;
+            headerFactory = null;
+            messageFactory = null;
+            addressFactory = null;
+            sipFactory = null;
+            sipSecurityManager = null;
+
+            methodProcessors.clear();
+
+            isInitialized = false;
         }
-        catch (Exception ex)
-        {
-            //catch anything the stack can throw at us here so that we could
-            //peacefully finish our shutdown.
-            logger.error("Failed to properly stop the stack!", ex);
-        }
-
-        udpListeningPoint = null;
-        tcpListeningPoint = null;
-        tlsListeningPoint = null;
-        udpJainSipProvider = null;
-        tcpJainSipProvider = null;
-        tlsJainSipProvider = null;
-        headerFactory = null;
-        messageFactory = null;
-        addressFactory = null;
-        sipFactory = null;
-        sipSecurityManager = null;
-
-        methodProcessors.clear();
-
-        isInitialized = false;
     }
 
     /**
