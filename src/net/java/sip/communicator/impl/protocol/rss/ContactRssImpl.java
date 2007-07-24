@@ -241,16 +241,15 @@ public class ContactRssImpl
         {
             File fileLocation = new File(feedLocation.getProtocol() + "://"
                 + feedLocation.getHost() + "/favicon.ico");
-            
-//          If the '.ico' resource is not found on the server (http 404 ERROR - 
-//          File Not Found), we return the default RSS '.ico'.            
-            if(!fileLocation.exists())
-            {
-                return getDefaultRssIcon();
-            }
-            
-            ICOFile favicon = new ICOFile(fileLocation.toURL());
-             
+
+            //commenting the check since it seems to always return false.
+            //if(!fileLocation.exists())
+            //{
+            //    return getDefaultRssIcon();
+            //}
+
+            ICOFile favicon = new ICOFile(fileLocation.toURI().toURL());
+
             logger.trace("Icon has " + favicon.getImageCount() + " pages");
 
             for (int i = 0; i < favicon.getDescriptors().size(); i++)
