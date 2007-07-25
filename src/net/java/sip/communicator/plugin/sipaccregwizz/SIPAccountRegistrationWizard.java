@@ -134,6 +134,25 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard
                 registration.getProxyPort());
         summaryTable.put(Resources.getString("preferredTransport"),
                 registration.getPreferredTransport());
+        
+        if (registration.isEnablePresence()) {
+            summaryTable.put(Resources.getString("enablePresence"),
+                Resources.getString("yes"));
+        } else {
+            summaryTable.put(Resources.getString("enablePresence"),
+                    Resources.getString("no"));
+        }
+        if (registration.isForceP2PMode()) {
+            summaryTable.put(Resources.getString("forceP2PPresence"),
+                    Resources.getString("yes"));
+        } else {
+            summaryTable.put(Resources.getString("forceP2PPresence"),
+                    Resources.getString("no"));
+        }
+        summaryTable.put(Resources.getString("offlineContactPollingPeriod"),
+                registration.getPollingPeriod());
+        summaryTable.put(Resources.getString("subscriptionExpiration"),
+                registration.getSubscriptionExpiration());
 
         return summaryTable.entrySet().iterator();
     }
@@ -188,7 +207,19 @@ public class SIPAccountRegistrationWizard implements AccountRegistrationWizard
 
         accountProperties.put(ProtocolProviderFactory.PREFERRED_TRANSPORT,
                 registration.getPreferredTransport());
+        
+        accountProperties.put(ProtocolProviderFactory.IS_PRESENCE_ENABLED,
+                Boolean.toString(registration.isEnablePresence()));
 
+        accountProperties.put(ProtocolProviderFactory.FORCE_P2P_MODE,
+                Boolean.toString(registration.isForceP2PMode()));
+        
+        accountProperties.put(ProtocolProviderFactory.POLLING_PERIOD,
+                registration.getPollingPeriod());
+        
+        accountProperties.put(ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION,
+                registration.getSubscriptionExpiration());
+        
         if(isModification) {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;

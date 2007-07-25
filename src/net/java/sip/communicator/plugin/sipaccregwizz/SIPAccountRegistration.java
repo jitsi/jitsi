@@ -30,6 +30,14 @@ public class SIPAccountRegistration {
     
     private String preferredTransport;
     
+    private boolean enablePresence;
+    
+    private boolean forceP2PMode;
+    
+    private String pollingPeriod;
+    
+    private String subscriptionExpiration;
+    
     public String getPreferredTransport()
     {
         return preferredTransport;
@@ -151,5 +159,69 @@ public class SIPAccountRegistration {
     public void setProxyPort(String port)
     {
         this.proxyPort = port;
+    }
+
+    /**
+     * If the presence is enabled
+     * @return If the presence is enabled
+     */
+    public boolean isEnablePresence() {
+        return enablePresence;
+    }
+
+    /**
+     * If the p2p mode is forced
+     * @return If the p2p mode is forced
+     */
+    public boolean isForceP2PMode() {
+        return forceP2PMode;
+    }
+
+    /**
+     * The offline contact polling period
+     * @return the polling period
+     */
+    public String getPollingPeriod() {
+        return pollingPeriod;
+    }
+
+    /**
+     * The default expiration of subscriptions
+     * @return the subscription expiration
+     */
+    public String getSubscriptionExpiration() {
+        return subscriptionExpiration;
+    }
+
+    /**
+     * Sets if the presence is enabled
+     * @param enablePresence if the presence is enabled
+     */
+    public void setEnablePresence(boolean enablePresence) {
+        this.enablePresence = enablePresence;
+    }
+
+    /**
+     * Sets if we have to force the p2p mode
+     * @param forceP2PMode if we have to force the p2p mode
+     */
+    public void setForceP2PMode(boolean forceP2PMode) {
+        this.forceP2PMode = forceP2PMode;
+    }
+
+    /**
+     * Sets the offline contacts polling period
+     * @param pollingPeriod the offline contacts polling period
+     */
+    public void setPollingPeriod(String pollingPeriod) {
+        this.pollingPeriod = pollingPeriod;
+    }
+
+    /**
+     * Sets the subscription expiration value
+     * @param subscriptionExpiration the subscription expiration value
+     */
+    public void setSubscriptionExpiration(String subscriptionExpiration) {
+        this.subscriptionExpiration = subscriptionExpiration;
     }
 }

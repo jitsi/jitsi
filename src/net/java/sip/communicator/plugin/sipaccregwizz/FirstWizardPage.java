@@ -32,6 +32,10 @@ public class FirstWizardPage extends JPanel
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
     
     private String defaultPortValue = "5060";
+    
+    private String defaultPollPeriod = "30";
+    
+    private String defaultSubscribeExpires = "3600";
 
     private JPanel uinPassPanel = new JPanel(new BorderLayout(10, 10));
 
@@ -88,6 +92,32 @@ public class FirstWizardPage extends JPanel
     private JComboBox transportCombo = new JComboBox(
             new Object[]{"UDP", "TLS", "TCP"});
     
+    private JPanel presenceOpPanel = new JPanel(new BorderLayout(10, 10));
+    
+    private JPanel buttonsPresOpPanel = 
+            new JPanel(new GridLayout(0, 1, 10, 10));
+    
+    private JPanel labelsPresOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    
+    private JPanel valuesPresOpPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    
+    private JCheckBox enablePresOpButton = new JCheckBox(
+            Resources.getString("enablePresence"), true);
+    
+    private JCheckBox forceP2PPresOpButton = new JCheckBox(
+            Resources.getString("forceP2PPresence"), true);
+    
+    private JLabel pollPeriodLabel = new JLabel(
+            Resources.getString("offlineContactPollingPeriod"));
+    
+    private JLabel subscribeExpiresLabel = new JLabel(
+            Resources.getString("subscriptionExpiration"));
+    
+    private JTextField pollPeriodField = new JTextField(defaultPollPeriod);
+    
+    private JTextField subscribeExpiresField = 
+            new JTextField(defaultSubscribeExpires);
+    
     private JPanel mainPanel = new JPanel();
     
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
@@ -112,7 +142,7 @@ public class FirstWizardPage extends JPanel
 
         this.registration = registration;
 
-        this.setPreferredSize(new Dimension(300, 250));
+        this.setPreferredSize(new Dimension(300, 550));
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -195,9 +225,37 @@ public class FirstWizardPage extends JPanel
 
         advancedOpPanel.setBorder(BorderFactory
                 .createTitledBorder(Resources.getString("advancedOptions")));
-
+        
         mainPanel.add(advancedOpPanel);
+        
+        enablePresOpButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent evt) {
+            // Perform action
+            JCheckBox cb = (JCheckBox) evt.getSource();
 
+            forceP2PPresOpButton.setEnabled(cb.isSelected());
+            pollPeriodField.setEditable(cb.isSelected());
+            subscribeExpiresField.setEditable(cb.isSelected());
+        }});
+        
+        labelsPresOpPanel.add(pollPeriodLabel);
+        labelsPresOpPanel.add(subscribeExpiresLabel);
+        
+        valuesPresOpPanel.add(pollPeriodField);
+        valuesPresOpPanel.add(subscribeExpiresField);
+        
+        buttonsPresOpPanel.add(enablePresOpButton);
+        buttonsPresOpPanel.add(forceP2PPresOpButton);
+        
+        presenceOpPanel.add(buttonsPresOpPanel, BorderLayout.NORTH);
+        presenceOpPanel.add(labelsPresOpPanel, BorderLayout.WEST);
+        presenceOpPanel.add(valuesPresOpPanel, BorderLayout.CENTER);
+        
+        presenceOpPanel.setBorder(BorderFactory
+                .createTitledBorder(Resources.getString("presenceOptions")));
+        
+        mainPanel.add(presenceOpPanel);
+        
         this.add(mainPanel, BorderLayout.NORTH);
     }
 
@@ -266,6 +324,12 @@ public class FirstWizardPage extends JPanel
             registration.setProxyPort(proxyPortField.getText());
             registration.setPreferredTransport(
                     transportCombo.getSelectedItem().toString());
+            
+            registration.setEnablePresence(enablePresOpButton.isSelected());
+            registration.setForceP2PMode(forceP2PPresOpButton.isSelected());
+            registration.setPollingPeriod(pollPeriodField.getText());
+            registration.setSubscriptionExpiration(
+                    subscribeExpiresField.getText());
         }
     }
 
@@ -340,6 +404,21 @@ public class FirstWizardPage extends JPanel
         String preferredTransport = (String)accountID.getAccountProperties()
             .get(ProtocolProviderFactory.PREFERRED_TRANSPORT);
         
+        boolean enablePresence = ((String) accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.IS_PRESENCE_ENABLED)).equals(
+                    Resources.getString("yes"));
+        
+        boolean forceP2P = ((String) accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.FORCE_P2P_MODE)).equals(
+                    Resources.getString("yes"));
+        
+        String pollingPeriod = (String) accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.POLLING_PERIOD);
+        
+        String subscriptionPeriod = (String) accountID.getAccountProperties()
+            .get(ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION);        
+        
+        
         this.uinField.setText(accountID.getUserID());
 
         if(password != null) {
@@ -352,6 +431,11 @@ public class FirstWizardPage extends JPanel
         proxyField.setText(proxyAddress);
         proxyPortField.setText(proxyPort);
         transportCombo.setSelectedItem(preferredTransport);
+        
+        enablePresOpButton.setSelected(enablePresence);
+        forceP2PPresOpButton.setSelected(forceP2P);
+        pollPeriodField.setText(pollingPeriod);
+        subscribeExpiresField.setText(subscriptionPeriod);
     }
 
     /**

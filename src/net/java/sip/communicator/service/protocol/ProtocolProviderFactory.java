@@ -132,6 +132,30 @@ public abstract class ProtocolProviderFactory
     public static final String RESOURCE_PRIORITY = "RESOURCE_PRIORITY";
     
     /**
+     * The name of the property under which we store if the presence is enabled.
+     */
+    public static final String IS_PRESENCE_ENABLED = "IS_PRESENCE_ENABLED";
+    
+    /**
+     * The name of the property under which we store if the p2p mode for SIMPLE
+     * should be forced.
+     */
+    public static final String FORCE_P2P_MODE = "FORCE_P2P_MODE";
+    
+    /**
+     * The name of the property under which we store the offline contact polling
+     * period for SIMPLE.
+     */
+    public static final String POLLING_PERIOD = "POLLING_PERIOD"; 
+    
+    /**
+     * The name of the property under which we store the chosen default
+     * subscription expiration value for SIMPLE.
+     */
+    public static final String SUBSCRIPTION_EXPIRATION = 
+                                    "SUBSCRIPTION_EXPIRATION";
+    
+    /**
      * Initializaed and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
      * <tt>context</tt> BundleContext parameter. Note that account

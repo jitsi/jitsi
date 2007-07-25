@@ -605,6 +605,45 @@ public class ProtocolProviderServiceSipImpl
             }
 
             initListeningPoints(preferredSipPort);
+            
+            // get the presence options
+            String enablePresenceObj = (String) accountID
+                    .getAccountProperties().get(
+                            ProtocolProviderFactory.IS_PRESENCE_ENABLED);
+            
+            boolean enablePresence = true;
+            if (enablePresenceObj != null) {
+                enablePresence = Boolean.valueOf(enablePresenceObj)
+                    .booleanValue();
+            }
+            
+            String forceP2PObj = (String) accountID.getAccountProperties()
+                    .get(ProtocolProviderFactory.FORCE_P2P_MODE);
+            
+            boolean forceP2P = true;
+            if (forceP2PObj != null) {
+                forceP2P = Boolean.valueOf(forceP2PObj).booleanValue();
+            }
+            
+            int pollingValue = 30;
+            try {
+                pollingValue = Integer.parseInt(
+                    ((String) accountID.getAccountProperties()
+                        .get(ProtocolProviderFactory.POLLING_PERIOD)));
+            } catch (NumberFormatException e) {
+                logger.warn("wrong polling value stored", e);
+            }
+            
+            int subscriptionExpiration = 3600;
+            try {
+                subscriptionExpiration = Integer.parseInt(
+                        ((String) accountID.getAccountProperties()
+                                .get(ProtocolProviderFactory
+                                        .SUBSCRIPTION_EXPIRATION)));
+            } catch (NumberFormatException e) {
+                logger.warn("wrong expiration value stored", e);
+            }
+           
 
             //create SIP factories.
             headerFactory = new HeaderFactoryImpl();
@@ -623,7 +662,8 @@ public class ProtocolProviderServiceSipImpl
 
             //init presence op set.
             OperationSetPersistentPresence opSetPersPresence
-                = new OperationSetPresenceSipImpl(this);
+                = new OperationSetPresenceSipImpl(this, enablePresence,
+                        forceP2P, pollingValue, subscriptionExpiration);
             this.supportedOperationSets.put(
                 OperationSetPersistentPresence.class.getName()
                 , opSetPersPresence);
