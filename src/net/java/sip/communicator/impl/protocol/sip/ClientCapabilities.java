@@ -63,10 +63,21 @@ public class ClientCapabilities
 
                 optionsOK.addHeader(
                     provider.getHeaderFactory().createAllowHeader(method));
-
-                //add a user agent header.
-                optionsOK.setHeader( provider.getSipCommUserAgentHeader());
             }
+            
+            Iterator events = provider.getKnownEventsList().iterator();
+            
+            synchronized (provider.getKnownEventsList()) {
+                while (events.hasNext()) {
+                    String event = (String) events.next();
+                    
+                    optionsOK.addHeader(provider.getHeaderFactory()
+                            .createAllowEventsHeader(event));
+                }
+            }
+            
+            //add a user agent header.
+            optionsOK.setHeader(provider.getSipCommUserAgentHeader());
         }
         catch (ParseException ex)
         {

@@ -59,6 +59,11 @@ public class ProtocolProviderServiceSipImpl
      * <tt>RegistrationStateChangeEvent</tt>s.
      */
     private List registrationListeners = new ArrayList();
+    
+    /**
+     * A list of all events registered for this provider.
+     */
+    private List registeredEvents = new ArrayList();
 
     /**
      * The SipFactory instance used to create the SipStack and the Address
@@ -380,6 +385,30 @@ public class ProtocolProviderServiceSipImpl
     public String getProtocolName()
     {
         return ProtocolNames.SIP;
+    }
+    
+    /**
+     * Register a new event taken in account by this provider. This is usefull
+     * to generate the Allow-Events header of the OPTIONS responses and to
+     * generate 489 responses.
+     * 
+     * @param event The event to register
+     */
+    public void registerEvent(String event) {
+        synchronized (this.registeredEvents) {
+            if (!this.registeredEvents.contains(event)) {
+                this.registeredEvents.add(event);
+            }
+        }
+    }
+    
+    /**
+     * Returns the list of all the registered events for this provider.
+     * 
+     * @return The list of all the registered events
+     */
+    public List getKnownEventsList() {
+        return this.registeredEvents;
     }
 
     /**
@@ -1160,6 +1189,74 @@ public class ProtocolProviderServiceSipImpl
         logger.debug("received request=\n" + requestEvent.getRequest());
 
         Request request = requestEvent.getRequest();
+        
+        // test if an Event header is present and known
+        EventHeader eventHeader = (EventHeader) 
+            request.getHeader(EventHeader.NAME);
+        
+        if (eventHeader != null) {
+            boolean eventKnown;
+            
+            synchronized (this.registeredEvents) {
+                eventKnown = this.registeredEvents.contains(
+                        eventHeader.getEventType());
+            }
+            
+            if (!eventKnown) {
+                // send a 489 / Bad Event response
+                ServerTransaction serverTransaction = requestEvent
+                    .getServerTransaction();
+                SipProvider jainSipProvider = (SipProvider)
+                    requestEvent.getSource();
+                
+                if (serverTransaction == null)
+                {
+                    try
+                    {
+                        serverTransaction = jainSipProvider
+                            .getNewServerTransaction(request);
+                    }
+                    catch (TransactionAlreadyExistsException ex)
+                    {
+                        //let's not scare the user and only log a message
+                        logger.error("Failed to create a new server"
+                            + "transaction for an incoming request\n"
+                            + "(Next message contains the request)"
+                            , ex);
+                        return;
+                    }
+                    catch (TransactionUnavailableException ex)
+                    {
+                        //let's not scare the user and only log a message
+                        logger.error("Failed to create a new server"
+                            + "transaction for an incoming request\n"
+                            + "(Next message contains the request)"
+                            , ex);
+                            return;
+                    }
+                }
+                
+                Response response = null;
+                try {
+                    response = this.getMessageFactory().createResponse(
+                            Response.BAD_EVENT, request);
+                } catch (ParseException e) {
+                    logger.error("failed to create the 489 response", e);
+                    return;
+                }
+
+                try {
+                    serverTransaction.sendResponse(response);
+                } catch (SipException e) {
+                    logger.error("failed to send the response", e);
+                } catch (InvalidArgumentException e) {
+                    // should not happen
+                    logger.error("invalid argument provided while trying" +
+                            " to send the response", e);
+                }
+            }
+        }
+        
 
         String method = request.getMethod();
 

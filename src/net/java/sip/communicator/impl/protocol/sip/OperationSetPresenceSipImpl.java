@@ -39,7 +39,7 @@ public class OperationSetPresenceSipImpl
     implements OperationSetPersistentPresence, SipListener
 {
     private static final Logger logger =
-        Logger.getLogger(OperationSetPersistentPresenceSipImpl.class);
+        Logger.getLogger(OperationSetPresenceSipImpl.class);
     /**
      * A list of listeners registered for <tt>SubscriptionEvent</tt>s.
      */
@@ -101,12 +101,6 @@ public class OperationSetPresenceSipImpl
      * Content : String
      */
     private Vector waitedCallIds = new Vector();
-    
-    /**
-     * Hashtable of the pending NOTIFY requests (NOTIFY received before a OK)
-     * index : String, Content : RequestEvent
-     */
-    private Hashtable pendingNotify = new Hashtable();
 
     /**
      * Do we have to use a distant presence agent (default initial value)
@@ -254,6 +248,8 @@ public class OperationSetPresenceSipImpl
         this.parentProvider.registerMethodProcessor(Request.SUBSCRIBE, this);
         this.parentProvider.registerMethodProcessor(Request.NOTIFY, this);
         this.parentProvider.registerMethodProcessor(Request.PUBLISH, this);
+        
+        this.parentProvider.registerEvent("presence");
         
         logger.debug("presence initialized with :" + isPresenceEnabled + ", "
                 + forceP2PMode + ", " + pollingPeriod + ", " 
@@ -2703,7 +2699,7 @@ public class OperationSetPresenceSipImpl
                             getPidfPresenceStatus((ContactSipImpl) 
                                     getLocalContact()),
                             SubscriptionStateHeader.TERMINATED,
-                            SubscriptionStateHeader.DEACTIVATED);
+                            SubscriptionStateHeader.REJECTED);
                 } catch (OperationFailedException e) {
                     logger.error("failed to create the new notify", e);
                     return;
