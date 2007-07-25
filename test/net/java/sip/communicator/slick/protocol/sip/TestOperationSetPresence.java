@@ -398,6 +398,15 @@ public class TestOperationSetPresence
 
         subEvtCollector.collectedEvents.clear();
         
+        // wait to be sure that every responses for the subscribe have been
+        // received
+        Object lock = new Object();
+        synchronized(lock)
+        {
+            logger.info("Will wait all subscription events to be received");
+            lock.wait(3000);
+        }
+        
         // make the user agent tester change its states and make sure we are
         // notified
         logger.debug("Testing presence notifications.");
@@ -482,10 +491,9 @@ public class TestOperationSetPresence
             // happens if the user is already subscribed
         }
         
-        Object lock = new Object();
         synchronized(lock)
         {
-            logger.info("Will wait all subscriptioin events to be received by" +
+            logger.info("Will wait all subscription events to be received by" +
                     " lib");
             lock.wait(3000);
             logger.info("Stopped waiting");

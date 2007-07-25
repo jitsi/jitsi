@@ -264,7 +264,9 @@ public class OperationSetPresenceSipImpl
         // if we force the p2p mode, we start by not using a distant PA
         this.useDistantPA = !forceP2PMode;
         
-        this.subscriptionDuration = subscriptionExpiration;
+        if (subscriptionDuration > 0) {
+            this.subscriptionDuration = subscriptionExpiration;
+        }
         this.presenceEnabled = isPresenceEnabled;
     }
 
@@ -738,6 +740,7 @@ public class OperationSetPresenceSipImpl
 
             listener.providerStatusMessageChanged(evt);
         }
+        logger.debug("status dispatching done.");
     }
 
     /**
