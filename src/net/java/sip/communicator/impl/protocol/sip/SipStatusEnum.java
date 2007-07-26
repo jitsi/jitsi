@@ -34,13 +34,22 @@ public class SipStatusEnum
             , loadIcon("resources/images/sip/sip16x16-offline.png"));
 
     /**
-     * The DND status. Indicates that the user has connectivity but prefers
-     * not to be contacted.
+     * The busy status. Indicates that the user has connectivity but is doing
+     * something else.
      */
-    public static final SipStatusEnum DO_NOT_DISTURB
+    public static final SipStatusEnum BUSY
         = new SipStatusEnum(
-            30
-            , "Do Not Disturb",
+            30,
+            "Busy",
+            loadIcon("resources/images/sip/sip16x16-dnd.png"));
+    
+    /**
+     * The On the phone status. Indicates that the user is talking to the phone.
+     */
+    public static final SipStatusEnum ON_THE_PHONE
+        = new SipStatusEnum(
+            37,
+            "On the phone",
             loadIcon("resources/images/sip/sip16x16-dnd.png"));
     
     /**
@@ -79,8 +88,9 @@ public class SipStatusEnum
     static
     {
         supportedStatusSet.add(ONLINE);
-        supportedStatusSet.add(DO_NOT_DISTURB);
         supportedStatusSet.add(AWAY);
+        supportedStatusSet.add(ON_THE_PHONE);
+        supportedStatusSet.add(BUSY);
         supportedStatusSet.add(OFFLINE);
     }
 

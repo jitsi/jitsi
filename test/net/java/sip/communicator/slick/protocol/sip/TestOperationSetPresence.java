@@ -275,7 +275,7 @@ public class TestOperationSetPresence
     {
         try
         {
-            Thread.currentThread().sleep(1500);
+            Thread.currentThread().sleep(2000);
         }
         catch (InterruptedException ex)
         {

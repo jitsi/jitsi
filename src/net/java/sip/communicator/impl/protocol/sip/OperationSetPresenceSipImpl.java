@@ -221,6 +221,8 @@ public class OperationSetPresenceSipImpl
     private static final String NS_AWAY_ELT     = "rpid:away";
     private static final String BUSY_ELEMENT    = "busy";
     private static final String NS_BUSY_ELT     = "rpid:busy";
+    private static final String OTP_ELEMENT     = "on-the-phone";
+    private static final String NS_OTP_ELT      = "rpid:on-the-phone";
 
     /**
      * Creates an instance of this operation set keeping a reference to the
@@ -3513,11 +3515,14 @@ public class OperationSetPresenceSipImpl
          if (contact.getPresenceStatus().equals(SipStatusEnum.AWAY)) {
              Element away = doc.createElement(NS_AWAY_ELT);
              activities.appendChild(away);
-         } else if (contact.getPresenceStatus()
-                 .equals(SipStatusEnum.DO_NOT_DISTURB))
-         {
+         } else if (contact.getPresenceStatus().equals(SipStatusEnum.BUSY)) {
              Element busy = doc.createElement(NS_BUSY_ELT);
              activities.appendChild(busy);
+         } else if (contact.getPresenceStatus()
+                 .equals(SipStatusEnum.ON_THE_PHONE))
+         {
+             Element otp = doc.createElement(NS_OTP_ELT);
+             activities.appendChild(otp);
          }
          
          // <tuple>
@@ -3632,20 +3637,18 @@ public class OperationSetPresenceSipImpl
                          continue;
                      }
                      
-                     if (activityNode.getNodeName().equals(AWAY_ELEMENT)
-                         || activityNode.getNodeName().equals(BUSY_ELEMENT))
-                     {
-                         activity = (Element) activityNode;
-                         break;
-                     }
-                 }
-                 
-                 // convert the activity in a SC status
-                 if (activity != null) {
+                     activity = (Element) activityNode;
+                     
+                     // convert the activity in a SC status
                      if (activity.getNodeName().equals(AWAY_ELEMENT)) {
                          personStatus = SipStatusEnum.AWAY;
+                         break;
                      } else if (activity.getNodeName().equals(BUSY_ELEMENT)) {
-                         personStatus = SipStatusEnum.DO_NOT_DISTURB;
+                         personStatus = SipStatusEnum.BUSY;
+                         break;
+                     } else if (activity.getNodeName().equals(OTP_ELEMENT)) {
+                         personStatus = SipStatusEnum.ON_THE_PHONE;
+                         break;
                      }
                  }
              }
@@ -3764,22 +3767,17 @@ public class OperationSetPresenceSipImpl
                      Element note = (Element) noteNode;
 
                      String state = getTextContent(note);
-
-                     // away ?
-                     if (state.equalsIgnoreCase(SipStatusEnum.AWAY
-                             .getStatusName()))
-                     {
-                         changed = true;
-                         changePresenceStatusForContact(sipcontact,
-                                 SipStatusEnum.AWAY);
-                     }
-                     // do not disturb ?
-                     else if (state.equalsIgnoreCase(
-                             SipStatusEnum.DO_NOT_DISTURB.getStatusName()))
-                     {
-                         changed = true;
-                         changePresenceStatusForContact(sipcontact,
-                                 SipStatusEnum.DO_NOT_DISTURB);
+                     
+                     Iterator states = SipStatusEnum.supportedStatusSet();
+                     while (states.hasNext()) {
+                         SipStatusEnum current = (SipStatusEnum) states.next();
+                         
+                         if (current.getStatusName().equalsIgnoreCase(state)) {
+                             changed = true;
+                             changePresenceStatusForContact(sipcontact,
+                                     current);
+                             break;
+                         }
                      }
                  }
 
