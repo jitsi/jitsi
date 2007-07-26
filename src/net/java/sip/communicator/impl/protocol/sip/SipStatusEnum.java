@@ -41,7 +41,7 @@ public class SipStatusEnum
         = new SipStatusEnum(
             30,
             "Busy",
-            loadIcon("resources/images/sip/sip16x16-dnd.png"));
+            loadIcon("resources/images/sip/sip16x16-busy.png"));
     
     /**
      * The On the phone status. Indicates that the user is talking to the phone.
@@ -50,7 +50,7 @@ public class SipStatusEnum
         = new SipStatusEnum(
             37,
             "On the phone",
-            loadIcon("resources/images/sip/sip16x16-dnd.png"));
+            loadIcon("resources/images/sip/sip16x16-phone.png"));
     
     /**
      * The Away  status. Indicates that the user has connectivity but might
@@ -60,7 +60,7 @@ public class SipStatusEnum
         = new SipStatusEnum(
             40,
             "Away",
-            loadIcon("resources/images/sip/sip16x16-dnd.png"));
+            loadIcon("resources/images/sip/sip16x16-away.png"));
 
     /**
      * The Online status. Indicate that the user is able and willing to
