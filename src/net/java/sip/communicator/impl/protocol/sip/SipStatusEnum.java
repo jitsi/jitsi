@@ -40,7 +40,7 @@ public class SipStatusEnum
     public static final SipStatusEnum BUSY
         = new SipStatusEnum(
             30,
-            "Busy",
+            "Busy (DND)",
             loadIcon("resources/images/sip/sip16x16-busy.png"));
     
     /**

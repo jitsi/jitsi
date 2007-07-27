@@ -3249,10 +3249,6 @@ public class OperationSetPresenceSipImpl
         ContactSipImpl newVolatileContact
             = new ContactSipImpl(contactAddress, this.parentProvider);
         newVolatileContact.setPersistent(false);
-        
-        // ensure that we won't try to subscribe to him
-        newVolatileContact.setResolvable(false);
-        newVolatileContact.setResolved(true);
 
         // Check whether a volatile group already exists and if not create one
         ContactGroupSipImpl theVolatileGroup = getNonPersistentGroup();
