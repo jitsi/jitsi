@@ -13,6 +13,8 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.createforms.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -162,7 +164,7 @@ public class CreateChatRoomDialog
             
             if(chatRoom != null)
                 mainFrame.getChatRoomsListPanel().getChatRoomsList()
-                    .addChatRoom(chatRoom, pps);
+                    .addChatRoom(new ChatRoomWrapper(chatRoom));
         }
     }
 }
