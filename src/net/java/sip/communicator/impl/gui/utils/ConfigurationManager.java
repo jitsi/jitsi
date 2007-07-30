@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.utils;
 import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -32,8 +33,6 @@ public class ConfigurationManager
     private static boolean isApplicationVisible = true;
     
     private static boolean isSendTypingNotifications = true;
-    
-    private static LinkedList chatRoomsList;
     
     private static ConfigurationService configService
         = GuiActivator.getConfigurationService();
@@ -92,25 +91,6 @@ public class ConfigurationManager
             isSendTypingNotifications
                 = new Boolean(isSendTypingNotif).booleanValue();
         }
-        
-        // Load the list of visited chat rooms.      
-//        String prefix = "net.java.sip.communicator.impl.gui.chatRooms";
-//
-//        List chatRooms = configService
-//                .getPropertyNamesByPrefix(prefix, true);
-//
-//        Iterator chatRoomIter = chatRooms.iterator();
-//            
-//        while(chatRoomIter.hasNext())
-//        {
-//            String chatRoomRootPropName
-//                = (String) chatRoomIter.next();
-//
-//            String chatRoomID
-//                = configService.getString(chatRoomRootPropName);
-//
-//            chatRoomsList.add(chatRoomID);
-//        }
     }
 
     /**
@@ -185,17 +165,6 @@ public class ConfigurationManager
     }
     
     /**
-     * Return the list of visited chat rooms that was previously saved in through
-     * the <tt>ConfigurationService</tt>.
-     * @return the list of visited chat rooms that was previously saved in through
-     * the <tt>ConfigurationService</tt>. 
-     */
-    public static List getChatRoomsList()
-    {
-        return chatRoomsList;
-    }
-
-    /**
      * Updates the "autoPopupNewMessage" property.
      * 
      * @param autoPopupNewMessage indicates to the user interface whether new
@@ -259,16 +228,70 @@ public class ConfigurationManager
                 "net.java.sip.communicator.impl.gui.sendMessageCommand",
                 newMessageCommand);
     }
+            
+    public static void saveChatRoom(ProtocolProviderService protocolProvider,
+        String oldChatRoomId, String newChatRoomId, String newChatRoomName)
+    {   
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+        
+        List accounts = configService
+                .getPropertyNamesByPrefix(prefix, true);
     
-    public static void saveChatRoom(ChatRoom chatRoom)
-    {
-        String chatRoomNodeName
-            = "chatr" + Long.toString(System.currentTimeMillis());
+        Iterator accountsIter = accounts.iterator();
     
-        String chatRoomPackage
-            = "net.java.sip.communicator.impl.gui.chatRooms."
-                    + chatRoomNodeName;
+        while(accountsIter.hasNext()) {
+            String accountRootPropName
+                = (String) accountsIter.next();
     
-        configService.setProperty(chatRoomPackage, chatRoom.getName());    
+            String accountUID
+                = configService.getString(accountRootPropName);
+    
+            if(accountUID.equals(protocolProvider
+                    .getAccountID().getAccountUniqueID()))
+            {     
+                List chatRooms = configService
+                    .getPropertyNamesByPrefix(
+                        accountRootPropName + ".chatRooms", true);
+                
+                Iterator chatRoomsIter = chatRooms.iterator();
+                
+                boolean isExistingChatRoom = false;
+                
+                while(chatRoomsIter.hasNext())
+                {
+                    String chatRoomPropName
+                        = (String) chatRoomsIter.next();
+                    
+                    String chatRoomID
+                        = configService.getString(chatRoomPropName);
+                   
+                    if(!oldChatRoomId.equals(chatRoomID))
+                        continue;
+
+                    isExistingChatRoom = true;
+                    
+                    configService.setProperty(chatRoomPropName,
+                        newChatRoomId);
+                    
+                    configService.setProperty(chatRoomPropName + ".chatRoomName",
+                        newChatRoomName);
+                }
+                
+                if(!isExistingChatRoom)                
+                {
+                    String chatRoomNodeName
+                        = "chatRoom" + Long.toString(System.currentTimeMillis());
+        
+                    String chatRoomPackage = accountRootPropName
+                        + ".chatRooms." + chatRoomNodeName;
+        
+                    configService.setProperty(chatRoomPackage,
+                        newChatRoomId);
+                    
+                    configService.setProperty(chatRoomPackage + ".chatRoomName",
+                        newChatRoomName);
+                }
+            }
+        }
     }
 }

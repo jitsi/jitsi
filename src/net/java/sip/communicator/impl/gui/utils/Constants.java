@@ -7,20 +7,15 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
-import java.applet.*;
-import java.io.*;
-import java.util.*;
-import java.util.Map;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.io.*;
+import java.util.*;
+
 import javax.swing.text.html.*;
 
-import net.java.sip.communicator.impl.gui.i18n.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.icqconstants.*;
 import net.java.sip.communicator.util.*;
 
 /**
