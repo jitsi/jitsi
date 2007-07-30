@@ -8,20 +8,21 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.filter.*;
-import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.provider.*;
-import org.jivesoftware.smack.util.*;
-import org.jivesoftware.smackx.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.event.MessageListener;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
+
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smackx.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation
@@ -293,8 +294,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
                 jabberProvider.getConnection().addPacketListener(
                         new SmackMessageListener(),
-                        new PacketTypeFilter(
-                            org.jivesoftware.smack.packet.Message.class));
+                        new AndFilter(
+                            new PacketFilter[]{new GroupMessagePacketFilter(),
+                            new PacketTypeFilter(
+                            org.jivesoftware.smack.packet.Message.class)}));
 
                 // run keepalive thread
                 if(keepAliveSendTask == null && keepAliveEnabled)
@@ -403,6 +406,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 return;
             }
 
+            // In the second condition we filter all group chat messages,
+            // because they are managed by the multi user chat operation set.
             if(sourceContact == null)
             {
                 logger.debug("received a message from an unknown contact: "
@@ -564,5 +569,23 @@ public class OperationSetBasicInstantMessagingJabberImpl
     public void setKeepAliveEnabled(boolean keepAliveEnabled)
     {
         this.keepAliveEnabled = keepAliveEnabled;
+    }
+    
+    private class GroupMessagePacketFilter implements PacketFilter
+    {   
+        public boolean accept(Packet packet)
+        {            
+            if(!(packet instanceof org.jivesoftware.smack.packet.Message))
+                return false;
+            
+            org.jivesoftware.smack.packet.Message msg
+                = (org.jivesoftware.smack.packet.Message) packet;
+            
+            if(msg.getType().equals(
+                org.jivesoftware.smack.packet.Message.Type.groupchat))
+                return false;
+            
+            return true;
+        }        
     }
 }

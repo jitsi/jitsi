@@ -8,12 +8,13 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smackx.packet.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smackx.packet.*;
 
 /**
  * This class encapsulates the Roster class. Once created, it will
@@ -634,9 +635,11 @@ public class ServerStoredContactListJabberImpl
         if(roster.getUnfiledEntryCount() > 0)
         {
             Iterator iter = roster.getUnfiledEntries().iterator();
+
             while (iter.hasNext())
             {
                 RosterEntry item = (RosterEntry) iter.next();
+
                 ContactJabberImpl contact =
                     findContactById(item.getUser());
 
@@ -655,7 +658,6 @@ public class ServerStoredContactListJabberImpl
                 }
             }
         }
-
 
         // fill in root group
         Iterator iter = roster.getGroups().iterator();

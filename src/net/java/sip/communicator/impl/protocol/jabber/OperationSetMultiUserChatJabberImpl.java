@@ -10,21 +10,20 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
-import net.java.sip.communicator.util.*;
-import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.muc.RoomInfo;
-import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smackx.muc.HostedRoom;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smackx.muc.*;
 
 /**
  * A jabber implementation of the multi user chat operation set.
  *
  * @author Emil Ivov
+ * @author Yana Stamcheva
  */
 public class OperationSetMultiUserChatJabberImpl
-    implements OperationSetMultiUserChat
+    implements  OperationSetMultiUserChat
 {
     private static final Logger logger
         = Logger.getLogger(OperationSetMultiUserChatJabberImpl.class);
@@ -60,6 +59,13 @@ public class OperationSetMultiUserChatJabberImpl
     private Hashtable chatRoomCache = new Hashtable();
 
     /**
+     * The registration listener that would get notified when the unerlying
+     * jabber provider gets registered.
+     */
+    private RegistrationStateListener providerRegListener
+        = new RegistrationStateListener();
+
+    /**
      * Instantiates the user operation set with a currently valid instance of
      * the jabber protocol provider.
      * @param jabberProvider a currently valid instance of
@@ -69,10 +75,8 @@ public class OperationSetMultiUserChatJabberImpl
                         ProtocolProviderServiceJabberImpl jabberProvider)
     {
         this.jabberProvider = jabberProvider;
-
-        /** @todo implement invitation listeners */
-//        MultiUserChat.addInvitationListener(jabberProvider.getConnection()
-//                                            , this);
+        
+        jabberProvider.addRegistrationStateChangeListener(providerRegListener);
     }
 
     /**
@@ -201,7 +205,6 @@ public class OperationSetMultiUserChatJabberImpl
 
         MultiUserChat muc = new MultiUserChat(getXmppConnection(), roomName);
 
-
         try
         {
             muc.create(getXmppConnection().getUser());
@@ -228,11 +231,17 @@ public class OperationSetMultiUserChatJabberImpl
     private ChatRoom createLocalChatRoomInstance(MultiUserChat muc)
     {
         synchronized(chatRoomCache)
-        {
+        {            
             ChatRoomJabberImpl chatRoom
                 = new ChatRoomJabberImpl(muc, jabberProvider);
             cacheChatRoom(chatRoom);
 
+            // Add the contained in this class SmackInvitationRejectionListener
+            // which will dispatch all rejection events to the
+            // ChatRoomInvitationRejectionListener.
+            muc.addInvitationRejectionListener(
+                new SmackInvitationRejectionListener(chatRoom));
+            
             return chatRoom;
         }
     }
@@ -266,44 +275,11 @@ public class OperationSetMultiUserChatJabberImpl
         {
             return room;
         }
-        //if not, then check whether it's on the server and if yes - create it
-        //locally.
+        //if not, we create it.
         else
         {
-            try
-            {
-                MultiUserChat.getRoomInfo( getXmppConnection(), roomName );
-
-                //if we get here then we didn't get an error while retrieving
-                //room info and we can assume it exists
-                return createLocalChatRoomInstance(
-                    new MultiUserChat(getXmppConnection(),roomName));
-            }
-            catch (XMPPException ex)
-            {
-                //if this is a 404 then it simply means the room doesn't exist
-                //on the server, so we return null and don't rethrow the
-                //exception
-                if(ex.getXMPPError() != null
-                   && ex.getXMPPError().getCode() == 404)
-                {
-                    return null;
-                }
-                logger.error(
-                    "Failed to retrieve room info for "
-                    + roomName
-                    +". Error was: "
-                    + ex.getMessage()
-                    , ex);
-
-                //otherwise we rethrow the exception cause it means a real error
-                throw new OperationFailedException(
-                    "Failed to retrieve room info for "
-                    + roomName
-                    +". Error was: "
-                    + ex.getMessage()
-                    , OperationFailedException.GENERAL_ERROR);
-            }
+            return createLocalChatRoomInstance(
+                new MultiUserChat(getXmppConnection(), roomName));
         }
     }
 
@@ -315,11 +291,11 @@ public class OperationSetMultiUserChatJabberImpl
      *   a given connection.
      */
     public List getCurrentlyJoinedChatRooms()
-    {
+    {   
         synchronized(chatRoomCache)
         {
             List joinedRooms
-                = new LinkedList(this.chatRoomCache.entrySet());
+                = new LinkedList(this.chatRoomCache.values());
 
             Iterator joinedRoomsIter = joinedRooms.iterator();
 
@@ -382,10 +358,13 @@ public class OperationSetMultiUserChatJabberImpl
      * multi user chat
      */
     public List getExistingChatRooms()
-        throws OperationFailedException, OperationNotSupportedException
+        throws  OperationFailedException,
+                OperationNotSupportedException
     {
+        assertSupportedAndConnected();
+        
         List list = new LinkedList();
-
+        
         //first retrieve all conference service names available on this server
         Iterator serviceNames = null;
         try
@@ -452,6 +431,10 @@ public class OperationSetMultiUserChatJabberImpl
      */
     public boolean isMultiChatSupportedByContact(Contact contact)
     {
+        if(contact.getProtocolProvider()
+            .getOperationSet(OperationSetMultiUserChat.class) != null)
+            return true;
+        
         return false;
     }
 
@@ -459,12 +442,15 @@ public class OperationSetMultiUserChatJabberImpl
      * Informs the sender of an invitation that we decline their invitation.
      *
      * @param invitation the connection to use for sending the rejection.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.OperationSetMultiUserChat
-     *   method
+     * @param rejectReason the reason to reject the given invitation
      */
-    public void rejectInvitation(ChatRoomInvitation invitation)
+    public void rejectInvitation(ChatRoomInvitation invitation,
+        String rejectReason)
     {
+        MultiUserChat.decline(jabberProvider.getConnection(),
+            invitation.getTargetChatRoom().getName(),
+            invitation.getInviter(),
+            rejectReason);
     }
 
     /**
@@ -602,9 +588,223 @@ public class OperationSetMultiUserChatJabberImpl
         return (ChatRoomJabberImpl)this.chatRoomCache.get(chatRoomName);
     }
 
+    /**
+     * Returns the list of currently joined chat rooms.
+     */
     public List getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
         throws OperationFailedException, OperationNotSupportedException
     {
         return null;
     }
+    
+    /**
+     * Delivers a <tt>LocalUserChatRoomPresenceChangeEvent</tt> to all
+     * registered <tt>LocalUserChatRoomPresenceListener</tt>s.
+     * 
+     * @param chatRoom the <tt>ChatRoom</tt> which has been joined, left, etc.
+     * @param eventType the type of this event; one of LOCAL_USER_JOINED,
+     * LOCAL_USER_LEFT, etc.
+     * @param reason the reason
+     */
+    public void fireLocalUserPresenceEvent(ChatRoom chatRoom, String eventType,
+        String reason)
+    {
+        LocalUserChatRoomPresenceChangeEvent evt
+            = new LocalUserChatRoomPresenceChangeEvent( this,
+                                                        chatRoom,
+                                                        eventType,
+                                                        reason);
+        
+        Iterator listeners = null;
+        synchronized (presenceListeners)
+        {
+            listeners = new ArrayList(presenceListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            LocalUserChatRoomPresenceListener listener
+                = (LocalUserChatRoomPresenceListener) listeners.next();
+            
+            listener.localUserPresenceChanged(evt);            
+        }
+    }
+
+    /**
+     * Delivers a <tt>ChatRoomInvitationReceivedEvent</tt> to all
+     * registered <tt>ChatRoomInvitationListener</tt>s.
+     * 
+     * @param targetChatRoom the room that invitation refers to
+     * @param inviter the inviter that sent the invitation
+     * @param reason the reason why the inviter sent the invitation
+     * @param password the password to use when joining the room 
+     */
+    public void fireInvitationEvent(
+        ChatRoom targetChatRoom,
+        String inviter,
+        String reason,
+        String password)
+    {
+        ChatRoomInvitationJabberImpl invitation
+            = new ChatRoomInvitationJabberImpl( targetChatRoom,
+                                                inviter,
+                                                reason,
+                                                password);
+        
+        ChatRoomInvitationReceivedEvent evt
+            = new ChatRoomInvitationReceivedEvent(this, invitation,
+                new Date(System.currentTimeMillis()));
+        
+        Iterator listeners = null;
+        synchronized (invitationListeners)
+        {
+            listeners = new ArrayList(invitationListeners).iterator();
+        }
+        
+        while (listeners.hasNext())
+        {
+            ChatRoomInvitationListener listener
+                = (ChatRoomInvitationListener) listeners.next();
+            
+            listener.invitationReceived(evt);           
+        }
+    }
+    
+    /**
+     * Delivers a <tt>ChatRoomInvitationRejectedEvent</tt> to all
+     * registered <tt>ChatRoomInvitationRejectionListener</tt>s.
+     * 
+     * @param sourceChatRoom the room that invitation refers to
+     * @param invitee the name of the invitee that rejected the invitation
+     * @param reason the reason of the rejection
+     */
+    public void fireInvitationRejectedEvent(ChatRoom sourceChatRoom,
+                                            String invitee,
+                                            String reason)
+    {
+        ChatRoomInvitationRejectedEvent evt
+            = new ChatRoomInvitationRejectedEvent(
+                this, sourceChatRoom, invitee, reason,
+                new Date(System.currentTimeMillis()));
+        
+        Iterator listeners = null;
+        synchronized (invitationRejectionListeners)
+        {
+            listeners = new ArrayList(invitationRejectionListeners).iterator();
+        }
+        
+        while (listeners.hasNext())
+        {
+            ChatRoomInvitationRejectionListener listener
+                = (ChatRoomInvitationRejectionListener) listeners.next();
+            
+            listener.invitationRejected(evt);
+        }
+    }
+
+    /**
+     * A listener that is fired anytime an invitation to join a MUC room is
+     * received.
+     */
+    private class SmackInvitationListener
+        implements InvitationListener
+    {
+        /**
+         * Called when the an invitation to join a MUC room is received.<p>
+         * 
+         * If the room is password-protected, the invitee will receive a
+         * password to use to join the room. If the room is members-only, the
+         * the invitee may be added to the member list.
+         * 
+         * @param conn the XMPPConnection that received the invitation.
+         * @param room the room that invitation refers to.
+         * @param inviter the inviter that sent the invitation.
+         * (e.g. crone1@shakespeare.lit).
+         * @param reason the reason why the inviter sent the invitation.
+         * @param password the password to use when joining the room.
+         * @param message the message used by the inviter to send the invitation.
+         */
+        public void invitationReceived(XMPPConnection conn,
+            String room, String inviter, String reason,
+            String password, Message message)
+        {
+            ChatRoomJabberImpl chatRoom;
+            try
+            {
+                chatRoom = (ChatRoomJabberImpl) findRoom(room);
+                
+                fireInvitationEvent(chatRoom, inviter, reason, password);
+            }
+            catch (OperationFailedException e)
+            {
+                logger.error("Failed to find room with name: " + room, e);
+            }
+            catch (OperationNotSupportedException e)
+            {
+                logger.error("Failed to find room with name: " + room, e);
+            }
+        }
+    }
+    
+    /**
+     * A listener that is fired anytime an invitee declines or rejects an
+     * invitation.
+     */
+    private class SmackInvitationRejectionListener
+        implements InvitationRejectionListener
+    {
+        private ChatRoom chatRoom;
+        
+        /**
+         * Creates an instance of <tt>SmackInvitationRejectionListener</tt> and
+         * passes to it the chat room for which it will listen for rejection
+         * events.
+         * 
+         * @param chatRoom
+         */
+        public SmackInvitationRejectionListener(ChatRoom chatRoom)
+        {
+            this.chatRoom = chatRoom;
+        }
+        
+        /**
+         * Called when the invitee declines the invitation.
+         * 
+         * @param invitee the invitee that declined the invitation.
+         * (e.g. hecate@shakespeare.lit).
+         * @param reason the reason why the invitee declined the invitation.
+         */
+        public void invitationDeclined(String invitee, String reason)
+        {   
+            fireInvitationRejectedEvent(chatRoom, invitee, reason);
+        }
+    }
+    
+    /**
+     * Our listener that will tell us when we're registered to jabber and the
+     * smack MultiUserChat is ready to accept us as a listener.
+     */
+    private class RegistrationStateListener
+        implements RegistrationStateChangeListener
+    { 
+        /**
+         * The method is called by a ProtocolProvider implementation whenver
+         * a change in the registration state of the corresponding provider had
+         * occurred.
+         * @param evt ProviderStatusChangeEvent the event describing the status
+         * change.
+         */
+        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        {
+            if (evt.getNewState() == RegistrationState.REGISTERED)
+            {
+                logger.debug("adding an Invitation listener to the smack muc");
+                
+                MultiUserChat.addInvitationListener(
+                    jabberProvider.getConnection(),
+                    new SmackInvitationListener());
+            }
+        }
+    }
+
 }

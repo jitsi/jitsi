@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.protocol.*;
-import org.jivesoftware.smackx.muc.*;
 
 /**
  * A Jabber implementation of the chat room member.

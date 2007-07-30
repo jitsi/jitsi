@@ -7,18 +7,16 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.net.*;
+import java.text.*;
 import java.util.*;
 
-import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.util.*;
-import org.jivesoftware.smack.packet.*;
-
-import net.java.sip.communicator.impl.protocol.gibberish.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
-import java.text.*;
+
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.util.*;
 
 /**
  * An implementation of the protocol provider service over the Jabber protocol
@@ -499,13 +497,13 @@ public class ProtocolProviderServiceJabberImpl
                 typingNotifications);
 
             //initialize the multi user chat operation set
-/** @todo uncomment these when you want to use multi chat. */
-//            OperationSetMultiUserChat multiUserChat =
-//                new OperationSetMultiUserChatJabberImpl(this);
-//
-//            supportedOperationSets.put(
-//                OperationSetMultiUserChat.class.getName(),
-//                multiUserChat);
+
+            OperationSetMultiUserChat multiUserChat =
+                new OperationSetMultiUserChatJabberImpl(this);
+
+            supportedOperationSets.put(
+                OperationSetMultiUserChat.class.getName(),
+                multiUserChat);
 
             isInitialized = true;
         }
