@@ -961,7 +961,7 @@ public class MessageHistoryServiceImpl
     public void localUserPresenceChanged(LocalUserChatRoomPresenceChangeEvent evt)
     {
         if(evt.getEventType() == 
-            LocalUserChatRoomPresenceChangeEvent.CHAT_ROOM_JOINED)
+            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED)
         {
             evt.getChatRoom().addMessageListener(this);
         }
