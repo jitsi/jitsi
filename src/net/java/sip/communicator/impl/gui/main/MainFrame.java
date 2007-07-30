@@ -63,17 +63,7 @@ public class MainFrame
 
     private QuickMenu quickMenu;
 
-    private Map protocolSupportedOperationSets = new LinkedHashMap();
-
-    private Map protocolPresenceSets = new LinkedHashMap();
-
-    private Map protocolTelephonySets = new LinkedHashMap();
-
     private LinkedHashMap protocolProviders = new LinkedHashMap();
-
-    private Map webContactInfoOperationSets = new LinkedHashMap();
-    
-    private Map multiUserChatOperationSets = new LinkedHashMap();
 
     private MetaContactListService contactList;
 
@@ -81,7 +71,7 @@ public class MainFrame
 
     private ChatWindowManager chatWindowManager;
     
-    private MultiUserChatManager multiChatManager;
+    private MultiUserChatManager multiUserChatManager;
     
     /**
      * Creates an instance of <tt>MainFrame</tt>.
@@ -91,7 +81,7 @@ public class MainFrame
         this.chatWindowManager = new ChatWindowManager(this);
         
         callManager = new CallManager(this);
-        multiChatManager = new MultiUserChatManager(this);
+        multiUserChatManager = new MultiUserChatManager(this);
         
         tabbedPane = new MainTabbedPane(this);
         quickMenu = new QuickMenu(this);
@@ -186,21 +176,6 @@ public class MainFrame
         clistPanel.getContactList().addListSelectionListener(callManager);
     }
 
-
-    /**
-     * Returns a set of all operation sets supported by the given
-     * protocol provider.
-     *
-     * @param protocolProvider The protocol provider.
-     * @return a set of all operation sets supported by the given
-     * protocol provider.
-     */
-    public Map getSupportedOperationSets(
-            ProtocolProviderService protocolProvider)
-    {
-        return (Map) this.protocolSupportedOperationSets.get(protocolProvider);
-    }
-
     /**
      * Adds all protocol supported operation sets.
      *
@@ -211,9 +186,6 @@ public class MainFrame
     {
         Map supportedOperationSets
             = protocolProvider.getSupportedOperationSets();
-
-        this.protocolSupportedOperationSets.put(protocolProvider,
-                supportedOperationSets);
 
         String ppOpSetClassName = OperationSetPersistentPresence
                                     .class.getName();
@@ -230,8 +202,6 @@ public class MainFrame
                 presence = (OperationSetPresence)
                     supportedOperationSets.get(pOpSetClassName);
             }
-
-            this.protocolPresenceSets.put(protocolProvider, presence);
 
             presence.addProviderPresenceStatusListener(
                         new GUIProviderPresenceStatusListener());
@@ -279,9 +249,6 @@ public class MainFrame
             OperationSetWebContactInfo wContactInfo
                 = (OperationSetWebContactInfo)
                     supportedOperationSets.get(wciOpSetClassName);
-
-            this.webContactInfoOperationSets
-                .put(protocolProvider, wContactInfo);
         }
 
         // Obtain the basic telephony operation set.
@@ -297,8 +264,6 @@ public class MainFrame
             this.getContactListPanel().getContactList()
                 .addListSelectionListener(callManager);
             this.tabbedPane.addChangeListener(callManager);
-
-            this.protocolTelephonySets.put(protocolProvider, telephony);
         }
         
         // Obtain the multi user chat operation set.
@@ -310,14 +275,13 @@ public class MainFrame
                 = (OperationSetMultiUserChat)
                     supportedOperationSets.get(multiChatClassName);
 
-            multiUserChat.addInvitationListener(multiChatManager);
-            multiUserChat.addInvitationRejectionListener(multiChatManager);
+            multiUserChat.addInvitationListener(multiUserChatManager);
+            multiUserChat.addInvitationRejectionListener(multiUserChatManager);
+            multiUserChat.addPresenceListener(multiUserChatManager);
             
             this.getChatRoomsListPanel()
                 .getChatRoomsList()
                 .addChatServer(protocolProvider, multiUserChat);
-            
-            this.multiUserChatOperationSets.put(protocolProvider, multiUserChat);
         }
     }
 
@@ -331,16 +295,6 @@ public class MainFrame
         return ((LinkedHashMap)protocolProviders.clone()).keySet().iterator();
     }
     
-    /**
-     * Returns a set of all protocol providers supporting multi user chat.
-     *
-     * @return a set of all protocol providers supporting multi user chat.
-     */
-    public Iterator getPProvidersSupportingMultiUserChat()
-    {
-        return this.multiUserChatOperationSets.keySet().iterator();
-    }
-
     /**
      * Returns the protocol provider associated to the account given
      * by the account user identifier.
@@ -471,11 +425,12 @@ public class MainFrame
     public OperationSetPresence getProtocolPresenceOpSet(
             ProtocolProviderService protocolProvider)
     {
-        Object o = this.protocolPresenceSets.get(protocolProvider);
-
-        if(o != null)
-            return (OperationSetPresence) o;
-
+        OperationSet opSet
+            = protocolProvider.getOperationSet(OperationSetPresence.class);
+        
+        if(opSet != null && opSet instanceof OperationSetPresence)
+            return (OperationSetPresence) opSet;
+        
         return null;
     }
 
@@ -490,12 +445,13 @@ public class MainFrame
      */
     public OperationSetWebContactInfo getWebContactInfoOpSet(
             ProtocolProviderService protocolProvider)
-    {
-        Object o = this.webContactInfoOperationSets.get(protocolProvider);
-
-        if(o != null)
-            return (OperationSetWebContactInfo) o;
-
+    {           
+        OperationSet opSet
+            = protocolProvider.getOperationSet(OperationSetWebContactInfo.class);
+        
+        if(opSet != null && opSet instanceof OperationSetWebContactInfo)
+            return (OperationSetWebContactInfo) opSet;
+        
         return null;
     }
 
@@ -510,11 +466,12 @@ public class MainFrame
     public OperationSetBasicTelephony getTelephonyOpSet(
             ProtocolProviderService protocolProvider)
     {
-        Object o = this.protocolTelephonySets.get(protocolProvider);
-
-        if(o != null)
-            return (OperationSetBasicTelephony) o;
-
+        OperationSet opSet
+            = protocolProvider.getOperationSet(OperationSetBasicTelephony.class);
+        
+        if(opSet != null && opSet instanceof OperationSetBasicTelephony)
+            return (OperationSetBasicTelephony) opSet;
+        
         return null;
     }
     
@@ -529,11 +486,12 @@ public class MainFrame
     public OperationSetMultiUserChat getMultiUserChatOpSet(
             ProtocolProviderService protocolProvider)
     {
-        Object o = this.multiUserChatOperationSets.get(protocolProvider);
-
-        if(o != null)
-            return (OperationSetMultiUserChat) o;
-
+        OperationSet opSet
+            = protocolProvider.getOperationSet(OperationSetMultiUserChat.class);
+        
+        if(opSet != null && opSet instanceof OperationSetMultiUserChat)
+            return (OperationSetMultiUserChat) opSet;
+        
         return null;
     }
 
@@ -1069,5 +1027,16 @@ public class MainFrame
                 }
             }
         }
+    }
+
+    /**
+     * Returns the class that manages all chat room invitation and message
+     * events.
+     * @return the class that manages all chat room invitation and message
+     * events.
+     */
+    public MultiUserChatManager getMultiUserChatManager()
+    {
+        return multiUserChatManager;
     };
 }

@@ -10,7 +10,6 @@ package net.java.sip.communicator.impl.gui.main;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 
@@ -52,7 +51,7 @@ public class MainTabbedPane extends SIPCommTabbedPane {
         this.addTab(Messages.getI18NString("contacts").getText(),
                     contactListPanel);
         //this.addTab(Messages.getI18NString("chatRooms").getText(),
-        //chatRoomsListPanel);
+        //            chatRoomsListPanel);
         this.addTab(Messages.getI18NString("callList").getText(),
                     callHistoryPanel);
         this.addTab(Messages.getI18NString("dial").getText(), dialPanel);
