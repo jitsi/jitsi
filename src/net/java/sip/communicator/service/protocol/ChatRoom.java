@@ -344,8 +344,8 @@ public interface ChatRoom
      * Sets the property indicating if sending invitation is allowed in
      * this <tt>ChatRoom</tt>.
      * 
-     * @param isAllowInvitationSend indicates if sending invitation request is
-     * allowed in this <tt>ChatRoom</tt>
+     * @param isAllowInvitation indicates if invitations are allowed in this
+     * <tt>ChatRoom</tt>
      * @throws OperationFailedException if the user doesn't have the right to
      * change this property.
      */
@@ -365,8 +365,8 @@ public interface ChatRoom
      * Sets the property indicating if sending invitation request is allowed
      * for this <tt>ChatRoom</tt>.
      * 
-     * @param isAllowInvitationReceive indicates if receiving invitation request
-     * is allowed in this <tt>ChatRoom</tt>
+     * @param isInvitationRequestAllowed indicates if invitation requests are
+     * allowed in this <tt>ChatRoom</tt>
      * @throws OperationFailedException if the user doesn't have the right to
      * change this property.
      */

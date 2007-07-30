@@ -127,7 +127,8 @@ public class ChatWindowManager
     /**
      * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
      * <tt>ChatRoom</tt>.
-     * @param chatRoom the <tt>ChatRoom</tt>, for which the chat is about
+     * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt>, for which the chat
+     * is about
      * @return TRUE if there is an opened <tt>ChatPanel</tt> for the given
      * <tt>ChatRoom</tt>
      */

@@ -34,8 +34,8 @@ public class ConferenceChatPanel
      * Creates an instance of <tt>ConferenceChatPanel</tt>.
      *
      * @param chatWindow the <tt>ChatWindow</tt> that contains this chat panel
-     * @param chatRoom the <tt>ChatRoom</tt> object, which provides us the multi
-     * user chat functionality
+     * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt> object, which
+     * corresponds to a chat room
      */
     public ConferenceChatPanel(ChatWindow chatWindow,
         ChatRoomWrapper chatRoomWrapper)

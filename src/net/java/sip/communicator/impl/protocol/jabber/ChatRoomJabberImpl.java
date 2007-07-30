@@ -1535,7 +1535,7 @@ public class ChatRoomJabberImpl
      * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
      * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
      *  
-     * @param isRegisteredUsersOnly indicates if this chat room is only for
+     * @param isRegisteredUserOnly indicates if this chat room is only for
      * registered users.
      * @throws OperationFailedException if the user doesn't have the right to
      * change this property.
@@ -1783,7 +1783,7 @@ public class ChatRoomJabberImpl
     /**
      * Kicks a participant from the room.
      *
-     * @param chatRoomMember the <tt>ChatRoomMember</tt> to kick from the room
+     * @param member the <tt>ChatRoomMember</tt> to kick from the room
      * @param reason the reason why the participant is being kicked from the
      * room
      * @throws OperationFailedException if an error occurs while kicking the

@@ -121,8 +121,6 @@ public class ChatRoomsList
      * Adds a chat room to this list.
      *
      * @param chatRoomWrapper the <tt>ChatRoom</tt> to add
-     * @param parentProvider the <tt>ProtocolProviderService</tt>, which is the
-     * parent of the given <tt>ChatRoom</tt>.
      */
     public void addChatRoom(ChatRoomWrapper chatRoomWrapper)
     {
@@ -182,7 +180,8 @@ public class ChatRoomsList
      * corresponding wrapper - returns null.
      *  
      * @param chatRoom the <tt>ChatRoom</tt> that we're looking for
-     * @return
+     * @return the <tt>ChatRoomWrapper</tt> object corresponding to the given
+     * <tt>ChatRoom</tt>
      */
     public ChatRoomWrapper findChatRoomWrapperFromChatRoom(ChatRoom chatRoom)
     {   
@@ -230,9 +229,8 @@ public class ChatRoomsList
     /**
      * A chat room was selected. Opens the chat room in the chat window.
      *
-     * @param evt a <tt>ListSelectionEvent</tt> instance containing details of
+     * @param e the <tt>MouseEvent</tt> instance containing details of
      * the event that has just occurred.
-
      */
     public void mousePressed(MouseEvent e)
     {   

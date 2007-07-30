@@ -8,7 +8,6 @@
 package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
-import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -31,8 +30,8 @@ public class CallParticipantDialpadDialog
     /**
      * Creates an instance of the <tt>ContactInfoPanel</tt>.
      * 
-     * @param owner The frame owner of this dialog.
-     * @param contactItem The <tt>MetaContact</tt> for the info.
+     * @param callManager the call manager
+     * @param callParticipant the corresponding call participant
      */
     public CallParticipantDialpadDialog(CallManager callManager,
         CallParticipant callParticipant)

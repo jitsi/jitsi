@@ -45,7 +45,6 @@ public class JoinChatRoomPanel
         
     /**
      * Creates and initializes the <tt>ChatRoomNamePanel</tt>.
-     * @param wizard The parent wizard, where this panel will be added
      */
     public JoinChatRoomPanel()
     {
