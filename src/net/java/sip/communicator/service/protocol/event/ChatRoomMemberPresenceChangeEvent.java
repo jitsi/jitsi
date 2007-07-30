@@ -48,6 +48,13 @@ public class ChatRoomMemberPresenceChangeEvent
      * The chat room member that the event relates to.
      */
     private ChatRoomMember sourceMember = null;
+    
+    /**
+     * The chat room member that participated as an actor in this event. In the
+     * case of MEMBER_KICKED event this would be the moderator that kicked the
+     * participant.
+     */
+    private ChatRoomMember actorMember = null;
 
     /**
      * The type of this event. Values can be any of the MEMBER_XXX fields.
@@ -77,6 +84,31 @@ public class ChatRoomMemberPresenceChangeEvent
     {
         super(sourceRoom);
         this.sourceMember = sourceMember;
+        this.eventType = eventType;
+        this.reason = reason;
+    }
+
+    /**
+     * Creates a <tt>ChatRoomMemberPresenceChangeEvent</tt> representing that
+     * a change in the presence of a <tt>ChatRoomMember</tt> has occurred.
+     * Changes may include the participant being kicked, join, left, etc.
+     * 
+     * @param sourceRoom the <tt>ChatRoom</tt> that produced this event
+     * @param sourceMember the <tt>ChatRoomMember</tt> that this event is about
+     * @param actorMember the <tt>ChatRoomMember</tt> that participated as an
+     * actor in this event 
+     * @param eventType the event type; one of the MEMBER_XXX constants
+     * @param reason the reason explaining why this event might have occurred
+     */
+    public ChatRoomMemberPresenceChangeEvent(   ChatRoom       sourceRoom,
+                                                ChatRoomMember sourceMember,
+                                                ChatRoomMember actorMember,
+                                                String         eventType,
+                                                String         reason )
+    {
+        super(sourceRoom);
+        this.sourceMember = sourceMember;
+        this.actorMember = actorMember;
         this.eventType = eventType;
         this.reason = reason;
     }

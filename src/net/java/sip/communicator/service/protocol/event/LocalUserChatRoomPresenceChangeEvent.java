@@ -24,30 +24,36 @@ public class LocalUserChatRoomPresenceChangeEvent
      * Indicates that this event was triggered as a result of the local
      * participant joining a chat room.
      */
-    public static final String CHAT_ROOM_JOINED = "ChatRoomJoined";
+    public static final String LOCAL_USER_JOINED = "LocalUserJoined";
+
+    /**
+     * Indicates that this event was triggered as a result of the local
+     * participant failed to join a chat room.
+     */
+    public static final String LOCAL_USER_JOIN_FAILED = "LocalUserJoinFailed";
 
     /**
      * Indicates that this event was triggered as a result of the local
      * participant leaving a chat room.
      */
-    public static final String CHAT_ROOM_LEFT = "ChatRoomLeft";
+    public static final String LOCAL_USER_LEFT = "LocalUserLeft";
 
    /**
     * Indicates that this event was triggered as a result of the local
     * participant being kicked from a chat room.
     */
-    public static final String USER_KICKED = "UserKicked";
+    public static final String LOCAL_USER_KICKED = "LocalUserKicked";
     
     /**
      * Indicates that this event was triggered as a result of the local
      * participant beeing disconnected from the server brutally, or ping timeout.
      */
-    public static final String USER_DROPPED = "UserDropped";
+    public static final String LOCAL_USER_DROPPED = "LocalUserDropped";
 
     /**
      * The <tt>ChatRoom</tt> to which the change is related.
      */
-    public ChatRoom chatRoom = null;
+    private ChatRoom chatRoom = null;
     
     /**
      * The type of this event.

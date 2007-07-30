@@ -20,152 +20,118 @@ public class ChatRoomPropertyChangeEvent
     extends java.beans.PropertyChangeEvent
 {
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room subject being changed.
+     * The name of the <tt>ChatRoom</tt> subject property.
      */
-    public static final String SUBJECT_CHANGED = "SubjectChanged";
+    public static final String CHAT_ROOM_SUBJECT = "ChatRoomSubject";
     
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room ban list being changed.
+     * The name of the <tt>ChatRoom</tt> redirectChatRoom property.
      */
-    public static final String BAN_LIST_CHANGED = "BanListChanged";
+    public static final String CHAT_ROOM_REDIRECT = "ChatRoomRedirect";
     
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room user limit being changed.
+     * The name of the <tt>ChatRoom</tt> memberMaxNumber property.
      */
-    public static final String USER_LIMIT_CHANGED = "UserLimitChanged";
+    public static final String CHAT_ROOM_MEMBER_MAX_NUMBER
+        = "ChatRoomMemberMaxNumber";
     
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room password being changed.
+     * The name of the <tt>ChatRoom</tt> join rate limit property.
      */
-    public static final String PASSWORD_CHANGED = "PasswordChanged";
+    public static final String CHAT_ROOM_JOIN_RATE_LIMIT
+        = "ChatRoomJoinRateLimit";
+    
+    /**
+     * The name of the <tt>ChatRoom</tt> password property.
+     */
+    public static final String CHAT_ROOM_PASSWORD = "ChatRoomPassword";
 
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isPasswordRequired property being changed.
+     * The name of the <tt>ChatRoom</tt> isVisible property.
      */
-    public static final String IS_PASSWORD_REQUIRED_CHANGED
-        = "IsPasswordRequiredChanged";
+    public static final String CHAT_ROOM_IS_VISIBLE= "ChatRoomIsVisible";
     
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isInvitationRequired property being changed.
+     * The name of the <tt>ChatRoom</tt> isInvitationRequired property.
      */
-    public static final String IS_INVITATION_REQUIRED_CHANGED
-        = "IsInvitationRequiredChanged";
+    public static final String CHAT_ROOM_IS_INVITATION_REQUIRED
+        = "ChatRoomIsInvitationRequired";
+    
+    /**
+     * The name of the <tt>ChatRoom</tt> isMute property.
+     */
+    public static final String CHAT_ROOM_IS_MUTE = "ChatRoomIsMute";
+    
+    /**
+     * The name of the <tt>ChatRoom</tt> isAllowExternalMessages property.
+     */
+    public static final String CHAT_ROOM_IS_ALLOW_EXTERNAL_MESSAGES
+        = "ChatRoomIsAllowExternalMessages";
+    
+    /**
+     * The name of the <tt>ChatRoom</tt> isRegistered property.
+     */
+    public static final String CHAT_ROOM_IS_REGISTERED = "ChatRoomisRegistered";
 
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isMemberNumberLimited property being changed.
+     * The name of the <tt>ChatRoom</tt> isSubjectLocked property.
      */
-    public static final String IS_MEMBER_NUMBER_LIMITED_CHANGED
-        = "IsMemberNumberLimitedChanged";
-    
-    /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isMute property being changed.
-     */
-    public static final String IS_MUTE_CHANGED = "IsMuteChanged";
-    
-    /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isAllowExternalMessages property being changed.
-     */
-    public static final String IS_ALLOW_EXTERNAL_MESSAGES_CHANGED
-        = "IsAllowExternalMessagesChanged";
-    
-    /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isRegistered property being changed.
-     */
-    public static final String IS_REGISTERED_CHANGED = "isRegisteredChanged";
+    public static final String CHAT_ROOM_IS_SUBJECT_LOCKED
+        = "ChatRoomIsSubjectLocked";
 
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isSubjectLocked property being changed.
+     * The name of the <tt>ChatRoom</tt> isAllowMessageFormatting property.
      */
-    public static final String IS_SUBJECT_LOCKED_CHANGED
-        = "IsSubjectLockedChanged";
+    public static final String CHAT_ROOM_IS_ALLOW_MESSAGE_FORMATTING
+        = "ChatRoomIsAllowMessageFormatting";
+    
+    /**
+     * The name of the <tt>ChatRoom</tt> isFilterMessageFormatting property.
+     */
+    public static final String CHAT_ROOM_IS_FILTER_MESSAGE_FORMATTING
+        = "ChatRoomIsFilterMessageFormatting";
+    
+    /**
+     * The name of the <tt>ChatRoom</tt> isAllowInvitation property.
+     */
+    public static final String CHAT_ROOM_IS_ALLOW_INVITATION
+        = "ChatRoomIsAllowInvitation";
 
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isAllowMessageFormatting property being changed.
+     * The name of the <tt>ChatRoom</tt> isAllowInvitationRequest property.
      */
-    public static final String IS_ALLOW_MESSAGE_FORMATTING_CHANGED
-        = "IsAllowMessageFormattingChanged";
-    
-    /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isFilterMessageFormatting property being changed.
-     */
-    public static final String IS_FILTER_MESSAGE_FORMATTING_CHANGED
-        = "IsFilterMessageFormattingChanged";
+    public static final String CHAT_ROOM_IS_ALLOW_INVITATION_REQUEST
+        = "ChatRoomIsAllowInvitationRequest";
 
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isJoinTimeLimited property being changed.
+     * The name of the <tt>ChatRoom</tt> isMemberNickNameLocked property.
      */
-    public static final String IS_JOIN_TIME_LIMITED_CHANGED
-        = "IsJoinTimeLimitedChanged";
-    
-    /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isInvitationAllowed property being changed.
-     */
-    public static final String IS_INVITATION_ALLOWED_CHANGED
-        = "IsInvitationAllowedChanged";
+    public static final String CHAT_ROOM_IS_MEMBER_NICKNAME_LOCKED
+        = "ChatRoomIsMemberNicknameLocked";
 
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isInvitatioRequestAllowed property being changed.
+     * The name of the <tt>ChatRoom</tt> isAllowKick property.
      */
-    public static final String IS_INVITATION_REQUEST_ALLOWED_CHANGED
-        = "IsInvitationRequestAllowedChanged";
+    public static final String CHAT_ROOM_IS_ALLOW_KICK
+        = "ChatRoomIsAllowKick";
     
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isUserRedirected property being changed.
+     * The name of the <tt>ChatRoom</tt> isRegisteredUsersOnly property.
      */
-    public static final String IS_USER_REDIRECTED_CHANGED
-        = "IsUserRedirectedChanged";
+    public static final String CHAT_ROOM_IS_REGISTERED_USERS_ONLY
+        = "ChatRoomIsRegisteredUserOnly";
     
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isUserNicknameLocked property being changed.
+     * The name of the <tt>ChatRoom</tt> isAllowSpecialMessage property.
      */
-    public static final String IS_USER_NICKNAME_LOCKED_CHANGED
-        = "IsUserNicknameLockedChanged";
-
-    /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isAllowKick property being changed.
-     */
-    public static final String IS_ALLOW_KICK_CHANGED
-        = "IsAllowKickChanged";
+    public static final String CHAT_ROOM_IS_ALLOW_SPECIAL_MESSAGE
+        = "ChatRoomIsAllowSpecialMessage";
     
     /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isRegisteredUserOnly property being changed.
+     * The name of the <tt>ChatRoom</tt> isNicknameListVisible property.
      */
-    public static final String IS_REGISTERED_USERS_ONLY_CHANGED
-        = "IsRegisteredUserOnlyChanged";
-    
-    /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isAllowSpecialMessage property being changed.
-     */
-    public static final String IS_ALLOW_SPECIAL_MESSAGE_CHANGED
-        = "isAllowSpecialMessageChanged";
-    
-    /**
-     * Indicates that this event was triggered as a result of the source
-     * chat room isNicknameListVisible property being changed.
-     */
-    public static final String IS_NICKNAME_LIST_VISIBLE_CHANGED
-        = "isNicknameListVisibleChanged";
+    public static final String CHAT_ROOM_IS_NICKNAME_LIST_VISIBLE
+        = "ChatRoomIsNicknameListVisible";
 
     /**
      * The value of the property before the change occurred.
@@ -188,7 +154,7 @@ public class ChatRoomPropertyChangeEvent
      * @param oldValue the value of the property before the change occurred.
      * @param newValue the value of the property after the change.
      */
-    public ChatRoomPropertyChangeEvent(ChatRoom source, 
+    public ChatRoomPropertyChangeEvent(ChatRoom source,
                                 String propertyName,
                                 Object oldValue,
                                 Object newValue)
@@ -242,5 +208,4 @@ public class ChatRoomPropertyChangeEvent
             + this.getNewValue().toString()
             + "]";
     }
-
 }

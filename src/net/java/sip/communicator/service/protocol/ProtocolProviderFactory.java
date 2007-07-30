@@ -132,6 +132,21 @@ public abstract class ProtocolProviderFactory
     public static final String RESOURCE_PRIORITY = "RESOURCE_PRIORITY";
     
     /**
+     * The name of the property under which we store the boolean value
+     * indicating if the user name should be automatically changed if the
+     * specified name already exists. This property is meant to be used by IRC
+     * implementations.
+     */
+    public static final String AUTO_CHANGE_USER_NAME = "AUTO_CHANGE_USER_NAME";
+    
+    /**
+     * The name of the property under which we store the boolean value
+     * indicating if a password is required. Initially this property is meant to
+     * be used by IRC implementations.
+     */
+    public static final String PASSWORD_REQUIRED = "PASSWORD_REQUIRED";
+    
+    /**
      * The name of the property under which we store if the presence is enabled.
      */
     public static final String IS_PRESENCE_ENABLED = "IS_PRESENCE_ENABLED";
@@ -156,7 +171,7 @@ public abstract class ProtocolProviderFactory
                                     "SUBSCRIPTION_EXPIRATION";
     
     /**
-     * Initializaed and creates an account corresponding to the specified
+     * Initializes and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
      * <tt>context</tt> BundleContext parameter. Note that account
      * registration is persistent and accounts that are registered during

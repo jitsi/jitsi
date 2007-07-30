@@ -95,12 +95,25 @@ public class OperationFailedException
      */
     public static final int ILLEGAL_ARGUMENT = 11;
 
-
+    /**
+     * Indicates that the exception was thrown, because the user doesn't have
+     * enough pribileges. Meant to be used by multi user chat to indicate that
+     * the user is trying to make an operation, which requires admin or owner
+     * privileges.
+     */
+    public static final int NOT_ENOUGH_PRIVILEGES = 12;
+    
+    /**
+     * Indicates that the user has tried to change its nickname to another one
+     * that already exists in the chat room.
+     */
+    public static final int NICKNAME_ALREADY_EXISTS = 13;
+    
     /**
      * The error code of the exception
      */
     private int errorCode = GENERAL_ERROR;
-
+    
     /**
      * Creates an exception with the specified error message and error code.
      * @param message A message containing details on the error that caused the

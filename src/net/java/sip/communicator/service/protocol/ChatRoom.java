@@ -6,15 +6,16 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.event.*;
-
 import java.util.*;
+
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Represents a chat channel/room/rendez-vous point/ where multiple chat users
  * could rally and communicate in a many-to-many fashion.
  *
  * @author Emil Ivov
+ * @author Yana Stamcheva
  */
 public interface ChatRoom
 {
@@ -126,7 +127,8 @@ public interface ChatRoom
      * <tt>OperationFailedException</tt> with the corresponding code.
      *
      * @param subject the new subject that we'd like this room to have
-     * @throws OperationFailedException
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
     public void setSubject(String subject)
         throws OperationFailedException;
@@ -142,13 +144,11 @@ public interface ChatRoom
 
     /**
      * Changes the the local user's nickname in the context of this chatroom.
-     * If the operation is not supported by the underlying implementation, the
-     * method throws an OperationFailedException with the corresponding code.
-     *
+     * 
      * @param nickname the new nickname within the room.
      *
-     * @throws OperationFailedException if the setting the new nickname changes
-     * for some reason.
+     * @throws OperationFailedException if the new nickname already exist in
+     * this room
      */
     public void setUserNickname(String nickname)
        throws OperationFailedException;
@@ -170,25 +170,11 @@ public interface ChatRoom
      *  
      * @param isVisible indicates if this <tt>ChatRoom</tt> should be visible or
      * not 
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setVisible(boolean isVisible);
-    
-    /**
-     * Indicates if this <tt>ChatRoom</tt> requires a password to be joined.
-     * 
-     * @return <code>true</code> if this <tt>ChatRoom</tt> requires a password
-     * to be joined, otherwise - <code>false</code>
-     */
-    public boolean isPasswordRequired();
-    
-    /**
-     * Sets the property indicating if this <tt>ChatRoom</tt> requires a
-     * password to be joined.
-     * 
-     * @param isPasswordRequired indicates if this <tt>ChatRoom</tt> requires a
-     * password to be joined.
-     */
-    public void setPasswordRequired(boolean isPasswordRequired);
+    public void setVisible(boolean isVisible)
+        throws OperationFailedException;
     
     /**
      * Indicates if this <tt>ChatRoom</tt> requires an invitation. If the
@@ -207,26 +193,11 @@ public interface ChatRoom
      * 
      * @param isInvitationRequired indicates if this <tt>ChatRoom</tt> requires
      * invitation to be joined
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setInvitationRequired(boolean isInvitationRequired);
-    
-    /**
-     * Indicates if this <tt>ChatRoom</tt> has a limit on number of users who
-     * could join it.
-     * 
-     * @return <code>true</code> if the number of users who could join this
-     * <tt>ChatRoom</tt> is limited, otherwise - <code>false</code> 
-     */
-    public boolean isMemberNumberLimited();
-    
-    /**
-     * Sets the property inficating if this <tt>ChatRoom</tt> has a limit on
-     * number of users who could join it.
-     *  
-     * @param isMemberNumberLimited indicates if this <tt>ChatRoom</tt> has a
-     * limit on number of users who could join it
-     */
-    public void setMemberNumberLimited(boolean isMemberNumberLimited);
+    public void setInvitationRequired(boolean isInvitationRequired)
+        throws OperationFailedException;
     
     /**
      * Indicates if this <tt>ChatRoom</tt> is in a mute mode. If a
@@ -243,8 +214,11 @@ public interface ChatRoom
      * 
      * @param isMute indicates if this <tt>ChatRoom</tt> should be in a mute
      * mode or not
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setMute(boolean isMute);
+    public void setMute(boolean isMute)
+        throws OperationFailedException;
     
     /**
      * Indicates if it's possible for someone to send messages to this
@@ -261,9 +235,12 @@ public interface ChatRoom
      * the chat room.
      * 
      * @param isAllowExternalMessages indicates if this <tt>ChatRoom</tt> should
-     * allow external messages or not 
+     * allow external messages or not
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property. 
      */
-    public void setAllowExternalMessages(boolean isAllowExternalMessages);
+    public void setAllowExternalMessages(boolean isAllowExternalMessages)
+        throws OperationFailedException;
     
     /**
      * Indicates if this <tt>ChatRoom</tt> is registered.
@@ -278,8 +255,11 @@ public interface ChatRoom
      * not.
      * 
      * @param isRegistered indicates if this <tt>ChatRoom</tt> is registered
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setRegistered(boolean isRegistered);
+    public void setRegistered(boolean isRegistered)
+        throws OperationFailedException;
     
     /**
      * Indicates if the subject of this <tt>ChatRoom</tt> could be changed by
@@ -297,8 +277,11 @@ public interface ChatRoom
      *  
      * @param isSubjectLocked indicates if the subject of this <tt>ChatRoom</tt>
      * is locked 
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setSubjectLocked(boolean isSubjectLocked);
+    public void setSubjectLocked(boolean isSubjectLocked)
+        throws OperationFailedException;
     
     /**
      * Indicates if the message format in this <tt>ChatRoom</tt> could be
@@ -317,8 +300,11 @@ public interface ChatRoom
      *  
      * @param isAllowMessageFormatting indicates if the message formatting in
      * this <tt>ChatRoom</tt> is allowed
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setAllowMessageFormatting(boolean isAllowMessageFormatting);
+    public void setAllowMessageFormatting(boolean isAllowMessageFormatting)
+        throws OperationFailedException;
     
     /**
      * Indicates is this <tt>ChatRoom</tt> room is currently in a message
@@ -339,27 +325,11 @@ public interface ChatRoom
      *  
      * @param isFilterMessageFormatting indicates if this <tt>ChatRoom</tt>
      * is currently is a message formatting filtered mode
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setFilterMessageFormatting(boolean isFilterMessageFormatting);
-    
-    /**
-     * Indicates if users can only join this <tt>ChatRoom</tt> in a specified
-     * interval of X seconds or the time of join is unlimited.
-     * 
-     * @return <code>true</code> if this <tt>ChatRoom</tt> could be joined only
-     * in a specified interval of X seconds, otherwise - <code>false</code>
-     */
-    public boolean isJoinTimeLimited();
-    
-    /**
-     * Sets the property indicating if users can only join this <tt>ChatRoom</tt>
-     * in a specified interval of X seconds or the time of join is unlimited.
-     * 
-     * @param isJoinTimeLimited indicates if users can only join this
-     * <tt>ChatRoom</tt> in a specified interval of X seconds or the time of
-     * join is unlimited.
-     */
-    public void setJoinTimeLimited(boolean isJoinTimeLimited);
+    public void setFilterMessageFormatting(boolean isFilterMessageFormatting)
+        throws OperationFailedException;
     
     /**
      * Indicates if sending invitation request is allowed in this
@@ -376,8 +346,11 @@ public interface ChatRoom
      * 
      * @param isAllowInvitationSend indicates if sending invitation request is
      * allowed in this <tt>ChatRoom</tt>
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setAllowInvitation(boolean isAllowInvitation);
+    public void setAllowInvitation(boolean isAllowInvitation)
+        throws OperationFailedException;
     
     /**
      * Indicates if sending an invitation request is allowed for this
@@ -394,45 +367,54 @@ public interface ChatRoom
      * 
      * @param isAllowInvitationReceive indicates if receiving invitation request
      * is allowed in this <tt>ChatRoom</tt>
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setAllowInvitationRequest(boolean isInvitationRequestAllowed);
+    public void setAllowInvitationRequest(boolean isInvitationRequestAllowed)
+        throws OperationFailedException;
     
     /**
-     * Indicates if users which join this <tt>ChatRoom</tt> are redirected to
-     * another one.
+     * Returns the <tt>ChatRoom</tt> to which the members of this chat room are
+     * redirected.
      * 
-     * @return <code>true</code> if users are redirected, otherwise -
-     * <code>false</code>
+     * @return the <tt>ChatRoom</tt> to which members of this chat room
+     * are redirected
      */
-    public boolean isUserRedirected();
+    public ChatRoom getRedirectChatRoom();
     
     /**
-     * Sets the property indicating if users in this <tt>ChatRoom</tt> are
-     * redirected to another one.
+     * Sets the <tt>ChatRoom</tt> to which the members of this chat room are
+     * redirected.
      * 
-     * @param isRedirected indicates if users in this <tt>ChatRoom</tt> are
-     * redirected to another one.
+     * @param chatRoom the <tt>ChatRoom</tt> to which members of this chat room
+     * are redirected
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setUserRedirected(boolean isRedirected);
+    public void setRedirectChatRoom(ChatRoom chatRoom)
+        throws OperationFailedException;
     
     /**
-     * Indicates if users in this <tt>ChatRoom</tt> can or cannot change their
+     * Indicates if members in this <tt>ChatRoom</tt> can or cannot change their
      * nickname.
      * 
      * @return <code>true</code> if users in this <tt>ChatRoom</tt> can NOT
      * change their nickname, otherwise - <code>false</code>
      */
-    public boolean isUserNicknameLocked();
+    public boolean isMemberNicknameLocked();
     
     /**
-     * Sets the property indicating if users in this <tt>ChatRoom</tt> can or
+     * Sets the property indicating if members of this <tt>ChatRoom</tt> can or
      * cannot change their nickname.
      *  
-     * @param isUserNicknameLocked indicates if nicknames in this
+     * @param isMemberNicknameLocked indicates if nicknames in this
      * <tt>ChatRoom</tt> are locked and could not be changed by users or users
      * are free to modify their nick as they want
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setUserNicknameLocked(boolean isUserNicknameLocked);
+    public void setMemberNicknameLocked(boolean isMemberNicknameLocked)
+        throws OperationFailedException;
     
     /**
      * Indicates if kicks are allowed in this <tt>ChatRoom</tt>. A kick tells the
@@ -451,8 +433,11 @@ public interface ChatRoom
      * 
      * @param isAllowKick indicates if kicks are allowed in this
      * <tt>ChatRoom</tt> 
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setAllowKick(boolean isAllowKick);
+    public void setAllowKick(boolean isAllowKick)
+        throws OperationFailedException;
     
     /**
      * Indicates if only registered users can join this <tt>ChatRoom</tt> or
@@ -469,8 +454,11 @@ public interface ChatRoom
      * 
      * @param isRegisteredUserOnly indicates if only registered users can join
      * this <tt>ChatRoom</tt> or it's opened for everyone.
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setRegisteredUserOnly(boolean isRegisteredUserOnly);
+    public void setRegisteredUserOnly(boolean isRegisteredUserOnly)
+        throws OperationFailedException;
     
     /**
      * Indicates if this <tt>ChatRoom</tt> allows special messages.
@@ -486,8 +474,11 @@ public interface ChatRoom
      * 
      * @param isAllowSpecialMessage indicates this <tt>ChatRoom</tt> should
      * allow special messages
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setAllowSpecialMessage(boolean isAllowSpecialMessage);
+    public void setAllowSpecialMessage(boolean isAllowSpecialMessage)
+        throws OperationFailedException;
     
     /** 
      * Indicates if the list of nicknames in this chat room is currently
@@ -504,8 +495,11 @@ public interface ChatRoom
      *  
      * @param isNicknameListVisible indicates if the list of nicknames in this
      * chat room should be visible.
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
      */
-    public void setNicknameListVisible(boolean isNicknameListVisible);
+    public void setNicknameListVisible(boolean isNicknameListVisible)
+        throws OperationFailedException;
 
     /**
      * Adds a listener that will be notified of changes in our participation in
@@ -720,28 +714,53 @@ public interface ChatRoom
         throws OperationFailedException;
 
     /**
-     * Sets the user limit of this chat room. The user limit is the maximum
+     * Sets the maximum member number for this chat room. This is the maximum
      * number of users, who could enter this chat room at a time. If the user
      * does not have the right to change the room user limit, or the protocol
      * does not support this, or the operation fails for some other reason, the
      * method throws an <tt>OperationFailedException</tt> with the
      * corresponding code.
      * 
-     * @param userLimit the new user limit that we'd like this room to have
+     * @param maxNumber the maximum number of users that we'd like this room to
+     * have
      * @throws OperationFailedException if the user does not have the right to
      * change the room user limit, or the protocol does not support this, or the
      * operation fails for some other reason
      */
-    public void setUserLimit(int userLimit)
+    public void setMemberMaxNumber(int maxNumber)
         throws OperationFailedException;
 
     /**
      * Returns the limit of user for this chat room. The user limit is the
      * maximum number of users, who could enter this chat room at a time.
-     * 
-     * @return int the limit of user for this chat room
+     *
+     * @return int the max number of users for this chat room
      */
-    public int getUserLimit();
+    public int getMemberMaxNumber();
+    
+    /**
+     * Sets the join rate limit for this chat room. The join rate limit property
+     * indicates how much time the user should wait before trying to re-join a
+     * chat room. The default value of this property depends on the particular
+     * server configurations. 
+     * 
+     * @param seconds the period that user should wait before re-joining a
+     * chat room
+     * @throws OperationFailedException if the user doesn't have the right to
+     * change this property.
+     */
+    public void setJoinRateLimit(int seconds)
+        throws OperationFailedException;
+    
+    /**
+     * Returns the join rate limit for this chat room. The join rate limit
+     * property indicates how much time the user should wait before trying to
+     * re-join a chat room. The default value of this property depends on the
+     * particular server configurations.
+     * 
+     * @return the join rate limit for this chat room
+     */
+    public int getJoinRateLimit();
 
     /**
      * Adds a configuration property to the configuration list of this chat
@@ -785,7 +804,7 @@ public interface ChatRoom
      * @return a Map of (Property_Name, Property_Value) pairs, containing the
      * current configuration of this chat room
      */
-    public Map getAdvancedConfigurationSet();
+    public Iterator getAdvancedConfigurationSet();
 
     /**
      * Returns an Iterator over a set of ban masks for this chat room. The ban
@@ -793,7 +812,41 @@ public interface ChatRoom
      * of all such ban masks defined for this chat room.
      * 
      * @return an Iterator over a set of ban masks for this chat room
+     * @throws OperationFailedException if an error occured while performing the
+     * request to the server or you don't have enough privileges to get this
+     * information
      */
-    public Iterator getBanList();
-
+    public Iterator getBanList() throws OperationFailedException;
+    
+    /**
+     * Bans a user from the room. An admin or owner of the room can ban users
+     * from a room. A banned user will no longer be able to join the room unless
+     * the ban has been removed. If the banned user was present in the room then
+     * he/she will be removed from the room and notified that he/she was banned
+     * along with the reason (if provided) and the user who initiated the ban.
+     *
+     * @param chatRoomMember the <tt>ChatRoomMember</tt> to be banned.
+     * @param reason the reason why the user was banned.
+     * @throws OperationFailedException if an error occurs while banning a user.
+     * In particular, an error can occur if a moderator or a user with an
+     * affiliation of "owner" or "admin" was tried to be banned or if the user
+     * that is banning have not enough permissions to ban.
+     */
+    public void banParticipant(ChatRoomMember chatRoomMember, String reason)
+        throws OperationFailedException;
+    
+    /**
+     * Kicks a visitor or participant from the room.
+     *
+     * @param chatRoomMember the <tt>ChatRoomMember</tt> to kick from the room
+     * @param reason the reason why the participant is being kicked from the
+     * room
+     * @throws OperationFailedException if an error occurs while kicking the
+     * participant. In particular, an error can occur if a moderator or a user
+     * with an affiliation of "owner" or "admin" was intended to be kicked; or
+     * if the participant that intended to kick another participant does not
+     * have kicking privileges;
+     */
+    public void kickParticipant(ChatRoomMember chatRoomMember, String reason)
+        throws OperationFailedException;
 }

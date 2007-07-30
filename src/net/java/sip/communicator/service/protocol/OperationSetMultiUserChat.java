@@ -102,8 +102,10 @@ public interface OperationSetMultiUserChat
      * Informs the sender of an invitation that we decline their invitation.
      *
      * @param invitation the invitation we are rejecting.
+     * @param rejectReason the reason to reject the invitation (optional)
      */
-    public void rejectInvitation(ChatRoomInvitation invitation);
+    public void rejectInvitation(ChatRoomInvitation invitation,
+        String rejectReason);
 
     /**
      * Adds a listener to invitation notifications. The listener will be fired

@@ -15,81 +15,62 @@ import net.java.sip.communicator.service.protocol.*;
  * 
  * @author Emil Ivov
  * @author Stephane Remy
+ * @author Yana Stamcheva
  */
 public class ChatRoomInvitationReceivedEvent
     extends EventObject
 {
     /**
-     * The chat room member that has sent this invitation.
+     * The invitation corresponding to this event.
      */
-    private ChatRoomMember from = null;
-
-    /**
-     * The chat room member that is the target of this invitation.
-     */
-    private ChatRoomMember to = null;
-
+    private ChatRoomInvitation invitation;
+    
     /**
      * A timestamp indicating the exact date when the event occurred.
      */
-    private Date timestamp = null;
+    private Date timestamp;
 
     /**
      * Creates an <tt>InvitationReceivedEvent</tt> representing reception of
      * the <tt>source</tt> invitation received from the specified
      * <tt>from</tt> chat room member.
      *
-     * @param source the <tt>ChatRoomInvitation</tt> whose reception this event
-     * represents.
-     * @param from the <tt>ChatRoomMember</tt> that has sent this invitation.
-     * @param to the <tt>ChatRoomMember</tt> that is the target of this
-     * invitation.
+     * @param multiUserChatOpSet the <tt>OperationSetMultiUserChat</tt>, which
+     * dispatches this event
+     * @param invitation the <tt>ChatRoomInvitation</tt> that this event is for
      * @param timestamp the exact date when the event ocurred.
      */
-    public ChatRoomInvitationReceivedEvent(ChatRoomInvitation source,
-        ChatRoomMember from, ChatRoomMember to, Date timestamp)
+    public ChatRoomInvitationReceivedEvent(
+        OperationSetMultiUserChat multiUserChatOpSet,
+        ChatRoomInvitation invitation,
+        Date timestamp)
     {
-        super(source);
+        super(multiUserChatOpSet);
 
-        this.from = from;
-        this.to = to;
+        this.invitation = invitation;
         this.timestamp = timestamp;
     }
-
+    
     /**
-     * Returns a reference to the <tt>ChatRoomMember</tt> that has sent the
-     * <tt>ChatRoomInvitation</tt> whose reception this event represents.
-     *
-     * @return a reference to the <tt>ChatRoomMember</tt> that has sent the
-     * <tt>ChatRoomInvitation</tt> whose reception this event represents.
+     * Returns the multi user chat operation set that dispatches this event.
+     * 
+     * @return the multi user chat operation set that dispatches this event.
      */
-    public ChatRoomMember getFrom()
+    public OperationSetMultiUserChat getSourceOperationSet()
     {
-        return from;
+        return (OperationSetMultiUserChat) getSource();
     }
-
+    
     /**
-     * Returns a reference to the <tt>ChatRoomMember</tt> that is the target
-     * of the <tt>ChatRoomInvitation</tt> whose reception this event represents.
+     * Returns the <tt>ChatRoomInvitation</tt> that this event is for.
      *
-     * @return a reference to the <tt>ChatRoomMember</tt> that is the target
-     * of the <tt>ChatRoomInvitation</tt> whose reception this event represents.
+     * @return the <tt>ChatRoomInvitation</tt> that this event is for.
      */
-    public ChatRoomMember getTo()
+    public ChatRoomInvitation getInvitation()
     {
-        return to;
+        return invitation;
     }
-
-    /**
-     * Returns the <tt>ChatRoomInvitation</tt> that triggered this event
-     *
-     * @return the <tt>ChatRoomInvitation</tt> that triggered this event.
-     */
-    public ChatRoomInvitation getSourceInvitation()
-    {
-        return (ChatRoomInvitation) getSource();
-    }
-
+    
     /**
      * A timestamp indicating the exact date when the event ocurred.
      *

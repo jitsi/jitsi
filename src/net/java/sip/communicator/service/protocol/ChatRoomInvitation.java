@@ -22,28 +22,26 @@ public interface ChatRoomInvitation
      *
      * @return the <tt>ChatRoom</tt>, which is the  target of this invitation
      */
-    public ChatRoom getTarget();
+    public ChatRoom getTargetChatRoom();
+    
+    /**
+     * Returns the password to use when joining the room.
+     * 
+     * @return the password to use when joining the room
+     */
+    public String getChatRoomPassword();
+    
+    /**
+     * Returns the <tt>ChatRoomMember</tt> that sent this invitation.
+     * 
+     * @return the <tt>ChatRoomMember</tt> that sent this invitation.
+     */
+    public String getInviter();
     
     /**
      * Returns the reason of this invitation, or null if there is no reason.
      *
      * @return the reason of this invitation, or null if there is no reason
      */
-    public String getReason();
-    
-    /**
-     * Returns the subject of this invitation or null if the invitation contains
-     * no subject.
-     * @return the subject of this invitation or null if the invitation contains
-     * no subject.
-     */
-    public String getSubject();
-    
-    /**
-     * Returns the protocol provider instance where this invitation has originated.
-     *
-     * @return the <tt>ProtocolProviderService</tt> instance that created this
-     * invitation
-     */
-    public ProtocolProviderService getProtocolProvider();
+    public String getReason();    
 }

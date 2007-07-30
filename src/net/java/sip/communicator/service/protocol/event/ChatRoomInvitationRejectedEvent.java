@@ -15,77 +15,86 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Emil Ivov
  * @author Stephane Remy
+ * @author Yana Stamcheva
  */
 public class ChatRoomInvitationRejectedEvent
     extends EventObject
 {
     /**
-     * The chat room member that has sent this rejection.
+     * The <tt>ChatRoom</tt> for which the initial invitation was.
      */
-    private ChatRoomMember from = null;
+    private ChatRoom chatRoom;
     
     /**
-     * The chat room member that is the target of this rejection.
+     * The invitee that rejected the invitation.
      */
-    private ChatRoomMember to = null;
+    private String invitee;
     
     /**
      * The reason why this invitation is rejected or null if there is no reason
      * specified.
      */
-    private String reason = null;
-
+    private String reason;
+    
     /**
-     * A timestamp indicating the exact date when the event occurred.
+     * The exact date at which this event occured.
      */
-    private Date timestamp = null;
+    private Date timestamp;
     
     /**
      * Creates a <tt>ChatRoomInvitationRejectedEvent</tt> representing the
-     * rejection of the <tt>source</tt> invitation, rejected from the specified
-     * <tt>from</tt> chat room member.
+     * rejection of an invitation, rejected by the given <tt>invitee</tt>.
      *
-     * @param source the <tt>ChatRoomInvitation</tt> whose rejection this event
-     * represents
-     * @param from the <tt>ChatRoomMember</tt> that has sent this invitation
-     * rejection
-     * @param to the <tt>ChatRoomMember</tt> that is the target of this
-     * invitation rejection
-     * @param timestamp the exact date when the event ocurred.
+     * @param source the <tt>OperationSetMultiUserChat</tt> that dispatches this
+     * event
+     * @param chatRoom the <tt>ChatRoom</tt> for which the initial invitation
+     * was
+     * @param invitee the name of the invitee that rejected the invitation
+     * @param reason the reason of the rejection
+     * @param timestamp the exact date when the event ocurred
      */
-    public ChatRoomInvitationRejectedEvent(ChatRoomInvitation source,
-        ChatRoomMember from, ChatRoomMember to, String reason, Date timestamp)
+    public ChatRoomInvitationRejectedEvent( OperationSetMultiUserChat source,
+                                            ChatRoom chatRoom,
+                                            String invitee,
+                                            String reason,
+                                            Date timestamp)
     {
         super(source);
         
-        this.from = from;
-        this.to = to;
+        this.chatRoom = chatRoom;
+        this.invitee = invitee;
         this.reason = reason;
         this.timestamp = timestamp;
     }
     
     /**
-     * Returns a reference to the <tt>ChatRoomMember</tt> that has sent the
-     * rejection.
-     *
-     * @return a reference to the <tt>ChatRoomMember</tt> that has sent the
-     * rejection
+     * Returns the multi user chat operation set that dispatches this event.
+     * 
+     * @return the multi user chat operation set that dispatches this event
      */
-    public ChatRoomMember getFrom()
+    public OperationSetMultiUserChat getSourceOperationSet()
     {
-        return from;
+        return (OperationSetMultiUserChat)getSource();
     }
     
     /**
-     * Returns a reference to the <tt>ChatRoomMember</tt> that is the target of
-     * this rejection.
-     *
-     * @return a reference to the <tt>ChatRoomMember</tt> that is the target of
-     * this rejection
+     * Returns the <tt>ChatRoom</tt> for which the initial invitation was.
+     * 
+     * @return the <tt>ChatRoom</tt> for which the initial invitation was
      */
-    public ChatRoomMember getTo()
+    public ChatRoom getChatRoom()
     {
-        return to;
+        return chatRoom;
+    }
+    
+    /**
+     * Returns the name of the invitee that rejected the invitation.
+     *
+     * @return the name of the invitee that rejected the invitation
+     */
+    public String getInvitee()
+    {
+        return invitee;
     }
     
     /**
@@ -96,16 +105,6 @@ public class ChatRoomInvitationRejectedEvent
     public String getReason()
     {
         return reason;
-    }
-    
-    /**
-     * Returns the <tt>ChatRoomInvitation</tt> that was rejected.
-     * 
-     * @return the <tt>ChatRoomInvitation</tt> that was rejected.
-     */
-    public ChatRoomInvitation getSourceInvitation()
-    {
-        return (ChatRoomInvitation)getSource();
     }
     
     /**
