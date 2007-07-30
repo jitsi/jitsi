@@ -286,8 +286,6 @@ public class ContactListPanel
                     .getAccount(protocolProvider), evt.getTimestamp(),
                     Constants.OUTGOING_MESSAGE, msg.getContent(),
                     msg.getContentType());
-
-            chatPanel.refreshWriteArea();
         }
     }
 
@@ -337,8 +335,6 @@ public class ContactListPanel
                        
         ChatPanel chatPanel = chatWindowManager
             .getContactChat(metaContact, sourceContact);
-        
-        chatPanel.refreshWriteArea();
         
         chatPanel.processMessage(
                 metaContact.getDisplayName(),

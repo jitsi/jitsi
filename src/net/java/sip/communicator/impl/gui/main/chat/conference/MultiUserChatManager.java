@@ -95,8 +95,6 @@ public class MultiUserChatManager
                 Constants.OUTGOING_MESSAGE,
                 msg.getContent(),
                 msg.getContentType());
-
-            chatPanel.refreshWriteArea();
         }
     }
     
@@ -177,8 +175,6 @@ public class MultiUserChatManager
         }
 
         ChatPanel chatPanel = chatWindowManager.getMultiChat(sourceChatRoom);
-
-        chatPanel.refreshWriteArea();
 
         chatPanel.processMessage(
                 destMember.getName(),

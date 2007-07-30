@@ -74,6 +74,8 @@ public class ChatSendPanel
         if (!chatPanel.isWriteAreaEmpty())
         {
             chatPanel.sendMessage();
+
+            chatPanel.refreshWriteArea();
         }
         //make sure the focus goes back to the write area
         chatPanel.requestFocusInWriteArea();
