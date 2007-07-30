@@ -10,7 +10,6 @@ package net.java.sip.communicator.impl.gui.utils;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
-import java.net.*;
 import java.util.*;
 
 import javax.imageio.*;
@@ -441,6 +440,14 @@ public class ImageLoader {
      */
     public static final ImageID RENAME_DIALOG_ICON
         = new ImageID("RENAME_DIALOG_ICON");
+    
+    /**
+     * The image used for decoration of the "reason" dialog. The "reason" dialog
+     * is used wherever user should specify a reason for the operation he's
+     * trying to do.
+     */
+    public static final ImageID REASON_DIALOG_ICON
+        = new ImageID("REASON_DIALOG_ICON");
 
     /**
      * The image used for decoration of the "Open in browser" item in
@@ -603,6 +610,12 @@ public class ImageLoader {
      */
     public static final ImageID TEXT_UNDERLINED_ROLLOVER_BUTTON
         = new ImageID("TEXT_UNDERLINED_ROLLOVER_BUTTON");
+    
+    /**
+     * The icon shown in the invite dialog.
+     */
+    public static final ImageID INVITE_DIALOG_ICON
+        = new ImageID("INVITE_DIALOG_ICON");
 
     // ///////////////////////// Main Toolbar icons ////////////////////////////
 
