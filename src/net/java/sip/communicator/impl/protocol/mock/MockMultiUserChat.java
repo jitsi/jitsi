@@ -175,14 +175,15 @@ public class MockMultiUserChat
      * Informs the sender of an invitation that we decline their invitation.
      *
      * @param invitation the invitation we are rejecting.
+     * @param reason the reason for rejecting.
      */
-    public void rejectInvitation(ChatRoomInvitation invitation)
+    public void rejectInvitation(ChatRoomInvitation invitation, String reason)
     {
         ChatRoomInvitationRejectedEvent evt = 
             new ChatRoomInvitationRejectedEvent(
-                    invitation,
-                    null,
-                    null,
+                    this,
+                    invitation.getTargetChatRoom(),
+                    provider.getAccountID().getUserID(),
                     invitation.getReason(),
                     new Date());
         

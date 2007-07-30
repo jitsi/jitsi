@@ -30,9 +30,7 @@ public class MockChatRoom
     private String roomPassword;
 
     private boolean joined = false;
-    
-    private int userLimit = Integer.MAX_VALUE;
-    
+
     private List members = new Vector();
     
     private Vector banMasks = new Vector();
@@ -156,7 +154,7 @@ public class MockChatRoom
                 new LocalUserChatRoomPresenceChangeEvent(
                         parentOpSet, 
                         this,
-                        LocalUserChatRoomPresenceChangeEvent.CHAT_ROOM_JOINED,
+                        LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
                         null);
         parentOpSet.fireLocalUserChatRoomPresenceChangeEvent(evt);
     }
@@ -540,36 +538,6 @@ public class MockChatRoom
     }
 
     /**
-     * Sets the user limit of this chat room. The user limit is the maximum
-     * number of users, who could enter this chat room at a time. If the user
-     * does not have the right to change the room user limit, or the protocol
-     * does not support this, or the operation fails for some other reason, the
-     * method throws an <tt>OperationFailedException</tt> with the
-     * corresponding code.
-     * 
-     * @param userLimit the new user limit that we'd like this room to have
-     * @throws OperationFailedException if the user does not have the right to
-     * change the room user limit, or the protocol does not support this, or the
-     * operation fails for some other reason
-     */
-    public void setUserLimit(int userLimit)
-        throws OperationFailedException
-    {
-        this.userLimit = userLimit;
-    }
-
-    /**
-     * Returns the limit of user for this chat room. The user limit is the
-     * maximum number of users, who could enter this chat room at a time.
-     * 
-     * @return int the limit of user for this chat room
-     */
-    public int getUserLimit()
-    {
-        return userLimit;
-    }
-
-    /**
      * Returns an Iterator over a set of <tt>ChatRoomConfigParams</tt>. Each
      * element in the set is one of the <tt>ChatRoomConfigParams</tt>.CHAT_ROOM_XXX
      * configuration params. This method is meant to be used by other bundles,
@@ -692,28 +660,6 @@ public class MockChatRoom
     }
 
     /**
-     * Indicates if this <tt>ChatRoom</tt> requires a password to be joined.
-     * 
-     * @return <code>true</code> if this <tt>ChatRoom</tt> requires a password
-     * to be joined, otherwise - <code>false</code>
-     */
-    public boolean isPasswordRequired()
-    {
-        return false;
-    }
-
-    /**
-     * Sets the property indicating if this <tt>ChatRoom</tt> requires a
-     * password to be joined.
-     * 
-     * @param isPasswordRequired indicates if this <tt>ChatRoom</tt> requires a
-     * password to be joined.
-     */
-    public void setPasswordRequired(boolean isPasswordRequired)
-    {
-    }
-
-    /**
      * Indicates if this <tt>ChatRoom</tt> requires an invitation. If the
      * chat room requires invitation, the user could not join it without being
      * invited.
@@ -735,29 +681,6 @@ public class MockChatRoom
      * invitation to be joined
      */
     public void setInvitationRequired(boolean isInvitationRequired)
-    {
-    }
-
-    /**
-     * Indicates if this <tt>ChatRoom</tt> has a limit on number of users who
-     * could join it.
-     * 
-     * @return <code>true</code> if the number of users who could join this
-     * <tt>ChatRoom</tt> is limited, otherwise - <code>false</code> 
-     */
-    public boolean isMemberNumberLimited()
-    {
-        return false;
-    }
-
-    /**
-     * Sets the property inficating if this <tt>ChatRoom</tt> has a limit on
-     * number of users who could join it.
-     *  
-     * @param isMemberNumberLimited indicates if this <tt>ChatRoom</tt> has a
-     * limit on number of users who could join it
-     */
-    public void setMemberNumberLimited(boolean isMemberNumberLimited)
     {
     }
 
@@ -976,29 +899,6 @@ public class MockChatRoom
     }
 
     /**
-     * Indicates if users which join this <tt>ChatRoom</tt> are redirected to
-     * another one.
-     * 
-     * @return <code>true</code> if users are redirected, otherwise -
-     * <code>false</code>
-     */
-    public boolean isUserRedirected()
-    {
-        return false;
-    }
-
-    /**
-     * Sets the property indicating if users in this <tt>ChatRoom</tt> are
-     * redirected to another one.
-     * 
-     * @param isRedirected indicates if users in this <tt>ChatRoom</tt> are
-     * redirected to another one.
-     */
-    public void setUserRedirected(boolean isRedirected)
-    {
-    }
-
-    /**
      * Indicates if users in this <tt>ChatRoom</tt> can or cannot change their
      * nickname.
      * 
@@ -1128,7 +1028,9 @@ public class MockChatRoom
      * change the room configuration, or the protocol does not support this, or
      * the operation fails for some other reason
      */
-    public void addAdvancedConfigProperty(String propertyName, String propertyValue) throws OperationFailedException
+    public void addAdvancedConfigProperty(
+        String propertyName, String propertyValue)
+        throws OperationFailedException
     {
     }
 
@@ -1145,7 +1047,8 @@ public class MockChatRoom
      * change the room configuration, or the protocol does not support this, or
      * the operation fails for some other reason
      */
-    public void removeAdvancedConfigProperty(String propertyName) throws OperationFailedException
+    public void removeAdvancedConfigProperty(String propertyName)
+        throws OperationFailedException
     {
     }
 
@@ -1158,9 +1061,9 @@ public class MockChatRoom
      * @return a Map of (Property_Name, Property_Value) pairs, containing the
      * current configuration of this chat room
      */
-    public Map getAdvancedConfigurationSet()
+    public Iterator getAdvancedConfigurationSet()
     {
-        return new HashMap();
+        return new HashMap().entrySet().iterator();
     }
 
     /**
@@ -1174,5 +1077,52 @@ public class MockChatRoom
     public String getIdentifier()
     {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public ChatRoom getRedirectChatRoom()
+    {
+        return null;
+    }
+
+    public void setRedirectChatRoom(ChatRoom chatRoom)
+    {   
+    }
+
+    public void setMemberMaxNumber(int maxNumber)
+        throws OperationFailedException
+    {
+    }
+
+    public int getMemberMaxNumber()
+    {
+        return 0;
+    }
+
+    public boolean isMemberNicknameLocked()
+    {
+        return false;
+    }
+
+    public void setMemberNicknameLocked(boolean isMemberNicknameLocked)
+    {   
+    }
+
+    public void setJoinRateLimit(int seconds)
+    {   
+    }
+
+    public int getJoinRateLimit()
+    {
+        return 0;
+    }
+
+    public void banParticipant(ChatRoomMember chatRoomMember, String reason)
+        throws OperationFailedException
+    {   
+    }
+
+    public void kickParticipant(ChatRoomMember chatRoomMember, String reason)
+        throws OperationFailedException
+    {   
     }
 }
