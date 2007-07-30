@@ -9,17 +9,14 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.chatroomwizard.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -106,8 +103,8 @@ public class ChatRoomServerRightButtonMenu
         }
         else if (itemName.equals("joinChatRoom"))
         {
-            JoinChannelDialog joinChannelDialog
-                = new JoinChannelDialog(mainFrame, protocolProvider);
+            JoinChatRoomDialog joinChannelDialog
+                = new JoinChatRoomDialog(mainFrame, protocolProvider);
             
             joinChannelDialog.pack();
             joinChannelDialog.setLocation(

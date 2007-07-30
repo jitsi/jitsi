@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
 import java.awt.*;
-import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -28,8 +27,6 @@ public class ChatRoomsListPanel
     private ChatRoomsList chatRoomsList;
 
     private JPanel treePanel = new JPanel(new BorderLayout());
-
-    private ChatRoomServerRightButtonMenu rightButtonMenu;
 
     /**
      * Creates the scroll panel containing the chat rooms list.

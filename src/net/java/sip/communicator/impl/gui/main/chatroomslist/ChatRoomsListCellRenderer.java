@@ -11,6 +11,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -60,21 +61,31 @@ public class ChatRoomsListCellRenderer extends JPanel
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus) {
 
-        ChatRoomsList chatRoomsList = (ChatRoomsList) list;
+        //ChatRoomsList chatRoomsList = (ChatRoomsList) list;
         
         String toolTipText = "<html>";
         
-        if (value instanceof ChatRoom) {
+        if (value instanceof ChatRoomWrapper)
+        {
 
-            ChatRoom chatRoom = (ChatRoom) value;
+            ChatRoomWrapper chatRoomWrapper = (ChatRoomWrapper) value;
 
-            toolTipText += "<b>"+chatRoom.getName()+"</b>";
+            toolTipText += "<b>"+chatRoomWrapper.getChatRoomName()+"</b>";
 
-            this.nameLabel.setText(chatRoom.getName());
+            this.nameLabel.setText(chatRoomWrapper.getChatRoomName());
 
-            this.nameLabel.setIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
-
+            Image chatRoomImage = ImageLoader
+                .getImage(ImageLoader.CHAT_ROOM_16x16_ICON);
+            
+            if(chatRoomWrapper.getChatRoom() == null ||
+                !chatRoomWrapper.getChatRoom().isJoined())
+            {
+                chatRoomImage
+                    = LightGrayFilter.createDisabledImage(chatRoomImage);
+            }
+            
+            this.nameLabel.setIcon(new ImageIcon(chatRoomImage));
+                
             this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
             
             this.setBorder(BorderFactory.createEmptyBorder(1, 8, 1, 1));
@@ -106,14 +117,14 @@ public class ChatRoomsListCellRenderer extends JPanel
             this.setBounds(0, 0, list.getWidth() - 2, 20);
             
             JLabel groupContentIndicator = new JLabel();
-            
+            /*
             if(chatRoomsList.isChatServerClosed(pps))
                 groupContentIndicator.setIcon(new ImageIcon(ImageLoader
                     .getImage(ImageLoader.CLOSED_GROUP)));
             else 
                 groupContentIndicator.setIcon(new ImageIcon(ImageLoader
                     .getImage(ImageLoader.OPENED_GROUP)));
-
+                    */
             //the width is fixed in 
             //order all the icons to be with the same size
             groupContentIndicator.setBounds(0, 0, 12, 12);

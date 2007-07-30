@@ -12,13 +12,14 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.authorization.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -28,8 +29,7 @@ import net.java.sip.communicator.util.*;
  */
 public class ChatRoomsList
     extends JList
-    implements  ListSelectionListener,
-                MouseListener
+    implements MouseListener
 {
     private Logger logger = Logger.getLogger(ChatRoomsList.class);
 
@@ -37,6 +37,8 @@ public class ChatRoomsList
 
     private DefaultListModel listModel = new DefaultListModel();
 
+    private ChatWindowManager chatWindowManager;
+    
     /**
      * Creates an instance of the <tt>ChatRoomsList</tt>.
      *
@@ -45,12 +47,13 @@ public class ChatRoomsList
     public ChatRoomsList(MainFrame mainFrame)
     {
         this.mainFrame = mainFrame;
+        
+        this.chatWindowManager = mainFrame.getChatWindowManager();
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         this.setModel(listModel);
         this.setCellRenderer(new ChatRoomsListCellRenderer());
-        this.addListSelectionListener(this);
 
         this.addMouseListener(this);
     }
@@ -67,45 +70,138 @@ public class ChatRoomsList
         OperationSetMultiUserChat multiUserChatOperationSet)
     {
         listModel.addElement(pps);
+        
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+    
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+    
+        List accounts = configService
+                .getPropertyNamesByPrefix(prefix, true);
+    
+        Iterator accountsIter = accounts.iterator();
+    
+        while(accountsIter.hasNext()) {
+            String accountRootPropName
+                = (String) accountsIter.next();
+    
+            String accountUID
+                = configService.getString(accountRootPropName);
+    
+            if(accountUID.equals(pps
+                    .getAccountID().getAccountUniqueID()))
+            {   
+                List chatRooms = configService
+                    .getPropertyNamesByPrefix(
+                        accountRootPropName + ".chatRooms", true);
+    
+                Iterator chatRoomsIter = chatRooms.iterator();
+                
+                while(chatRoomsIter.hasNext())
+                {
+                    String chatRoomPropName
+                        = (String) chatRoomsIter.next();
+                    
+                    String chatRoomID
+                        = configService.getString(chatRoomPropName);
+                 
+                    String chatRoomName = configService.getString(
+                        chatRoomPropName + ".chatRoomName");
+             
+                    ChatRoomWrapper chatRoomWrapper
+                        = new ChatRoomWrapper(pps, chatRoomID, chatRoomName);
+                    
+                    this.addChatRoom(chatRoomWrapper);
+                }
+            }
+        }
     }
-
 
     /**
      * Adds a chat room to this list.
      *
-     * @param chatRoom the <tt>ChatRoom</tt> to add
-     */
-    public void addChatRoom(ChatRoom chatRoom)
-    {
-        listModel.addElement(chatRoom);
-    }
-
-    /**
-     * Adds a chat room to this list.
-     *
-     * @param chatRoom the <tt>ChatRoom</tt> to add
+     * @param chatRoomWrapper the <tt>ChatRoom</tt> to add
      * @param parentProvider the <tt>ProtocolProviderService</tt>, which is the
      * parent of the given <tt>ChatRoom</tt>.
      */
-    public void addChatRoom(ChatRoom chatRoom,
-            ProtocolProviderService parentProvider)
+    public void addChatRoom(ChatRoomWrapper chatRoomWrapper)
     {
-        int parentIndex = listModel.indexOf(parentProvider);
-
+        int parentIndex = listModel.indexOf(chatRoomWrapper.getParentProvider());
+        
+        boolean inserted = false;
+        
         if(parentIndex != -1)
-            listModel.add(parentIndex + 1, chatRoom);
+        {
+            for(int i = parentIndex + 1; i < listModel.getSize(); i ++)
+            {
+                Object element = listModel.get(i);
+                
+                if(element instanceof ProtocolProviderService)
+                {
+                    listModel.add(i, chatRoomWrapper);
+                    
+                    // Indicate that we have found the last chat room in the
+                    // list of server children and we have inserted there the
+                    // new chat room.
+                    inserted = true;
+                    
+                    break;
+                }
+            }
+            
+            if(!inserted)
+                listModel.addElement(chatRoomWrapper);
+        }    
+        
+        ConfigurationManager.saveChatRoom(
+            chatRoomWrapper.getParentProvider(),
+            chatRoomWrapper.getChatRoomID(),
+            chatRoomWrapper.getChatRoomID(),
+            chatRoomWrapper.getChatRoomName());
+    }
+    
+    /**
+     * Removes the given <tt>ChatRoom</tt> from the list of all chat rooms.
+     * 
+     * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt> to remove
+     */
+    public void removeChatRoom(ChatRoomWrapper chatRoomWrapper)
+    {
+        listModel.removeElement(chatRoomWrapper);
+        
+        ConfigurationManager.saveChatRoom(
+            chatRoomWrapper.getParentProvider(),
+            chatRoomWrapper.getChatRoomID(),
+            null, null);
     }
 
+    
     /**
-     * Verifies if the given <tt>ChatRoom</tt> is contained in the list.
-     *
-     * @param chatRoom the <tt>ChatRoom</tt> to search.
-     * @return TRUE if the given <tt>ChatRoom</tt> is contained in the list,
-     * FALSE - otherwise.
+     * Returns the <tt>ChatRoomWrapper</tt> that correspond to the given
+     * <tt>ChatRoom</tt>. If the list of chat rooms doesn't contain a
+     * corresponding wrapper - returns null.
+     *  
+     * @param chatRoom the <tt>ChatRoom</tt> that we're looking for
+     * @return
      */
-    public boolean containsChatRoom(ChatRoom chatRoom)
-    {
-        return listModel.contains(chatRoom);
+    public ChatRoomWrapper findChatRoomWrapperFromChatRoom(ChatRoom chatRoom)
+    {   
+        for(int i = 0; i < listModel.getSize(); i ++)
+        {   
+            Object listItem = listModel.get(i);
+            
+            if(listItem instanceof ChatRoomWrapper)
+            {
+                ChatRoomWrapper chatRoomWrapper = (ChatRoomWrapper) listItem;
+            
+                if(chatRoom.equals(chatRoomWrapper.getChatRoom()))
+                {
+                    return chatRoomWrapper;
+                }
+            }
+        }
+        
+        return null;
     }
 
     /**
@@ -119,85 +215,154 @@ public class ChatRoomsList
         return false;
     }
 
+    public void mouseClicked(MouseEvent e)
+    {}
+
+    public void mouseEntered(MouseEvent e)
+    {}
+
+    public void mouseExited(MouseEvent e)
+    {}
+    
+    public void mouseReleased(MouseEvent e)
+    {}
+
     /**
      * A chat room was selected. Opens the chat room in the chat window.
      *
      * @param evt a <tt>ListSelectionEvent</tt> instance containing details of
      * the event that has just occurred.
+
      */
-    public void valueChanged(ListSelectionEvent evt)
-    {
-        Object obj = this.getSelectedValue();
-
-        if(obj instanceof ChatRoom)
+    public void mousePressed(MouseEvent e)
+    {   
+        //Select the object under the right button click.
+        if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
+            || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+            || (e.isControlDown() && !e.isMetaDown()))
         {
-            ChatRoom chatRoom = (ChatRoom) obj;
-            ChatWindowManager chatWindowManager
-                = mainFrame.getChatWindowManager();
-
-            ChatPanel chatPanel = chatWindowManager.getChatRoom(chatRoom);
-
-            chatWindowManager.openChat(chatPanel, true);
+            this.setSelectedIndex(locationToIndex(e.getPoint()));
         }
-    }
-
-    public void mouseClicked(MouseEvent evt)
-    {}
-
-    public void mouseEntered(MouseEvent evt)
-    {}
-
-    public void mouseExited(MouseEvent evt)
-    {}
-
-    public void mousePressed(MouseEvent evt)
-    {
-        // Select the contact under the right button click.
-        if ((evt.getModifiers() & InputEvent.BUTTON2_MASK) != 0
-            || (evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-            || (evt.isControlDown() && !evt.isMetaDown()))
-        {
-            this.setSelectedIndex(locationToIndex(evt.getPoint()));
+        
+        Object o = this.getSelectedValue();
+        
+        if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
+        {   
+            if(o instanceof ChatRoomWrapper)
+            {            
+                ChatRoomWrapper chatRoomWrapper = (ChatRoomWrapper) o;
+                
+                ChatWindowManager chatWindowManager
+                    = mainFrame.getChatWindowManager();
+                
+                ChatPanel chatPanel
+                    = chatWindowManager.getMultiChat(chatRoomWrapper);
+                
+                chatWindowManager.openChat(chatPanel, true);
+            }
         }
-
-        Object selectedValue = this.getSelectedValue();
-
-        if(selectedValue instanceof ProtocolProviderService)
+        else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
         {
-            ProtocolProviderService pps
-                = (ProtocolProviderService) selectedValue;
-
-            if ((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
+            if(o instanceof ProtocolProviderService)
             {
                 ChatRoomServerRightButtonMenu rightButtonMenu
-                    = new ChatRoomServerRightButtonMenu(mainFrame, pps);
-
+                    = new ChatRoomServerRightButtonMenu(
+                        mainFrame, (ProtocolProviderService) o);
+    
                 rightButtonMenu.setInvoker(this);
-
-                rightButtonMenu.setLocation(evt.getX()
-                        + mainFrame.getX() + 5, evt.getY() + mainFrame.getY()
+    
+                rightButtonMenu.setLocation(e.getX()
+                        + mainFrame.getX() + 5, e.getY() + mainFrame.getY()
                         + 105);
+    
+                rightButtonMenu.setVisible(true);
+            }
+            else if (o instanceof ChatRoomWrapper)
+            {
+                ChatRoomRightButtonMenu rightButtonMenu
+                    = new ChatRoomRightButtonMenu(mainFrame,
+                        (ChatRoomWrapper) o);
+                
+                rightButtonMenu.setInvoker(this);
+                
+                rightButtonMenu.setLocation(e.getX()
+                    + mainFrame.getX() + 5, e.getY() + mainFrame.getY()
+                    + 105);
 
                 rightButtonMenu.setVisible(true);
             }
-        }
-    }
+		}
+	}
+	    
+    /**
+     * Goes through the locally stored chat rooms list and for each
+     * {@link ChatRoomWrapper} tries to find the corresponding server stored
+     * {@link ChatRoom} in the specified operation set. Joins automatically all
+     * found chat rooms.
+     *
+     * @param protocolProvider the protocol provider for the account to
+     * synchronize
+     * @param opSet the multi user chat operation set, which give us access to
+     * chat room server 
+     */
+    public void synchronizeOpSetWithLocalContactList(
+        ProtocolProviderService protocolProvider,
+        OperationSetMultiUserChat opSet)
+    {   
+        ChatRoomWrapper chatRoomWrapper = null;
+        ChatRoom chatRoom = null;
+        
+        int serverIndex = listModel.indexOf(protocolProvider);
+        
+        for(int i = serverIndex + 1; i < listModel.size(); i ++)
+        {   
+            Object o = listModel.get(i);
+            
+            if(!(o instanceof ChatRoomWrapper))
+                break;
 
-    public void mouseReleased(MouseEvent evt)
-    {}
-
-    public ChatRoom getChatRoomFromList(String chatRoomName)
-    {
-        for(int i=0; i<listModel.getSize(); i++)
-        {
-            Object o = listModel.getElementAt(i);
-
-            if(o instanceof ChatRoom)
+            chatRoomWrapper = (ChatRoomWrapper) o;
+            
+            try
             {
-                if((((ChatRoom) o).getName()).equalsIgnoreCase(chatRoomName))
-                    return (ChatRoom)o;
+                chatRoom = opSet.findRoom(chatRoomWrapper.getChatRoomName());
+            }
+            catch (OperationFailedException e1)
+            {
+                logger.error("Failed to find chat room with name:"
+                    + chatRoomWrapper.getChatRoomName(), e1);
+            }
+            catch (OperationNotSupportedException e1)
+            {                        
+                logger.error("Failed to find chat room with name:"
+                    + chatRoomWrapper.getChatRoomName(), e1);
+            }
+            
+            if(chatRoom != null)
+            {
+                chatRoomWrapper.setChatRoom(chatRoom);
+                
+                try
+                {
+                    chatRoom.join();                        
+                }
+                catch (OperationFailedException e)
+                {   
+                    logger.error("Failed to join chat room: "
+                        + chatRoomWrapper.getChatRoomName(), e);
+                }
             }
         }
-        return null;
+    }
+    
+    /**
+     * Refreshes the chat room's list. Meant to be invoked when a modification
+     * in a chat room is made and the list should be refreshed in order to show
+     * the new state correctly.
+     */
+    public void refresh()
+    {
+        this.revalidate();
+        this.repaint();
     }
 }
