@@ -37,7 +37,8 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class LoginManager
-    implements ServiceListener, RegistrationStateChangeListener
+    implements  ServiceListener,
+                RegistrationStateChangeListener
 {
 
     private Logger logger = Logger.getLogger(LoginManager.class.getName());
@@ -81,15 +82,15 @@ public class LoginManager
             .getProviderForAccount(accountID);
 
         ProtocolProviderService protocolProvider
-            = (ProtocolProviderService) GuiActivator
-                .bundleContext.getService(serRef);
+            = (ProtocolProviderService) GuiActivator.bundleContext
+                .getService(serRef);
 
         return protocolProvider;
     }
 
     /**
      * Registers the given protocol provider.
-     *
+     * 
      * @param protocolProvider the ProtocolProviderService to register.
      */
     public void login(ProtocolProviderService protocolProvider)
@@ -105,7 +106,7 @@ public class LoginManager
 
     /**
      * Unregisters the given protocol provider.
-     *
+     * 
      * @param protocolProvider the ProtocolProviderService to unregister
      */
     public void logoff(ProtocolProviderService protocolProvider)
@@ -115,18 +116,18 @@ public class LoginManager
 
     /**
      * Shows login window for each registered account.
-     *
+     * 
      * @param parent The parent MainFrame window.
      */
     public void runLogin(MainFrame parent)
     {
-
         Set set = GuiActivator.getProtocolProviderFactories().entrySet();
         Iterator iter = set.iterator();
 
         boolean hasRegisteredAccounts = false;
 
-        while (iter.hasNext()) {
+        while (iter.hasNext())
+        {
             Map.Entry entry = (Map.Entry) iter.next();
 
             ProtocolProviderFactory providerFactory
@@ -138,15 +139,16 @@ public class LoginManager
             ServiceReference serRef;
             ProtocolProviderService protocolProvider;
 
-            for (int i = 0; i < accountsList.size(); i++) {
+            for (int i = 0; i < accountsList.size(); i++)
+            {
                 hasRegisteredAccounts = true;
 
                 accountID = (AccountID) accountsList.get(i);
 
                 serRef = providerFactory.getProviderForAccount(accountID);
 
-                protocolProvider = (ProtocolProviderService)
-                    GuiActivator.bundleContext.getService(serRef);
+                protocolProvider = (ProtocolProviderService) GuiActivator
+                    .bundleContext.getService(serRef);
 
                 protocolProvider.addRegistrationStateChangeListener(this);
 
@@ -158,15 +160,16 @@ public class LoginManager
                 if (status == null
                     || status.equals(Constants.ONLINE_STATUS)
                     || ((status instanceof PresenceStatus)
-                        && (((PresenceStatus)status).getStatus()
-                            >= PresenceStatus.ONLINE_THRESHOLD)))
+                        && (((PresenceStatus) status)
+                        .getStatus() >= PresenceStatus.ONLINE_THRESHOLD)))
                 {
                     this.login(protocolProvider);
                 }
             }
         }
 
-        if (!hasRegisteredAccounts) {
+        if (!hasRegisteredAccounts)
+        {
             this.showAccountRegistrationWizard();
         }
     }
@@ -177,16 +180,16 @@ public class LoginManager
     private void showAccountRegistrationWizard()
     {
         AccountRegWizardContainerImpl wizard
-            = (AccountRegWizardContainerImpl) GuiActivator
-            .getUIService().getAccountRegWizardContainer();
+            = (AccountRegWizardContainerImpl) GuiActivator.getUIService()
+                .getAccountRegWizardContainer();
 
         NoAccountFoundPage noAccountFoundPage = new NoAccountFoundPage();
 
         wizard.registerWizardPage(noAccountFoundPage.getIdentifier(),
             noAccountFoundPage);
 
-        wizard.setTitle(
-            Messages.getI18NString("accountRegistrationWizard").getText());
+        wizard.setTitle(Messages.getI18NString("accountRegistrationWizard")
+            .getText());
 
         wizard.newAccount(noAccountFoundPage.getIdentifier());
 
@@ -197,7 +200,7 @@ public class LoginManager
      * The method is called by a ProtocolProvider implementation whenever a
      * change in the registration state of the corresponding provider had
      * occurred.
-     *
+     * 
      * @param evt ProviderStatusChangeEvent the event describing the status
      *            change.
      */
@@ -206,150 +209,160 @@ public class LoginManager
         ProtocolProviderService protocolProvider = evt.getProvider();
 
         AccountID accountID = protocolProvider.getAccountID();
-        
+
         logger.trace("Protocol provider: " + protocolProvider
             + " changed its state to: " + evt.getNewState().getStateName());
 
         OperationSetPresence presence = mainFrame
             .getProtocolPresenceOpSet(protocolProvider);
 
-        if (evt.getNewState().equals(RegistrationState.REGISTERED)) {
+        OperationSetMultiUserChat multiUserChat = mainFrame
+            .getMultiUserChatOpSet(protocolProvider);
 
-            this.mainFrame.getStatusPanel()
-                .updateStatus(protocolProvider);
+        if (evt.getNewState().equals(RegistrationState.REGISTERED))
+        {
+            this.mainFrame.getStatusPanel().updateStatus(protocolProvider);
 
-            if(mainFrame.getCallManager().containsCallAccount(protocolProvider))
+            if (mainFrame.getCallManager()
+                .containsCallAccount(protocolProvider))
             {
-                this.mainFrame.getCallManager()
-                    .updateCallAccountStatus(protocolProvider);
+                this.mainFrame.getCallManager().updateCallAccountStatus(
+                    protocolProvider);
             }
 
-            if (presence != null) {
-                presence
-                    .setAuthorizationHandler(
-                        new AuthorizationHandlerImpl(mainFrame));
+            if (presence != null)
+            {
+                presence.setAuthorizationHandler(new AuthorizationHandlerImpl(
+                    mainFrame));
+            }
+            
+            if(multiUserChat != null)
+            {
+                mainFrame.getChatRoomsListPanel().getChatRoomsList()
+                    .synchronizeOpSetWithLocalContactList(
+                        protocolProvider, multiUserChat); 
             }
         }
         else if (evt.getNewState().equals(
-            RegistrationState.AUTHENTICATION_FAILED)) {
+            RegistrationState.AUTHENTICATION_FAILED))
+        {
 
             this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
 
             if (evt.getReasonCode() == RegistrationStateChangeEvent
-                    .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED) {
-
-                String msgText = Messages.getI18NString(
-                    "reconnectionLimitExceeded",
-                    new String []{
-                        accountID.getUserID(),
-                        accountID.getService()
-                    }).getText();
-
-                new ErrorDialog(null, msgText,
-                    Messages.getI18NString("error").getText()).showDialog();
-            }
-            else if (evt.getReasonCode() == RegistrationStateChangeEvent
-                    .REASON_NON_EXISTING_USER_ID) {
-
-                String msgText = Messages.getI18NString(
-                    "nonExistingUserId",
-                    new String[]{protocolProvider.getProtocolName()}).getText();
-
-                new ErrorDialog(null, msgText,
-                    Messages.getI18NString("error").getText()).showDialog();
-            }
-            else if (evt.getReasonCode() == RegistrationStateChangeEvent
-                    .REASON_AUTHENTICATION_FAILED)
-           {    
-                String msgText = Messages.getI18NString(
-                    "authenticationFailed",
-                    new String[]{
-                        accountID.getUserID(),
-                        accountID.getService()
-                    }).getText();
-
-                new ErrorDialog(null, msgText,
-                    Messages.getI18NString("error").getText()).showDialog();
-            }
-            logger.error(evt.getReason());
-        }
-        else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED)) {
-
-            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
-
-            String msgText = Messages.getI18NString(
-                "connectionFailedMessage",
-                new String[]{
-                    accountID.getUserID(),
-                    accountID.getService()
-                }).getText();
-
-            new ErrorDialog(null, msgText,
-                Messages.getI18NString("error").getText()).showDialog();
-
-            logger.error(evt.getReason());
-        }
-        else if (evt.getNewState().equals(RegistrationState.EXPIRED)) {
-
-            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
-
-            String msgText = Messages.getI18NString(
-                "connectionExpiredMessage",
-                new String[]{protocolProvider.getProtocolName()}).getText();
-
-            new ErrorDialog(null, msgText,
-                Messages.getI18NString("error").getText()).showDialog();
-
-            logger.error(evt.getReason());
-        }
-        else if (evt.getNewState().equals(RegistrationState.UNREGISTERED)) {
-
-            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
-
-            if(mainFrame.getCallManager().containsCallAccount(protocolProvider))
+                    .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED)
             {
-                this.mainFrame.getCallManager()
-                    .updateCallAccountStatus(protocolProvider);
+
+                String msgText = Messages.getI18NString(
+                    "reconnectionLimitExceeded", new String[]
+                    { accountID.getUserID(), accountID.getService() })
+                    .getText();
+
+                new ErrorDialog(null, msgText, Messages.getI18NString("error")
+                    .getText()).showDialog();
+            }
+            else if (evt.getReasonCode() == RegistrationStateChangeEvent
+                                                .REASON_NON_EXISTING_USER_ID)
+            {
+
+                String msgText = Messages.getI18NString("nonExistingUserId",
+                    new String[]
+                    { protocolProvider.getProtocolName() }).getText();
+
+                new ErrorDialog(null, msgText, Messages.getI18NString("error")
+                    .getText()).showDialog();
+            }
+            else if (evt.getReasonCode() == RegistrationStateChangeEvent
+                                                .REASON_AUTHENTICATION_FAILED)
+            {
+                String msgText = Messages.getI18NString("authenticationFailed",
+                    new String[]
+                    { accountID.getUserID(), accountID.getService() })
+                    .getText();
+
+                new ErrorDialog(null, msgText, Messages.getI18NString("error")
+                    .getText()).showDialog();
+            }
+            logger.error(evt.getReason());
+        }
+        else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
+        {
+
+            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
+
+            String msgText = Messages.getI18NString("connectionFailedMessage",
+                new String[]
+                { accountID.getUserID(), accountID.getService() }).getText();
+
+            new ErrorDialog(null, msgText, Messages.getI18NString("error")
+                .getText()).showDialog();
+
+            logger.error(evt.getReason());
+        }
+        else if (evt.getNewState().equals(RegistrationState.EXPIRED))
+        {
+
+            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
+
+            String msgText = Messages.getI18NString("connectionExpiredMessage",
+                new String[]
+                { protocolProvider.getProtocolName() }).getText();
+
+            new ErrorDialog(null, msgText, Messages.getI18NString("error")
+                .getText()).showDialog();
+
+            logger.error(evt.getReason());
+        }
+        else if (evt.getNewState().equals(RegistrationState.UNREGISTERED))
+        {
+
+            this.mainFrame.getStatusPanel().updateStatus(evt.getProvider());
+
+            if (mainFrame.getCallManager()
+                .containsCallAccount(protocolProvider))
+            {
+                this.mainFrame.getCallManager().updateCallAccountStatus(
+                    protocolProvider);
             }
 
-            if (!manuallyDisconnected) {
+            if (!manuallyDisconnected)
+            {
                 if (evt.getReasonCode() == RegistrationStateChangeEvent
-                        .REASON_MULTIPLE_LOGINS) {
-                    String msgText = Messages.getI18NString(
-                        "multipleLogins",
-                        new String[]{
-                            accountID.getUserID(),
-                            accountID.getService()
-                        }).getText();
+                                            .REASON_MULTIPLE_LOGINS)
+                {
+                    String msgText = Messages.getI18NString("multipleLogins",
+                        new String[]
+                        { accountID.getUserID(), accountID.getService() })
+                        .getText();
 
-                    new ErrorDialog(null, msgText,
-                        Messages.getI18NString("error").getText()).showDialog();
+                    new ErrorDialog(null, msgText, Messages.getI18NString(
+                        "error").getText()).showDialog();
                 }
                 else if (evt.getReasonCode() == RegistrationStateChangeEvent
-                        .REASON_CLIENT_LIMIT_REACHED_FOR_IP) {
+                                            .REASON_CLIENT_LIMIT_REACHED_FOR_IP)
+                {
 
                     String msgText = Messages.getI18NString(
-                        "limitReachedForIp",
-                        new String[]{protocolProvider.getProtocolName()})
-                            .getText();
+                        "limitReachedForIp", new String[]
+                        { protocolProvider.getProtocolName() }).getText();
 
-                    new ErrorDialog(null, msgText,
-                        Messages.getI18NString("error").getText()).showDialog();
+                    new ErrorDialog(null, msgText, Messages.getI18NString(
+                        "error").getText()).showDialog();
                 }
                 else if (evt.getReasonCode() == RegistrationStateChangeEvent
-                        .REASON_USER_REQUEST) {
-                    //do nothing
+                                            .REASON_USER_REQUEST)
+                {
+                    // do nothing
                 }
-                else {
+                else
+                {
                     String msgText = Messages.getI18NString(
-                        "unregisteredMessage",
-                        new String[]{
-                            accountID.getUserID(),
-                            accountID.getService()
-                        }).getText();
+                        "unregisteredMessage", new String[]
+                        { accountID.getUserID(), accountID.getService() })
+                        .getText();
 
-                    new ErrorDialog(null, msgText,
-                        Messages.getI18NString("error").getText()).showDialog();
+                    new ErrorDialog(null, msgText, Messages.getI18NString(
+                        "error").getText()).showDialog();
                 }
                 logger.error(evt.getReason());
             }
@@ -358,7 +371,7 @@ public class LoginManager
 
     /**
      * Returns the MainFrame.
-     *
+     * 
      * @return The MainFrame.
      */
     public MainFrame getMainFrame()
@@ -368,7 +381,7 @@ public class LoginManager
 
     /**
      * Sets the MainFrame.
-     *
+     * 
      * @param mainFrame The main frame.
      */
     public void setMainFrame(MainFrame mainFrame)
@@ -380,15 +393,14 @@ public class LoginManager
      * Implements the <tt>ServiceListener</tt> method. Verifies whether the
      * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
      * corresponding UI controls.
-     *
+     * 
      * @param event The <tt>ServiceEvent</tt> object.
      */
     public void serviceChanged(ServiceEvent event)
     {
-        //if the event is caused by a bundle being stopped, we don't want to
-        //know
-        if(event.getServiceReference().getBundle().getState()
-            == Bundle.STOPPING)
+        // if the event is caused by a bundle being stopped, we don't want to
+        // know
+        if (event.getServiceReference().getBundle().getState() == Bundle.STOPPING)
         {
             return;
         }
@@ -397,14 +409,17 @@ public class LoginManager
             .getServiceReference());
 
         // we don't care if the source service is not a protocol provider
-        if (!(service instanceof ProtocolProviderService)) {
+        if (!(service instanceof ProtocolProviderService))
+        {
             return;
         }
 
-        if (event.getType() == ServiceEvent.REGISTERED) {
+        if (event.getType() == ServiceEvent.REGISTERED)
+        {
             this.handleProviderAdded((ProtocolProviderService) service);
         }
-        else if (event.getType() == ServiceEvent.UNREGISTERING) {
+        else if (event.getType() == ServiceEvent.UNREGISTERING)
+        {
             this.handleProviderRemoved((ProtocolProviderService) service);
         }
     }
@@ -412,7 +427,7 @@ public class LoginManager
     /**
      * Adds all UI components (status selector box, etc) related to the given
      * protocol provider.
-     *
+     * 
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      */
     private void handleProviderAdded(ProtocolProviderService protocolProvider)
@@ -428,9 +443,8 @@ public class LoginManager
 
         if (status == null
             || status.equals(Constants.ONLINE_STATUS)
-            || ((status instanceof PresenceStatus)
-                && (((PresenceStatus)status).getStatus()
-                    >= PresenceStatus.ONLINE_THRESHOLD)))
+            || ((status instanceof PresenceStatus) && (((PresenceStatus) status)
+                .getStatus() >= PresenceStatus.ONLINE_THRESHOLD)))
         {
             this.login(protocolProvider);
         }
@@ -438,7 +452,7 @@ public class LoginManager
 
     /**
      * Removes all UI components related to the given protocol provider.
-     *
+     * 
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      */
     private void handleProviderRemoved(ProtocolProviderService protocolProvider)
@@ -472,58 +486,62 @@ public class LoginManager
 
         public void run()
         {
-            try {
+            try
+            {
                 protocolProvider.register(secAuth);
             }
-            catch (OperationFailedException ex) {
+            catch (OperationFailedException ex)
+            {
 
                 int errorCode = ex.getErrorCode();
 
-                if (errorCode == OperationFailedException.GENERAL_ERROR) {
+                if (errorCode == OperationFailedException.GENERAL_ERROR)
+                {
                     logger.error("Provider could not be registered"
-                            + " due to the following general error: ", ex);
+                        + " due to the following general error: ", ex);
                 }
-                else if (errorCode == OperationFailedException.INTERNAL_ERROR) {
+                else if (errorCode == OperationFailedException.INTERNAL_ERROR)
+                {
                     logger.error("Provider could not be registered"
-                            + " due to the following internal error: ", ex);
+                        + " due to the following internal error: ", ex);
                 }
-                else if (errorCode == OperationFailedException.NETWORK_FAILURE) {
+                else if (errorCode == OperationFailedException.NETWORK_FAILURE)
+                {
                     logger.error("Provider could not be registered"
-                            + " due to a network failure: " + ex);
+                        + " due to a network failure: " + ex);
                 }
-                else if (errorCode == OperationFailedException
-                            .INVALID_ACCOUNT_PROPERTIES) {
+                else if (errorCode
+                        == OperationFailedException.INVALID_ACCOUNT_PROPERTIES)
+                {
                     logger.error("Provider could not be registered"
-                            + " due to an invalid account property: ", ex);
+                        + " due to an invalid account property: ", ex);
                 }
                 else
                 {
                     logger.error("Provider could not be registered.", ex);
                 }
 
-
-                new ErrorDialog(mainFrame,
-                    Messages.getI18NString("loginNotSucceeded",
-                        new String[]{
-                            protocolProvider.getAccountID().getUserID(),
-                            protocolProvider.getAccountID().getService()
-                        }).getText(),
-                    ex,
-                    Messages.getI18NString("error").getText()).showDialog();
+                new ErrorDialog(mainFrame, Messages.getI18NString(
+                    "loginNotSucceeded",
+                    new String[]
+                    { protocolProvider.getAccountID().getUserID(),
+                        protocolProvider.getAccountID().getService() })
+                    .getText(), ex, Messages.getI18NString("error").getText())
+                    .showDialog();
 
                 mainFrame.getStatusPanel().updateStatus(protocolProvider);
             }
             catch (Throwable ex)
             {
                 logger.error("Failed to register protocol provider. ", ex);
-                
-                new ErrorDialog(mainFrame,
-                        Messages.getI18NString("loginNotSucceeded",
-                            new String[]{
-                                protocolProvider.getAccountID().getUserID(),
-                                protocolProvider.getAccountID().getService()
-                            }).getText(),
-                        Messages.getI18NString("error").getText()).showDialog();
+
+                new ErrorDialog(mainFrame, Messages.getI18NString(
+                    "loginNotSucceeded",
+                    new String[]
+                    { protocolProvider.getAccountID().getUserID(),
+                        protocolProvider.getAccountID().getService() })
+                    .getText(), Messages.getI18NString("error").getText())
+                    .showDialog();
 
                 mainFrame.getStatusPanel().updateStatus(protocolProvider);
             }
@@ -542,32 +560,37 @@ public class LoginManager
 
         public void run()
         {
-            try {
+            try
+            {
                 protocolProvider.unregister();
             }
-            catch (OperationFailedException ex) {
+            catch (OperationFailedException ex)
+            {
                 int errorCode = ex.getErrorCode();
 
-                if (errorCode == OperationFailedException.GENERAL_ERROR) {
+                if (errorCode == OperationFailedException.GENERAL_ERROR)
+                {
                     logger.error("Provider could not be unregistered"
-                            + " due to the following general error: " + ex);
+                        + " due to the following general error: " + ex);
                 }
-                else if (errorCode == OperationFailedException.INTERNAL_ERROR) {
+                else if (errorCode == OperationFailedException.INTERNAL_ERROR)
+                {
                     logger.error("Provider could not be unregistered"
-                            + " due to the following internal error: " + ex);
+                        + " due to the following internal error: " + ex);
                 }
-                else if (errorCode == OperationFailedException.NETWORK_FAILURE) {
+                else if (errorCode == OperationFailedException.NETWORK_FAILURE)
+                {
                     logger.error("Provider could not be unregistered"
-                            + " due to a network failure: " + ex);
+                        + " due to a network failure: " + ex);
                 }
 
-                new ErrorDialog(mainFrame,
-                        Messages.getI18NString("logoffNotSucceeded",
-                            new String[]{
-                            protocolProvider.getAccountID().getUserID(),
-                            protocolProvider.getAccountID().getService()
-                        }).getText(),
-                        Messages.getI18NString("error").getText()).showDialog();
+                new ErrorDialog(mainFrame, Messages.getI18NString(
+                    "logoffNotSucceeded",
+                    new String[]
+                    { protocolProvider.getAccountID().getUserID(),
+                        protocolProvider.getAccountID().getService() })
+                    .getText(), Messages.getI18NString("error").getText())
+                    .showDialog();
             }
         }
     }
