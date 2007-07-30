@@ -728,13 +728,13 @@ public class MetaContactChatPanel
      */
     private ChatContact findChatContactByMetaContact(MetaContact metaContact)
     {
-        Enumeration chatContacts
+        Iterator chatContacts
             = getChatContactListPanel().getChatContacts();
             
-        while(chatContacts.hasMoreElements())
+        while(chatContacts.hasNext())
         {
             ChatContact chatContact
-                = (ChatContact) chatContacts.nextElement();
+                = (ChatContact) chatContacts.next();
             
             Object chatSourceContact = chatContact.getSourceContact();
             
@@ -763,13 +763,13 @@ public class MetaContactChatPanel
      */
     private ChatContact findChatContactByContact(Contact contact)
     {
-        Enumeration chatContacts
+        Iterator chatContacts
             = getChatContactListPanel().getChatContacts();
             
-        while(chatContacts.hasMoreElements())
+        while(chatContacts.hasNext())
         {
             ChatContact chatContact
-                = (ChatContact) chatContacts.nextElement();
+                = (ChatContact) chatContacts.next();
             
             Object chatSourceContact = chatContact.getSourceContact();
             
@@ -781,5 +781,9 @@ public class MetaContactChatPanel
         }
         
         return null;
+    }
+
+    public void inviteChatContact(String contactAddress, String reason)
+    {   
     }
 }

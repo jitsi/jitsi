@@ -8,11 +8,13 @@
 package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
@@ -27,6 +29,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
  */
 public class ChatContactListPanel
     extends JPanel
+    implements  MouseListener,
+                KeyListener
 {
     private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
     
@@ -42,18 +46,18 @@ public class ChatContactListPanel
     
     private JPanel contactsPanel = new JPanel();
     
-    private Hashtable chatContacts = new Hashtable(); 
+    private LinkedHashMap chatContacts = new LinkedHashMap(); 
     
     private ChatPanel chatPanel;
     
     /**
      * Creates an instance of <tt>ChatContactListPanel</tt>.
      */
-    public ChatContactListPanel(ChatPanel chatPanel)
+    public ChatContactListPanel(ChatPanel chat)
     {
         super(new BorderLayout(5, 5));
 
-        this.chatPanel = chatPanel;
+        this.chatPanel = chat;
                
         this.contactsPanel.setLayout(
             new BoxLayout(contactsPanel, BoxLayout.Y_AXIS));
@@ -65,14 +69,27 @@ public class ChatContactListPanel
 
         this.mainPanel.add(contactsPanel, BorderLayout.NORTH);
         this.contactsScrollPane.getViewport().add(this.mainPanel);
-
-        this.buttonPanel.add(addToChatButton);
-
+        
         this.add(contactsScrollPane, BorderLayout.CENTER);
-        this.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Disable all unused buttons.
-        this.addToChatButton.setEnabled(false);
+        if(chatPanel instanceof ConferenceChatPanel)
+        {
+            this.buttonPanel.add(addToChatButton);
+            this.add(buttonPanel, BorderLayout.SOUTH);
+            
+            addToChatButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    ChatInviteDialog inviteDialog
+                        = new ChatInviteDialog(chatPanel);
+                    
+                    inviteDialog.setVisible(true);
+                }
+            });
+        }
+        
+        this.addKeyListener(this);
     }
     
     /**
@@ -82,13 +99,50 @@ public class ChatContactListPanel
      * @param chatContact the <tt>ChatContact</tt> to add
      */
     public void addContact(ChatContact chatContact)
-    {                
-        ChatContactPanel chatContactPanel = new ChatContactPanel(
-            chatPanel, chatContact);
+    {
+        synchronized (chatContacts)
+        {
+            ChatContactPanel chatContactPanel = new ChatContactPanel(
+                chatPanel, chatContact);
 
-        this.contactsPanel.add(chatContactPanel);
-        
-        this.chatContacts.put(chatContact, chatContactPanel);
+            this.contactsPanel.add(chatContactPanel);
+            
+            this.contactsPanel.revalidate();
+            this.contactsPanel.repaint();
+            
+            if(chatContacts.isEmpty())
+                chatContactPanel.setSelected(true);
+            
+            this.chatContacts.put(chatContact, chatContactPanel);
+            
+            chatContactPanel.addMouseListener(this);
+        }
+    }
+    
+    /**
+     * Removes the given <tt>ChatContact</tt> from the list of chat contacts.
+     * 
+     * @param chatContact the <tt>ChatContact</tt> to remove
+     */
+    public void removeContact(ChatContact chatContact)
+    {
+        synchronized (chatContacts)
+        {   
+            if(!chatContacts.containsKey(chatContact))
+                return;
+
+            ChatContactPanel chatContactPanel
+                = (ChatContactPanel) chatContacts.get(chatContact);
+
+            contactsPanel.remove(chatContactPanel);
+            
+            this.contactsPanel.revalidate();
+            this.contactsPanel.repaint();
+            
+            chatContacts.remove(chatContact);
+            
+            chatContactPanel.removeMouseListener(this);            
+        }
     }
 
     /**
@@ -99,22 +153,29 @@ public class ChatContactListPanel
      */
     public void renameContact(ChatContact chatContact)
     {
-        ChatContactPanel chatContactPanel = null;
-        if(chatContacts.containsKey(chatContact))
+        synchronized (chatContacts)
         {
-            chatContactPanel = (ChatContactPanel)chatContacts.get(chatContact);
-        
-            chatContactPanel.renameContact(chatContact.getName());
-        }        
+            ChatContactPanel chatContactPanel = null;
+            if(chatContacts.containsKey(chatContact))
+            {
+                chatContactPanel
+                    = (ChatContactPanel)chatContacts.get(chatContact);
+            
+                chatContactPanel.renameContact(chatContact.getName());
+            }
+        }       
     }
 
     /**
      * Returns the list of <tt>ChatContacts</tt> contained in this container. 
      * @return the list of <tt>ChatContacts</tt> contained in this container
      */
-    public Enumeration getChatContacts()
+    public Iterator getChatContacts()
     {
-        return chatContacts.keys();
+        synchronized (chatContacts)
+        {
+            return chatContacts.keySet().iterator();
+        }
     }
     
     /**
@@ -128,6 +189,110 @@ public class ChatContactListPanel
     public ChatContactPanel getChatContactPanel(ChatContact chatContact)
     {
         return (ChatContactPanel) chatContacts.get(chatContact);
+    }
+
+    public void mouseClicked(MouseEvent e)
+    {   
+    }
+
+    public void mouseEntered(MouseEvent e)
+    {   
+    }
+
+    public void mouseExited(MouseEvent e)
+    {   
+    }
+
+    public void mousePressed(MouseEvent e)
+    {
+        synchronized (chatContacts)
+        {
+            // Reduce all other chat contact panels before expanding the
+            // selected one.
+            Iterator chatContactPanels = chatContacts.values().iterator();
+            
+            while(chatContactPanels.hasNext())
+            {
+                ChatContactPanel panel
+                    = (ChatContactPanel) chatContactPanels.next();
+                
+                panel.setSelected(false);
+            }
+            
+            ChatContactPanel chatContactPanel = (ChatContactPanel) e.getSource();
+            
+            chatContactPanel.setSelected(true);
+            
+            this.requestFocus();
+        }
+    }
+
+    public void mouseReleased(MouseEvent e)
+    {   
+    }
+
+    public void keyTyped(KeyEvent e)
+    {   
+    }
+    
+    public void keyPressed(KeyEvent e)
+    {
+        
+        if (e.getKeyCode() == KeyEvent.VK_DOWN)
+        {
+            Iterator contacts = chatContacts.keySet().iterator();
+            
+            while(contacts.hasNext())
+            {
+                ChatContact chatContact = (ChatContact) contacts.next();
+                
+                if(chatContact.isSelected())
+                {                    
+                    if(contacts.hasNext())
+                    {
+                        ((ChatContactPanel) chatContacts.get(chatContact))
+                            .setSelected(false);
+                    
+                        ((ChatContactPanel) chatContacts.get(
+                            contacts.next())).setSelected(true);
+                    }
+                    
+                    break;
+                }   
+            }
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_UP)
+        {
+            ChatContact previousChatContact = null;
+            
+            Iterator contacts = chatContacts.keySet().iterator();
+            
+            while(contacts.hasNext())
+            {
+                ChatContact chatContact = (ChatContact) contacts.next();
+                
+                if(chatContact.isSelected())
+                {
+                    if(previousChatContact != null)
+                    {
+                        ((ChatContactPanel) chatContacts.get(chatContact))
+                            .setSelected(false);
+                    
+                        ((ChatContactPanel) chatContacts.get(previousChatContact))
+                            .setSelected(true);
+                    
+                    }
+                    
+                    break;
+                }
+                
+                previousChatContact = chatContact;
+            }
+        }
+    }
+
+    public void keyReleased(KeyEvent e)
+    {   
     }
 }
 

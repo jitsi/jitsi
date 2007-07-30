@@ -41,6 +41,8 @@ public class ChatContact
     
     private Object sourceContact;
     
+    private boolean isSelected;
+    
     /**
      * Creates an instance of <tt>ChatContact</tt> by passing to it the
      * <tt>Contact</tt> for which it is created.
@@ -209,5 +211,28 @@ public class ChatContact
         }
         else
             return null;
+    }
+    
+    /**
+     * Returns <code>true</code> if this is the currently selected contact in
+     * the list of contacts for the chat, otherwise returns <code>false</code>.
+     * @return <code>true</code> if this is the currently selected contact in
+     * the list of contacts for the chat, otherwise returns <code>false</code>.
+     */
+    public boolean isSelected()
+    {
+        return isSelected;
+    }
+
+    /**
+     * Sets this isSelected property of this chat contact.
+     * 
+     * @param isSelected <code>true</code> to indicate that this contact would
+     * be the selected contact in the list of chat window contacts, otherwise -
+     * <code>false</code>
+     */
+    public void setSelected(boolean isSelected)
+    {
+        this.isSelected = isSelected;
     }
 }

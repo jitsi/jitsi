@@ -131,12 +131,50 @@ public class ChatWindowManager
      * @return TRUE if there is an opened <tt>ChatPanel</tt> for the given
      * <tt>ChatRoom</tt>
      */
-    public boolean isChatOpenedForChatRoom(ChatRoom chatRoom)
-    {
+    public boolean isChatOpenedForChatRoom(ChatRoomWrapper chatRoomWrapper)
+    {   
         synchronized (syncChat)
         {
-            if(containsChat(chatRoom)
-                && getChat(chatRoom).isVisible())
+            if(containsChat(chatRoomWrapper)
+                && getChat(chatRoomWrapper).isVisible())
+                return true;
+            
+            return false;
+        }
+    }
+
+    /**
+     * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
+     * <tt>ChatRoom</tt>.
+     * @param chatRoom the <tt>ChatRoom</tt>, for which the chat is about
+     * @return TRUE if there is an opened <tt>ChatPanel</tt> for the given
+     * <tt>ChatRoom</tt>
+     */
+    public boolean isChatOpenedForChatRoom(ChatRoom chatRoom)
+    {   
+        synchronized (syncChat)
+        {
+            ChatRoomWrapper chatRoomWrapper = null;
+            
+            Enumeration chatKeys = chats.keys();
+            while(chatKeys.hasMoreElements())
+            {
+                Object o = chatKeys.nextElement();
+                
+                if(o instanceof ChatRoomWrapper)
+                {
+                    if(((ChatRoomWrapper)o).getChatRoom()
+                        .equals(chatRoom))
+                    {
+                        chatRoomWrapper = (ChatRoomWrapper)o;
+                        
+                        break;
+                    }
+                }
+            }
+            
+            if(containsChat(chatRoomWrapper)
+                && getChat(chatRoomWrapper).isVisible())
                 return true;
             
             return false;
@@ -317,6 +355,10 @@ public class ChatWindowManager
         }
     }
     
+    /**
+     * Returns the currently selected <tt>ChatPanel</tt>.
+     * @return the currently selected <tt>ChatPanel</tt>
+     */
     public ChatPanel getSelectedChat()
     {
         synchronized (syncChat)
@@ -331,7 +373,7 @@ public class ChatWindowManager
      * @param chatRoom the chat room, for which the chat panel is about
      * @return the chat panel corresponding to the given chat room
      */
-    public ChatPanel getChatRoom(ChatRoom chatRoom)
+    public ChatPanel getMultiChat(ChatRoomWrapper chatRoom)
     {
         synchronized (syncChat)
         {
@@ -343,7 +385,45 @@ public class ChatWindowManager
                 return createChat(chatRoom);
         }
     }
-        
+    
+    /**
+     * Returns the chat panel corresponding to the given chat room.
+     *
+     * @param chatRoom the chat room, for which the chat panel is about
+     * @return the chat panel corresponding to the given chat room
+     */
+    public ChatPanel getMultiChat(ChatRoom chatRoom)
+    {
+        synchronized (syncChat)
+        {   
+            Enumeration chatKeys = chats.keys();
+            while(chatKeys.hasMoreElements())
+            {
+                Object o = chatKeys.nextElement();
+                
+                if(o instanceof ChatRoomWrapper)
+                {
+                    if(((ChatRoomWrapper)o).getChatRoom()
+                            .equals(chatRoom))
+                    {
+                        return getChat((ChatRoomWrapper) o);
+                    }
+                }
+            }
+            
+            // Search in the chat room's list for a chat room that correspond
+            // to the given one.
+            ChatRoomWrapper chatRoomWrapper
+                = mainFrame.getChatRoomsListPanel().getChatRoomsList()
+                    .findChatRoomWrapperFromChatRoom(chatRoom);
+            
+            if(chatRoomWrapper == null)
+                chatRoomWrapper = new ChatRoomWrapper(chatRoom);
+            
+            return createChat(chatRoomWrapper);
+        }
+    }
+            
     /**
      * Closes the selected chat tab or the window if there are no tabs.
      *
@@ -481,7 +561,7 @@ public class ChatWindowManager
      * @param chatRoom the <tt>ChatRoom</tt>, for which the chat will be created
      * @return The <code>ChatPanel</code> newly created.
      */
-    private ChatPanel createChat(ChatRoom chatRoom)
+    private ChatPanel createChat(ChatRoomWrapper chatRoomWrapper)
     {
         ChatWindow chatWindow;
 
@@ -506,11 +586,11 @@ public class ChatWindowManager
         }
 
         ChatPanel chatPanel
-            = new ConferenceChatPanel(chatWindow, chatRoom);
+            = new ConferenceChatPanel(chatWindow, chatRoomWrapper);
 
         synchronized (chats)
         {
-            this.chats.put(chatRoom, chatPanel);
+            this.chats.put(chatRoomWrapper, chatPanel);
         }
 
         return chatPanel;

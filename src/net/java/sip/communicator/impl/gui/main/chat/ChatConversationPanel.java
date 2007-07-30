@@ -92,9 +92,9 @@ public class ChatConversationPanel
 
     private boolean isHistory = false;
 
-    private static final String HTML_CONTENT_TYPE = "text/html";
+    public static final String HTML_CONTENT_TYPE = "text/html";
 
-    private static final String TEXT_CONTENT_TYPE = "text/plain";
+    public static final String TEXT_CONTENT_TYPE = "text/plain";
     
     /**
      * Creates an instance of <tt>ChatConversationPanel</tt>.

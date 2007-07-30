@@ -11,15 +11,14 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.border.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ChatContactPanel</tt> is the panel that appears on the right of the
@@ -39,11 +38,9 @@ import net.java.sip.communicator.util.*;
  */
 public class ChatContactPanel
     extends JPanel
-    implements  ActionListener
+    implements  ActionListener,
+                MouseListener
 {
-
-    private Logger logger = Logger.getLogger(ChatContactPanel.class);
-
     private SIPCommButton callButton = new SIPCommButton(ImageLoader
             .getImage(ImageLoader.CHAT_CONTACT_CALL_BUTTON), ImageLoader
             .getImage(ImageLoader.CHAT_CONTACT_CALL_ROLLOVER_BUTTON));
@@ -71,8 +68,7 @@ public class ChatContactPanel
     private PresenceStatus status;
 
     private ChatPanel chatPanel;
-
-
+    
     /**
      * Creates an instance of the <tt>ChatContactPanel</tt>.
      *
@@ -86,13 +82,15 @@ public class ChatContactPanel
 
         this.chatContact = contact;
 
-        this.setPreferredSize(new Dimension(100, 60));
-
-        this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-
         this.status = chatContact.getPresenceStatus();
         this.chatPanel = chatPanel;
 
+        // Adds a mouse listener, which when notified will open a right button
+        // menu.
+        this.addMouseListener(this);
+        
+        this.mainPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        
         this.setOpaque(false);
         this.mainPanel.setOpaque(false);
         this.buttonsPanel.setOpaque(false);
@@ -119,7 +117,7 @@ public class ChatContactPanel
         this.buttonsPanel.add(callButton);
         this.buttonsPanel.add(sendFileButton);
 
-        this.mainPanel.add(buttonsPanel, BorderLayout.NORTH);
+        //this.mainPanel.add(buttonsPanel, BorderLayout.NORTH);
         this.mainPanel.add(personNameLabel, BorderLayout.CENTER);
 
         this.add(personPhotoLabel, BorderLayout.WEST);
@@ -171,33 +169,29 @@ public class ChatContactPanel
      *
      * @param g The Graphics object.
      */
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g)
+    {
         super.paintComponent(g);
-
+        
         Graphics2D g2 = (Graphics2D) g;
+        
+        AntialiasingManager.activateAntialiasing(g2);
+        
+        if(chatContact.isSelected())
+        {
+            GradientPaint p = new GradientPaint(this.getWidth()/2, 0,
+              Constants.SELECTED_END_COLOR,
+              this.getWidth()/2, this.getHeight(),
+              Constants.MOVER_END_COLOR);
+                
+            g2.setPaint(p);
+            g2.fillRoundRect(1, 0, this.getWidth(), this.getHeight(), 7, 7);
 
-        GradientPaint p = new GradientPaint(this.getWidth() / 2, 0,
-                Constants.MOVER_START_COLOR, this.getWidth() / 2,
-                Constants.GRADIENT_SIZE,
-                Constants.MOVER_END_COLOR);
-
-        GradientPaint p1 = new GradientPaint(this.getWidth() / 2, this
-                .getHeight()
-                - Constants.GRADIENT_SIZE,
-                Constants.MOVER_END_COLOR, this.getWidth() / 2,
-                this.getHeight(), Constants.MOVER_START_COLOR);
-
-        g2.setPaint(p);
-        g2.fillRect(0, 0, this.getWidth(),
-                        Constants.GRADIENT_SIZE);
-
-        g2.setColor(Constants.MOVER_END_COLOR);
-        g2.fillRect(0, Constants.GRADIENT_SIZE, this.getWidth(),
-                this.getHeight() - Constants.GRADIENT_SIZE);
-
-        g2.setPaint(p1);
-        g2.fillRect(0, this.getHeight() - Constants.GRADIENT_SIZE
-                - 1, this.getWidth(), this.getHeight() - 1);
+            g2.setColor(Constants.BLUE_GRAY_BORDER_DARKER_COLOR);
+            g2.setStroke(new BasicStroke(1.5f));
+            g2.drawRoundRect(1, 0, this.getWidth() - 1, this.getHeight() - 1,
+                    7, 7);
+        }   
     }
 
     /**
@@ -221,7 +215,7 @@ public class ChatContactPanel
 
         if(button.getName().equals("call"))
         {
-            //TODO: Implement the call functionality
+            //TODO: Implement the call functionality.
         }
         else if(button.getName().equals("info"))
         {
@@ -250,17 +244,79 @@ public class ChatContactPanel
     }
 
     /**
-     * Sets the given <tt>ImageIcon</tt> to be the photo shown on the left of
-     * the contact name.
-     *
-     * @param contactPhoto the image to show as a contact photo
+     * Sets explicetly an image to the contact.
+     * 
+     * @param contactPhoto the image of the contact
      */
     public void setContactPhoto(ImageIcon contactPhoto)
     {
-        contactPhotoIcon = contactPhoto;
+        this.contactPhotoIcon = contactPhoto;
+        
+        this.personPhotoLabel.setIcon(contactPhotoIcon);
+    }
+    
+    /**
+     * If isSelected is set to TRUE expands this panel, by adding the buttons
+     * panel. The ButtonsPanel contains buttons that offer different
+     * functionalities, as "Make a call", "See user info", etc. When the
+     * isSelected is set to FALSE, this panel is reduced to its basic content.
+     * 
+     * @param isSelected indicates if this chat contact panel is selected
+     */
+    public void setSelected(boolean isSelected)
+    {
+        chatContact.setSelected(isSelected);
+        
+        if(isSelected)
+        {
+            this.mainPanel.add(buttonsPanel, BorderLayout.NORTH);
+            this.mainPanel.revalidate();
+            this.mainPanel.repaint();
+        }
+        else
+        {
+            this.mainPanel.remove(buttonsPanel);
+            this.mainPanel.revalidate();
+            this.mainPanel.repaint();
+        }
+    }
 
-        personPhotoLabel.setBorder(
-                new SIPCommBorders.BoldRoundBorder());
-        personPhotoLabel.setIcon(contactPhotoIcon);
+    public void mouseClicked(MouseEvent e)
+    {   
+    }
+
+    public void mouseEntered(MouseEvent e)
+    {   
+    }
+
+    public void mouseExited(MouseEvent e)
+    {   
+    }
+
+    public void mousePressed(MouseEvent e)
+    {
+        if(!(chatPanel instanceof ConferenceChatPanel))
+            return;
+        
+        if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
+        {
+            ChatContactRightButtonMenu rightButtonMenu
+                = new ChatContactRightButtonMenu(chatPanel, chatContact);
+            
+            rightButtonMenu.setInvoker(this);
+            
+            Point mousePoint = e.getPoint();
+            
+            SwingUtilities.convertPointToScreen(mousePoint, this);
+            
+            rightButtonMenu.setLocation((int) mousePoint.getX(),
+                (int) mousePoint.getY());
+
+            rightButtonMenu.setVisible(true);
+        }
+    }
+
+    public void mouseReleased(MouseEvent e)
+    {   
     }
 }

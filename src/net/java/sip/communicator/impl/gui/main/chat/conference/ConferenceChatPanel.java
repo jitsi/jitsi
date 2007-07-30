@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.chat.conference;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -24,15 +23,12 @@ import net.java.sip.communicator.util.*;
  */
 public class ConferenceChatPanel
     extends ChatPanel
-    implements  ChatRoomMessageListener,
-                ChatRoomPropertyChangeListener,
+    implements  ChatRoomPropertyChangeListener,
                 ChatRoomMemberPresenceListener
 {
     private Logger logger = Logger.getLogger(ConferenceChatPanel.class);
 
-    private ChatRoom chatRoom;
-
-    private ChatWindowManager chatWindowManager;
+    private ChatRoomWrapper chatRoomWrapper;
 
     /**
      * Creates an instance of <tt>ConferenceChatPanel</tt>.
@@ -41,28 +37,19 @@ public class ConferenceChatPanel
      * @param chatRoom the <tt>ChatRoom</tt> object, which provides us the multi
      * user chat functionality
      */
-    public ConferenceChatPanel(ChatWindow chatWindow, ChatRoom chatRoom)
+    public ConferenceChatPanel(ChatWindow chatWindow,
+        ChatRoomWrapper chatRoomWrapper)
     {
         super(chatWindow);
 
-        this.chatWindowManager = chatWindow.getMainFrame().getChatWindowManager();
+        this.chatRoomWrapper = chatRoomWrapper;
 
-        this.chatRoom = chatRoom;
-
-        List membersList = chatRoom.getMembers();
-
-        for (int i = 0; i < membersList.size(); i ++)
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+        
+        if(chatRoom != null)
         {
-            ChatContact chatContact
-                = new ChatContact((ChatRoomMember)membersList.get(i));
-            
-            getChatContactListPanel()
-                .addContact(chatContact);
+            this.loadChatRoom(chatRoom);
         }
-
-        this.chatRoom.addMessageListener(this);
-        this.chatRoom.addPropertyChangeListener(this);
-        this.chatRoom.addMemberPresenceListener(this);
     }
 
     /**
@@ -72,7 +59,7 @@ public class ConferenceChatPanel
      */
     public String getChatName()
     {
-        return chatRoom.getName();
+        return chatRoomWrapper.getChatRoomName();
     }
 
     /**
@@ -82,7 +69,7 @@ public class ConferenceChatPanel
      */
     public Object getChatIdentifier()
     {
-        return chatRoom;
+        return chatRoomWrapper;
     }
 
     /**
@@ -145,11 +132,34 @@ public class ConferenceChatPanel
 
     {    
         String body = this.getTextFromWriteArea();
+        
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+        
         Message msg = chatRoom.createMessage(body);
         
         try
         {   
             chatRoom.sendMessage(msg);
+        }
+        catch (IllegalStateException ex)
+        {
+            logger.error("Failed to send message.", ex);
+            
+            this.refreshWriteArea();
+    
+            this.processMessage(
+                    chatRoom.getName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.OUTGOING_MESSAGE,
+                    msg.getContent(),
+                    msg.getContentType());
+    
+            this.processMessage(
+                    chatRoom.getName(),
+                    new Date(System.currentTimeMillis()),
+                    Constants.ERROR_MESSAGE,
+                    Messages.getI18NString("msgSendConnectionProblem")
+                    .getText(), "text");
         }
         catch (Exception ex)
         {
@@ -169,7 +179,7 @@ public class ConferenceChatPanel
                     new Date(System.currentTimeMillis()),
                     Constants.ERROR_MESSAGE,
                     Messages.getI18NString("msgDeliveryInternalError")
-                        .getText(), "text");
+                    .getText(), "text");
         }
     }
 
@@ -208,153 +218,139 @@ public class ConferenceChatPanel
         return null;
     }
 
-    /**
-     * Implements the <tt>ChatRoomMessageListener.messageReceived</tt> method.
-     * <br>
-     * Obtains the corresponding <tt>ChatPanel</tt> and proccess the message
-     * there.
-     */
-    public void messageReceived(ChatRoomMessageReceivedEvent evt)
-    {
-        ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
-
-        if(!sourceChatRoom.equals(chatRoom))
-            return;
-
-        ChatRoomMember sourceMember = evt.getSourceChatRoomMember();
-        
-        logger.trace("MESSAGE RECEIVED from contact: "
-            + sourceMember.getContactAddress());
-        
-        Date date = evt.getTimestamp();
-        Message message = evt.getMessage();
-
-        ChatRoom chatRoom = (ChatRoom) evt.getSource();
-
-        ChatPanel chatPanel = chatWindowManager.getChatRoom(chatRoom);
-
-        chatPanel.processMessage(
-                sourceMember.getName(), date,
-                Constants.INCOMING_MESSAGE,
-                message.getContent(),
-                message.getContentType());
-
-        chatWindowManager.openChat(chatPanel, false);
-
-        GuiActivator.getAudioNotifier()
-            .createAudio(Sounds.INCOMING_MESSAGE).play();
-    }
-
-    /**
-     * Implements the <tt>ChatRoomMessageListener.messageDelivered</tt> method.
-     * <br>
-     * Shows the message in the conversation area and clears the write message
-     * area.
-     */
-    public void messageDelivered(ChatRoomMessageDeliveredEvent evt)
-    {
-        ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
-
-        if(!sourceChatRoom.equals(chatRoom))
-            return;
-        
-        logger.trace("MESSAGE DELIVERED to chat room: "
-            + sourceChatRoom.getName());
-
-        Message msg = evt.getMessage();
-
-        ChatPanel chatPanel = null;
-
-        if(chatWindowManager.isChatOpenedForChatRoom(sourceChatRoom))
-            chatPanel = chatWindowManager.getChatRoom(sourceChatRoom);
-
-        if (chatPanel != null)
-        {            
-            chatPanel.processMessage(
-                    chatRoom.getParentProvider().getAccountID().getUserID(),
-                    evt.getTimestamp(),
-                    Constants.OUTGOING_MESSAGE, msg.getContent(),
-                    msg.getContentType());
-
-            chatPanel.refreshWriteArea();
-        }
-    }
-
-    /**
-     * Implements the <tt>ChatRoomMessageListener.messageDeliveryFailed</tt>
-     * method.
-     * <br>
-     * In the conversation area show an error message, explaining the problem.
-     */
-    public void messageDeliveryFailed(ChatRoomMessageDeliveryFailedEvent evt)
-    {
-        ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
-
-        if(!sourceChatRoom.equals(chatRoom))
-            return;
-
-        String errorMsg = null;
-
-        Message sourceMessage = (Message) evt.getSource();
-
-        ChatRoomMember destMember = evt.getDestinationChatRoomMember();
-
-        if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
-
-            errorMsg = Messages.getI18NString(
-                    "msgDeliveryOfflineNotSupported").getText();
-        }
-        else if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.NETWORK_FAILURE) {
-
-            errorMsg = Messages.getI18NString("msgNotDelivered").getText();
-        }
-        else if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED) {
-
-            errorMsg = Messages.getI18NString(
-                    "msgSendConnectionProblem").getText();
-        }
-        else if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.INTERNAL_ERROR) {
-
-            errorMsg = Messages.getI18NString(
-                    "msgDeliveryInternalError").getText();
-        }
-        else {
-            errorMsg = Messages.getI18NString(
-                    "msgDeliveryFailedUnknownError").getText();
-        }
-
-        ChatPanel chatPanel = chatWindowManager
-            .getChatRoom(chatRoom);
-
-        chatPanel.refreshWriteArea();
-
-        chatPanel.processMessage(
-                destMember.getName(),
-                new Date(System.currentTimeMillis()),
-                Constants.OUTGOING_MESSAGE,
-                sourceMessage.getContent(),
-                sourceMessage.getContentType());
-
-        chatPanel.processMessage(
-                destMember.getName(),
-                new Date(System.currentTimeMillis()),
-                Constants.ERROR_MESSAGE,
-                errorMsg, "text");
-
-        chatWindowManager.openChat(chatPanel, false);
-    }
-
     public void chatRoomChanged(ChatRoomPropertyChangeEvent event)
-    {   
+    {
     }
 
+    /**
+     * Invoked when <tt>ChatRoomMemberPresenceChangeEvent</tt> are received.
+     * When a new <tt>ChatRoomMember</tt> has joined the chat adds it to the
+     * list of chat participants on the right of the chat window. When a
+     * <tt>ChatRoomMember</tt> has left or quit, or has being kicked it's
+     * removed from the chat window.
+     */
     public void memberPresenceChanged(ChatRoomMemberPresenceChangeEvent evt)
     {
-        // TODO Auto-generated method stub
+        ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
+
+        if(!sourceChatRoom.equals(chatRoomWrapper.getChatRoom()))
+            return;
         
+        String eventType = evt.getEventType();
+        ChatRoomMember chatRoomMember = evt.getChatRoomMember();
+        
+        String statusMessage = null;
+        
+        if (eventType.equals(ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED))
+        {
+            getChatContactListPanel()
+                .addContact(new ChatContact(chatRoomMember));
+            
+            statusMessage = Messages.getI18NString("chatRoomUserJoined",
+                new String[] {sourceChatRoom.getName()}).getText();
+        }
+        else if (eventType.equals(ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT)
+            || eventType.equals(ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED)
+            || eventType.equals(ChatRoomMemberPresenceChangeEvent.MEMBER_QUIT))
+        {
+            Iterator chatContacts
+                = getChatContactListPanel().getChatContacts();
+            
+            while(chatContacts.hasNext())
+            {
+                ChatContact chatContact
+                    = (ChatContact) chatContacts.next();
+                
+                if(chatContact.getSourceContact().equals(chatRoomMember))
+                {
+                    getChatContactListPanel().removeContact(chatContact);
+                    break;
+                }
+            }
+            
+            if(eventType.equals(ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT))
+            {
+                statusMessage = Messages.getI18NString("chatRoomUserLeft",
+                    new String[] {sourceChatRoom.getName()}).getText();
+            }   
+            else if(eventType.equals(
+                ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED))
+            {
+                statusMessage = Messages.getI18NString("chatRoomUserKicked",
+                    new String[] {sourceChatRoom.getName()}).getText();
+            }
+            else if(eventType.equals(
+                ChatRoomMemberPresenceChangeEvent.MEMBER_QUIT))
+            {
+                statusMessage = Messages.getI18NString("chatRoomUserQuit",
+                    new String[] {sourceChatRoom.getName()}).getText();
+            }
+        }
+        
+        this.processMessage(
+            chatRoomMember.getName(),
+            new Date(System.currentTimeMillis()),
+            Constants.STATUS_MESSAGE,
+            statusMessage,
+            ChatConversationPanel.TEXT_CONTENT_TYPE);
+    }
+    
+    /**
+     * Loads the given chat room in the this chat conference panel. Loads all
+     * members and adds all corresponding listeners.
+     * 
+     * @param chatRoom the <tt>ChatRoom</tt> to load
+     */
+    public void loadChatRoom(ChatRoom chatRoom)
+    {
+        List membersList = chatRoom.getMembers();
+
+        for (int i = 0; i < membersList.size(); i ++)
+        {
+            ChatContact chatContact
+                = new ChatContact((ChatRoomMember)membersList.get(i));
+            
+            getChatContactListPanel()
+                .addContact(chatContact);
+        }
+
+        chatRoom.addPropertyChangeListener(this);        
+        chatRoom.addMemberPresenceListener(this);
+    }
+
+    /**
+     * Invites the given contact in this chat conferenece.
+     * 
+     * @param contactAddress the address of the contact to invite
+     * @param reason the reason for the invitation
+     */
+    public void inviteChatContact(String contactAddress, String reason)
+    {
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+        
+        if(chatRoom != null)
+            chatRoom.invite(contactAddress, reason);
+    }
+
+    public void chatRoomPropertyChanged(
+        ChatRoomPropertyChangeEvent evt)
+    {
+        if(evt.getPropertyName().equals(
+            ChatRoomPropertyChangeEvent.CHAT_ROOM_SUBJECT))
+        {
+            this.processMessage(
+                evt.getSourceChatRoom().getName(),
+                new Date(System.currentTimeMillis()),
+                Constants.STATUS_MESSAGE,
+                Messages.getI18NString("chatRoomSubjectChanged",
+                    new String []{evt.getSourceChatRoom().getName(),
+                    evt.getNewValue().toString()}).getText(),
+                ChatConversationPanel.TEXT_CONTENT_TYPE);
+        }
+    }
+
+    public void chatRoomPropertyChangeFailed(
+        ChatRoomPropertyChangeFailedEvent event)
+    {   
     }
 }
