@@ -133,7 +133,7 @@ public abstract class ChatPanel
 
     public abstract void loadNextFromHistory();
 
-    protected abstract void sendMessage();
+    protected abstract void sendMessage(String text);
 
     public abstract void treatReceivedMessage(Contact sourceContact);
 

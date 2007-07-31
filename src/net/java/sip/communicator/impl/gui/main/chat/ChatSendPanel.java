@@ -70,25 +70,23 @@ public class ChatSendPanel
      * @param evt The <tt>ActionEvent</tt> object.
      */
     public void actionPerformed(ActionEvent evt)
-    {
+    {   
         if (!chatPanel.isWriteAreaEmpty())
         {
-            chatPanel.sendMessage();
-
+            final String text = chatPanel.getTextFromWriteArea();
+            
             chatPanel.refreshWriteArea();
+            
+            new Thread()
+            {
+                public void run()
+                {
+                    chatPanel.sendMessage(text);
+                }
+            }.start();
         }
         //make sure the focus goes back to the write area
         chatPanel.requestFocusInWriteArea();
-    }
-
-    /**
-     * Returns the send button.
-     *
-     * @return The send button.
-     */
-    public JButton getSendButton()
-    {
-        return sendButton;
     }
 
     /**
@@ -163,4 +161,16 @@ public class ChatSendPanel
     {
         return statusPanel;
     }
+    
+
+    /**
+     * Returns the send button.
+     *
+     * @return The send button.
+     */
+    public JButton getSendButton()
+    {
+        return sendButton;
+    }
+
 }

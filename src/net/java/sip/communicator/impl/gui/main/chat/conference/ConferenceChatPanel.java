@@ -128,14 +128,11 @@ public class ConferenceChatPanel
      * <br>
      * Sends a message to the chat room.
      */
-    protected void sendMessage()
-
-    {    
-        String body = this.getTextFromWriteArea();
-        
+    protected void sendMessage(String text)
+    {   
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
         
-        Message msg = chatRoom.createMessage(body);
+        Message msg = chatRoom.createMessage(text);
         
         try
         {   

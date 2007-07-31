@@ -339,8 +339,8 @@ public class MetaContactChatPanel
      * appropriate operation set and sends the message, contained in the write
      * area, through it.
      */
-    protected void sendMessage()
-    {
+    protected void sendMessage(String text)
+    {   
         Contact contact = (Contact) contactSelectorBox.getMenu()
             .getSelectedObject();
      
@@ -349,11 +349,10 @@ public class MetaContactChatPanel
                 .getOperationSet(OperationSetBasicInstantMessaging.class);
     
         OperationSetTypingNotifications tn
-        = (OperationSetTypingNotifications) contact.getProtocolProvider()
-            .getOperationSet(OperationSetTypingNotifications.class);
-    
-        String body = this.getTextFromWriteArea();
-        Message msg = im.createMessage(body);
+            = (OperationSetTypingNotifications) contact.getProtocolProvider()
+                .getOperationSet(OperationSetTypingNotifications.class);
+
+        Message msg = im.createMessage(text);
     
         if (tn != null)
         {
