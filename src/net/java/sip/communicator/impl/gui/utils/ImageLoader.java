@@ -53,6 +53,18 @@ public class ImageLoader {
         = new ImageID("BUTTON_ROLLOVER");
 
     /**
+     * The pressed toggle button background image. 
+     */
+    public static final ImageID TOGGLE_BUTTON_PRESSED
+        = new ImageID("TOGGLE_BUTTON_PRESSED");
+
+    /**
+     * The toggle button background image.
+     */
+    public static final ImageID TOGGLE_BUTTON
+        = new ImageID("TOGGLE_BUTTON");
+    
+    /**
      * The image used for a horizontal split.
      */
     public static final ImageID SPLITPANE_HORIZONTAL
