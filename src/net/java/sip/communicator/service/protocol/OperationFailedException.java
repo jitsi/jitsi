@@ -102,12 +102,13 @@ public class OperationFailedException
      * privileges.
      */
     public static final int NOT_ENOUGH_PRIVILEGES = 12;
-    
+
     /**
-     * Indicates that the user has tried to change its nickname to another one
-     * that already exists in the chat room.
+     * Indicates that the user is required to be registered before performing
+     * the operation. This property is initially created to take care of chat
+     * room join error.
      */
-    public static final int NICKNAME_ALREADY_EXISTS = 13;
+    public static final int REGISTRATION_REQUIRED = 13;
     
     /**
      * The error code of the exception

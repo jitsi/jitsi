@@ -29,7 +29,7 @@ public interface ChatRoomInvitation
      * 
      * @return the password to use when joining the room
      */
-    public String getChatRoomPassword();
+    public byte[] getChatRoomPassword();
     
     /**
      * Returns the <tt>ChatRoomMember</tt> that sent this invitation.
