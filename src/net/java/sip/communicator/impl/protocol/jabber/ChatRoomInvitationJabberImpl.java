@@ -22,7 +22,7 @@ public class ChatRoomInvitationJabberImpl
     
     private String reason;
     
-    private String password;
+    private byte[] password;
     
     /**
      * Creates an invitation for the given <tt>targetChatRoom</tt>, from the
@@ -35,7 +35,7 @@ public class ChatRoomInvitationJabberImpl
     public ChatRoomInvitationJabberImpl(ChatRoom targetChatRoom,
                                         String inviter,
                                         String reason,
-                                        String password)
+                                        byte[] password)
     {
         this.chatRoom = targetChatRoom;
         this.inviter = inviter;
@@ -58,7 +58,7 @@ public class ChatRoomInvitationJabberImpl
         return reason;
     }
 
-    public String getChatRoomPassword()
+    public byte[] getChatRoomPassword()
     {
         return password;
     }

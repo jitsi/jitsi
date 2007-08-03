@@ -37,17 +37,7 @@ public class ChatRoomJabberImpl
      * The multi user chat smack object that we encapsulate in this room.
      */
     private MultiUserChat multiUserChat = null;
-
-    /**
-     * The configuration form that will be used to change cha room properties.
-     */
-    private Form multiUserChatConfigForm = null;
     
-    /**
-     * The list of listeners registered for chat room property change events.
-     */
-    private Vector chatRoomPropertyChangeListeners = new Vector();
-
     /**
      * Listeners that will be notified of changes in member status in the
      * room such as member joined, left or being kicked or dropped.
@@ -99,11 +89,6 @@ public class ChatRoomJabberImpl
      * The list of members of this chat room.
      */
     private Hashtable banList = new Hashtable();
-
-    /**
-     * The list of advanced configurations for this chat room.
-     */
-    private Hashtable advancedConfigurations = new Hashtable();
     
     /**
      * The nickname of this chat room local user participant.
@@ -114,6 +99,11 @@ public class ChatRoomJabberImpl
      * The subject of this chat room. Keeps track of the subject changes.
      */
     private String oldSubject;
+    
+    /**
+     * The corresponding configuration form.
+     */
+    private ChatRoomConfigurationFormJabberImpl configForm;
     
     /**
      * Creates an instance of a chat room that has been.
@@ -150,10 +140,10 @@ public class ChatRoomJabberImpl
     public void addPropertyChangeListener(
         ChatRoomPropertyChangeListener listener)
     {
-        synchronized(chatRoomPropertyChangeListeners)
+        synchronized(propertyChangeListeners)
         {
-            if (!chatRoomPropertyChangeListeners.contains(listener))
-                chatRoomPropertyChangeListeners.add(listener);
+            if (!propertyChangeListeners.contains(listener))
+                propertyChangeListeners.add(listener);
         }
     }
 
@@ -166,9 +156,9 @@ public class ChatRoomJabberImpl
     public void removePropertyChangeListener(
         ChatRoomPropertyChangeListener listener)
     {
-        synchronized(chatRoomPropertyChangeListeners)
+        synchronized(propertyChangeListeners)
         {
-            chatRoomPropertyChangeListeners.remove(listener);
+            propertyChangeListeners.remove(listener);
         }
     }
     
@@ -329,7 +319,7 @@ public class ChatRoomJabberImpl
      */
     public String getUserNickname()
     {
-        return this.multiUserChat.getNickname();
+        return multiUserChat.getNickname();
     }
 
     /**
@@ -410,6 +400,8 @@ public class ChatRoomJabberImpl
     public void joinAs(String nickname, byte[] password)
         throws OperationFailedException
     {
+        this.assertConnected();
+        
         this.nickname = nickname;
         
         try
@@ -431,11 +423,55 @@ public class ChatRoomJabberImpl
         }
         catch (XMPPException ex)
         {
-            logger.error("Failed to join chat room "
-                          + getName()
-                          + " with nickname "
-                          + nickname,
-                          ex );
+            String errorMessage;
+            
+            if(ex.getXMPPError().getCode() == 401)
+            {
+                errorMessage
+                    = "Failed to join chat room "
+                        + getName()
+                        + " with nickname: "
+                        + nickname
+                        + ". The chat room requests a password.";
+                
+                logger.error(errorMessage, ex);
+
+                throw new OperationFailedException(
+                    errorMessage,
+                    OperationFailedException.AUTHENTICATION_FAILED,
+                    ex);
+            }
+            else if(ex.getXMPPError().getCode() == 407)
+            {
+                errorMessage
+                    = "Failed to join chat room "
+                        + getName()
+                        + " with nickname: "
+                        + nickname
+                        + ". The chat room requires registration.";
+                
+                logger.error(errorMessage, ex);
+
+                throw new OperationFailedException(
+                    errorMessage,
+                    OperationFailedException.REGISTRATION_REQUIRED,
+                    ex);
+            }
+            else
+            {
+                errorMessage
+                    = "Failed to join room "
+                        + getName()
+                        + " with nickname: "
+                        + nickname;
+                
+                logger.error(errorMessage, ex);
+       
+                throw new OperationFailedException(
+                    errorMessage, 
+                    OperationFailedException.GENERAL_ERROR,
+                    ex);
+            }
         }
     }
 
@@ -450,21 +486,13 @@ public class ChatRoomJabberImpl
     public void joinAs(String nickname)
         throws OperationFailedException
     {
+        this.assertConnected();
+        
         this.nickname = nickname;
         
         try
         {
             multiUserChat.join(nickname);
-
-            try
-            {
-                this.multiUserChatConfigForm
-                    = multiUserChat.getConfigurationForm();                
-            }
-            catch (XMPPException e)
-            {   
-                logger.error("", e);
-            }
             
             ChatRoomMemberJabberImpl member
                 = new ChatRoomMemberJabberImpl( this,
@@ -481,18 +509,55 @@ public class ChatRoomJabberImpl
         }
         catch (XMPPException ex)
         {
-            logger.error("Failed to join room "
-                         + getName()
-                         + " with nickname: "
-                         + nickname
-                         , ex);
-            throw new OperationFailedException(
-                "Failed to join room "
-                         + getName()
-                         + " with nickname: "
-                         + nickname
-                         , OperationFailedException.GENERAL_ERROR
-                         , ex);
+            String errorMessage;
+            
+            if(ex.getXMPPError().getCode() == 401)
+            {
+                errorMessage
+                    = "Failed to join chat room "
+                        + getName()
+                        + " with nickname: "
+                        + nickname
+                        + ". The chat room requests a password.";
+                
+                logger.error(errorMessage, ex);
+
+                throw new OperationFailedException(
+                    errorMessage,
+                    OperationFailedException.AUTHENTICATION_FAILED,
+                    ex);
+            }
+            else if(ex.getXMPPError().getCode() == 407)
+            {
+                errorMessage
+                    = "Failed to join chat room "
+                        + getName()
+                        + " with nickname: "
+                        + nickname
+                        + ". The chat room requires registration.";
+                
+                logger.error(errorMessage, ex);
+
+                throw new OperationFailedException(
+                    errorMessage,
+                    OperationFailedException.REGISTRATION_REQUIRED,
+                    ex);
+            }
+            else
+            {
+                errorMessage
+                    = "Failed to join room "
+                        + getName()
+                        + " with nickname: "
+                        + nickname;
+                
+                logger.error(errorMessage, ex);
+       
+                throw new OperationFailedException(
+                    errorMessage, 
+                    OperationFailedException.GENERAL_ERROR,
+                    ex);
+            }
         }
     }
 
@@ -613,31 +678,6 @@ public class ChatRoomJabberImpl
                  , OperationFailedException.GENERAL_ERROR
                  , ex);
          }
-    }
-
-    /**
-     * Changes the the local user's nickname in the context of this chatroom.
-     *
-     * @param nickname the new nickname within the room.
-     * @throws OperationFailedException if the setting the new nickname
-     *   changes for some reason.
-     */
-    public void setNickname(String nickname)
-        throws OperationFailedException
-    {
-        try
-        {
-            multiUserChat.changeNickname(nickname);
-        }
-        catch (XMPPException ex)
-        {
-            logger.error("Failed to changed subject for chat room" + getName()
-                         , ex);
-            throw new OperationFailedException(
-                "Failed to changed nickname in chat room" + getName()
-                , OperationFailedException.FORBIDDEN
-                , ex);
-        }
     }
 
     /**
@@ -1074,51 +1114,6 @@ public class ChatRoomJabberImpl
     }
 
     /**
-     * Sets the password of this chat room. If the user does not have the right
-     * to change the room password, or the protocol does not support this, or
-     * the operation fails for some other reason, the method throws an
-     * <tt>OperationFailedException</tt> with the corresponding code.
-     * 
-     * @param password the new password that we'd like this room to have
-     * @throws OperationFailedException if the user does not have the right to
-     * change the room password, or the protocol does not support
-     * this, or the operation fails for some other reason
-     */
-    public void setPassword(String password)
-        throws OperationFailedException
-    {
-        multiUserChatConfigForm.setAnswer("password", password);
-        
-        try
-        {
-            multiUserChat.sendConfigurationForm(multiUserChatConfigForm);
-        }
-        catch (XMPPException e)
-        {
-            logger.error(
-                "Failed to send configuration form for this chat room.", e);
-        }
-    }
-
-    public String getPassword()
-    {
-        return (String) multiUserChatConfigForm
-            .getField("password").getValues().next();
-    }
-
-    public void addBanMask(String banMask)
-        throws OperationFailedException
-    {
-        /** @todo implement addBanMask */
-    }
-
-    public void removeBanMask(String banMask)
-        throws OperationFailedException
-    {
-        /** @todo implement removeBanMask */
-    }
-
-    /**
      * Returns the list of banned users.
      */
     public Iterator getBanList()
@@ -1145,601 +1140,15 @@ public class ChatRoomJabberImpl
         }
         catch (XMPPException e)
         {
+            logger.error("Failed to change nickname for chat room: "
+                + getName());
+            
             throw new OperationFailedException("The " + nickname
                 + "already exists in this chat room.",
-                OperationFailedException.NICKNAME_ALREADY_EXISTS);
-        }
+                OperationFailedException.IDENTIFICATION_CONFLICT);
+        }        
     }
-
-    /**
-     * Returns true by default. The constant value indicates that the chat room
-     * visibility could not be changed. 
-     */
-    public boolean isVisible()
-    {   
-        return true;
-    }
-
-    /**
-     * Fires the appropriare ChatRoomPropertyChangeFailedEvent to indicate that
-     * this property is not supproted by this implementation.
-     * 
-     * @param isVisible indicates if this <tt>ChatRoom</tt> should be visible or
-     * not 
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setVisible(boolean isVisible)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_VISIBLE,
-            null,
-            new Boolean(isVisible),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isVisible property is not supported by the jabber multi" +
-            " user chat implementation."));
-    }
-
-    /**
-     * Returns false by default. The constant indicates that the chat room
-     * doesn't require invitation and this property is not supported by this
-     * implementation.
-     */
-    public boolean isInvitationRequired()
-    {
-        return false;
-    }
-
-    /**
-     * Fires the appropriare ChatRoomPropertyChangeFailedEvent to indicate that
-     * this property is not supproted by this implementation.
-     * 
-     * @param isInvitationRequired indicates if this <tt>ChatRoom</tt> requires
-     * invitation to be joined
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setInvitationRequired(boolean isInvitationRequired)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_INVITATION_REQUIRED,
-            null,
-            new Boolean(isInvitationRequired),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isInvitationRequired property is not supported by the jabber"
-            + " multi user chat implementation."));
-    }
-
-    /**
-     * Returns false by default. The constant indicates that this property could
-     * not be modified in this implementation.
-     */
-    public boolean isMute()
-    {
-        return false;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     * 
-     * @param isMute indicates if this <tt>ChatRoom</tt> should be in a mute
-     * mode or not
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setMute(boolean isMute)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_MUTE,
-            null,
-            new Boolean(isMute),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isMute property is not supported by the jabber"
-            + " multi user chat implementation."));
-    }
-
-    /**
-     * Returns false, which indicates that this property could not be modified
-     * in this implementation.
-     */
-    public boolean isAllowExternalMessages()
-    {
-        return false;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     * 
-     * @param isAllowExternalMessages indicates if this <tt>ChatRoom</tt> should
-     * allow external messages or not
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setAllowExternalMessages(boolean isAllowExternalMessages)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_ALLOW_EXTERNAL_MESSAGES,
-            null,
-            new Boolean(isAllowExternalMessages),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isMute property is not supported by the jabber"
-            + " multi user chat implementation."));
-    }
-
-    /**
-     * Returns false, which indicates that this property could not be modified
-     * in this implementation.
-     */
-    public boolean isRegistered()
-    {
-        return false;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     * 
-     * @param isRegistered indicates if this <tt>ChatRoom</tt> is registered
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setRegistered(boolean isRegistered)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_REGISTERED,
-            null,
-            new Boolean(isRegistered),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isMute property is not supported by the jabber"
-            + " multi user chat implementation."));
-    }
-
-    /**
-     * Returns false by default. The constant indicates that property is not
-     * configurable in this jabber <tt>ChatRoom</tt> implementation.
-     */
-    public boolean isSubjectLocked()
-    {
-        return false;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     *  
-     * @param isSubjectLocked indicates if the subject of this chat room could
-     * be changed
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setSubjectLocked(boolean isSubjectLocked)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_SUBJECT_LOCKED,
-            null,
-            new Boolean(isSubjectLocked),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isSubjectLocked property is not supported by the jabber"
-            + "multi user chat implementation."));
-    }
-
-    /**
-     * Returns true by default. The constant indicates that property is not
-     * configurable in this jabber <tt>ChatRoom</tt> implementation.
-     */
-    public boolean isAllowMessageFormatting()
-    {
-        return true;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     *  
-     * @param isAllowMessageFormatting indicates if message formattings are
-     * allowed in this chat room
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setAllowMessageFormatting(boolean isAllowMessageFormatting)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_ALLOW_MESSAGE_FORMATTING,
-            null,
-            new Boolean(isAllowMessageFormatting),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isAllowMessageFormatting property is not supported by the jabber"
-            + "multi user chat implementation."));
-    }
-
-    /**
-     * Returns false by default. The constant indicates that property is not
-     * configurable in this jabber <tt>ChatRoom</tt> implementation.
-     */
-    public boolean isFilterMessageFormatting()
-    {
-        return false;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     *  
-     * @param isFilterMessageFormatting indicates if message formattings are
-     * filtered in this chat room
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setFilterMessageFormatting(boolean isFilterMessageFormatting)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_FILTER_MESSAGE_FORMATTING,
-            null,
-            new Boolean(isFilterMessageFormatting),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isFilterMessageFormatting property is not supported by the jabber"
-            + "multi user chat implementation."));
-    }
-
-    /**
-     * Returns true by default. The constant indicates that property is not
-     * configurable in this jabber <tt>ChatRoom</tt> implementation.
-     */
-    public boolean isAllowInvitation()
-    {
-        return true;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     *  
-     * @param isAllowInvitation indicates if invitations are allowed in this
-     * chat room
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setAllowInvitation(boolean isAllowInvitation)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_ALLOW_INVITATION,
-            null,
-            new Boolean(isAllowInvitation),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isAllowInvitation property is not supported by the jabber"
-            + "multi user chat implementation."));
-    }
-
-    /**
-     * Returns true by default. The constant indicates that property is not
-     * configurable in this jabber <tt>ChatRoom</tt> implementation.
-     */
-    public boolean isAllowInvitationRequest()
-    {
-        return true;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     *  
-     * @param isAllowInvitationRequest indicates if invitation request are
-     * allowed in this chat room
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setAllowInvitationRequest(boolean isAllowInvitationRequest)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_ALLOW_INVITATION_REQUEST,
-            null,
-            new Boolean(isAllowInvitationRequest),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isAllowInvitationRequest property is not supported by the jabber"
-            + "multi user chat implementation."));
-    }
-
-    /**
-     * Returns false by default. The constant indicates that property is not
-     * configurable in this jabber <tt>ChatRoom</tt> implementation.
-     */
-    public boolean isMemberNicknameLocked()
-    {
-        return false;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     *  
-     * @param isMemberNicknameLocked indicates if a member in this chat room
-     * could change his/her nickname
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setMemberNicknameLocked(boolean isMemberNicknameLocked)
-        throws OperationFailedException
-    {   
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_MEMBER_NICKNAME_LOCKED,
-            null,
-            new Boolean(isMemberNicknameLocked),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isMemberNicknameLocked property is not supported by the jabber"
-            + "multi user chat implementation."));
-    }
-
-    /**
-     * Returns true by default. The constant indicates that property is not
-     * configurable in this jabber <tt>ChatRoom</tt> implementation.
-     */
-    public boolean isAllowKick()
-    {
-        return true;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     *  
-     * @param isAllowKick indicates if this chat room allows kicks
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setAllowKick(boolean isAllowKick)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_ALLOW_KICK,
-            null,
-            new Boolean(isAllowKick),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isAllowKick property is not supported by the jabber"
-            + "multi user chat implementation."));
-    }
-
-    /**
-     * Returns false to indicate that isRegisteredUsersOnly property is not
-     * configurable in this jabber <tt>ChatRoom</tt> implementation.
-     */
-    public boolean isRegisteredUserOnly()
-    {
-        return false;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     *  
-     * @param isRegisteredUserOnly indicates if this chat room is only for
-     * registered users.
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setRegisteredUserOnly(boolean isRegisteredUserOnly)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_REGISTERED_USERS_ONLY,
-            null,
-            new Boolean(isRegisteredUserOnly),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isRegisteredUserOnly property is not supported by the jabber"
-            + "multi user chat implementation."));
-    }
-
-    /**
-     * Returns false to indicate that isAllowSpecialMessage property is not
-     * configurable in this jabber <tt>ChatRoom</tt> implementation.
-     */
-    public boolean isAllowSpecialMessage()
-    {
-        return false;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     *  
-     * @param isAllowSpecialMessage indicates if special messages are allowed
-     * in this chat room.
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setAllowSpecialMessage(boolean isAllowSpecialMessage)
-        throws OperationFailedException
-    {   
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_ALLOW_SPECIAL_MESSAGE,
-            null,
-            new Boolean(isAllowSpecialMessage),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isAllowSpecialMessage property is not supported by the jabber"
-            + "multi user chat implementation."));
-    }
-
-    /**
-     * Returns true to indicate that isNickNameListVisible property is not
-     * configurable in this jabber <tt>ChatRoom</tt> implementation.
-     */
-    public boolean isNicknameListVisible()
-    {
-        return true;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     *  
-     * @param isNicknameListVisible indicates if the list of nicknames in this
-     * chat room should be visible.
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setNicknameListVisible(boolean isNicknameListVisible)
-        throws OperationFailedException
-    {   
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_IS_NICKNAME_LIST_VISIBLE,
-            null,
-            new Boolean(isNicknameListVisible),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The isNicknameListVisible property is not supported by the jabber"
-            + "multi user chat implementation."));
-    }
-
-    /**
-     * Returns the limit of user for this chat room. The user limit is the
-     * maximum number of users, who could enter this chat room at a time.
-     *
-     * @return int the max number of users for this chat room
-     */
-    public int getMemberMaxNumber()
-    {
-        return 0;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     * 
-     * @param maxNumber the maximum number of users that we'd like this room to
-     * have
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setMemberMaxNumber(int maxNumber)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_MEMBER_MAX_NUMBER,
-            null,
-            new Integer(maxNumber),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The redirectChatRoom property is not supported by the jabber multi" +
-            " user chat implementation."));
-    }
-
-    /**
-     * Returns null to indicate that no redirection is possible in the jabber
-     * <tt>ChatRoom</tt> implementation.
-     */
-    public ChatRoom getRedirectChatRoom()
-    {
-        return null;
-    }
-
-    /**
-     * Fires a <tt>ChatRoomPropertyChangeFailedEvent</tt> to indicated that
-     * the jabber <tt>ChatRoom</tt> implementation doesn't support this property.
-     * @param chatRoom the chat room to which the messages are redirected
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setRedirectChatRoom(ChatRoom chatRoom)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_REDIRECT,
-            null,
-            chatRoom,
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The redirectChatRoom property is not supported by the jabber multi" +
-            " user chat implementation."));
-    }
-    
-
-    /**
-     * For now we just fire a ChatRoomPropertyChangeFailedEvent
-     * .PROPERTY_NOT_SUPPORTED to indicate that this property is not supported
-     * by this implementation.
-     * @param seconds the period that user should wait before re-joining a
-     * chat room
-     * @throws OperationFailedException if the user doesn't have the right to
-     * change this property.
-     */
-    public void setJoinRateLimit(int seconds)
-        throws OperationFailedException
-    {
-        firePropertyChangeEvent(new ChatRoomPropertyChangeFailedEvent(
-            this,
-            ChatRoomPropertyChangeEvent.CHAT_ROOM_JOIN_RATE_LIMIT,
-            null,
-            new Integer(seconds),
-            ChatRoomPropertyChangeFailedEvent.PROPERTY_NOT_SUPPORTED,
-            "The joinRateLimit property is not supported by the jabber multi" +
-            " user chat implementation."));
-    }
-
-    public int getJoinRateLimit()
-    {
-        return 0;
-    }
-    
-    /**
-     * Adds the given property to the list of advanced configuration
-     * properties.
-     * 
-     * @param propertyName the name of the property to add
-     * @param propertyValue the value of the property to add
-     */
-    public void addAdvancedConfigProperty(String propertyName,
-        String propertyValue)
-        throws OperationFailedException
-    {
-        this.advancedConfigurations.put(propertyName, propertyValue);
-    }
-
-    /**
-     * Removes the given property from the list of advanced configuration
-     * properties.
-     * 
-     * @param propertyName the property to remove
-     */
-    public void removeAdvancedConfigProperty(String propertyName)
-        throws OperationFailedException
-    {   
-        this.advancedConfigurations.remove(propertyName);
-    }
-
-    /**
-     * Returns an Iterator over a copy of the table containing all advanced
-     * configurations for this <tt>ChatRoom</tt>.
-     */
-    public Iterator getAdvancedConfigurationSet()
-    {
-        return new Hashtable(advancedConfigurations).entrySet().iterator();
-    }
-    
+        
     /**
      * Bans a user from the room. An admin or owner of the room can ban users
      * from a room.
@@ -2047,14 +1456,14 @@ public class ChatRoomJabberImpl
     private class SmackSubjectUpdatedListener implements SubjectUpdatedListener
     {
         public void subjectUpdated(String subject, String from)
-        {
+        {   
             ChatRoomPropertyChangeEvent evt
                 = new ChatRoomPropertyChangeEvent(
                     ChatRoomJabberImpl.this,
                     ChatRoomPropertyChangeEvent.CHAT_ROOM_SUBJECT,
                     oldSubject,
                     subject);
-            
+
             firePropertyChangeEvent(evt);
             
             // Keeps track of the subject.
@@ -2110,5 +1519,47 @@ public class ChatRoomJabberImpl
             throw new IllegalStateException(
                 "The provider must be signed on the service before "
                 +"being able to communicate.");
+    }
+
+    /**
+     * Returns the <tt>ChatRoomConfigurationForm</tt> containing all
+     * configuration properties for this chat room. If the user doesn't have
+     * permissions to see and change chat room configuration an
+     * <tt>OperationFailedException</tt> is thrown. 
+     * 
+     * @return the <tt>ChatRoomConfigurationForm</tt> containing all
+     * configuration properties for this chat room
+     * @throw OperationFailedException if the user doesn't have
+     * permissions to see and change chat room configuration
+     */
+    public ChatRoomConfigurationForm getConfigurationForm()
+        throws OperationFailedException
+    {
+        Form smackConfigForm = null;
+        
+        try
+        {
+            smackConfigForm = multiUserChat.getConfigurationForm();
+            
+            this.configForm
+                = new ChatRoomConfigurationFormJabberImpl(
+                    multiUserChat, smackConfigForm);
+        }
+        catch (XMPPException e)
+        {
+            if(e.getXMPPError().getCode() == 403)
+                throw new OperationFailedException(
+                    "Failed to obtain smack multi user chat config form."
+                    + "User doesn't have enough privileges to see the form.",
+                    OperationFailedException.NOT_ENOUGH_PRIVILEGES,
+                    e);
+            else
+                throw new OperationFailedException(
+                    "Failed to obtain smack multi user chat config form.",
+                    OperationFailedException.GENERAL_ERROR,
+                    e);
+        }
+        
+        return configForm;
     }
 }

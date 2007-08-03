@@ -643,7 +643,7 @@ public class OperationSetMultiUserChatJabberImpl
         ChatRoom targetChatRoom,
         String inviter,
         String reason,
-        String password)
+        byte[] password)
     {
         ChatRoomInvitationJabberImpl invitation
             = new ChatRoomInvitationJabberImpl( targetChatRoom,
@@ -733,7 +733,8 @@ public class OperationSetMultiUserChatJabberImpl
             {
                 chatRoom = (ChatRoomJabberImpl) findRoom(room);
                 
-                fireInvitationEvent(chatRoom, inviter, reason, password);
+                fireInvitationEvent(
+                    chatRoom, inviter, reason, password.getBytes());
             }
             catch (OperationFailedException e)
             {
