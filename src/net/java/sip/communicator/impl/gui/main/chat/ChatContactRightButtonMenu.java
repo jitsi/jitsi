@@ -180,7 +180,7 @@ public class ChatContactRightButtonMenu
                             reasonField.getText()).start();
                     }
                     
-                    ReasonDialog.this.dispose();
+                    ReasonDialog.this.setVisible(false);
                 }
             });
         
@@ -188,7 +188,7 @@ public class ChatContactRightButtonMenu
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    ReasonDialog.this.dispose();
+                    ReasonDialog.this.setVisible(false);
                 }
             });
             

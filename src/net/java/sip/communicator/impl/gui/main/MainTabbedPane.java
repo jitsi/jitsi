@@ -50,8 +50,8 @@ public class MainTabbedPane extends SIPCommTabbedPane {
                 
         this.addTab(Messages.getI18NString("contacts").getText(),
                     contactListPanel);
-        //this.addTab(Messages.getI18NString("chatRooms").getText(),
-        //            chatRoomsListPanel);
+        this.addTab(Messages.getI18NString("chatRooms").getText(),
+                    chatRoomsListPanel);
         this.addTab(Messages.getI18NString("callList").getText(),
                     callHistoryPanel);
         this.addTab(Messages.getI18NString("dial").getText(), dialPanel);

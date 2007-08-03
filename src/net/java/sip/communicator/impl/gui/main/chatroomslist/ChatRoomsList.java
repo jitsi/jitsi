@@ -305,51 +305,49 @@ public class ChatRoomsList
      */
     public void synchronizeOpSetWithLocalContactList(
         ProtocolProviderService protocolProvider,
-        OperationSetMultiUserChat opSet)
-    {   
-        ChatRoomWrapper chatRoomWrapper = null;
-        ChatRoom chatRoom = null;
-        
+        final OperationSetMultiUserChat opSet)
+    {        
         int serverIndex = listModel.indexOf(protocolProvider);
         
         for(int i = serverIndex + 1; i < listModel.size(); i ++)
-        {   
-            Object o = listModel.get(i);
+        {
+            final Object o = listModel.get(i);
             
             if(!(o instanceof ChatRoomWrapper))
-                break;
-
-            chatRoomWrapper = (ChatRoomWrapper) o;
+                break;            
             
-            try
+            new Thread()
             {
-                chatRoom = opSet.findRoom(chatRoomWrapper.getChatRoomName());
-            }
-            catch (OperationFailedException e1)
-            {
-                logger.error("Failed to find chat room with name:"
-                    + chatRoomWrapper.getChatRoomName(), e1);
-            }
-            catch (OperationNotSupportedException e1)
-            {                        
-                logger.error("Failed to find chat room with name:"
-                    + chatRoomWrapper.getChatRoomName(), e1);
-            }
-            
-            if(chatRoom != null)
-            {
-                chatRoomWrapper.setChatRoom(chatRoom);
-                
-                try
+                public void run()
                 {
-                    chatRoom.join();                        
+                    ChatRoomWrapper chatRoomWrapper = (ChatRoomWrapper) o;
+                    ChatRoom chatRoom = null;
+                    
+                    try
+                    {
+                        chatRoom
+                            = opSet.findRoom(chatRoomWrapper.getChatRoomName());
+                    }
+                    catch (OperationFailedException e1)
+                    {
+                        logger.error("Failed to find chat room with name:"
+                            + chatRoomWrapper.getChatRoomName(), e1);
+                    }
+                    catch (OperationNotSupportedException e1)
+                    {                        
+                        logger.error("Failed to find chat room with name:"
+                            + chatRoomWrapper.getChatRoomName(), e1);
+                    }
+                    
+                    if(chatRoom != null)
+                    {
+                        chatRoomWrapper.setChatRoom(chatRoom);
+                        
+                        mainFrame.getMultiUserChatManager()
+                                    .joinChatRoom(chatRoom);                
+                    }
                 }
-                catch (OperationFailedException e)
-                {   
-                    logger.error("Failed to join chat room: "
-                        + chatRoomWrapper.getChatRoomName(), e);
-                }
-            }
+            }.start();
         }
     }
     

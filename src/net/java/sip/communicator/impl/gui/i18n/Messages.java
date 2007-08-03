@@ -75,7 +75,7 @@ public class Messages {
             
             resourceString = MessageFormat.format(
                 resourceString, (Object[]) params);
-            
+
             int mnemonicIndex = resourceString.indexOf('&');
             
             if(mnemonicIndex > -1) {

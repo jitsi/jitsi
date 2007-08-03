@@ -116,8 +116,10 @@ public class ChatContactPanel
         this.buttonsPanel.add(infoButton);
         this.buttonsPanel.add(callButton);
         this.buttonsPanel.add(sendFileButton);
-
-        //this.mainPanel.add(buttonsPanel, BorderLayout.NORTH);
+        
+        this.buttonsPanel.setVisible(false);
+        
+        this.mainPanel.add(buttonsPanel, BorderLayout.NORTH);
         this.mainPanel.add(personNameLabel, BorderLayout.CENTER);
 
         this.add(personPhotoLabel, BorderLayout.WEST);
@@ -269,13 +271,13 @@ public class ChatContactPanel
         
         if(isSelected)
         {
-            this.mainPanel.add(buttonsPanel, BorderLayout.NORTH);
+            this.buttonsPanel.setVisible(true);
             this.mainPanel.revalidate();
             this.mainPanel.repaint();
         }
         else
         {
-            this.mainPanel.remove(buttonsPanel);
+            this.buttonsPanel.setVisible(false);
             this.mainPanel.revalidate();
             this.mainPanel.repaint();
         }

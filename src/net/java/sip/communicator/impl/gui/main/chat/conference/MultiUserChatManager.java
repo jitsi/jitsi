@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -243,7 +244,6 @@ public class MultiUserChatManager
         else if (evt.getEventType().equals(
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT))
         {
-            
         }
         else if (evt.getEventType().equals(
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED))
@@ -260,10 +260,14 @@ public class MultiUserChatManager
     public void acceptInvitation(ChatRoomInvitation invitation)
     {
         ChatRoom chatRoom = invitation.getTargetChatRoom();
+        byte[] password = invitation.getChatRoomPassword();
         
         try
         {
-            invitation.getTargetChatRoom().join();                                        
+            if(password == null)
+                chatRoom.join();
+            else
+                chatRoom.join(password);
         }
         catch (OperationFailedException e)
         {
@@ -290,6 +294,154 @@ public class MultiUserChatManager
         ChatRoomInvitation invitation, String reason)
     {
         multiUserChatOpSet.rejectInvitation(invitation, reason);
+    }
+ 
+    /**
+     * Joins the given chat room with the given password and manages all the
+     * exceptions that could occur during the join process.
+     * 
+     * @param chatRoom the chat room to join
+     * @param password the password
+     */
+    public void joinChatRoom(ChatRoom chatRoom, String nickname, byte[] password)
+    {
+        try
+        {
+            if(password != null && password.length > 0)
+                chatRoom.joinAs(nickname, password);
+            else
+                chatRoom.joinAs(nickname);
+        }
+        catch (OperationFailedException e)
+        {
+            if(e.getErrorCode()
+                == OperationFailedException
+                    .AUTHENTICATION_FAILED)
+            {                
+                ChatRoomAuthenticationWindow authWindow
+                    = new ChatRoomAuthenticationWindow(mainFrame, chatRoom);
+                
+                authWindow.setVisible(true);                
+            }
+            else if(e.getErrorCode()
+                == OperationFailedException
+                    .REGISTRATION_REQUIRED)
+            {                
+                new ErrorDialog(mainFrame,
+                    Messages.getI18NString("chatRoomRegistrationRequired",
+                        new String[]{chatRoom.getName()})
+                            .getText(),
+                    Messages.getI18NString("error").getText())
+                        .showDialog();
+            }
+            else if(e.getErrorCode()
+                == OperationFailedException.PROVIDER_NOT_REGISTERED)
+            {
+                new ErrorDialog(mainFrame,
+                    Messages.getI18NString("chatRoomNotConnected",
+                        new String[]{chatRoom.getName()})
+                            .getText(),
+                    Messages.getI18NString("error").getText())
+                        .showDialog();
+            }
+            else if(e.getErrorCode()
+                    == OperationFailedException
+                        .SUBSCRIPTION_ALREADY_EXISTS)
+            {
+                new ErrorDialog(mainFrame,
+                    Messages.getI18NString("chatRoomAlreadyJoined",
+                        new String[]{chatRoom.getName()})
+                            .getText(),
+                    Messages.getI18NString("error").getText())
+                        .showDialog();
+            }            
+            else
+            {
+                new ErrorDialog(mainFrame,
+                    Messages.getI18NString("failedToJoinChatRoom",
+                        new String[]{chatRoom.getName()})
+                            .getText(),
+                    Messages.getI18NString("error").getText())
+                        .showDialog();
+            }
+            
+            logger.error("Failed to join chat room: "
+                + chatRoom.getName(), e);
+        }
+    }
+    
+    /**
+     * Joins the given chat room and manages all the exceptions that could
+     * occur during the join process.
+     * 
+     * @param chatRoom the chat room to join
+     */
+    public void joinChatRoom(ChatRoom chatRoom)
+    {
+        try
+        {
+            chatRoom.join();                        
+        }
+        catch (OperationFailedException e)
+        {
+            if(e.getErrorCode()
+                == OperationFailedException
+                    .AUTHENTICATION_FAILED)
+            {
+                ChatRoomAuthenticationWindow authWindow
+                    = new ChatRoomAuthenticationWindow(mainFrame, chatRoom);
+                
+                authWindow.setVisible(true);
+            }
+            else if(e.getErrorCode()
+                == OperationFailedException
+                    .REGISTRATION_REQUIRED)
+            {                
+                new ErrorDialog(mainFrame,
+                    Messages.getI18NString("chatRoomRegistrationRequired",
+                        new String[]{chatRoom.getName()})
+                            .getText(),
+                    e,
+                    Messages.getI18NString("error").getText())
+                        .showDialog();
+            }
+            else if(e.getErrorCode()
+                == OperationFailedException.PROVIDER_NOT_REGISTERED)
+            {
+                new ErrorDialog(mainFrame,
+                    Messages.getI18NString("chatRoomNotConnected",
+                        new String[]{chatRoom.getName()})
+                            .getText(),
+                    e,
+                    Messages.getI18NString("error").getText())
+                        .showDialog();
+            }            
+            else if(e.getErrorCode()
+                    == OperationFailedException
+                        .SUBSCRIPTION_ALREADY_EXISTS)
+            {
+                new ErrorDialog(mainFrame,
+                    Messages.getI18NString("chatRoomAlreadyJoined",
+                        new String[]{chatRoom.getName()})
+                            .getText(),
+                    e,
+                    Messages.getI18NString("error").getText())
+                        .showDialog();
+            }            
+            else
+            {
+                new ErrorDialog(mainFrame,
+                    Messages.getI18NString("failedToJoinChatRoom",
+                        new String[]{chatRoom.getName()})
+                            .getText(),
+                    e,
+                    Messages.getI18NString("error").getText())
+                        .showDialog();
+            }
+            
+            logger.error("Failed to join chat room: "
+                + chatRoom.getName(), e);
+        }
     }
     
     /**

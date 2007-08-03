@@ -6,7 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -26,6 +28,8 @@ public class ConferenceChatPanel
     implements  ChatRoomPropertyChangeListener,
                 ChatRoomMemberPresenceListener
 {
+    private ChatRoomSubjectPanel subjectPanel;
+    
     private Logger logger = Logger.getLogger(ConferenceChatPanel.class);
 
     private ChatRoomWrapper chatRoomWrapper;
@@ -44,9 +48,15 @@ public class ConferenceChatPanel
 
         this.chatRoomWrapper = chatRoomWrapper;
 
+        subjectPanel = new ChatRoomSubjectPanel(chatWindow, chatRoomWrapper);
+        
+        // The subject panel is added here, because it's specific for the
+        // multi user chat and is not contained in the single chat chat panel.
+        this.add(subjectPanel, BorderLayout.NORTH);
+        
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
         
-        if(chatRoom != null)
+        if(chatRoom != null && chatRoom.isJoined())
         {
             this.loadChatRoom(chatRoom);
         }
@@ -313,6 +323,9 @@ public class ConferenceChatPanel
 
         chatRoom.addPropertyChangeListener(this);        
         chatRoom.addMemberPresenceListener(this);
+        
+        // Load the subject of the chat room.
+        subjectPanel.setSubject(chatRoom.getSubject());        
     }
 
     /**
@@ -329,12 +342,15 @@ public class ConferenceChatPanel
             chatRoom.invite(contactAddress, reason);
     }
 
+    
     public void chatRoomPropertyChanged(
         ChatRoomPropertyChangeEvent evt)
     {
         if(evt.getPropertyName().equals(
             ChatRoomPropertyChangeEvent.CHAT_ROOM_SUBJECT))
         {
+            subjectPanel.setSubject((String) evt.getNewValue());
+            
             this.processMessage(
                 evt.getSourceChatRoom().getName(),
                 new Date(System.currentTimeMillis()),

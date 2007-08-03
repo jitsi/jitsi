@@ -164,22 +164,9 @@ public class JoinChatRoomDialog
                                 .showDialog();
                     }
                     else
-                    {   
-                        try
-                        {
-                            chatRoom.join();            
-                        }
-                        catch (OperationFailedException e)
-                        {
-                            new ErrorDialog(mainFrame,
-                                Messages.getI18NString("failedToJoinChatRoom",
-                                    new String[]{chatRoomName}).getText(),
-                                Messages.getI18NString("error").getText())
-                                    .showDialog();
-                            
-                            logger.error("Failed to join chat room: "
-                                + chatRoomName, e);
-                        }
+                    {  
+                        mainFrame.getMultiUserChatManager()
+                            .joinChatRoom(chatRoom);
                     }
                 }                
             }.start();                

@@ -374,16 +374,16 @@ public class ChatWindowManager
      * @param chatRoom the chat room, for which the chat panel is about
      * @return the chat panel corresponding to the given chat room
      */
-    public ChatPanel getMultiChat(ChatRoomWrapper chatRoom)
+    public ChatPanel getMultiChat(ChatRoomWrapper chatRoomWrapper)
     {
         synchronized (syncChat)
         {
-            if(containsChat(chatRoom))
+            if(containsChat(chatRoomWrapper))
             {
-                return getChat(chatRoom);
+                return getChat(chatRoomWrapper);
             }
             else         
-                return createChat(chatRoom);
+                return createChat(chatRoomWrapper);
         }
     }
     

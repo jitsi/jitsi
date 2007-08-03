@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -36,6 +37,9 @@ public class ChatRoomRightButtonMenu
     private I18NString joinChatRoomString
         = Messages.getI18NString("join");
     
+    private I18NString joinAsChatRoomString
+        = Messages.getI18NString("joinAs");
+
     private I18NString leaveChatRoomString
         = Messages.getI18NString("leave");
 
@@ -47,6 +51,9 @@ public class ChatRoomRightButtonMenu
     
     private JMenuItem joinChatRoomItem = new JMenuItem(
         joinChatRoomString.getText());
+    
+    private JMenuItem joinAsChatRoomItem = new JMenuItem(
+        joinAsChatRoomString.getText());
     
     private JMenuItem removeChatRoomItem = new JMenuItem(
         removeChatRoomString.getText());
@@ -78,16 +85,21 @@ public class ChatRoomRightButtonMenu
     private void init()
     {
         this.add(joinChatRoomItem);
+        this.add(joinAsChatRoomItem);        
         this.add(leaveChatRoomItem);
         this.add(removeChatRoomItem);
         
         this.joinChatRoomItem.setName("joinChatRoom");
+        this.joinAsChatRoomItem.setName("joinAsChatRoom");
         this.leaveChatRoomItem.setName("leaveChatRoom");
         this.removeChatRoomItem.setName("removeChatRoom");
         
         this.joinChatRoomItem
             .setMnemonic(joinChatRoomString.getMnemonic());
         
+        this.joinAsChatRoomItem
+            .setMnemonic(joinAsChatRoomString.getMnemonic());
+    
         this.leaveChatRoomItem
             .setMnemonic(leaveChatRoomString.getMnemonic());
     
@@ -95,6 +107,7 @@ public class ChatRoomRightButtonMenu
             .setMnemonic(removeChatRoomString.getMnemonic());
     
         this.joinChatRoomItem.addActionListener(this);
+        this.joinAsChatRoomItem.addActionListener(this);
         this.leaveChatRoomItem.addActionListener(this);
         this.removeChatRoomItem.addActionListener(this);        
     }
@@ -186,48 +199,27 @@ public class ChatRoomRightButtonMenu
             {
                 public void run()
                 {
-                    try
-                    {
-                        chatRoom.join();                        
-                    }
-                    catch (OperationFailedException e)
-                    {
-                        if(e.getErrorCode()
-                            == OperationFailedException.PROVIDER_NOT_REGISTERED)
-                        {
-                            new ErrorDialog(mainFrame,
-                                Messages.getI18NString("chatRoomNotConnected",
-                                    new String[]{chatRoom.getName()})
-                                        .getText(),
-                                Messages.getI18NString("error").getText())
-                                    .showDialog();
-                        }
-                        else if(e.getErrorCode()
-                            == OperationFailedException
-                                .SUBSCRIPTION_ALREADY_EXISTS)
-                        {
-                            new ErrorDialog(mainFrame,
-                                Messages.getI18NString("chatRoomAlreadyJoined",
-                                    new String[]{chatRoom.getName()})
-                                        .getText(),
-                                Messages.getI18NString("error").getText())
-                                    .showDialog();
-                        }
-                        else
-                        {
-                            new ErrorDialog(mainFrame,
-                                Messages.getI18NString("failedToJoinChatRoom",
-                                    new String[]{chatRoom.getName()})
-                                        .getText(),
-                                Messages.getI18NString("error").getText())
-                                    .showDialog();
-                        }
-                        
-                        logger.error("Failed to join chat room: "
-                            + chatRoom.getName(), e);
-                    }
+                    mainFrame.getMultiUserChatManager().joinChatRoom(chatRoom);
                 }
             }.start();
+        }
+        else if(itemName.equals("joinAsChatRoom"))
+        {
+            if(chatRoom == null)
+            {
+                new ErrorDialog(mainFrame,
+                    Messages.getI18NString("haveToBeConnectedToJoin")
+                            .getText(),
+                    Messages.getI18NString("warning").getText())
+                        .showDialog();
+                
+                return;
+            }
+
+            ChatRoomAuthenticationWindow authWindow
+                = new ChatRoomAuthenticationWindow(mainFrame, chatRoom);
+            
+            authWindow.setVisible(true);
         }
     }
 }
