@@ -369,9 +369,10 @@ public class ChatWindowManager
     }
     
     /**
-     * Returns the chat panel corresponding to the given chat room.
+     * Returns the chat panel corresponding to the given chat room wrapper.
      *
-     * @param chatRoom the chat room, for which the chat panel is about
+     * @param chatRoomWrapper the chat room wrapper, corresponding to the chat
+     * room for which the chat panel is about
      * @return the chat panel corresponding to the given chat room
      */
     public ChatPanel getMultiChat(ChatRoomWrapper chatRoomWrapper)

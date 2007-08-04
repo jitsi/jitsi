@@ -1529,7 +1529,7 @@ public class ChatRoomJabberImpl
      * 
      * @return the <tt>ChatRoomConfigurationForm</tt> containing all
      * configuration properties for this chat room
-     * @throw OperationFailedException if the user doesn't have
+     * @throws OperationFailedException if the user doesn't have
      * permissions to see and change chat room configuration
      */
     public ChatRoomConfigurationForm getConfigurationForm()
