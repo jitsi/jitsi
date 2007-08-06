@@ -239,15 +239,6 @@ public class ContactRssImpl
 
         try
         {
-            //commenting the check since it seems to always return false.
-            //File fileLocation = new File(feedLocation.getProtocol() + "://"
-            //+ feedLocation.getHost() + "/favicon.ico");
-
-            //if(!fileLocation.exists())
-            //{
-            //    return getDefaultRssIcon();
-            //}
-
             ICOFile favicon = new ICOFile(feedLocation.getProtocol() + "://"
                 + feedLocation.getHost() + "/favicon.ico");
 
