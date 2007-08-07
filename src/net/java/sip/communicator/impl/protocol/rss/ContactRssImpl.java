@@ -239,8 +239,9 @@ public class ContactRssImpl
 
         try
         {
-            ICOFile favicon = new ICOFile(feedLocation.getProtocol() + "://"
-                + feedLocation.getHost() + "/favicon.ico");
+            URL location = new URL(feedLocation.getProtocol() + "://"
+                   + feedLocation.getHost() + "/favicon.ico");
+            ICOFile favicon = new ICOFile(location);
 
             logger.trace("Icon has " + favicon.getImageCount() + " pages");
 
