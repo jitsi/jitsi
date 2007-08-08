@@ -355,14 +355,17 @@ public class UIServiceImpl
      * hides the main application window depending on the parameter
      * <code>visible</code>.
      *
-     * @param visible true if we are to show the main application frame and
+     * @param isVisible true if we are to show the main application frame and
      * false otherwise.
      *
      * @see UIService#setVisible(boolean)
      */
-    public void setVisible(boolean visible)
+    public void setVisible(boolean isVisible)
     {
-        this.mainFrame.setVisible(visible);
+        this.mainFrame.setVisible(isVisible);
+        
+        if(isVisible)
+            this.mainFrame.toFront();
     }
 
     /**
