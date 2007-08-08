@@ -18,13 +18,39 @@ import java.util.*;
  * @todo write an example once we have completed the definition of the service.
  *
  * @author Emil Ivov
+ * @author Yana Stamcheva
  */
 public interface NotificationService
 {
     /**
-     * Registers the the specified <tt>actionDescriptor</tt> as a notification
-     * that should be used every time an event with the specified
-     * <tt>eventType</tt> has occurred.
+     * The log message action type indicates that a message would be logged,
+     * when a notification is fired.
+     */
+    public static final String ACTION_LOG_MESSAGE = "LogMessageAction";
+    
+    /**
+     * The popup message action type indicates that a window (or a systray
+     * popup), containing the corresponding notification message would be poped
+     * up, when a notification is fired.
+     */
+    public static final String ACTION_POPUP_MESSAGE = "PopupMessageAction";
+    
+    /**
+     * The sound action type indicates that a sound would be played, when a
+     * notification is fired.
+     */
+    public static final String ACTION_SOUND = "SoundAction";
+    
+    /**
+     * The command action type indicates that a command would be executed,
+     * when a notification is fired.
+     */
+    public static final String ACTION_COMMAND = "CommandAction";
+    
+    /**
+     * Registers the specified <tt>actionDescriptor</tt> as a notification that
+     * should be used every time an event with the specified <tt>eventType</tt>
+     * has occurred.
      * <p>
      * The method allows registering more than one actionType for a specific
      * event. Setting twice the same <tt>actionType</tt> for the same
@@ -45,6 +71,28 @@ public interface NotificationService
                                           String actionType,
                                           String actionDescriptor,
                                           String defaultMessage);
+    
+    /**
+     * Removes the given <tt>eventType</tt> from the list of event notifications.
+     * This means that we delete here all registered notifications for the given
+     * <tt>eventType</tt>.
+     *  
+     * @param eventType the name of the event (as defined by the plugin that's
+     * registering it) to be removed.
+     */
+    public void removeEventNotification(String eventType);
+    
+    /**
+     * Removes the event notification corresponding to the specified
+     * <tt>actionType</tt> and <tt>eventType</tt>.
+     * 
+     * @param eventType the name of the event (as defined by the plugin that's
+     * registering it) for which we'll remove the notification.
+     * @param actionType the type of the action that is to be executed when the
+     * specified event occurs (could be one of the ACTION_XXX fields).
+     */
+    public void removeEventNotificationAction(  String eventType,
+                                                String actionType);
 
     /**
      * Returns a Map containing all action types (as keys) and actionDescriptors
@@ -113,4 +161,26 @@ public interface NotificationService
      * notification for.
      */
     public void fireNotification(String eventType);
+    
+    /**
+     * Activates or desactivates all notification actions related to the
+     * specified <tt>eventType</tt>.
+     * 
+     * @param eventType the name of the event, which actions should be activated
+     * /desactivated. 
+     * @param isActive indicates whether to activate or desactivate the actions
+     * related to the specified <tt>eventType</tt>. 
+     */
+    public void setActive(String eventType, boolean isActive);
+    
+    /**
+     * Indicates whether or not actions for the specified <tt>eventType</tt>
+     * are activated. 
+     * 
+     * @param eventType the name of the event (as defined by the plugin that's
+     * registered it) that we are checking.
+     * @return <code>true</code> if actions for the specified <tt>eventType</tt>
+     * are activated, <code>false</code> - otherwise.  
+     */
+    public boolean isActive(String eventType);
 }
