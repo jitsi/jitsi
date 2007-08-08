@@ -34,6 +34,15 @@ public class ContactListEvent
      */
     public static final int GROUP_SELECTED = 3;
     
+    /**
+     * Indicated the number of click accompanying the event
+     */
+    private int clickCount;
+
+    /**
+     * Specific <tt>Contact</tt> of this <tt>MetaContact</tt> involved in
+     * the event if any, null otherwise.
+     */
     private Contact sourceProtoContact;
     
     /**
@@ -41,12 +50,15 @@ public class ContactListEvent
      * @param source the MetaContact which was selected
      * @param eventID one of the XXX_SELECTED static fields indicating the
      * nature of the event.
+     * @param clickCount the number of clicks that was produced when clicking
+     * over the contact list 
      */
-    public ContactListEvent(Object source, int eventID)
+    public ContactListEvent(Object source, int eventID, int clickCount)
     {
         super(source);
         
         this.eventID = eventID;
+        this.clickCount = clickCount;
     }
 
     /**
@@ -86,6 +98,10 @@ public class ContactListEvent
         return null;
     }
     
+    /**
+     * Returns the MetaContactGroup for which this event occured.
+     * @return the MetaContactGroup for which this event occured
+     */
     public MetaContactGroup getSourceGroup()
     {
         if(getSource() instanceof MetaContactGroup)
@@ -103,4 +119,12 @@ public class ContactListEvent
         return sourceProtoContact;
     }
 
+    /**
+     * Returns the number of click of this event.
+     * @return the number of click of this event.
+     */
+    public int getClickCount()
+    {
+        return clickCount;
+    }
 }

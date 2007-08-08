@@ -8,13 +8,29 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.util.*;
 
+/**
+ * Listens for events coming from the contact list.
+ * 
+ * @author Yana Stamcheva
+ */
 public interface ContactListListener extends EventListener
 {
-    
+    /**
+     * 
+     * @param evt
+     */
     public void groupSelected(ContactListEvent evt);
     
-    public void contactSelected(ContactListEvent evt);
+    /**
+     * 
+     * @param evt
+     */
+    public void contactClicked(ContactListEvent evt);
     
-    public void protocolContactSelected(ContactListEvent evt);
+    /**
+     * 
+     * @param evt
+     */
+    public void protocolContactClicked(ContactListEvent evt);
     
 }

@@ -610,7 +610,7 @@ public class ContactRightButtonMenu
      * Implements ContactListListener.contactSelected method in order
      * to move the choosen subcontact when a meta contact is selected.
      */
-    public void contactSelected(ContactListEvent evt)
+    public void contactClicked(ContactListEvent evt)
     {
         this.moveContact(evt.getSourceContact());
     }
@@ -619,7 +619,7 @@ public class ContactRightButtonMenu
      * Implements ContactListListener.contactSelected method in order
      * to move the choosen subcontact when a meta contact is selected.
      */
-    public void protocolContactSelected(ContactListEvent evt)
+    public void protocolContactClicked(ContactListEvent evt)
     {
         this.moveContact(evt.getSourceContact());
     }

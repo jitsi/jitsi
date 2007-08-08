@@ -119,10 +119,13 @@ public class ContactListPanel
     /**
      * Implements the ContactListListener.contactSelected method.
      */
-    public void contactSelected(ContactListEvent evt)
+    public void contactClicked(ContactListEvent evt)
     {
-        SwingUtilities
+        if (evt.getClickCount() > 1)
+        {
+            SwingUtilities
                 .invokeLater(new RunMessageWindow(evt.getSourceContact()));
+        }
     }
     
     /**
@@ -134,7 +137,7 @@ public class ContactListPanel
     /**
      * Implements the ContactListListener.protocolContactSelected method.
      */
-    public void protocolContactSelected(ContactListEvent evt)
+    public void protocolContactClicked(ContactListEvent evt)
     {
         SwingUtilities.invokeLater(new RunMessageWindow(evt.getSourceContact(),
                 evt.getSourceProtoContact()));

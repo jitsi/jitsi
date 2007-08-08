@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -68,6 +69,8 @@ public class ContactList
 
     private Hashtable contactHistory = new Hashtable();
 
+    private ContactListDraggable draggedElement;
+    
     /**
      * Creates an instance of the <tt>ContactList</tt>.
      * 
@@ -112,7 +115,7 @@ public class ContactList
        
         new ContactListRefresh().start();
     }
-
+    
     /**
      * Handles the <tt>MetaContactEvent</tt>. Refreshes the list model.
      */
@@ -378,10 +381,11 @@ public class ContactList
      * 
      * @param source the contact that this event is about.
      * @param eventID the id indicating the exact type of the event to fire.
+     * @param clickCount the number of clicks accompanying the event.
      */
-    public void fireContactListEvent(Object source, int eventID)
+    public void fireContactListEvent(Object source, int eventID, int clickCount)
     {
-        ContactListEvent evt = new ContactListEvent(source, eventID);
+        ContactListEvent evt = new ContactListEvent(source, eventID, clickCount);
 
         if (excContactListListeners.size() > 0)
         {
@@ -392,21 +396,23 @@ public class ContactList
 
                 while (listeners.hasNext())
                 {
-                    ContactListListener listener = (ContactListListener) listeners
-                        .next();
+                    ContactListListener listener
+                        = (ContactListListener) listeners.next();
+                    
                     switch (evt.getEventID())
                     {
-                    case ContactListEvent.CONTACT_SELECTED:
-                        listener.contactSelected(evt);
-                        break;
-                    case ContactListEvent.PROTOCOL_CONTACT_SELECTED:
-                        listener.protocolContactSelected(evt);
-                        break;
-                    case ContactListEvent.GROUP_SELECTED:
-                        listener.groupSelected(evt);
-                        break;
-                    default:
-                        logger.error("Unknown event type " + evt.getEventID());
+                        case ContactListEvent.CONTACT_SELECTED:
+                            listener.contactClicked(evt);
+                            break;
+                        case ContactListEvent.PROTOCOL_CONTACT_SELECTED:
+                            listener.protocolContactClicked(evt);
+                            break;
+                        case ContactListEvent.GROUP_SELECTED:
+                            listener.groupSelected(evt);
+                            break;
+                        default:
+                            logger.error("Unknown event type "
+                                + evt.getEventID());
                     }
                 }
             }
@@ -424,10 +430,10 @@ public class ContactList
                     switch (evt.getEventID())
                     {
                     case ContactListEvent.CONTACT_SELECTED:
-                        listener.contactSelected(evt);
+                        listener.contactClicked(evt);
                         break;
                     case ContactListEvent.PROTOCOL_CONTACT_SELECTED:
-                        listener.protocolContactSelected(evt);
+                        listener.protocolContactClicked(evt);
                         break;
                     case ContactListEvent.GROUP_SELECTED:
                         listener.groupSelected(evt);
@@ -465,10 +471,10 @@ public class ContactList
                 switch (evt.getEventID())
                 {
                 case ContactListEvent.CONTACT_SELECTED:
-                    listener.contactSelected(evt);
+                    listener.contactClicked(evt);
                     break;
                 case ContactListEvent.PROTOCOL_CONTACT_SELECTED:
-                    listener.protocolContactSelected(evt);
+                    listener.protocolContactClicked(evt);
                     break;
                 default:
                     logger.error("Unknown event type " + evt.getEventID());
@@ -477,77 +483,28 @@ public class ContactList
         }
     }
 
+    
     /**
-     * Closes or opens a group on a double click.
-     */
-    public void mouseClicked(MouseEvent e)
-    {
-        if (e.getClickCount() > 1)
-        {
-
-            int selectedIndex = this.locationToIndex(e.getPoint());
-
-            ContactListModel listModel = (ContactListModel) this.getModel();
-
-            Object element = listModel.getElementAt(selectedIndex);
-
-            if (element instanceof MetaContactGroup)
-            {
-
-                MetaContactGroup group = (MetaContactGroup) element;
-
-                if (listModel.isGroupClosed(group))
-                {
-                    listModel.openGroup(group);
-                }
-                else
-                {
-                    listModel.closeGroup(group);
-                }
-            }
-        }
-    }
-
-    public void mouseEntered(MouseEvent e)
-    {
-    }
-
-    public void mouseExited(MouseEvent e)
-    {
-    }
-
-    /**
-     * Manages a mouse press over the contact list.
+     * Manages a mouse click over the contact list.
      * 
-     * When the left mouse button is pressed on a contact cell different things
+     * When the left mouse button is clicked on a contact cell different things
      * may happen depending on the contained component under the mouse. If the
-     * mouse is pressed on the "contact name" the chat window is opened,
+     * mouse is clicked on the "contact name" the chat window is opened,
      * configured to use the default protocol contact for the selected
-     * MetaContact. If the mouse is pressed on one of the protocol icons, the
+     * MetaContact. If the mouse is clicked on one of the protocol icons, the
      * chat window is opened, configured to use the protocol contact
      * corresponding to the given icon.
      * 
-     * When the right mouse button is pressed on a contact cell, the cell is
+     * When the right mouse button is clicked on a contact cell, the cell is
      * selected and the <tt>ContactRightButtonMenu</tt> is opened.
      * 
-     * When the right mouse button is pressed on a group cell, the cell is
+     * When the right mouse button is clicked on a group cell, the cell is
      * selected and the <tt>GroupRightButtonMenu</tt> is opened.
      * 
-     * When the middle mouse button is pressed on a cell, the cell is selected.
+     * When the middle mouse button is clicked on a cell, the cell is selected.
      */
-    public void mousePressed(MouseEvent e)
-    {
-        // Request the focus in the contact list when user clicks on it.
-        this.requestFocus();
-        
-        // Select the contact under the right button click.
-        if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
-            || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-            || (e.isControlDown() && !e.isMetaDown()))
-        {
-            this.setSelectedIndex(locationToIndex(e.getPoint()));
-        }
-
+    public void mouseClicked(MouseEvent e)
+    {        
         int selectedIndex = this.getSelectedIndex();
         Object selectedValue = this.getSelectedValue();
 
@@ -562,6 +519,19 @@ public class ContactList
         if (selectedValue instanceof MetaContactGroup)
         {
             MetaContactGroup group = (MetaContactGroup) selectedValue;
+            
+            // Closes or opens a group on a double click.
+            if (e.getClickCount() > 1)
+            {   
+                if (listModel.isGroupClosed(group))
+                {
+                    listModel.openGroup(group);
+                }
+                else
+                {
+                    listModel.closeGroup(group);
+                }
+            }
 
             if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
                 || (e.isControlDown() && !e.isMetaDown()))
@@ -581,7 +551,9 @@ public class ContactList
             }
             else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
             {
-                fireContactListEvent(group, ContactListEvent.GROUP_SELECTED);
+                fireContactListEvent(   group,
+                                        ContactListEvent.GROUP_SELECTED,
+                                        e.getClickCount());
 
                 // get the component under the mouse
                 Component component = this.getHorizontalComponent(renderer,
@@ -651,7 +623,7 @@ public class ContactList
                 else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
                 {
                     fireContactListEvent(contact,
-                        ContactListEvent.CONTACT_SELECTED);
+                        ContactListEvent.CONTACT_SELECTED, e.getClickCount());
                 }
             }
             else if (component instanceof JButton)
@@ -683,12 +655,200 @@ public class ContactList
         }
     }
 
+    public void mouseEntered(MouseEvent e)
+    {
+    }
+    
+    public void mouseExited(MouseEvent e)
+    {
+    }
+
+    public void mousePressed(MouseEvent e)
+    {
+        // Request the focus in the mContact list when user clicks on it.
+        this.requestFocus();
+
+        draggedElement = null;
+
+        // Select the mContact under the right button click.
+        if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
+            || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+            || (e.isControlDown() && !e.isMetaDown()))
+        {
+            this.setSelectedIndex(locationToIndex(e.getPoint()));
+        }
+
+        int selectedIndex = this.getSelectedIndex();
+        Object selectedValue = this.getSelectedValue();
+
+        ContactListCellRenderer renderer = (ContactListCellRenderer) this
+            .getCellRenderer().getListCellRendererComponent(this,
+                selectedValue, selectedIndex, true, true);
+
+        Point selectedCellPoint = this.indexToLocation(selectedIndex);
+
+        int translatedX = e.getX() - selectedCellPoint.x;
+
+        if (selectedValue instanceof MetaContact)
+        {
+            MetaContact mContact = (MetaContact) selectedValue;
+
+            // get the component under the mouse
+            Component component
+                = this.getHorizontalComponent(renderer, translatedX);
+
+            if (component instanceof JLabel)
+            {
+                draggedElement = new ContactListDraggable(
+                    mContact, null, component);
+            }
+            else if (component instanceof JPanel)
+            {
+                if (component.getName() != null
+                    && component.getName().equals("buttonsPanel"))
+                {
+                    JPanel panel = (JPanel) component;
+
+                    int internalX = translatedX
+                        - (renderer.getWidth() - panel.getWidth() - 2);
+
+                    Component c = getHorizontalComponent(panel, internalX);
+
+                    if (c instanceof ContactProtocolButton)
+                    {
+                        draggedElement = new ContactListDraggable(mContact,
+                            ((ContactProtocolButton) c).getProtocolContact()
+                                , component);
+                    }
+                }
+            }
+            if (draggedElement != null)
+            {
+                Component src = draggedElement.getComponent();
+                Component c = src;
+
+                Image image;
+                if (c instanceof ContactProtocolButton)
+                {
+                    // TODO : how to get the icon in front of a metacontact
+                    // in the contact list ?
+                    image = new BufferedImage(
+                        ((ContactProtocolButton) c).getWidth(),
+                        ((ContactProtocolButton) c).getHeight(),
+                        BufferedImage.TYPE_INT_ARGB);
+                }
+                else
+                {
+                    image = new BufferedImage(c.getWidth(), c.getHeight(),
+                            BufferedImage.TYPE_INT_ARGB);
+                }
+                Graphics g = image.getGraphics();
+                c.paint(g);
+                draggedElement.setImage(image);
+
+                Point p = (Point) e.getPoint().clone();
+                SwingUtilities.convertPointToScreen(p, c);
+                SwingUtilities.convertPointFromScreen(p, this);
+                draggedElement.setLocation(p);
+            }
+        }
+    }
+    
     public void mouseReleased(MouseEvent e)
     {
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        int selectedIndex = this.locationToIndex(e.getPoint());
+
+        ContactListModel listModel = (ContactListModel) this.getModel();
+
+        Object dest = listModel.getElementAt(selectedIndex);
+        if (draggedElement != null)
+        {
+            if (dest instanceof MetaContact)
+            {
+                MetaContact contactDest = (MetaContact) dest;
+                if (draggedElement.getMetaContact() != contactDest)
+                {
+                    if (draggedElement.getContact() != null)
+                    {
+                        // we move the specified contact
+                        mainFrame.getContactList().moveContact(
+                            draggedElement.getContact(), contactDest);
+                    }
+                    else
+                    {
+                        // we move all contacts from this meta contact
+                        Iterator i = draggedElement.
+                            getMetaContact().getContacts();
+
+                        while(i.hasNext())
+                        {
+                            Contact contact = (Contact) i.next();
+                            mainFrame.getContactList().
+                                moveContact(contact, contactDest);
+                        }
+ 
+                    }
+                }
+            }
+            else if (dest instanceof MetaContactGroup)
+            {
+                MetaContactGroup contactDest = (MetaContactGroup) dest;
+                if (draggedElement.getContact() != null)
+                {
+                    int i = draggedElement.getMetaContact().getContactCount();
+                    if (i > 1)
+                    {
+                        mainFrame.getContactList().moveContact(
+                            draggedElement.getContact(), contactDest);
+                    }
+                    else if (!contactDest.contains(
+                        draggedElement.getMetaContact()))
+                    {
+                        mainFrame.getContactList().moveContact(
+                            draggedElement.getContact(), contactDest);                        
+                    }
+                }
+                else if (!contactDest.contains(draggedElement.getMetaContact()))
+                {
+                    mainFrame.getContactList().moveMetaContact(
+                        draggedElement.getMetaContact(), contactDest);
+                }
+            }
+        }
+        draggedElement = null;
     }
 
     public void mouseDragged(MouseEvent e)
     {
+        if (draggedElement != null)
+        {
+            try 
+            {
+                setCursor(Cursor.getSystemCustomCursor("MoveDrop.32x32"));
+            }
+            catch (Exception ex)
+            {
+                logger.debug("Cursor \"MoveDrop.32x32\" isn't available ");
+                setCursor(Cursor.getDefaultCursor());
+            }
+
+            Point p = (Point) e.getPoint().clone();
+
+            draggedElement.setLocation(p);
+
+//            TODO: give a more attractive visual feedback for the DnD operation,
+//            by drawing the image provided by draggedElement.getImage() at
+//            coordinates draggedElement.getPoint()
+//            Graphics2D g2 = (Graphics2D) getGraphics();
+//            Image img = draggedElement.getImage();
+//            g2.drawImage(img
+//                , (int)
+//                (draggedElement.getPoint().getX() - img.getWidth(this) / 2)
+//                , (int)
+//                (draggedElement.getPoint().getY() - img.getHeight(this) / 2)
+//                , null);
+        }
     }
 
     public void mouseMoved(MouseEvent e)
@@ -724,8 +884,7 @@ public class ContactList
      * position.
      */
     private class RunInfoWindow
-        implements
-        Runnable
+        implements Runnable
     {
 
         private MetaContact contactItem;
@@ -1188,5 +1347,5 @@ public class ContactList
     public void removeHistoryWindowForContact(MetaContact contact)
     {
         contactHistory.remove(contact);
-    }   
+    }
 }
