@@ -23,7 +23,9 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.impl.media.codec.*;
 import javax.media.control.*;
+
 
 /**
  * Contains parameters associated with a particular Call such as media (audio
@@ -140,7 +142,20 @@ public class CallSessionImpl
      * session.
      */
     private List videoFrames = new ArrayList();
-
+    
+    /**
+     * List of RTP format strings which are supported by SIP Communicator in addition
+     * to the JMF standard formats.
+     * 
+     * @see #registerCustomCodecFormats(RTPManager)
+     * @see MediaControl#registerCustomCodecs()
+     */
+     private static final String[] CUSTOM_CODEC_FORMATS = new String[]
+     {
+         Constants.ILBC_RTP,
+         Constants.ALAW_RTP,
+         Constants.SPEEX_RTP
+     };
 
     /**
      * Creates a new session for the specified <tt>call</tt>.
@@ -1329,6 +1344,24 @@ public class CallSessionImpl
         rtpManager.addReceiveStreamListener(this);
         rtpManager.addSendStreamListener(this);
         rtpManager.addSessionListener(this);
+    }
+    
+    /**
+     * Registers the RTP formats which are supported by SIP Communicator in addition
+     * to the JMF standard formats. This has to be done for every RTP Manager instance.
+     *  
+     * @param rtpManager The manager with which to register the formats.
+     * @see MediaControl#registerCustomCodecs()
+     */
+    static void registerCustomCodecFormats(RTPManager rtpManager)
+    {
+        for (int i=0; i<CUSTOM_CODEC_FORMATS.length; i++) 
+        {
+            String format = CUSTOM_CODEC_FORMATS[i];
+            logger.debug("registering format " + format + " with RTP manager");
+            rtpManager.addFormat(
+                new AudioFormat(format), MediaUtils.jmfToSdpEncoding(format));
+        }
     }
 
     /**

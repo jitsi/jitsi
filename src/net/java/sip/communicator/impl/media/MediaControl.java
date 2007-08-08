@@ -18,6 +18,7 @@ import java.util.*;
 import net.java.sip.communicator.service.configuration.*;
 import javax.media.control.*;
 import javax.media.format.*;
+import javax.media.rtp.*;
 import java.awt.Dimension;
 
 
@@ -71,6 +72,8 @@ public class MediaControl
      */
     private String[] supportedAudioEncodings = new String[]
         {
+            // ILBC
+            Integer.toString(97), 
             // javax.media.format.AudioFormat.G723_RTP
             Integer.toString(SdpConstants.G723),
             // javax.media.format.AudioFormat.GSM_RTP;
@@ -509,33 +512,41 @@ public class MediaControl
             {
                 Format format = formats[j];
                 String encoding = format.getEncoding();
-                if (format instanceof AudioFormat)
+                
+                int sdpInt = MediaUtils.jmfToSdpEncoding(encoding);
+                if (sdpInt != MediaUtils.UNKNOWN_ENCODING)
                 {
-                    String sdp = MediaUtils.jmfToSdpEncoding(encoding);
-                    if (sdp != null
-                        && !transmittableAudioEncodings.contains(sdp))
+                    String sdp = String.valueOf(sdpInt);
+
+                    if (format instanceof AudioFormat)
                     {
-                        if (logger.isDebugEnabled())
+
+                        if (transmittableAudioEncodings.contains(sdp))
                         {
-                            logger.debug("Audio=[" + (j + 1) + "]=" +
-                                          encoding + "; sdp=" + sdp);
+                            if (logger.isDebugEnabled())
+                            {
+                                logger.debug("Audio=[" + (j + 1) + "]=" +
+                                              encoding + "; sdp=" + sdp);
+                            }
+                            transmittableAudioEncodings.add(sdp);
                         }
-                        transmittableAudioEncodings.add(sdp);
+                    }
+                    if (format instanceof VideoFormat)
+                    {
+                        if (!transmittableVideoEncodings.contains(sdp))
+                        {
+                            if (logger.isDebugEnabled())
+                            {
+                                logger.debug("Video=[" + (j + 1) + "]=" +
+                                              encoding + "; sdp=" + sdp);
+                            }
+                            transmittableVideoEncodings.add(sdp);
+                        }
                     }
                 }
-                if (format instanceof VideoFormat)
+                else
                 {
-                    String sdp = MediaUtils.jmfToSdpEncoding(encoding);
-                    if (sdp != null
-                        && !transmittableVideoEncodings.contains(sdp))
-                    {
-                        if (logger.isDebugEnabled())
-                        {
-                            logger.debug("Video=[" + (j + 1) + "]=" +
-                                          encoding + "; sdp=" + sdp);
-                        }
-                        transmittableVideoEncodings.add(sdp);
-                    }
+                    logger.debug("unknown encoding format " + encoding);
                 }
             }
         }
@@ -589,8 +600,6 @@ public class MediaControl
     /**
      * Closes all curently used capture devices and data sources so that they
      * would be usable by other applications.
-     * @throws a MediaException if closing the devices results in an
-     * IOException.
      *
      * @throws MediaException if closing the devices fails with an IO
      * Exception.
@@ -1015,28 +1024,42 @@ public class MediaControl
      */
     private void registerCustomCodecs()
     {
+        // use a set to check if the codecs are already registered in the jmf.properties
+        Set registeredPlugins = new HashSet();
+        for (Iterator plugins=PlugInManager.getPlugInList(null, null, PlugInManager.CODEC).iterator();
+                plugins.hasNext(); )
+        {
+            registeredPlugins.add(plugins.next());
+        }
+        
         for (int i = 0; i < customCodecs.length; i++)
         {
             String className = customCodecs[i];
-            try
+            
+            if (registeredPlugins.contains(className))
+                logger.debug("Codec : " + className + " is already registered");
+            else
             {
+                try
+                {
 
-                Class pic = Class.forName(className);
-                Object instance = pic.newInstance();
+                    Class pic = Class.forName(className);
+                    Object instance = pic.newInstance();
 
-                boolean result =
-                    PlugInManager.addPlugIn(
-                        className,
-                        ( (Codec) instance).getSupportedInputFormats(),
-                        ( (Codec) instance).getSupportedOutputFormats(null),
-                        PlugInManager.CODEC);
-                logger.debug("Codec : " + className +
-                             " is succsefully registered : " + result);
-            }
-            catch (Exception ex)
-            {
-                logger.debug("Codec : " + className +
-                             " is NOT succsefully registered");
+                    boolean result =
+                        PlugInManager.addPlugIn(
+                            className,
+                            ( (Codec) instance).getSupportedInputFormats(),
+                            ( (Codec) instance).getSupportedOutputFormats(null),
+                            PlugInManager.CODEC);
+                    logger.debug("Codec : " + className +
+                                 " is succsefully registered : " + result);
+                }
+                catch (Exception ex)
+                {
+                    logger.debug("Codec : " + className +
+                                 " is NOT succsefully registered");
+                }
             }
         }
 
@@ -1048,6 +1071,18 @@ public class MediaControl
         {
             logger.error("Cannot commit to PlugInManager", ex);
         }
+        
+         /**
+          * Register the custom codec formats with the RTP manager once at initialization.
+          * This is needed for the Sun JMF implementation. It causes the registration of the
+          * formats with the static FormatInfo instance of com.sun.media.rtp.RTPSessionMgr,
+          * which in turn makes the formats available when the supported encodings arrays
+          * are generated in initProcessor().
+          * In other JMF implementations this might not be needed, but should do no harm.
+          */
+        RTPManager rtpManager = RTPManager.newInstance();
+        CallSessionImpl.registerCustomCodecFormats(rtpManager);
+        rtpManager.dispose();
     }
 
 
@@ -1061,13 +1096,17 @@ public class MediaControl
         for (int i = 0; i < customPackages.length; i++)
         {
             String className = customPackages[i];
-        currentPackagePrefix.addElement(className);
-        logger.debug("Adding package  : " + className);
+            
+            if (!currentPackagePrefix.contains(className)) // linear search in a loop, but it doesn't have to scale since the list is always short
+            {
+                currentPackagePrefix.addElement(className);
+                logger.debug("Adding package  : " + className);
+            }            
         }
 
-    PackageManager.setProtocolPrefixList(currentPackagePrefix);
-    PackageManager.commitProtocolPrefixList();
-    logger.debug("Registering new protocol prefix list : " + currentPackagePrefix);
+        PackageManager.setProtocolPrefixList(currentPackagePrefix);
+        PackageManager.commitProtocolPrefixList();
+        logger.debug("Registering new protocol prefix list : " + currentPackagePrefix);
     }
 
 }

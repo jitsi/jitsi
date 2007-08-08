@@ -19,6 +19,12 @@ import net.java.sip.communicator.impl.media.codec.*;
 public class MediaUtils
 {
     /**
+     * Returned by {@link #sdpToJmfEncoding(String)} if it does not
+     * know the given encoding.
+     */
+    public static final int UNKNOWN_ENCODING = -1;
+    
+    /**
      * Returns the String encoding, as specified in AudioFormat and VideoFormat,
      * corresponding to the format specified in sdpFormatStr
      * @param sdpEncodingStr the SDP index that we'd like to convert to a JMF
@@ -27,7 +33,7 @@ public class MediaUtils
      */
     public static String sdpToJmfEncoding(String sdpEncodingStr)
     {
-        int sdpEncoding = -1;
+        int sdpEncoding = UNKNOWN_ENCODING;
         try
         {
             sdpEncoding = Integer.parseInt(sdpEncodingStr);
@@ -72,88 +78,90 @@ public class MediaUtils
     }
 
     /**
-     * Returns a String containing the SDP encoding number corresponding to
+     * Returns the SDP encoding number corresponding to
      * <tt>jmfFormat</tt>.
      *
      * @param jmfEncoding one of the AudioFormat.XXX or VideoFormat.XXX format
      * strings.
      *
-     * @return a string containing the SDP index corresponding to
-     * <tt>jmfEncoding</tt>.
+     * @return the SDP index corresponding to
+     * <tt>jmfEncoding</tt>. 
+     * Returns {@link #UNKNOWN_ENCODING} if the encoding is not supported or
+     * <code>jmfEncoding</code> is <code>null</code>.
      */
-    public static String jmfToSdpEncoding(String jmfEncoding)
+    public static int jmfToSdpEncoding(String jmfEncoding)
     {
         if (jmfEncoding == null)
         {
-            return null;
+            return UNKNOWN_ENCODING;
         }
         else if (jmfEncoding.equals(AudioFormat.ULAW_RTP))
         {
-            return Integer.toString(SdpConstants.PCMU);
+            return SdpConstants.PCMU;
         }
         else if (jmfEncoding.equals(Constants.ALAW_RTP))
         {
-            return Integer.toString(SdpConstants.PCMA);
+            return SdpConstants.PCMA;
         }
         else if (jmfEncoding.equals(AudioFormat.GSM_RTP))
         {
-            return Integer.toString(SdpConstants.GSM);
+            return SdpConstants.GSM;
         }
         else if (jmfEncoding.equals(AudioFormat.G723_RTP))
         {
-            return Integer.toString(SdpConstants.G723);
+            return SdpConstants.G723;
         }
         else if (jmfEncoding.equals(AudioFormat.DVI_RTP))
         {
-            return Integer.toString(SdpConstants.DVI4_8000);
+            return SdpConstants.DVI4_8000;
         }
         else if (jmfEncoding.equals(AudioFormat.DVI_RTP))
         {
-            return Integer.toString(SdpConstants.DVI4_16000);
+            return SdpConstants.DVI4_16000;
         }
         else if (jmfEncoding.equals(AudioFormat.ALAW))
         {
-            return Integer.toString(SdpConstants.PCMA);
+            return SdpConstants.PCMA;
         }
         else if (jmfEncoding.equals(AudioFormat.G728_RTP))
         {
-            return Integer.toString(SdpConstants.G728);
+            return SdpConstants.G728;
         }
         else if (jmfEncoding.equals(AudioFormat.G729_RTP))
         {
-            return Integer.toString(SdpConstants.G729);
+            return SdpConstants.G729;
         }
         else if (jmfEncoding.equals(VideoFormat.H263_RTP))
         {
-            return Integer.toString(SdpConstants.H263);
+            return SdpConstants.H263;
         }
         else if (jmfEncoding.equals(VideoFormat.JPEG_RTP))
         {
-            return Integer.toString(SdpConstants.JPEG);
+            return SdpConstants.JPEG;
         }
         else if (jmfEncoding.equals(VideoFormat.H261_RTP))
         {
-            return Integer.toString(SdpConstants.H261);
+            return SdpConstants.H261;
         }
         else if (jmfEncoding.equals(Constants.ILBC))
         {
-            return Integer.toString(97);
+            return 97;
         }
         else if (jmfEncoding.equals(Constants.ILBC_RTP))
         {
-            return Integer.toString(97);
+            return 97;
         }
         else if (jmfEncoding.equals(Constants.SPEEX))
         {
-            return Integer.toString(110);
+            return 110;
         }
         else if (jmfEncoding.equals(Constants.SPEEX_RTP))
         {
-            return Integer.toString(110);
+            return 110;
         }
         else
         {
-            return null;
+            return UNKNOWN_ENCODING;
         }
     }
 
