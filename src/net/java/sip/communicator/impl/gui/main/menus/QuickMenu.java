@@ -44,7 +44,8 @@ public class QuickMenu
     implements  ActionListener,
                 PluginComponentListener,
                 ComponentListener,
-                ListSelectionListener {
+                ListSelectionListener
+{
 
     private Logger logger = Logger.getLogger(QuickMenu.class.getName());
     
@@ -73,7 +74,8 @@ public class QuickMenu
      * Create an instance of the <tt>QuickMenu</tt>.
      * @param mainFrame The parent <tt>MainFrame</tt> window.
      */
-    public QuickMenu(MainFrame mainFrame) {
+    public QuickMenu(MainFrame mainFrame)
+    {
         this.mainFrame = mainFrame;
 
         this.setRollover(true);
@@ -108,7 +110,8 @@ public class QuickMenu
     /**
      * Initialize the <tt>QuickMenu</tt> by adding the buttons.
      */
-    private void init() {
+    private void init()
+    {
         
         this.add(addButton);
         this.add(configureButton);
@@ -204,19 +207,23 @@ public class QuickMenu
             
             Object selectedObject = null;
             int currentlySelectedIndex = contactList.getSelectedIndex();
-            if(currentlySelectedIndex != -1) {
+            if(currentlySelectedIndex != -1)
+            {
                 selectedObject
                     = listModel.getElementAt(currentlySelectedIndex);
             }
             
             contactList.setShowOffline(!ConfigurationManager.isShowOffline());
             
-            if (selectedObject != null) {
-                if (selectedObject instanceof MetaContact) {
+            if (selectedObject != null)
+            {
+                if (selectedObject instanceof MetaContact)
+                {
                     contactList.setSelectedIndex(
                         listModel.indexOf((MetaContact) selectedObject));
                 }
-                else {
+                else
+                {
                     contactList.setSelectedIndex(
                         listModel.indexOf(
                                 (MetaContactGroup) selectedObject));
@@ -229,12 +236,14 @@ public class QuickMenu
                 (MetaContact) mainFrame.getContactListPanel()
                     .getContactList().getSelectedValue();
 
-            if(selectedMetaContact != null) {
+            if(selectedMetaContact != null)
+            {
                 OperationSetWebContactInfo wContactInfo = null;
                 
                 Iterator protocolContacts = selectedMetaContact.getContacts();
                 
-                while(protocolContacts.hasNext()) {
+                while(protocolContacts.hasNext())
+                {
                     Contact protoContact = (Contact) protocolContacts.next();
                     
                     wContactInfo = mainFrame.getWebContactInfoOpSet(
@@ -244,7 +253,8 @@ public class QuickMenu
                         break;
                 }
                 
-                if(wContactInfo != null) {
+                if(wContactInfo != null)
+                {
                     Contact defaultContact = selectedMetaContact
                         .getDefaultContact();
 
@@ -252,7 +262,8 @@ public class QuickMenu
                             wContactInfo.getWebContactInfo(defaultContact)
                                 .toString());
                 }
-                else {
+                else
+                {
                     new ErrorDialog(mainFrame,
                         Messages.getI18NString("selectContactSupportingInfo")
                             .getText(),
