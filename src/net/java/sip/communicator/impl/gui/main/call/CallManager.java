@@ -462,6 +462,21 @@ public class CallManager
         return null;
     }
 
+    /**
+     * Returns the account selector box.
+     * 
+     * @return the account selector box.
+     */
+    public AccountSelectorBox getAccountSelectorBox()
+    {
+        return accountSelectorBox;
+    }
+
+    /**
+     * Sets the protocol provider to use for a call.
+     * 
+     * @param provider the protocol provider to use for a call.
+     */
     public void setCallProvider(ProtocolProviderService provider)
     {
         this.selectedCallProvider = provider;
@@ -592,7 +607,38 @@ public class CallManager
             && (o instanceof MetaContact))
         {
             setCallMetaContact(true);
-            callButton.setEnabled(true);
+            
+            // Switch automatically to the appropriate pps in account selector
+            // box and enable callButton if telephony is supported by one of
+            // accounts owning contact(s) enclosed in this metacontact.
+            MetaContact mContact = (MetaContact) o;
+            Iterator contacts = mContact.getContacts();
+            boolean telephonySupported = false;
+            
+            while (contacts.hasNext())
+            {
+                Contact contact = (Contact) contacts.next();
+                ProtocolProviderService pps = contact.getProtocolProvider();
+                
+                if (pps.getOperationSet(OperationSetBasicTelephony.class)
+                        != null)
+                {
+                    mainFrame.getCallManager().getAccountSelectorBox().
+                        setSelected(pps);
+                    
+                    telephonySupported = true;
+                    break;
+                }
+            }
+            
+            if (telephonySupported)
+            {
+                callButton.setEnabled(true);
+            }
+            else
+            {
+                callButton.setEnabled(false);
+            }
         }
         else if (phoneNumberCombo.isComboFieldEmpty())
         {
