@@ -1000,12 +1000,11 @@ public class OperationSetPersistentPresenceIcqImpl
                     {
                         this.status = userInfo.getIcqStatus();
 
-                        //it is possible that the status was not included in
-                        //the UserInfoCmd. Yet the fact that we got one
-                        //guarantees that she is not offline. we'll therefore
-                        //make sure it does not remain on -1.
-                        if (this.status == -1)
-                            status = ICQ_ONLINE_MASK;
+                        // StatusResponseRetriever is used when query for 
+                        // user status if status is not set (is -1) 
+                        // this means user is offline.
+                        //if (this.status == -1)
+                        //    status = ICQ_ONLINE_MASK;
 
                         synchronized(this){
                             this.notifyAll();
