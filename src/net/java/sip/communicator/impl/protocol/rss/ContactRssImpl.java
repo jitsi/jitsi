@@ -294,6 +294,11 @@ public class ContactRssImpl
             logger.error("I/O Error on favicon retrieval. " + ioex,
                          ioex);
         }
+        catch(Exception ex)
+        {
+            logger.error("Unknown error on favicon retrieval. " + ex, ex);
+        }
+
         return getDefaultRssIcon();
     }
 
