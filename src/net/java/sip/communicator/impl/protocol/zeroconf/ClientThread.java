@@ -82,13 +82,14 @@ public class ClientThread
         this.remoteIPAddress = sock.getInetAddress();
         this.bonjourService = bonjourService;
         this.opSetBasicIM = (OperationSetBasicInstantMessagingZeroconfImpl)
-
-        bonjourService.getPPS().getSupportedOperationSets()
-            .get(OperationSetBasicInstantMessaging.class.getName());
+            bonjourService.getPPS().getSupportedOperationSets()
+                .get(OperationSetBasicInstantMessaging.class.getName());
 
         this.opSetTyping = (OperationSetTypingNotificationsZeroconfImpl)
             bonjourService.getPPS().getSupportedOperationSets()
                 .get(OperationSetTypingNotifications.class.getName());
+        this.setDaemon(true);
+        
         try
         {
             out = sock.getOutputStream();

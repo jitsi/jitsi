@@ -335,13 +335,7 @@ public class MessageHistoryServiceImpl
             }
         }
 
-        LinkedList resultAsList = new LinkedList(result);
-        int startIndex = resultAsList.size() - count;
-
-        if(startIndex < 0)
-            startIndex = 0;
-
-        return resultAsList.subList(startIndex, resultAsList.size());
+        return new LinkedList(result).subList(0, count);
     }
 
     /**
@@ -1576,13 +1570,7 @@ public class MessageHistoryServiceImpl
             logger.error("Could not read history", e);
         }
 
-        LinkedList resultAsList = new LinkedList(result);
-        int startIndex = resultAsList.size() - count;
-
-        if(startIndex < 0)
-            startIndex = 0;
-
-        return resultAsList.subList(startIndex, resultAsList.size());
+        return new LinkedList(result).subList(0, count);
     }
 
     /**

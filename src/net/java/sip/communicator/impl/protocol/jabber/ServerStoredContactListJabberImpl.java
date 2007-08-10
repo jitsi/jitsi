@@ -971,6 +971,11 @@ public class ServerStoredContactListJabberImpl
          * list with the accounts with missing image
          */
         private Vector contactsForUpdate = new Vector();
+        
+        ImageRetriever()
+        {
+            setDaemon(true);
+        }
 
         public void run()
         {

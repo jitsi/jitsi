@@ -33,7 +33,8 @@ public class TestMsgHistoryService
 {
     private static final Logger logger = Logger.getLogger(TestMsgHistoryService.class);
 
-    static final String TEST_CONTACT_NAME = "Mincho_Penchev";
+    static final String TEST_CONTACT_NAME_1 = "Mincho_Penchev_the_fisrt";
+    static final String TEST_CONTACT_NAME_2 = "Mincho_Penchev_the_second";
     
     static final String TEST_ROOM_NAME = "test_room";
 
@@ -138,7 +139,7 @@ public class TestMsgHistoryService
         MockContactGroup root =
             (MockContactGroup)mockPresOpSet.getServerStoredContactListRoot();
 
-        testContact = new MockContact(TEST_CONTACT_NAME, mockProvider);
+        testContact = new MockContact(TEST_CONTACT_NAME_1, mockProvider);
         root.addContact(testContact);
 
         metaCLref = MsgHistoryServiceLick.bc.getServiceReference(
@@ -163,7 +164,12 @@ public class TestMsgHistoryService
        logger.debug("Registered a mock protocol provider! ");
 
        testMetaContact = metaClService.getRoot().
-            getMetaContact(mockProvider, TEST_CONTACT_NAME);
+            getMetaContact(mockProvider, TEST_CONTACT_NAME_1);
+       
+       // add one more contact as specific problems may happen only when 
+       // more than one contact is in the metacontact
+        metaClService.addNewContactToMetaContact(
+            mockProvider, testMetaContact, TEST_CONTACT_NAME_2);
 
         messagesToSend = new Message[]
             {
@@ -186,7 +192,8 @@ public class TestMsgHistoryService
         assertNotNull("No metacontact", testMetaContact);
 
         // First deliver message, so they are stored by the message history service
-        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME, messagesToSend[0]);
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[0]);
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[0]);
 
         this.controlDate1 = new Date();
 
@@ -203,9 +210,9 @@ public class TestMsgHistoryService
             }
         }
 
-        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME, messagesToSend[1]);
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[1]);
 
-        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME, messagesToSend[2]);
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[2]);
 
         this.controlDate2 = new Date();
         synchronized (lock)
@@ -220,9 +227,9 @@ public class TestMsgHistoryService
             }
         }
 
-        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME, messagesToSend[3]);
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[3]);
 
-        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME, messagesToSend[4]);
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[4]);
 
     }
 

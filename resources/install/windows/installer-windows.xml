@@ -76,8 +76,10 @@
                         <exclude name="jmf.jar"/>
                         <exclude name="sound.jar"/>
                     </fileset>
-                    <file targetdir="$INSTALL_PATH/lib/bundle" src="lib/bundle/org.apache.felix.servicebinder-0.8.0-SNAPSHOT.jar" override="true"/>
-                    <file targetdir="$INSTALL_PATH/lib/bundle" src="lib/bundle/log4j.jar" override="true"/>
+                    <fileset targetdir="$INSTALL_PATH/lib/bundle" dir="lib/bundle" override="true">
+                        <include name="*.jar"/>
+                        <exclude name="junit.jar"/>
+                    </fileset>
                     <file targetdir="$INSTALL_PATH/lib" src="lib/felix.client.run.properties" override="true"/>
                     <file targetdir="$INSTALL_PATH/lib" src="resources/install/logging.properties" override="true"/>
 		</pack>
