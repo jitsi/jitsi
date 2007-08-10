@@ -439,11 +439,11 @@ public class CallManager
     }
 
     /**
-     * For the given MetaContact returns the protocol contact that supports a
-     * basic telephony operation.
+     * For the given MetaContact returns the first protocol contact that supports
+     * a basic telephony operation.
      * 
      * @param metaContact the MetaContac we are trying to call
-     * @return returns the protocol contact that supports a basic telephony
+     * @return returns the first protocol contact that supports a basic telephony
      *         operation
      */
     private Contact getTelephonyContact(MetaContact metaContact)
@@ -609,31 +609,16 @@ public class CallManager
             setCallMetaContact(true);
             
             // Switch automatically to the appropriate pps in account selector
-            // box and enable callButton if telephony is supported by one of
-            // accounts owning contact(s) enclosed in this metacontact.
-            MetaContact mContact = (MetaContact) o;
-            Iterator contacts = mContact.getContacts();
-            boolean telephonySupported = false;
+            // box and enable callButton if telephony is supported.            
+            Contact contact = getTelephonyContact((MetaContact) o);
             
-            while (contacts.hasNext())
-            {
-                Contact contact = (Contact) contacts.next();
-                ProtocolProviderService pps = contact.getProtocolProvider();
-                
-                if (pps.getOperationSet(OperationSetBasicTelephony.class)
-                        != null)
-                {
-                    mainFrame.getCallManager().getAccountSelectorBox().
-                        setSelected(pps);
-                    
-                    telephonySupported = true;
-                    break;
-                }
-            }
-            
-            if (telephonySupported)
-            {
+            if (contact != null)
+            {   
                 callButton.setEnabled(true);
+                
+                if(contact.getProtocolProvider().isRegistered())
+                    getAccountSelectorBox().
+                        setSelected(contact.getProtocolProvider());
             }
             else
             {
