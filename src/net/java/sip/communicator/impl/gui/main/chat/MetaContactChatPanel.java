@@ -613,7 +613,7 @@ public class MetaContactChatPanel
 
                 Date lastMsgDate
                     = getChatConversationPanel().getPageLastMsgTimestamp();
-                System.out.println("LAST MSG DATE=============" + lastMsgDate);
+
                 Collection c = null;
                 if(lastMsgDate != null)
                 {  
