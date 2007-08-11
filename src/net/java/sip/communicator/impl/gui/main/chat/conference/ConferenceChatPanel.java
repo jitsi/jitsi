@@ -118,7 +118,7 @@ public class ConferenceChatPanel
      * <br>
      * Loads the previous "page" in the history.
      */
-    public void loadPreviousFromHistory()
+    public void loadPreviousPageFromHistory()
     {
         // TODO Auto-generated method stub
     }
@@ -128,7 +128,7 @@ public class ConferenceChatPanel
      * <br>
      * Loads the next "page" in the history.
      */
-    public void loadNextFromHistory()
+    public void loadNextPageFromHistory()
     {
         // TODO Auto-generated method stub
     }

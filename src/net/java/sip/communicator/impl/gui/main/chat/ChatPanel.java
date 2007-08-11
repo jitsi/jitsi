@@ -129,9 +129,9 @@ public abstract class ChatPanel
 
     public abstract void loadHistory(String escapedMessageID);
 
-    public abstract void loadPreviousFromHistory();
+    public abstract void loadPreviousPageFromHistory();
 
-    public abstract void loadNextFromHistory();
+    public abstract void loadNextPageFromHistory();
 
     protected abstract void sendMessage(String text);
 
@@ -171,7 +171,7 @@ public abstract class ChatPanel
     public void setStatusMessage(String statusMessage){
         this.sendPanel.setStatusMessage(statusMessage);
     }
-
+    
     public ChatConversationPanel getChatConversationPanel()
     {
         return this.conversationPanel;
@@ -348,7 +348,11 @@ public abstract class ChatPanel
                 }
             }
         }
+        
         conversationPanel.insertMessageAfterStart(historyString);
+        
+        getChatWindow().getMainToolBar()
+            .changeHistoryButtonsState(this);
     }
 
     /**
@@ -472,27 +476,7 @@ public abstract class ChatPanel
         sendButton.requestFocus();
         sendButton.doClick();
     }
-
-    /**
-     * Seys the first date from the last page in the chat.
-     *
-     * @param pageFirstMsgTimestamp the fist date from the last page of the chat
-     */
-    public void setBeginLastPageTimeStamp(Date pageFirstMsgTimestamp)
-    {
-        this.beginLastPageTimeStamp = pageFirstMsgTimestamp;
-    }
-
-    /**
-     * Returns the first date from the last chat page.
-     *
-     * @return the first date from the last chat page
-     */
-    public Date getBeginLastPageTimeStamp()
-    {
-        return beginLastPageTimeStamp;
-    }
-
+    
     /**
      * Returns TRUE if this chat panel is added to a container (window or
      * tabbed pane), which is shown on the screen, FALSE - otherwise.

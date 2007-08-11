@@ -86,10 +86,7 @@ public class MainToolBar
         this.setRollover(true);
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 0));
         this.setBorder(BorderFactory.createEmptyBorder(2, 2, 5, 2));
-        
-        this.nextButton.setEnabled(false);
-        this.previousButton.setEnabled(false);
-        
+
         this.add(saveButton);
         this.add(printButton);
 
@@ -213,15 +210,11 @@ public class MainToolBar
         }
         else if (buttonText.equalsIgnoreCase("previous"))
         {   
-            chatPanel.loadPreviousFromHistory();
-            
-            changeHistoryButtonsState(chatPanel);
+            chatPanel.loadPreviousPageFromHistory();            
         }
         else if (buttonText.equalsIgnoreCase("next"))
         {   
-            chatPanel.loadPreviousFromHistory();
-            
-            changeHistoryButtonsState(chatPanel);
+            chatPanel.loadNextPageFromHistory();
         }
         else if (buttonText.equalsIgnoreCase("sendFile")) {
 
@@ -277,7 +270,7 @@ public class MainToolBar
      * current page is the first, the last page or a middle page.
      */
     public void changeHistoryButtonsState(ChatPanel chatPanel)
-    {   
+    {
         ChatConversationPanel convPanel = chatPanel.getChatConversationPanel();
         
         Date firstMsgInHistory = chatPanel.getFirstHistoryMsgTimestamp();
@@ -285,24 +278,25 @@ public class MainToolBar
         Date firstMsgInPage = convPanel.getPageFirstMsgTimestamp();
         Date lastMsgInPage = convPanel.getPageLastMsgTimestamp();
         
-        if(firstMsgInHistory == null || lastMsgInHistory == null) {
+        if(firstMsgInHistory == null || lastMsgInHistory == null)
+        {
             previousButton.setEnabled(false);
             nextButton.setEnabled(false);
             return;
         }
         
-        if(firstMsgInHistory.compareTo(firstMsgInPage) < 0) {
+        if(firstMsgInHistory.compareTo(firstMsgInPage) < 0)
             previousButton.setEnabled(true);
-        }
-        else {
+        else
             previousButton.setEnabled(false);
-        }
         
         if(lastMsgInPage.getTime() > 0
-                && (lastMsgInHistory.compareTo(lastMsgInPage) > 0)) {
+                && (lastMsgInHistory.compareTo(lastMsgInPage) > 0))
+        {
             nextButton.setEnabled(true);
         }
-        else {
+        else
+        {
             nextButton.setEnabled(false);
         }
     }

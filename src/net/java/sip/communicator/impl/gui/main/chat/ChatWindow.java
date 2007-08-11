@@ -316,8 +316,6 @@ public class ChatWindow
             this.chatTabbedPane.setSelectedComponent(chatPanel);
         
         this.setTitle(chatPanel.getChatName());
-
-        this.getMainToolBar().changeHistoryButtonsState(chatPanel);
         
         chatPanel.requestFocusInWriteArea();
     }

@@ -148,7 +148,7 @@ public class Constants {
      * The size of the buffer that indicates how many messages will be stored
      * in the conversation area in the chat window.
      */
-    public static final int CHAT_BUFFER_SIZE = 50;
+    public static final int CHAT_BUFFER_SIZE = 3000;
 
     /**
      * The maximum width of the <tt>ConfigurationFrame</tt>.

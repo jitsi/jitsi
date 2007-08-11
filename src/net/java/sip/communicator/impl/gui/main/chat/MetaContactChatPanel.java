@@ -76,15 +76,6 @@ public class MetaContactChatPanel
         
         //Add the contact to the list of contacts contained in this panel        
         getChatContactListPanel().addContact(chatContact);
-        
-        //Load the history period, to initialize the firstMessageTimestamp and
-        //the lastMessageTimeStamp variables. Used to disable/enable history
-        //flash buttons in the chat window tool bar.
-        new Thread(){
-            public void run(){
-                loadHistoryPeriod();
-            }
-        }.start();
                 
         //For each subcontact in the given MetaContact adds a
         //ContactPresenceStatusListener in order to have always the contact
@@ -142,26 +133,37 @@ public class MetaContactChatPanel
     public void loadHistory()
     {
         new Thread() {
-            public void run() {
+            public void run()
+            {
+                // Load the history period, which initializes the
+                // firstMessageTimestamp and the lastMessageTimeStamp variables.
+                // Used to disable/enable history flash buttons in the chat
+                // window tool bar.
+                loadHistoryPeriod();
+                
+                // Load the last N=CHAT_HISTORY_SIZE messages from history.
                 Collection historyList = msgHistory.findLast(
                         metaContact, Constants.CHAT_HISTORY_SIZE);
 
                 if(historyList.size() > 0) {
-                    class ProcessHistory implements Runnable {
+                    class ProcessHistory implements Runnable
+                    {
                         Collection historyList;
+                        
                         ProcessHistory(Collection historyList)
                         {
                             this.historyList = historyList;
                         }
+                        
                         public void run()
                         {
-                            processHistory(historyList, null);
+                            processHistory(historyList, null);                            
                         }
                     }
                     SwingUtilities.invokeLater(new ProcessHistory(historyList));
                 }
             }
-        }.start();
+        }.start();        
     }
 
     /**
@@ -189,46 +191,51 @@ public class MetaContactChatPanel
 
         Collection firstMessage = msgHistory
             .findFirstMessagesAfter(metaContact, new Date(0), 1);
-
-        if(firstMessage.size() > 0) {
-
+        
+        if(firstMessage.size() > 0)
+        {
             Iterator i = firstMessage.iterator();
 
             Object o = i.next();
 
-            if(o instanceof MessageDeliveredEvent) {
+            if(o instanceof MessageDeliveredEvent)
+            {
                 MessageDeliveredEvent evt
                     = (MessageDeliveredEvent)o;
-
+                
                 this.firstHistoryMsgTimestamp = evt.getTimestamp();
             }
-            else if(o instanceof MessageReceivedEvent) {
+            else if(o instanceof MessageReceivedEvent)
+            {
                 MessageReceivedEvent evt = (MessageReceivedEvent)o;
-
+                
                 this.firstHistoryMsgTimestamp = evt.getTimestamp();
-            }
-
-            Collection lastMessage = msgHistory
-                .findLastMessagesBefore(metaContact, new Date(Long.MAX_VALUE), 1);
-
+            }            
+        }
+        
+        Collection lastMessage = msgHistory
+            .findLastMessagesBefore(metaContact, new Date(Long.MAX_VALUE), 1);
+    
+        if(lastMessage.size() > 0)
+        {
             Iterator i1 = lastMessage.iterator();
-
+            
             Object o1 = i1.next();
-
-            if(o1 instanceof MessageDeliveredEvent) {
+        
+            if(o1 instanceof MessageDeliveredEvent)
+            {
                 MessageDeliveredEvent evt
                     = (MessageDeliveredEvent)o1;
-
+        
                 this.lastHistoryMsgTimestamp = evt.getTimestamp();
             }
-            else if(o1 instanceof MessageReceivedEvent) {
+            else if(o1 instanceof MessageReceivedEvent)
+            {
                 MessageReceivedEvent evt = (MessageReceivedEvent)o1;
-
+        
                 this.lastHistoryMsgTimestamp = evt.getTimestamp();
             }
         }
-
-        getChatWindow().getMainToolBar().changeHistoryButtonsState(this);
     }
 
     /**
@@ -284,6 +291,7 @@ public class MetaContactChatPanel
         ContactPresenceStatusChangeEvent evt)
     {   
         Contact sourceContact = evt.getSourceContact();
+        PresenceStatus newStatus = evt.getNewStatus();
         
         MetaContact sourceMetaContact = GuiActivator.getMetaContactListService()
             .findMetaContactByContact(sourceContact);
@@ -295,10 +303,8 @@ public class MetaContactChatPanel
             contactSelectorBox.updateContactStatus(sourceContact);
             
             // Update the status of the source meta contact in the contact details
-            // panel on the right.
-            
-            if(sourceMetaContact != null
-                    && sourceMetaContact.getDefaultContact().equals(sourceContact))
+            // panel on the right.            
+            if(sourceMetaContact.getDefaultContact().equals(sourceContact))
             {
                 ChatContact chatContact
                     = findChatContactByMetaContact(sourceMetaContact);
@@ -310,17 +316,15 @@ public class MetaContactChatPanel
                 chatContactPanel.setStatusIcon(
                     chatContact.getPresenceStatus());
             }
-            
-            PresenceStatus status = contactSelectorBox
-                .getSelectedProtocolContact().getPresenceStatus();
-
+                        
             // Show a status message to the user.
             String message = getChatConversationPanel().processMessage(
                 sourceContact.getAddress(),
                 new Date(System.currentTimeMillis()),
                 Constants.STATUS_MESSAGE,
                 Messages.getI18NString("statusChangedChatMessage",
-                        new String[]{status.getStatusName()}).getText(), "text");
+                    new String[]{newStatus.getStatusName()}).getText(),
+                    "text");
 
             getChatConversationPanel().appendMessageToEnd(message);
             
@@ -328,7 +332,7 @@ public class MetaContactChatPanel
             {                
                 if (getChatWindow().getChatTabCount() > 0) {
                     getChatWindow().setTabIcon(this,
-                        new ImageIcon(Constants.getStatusIcon(status)));
+                        new ImageIcon(Constants.getStatusIcon(newStatus)));
                 }
             }
         }        
@@ -563,7 +567,7 @@ public class MetaContactChatPanel
      * Implements <tt>ChatPanel.loadPreviousFromHistory</tt>.
      * Loads previous page from history.
      */
-    public void loadPreviousFromHistory()
+    public void loadPreviousPageFromHistory()
     {
         new Thread() {
             public void run()
@@ -574,44 +578,23 @@ public class MetaContactChatPanel
                 ChatConversationPanel conversationPanel
                     = getChatConversationPanel();
                 
-                Collection c = msgHistory.findLastMessagesBefore(
-                        metaContact,
-                        conversationPanel.getPageFirstMsgTimestamp(),
-                        MESSAGES_PER_PAGE);
+                Date firstMsgDate
+                    = conversationPanel.getPageFirstMsgTimestamp();
                 
-                if(c.size() > 0)
+                Collection c = null;
+                
+                if(firstMsgDate != null)
+                {
+                    c = msgHistory.findLastMessagesBefore(
+                        metaContact,
+                        firstMsgDate,
+                        MESSAGES_PER_PAGE);
+                }
+                 
+                if(c !=null && c.size() > 0)
                 {   
                     SwingUtilities.invokeLater(
                             new HistoryMessagesLoader(c));
-                                            
-                    //Save the last before the last page
-                    Iterator i = c.iterator();
-                    Object lastMessageObject = null;
-                    Date lastMessageTimeStamp = null;
-                    
-                    while(i.hasNext()) {
-                        Object o = i.next();
-                        
-                        if(!i.hasNext()) {
-                            lastMessageObject = o;
-                        }
-                    }                        
-                    
-                    if(lastMessageObject instanceof MessageDeliveredEvent) {                            
-                        MessageDeliveredEvent evt
-                            = (MessageDeliveredEvent)lastMessageObject;
-                        
-                        lastMessageTimeStamp = evt.getTimestamp();
-                    }
-                    else if(lastMessageObject instanceof MessageReceivedEvent) {
-                        MessageReceivedEvent evt
-                            = (MessageReceivedEvent) lastMessageObject;
-                        
-                        lastMessageTimeStamp = evt.getTimestamp();
-                    }
-                    
-                    if(getBeginLastPageTimeStamp() == null)
-                        setBeginLastPageTimeStamp(lastMessageTimeStamp);                        
                 }
             }   
         }.start();
@@ -621,31 +604,26 @@ public class MetaContactChatPanel
      * Implements <tt>ChatPanel.loadNextFromHistory</tt>.
      * Loads next page from history.
      */
-    public void loadNextFromHistory()
+    public void loadNextPageFromHistory()
     {
         new Thread() {
             public void run(){
                 MessageHistoryService msgHistory
                     = GuiActivator.getMsgHistoryService();
-                                    
-                Collection c;
-                if(getBeginLastPageTimeStamp().compareTo(
-                    getChatConversationPanel().getPageLastMsgTimestamp()) == 0)
-                {   
-                    c = msgHistory.findByPeriod(
-                            metaContact,
-                            getBeginLastPageTimeStamp(),
-                            new Date(System.currentTimeMillis()));
-                }
-                else
-                {
+
+                Date lastMsgDate
+                    = getChatConversationPanel().getPageLastMsgTimestamp();
+                System.out.println("LAST MSG DATE=============" + lastMsgDate);
+                Collection c = null;
+                if(lastMsgDate != null)
+                {  
                     c = msgHistory.findFirstMessagesAfter(
                         metaContact,
-                        getChatConversationPanel().getPageLastMsgTimestamp(),
+                        lastMsgDate,
                         MESSAGES_PER_PAGE);
                 }
                 
-                if(c.size() > 0)
+                if(c != null && c.size() > 0)
                     SwingUtilities.invokeLater(
                             new HistoryMessagesLoader(c));
             }   
