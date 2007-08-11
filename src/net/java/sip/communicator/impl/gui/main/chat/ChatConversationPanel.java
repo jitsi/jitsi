@@ -925,7 +925,7 @@ public class ChatConversationPanel
         }
 
         if(firstMessageElement == null)
-            return null;
+            return new Date(Long.MAX_VALUE);
         
         String dateString = (String)firstMessageElement
             .getAttributes().getAttribute("date");
@@ -957,7 +957,7 @@ public class ChatConversationPanel
         }
 
         if(lastMessageElement == null)
-            return null;
+            return new Date(0);
         
         String dateString = (String) lastMessageElement
             .getAttributes().getAttribute("date");
