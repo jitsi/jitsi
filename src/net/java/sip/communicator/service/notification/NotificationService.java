@@ -76,6 +76,9 @@ public interface NotificationService
      * Removes the given <tt>eventType</tt> from the list of event notifications.
      * This means that we delete here all registered notifications for the given
      * <tt>eventType</tt>.
+     * <p>
+     * This method does nothing if the given <tt>eventType</tt> is not contained
+     * in the list of registered event types.
      *  
      * @param eventType the name of the event (as defined by the plugin that's
      * registering it) to be removed.
@@ -85,6 +88,9 @@ public interface NotificationService
     /**
      * Removes the event notification corresponding to the specified
      * <tt>actionType</tt> and <tt>eventType</tt>.
+     * <p>
+     * This method does nothing if the given <tt>eventType</tt> or
+     * <tt>actionType</tt> are not contained in the list of registered types.
      * 
      * @param eventType the name of the event (as defined by the plugin that's
      * registering it) for which we'll remove the notification.
@@ -95,12 +101,25 @@ public interface NotificationService
                                                 String actionType);
 
     /**
+     * Returns an iterator over a list of all events registered in this
+     * notification service. Each line in the returned list consists of
+     * a String, representing the name of the event (as defined by the plugin
+     * that registered it).
+     *   
+     * @return an iterator over a list of all events registered in this
+     * notifications service
+     */
+    public Iterator getRegisteredEvents();
+    
+    /**
      * Returns a Map containing all action types (as keys) and actionDescriptors
      * (as values) that have been registered for <tt>eventType</tt>.
-     *
+     * <p>
+     * This method returns <b>null</b> if the given <tt>eventType</tt> is not
+     * contained in the list of registered event types.
+     * 
      * @param eventType the name of the event that we'd like to retrieve actions
      * for.
-     *
      * @return a <tt>Map</tt> containing the <tt>actionType</tt>s (as keys) and
      * <tt>actionDescriptor</tt>s (as values) that should be executed when
      * an event with the specified name has occurred, or null if no actions
@@ -111,6 +130,9 @@ public interface NotificationService
     /**
      * Returns the descriptor of the action of type <tt>actionType</tt> that
      * should be executed when an event of <tt>eventType</tt> has occurred.
+     * <p>
+     * This method returns <b>null</b> if the given <tt>eventType</tt> or
+     * <tt>actionType</tt> are not contained in the list of registered types.
      *
      * @param eventType the type of the event that we'd like to retrieve.
      * @param actionType the type of the action that we'd like to retrieve a
@@ -143,7 +165,10 @@ public interface NotificationService
      * Fires all notifications registered for the specified <tt>eventType</tt>
      * using <tt>message</tt> as a notification message whereever appropriate
      * (e.g. systray notifications, logs, etc.)
-     *
+     * <p>
+     * This method does nothing if the given <tt>eventType</tt> is not contained
+     * in the list of registered event types.
+     * 
      * @param eventType the type of the event that we'd like to fire a
      * notification for.
      * @param message the message to use if and where appropriate (e.g. with
@@ -156,7 +181,10 @@ public interface NotificationService
      * using the default message specified upon registration as a notification
      * message whereever appropriate.
      * (e.g. systray notifications, logs, etc.)
-     *
+     * <p>
+     * This method does nothing if the given <tt>eventType</tt> is not contained
+     * in the list of registered event types.
+     * 
      * @param eventType the type of the event that we'd like to fire a
      * notification for.
      */
@@ -164,23 +192,27 @@ public interface NotificationService
     
     /**
      * Activates or desactivates all notification actions related to the
-     * specified <tt>eventType</tt>.
+     * specified <tt>eventType</tt>. This method does nothing if the given
+     * <tt>eventType</tt> is not contained in the list of registered event types.
      * 
      * @param eventType the name of the event, which actions should be activated
      * /desactivated. 
      * @param isActive indicates whether to activate or desactivate the actions
-     * related to the specified <tt>eventType</tt>. 
+     * related to the specified <tt>eventType</tt>.
      */
     public void setActive(String eventType, boolean isActive);
     
     /**
      * Indicates whether or not actions for the specified <tt>eventType</tt>
-     * are activated. 
+     * are activated. This method returns <code>false</code> if the given
+     * <tt>eventType</tt> is not contained in the list of registered event types.
      * 
      * @param eventType the name of the event (as defined by the plugin that's
      * registered it) that we are checking.
      * @return <code>true</code> if actions for the specified <tt>eventType</tt>
-     * are activated, <code>false</code> - otherwise.  
+     * are activated, <code>false</code> - otherwise. If the given
+     * <tt>eventType</tt> is not contained in the list of registered event
+     * types - returns <code>false</code>.
      */
     public boolean isActive(String eventType);
 }
