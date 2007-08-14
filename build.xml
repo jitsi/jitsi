@@ -170,11 +170,11 @@
     </path>
 
     <path id="project.class.path">
-		<pathelement location="${lib}"/>
+        <pathelement location="${lib}"/>
 
         <!-- Add this bundle to the global class path as we need
              the ScLogFormatter there-->
-		<pathelement location="${bundles.dest}/util.jar"/>
+        <pathelement location="${bundles.dest}/util.jar"/>
         <!-- for mac specific plugins -->
         <pathelement location="/System/Library/Java"/>
 
@@ -272,7 +272,6 @@
                 <include name="**/*.png"/>
                 <include name="**/*.PNG"/>
                 <include name="**/*.jpg"/>
-                <include name="**/*.properties"/>
                 <include name="**/*.xml"/>
                 <include name="**/*.themerc"/>
                 <include name="**/gtkrc"/>
@@ -288,6 +287,15 @@
                 <include name="**/*.xml"/>
             </fileset>
         </copy>
+    </target>
+
+    <target name="native2ascii">
+        <!-- internal target -
+             convert property file encoding from UTF-8 to ASCII,
+             save converted files in ${dest} dir -->
+        <native2ascii src="${src}" dest="${dest}" encoding="UTF-8"
+            includes="**/*.properties*" />
+
     </target>
 
     <!-- JAVADOC -->
@@ -306,8 +314,7 @@
 
     <!--PACKAGE-->
     <!--Copy resource files and update bundles jars. -->
-    <target name="package" depends="resource,bundles"/>
-
+    <target name="package" depends="resource,native2ascii,bundles"/>
 
     <!--MAKE-->
     <target name="make" depends="clean-bundle-repositories,compile,package"
@@ -762,6 +769,13 @@
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
                 path="${ld.library.path}:${path}:${dyld.library.path}"/>
+
+            <!-- pass l10n properties from ant call for
+                 easy translation debugging -->
+            <sysproperty key="user.language" value="${user.language}" />
+            <sysproperty key="user.country" value="${user.country}" />
+            <sysproperty key="user.variant" value="${user.variant}" />
+
             <env key="LD_LIBRARY_PATH" path="${ld.library.path}"/>
             <env key="PATH" path="${path}"/>
             <env key="DYLD_LIBRARY_PATH" path="${dyld.library.path}"/>
