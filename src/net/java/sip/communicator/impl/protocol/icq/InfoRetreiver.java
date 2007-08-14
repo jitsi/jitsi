@@ -138,8 +138,11 @@ public class InfoRetreiver
             result = responseRetriever.result;
             retreivedDetails.put(uin, result);
         }
-
-        return result;
+        
+        List copyList = new Vector();
+        Collections.copy(copyList, result);
+        
+        return copyList;
     }
 
     /**
