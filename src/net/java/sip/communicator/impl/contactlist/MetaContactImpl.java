@@ -18,6 +18,9 @@ import net.java.sip.communicator.util.*;
 public class MetaContactImpl
     implements MetaContact, Comparable
 {
+    /**
+     * Logger for <tt>MetaContactImpl</tt>.
+     */
     private static final Logger logger
         = Logger.getLogger(MetaContactImpl.class);
 
@@ -462,7 +465,8 @@ public class MetaContactImpl
      * Removes the specified protocol specific contact from the contacts
      * encapsulated in this <code>MetaContact</code>. The method also updates
      * the total status field accordingly. And updates its ordered position
-     * in its parent group.
+     * in its parent group. If the display name of this <code>MetaContact</code>
+     * was the one of the removed contact, we update it.
      *
      * @param contact the contact to remove
      */
@@ -476,6 +480,17 @@ public class MetaContactImpl
             }
             contactsOnline -= contact.getPresenceStatus().isOnline() ? 1 : 0;
             this.protoContacts.remove(contact);
+
+            if (defaultContact == contact)
+            {
+                defaultContact = null;
+            }
+
+            if ((protoContacts.size() > 0)
+                    && displayName.equals(contact.getDisplayName()))
+            {
+                displayName = getDefaultContact().getDisplayName();
+            }
 
             if (parentGroup != null)
             {
@@ -508,6 +523,12 @@ public class MetaContactImpl
             }
         }
 
+        // if the default contact has been modified, set it to null
+        if (modified && !protoContacts.contains(defaultContact))
+        {
+            defaultContact = null;
+        }
+
         return modified;
     }
 
@@ -533,6 +554,12 @@ public class MetaContactImpl
                 contactsIter.remove();
                 modified = true;
             }
+        }
+
+        // if the default contact has been modified, set it to null
+        if (modified && !protoContacts.contains(defaultContact))
+        {
+            defaultContact = null;
         }
 
         return modified;

@@ -100,6 +100,31 @@ public class ContactList
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
 
+        this.addFocusListener(new FocusAdapter() {
+            public void focusLost(FocusEvent e)
+            {
+                if (draggedElement != null)
+                {
+                    draggedElement.setVisible(false);
+                    draggedElement = null;
+                }
+            }
+        });
+        
+        this.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) 
+            {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                {
+                    if (draggedElement != null)
+                    {
+                        draggedElement.setVisible(false);
+                        draggedElement = null;
+                    }
+                }
+            }
+        });
+            
         this.addListSelectionListener(new ListSelectionListener()
         {
             public void valueChanged(ListSelectionEvent e)
@@ -489,7 +514,7 @@ public class ContactList
      * 
      * When the left mouse button is clicked on a contact cell different things
      * may happen depending on the contained component under the mouse. If the
-     * mouse is clicked on the "contact name" the chat window is opened,
+     * mouse is double clicked on the "contact name" the chat window is opened,
      * configured to use the default protocol contact for the selected
      * MetaContact. If the mouse is clicked on one of the protocol icons, the
      * chat window is opened, configured to use the protocol contact
@@ -662,15 +687,27 @@ public class ContactList
     public void mouseExited(MouseEvent e)
     {
     }
-
+    
+    /**
+     * Handle a mouse pressed event over the contact list.
+     *
+     * The main thing done when the mouse is pressed over the contact list is,
+     * simply select the <tt>MetaContact</tt> on which the event has occured.
+     *
+     * A <tt>ContactListDraggable</tt> object is also built, based on the
+     * element on which the mouse has been pressed. If the user is iniating
+     * a drag'n drop operation, the <tt>ContactListDraggable</tt> object will
+     * be monitored in <tt>mouseDragged</tt> and the dnd operation will be
+     * completed in <tt>mouseReleased</tt>.
+     */
     public void mousePressed(MouseEvent e)
     {
-        // Request the focus in the mContact list when user clicks on it.
+        // Request the focus in the meta contact list when user clicks on it.
         this.requestFocus();
 
         draggedElement = null;
 
-        // Select the mContact under the right button click.
+        // Select the meta contact under the right button click.
         if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
             || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
             || (e.isControlDown() && !e.isMetaDown()))
@@ -699,8 +736,20 @@ public class ContactList
 
             if (component instanceof JLabel)
             {
-                draggedElement = new ContactListDraggable(
-                    mContact, null, component);
+                Image image = new BufferedImage(component.getWidth(),
+                    component.getHeight(),
+                    BufferedImage.TYPE_INT_ARGB);
+                
+                Graphics g = image.getGraphics();
+                
+                g.setColor(getBackground());
+                g.fillRect(0, 0, image.getWidth(null), image.getHeight(null));
+                
+                component.paint(image.getGraphics());
+                draggedElement = new ContactListDraggable(  this,
+                                                            mContact,
+                                                            null,
+                                                            image);
             }
             else if (component instanceof JPanel)
             {
@@ -716,47 +765,57 @@ public class ContactList
 
                     if (c instanceof ContactProtocolButton)
                     {
-                        draggedElement = new ContactListDraggable(mContact,
-                            ((ContactProtocolButton) c).getProtocolContact()
-                                , component);
+                     // we are not dragging a whole metacontact but a specific
+                     // contact inside it
+                     ContactProtocolButton cb = (ContactProtocolButton) c;
+                     draggedElement = new ContactListDraggable(
+                                                     this,
+                                                     mContact,
+                                                     cb.getProtocolContact(),
+                                                     cb.getBgImage());
                     }
                 }
             }
-            if (draggedElement != null)
-            {
-                Component src = draggedElement.getComponent();
-                Component c = src;
+        }
+        
+        if (draggedElement != null)
+        {
+            mainFrame.setGlassPane(draggedElement);
 
-                Image image;
-                if (c instanceof ContactProtocolButton)
-                {
-                    // TODO : how to get the icon in front of a metacontact
-                    // in the contact list ?
-                    image = new BufferedImage(
-                        ((ContactProtocolButton) c).getWidth(),
-                        ((ContactProtocolButton) c).getHeight(),
-                        BufferedImage.TYPE_INT_ARGB);
-                }
-                else
-                {
-                    image = new BufferedImage(c.getWidth(), c.getHeight(),
-                            BufferedImage.TYPE_INT_ARGB);
-                }
-                Graphics g = image.getGraphics();
-                c.paint(g);
-                draggedElement.setImage(image);
+            Point p = (Point) e.getPoint().clone();
 
-                Point p = (Point) e.getPoint().clone();
-                SwingUtilities.convertPointToScreen(p, c);
-                SwingUtilities.convertPointFromScreen(p, this);
-                draggedElement.setLocation(p);
-            }
+            p = SwingUtilities.convertPoint(e.getComponent(), p, draggedElement);
+            draggedElement.setLocation(p);
         }
     }
     
+    /**
+     * If we are moving a <tt>Contact</tt> or <tt>MetaContact</tt> we
+     * update the coordinates of the dragged element and paint it at its new
+     * position.
+     */
+    public void mouseDragged(MouseEvent e)
+    {
+        if (draggedElement != null)
+        {
+            if (!draggedElement.isVisible())
+                draggedElement.setVisible(true);
+            Point p = (Point) e.getPoint().clone();
+            p = SwingUtilities.convertPoint(e.getComponent(), p, draggedElement);
+            draggedElement.setLocation(p);
+            draggedElement.repaint();
+        }
+    }
+    
+    /**
+     * If we were performing a drag'n drop operation when the mouse is released,
+     * complete it by moving the <tt>Contact</tt> and/or <tt>MetaContact</tt> enclosed
+     * by the <tt>draggedElement</tt> from that <tt>MetaContact</tt>
+     * to the <tt>MetaContactGroup</tt> or <tt>MetaContact</tt> on which
+     * the drop occurs.
+     */
     public void mouseReleased(MouseEvent e)
     {
-        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         int selectedIndex = this.locationToIndex(e.getPoint());
 
         ContactListModel listModel = (ContactListModel) this.getModel();
@@ -796,8 +855,11 @@ public class ContactList
                 MetaContactGroup contactDest = (MetaContactGroup) dest;
                 if (draggedElement.getContact() != null)
                 {
-                    int i = draggedElement.getMetaContact().getContactCount();
-                    if (i > 1)
+                    // there is a specific contact moved. if this contact
+                    // has fellow in its meta contact parent, we move only
+                    // this contact. Otherwise we move the whole meta contact
+                    // as this contact is the only one inside it.
+                    if (draggedElement.getMetaContact().getContactCount() > 1)
                     {
                         mainFrame.getContactList().moveContact(
                             draggedElement.getContact(), contactDest);
@@ -805,8 +867,8 @@ public class ContactList
                     else if (!contactDest.contains(
                         draggedElement.getMetaContact()))
                     {
-                        mainFrame.getContactList().moveContact(
-                            draggedElement.getContact(), contactDest);                        
+                        mainFrame.getContactList().moveMetaContact(
+                            draggedElement.getMetaContact(), contactDest);                        
                     }
                 }
                 else if (!contactDest.contains(draggedElement.getMetaContact()))
@@ -815,39 +877,9 @@ public class ContactList
                         draggedElement.getMetaContact(), contactDest);
                 }
             }
-        }
-        draggedElement = null;
-    }
 
-    public void mouseDragged(MouseEvent e)
-    {
-        if (draggedElement != null)
-        {
-            try 
-            {
-                setCursor(Cursor.getSystemCustomCursor("MoveDrop.32x32"));
-            }
-            catch (Exception ex)
-            {
-                logger.debug("Cursor \"MoveDrop.32x32\" isn't available ");
-                setCursor(Cursor.getDefaultCursor());
-            }
-
-            Point p = (Point) e.getPoint().clone();
-
-            draggedElement.setLocation(p);
-
-//            TODO: give a more attractive visual feedback for the DnD operation,
-//            by drawing the image provided by draggedElement.getImage() at
-//            coordinates draggedElement.getPoint()
-//            Graphics2D g2 = (Graphics2D) getGraphics();
-//            Image img = draggedElement.getImage();
-//            g2.drawImage(img
-//                , (int)
-//                (draggedElement.getPoint().getX() - img.getWidth(this) / 2)
-//                , (int)
-//                (draggedElement.getPoint().getY() - img.getHeight(this) / 2)
-//                , null);
+            draggedElement.setVisible(false);
+            draggedElement = null;
         }
     }
 
