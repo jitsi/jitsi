@@ -22,7 +22,7 @@ public class ConfigurationManager
     /**
      * Indicates whether the message automatic popup is enabled.
      */
-    private static boolean autoPopupNewMessage;
+    private static boolean autoPopupNewMessage = false;
     
     private static String sendMessageCommand;
 
@@ -43,10 +43,8 @@ public class ConfigurationManager
         String autoPopup = configService.getString(
             "net.java.sip.communicator.impl.gui.autoPopupNewMessage");
         
-        if(autoPopup == null || autoPopup.equalsIgnoreCase("yes"))
+        if(autoPopup != null && autoPopup.equalsIgnoreCase("yes"))
             autoPopupNewMessage = true;
-        else
-            autoPopupNewMessage = false;
         
         // Load the "sendMessageCommand" property.
         String messageCommand = configService.getString(
