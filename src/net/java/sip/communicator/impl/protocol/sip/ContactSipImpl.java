@@ -417,16 +417,15 @@ public class ContactSipImpl
 
 
     /**
-     * Returns the persistent presence operation set that this contact belongs
+     * Returns the presence operation set that this contact belongs
      * to.
      *
-     * @return the <tt>OperationSetPersistentPresenceSipImpl</tt> that
+     * @return the <tt>OperationSetPresenceSipImpl</tt> that
      * this contact belongs to.
      */
-    public OperationSetPersistentPresenceSipImpl
-                                            getParentPresenceOperationSet()
+    public OperationSetPresenceSipImpl getParentPresenceOperationSet()
     {
-        return (OperationSetPersistentPresenceSipImpl)parentProvider
-            .getOperationSet(OperationSetPersistentPresence.class);
+        return (OperationSetPresenceSipImpl) parentProvider
+            .getOperationSet(OperationSetPresence.class);
     }
 }

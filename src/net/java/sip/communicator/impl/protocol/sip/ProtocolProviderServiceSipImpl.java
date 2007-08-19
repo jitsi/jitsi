@@ -656,21 +656,32 @@ public class ProtocolProviderServiceSipImpl
             
             int pollingValue = 30;
             try {
-                pollingValue = Integer.parseInt(
-                    ((String) accountID.getAccountProperties()
-                        .get(ProtocolProviderFactory.POLLING_PERIOD)));
+                String pollingString = (String) accountID.getAccountProperties()
+                        .get(ProtocolProviderFactory.POLLING_PERIOD);
+                if (pollingString != null) {
+                    pollingValue = Integer.parseInt(pollingString);
+                } else {
+                    logger.warn("no polling value found, using default value"
+                            + " (" + pollingValue + ")");
+                }
             } catch (NumberFormatException e) {
-                logger.warn("wrong polling value stored", e);
+                logger.error("wrong polling value stored", e);
             }
             
             int subscriptionExpiration = 3600;
             try {
-                subscriptionExpiration = Integer.parseInt(
-                        ((String) accountID.getAccountProperties()
-                                .get(ProtocolProviderFactory
-                                        .SUBSCRIPTION_EXPIRATION)));
+                String subscriptionString = (String) accountID
+                    .getAccountProperties().get(ProtocolProviderFactory
+                        .SUBSCRIPTION_EXPIRATION);
+                if (subscriptionString != null) {
+                    subscriptionExpiration = Integer.parseInt(
+                            subscriptionString);
+                } else {
+                    logger.warn("no expiration value found, using default value"
+                            + " (" + subscriptionExpiration + ")");
+                }
             } catch (NumberFormatException e) {
-                logger.warn("wrong expiration value stored", e);
+                logger.error("wrong expiration value stored", e);
             }
            
 
