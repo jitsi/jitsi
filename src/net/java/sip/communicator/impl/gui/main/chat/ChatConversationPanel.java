@@ -470,7 +470,7 @@ public class ChatConversationPanel
                 Element headerElement = null;
                 
                 // Remove the header of the message if such exists.
-                if(firstMsgIndex > 1)
+                if(firstMsgIndex > 0)
                 {
                     headerElement = rootElement.getElement(firstMsgIndex - 1);
                 

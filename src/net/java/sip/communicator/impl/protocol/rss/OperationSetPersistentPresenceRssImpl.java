@@ -14,7 +14,7 @@ import net.java.sip.communicator.util.*;
 import java.net.*;
 
 /**
- * A Rss implementation of a persistent presence operation set. In order
+ * A RSS implementation of a persistent presence operation set. In order
  * to simulate server persistence, this operation set would simply accept all
  * unresolved contacts and resolve them immediately. A real world protocol
  * implementation would save it on a server using methods provided by the
@@ -46,13 +46,13 @@ public class OperationSetPersistentPresenceRssImpl
     private Vector providerPresenceStatusListeners = new Vector();
 
     /**
-     * A list of listeneres registered for
+     * A list of listeners registered for
      * <tt>ContactPresenceStatusChangeEvent</tt>s.
      */
     private Vector contactPresenceStatusListeners = new Vector();
 
     /**
-     * The root of the rss contact list.
+     * The root of the RSS contact list.
      */
     private ContactGroupRssImpl contactListRoot = null;
 
@@ -89,16 +89,16 @@ public class OperationSetPersistentPresenceRssImpl
         this.parentProvider = provider;
         contactListRoot = new ContactGroupRssImpl("RootGroup", provider);
 
-        //add our unregistration listener
+        // add our un-registration listener
         parentProvider.addRegistrationStateChangeListener(
             new UnregistrationListener());
     }
 
     /**
-     * Rss implementation of the corresponding ProtocolProviderService
+     * RSS implementation of the corresponding ProtocolProviderService
      * method.
      *
-     * @param listener a dummy param.
+     * @param listener a dummy parameter.
      */
     public void addContactPresenceStatusListener(
                         ContactPresenceStatusListener listener)
@@ -323,10 +323,10 @@ public class OperationSetPersistentPresenceRssImpl
     }
 
     /**
-     * Rss implementation of the corresponding ProtocolProviderService
+     * RSS implementation of the corresponding ProtocolProviderService
      * method.
      *
-     * @param listener a dummy param.
+     * @param listener a dummy parameter.
      */
     public void addProviderPresenceStatusListener(
         ProviderPresenceStatusListener listener)
@@ -342,8 +342,8 @@ public class OperationSetPersistentPresenceRssImpl
      * Registers a listener that would receive events upon changes in server
      * stored groups.
      *
-     * @param listener a ServerStoredGroupChangeListener impl that would
-     *   receive events upong group changes.
+     * @param listener a ServerStoredGroupChangeListener implementation that
+     * would receive events upon group changes.
      */
     public void addServerStoredGroupChangeListener(ServerStoredGroupListener
                                                         listener)
@@ -356,7 +356,7 @@ public class OperationSetPersistentPresenceRssImpl
     }
 
     /**
-     * Rss implementation of the corresponding ProtocolProviderService
+     * RSS implementation of the corresponding ProtocolProviderService
      * method.
      *
      * @param listener the SubscriptionListener to register
@@ -390,7 +390,7 @@ public class OperationSetPersistentPresenceRssImpl
     }
 
     /**
-     * A Rss Provider method to use for fast filling of a contact list.
+     * A RSS Provider method to use for fast filling of a contact list.
      *
      * @param contactGroup the group to add
      */
@@ -400,7 +400,7 @@ public class OperationSetPersistentPresenceRssImpl
     }
 
     /**
-     * A Rss Provider method to use for fast filling of a contact list.
+     * A RSS Provider method to use for fast filling of a contact list.
      * This method would add both the group and fire an event.
      *
      * @param parent the group where <tt>contactGroup</tt> should be added.
@@ -499,7 +499,13 @@ public class OperationSetPersistentPresenceRssImpl
         return RssStatusEnum.supportedStatusSet();
     }
 
-    public ContactGroupRssImpl getContactListRoot(){
+    /***
+     * Return the <tt>ContactGroup</tt> that represents the root of the contacts
+     * list.
+     * @return ContactGroupRssImpl representing the root of the contacts list.
+     */
+    public ContactGroupRssImpl getContactListRoot()
+    {
         return this.contactListRoot;
     }
 
@@ -561,7 +567,7 @@ public class OperationSetPersistentPresenceRssImpl
 
     /**
      * Requests the provider to enter into a status corresponding to the
-     * specified paramters.
+     * specified parameters.
      *
      * @param status the PresenceStatus as returned by
      *   getRequestableStatusSet
@@ -837,6 +843,11 @@ public class OperationSetPersistentPresenceRssImpl
                 OperationFailedException
     {
         URL rssURL = null;
+        
+        // in order to allow adding of URIs like feed://a.host.com/feed.xml
+        if (contactIdentifier.startsWith("feed"))
+            contactIdentifier = contactIdentifier.replaceFirst("feed", "http");
+        
         try
         {
             rssURL = new URL(contactIdentifier);
@@ -1038,7 +1049,7 @@ public class OperationSetPersistentPresenceRssImpl
      * @param parentGroup the group under which the new group is to be created
      * or null if this is group directly underneath the root.
      * @return the unresolved <tt>ContactGroup</tt> created from the specified
-     * <tt>uid</tt> and <tt>persistentData</tt>
+     * <tt>UID</tt> and <tt>persistentData</tt>
      */
     public ContactGroup createUnresolvedContactGroup(String groupUID,
         String persistentData, ContactGroup parentGroup)
@@ -1065,10 +1076,10 @@ public class OperationSetPersistentPresenceRssImpl
         implements RegistrationStateChangeListener
     {
         /**
-         * The method is called by a ProtocolProvider implementation whenver
+         * The method is called by a ProtocolProvider implementation whenever
          * a change in the registration state of the corresponding provider had
          * occurred. The method is particularly interested in events stating
-         * that the rss provider has unregistered so that it would fire
+         * that the RSS provider has unregistered so that it would fire
          * status change events for all contacts in our buddy list.
          *
          * @param evt ProviderStatusChangeEvent the event describing the status
@@ -1083,8 +1094,8 @@ public class OperationSetPersistentPresenceRssImpl
                 return;
             }
 
-            //send event notifications saying that all our buddies are
-            //offline. The icq protocol does not implement top level buddies
+            //send event notifications saying that all our buddies are offline.
+            //The icq (?) protocol does not implement top level buddies
             //nor subgroups for top level groups so a simple nested loop
             //would be enough.
             Iterator groupsIter = getServerStoredContactListRoot()

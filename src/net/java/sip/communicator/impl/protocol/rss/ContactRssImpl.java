@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.rss;
 
 import java.util.*;
 import java.text.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import java.net.*;
@@ -27,23 +28,31 @@ import java.awt.image.*;
 public class ContactRssImpl
     implements Contact
 {
-    private String  lastDate = null;
-    private Date date = new Date(0l);
+    /***
+     * Item key identifying the last item retrieved and displayed.
+     */
+    private RssItemKey lastItem = new RssItemKey(new Date(0));
+    
+    /***
+     * Contact's nickname.
+     */    
     private String nickName = null;
 
     private static final Logger logger
         = Logger.getLogger(ContactRssImpl.class);
-
-    private static SimpleDateFormat DATE_FORMATTER =
-        new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss");
-
+    
     /**
      * The path within the bundle for the default RSS 64x64 icon.
      */
     private String defaultIconPath = "resources/images/rss/rss64x64.png";
 
+    /***
+     * Stores the contact's display image to avoid downloading it multiple times.
+     */
+    private byte[] icon;     
+    
     /**
-     * The source flow for this contact.
+     * This contact's URL (URL of the RSS feed).
      */
     private URL contactID = null;
 
@@ -53,7 +62,7 @@ public class ContactRssImpl
     private ProtocolProviderServiceRssImpl parentProvider = null;
 
     /**
-     * The group that belong to.
+     * The group that the contact belongs to.
      */
     private ContactGroupRssImpl parentGroup = null;
 
@@ -75,7 +84,7 @@ public class ContactRssImpl
     private boolean isResolved = false;
 
     /**
-     * The feed reader that we'll be using to retrieve the rss flow associated
+     * The feed reader that we'll be using to retrieve the RSS flow associated
      * with this contact.
      */
     private RssFeedReader rssFeedReader = null;
@@ -114,7 +123,7 @@ public class ContactRssImpl
     /**
      * Returns a String that can be used for identifying the contact.
      *
-     * @return a String id representing and uniquely identifying the contact.
+     * @return a String id representing that uniquely identifies the contact.
      */
     public String getAddress()
     {
@@ -122,7 +131,7 @@ public class ContactRssImpl
     }
 
     /**
-     * Returns the URL that this contact is encapsulating.
+     * Returns the URL that this contact is representing.
      *
      * @return the URL of the RSS flow that this contact represents.
      */
@@ -150,77 +159,52 @@ public class ContactRssImpl
         }
     }
 
+    /***
+     * Sets the contact's nickname.
+     * @param nickName
+     */
     public void setDisplayName(String nickName){
         this.nickName = nickName;
     }
 
-    /**
-     * Returns a Date corresponding to the date of the last query
-     * on this rss contact.
-     *
-     * @return a Date in order to compare with a new one obtained via
-     * a query on the feed.
+    /***
+     * Returns a <tt>RssItemKey</tt> object that identifies the last retrieved
+     * item in the feed.
+     * @return key identifying the last item in the feed.
      */
-    public Date getLastItemDate()
+    public RssItemKey getLastItemKey()
     {
-        return this.date;
+        return this.lastItem;
+    }
+
+    /***
+     * Sets the key identifying the last item in the feed. It's usually used in
+     * conjunction with a new <tt>RssItemKey</tt> object. For instance:
+     * <code>contact.setLastItemKey(new RssItemKey(new Date()));</code>
+     * 
+     * @param key key identifying the last item in the feed or (at least)
+     * allowing differencing for newer items.
+     * 
+     * @see RssItemKey
+     */
+    public void setLastItemKey(RssItemKey key)
+    {
+        this.lastItem= key;
     }
 
     /**
-     * This method is only called when a new date is found after a query
-     * on the feed corresponding to this contact
-     *
-     * @param date the <tt>Date</tt> that is now
-     * the last update date of the <tt>ContactRssImpl</tt>
-     */
-    public void setDate(Date date)
-    {
-        this.date = date;
-        this.lastDate = convertDateToString(this.date);
-    }
-
-    /**
-     * Returns a String corresponding to a date after a conversion
-     * from a Date
-     *
-     * @param date the date
-     * @return a String which is placed in the lastDate variable of the
-     * present contact
-     */
-    private String convertDateToString(Date date)
-    {
-        return DATE_FORMATTER.format(date);
-    }
-
-    /**
-     * This method is called when a the contact is restored and a
-     * previous saved lastDate is found as persistent-data: this
-     * data is in a String format, and this method convert it into
-     * a Date usable by the protocol.
-     * @param lastDate date as String
-     */
-    private void convertStringToDate(String lastDate)
-    {
-        try
-        {
-            this.date = DATE_FORMATTER.parse(lastDate);
-        }
-        catch(ParseException ex)
-        {
-            logger.error("Cannot parse Date", ex);
-        }
-    }
-
-    /**
-     * Returns a byte array containing an image to represent the feed. This is
+     * Returns a byte array containing an image to represent the contact. It is
      * acquired either via the <tt>favicon.ico</tt> file on the server where the
-     * feed resides, either a default standard RSS icon is returned.
+     * feed resides, or a default standard RSS icon is returned.
      *
      * @return byte[] the binary representation of the best available image in
-     * the icon, or null in case the image is invalid or inexistent.
+     * the icon, or <tt>null</tt> in case the image is invalid or inexistent.
      */
     public byte[] getImage()
     {
+        if (icon != null)
+            return icon;
+            
         Image selectedIcon;
 
         //we use these to get the best possible icon in case our favicon is a
@@ -235,7 +219,7 @@ public class ContactRssImpl
 
         URL feedLocation = getRssURL();
 
-        //TODO: Fix aclico log4j-related errors
+        // TODO: Fix aclico log4j-related errors. Fixed now?
 
         try
         {
@@ -267,7 +251,9 @@ public class ContactRssImpl
             // RSS icon.
             if (crtDescriptor == -1)
             {
-                return getDefaultRssIcon();
+                icon = getDefaultRssIcon();
+                
+                return icon;
             }
 
             selectedIcon = favicon.getDescriptor(crtDescriptor).getImageRGB();
@@ -281,7 +267,8 @@ public class ContactRssImpl
                     + maxColors + " colors");
 
             output.close();
-            return result;
+            icon = result;
+            return icon;
         }
         catch (MalformedURLException murlex)
         {
@@ -299,15 +286,17 @@ public class ContactRssImpl
             logger.error("Unknown error on favicon retrieval. " + ex, ex);
         }
 
-        return getDefaultRssIcon();
+        icon = getDefaultRssIcon();
+        
+        return icon;
     }
 
     /**
      * Returns the default icon in case the feed has no favicon on the server.
-     * Uses the <tt>defaultIconPath</tt> to locate the default icon to be
-     * displayed.
+     * Uses the <tt>defaultIconPath</tt> constant to locate the default icon to
+     * be displayed.
      *
-     * @return binary representation of the default icon
+     * @return binary representation of the default icon.
      */
     private byte[] getDefaultRssIcon()
     {
@@ -340,7 +329,7 @@ public class ContactRssImpl
     /**
      * Returns the status of the contact.
      *
-     * @return RssStatusEnum.STATUS.
+     * @return Current presence status of the contact.
      */
     public PresenceStatus getPresenceStatus()
     {
@@ -410,9 +399,9 @@ public class ContactRssImpl
      * presence operation sets. They could however also be seen in persistent
      * presence operation sets when for example we have received an event
      * from someone not on our contact list. Non persistent contacts are
-     * volatile even when coming from a persistent presence op. set. They would
-     * only exist until the application is closed and will not be there next
-     * time it is loaded.
+     * volatile even when coming from a persistent presence operation set. They
+     * would only exist until the application is closed and will not be there
+     * next time it is loaded.
      *
      * @return true if the contact is persistent and false otherwise.
      */
@@ -427,9 +416,9 @@ public class ContactRssImpl
      * presence operation sets. They could however also be seen in persistent
      * presence operation sets when for example we have received an event
      * from someone not on our contact list. Non persistent contacts are
-     * volatile even when coming from a persistent presence op. set. They would
-     * only exist until the application is closed and will not be there next
-     * time it is loaded.
+     * volatile even when coming from a persistent presence operation set. They
+     * would only exist until the application is closed and will not be there
+     * next time it is loaded.
      *
      * @param isPersistent true if the contact is persistent and false
      * otherwise.
@@ -439,38 +428,33 @@ public class ContactRssImpl
         this.isPersistent = isPersistent;
     }
 
-    /**
-     * Returns null as no persistent data is required and the contact address is
-     * sufficient for restoring the contact.
-     * <p>
-     * @return null as no such data is needed.
+    /***
+     * Produces a textual representation of contact data that can be used to
+     * restore the contact even before the network connection has been
+     * initialized. This data contains the key identifying the last displayed
+     * item, so that upon restart, items that have already been displayed in
+     * older sessions don't get displayed again.
+     * 
+     * @see setPersistentData
      */
     public String getPersistentData()
     {
-        // to store data only when lastDate is set
-        if(lastDate != null)
-            return "lastDate=" + lastDate + ";";
+        if (lastItem != null)
+            return lastItem.serialize();
         else
             return null;
     }
 
+    /***
+     * Restores feed item identification data from their textual representation.
+     * @param persistentData textual representation of item key.
+     * @see getPersistentData
+     */
     public void setPersistentData(String persistentData)
     {
-        if(persistentData == null)
-        {
-            return;
-        }
-
-        StringTokenizer dataToks = new StringTokenizer(persistentData, ";");
-        while(dataToks.hasMoreTokens())
-        {
-            String data[] = dataToks.nextToken().split("=");
-            if(data[0].equals("lastDate") && data.length > 1)
-            {
-                this.lastDate = data[1];
-                convertStringToDate(this.lastDate);
-            }
-        }
+        lastItem = RssItemKey.deserialize(persistentData);
+        
+        lastItem.deserialize(persistentData);
     }
 
     /**
@@ -491,8 +475,8 @@ public class ContactRssImpl
     /**
      * Makes the contact resolved or unresolved.
      *
-     * @param resolved  true to make the contact resolved; false to
-     *                  make it unresolved
+     * @param resolved true to make the contact resolved; false to
+     * make it unresolved
      */
     public void setResolved(boolean resolved)
     {
@@ -501,18 +485,18 @@ public class ContactRssImpl
 
     /**
      * Indicates whether some other object is "equal to" this one which in terms
-     * of contacts translates to having equal ids. The resolved status of the
-     * contacts deliberately ignored so that contacts would be declared equal
-     * even if it differs.
+     * of contacts translates to having equal IDs. The resolved status of the
+     * contacts is deliberately ignored so that contacts would be declared equal
+     * even if one contact is resolved and the other is not.
      * <p>
-     * @param   obj   the reference object with which to compare.
-     * @return  <code>true</code> if this contact has the same id as that of the
+     * @param obj the reference object with which to compare.
+     * @return  <code>true</code> if this contact has the same ID as that of the
      * <code>obj</code> argument.
      */
     public boolean equals(Object obj)
     {
         if (obj == null
-            || ! (obj instanceof ContactRssImpl))
+                || ! (obj instanceof ContactRssImpl))
             return false;
 
         ContactRssImpl rssContact = (ContactRssImpl) obj;
@@ -536,7 +520,7 @@ public class ContactRssImpl
     }
 
     /**
-     * Returns the rss feed reader that we are using to retrieve flows
+     * Returns the RSS feed reader that we are using to retrieve flows
      * associated with this contact.
      *
      * @return a reference to the <tt>RssFeedReader</tt> that we are using to

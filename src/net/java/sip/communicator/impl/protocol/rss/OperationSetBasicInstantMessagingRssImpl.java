@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Instant messaging functionalites for the Rss protocol.
+ * Instant messaging functionalities for the RSS protocol.
  *
  * @author Jean-Albert Vescovo
  * @author Mihai Balan
@@ -30,7 +30,7 @@ public class OperationSetBasicInstantMessagingRssImpl
     private Vector messageListeners = new Vector();
 
     /**
-     * The currently valid persistent presence operation set..
+     * The currently valid persistent presence operation set.
      */
     private OperationSetPersistentPresenceRssImpl opSetPersPresence = null;
 
@@ -40,13 +40,13 @@ public class OperationSetBasicInstantMessagingRssImpl
     private ProtocolProviderServiceRssImpl parentProvider = null;
 
     /**
-     * The timer used in order to refresh one or more rss feeds
+     * The timer used in order to refresh one or more RSS feeds
      */
     private Timer timer = null;
 
     /**
      * The value corresponding to the time in ms
-     * of the rss refreshing period (here 5min)
+     * of the RSS refreshing period (here 5min)
      */
     final int PERIOD_REFRESH_RSS = 300000;
 
@@ -75,7 +75,7 @@ public class OperationSetBasicInstantMessagingRssImpl
     /**
      * Registers a MessageListener with this operation set so that it gets
      * notifications of successful message delivery, failure or reception of
-     * incoming messages..
+     * incoming messages.
      *
      * @param listener the <tt>MessageListener</tt> to register.
      */
@@ -120,7 +120,7 @@ public class OperationSetBasicInstantMessagingRssImpl
     }
 
     /**
-     * Unregisteres <tt>listener</tt> so that it won't receive any further
+     * Unregisters <tt>listener</tt> so that it won't receive any further
      * notifications upon successful message delivery, failure or reception
      * of incoming messages..
      *
@@ -132,11 +132,11 @@ public class OperationSetBasicInstantMessagingRssImpl
     }
 
     /**
-     * Updates the rss feed associated with rssContact. If the update has been
+     * Updates the RSS feed associated with rssContact. If the update has been
      * requested by the user the method would fire a message received event
      * even if there are no new items.
      *
-     * @param rssContact the <tt>contact</tt> to send query
+     * @param rssContact the <tt>contact</tt> to send query to.
      * @param userRequestedUpdate indicates whether the query is triggered by
      * the user or by a scheduled timer task.
      */
@@ -145,7 +145,7 @@ public class OperationSetBasicInstantMessagingRssImpl
     {
         Message msg;
         boolean newName = false;
-        boolean newDate = false;
+        boolean newItem = false;
         boolean update = false;
         String newDisplayName = new String();
         String oldDisplayName = new String();
@@ -176,21 +176,37 @@ public class OperationSetBasicInstantMessagingRssImpl
         rssContact.setDisplayName(newDisplayName);
 
         //we create the message containing the new items retrieved
-        msg = createMessage(rssFeed.feedToString(rssContact.getLastItemDate()));
+        msg = createMessage(rssFeed.feedToString(rssContact.getLastItemKey()));
 
         //if a newer date is available for the current feed/contact looking
         //the date of each item of the feed retrieved, we update this date
-        if (rssFeed.getLastItemPubDate()
-                .compareTo(rssContact.getLastItemDate()) > 0)
+        if (rssFeed.getLastItemKey().usesDate())
         {
-            rssContact.setDate(rssFeed.getLastItemPubDate());
-            newDate = true;
-            update = true;
+            if(rssFeed.getLastItemKey().getItemDate()
+                .compareTo(rssContact.getLastItemKey().getItemDate()) > 0)
+            {
+                rssContact.setLastItemKey(
+                    new RssItemKey(rssFeed.getLastItemKey().getItemDate()));
+                newItem = true;
+                update = true;
+            }
+        }
+        else
+        {
+            if (!rssFeed.getLastItemKey().getItemUri().equalsIgnoreCase(
+                rssContact.getLastItemKey().getItemUri()))
+            {
+                rssContact.setLastItemKey(
+                    new RssItemKey(rssFeed.getLastItemKey().getItemUri()));
+                
+                newItem = true;
+                update = true;
+            }
         }
 
         //if we have a new date or a new name on this feed/contact, we fire
         //that the contact has his properties modified in order to save it
-        if (newName || newDate)
+        if (newName || newItem)
             this.opSetPersPresence.fireContactPropertyChangeEvent(
                 ContactPropertyChangeEvent.
                 PROPERTY_DISPLAY_NAME, rssContact,
@@ -204,7 +220,7 @@ public class OperationSetBasicInstantMessagingRssImpl
     }
 
     /**
-     * To refresh all rss feeds registered as contacts
+     * Refreshes all the registered feeds.
      */
     public void refreshAllRssFeeds()
     {
@@ -219,9 +235,9 @@ public class OperationSetBasicInstantMessagingRssImpl
     }
 
     /**
-     * To refresh a specific rss feed specified as param.
-     *
-     * @param rssURL the <tt>contact</tt> to be refreshed
+     * Refreshes a specific RSS feed.
+     * 
+     * @param rssURL the <tt>contact</tt> (feed) to be refreshed.
      */
     public void refreshRssFeed( ContactRssImpl rssURL)
     {
@@ -229,7 +245,7 @@ public class OperationSetBasicInstantMessagingRssImpl
     }
 
     /**
-     * Creating the timer permitting the refresh of rss feeds
+     * Creates the timer for refreshing RSS feeds.
      */
     public void createTimer()
     {
@@ -244,16 +260,16 @@ public class OperationSetBasicInstantMessagingRssImpl
         logger.trace("Done.");
     }
 
-     /**
-     * Cancel the timer if the user switch to the OFFLINE status
+    /**
+     * Cancels the timer if the user switched to the OFFLINE status.
      */
     public void stopTimer(){
         this.timer.cancel();
     }
 
     /**
-     * Retrieve the feeds for a new Rss Feed just added as persistent contact
-     *
+     * Retrieves the feeds for a new RSS feed just added as persistent contact.
+     * 
      * @param contact the <tt>Contact</tt> added
      */
     public void threadedContactFeedUpdate(ContactRssImpl contact)
@@ -347,7 +363,7 @@ public class OperationSetBasicInstantMessagingRssImpl
     }
 
     /**
-     * Determines wheter the protocol provider (or the protocol itself) support
+     * Determines whether the protocol provider (or the protocol itself) supports
      * sending and receiving offline messages. Most often this method would
      * return true for protocols that support offline messages and false for
      * those that don't. It is however possible for a protocol to support these
@@ -366,7 +382,7 @@ public class OperationSetBasicInstantMessagingRssImpl
     }
 
     /**
-     * Determines whether the protocol supports the supplied content type
+     * Determines whether the protocol supports the supplied content type.
      *
      * @param contentType the type we want to check
      * @return <tt>true</tt> if the protocol supports it and
@@ -406,9 +422,9 @@ public class OperationSetBasicInstantMessagingRssImpl
     }
 
     /**
-     * The method is called by the ProtocolProvider whenver a change in the
+     * The method is called by the ProtocolProvider whenever a change in the
      * registration state of the corresponding provider has occurred. We use
-     * it to start and stop the timer that periodically checks for rss updates.
+     * it to start and stop the timer that periodically checks for RSS updates.
      *
      * @param evt ProviderStatusChangeEvent the event describing the status
      * change.

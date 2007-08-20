@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.rss;
 
 import java.net.*;
 import java.util.*;
+import java.text.*;
 
 import com.sun.syndication.feed.synd.*;
 import com.sun.syndication.io.*;
@@ -15,7 +16,10 @@ import com.sun.syndication.io.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The class used for using the ROME Library into the RSS protocol.
+ * Wrapper class for the ROME functionality used in the RSS implementation in
+ * SIP Communicator. 
+ * The class provides the means for identifying feed items, formatting and 
+ * displaying the actual feed items.
  *
  * @author Jean-Albert Vescovo
  * @author Mihai Balan
@@ -23,31 +27,31 @@ import net.java.sip.communicator.service.protocol.*;
 public class RssFeedReader
 {
     /**
-     * The URL of the contact/feed, used to make a tcp query toward
-     * the .xml file containing the items of the feed.
+     * The URL of the contact/feed, used to make a TCP query for the XML file
+     * containing the actual RSS feed.
      */
     private URL rssURL;
 
     /**
-     * The title of the feed, which will be used as the displayname
+     * The title of the feed, which will be used as the display name
      * of the contact/feed.
      */
     private String title = null;
 
     /**
-     * The object charged to retrieve the feed incoming from the relavant
+     * The object charged to retrieve the feed incoming from the relevant
      * server.
      */
     private SyndFeed feed = null;
 
     /**
-     * The last update date of this feed.
+     * Key identifying the retrieved item in this feed.
      */
-    private Date lastItemPubDate = new Date(0l);
+    private RssItemKey lastItemKey = null;
 
     /**
-     * An array of SyndEntry which will contain all the items retrieved from
-     * the feed.
+     * An array of <tt>SyndEntry</tt> objects which will contain all the items 
+     * retrieved from the feed.
      */
     private SyndEntry[] items = null;
 
@@ -57,10 +61,10 @@ public class RssFeedReader
     private SyndEntryComparator syndEntryComparator = new SyndEntryComparator();
 
      /**
-     * Creates an instance of a rss feed with the specified string used
-     * as an url to contact the relevant server.
+     * Creates an instance of a RSS reader with the specified string used
+     * as an URL for the actual feed.
      *
-     * @param contactRssURL the url of this feed.
+     * @param contactRssURL the URL of this feed.
      */
     public RssFeedReader(URL contactRssURL)
     {
@@ -71,17 +75,15 @@ public class RssFeedReader
     }
 
     /**
-     * Refreshes the rss feed associated with this reader, sorts all items by
-     * reverse chronological order and stores them locally so that they could
-     * be retrieved by the getPrintedFeed() method.
+     * Refreshes the RSS feed associated with this reader, stores the feed items
+     * and updates item identification information so that items that were 
+     * displayed once aren't displayed again.
      *
      * @throws OperationFailedException with code ILLEGAL_ARGUMENT
      */
     public void retrieveFlow()
         throws OperationFailedException
     {
-        //the most important thing in this protocol: we parse the rss feed
-        //using the Rome library
         SyndFeedInput input = new SyndFeedInput();
 
         try
@@ -100,101 +102,136 @@ public class RssFeedReader
 
         this.title = this.feed.getTitle();
 
-        //we retrieve the items and sort them by reverse
-        //chronological order
-        items = (SyndEntry[]) (this.feed.getEntries()
-                               .toArray(new SyndEntry[0]));
-        //sort items
-        Arrays.sort(items, syndEntryComparator);
-
-        //if we don't understand the date format we don't want to handle
-        //this feed
-        if( items[items.length -1].getPublishedDate() == null)
+        // retrieve items
+        items = (SyndEntry[]) this.feed.getEntries().toArray(new SyndEntry[0]);
+        
+        if (items.length == 0)
         {
-            throw new OperationFailedException(
-                "We can't retrieve dates for RSS flow \""
-                + title
-                + "\" ("
-                +rssURL
-                +")"
-                , OperationFailedException.GENERAL_ERROR);
+            lastItemKey = new RssItemKey(new Date(0));
+            return;
         }
 
-
-        //store the date of the most recent item
-        setLastItemPubDate( items[items.length -1].getPublishedDate() );
+        if (items[items.length - 1].getPublishedDate() != null)
+        {
+            Arrays.sort(items, syndEntryComparator);
+            lastItemKey =
+                new RssItemKey(items[items.length - 1].getPublishedDate()); 
+        }
+        else
+        {
+            lastItemKey = new RssItemKey(items[0].getLink());
+        }
     }
 
     /**
-     * Returns a String containing the message to send to the user after
-     * a successful query on a rss server:
-     *<p>
-     * - if we have no items, we return "No items found on this feed !"<br>
-     * - if we can't read a date in these items, we return the last 10 items
-     *   of the feed<br>
-     * - if we can read a date, we just return the items which have a date
-     *   earlier than the lastQueryDate, and "No new articles in your feed
-     *   since last update." if it isn't new item since lastQueryDate.
-     *</p><p>
-     * We signal to the user ("Send anything to refresh this feed...") that he
-     * can send anything to refresh the present contact/feed.
-     *</p>
-     * @param latestRetrievedItemDate the date to compare with that of the items
-     * retrieved.
-     *
-     * @return a String containing all messages published on this rss source
-     * since lastQueryDate or a message stating lack of new messages.
+     * Returns the textual representation of the feed's items with regard to the
+     * key of the last item shown to the user. The items are sorted in reverse
+     * chronological order, if possible.
+     * @param itemKey key identifying the last item retrieved.
+     * @return textual representation of the feed items.
      */
-    public synchronized String feedToString(Date latestRetrievedItemDate)
+    public synchronized String feedToString(RssItemKey itemKey)
     {
         String newsAbstract = null;
         StringBuffer printedFeed = new StringBuffer();
 
-        /* TODO move this in a resources file.*/
+        // used for performance reasons
+        Date itemDate = itemKey.getItemDate();
+        String itemUri = itemKey.getItemUri();
+        
+        int i, markerPosition = -1;
+        
+        // TODO move this message in a resources file.
         if (items.length == 0)
             return "<b>No items currently available for this feed !</b><br>";
 
-
-        //go through the items list in reverse order so that we could stop
-        //as soon as we reach items that we've already shown to the user.
-        for (int i = items.length - 1; i >= 0; i--)
+        if (lastItemKey.usesDate())
         {
-            if (items[i].getPublishedDate()
-                .compareTo(latestRetrievedItemDate) > 0)
+            for (i = items.length - 1; i >= 0; i--)
             {
-                // Get the abstract of the news.
-                newsAbstract = getNewsAbstract(items[i]);
-                // Forge the news to be displayed.
-                printedFeed.insert(0,
-                    "<a href=\""+items[i].getLink()+"\">"
-                    + "<strong>"+ items[i].getTitle() + "</strong>"
-                    + "</a>"
-                    + "<br>"
-                    + newsAbstract
-                    + "<hr>");
+                if (items[i].getPublishedDate()
+                    .compareTo(itemDate) > 0)
+                {
+                    // Get the abstract of the news.
+                    newsAbstract = getNewsAbstract(items[i]);
+                    // Forge the news text to be displayed.
+                    printedFeed.insert(0,
+                        "<a href=\""+items[i].getLink()+"\">"
+                        + "<strong>"+ items[i].getTitle() + "</strong>"
+                        + "</a>"
+                        + "<br>"
+                        + newsAbstract
+                        + "<hr>");
+                }
+                else
+                {
+                    if (i == items.length - 1)
+                    {
+                        printedFeed
+                            .append("<strong>No new articles in your feed since"
+                                + " last update.</strong><br>");
+                    }
+                    break;
+                }
+            }
+            
+            printedFeed
+                .append ("<em>Send anything to refresh this feed...</em><br>\n");
+            
+            return printedFeed.toString();
             }
             else
             {
-                if (i == items.length - 1)
+                for(i = 0; i < items.length; i++)
+                {
+                    if(itemUri != null && 
+                        itemUri.equalsIgnoreCase(items[i].getLink()))
+                    {
+                        markerPosition = i;
+                        break;
+                    }
+                }
+                
+                if (markerPosition == -1)
+                    markerPosition = items.length;                    
+                
+                // the main assumption here is that even in case the items don't present
+                // a date, they are usually sorted by the publishing date, the most
+                // recent first. This way, if the last displayed item is the first in
+                // the feed, we infer that all the feed has been previously displayed.
+                if (markerPosition != 0)
+                {
+                    for(i = 0; i < markerPosition; i++)
+                    {
+                        // Get the abstract of the news.
+                        newsAbstract = getNewsAbstract(items[i]);
+                        // Forge the news text to be displayed.
+                        printedFeed.insert(0,
+                            "<a href=\""+items[i].getLink()+"\">"
+                            + "<strong>"+ items[i].getTitle() + "</strong>"
+                            + "</a>"
+                            + "<br>"
+                            + newsAbstract
+                            + "<hr>");
+                    }
+                }
+                else
                 {
                     printedFeed
                         .append("<strong>No new articles in your feed since"
-                                + " last update.</strong><br>");
-
+                            + " last update.</strong><br>");
                 }
-                break;
-            }
+                printedFeed
+                    .append ("<em>Send anything to refresh this feed...</em><br>\n");
+                
+                return printedFeed.toString();
         }
-
-        printedFeed
-            .append ("<em>Send anything to refresh this feed...</em><br>\n");
-        return printedFeed.toString();
     }
     
     /**
      * The function retrieves the abstract (textual description) of a feed item
      * or an empty string otherwise. It takes care of all format specific data
-     * returns a format-agnostic, nicely formatted <tt>String</tt>
+     * and returns a nicely formatted <tt>String</tt>
      * 
      * @param syndEntry - Feed entry for which to retrieve the abstract (text)
      * @return String representation of the news abstract or an empty string if
@@ -204,7 +241,8 @@ public class RssFeedReader
     {
         StringBuffer newsAbstract = new StringBuffer();
         List contents;
-
+        
+        // get item contents
         contents = syndEntry.getContents();
         if (!contents.isEmpty())
         {
@@ -214,7 +252,8 @@ public class RssFeedReader
                 newsAbstract.append(((SyndContent)it.next()).getValue());
             }
         }
-    
+        
+        // format the contents
         if (newsAbstract.toString().length() != 0)
             return newsAbstract.toString();
         else
@@ -229,37 +268,29 @@ public class RssFeedReader
     }
 
     /**
-     * Returns a Date that can be used to know the most recent item in a
-     * retrieved feed.
-     *
-     * @return the feed's Date representing the nearest item's date never
-     * retrieved on this feed.
+     * Return the key for the last item retrieved.
+     * 
+     * @return key of the last item retrieved.
      */
-    public Date getLastItemPubDate()
+    public RssItemKey getLastItemKey()
     {
-        return this.lastItemPubDate;
+        return this.lastItemKey;
     }
 
     /**
-     * Returns a Date that can be used to know the most recent item in a
-     * retrieved feed.
-     * <p>
-     * This method just gives the date of the first element of the array of
-     * ItemIF previously sorted.
-     *
-     * @param date the publish date of the latest item retrieved with this
-     * reader.
+     * Assigns a new key as the key of the last retrieved item.
+     * 
+     * @param key new key for the last retrieved item.
      */
-    private void setLastItemPubDate(Date date)
+    public void setLastItemKey(RssItemKey key)
     {
-        this.lastItemPubDate = date;
+        this.lastItemKey = key;
     }
-
 
     /**
      * Returns a ChannelIF that can be used to know if a feed exists indeed.
      *
-     * @return a ChannelIF containing the result of a query on a rss server.
+     * @return a ChannelIF containing the result of a query on a RSS server.
      */
     public SyndFeed getFeed()
     {
@@ -293,7 +324,7 @@ public class RssFeedReader
     /**
      * Returns a String that can be used for identifying the contact.
      *
-     * We'll prefer to use the title of the feed as displayname.
+     * We'll prefer to use the title of the feed as display name.
      *
      * @return a String id representing and uniquely identifying the contact.
      */
@@ -329,5 +360,5 @@ public class RssFeedReader
 
             return date1.compareTo(date2);
         }
-    }
+    }    
 }
