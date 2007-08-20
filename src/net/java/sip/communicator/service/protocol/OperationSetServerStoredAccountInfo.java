@@ -42,6 +42,7 @@ import java.util.*;
  * @author Emil Ivov
  */
 public interface OperationSetServerStoredAccountInfo
+    extends OperationSet
 {
     /**
      * Returns an iterator over all details that are instances or descendants of
