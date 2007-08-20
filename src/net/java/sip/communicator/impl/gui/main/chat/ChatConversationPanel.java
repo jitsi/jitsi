@@ -426,7 +426,8 @@ public class ChatConversationPanel
 
     private void ensureDocumentSize()
     {
-        if (document.getLength() > Constants.CHAT_BUFFER_SIZE)
+        if (document.getLength() > Constants.CHAT_BUFFER_SIZE
+            && document.getDefaultRootElement().getElementCount() > 2)
         {
             Element firstElement
                 = this.document.getDefaultRootElement().getElement(0);
@@ -633,6 +634,11 @@ public class ChatConversationPanel
         }
         else
         {
+            if (HTML_CONTENT_TYPE.equals(contentType))
+            {
+                message = removeAltFromHTMLSmilies(message);
+            }
+            
             startPlainTextTag = "";
             endPlainTextTag = "";
         }
@@ -683,6 +689,64 @@ public class ChatConversationPanel
         return msgBuffer.toString();
     }
 
+    /**
+     * Removes alt content from the smilies contained in html messages. This
+     * is needed in order to process html smilies properly. If ':)' is not
+     * removed, then it will be replaced by the html <img> tag in the
+     * processSmilies method and this will cause having an <img> tag within
+     * another <img> tag and a malformatted html.
+     * 
+     * @param content the message content
+     * @return formatted messages content
+     */
+    private String removeAltFromHTMLSmilies(String content)
+    {
+        StringBuffer result = new StringBuffer();
+        StringBuffer smileyRegexp = new StringBuffer();
+
+        //building supported smilies list
+        ArrayList smiliesList = ImageLoader.getDefaultSmiliesPack();
+        for (int i = 0; i < smiliesList.size(); i++)
+        {
+            Smiley smiley = (Smiley) smiliesList.get(i);
+            String[] smileyStrings = smiley.getSmileyStrings();
+
+            for(int j = 0; j < smileyStrings.length; j++)
+            {
+                smileyRegexp.append(GuiUtils.replaceSpecialRegExpChars(
+                    smileyStrings[j])).append("|");
+            }
+        }
+        smileyRegexp.deleteCharAt(smileyRegexp.length() - 1);
+
+        //creating pattern string. we want to remove all smilies that appear
+        //in the 'alt' attribute of an '<img>' tag, like <img alt=":)" src=... >
+        String imgPattern = "<img (.*alt=\"|')(.*?)"
+            + smileyRegexp.toString()
+            + "(.*?)(\"|')(.*?)>";
+
+        Pattern p = Pattern.compile(imgPattern, Pattern.CASE_INSENSITIVE);
+        Matcher imgFinder = p.matcher(content);
+
+        boolean foundMatch = false;
+
+        //creating escaped message
+        while (imgFinder.find())
+        {
+            if (!foundMatch)
+                foundMatch = true;
+       
+            String matchGroup = imgFinder.group();
+            String replacement =
+                matchGroup.replaceAll(smileyRegexp.toString(), "");
+            imgFinder.appendReplacement(result,
+                GuiUtils.replaceSpecialRegExpChars(replacement));
+        }
+        imgFinder.appendTail(result);
+
+        return result.toString();
+    }
+    
     /**
      * Opens a link in the default browser when clicked and shows link url in a
      * popup on mouseover.
