@@ -1,0 +1,122 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.service.protocol;
+
+/**
+ * A point representing a location in {@code (x,y)} coordinate space,
+ * specified in integer precision.
+ * <p>
+ * This class has been inspired by the java.awt.Point class.
+ * <p>
+ * @author Julien Waechter
+ * @author Emil Ivov
+ */
+public class WhiteboardPoint implements Cloneable
+{
+    /**
+     * The X coordinate of this WhiteboadPoint.
+     */
+    private double x;
+
+    /**
+     * The Y coordinate of this <code>Point</code>.
+     */
+    private double y;
+
+    /**
+     * Constructs and initializes a point with the same location as
+     * the specified <tt>Point</tt> object.
+     * @param p a point
+     */
+    public WhiteboardPoint(WhiteboardPoint p)
+    {
+        this(p.x, p.y);
+    }
+
+    /**
+     * Constructs and initializes a point at the specified <tt>(x,y)</tt>
+     * location in the coordinate space.
+     *
+     * @param x the X coordinate of the newly constructed <code>Point</code>
+     * @param y the Y coordinate of the newly constructed <code>Point</code>
+     * @since 1.0
+     */
+    public WhiteboardPoint(double x, double y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    /**
+     * Returns the X coordinate of this <tt>WhiteboardPoint</tt>.
+     *
+     * @return the x coordinate of this <tt>WhiteboardPoint</tt>.
+     */
+    public double getX()
+    {
+        return x;
+    }
+
+    /**
+     * Returns the Y coordinate of this <tt>WhiteboardPoint</tt>.
+     *
+     * @return the y coordinate of this <tt>WhiteboardPoint</tt>.
+     */
+    public double getY()
+    {
+        return y;
+    }
+
+    /**
+     * Determines whether or not two points are equal. Two instances of
+     * <tt>WhiteboardPoint</tt> are equal if the values of their
+     * <tt>x</tt> and <tt>y</tt> member fields, representing
+     * their position in the coordinate space, are the same.
+     *
+     * @param obj an object to be compared with this <tt>WhiteboardPoint</tt>
+     *
+     * @return <tt>true</tt> if the object to be compared is an instance of
+     * <tt>WhiteboardPoint</tt> and has the same values; <tt>false</tt>
+     * otherwise.
+     */
+    public boolean equals(Object obj)
+    {
+        if (obj instanceof WhiteboardPoint)
+        {
+            WhiteboardPoint pt = (WhiteboardPoint)obj;
+            return (x == pt.x) && (y == pt.y);
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns a string representation of this point and its location
+     * in the {@code (x,y)} coordinate space. This method is intended to be
+     * used only for debugging purposes, and the content  and format of the
+     * returned string may vary between implementations.
+     *
+     * The returned string may be empty but may not be <code>null</code>.
+     *
+     * @return a string representation of this point
+     */
+    public String toString()
+    {
+        return getClass().getName() + "[x=" + x + ",y=" + y + "]";
+    }
+
+    /**
+     * Creates and returns a copy of this <tt>WhiteboardPoint</tt>.
+     *
+     * @return     a clone of this <tt>WhiteboardPoint</tt> instance.
+     */
+    protected Object clone()
+    {
+        return new WhiteboardPoint(this);
+    }
+
+}
