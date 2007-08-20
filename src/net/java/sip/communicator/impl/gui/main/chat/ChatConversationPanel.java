@@ -217,7 +217,7 @@ public class ChatConversationPanel
         String startHistoryDivTag
             = "<DIV identifier=\"" + msgID + "\" style=\"color:#707070;\">";
         String startSystemDivTag
-            = "<DIV identifier=\"" + msgID + "\" style=\"color:#627EB7;\">";
+            = "<DIV identifier=\"systemMessage\" style=\"color:#627EB7;\">";
         String endDivTag = "</DIV>";
 
         String startPlainTextTag;
@@ -424,33 +424,72 @@ public class ChatConversationPanel
         this.setCarretToEnd();
     }
 
+    /**
+     * Ensures that the document won't become too big. When the document reaches
+     * a certain size the first message in the page is removed.
+     */
     private void ensureDocumentSize()
     {
-        if (document.getLength() > Constants.CHAT_BUFFER_SIZE
-            && document.getDefaultRootElement().getElementCount() > 2)
+        if (document.getLength() > Constants.CHAT_BUFFER_SIZE)
         {
-            Element firstElement
-                = this.document.getDefaultRootElement().getElement(0);
+            int msgElementCount = 0;
             
+            Element firstMsgElement = null; 
+            
+            int firstMsgIndex = 0;
+            
+            Element rootElement = this.document.getDefaultRootElement();
+            // Count how many messages we have in the document.
+            for (int i = 0; i < rootElement.getElementCount(); i++)
+            {   
+                String idAttr = (String) rootElement.getElement(i)
+                    .getAttributes().getAttribute("identifier");
+            
+                if(idAttr != null
+                    && (idAttr.equals("message")
+                        || idAttr.equals("statusMessage")
+                        || idAttr.equals("systemMessage")))
+                {
+                    if(firstMsgElement == null)
+                    {
+                        firstMsgElement = rootElement.getElement(i);
+                        firstMsgIndex = i;
+                    }
+                    
+                    msgElementCount++;
+                }
+            }
+            
+            // If we doesn't have any known elements in the document or if we
+            // have only one long message we don't want to remove it. 
+            if(firstMsgElement == null || msgElementCount < 2)
+                return;
+                
             try
             {
-                if (firstElement != null)
-                    this.document.remove(firstElement.getStartOffset(),
-                        firstElement.getEndOffset()
-                            - firstElement.getStartOffset());
-
-                String idAttr = (String) firstElement
-                    .getAttributes().getAttribute("identifier");
+                Element headerElement = null;
                 
-                if(idAttr != null && idAttr.equals("messageHeader"))
+                // Remove the header of the message if such exists.
+                if(firstMsgIndex > 1)
                 {
-                    Element secondElement
-                        = this.document.getDefaultRootElement().getElement(0);
+                    headerElement = rootElement.getElement(firstMsgIndex - 1);
+                
+                    String idAttr = (String) headerElement
+                        .getAttributes().getAttribute("identifier");
                     
-                    this.document.remove(secondElement.getStartOffset(),
-                        secondElement.getEndOffset()
-                            - secondElement.getStartOffset());
+                    if(idAttr != null && idAttr.equals("messageHeader"))
+                    {   
+                        this.document.remove(headerElement.getStartOffset(),
+                            headerElement.getEndOffset()
+                                - headerElement.getStartOffset());
+                    }
                 }
+
+                // Remove the message itself.
+                this.document.remove(firstMsgElement.getStartOffset(),
+                        firstMsgElement.getEndOffset()
+                            - firstMsgElement.getStartOffset());
+
             }
             catch (BadLocationException e)
             {
