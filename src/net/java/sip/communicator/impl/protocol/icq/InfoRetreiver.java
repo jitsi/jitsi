@@ -6,15 +6,14 @@
  */
 package net.java.sip.communicator.impl.protocol.icq;
 
+import java.net.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
-import net.kano.joustsim.*;
 import net.kano.joscar.snaccmd.icq.*;
-import net.java.sip.communicator.service.protocol.*;
-import java.net.*;
 
 /**
  * @author Damian Minkov
@@ -139,10 +138,7 @@ public class InfoRetreiver
             retreivedDetails.put(uin, result);
         }
         
-        List copyList = new Vector();
-        Collections.copy(copyList, result);
-        
-        return copyList;
+        return new LinkedList(result);
     }
 
     /**
