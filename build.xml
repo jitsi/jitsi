@@ -875,7 +875,7 @@
         bundle-plugin-extended-callhistory-search,
         bundle-rss,bundle-plugin-rssaccregwizz,
         bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,
-        bundle-pluginmanager"/>
+        bundle-pluginmanager,bundle-notification"/>
 
     <!--BUNDLE-HISTORY-->
     <target name="bundle-history">
@@ -1647,6 +1647,18 @@ javax.swing.event, javax.swing.border"/>
             <manifest>
                 <attribute name="Export-Package" value="org.apache.log4j"/>
             </manifest>
+        </jar>
+    </target>
+	
+	<!-- BUNDLE-NOTIFICATION -->
+    <target name="bundle-notification">
+        <!-- Creates a bundle for the notifications.-->
+        <jar compress="false" destfile="${bundles.dest}/notification.jar"
+            manifest="${src}/net/java/sip/communicator/impl/notification/notification.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/notification"
+                prefix="net/java/sip/communicator/service/notification"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/notification"
+                prefix="net/java/sip/communicator/impl/notification"/>
         </jar>
     </target>
 </project>
