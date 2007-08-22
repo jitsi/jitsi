@@ -53,7 +53,7 @@ class RssItemKey
      * Creates a RssContactSettings object that uses date to identify feed
      * items, with the last item date specified by the <tt>lastPostDate</tt>
      * parameter.
-     * @param lastPostDate date/time of the last feed item
+     * @param itemDate date/time of the item
      */
     public RssItemKey(Date itemDate)
     {
@@ -65,7 +65,7 @@ class RssItemKey
     /***
      * Creates a RssContactSettings object that uses URI to identify feed
      * items, with the last item URI specified by the <tt>lastPostUri</tt>
-     * @param lastPostUri URI/link of the last feed item
+     * @param itemUri URI/link of the item
      */
     public RssItemKey(String itemUri)
     {
