@@ -35,10 +35,6 @@ public class TrayMenu
     private Logger logger = Logger.getLogger(TrayMenu.class.getName());
     
     /**
-     * A reference of the <tt>Uiservice</tt>
-     */
-    private UIService uiService;
-    /**
      * A reference of <tt>Systray</tt>
      */
     private SystrayServiceJdicImpl parentSystray;
@@ -65,12 +61,10 @@ public class TrayMenu
     
     /**
      * Creates an instance of <tt>TrayMenu</tt>.
-     * @param service a reference of the current <tt>UIservice</tt>
      * @param tray a reference of the parent <tt>Systray</tt>
      */
-    public TrayMenu(UIService service, SystrayServiceJdicImpl tray)
-    {   
-        uiService = service;
+    public TrayMenu(SystrayServiceJdicImpl tray)
+    {
         parentSystray = tray;
         
         setStatusMenu = new StatusSubMenu(tray);
@@ -105,7 +99,9 @@ public class TrayMenu
         
         if(itemName.equals("settings"))
         {  
-            configDialog = uiService.getConfigurationWindow();
+            configDialog
+                = SystrayActivator.getUIService().getConfigurationWindow();
+            
             configDialog.setVisible(true);
         }
         else if(itemName.equals("close"))
@@ -122,14 +118,16 @@ public class TrayMenu
         }
         else if(itemName.equals("addContact"))
         {                   
-            ExportedWindow dialog = uiService.getExportedWindow(
-                ExportedWindow.ADD_CONTACT_WINDOW);
+            ExportedWindow dialog
+                = SystrayActivator.getUIService().getExportedWindow(
+                    ExportedWindow.ADD_CONTACT_WINDOW);
             
             if(dialog != null)
                 dialog.setVisible(true);
             else
-                uiService.getPopupDialog().showMessagePopupDialog(
-                    Resources.getString("failedToLoadAddContactDialog"));
+                SystrayActivator.getUIService().getPopupDialog()
+                    .showMessagePopupDialog(
+                        Resources.getString("failedToLoadAddContactDialog"));
         }
     }
     

@@ -126,8 +126,7 @@ public class StatusSelector
                             != RegistrationState.AUTHENTICATING
                         && status.isOnline())
                 {
-                    new ProviderRegistration(parentSystray.getUiService(),
-                        provider).start();
+                    new ProviderRegistration(provider).start();
                 }
                 else
                 {

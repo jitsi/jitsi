@@ -7,6 +7,7 @@
 
 package net.java.sip.communicator.impl.systray.jdic;
 
+import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -29,8 +30,6 @@ public class ProviderRegistration
      */
     private ProtocolProviderService protocolProvider;
 
-    private UIService uiService;
-
     /**
      * The logger for this class.
      */
@@ -42,11 +41,9 @@ public class ProviderRegistration
      * @param uiService a reference to the currently valid ui service instance.
      * @param protocolProvider the provider we want to register
      */
-    public ProviderRegistration(UIService uiService,
-        ProtocolProviderService protocolProvider)
+    public ProviderRegistration(ProtocolProviderService protocolProvider)
     {
         this.protocolProvider = protocolProvider;
-        this.uiService = uiService;
     }
 
     /**
@@ -99,8 +96,8 @@ public class ProviderRegistration
     public UserCredentials obtainCredentials(String realm,
             UserCredentials userCredentials)
     {
-        ExportedWindow loginWindow = uiService.getAuthenticationWindow(
-            protocolProvider, realm, userCredentials);
+        ExportedWindow loginWindow = SystrayActivator.getUIService()
+            .getAuthenticationWindow(protocolProvider, realm, userCredentials);
 
         loginWindow.setVisible(true);
 

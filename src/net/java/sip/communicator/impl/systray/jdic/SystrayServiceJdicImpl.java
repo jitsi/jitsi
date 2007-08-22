@@ -26,9 +26,6 @@ import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jdesktop.jdic.tray.*;
-import org.jdesktop.jdic.tray.SystemTray;
-import org.jdesktop.jdic.tray.TrayIcon;
-
 import org.osgi.framework.*;
 
 /**
@@ -40,15 +37,8 @@ import org.osgi.framework.*;
  */
 public class SystrayServiceJdicImpl
     implements SystrayService,
-               ServiceListener,
-               MessageListener,
                ChatFocusListener
 {
-    /**
-     * A reference of the <tt>UIservice</tt>.
-     */
-    private UIService uiService;
-
     /**
      * The systray.
      */
@@ -86,10 +76,8 @@ public class SystrayServiceJdicImpl
      * Creates an instance of <tt>Systray</tt>.
      * @param service a reference of the current <tt>UIservice</tt>
      */
-    public SystrayServiceJdicImpl(UIService service)
+    public SystrayServiceJdicImpl()
     {
-        this.uiService = service;
-
         try
         {
             systray = SystemTray.getDefaultSystemTray();
@@ -102,11 +90,8 @@ public class SystrayServiceJdicImpl
         if(systray != null)
         {
             this.initSystray();
-            this.initProvidersTable();
 
-            uiService.setExitOnMainWindowClose(false);
-
-            SystrayActivator.bundleContext.addServiceListener(this);
+            SystrayActivator.getUIService().setExitOnMainWindowClose(false);
         }
     }
 
@@ -115,7 +100,7 @@ public class SystrayServiceJdicImpl
      */
     private void initSystray()
     {
-        menu = new TrayMenu(uiService,this);
+        menu = new TrayMenu(this);
 
         String osName = System.getProperty("os.name");
         // If we're running under Windows, we use a special icon without
@@ -139,6 +124,8 @@ public class SystrayServiceJdicImpl
         {
             public void actionPerformed(ActionEvent e)
             {
+                UIService uiService = SystrayActivator.getUIService();
+                
                 boolean isVisible;
 
                 isVisible = ! uiService.isVisible();
@@ -160,6 +147,8 @@ public class SystrayServiceJdicImpl
         {
             public void actionPerformed(ActionEvent e)
             {
+                UIService uiService = SystrayActivator.getUIService();
+                
                 firePopupMessageEvent(e.getSource());
 
                 ExportedWindow chatWindow
@@ -176,48 +165,6 @@ public class SystrayServiceJdicImpl
     }
 
     /**
-     * We fill the protocolProviderTable with all
-     * running protocol providers at the start of
-     * the bundle.
-     */
-    private void initProvidersTable()
-    {
-        BundleContext bc = SystrayActivator.bundleContext;
-
-        bc.addServiceListener(this);
-        ServiceReference[] protocolProviderRefs = null;
-        try
-        {
-            protocolProviderRefs = bc.getServiceReferences(
-                ProtocolProviderService.class.getName(),null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            // this shouldn't happen since we're providing no parameter string
-            // but let's log just in case.
-            logger.error("Error while retrieving service refs", ex);
-            return;
-        }
-
-        // in case we found any
-        if (protocolProviderRefs != null)
-        {
-
-            for (int i = 0; i < protocolProviderRefs.length; i++)
-            {
-                ProtocolProviderService provider = (ProtocolProviderService) bc
-                    .getService(protocolProviderRefs[i]);
-
-                this.protocolProviderTable.put(
-                    provider.getAccountID(),
-                    provider);
-
-                handleProviderAdded(provider);
-            }
-        }
-    }
-
-    /**
      * Returns a set of all protocol providers.
      *
      * @return a set of all protocol providers.
@@ -226,137 +173,13 @@ public class SystrayServiceJdicImpl
     {
         return this.protocolProviderTable.values().iterator();
     }
-
-    /**
-     * Currently unused
-     * @param evt ignored
-     */
-    public void messageDelivered(MessageDeliveredEvent evt)
-    {
-    }
-
-    /**
-     * Currently unused
-     * @param evt ignored
-     */
-    public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
-    {
-    }
-
     /**
      * Display in a balloon the newly received message
      * @param evt the event containing the message
      */
     public void messageReceived(MessageReceivedEvent evt)
     {
-        Chat chat = uiService.getChat(evt.getSourceContact());
-
-        if(!chat.isChatFocused())
-        {
-            String title = Resources.getString("messageReceived") + " "
-                + evt.getSourceContact().getDisplayName();
-
-            String message = evt.getSourceMessage().getContent();
-
-            if(message.length() > 100)
-                message = message.substring(0, 100).concat("...");
-
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            GraphicsDevice gs = ge.getDefaultScreenDevice();
-            GraphicsConfiguration gc = gs.getDefaultConfiguration();
-
-            // Create an image that does not support transparency
-            BufferedImage img = gc.createCompatibleImage(logoIcon.getIconWidth(),
-                   logoIcon.getIconHeight(), Transparency.TRANSLUCENT);
-
-            Image msgImg = new ImageIcon(
-                    Resources.getImage("messageIcon")).getImage();
-
-            Graphics2D g = (Graphics2D) img.getGraphics();
-
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-            g.drawImage(logoIcon.getImage(), 0, 0, null);
-            g.drawImage(msgImg,
-                    logoIcon.getIconWidth()/2 - msgImg.getWidth(null)/2,
-                    logoIcon.getIconHeight()/2 - msgImg.getHeight(null)/2, null);
-
-            this.trayIcon.setIcon(new ImageIcon(img));
-
-            this.trayIcon.displayMessage(
-                title, message, TrayIcon.NONE_MESSAGE_TYPE);
-
-            chat.addChatFocusListener(this);
-        }
-    }
-
-    /**
-     * When a service ist registered or unregistered, we update
-     * the provider tables and add/remove listeners (if it supports
-     * BasicInstantMessenging implementation)
-     *
-     * @param event ServiceEvent
-     */
-    public void serviceChanged(ServiceEvent event)
-    {
-        Object service = SystrayActivator.bundleContext
-            .getService( event.getServiceReference());
-
-        if (! (service instanceof ProtocolProviderService))
-            return;
-
-        ProtocolProviderService provider = (ProtocolProviderService)service;
-
-        if (event.getType() == ServiceEvent.REGISTERED)
-        {
-            protocolProviderTable.put(provider.getAccountID(),provider);
-            handleProviderAdded(provider);
-
-        }
-
-        if (event.getType() == ServiceEvent.UNREGISTERING)
-        {
-           protocolProviderTable.remove(provider.getAccountID());
-           handleProviderRemoved(provider);
-        }
-    }
-
-    /**
-     * Checks if the provider has an implementation
-     * of OperationSetBasicInstantMessaging and
-     * if so add a listerner to it
-     *
-     * @param provider ProtocolProviderService
-     */
-    private void handleProviderAdded(ProtocolProviderService provider)
-    {
-        OperationSetBasicInstantMessaging opSetIm
-        = (OperationSetBasicInstantMessaging) provider
-        .getSupportedOperationSets().get(
-            OperationSetBasicInstantMessaging.class.getName());
-
-        if(opSetIm != null)
-            opSetIm.addMessageListener(this);
-
-    }
-
-    /**
-     * Checks if the provider has an implementation
-     * of OperationSetBasicInstantMessaging and
-     * if so remove its listerner
-     *
-     * @param provider ProtocolProviderService
-     */
-    private void handleProviderRemoved(ProtocolProviderService provider)
-    {
-        OperationSetBasicInstantMessaging opSetIm
-        = (OperationSetBasicInstantMessaging) provider
-        .getSupportedOperationSets().get(
-            OperationSetBasicInstantMessaging.class.getName());
-
-        if(opSetIm != null)
-            opSetIm.removeMessageListener(this);
-
+        
     }
 
     /**
@@ -416,11 +239,6 @@ public class SystrayServiceJdicImpl
         }
     }
 
-    public UIService getUiService()
-    {
-        return uiService;
-    }
-
     /**
      * Implements the <tt>SystratService.showPopupMessage</tt> method. Shows
      * a popup message, above the systray icon, which has the given title,
@@ -437,6 +255,32 @@ public class SystrayServiceJdicImpl
             trayMsgType = TrayIcon.INFO_MESSAGE_TYPE;
         else if (messageType == SystrayService.WARNING_MESSAGE_TYPE)
             trayMsgType = TrayIcon.WARNING_MESSAGE_TYPE;
+
+        if(messageContent.length() > 100)
+            messageContent = messageContent.substring(0, 100).concat("...");
+
+        GraphicsEnvironment ge
+            = GraphicsEnvironment.getLocalGraphicsEnvironment();        
+        GraphicsDevice gs = ge.getDefaultScreenDevice();
+        GraphicsConfiguration gc = gs.getDefaultConfiguration();
+
+        // Create an image that does not support transparency
+        BufferedImage img = gc.createCompatibleImage(logoIcon.getIconWidth(),
+               logoIcon.getIconHeight(), Transparency.TRANSLUCENT);
+
+        Image msgImg = new ImageIcon(
+                Resources.getImage("messageIcon")).getImage();
+
+        Graphics2D g = (Graphics2D) img.getGraphics();
+
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        g.drawImage(logoIcon.getImage(), 0, 0, null);
+        g.drawImage(msgImg,
+                logoIcon.getIconWidth()/2 - msgImg.getWidth(null)/2,
+                logoIcon.getIconHeight()/2 - msgImg.getHeight(null)/2, null);
+
+        this.trayIcon.setIcon(new ImageIcon(img));
 
         this.trayIcon.displayMessage(
             title, messageContent, trayMsgType);

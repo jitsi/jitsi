@@ -112,8 +112,7 @@ public class StatusSimpleSelector
         {
             if(!this.provider.isRegistered()) 
             {
-                new ProviderRegistration(
-                    parentSystray.getUiService(), provider).start();
+                new ProviderRegistration(provider).start();
             }
         }
         else 

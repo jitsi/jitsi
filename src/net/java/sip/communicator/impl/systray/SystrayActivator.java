@@ -6,9 +6,12 @@
  */
 package net.java.sip.communicator.impl.systray;
 
+import net.java.sip.communicator.impl.notification.*;
 import net.java.sip.communicator.impl.systray.jdic.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.notification.*;
+import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -43,12 +46,24 @@ public class SystrayActivator
     {
         bundleContext = bc;
 
-        ServiceReference uiServiceRef = bundleContext
-            .getServiceReference(UIService.class.getName());
+        try {
+            // Create the notification service implementation
+            SystrayService systrayService = new SystrayServiceJdicImpl();
 
-        uiService = (UIService) bundleContext.getService(uiServiceRef);
+            logger.info("Systray Service...[  STARTED ]");
 
-        SystrayServiceJdicImpl systray = new SystrayServiceJdicImpl(uiService);
+            bundleContext.registerService(
+                    SystrayService.class.getName(),
+                    systrayService,
+                    null);
+            
+            logger.info("Systray Service ...[REGISTERED]");
+            
+            logger.logEntry();
+        }
+        finally {
+            logger.logExit();
+        }
     }
 
     /**
@@ -82,5 +97,25 @@ public class SystrayActivator
         }
 
         return configService;
+    }
+    
+    /**
+     * Returns the <tt>UIService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>UIService</tt> obtained from the bundle
+     * context
+     */
+    public static UIService getUIService()
+    {
+        if(uiService == null)
+        {
+            ServiceReference serviceRef = bundleContext
+                .getServiceReference(UIService.class.getName());
+
+            uiService = (UIService) bundleContext
+                .getService(serviceRef);
+        }
+
+        return uiService;
     }
 }
