@@ -6,18 +6,18 @@
  */
 package net.java.sip.communicator.impl.protocol.rss;
 
+import java.awt.*;
+import java.awt.image.*;
+import java.io.*;
+import java.net.*;
 import java.util.*;
-import java.text.*;
+
+import javax.imageio.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import java.net.*;
 
 import com.ctreber.aclib.image.ico.*;
-import java.io.*;
-import java.awt.*;
-import javax.imageio.*;
-import java.awt.image.*;
 
 /**
  * An implementation of a rss Contact.
@@ -435,7 +435,7 @@ public class ContactRssImpl
      * item, so that upon restart, items that have already been displayed in
      * older sessions don't get displayed again.
      * 
-     * @see setPersistentData
+     * @see #setPersistentData(String)
      */
     public String getPersistentData()
     {
@@ -448,7 +448,8 @@ public class ContactRssImpl
     /***
      * Restores feed item identification data from their textual representation.
      * @param persistentData textual representation of item key.
-     * @see getPersistentData
+     * 
+     * #setPersistentData()
      */
     public void setPersistentData(String persistentData)
     {

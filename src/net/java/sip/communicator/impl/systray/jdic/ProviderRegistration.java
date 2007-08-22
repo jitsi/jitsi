@@ -38,7 +38,6 @@ public class ProviderRegistration
     /**
      * Creates an instance of <tt>ProviderRegistration</tt>.
      *
-     * @param uiService a reference to the currently valid ui service instance.
      * @param protocolProvider the provider we want to register
      */
     public ProviderRegistration(ProtocolProviderService protocolProvider)

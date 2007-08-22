@@ -16,7 +16,8 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Julien Waechter
  * @author Emil Ivov
  */
-public interface WhiteboardSession {
+public interface WhiteboardSession
+{
 
     /**
      * Returns the id of the specified Whiteboard.
@@ -91,7 +92,7 @@ public interface WhiteboardSession {
 
     /**
      * Returns true if the local user is currently in the whiteboard session
-     * (after whiteboarding one of the {@link #join(String)} methods).
+     * (after whiteboarding one of the {@link #join()} methods).
      *
      * @return true if currently we're currently in this whiteboard and false
      * otherwise.

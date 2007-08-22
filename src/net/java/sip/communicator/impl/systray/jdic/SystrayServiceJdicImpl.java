@@ -26,7 +26,6 @@ import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jdesktop.jdic.tray.*;
-import org.osgi.framework.*;
 
 /**
  * The <tt>Systray</tt> provides a Icon and the associated <tt>TrayMenu</tt>
@@ -74,7 +73,6 @@ public class SystrayServiceJdicImpl
 
     /**
      * Creates an instance of <tt>Systray</tt>.
-     * @param service a reference of the current <tt>UIservice</tt>
      */
     public SystrayServiceJdicImpl()
     {

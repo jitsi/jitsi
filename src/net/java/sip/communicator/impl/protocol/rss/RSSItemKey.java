@@ -83,8 +83,8 @@ class RssItemKey
      * 
      * @return <code>true</code> if date is used for identification,
      * <code>false</code> otherwise.
-     * @see getItemDate()
-     * @see getItemUri()
+     * @see #getItemDate()
+     * @see #getItemUri()
      */
     public boolean usesDate()
     {
@@ -96,7 +96,7 @@ class RssItemKey
      * returned in case <code>usesDate() == false</code>.
      * 
      * @return date field of the key.
-     * @see usesDate()
+     * @see #usesDate()
      */
     public Date getItemDate()
     {
@@ -108,7 +108,7 @@ class RssItemKey
      * returned in case <code>usesDate() == true</code>.
      * 
      * @return URI field of the key.
-     * @see usesDate()
+     * @see #usesDate()
      */
     public String getItemUri()
     {
@@ -173,7 +173,7 @@ class RssItemKey
      * Returns the textual representation of the settings object. This can
      * be easily de-serialized with a call to <code>deserialize()</code>.
      * 
-     * @see deserialize()
+     * @see #deserialize(String)
      */
     public String toString()
     {
