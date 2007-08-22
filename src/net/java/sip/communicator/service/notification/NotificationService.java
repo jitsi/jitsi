@@ -1,4 +1,4 @@
-/*r
+/*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
  * Distributable under LGPL license.
@@ -48,16 +48,107 @@ public interface NotificationService
     public static final String ACTION_COMMAND = "CommandAction";
     
     /**
-     * Registers the specified <tt>actionDescriptor</tt> as a notification that
-     * should be used every time an event with the specified <tt>eventType</tt>
-     * has occurred.
+     * Creates a <tt>SoundNotificationHandler</tt>, by specifying the
+     * path pointing to the sound file and the loop interval if the sound should
+     * be played in loop. If the sound should be played just once the loop
+     * interval should be set to -1. The <tt>SoundNotificationHandler</tt> is
+     * the one that would take care of playing the sound, when a notification
+     * is fired.
+     * 
+     * @param soundFileDescriptor the path pointing to the sound file
+     * @param loopInterval the interval of milliseconds to repeat the sound in
+     * loop  
+     * @return the <tt>SoundNotificationHandler</tt> is the one, that would take
+     * care of playing the given sound, when a notification is fired
+     */
+    public SoundNotificationHandler createSoundNotificationHandler(
+                                                    String soundFileDescriptor,
+                                                    int loopInterval);
+    
+    /**
+     * Creates a <tt>PopupMessageNotificationHandler</tt>, by specifying the
+     * default message to show, when no message is provided to the
+     * <tt>fireNotification</tt> method. The
+     * <tt>PopupMessageNotificationHandler</tt> is the one that would take care
+     * of showing a popup message (through the systray service for example),
+     * when a notification is fired.
+     * 
+     * @param defaultMessage the message to show if not message is provided to
+     * the <tt>fireNotification</tt> method
+     * @return the <tt>PopupMessageNotificationHandler</tt> is the one, that
+     * would take care of showing a popup message (through the systray service
+     * for example), when a notification is fired.
+     */
+    public PopupMessageNotificationHandler createPopupMessageNotificationHandler(
+                                                    String defaultMessage);
+    
+    /**
+     * Creates a <tt>LogMessageNotificationHandler</tt>, by specifying the
+     * type of the log (error, trace, info, etc.). The
+     * <tt>LogMessageNotificationHandler</tt> is the one that would take care
+     * of logging a message (through the application log system), when a
+     * notification is fired.
+     * 
+     * @param logType the type of the log (error, trace, etc.). One of the types
+     * defined in the <tt>LogMessageNotificationHandler</tt> interface
+     * @return the <tt>LogMessageNotificationHandler</tt> is the one, that would
+     * take care of logging a message (through the application log system), when
+     * a notification is fired.
+     */
+    public LogMessageNotificationHandler createLogMessageNotificationHandler(
+                                                    String logType);
+    
+    /**
+     * Creates a <tt>CommandNotificationHandler</tt>, by specifying the path to
+     * the command file to execute, when a notification is fired. The
+     * <tt>CommandNotificationHandler</tt> is the one that would take care
+     * of executing the given program, when a notification is fired.
+     * 
+     * @param commandFileDescriptor the path to the file containing the program
+     * to execute
+     * @return the <tt>CommandNotificationHandler</tt> is the one, that would
+     * take care of executing a program, when a notification is fired.
+     */
+    public CommandNotificationHandler createCommandNotificationHandler(
+                                        String commandFileDescriptor);
+    
+    /**
+     * Registers a notification for the given <tt>eventType</tt> by specifying
+     * the type of the action to be performed when a notification is fired for
+     * this event and the corresponding <tt>handler</tt> that should be used to
+     * handle the action. Unlike the other <tt>registerNotificationForEvent</tt>
+     * method, this one allows the user to specify its own
+     * <tt>NotificationHandler</tt>, which would be used to handle notifications
+     * for the specified <tt>actionType</tt>.
+     * 
+     * @param eventType the name of the event (as defined by the plug-in that's
+     * registering it) that we are setting an action for.
+     * @param actionType the type of the action that is to be executed when the
+     * specified event occurs (could be one of the ACTION_XXX fields).
+     * @param handler the <tt>NotificationActionHandler</tt>, which would be
+     * used to perform the notification action.
+     * @throws IllegalArgumentException if the specified <tt>handler</tt> do not
+     * correspond to the given <tt>actionType</tt>.
+     */
+    public void registerNotificationForEvent(   String eventType,
+                                                String actionType,
+                                                NotificationActionHandler handler)
+        throws IllegalArgumentException;
+    
+    /**
+     * Registers a notification for the given <tt>eventType</tt> by specifying
+     * the type of the action to be performed when a notification is fired for
+     * this event, the <tt>actionDescriptor</tt> for sound and command actions
+     * and the <tt>defaultMessage</tt> for popup and log actions. Actions
+     * registered by this method would be handled by some default
+     * <tt>NotificationHandler</tt>s, declared by the implementation.
      * <p>
      * The method allows registering more than one actionType for a specific
      * event. Setting twice the same <tt>actionType</tt> for the same
      * <tt>eventType</tt>  however would cause the first setting to be
      * overridden.
      *
-     * @param eventType the name of the event (as defined by the plugin that's
+     * @param eventType the name of the event (as defined by the plug-in that's
      * registering it) that we are setting an action for.
      * @param actionType the type of the action that is to be executed when the
      * specified event occurs (could be one of the ACTION_XXX fields).
@@ -67,10 +158,10 @@ public interface NotificationService
      * @param defaultMessage the default message to use if no specific message
      * has been provided when firing the notification.
      */
-    public void registerEventNotification(String eventType,
-                                          String actionType,
-                                          String actionDescriptor,
-                                          String defaultMessage);
+    public void registerNotificationForEvent(   String eventType,
+                                                String actionType,
+                                                String actionDescriptor,
+                                                String defaultMessage);
     
     /**
      * Removes the given <tt>eventType</tt> from the list of event notifications.
@@ -128,8 +219,8 @@ public interface NotificationService
     public Map getEventNotifications(String eventType);
 
     /**
-     * Returns the descriptor of the action of type <tt>actionType</tt> that
-     * should be executed when an event of <tt>eventType</tt> has occurred.
+     * Returns the <tt>NotificationActionHandler</tt> corresponding to the given
+     * event and action types.
      * <p>
      * This method returns <b>null</b> if the given <tt>eventType</tt> or
      * <tt>actionType</tt> are not contained in the list of registered types.
@@ -137,11 +228,12 @@ public interface NotificationService
      * @param eventType the type of the event that we'd like to retrieve.
      * @param actionType the type of the action that we'd like to retrieve a
      * descriptor for.
-     * @return a String containing a descriptor of the action to be executed
-     * when an event of the specified type has occurred.
+     * @return the <tt>NotificationActionHandler</tt> corresponding to the given
+     * event and action types
      */
-    public String getEventNotificationActionDescriptor(String eventType,
-                                                       String actionType);
+    public NotificationActionHandler getEventNotificationActionHandler(
+                                                        String eventType,
+                                                        String actionType);
 
     /**
      * Registers a listener that would be notified of changes that have occurred
@@ -171,10 +263,14 @@ public interface NotificationService
      * 
      * @param eventType the type of the event that we'd like to fire a
      * notification for.
+     * @param messageTitle the message title to use if and where appropriate
+     * (e.g. with systray)
      * @param message the message to use if and where appropriate (e.g. with
      * systray or log notification.)
      */
-    public void fireNotification(String eventType, String message);
+    public void fireNotification(   String eventType,
+                                    String messageTitle,
+                                    String message);
 
     /**
      * Fires all notifications registered for the specified <tt>eventType</tt>
@@ -189,7 +285,7 @@ public interface NotificationService
      * notification for.
      */
     public void fireNotification(String eventType);
-    
+
     /**
      * Activates or desactivates all notification actions related to the
      * specified <tt>eventType</tt>. This method does nothing if the given
