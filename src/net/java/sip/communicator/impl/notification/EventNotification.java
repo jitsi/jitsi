@@ -52,14 +52,16 @@ public class EventNotification
      * @param actionType one of NotificationService.ACTION_XXX constants
      * @param actionHandler the the handler that will process the given action
      * type.
+     * @return the previous value of the actionHandler for the given actionType,
+     * if one existed, NULL if the actionType is a new one  
      */
-    public void addAction(  String actionType,
+    public Object addAction(  String actionType,
                             NotificationActionHandler actionHandler)
     {
         Action action
             = new Action(actionType, actionHandler);
         
-        actionsTable.put(actionType, action);
+        return actionsTable.put(actionType, action);
     }
     
     /**

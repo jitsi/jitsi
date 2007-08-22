@@ -47,7 +47,7 @@ public class NotificationEventTypeEvent
      * declared in this class
      * @param sourceEventType the event type for which this event occured
      */
-    public NotificationEventTypeEvent( NotificationService source,
+    public NotificationEventTypeEvent(  NotificationService source,
                                         String eventType,
                                         String sourceEventType)
     {

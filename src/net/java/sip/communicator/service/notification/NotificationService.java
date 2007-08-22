@@ -242,7 +242,8 @@ public interface NotificationService
      * @param listener the listener that we'd like to register for changes in
      * the event notifications stored by this service.
      */
-    public void addEventNotificationChangeListener(Object listener);
+    public void addNotificationChangeListener(
+        NotificationChangeListener listener);
 
     /**
      * Remove the specified listener so that it won't receive further
@@ -251,11 +252,12 @@ public interface NotificationService
      *
      * @param listener the listener to remove.
      */
-    public void removeEventNotificationChangeListener(Object listener);
+    public void removeNotificationChangeListener(
+        NotificationChangeListener listener);
 
     /**
      * Fires all notifications registered for the specified <tt>eventType</tt>
-     * using <tt>message</tt> as a notification message whereever appropriate
+     * using <tt>message</tt> as a notification message wherever appropriate
      * (e.g. systray notifications, logs, etc.)
      * <p>
      * This method does nothing if the given <tt>eventType</tt> is not contained
@@ -275,7 +277,7 @@ public interface NotificationService
     /**
      * Fires all notifications registered for the specified <tt>eventType</tt>
      * using the default message specified upon registration as a notification
-     * message whereever appropriate.
+     * message wherever appropriate.
      * (e.g. systray notifications, logs, etc.)
      * <p>
      * This method does nothing if the given <tt>eventType</tt> is not contained

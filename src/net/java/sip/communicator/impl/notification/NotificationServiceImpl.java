@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.impl.notification.EventNotification.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.notification.*;
+import net.java.sip.communicator.service.notification.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -113,13 +114,35 @@ public class NotificationServiceImpl
             
             notificationsTable.put(eventType, notification);
             
+            this.fireNotificationEventTypeEvent(
+                NotificationEventTypeEvent.EVENT_TYPE_ADDED, eventType);
+            
             // Save the notification through the ConfigurationService.
             this.saveNotification(  eventType,
                                     actionType,
                                     handler);
         }
         
-        notification.addAction(actionType, handler);
+        Object existingAction = notification.addAction(actionType, handler);
+        
+        // We fire the appropriate event depending on whether this is an
+        // already existing actionType or a new one.
+        if (existingAction != null)
+        {
+            fireNotificationActionTypeEvent(
+                NotificationActionTypeEvent.ACTION_CHANGED,
+                eventType,
+                actionType,
+                handler);
+        }
+        else
+        {
+            fireNotificationActionTypeEvent(
+                NotificationActionTypeEvent.ACTION_ADDED,
+                eventType,
+                actionType,
+                handler);
+        }
     }
     
     /**
@@ -174,6 +197,9 @@ public class NotificationServiceImpl
     public void removeEventNotification(String eventType)
     {
         notificationsTable.remove(eventType);
+        
+        this.fireNotificationEventTypeEvent(
+            NotificationEventTypeEvent.EVENT_TYPE_REMOVED, eventType);
     }
 
     /**
@@ -185,8 +211,8 @@ public class NotificationServiceImpl
      * @param actionType the type of the action that is to be executed when the
      * specified event occurs (could be one of the ACTION_XXX fields).
      */
-    public void removeEventNotificationAction(String eventType,
-        String actionType)
+    public void removeEventNotificationAction(  String eventType,
+                                                String actionType)
     {
         EventNotification notification
             = (EventNotification) notificationsTable.get(eventType);
@@ -194,7 +220,15 @@ public class NotificationServiceImpl
         if(notification == null)
             return;
         
+        Action action = notification.getAction(actionType);
+        
         notification.removeAction(actionType);
+        
+        fireNotificationActionTypeEvent(
+            NotificationActionTypeEvent.ACTION_REMOVED,
+            eventType,
+            action.getActionType(),
+            action.getActionHandler());
     }
 
     /**
@@ -278,7 +312,8 @@ public class NotificationServiceImpl
      * @param listener the listener that we'd like to register to listen for
      * changes in the event notifications stored by this service.
      */
-    public void addEventNotificationChangeListener(Object listener)
+    public void addNotificationChangeListener(
+        NotificationChangeListener listener)
     {
         synchronized (changeListeners)
         {
@@ -291,7 +326,8 @@ public class NotificationServiceImpl
      * 
      * @param listener the listener that we'd like to remove
      */
-    public void removeEventNotificationChangeListener(Object listener)
+    public void removeNotificationChangeListener(
+        NotificationChangeListener listener)
     {
         synchronized (changeListeners)
         {
@@ -615,5 +651,86 @@ public class NotificationServiceImpl
             return false;
         
         return eventNotification.isActive();
+    }
+    
+    /**
+     * Notifies all registered <tt>NotificationChangeListener</tt>s that a
+     * <tt>NotificationEventTypeEvent</tt> has occured.
+     * 
+     * @param eventType the type of the event, which is one of EVENT_TYPE_XXX
+     * constants declared in the <tt>NotificationEventTypeEvent</tt> class.
+     * @param sourceEventType the <tt>eventType</tt>, for which this event is
+     * about
+     */
+    private void fireNotificationEventTypeEvent(String eventType,
+                                                String sourceEventType)
+    {
+        NotificationEventTypeEvent event
+            = new NotificationEventTypeEvent(this, eventType, sourceEventType);
+        
+        NotificationChangeListener listener;
+        
+        for (int i = 0 ; i < changeListeners.size(); i ++)
+        {
+            listener = (NotificationChangeListener) changeListeners.get(i);
+            
+            if (eventType.equals(NotificationEventTypeEvent.EVENT_TYPE_ADDED))
+            {
+                listener.eventTypeAdded(event);
+            }
+            else if (eventType.equals(
+                NotificationEventTypeEvent.EVENT_TYPE_REMOVED))
+            {
+                listener.eventTypeRemoved(event);
+            }
+        }
+    }
+    
+    /**
+     * Notifies all registered <tt>NotificationChangeListener</tt>s that a
+     * <tt>NotificationActionTypeEvent</tt> has occured.
+     * 
+     * @param eventType the type of the event, which is one of ACTION_XXX
+     * constants declared in the <tt>NotificationActionTypeEvent</tt> class.
+     * @param sourceEventType the <tt>eventType</tt>, which is the parent of the
+     * action
+     * @param sourceActionType the <tt>actionType</tt>, for which the event is
+     * about
+     * @param actionHandler the notification action handler
+     */
+    private void fireNotificationActionTypeEvent(
+                                        String eventType,
+                                        String sourceEventType,
+                                        String sourceActionType,
+                                        NotificationActionHandler actionHandler)
+    {
+        NotificationActionTypeEvent event
+            = new NotificationActionTypeEvent(  this,
+                                                eventType,
+                                                sourceEventType,
+                                                sourceActionType,
+                                                actionHandler);
+
+        NotificationChangeListener listener;
+
+        for (int i = 0 ; i < changeListeners.size(); i ++)
+        {
+            listener = (NotificationChangeListener) changeListeners.get(i);
+
+            if (eventType.equals(NotificationActionTypeEvent.ACTION_ADDED))
+            {
+                listener.actionAdded(event);
+            }
+            else if (eventType.equals(
+                NotificationActionTypeEvent.ACTION_REMOVED))
+            {
+                listener.actionRemoved(event);
+            }
+            else if (eventType.equals(
+                NotificationActionTypeEvent.ACTION_CHANGED))
+            {
+                listener.actionChanged(event);
+            }
+        }
     }
 }

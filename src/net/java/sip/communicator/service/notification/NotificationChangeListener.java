@@ -62,5 +62,5 @@ public interface NotificationChangeListener
      * @param event the <tt>NotificationEventTypeEvent</tt>, which is dispatched
      * when an event type has been removed.
      */
-    public void eventTypeRemoved();
+    public void eventTypeRemoved(NotificationEventTypeEvent event);
 }
