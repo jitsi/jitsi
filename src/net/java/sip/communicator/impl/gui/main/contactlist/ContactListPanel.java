@@ -14,7 +14,6 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -214,17 +213,20 @@ public class ContactListPanel
                 .findMetaContactByContact(protocolContact);
         
         if(metaContact != null)
-        {
-            ContactListModel clistModel = (ContactListModel) contactList.getModel();
+        {            
+            // Show an envelope on the sender contact in the contact list.
+            ContactListModel clistModel
+                = (ContactListModel) contactList.getModel();
+            
             clistModel.addActiveContact(metaContact);
             contactList.refreshContact(metaContact);
             
+            // Obtain the corresponding chat panel.
             ChatPanel chatPanel = chatWindowManager.getContactChat(
                 metaContact, protocolContact, message.getMessageUID());
             
             // Distinguish the message type, depending on the type of event that
             // we have received.
-
             String messageType = null;
 
             if(eventType == MessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED)
@@ -240,11 +242,18 @@ public class ContactListPanel
                 messageType, message.getContent(),
                 message.getContentType());
 
+            // Opens the chat panel with the new message.
             chatWindowManager.openChat(chatPanel, false);
+         
+            // Fire notification
+            String title = Messages.getI18NString("messageReceived").getText()
+                + " " + evt.getSourceContact().getDisplayName();
             
-            GuiActivator.getAudioNotifier()
-                .createAudio(Sounds.INCOMING_MESSAGE).play();
-
+            NotificationManager.fireNotification(
+                                            NotificationManager.INCOMING_MESSAGE,
+                                            title,
+                                            message.getContent());
+            
             chatPanel.treatReceivedMessage(protocolContact);
         }
         else
@@ -428,6 +437,15 @@ public class ContactListPanel
     }
     
     /**
+     * Returns the right button menu of the contact list.
+     * @return the right button menu of the contact list
+     */
+    public CommonRightButtonMenu getCommonRightButtonMenu()
+    {
+        return commonRightButtonMenu;
+    }
+    
+    /**
      * The TypingTimer is started after a PAUSED typing notification is
      * received. It waits 5 seconds and if no other typing event occurs removes
      * the PAUSED message from the chat status panel.
@@ -456,10 +474,5 @@ public class ContactListPanel
         {
             this.metaContact = metaContact;
         }
-    }
-    
-    public CommonRightButtonMenu getCommonRightButtonMenu()
-    {
-        return commonRightButtonMenu;
-    }    
+    }   
 }

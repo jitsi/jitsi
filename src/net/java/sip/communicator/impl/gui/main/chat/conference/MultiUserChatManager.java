@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -127,8 +128,14 @@ public class MultiUserChatManager
         
         chatWindowManager.openChat(chatPanel, false);
 
-        GuiActivator.getAudioNotifier()
-            .createAudio(Sounds.INCOMING_MESSAGE).play();
+        // Fire notification
+        String title = Resources.getString("messageReceived") + " "
+                + sourceMember.getName();
+        
+        NotificationManager.fireNotification(
+                                        NotificationManager.INCOMING_MESSAGE,
+                                        title,
+                                        message.getContent());
     }    
 
     /**

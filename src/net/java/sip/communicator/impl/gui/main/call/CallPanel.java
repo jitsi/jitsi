@@ -297,24 +297,20 @@ public class CallPanel
 
         if(evt.getNewValue() == CallParticipantState.ALERTING_REMOTE_SIDE)
         {   
-            GuiActivator.getAudioNotifier()
-                .createAudio(Sounds.OUTGOING_CALL).playInLoop(3000);
+            NotificationManager
+                .fireNotification(NotificationManager.OUTGOING_CALL);
         }
         else if(evt.getNewValue() == CallParticipantState.BUSY)
         {
-            GuiActivator.getAudioNotifier()
-                .createAudio(Sounds.OUTGOING_CALL).stop();
+            NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
             
-            GuiActivator.getAudioNotifier()
-                .createAudio(Sounds.BUSY).playInLoop(0);
+            NotificationManager.fireNotification(NotificationManager.BUSY_CALL);
         }
         else if(evt.getNewValue() == CallParticipantState.CONNECTED) {
             //start the timer that takes care of refreshing the time label
             
-            GuiActivator.getAudioNotifier()
-                .createAudio(Sounds.OUTGOING_CALL).stop();
-            GuiActivator.getAudioNotifier()
-                .createAudio(Sounds.INCOMING_CALL).stop();    
+            NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
+            NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
             
             participantPanel.startCallTimer();
         }

@@ -174,10 +174,8 @@ public class CallManager
                     .getCallState() == CallState.CALL_INITIALIZATION)
             {
 
-                GuiActivator.getAudioNotifier().createAudio(Sounds.BUSY).stop();
-
-                GuiActivator.getAudioNotifier().createAudio(
-                    Sounds.INCOMING_CALL).stop();
+                NotificationManager.stopSound(NotificationManager.BUSY_CALL);
+                NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
 
                 CallPanel callPanel = (CallPanel) selectedPanel;
 
@@ -283,11 +281,9 @@ public class CallManager
             if (selectedPanel != null && selectedPanel instanceof CallPanel)
             {
 
-                GuiActivator.getAudioNotifier().createAudio(Sounds.BUSY).stop();
-                GuiActivator.getAudioNotifier().createAudio(
-                    Sounds.INCOMING_CALL).stop();
-                GuiActivator.getAudioNotifier().createAudio(
-                    Sounds.OUTGOING_CALL).stop();
+                NotificationManager.stopSound(NotificationManager.BUSY_CALL);
+                NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
+                NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
 
                 CallPanel callPanel = (CallPanel) selectedPanel;
 
@@ -507,8 +503,11 @@ public class CallManager
         this.callButton.setEnabled(true);
         this.hangupButton.setEnabled(true);
 
-        GuiActivator.getAudioNotifier().createAudio(Sounds.INCOMING_CALL)
-            .playInLoop(2000);
+        NotificationManager.fireNotification(
+            Sounds.INCOMING_CALL,
+            null,
+            "Incoming call recived from: "
+                + sourceCall.getCallParticipants().next());
 
         activeCalls.put(sourceCall, callPanel);
 
@@ -524,11 +523,9 @@ public class CallManager
     {
         Call sourceCall = event.getSourceCall();
 
-        GuiActivator.getAudioNotifier().createAudio(Sounds.BUSY).stop();
-        GuiActivator.getAudioNotifier().createAudio(Sounds.INCOMING_CALL)
-            .stop();
-        GuiActivator.getAudioNotifier().createAudio(Sounds.OUTGOING_CALL)
-            .stop();
+        NotificationManager.stopSound(NotificationManager.BUSY_CALL);
+        NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
+        NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
 
         if (activeCalls.get(sourceCall) != null)
         {

@@ -119,7 +119,7 @@ public class ChatInviteDialog
     }
     
     /**
-     * Handles the <tt>ActionEvent</tt> triggered when one user clicks
+     * Handles the <tt>ActionEvent</tt> triggered when user clicks
      * on one of the buttons.
      */
     public void actionPerformed(ActionEvent e)

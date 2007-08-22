@@ -8,10 +8,6 @@ package net.java.sip.communicator.impl.gui;
 
 import java.util.*;
 
-import javax.swing.*;
-
-import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.browserlauncher.*;
@@ -20,6 +16,7 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.msghistory.*;
+import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -30,9 +27,10 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
-public class GuiActivator implements BundleActivator {
-
-    private static Logger logger = Logger.getLogger(GuiActivator.class.getName());
+public class GuiActivator implements BundleActivator
+{
+    private static Logger logger
+        = Logger.getLogger(GuiActivator.class.getName());
 
     private static UIServiceImpl uiService = null;
     
@@ -49,7 +47,9 @@ public class GuiActivator implements BundleActivator {
     private static AudioNotifierService audioNotifierService;
 
     private static BrowserLauncherService browserLauncherService;
-    
+
+    private static NotificationService notificationService;
+
     private static Map providerFactoriesMap = new Hashtable();
 
     /**
@@ -60,6 +60,9 @@ public class GuiActivator implements BundleActivator {
     public void start(BundleContext bundleContext) throws Exception {
 
         GuiActivator.bundleContext = bundleContext;
+        
+        NotificationManager.registerGuiNotifications();
+        bundleContext.addServiceListener(new NotificationServiceListener());
         
         ConfigurationManager.loadGuiConfigurations();
        
@@ -270,5 +273,64 @@ public class GuiActivator implements BundleActivator {
      */
     public static UIServiceImpl getUIService() {
         return uiService;
+    }
+
+    /**
+     * Returns the <tt>NotificationService</tt> obtained from the bundle context.
+     * 
+     * @return the <tt>NotificationService</tt> obtained from the bundle context
+     */
+    public static NotificationService getNotificationService()
+    {
+        if (notificationService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(NotificationService.class.getName());
+
+            notificationService = (NotificationService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return notificationService;
+    }
+    
+    /**
+     * Implements the <tt>ServiceListener</tt>. Verifies whether the
+     * passed event concerns a <tt>NotificationService</tt> and if so
+     * intiates the gui NotificationManager.
+     */
+    private class NotificationServiceListener implements ServiceListener
+    {
+        /**
+         * Implements the <tt>ServiceListener</tt> method. Verifies whether the
+         * passed event concerns a <tt>NotificationService</tt> and if so
+         * initiates the NotificationManager.
+         * 
+         * @param event The <tt>ServiceEvent</tt> object.
+         */
+        public void serviceChanged(ServiceEvent event)
+        {
+            // if the event is caused by a bundle being stopped, we don't want
+            // to know
+            if (event.getServiceReference().getBundle().getState()
+                    == Bundle.STOPPING)
+            {
+                return;
+            }
+
+            Object service = GuiActivator.bundleContext.getService(event
+                .getServiceReference());
+
+            // we don't care if the source service is not a notification service
+            if (!(service instanceof NotificationService))
+            {
+                return;
+            }
+
+            if (event.getType() == ServiceEvent.REGISTERED)
+            {   
+                NotificationManager.registerGuiNotifications();
+            }
+        }
     }
 }
