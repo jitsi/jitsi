@@ -1,74 +1,86 @@
-<link rel='SHORTCUT ICON' href='http://sip-communicator.dev.java.net/sc_logo16x16.png'	/>
-<link rel='icon' href='http://sip-communicator.dev.java.net/sc_logo16x16.png' type='image/png' />
-</div>
 </dd>
-</dl>
-<script id="eraser">
-
-// if the Get Involved block was named I could just get the
-// the two sections by name and set the display to none. 
-
-// get to the block
-var dd = document.getElementById("eraser").previousSibling;
-
-// hide all default navigation bars
-
-// within the previous blocks hide everything
-for( n=dd; n!=null; n=n.previousSibling ) {
-	if(n.nodeType==1) { // if element
-		if(n.tagName=="DL") { // kill all the link items
-			n.style.display = "none";
-		}
-	}
+<!-- hide the contents while the theme engine kicks in and does the work -->
+<script>document.getElementById("main").parentNode.style.display="none";</script>
+<!--
+  This is where your menu starts. id='menubar' is mandatory.
+  Notice that there's no closing tag for this <dd>, and there's extra </dd> at the
+  top of the file. This is how it should be, due to the place where this gets injected.
+-->
+<dd id=menubar>
+<!--
+  DD contains single UL which generates the whole menu. UL/LI can have a nested structure
+  to create submenus.
+-->
+<ul>
+  <li>
+    <!--
+      This HTML is injected in all the pages within your project, so all the hyperlinks
+      must be either absolute or start with '/'.
+      
+      The current page in the navigation bar is shown highlighted to let users know where
+      he/she is. This is primarily done by the exact match between "window.location.href"
+      and the link target, but the A tag can also have the optional "match" attribute,
+      whose value is regular expression that indicates what pages the link should highlight.
+      
+      For example, the following match attribute says "overview" should be the current
+      page even if you are in sub.html. This is useful for grouping a large number of pages
+      under a single navigation item.
+    -->
+	<a href="http://www.sip-communicator.org/index.php/Development/TeamAndContributors">Team and Contributors</a>
+	<li>
+	<a href="https://sip-communicator.dev.java.net/servlets/ProjectMembershipRequest">Become a member</a>
+	<li>
+	<a href="https://sip-communicator.dev.java.net/source/browse/sip-communicator/">Version Control - CVS</a>
+	<li>
+	<a href="http://www.sip-communicator.org/index.php/Development/MailingLists">Mailing lists</a>
+	<li>
+	<a href="http://www.sip-communicator.org/index.php/Main/Download">Downloads</a>
+	<li>
+  <li><a href="#">Bugs and Issues</a>
+  <ul>
+    <li><a href="https://sip-communicator.dev.java.net/servlets/ProjectIssues">Issue tracker</a>
+	<li><a href="https://sip-communicator.dev.java.net/issues/buglist.cgi?component=sip-communicator&issue_status=UNCONFIRMED&issue_status=NEW&issue_status=STARTED&issue_status=REOPENED">All Issues</a>
+	<li><form name="ProjectIssuesForm" method="get" action="https://sip-communicator.dev.java.net/issues/show_bug.cgi">
+             <input type="submit" value="Go to Issue # "/> &nbsp <input name="id" size="3" />
+         </form>
+    <!--
+      When the parent LI of a submenu has a link, its children only expands when
+      the user is inside this menu.
+    -->
+  </ul>
+  
+</ul>
+<!--
+  Theis script determines the logo on the top-left corner of the page.
+  The title is mandatory, but the logo is optional.
+-->
+<script>
+var info = {
+	title: "SIP Communicator",
+	logo: ""
 }
-
-// This is all you can do because the "Search" and "How do I"
-// boxes aren't created
 </script>
+<!--
+  This script includes the zone definition, which determines the
+  list of the "siblings" projects you see in the left navigation bar.
+  Your project should be listed among one of them.
+  
+  This example uses the ws/xml zone, but pick up the right zone that matches your project.
+-->
+<script src="https://sc-plugin-tests.dev.java.net/zone-core.js"></script>
+<!--
+  This includes the theme engine script.
+-->
+<script src="https://sc-plugin-tests.dev.java.net/theme.js"></script> 
 
-<dl id="tools" class="navgroup">
-<dt>Project Tools</dt>
-<dd>
-<ul>
-<li><a href="http://www.sip-communicator.org">sip-communicator.org</a></li>
- <li><a href="http://www.sip-communicator.org/index.php/Development/TeamAndContributors">Team and Contributors</a></li>
-</ul>
-</dd>
-
-<dd>
-<ul>
-<li> <a href="https://sip-communicator.dev.java.net/source/browse/sip-communicator/">Version Control - CVS</a></li>
-</ul>
-</dd>
-
-<dd>
-<ul>
-<li> <a href="http://www.sip-communicator.org/index.php/Development/MailingLists">Mailing lists</a></li>
-</ul>
-</dd>
-
-<dd>
-<ul>
-<li> <a href="http://www.sip-communicator.org/index.php/Main/Download">Downloads</a></li>
-</ul>
-</dd>
-
-<dd>
-<ul>
-<li><a href="https://sip-communicator.dev.java.net/servlets/ProjectIssues">Issue tracker</a>
-    </li>
-<li><a href="https://sip-communicator.dev.java.net/issues/buglist.cgi?component=sip-communicator&issue_status=UNCONFIRMED&issue_status=NEW&issue_status=STARTED&issue_status=REOPENED">All Issues</a></li>
-<li><form name="ProjectIssuesForm" method="get" action="https://sip-communicator.dev.java.net/issues/show_bug.cgi">
-        <input type="submit" value="Go to Issue # "/> &nbsp <input name="id" size="3" />
-      </form></li>
-</ul>
-</dd>
-
-</dl>
-
-<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
-</script>
+<!--
+  If your project uses a site traffic tracker like Google Analytics, this is a good place
+  to inject it.
+-->
+<!--
+<script src="https://ssl.google-analytics.com/urchin.js" type="text/javascript"></script>
 <script type="text/javascript">
-	_uacct = "UA-319188-2";
-	urchinTracker();
+_uacct = "UA-1273798-1";
+urchinTracker();
 </script>
+-->
