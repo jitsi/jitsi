@@ -259,13 +259,14 @@ public class NotificationServiceImpl
      */
     public Map getEventNotifications(String eventType)
     {
+        Hashtable actions = new Hashtable();
+
         EventNotification notification
             = (EventNotification) notificationsTable.get(eventType);
         
         if(notification == null)
             return null;
-        
-        Hashtable actions = new Hashtable(); 
+
         Iterator srcActions = notification.getActions().values().iterator();
         
         while(srcActions.hasNext())
@@ -363,7 +364,6 @@ public class NotificationServiceImpl
             
             if (actionType.equals(NotificationService.ACTION_POPUP_MESSAGE))
             {
-                System.out.println("POPUP MESSAGE ");
                 ((PopupMessageNotificationHandler) action.getActionHandler())
                     .popupMessage(title, message);
             }
