@@ -246,8 +246,8 @@ public class ContactListPanel
             chatWindowManager.openChat(chatPanel, false);
          
             // Fire notification
-            String title = Messages.getI18NString("messageReceived").getText()
-                + " " + evt.getSourceContact().getDisplayName();
+            String title = Messages.getI18NString("msgReceived",
+                new String[]{evt.getSourceContact().getDisplayName()}).getText();
             
             NotificationManager.fireNotification(
                                             NotificationManager.INCOMING_MESSAGE,

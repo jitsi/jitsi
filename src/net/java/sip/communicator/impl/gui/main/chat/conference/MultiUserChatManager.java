@@ -127,10 +127,10 @@ public class MultiUserChatManager
             message.getContentType());
         
         chatWindowManager.openChat(chatPanel, false);
-
+        
         // Fire notification
-        String title = Resources.getString("messageReceived") + " "
-                + sourceMember.getName();
+        String title = Messages.getI18NString("msgReceived",
+            new String[]{sourceMember.getName()}).getText();
         
         NotificationManager.fireNotification(
                                         NotificationManager.INCOMING_MESSAGE,
