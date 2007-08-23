@@ -485,19 +485,8 @@ public class TestOperationSetBasicInstantMessaging
 
             if(contact == null)
             {
-                try
-                {
-                    opSetPresence2.subscribe(contactID);
-                    Object o = new Object();
-                    synchronized (o)
-                    {
-                        o.wait(2000);
-                    }
-                }
-                catch (Exception ex1)
-                {
-                    continue;
-                }
+                //contact is not in our contact list
+                continue;
             }
 
             contact
