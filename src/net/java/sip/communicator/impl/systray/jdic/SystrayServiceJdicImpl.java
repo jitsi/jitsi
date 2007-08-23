@@ -18,7 +18,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.systray.*;
@@ -36,8 +35,7 @@ import org.jdesktop.jdic.tray.TrayIcon;
  * @author Yana Stamcheva
  */
 public class SystrayServiceJdicImpl
-    implements SystrayService,
-               ChatFocusListener
+    implements SystrayService
 {
     /**
      * The systray.
@@ -307,6 +305,12 @@ public class SystrayServiceJdicImpl
         }
     }
 
+    /**
+     * Notifies all interested listeners that a <tt>SystrayPopupMessageEvent</tt>
+     * has occured
+     * 
+     * @param sourceObject the source of this event
+     */
     private void firePopupMessageEvent(Object sourceObject)
     {
         SystrayPopupMessageEvent evt
@@ -329,16 +333,12 @@ public class SystrayServiceJdicImpl
         }
     }
 
-    public void chatFocusGained(ChatFocusEvent event)
+    /**
+     * Sets a new systray icon.
+     * @param image the icon to set.
+     */
+    public void setSystrayIcon(byte[] image)
     {
-        Chat chat = event.getChat();
-
-        chat.removeChatFocusListener(this);
-
-        this.trayIcon.setIcon(logoIcon);
-    }
-
-    public void chatFocusLost(ChatFocusEvent event)
-    {
+        this.trayIcon.setIcon(new ImageIcon(image));
     }
 }

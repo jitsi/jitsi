@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -248,13 +249,7 @@ public class ChatWindowManager
 
                 if (answer == JOptionPane.OK_OPTION)
                 {
-                    chatWindow.removeAllChats();
-                    chatWindow.dispose();
-
-                    synchronized (chats)
-                    {
-                        chats.clear();
-                    }
+                    this.disposeChatWindow();
                 }
             }
             else if (System.currentTimeMillis() - chatWindow
@@ -269,24 +264,12 @@ public class ChatWindowManager
 
                 if (answer == JOptionPane.OK_OPTION)
                 {
-                    chatWindow.removeAllChats();
-                    chatWindow.dispose();
-
-                    synchronized (chats)
-                    {
-                        chats.clear();
-                    }
+                    this.disposeChatWindow();
                 }
             }
             else
             {
-                chatWindow.removeAllChats();
-                chatWindow.dispose();
-
-                synchronized (chats)
-                {
-                    chats.clear();
-                }
+                this.disposeChatWindow();
             }
         }
     }
@@ -646,5 +629,30 @@ public class ChatWindowManager
         {
             return (ChatPanel) chats.get(key);
         }
+    }
+    
+    /**
+     * Disposes the chat window.
+     */
+    private void disposeChatWindow()
+    {
+        chatWindow.removeAllChats();
+        chatWindow.dispose();
+
+        synchronized (chats)
+        {
+            chats.clear();
+        }
+        
+        ContactList clist
+            = chatWindow.getMainFrame()
+                .getContactListPanel().getContactList();
+        ContactListModel clistModel
+            = (ContactListModel) clist.getModel();
+        
+        // Remove the envelope from the all active contacts in the contact list.
+        clistModel.removeAllActiveContacts();
+        
+        clist.refreshAll();
     }
 }

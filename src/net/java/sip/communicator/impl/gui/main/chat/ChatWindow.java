@@ -569,39 +569,44 @@ public class ChatWindow
     {
         ChatPanel chatPanel = getCurrentChatPanel();
         
-        if(isEscaped) {
+        if(isEscaped)
+        {
             ChatRightButtonMenu chatRightMenu = getCurrentChatPanel()
                 .getChatConversationPanel().getRightButtonMenu();
     
             WritePanelRightButtonMenu writePanelRightMenu = getCurrentChatPanel()
                 .getChatWritePanel().getRightButtonMenu();
     
-            SIPCommMenu selectedMenu = menusPanel.getMainMenuBar().getSelectedMenu();
+            SIPCommMenu selectedMenu
+                = menusPanel.getMainMenuBar().getSelectedMenu();
             //SIPCommMenu contactMenu = getCurrentChatPanel()
             //    .getProtoContactSelectorBox().getMenu();
             
             MenuSelectionManager menuSelectionManager
                 = MenuSelectionManager.defaultManager();
             
-            if (chatRightMenu.isVisible()) {
+            if (chatRightMenu.isVisible())
+            {
                 
                 chatRightMenu.setVisible(false);
             }
-            else if (writePanelRightMenu.isVisible()) {
-                
+            else if (writePanelRightMenu.isVisible())
+            {                
                 writePanelRightMenu.setVisible(false);
             }
             else if (selectedMenu != null
                 //|| contactMenu.isPopupMenuVisible()
-                || menusPanel.getMainToolBar().hasSelectedMenus()) {
-                
+                || menusPanel.getMainToolBar().hasSelectedMenus())
+            {   
                 menuSelectionManager.clearSelectedPath();
             }
-            else {            
+            else
+            {            
                 mainFrame.getChatWindowManager().closeChat(chatPanel);
             }
         }
-        else {
+        else 
+        {
             mainFrame.getChatWindowManager().closeWindow();
         }
     }

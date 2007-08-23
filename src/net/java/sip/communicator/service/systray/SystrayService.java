@@ -62,4 +62,11 @@ public interface SystrayService
      * @param listener the listener to remove
      */
     public void removePopupMessageListener(SystrayPopupMessageListener listener);
+
+    /**
+     * Sets a new icon to the systray.
+     * 
+     * @param image the image to set
+     */
+    public void setSystrayIcon(byte[] image);
 }

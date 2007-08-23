@@ -15,6 +15,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -601,6 +602,13 @@ public class ContactListModel
     {
         synchronized (activeContacts)
         {
+            if(activeContacts.size() == 0)
+            {
+                GuiActivator.getSystrayService().setSystrayIcon(
+                    ImageLoader.getImageInBytes(
+                        ImageLoader.SYSTRAY_ENVELOPE_ICON));
+            }
+            
             this.activeContacts.add(metaContact);
         }
     }
@@ -615,6 +623,27 @@ public class ContactListModel
         synchronized (activeContacts)
         {
             this.activeContacts.remove(metaContact);
+            
+            if(activeContacts.size() == 0)
+                GuiActivator.getSystrayService().setSystrayIcon(
+                    ImageLoader.getImageInBytes(ImageLoader.SYSTRAY_ICON));
+        }
+    }
+    
+    /**
+     * Removes all contacts from the list of active contacts.
+     */
+    public void removeAllActiveContacts()
+    {
+        synchronized (activeContacts)
+        {
+            if(activeContacts.size() > 0)
+            {
+                this.activeContacts.removeAllElements();
+                
+                GuiActivator.getSystrayService().setSystrayIcon(
+                    ImageLoader.getImageInBytes(ImageLoader.SYSTRAY_ICON));
+            }   
         }
     }
     

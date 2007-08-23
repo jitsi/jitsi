@@ -551,7 +551,9 @@ public abstract class ChatPanel
                             .getContactListPanel().getContactList();
                     ContactListModel clistModel
                         = (ContactListModel) clist.getModel();
-
+                    
+                    // Remove the envelope from the contact when the chat has
+                    // gained the focus.
                     if(clistModel.isContactActive(selectedMetaContact))
                     {
                         clistModel.removeActiveContact(selectedMetaContact);

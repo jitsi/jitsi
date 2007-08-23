@@ -1210,6 +1210,14 @@ public class ContactList
             }
         }
     }
+    
+    /**
+     * Refreshes the whole contact list.
+     */
+    public void refreshAll()
+    {
+        this.modifyGroup(contactList.getRoot());
+    }
 
     /**
      * Adds the given contact to the contact list.

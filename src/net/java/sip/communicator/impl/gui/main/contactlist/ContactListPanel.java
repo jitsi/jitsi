@@ -14,6 +14,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -214,12 +215,13 @@ public class ContactListPanel
         
         if(metaContact != null)
         {            
-            // Show an envelope on the sender contact in the contact list.
+            // Show an envelope on the sender contact in the contact list and
+            // in the systray.
             ContactListModel clistModel
                 = (ContactListModel) contactList.getModel();
             
             clistModel.addActiveContact(metaContact);
-            contactList.refreshContact(metaContact);
+            contactList.refreshContact(metaContact);            
             
             // Obtain the corresponding chat panel.
             ChatPanel chatPanel = chatWindowManager.getContactChat(

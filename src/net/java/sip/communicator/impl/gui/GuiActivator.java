@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -49,6 +50,8 @@ public class GuiActivator implements BundleActivator
     private static BrowserLauncherService browserLauncherService;
 
     private static NotificationService notificationService;
+    
+    private static SystrayService systrayService;
 
     private static Map providerFactoriesMap = new Hashtable();
 
@@ -271,10 +274,30 @@ public class GuiActivator implements BundleActivator
      * Returns the current implementation of the <tt>UIService</tt>.
      * @return the current implementation of the <tt>UIService</tt>
      */
-    public static UIServiceImpl getUIService() {
+    public static UIServiceImpl getUIService()
+    {
         return uiService;
     }
 
+    /**
+     * Returns the <tt>SystrayService</tt> obtained from the bundle context.
+     * 
+     * @return the <tt>SystrayService</tt> obtained from the bundle context
+     */
+    public static SystrayService getSystrayService()
+    {
+        if (systrayService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(SystrayService.class.getName());
+
+            systrayService = (SystrayService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return systrayService;
+    }
+    
     /**
      * Returns the <tt>NotificationService</tt> obtained from the bundle context.
      * 

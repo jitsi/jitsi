@@ -536,6 +536,17 @@ public class ImageLoader {
     public static final ImageID MESSAGE_RECEIVED_ICON
         = new ImageID("MESSAGE_RECEIVED_ICON");
     
+    /**
+     * The image used to set to the systray when a new message is received.
+     */
+    public static final ImageID SYSTRAY_ICON
+        = new ImageID("SYSTRAY_ICON");
+    
+    /**
+     * The image used to set to the systray when a new message is received.
+     */
+    public static final ImageID SYSTRAY_ENVELOPE_ICON
+        = new ImageID("SYSTRAY_ENVELOPE_ICON");
     
     // ///////////////////// Edit Text Toolbar icons //////////////////////////
 
