@@ -7,11 +7,8 @@
 
 package net.java.sip.communicator.impl.systray.jdic;
 
-import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
 
@@ -24,8 +21,7 @@ import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
 
-import org.jdesktop.jdic.tray.SystemTray;
-import org.jdesktop.jdic.tray.TrayIcon;
+import org.jdesktop.jdic.tray.*;
 
 /**
  * The <tt>Systray</tt> provides a Icon and the associated <tt>TrayMenu</tt>
