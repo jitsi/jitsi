@@ -609,7 +609,8 @@ public class ContactListModel
                         ImageLoader.SYSTRAY_ENVELOPE_ICON));
             }
             
-            this.activeContacts.add(metaContact);
+            if(!activeContacts.contains(metaContact))
+                this.activeContacts.add(metaContact);
         }
     }
     
@@ -622,11 +623,14 @@ public class ContactListModel
     {
         synchronized (activeContacts)
         {
-            this.activeContacts.remove(metaContact);
+            if(activeContacts.contains(metaContact))
+                this.activeContacts.remove(metaContact);
             
             if(activeContacts.size() == 0)
+            {
                 GuiActivator.getSystrayService().setSystrayIcon(
                     ImageLoader.getImageInBytes(ImageLoader.SYSTRAY_ICON));
+            }
         }
     }
     

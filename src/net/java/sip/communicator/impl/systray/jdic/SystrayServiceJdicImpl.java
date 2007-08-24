@@ -256,29 +256,6 @@ public class SystrayServiceJdicImpl
         if(messageContent.length() > 100)
             messageContent = messageContent.substring(0, 100).concat("...");
 
-        GraphicsEnvironment ge
-            = GraphicsEnvironment.getLocalGraphicsEnvironment();        
-        GraphicsDevice gs = ge.getDefaultScreenDevice();
-        GraphicsConfiguration gc = gs.getDefaultConfiguration();
-
-        // Create an image that does not support transparency
-        BufferedImage img = gc.createCompatibleImage(logoIcon.getIconWidth(),
-               logoIcon.getIconHeight(), Transparency.TRANSLUCENT);
-
-        Image msgImg = new ImageIcon(
-                Resources.getImage("messageIcon")).getImage();
-
-        Graphics2D g = (Graphics2D) img.getGraphics();
-
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        g.drawImage(logoIcon.getImage(), 0, 0, null);
-        g.drawImage(msgImg,
-                logoIcon.getIconWidth()/2 - msgImg.getWidth(null)/2,
-                logoIcon.getIconHeight()/2 - msgImg.getHeight(null)/2, null);
-
-        this.trayIcon.setIcon(new ImageIcon(img));
-
         this.trayIcon.displayMessage(
             title, messageContent, trayMsgType);
     }
