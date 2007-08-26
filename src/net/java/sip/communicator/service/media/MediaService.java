@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.media;
 
 import net.java.sip.communicator.service.media.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import java.net.*;
 
 /**
  * The service is meant to be a wrapper of media libraries such as JMF,
@@ -19,6 +20,7 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Emil Ivov
  * @author Martin Andre
+ * @author Ryan Ricard
  */
 public interface MediaService
 {
@@ -84,6 +86,62 @@ public interface MediaService
      * @param listener the listener to remove
      */
     public void removeMediaListener(MediaListener listener);
+
+    /**
+     * Sets the data source for <tt>call</tt> to the URL <tt>dataSourceURL</tt>
+     * instead of the default data source. This is used (for instance) to play
+     * audio from a file instead of the microphone.
+     *
+     * @param call the call whose data source will be changed
+     * @param dataSourceURL the URL of the new data source
+     * @throws MediaException if we fail to initialize the data source
+     */
+    public void setCallDataSource(Call call, URL dataSourceURL)
+        throws MediaException;
+
+    /**
+     * Unsets any custom data sources that have been previously set for
+     * <tt>call</tt> through the setCallDataSource(Call, URL) method and revert
+     * it to the default data source. If no custom data sources have been set
+     * for Call, the method has no effect.
+     *
+     * @param call the call whose data source mapping will be released
+     */
+    public void unsetCallDataSource(Call call);
+
+    /**
+     * Sets the Data Destination for <tt>call</tt> to the URL
+     * <tt>dataSinkURL</tt> instead of the default data destination. This is
+     * used (for instance) to record incoming data to a file instead of playing
+     * it on the speakers/screen
+     *
+     * @param call the call whose data destination will be changed
+     * @param dataSinkURL the URL of the new data Desintation
+     *
+     * @throws MediaException if we fail to initialize the data sink
+     */
+    public void setCallDataSink(Call call, URL dataSinkURL)
+        throws MediaException;
+
+    /**
+     * Unsets the data sink for <tt>call</tt>, which will now
+     * send data to the default output devices (sound card and/or screen).
+     *
+     * @param call the call whose data sink mapping will be released
+     */
+    public void unsetCallDataSink(Call call);
+
+    /**
+     * Returns the duration (in milliseconds) of the data source being used for
+     * the given call. If the data source is not time-based, i.e. a microphone,
+     * the method returns -1.
+     *
+     * @param call the call whose data source duration will be retreived
+     * @return the duration of the data currently available in the <tt>call</tt>
+     * specific data source or -1 if we are using a microphone/webcam.
+     **/
+    public double getDataSourceDurationSeconds(Call call);
+
 
     /**
      * Returns true if the media service implementation is initialized and ready

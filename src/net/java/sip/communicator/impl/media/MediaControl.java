@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.media;
 
 import java.io.*;
+import java.net.*;
 import javax.media.*;
 import javax.media.protocol.*;
 
@@ -29,6 +30,7 @@ import java.awt.Dimension;
  * @author Emil Ivov
  * @author Damian Minkov
  * @author Jean Lorchat
+ * @author Ryan Ricard
  */
 public class MediaControl
 {
@@ -55,7 +57,7 @@ public class MediaControl
     private DataSource avDataSource = null;
 
     /**
-     * Sdp Codes of all video formats that JMF supports.
+     * SDP Codes of all video formats that JMF supports.
      */
     private String[] supportedVideoEncodings = new String[]
         {
@@ -68,7 +70,7 @@ public class MediaControl
         };
 
     /**
-     * Sdp Codes of all audio formats that JMF supports.
+     * SDP Codes of all audio formats that JMF supports.
      */
     private String[] supportedAudioEncodings = new String[]
         {
@@ -98,22 +100,22 @@ public class MediaControl
                             = "net.java.sip.communicator.impl.media.sdppref";
 
     /**
-     * That's where we keep format preferences mathing SDP formats to integers.
+     * That's where we keep format preferences matching SDP formats to integers.
      * We keep preferences for both  audio and video formats here in case we'd
      * ever need to compare them to one another. In most cases however both
      * would be decorelated and other components (such as the UI) should
-     * present them seperately.
+     * present them separately.
      */
     private Hashtable encodingPreferences = new Hashtable();
 
     /**
-     * The processor that will be hadling content coming from our capture data
+     * The processor that will be handling content coming from our capture data
      * sources.
      */
     private Processor sourceProcessor = null;
 
     /**
-     * The list of readers currently using oure processor.
+     * The list of readers currently using our processor.
      */
     private Vector processorReaders = new Vector();
 
@@ -162,13 +164,25 @@ public class MediaControl
     {
 
     }
+    /** 
+     * Returns the duration of the output data source. Usually this will be 
+     * DURATION_UNKNOWN, but if the current data source is set to an audio
+     * file, then this value will be of some use.
+     */
+    public javax.media.Time getOutputDuration()
+    {
+        if (sourceProcessor == null)
+            return Duration.DURATION_UNKNOWN;
+        else return sourceProcessor.getDuration();
+    }
 
     /**
      * Initializes the media control.
+     *
      * @param deviceConfig the <tt>DeviceConfiguration</tt> that we should use
      * when retrieving device handlers.
      *
-     * @throws MediaException if initilization fails.
+     * @throws MediaException if initialization fails.
      */
     public void initialize(DeviceConfiguration deviceConfig)
         throws MediaException
@@ -299,12 +313,12 @@ public class MediaControl
     }
 
     /**
-     * Sets <tt>pref</tt> as the preference assoficatied with <tt>encoding</tt>.
+     * Sets <tt>pref</tt> as the preference associated with <tt>encoding</tt>.
      * Use this method for both audio and video encodings and don't worry if
      * preferences are equal since we rarely need to compare prefs of video
      * encodings to those of audio encodings.
      *
-     * @param encoding the SDP int of the encoding whose pref we're seting.
+     * @param encoding the SDP int of the encoding whose pref we're setting.
      * @param pref a positive int indicating the preference for that encoding.
      */
     private void setEncodingPreference(int encoding, int pref)
@@ -313,13 +327,13 @@ public class MediaControl
     }
 
     /**
-     * Sets <tt>pref</tt> as the preference assoficatied with <tt>encoding</tt>.
+     * Sets <tt>pref</tt> as the preference associated with <tt>encoding</tt>.
      * Use this method for both audio and video encodings and don't worry if
      * preferences are equal since we rarely need to compare prefs of video
      * encodings to those of audio encodings.
      *
-     * @param encoding a string containing the SDP int of the encoding whose pref
-     * we're seting.
+     * @param encoding a string containing the SDP int of the encoding whose 
+     * pref we're setting.
      * @param pref a positive int indicating the preference for that encoding.
      */
     private void setEncodingPreference(String encoding, Integer pref)
@@ -409,9 +423,33 @@ public class MediaControl
     public void initDebugDataSource(String debugMediaSource)
         throws MediaException
     {
+        try
+        {
+            URL url = new URL(debugMediaSource);
+            initDataSourceFromURL(url);
+        }
+        catch (MalformedURLException e)
+        {
+            logger.fatal("Failed to Create the Debug Media Data Source!",e);
+        }
+        
+    }
 
-        logger.debug("Using a debug data source with url: " + debugMediaSource);
-        MediaLocator locator = new MediaLocator(debugMediaSource);
+    /**
+     * Opens the source pointed to by the <tt>dataSourceURL</tt> URL and
+     * prepares to use it instead of capture devices
+     *
+     * @param dataSourceURL an URL (e.g. file:/home/user/outgoing_message.wav)
+     * pointing to a media file to use instead of capture devices
+     *
+     * @throws MediaException if opening the devices fails
+     */
+    public void initDataSourceFromURL(URL dataSourceURL)
+        throws MediaException
+    {
+        logger.debug("Using a data source from url: " + dataSourceURL);
+        MediaLocator locator = new MediaLocator(dataSourceURL);
+
         avDataSource = createDataSource(locator);
 
         //avDataSource may be null (Bug report Vince Fourcade)
@@ -1024,10 +1062,15 @@ public class MediaControl
      */
     private void registerCustomCodecs()
     {
-        // use a set to check if the codecs are already registered in the jmf.properties
+        // use a set to check if the codecs are already 
+        // registered in jmf.properties
         Set registeredPlugins = new HashSet();
-        for (Iterator plugins=PlugInManager.getPlugInList(null, null, PlugInManager.CODEC).iterator();
-                plugins.hasNext(); )
+        
+        for ( Iterator plugins = PlugInManager
+                .getPlugInList( null, 
+                                null, 
+                                PlugInManager.CODEC).iterator();
+              plugins.hasNext(); )
         {
             registeredPlugins.add(plugins.next());
         }
@@ -1037,7 +1080,9 @@ public class MediaControl
             String className = customCodecs[i];
             
             if (registeredPlugins.contains(className))
+            {
                 logger.debug("Codec : " + className + " is already registered");
+            }
             else
             {
                 try
@@ -1072,14 +1117,14 @@ public class MediaControl
             logger.error("Cannot commit to PlugInManager", ex);
         }
         
-         /**
-          * Register the custom codec formats with the RTP manager once at initialization.
-          * This is needed for the Sun JMF implementation. It causes the registration of the
-          * formats with the static FormatInfo instance of com.sun.media.rtp.RTPSessionMgr,
-          * which in turn makes the formats available when the supported encodings arrays
-          * are generated in initProcessor().
-          * In other JMF implementations this might not be needed, but should do no harm.
-          */
+         
+        // Register the custom codec formats with the RTP manager once at 
+        // initialization. This is needed for the Sun JMF implementation. It 
+        // causes the registration of the formats with the static FormatInfo 
+        // instance of com.sun.media.rtp.RTPSessionMgr, which in turn makes the
+        // formats available when the supported encodings arrays are generated 
+        // in initProcessor(). In other JMF implementations this might not be 
+        // needed, but should do no harm.
         RTPManager rtpManager = RTPManager.newInstance();
         CallSessionImpl.registerCustomCodecFormats(rtpManager);
         rtpManager.dispose();
@@ -1091,13 +1136,15 @@ public class MediaControl
      */
     private void registerCustomPackages()
     {
-    Vector currentPackagePrefix = PackageManager.getProtocolPrefixList();
+        Vector currentPackagePrefix = PackageManager.getProtocolPrefixList();
 
         for (int i = 0; i < customPackages.length; i++)
         {
             String className = customPackages[i];
             
-            if (!currentPackagePrefix.contains(className)) // linear search in a loop, but it doesn't have to scale since the list is always short
+            // linear search in a loop, but it doesn't have to scale since the 
+            // list is always short
+            if (!currentPackagePrefix.contains(className)) 
             {
                 currentPackagePrefix.addElement(className);
                 logger.debug("Adding package  : " + className);
@@ -1106,7 +1153,8 @@ public class MediaControl
 
         PackageManager.setProtocolPrefixList(currentPackagePrefix);
         PackageManager.commitProtocolPrefixList();
-        logger.debug("Registering new protocol prefix list : " + currentPackagePrefix);
+        logger.debug("Registering new protocol prefix list : " 
+                     + currentPackagePrefix);
     }
 
 }

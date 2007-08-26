@@ -7,8 +7,10 @@
 package net.java.sip.communicator.impl.media;
 
 
+import java.net.*;
 import java.util.*;
 import javax.sdp.*;
+import javax.media.Time;
 
 import net.java.sip.communicator.impl.media.device.*;
 import net.java.sip.communicator.service.media.*;
@@ -21,11 +23,12 @@ import net.java.sip.communicator.util.*;
  * (J)FFMPEG, JMFPAPI, and others. It takes care of all media play and capture
  * as well as media transport (e.g. over RTP).
  *
- * Before being able to use this service calles would have to make sure that
- * it is initialized (i.e. consult the isInitialized() method).
+ * Before being able to use this service calls would have to make sure that it 
+ * is initialized (i.e. consult the isInitialized() method).
  *
  * @author Emil Ivov
  * @author Martin Andre
+ * @author Ryan Ricard
  */
 public class MediaServiceImpl
     implements MediaService
@@ -66,9 +69,28 @@ public class MediaServiceImpl
     private DeviceConfiguration deviceConfiguration = new DeviceConfiguration();
 
     /**
-     * Our media control helper.
+     * Our media control helper. The media control instance that we will be 
+     * using for reading media for all calls that do not have a custom media
+     * control mapping.
      */
-    private MediaControl mediaControl = new MediaControl();
+    private MediaControl defaultMediaControl = new MediaControl();
+    
+    /**
+     * Mappings of calls to instances of <tt>MediaControl</tt>. In case a call
+     * has been mapped to a media control instance, it is going to be used for
+     * retrieving media that we are going to be sending inside this call. 
+     * Calls that have custom media control mappings are for example calls that 
+     * have been answered by a mailbox plug-in and that will be using a file
+     * as their sound source. 
+     */
+    private Map callMediaControlMappings = new Hashtable();
+    
+    /**
+     * Mappings of calls to custom data sinks. Used by mailbox plug-ins for
+     * sending audio/video flows to a file instead of the sound card or the 
+     * screen.
+     */
+    private Hashtable callDataSinkMappings = new Hashtable();
 
     /**
      * Currently open call sessions.
@@ -99,7 +121,10 @@ public class MediaServiceImpl
         waitUntilStarted();
         assertStarted();
 
-        CallSessionImpl callSession = new CallSessionImpl(call, this);
+        //if we have this call mapped to a custom data destination, pass that
+        //destination on to the callSession.
+        CallSessionImpl callSession = new CallSessionImpl(
+                call, this, (URL)callDataSinkMappings.get(call));
 
         activeCallSessions.put(call, callSession);
 
@@ -110,7 +135,8 @@ public class MediaServiceImpl
 
     /**
      * Adds a listener that will be listening for incoming media and changes
-     * in the state of the media listener
+     * in the state of the media listener.
+     *
      * @param listener the listener to register
      */
     public void addMediaListener(MediaListener listener)
@@ -190,7 +216,7 @@ public class MediaServiceImpl
     private void openCaptureDevices()
         throws MediaException
     {
-        mediaControl.initCaptureDevices();
+        defaultMediaControl.initCaptureDevices();
     }
 
     /**
@@ -201,7 +227,7 @@ public class MediaServiceImpl
     private void closeCaptureDevices()
         throws MediaException
     {
-        mediaControl.closeCaptureDevices();
+        defaultMediaControl.closeCaptureDevices();
     }
 
 
@@ -231,13 +257,36 @@ public class MediaServiceImpl
      * A valid instance of the Media Control that the call session may use to
      * query for supported audio video encodings.
      *
-     * @return a valid instance of the Media Control that the call session may
-     * use to query for supported audio video encodings.
+     * @return the default instance of the Media Control that the call session
+     * may use to query for supported audio video encodings. 
      */
     public MediaControl getMediaControl()
     {
-        return mediaControl;
+        return defaultMediaControl;
     }
+
+    /**
+     * The MediaControl instance that is mapped to <tt>call</tt>. If
+     * <tt>call</tt> is not mapped to a particular <tt>MediaControl</tt>
+     * instance, the default instance will be returned
+     *
+     * @param call the call whose MediaControl we will fetch
+     * @return the instance of MediaControl that is mapped to <tt>call</tt>
+     * or the <tt>defaultMediaControl</tt> if no custom one is registered for
+     * <tt>call</tt>.
+     */
+    public MediaControl getMediaControl(Call call)
+    {
+        if (callMediaControlMappings.containsKey(call))
+        {
+            return (MediaControl)callMediaControlMappings.get(call);
+        }
+        else
+        {
+            return defaultMediaControl;
+        }
+    }
+
 
     /**
      * A valid instance of the DeviceConfiguration that a call session may use
@@ -279,7 +328,7 @@ public class MediaServiceImpl
                 try
                 {
                     deviceConfiguration.initialize();
-                    mediaControl.initialize(deviceConfiguration);
+                    defaultMediaControl.initialize(deviceConfiguration);
                     sdpFactory = SdpFactory.getInstance();
                     isStarted = true;
                 }
@@ -319,10 +368,81 @@ public class MediaServiceImpl
             }
         }
     }
+    
+    /**
+     * Sets the data source for <tt>call</tt> to the URL <tt>dataSourceURL</tt>
+     * instead of the default data source. This is used (for instance)
+     * to play audio from a file instead of from a the microphone.
+     *
+     * @param call the <tt>Call</tt> whose data source will be changed
+     * @param dataSourceURL the <tt>URL</tt> of the new data source
+     */
+    public void setCallDataSource(Call call, URL dataSourceURL)
+        throws MediaException
+    {
+        //create a new instance of MediaControl for this call
+        MediaControl callMediaControl = new MediaControl();
+        callMediaControl.initDataSourceFromURL(dataSourceURL);
+        callMediaControlMappings.put(call, callMediaControl);
+    }
+
+    /**
+     * Returns the duration (in milliseconds) of the data source
+     * being used for the given call. If the data source is not time-based,
+     * IE a microphone, or the duration cannot be determined, returns -1
+     *
+     * @param call the call whose data source duration will be retrieved
+     * @return -1 or the duration of the data source
+     */
+    public double getDataSourceDurationSeconds(Call call)
+    {
+        Time duration = getMediaControl(call).getOutputDuration();
+
+        if (duration == javax.media.Duration.DURATION_UNKNOWN)
+            return -1;
+        else return duration.getSeconds();
+    }
+
+    /**
+     * Unsets the data source for <tt>call</tt>, which will now use the default
+     * data source.
+     *
+     * @param call the call whose data source mapping will be released
+     */
+    public void unsetCallDataSource(Call call)
+    {
+        callMediaControlMappings.remove(call);
+    }
+
+    /**
+     * Sets the Data Destination for <tt>call</tt> to the URL
+     * <tt>dataSinkURL</tt> instead of the default data destination. This is
+     * used (for instance) to record incoming data to a file instead of sending
+     * it to the speakers/screen.
+     *
+     * @param call the call whose data destination will be changed
+     * @param dataSinkURL the URL of the new data sink.
+     */
+    public void setCallDataSink(Call call, URL dataSinkURL)
+    {
+        callDataSinkMappings.put(call, dataSinkURL);
+    }
+
+    /**
+     * Unsets the data destination for <tt>call</tt>, which will now send data
+     * to the default destination.
+     *
+     * @param call the call whose data destination mapping will be released
+     */
+    public void unsetCallDataSink(Call call)
+    {
+        callDataSinkMappings.remove(call);
+    }
+
 
 //------------------ main method for testing ---------------------------------
     /**
-     * This method is here most probably only temporarily for the sache of
+     * This method is here most probably only temporarily for the sake of
      * testing. @todo remove main method.
      *
      * @param args String[]

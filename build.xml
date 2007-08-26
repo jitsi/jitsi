@@ -1649,8 +1649,21 @@ javax.swing.event, javax.swing.border"/>
             </manifest>
         </jar>
     </target>
-	
-	<!-- BUNDLE-NOTIFICATION -->
+
+    <!--BUNDLE-MAILBOX-->
+    <target name="bundle-mailbox">
+        <jar compress="false" destfile="${bundles.dest}/mailbox.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/mailbox/mailbox.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/mailbox"
+                    prefix="net/java/sip/communicator/plugin/mailbox" />
+            <zipfileset dir="${resources}/sounds/mailbox"
+                    prefix="resources/sounds"/>
+            <zipfileset dir="${resources}/images/mailbox"
+                    prefix="resources/images"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-NOTIFICATION -->
     <target name="bundle-notification">
         <!-- Creates a bundle for the notifications.-->
         <jar compress="false" destfile="${bundles.dest}/notification.jar"

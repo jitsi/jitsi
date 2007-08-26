@@ -59,6 +59,7 @@ import javax.media.control.*;
  * @todo implement ReceiveStreamListener.
  *
  * @author Emil Ivov
+ * @author Ryan Ricard
  */
 public class CallSessionImpl
         implements   CallSession
@@ -142,7 +143,12 @@ public class CallSessionImpl
      * session.
      */
     private List videoFrames = new ArrayList();
-    
+
+    /**
+     * The Custom Data Destination used for this call session.
+     */
+    private URL dataSink = null;
+
     /**
      * List of RTP format strings which are supported by SIP Communicator in addition
      * to the JMF standard formats.
@@ -158,6 +164,26 @@ public class CallSessionImpl
      };
 
     /**
+     * Creates a new session for the specified <tt>call</tt> with a custom
+     * destination for incoming data.
+     *
+     * @param call The call associated with this session.
+     * @param mediaServCallback the media service instance that created us.
+     * @param dataSink the place to send incoming data.
+     */
+    public CallSessionImpl(Call call, 
+                           MediaServiceImpl mediaServCallback,
+                           URL dataSink )
+    {
+        this.call = call;
+        this.mediaServCallback = mediaServCallback;
+        this.dataSink = dataSink;
+
+        call.addCallChangeListener(this);
+        initializePortNumbers();
+    }
+
+    /**
      * Creates a new session for the specified <tt>call</tt>.
      *
      * @param call The call associated with this session.
@@ -165,10 +191,7 @@ public class CallSessionImpl
      */
     public CallSessionImpl(Call call, MediaServiceImpl mediaServCallback)
     {
-        this.call = call;
-        this.mediaServCallback = mediaServCallback;
-        call.addCallChangeListener(this);
-        initializePortNumbers();
+        this(call, mediaServCallback, null);
     }
 
     /**
@@ -544,7 +567,7 @@ public class CallSessionImpl
             = extractMediaEncodings(mediaDescriptions);
 
         //make our processor output in these encodings.
-        DataSource dataSource = mediaServCallback.getMediaControl()
+        DataSource dataSource = mediaServCallback.getMediaControl(getCall())
             .createDataSourceForEncodings(mediaEncodings);
 
         //get all the steams that our processor creates as output.
@@ -865,12 +888,14 @@ public class CallSessionImpl
               ,MediaException
     {
         //supported audio formats.
-        String[] supportedAudioEncodings = mediaServCallback.getMediaControl()
-            .getSupportedAudioEncodings();
+        String[] supportedAudioEncodings = mediaServCallback
+            .getMediaControl(getCall())
+                .getSupportedAudioEncodings();
 
         //supported video formats
-        String[] supportedVideoEncodings = mediaServCallback.getMediaControl()
-            .getSupportedVideoEncodings();
+        String[] supportedVideoEncodings = mediaServCallback
+            .getMediaControl(getCall())
+                .getSupportedVideoEncodings();
 
         //if there was an offer extract the offered media formats and use
         //the intersection between the formats we support and those in the
@@ -995,12 +1020,14 @@ public class CallSessionImpl
         throws MediaException
     {
         //audio encodings supported by the media controller
-        String[] supportedAudioEncodings = mediaServCallback.getMediaControl()
-            .getSupportedAudioEncodings();
+        String[] supportedAudioEncodings = mediaServCallback
+            .getMediaControl(getCall())
+                .getSupportedAudioEncodings();
 
         //video encodings supported by the media controller
-        String[] supportedVideoEncodings = mediaServCallback.getMediaControl()
-            .getSupportedVideoEncodings();
+        String[] supportedVideoEncodings = mediaServCallback
+            .getMediaControl(getCall())
+                .getSupportedVideoEncodings();
 
         //audio encodings offered by the remote party
         List offeredAudioEncodings = (List)offeredEncodings.get("audio");
@@ -1216,6 +1243,14 @@ public class CallSessionImpl
         return publicAddress;
     }
 
+    /**
+     * Looks for free ports and initializes the RTP manager according toe the 
+     * specified <tt>intendedDestination</tt>.
+     * 
+     * @param intendedDestination the InetAddress that we will be transmitting
+     * to. 
+     * @throws MediaException if we fail initializing the RTP managers.
+     */
     private void allocateMediaPorts(InetAddress intendedDestination)
         throws MediaException
     {
@@ -1285,15 +1320,15 @@ public class CallSessionImpl
     }
 
     /**
-     * Initializes the rtp manager so taht it would start listening on the
-     * <tt>address</tt> session address. The method also initializes the rtp
+     * Initializes the RTP manager so that it would start listening on the
+     * <tt>address</tt> session address. The method also initializes the RTP
      * manager buffer control.
      *
      * @param rtpManager the <tt>RTPManager</tt> to initialize.
      * @param bindAddress the <tt>SessionAddress</tt> to use when initializing the
      * RTPManager.
      *
-     * @throws MediaException if we fail to initialize the rtp manager.
+     * @throws MediaException if we fail to initialize the RTP manager.
      */
     private void initializeRtpManager(RTPManager rtpManager,
                                       SessionAddress bindAddress)
@@ -1377,7 +1412,8 @@ public class CallSessionImpl
             try
             {
                 startStreaming();
-                mediaServCallback.getMediaControl().startProcessingMedia(this);
+                mediaServCallback.getMediaControl(getCall())
+                    .startProcessingMedia(this);
             }
             catch (MediaException ex)
             {
@@ -1389,7 +1425,8 @@ public class CallSessionImpl
                  && evt.getNewValue() != evt.getOldValue())
         {
             stopStreaming();
-            mediaServCallback.getMediaControl().stopProcessingMedia(this);
+            mediaServCallback.getMediaControl(getCall())
+                .stopProcessingMedia(this);
 
             //close all players that we have created in this session
             Iterator playersIter = players.iterator();
@@ -1579,9 +1616,30 @@ public class CallSessionImpl
                         logger.debug("Received new RTP stream");
                     }
                 }
-                Player player = Manager.createPlayer(ds);
-                player.addControllerListener(this);
-                player.realize();
+
+                Player player = null;
+                //if we are using a custom destination, create a processor
+                //if not, a player will suffice
+                if (dataSink != null)
+                {
+                    player = Manager.createProcessor(ds);
+                }
+                else
+                {
+                    player = Manager.createPlayer(ds);
+                }
+                 player.addControllerListener(this);
+
+                //a processor needs to be configured then realized.
+                if (dataSink !=  null)
+                {
+                    ((Processor)player).configure();
+                }
+                else
+                {
+                    player.realize();
+                }
+
                 players.add(player);
             }
             catch (Exception e)
@@ -1615,24 +1673,42 @@ public class CallSessionImpl
         {
             logger.debug("Got \"bye\" from: " + participant.getCNAME());
         }
-
     }
 
     /**
      * This method is called when an event is generated by a
      * <code>Controller</code> that this listener is registered with.
-     *
      * @param ce The event generated.
      */
     public void controllerUpdate(ControllerEvent ce)
     {
         logger.debug("Received a ControllerEvent: " + ce);
         Player player = (Player) ce.getSourceController();
-        if (player == null) {
+
+        if (player == null)
+        {
             return;
         }
+
+        //if configuration is completed and this is a processor
+        //we need to set file format and explicitly call realize().
+        if (ce instanceof ConfigureCompleteEvent)
+        {
+            try
+            {
+                ((Processor)player).setContentDescriptor(
+                        new FileTypeDescriptor(FileTypeDescriptor.WAVE));
+                player.realize();
+            }
+            catch (Exception exc)
+            {
+                logger.error("failed to record to file", exc);
+            }
+        }
+
         // Get this when the internal players are realized.
-        if (ce instanceof RealizeCompleteEvent) {
+        if (ce instanceof RealizeCompleteEvent)
+        {
 
             //set the volume as it is not on max by default.
             GainControl gc
@@ -1640,7 +1716,7 @@ public class CallSessionImpl
             if (gc != null)
             {
                 logger.debug("Setting volume to max");
-                //gc.setLevel(1);
+                gc.setLevel(1);
             }
             else
                 logger.debug("Player does not have gain control.");
@@ -1648,34 +1724,36 @@ public class CallSessionImpl
 
             logger.debug("A player was realized and will be started.");
             player.start();
-/** @todo video frame is currently handled with very ugly test code
-  * please don't forget to remove */
-java.awt.Component vc = player.getVisualComponent();
-if(vc != null)
-{
-    javax.swing.JFrame frame = new javax.swing.JFrame();
-    frame.setTitle("SIP Communicator - Video Call");
-    frame.getContentPane().add(vc);
-    frame.pack();
-    //center
-    java.awt.Dimension frameSize = frame.getSize();
 
-    //ugly resize if too tiny
-    if(frameSize.width < 300)
-    {
-        frame.setSize(frameSize.width * 2, frameSize.height * 2);
-        frameSize = frame.getSize();
-    }
-    java.awt.Dimension screenSize
-        = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+            /** @todo video frame is currently handled with very ugly test code
+             * please don't forget to remove */
+            //------------ ugly video test code starts here --------------------
+            java.awt.Component vc = player.getVisualComponent();
+            if(vc != null)
+            {
+                javax.swing.JFrame frame = new javax.swing.JFrame();
+                frame.setTitle("SIP Communicator - Video Call");
+                frame.getContentPane().add(vc);
+                frame.pack();
+                //center
+                java.awt.Dimension frameSize = frame.getSize();
 
-    frame.setLocation((screenSize.width - frameSize.width)/2
-                      ,(screenSize.height - frameSize.height)/2);
+                //ugly resize if too tiny
+                if(frameSize.width < 300)
+                {
+                    frame.setSize(frameSize.width * 2, frameSize.height * 2);
+                    frameSize = frame.getSize();
+                }
+                java.awt.Dimension screenSize
+                    = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 
-    frame.setVisible(true);
-    videoFrames.add(frame);
-}
+                frame.setLocation((screenSize.width - frameSize.width)/2
+                    ,(screenSize.height - frameSize.height)/2);
 
+                frame.setVisible(true);
+                videoFrames.add(frame);
+            }
+            //------------- ugly video test code ends here ---------------------
         }
         if (ce instanceof StartEvent) {
             logger.debug("Received a StartEvent");
