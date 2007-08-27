@@ -96,9 +96,9 @@ public class RtpFlowImpl
      * media data between two end points, using the given media encoding.
      *
      * @param mediaServie the media service which created us
-     * @param localAddress local IP address
+     * @param localIpAddress local IP address
      * @param localPort local port number
-     * @param remoteAddress remote IP address
+     * @param remoteIpAddress remote IP address
      * @param remotePort remote port number
      * @param mediaEncoding media encoding used for data
      *

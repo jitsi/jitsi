@@ -48,7 +48,6 @@ public class AudioMediaSession
      * @param payloadType Payload used by jmf
      * @param remote      the remote information.
      * @param local       the local information.
-     * @param locator     media locator
      */
     public AudioMediaSession(PayloadType payloadType, TransportCandidate remote
             , TransportCandidate local)
