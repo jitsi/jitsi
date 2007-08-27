@@ -9,10 +9,10 @@ package net.java.sip.communicator.service.media;
 /**
  * RtpFlow Interface.
  *
- * The role of a RtpFlow is simply to handle media data
- * transfert between two end points
+ * The role of a RtpFlow is simply to handle media data transfer between two 
+ * end points as well as playback and capture.
  *
- * @author Symphorien Wanko-Tchuente
+ * @author Symphorien Wanko
  */
 public interface RtpFlow
 {
@@ -27,9 +27,40 @@ public interface RtpFlow
     public void stop();
 
     /**
-     * Allow to pause or resume media data transmission
+     * Gives the local port used by this flow
      *
-     * @param active pause transmission if false. Otherwise, resume.
+     * @return the local port used by this flow
      */
-    public void setTransmit(boolean active);
+    public int getLocalPort();
+
+    /**
+     * Gives the local address used by this flow
+     *
+     * @return the local address used by this flow
+     */
+    public String getLocalAddress();
+
+    /**
+     * Gives the remote port used by this flow
+     *
+     * @return the remote port used by this flow
+     */
+    public int getRemotePort();
+
+    /**
+     * Gives the remote address used by this flow
+     *
+     * @return the remote address used by this flow
+     */
+    public String getRemoteAddress();
+
+    /**
+     * Pause transmission on this flow
+     */
+    public void pause();
+
+    /**
+     * Resume transmission on this flow
+     */
+    public void resume();
 }

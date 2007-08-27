@@ -29,10 +29,14 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  * @author Martin Andre
  * @author Ryan Ricard
+ * @author Symphorien Wanko
  */
 public class MediaServiceImpl
     implements MediaService
 {
+    /**
+     * Our logger.
+     */
     private Logger logger = Logger.getLogger(MediaServiceImpl.class);
 
     /**
@@ -74,7 +78,7 @@ public class MediaServiceImpl
      * control mapping.
      */
     private MediaControl defaultMediaControl = new MediaControl();
-    
+
     /**
      * Mappings of calls to instances of <tt>MediaControl</tt>. In case a call
      * has been mapped to a media control instance, it is going to be used for
@@ -84,18 +88,18 @@ public class MediaServiceImpl
      * as their sound source. 
      */
     private Map callMediaControlMappings = new Hashtable();
-    
+
     /**
      * Mappings of calls to custom data sinks. Used by mailbox plug-ins for
      * sending audio/video flows to a file instead of the sound card or the 
      * screen.
      */
-    private Hashtable callDataSinkMappings = new Hashtable();
+    private Map callDataSinkMappings = new Hashtable();
 
     /**
      * Currently open call sessions.
      */
-    private Hashtable activeCallSessions =  new Hashtable();
+    private Map activeCallSessions =  new Hashtable();
 
     /**
      * Default constructor
@@ -103,6 +107,31 @@ public class MediaServiceImpl
     public MediaServiceImpl()
     {
     }
+
+    /**
+     * Implements <tt>getSupportedAudioEncodings</tt> from interface
+     * <tt>MediaService</tt>
+     *
+     * @return an array of Strings containing audio formats in the order of
+     * preference.
+     */
+    public String[] getSupportedAudioEncodings()
+    {
+        return defaultMediaControl.getSupportedAudioEncodings();
+    }
+
+    /**
+     * Implements <tt>getSupportedVideoEncodings</tt> from interface
+     * <tt>MediaService</tt>
+     *
+     * @return an array of Strings containing video formats in the order of
+     * preference.
+     */
+    public String[] getSupportedVideoEncodings()
+    {
+        return defaultMediaControl.getSupportedAudioEncodings();
+    }
+
 
     /**
      * Creates a call session for <tt>call</tt>. The method allocates audio
@@ -132,6 +161,36 @@ public class MediaServiceImpl
 
         return callSession;
     }
+
+    /**
+     * A <tt>RtpFlow</tt> is an object which role is to handle media data
+     * transfer, capture and playback. It's build between two points, a local 
+     * and a remote. The media transfered will be in a format specified by the
+     * <tt>mediaEncodings</tt> parameter.
+     * 
+     * @param localIP local address of this RtpFlow
+     * @param localPort local port of this RtpFlow
+     * @param remoteIP remote address of this RtpFlow
+     * @param remotePort remote port of this RtpFlow
+     * @param mediaEncodings format used to encode data on this flow
+     * @return rtpFlow the newly created <tt>RtpFlow</tt>
+     * @throws MediaException if operation fails
+     */
+    public RtpFlow createRtpFlow(String localIP,
+                                 int localPort,
+                                 String remoteIP,
+                                 int remotePort,
+                                 Map mediaEncodings)
+        throws MediaException
+    {
+        waitUntilStarted();
+        assertStarted();
+
+        RtpFlowImpl rtpFlow = new RtpFlowImpl(this, localIP, remoteIP,
+                localPort, remotePort, new Hashtable(mediaEncodings));
+        return rtpFlow;
+    }
+
 
     /**
      * Adds a listener that will be listening for incoming media and changes
@@ -191,8 +250,11 @@ public class MediaServiceImpl
     }
 
     /**
+     * Verifies whether the media service is started and ready for use and 
+     * throws an exception otherwise.
      *
-     * @throws MediaException
+     * @throws MediaException if  the media service is not started and ready for
+     * use.
      */
     protected void assertStarted()
         throws MediaException

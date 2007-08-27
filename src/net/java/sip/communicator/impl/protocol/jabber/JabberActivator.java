@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
@@ -5,20 +11,41 @@ import java.util.*;
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.media.*;
 
 /**
  * Loads the  Jabber provider factory and registers it with  service in the OSGI
  * bundle context.
  *
  * @author Damian Minkov
+ * @author Symphorien Wanko
  */
 public class JabberActivator
     implements BundleActivator
 {
-    private        ServiceRegistration  jabberPpFactoryServReg   = null;
-    private static BundleContext        bundleContext         = null;
-    private static ConfigurationService configurationService  = null;
+    /**
+     * Service reference for the currently valid Jabber provider factory.
+     */
+    private ServiceRegistration jabberPpFactoryServReg = null;
 
+    /**
+     * Bundle context from OSGi.
+     */
+    private static BundleContext bundleContext = null;
+
+    /**
+     * Configuration service.
+     */
+    private static ConfigurationService configurationService = null;
+
+    /**
+     * Media service.
+     */
+    private static MediaService mediaService = null;
+
+    /**
+     * The jabber protocol provider factory.
+     */
     private static ProtocolProviderFactoryJabberImpl jabberProviderFactory = null;
 
     /**
@@ -89,6 +116,26 @@ public class JabberActivator
     static ProtocolProviderFactoryJabberImpl getProtocolProviderFactory()
     {
         return jabberProviderFactory;
+    }
+
+    /**
+     * Returns a reference to a MediaService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     *
+     * @return a reference to a MediaService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     */
+    public static MediaService getMediaService()
+    {
+        if(mediaService == null)
+        {
+            ServiceReference mediaServiceReference
+                = bundleContext.getServiceReference(
+                    MediaService.class.getName());
+            mediaService = (MediaService)bundleContext
+                .getService(mediaServiceReference);
+        }
+        return mediaService;
     }
 
     /**

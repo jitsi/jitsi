@@ -18,14 +18,22 @@ import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.util.*;
 
+import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smackx.packet.*;
+
 /**
  * An implementation of the protocol provider service over the Jabber protocol
  *
  * @author Damian Minkov
+ * @author Symphorien Wanko
  */
 public class ProtocolProviderServiceJabberImpl
     implements ProtocolProviderService
 {
+    /**
+     * Logger of this class
+     */
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderServiceJabberImpl.class);
 
@@ -34,6 +42,9 @@ public class ProtocolProviderServiceJabberImpl
      */
     private Hashtable supportedOperationSets = new Hashtable();
 
+    /**
+     * Used to connect to a XMPP server.
+     */
     private XMPPConnection connection = null;
 
     /**
@@ -62,6 +73,9 @@ public class ProtocolProviderServiceJabberImpl
      */
     private SecurityAuthority authority = null;
 
+    /**
+     * True if we are reconnecting, false otherwise.
+     */
     private boolean reconnecting = false;
 
     /**
@@ -69,6 +83,26 @@ public class ProtocolProviderServiceJabberImpl
      */
     private ProtocolIconJabberImpl jabberIcon
         = new ProtocolIconJabberImpl();
+
+    /**
+     * A set of features supported by our Jabber implementation.
+     * In general, we add new feature(s) when we add new operation sets.
+     * (see xep-0030 : http://www.xmpp.org/extensions/xep-0030.html#info).
+     * Example : to tell the world that we support jingle, we simply have
+     * to do : 
+     * supportedFeatures.add("http://www.xmpp.org/extensions/xep-0166.html#ns");
+     * Beware there is no canonical mapping between op set and jabber features 
+     * (op set is a SC "concept"). This means that one op set in SC can 
+     * correspond to many jabber features. It is also possible that there is no
+     * jabber feature corresponding to a SC op set or again,
+     * we can currently support some features wich do not have a specific
+     * op set in SC (the mandatory feature :
+     * http://jabber.org/protocol/disco#info is one example).
+     * We can find features corresponding to op set in the xep(s) related
+     * to implemented functionality.
+     */
+    private List supportedFeatures = new ArrayList();
+
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -351,6 +385,55 @@ public class ProtocolProviderServiceJabberImpl
                     OperationFailedException.INVALID_ACCOUNT_PROPERTIES, ex);
             }
         }
+
+        // we listen for discovery info request and send an answer
+        // wich advetise all features supported by our jabber implementation
+        if (getRegistrationState() == RegistrationState.REGISTERED)
+        {
+            connection.addPacketListener( new PacketListener()
+            {
+                public void processPacket(Packet packet)
+                {
+                    DiscoverInfo infos = new DiscoverInfo();
+
+                    infos.setType(IQ.Type.RESULT);
+                    infos.setFrom(packet.getTo());
+                    infos.setTo(packet.getFrom());
+                    infos.setPacketID(packet.getPacketID());
+
+                    DiscoverInfo.Identity id
+                        = new DiscoverInfo.Identity("account", "sc");
+                    id.setType("registered");
+                    infos.addIdentity(id);
+
+                    Iterator it = supportedFeatures.iterator();
+                    while (it.hasNext())
+                    {
+                        infos.addFeature((String) it.next());
+                    }
+                    connection.sendPacket(infos);
+                }
+            }, new PacketFilter()
+            {
+                public boolean accept(Packet packet)
+                {
+                    // we are interested only for packets related to 
+                    // disovery info here.
+                    String s = packet.toXML();
+                    if (s.indexOf("type=\"get\"") != -1 
+                        && s.indexOf(
+                                "http://jabber.org/protocol/disco#info") != -1)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            });
+        }
+
     }
 
     /**
@@ -423,7 +506,7 @@ public class ProtocolProviderServiceJabberImpl
      * @param opsetClass the <tt>Class</tt>  of the operation set that we're
      * looking for.
      * @return returns an OperationSet of the specified <tt>Class</tt> if the
-     * undelying implementation supports it or null otherwise.
+     * underlying implementation supports it or null otherwise.
      */
     public OperationSet getOperationSet(Class opsetClass)
     {
@@ -433,7 +516,7 @@ public class ProtocolProviderServiceJabberImpl
 
     /**
      * Initialized the service implementation, and puts it in a sate where it
-     * could interoperate with other services. It is strongly recomended that
+     * could interoperate with other services. It is strongly recommended that
      * properties in this Map be mapped to property names as specified by
      * <tt>AccountProperties</tt>.
      *
@@ -451,6 +534,10 @@ public class ProtocolProviderServiceJabberImpl
         {
             this.accountID = accountID;
 
+            //this feature is mandatory to be compliant with Service Discovery
+            supportedFeatures.add("http://jabber.org/protocol/disco#info");
+
+
             String keepAliveStrValue = (String)accountID.getAccountProperties().
                                 get("SEND_KEEP_ALIVE");
 
@@ -465,11 +552,21 @@ public class ProtocolProviderServiceJabberImpl
             {
                 persistentPresence.setResourcePriority(
                     new Integer(resourcePriority).intValue());
+                // TODO : is this resource priority related to xep-0168
+                // (Resource Application Priority) ?
+                // see http://www.xmpp.org/extensions/xep-0168.html
+                // If the answer is no, comment the following lines please
+                supportedFeatures.add(
+                        "http://www.xmpp.org/extensions/xep-0168.html#ns");
             }
-            
+
             supportedOperationSets.put(
                 OperationSetPersistentPresence.class.getName(),
                 persistentPresence);
+            // TODO: add the feature, if any, corresponding to persistent
+            // presence, if someone knows
+            // supportedFeatures.add(_PRESENCE_);
+
 
             //register it once again for those that simply need presence
             supportedOperationSets.put( OperationSetPresence.class.getName(),
@@ -488,6 +585,11 @@ public class ProtocolProviderServiceJabberImpl
                 OperationSetBasicInstantMessaging.class.getName(),
                 basicInstantMessaging);
 
+            // TODO: add the feature, if any, corresponding to IM if someone
+            // knows
+            // supportedFeatures.add(_IM_);
+
+
             //initialize the typing notifications operation set
             OperationSetTypingNotifications typingNotifications =
                 new OperationSetTypingNotificationsJabberImpl(this);
@@ -495,15 +597,39 @@ public class ProtocolProviderServiceJabberImpl
             supportedOperationSets.put(
                 OperationSetTypingNotifications.class.getName(),
                 typingNotifications);
+            supportedFeatures.add("http://jabber.org/protocol/chatstates");
+
 
             //initialize the multi user chat operation set
-
             OperationSetMultiUserChat multiUserChat =
                 new OperationSetMultiUserChatJabberImpl(this);
 
             supportedOperationSets.put(
                 OperationSetMultiUserChat.class.getName(),
                 multiUserChat);
+
+            // TODO: this is the "main" feature to advertise when a client
+            // support muc. We have to add some features for
+            // specific functionnality we support in muc.
+            // see http://www.xmpp.org/extensions/xep-0045.html
+            supportedFeatures.add("http://jabber.org/protocol/muc");
+
+            //initialize the telephony opset
+            OperationSetBasicTelephony opSetBasicTelephony
+                = new OperationSetBasicTelephonyJabberImpl(this);
+
+            supportedOperationSets.put(
+                OperationSetBasicTelephony.class.getName(), 
+                opSetBasicTelephony);
+
+            supportedFeatures.add(
+                "http://www.xmpp.org/extensions/xep-0166.html#ns");
+            // TODO: we have commented out this line since it breaks
+            // compatibility with spark and since spark is the only other
+            // client supporting  jingle ... it's worth it. let's hope 
+            // they fix it soon.'
+            //supportedFeatures.add(
+            //    "http://www.xmpp.org/extensions/xep-0167.html#ns");
 
             isInitialized = true;
         }
@@ -515,9 +641,17 @@ public class ProtocolProviderServiceJabberImpl
      * shutdown/garbage collection.
      */
     public void shutdown()
-    {   
+    {
         synchronized(initializationLock)
         {
+            logger.trace("Killing the Jabber Protocol Provider.");
+
+            //kill all active calls
+            OperationSetBasicTelephonyJabberImpl telephony
+                = (OperationSetBasicTelephonyJabberImpl)getOperationSet(
+                    OperationSetBasicTelephony.class);
+            telephony.shutdown();
+
             if(connection != null)
             {
                 connection.disconnect();
@@ -635,9 +769,15 @@ public class ProtocolProviderServiceJabberImpl
         logger.trace("Done.");
     }
 
+    /**
+     * Enable to listen for jabber connection events
+     */
     private class JabberConnectionListener
         implements ConnectionListener
     {
+        /**
+         * Implements <tt>connectionClosed</tt> from <tt>ConnectionListener</tt>
+         */
         public void connectionClosed()
         {
             OperationSetPersistentPresenceJabberImpl opSetPersPresence =
@@ -650,6 +790,12 @@ public class ProtocolProviderServiceJabberImpl
                 JabberStatusEnum.OFFLINE);
         }
 
+        /**
+         * Implements <tt>connectionClosedOnError</tt> from 
+         * <tt>ConnectionListener</tt>.
+         *
+         * @param exception contains information on the error.
+         */
         public void connectionClosedOnError(Exception exception)
         {
             logger.error("connectionClosedOnError " +
@@ -661,16 +807,30 @@ public class ProtocolProviderServiceJabberImpl
                 reconnecting = false;
         }
 
+        /**
+         * Implements <tt>reconnectingIn</tt> from <tt>ConnectionListener</tt>
+         *
+         * @param i delay in seconds for reconnection.
+         */
         public void reconnectingIn(int i)
         {
             logger.info("reconnectingIn " + i);
         }
 
+        /**
+         * Implements <tt>reconnectingIn</tt> from <tt>ConnectionListener</tt>
+         */
         public void reconnectionSuccessful()
         {
             logger.info("reconnectionSuccessful");
         }
 
+        /**
+         * Implements <tt>reconnectionFailed</tt> from 
+         * <tt>ConnectionListener</tt>.
+         *
+         * @param exception description of the failure
+         */
         public void reconnectionFailed(Exception exception)
         {
             logger.info("reconnectionFailed ", exception);

@@ -118,7 +118,7 @@ public class SystrayServiceJdicImpl
             public void actionPerformed(ActionEvent e)
             {
                 UIService uiService = SystrayActivator.getUIService();
-                
+
                 boolean isVisible;
 
                 isVisible = ! uiService.isVisible();
@@ -141,7 +141,7 @@ public class SystrayServiceJdicImpl
             public void actionPerformed(ActionEvent e)
             {
                 UIService uiService = SystrayActivator.getUIService();
-                
+
                 firePopupMessageEvent(e.getSource());
 
                 ExportedWindow chatWindow
