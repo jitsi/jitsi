@@ -59,7 +59,7 @@ public class ProtocolProviderServiceSipImpl
      * <tt>RegistrationStateChangeEvent</tt>s.
      */
     private List registrationListeners = new ArrayList();
-    
+
     /**
      * A list of all events registered for this provider.
      */
@@ -105,7 +105,6 @@ public class ProtocolProviderServiceSipImpl
      * The default listening point that we use for TLS communication..
      */
     private ListeningPoint tlsListeningPoint = null;
-
 
     /**
      * The default JAIN SIP provider that we use for UDP communication...
@@ -386,12 +385,12 @@ public class ProtocolProviderServiceSipImpl
     {
         return ProtocolNames.SIP;
     }
-    
+
     /**
      * Register a new event taken in account by this provider. This is usefull
      * to generate the Allow-Events header of the OPTIONS responses and to
      * generate 489 responses.
-     * 
+     *
      * @param event The event to register
      */
     public void registerEvent(String event) {
@@ -401,10 +400,10 @@ public class ProtocolProviderServiceSipImpl
             }
         }
     }
-    
+
     /**
      * Returns the list of all the registered events for this provider.
-     * 
+     *
      * @return The list of all the registered events
      */
     public List getKnownEventsList() {
@@ -634,26 +633,26 @@ public class ProtocolProviderServiceSipImpl
             }
 
             initListeningPoints(preferredSipPort);
-            
+
             // get the presence options
             String enablePresenceObj = (String) accountID
                     .getAccountProperties().get(
                             ProtocolProviderFactory.IS_PRESENCE_ENABLED);
-            
+
             boolean enablePresence = true;
             if (enablePresenceObj != null) {
                 enablePresence = Boolean.valueOf(enablePresenceObj)
                     .booleanValue();
             }
-            
+
             String forceP2PObj = (String) accountID.getAccountProperties()
                     .get(ProtocolProviderFactory.FORCE_P2P_MODE);
-            
+
             boolean forceP2P = true;
             if (forceP2PObj != null) {
                 forceP2P = Boolean.valueOf(forceP2PObj).booleanValue();
             }
-            
+
             int pollingValue = 30;
             try {
                 String pollingString = (String) accountID.getAccountProperties()
@@ -667,7 +666,7 @@ public class ProtocolProviderServiceSipImpl
             } catch (NumberFormatException e) {
                 logger.error("wrong polling value stored", e);
             }
-            
+
             int subscriptionExpiration = 3600;
             try {
                 String subscriptionString = (String) accountID
@@ -683,7 +682,6 @@ public class ProtocolProviderServiceSipImpl
             } catch (NumberFormatException e) {
                 logger.error("wrong expiration value stored", e);
             }
-           
 
             //create SIP factories.
             headerFactory = new HeaderFactoryImpl();

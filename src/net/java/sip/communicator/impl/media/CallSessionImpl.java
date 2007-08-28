@@ -329,9 +329,9 @@ public class CallSessionImpl
      */
     private void stopStreaming()
     {
-        stopStreaming(getAudioRtpManager());
+        stopStreaming(getAudioRtpManager(), "audio");
         this.audioRtpManager = null;
-        stopStreaming(getVideoRtpManager());
+        stopStreaming(getVideoRtpManager(), "video");
         this.videoRtpManager = null;
     }
 
@@ -340,7 +340,8 @@ public class CallSessionImpl
      *
      * @param rtpManager the rtpManager whose streams we'll be stopping.
      */
-    private void stopStreaming(RTPManager rtpManager)
+    private void stopStreaming(RTPManager rtpManager,
+                               String rtpManagerDescription)
     {
         Vector sendStreams = rtpManager.getSendStreams();
         Iterator ssIter = sendStreams.iterator();
@@ -375,15 +376,63 @@ public class CallSessionImpl
             }
         }
 
-
         //remove targets
         rtpManager.removeTargets("Session ended.");
+
+        printFlowStatistics(rtpManager);
 
         //stop listening
         rtpManager.removeReceiveStreamListener(this);
         rtpManager.removeSendStreamListener(this);
         rtpManager.removeSessionListener(this);
         rtpManager.dispose();
+    }
+
+    /**
+     * Prints all statistics available for rtpManager. (Method contributed by
+     * Michael Koch).
+     *
+     * @param rtpManager the RTP manager that we'd like to print statistics for.
+     */
+    private void printFlowStatistics(RTPManager rtpManager)
+    {
+        String rtpManagerDescription = (rtpManager == getAudioRtpManager())
+            ? "(for audio flows)"
+            : "(for video flows)";
+
+        //print flow statistics.
+        GlobalTransmissionStats s = rtpManager.getGlobalTransmissionStats();
+
+        logger.info(
+            "global transmission stats (" + rtpManagerDescription + "): \n" +
+            "bytes sent: " + s.getBytesSent() + "\n" +
+            "local colls: " + s.getLocalColls() + "\n" +
+            "remote colls: " + s.getRemoteColls() + "\n" +
+            "RTCP sent: " + s.getRTCPSent() + "\n" +
+            "RTP sent: " + s.getRTPSent() + "\n" +
+            "transmit failed: " + s.getTransmitFailed()
+        );
+
+        GlobalReceptionStats rs = rtpManager.getGlobalReceptionStats();
+
+        logger.info(
+            "global reception stats (" + rtpManagerDescription + "): \n" +
+            "bad RTCP packets: " + rs.getBadRTCPPkts() + "\n" +
+            "bad RTP packets: " + rs.getBadRTPkts() + "\n" +
+            "bytes received: " + rs.getBytesRecd() + "\n" +
+            "local collisions: " + rs.getLocalColls() + "\n" +
+            "malformed BYEs: " + rs.getMalformedBye() + "\n" +
+            "malformed RRs: " + rs.getMalformedRR() + "\n" +
+            "malformed SDESs: " + rs.getMalformedSDES() + "\n" +
+            "malformed SRs: " + rs.getMalformedSR() + "\n" +
+            "packets looped: " + rs.getPacketsLooped() + "\n" +
+            "packets received: " + rs.getPacketsRecd() + "\n" +
+            "remote collisions: " + rs.getRemoteColls() + "\n" +
+            "RTCPs received: " + rs.getRTCPRecd() + "\n" +
+            "SRRs received: " + rs.getSRRecd() + "\n" +
+            "transmit failed: " + rs.getTransmitFailed() + "\n" +
+            "unknown types: " + rs.getUnknownTypes()
+        );
     }
 
     /**
@@ -1591,7 +1640,6 @@ public class CallSessionImpl
      */
     public void update(ReceiveStreamEvent evt)
     {
-        logger.debug("received a new incoming stream. " + evt);
         RTPManager mgr = (RTPManager) evt.getSource();
         Participant participant = evt.getParticipant(); // could be null.
         ReceiveStream stream = evt.getReceiveStream(); // could be null.
@@ -1599,6 +1647,7 @@ public class CallSessionImpl
         {
             try
             {
+                logger.debug("received a new incoming stream. " + evt);
                 stream = ( (NewReceiveStreamEvent) evt).getReceiveStream();
                 DataSource ds = stream.getDataSource();
                 // Find out the formats.

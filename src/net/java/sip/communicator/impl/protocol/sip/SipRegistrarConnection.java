@@ -100,9 +100,9 @@ public class SipRegistrarConnection
      * @param registrationTransport the transport to use when sending our
      * REGISTER request to the server.
      * @param expirationTimeout the number of seconds to wait before
-     * reregistering.
+     * re-registering.
      * @param sipProviderCallback a reference to the
-     * ProtocolProviderServiceSipImpl instance that crated us.
+     * ProtocolProviderServiceSipImpl instance that created us.
      *
      * @throws ParseException in case the specified registrar address is not a
      * valid reigstrar address.
@@ -239,8 +239,13 @@ public class SipRegistrarConnection
         Request request = null;
         try
         {
+            //create a host-only uri for the request uri header.
+            String domain 
+                = ((SipURI) toHeader.getAddress().getURI()).getHost();
+            SipURI requestURI 
+                = sipProvider.getAddressFactory().createSipURI(null,domain);
             request = sipProvider.getMessageFactory().createRequest(
-                registrarURI
+                  requestURI
                 , Request.REGISTER
                 , callIdHeader
                 , cSeqHeader
@@ -248,6 +253,15 @@ public class SipRegistrarConnection
                 , toHeader
                 , viaHeaders
                 , maxForwardsHeader);
+
+            // JvB: use Route header in addition to the request URI
+            SipURI regURI = (SipURI) registrarURI.clone();
+            regURI.setLrParam();
+            RouteHeader route = sipProvider.getHeaderFactory()
+                .createRouteHeader( sipProvider.getAddressFactory()
+                    .createAddress( null, regURI ));
+
+            request.addHeader( route );
         }
         catch (ParseException ex)
         {
@@ -800,7 +814,7 @@ public class SipRegistrarConnection
             processOK(clientTransaction, response);
         }
         //NOT_IMPLEMENTED
-        else if (response.getStatusCode() == Response.OK) {
+        else if (response.getStatusCode() == Response.NOT_IMPLEMENTED) {
             processNotImplemented(clientTransaction, response);
         }
         //Trying

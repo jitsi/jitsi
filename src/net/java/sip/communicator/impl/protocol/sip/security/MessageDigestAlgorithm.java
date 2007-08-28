@@ -24,17 +24,25 @@ public class MessageDigestAlgorithm
     /**
      * Calculates an http authentication response in accordance with rfc2617.
      * <p>
-     * @param algorithm MD5 or MD5-sess)
+     * @param algorithm a string indicating a pair of algorithms (MD5 (default),
+     * or MD5-sess) used to produce the digest and a checksum.
      * @param username_value username_value (see rfc2617)
-     * @param realm_value realm_value
-     * @param passwd passwd
-     * @param nonce_value nonce_value
-     * @param cnonce_value cnonce_value
-     * @param method method
-     * @param digest_uri_value uri_value
-     * @param entity_body entity_body
-     * @param qop_value qop
-     * @param nc_value  nc_value
+     * @param realm_value A string that has been displayed to the user in order 
+     * to determine the context of the username and password to use.
+     * @param passwd the password to encode in the challenge response.
+     * @param nonce_value A server-specified data string provided in the 
+     * challenge.
+     * @param cnonce_value an optional  client-chosen value whose purpose is
+     * to foil chosen plaintext attacks.
+     * @param method the SIP method of the request being challenged.
+     * @param digest_uri_value the value of the "uri" directive on the 
+     * Authorization header in the request.
+     * @param entity_body the entity-body
+     * @param qop_value Indicates what "quality of protection" the client has 
+     * applied to the message.
+     * @param nc_value  the hexadecimal count of the number of requests 
+     * (including the current request) that the client has sent with the nonce 
+     * value in this request.
      * @return a digest response as defined in rfc2617
      * @throws NullPointerException in case of incorrectly null parameters.
      */
@@ -89,8 +97,13 @@ public class MessageDigestAlgorithm
 
 
         String request_digest = null;
-        if(cnonce_value != null && qop_value != null
-           && (qop_value.equals("auth") || (qop_value.equals("auth-int"))))
+
+        if( cnonce_value != null 
+            && qop_value != null 
+            && nc_value!=null
+            && (qop_value.equalsIgnoreCase("auth") 
+                || qop_value.equalsIgnoreCase("auth-int")))
+
         {
             request_digest  = KD ( H(A1), nonce_value
                                           + ":" + nc_value

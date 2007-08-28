@@ -22,6 +22,7 @@ import net.java.sip.communicator.util.*;
  * passwords.
  *
  * @author Emil Ivov
+ * @author Jeroen van Bemmel
  * @version 1.0
  */
 
@@ -344,6 +345,14 @@ public class SipSecurityManager
         throws OperationFailedException
     {
         String response = null;
+
+        // JvB: authHeader.getQop() is a quoted _list_ of qop values 
+        // (e.g. "auth,auth-int") Client is supposed to pick one
+        String qopList = authHeader.getQop();
+        String qop = (qopList != null) ? "auth" : null;
+        String nc_value = "00000001";
+        String cnonce = "xyz";
+
         try
         {
             response = MessageDigestAlgorithm.calculateResponse(
@@ -352,13 +361,12 @@ public class SipSecurityManager
                 authHeader.getRealm(),
                 new String(userCredentials.getPassword()),
                 authHeader.getNonce(),
-                //TODO we should one day implement those two null-s
-                null, //nc-value
-                null, //cnonce
+                nc_value, // JvB added
+                cnonce,   // JvB added
                 method,
                 uri,
                 requestBody,
-                authHeader.getQop());
+                qop);//jvb changed
         }
         catch (NullPointerException exc)
         {
@@ -397,13 +405,21 @@ public class SipSecurityManager
                 authorization.setOpaque(authHeader.getOpaque());
             }
 
+            // jvb added
+            if (qop!=null) 
+            {
+                authorization.setQop(qop);
+                authorization.setCNonce(cnonce);
+                authorization.setNonceCount( Integer.parseInt(nc_value) );
+            }
+
             authorization.setResponse(response);
 
         }
         catch (ParseException ex)
         {
-            throw new
-                SecurityException("Failed to create an authorization header!");
+            throw new SecurityException(
+                "Failed to create an authorization header!");
         }
 
         return authorization;
