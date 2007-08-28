@@ -1774,6 +1774,31 @@ public class CallSessionImpl
             logger.debug("A player was realized and will be started.");
             player.start();
 
+            if (dataSink != null)
+            {
+                try
+                {
+                    logger.info("starting recording to file: "+dataSink);
+                    MediaLocator dest = new MediaLocator(dataSink);    
+                    DataSource ds = ((Processor)player).getDataOutput();
+                    DataSink sink = Manager.createDataSink(
+                        ((Processor)player).getDataOutput(), dest);
+                    player.start();
+                    //do we know the output file's duration
+                    RecordInitiator record = new RecordInitiator(sink);
+                    record.start();
+                }
+                catch(Exception e)
+                {
+                    logger.error("failed while trying to record to file",e);
+                }
+            }
+            else
+            {
+                player.start();
+            }
+
+
             /** @todo video frame is currently handled with very ugly test code
              * please don't forget to remove */
             //------------ ugly video test code starts here --------------------
@@ -1816,4 +1841,61 @@ public class CallSessionImpl
             logger.debug("Received a ControllerClosedEvent");
         }
     }
+
+    /**
+     * The record initiator is started after taking a call that is supposed to
+     * be answered by a mailbox plug-in. It waits for the outgoing message to 
+     * stop transmitting and starts recording whatever comes after that.
+     */
+    private class RecordInitiator extends Thread
+    {
+        private DataSink sink;
+
+        public RecordInitiator(DataSink sink)
+        {
+            this.sink = sink;
+        }
+
+        public void run()
+        {
+            //determine how long to wait for the outgoing 
+            //message to stop playing
+            javax.media.Time timeToWait = mediaServCallback
+                                    .getMediaControl(call)
+                                    .getOutputDuration();
+
+            //if the time is unknown, we will start recording immediately
+            if (timeToWait != javax.media.Time.TIME_UNKNOWN)
+            {
+                double millisToWait = timeToWait.getSeconds() * 1000;
+                long timeStartedPlaying = System.currentTimeMillis();
+                while (System.currentTimeMillis() < timeStartedPlaying
+                         + millisToWait)
+                {
+                    try
+                    {
+                        Thread.sleep(100);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        logger.error("Interrupted while waiting to start "
+                            + "recording incoming message",e);
+                    }
+                }
+            }
+
+            //open the dataSink and start recording
+            try
+            {
+                sink.open();
+                sink.start();
+            }
+            catch (IOException e)
+            {
+                logger.error("IO Exception while attempting to start "
+                             + "recording incoming message",e);
+            }
+        }
+    }
+
 }
