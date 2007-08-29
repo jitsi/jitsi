@@ -77,7 +77,7 @@ public class NotificationManager
         // Register busy call notifications.
         SoundNotificationHandler busyCallSoundHandler
             = (SoundNotificationHandler) notificationService
-                .createSoundNotificationHandler(Sounds.BUSY, 0);
+                .createSoundNotificationHandler(Sounds.BUSY, 1);
         
         notificationService.registerNotificationForEvent(
                 BUSY_CALL,
@@ -116,15 +116,15 @@ public class NotificationManager
     {
         NotificationService notificationService
             = GuiActivator.getNotificationService();
-        
+
         if(notificationService == null)
             return;
-    
+
         SoundNotificationHandler soundHandler
             = (SoundNotificationHandler) notificationService
                 .getEventNotificationActionHandler(
                     eventType, NotificationService.ACTION_SOUND);
-        
+
         soundHandler.stop();
     }
 }

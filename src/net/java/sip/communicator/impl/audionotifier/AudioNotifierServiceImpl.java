@@ -10,6 +10,7 @@ import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.audionotifier.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The implementation of the AudioNotifierService.
@@ -19,14 +20,15 @@ import net.java.sip.communicator.service.audionotifier.*;
 public class AudioNotifierServiceImpl
     implements AudioNotifierService
 {
+    private Logger logger = Logger.getLogger(AudioNotifierServiceImpl.class);
 
     private static Map audioClips = new HashMap();
 
     private boolean isMute;
 
     /**
-     * Creates an SCAudioClip from the given uri and adds it to the list of
-     * available audios.
+     * Creates an SCAudioClip from the given URI and adds it to the list of
+     * available audio-s.
      *
      * @param uri the path where the audio file could be found
      */
@@ -45,6 +47,18 @@ public class AudioNotifierServiceImpl
                 URL url = AudioNotifierServiceImpl.class.getClassLoader()
                     .getResource(uri);
 
+                if (url == null)
+                {
+                    // Not found by the class loader. Perhaps it's a local file.
+                    try 
+                    {
+                        url = new URL(uri);
+                    }
+                    catch (MalformedURLException e)
+                    {
+                        logger.error("The given uri could not be parsed.", e);
+                    }
+                }
                 audioClip = new SCAudioClipImpl(url, this);
 
                 audioClips.put(uri, audioClip);

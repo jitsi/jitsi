@@ -105,7 +105,7 @@ public class NotificationServiceImpl
                                                 NotificationActionHandler handler)
     {
         EventNotification notification = null;
-        
+
         if(notificationsTable.containsKey(eventType))
             notification = (EventNotification) notificationsTable.get(eventType);
         else
@@ -295,15 +295,15 @@ public class NotificationServiceImpl
     {
         EventNotification notification
             = (EventNotification) notificationsTable.get(eventType);
-        
+System.out.println("EVENT TYPE=================" + eventType + "NOTIFICATION=========" + notification);
         if(notification == null)
             return null;
-        
+
         EventNotification.Action action = notification.getAction(actionType);
-        
+System.out.println("ACTION=================" + actionType + "ACTION=========" + action);
         if(action == null)
             return null;
-        
+
         return action.getActionHandler();
     }
 

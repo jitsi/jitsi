@@ -71,12 +71,12 @@ public class SoundNotificationHandlerImpl
     {   
         AudioNotifierService audioNotifService
             = NotificationActivator.getAudioNotifier();
-        
+
         if(audioNotifService == null)
             return;
-        
+
         audio = audioNotifService.createAudio(soundFileDescriptor);
-     
+
         if(loopInterval > -1)
             audio.playInLoop(loopInterval);
         else
@@ -90,10 +90,15 @@ public class SoundNotificationHandlerImpl
     {
         AudioNotifierService audioNotifService
             = NotificationActivator.getAudioNotifier();
-        
+
         if(audioNotifService == null)
             return;
-    
+
+        if(audio == null)
+            return;
+
+        audio.stop();
+
         audioNotifService.destroyAudio(audio);
     }
 

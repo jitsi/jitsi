@@ -15,7 +15,6 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -504,7 +503,7 @@ public class CallManager
         this.hangupButton.setEnabled(true);
 
         NotificationManager.fireNotification(
-            Sounds.INCOMING_CALL,
+            NotificationManager.INCOMING_CALL,
             null,
             "Incoming call recived from: "
                 + sourceCall.getCallParticipants().next());
