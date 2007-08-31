@@ -343,6 +343,7 @@ public class NotificationServiceImpl
      * 
      * @param eventType the type of the event that we'd like to fire a
      * notification for.
+     * @param title the title of the given message
      * @param message the message to use if and where appropriate (e.g. with
      * systray or log notification.)
      */
@@ -361,25 +362,30 @@ public class NotificationServiceImpl
             Action action = (Action) actions.next();
             
             String actionType = action.getActionType();
-            
+
+            NotificationActionHandler handler = action.getActionHandler();
+
+            if (!handler.isEnabled())
+                continue;
+
             if (actionType.equals(NotificationService.ACTION_POPUP_MESSAGE))
             {
-                ((PopupMessageNotificationHandler) action.getActionHandler())
+                ((PopupMessageNotificationHandler) handler)
                     .popupMessage(title, message);
             }
             else if (actionType.equals(NotificationService.ACTION_LOG_MESSAGE))
             {
-                ((LogMessageNotificationHandler) action.getActionHandler())
+                ((LogMessageNotificationHandler) handler)
                     .logMessage(message);
             }
             else if (actionType.equals(NotificationService.ACTION_SOUND))
             {
-                ((SoundNotificationHandler) action.getActionHandler())
+                ((SoundNotificationHandler) handler)
                     .start();
             }
             else if (actionType.equals(NotificationService.ACTION_COMMAND))
             {
-                ((CommandNotificationHandler) action.getActionHandler())
+                ((CommandNotificationHandler) handler)
                     .execute();
             }
         }

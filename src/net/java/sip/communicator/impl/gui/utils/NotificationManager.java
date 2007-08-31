@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.notification.*;
+import net.java.sip.communicator.service.protocol.*;
 
 public class NotificationManager
 {
@@ -87,7 +88,15 @@ public class NotificationManager
         soundHandlers.put(OUTGOING_CALL, outCallSoundHandler);
 
     }
-    
+
+    /**
+     * Fires a message notification for the given event type through the
+     * <tt>NotificationService</tt>.
+     * 
+     * @param eventType the event type for which we fire a notification
+     * @param messageTitle the title of the message
+     * @param message the content of the message
+     */
     public static void fireNotification(String eventType,
                                         String messageTitle,
                                         String message)
@@ -97,10 +106,57 @@ public class NotificationManager
         
         if(notificationService == null)
             return;
-        
+
         notificationService.fireNotification(eventType, messageTitle, message);
+
     }
-    
+
+    /**
+     * Fires a chat message notification for the given event type through the
+     * <tt>NotificationService</tt>.
+     * 
+     * @param contact the contact to which the chat message corresponds
+     * @param eventType the event type for which we fire a notification
+     * @param messageTitle the title of the message
+     * @param message the content of the message
+     */
+    public static void fireChatNotification(Contact contact,
+                                            String eventType,
+                                            String messageTitle,
+                                            String message)
+    {
+        NotificationService notificationService
+            = GuiActivator.getNotificationService();
+
+        if(notificationService == null)
+            return;
+
+        NotificationActionHandler popupActionHandler = null;
+
+        if(eventType.equals(INCOMING_MESSAGE)
+            && GuiActivator.getUIService().getChat(contact).isChatFocused())
+        {
+            popupActionHandler = notificationService
+                .getEventNotificationActionHandler(
+                                    eventType,
+                                    NotificationService.ACTION_POPUP_MESSAGE);
+
+            popupActionHandler.setEnabled(false);
+        }
+
+        notificationService.fireNotification(eventType, messageTitle, message);
+
+        if(popupActionHandler != null)
+            popupActionHandler.setEnabled(true);
+    }
+
+    /**
+     * Fires a notification for the given event type through the
+     * <tt>NotificationService</tt>. The event type is one of the static
+     * constants defined in this class.
+     * 
+     * @param eventType the event type for which we want to fire a notification
+     */
     public static void fireNotification(String eventType)
     {
         NotificationService notificationService
@@ -111,7 +167,13 @@ public class NotificationManager
         
         notificationService.fireNotification(eventType);
     }
-    
+
+    /**
+     * Stops all sounds for the given event type.
+     * 
+     * @param eventType the event type for which we should stop sounds. One of
+     * the static event types defined in this class.
+     */
     public static void stopSound(String eventType)
     {
         NotificationService notificationService

@@ -19,7 +19,9 @@ public class PopupMessageNotificationHandlerImpl
     implements PopupMessageNotificationHandler
 {
     private String defaultMessage;
-    
+
+    private boolean isEnabled = true;
+
     /**
      * Creates an instance of <tt>PopupMessageNotificationHandlerImpl</tt> by
      * specifying the default message to use if no message is specified.
@@ -57,5 +59,32 @@ public class PopupMessageNotificationHandlerImpl
         
         systray.showPopupMessage(title, message,
             SystrayService.NONE_MESSAGE_TYPE);
+    }
+
+    /**
+     * Returns TRUE if this notification action handler is enabled and FALSE
+     * otherwise. While the notification handler for the pop-up message action
+     * type is disabled no messages will be popped up when the
+     * <tt>fireNotification</tt> method is called.
+     * 
+     * @return TRUE if this notification action handler is enabled and FALSE
+     * otherwise
+     */
+    public boolean isEnabled()
+    {
+        return isEnabled;
+    }
+
+    /**
+     * Enables or disables this notification handler. While the notification
+     * handler for the pop-up message action type is disabled no messages will
+     * be popped up when the <tt>fireNotification</tt> method is called.
+     * 
+     * @param isEnabled TRUE to enable this notification handler, FALSE to
+     * disable it.
+     */
+    public void setEnabled(boolean isEnabled)
+    {
+        this.isEnabled = isEnabled;
     }
 }

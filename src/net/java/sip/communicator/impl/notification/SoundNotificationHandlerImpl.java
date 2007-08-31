@@ -23,8 +23,10 @@ public class SoundNotificationHandlerImpl
      * By default we don't play sounds in loop.
      */
     private int loopInterval = -1;
-    
+
     private SCAudioClip audio;
+
+    private boolean isEnabled = true;
 
     /**
      * Creates an instance of <tt>SoundNotificationHandlerImpl</tt> by
@@ -110,5 +112,32 @@ public class SoundNotificationHandlerImpl
     public String getDescriptor()
     {
         return soundFileDescriptor;
+    }
+
+    /**
+     * Returns TRUE if this notification action handler is enabled and FALSE
+     * otherwise. While the notification handler for the sound action type is
+     * disabled no sounds will be played when the <tt>fireNotification</tt>
+     * method is called.
+     * 
+     * @return TRUE if this notification action handler is enabled and FALSE
+     * otherwise
+     */
+    public boolean isEnabled()
+    {
+        return isEnabled;
+    }
+
+    /**
+     * Enables or disables this notification handler. While the notification
+     * handler for the sound action type is disabled no sounds will be played
+     * when the <tt>fireNotification</tt> method is called.
+     * 
+     * @param isEnabled TRUE to enable this notification handler, FALSE to
+     * disable it.
+     */
+    public void setEnabled(boolean isEnabled)
+    {
+        this.isEnabled = isEnabled;
     }
 }

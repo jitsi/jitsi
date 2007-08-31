@@ -251,7 +251,8 @@ public class ContactListPanel
             String title = Messages.getI18NString("msgReceived",
                 new String[]{evt.getSourceContact().getDisplayName()}).getText();
             
-            NotificationManager.fireNotification(
+            NotificationManager.fireChatNotification(
+                                            protocolContact,
                                             NotificationManager.INCOMING_MESSAGE,
                                             title,
                                             message.getContent());

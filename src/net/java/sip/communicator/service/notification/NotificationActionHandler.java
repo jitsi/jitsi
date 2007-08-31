@@ -15,4 +15,24 @@ package net.java.sip.communicator.service.notification;
  * @author Yana Stamcheva
  */
 public interface NotificationActionHandler
-{}
+{
+    /**
+     * Returns TRUE if this notification action handler is enabled and FALSE
+     * otherwise. While the notification handler for an action type is disabled
+     * no notifications will be fired for this action type.
+     * 
+     * @return TRUE if this notification action handler is enabled and FALSE
+     * otherwise
+     */
+    public boolean isEnabled();
+
+    /**
+     * Enables or disables this notification handler. While the notification
+     * handler for an action type is disabled no notifications will be fired
+     * for this action type.
+     * 
+     * @param isEnabled TRUE to enable this notification handler, FALSE to
+     * disable it.
+     */
+    public void setEnabled(boolean isEnabled);
+}
