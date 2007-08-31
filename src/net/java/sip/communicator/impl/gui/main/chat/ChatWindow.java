@@ -354,7 +354,7 @@ public class ChatWindow
                 Component c = getContentPane().getComponent(i);
                 
                 if(c instanceof ChatPanel)
-                    return (ChatPanel)c;                
+                    return (ChatPanel)c;
             }
         }
         return null;
