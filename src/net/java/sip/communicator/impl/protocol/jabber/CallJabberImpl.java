@@ -19,6 +19,7 @@ import org.jivesoftware.smackx.jingle.*;
  *  jingle sessions.
  *
  * @author Emil Ivov
+ * @author Symphorien Wanko
  */
 public class CallJabberImpl
     extends Call

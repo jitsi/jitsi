@@ -18,6 +18,7 @@ import org.jivesoftware.smackx.jingle.*;
  * and others.
  *
  * @author Emil Ivov
+ * @author Symphorien Wanko
  */
 public class ActiveCallsRepository
     implements CallChangeListener
@@ -160,7 +161,7 @@ public class ActiveCallsRepository
         if(session == null)
         {
             logger.debug("Cannot find a participant with a null session. "
-                         +"Returning null");
+                         + "Returning null");
             return null;
         }
 

@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-//import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -18,12 +17,13 @@ import org.jivesoftware.smackx.jingle.*;
  * Our Jabber implementation of the default CallParticipant;
  *
  * @author Emil Ivov
+ * @author Symphorien Wanko
  */
 public class CallParticipantJabberImpl
     extends AbstractCallParticipant
 {
     /**
-     * logger of this class
+     * Logger of this class
      */
     private static final Logger logger
         = Logger.getLogger(CallParticipantJabberImpl.class);
@@ -72,7 +72,7 @@ public class CallParticipantJabberImpl
      * @param owningCall the call that contains this call participant.
      */
     public CallParticipantJabberImpl(String participantAddress,
-                                     CallJabberImpl    owningCall)
+                                     CallJabberImpl owningCall)
     {
         this.participantAddress = participantAddress;
         this.call = owningCall;
@@ -163,8 +163,6 @@ public class CallParticipantJabberImpl
         setState(newState, null);
     }
 
-
-
     /**
      * Returns the date (time) when this call participant acquired its
      * current status.
@@ -184,12 +182,19 @@ public class CallParticipantJabberImpl
      */
     public String getDisplayName()
     {
-        int atIndex = participantAddress.indexOf("@");
-        if (atIndex > 0) {
-            return participantAddress.substring(0, atIndex);
-        } else {
-            return participantAddress;
+        if (call != null)
+        {
+            ProtocolProviderService pps = call.getProtocolProvider();
+            OperationSetPresence opSetPresence = (OperationSetPresence) pps
+                    .getOperationSet(OperationSetPresence.class);
+
+            Contact cont = opSetPresence.findContactByID(getAddress());
+            if (cont != null)
+            {
+                return cont.getDisplayName();
+            }
         }
+        return participantAddress;
     }
 
     /**
@@ -200,22 +205,11 @@ public class CallParticipantJabberImpl
     protected void setDisplayName(String displayName)
     {
         String oldName = getDisplayName();
-        /*try
-        {
-            //this.participantAddress.setDisplayName(displayName);
-        }
-        catch (ParseException ex)
-        {
-            //couldn't happen
-            logger.error(ex.getMessage(), ex);
-            throw new IllegalArgumentException(ex.getMessage());
-        }*/
 
-        //Fire the Event
-        fireCallParticipantChangeEvent(
-                CallParticipantChangeEvent.CALL_PARTICIPANT_DISPLAY_NAME_CHANGE,
-                oldName,
-                displayName);
+//        fireCallParticipantChangeEvent(
+//                CallParticipantChangeEvent.CALL_PARTICIPANT_DISPLAY_NAME_CHANGE,
+//                oldName,
+//                displayName);
     }
 
     /**
@@ -341,6 +335,10 @@ public class CallParticipantJabberImpl
      */
     public Contact getContact()
     {
-        return null;
+        ProtocolProviderService pps = call.getProtocolProvider();
+        OperationSetPresence opSetPresence = (OperationSetPresence) pps
+                .getOperationSet(OperationSetPresence.class);
+
+        return opSetPresence.findContactByID(getAddress());
     }
 }

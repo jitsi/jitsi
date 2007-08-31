@@ -10,6 +10,7 @@ import java.text.*;
 import java.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.jingle.*;
 import org.jivesoftware.smackx.jingle.media.*;
 import org.jivesoftware.smackx.jingle.listeners.*;
@@ -40,7 +41,7 @@ public class OperationSetBasicTelephonyJabberImpl
 {
 
     /**
-     * the logger used by this class
+     * The logger used by this class
      */
     private static final Logger logger
             = Logger.getLogger(OperationSetBasicTelephonyJabberImpl.class);
@@ -120,6 +121,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
             jingleManager.addCreationListener(this);
             jingleManager.addJingleSessionRequestListener(this);
+
             logger.info("Jingle : ON ");
         }
         else if ((evt.getNewState() == RegistrationState.UNREGISTERED))
@@ -129,6 +131,7 @@ public class OperationSetBasicTelephonyJabberImpl
                 jingleManager.removeCreationListener(this);
                 jingleManager.removeJingleSessionRequestListener(this);
                 jingleManager = null;
+
                 logger.info("Jingle : OFF ");
             }
         }
@@ -216,21 +219,50 @@ public class OperationSetBasicTelephonyJabberImpl
                     + "we don't have a valid XMPPConnection."
                     , OperationFailedException.INTERNAL_ERROR);
         }
-        String resource = protocolProvider.getConnection().
+
+        // we determine on wich resource the remote user is connected
+        String fullCalleeURI = protocolProvider.getConnection().
                 getRoster().getPresence(calleeAddress).getFrom();
-        String[] parts = resource.split("/");
-        if (parts.length != 2)
+
+        if (fullCalleeURI.indexOf('/') < 0)
         {
             throw new OperationFailedException(
                     "Failed to create OutgoingJingleSession.\n"
                     + "user " + calleeAddress + " is unknwon to us."
                     , OperationFailedException.INTERNAL_ERROR);
         }
-        resource = "/" + parts[1];
+
         try
         {
-            outJS = jingleManager.createOutgoingJingleSession(calleeAddress.
-                    concat(resource));
+            // with discovered info, we can check if the remote clients 
+            // supports telephony but not if he don't, because
+            // a non conforming client can supports a feature
+            // without advertising it. So we don't rely on it (for the moment)
+            DiscoverInfo di = ServiceDiscoveryManager
+                    .getInstanceFor(protocolProvider.getConnection())
+                    .discoverInfo(fullCalleeURI);
+            if (di.containsFeature("http://www.xmpp.org/extensions/xep-0166.html#ns"))
+            {
+                logger.info(fullCalleeURI + ": telephony supported ");
+            }
+            else
+            {
+                logger.info(calleeAddress + ": telephony not supported ??? ");
+//                
+//                throw new OperationFailedException(
+//                        "Failed to create OutgoingJingleSession.\n"
+//                        + fullCalleeURI + " do not supports telephony"
+//                        , OperationFailedException.INTERNAL_ERROR);
+            }
+        }
+        catch (XMPPException ex)
+        {
+            logger.warn("could not retrieves info for " + fullCalleeURI, ex);
+        }
+
+        try
+        {
+            outJS = jingleManager.createOutgoingJingleSession(fullCalleeURI);
         }
         catch (XMPPException ex)
         {
@@ -240,16 +272,21 @@ public class OperationSetBasicTelephonyJabberImpl
                     , OperationFailedException.INTERNAL_ERROR
                     , ex);
         }
+
         CallJabberImpl call = new CallJabberImpl(protocolProvider);
+
         CallParticipantJabberImpl callParticipant =
                 new CallParticipantJabberImpl(calleeAddress, call);
-        callParticipant.setJingleSession(outJS);
 
+        callParticipant.setJingleSession(outJS);
         callParticipant.setState(CallParticipantState.INITIATING_CALL);
+
         fireCallEvent(CallEvent.CALL_INITIATED, call);
 
         activeCallsRepository.addCall(call);
+
         outJS.start();
+
         return (CallJabberImpl) callParticipant.getCall();
     }
 
@@ -268,7 +305,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
         logger.debug("Dispatching a CallEvent to "
                 + callListeners.size()
-                +" listeners. event is: " + cEvent.toString());
+                + " listeners. event is: " + cEvent.toString());
         Iterator listeners = null;
         synchronized(callListeners)
         {
@@ -398,7 +435,7 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void shutdown()
     {
-        logger.trace("Ending all active calls.");
+        logger.trace("Ending all active calls. ");
         Iterator activeCalls = this.activeCallsRepository.getActiveCalls();
 
         // this is fast, but events aren't triggered ...
@@ -407,12 +444,12 @@ public class OperationSetBasicTelephonyJabberImpl
         //go through all active calls.
         while(activeCalls.hasNext())
         {
-            CallJabberImpl call = (CallJabberImpl)activeCalls.next();
+            CallJabberImpl call = (CallJabberImpl) activeCalls.next();
 
             Iterator callParticipants = call.getCallParticipants();
 
             //go through all call participants and say bye to every one.
-            while(callParticipants.hasNext())
+            while (callParticipants.hasNext())
             {
                 CallParticipant participant
                         = (CallParticipant) callParticipants.next();
@@ -448,17 +485,25 @@ public class OperationSetBasicTelephonyJabberImpl
             logger.error("Failed to accept inoming jingle request : " + ex);
             return;
         }
+
         CallJabberImpl call = new CallJabberImpl(protocolProvider);
+
         String from = jingleSessionRequest.getFrom();
+
+        // we remove the ressource information at ends if any, as it is for
+        // no meaning for the user
         if (from.indexOf("/") > 0)
         {
             from = from.substring(0, from.indexOf("/"));
         }
-        CallParticipantJabberImpl callParticipant =
-                new CallParticipantJabberImpl(from, call);
+        CallParticipantJabberImpl callParticipant
+                = new CallParticipantJabberImpl(from, call);
+
         callParticipant.setJingleSession(inJS);
         callParticipant.setState(CallParticipantState.INCOMING_CALL);
+
         activeCallsRepository.addCall(call);
+
         fireCallEvent(CallEvent.CALL_RECEIVED, call);
     }
     
@@ -470,6 +515,7 @@ public class OperationSetBasicTelephonyJabberImpl
     public void sessionCreated(JingleSession jingleSession)
     {
         logger.info("session created : " + jingleSession);
+
         jingleSession.addListener(this);
         jingleSession.addMediaListener(this);
         jingleSession.addStateListener(this);
@@ -504,7 +550,7 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void transportClosed(TransportCandidate transportCandidate)
     {
-        logger.info("transport closed\n");
+        logger.info("transport closed ");
     }
 
     /**
@@ -551,6 +597,7 @@ public class OperationSetBasicTelephonyJabberImpl
         else if (newState instanceof IncomingJingleSession.Active)
         {
             JingleSession session = (JingleSession) newState.getNegotiator();
+
             CallParticipantJabberImpl callParticipant =
                     activeCallsRepository.findCallParticipant(session);
             if (callParticipant == null)
@@ -562,6 +609,7 @@ public class OperationSetBasicTelephonyJabberImpl
         else if (newState instanceof OutgoingJingleSession.Inviting)
         {
             JingleSession session = (JingleSession) newState.getNegotiator();
+
             CallParticipantJabberImpl callParticipant =
                     activeCallsRepository.findCallParticipant(session);
             if (callParticipant == null)
@@ -573,6 +621,7 @@ public class OperationSetBasicTelephonyJabberImpl
         else if (newState instanceof OutgoingJingleSession.Pending)
         {
             JingleSession session = (JingleSession) newState.getNegotiator();
+
             CallParticipantJabberImpl callParticipant =
                     activeCallsRepository.findCallParticipant(session);
             if (callParticipant == null)
@@ -584,6 +633,7 @@ public class OperationSetBasicTelephonyJabberImpl
         else if (newState instanceof OutgoingJingleSession.Active)
         {
             JingleSession session = (JingleSession) newState.getNegotiator();
+
             CallParticipantJabberImpl callParticipant =
                     activeCallsRepository.findCallParticipant(session);
             if (callParticipant == null)
@@ -612,6 +662,7 @@ public class OperationSetBasicTelephonyJabberImpl
         if ((newState == null) && (oldState != null))
         { //hanging
             JingleSession session = (JingleSession) oldState.getNegotiator();
+
             CallParticipantJabberImpl callParticipant =
                     activeCallsRepository.findCallParticipant(session);
             if (callParticipant == null)
@@ -654,7 +705,8 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void sessionEstablished(PayloadType payloadType,
             TransportCandidate remoteCandidate,
-            TransportCandidate localCandidate, JingleSession jingleSession)
+            TransportCandidate localCandidate,
+            JingleSession jingleSession)
     {
         logger.info("session established ");
     }
