@@ -450,7 +450,11 @@ public class CallParticipantSipImpl
      */
     public Contact getContact()
     {
-        return null;
+        ProtocolProviderService pps = call.getProtocolProvider();
+        OperationSetPresence opSetPresence = (OperationSetPresence) pps
+                .getOperationSet(OperationSetPresence.class);
+
+        return opSetPresence.findContactByID(getAddress());
     }
 
 }
