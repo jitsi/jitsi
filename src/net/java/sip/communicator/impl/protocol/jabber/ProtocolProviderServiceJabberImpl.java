@@ -615,15 +615,18 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add("http://jabber.org/protocol/muc");
 
             //initialize the telephony opset
-            OperationSetBasicTelephony opSetBasicTelephony
-                = new OperationSetBasicTelephonyJabberImpl(this);
+            if(JabberActivator.getMediaService() != null)
+            {
+                OperationSetBasicTelephony opSetBasicTelephony
+                    = new OperationSetBasicTelephonyJabberImpl(this);
 
-            supportedOperationSets.put(
-                OperationSetBasicTelephony.class.getName(), 
-                opSetBasicTelephony);
+                supportedOperationSets.put(
+                    OperationSetBasicTelephony.class.getName(), 
+                    opSetBasicTelephony);
 
-            supportedFeatures.add(
-                "http://www.xmpp.org/extensions/xep-0166.html#ns");
+                supportedFeatures.add(
+                    "http://www.xmpp.org/extensions/xep-0166.html#ns");
+            }
             // TODO: we have commented out this line since it breaks
             // compatibility with spark and since spark is the only other
             // client supporting  jingle ... it's worth it. let's hope 

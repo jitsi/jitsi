@@ -132,6 +132,10 @@ public class JabberActivator
             ServiceReference mediaServiceReference
                 = bundleContext.getServiceReference(
                     MediaService.class.getName());
+
+            if(mediaServiceReference == null)
+                return null;
+
             mediaService = (MediaService)bundleContext
                 .getService(mediaServiceReference);
         }
