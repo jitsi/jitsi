@@ -41,7 +41,7 @@ public class NotificationServiceImpl
     public NotificationServiceImpl()
     {
         // Load all previously saved notifications.
-        this.loadNotifications();        
+        this.loadNotifications();
     }
     
     /**
@@ -295,12 +295,12 @@ public class NotificationServiceImpl
     {
         EventNotification notification
             = (EventNotification) notificationsTable.get(eventType);
-System.out.println("EVENT TYPE=================" + eventType + "NOTIFICATION=========" + notification);
+
         if(notification == null)
             return null;
 
         EventNotification.Action action = notification.getAction(actionType);
-System.out.println("ACTION=================" + actionType + "ACTION=========" + action);
+
         if(action == null)
             return null;
 
