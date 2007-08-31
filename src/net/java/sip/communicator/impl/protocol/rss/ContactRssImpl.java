@@ -163,7 +163,8 @@ public class ContactRssImpl
      * Sets the contact's nickname.
      * @param nickName
      */
-    public void setDisplayName(String nickName){
+    public void setDisplayName(String nickName)
+    {
         this.nickName = nickName;
     }
 

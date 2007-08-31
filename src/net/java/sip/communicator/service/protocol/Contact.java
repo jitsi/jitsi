@@ -40,6 +40,13 @@ public interface Contact
     public String getDisplayName();
 
     /**
+     * Modify the display name of this contact.
+     *
+     * @param displayName the new display name for this contact.
+     */
+    public void setDisplayName(String displayName);
+
+    /**
      * Returns a byte array containing an image (most often a photo or an avatar)
      * that the contact uses as a representation.
      * @return byte[] an image representing the contact.

@@ -72,6 +72,21 @@ public class MockContact
         return contactID;
     }
 
+
+    /**
+     * Modify the display name of this contact.
+     *
+     * @param displayName the new display name for this contact.
+     */
+    public void setDisplayName(String displayName)
+    {
+        if (isResolved)
+        {
+            // TODO
+            // contactID = displayName;
+        }
+    }
+
     /**
      * Returns a byte array containing an image (most often a photo or an
      * avatar) that the contact uses as a representation.

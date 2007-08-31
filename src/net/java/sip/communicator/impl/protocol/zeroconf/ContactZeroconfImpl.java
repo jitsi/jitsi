@@ -230,6 +230,19 @@ public class ContactZeroconfImpl
     }
 
     /**
+     * Modify the display name of this contact.
+     *
+     * @param displayName the new display name for this contact.
+     */
+    public void setDisplayName(String displayName)
+    {
+        if (isResolved)
+        {
+            // TODO
+        }
+    }
+
+    /**
      * Returns the IP address declared by this Contact
      * @return IP address declared by this Contact
      */

@@ -163,6 +163,24 @@ public class ContactMsnImpl
     }
 
     /**
+     * Modify the display name of this contact.
+     *
+     * @param displayName the new display name for this contact.
+     */
+    public void setDisplayName(String displayName)
+    {
+        if (isResolved)
+        {
+            ProtocolProviderServiceMsnImpl pps
+                    = ((ProtocolProviderServiceMsnImpl) getProtocolProvider());
+            if (pps.isRegistered())
+            {
+                pps.getMessenger().renameFriend(contact.getEmail(), displayName);
+            }
+        }
+    }
+
+    /**
      * Returns a reference to the contact group that this contact is currently
      * a child of or null if the underlying protocol does not suppord persistent
      * presence.

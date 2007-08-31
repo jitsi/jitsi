@@ -367,6 +367,15 @@ public class MetaContactImpl
 
             this.displayName = new String((displayName==null)?"":displayName);
 
+            if (this.displayName.length() > 0)
+            {
+                Iterator it = protoContacts.iterator();
+                while (it.hasNext())
+                {
+                    ((Contact) it.next()).setDisplayName(displayName);
+                }
+            }
+
             if (parentGroup != null)
             {
                 parentGroup.lightAddMetaContact(this);
