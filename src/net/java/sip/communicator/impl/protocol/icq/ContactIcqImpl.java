@@ -207,20 +207,6 @@ public class ContactIcqImpl
     }
 
     /**
-     * Modify the display name of this contact.
-     *
-     * @param displayName the new display name for this contact.
-     */
-    public void setDisplayName(String displayName)
-    {
-        if (isResolved)
-        {
-            // TODO
-            // setNickname(displayName);
-        }
-    }
-
-    /**
      * Used to set the nickname of the contact if it is update
      * in the ContactList
      *

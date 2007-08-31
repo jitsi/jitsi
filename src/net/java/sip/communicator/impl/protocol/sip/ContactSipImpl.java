@@ -141,24 +141,6 @@ public class ContactSipImpl
     }
 
     /**
-     * Modify the display name of this contact.
-     *
-     * @param displayName the new display name for this contact.
-     */
-    public void setDisplayName(String displayName)
-    {
-        if (isResolved)
-        {
-            // the only thing I found in sip with a display name
-            // is the Address object which isn't available here
-            // and if this value isn't stored on the server, the change
-            // will be "volatile" and hence useless
-            // 
-            // Address#setDisplayName(displayName); ???
-        }
-    }
-
-    /**
      * Returns a byte array containing an image (most often a photo or an
      * avatar) that the contact uses as a representation.
      *

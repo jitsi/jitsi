@@ -21,8 +21,8 @@ public class MockContact
     private String contactID = null;
     private MockProvider parentProvider = null;
     private MockContactGroup parentGroup = null;
-    private PresenceStatus presenceStatus = MockStatusEnum.MOCK_STATUS_00;
-    private final boolean isPersistent = true;
+    private PresenceStatus presenceStatus = MockStatusEnum.MOCK_STATUS_50;
+    private boolean isPersistent = true;
     private boolean isResolved = true;
 
     /**
