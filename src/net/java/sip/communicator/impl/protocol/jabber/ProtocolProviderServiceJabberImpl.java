@@ -17,9 +17,10 @@ import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.util.*;
-
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
+
+import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
 
 /**
@@ -103,6 +104,12 @@ public class ProtocolProviderServiceJabberImpl
      */
     private List supportedFeatures = new ArrayList();
 
+    /**
+     * The <tt>ServiceDiscoveryManager</tt> is responsible for advertising
+     * <tt>supportedFeatures</tt> when asked by a remote client. It can also
+     * be used to query remote clients for supported features.
+     */
+    private ServiceDiscoveryManager discoveryManager = null;
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -386,52 +393,18 @@ public class ProtocolProviderServiceJabberImpl
             }
         }
 
-        // we listen for discovery info request and send an answer
-        // wich advetise all features supported by our jabber implementation
+        // we setup supported features        
         if (getRegistrationState() == RegistrationState.REGISTERED)
         {
-            connection.addPacketListener( new PacketListener()
+            discoveryManager = ServiceDiscoveryManager.
+                    getInstanceFor(connection);
+            discoveryManager.setIdentityName("sip-comm");
+            discoveryManager.setIdentityType("registered");
+            Iterator it = supportedFeatures.iterator();
+            while (it.hasNext())
             {
-                public void processPacket(Packet packet)
-                {
-                    DiscoverInfo infos = new DiscoverInfo();
-
-                    infos.setType(IQ.Type.RESULT);
-                    infos.setFrom(packet.getTo());
-                    infos.setTo(packet.getFrom());
-                    infos.setPacketID(packet.getPacketID());
-
-                    DiscoverInfo.Identity id
-                        = new DiscoverInfo.Identity("account", "sc");
-                    id.setType("registered");
-                    infos.addIdentity(id);
-
-                    Iterator it = supportedFeatures.iterator();
-                    while (it.hasNext())
-                    {
-                        infos.addFeature((String) it.next());
-                    }
-                    connection.sendPacket(infos);
-                }
-            }, new PacketFilter()
-            {
-                public boolean accept(Packet packet)
-                {
-                    // we are interested only for packets related to 
-                    // disovery info here.
-                    String s = packet.toXML();
-                    if (s.indexOf("type=\"get\"") != -1 
-                        && s.indexOf(
-                                "http://jabber.org/protocol/disco#info") != -1)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            });
+                discoveryManager.addFeature((String) it.next());
+            }
         }
 
     }
@@ -626,13 +599,9 @@ public class ProtocolProviderServiceJabberImpl
 
                 supportedFeatures.add(
                     "http://www.xmpp.org/extensions/xep-0166.html#ns");
+                supportedFeatures.add(
+                    "http://www.xmpp.org/extensions/xep-0167.html#ns");
             }
-            // TODO: we have commented out this line since it breaks
-            // compatibility with spark and since spark is the only other
-            // client supporting  jingle ... it's worth it. let's hope 
-            // they fix it soon.'
-            //supportedFeatures.add(
-            //    "http://www.xmpp.org/extensions/xep-0167.html#ns");
 
             isInitialized = true;
         }
@@ -653,7 +622,10 @@ public class ProtocolProviderServiceJabberImpl
             OperationSetBasicTelephonyJabberImpl telephony
                 = (OperationSetBasicTelephonyJabberImpl)getOperationSet(
                     OperationSetBasicTelephony.class);
-            telephony.shutdown();
+            if (telephony != null)
+            {
+                telephony.shutdown();
+            }
 
             if(connection != null)
             {
