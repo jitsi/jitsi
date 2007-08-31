@@ -55,7 +55,7 @@ public class RtpFlowImpl
     private int localPort = -1;
 
     /**
-     * Port fort the remote endpoint
+     * Port for the remote endpoint
      */
     private int remotePort = -1;
 
@@ -239,7 +239,7 @@ public class RtpFlowImpl
     }
 
     /**
-     * Implementation of <tt>startTransmission</tt> start to send media data.
+     * Implementation of <tt>start</tt> to send media data.
      */
     public void start()
     {
@@ -284,7 +284,7 @@ public class RtpFlowImpl
             }
             catch (IOException ex)
             {
-                logger.warn("Exception when pausing transmission ", ex);
+                logger.warn("Exception when resuming transmission ", ex);
             }
         }
      }
