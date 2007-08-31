@@ -21,6 +21,8 @@ import net.java.sip.communicator.util.*;
 /**
  * Media utils
  * A collection of static methods related to media.
+ *
+ * @author Symphorien Wanko
  */
 public abstract class MediaUtils
 {
@@ -30,11 +32,6 @@ public abstract class MediaUtils
      */
     private static final Logger logger =
         Logger.getLogger(MediaUtils.class);
-
-    /** Creates a new instance of MediaUtils */
-    public MediaUtils()
-    {
-    }
 
     /**
      * <tt>getAudioEncoding</tt> return an <tt>Hashtable</tt>

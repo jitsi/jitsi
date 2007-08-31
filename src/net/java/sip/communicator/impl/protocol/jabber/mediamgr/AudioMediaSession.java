@@ -23,7 +23,7 @@ import java.util.*;
  * This Class implements a JingleMediaSession. which serve as a wrapper
  * for a RtpFlow, allowing us to receive and transmit audio.
  *
- * based on Thiago Camargo's JingleScMediaManager from jingle
+ * based on Thiago Camargo's media manager from jingle
  *
  * @author Symphorien Wanko
  */

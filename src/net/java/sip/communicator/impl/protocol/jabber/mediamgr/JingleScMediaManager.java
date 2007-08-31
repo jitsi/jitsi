@@ -17,7 +17,7 @@ import org.jivesoftware.smackx.jingle.nat.*;
 /**
  * Implements a JingleMediaManager backed by JMF.
  *
- * based on Thiago Camargo's JingleScMediaManager from jingle
+ * based on Thiago Camargo's media manager from jingle
  *
  * @author Symphorien Wanko
  */
@@ -62,7 +62,7 @@ public class JingleScMediaManager extends JingleMediaManager
      * Setup API supported Payloads
      *
      * http://tools.ietf.org/html/rfc3551#page-32 to view the
-     *corresponsdance between PayloadType and codec
+     * corresponsdance between PayloadType and codec
      */
     private void setupPayloads() {
 
