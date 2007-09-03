@@ -23,7 +23,7 @@ var regions = [
   	],
   	children: [
   		{ title: "Mailing Lists", href: "http://www.sip-communicator.org/index.php/Development/MailingLists" },
-  		{ title: "CVS", href: "http://www.sip-communicator.org/index.php/Development/VersionControl" },
+  		{ title: "Subversion (SVN)", href: "http://www.sip-communicator.org/index.php/Development/VersionControl" },
   		{ title: "Bugs and Issues", href: "http://www.sip-communicator.org/index.php/Development/BugsAndIssues" },
   		{ title: "Roadmap", href: "http://www.sip-communicator.org/index.php/Development/Roadmap" },
   		{ title: "Contributing", href: "http://www.sip-communicator.org/index.php/Development/GetInvolved" },
