@@ -763,7 +763,7 @@ public class SIPCommImageView
 
         if (resource == null)
         {
-            System.err.println(SIPCommImageView.class.getName() + "/" + gifFile
+            logger.error(SIPCommImageView.class.getName() + "/" + gifFile
                 + " not found.");
             return null;
         }
@@ -781,7 +781,7 @@ public class SIPCommImageView
         buffer = out.toByteArray();
         if (buffer.length == 0)
         {
-            System.err.println("warning: " + gifFile + " is zero-length");
+            logger.error(gifFile + " is zero-length.");
             return null;
         }
         return new ImageIcon(buffer);
@@ -796,9 +796,9 @@ public class SIPCommImageView
             if (sMissingImageIcon == null)
                 sMissingImageIcon = makeIcon(MISSING_IMAGE_SRC);
         }
-        catch (Exception x)
+        catch (Exception ex)
         {
-            System.err.println("ImageView: Couldn't load image icons");
+            logger.error("Couldn't load image icons.", ex);
         }
     }
 
