@@ -455,8 +455,6 @@ public class ContactRssImpl
     public void setPersistentData(String persistentData)
     {
         lastItem = RssItemKey.deserialize(persistentData);
-        
-        lastItem.deserialize(persistentData);
     }
 
     /**
@@ -506,6 +504,16 @@ public class ContactRssImpl
         return this.getAddress().equals(rssContact.getAddress());
     }
 
+    /**
+     * Overrides <tt>hashCode</tt> from <tt>Obeject</tt> to ensure that
+     * equal object have same hashcode
+     * 
+     * http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html#equals(java.lang.Object)
+     */
+    public int hashCode() {
+        int hash = 3;
+        return hash;
+    }
 
     /**
      * Returns the persistent presence operation set that this contact belongs
