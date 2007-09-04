@@ -13,5 +13,5 @@ package net.java.sip.communicator.impl.version;
  */
 public class NightlyBuildID
 {
-    public static final String BUILD_ID="0.build.CVS";
+    public static final String BUILD_ID="0.build.by.emcho";
 }
