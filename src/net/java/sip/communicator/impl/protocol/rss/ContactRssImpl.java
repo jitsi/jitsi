@@ -505,14 +505,13 @@ public class ContactRssImpl
     }
 
     /**
-     * Overrides <tt>hashCode</tt> from <tt>Obeject</tt> to ensure that
-     * equal object have same hashcode
+     * Overrides <tt>hashCode</tt> from <tt>Object</tt> to ensure that
+     * equal objects have same hashcode
      * 
      * http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html#equals(java.lang.Object)
      */
     public int hashCode() {
-        int hash = 3;
-        return hash;
+        return getAddress().hashCode();
     }
 
     /**
