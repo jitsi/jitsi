@@ -244,7 +244,9 @@ public class ChatConversationPanel
 
         if (messageType.equals(Constants.INCOMING_MESSAGE))
         {   
-			this.lastIncomingMsgTimestamp = new Date(msgDate);
+            this.lastIncomingMsgTimestamp
+                = new Date(System.currentTimeMillis());
+
             chatString      = "<h2 identifier=\""
                             + msgHeaderID
                             + "\" date=\""
