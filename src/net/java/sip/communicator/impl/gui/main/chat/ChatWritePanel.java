@@ -315,7 +315,7 @@ public class ChatWritePanel
         int result = chatPanel.sendTypingNotification(typingState);
         
         if(result == ChatPanel.TYPING_NOTIFICATION_SUCCESSFULLY_SENT)
-            stoppedTypingTimer.stop();        
+            stoppedTypingTimer.stop();
     }
 
     /**
