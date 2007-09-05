@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
@@ -15,7 +16,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -71,7 +71,7 @@ public class JoinChatRoomDialog
     public JoinChatRoomDialog(MainFrame mainFrame,
             ProtocolProviderService pps)
     {
-        super(mainFrame);
+        super(mainFrame, false);
         
         this.mainFrame = mainFrame;
         this.protocolProvider = pps;
@@ -83,7 +83,8 @@ public class JoinChatRoomDialog
         
         this.setTitle(Messages.getI18NString("joinChatRoom").getText());
         
-        this.mainPanel.setPreferredSize(new Dimension(520, 200));
+        this.namePanel.setPreferredSize(new Dimension(520, 100));
+        this.searchPanel.setPreferredSize(new Dimension(520, 110));
         
         this.getRootPane().setDefaultButton(joinButton);
         this.joinButton.setName("join");
@@ -95,8 +96,6 @@ public class JoinChatRoomDialog
         
         this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
     
-        this.chatRoomsList.setCellRenderer(new ChatRoomsListCellRenderer());
-        
         this.joinButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
         
@@ -110,7 +109,7 @@ public class JoinChatRoomDialog
         this.mainPanel.add(searchPanel);
         
         this.chatRoomsScrollPane.setBorder(BorderFactory
-                .createTitledBorder(Messages.getI18NString("chatRooms").getText()));
+            .createTitledBorder(Messages.getI18NString("chatRooms").getText()));
         
         this.getContentPane().add(iconLabel, BorderLayout.WEST);
         this.getContentPane().add(mainPanel, BorderLayout.CENTER);
@@ -168,8 +167,8 @@ public class JoinChatRoomDialog
                         mainFrame.getMultiUserChatManager()
                             .joinChatRoom(chatRoom);
                     }
-                }                
-            }.start();                
+                }
+            }.start();
         }
         this.dispose();
     }
@@ -181,7 +180,7 @@ public class JoinChatRoomDialog
     {
         this.cancelButton.doClick();
     }
-     
+
     /**
      * Loads the list of existing server chat rooms.
      */
@@ -191,7 +190,7 @@ public class JoinChatRoomDialog
             = (OperationSetMultiUserChat) protocolProvider
                 .getOperationSet(OperationSetMultiUserChat.class);
         
-        List list = null;        
+        List list = null;
         try
         {
             list = multiUserChat.getExistingChatRooms();
@@ -206,10 +205,11 @@ public class JoinChatRoomDialog
             logger.error("Failed to obtain existing chat rooms for server: "
                 + protocolProvider.getAccountID().getService(), e);
         }
-        
+
         if(list != null)
         {
-            chatRoomsList.setListData(list.toArray());
+            chatRoomsList.setListData(new Vector(list));
+            chatRoomsScrollPane.setPreferredSize(new Dimension(500, 120));
             
             chatRoomsScrollPane.getViewport().add(chatRoomsList);
             
