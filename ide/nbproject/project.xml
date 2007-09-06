@@ -25,7 +25,7 @@
             </folders>
             <ide-actions>
                 <action name="build">
-                    <target>rebuild</target>
+                    <target>make</target>
                 </action>
                 <action name="clean">
                     <target>clean</target>
@@ -40,7 +40,6 @@
                     <target>test</target>
                 </action>
                 <action name="rebuild">
-                    <target>clean</target>
                     <target>rebuild</target>
                 </action>
                 <action name="debug">
