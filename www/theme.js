@@ -40,7 +40,7 @@ var regions = [
   		{ title: "Developers", href: "http://www.sip-communicator.org/index.php/Documentation/DeveloperDocumentation" },
   		{ title: "FAQ", href: "http://www.sip-communicator.org/index.php/Documentation/FAQ" }
   	]
-  },
+  }
 ];
 
 
