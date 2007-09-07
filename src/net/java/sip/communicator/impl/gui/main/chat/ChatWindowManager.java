@@ -280,13 +280,13 @@ public class ChatWindowManager
      * @param metaContact the meta contact.
      * @return the chat panel corresponding to the given meta contact
      */
-    public ChatPanel getContactChat(MetaContact metaContact)
+    public MetaContactChatPanel getContactChat(MetaContact metaContact)
     {
         synchronized (syncChat)
         {
             if(containsChat(metaContact))
             {
-                return getChat(metaContact);
+                return (MetaContactChatPanel) getChat(metaContact);
             }
             else
             {
@@ -302,14 +302,14 @@ public class ChatWindowManager
      * @param protocolContact the protocol specific contact
      * @return the chat panel corresponding to the given meta contact
      */
-    public ChatPanel getContactChat(MetaContact metaContact,
-        Contact protocolContact)
+    public MetaContactChatPanel getContactChat( MetaContact metaContact,
+                                                Contact protocolContact)
     {
         synchronized (syncChat)
         {
             if(containsChat(metaContact))
             {
-                return getChat(metaContact);                
+                return (MetaContactChatPanel) getChat(metaContact);
             }
             else         
                 return createChat(metaContact, protocolContact);
@@ -358,13 +358,13 @@ public class ChatWindowManager
      * room for which the chat panel is about
      * @return the chat panel corresponding to the given chat room
      */
-    public ChatPanel getMultiChat(ChatRoomWrapper chatRoomWrapper)
+    public ConferenceChatPanel getMultiChat(ChatRoomWrapper chatRoomWrapper)
     {
         synchronized (syncChat)
         {
             if(containsChat(chatRoomWrapper))
             {
-                return getChat(chatRoomWrapper);
+                return (ConferenceChatPanel) getChat(chatRoomWrapper);
             }
             else         
                 return createChat(chatRoomWrapper);
@@ -433,7 +433,7 @@ public class ChatWindowManager
      *
      * @return the newly created ChatPanel
      */
-    private ChatPanel createChat(MetaContact metaContact)
+    private MetaContactChatPanel createChat(MetaContact metaContact)
     {
         Contact defaultContact = metaContact.getDefaultContact();
 
@@ -484,7 +484,8 @@ public class ChatWindowManager
      * @param protocolContact The protocol contact.
      * @return The <code>ChatPanel</code> newly created.
      */
-    private ChatPanel createChat(MetaContact contact, Contact protocolContact)
+    private MetaContactChatPanel createChat(MetaContact contact,
+                                            Contact protocolContact)
     {
         return createChat(contact, protocolContact, null);
     }
@@ -499,8 +500,9 @@ public class ChatWindowManager
      * excluded from the history when the last one is loaded in the chat.
      * @return The <code>ChatPanel</code> newly created.
      */
-    private ChatPanel createChat(MetaContact contact,
-        Contact protocolContact, String escapedMessageID)
+    private MetaContactChatPanel createChat(MetaContact contact,
+                                            Contact protocolContact,
+                                            String escapedMessageID)
     {        
         ChatWindow chatWindow;
 
@@ -523,7 +525,7 @@ public class ChatWindowManager
             this.chatWindow = chatWindow;
         }
 
-        ChatPanel chatPanel
+        MetaContactChatPanel chatPanel
             = new MetaContactChatPanel(chatWindow, contact, protocolContact);
 
         synchronized (chats)
@@ -546,7 +548,7 @@ public class ChatWindowManager
      * @param chatRoom the <tt>ChatRoom</tt>, for which the chat will be created
      * @return The <code>ChatPanel</code> newly created.
      */
-    private ChatPanel createChat(ChatRoomWrapper chatRoomWrapper)
+    private ConferenceChatPanel createChat(ChatRoomWrapper chatRoomWrapper)
     {
         ChatWindow chatWindow;
 
@@ -570,7 +572,7 @@ public class ChatWindowManager
             this.chatWindow = chatWindow;
         }
 
-        ChatPanel chatPanel
+        ConferenceChatPanel chatPanel
             = new ConferenceChatPanel(chatWindow, chatRoomWrapper);
 
         synchronized (chats)

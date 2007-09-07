@@ -142,9 +142,9 @@ public abstract class ChatPanel
     public abstract Date getFirstHistoryMsgTimestamp();
 
     public abstract Date getLastHistoryMsgTimestamp();
-    
+
     public abstract void inviteChatContact(String contactAddress, String reason);
-    
+
     public ChatWindow getChatWindow()
     {
         return chatWindow;

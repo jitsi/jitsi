@@ -33,8 +33,7 @@ import net.java.sip.communicator.util.*;
  */
 public class MetaContactChatPanel
     extends ChatPanel
-    implements  ContactPresenceStatusListener,
-                MetaContactListListener,
+    implements  MetaContactListListener,
                 SubscriptionListener
 {
 
@@ -74,31 +73,9 @@ public class MetaContactChatPanel
 
         ChatContact chatContact = new ChatContact(metaContact, protocolContact);
         
-        //Add the contact to the list of contacts contained in this panel        
+        //Add the contact to the list of contacts contained in this panel
         getChatContactListPanel().addContact(chatContact);
-                
-        //For each subcontact in the given MetaContact adds a
-        //ContactPresenceStatusListener in order to have always the contact
-        //current status in the chat panel
-        Iterator protocolContacts = metaContact.getContacts();
-        
-        while(protocolContacts.hasNext())
-        {
-            Contact subContact = (Contact) protocolContacts.next();
-            
-            Object opSet = subContact.getProtocolProvider()
-                .getOperationSet(OperationSetPersistentPresence.class);
-            
-            if(opSet != null)
-            {
-                ((OperationSetPersistentPresence)opSet)
-                    .addContactPresenceStatusListener(this);
-                
-                ((OperationSetPersistentPresence)opSet)
-                    .addSubsciptionListener(this);
-            }
-        }
-        
+
         //Obtains the MetaContactListService and adds itself to it as a
         //listener of all events concerning the contact list.
         chatWindow.getMainFrame().getContactList()
@@ -283,59 +260,50 @@ public class MetaContactChatPanel
     }
 
     /**
-     * Implements the
-     * <tt>ContactPresenceStatusListener.contactPresenceStatusChanged</tt>.
-     * Updates all status related icons in this chat panel.
+     * Updates the status of the given contact in this chat panel.
+     * 
+     * @param contact the contact, which changed the status
+     * @param newStatus the new status of the contact
      */
-    public void contactPresenceStatusChanged(
-        ContactPresenceStatusChangeEvent evt)
-    {   
-        Contact sourceContact = evt.getSourceContact();
-        PresenceStatus newStatus = evt.getNewStatus();
+    public void updateContactStatus(Contact contact, PresenceStatus newStatus)
+    {
+        // Update the status of the given contact in the "send via" selector
+        // box.
+        contactSelectorBox.updateContactStatus(contact);
         
-        MetaContact sourceMetaContact = GuiActivator.getMetaContactListService()
-            .findMetaContactByContact(sourceContact);
-    
-        if (sourceMetaContact != null && metaContact.equals(sourceMetaContact))
-        {   
-            // Update the status of the given contact in the "send via" selector
-            // box.
-            contactSelectorBox.updateContactStatus(sourceContact);
-            
-            // Update the status of the source meta contact in the contact details
-            // panel on the right.            
-            if(sourceMetaContact.getDefaultContact().equals(sourceContact))
-            {
-                ChatContact chatContact
-                    = findChatContactByMetaContact(sourceMetaContact);
-            
-                ChatContactPanel chatContactPanel
-                    = getChatContactListPanel()
-                        .getChatContactPanel(chatContact);
-                
-                chatContactPanel.setStatusIcon(
-                    chatContact.getPresenceStatus());
-            }
-                        
-            // Show a status message to the user.
-            String message = getChatConversationPanel().processMessage(
-                sourceContact.getAddress(),
-                new Date(System.currentTimeMillis()),
-                Constants.STATUS_MESSAGE,
-                Messages.getI18NString("statusChangedChatMessage",
-                    new String[]{newStatus.getStatusName()}).getText(),
-                    "text");
+        // Update the status of the source meta contact in the contact details
+        // panel on the right.
+        if(metaContact.getDefaultContact().equals(contact))
+        {
+            ChatContact chatContact
+                = findChatContactByMetaContact(metaContact);
 
-            getChatConversationPanel().appendMessageToEnd(message);
+            ChatContactPanel chatContactPanel
+                = getChatContactListPanel()
+                    .getChatContactPanel(chatContact);
             
-            if(Constants.TABBED_CHAT_WINDOW)
-            {                
-                if (getChatWindow().getChatTabCount() > 0) {
-                    getChatWindow().setTabIcon(this,
-                        new ImageIcon(Constants.getStatusIcon(newStatus)));
-                }
+            chatContactPanel.setStatusIcon(
+                chatContact.getPresenceStatus());
+        }
+
+        // Show a status message to the user.
+        String message = getChatConversationPanel().processMessage(
+            contact.getAddress(),
+            new Date(System.currentTimeMillis()),
+            Constants.STATUS_MESSAGE,
+            Messages.getI18NString("statusChangedChatMessage",
+                new String[]{newStatus.getStatusName()}).getText(),
+                "text");
+
+        getChatConversationPanel().appendMessageToEnd(message);
+
+        if(Constants.TABBED_CHAT_WINDOW)
+        {                
+            if (getChatWindow().getChatTabCount() > 0) {
+                getChatWindow().setTabIcon(this,
+                    new ImageIcon(Constants.getStatusIcon(newStatus)));
             }
-        }        
+        }
     }
     
     /**
@@ -503,7 +471,8 @@ public class MetaContactChatPanel
      */
     public int sendTypingNotification(int typingState)
     {
-        Contact protocolContact = contactSelectorBox.getSelectedProtocolContact();
+        Contact protocolContact
+            = contactSelectorBox.getSelectedProtocolContact();
         
         OperationSetTypingNotifications tnOperationSet
             = (OperationSetTypingNotifications)

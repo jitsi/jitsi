@@ -524,11 +524,17 @@ public class MainFrame
 
     /**
      * Listens for all contactPresenceStatusChanged events in order
-     * to refresh tha contact list, when a status is changed.
+     * to refresh the contact list, when a status is changed.
      */
     private class GUIContactPresenceStatusListener implements
             ContactPresenceStatusListener
     {
+        /**
+         * Indicates that a contact has changed its status.
+         * 
+         * @param evt the presence event containing information about the
+         * contact status change
+         */
         public void contactPresenceStatusChanged(
                 ContactPresenceStatusChangeEvent evt)
         {
@@ -542,7 +548,18 @@ public class MainFrame
             if (metaContact != null
                 && (evt.getOldStatus() != evt.getNewStatus()))
             {
+                // Update the status in the contact list.
                 clistPanel.getContactList().refreshContact(metaContact);
+
+                // Update the status in chat window.
+                if(chatWindowManager.isChatOpenedForContact(metaContact))
+                {
+                    MetaContactChatPanel chatPanel
+                        = chatWindowManager.getContactChat(metaContact);
+
+                    chatPanel.updateContactStatus(
+                        sourceContact, evt.getNewStatus());
+                }
             }
         }
     }

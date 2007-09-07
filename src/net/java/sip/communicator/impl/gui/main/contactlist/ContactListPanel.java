@@ -164,11 +164,22 @@ public class ContactListPanel
 
         private Contact protocolContact;
 
+        /**
+         * Creates an instance of <tt>RunMessageWindow</tt> by specifying the 
+         * 
+         * @param metaContact the meta contact to which we will talk.
+         */
         public RunMessageWindow(MetaContact metaContact)
         {
             this.metaContact = metaContact;
         }
 
+        /**
+         * Creates a chat window 
+         * 
+         * @param metaContact
+         * @param protocolContact
+         */
         public RunMessageWindow(MetaContact metaContact, 
             Contact protocolContact)
         {
@@ -176,16 +187,19 @@ public class ContactListPanel
             this.protocolContact = protocolContact;
         }
 
+        /**
+         * Opens a chat window 
+         */
         public void run()
         {
-            ChatPanel chatPanel;
+            MetaContactChatPanel chatPanel;
             
             if(protocolContact != null)
                 chatPanel = chatWindowManager
                     .getContactChat(metaContact, protocolContact);
             else
                 chatPanel = chatWindowManager.getContactChat(metaContact);
-            
+
             chatWindowManager.openChat(chatPanel, true);
         }
     }
