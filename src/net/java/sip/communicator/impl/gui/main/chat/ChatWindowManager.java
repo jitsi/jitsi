@@ -325,17 +325,20 @@ public class ChatWindowManager
      * excluded from the history when the last one is loaded in the chat
      * @return the chat panel corresponding to the given meta contact
      */
-    public ChatPanel getContactChat(MetaContact metaContact,
-        Contact protocolContact, String escapedMessageID)
+    public MetaContactChatPanel getContactChat( MetaContact metaContact,
+                                                Contact protocolContact,
+                                                String escapedMessageID)
     {
         synchronized (syncChat)
         {
             if(containsChat(metaContact))
             {
-                return getChat(metaContact);
+                return (MetaContactChatPanel) getChat(metaContact);
             }
             else         
-                return createChat(metaContact, protocolContact, escapedMessageID);
+                return createChat(  metaContact,
+                                    protocolContact,
+                                    escapedMessageID);
         }
     }
     
@@ -377,7 +380,7 @@ public class ChatWindowManager
      * @param chatRoom the chat room, for which the chat panel is about
      * @return the chat panel corresponding to the given chat room
      */
-    public ChatPanel getMultiChat(ChatRoom chatRoom)
+    public ConferenceChatPanel getMultiChat(ChatRoom chatRoom)
     {
         synchronized (syncChat)
         {   
@@ -391,7 +394,8 @@ public class ChatWindowManager
                     if(((ChatRoomWrapper)o).getChatRoom()
                             .equals(chatRoom))
                     {
-                        return getChat((ChatRoomWrapper) o);
+                        return (ConferenceChatPanel) 
+                                    getChat((ChatRoomWrapper) o);
                     }
                 }
             }

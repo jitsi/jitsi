@@ -607,7 +607,8 @@ public class UIServiceImpl
 
         ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
 
-        ChatPanel chatPanel = chatWindowManager.getContactChat(metaContact);
+        MetaContactChatPanel chatPanel
+            = chatWindowManager.getContactChat(metaContact);
 
         return chatPanel;
     }

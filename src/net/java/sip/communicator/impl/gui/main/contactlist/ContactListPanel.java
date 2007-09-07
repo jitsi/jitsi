@@ -235,12 +235,14 @@ public class ContactListPanel
                 = (ContactListModel) contactList.getModel();
             
             clistModel.addActiveContact(metaContact);
-            contactList.refreshContact(metaContact);            
+            contactList.refreshContact(metaContact);
             
             // Obtain the corresponding chat panel.
-            ChatPanel chatPanel = chatWindowManager.getContactChat(
-                metaContact, protocolContact, message.getMessageUID());
-            
+            MetaContactChatPanel chatPanel
+                = chatWindowManager.getContactChat( metaContact,
+                                                    protocolContact,
+                                                    message.getMessageUID());
+
             // Distinguish the message type, depending on the type of event that
             // we have received.
             String messageType = null;
@@ -298,7 +300,7 @@ public class ContactListPanel
         Message msg = evt.getSourceMessage();        
         
         ChatWindowManager chatWindowManager = mainFrame.getChatWindowManager();
-        ChatPanel chatPanel = null;
+        MetaContactChatPanel chatPanel = null;
         
         if(chatWindowManager.isChatOpenedForContact(metaContact))
             chatPanel = chatWindowManager.getContactChat(metaContact);
@@ -361,8 +363,8 @@ public class ContactListPanel
             errorMsg = Messages.getI18NString(
                     "msgDeliveryFailedUnknownError").getText();
         }
-                       
-        ChatPanel chatPanel = chatWindowManager
+
+        MetaContactChatPanel chatPanel = chatWindowManager
             .getContactChat(metaContact, sourceContact);
         
         chatPanel.processMessage(
@@ -450,7 +452,7 @@ public class ContactListPanel
     { 
         if(chatWindowManager.isChatOpenedForContact(metaContact))
             chatWindowManager.getContactChat(metaContact)
-                .setStatusMessage(notificationMsg);                
+                .setStatusMessage(notificationMsg);
     }
     
     /**
