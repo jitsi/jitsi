@@ -253,7 +253,7 @@ public class ChatRoomsList
                 ChatWindowManager chatWindowManager
                     = mainFrame.getChatWindowManager();
                 
-                ChatPanel chatPanel
+                ConferenceChatPanel chatPanel
                     = chatWindowManager.getMultiChat(chatRoomWrapper);
                 
                 chatWindowManager.openChat(chatPanel, true);
