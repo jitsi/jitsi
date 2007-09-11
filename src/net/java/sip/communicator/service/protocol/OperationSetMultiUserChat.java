@@ -96,7 +96,18 @@ public interface OperationSetMultiUserChat
      * multi user chat
      */
     public ChatRoom findRoom(String roomName)
-    	throws OperationFailedException, OperationNotSupportedException;
+        throws OperationFailedException, OperationNotSupportedException;
+
+    /**
+     * Returns the room corresponding to the server. The system room is the one
+     * where the user could communicate with the server. In the case of IRC this
+     * would be the server channel. The system room is joined as we are
+     * connected to the server. Returns NULL if we are not connected to the
+     * server.
+     * 
+     * @return the room corresponding to the server
+     */
+    public ChatRoom getSystemRoom();
 
     /**
      * Informs the sender of an invitation that we decline their invitation.
@@ -167,5 +178,4 @@ public interface OperationSetMultiUserChat
      */
     public void removePresenceListener(
         LocalUserChatRoomPresenceListener listener);
-
 }

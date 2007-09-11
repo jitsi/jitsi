@@ -19,26 +19,6 @@ public class ChatRoomMessageReceivedEvent
     extends EventObject
 {
     /**
-     * The chat room member that has sent this message.
-     */
-    private ChatRoomMember from = null;
-
-    /**
-     * A timestamp indicating the exact date when the event occurred.
-     */
-    private Date timestamp = null;
-
-    /**
-     * The received <tt>Message</tt>.
-     */
-    private Message message = null;
-
-    /**
-     * The type of message event that this instance represents.
-     */
-    private int eventType = -1;
-
-    /**
      * An event type indicating that the message being received is a standard
      * conversation message sent by another member of the chatroom to all
      * current participants.
@@ -63,22 +43,24 @@ public class ChatRoomMessageReceivedEvent
     public static final int SYSTEM_MESSAGE_RECEIVED = 3;
 
     /**
-     * Creates a <tt>MessageReceivedEvent</tt> representing reception of the
-     * <tt>source</tt> message received from the specified <tt>from</tt>
-     * contact.
-     *
-     * @param source the <tt>ChatRoom</tt> for which the message is received.
-     * @param from the <tt>ChatRoomMember</tt> that has sent this message.
-     * @param timestamp the exact date when the event ocurred.
-     * @param message the received <tt>Message</tt>.
+     * The chat room member that has sent this message.
      */
-    public ChatRoomMessageReceivedEvent(ChatRoom source,
-                                        ChatRoomMember from,
-                                        Date timestamp,
-                                        Message message)
-    {
-        this(source, from, timestamp, message, CONVERSATION_MESSAGE_RECEIVED);
-    }
+    private ChatRoomMember from = null;
+
+    /**
+     * A timestamp indicating the exact date when the event occurred.
+     */
+    private Date timestamp = null;
+
+    /**
+     * The received <tt>Message</tt>.
+     */
+    private Message message = null;
+
+    /**
+     * The type of message event that this instance represents.
+     */
+    private int eventType = -1;
 
     /**
      * Creates a <tt>MessageReceivedEvent</tt> representing reception of the

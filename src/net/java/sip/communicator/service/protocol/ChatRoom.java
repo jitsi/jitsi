@@ -222,7 +222,25 @@ public interface ChatRoom
      */
     public void removePropertyChangeListener(
         ChatRoomPropertyChangeListener listener);
-    
+
+    /**
+     * Adds a listener that will be notified of changes in the property of a
+     * room member such as the nickname being changed.
+     * 
+     * @param listener a room member property change listener.
+     */
+    public void addMemberPropertyChangeListener(
+        ChatRoomMemberPropertyChangeListener listener);
+
+    /**
+     * Removes a listener that was being notified of changes in the property of
+     * a chat room member such as the nickname being changed.
+     * 
+     * @param listener a room member property change listener.
+     */
+    public void removeMemberPropertyChangeListener(
+        ChatRoomMemberPropertyChangeListener listener);
+
     /**
      * Invites another user to this room.
      * <p>
@@ -322,11 +340,12 @@ public interface ChatRoom
     public Iterator getBanList() throws OperationFailedException;
     
     /**
-     * Bans a user from the room. An admin or owner of the room can ban users
-     * from a room. A banned user will no longer be able to join the room unless
-     * the ban has been removed. If the banned user was present in the room then
-     * he/she will be removed from the room and notified that he/she was banned
-     * along with the reason (if provided) and the user who initiated the ban.
+     * Bans a user from the room. An administrator or owner of the room can ban
+     * users from a room. A banned user will no longer be able to join the room
+     * unless the ban has been removed. If the banned user was present in the
+     * room then he/she will be removed from the room and notified that he/she
+     * was banned along with the reason (if provided) and the user who initiated
+     * the ban.
      *
      * @param chatRoomMember the <tt>ChatRoomMember</tt> to be banned.
      * @param reason the reason why the user was banned.
@@ -346,9 +365,9 @@ public interface ChatRoom
      * room
      * @throws OperationFailedException if an error occurs while kicking the
      * participant. In particular, an error can occur if a moderator or a user
-     * with an affiliation of "owner" or "admin" was intended to be kicked; or
-     * if the participant that intended to kick another participant does not
-     * have kicking privileges;
+     * with an affiliation of "owner" or "administrator" was intended to be
+     * kicked; or if the participant that intended to kick another participant
+     * does not have kicking privileges;
      */
     public void kickParticipant(ChatRoomMember chatRoomMember, String reason)
         throws OperationFailedException;

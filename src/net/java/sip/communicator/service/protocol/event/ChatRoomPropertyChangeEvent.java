@@ -45,7 +45,7 @@ public class ChatRoomPropertyChangeEvent
                                 Object oldValue,
                                 Object newValue)
     {
-        super(source, propertyName, oldValue, newValue);        
+        super(source, propertyName, oldValue, newValue);
     }
 
     /**

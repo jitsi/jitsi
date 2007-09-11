@@ -111,6 +111,12 @@ public class OperationFailedException
     public static final int REGISTRATION_REQUIRED = 13;
     
     /**
+     * Indicates that we are currently not joined to the chat room, over which
+     * we try to perform an operation.
+     */
+    public static final int CHAT_ROOM_NOT_JOINED = 14;
+    
+    /**
      * The error code of the exception
      */
     private int errorCode = GENERAL_ERROR;
@@ -153,5 +159,4 @@ public class OperationFailedException
     {
         return errorCode;
     }
-
 }
