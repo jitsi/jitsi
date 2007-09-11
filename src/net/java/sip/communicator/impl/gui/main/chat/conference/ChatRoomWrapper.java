@@ -35,7 +35,11 @@ public class ChatRoomWrapper
         this.chatRoomID = chatRoomID;
         this.chatRoomName = chatRoomName;
     }
-    
+
+    /**
+     * 
+     * @param chatRoom
+     */
     public ChatRoomWrapper(ChatRoom chatRoom)
     {   
         this(chatRoom.getParentProvider(),
@@ -43,7 +47,7 @@ public class ChatRoomWrapper
         
         this.chatRoom = chatRoom;
     }
-    
+
     public ChatRoom getChatRoom()
     {
         return chatRoom;

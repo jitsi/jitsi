@@ -146,12 +146,12 @@ public class CreateChatRoomDialog
                         ex,
                     Messages.getI18NString(
                         "error").getText())
-                        .showDialog();                
+                        .showDialog();
             }
             catch (OperationNotSupportedException ex)
             {
                 logger.error("Failed to create chat room.", ex);
-                
+
                 new ErrorDialog(mainFrame,
                     Messages.getI18NString(
                         "createChatRoomError",
@@ -159,9 +159,9 @@ public class CreateChatRoomDialog
                         ex,
                     Messages.getI18NString(
                         "error").getText())
-                        .showDialog();                
+                        .showDialog();
             }
-            
+
             if(chatRoom != null)
                 mainFrame.getChatRoomsListPanel().getChatRoomsList()
                     .addChatRoom(new ChatRoomWrapper(chatRoom));
