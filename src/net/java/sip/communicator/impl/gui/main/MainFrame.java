@@ -113,15 +113,7 @@ public class MainFrame
         this.mainPanel.add(quickMenu, BorderLayout.NORTH);
         this.mainPanel.add(contactListPanel, BorderLayout.CENTER);
         this.mainPanel.add(statusPanel, BorderLayout.SOUTH);
-        
-        this.mainPanel.getActionMap().put("runChat",
-                new RunMessageWindowAction());
 
-        InputMap imap = mainPanel.getInputMap(
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "runChat");
-        
         this.getContentPane().add(mainPanel);
     }
     
@@ -1017,34 +1009,6 @@ public class MainFrame
         return chatWindowManager;
     }
     
-    /**
-     * Opens chat window when the selected value is a MetaContact and opens a
-     * group when the selected value is a MetaContactGroup.
-     */
-    private class RunMessageWindowAction extends AbstractAction
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            ContactList clist = getContactListPanel().getContactList();
-            Object selectedValue = clist.getSelectedValue();
-            
-            if (selectedValue instanceof MetaContact) {
-                MetaContact contact = (MetaContact) selectedValue;
-
-                SwingUtilities.invokeLater(
-                        getContactListPanel().new RunMessageWindow(contact));
-            }
-            else if (selectedValue instanceof MetaContactGroup) {
-                MetaContactGroup group = (MetaContactGroup) selectedValue;
-
-                ContactListModel model = (ContactListModel) clist.getModel();
-
-                if (model.isGroupClosed(group)) {
-                    model.openGroup(group);
-                }
-            }
-        }
-    }
 
     /**
      * Returns the class that manages all chat room invitation and message
