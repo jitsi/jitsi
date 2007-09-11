@@ -62,27 +62,33 @@ public class Constants {
      */
 
     /**
-     * The outging message type.
+     * The message type representing outgoing messages.
      */
     public static final String OUTGOING_MESSAGE = "OutgoingMessage";
 
     /**
-     * The incoming message type.
+     * The message type representing incoming messages.
      */
     public static final String INCOMING_MESSAGE = "IncomingMessage";
 
     /**
-     * The system message type.
+     * The message type representing status messages.
      */
     public static final String STATUS_MESSAGE = "StatusMessage";
 
     /**
-     * The system message type.
+     * The message type representing action messages. These are message specific
+     * for IRC, but could be used in other protocols also.
+     */
+    public static final String ACTION_MESSAGE = "ActionMessage";
+
+    /**
+     * The message type representing system messages.
      */
     public static final String SYSTEM_MESSAGE = "SystemMessage";
 
     /**
-     * The error message type.
+     * The message type representing error messages.
      */
     public static final String ERROR_MESSAGE = "ErrorMessage";
 
