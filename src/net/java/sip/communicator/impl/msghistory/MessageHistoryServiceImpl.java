@@ -572,14 +572,18 @@ public class MessageHistoryServiceImpl
             return new ChatRoomMessageDeliveredEvent(
                     room,
                     timestamp,
-                    msg);
+                    msg,
+                    ChatRoomMessageDeliveredEvent
+                        .CONVERSATION_MESSAGE_DELIVERED);
         }
         else
             return new ChatRoomMessageReceivedEvent(
                         room,
                         from,
                         timestamp,
-                        msg);
+                        msg,
+                        ChatRoomMessageReceivedEvent
+                            .CONVERSATION_MESSAGE_RECEIVED);
     }
 
     /**
