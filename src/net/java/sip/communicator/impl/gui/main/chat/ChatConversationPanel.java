@@ -285,6 +285,17 @@ public class ChatConversationPanel
                 + message
                 + endHeaderTag;
         }
+        else if (messageType.equals(Constants.ACTION_MESSAGE))
+        {
+            chatString =    "<p identifier=\"actionMessage\" date=\""
+                            + msgDate + "\">";
+            endHeaderTag = "</p>";
+
+            chatString += "* " + GuiUtils.formatTime(date)
+                + " " + contactName + " "
+                + message
+                + endHeaderTag;
+        }
         else if (messageType.equals(Constants.SYSTEM_MESSAGE))
         {
             chatString += startSystemDivTag
