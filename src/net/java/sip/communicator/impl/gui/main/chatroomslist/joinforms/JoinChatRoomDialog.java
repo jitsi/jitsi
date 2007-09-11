@@ -12,10 +12,12 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -78,8 +80,8 @@ public class JoinChatRoomDialog
         this.multiUserChatOpSet
             = (OperationSetMultiUserChat) protocolProvider
                 .getOperationSet(OperationSetMultiUserChat.class);
-        
-        searchPanel = new SearchChatRoomPanel(this);
+
+        this.searchPanel = new SearchChatRoomPanel(this);
         
         this.setTitle(Messages.getI18NString("joinChatRoom").getText());
         
@@ -114,6 +116,9 @@ public class JoinChatRoomDialog
         this.getContentPane().add(iconLabel, BorderLayout.WEST);
         this.getContentPane().add(mainPanel, BorderLayout.CENTER);
         this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
+
+        this.chatRoomsList.addListSelectionListener(
+            new ChatRoomListSelectionListener());
     }
     
     /**
@@ -122,10 +127,11 @@ public class JoinChatRoomDialog
      * <br>
      * Note: No specific properties are set right now!
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JButton button = (JButton)e.getSource();
         String name = button.getName();
-        
+
         if (name.equals("join"))
         {           
             new Thread()
@@ -133,9 +139,9 @@ public class JoinChatRoomDialog
                 public void run()
                 {
                     ChatRoom chatRoom = null;
-                    
+
                     String chatRoomName = namePanel.getChatRoomName();
-                    
+
                     try
                     {
                         chatRoom = multiUserChatOpSet
@@ -147,7 +153,7 @@ public class JoinChatRoomDialog
                             + chatRoomName, e1);
                     }
                     catch (OperationNotSupportedException e1)
-                    {                        
+                    {
                         logger.error("Failed to find chat room with name:"
                             + chatRoomName, e1);
                     }
@@ -163,7 +169,10 @@ public class JoinChatRoomDialog
                                 .showDialog();
                     }
                     else
-                    {  
+                    {
+                        mainFrame.getChatRoomsListPanel().getChatRoomsList()
+                            .addChatRoom(new ChatRoomWrapper(chatRoom));
+
                         mainFrame.getMultiUserChatManager()
                             .joinChatRoom(chatRoom);
                     }
@@ -185,7 +194,7 @@ public class JoinChatRoomDialog
      * Loads the list of existing server chat rooms.
      */
     public void loadChatRoomsList()
-    {        
+    {
         OperationSetMultiUserChat multiUserChat
             = (OperationSetMultiUserChat) protocolProvider
                 .getOperationSet(OperationSetMultiUserChat.class);
@@ -216,6 +225,32 @@ public class JoinChatRoomDialog
             this.mainPanel.add(chatRoomsScrollPane);
             
             this.pack();
+
+            // When we're finished we replace the "wait cursor"
+            // by the default cursor.
+            this.setCursor(Cursor.getDefaultCursor());
+        }
+    }
+
+    /**
+     * The <tt>ListSelectionListener</tt> of the chat rooms list. When a chat
+     * room is selected in the list, we update the text field containing the
+     * name of the chat room to join.
+     */
+    private class ChatRoomListSelectionListener
+        implements ListSelectionListener
+    {
+        /**
+         * When a chat room is selected in the list, we update the text field
+         * containing the name of the chat room to join.
+         */
+        public void valueChanged(ListSelectionEvent e)
+        {
+            if(e.getValueIsAdjusting())
+                return;
+
+            namePanel.setChatRoomName(
+                chatRoomsList.getSelectedValue().toString());
         }
     }
 }

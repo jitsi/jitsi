@@ -57,8 +57,26 @@ public class SearchChatRoomPanel
         this.add(searchPanel);
     }
 
+    /**
+     * Invoked when the Search button is clicked.
+     */
     public void actionPerformed(ActionEvent e)
     {
-        joinChatRoomDialog.loadChatRoomsList();
+        new Thread()
+        {
+            public void run()
+            {
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        joinChatRoomDialog.loadChatRoomsList();
+                    }
+                });
+            }
+        }.start();
+
+        joinChatRoomDialog.setCursor(
+            Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     }
 }

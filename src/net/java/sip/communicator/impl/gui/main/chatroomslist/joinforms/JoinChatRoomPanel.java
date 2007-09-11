@@ -60,12 +60,12 @@ public class JoinChatRoomPanel
         this.infoTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
         
         this.labelsPanel.add(infoTitleLabel);
-        this.labelsPanel.add(infoLabel);        
+        this.labelsPanel.add(infoLabel);
         this.labelsPanel.add(dataPanel);
         
         this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
         
-        this.add(rightPanel, BorderLayout.CENTER);       
+        this.add(rightPanel, BorderLayout.CENTER);
     }
     
     /**
@@ -76,8 +76,22 @@ public class JoinChatRoomPanel
     {
         return textField.getText();
     }
-    
-    public void requestFocusInField() {
+
+    /**
+     * Sets the given chat room name to the text field, contained in this panel.
+     * 
+     * @param chatRoomName the chat room name to set to the text field
+     */
+    public void setChatRoomName(String chatRoomName)
+    {
+        textField.setText(chatRoomName);
+    }
+
+    /**
+     * Requests the focus in the name text field.
+     */
+    public void requestFocusInField()
+    {
         this.textField.requestFocus();
     }
 }
