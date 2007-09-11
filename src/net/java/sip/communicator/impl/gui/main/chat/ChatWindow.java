@@ -261,7 +261,7 @@ public class ChatWindow
         }
 
     }
-    
+
     /**
      * Removes all tabs in the chat tabbed pane. If not in mode
      * TABBED_CHAT_WINDOW doesn nothing.

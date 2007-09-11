@@ -321,11 +321,11 @@ public class ConferenceChatPanel
                 .addContact(chatContact);
         }
 
-        chatRoom.addPropertyChangeListener(this);        
+        chatRoom.addPropertyChangeListener(this);
         chatRoom.addMemberPresenceListener(this);
         
         // Load the subject of the chat room.
-        subjectPanel.setSubject(chatRoom.getSubject());        
+        subjectPanel.setSubject(chatRoom.getSubject());
     }
 
     /**
