@@ -29,7 +29,7 @@ public class OperationSetMultiUserChatJabberImpl
         = Logger.getLogger(OperationSetMultiUserChatJabberImpl.class);
 
     /**
-     * The currently valid jabber protocol provider service implementation.
+     * The currently valid Jabber protocol provider service implementation.
      */
     private ProtocolProviderServiceJabberImpl jabberProvider = null;
 
@@ -43,7 +43,6 @@ public class OperationSetMultiUserChatJabberImpl
      * multi user chat invitation sent by us.
      */
     private Vector invitationRejectionListeners = new Vector();
-
 
     /**
      * Listeners that will be notified of changes in our status in the
@@ -59,15 +58,15 @@ public class OperationSetMultiUserChatJabberImpl
     private Hashtable chatRoomCache = new Hashtable();
 
     /**
-     * The registration listener that would get notified when the unerlying
-     * jabber provider gets registered.
+     * The registration listener that would get notified when the underlying
+     * Jabber provider gets registered.
      */
     private RegistrationStateListener providerRegListener
         = new RegistrationStateListener();
 
     /**
      * Instantiates the user operation set with a currently valid instance of
-     * the jabber protocol provider.
+     * the Jabber protocol provider.
      * @param jabberProvider a currently valid instance of
      * ProtocolProviderServiceJabberImpl.
      */
@@ -179,8 +178,8 @@ public class OperationSetMultiUserChatJabberImpl
      *   created.
      *
      * @throws OperationFailedException if the room couldn't be created for
-     *   some reason (e.g. room already exists; user already joined to an
-     *   existant room or user has no permissions to create a chat room).
+     * some reason (e.g. room already exists; user already joined to an
+     * existent room or user has no permissions to create a chat room).
      * @throws OperationNotSupportedException if chat room creation is not
      * supported by this server
      *
@@ -315,7 +314,7 @@ public class OperationSetMultiUserChatJabberImpl
      *
      * @param contact the contact whose current ChatRooms we will be
      *   querying.
-     * @return a list of <tt>String</tt> indicating tha names of  the chat rooms
+     * @return a list of <tt>String</tt> indicating the names of  the chat rooms
      * that <tt>contact</tt> has joined and is currently active in.
      *
      * @throws OperationFailedException if an error occurs while trying to
@@ -416,6 +415,16 @@ public class OperationSetMultiUserChatJabberImpl
          * rooms failed for all service names*/
 
         return list;
+    }
+
+    /**
+     * Returns NULL, as there's not system room in the Jabber multi user chat.
+     * 
+     * @return NULL, as there's not system room in the Jabber multi user chat.
+     */
+    public ChatRoom getSystemRoom()
+    {
+        return null;
     }
 
     /**
@@ -626,7 +635,7 @@ public class OperationSetMultiUserChatJabberImpl
             LocalUserChatRoomPresenceListener listener
                 = (LocalUserChatRoomPresenceListener) listeners.next();
             
-            listener.localUserPresenceChanged(evt);            
+            listener.localUserPresenceChanged(evt);
         }
     }
 
@@ -666,7 +675,7 @@ public class OperationSetMultiUserChatJabberImpl
             ChatRoomInvitationListener listener
                 = (ChatRoomInvitationListener) listeners.next();
             
-            listener.invitationReceived(evt);           
+            listener.invitationReceived(evt);
         }
     }
     
@@ -807,5 +816,4 @@ public class OperationSetMultiUserChatJabberImpl
             }
         }
     }
-
 }

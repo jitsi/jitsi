@@ -26,6 +26,7 @@ import org.jivesoftware.smackx.muc.*;
  * jive software <tt>MultiUserChat</tt>.
  *
  * @author Emil Ivov
+ * @author Yana Stamcheva
  */
 public class ChatRoomJabberImpl
     implements ChatRoom
@@ -71,12 +72,18 @@ public class ChatRoomJabberImpl
     private Vector propertyChangeListeners = new Vector();
 
     /**
+     * Listeners that will be notified every time
+     * a chat room member property has been changed.
+     */
+    private Vector memberPropChangeListeners = new Vector();
+
+    /**
      * The protocol provider that created us
      */
     private ProtocolProviderServiceJabberImpl provider = null;
 
     /**
-     * The operation set that crated us.
+     * The operation set that created us.
      */
     private OperationSetMultiUserChatJabberImpl opSetMuc = null;
 
@@ -126,7 +133,7 @@ public class ChatRoomJabberImpl
         multiUserChat.addSubjectUpdatedListener(
             new SmackSubjectUpdatedListener());
         multiUserChat.addMessageListener(new SmackMessageListener());
-        multiUserChat.addParticipantStatusListener(new MemberListener());        
+        multiUserChat.addParticipantStatusListener(new MemberListener());
     }
 
     /**
@@ -161,7 +168,41 @@ public class ChatRoomJabberImpl
             propertyChangeListeners.remove(listener);
         }
     }
-    
+
+    /**
+     * Adds the given <tt>listener</tt> to the list of listeners registered to
+     * receive events upon modification of chat room member properties such as
+     * its nickname being changed for example.
+     *
+     * @param listener the <tt>ChatRoomMemberPropertyChangeListener</tt>
+     * that is to be registered for <tt>ChatRoomMemberPropertyChangeEvent</tt>s.
+     */
+    public void addMemberPropertyChangeListener(
+        ChatRoomMemberPropertyChangeListener listener)
+    {
+        synchronized(memberPropChangeListeners)
+        {
+            if (!memberPropChangeListeners.contains(listener))
+                memberPropChangeListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes the given <tt>listener</tt> from the list of listeners currently
+     * registered for chat room member property change events.
+     *
+     * @param listener the <tt>ChatRoomMemberPropertyChangeListener</tt> to
+     * remove.
+     */
+    public void removeMemberPropertyChangeListener(
+        ChatRoomMemberPropertyChangeListener listener)
+    {
+        synchronized(memberPropChangeListeners)
+        {
+            memberPropChangeListeners.remove(listener);
+        }
+    }
+
     /**
      * Registers <tt>listener</tt> so that it would receive events every time
      * a new message is received on this chat room.
@@ -257,10 +298,11 @@ public class ChatRoomJabberImpl
     {
         Message msg
             = new MessageJabberImpl(
-                messageText
-                , OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE
-                , OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING
-                , null);
+                messageText,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
+                null);
+
         return msg;
     }
 
@@ -611,7 +653,7 @@ public class ChatRoomJabberImpl
         
         return null;
     }
-    
+
     /**
      * Leave this chat room.
      */
@@ -666,7 +708,11 @@ public class ChatRoomJabberImpl
 
              ChatRoomMessageDeliveredEvent msgDeliveredEvt
                  = new ChatRoomMessageDeliveredEvent(
-                     this, new Date(), message);
+                     this,
+                     new Date(),
+                     message,
+                     ChatRoomMessageDeliveredEvent
+                         .CONVERSATION_MESSAGE_DELIVERED);
 
              fireMessageEvent(msgDeliveredEvt);
          }
@@ -857,14 +903,28 @@ public class ChatRoomJabberImpl
          * new participant's nickname will be informed with the next available
          * presence.
          *
-         * @param participant the participant that was revoked administrator
-         * privileges (e.g. room@conference.jabber.org/nick).
+         * @param participant the participant that has changed his nickname
          * @param newNickname the new nickname that the participant decided to
          * use.
          */
         public void nicknameChanged(String participant, String newNickname)
         {
-            /** @todo implement nicknameChanged() */
+            ChatRoomMember member = smackParticipantToScMember(participant);
+
+            if(member == null)
+                return;
+
+            String participantName = StringUtils.parseResource(participant);
+            
+            ChatRoomMemberPropertyChangeEvent evt
+                = new ChatRoomMemberPropertyChangeEvent(
+                    member,
+                    ChatRoomJabberImpl.this,
+                    ChatRoomMemberPropertyChangeEvent.MEMBER_NICKNAME,
+                    participantName,
+                    newNickname);
+
+            fireMemberPropertyChangeEvent(evt);
         }
 
         /**
@@ -1444,7 +1504,12 @@ public class ChatRoomJabberImpl
             
             ChatRoomMessageReceivedEvent msgReceivedEvt
                 = new ChatRoomMessageReceivedEvent(
-                    ChatRoomJabberImpl.this, member, new Date(), newMessage);
+                    ChatRoomJabberImpl.this,
+                    member,
+                    new Date(),
+                    newMessage,
+                    ChatRoomMessageReceivedEvent
+                        .CONVERSATION_MESSAGE_RECEIVED);
             
             fireMessageEvent(msgReceivedEvt);
         }
@@ -1475,7 +1540,7 @@ public class ChatRoomJabberImpl
      * Delivers the specified event to all registered property change listeners.
      * 
      * @param evt the <tt>PropertyChangeEvent</tt> that we'd like delivered to
-     * all registered property change listerners.
+     * all registered property change listeners.
      */
     private void firePropertyChangeEvent(PropertyChangeEvent evt)
     {
@@ -1502,7 +1567,31 @@ public class ChatRoomJabberImpl
             }
         }
     }
-    
+
+    /**
+     * Delivers the specified event to all registered property change listeners.
+     * 
+     * @param evt the <tt>ChatRoomMemberPropertyChangeEvent</tt> that we'd like
+     * deliver to all registered member property change listeners.
+     */
+    public void fireMemberPropertyChangeEvent(
+        ChatRoomMemberPropertyChangeEvent evt)
+    {
+        Iterator listeners = null;
+        synchronized (memberPropChangeListeners)
+        {
+            listeners = new ArrayList(memberPropChangeListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            ChatRoomMemberPropertyChangeListener listener
+                = (ChatRoomMemberPropertyChangeListener) listeners.next();
+
+            listener.chatRoomPropertyChanged(evt);
+        }
+    }
+
     /**
      * Utility method throwing an exception if the stack is not properly
      * initialized.

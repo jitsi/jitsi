@@ -50,7 +50,12 @@ public class MockChatRoom
      * Currently registered property change listeners.
      */
     private Vector propertyChangeListeners = new Vector();
-    
+
+    /**
+     * Currently registered property change listeners.
+     */
+    private Vector memberPropChangeListeners = new Vector();
+
     /**
      * Currently registered message listeners.
      */
@@ -442,7 +447,9 @@ public class MockChatRoom
             new ChatRoomMessageDeliveredEvent(
                     this,
                     new Date(),
-                    message);
+                    message,
+                    ChatRoomMessageDeliveredEvent
+                        .CONVERSATION_MESSAGE_DELIVERED);
         
         Iterator iter = messageListeners.iterator();
         while(iter.hasNext())
@@ -450,7 +457,7 @@ public class MockChatRoom
             ChatRoomMessageListener elem = 
                 (ChatRoomMessageListener)iter.next();
             
-            elem.messageDelivered(evt);      
+            elem.messageDelivered(evt);
         }
     }
 
@@ -506,7 +513,9 @@ public class MockChatRoom
                     this,
                     fromMember,
                     new Date(),
-                    msg);
+                    msg,
+                    ChatRoomMessageReceivedEvent
+                        .CONVERSATION_MESSAGE_RECEIVED);
         
         iter = messageListeners.iterator();
         while(iter.hasNext())
@@ -560,5 +569,18 @@ public class MockChatRoom
         throws OperationFailedException
     {
         return null;
+    }
+
+    public void addMemberPropertyChangeListener(
+        ChatRoomMemberPropertyChangeListener listener)
+    {
+        // TODO Implement the addMemberPropertyChangeListener
+    }
+
+    public void removeMemberPropertyChangeListener(
+        ChatRoomMemberPropertyChangeListener listener)
+    {
+        // TODO Implement the removeMemberPropertyChangeListener
+        
     }
 }
