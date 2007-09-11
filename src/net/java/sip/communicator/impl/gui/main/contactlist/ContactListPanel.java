@@ -14,7 +14,6 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -103,7 +102,14 @@ public class ContactListPanel
         this.treePanel.add(contactList, BorderLayout.NORTH);
 
         this.treePanel.setBackground(Color.WHITE);
-        this.contactList.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));        
+        this.contactList.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
+        this.getActionMap().put("runChat", new ContactListPanelEnterAction());
+
+        InputMap imap = this.getInputMap(
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "runChat");
     }
 
     /**
@@ -493,5 +499,33 @@ public class ContactListPanel
         {
             this.metaContact = metaContact;
         }
-    }   
+    }
+
+    /**
+     * Opens chat window when the selected value is a MetaContact and opens a
+     * group when the selected value is a MetaContactGroup.
+     */
+    private class ContactListPanelEnterAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            Object selectedValue = contactList.getSelectedValue();
+            
+            if (selectedValue instanceof MetaContact) {
+                MetaContact contact = (MetaContact) selectedValue;
+
+                SwingUtilities.invokeLater(new RunMessageWindow(contact));
+            }
+            else if (selectedValue instanceof MetaContactGroup) {
+                MetaContactGroup group = (MetaContactGroup) selectedValue;
+
+                ContactListModel model
+                    = (ContactListModel) contactList.getModel();
+
+                if (model.isGroupClosed(group)) {
+                    model.openGroup(group);
+                }
+            }
+        }
+    }
 }
