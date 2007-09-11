@@ -353,7 +353,7 @@ public class ChatWindowManager
             return chatWindow.getCurrentChatPanel();
         }
     }
-    
+
     /**
      * Returns the chat panel corresponding to the given chat room wrapper.
      *
@@ -369,11 +369,11 @@ public class ChatWindowManager
             {
                 return (ConferenceChatPanel) getChat(chatRoomWrapper);
             }
-            else         
+            else
                 return createChat(chatRoomWrapper);
         }
     }
-    
+
     /**
      * Returns the chat panel corresponding to the given chat room.
      *
@@ -383,7 +383,7 @@ public class ChatWindowManager
     public ConferenceChatPanel getMultiChat(ChatRoom chatRoom)
     {
         synchronized (syncChat)
-        {   
+        {
             Enumeration chatKeys = chats.keys();
             while(chatKeys.hasMoreElements())
             {
@@ -399,16 +399,16 @@ public class ChatWindowManager
                     }
                 }
             }
-            
+
             // Search in the chat room's list for a chat room that correspond
             // to the given one.
             ChatRoomWrapper chatRoomWrapper
                 = mainFrame.getChatRoomsListPanel().getChatRoomsList()
                     .findChatRoomWrapperFromChatRoom(chatRoom);
-            
+
             if(chatRoomWrapper == null)
                 chatRoomWrapper = new ChatRoomWrapper(chatRoom);
-            
+
             return createChat(chatRoomWrapper);
         }
     }
