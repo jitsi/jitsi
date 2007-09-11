@@ -14,6 +14,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.chatroomwizard.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -50,9 +51,14 @@ public class ChatRoomServerRightButtonMenu
         
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
+     * 
+     * @param mainFrame the main application window
+     * @param protocolProvider the protocol provider corresponding to the multi
+     * user chat server
      */
-    public ChatRoomServerRightButtonMenu(MainFrame mainFrame,
-            ProtocolProviderService protocolProvider)
+    public ChatRoomServerRightButtonMenu(
+        MainFrame mainFrame,
+        ProtocolProviderService protocolProvider)
     {
         super();
 

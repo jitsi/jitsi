@@ -7,10 +7,13 @@
 package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 
 /**
  * The <tt>ChatRoomsListPanel</tt> is the panel that contains the
@@ -49,6 +52,13 @@ public class ChatRoomsListPanel
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         this.getVerticalScrollBar().setUnitIncrement(30);
+
+        this.getActionMap().put("runChat", new ChatRoomsListPanelEnterAction());
+
+        InputMap imap = this.getInputMap(
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "runChat");
     }
 
     /**
@@ -60,4 +70,45 @@ public class ChatRoomsListPanel
     {
         return chatRoomsList;
     }
+
+    /**
+     * Opens chat window when the selected value is a MetaContact and opens a
+     * group when the selected value is a MetaContactGroup.
+     */
+    private class ChatRoomsListPanelEnterAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            Object selectedValue = chatRoomsList.getSelectedValue();
+
+            if(selectedValue instanceof MultiUserChatServerWrapper)
+            {
+                MultiUserChatServerWrapper serverWrapper
+                    = (MultiUserChatServerWrapper) selectedValue;
+
+                ChatWindowManager chatWindowManager
+                    = mainFrame.getChatWindowManager();
+
+                ConferenceChatPanel chatPanel
+                    = chatWindowManager.getMultiChat(
+                        serverWrapper.getSystemRoomWrapper());
+
+                chatWindowManager.openChat(chatPanel, true);
+            }
+            else if(selectedValue instanceof ChatRoomWrapper)
+            {
+                ChatRoomWrapper chatRoomWrapper
+                    = (ChatRoomWrapper) selectedValue;
+
+                ChatWindowManager chatWindowManager
+                    = mainFrame.getChatWindowManager();
+
+                ConferenceChatPanel chatPanel
+                    = chatWindowManager.getMultiChat(chatRoomWrapper);
+
+                chatWindowManager.openChat(chatPanel, true);
+            }
+        }
+    }
+
 }

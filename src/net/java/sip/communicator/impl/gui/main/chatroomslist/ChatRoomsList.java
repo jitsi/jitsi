@@ -69,32 +69,35 @@ public class ChatRoomsList
     public void addChatServer(ProtocolProviderService pps,
         OperationSetMultiUserChat multiUserChatOperationSet)
     {
-        listModel.addElement(pps);
-        
+        MultiUserChatServerWrapper serverWrapper
+            = new MultiUserChatServerWrapper(pps);
+
+        listModel.addElement(serverWrapper);
+
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
-    
+
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
-    
+
         List accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);
-    
+
         Iterator accountsIter = accounts.iterator();
-    
+
         while(accountsIter.hasNext()) {
             String accountRootPropName
                 = (String) accountsIter.next();
-    
+
             String accountUID
                 = configService.getString(accountRootPropName);
-    
+
             if(accountUID.equals(pps
                     .getAccountID().getAccountUniqueID()))
             {   
                 List chatRooms = configService
                     .getPropertyNamesByPrefix(
                         accountRootPropName + ".chatRooms", true);
-    
+
                 Iterator chatRoomsIter = chatRooms.iterator();
                 
                 while(chatRoomsIter.hasNext())
@@ -107,7 +110,7 @@ public class ChatRoomsList
                  
                     String chatRoomName = configService.getString(
                         chatRoomPropName + ".chatRoomName");
-             
+
                     ChatRoomWrapper chatRoomWrapper
                         = new ChatRoomWrapper(pps, chatRoomID, chatRoomName);
                     
@@ -124,38 +127,43 @@ public class ChatRoomsList
      */
     public void addChatRoom(ChatRoomWrapper chatRoomWrapper)
     {
-        int parentIndex = listModel.indexOf(chatRoomWrapper.getParentProvider());
-        
+        MultiUserChatServerWrapper serverWrapper
+            = findServerWrapperFromProvider(chatRoomWrapper.getParentProvider());
+
+        int parentIndex = listModel.indexOf(serverWrapper);
+
         boolean inserted = false;
-        
+
         if(parentIndex != -1)
         {
             for(int i = parentIndex + 1; i < listModel.getSize(); i ++)
             {
                 Object element = listModel.get(i);
                 
-                if(element instanceof ProtocolProviderService)
+                if(element instanceof MultiUserChatServerWrapper)
                 {
-                    listModel.add(i, chatRoomWrapper);
-                    
+                    listModel.insertElementAt(chatRoomWrapper, i);
+
                     // Indicate that we have found the last chat room in the
                     // list of server children and we have inserted there the
                     // new chat room.
                     inserted = true;
-                    
+
                     break;
                 }
             }
-            
+
             if(!inserted)
                 listModel.addElement(chatRoomWrapper);
-        }    
-        
+        }
+
         ConfigurationManager.saveChatRoom(
             chatRoomWrapper.getParentProvider(),
             chatRoomWrapper.getChatRoomID(),
             chatRoomWrapper.getChatRoomID(),
             chatRoomWrapper.getChatRoomName());
+
+        this.refresh();
     }
     
     /**
@@ -173,7 +181,6 @@ public class ChatRoomsList
             null, null);
     }
 
-    
     /**
      * Returns the <tt>ChatRoomWrapper</tt> that correspond to the given
      * <tt>ChatRoom</tt>. If the list of chat rooms doesn't contain a
@@ -185,17 +192,59 @@ public class ChatRoomsList
      */
     public ChatRoomWrapper findChatRoomWrapperFromChatRoom(ChatRoom chatRoom)
     {   
+        for (int i = 0; i < listModel.getSize(); i ++)
+        {   
+            Object listItem = listModel.get(i);
+            
+            if (listItem instanceof ChatRoomWrapper)
+            {
+                ChatRoomWrapper chatRoomWrapper = (ChatRoomWrapper) listItem;
+            
+                if (chatRoom.equals(chatRoomWrapper.getChatRoom()))
+                {
+                    return chatRoomWrapper;
+                }
+            }
+            else if (listItem instanceof MultiUserChatServerWrapper)
+            {
+                MultiUserChatServerWrapper serverWrapper
+                    = (MultiUserChatServerWrapper) listItem;
+
+                if (chatRoom.equals(
+                    serverWrapper.getSystemRoomWrapper().getChatRoom()))
+                {
+                    return serverWrapper.getSystemRoomWrapper();
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Returns the <tt>MultiUserChatServerWrapper</tt> that correspond to the
+     * given <tt>ProtocolProviderService</tt>. If the list doesn't contain a
+     * corresponding wrapper - returns null.
+     *  
+     * @param protocolProvider the protocol provider that we're looking for
+     * @return the <tt>MultiUserChatServerWrapper</tt> object corresponding to
+     * the given <tt>ProtocolProviderService</tt>
+     */
+    private MultiUserChatServerWrapper findServerWrapperFromProvider(
+        ProtocolProviderService protocolProvider)
+    {   
         for(int i = 0; i < listModel.getSize(); i ++)
         {   
             Object listItem = listModel.get(i);
             
-            if(listItem instanceof ChatRoomWrapper)
+            if(listItem instanceof MultiUserChatServerWrapper)
             {
-                ChatRoomWrapper chatRoomWrapper = (ChatRoomWrapper) listItem;
+                MultiUserChatServerWrapper serverWrapper
+                    = (MultiUserChatServerWrapper) listItem;
             
-                if(chatRoom.equals(chatRoomWrapper.getChatRoom()))
+                if(protocolProvider.equals(serverWrapper.getProtocolProvider()))
                 {
-                    return chatRoomWrapper;
+                    return serverWrapper;
                 }
             }
         }
@@ -215,7 +264,39 @@ public class ChatRoomsList
     }
 
     public void mouseClicked(MouseEvent e)
-    {}
+    {
+        if (e.getClickCount() < 2)
+            return;
+
+        Object o = this.getSelectedValue();
+
+        if(o instanceof MultiUserChatServerWrapper)
+        {
+            MultiUserChatServerWrapper serverWrapper
+                = (MultiUserChatServerWrapper) o;
+
+            ChatWindowManager chatWindowManager
+                = mainFrame.getChatWindowManager();
+
+            ConferenceChatPanel chatPanel
+                = chatWindowManager.getMultiChat(
+                    serverWrapper.getSystemRoomWrapper());
+
+            chatWindowManager.openChat(chatPanel, true);
+        }
+        else if(o instanceof ChatRoomWrapper)
+        {
+            ChatRoomWrapper chatRoomWrapper = (ChatRoomWrapper) o;
+
+            ChatWindowManager chatWindowManager
+                = mainFrame.getChatWindowManager();
+
+            ConferenceChatPanel chatPanel
+                = chatWindowManager.getMultiChat(chatRoomWrapper);
+
+            chatWindowManager.openChat(chatPanel, true);
+        }
+    }
 
     public void mouseEntered(MouseEvent e)
     {}
@@ -241,38 +322,24 @@ public class ChatRoomsList
         {
             this.setSelectedIndex(locationToIndex(e.getPoint()));
         }
-        
+
         Object o = this.getSelectedValue();
-        
-        if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
-        {   
-            if(o instanceof ChatRoomWrapper)
-            {            
-                ChatRoomWrapper chatRoomWrapper = (ChatRoomWrapper) o;
-                
-                ChatWindowManager chatWindowManager
-                    = mainFrame.getChatWindowManager();
-                
-                ConferenceChatPanel chatPanel
-                    = chatWindowManager.getMultiChat(chatRoomWrapper);
-                
-                chatWindowManager.openChat(chatPanel, true);
-            }
-        }
-        else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
+
+        if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
         {
-            if(o instanceof ProtocolProviderService)
+            if(o instanceof MultiUserChatServerWrapper)
             {
                 ChatRoomServerRightButtonMenu rightButtonMenu
                     = new ChatRoomServerRightButtonMenu(
-                        mainFrame, (ProtocolProviderService) o);
-    
+                        mainFrame,
+                        ((MultiUserChatServerWrapper) o).getProtocolProvider());
+
                 rightButtonMenu.setInvoker(this);
-    
+
                 rightButtonMenu.setLocation(e.getX()
                         + mainFrame.getX() + 5, e.getY() + mainFrame.getY()
                         + 105);
-    
+
                 rightButtonMenu.setVisible(true);
             }
             else if (o instanceof ChatRoomWrapper)
@@ -289,9 +356,9 @@ public class ChatRoomsList
 
                 rightButtonMenu.setVisible(true);
             }
-		}
-	}
-	    
+        }
+    }
+
     /**
      * Goes through the locally stored chat rooms list and for each
      * {@link ChatRoomWrapper} tries to find the corresponding server stored
@@ -306,15 +373,23 @@ public class ChatRoomsList
     public void synchronizeOpSetWithLocalContactList(
         ProtocolProviderService protocolProvider,
         final OperationSetMultiUserChat opSet)
-    {        
-        int serverIndex = listModel.indexOf(protocolProvider);
-        
+    {
+        MultiUserChatServerWrapper serverWrapper
+            = findServerWrapperFromProvider(protocolProvider);
+
+        serverWrapper.setSystemRoom(opSet.getSystemRoom());
+
+        opSet.getSystemRoom().addMessageListener(
+            mainFrame.getMultiUserChatManager());
+
+        int serverIndex = listModel.indexOf(serverWrapper);
+
         for(int i = serverIndex + 1; i < listModel.size(); i ++)
         {
             final Object o = listModel.get(i);
             
             if(!(o instanceof ChatRoomWrapper))
-                break;            
+                break;
             
             new Thread()
             {
@@ -342,9 +417,9 @@ public class ChatRoomsList
                     if(chatRoom != null)
                     {
                         chatRoomWrapper.setChatRoom(chatRoom);
-                        
+
                         mainFrame.getMultiUserChatManager()
-                                    .joinChatRoom(chatRoom);                
+                                    .joinChatRoom(chatRoom);
                     }
                 }
             }.start();

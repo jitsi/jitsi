@@ -128,7 +128,7 @@ public class ChatRoomRightButtonMenu
             ChatWindowManager chatWindowManager
                 = mainFrame.getChatWindowManager();
             
-            ChatPanel chatPanel
+            ConferenceChatPanel chatPanel
                 = chatWindowManager.getMultiChat(chatRoomWrapper);
             
             chatWindowManager.closeChat(chatPanel);
@@ -166,19 +166,6 @@ public class ChatRoomRightButtonMenu
                 public void run()
                 {
                     chatRoom.leave();
-
-                    ChatWindowManager chatWindowManager
-                        = mainFrame.getChatWindowManager();
-
-                    ChatPanel chatPanel
-                        = chatWindowManager.getMultiChat(chatRoomWrapper);
-
-                    chatWindowManager.closeChat(chatPanel);
-
-                    // Need to refresh the chat room's list in order to change
-                    // the state of the chat room to offline.
-                    mainFrame.getChatRoomsListPanel()
-                        .getChatRoomsList().refresh();
                 }
             }.start();
         }

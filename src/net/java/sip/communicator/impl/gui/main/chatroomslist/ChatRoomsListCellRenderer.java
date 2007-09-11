@@ -61,13 +61,10 @@ public class ChatRoomsListCellRenderer extends JPanel
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus) {
 
-        //ChatRoomsList chatRoomsList = (ChatRoomsList) list;
-        
         String toolTipText = "<html>";
-        
+
         if (value instanceof ChatRoomWrapper)
         {
-
             ChatRoomWrapper chatRoomWrapper = (ChatRoomWrapper) value;
 
             toolTipText += "<b>"+chatRoomWrapper.getChatRoomName()+"</b>";
@@ -90,18 +87,21 @@ public class ChatRoomsListCellRenderer extends JPanel
             
             this.setBorder(BorderFactory.createEmptyBorder(1, 8, 1, 1));
 
-            // We should set the bounds of the cell explicitely in order to
+            // We should set the bounds of the cell explicitly in order to
             // make getComponentAt work properly.
             this.setBounds(0, 0, list.getWidth() - 2, 17);
 
             this.isLeaf = true;
         }
-        else if (value instanceof ProtocolProviderService)
+        else if (value instanceof MultiUserChatServerWrapper)
         {
-            ProtocolProviderService pps = (ProtocolProviderService) value;
+            MultiUserChatServerWrapper serverWrapper
+                = (MultiUserChatServerWrapper) value;
+
+            ProtocolProviderService pps = serverWrapper.getProtocolProvider();
 
             toolTipText += pps.getAccountID().getService();
-            
+
             this.nameLabel.setText(pps.getAccountID().getService()
                 + " (" + pps.getAccountID().getAccountAddress() + ")");
 
@@ -112,7 +112,7 @@ public class ChatRoomsListCellRenderer extends JPanel
 
             this.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
-            // We should set the bounds of the cell explicitely in order to
+            // We should set the bounds of the cell explicitly in order to
             // make getComponentAt work properly.
             this.setBounds(0, 0, list.getWidth() - 2, 20);
             

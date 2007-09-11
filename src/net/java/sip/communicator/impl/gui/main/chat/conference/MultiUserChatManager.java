@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.chat.conference;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.i18n.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -16,7 +15,6 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -28,7 +26,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class MultiUserChatManager
-    implements  ChatRoomMessageListener,                
+    implements  ChatRoomMessageListener,
                 ChatRoomInvitationListener,
                 ChatRoomInvitationRejectionListener,
                 LocalUserChatRoomPresenceListener
@@ -62,11 +60,11 @@ public class MultiUserChatManager
         
         dialog.setVisible(true);
     }
-        
+
     public void invitationRejected(ChatRoomInvitationRejectedEvent evt)
     {   
     }
-    
+
     /**
      * Implements the <tt>ChatRoomMessageListener.messageDelivered</tt> method.
      * <br>
@@ -82,24 +80,37 @@ public class MultiUserChatManager
 
         Message msg = evt.getMessage();
 
-        ChatPanel chatPanel = null;
+        ConferenceChatPanel chatPanel = null;
         
         if(chatWindowManager.isChatOpenedForChatRoom(sourceChatRoom))
         {
             chatPanel = chatWindowManager.getMultiChat(sourceChatRoom);
         }
-        
+
+        String messageType = null;
+
+        if (evt.getEventType()
+            == ChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED)
+        {
+            messageType = Constants.OUTGOING_MESSAGE;
+        }
+        else if (evt.getEventType()
+            == ChatRoomMessageDeliveredEvent.ACTION_MESSAGE_DELIVERED)
+        {
+            messageType = Constants.ACTION_MESSAGE;
+        }
+
         if(chatPanel != null)
         {
             chatPanel.processMessage(sourceChatRoom.getParentProvider()
                 .getAccountID().getUserID(),
                 evt.getTimestamp(),
-                Constants.OUTGOING_MESSAGE,
+                messageType,
                 msg.getContent(),
                 msg.getContentType());
         }
     }
-    
+
     /**
      * Implements the <tt>ChatRoomMessageListener.messageReceived</tt> method.
      * <br>
@@ -107,22 +118,41 @@ public class MultiUserChatManager
      * there.
      */
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
-    {   
+    {
         ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
-        
+
         ChatRoomMember sourceMember = evt.getSourceChatRoomMember();
-        
-        logger.info("MESSAGE RECEIVED from contact: "
+
+        String messageType = null;
+
+        if (evt.getEventType()
+            == ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED)
+        {
+            messageType = Constants.INCOMING_MESSAGE;
+        }
+        else if (evt.getEventType()
+            == ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED)
+        {
+            messageType = Constants.SYSTEM_MESSAGE;
+        }
+        else if (evt.getEventType()
+            == ChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED)
+        {
+            messageType = Constants.ACTION_MESSAGE;
+        }
+
+        logger.trace("MESSAGE RECEIVED from contact: "
             + sourceMember.getContactAddress());
-        
+
         Date date = evt.getTimestamp();
         Message message = evt.getMessage();
-        
-        ChatPanel chatPanel = chatWindowManager.getMultiChat(sourceChatRoom);
-        
+
+        ConferenceChatPanel chatPanel
+            = chatWindowManager.getMultiChat(sourceChatRoom);
+
         chatPanel.processMessage(
             sourceMember.getName(), date,
-            Constants.INCOMING_MESSAGE,
+            messageType,
             message.getContent(),
             message.getContentType());
         
@@ -182,7 +212,8 @@ public class MultiUserChatManager
                     "msgDeliveryFailedUnknownError").getText();
         }
 
-        ChatPanel chatPanel = chatWindowManager.getMultiChat(sourceChatRoom);
+        ConferenceChatPanel chatPanel
+            = chatWindowManager.getMultiChat(sourceChatRoom);
 
         chatPanel.processMessage(
                 destMember.getName(),
@@ -209,20 +240,20 @@ public class MultiUserChatManager
         LocalUserChatRoomPresenceChangeEvent evt)
     {
         ChatRoom sourceChatRoom = evt.getChatRoom();
-        
+
+        ChatRoomsList chatRoomsList
+            = mainFrame.getChatRoomsListPanel().getChatRoomsList();
+
+        ChatRoomWrapper chatRoomWrapper = chatRoomsList
+            .findChatRoomWrapperFromChatRoom(sourceChatRoom);
+
         if (evt.getEventType().equals(
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED))
         {
-            ChatRoomsList chatRoomsList
-                = mainFrame.getChatRoomsListPanel().getChatRoomsList();
-            
-            ChatRoomWrapper chatRoomWrapper = chatRoomsList
-                .findChatRoomWrapperFromChatRoom(sourceChatRoom);
-            
             if(chatRoomWrapper != null)
             {
                 chatRoomsList.refresh();
-                
+
                 // Check if we have already opened a chat window for this chat
                 // wrapper and load the real chat room corresponding to the
                 // wrapper.
@@ -232,15 +263,11 @@ public class MultiUserChatManager
                     ConferenceChatPanel chatPanel
                         = (ConferenceChatPanel) chatWindowManager
                             .getMultiChat(chatRoomWrapper);
-                    
+
                     chatPanel.loadChatRoom(sourceChatRoom);
                 }
             }
-            else
-            {
-                chatRoomsList.addChatRoom(new ChatRoomWrapper(sourceChatRoom));
-            }
-            
+
             sourceChatRoom.addMessageListener(this);
         }
         else if (evt.getEventType().equals(
@@ -251,6 +278,20 @@ public class MultiUserChatManager
         else if (evt.getEventType().equals(
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT))
         {
+            ChatWindowManager chatWindowManager
+                = mainFrame.getChatWindowManager();
+
+            ChatPanel chatPanel
+                = chatWindowManager.getMultiChat(chatRoomWrapper);
+
+            chatWindowManager.closeChat(chatPanel);
+
+            // Need to refresh the chat room's list in order to change
+            // the state of the chat room to offline.
+            mainFrame.getChatRoomsListPanel()
+                .getChatRoomsList().refresh();
+
+            sourceChatRoom.removeMessageListener(this);
         }
         else if (evt.getEventType().equals(
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED))
@@ -263,12 +304,23 @@ public class MultiUserChatManager
             
         }
     }
-    
+
+    /**
+     * Called to accept an incoming invitation. Adds the invitation chat room
+     * to the list of chat rooms and joins it.
+     * 
+     * @param invitation the invitation to accept.
+     */
     public void acceptInvitation(ChatRoomInvitation invitation)
     {
         ChatRoom chatRoom = invitation.getTargetChatRoom();
         byte[] password = invitation.getChatRoomPassword();
-        
+
+        ChatRoomsList chatRoomsList
+            = mainFrame.getChatRoomsListPanel().getChatRoomsList();
+
+        chatRoomsList.addChatRoom(new ChatRoomWrapper(chatRoom));
+
         try
         {
             if(password == null)
@@ -328,7 +380,7 @@ public class MultiUserChatManager
                 ChatRoomAuthenticationWindow authWindow
                     = new ChatRoomAuthenticationWindow(mainFrame, chatRoom);
                 
-                authWindow.setVisible(true);                
+                authWindow.setVisible(true);
             }
             else if(e.getErrorCode()
                 == OperationFailedException
@@ -387,7 +439,7 @@ public class MultiUserChatManager
     {
         try
         {
-            chatRoom.join();                        
+            chatRoom.join();
         }
         catch (OperationFailedException e)
         {
