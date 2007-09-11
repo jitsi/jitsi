@@ -1,0 +1,933 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.protocol.irc;
+
+import java.beans.*;
+import java.util.*;
+
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
+
+/**
+ * Represents a chat channel/room, where multiple chat users could rally and
+ * communicate in a many-to-many fashion.
+ * 
+ * @author Stephane Remy
+ * @author Loic Kempf
+ * @author Yana Stamcheva
+ */
+public class ChatRoomIrcImpl
+    implements  ChatRoom
+{
+    private Logger logger = Logger.getLogger(ChatRoomIrcImpl.class);
+    
+    /**
+     * The name of the chat room.
+     */
+    private String chatRoomName = null;
+
+    /**
+     * The subject of the chat room.
+     */
+    private String chatSubject = null;
+
+    /**
+     * list of members of this chatRoom
+     */
+    private Hashtable chatRoomMembers = new Hashtable();
+
+    /**
+     * The parent protocol service provider
+     */
+    private ProtocolProviderServiceIrcImpl parentProvider;
+
+    /**
+     * Listeners that will be notified of changes in member status in the
+     * room such as member joined, left or being kicked or dropped.
+     */
+    private Vector memberListeners = new Vector();
+
+    /**
+     * Listeners that will be notified of changes in member role in the
+     * room such as member being granted admin permissions, or revoked admin
+     * permissions.
+     */
+    private Vector memberRoleListeners = new Vector();
+    
+    /**
+     * Listeners that will be notified of changes in local user role in the
+     * room such as member being granted administrator permissions, or revoked
+     * administrator permissions.
+     */
+    private Vector localUserRoleListeners = new Vector();
+
+    /**
+     * Listeners that will be notified every time
+     * a new message is received on this chat room.
+     */
+    private Vector messageListeners = new Vector();
+
+    /**
+     * Listeners that will be notified every time
+     * a chat room property has been changed.
+     */
+    private Vector propertyChangeListeners = new Vector();
+
+    /**
+     * Listeners that will be notified every time
+     * a chat room member property has been changed.
+     */
+    private Vector memberPropChangeListeners = new Vector();
+
+    /**
+     * The table containing all banned members.
+     */
+    private Hashtable bannedMembers = new Hashtable();
+
+    /**
+     * Creates an instance of <tt>ChatRoomIrcImpl</tt>, by specifying the room
+     * name and the protocol provider.
+     *  
+     * @param chatRoomName the name of the chat room
+     * @param parentProvider the protocol provider
+     */
+    public ChatRoomIrcImpl( String chatRoomName,
+                            ProtocolProviderServiceIrcImpl parentProvider)
+    {
+        this.parentProvider = parentProvider;
+        this.chatRoomName = chatRoomName;
+    }
+
+    /**
+     * Returns the name of this <tt>ChatRoom</tt>.
+     * 
+     * @return a <tt>String</tt> containing the name of this <tt>ChatRoom</tt>.
+     */
+    public String getName()
+    {
+        return chatRoomName;
+    }
+    
+    /**
+     * Returns the identifier of this <tt>ChatRoom</tt>.
+     * 
+     * @return a <tt>String</tt> containing the identifier of this
+     * <tt>ChatRoom</tt>.
+     */
+    public String getIdentifier()
+    {
+        return chatRoomName;
+    }
+
+    /**
+     * Joins this chat room with the nickname of the local user so that the user
+     * would start receiving events and messages for it.
+     * 
+     * @throws OperationFailedException with the corresponding code if an error
+     *             occurs while joining the room.
+     */
+    public void join() throws OperationFailedException
+    {
+        if (!parentProvider.getIrcStack().isConnected())
+            throw new OperationFailedException(
+                "We are currently not connected to the server.",
+                OperationFailedException.NETWORK_FAILURE);
+
+        if (parentProvider.getIrcStack().isJoined(this))
+            throw new OperationFailedException(
+                "Channel is already joined.",
+                OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
+
+        parentProvider.getIrcStack().join(this);
+    }
+
+    /**
+     * Joins this chat room so that the user would start receiving events and
+     * messages for it. The method uses the nickname of the local user and the
+     * specified password in order to enter the chatroom.
+     * 
+     * @param password the password to use when authenticating on the chatroom.
+     * @throws OperationFailedException with the corresponding code if an error
+     *             occurs while joining the room.
+     */
+    public void join(byte[] password) throws OperationFailedException
+    {
+        parentProvider.getIrcStack().join(this, password);
+    }
+
+    /**
+     * Joins this chat room with the specified nickname so that the user would
+     * start receiving events and messages for it. If the chat room already
+     * contains a user with this nickname, the method would throw an
+     * OperationFailedException with code IDENTIFICATION_CONFLICT.
+     * 
+     * @param nickname the nickname to use.
+     * @throws OperationFailedException with the corresponding code if an error
+     *             occurs while joining the room.
+     */
+    public void joinAs(String nickname) throws OperationFailedException
+    {
+        this.setUserNickname(nickname);
+        this.join();
+    }
+
+    /**
+     * Joins this chat room with the specified nickname and password so that the
+     * user would start receiving events and messages for it. If the chatroom
+     * already contains a user with this nickname, the method would throw an
+     * OperationFailedException with code IDENTIFICATION_CONFLICT.
+     * 
+     * @param nickname the nickname to use.
+     * @param password a password necessary to authenticate when joining the
+     *            room.
+     * @throws OperationFailedException with the corresponding code if an error
+     *             occurs while joining the room.
+     */
+    public void joinAs(String nickname, byte[] password)
+        throws OperationFailedException
+    {
+        this.setUserNickname(nickname);
+        this.join(password);
+    }
+
+    /**
+     * Returns true if the local user is currently in the multi user chat (after
+     * calling one of the {@link #join()} methods).
+     * 
+     * @return true if currently we're currently in this chat room and false
+     *         otherwise.
+     */
+    public boolean isJoined()
+    {
+        return parentProvider.getIrcStack().isJoined(this);
+    }
+
+    /**
+     * Leave this chat room. Once this method is called, the user won't be
+     * listed as a member of the chat room any more and no further chat events
+     * will be delivered. Depending on the underlying protocol and
+     * implementation leave() might cause the room to be destroyed if it has
+     * been created by the local user.
+     */
+    public void leave()
+    {
+        this.parentProvider.getIrcStack().leave(this);
+    }
+
+    /**
+     * Returns the list of banned chat room members.
+     * @return the list of banned chat room members.
+     * 
+     * @throws OperationFailedException if we are not joined or we don't have
+     * enough privileges to obtain the ban list.
+     */
+    public Iterator getBanList()
+        throws OperationFailedException
+    {
+        return bannedMembers.values().iterator();
+    }
+
+    /**
+     * Bans the given <tt>ChatRoomMember</tt>.
+     * 
+     * @param chatRoomMember the chat room member to ban
+     * @param reason the reason of the ban 
+     * @throws OperationFailedException if we are not joined or we don't have
+     * enough privileges to ban a participant.
+     */
+    public void banParticipant(ChatRoomMember chatRoomMember, String reason)
+        throws OperationFailedException
+    {
+        this.parentProvider.getIrcStack().banParticipant(this.getName(),
+            chatRoomMember.getContactAddress(), reason);
+    }
+
+    /**
+     * Kicks the given <tt>ChatRoomMember</tt>.
+     * 
+     * @param chatRoomMember the chat room member to kick
+     * @param reason the reason of the kick 
+     * @throws OperationFailedException if we are not joined or we don't have
+     * enough privileges to kick a participant.
+     */
+    public void kickParticipant(ChatRoomMember chatRoomMember, String reason)
+        throws OperationFailedException
+    {
+        this.parentProvider.getIrcStack().kickParticipant(this.getName(),
+            chatRoomMember.getContactAddress(), reason);
+    }
+
+    /**
+     * Returns the <tt>ChatRoomConfigurationForm</tt> containing all
+     * configuration properties for this chat room. If the user doesn't have
+     * permissions to see and change chat room configuration an
+     * <tt>OperationFailedException</tt> is thrown. 
+     * 
+     * @return the <tt>ChatRoomConfigurationForm</tt> containing all
+     * configuration properties for this chat room
+     * @throws OperationFailedException if the user doesn't have
+     * permissions to see and change chat room configuration
+     */
+    public ChatRoomConfigurationForm getConfigurationForm()
+        throws OperationFailedException
+    {   
+        throw new OperationFailedException(
+            "The configuration form is not yet implemented for irc.",
+            OperationFailedException.GENERAL_ERROR);
+    }
+    
+    /**
+     * Adds <tt>listener</tt> to the list of listeners registered to receive
+     * events upon modification of chat room properties such as its subject for
+     * example.
+     * 
+     * @param listener ChatRoomChangeListener
+     */
+    public void addPropertyChangeListener(
+        ChatRoomPropertyChangeListener listener)
+    {
+        synchronized (propertyChangeListeners)
+        {
+            if (!propertyChangeListeners.contains(listener))
+                propertyChangeListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes <tt>listener</tt> from the list of listeners current
+     * registered for chat room modification events.
+     * 
+     * @param listener the <tt>ChatRoomChangeListener</tt> to remove.
+     */
+    public void removePropertyChangeListener(
+        ChatRoomPropertyChangeListener listener)
+    {
+        synchronized (propertyChangeListeners)
+        {
+            propertyChangeListeners.remove(listener);
+        }
+    }
+    
+    /**
+     * Adds the given <tt>listener</tt> to the list of listeners registered to
+     * receive events upon modification of chat room member properties such as
+     * its nickname being changed for example.
+     *
+     * @param listener the <tt>ChatRoomMemberPropertyChangeListener</tt>
+     * that is to be registered for <tt>ChatRoomMemberPropertyChangeEvent</tt>s.
+     */
+    public void addMemberPropertyChangeListener(
+        ChatRoomMemberPropertyChangeListener listener)
+    {
+        synchronized(memberPropChangeListeners)
+        {
+            if (!memberPropChangeListeners.contains(listener))
+                memberPropChangeListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes the given <tt>listener</tt> from the list of listeners currently
+     * registered for chat room member property change events.
+     *
+     * @param listener the <tt>ChatRoomMemberPropertyChangeListener</tt> to
+     * remove.
+     */
+    public void removeMemberPropertyChangeListener(
+        ChatRoomMemberPropertyChangeListener listener)
+    {
+        synchronized(memberPropChangeListeners)
+        {
+            memberPropChangeListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Adds a listener that will be notified of changes of a member role in the
+     * room such as being granted operator.
+     * 
+     * @param listener a member role listener.
+     */
+    public void addMemberRoleListener(ChatRoomMemberRoleListener listener)
+    {
+        synchronized (memberRoleListeners)
+        {
+            if (!memberRoleListeners.contains(listener))
+                memberRoleListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes a listener that was being notified of changes of a member role in
+     * this chat room such as us being granded operator.
+     * 
+     * @param listener a member role listener.
+     */
+    public void removeMemberRoleListener(ChatRoomMemberRoleListener listener)
+    {
+        synchronized (memberRoleListeners)
+        {
+            if (memberRoleListeners.contains(listener))
+                memberRoleListeners.remove(listener);
+        }
+    }
+    
+    /**
+     * Adds a listener that will be notified of changes in our role in the room
+     * such as us being granded operator.
+     * 
+     * @param listener a local user role listener.
+     */
+    public void addLocalUserRoleListener(ChatRoomLocalUserRoleListener listener)
+    {
+        synchronized (localUserRoleListeners)
+        {
+            if (!localUserRoleListeners.contains(listener))
+                localUserRoleListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes a listener that was being notified of changes in our role in this
+     * chat room such as us being granted operator.
+     * 
+     * @param listener a local user role listener.
+     */
+    public void removelocalUserRoleListener(
+        ChatRoomLocalUserRoleListener listener)
+    {
+        synchronized (localUserRoleListeners)
+        {
+            if (localUserRoleListeners.contains(listener))
+                localUserRoleListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Returns the last known room subject/theme or <tt>null</tt> if the user
+     * hasn't joined the room or the room does not have a subject yet.
+     * <p>
+     * To be notified every time the room's subject change you should add a
+     * <tt>ChatRoomPropertyChangelistener</tt> to this room.
+     * <p>
+     * 
+     * To change the room's subject use {@link #setSubject(String)}.
+     * 
+     * @return the room subject or <tt>null</tt> if the user hasn't joined the
+     *         room or the room does not have a subject yet.
+     */
+    public String getSubject()
+    {
+        return chatSubject;
+    }
+
+    /**
+     * Sets the subject of this chat room. If the user does not have the right
+     * to change the room subject, or the protocol does not support this, or the
+     * operation fails for some other reason, the method throws an
+     * <tt>OperationFailedException</tt> with the corresponding code.
+     * 
+     * @param subject the new subject that we'd like this room to have
+     * @throws OperationFailedException thrown if the user is not joined to the
+     * channel or if he/she doesn't have enough privileges to change the
+     * topic or if the topic is null.
+     */
+    public void setSubject(String subject)
+        throws OperationFailedException
+    {
+        parentProvider.getIrcStack().setSubject(getName(), subject);
+    }
+
+    /**
+     * Returns the local user's nickname in the context of this chat room or
+     * <tt>null</tt> if not currently joined.
+     * 
+     * @return the nickname currently being used by the local user in the
+     *         context of the local chat room.
+     */
+    public String getUserNickname()
+    {
+        if (this.isJoined())
+            return this.parentProvider.getIrcStack().getNick();
+        
+        return null;
+    }
+    
+    /**
+     * Changes the the local user's nickname in the context of this chat room.
+     * If the operation is not supported by the underlying implementation, the
+     * method throws an OperationFailedException with the corresponding code.
+     * 
+     * @param nickname the new nickname within the room.
+     * 
+     * @throws OperationFailedException if the setting the new nickname changes
+     *             for some reason.
+     */
+    public void setUserNickname(String nickname)
+        throws OperationFailedException
+    {
+        parentProvider.getIrcStack().setUserNickname(nickname);
+    }
+
+    /**
+     * Adds a listener that will be notified of changes in our status in the
+     * room such as us being kicked, banned, or granted admin permissions.
+     * 
+     * @param listener a participant status listener.
+     */
+    public void addMemberPresenceListener(
+        ChatRoomMemberPresenceListener listener)
+    {
+        synchronized (memberListeners)
+        {
+            if (!memberListeners.contains(listener))
+                memberListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes a listener that was being notified of changes in the status of
+     * other chat room participants such as users being kicked, banned, or
+     * granted admin permissions.
+     * 
+     * @param listener a participant status listener.
+     */
+    public void removeMemberPresenceListener(
+        ChatRoomMemberPresenceListener listener)
+    {
+        synchronized (memberListeners)
+        {
+            memberListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Registers <tt>listener</tt> so that it would receive events every time
+     * a new message is received on this chat room.
+     * 
+     * @param listener a <tt>MessageListener</tt> that would be notified every
+     *            time a new message is received on this chat room.
+     */
+    public void addMessageListener(ChatRoomMessageListener listener)
+    {
+        synchronized (messageListeners)
+        {
+            if (!messageListeners.contains(listener))
+                messageListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes <tt>listener</tt> so that it won't receive any further message
+     * events from this room.
+     * 
+     * @param listener the <tt>MessageListener</tt> to remove from this room
+     */
+    public void removeMessageListener(ChatRoomMessageListener listener)
+    {
+        synchronized (messageListeners)
+        {
+            if (messageListeners.contains(listener))
+                messageListeners.remove(messageListeners.indexOf(listener));
+        }
+    }
+
+
+    /**
+     * Adds a <tt>ChatRoomMember</tt> to the list of members of this chat room.
+     * 
+     * @param member the <tt>ChatRoomMember</tt> to add.
+     */
+    protected void addChatRoomMember(String memberID, ChatRoomMember member)
+    {
+        chatRoomMembers.put(memberID, member);
+    }
+
+    /**
+     * Removes a <tt>ChatRoomMember</tt> from the list of members of this chat
+     * room.
+     * 
+     * @param memberID the name of the <tt>ChatRoomMember</tt> to remove.
+     */
+    protected void removeChatRoomMember(String memberID)
+    {
+        chatRoomMembers.remove(memberID);
+    }
+
+    /**
+     * Returns the <tt>ChatRoomMember</tt> corresponding to the given member id.
+     * If no member is found for the given id, returns NULL.
+     * 
+     * @param memberID the identifier of the member
+     * @return the <tt>ChatRoomMember</tt> corresponding to the given member id.
+     */
+    protected ChatRoomMember getChatRoomMember(String memberID)
+    {
+        return (ChatRoomMember) chatRoomMembers.get(memberID);
+    }
+
+    /**
+     * Removes all chat room members from the list.
+     */
+    protected void clearChatRoomMemberList()
+    {
+        synchronized (chatRoomMembers)
+        {
+            chatRoomMembers.clear();
+        }
+    }
+
+    /**
+     * Invites another user to this room. If we're not joined nothing will
+     * happen.
+     * 
+     * @param userAddress the address of the user to invite to the room.(one may
+     *            also invite users not on their contact list).
+     * @param reason a reason, subject, or welcome message that would tell the
+     *            the user why they are being invited.
+     */
+    public void invite(String userAddress, String reason)
+    {
+        parentProvider.getIrcStack()
+            .sendInvite(userAddress, chatRoomName);
+    }
+
+    /**
+     * Returns a <tt>List</tt> of <tt>ChatRoomMembers</tt>s corresponding to all
+     * members currently participating in this room.
+     * 
+     * @return a <tt>List</tt> of <tt>Contact</tt> corresponding to all room
+     *         members.
+     */
+    public List getMembers()
+    {
+        return new ArrayList(chatRoomMembers.values());
+    }
+
+    /**
+     * Returns the number of participants that are currently in this chat room.
+     * 
+     * @return the number of <tt>Contact</tt>s, currently participating in this
+     * room.
+     */
+    public int getMembersCount()
+    {
+        return chatRoomMembers.size();
+    }
+
+    /**
+     * Create a Message instance for sending arbitrary MIME-encoding content.
+     * 
+     * @param content content value
+     * @param contentType the MIME-type for <tt>content</tt>
+     * @param contentEncoding encoding used for <tt>content</tt>
+     * @param subject a <tt>String</tt> subject or <tt>null</tt> for now
+     *            subject.
+     * @return the newly created message.
+     */
+    public Message createMessage(   byte[] content,
+                                    String contentType,
+                                    String contentEncoding,
+                                    String subject)
+    {
+        Message msg = new MessageIrcImpl(  new String(content),
+                                            contentType,
+                                            contentEncoding,
+                                            subject);
+
+        return msg;
+    }
+
+    /**
+     * Create a Message instance for sending a simple text messages with default
+     * (text/plain) content type and encoding.
+     * 
+     * @param messageText the string content of the message.
+     * @return Message the newly created message
+     */
+    public Message createMessage(String messageText)
+    {
+        Message mess = new MessageIrcImpl(
+            messageText,
+            OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE,
+            OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
+            null);
+        
+        return mess;
+    }
+
+    /**
+     * Sends the <tt>message</tt> to the destination indicated by the
+     * <tt>to</tt> contact.
+     * 
+     * @param message the <tt>Message</tt> to send.
+     * @throws OperationFailedException if the underlying stack is not
+     * registered or initialized or if the chat room is not joined.
+     */
+    public void sendMessage(Message message) throws OperationFailedException
+    {
+        assertConnected();
+
+        if (((MessageIrcImpl) message).isCommand())
+        {
+            parentProvider.getIrcStack().sendCommand(this, message);
+        }
+        else
+        {
+            parentProvider.getIrcStack()
+                .sendMessage(chatRoomName, message.getContent());
+        }
+
+        this.fireMessageDeliveredEvent(message);
+    }
+
+    /**
+     * Returns the protocol provider service that created us.
+     * 
+     * @return the protocol provider service that created us.
+     */
+    public ProtocolProviderService getParentProvider()
+    {
+        return parentProvider;
+    }
+
+    /**
+     * Utility method throwing an exception if the stack is not properly
+     * initialized.
+     * @throws java.lang.IllegalStateException if the underlying stack is
+     * not registered and initialized.
+     */
+    private void assertConnected() throws IllegalStateException
+    {
+        if (parentProvider == null)
+            throw new IllegalStateException(
+                "The provider must be non-null and signed on the "
+                +"service before being able to communicate.");
+        if (!parentProvider.isRegistered())
+            throw new IllegalStateException(
+                "The provider must be signed on the service before "
+                +"being able to communicate.");
+    }
+    
+    /**
+     * Notifies all interested listeners that a
+     * <tt>ChatRoomMessageDeliveredEvent</tt> has been fired.
+     * 
+     * @param message the delivered message 
+     */
+    private void fireMessageDeliveredEvent(Message message)
+    {
+        int eventType
+            = ChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED;
+
+        MessageIrcImpl msg = (MessageIrcImpl) message;
+
+        if (msg.isAction())
+        {
+            eventType = ChatRoomMessageDeliveredEvent.ACTION_MESSAGE_DELIVERED;
+
+            if (msg.getContent().indexOf(' ') != -1)
+                msg.setContent(
+                    msg.getContent()
+                        .substring(message.getContent().indexOf(' ')));
+        }
+
+        ChatRoomMessageDeliveredEvent msgDeliveredEvt
+            = new ChatRoomMessageDeliveredEvent(this,
+                                                new Date(),
+                                                msg,
+                                                eventType);
+
+        Iterator listeners = null;
+        synchronized (messageListeners)
+        {
+            listeners = new ArrayList(messageListeners).iterator();
+        }
+    
+        while (listeners.hasNext())
+        {
+            ChatRoomMessageListener listener
+                = (ChatRoomMessageListener) listeners.next();
+    
+            listener.messageDelivered(msgDeliveredEvt);
+        }
+    }
+    
+    /**
+     * Notifies all interested listeners that a
+     * <tt>ChatRoomMessageReceivedEvent</tt> has been fired.
+     * 
+     * @param message the received message 
+     * @param fromMember the <tt>ChatRoomMember</tt>, which is the sender of the
+     * message
+     * @param date the time at which the message has been received
+     * @param eventType the type of the received event. One of the
+     * XXX_MESSAGE_RECEIVED constants declared in the 
+     * <tt>ChatRoomMessageReceivedEvent</tt> class. 
+     */
+    public void fireMessageReceivedEvent(   Message message,
+                                            ChatRoomMember fromMember,
+                                            Date date,
+                                            int eventType)
+    {
+        ChatRoomMessageReceivedEvent event
+            = new ChatRoomMessageReceivedEvent( this,
+                                                fromMember,
+                                                date,
+                                                message,
+                                                eventType);
+
+        Iterator listeners = null;
+        synchronized (messageListeners)
+        {
+            listeners = new ArrayList(messageListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            ChatRoomMessageListener listener
+                = (ChatRoomMessageListener) listeners.next();
+
+            listener.messageReceived(event);
+        }
+    }
+    
+    /**
+     * Delivers the specified event to all registered property change listeners.
+     * 
+     * @param evt the <tt>PropertyChangeEvent</tt> that we'd like delivered to
+     * all registered property change listeners.
+     */
+    public void firePropertyChangeEvent(PropertyChangeEvent evt)
+    {
+        Iterator listeners = null;
+        synchronized (propertyChangeListeners)
+        {
+            listeners = new ArrayList(propertyChangeListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            ChatRoomPropertyChangeListener listener
+                = (ChatRoomPropertyChangeListener) listeners.next();
+
+            if (evt instanceof ChatRoomPropertyChangeEvent)
+            {
+                listener.chatRoomPropertyChanged(
+                    (ChatRoomPropertyChangeEvent) evt);
+            }
+            else if (evt instanceof ChatRoomPropertyChangeFailedEvent)
+            {
+                listener.chatRoomPropertyChangeFailed(
+                    (ChatRoomPropertyChangeFailedEvent) evt);
+            }
+        }
+    }
+
+    /**
+     * Delivers the specified event to all registered property change listeners.
+     * 
+     * @param evt the <tt>ChatRoomMemberPropertyChangeEvent</tt> that we'd like
+     * deliver to all registered member property change listeners.
+     */
+    public void fireMemberPropertyChangeEvent(
+        ChatRoomMemberPropertyChangeEvent evt)
+    {
+        Iterator listeners = null;
+        synchronized (memberPropChangeListeners)
+        {
+            listeners = new ArrayList(memberPropChangeListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            ChatRoomMemberPropertyChangeListener listener
+                = (ChatRoomMemberPropertyChangeListener) listeners.next();
+
+            listener.chatRoomPropertyChanged(evt);
+        }
+    }
+
+    /**
+     * Creates the corresponding ChatRoomMemberPresenceChangeEvent and notifies
+     * all <tt>ChatRoomMemberPresenceListener</tt>s that a ChatRoomMember has
+     * joined or left this <tt>ChatRoom</tt>.
+     *
+     * @param member the <tt>ChatRoomMember</tt> that this event is about 
+     * @param actorMember a member that act in the event (for example the kicker
+     * in a member kicked event)
+     * @param eventID the identifier of the event
+     * @param eventReason the reason of the event
+     */
+    public void fireMemberPresenceEvent(ChatRoomMember member,
+                                        ChatRoomMember actorMember,
+                                        String eventID,
+                                        String eventReason)
+    {
+        ChatRoomMemberPresenceChangeEvent evt = null;
+        
+        if(actorMember != null)
+            evt = new ChatRoomMemberPresenceChangeEvent(
+                this, member, actorMember, eventID, eventReason);
+        else
+            evt = new ChatRoomMemberPresenceChangeEvent(
+                this, member, eventID, eventReason);
+
+        logger.trace("Will dispatch the following ChatRoom event: " + evt);
+
+        Iterator listeners = null;
+        synchronized (memberListeners)
+        {
+            listeners = new ArrayList(memberListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            ChatRoomMemberPresenceListener listener
+                = (ChatRoomMemberPresenceListener) listeners.next();
+
+            listener.memberPresenceChanged(evt);
+        }
+    }
+
+    /**
+     * Creates the corresponding ChatRoomMemberRoleChangeEvent and notifies
+     * all <tt>ChatRoomMemberRoleListener</tt>s that a ChatRoomMember has
+     * changed his role in this <tt>ChatRoom</tt>.
+     *
+     * @param member the <tt>ChatRoomMember</tt> that this event is about 
+     * @param newRole the new role of the given member
+     */
+    public void fireMemberRoleEvent(   ChatRoomMember member,
+                                        ChatRoomMemberRole newRole)
+    {
+        ChatRoomMemberRole previousRole = member.getRole();
+
+        ChatRoomMemberRoleChangeEvent evt
+            = new ChatRoomMemberRoleChangeEvent(this,
+                                                member,
+                                                previousRole,
+                                                newRole);
+        
+        logger.trace("Will dispatch the following ChatRoom event: " + evt);
+    
+        Iterator listeners = null;
+        synchronized (memberRoleListeners)
+        {
+            listeners = new ArrayList(memberRoleListeners).iterator();
+        }
+    
+        while (listeners.hasNext())
+        {
+            ChatRoomMemberRoleListener listener
+                = (ChatRoomMemberRoleListener) listeners.next();
+    
+            listener.memberRoleChanged(evt);
+        }
+    }
+}
