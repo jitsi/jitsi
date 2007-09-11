@@ -559,7 +559,7 @@ public class MediaControl
                     if (format instanceof AudioFormat)
                     {
 
-                        if (transmittableAudioEncodings.contains(sdp))
+                        if (!transmittableAudioEncodings.contains(sdp))
                         {
                             if (logger.isDebugEnabled())
                             {
