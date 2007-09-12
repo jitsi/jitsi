@@ -48,51 +48,54 @@ public class StatusSimpleSelector
      * The menu item for the online status
      */
     private JMenuItem onlineItem = new JMenuItem(
-            Resources.getString("onlineStatus"),
-            new ImageIcon(Resources.getImage("sipLogo")));
+            Resources.getString("onlineStatus"));
     /**
      * The menu item for the offline status
      */
     private JMenuItem offlineItem = new JMenuItem(
-            Resources.getString("offlineStatus"),
-            new ImageIcon(Resources.getImage("sipLogoOffline")));
+            Resources.getString("offlineStatus"));
     
     /**
      * Creates an instance of <tt>StatusSimpleSelector</tt>
      * 
-     * @param tray a reference of the parent <tt>Systray</tt>
-     * @param pro the protocol provider
+     * @param jdicSystray a reference of the parent <tt>Systray</tt>
+     * @param protocolProvider the protocol provider
      */
-    public StatusSimpleSelector(SystrayServiceJdicImpl tray,ProtocolProviderService pro)
+    public StatusSimpleSelector(SystrayServiceJdicImpl jdicSystray,
+                                ProtocolProviderService protocolProvider)
     {
-              
-        this.provider = pro;
-        this.parentSystray = tray;
-  
+
+        this.provider = protocolProvider;
+        this.parentSystray = jdicSystray;
+
         /* the parent item */
-        
+
         ImageIcon icon;
-        
+
         if(provider.isRegistered())
         {
-            icon = new ImageIcon(Resources.getImage("sipLogo"));
+            System.out.println("EHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOoo");
+            icon = new ImageIcon(protocolProvider.getProtocolIcon()
+                .getIcon(ProtocolIcon.ICON_SIZE_16x16));
         }
         else
         {
-            icon = new ImageIcon(Resources.getImage("sipLogoOffline"));
+            icon = new ImageIcon(LightGrayFilter.createDisabledImage(
+                new ImageIcon(protocolProvider.getProtocolIcon()
+                    .getIcon(ProtocolIcon.ICON_SIZE_16x16)).getImage()));
         }
-        
+
         this.setText(provider.getAccountID().getUserID());
         this.setIcon(icon);
-        
+
         /* the menu itself */
-        
+
         this.onlineItem.addActionListener(this);
         this.offlineItem.addActionListener(this);
-        
+
         this.onlineItem.setName("online");
         this.offlineItem.setName("offline");
-        
+
         this.add(onlineItem);
         this.add(offlineItem);
     }
@@ -125,5 +128,17 @@ public class StatusSimpleSelector
                 new ProviderUnRegistration(this.provider).start();
             }
         }
+    }
+
+    /**
+     * Stops the timer that manages the connecting animated icon.
+     */
+    public void updateStatus(PresenceStatus presenceStatus)
+    {
+        logger.trace("Systray update status for provider: "
+            + provider.getAccountID().getAccountAddress()
+            + ". The new status will be: " + presenceStatus.getStatusName());
+
+        this.setIcon(new ImageIcon(presenceStatus.getStatusIcon()));
     }
 }

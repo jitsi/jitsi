@@ -33,7 +33,8 @@ public class ProviderRegistration
     /**
      * The logger for this class.
      */
-    private Logger logger = Logger.getLogger(ProviderRegistration.class.getName());
+    private Logger logger
+        = Logger.getLogger(ProviderRegistration.class.getName());
 
     /**
      * Creates an instance of <tt>ProviderRegistration</tt>.
@@ -102,6 +103,4 @@ public class ProviderRegistration
 
         return userCredentials;
     }
-
-
  }

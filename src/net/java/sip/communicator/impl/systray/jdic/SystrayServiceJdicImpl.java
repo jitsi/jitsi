@@ -16,12 +16,12 @@ import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jdesktop.jdic.tray.*;
+import org.osgi.framework.*;
 
 /**
  * The <tt>Systray</tt> provides a Icon and the associated <tt>TrayMenu</tt>
@@ -47,11 +47,6 @@ public class SystrayServiceJdicImpl
      * The menu that spring with a right click.
      */
     private TrayMenu menu;
-
-    /**
-     * The list of all providers.
-     */
-    private Map protocolProviderTable = new LinkedHashMap();
 
     /**
      * The list of all added popup message listeners.
@@ -158,29 +153,16 @@ public class SystrayServiceJdicImpl
     }
 
     /**
-     * Returns a set of all protocol providers.
-     *
-     * @return a set of all protocol providers.
-     */
-    public Iterator getProtocolProviders()
-    {
-        return this.protocolProviderTable.values().iterator();
-    }
-    /**
-     * Display in a balloon the newly received message
-     * @param evt the event containing the message
-     */
-    public void messageReceived(MessageReceivedEvent evt)
-    {
-        
-    }
-
-    /**
      * Saves the last status for all accounts. This information is used
-     * on loging. Each time user logs in he's logged with the same status
+     * on logging. Each time user logs in he's logged with the same status
      * as he was the last time before closing the application.
+     * 
+     * @param protocolProvider  the protocol provider for which we save the 
+     * last selected status
+     * @param statusName the status name to save
      */
-    public void saveStatusInformation(ProtocolProviderService protocolProvider,
+    public void saveStatusInformation(
+            ProtocolProviderService protocolProvider,
             String statusName)
     {
         ConfigurationService configService
@@ -234,11 +216,16 @@ public class SystrayServiceJdicImpl
 
     /**
      * Implements the <tt>SystratService.showPopupMessage</tt> method. Shows
-     * a popup message, above the systray icon, which has the given title,
+     * a pop up message, above the Systray icon, which has the given title,
      * message content and message type.
+     * 
+     * @param title the title of the message
+     * @param messageContent the content text
+     * @param messageType the type of the message 
      */
-    public void showPopupMessage(String title, String messageContent,
-        int messageType)
+    public void showPopupMessage(   String title,
+                                    String messageContent,
+                                    int messageType)
     {
         int trayMsgType = TrayIcon.NONE_MESSAGE_TYPE;
 
@@ -258,6 +245,8 @@ public class SystrayServiceJdicImpl
 
     /**
      * Implements the <tt>SystrayService.addPopupMessageListener</tt> method.
+     * 
+     * @param listener the listener to add
      */
     public void addPopupMessageListener(SystrayPopupMessageListener listener)
     {
@@ -269,6 +258,8 @@ public class SystrayServiceJdicImpl
 
     /**
      * Implements the <tt>SystrayService.removePopupMessageListener</tt> method.
+     * 
+     * @param listener the listener to remove
      */
     public void removePopupMessageListener(SystrayPopupMessageListener listener)
     {
@@ -280,7 +271,7 @@ public class SystrayServiceJdicImpl
 
     /**
      * Notifies all interested listeners that a <tt>SystrayPopupMessageEvent</tt>
-     * has occured
+     * has occured.
      * 
      * @param sourceObject the source of this event
      */
@@ -307,7 +298,8 @@ public class SystrayServiceJdicImpl
     }
 
     /**
-     * Sets a new systray icon.
+     * Sets a new Systray icon.
+     * 
      * @param image the icon to set.
      */
     public void setSystrayIcon(byte[] image)

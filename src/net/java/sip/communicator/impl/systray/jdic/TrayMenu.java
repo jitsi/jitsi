@@ -10,7 +10,6 @@ package net.java.sip.communicator.impl.systray.jdic;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.systray.*;
 import net.java.sip.communicator.service.gui.*;
@@ -19,15 +18,14 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * The <tt>Traymenu</tt> is the menu that appears when the user right-click
- * on the systray icon
+ * The <tt>TrayMenu</tt> is the menu that appears when the user right-click
+ * on the Systray icon.
  *
  * @author Nicolas Chamouard
  */
 public class TrayMenu
     extends JPopupMenu
-    implements  ActionListener,
-                PopupMenuListener
+    implements  ActionListener
 {
     /**
      * The logger for this class.
@@ -51,7 +49,7 @@ public class TrayMenu
             Resources.getString("addContact"),
             new ImageIcon(Resources.getImage("addContactIcon")));
         
-    private StatusSubMenu setStatusMenu;
+    private StatusSubMenu statusMenu;
     
     /**
      * The configuration window called by the menu item "settings"
@@ -66,25 +64,23 @@ public class TrayMenu
     public TrayMenu(SystrayServiceJdicImpl tray)
     {
         parentSystray = tray;
-        
-        setStatusMenu = new StatusSubMenu(tray);
-        
+
+        statusMenu = new StatusSubMenu(tray);
+
         this.add(settingsItem);
         this.add(addContactMenuItem);
         this.addSeparator();
-        this.add(setStatusMenu);
+        this.add(statusMenu);
         this.addSeparator();
         this.add(closeItem);
-        
+
         this.settingsItem.setName("settings");
         this.closeItem.setName("close");
         this.addContactMenuItem.setName("addContact");
-        
+
         this.settingsItem.addActionListener(this);
         this.closeItem.addActionListener(this);
         this.addContactMenuItem.addActionListener(this);
-        
-        this.addPopupMenuListener(this);
     }
     
     /**
@@ -130,30 +126,4 @@ public class TrayMenu
                         Resources.getString("failedToLoadAddContactDialog"));
         }
     }
-    
-    /**
-     * Currently unused
-     * @param evt ignored
-     */
-    public void popupMenuCanceled(PopupMenuEvent evt)
-    {
-    }
-    
-    /**
-     * Currently unused
-     * @param evt ignored
-     */
-    public void popupMenuWillBecomeInvisible(PopupMenuEvent evt)
-    {
-    }
-    
-    /**
-     * Fill the menu with items when it is displayed
-     * @param evt ignored
-     */
-    public void popupMenuWillBecomeVisible(PopupMenuEvent evt)
-    {
-        setStatusMenu.update();
-    }
-    
 }

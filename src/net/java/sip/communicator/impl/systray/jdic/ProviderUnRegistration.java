@@ -28,8 +28,9 @@ public class ProviderUnRegistration
     /**
      * The logger for this class.
      */
-    private Logger logger = Logger.getLogger(ProviderUnRegistration.class.getName());
-    
+    private Logger logger
+        = Logger.getLogger(ProviderUnRegistration.class.getName());
+
     /**
      * Creates an instance of <tt>ProviderUnRegistration</tt>.
      * @param protocolProvider the provider we want to unregister

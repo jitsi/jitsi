@@ -50,17 +50,18 @@ public class StatusSelector
     /**
      * Creates an instance of StatusSelector
      * 
-     * @param tray a reference of the parent <tt>Systray</tt>
-     * @param pro the protocol provider
-     * @param pre the presence status
+     * @param jdicSystray a reference of the parent <tt>Systray</tt>
+     * @param provider the protocol provider
+     * @param presence the presence status
      */
-    public StatusSelector(SystrayServiceJdicImpl tray, 
-            ProtocolProviderService pro, OperationSetPresence pre)
+    public StatusSelector(  SystrayServiceJdicImpl jdicSystray,
+                            ProtocolProviderService provider,
+                            OperationSetPresence presence)
     {
               
-        this.parentSystray = tray;
-        this.provider = pro;
-        this.presence = pre;
+        this.parentSystray = jdicSystray;
+        this.provider = provider;
+        this.presence = presence;
         
         /* the parent item */
         
@@ -83,7 +84,6 @@ public class StatusSelector
             
             this.add(item);
         }
-
     }
     
     /**
@@ -145,7 +145,19 @@ public class StatusSelector
             }
         }
     }
-    
+
+    /**
+     * Stops the timer that manages the connecting animated icon.
+     */
+    public void updateStatus(PresenceStatus presenceStatus)
+    {
+        logger.trace("Systray update status for provider: "
+            + provider.getAccountID().getAccountAddress()
+            + ". The new status will be: " + presenceStatus.getStatusName());
+
+        this.setIcon(new ImageIcon(presenceStatus.getStatusIcon()));
+    }
+
     /**
      *  This class allow to use a thread to change the presence status.
      */
@@ -157,7 +169,7 @@ public class StatusSelector
         {
             this.status = status;
         }
-        
+
         public void run()
         {
             try {
@@ -179,23 +191,30 @@ public class StatusSelector
                 if (e1.getErrorCode() 
                     == OperationFailedException.GENERAL_ERROR) 
                 {
-                    
+                    logger.error(
+                        "General error occured while "
+                        + "publishing presence status.",
+                        e1);
                 }
                 else if (e1.getErrorCode() 
                         == OperationFailedException
                             .NETWORK_FAILURE) 
                 {
-                    
+                    logger.error(
+                        "Network failure occured while "
+                        + "publishing presence status.",
+                        e1);
                 } 
                 else if (e1.getErrorCode()
                         == OperationFailedException
                             .PROVIDER_NOT_REGISTERED) 
                 {
-
+                    logger.error(
+                        "Protocol provider must be"
+                        + "registered in order to change status.",
+                        e1);
                 }
-                logger.error("Error - changing status", e1);
             }
         }
     }
-    
 }
