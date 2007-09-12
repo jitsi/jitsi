@@ -51,7 +51,7 @@ public class Packetizer
             )
         };
 
-        PLUGIN_NAME = "Mu-Law Packetizer";
+        PLUGIN_NAME = "ALaw Packetizer";
 
     }
 
