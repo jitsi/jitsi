@@ -529,6 +529,10 @@ public class ContactListModel
      */
     public boolean isContactOnline(MetaContact contact)
     {
+        // If for some reason the default contact is null we return false.
+        if(contact.getDefaultContact() == null)
+            return false;
+
         // Lays on the fact that the default contact is the most connected.
         if (contact.getDefaultContact().getPresenceStatus()
                 .getStatus() >= PresenceStatus.ONLINE_THRESHOLD)
