@@ -121,6 +121,77 @@ public class ChatRoomsList
     }
 
     /**
+     * Removes the corresponding server and all related chat rooms from this
+     * list.
+     * 
+     * @param pps the <tt>ProtocolProviderService</tt> corresponding to the
+     * server to remove
+     */
+    public void removeChatServer (ProtocolProviderService pps)
+    {
+        MultiUserChatServerWrapper serverWrapper
+            = findServerWrapperFromProvider(pps);
+
+        int serverIndex = listModel.indexOf(serverWrapper);
+
+        if (serverIndex == -1)
+            return;
+
+        for (int i = serverIndex + 1; i < listModel.getSize(); i ++)
+        {
+            Object o = listModel.get(i);
+
+            if((o instanceof MultiUserChatServerWrapper)
+                || i == listModel.getSize() - 1)
+            {
+                listModel.removeRange(serverIndex, i);
+                break;
+            }
+        }
+
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
+
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+
+        List accounts = configService
+                .getPropertyNamesByPrefix(prefix, true);
+
+        Iterator accountsIter = accounts.iterator();
+
+        while(accountsIter.hasNext())
+        {
+            String accountRootPropName
+                = (String) accountsIter.next();
+
+            String accountUID
+                = configService.getString(accountRootPropName);
+
+            if(accountUID.equals(pps
+                    .getAccountID().getAccountUniqueID()))
+            {
+                List chatRooms = configService
+                    .getPropertyNamesByPrefix(
+                        accountRootPropName + ".chatRooms", true);
+
+                Iterator chatRoomsIter = chatRooms.iterator();
+
+                while(chatRoomsIter.hasNext())
+                {
+                    String chatRoomPropName
+                        = (String) chatRoomsIter.next();
+
+                    configService.setProperty(
+                        chatRoomPropName + ".chatRoomName",
+                        null);
+                }
+
+                configService.setProperty(accountRootPropName, null);
+            }
+        }
+    }
+
+    /**
      * Adds a chat room to this list.
      *
      * @param chatRoomWrapper the <tt>ChatRoom</tt> to add
