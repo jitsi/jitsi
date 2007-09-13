@@ -150,12 +150,11 @@ public class IrcAccountRegistrationWizard
      * @param providerFactory the ProtocolProviderFactory which will create
      * the account
      * @param user the user identifier
-     * @param passwd the password
      * @return the <tt>ProtocolProviderService</tt> for the new account.
      */
     public ProtocolProviderService installAccount(
-        ProtocolProviderFactory providerFactory,
-        String user)
+                                        ProtocolProviderFactory providerFactory,
+                                        String user)
     {
 
         Hashtable accountProperties = new Hashtable();
