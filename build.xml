@@ -765,7 +765,6 @@
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
                     value="${user.home}"/-->
 
-
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
                 path="${ld.library.path}:${path}:${dyld.library.path}"/>
@@ -875,6 +874,7 @@
         bundle-plugin-extended-callhistory-search,
         bundle-rss,bundle-plugin-rssaccregwizz,
         bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,
+        bundle-irc,bundle-plugin-ircaccregwizz,
         bundle-pluginmanager,bundle-notification"/>
 
     <!--BUNDLE-HISTORY-->
@@ -1082,7 +1082,7 @@
             <zipfileset src="${lib.noinst}/architectureviewer1.1.jar" prefix=""/>
             <manifest>
                 <attribute name="Import-Package"
-                    value="javax.swing,	javax.swing.text,
+                    value="javax.swing, javax.swing.text,
 org.ungoverned.gravity.servicebinder, org.ungoverned.gravity.servicebinder.architecture,
 javax.accessibility, javax.swing.plaf, javax.swing.tree, javax.swing.undo,
 javax.swing.event, javax.swing.border"/>
@@ -1636,6 +1636,32 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${resources}/images/zeroconf"
                             prefix="resources/images/zeroconf"/>
         </jar>
+    </target>
+
+    <!-- BUNDLE-IRC -->
+    <target name="bundle-irc">
+        <!-- Creates a bundle containing the IRC impl of the protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/protocol-irc.jar"
+         manifest="src/net/java/sip/communicator/impl/protocol/irc/irc.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/irc"
+                        prefix="net/java/sip/communicator/impl/protocol/irc"/>
+            <zipfileset src="${lib.noinst}/pircbot.jar" prefix=""/>
+            <zipfileset dir="resources/images/irc"
+                    prefix="resources/images/irc"/>
+            </jar>
+        </target>
+
+    <!-- BUNDLE-PLUGIN-IRCACCREGWIZZ -->
+    <target name="bundle-plugin-ircaccregwizz">
+            <!-- Creates a bundle for the plugin IRC Account Registration
+                 Wizard.-->
+            <jar compress="false" destfile="${bundles.dest}/ircaccregwizz.jar"
+                manifest="src/net/java/sip/communicator/plugin/ircaccregwizz/ircaccregwizz.manifest.mf">
+                <zipfileset dir="${dest}/net/java/sip/communicator/plugin/ircaccregwizz"
+                    prefix="net/java/sip/communicator/plugin/ircaccregwizz"/>
+                <zipfileset dir="resources/images/irc"
+                    prefix="resources/images/irc"/>
+            </jar>
     </target>
 
     <!--BUNDLE-LOG4J -->
