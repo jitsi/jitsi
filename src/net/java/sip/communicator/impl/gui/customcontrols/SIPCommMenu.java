@@ -46,7 +46,7 @@ public class SIPCommMenu
      */
     public SIPCommMenu(String text)
     {
-        super(text);        
+        super(text);
     }
     
     /**
@@ -55,7 +55,7 @@ public class SIPCommMenu
      * @param text The text of the item.
      * @param icon The icon of the item.
      * @param actionListener The <tt>ActionListener</tt>, which handles the
-     *            case, when the item is selected.
+     * case, when the item is selected.
      */
     public void addItem(String text, Icon icon, ActionListener actionListener)
     {
