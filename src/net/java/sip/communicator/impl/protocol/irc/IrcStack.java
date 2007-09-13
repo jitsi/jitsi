@@ -317,7 +317,7 @@ public class IrcStack
      */
     protected void onChannelInfo(String channel, int userCount, String topic)
     {
-        this.addServerChatRoom(channel);
+        this.addServerChatRoom(channel + " ( " + userCount + " )");
     }
 
     /**
