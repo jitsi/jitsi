@@ -346,6 +346,51 @@ public class OperationSetBasicInstantMessagingYahooImpl
         {
             handleNewMessage(ev);
         }
+ 
+         public void newMailReceived(SessionNewMailEvent ev)
+         {
+             String myEmail = yahooProvider.getAccountID().getAccountAddress();
+             
+             // this was intended to obtain the user server i.e. mail.yahoo.com,
+             // or mail.yahoo.fr so that the login page is in the preferred user
+             // language. but it always gives yahoo.com, even if the account is registered
+             // with yahoo.fr ... perhaps because the pps always login on yahoo.com ?
+             String yahooMailLogon = "http://mail."
+                     + myEmail.substring(myEmail.indexOf("@") + 1);
+             yahooMailLogon = "<a href=\""
+                     + yahooMailLogon + "\">"
+                     + yahooMailLogon + "</a>";
+
+             // TODO: care about internationalization ...
+             String newMail = "<small>New mail, subject :</small> "
+                     + ev.getSubject();
+             newMail += "\n<br /><small>From :</small> " + ev.getEmailAddress();
+             newMail += "\n<br />&nbsp;&nbsp;&nbsp;&nbsp;" + yahooMailLogon;
+
+             Message newMailMessage = new MessageYahooImpl(
+                     newMail,
+                     CONTENT_TYPE_HTML,
+                     DEFAULT_MIME_ENCODING,
+                     null);
+
+             Contact sourceContact = opSetPersPresence.
+                 findContactByID(ev.getFrom());
+
+             if (sourceContact == null)
+             {
+                 logger.debug("received a new mail from an unknown contact: "
+                                    + ev.getFrom());
+                 //create the volatile contact
+                 sourceContact = opSetPersPresence
+                     .createVolatileContact(ev.getFrom());
+             }
+             MessageReceivedEvent msgReceivedEvt
+                 = new MessageReceivedEvent(
+                     newMailMessage, sourceContact, new Date(),
+                     MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+
+             fireMessageEvent(msgReceivedEvt);
+         }
 
         private void handleNewMessage(SessionEvent ev)
         {
