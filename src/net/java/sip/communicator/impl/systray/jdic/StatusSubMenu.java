@@ -171,6 +171,14 @@ public class StatusSubMenu
          */
         public void serviceChanged(ServiceEvent event)
         {
+            //if the event is caused by a bundle being stopped, we don't want to
+            //know
+            if(event.getServiceReference().getBundle().getState()
+                == Bundle.STOPPING)
+            {
+                return;
+            }
+
             Object service = SystrayActivator.bundleContext
                 .getService( event.getServiceReference());
 
