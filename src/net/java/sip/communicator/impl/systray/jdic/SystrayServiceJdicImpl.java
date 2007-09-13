@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.systray.jdic;
 
 import java.awt.event.*;
 import java.util.*;
+import java.util.Timer;
 
 import javax.swing.*;
 
@@ -21,7 +22,6 @@ import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jdesktop.jdic.tray.*;
-import org.osgi.framework.*;
 
 /**
  * The <tt>Systray</tt> provides a Icon and the associated <tt>TrayMenu</tt>
@@ -31,7 +31,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class SystrayServiceJdicImpl
-    implements SystrayService
+    implements  SystrayService
 {
     /**
      * The systray.
@@ -52,6 +52,20 @@ public class SystrayServiceJdicImpl
      * The list of all added popup message listeners.
      */
     private Vector popupMessageListeners = new Vector();
+
+    /**
+     * List of all messages waiting to be shown.
+     */
+    private ArrayList messageQueue = new ArrayList();
+
+    private Timer popupTimer = new Timer();
+
+    /**
+     * The delay between the message pop ups.
+     */
+    private int messageDelay = 1000;
+
+    private int maxMessageNumber = 3;
 
     /**
      * The logger for this class.
@@ -88,6 +102,8 @@ public class SystrayServiceJdicImpl
      */
     private void initSystray()
     {
+        popupTimer.scheduleAtFixedRate(new ShowPopupTask(), 0, messageDelay);
+
         menu = new TrayMenu(this);
 
         String osName = System.getProperty("os.name");
@@ -239,8 +255,7 @@ public class SystrayServiceJdicImpl
         if(messageContent.length() > 100)
             messageContent = messageContent.substring(0, 100).concat("...");
 
-        this.trayIcon.displayMessage(
-            title, messageContent, trayMsgType);
+        messageQueue.add(new SystrayMessage(title, messageContent, trayMsgType));
     }
 
     /**
@@ -305,5 +320,101 @@ public class SystrayServiceJdicImpl
     public void setSystrayIcon(byte[] image)
     {
         this.trayIcon.setIcon(new ImageIcon(image));
+    }
+
+    /**
+     * Shows the oldest message in the message queue and then removes it from
+     * the queue.
+     */
+    private class ShowPopupTask extends TimerTask
+    {
+        public void run()
+        {
+            if(messageQueue.isEmpty())
+                return;
+
+            int messageNumber = messageQueue.size();
+
+            SystrayMessage msg = (SystrayMessage) messageQueue.get(0);
+
+            if(messageNumber > maxMessageNumber)
+            {
+                messageQueue.clear();
+
+                String messageContent = msg.getMessageContent();
+
+                if(!messageContent.endsWith("..."))
+                    messageContent.concat("...");
+
+                messageQueue.add(new SystrayMessage(
+                    "You have received " + messageNumber
+                    + " new messages. For more info check your chat window.",
+                    "Messages starts by: " + messageContent,
+                    TrayIcon.INFO_MESSAGE_TYPE));
+            }
+            else
+            {
+                trayIcon.displayMessage(msg.getTitle(),
+                                    msg.getMessageContent(),
+                                    msg.getMessageType());
+
+                messageQueue.remove(0);
+            }
+        }
+    }
+
+    private class SystrayMessage
+    {
+        private String title;
+        private String messageContent;
+        private int messageType;
+
+        /**
+         * Creates an instance of <tt>SystrayMessage</tt> by specifying the
+         * message <tt>title</tt>, the content of the message and the type of
+         * the message.
+         * 
+         * @param title the title of the message
+         * @param messageContent the content of the message
+         * @param messageType the type of the message
+         */
+        public SystrayMessage(  String title,
+                                String messageContent,
+                                int messageType)
+        {
+            this.title = title;
+            this.messageContent = messageContent;
+            this.messageType = messageType;
+        }
+
+        /**
+         * Returns the title of the message.
+         * 
+         * @return the title of the message
+         */
+        public String getTitle()
+        {
+            return title;
+        }
+
+        /**
+         * Returns the message content.
+         * 
+         * @return the message content
+         */
+        public String getMessageContent()
+        {
+            return messageContent;
+        }
+
+        /**
+         * Returns the message type.
+         * 
+         * @return the message type
+         */
+        public int getMessageType()
+        {
+            return messageType;
+        }
     }
 }
