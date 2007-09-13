@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 
 public class ConfigurationManager
-{   
+{
     public static final String ENTER_COMMAND = "Enter";
     
     public static final String CTRL_ENTER_COMMAND = "Ctrl-Enter";
@@ -35,32 +35,32 @@ public class ConfigurationManager
     
     private static ConfigurationService configService
         = GuiActivator.getConfigurationService();
-    
+
     public static void loadGuiConfigurations()
     {
         // Load the "auPopupNewMessage" property.
         String autoPopup = configService.getString(
             "net.java.sip.communicator.impl.gui.autoPopupNewMessage");
-        
+
         if(autoPopup != null && autoPopup.equalsIgnoreCase("yes"))
             autoPopupNewMessage = true;
-        
+
         // Load the "sendMessageCommand" property.
         String messageCommand = configService.getString(
             "net.java.sip.communicator.impl.gui.sendMessageCommand");
-    
+
         if(messageCommand == null || messageCommand != "")
             sendMessageCommand = messageCommand;
-    
+
         // Load the showCallPanel property.
         String callPanelShown = configService.getString(
             "net.java.sip.communicator.impl.gui.showCallPanel");
-    
+
         if(callPanelShown != null && callPanelShown != "")
         {
             isCallPanelShown = new Boolean(callPanelShown).booleanValue();
         }
-        
+
         // Load the "showOffline" property.
         String showOffline = configService.getString(
             "net.java.sip.communicator.impl.gui.showOffline");
@@ -73,7 +73,7 @@ public class ConfigurationManager
         // Load the "showApplication" property.
         String isVisible = configService.getString(
             "net.java.sip.communicator.impl.systray.showApplication");
-        
+
         if(isVisible != null && isVisible != "")
         {
             isApplicationVisible = new Boolean(isVisible).booleanValue();
@@ -101,7 +101,7 @@ public class ConfigurationManager
     {
         return autoPopupNewMessage;
     }
-    
+
     /**
      * Return TRUE if "showCallPanel" property is true, otherwise - return
      * FALSE. Indicates to the user interface whether the panel containing the
@@ -113,7 +113,7 @@ public class ConfigurationManager
     {
         return isCallPanelShown;
     }
-    
+
     /**
      * Return TRUE if "showOffline" property is true, otherwise - return
      * FALSE. Indicates to the user interface whether offline user should be
@@ -125,7 +125,7 @@ public class ConfigurationManager
     {
         return isShowOffline;
     }
-    
+
     /**
      * Return TRUE if "showApplication" property is true, otherwise - return
      * FALSE. Indicates to the user interface whether the main application
@@ -137,7 +137,7 @@ public class ConfigurationManager
     {
         return isApplicationVisible;
     }
-    
+
     /**
      * Return TRUE if "sendTypingNotifications" property is true, otherwise -
      * return FALSE. Indicates to the user interface whether typing
@@ -149,7 +149,7 @@ public class ConfigurationManager
     {
         return isSendTypingNotifications;
     }
-    
+
     /**
      * Return the "sendMessageCommand" property that was saved previously through
      * the <tt>ConfigurationService</tt>. Indicates to the user interface whether
@@ -160,7 +160,7 @@ public class ConfigurationManager
     {
         return sendMessageCommand;
     }
-    
+
     /**
      * Updates the "autoPopupNewMessage" property.
      * 
@@ -180,25 +180,25 @@ public class ConfigurationManager
                     "net.java.sip.communicator.impl.gui.autoPopupNewMessage",
                     "no");
     }
-    
+
     public static void setShowOffline(boolean isShowOffline)
     {
         ConfigurationManager.isShowOffline = isShowOffline;
-        
+
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.showOffline",
                 new Boolean(isShowOffline));
     }
-    
+
     public static void setShowCallPanel(boolean isCallPanelShown)
     {
         ConfigurationManager.isCallPanelShown = isCallPanelShown;
-            
+
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.showCallPanel",
                 new Boolean(isCallPanelShown));
     }
-    
+
     public static void setApplicationVisible(boolean isVisible)
     {
         isApplicationVisible = isVisible;
@@ -207,7 +207,7 @@ public class ConfigurationManager
                 "net.java.sip.communicator.impl.systray.showApplication",
                 new Boolean(isVisible));
     }
-    
+
     public static void setSendTypingNotifications(boolean isSendTypingNotif)
     {
         isSendTypingNotifications = isSendTypingNotif;
@@ -216,16 +216,16 @@ public class ConfigurationManager
                 "net.java.sip.communicator.impl.gui.sendTypingNotifications",
                 new Boolean(isSendTypingNotif));
     }
-    
+
     public static void setSendMessageCommand(String newMessageCommand)
     {
         sendMessageCommand = newMessageCommand;
-        
+
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.sendMessageCommand",
                 newMessageCommand);
     }
-            
+
     public static void saveChatRoom(ProtocolProviderService protocolProvider,
         String oldChatRoomId, String newChatRoomId, String newChatRoomName)
     {   
@@ -233,58 +233,58 @@ public class ConfigurationManager
         
         List accounts = configService
                 .getPropertyNamesByPrefix(prefix, true);
-    
+
         Iterator accountsIter = accounts.iterator();
-    
+
         while(accountsIter.hasNext()) {
             String accountRootPropName
                 = (String) accountsIter.next();
-    
+
             String accountUID
                 = configService.getString(accountRootPropName);
-    
+
             if(accountUID.equals(protocolProvider
                     .getAccountID().getAccountUniqueID()))
-            {     
+            {
                 List chatRooms = configService
                     .getPropertyNamesByPrefix(
                         accountRootPropName + ".chatRooms", true);
-                
+
                 Iterator chatRoomsIter = chatRooms.iterator();
-                
+
                 boolean isExistingChatRoom = false;
-                
+
                 while(chatRoomsIter.hasNext())
                 {
                     String chatRoomPropName
                         = (String) chatRoomsIter.next();
-                    
+
                     String chatRoomID
                         = configService.getString(chatRoomPropName);
-                   
+
                     if(!oldChatRoomId.equals(chatRoomID))
                         continue;
 
                     isExistingChatRoom = true;
-                    
+
                     configService.setProperty(chatRoomPropName,
                         newChatRoomId);
-                    
+
                     configService.setProperty(chatRoomPropName + ".chatRoomName",
                         newChatRoomName);
                 }
-                
-                if(!isExistingChatRoom)                
+
+                if(!isExistingChatRoom)
                 {
                     String chatRoomNodeName
                         = "chatRoom" + Long.toString(System.currentTimeMillis());
-        
+
                     String chatRoomPackage = accountRootPropName
                         + ".chatRooms." + chatRoomNodeName;
-        
+
                     configService.setProperty(chatRoomPackage,
                         newChatRoomId);
-                    
+
                     configService.setProperty(chatRoomPackage + ".chatRoomName",
                         newChatRoomName);
                 }

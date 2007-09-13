@@ -153,9 +153,9 @@ public class StatusPanel
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
         
-        //find the last contact status saved in the configuration.                
+        //find the last contact status saved in the configuration.
         String lastStatus = null;
-                        
+
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
         
         List accounts = configService
@@ -179,39 +179,43 @@ public class StatusPanel
                     break;
             }
         }
-        
+
         return lastStatus;
     }
         
     /**
      * Returns the last status that was stored in the configuration xml for the
      * given protocol provider.
+     * 
      * @param protocolProvider the protocol provider 
      * @return the last status that was stored in the configuration xml for the
      * given protocol provider
      */
     public PresenceStatus getLastPresenceStatus(
         ProtocolProviderService protocolProvider)
-    {   
+    {
         String lastStatus = getLastStatusString(protocolProvider);
-        
+
         OperationSetPresence presence
             = mainFrame.getProtocolPresenceOpSet(protocolProvider);
-    
+
         if(presence == null)
             return null;
-        
+
         Iterator i = presence.getSupportedStatusSet();
-        
-        if(lastStatus != null) {
+
+        if(lastStatus != null)
+        {
             PresenceStatus status;
-            while(i.hasNext()) {
+            while(i.hasNext())
+            {
                 status = (PresenceStatus)i.next();
-                if(status.getStatusName().equals(lastStatus)) {
+                if(status.getStatusName().equals(lastStatus))
+                {
                     return status;
-                } 
+                }
             }
-        }        
+        }
         return null;
     }
     
@@ -221,35 +225,42 @@ public class StatusPanel
      * @param protocolProvider The ProtocolProvider, which presence status to
      * update.
      */
-    public void updateStatus(ProtocolProviderService protocolProvider) {
-        StatusSelectorBox selectorBox 
+    public void updateStatus(ProtocolProviderService protocolProvider)
+    {
+        StatusSelectorBox selectorBox
             = (StatusSelectorBox) protocolStatusCombos
                 .get(protocolProvider);
-        
+
         if(selectorBox == null)
             return;
-        
-        if(selectorBox instanceof PresenceStatusSelectorBox) {
+
+        if(selectorBox instanceof PresenceStatusSelectorBox)
+        {
             PresenceStatusSelectorBox presenceSelectorBox
                 = (PresenceStatusSelectorBox) selectorBox;
-            
+
             if(!protocolProvider.isRegistered())
                 presenceSelectorBox.updateStatus(
                         presenceSelectorBox.getOfflineStatus());
-            else {            
-                if(presenceSelectorBox.getLastSelectedStatus() != null) {
+            else
+            {
+                if(presenceSelectorBox.getLastSelectedStatus() != null)
+                {
                     presenceSelectorBox.updateStatus(
                             presenceSelectorBox.getLastSelectedStatus());
                 }
-                else {           
+                else
+                {
                     PresenceStatus lastStatus
                         = getLastPresenceStatus(protocolProvider);
-                    
-                    if(lastStatus == null) {                
+
+                    if(lastStatus == null)
+                    {
                         presenceSelectorBox.updateStatus(
                                 presenceSelectorBox.getOnlineStatus());
                     }
-                    else {
+                    else
+                    {
                         presenceSelectorBox.updateStatus(lastStatus);
                     }
                 }
@@ -257,16 +268,16 @@ public class StatusPanel
         }
         else {
             ((SimpleStatusSelectorBox)selectorBox).updateStatus();
-        }            
+        }
         selectorBox.repaint();
     }
-    
+
     public void updateStatus(ProtocolProviderService pps, PresenceStatus status)
     {
         StatusSelectorBox selectorBox 
             = (StatusSelectorBox) protocolStatusCombos
                 .get(pps);
-    
+
         if(selectorBox == null)
             return;
         

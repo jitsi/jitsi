@@ -143,7 +143,7 @@ public class SimpleStatusSelectorBox
                 }
             }
         }
-        
+
         saveStatusInformation(
                 protocolProvider, Constants.OFFLINE_STATUS);
     }
@@ -189,9 +189,9 @@ public class SimpleStatusSelectorBox
         }
         else {
             setSelected(offlineItem, offlineIcon);
-        
+
             this.setToolTipText(tooltip.concat("<br>" + offlineItem.getText()));
-        }        
+        }
     }
 
     /**
