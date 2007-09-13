@@ -377,10 +377,13 @@ public class ChatRoomsList
         MultiUserChatServerWrapper serverWrapper
             = findServerWrapperFromProvider(protocolProvider);
 
-        serverWrapper.setSystemRoom(opSet.getSystemRoom());
+        if (opSet.getSystemRoom() != null)
+        {
+            serverWrapper.setSystemRoom(opSet.getSystemRoom());
 
-        opSet.getSystemRoom().addMessageListener(
-            mainFrame.getMultiUserChatManager());
+            opSet.getSystemRoom().addMessageListener(
+                mainFrame.getMultiUserChatManager());
+        }
 
         int serverIndex = listModel.indexOf(serverWrapper);
 
