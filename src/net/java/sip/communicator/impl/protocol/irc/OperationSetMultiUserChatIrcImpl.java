@@ -89,7 +89,7 @@ public class OperationSetMultiUserChatIrcImpl
      * currently available on the server that this protocol provider is
      * connected to.
      *
-     * @throws OperationFailedException if we faile retrieving this list from
+     * @throws OperationFailedException if we failed retrieving this list from
      * the server.
      */
     public List getExistingChatRooms() throws OperationFailedException
