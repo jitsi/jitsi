@@ -1153,11 +1153,17 @@ public class IrcStack
                 + " Response : "
                 + response);
 
+            int delimiterIndex = response.indexOf(':');
+
+            if(delimiterIndex != -1 && delimiterIndex < response.length() - 1)
+                response = response.substring(delimiterIndex + 1);
+
             MessageIrcImpl message
-                = new MessageIrcImpl(   response,
-                                        MessageIrcImpl.DEFAULT_MIME_TYPE,
-                                        MessageIrcImpl.DEFAULT_MIME_ENCODING,
-                                        null);
+                = new MessageIrcImpl(
+                    response,
+                    MessageIrcImpl.DEFAULT_MIME_TYPE,
+                    MessageIrcImpl.DEFAULT_MIME_ENCODING,
+                    null);
 
             ChatRoomIrcImpl serverRoom
                 = (ChatRoomIrcImpl) ircMUCOpSet.getSystemRoom();
@@ -1173,7 +1179,8 @@ public class IrcStack
                 sourceMember
                     = new ChatRoomMemberIrcImpl(parentProvider,
                                                 serverRoom,
-                                                "",
+                                                parentProvider.getAccountID()
+                                                    .getService(),
                                                 "",
                                                 "",
                                                 ChatRoomMemberRole.GUEST);

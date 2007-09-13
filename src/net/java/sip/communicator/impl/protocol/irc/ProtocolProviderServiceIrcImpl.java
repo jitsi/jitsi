@@ -454,8 +454,8 @@ public class ProtocolProviderServiceIrcImpl
      * @param currentRegistrationState the new registration state to set
      */
     protected void setCurrentRegistrationState(
-        RegistrationState currentRegistrationState)
+        RegistrationState regState)
     {
-        this.currentRegistrationState = currentRegistrationState;
+        this.currentRegistrationState = regState;
     }
 }
