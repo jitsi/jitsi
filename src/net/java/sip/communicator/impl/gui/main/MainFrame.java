@@ -257,7 +257,7 @@ public class MainFrame
                 .addListSelectionListener(callManager);
             this.tabbedPane.addChangeListener(callManager);
         }
-        
+
         // Obtain the multi user chat operation set.
         String multiChatClassName = OperationSetMultiUserChat.class.getName();
 
@@ -378,14 +378,19 @@ public class MainFrame
         this.protocolProviders.remove(protocolProvider);
         this.updateProvidersIndexes(protocolProvider);
 
-        if (getStatusPanel().containsAccount(protocolProvider)) {
-            
+        if (getStatusPanel().containsAccount(protocolProvider))
+        {
             this.getStatusPanel().removeAccount(protocolProvider);
         }
-        
-        if(callManager.containsCallAccount(protocolProvider)) {
+
+        if(callManager.containsCallAccount(protocolProvider))
+        {
             callManager.removeCallAccount(protocolProvider);
         }
+
+        // Remove all related chat rooms.
+        this.getChatRoomsListPanel().getChatRoomsList()
+            .removeChatServer(protocolProvider);
     }
 
     /**
