@@ -147,7 +147,6 @@ public class FirstWizardPage
             new BoxLayout(valuesOptionsPanel, BoxLayout.Y_AXIS));
 
         this.portField.setEnabled(false);
-        this.passField.setEnabled(false);
         this.rememberPassBox.setEnabled(false);
     }
 
@@ -164,7 +163,7 @@ public class FirstWizardPage
         this.rememberPassBox.setSelected(true);
         this.autoNickChange.setSelected(true);
         this.defaultPort.setSelected(true);
-        this.passwordNotRequired.setSelected(true);
+        this.passwordNotRequired.setSelected(false);
 
         this.existingAccountLabel.setForeground(Color.RED);
 
