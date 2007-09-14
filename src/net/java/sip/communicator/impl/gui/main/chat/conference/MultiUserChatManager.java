@@ -32,11 +32,11 @@ public class MultiUserChatManager
                 LocalUserChatRoomPresenceListener
 {
     private Logger logger = Logger.getLogger(MultiUserChatManager.class);
-    
+
     private MainFrame mainFrame;
-    
+
     private ChatWindowManager chatWindowManager;
-    
+
     /**
      * Creates an instance of <tt>MultiUserChatManager</tt>, by passing to it
      * the main application window object.
@@ -49,7 +49,7 @@ public class MultiUserChatManager
         
         this.chatWindowManager = mainFrame.getChatWindowManager();
     }
-    
+
     public void invitationReceived(ChatRoomInvitationReceivedEvent evt)
     {
         OperationSetMultiUserChat multiUserChatOpSet
@@ -57,7 +57,7 @@ public class MultiUserChatManager
 
         InvitationReceivedDialog dialog = new InvitationReceivedDialog(
             this, multiUserChatOpSet, evt.getInvitation());
-        
+
         dialog.setVisible(true);
     }
 
@@ -268,6 +268,15 @@ public class MultiUserChatManager
                 }
             }
 
+            if (sourceChatRoom.isSystem())
+            {
+                MultiUserChatServerWrapper serverWrapper
+                    = chatRoomsList.findServerWrapperFromProvider(
+                        sourceChatRoom.getParentProvider());
+
+                serverWrapper.setSystemRoom(sourceChatRoom);
+            }
+
             sourceChatRoom.addMessageListener(this);
         }
         else if (evt.getEventType().equals(
@@ -281,10 +290,13 @@ public class MultiUserChatManager
             ChatWindowManager chatWindowManager
                 = mainFrame.getChatWindowManager();
 
-            ChatPanel chatPanel
-                = chatWindowManager.getMultiChat(chatRoomWrapper);
+            if(chatWindowManager.isChatOpenedForChatRoom(chatRoomWrapper))
+            {
+                ChatPanel chatPanel
+                    = chatWindowManager.getMultiChat(chatRoomWrapper);
 
-            chatWindowManager.closeChat(chatPanel);
+                chatWindowManager.closeChat(chatPanel);
+            }
 
             // Need to refresh the chat room's list in order to change
             // the state of the chat room to offline.
@@ -296,12 +308,44 @@ public class MultiUserChatManager
         else if (evt.getEventType().equals(
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED))
         {
-            
+            ChatWindowManager chatWindowManager
+                = mainFrame.getChatWindowManager();
+
+            if(chatWindowManager.isChatOpenedForChatRoom(chatRoomWrapper))
+            {
+                ChatPanel chatPanel
+                    = chatWindowManager.getMultiChat(chatRoomWrapper);
+
+                chatWindowManager.closeChat(chatPanel);
+            }
+
+            // Need to refresh the chat room's list in order to change
+            // the state of the chat room to offline.
+            mainFrame.getChatRoomsListPanel()
+                .getChatRoomsList().refresh();
+
+            sourceChatRoom.removeMessageListener(this);
         }
         else if (evt.getEventType().equals(
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_DROPPED))
         {
-            
+            ChatWindowManager chatWindowManager
+                = mainFrame.getChatWindowManager();
+
+            if(chatWindowManager.isChatOpenedForChatRoom(chatRoomWrapper))
+            {
+                ChatPanel chatPanel
+                    = chatWindowManager.getMultiChat(chatRoomWrapper);
+
+                chatWindowManager.closeChat(chatPanel);
+            }
+
+            // Need to refresh the chat room's list in order to change
+            // the state of the chat room to offline.
+            mainFrame.getChatRoomsListPanel()
+                .getChatRoomsList().refresh();
+
+            sourceChatRoom.removeMessageListener(this);
         }
     }
 
@@ -440,6 +484,14 @@ public class MultiUserChatManager
         try
         {
             chatRoom.join();
+
+            ChatRoomsList chatRoomList
+                = mainFrame.getChatRoomsListPanel().getChatRoomsList();
+
+            if( chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom) == null)
+            {
+                chatRoomList.addChatRoom(new ChatRoomWrapper(chatRoom));
+            }
         }
         catch (OperationFailedException e)
         {

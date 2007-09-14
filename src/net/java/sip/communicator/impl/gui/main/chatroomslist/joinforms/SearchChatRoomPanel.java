@@ -33,6 +33,10 @@ public class SearchChatRoomPanel
     
     private JoinChatRoomDialog joinChatRoomDialog;
     
+    /**
+     * 
+     * @param joinChatRoomDialog
+     */
     public SearchChatRoomPanel(JoinChatRoomDialog joinChatRoomDialog)
     {   
         super(new BorderLayout());

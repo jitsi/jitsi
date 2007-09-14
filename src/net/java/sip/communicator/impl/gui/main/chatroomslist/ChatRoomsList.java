@@ -301,7 +301,7 @@ public class ChatRoomsList
      * @return the <tt>MultiUserChatServerWrapper</tt> object corresponding to
      * the given <tt>ProtocolProviderService</tt>
      */
-    private MultiUserChatServerWrapper findServerWrapperFromProvider(
+    public MultiUserChatServerWrapper findServerWrapperFromProvider(
         ProtocolProviderService protocolProvider)
     {   
         for(int i = 0; i < listModel.getSize(); i ++)
@@ -447,14 +447,6 @@ public class ChatRoomsList
     {
         MultiUserChatServerWrapper serverWrapper
             = findServerWrapperFromProvider(protocolProvider);
-
-        if (opSet.getSystemRoom() != null)
-        {
-            serverWrapper.setSystemRoom(opSet.getSystemRoom());
-
-            opSet.getSystemRoom().addMessageListener(
-                mainFrame.getMultiUserChatManager());
-        }
 
         int serverIndex = listModel.indexOf(serverWrapper);
 

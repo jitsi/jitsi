@@ -124,15 +124,15 @@ public class ChatRoomCommonRightButtonMenu
         {
             AddChatRoomDialog addChatRoomDialog
                 = new AddChatRoomDialog(mainFrame, protocolProvider);
-            
+
             addChatRoomDialog.setVisible(true);
         }
         else if (itemName.equals("searchForChatRooms"))
         {
             JoinChatRoomDialog joinChatRoomDialog
                 = new JoinChatRoomDialog(mainFrame, protocolProvider);
-            
-            joinChatRoomDialog.setVisible(true);
+
+            joinChatRoomDialog.showDialog();
         }
     }   
     

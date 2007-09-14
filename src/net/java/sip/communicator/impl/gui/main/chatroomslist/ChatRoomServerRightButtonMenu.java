@@ -95,8 +95,8 @@ public class ChatRoomServerRightButtonMenu
      * Handles the <tt>ActionEvent</tt>. Determines which menu item was
      * selected and makes the appropriate operations.
      */
-    public void actionPerformed(ActionEvent e){
-
+    public void actionPerformed(ActionEvent e)
+    {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
@@ -119,7 +119,7 @@ public class ChatRoomServerRightButtonMenu
                 Toolkit.getDefaultToolkit().getScreenSize().height/2
                     - joinChannelDialog.getHeight()/2
                 );
-            joinChannelDialog.setVisible(true);
+            joinChannelDialog.showDialog();
         }
     }
 }

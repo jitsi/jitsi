@@ -82,37 +82,37 @@ public class JoinChatRoomDialog
                 .getOperationSet(OperationSetMultiUserChat.class);
 
         this.searchPanel = new SearchChatRoomPanel(this);
-        
+
         this.setTitle(Messages.getI18NString("joinChatRoom").getText());
-        
+
         this.namePanel.setPreferredSize(new Dimension(520, 100));
         this.searchPanel.setPreferredSize(new Dimension(520, 110));
-        
+
         this.getRootPane().setDefaultButton(joinButton);
         this.joinButton.setName("join");
         this.cancelButton.setName("cancel");
-        
+
         this.joinButton.setMnemonic(joinString.getMnemonic());
-        
+
         this.cancelButton.setMnemonic(cancelString.getMnemonic());
-        
+
         this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
-    
+
         this.joinButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
-        
+
         this.buttonsPanel.add(joinButton);
         this.buttonsPanel.add(cancelButton);
-        
+
         this.mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 10));
-        
+
         this.mainPanel.add(namePanel);
         this.mainPanel.add(searchPanel);
-        
+
         this.chatRoomsScrollPane.setBorder(BorderFactory
             .createTitledBorder(Messages.getI18NString("chatRooms").getText()));
-        
+
         this.getContentPane().add(iconLabel, BorderLayout.WEST);
         this.getContentPane().add(mainPanel, BorderLayout.CENTER);
         this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
@@ -170,9 +170,6 @@ public class JoinChatRoomDialog
                     }
                     else
                     {
-                        mainFrame.getChatRoomsListPanel().getChatRoomsList()
-                            .addChatRoom(new ChatRoomWrapper(chatRoom));
-
                         mainFrame.getMultiUserChatManager()
                             .joinChatRoom(chatRoom);
                     }
@@ -198,8 +195,9 @@ public class JoinChatRoomDialog
         OperationSetMultiUserChat multiUserChat
             = (OperationSetMultiUserChat) protocolProvider
                 .getOperationSet(OperationSetMultiUserChat.class);
-        
+
         List list = null;
+
         try
         {
             list = multiUserChat.getExistingChatRooms();
@@ -217,13 +215,16 @@ public class JoinChatRoomDialog
 
         if(list != null)
         {
+            if(list.size() == 0)
+                list.add(Messages.getI18NString("noAvailableRooms"));
+
             chatRoomsList.setListData(new Vector(list));
             chatRoomsScrollPane.setPreferredSize(new Dimension(500, 120));
-            
+
             chatRoomsScrollPane.getViewport().add(chatRoomsList);
-            
+
             this.mainPanel.add(chatRoomsScrollPane);
-            
+
             this.pack();
 
             // When we're finished we replace the "wait cursor"
@@ -252,5 +253,16 @@ public class JoinChatRoomDialog
             namePanel.setChatRoomName(
                 chatRoomsList.getSelectedValue().toString());
         }
+    }
+
+    /**
+     * Shows this dialog. And requests the current focus in the chat room name
+     * field.
+     */
+    public void showDialog()
+    {
+        this.setVisible(true);
+
+        namePanel.requestFocusInField();
     }
 }
