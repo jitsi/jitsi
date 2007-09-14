@@ -185,10 +185,17 @@ public class MetaContactListServiceLick
         root.addContact( new MockContact("Martin Dupont", provider) );
         root.addContact( new MockContact("Joe Bloggs", provider) );
 
+        MockContact someOfflineContact
+            = new MockContact("I am offline", provider);
+        someOfflineContact.setPresenceStatus(MockStatusEnum.MOCK_STATUS_00);
+        root.addContact( someOfflineContact);
+
         mockContactToRename = new MockContact("Jane Doe", provider) ;
         root.addContact( mockContactToRename );
 
         mockContactToReorder = new MockContact("ZI'llChangeMyStatus", provider);
+        //make sure that the contact starts at the bottom of the list.
+        mockContactToReorder.setPresenceStatus(MockStatusEnum.MOCK_STATUS_00);
         root.addContact(mockContactToReorder);
 
         topLevelMockGroup = new MockContactGroup(topLevelGroupName, provider);

@@ -134,7 +134,7 @@ public class TestMetaContactList
 
         fixture.metaClService.removeMetaContactListListener(evtCollector);
 
-        //check whether a reordered event is dispatchect
+        //make sure that the order didn't change
         assertEquals("Number of evts dispatched after a contact changed its status"
                      , 1
                      , evtCollector.collectedMetaContactGroupEvents.size());
@@ -149,16 +149,6 @@ public class TestMetaContactList
                      , fixture.metaClService.getRoot()
                      , evt.getSourceMetaContactGroup());
 
-        //then check wether the contact is has been moved to the top of the list
-        MetaContact theReorderedContact
-            = fixture.metaClService.getRoot().getMetaContact(0);
-        assertEquals(MetaContactListServiceLick.mockContactToReorder
-                   + " was not moved to the top of the list after being "
-                   +"assigned the highest possible presence status"
-                   , MetaContactListServiceLick.mockContactToReorder
-                                                        .getDisplayName()
-                   , theReorderedContact.getDisplayName());
-
         //then check the general order
         assertContactsOrder(fixture.metaClService.getRoot());
 
@@ -172,6 +162,8 @@ public class TestMetaContactList
         //repeat order tests but this time after changing the display name of a
         //contact.
         fixture.metaClService.addMetaContactListListener(evtCollector);
+        MetaContact theReorderedContact = fixture.metaClService
+            .findMetaContactByContact(MetaContactListServiceLick.mockContactToReorder);
         fixture.metaClService.renameMetaContact(theReorderedContact, "zzzzzz");
 
         fixture.metaClService.removeMetaContactListListener(evtCollector);
@@ -192,10 +184,10 @@ public class TestMetaContactList
                      , fixture.metaClService.getRoot()
                      , evt.getSourceMetaContactGroup());
 
-        //then check wether the contact is has been moved to the top of the list
+        //then check wether the contact is has been moved to the bottom of the list
         assertSame(MetaContactListServiceLick.mockContactToReorder
                    + " was not moved to the bottom of the list after being "
-                   +"assigned an equal to all status and a heavy name."
+                   +"assigned 00 status and a heavy name."
                    , theReorderedContact
                    , fixture.metaClService.getRoot().getMetaContact(
                         fixture.metaClService.getRoot().countChildContacts()-1));
